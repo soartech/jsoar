@@ -671,5 +671,85 @@ public class ReteNode
         p_node.b_p.tentative_retractions = null;
         return p_node;
     }
+    
+    /**
+     * rete.cpp:2218
+     * 
+     * @param rete
+     * @param node
+     */
+    static void deallocate_rete_node(Rete rete, ReteNode node)
+    {
+
+        /* --- don't deallocate the dummy top node --- */
+        if (node == rete.dummy_top_node)
+            return;
+
+        /* --- sanity check --- */
+        if (node.node_type == P_BNODE)
+        {
+            throw new IllegalArgumentException("deallocate_rete_node() called on p-node");
+        }
+
+        ReteNode parent = node.parent;
+
+        /* --- if a cn node, deallocate its partner first --- */
+        if (node.node_type == CN_BNODE)
+        {
+            deallocate_rete_node(rete, node.b_cn.partner);
+        }
+
+        /* --- clean up any tokens at the node --- */
+        if (!bnode_is_bottom_of_split_mp(node.node_type))
+        {
+            while (!node.a_np.tokens.isEmpty())
+            {
+                rete.remove_token_and_subtree(node.a_np.tokens.first.get());
+            }
+        }
+
+        /* --- stuff for posneg nodes only --- */
+        if (bnode_is_posneg(node.node_type))
+        {
+            ReteTest.deallocate_rete_test_list(node.b_posneg.other_tests);
+            /* --- right unlink the node, cleanup alpha memory --- */
+            if (!node.node_is_right_unlinked())
+            {
+                node.unlink_from_right_mem();
+            }
+            node.b_posneg.alpha_mem_.remove_ref_to_alpha_mem(rete);
+        }
+
+        /* --- remove the node from its parent's list --- */
+        node.remove_node_from_parents_list_of_children();
+
+        /* --- for unmerged pos. nodes: unlink, maybe merge its parent --- */
+        if (bnode_is_bottom_of_split_mp(node.node_type))
+        {
+            if (!node.node_is_left_unlinked())
+            {
+                node.unlink_from_left_mem();
+            }
+            /* --- if parent is mem node with just one child, merge them --- */
+            if (parent.first_child != null && parent.first_child.next_sibling == null)
+            {
+                merge_into_mp_node(rete, parent);
+                parent = null;
+            }
+        }
+
+        // TODO: update_stats_for_destroying_node (thisAgent, node); /* clean up
+        // rete stats stuff */
+
+        /* --- if parent has no other children, deallocate it, and recurse --- */
+        /*
+         * Added check to make sure that parent wasn't deallocated in previous
+         * merge
+         */
+        if (parent != null && parent.first_child == null)
+        {
+            //deallocate_rete_node (thisAgent, parent);
+        }
+    }
 
 }

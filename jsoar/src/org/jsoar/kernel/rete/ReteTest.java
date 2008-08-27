@@ -62,5 +62,37 @@ public class ReteTest
     {
       return (((x)==0x01) || ((x)==0x11));
     }
+    
+    /**
+     * Deallocate_rete_test_list() deallocates a list of rete test structures,
+     * removing references to symbols within them.
+     *   
+     * rete.cpp:2201
+     * 
+     * @param rt
+     */
+    static void deallocate_rete_test_list(ReteTest rt)
+    {
+        ReteTest next_rt = null;
+
+        while (rt != null)
+        {
+            next_rt = rt.next;
+
+            if (test_is_constant_relational_test(rt.type))
+            {
+                // symbol_remove_ref (thisAgent, rt->data.constant_referent);
+            }
+            else if (rt.type == DISJUNCTION_RETE_TEST)
+            {
+                // deallocate_symbol_list_removing_references (thisAgent,
+                // rt->data.disjunction_list);
+            }
+
+            // free_with_pool (&thisAgent->rete_test_pool, rt);
+            rt = next_rt;
+        }
+    }
+    
 
 }

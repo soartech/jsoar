@@ -12,8 +12,12 @@ import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.Wme;
 import org.jsoar.kernel.lhs.Condition;
+import org.jsoar.kernel.lhs.ConjunctiveTest;
+import org.jsoar.kernel.lhs.EqualityTest;
+import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.SoarHashTable;
@@ -73,7 +77,7 @@ public class Rete
     private ListHead<Wme> all_wmes_in_rete = new ListHead<Wme>();
     private int num_wmes_in_rete= 0;
     private int beta_node_id_counter;
-    private ReteNode dummy_top_node;
+    ReteNode dummy_top_node;
     
     public Rete()
     {
@@ -623,5 +627,232 @@ public class Rete
                 left_addition_routines[child.node_type].execute(this, child, tok, null);
             }
         }
+    }
+
+    /**
+     * This routine finds the most recent place a variable was bound.
+     * It does this simply by looking at the top of the binding stack
+     * for that variable.  If there is any binding, its location is stored
+     * in the parameter *result, and the function returns TRUE.  If no
+     * binding is found, the function returns FALSE.
+     * 
+     * rete.cpp:2373
+     * 
+     * @param var
+     * @param current_depth
+     * @param result
+     * @return
+     */
+    boolean find_var_location(Variable var, /* rete_node_level */int current_depth, VarLocation result)
+    {
+        if (!var.var_is_bound())
+        {
+            return false;
+        }
+        int dummy = var.rete_binding_locations.peek();
+        result.levels_up = current_depth - Variable.dummy_to_varloc_depth(dummy);
+        result.field_num = Variable.dummy_to_varloc_field_num(dummy);
+        return true;
+    }    
+
+    /**
+     * This routine pushes bindings for variables occurring (i.e., being
+     * equality-tested) in a given test.  It can do this in DENSE fashion
+     * (push a new binding for ANY variable) or SPARSE fashion (push a new
+     * binding only for previously-unbound variables), depending on the
+     * boolean "dense" parameter.  Any variables receiving new bindings
+     * are also pushed onto the given "varlist".
+     * 
+     * rete.cpp:2394
+     * 
+     * @param t
+     * @param depth
+     * @param field_num
+     * @param dense
+     * @param varlist
+     */
+    void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, List<Variable> varlist)
+    {
+
+        if (t.isBlank())
+        {
+            return;
+        }
+        EqualityTest eq = t.asEqualityTest();
+        if (eq != null)
+        {
+            Variable referent = eq.getReferent().asVariable();
+            if (referent == null) // not a variable
+            {
+                return;
+            }
+            if (!dense && referent.var_is_bound())
+            {
+                return;
+            }
+            referent.push_var_binding(depth, field_num);
+            varlist.add(0, referent); // push(thisAgent, referent, *varlist);
+            return;
+        }
+
+        ConjunctiveTest ct = t.asConjunctiveTest();
+        if (ct != null)
+        {
+            for (Test c : ct.conjunct_list)
+            {
+                bind_variables_in_test(c, depth, field_num, dense, varlist);
+            }
+        }
+    }
+
+    /**
+     * This routine takes a list of variables; for each item <v> on the
+     * list, it pops a binding of <v>.  It also deallocates the list.
+     * This is often used for un-binding a group of variables which got
+     * bound in some procedure.
+     * 
+     * rete.cpp:2430
+     * 
+     * @param vars
+     */
+    void pop_bindings_and_deallocate_list_of_variables(List<Variable> vars)
+    {
+        for (Variable v : vars)
+        {
+            v.pop_var_binding();
+        }
+    } 
+    
+    /**
+     * This routine does tree-based removal of a token and its descendents.
+     * Note that it uses a nonrecursive tree traversal; each iteration, the
+     * leaf being deleted is the leftmost leaf in the tree.
+     * 
+     * rete.cpp:6083
+     * 
+     * @param root
+     */
+    void remove_token_and_subtree(Token root)
+    {
+        Token tok = root;
+        
+        while (true) {
+          /* --- move down to the leftmost leaf --- */
+          while (!tok.first_child.isEmpty()) { tok = tok.first_child.first.get(); }
+          Token next_value_for_tok = tok.sibling.next != null ? tok.sibling.next.get() : tok.parent;
+
+          /* --- cleanup stuff common to all types of nodes --- */
+          ReteNode node = tok.node;
+          left_node_activation(node,false);
+          tok.of_node.remove(node.a_np.tokens);
+//          fast_remove_from_dll (node->a.np.tokens, tok, token, next_of_node,
+//                                prev_of_node);
+          tok.sibling.remove(tok.parent.first_child);
+//          fast_remove_from_dll (tok->parent->first_child, tok, token,
+//                                next_sibling,prev_sibling);
+          if (tok.w != null) { 
+              tok.from_wme.remove(tok.w.tokens);
+//              fast_remove_from_dll (tok->w->tokens, tok, token,
+//                                       next_from_wme, prev_from_wme);
+          }
+          int node_type = node.node_type;
+
+          /* --- for merged Mem/Pos nodes --- */
+          if ((node_type==ReteNode.MP_BNODE)||(node_type==ReteNode.UNHASHED_MP_BNODE)) {
+              LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
+              int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
+              left_ht.remove_token_from_left_ht(lt, hv);
+            if (! node.mp_bnode_is_left_unlinked()) {
+              if (node.a_np.tokens.isEmpty()) { node.unlink_from_right_mem (); }
+            }
+
+          /* --- for P nodes --- */
+          } else if (node_type==ReteNode.P_BNODE) {
+            p_node_left_removal(node, tok.parent, tok.w);
+
+          /* --- for Negative nodes --- */
+          } else if ((node_type==ReteNode.NEGATIVE_BNODE) ||
+                     (node_type==ReteNode.UNHASHED_NEGATIVE_BNODE)) {
+            LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
+            int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
+            left_ht.remove_token_from_left_ht(lt, hv);
+            if (node.a_np.tokens.isEmpty()) { node.unlink_from_right_mem(); }
+            for (Token t : tok.negrm_tokens) {
+                t.from_wme.remove(t.w.tokens);
+//              fast_remove_from_dll(t->w->tokens,t,token,next_from_wme,prev_from_wme);
+            }
+
+          /* --- for Memory nodes --- */
+          } else if ((node_type==ReteNode.MEMORY_BNODE)||(node_type==ReteNode.UNHASHED_MEMORY_BNODE)) {
+              LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
+              int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
+              left_ht.remove_token_from_left_ht(lt, hv);
+// TODO
+//      #ifdef DO_ACTIVATION_STATS_ON_REMOVALS
+//            /* --- if doing statistics stuff, then activate each attached node --- */
+//            for (child=node->b.mem.first_linked_child; child!=NIL; child=next) {
+//              next = child->a.pos.next_from_beta_mem;
+//              left_node_activation (child,FALSE);
+//            }
+//      #endif
+            /* --- for right unlinking, then if the beta memory just went to
+               zero, right unlink any attached Pos nodes --- */
+            if (node.a_np.tokens.isEmpty()) {
+                ReteNode next = null;
+              for (ReteNode child=node.b_mem.first_linked_child; child!=null; child=next) {
+                next = child.a_pos.next_from_beta_mem;
+                child.unlink_from_right_mem();
+              }
+            }
+
+          /* --- for CN nodes --- */
+          } else if (node_type==ReteNode.CN_BNODE) {
+              // TODO: Is it ok to use hashcode in place of hashing on the adress?
+              int hv = node.node_id ^ tok.parent.hashCode() ^ tok.w.hashCode();
+            //int hv = node.node_id ^ (unsigned long)(tok->parent) ^ (unsigned long)(tok->w)
+              left_ht.remove_token_from_left_ht((LeftToken) tok, hv); // TODO: Safe to assume this?  
+            for(Token t : tok.negrm_tokens)
+            {
+                if(t.w != null)
+                {
+                    t.from_wme.remove(t.w.tokens);
+                }
+                t.of_node.remove(t.node.a_np.tokens);
+                t.sibling.remove(t.parent.first_child);
+            }
+
+          /* --- for CN Partner nodes --- */
+          } else if (node_type==ReteNode.CN_PARTNER_BNODE) {
+            RightToken rt = (RightToken) tok; // TODO: Safe to assume this?
+            Token left = rt.left_token;
+            rt.negrm.remove(left.negrm_tokens);
+//            fast_remove_from_dll (left->negrm_tokens, tok, token,
+//                                  a.neg.next_negrm, a.neg.prev_negrm);
+            if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
+              for (ReteNode child=left.node.first_child; child!=null; child=child.next_sibling){
+                left_addition_routines[child.node_type].execute(this, child, left, null);
+              }
+            }
+
+          } else {
+              throw new IllegalArgumentException("Internal error: bad node type " + node.node_type + " in remove_token_and_subtree");
+          }
+          
+          if (tok==root) break; /* if leftmost leaf was the root, we're done */
+          tok = next_value_for_tok; /* else go get the leftmost leaf again */
+        } 
+        
+    }
+
+    /**
+     * rete.cpp:5887
+     * 
+     * @param node
+     * @param parent
+     * @param w
+     */
+    private void p_node_left_removal(ReteNode node, Token parent, Wme w)
+    {
+        // TODO: port p_node_left_removal(), rete.cpp:5887
     }
 }

@@ -7,6 +7,7 @@ package org.jsoar.kernel.symbols;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * @author ray
@@ -17,7 +18,11 @@ public class Variable extends Symbol
     public int tc_number;
     public Symbol current_binding_value;
     public int gensym_number;
-    // TODO: rete_binding_locations;
+    
+    /**
+     * See rete.cpp:2285 for why this is a stack. 
+     */
+    public Stack<Integer> rete_binding_locations = new Stack<Integer>(); 
     
     public void markIfUnmarked(int tc_number, List<Variable> var_list)
     {
@@ -42,6 +47,70 @@ public class Variable extends Symbol
     public void unmark()
     {
         this.tc_number = 0;
+    }
+    
+    /**
+     * rete.cpp:2312
+     * 
+     * @return
+     */
+    public boolean var_is_bound()
+    {
+        return !rete_binding_locations.isEmpty();
+    }
+
+    /**
+     * rete.cpp:2323
+     * 
+     * @param depth
+     * @param field_num
+     * @return
+     */
+    private static int varloc_to_dummy(/*rete_node_level*/ int depth, int field_num)
+    {
+      return ((depth)<<2) + field_num;
+    }
+
+    /**
+     * rete.cpp:2328
+     * 
+     * @param d
+     * @return
+     */
+    public static int dummy_to_varloc_depth(int d)
+    {
+      return d >> 2;
+    }
+
+    /**
+     * rete.cpp:2333
+     * 
+     * @param d
+     * @return
+     */
+    public static int dummy_to_varloc_field_num(int d)
+    {
+      return d & 3;
+    }
+
+    /**
+     * rete.cpp:2342
+     * 
+     * @param depth
+     * @param field_num
+     */
+    public void push_var_binding(/*rete_node_level*/ int depth, int field_num)
+    {
+        int dummy_xy312 = varloc_to_dummy ((depth), (field_num));
+        rete_binding_locations.push(dummy_xy312);
+    }
+
+    /**
+     * rete.cpp:2355
+     */
+    public void pop_var_binding()
+    {
+        rete_binding_locations.pop();
     }
     
     /* (non-Javadoc)
