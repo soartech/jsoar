@@ -101,7 +101,7 @@ public class ReteNode
       }
 
     /**
-     * rete.cpp:432
+     * rete.cpp:432:real_parent_node
      * 
      * @return
      */
@@ -111,7 +111,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:448
+     * rete.cpp:448:node_is_right_unlinked
      * 
      * @return
      */
@@ -122,7 +122,7 @@ public class ReteNode
     }
 
     /**
-     * rete.cpp:455
+     * rete.cpp:455:mark_node_as_right_unlinked
      */
     public void mark_node_as_right_unlinked()
     {
@@ -131,7 +131,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:483 
+     * rete.cpp:483:relink_to_right_mem 
      */
     public void relink_to_right_mem()
     {
@@ -162,7 +162,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:512
+     * rete.cpp:512:unlink_from_right_mem
      */
     public void unlink_from_right_mem() { 
         if (this.b_posneg.next_from_alpha_mem == null) {
@@ -176,7 +176,7 @@ public class ReteNode
      }
 
     /**
-     * rete.cpp:532
+     * rete.cpp:532:node_is_left_unlinked
      * @return
      */
     public boolean node_is_left_unlinked()
@@ -186,7 +186,7 @@ public class ReteNode
     }
 
     /**
-     * rete.cpp:539
+     * rete.cpp:539:mark_node_as_left_unlinked
      */
     public void mark_node_as_left_unlinked()
     {
@@ -195,7 +195,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:547
+     * rete.cpp:547:relink_to_left_mem
      */
     public void relink_to_left_mem() { 
         // TODO: insert_at_head_of_dll
@@ -205,7 +205,7 @@ public class ReteNode
         }
 
     /**
-     * rete.cpp:555
+     * rete.cpp:555:unlink_from_left_mem
      */
     public void unlink_from_left_mem() {
         // TODO:remove_from_dll
@@ -215,16 +215,27 @@ public class ReteNode
         mark_node_as_left_unlinked(); 
     }
     
+    /**
+     * rete.cpp:570:make_mp_bnode_left_unlinked
+     */
     public void make_mp_bnode_left_unlinked() 
     {
       this.a_np.is_left_unlinked = true;
     }
 
+    /**
+     * rete.cpp:575:make_mp_bnode_left_linked
+     */
     public void make_mp_bnode_left_linked() 
     {
       this.a_np.is_left_unlinked = false;
     }
 
+    /**
+     * rete.cpp:580:mp_bnode_is_left_unlinked
+     * 
+     * @return
+     */
     public boolean mp_bnode_is_left_unlinked() 
     { 
       return this.a_np.is_left_unlinked;
@@ -235,7 +246,7 @@ public class ReteNode
      * be a lot easier if the children lists were doubly-linked, but that
      * would take up a lot of extra space.
      * 
-     * rete.cpp:1744
+     * rete.cpp:1744:remove_node_from_parents_list_of_children
      * 
      * @param node
      */
@@ -259,7 +270,7 @@ public class ReteNode
      * Scans up the net and finds the first (i.e., nearest) ancestor node
      * that uses a given alpha_mem.  Returns that node, or NIL if none exists.
      * 
-     * rete.cpp:1824
+     * rete.cpp:1824:nearest_ancestor_with_same_am
      * 
      * @param am
      * @return
@@ -282,7 +293,7 @@ public class ReteNode
     /**
      * Make a new beta memory node, return a pointer to it.
      * 
-     * rete.cpp:1840
+     * rete.cpp:1840:make_new_mem_node
      * 
      * @param rete
      * @param parent
@@ -313,7 +324,7 @@ public class ReteNode
     /**
      * Make a new positive join node, return a pointer to it.
      * 
-     * rete.cpp:1873
+     * rete.cpp:1873:make_new_positive_node
      * 
      * @param rete
      * @param parent_mem
@@ -364,7 +375,7 @@ public class ReteNode
      * Split a given MP node into separate M and P nodes, return a pointer
      * to the new Memory node.
      *  
-     * rete.cpp:1916
+     * rete.cpp:1916:split_mp_node
      * 
      * @param mp_node
      * @return
@@ -438,7 +449,7 @@ public class ReteNode
      * Merge a given Memory node and its one positive join child into an
      * MP node, returning a pointer to the MP node.
      * 
-     * rete.cpp:1979
+     * rete.cpp:1979:merge_into_mp_node
      * 
      * @param mem_node
      * @return
@@ -513,7 +524,7 @@ public class ReteNode
     /**
      * Create a new MP node
      * 
-     * rete.cpp:2043
+     * rete.cpp:2043:make_new_mp_node
      * 
      * @param rete
      * @param parent
@@ -547,7 +558,7 @@ public class ReteNode
     /**
      * Make a new negative node and return it
      * 
-     * rete.cpp:2069
+     * rete.cpp:2069:make_new_negative_node
      * 
      * @param rete
      * @param parent
@@ -591,7 +602,7 @@ public class ReteNode
     /**
      * Make new CN and CN_PARTNER nodes, return a pointer to the CN node.
      * 
-     * rete.cpp:2107
+     * rete.cpp:2107:make_new_cn_node
      * 
      * @param rete
      * @param parent
@@ -650,7 +661,7 @@ public class ReteNode
      *   - using update_node_with_matches_from_above (p_node) or handling
      *     an initial refracted instantiation
      *
-     * rete.cpp:2163
+     * rete.cpp:2163:make_new_production_node
      * 
      * @param rete
      * @param parent
@@ -673,7 +684,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:2218
+     * rete.cpp:2218:deallocate_rete_node
      * 
      * @param rete
      * @param node

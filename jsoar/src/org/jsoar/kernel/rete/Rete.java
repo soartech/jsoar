@@ -6,6 +6,7 @@
 package org.jsoar.kernel.rete;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.MatchSetChange;
@@ -101,6 +102,15 @@ public class Rete
         
     }
 
+    /**
+     * 
+     * rete.cpp::xor_op
+     * 
+     * @param i
+     * @param a
+     * @param v
+     * @return
+     */
     private static int xor_op(int i, int a, int v)
     {
       return ((i) ^ (a) ^ (v));
@@ -109,7 +119,7 @@ public class Rete
     /**
      * Add a WME to the rete.
      * 
-     * rete.cpp:1552
+     * rete.cpp:1552:add_wme_to_rete
      * 
      * @param w The WME to add
      */
@@ -153,7 +163,7 @@ public class Rete
     /**
      * Remove a WME from the rete.
      * 
-     * rete.cpp:1591
+     * rete.cpp:1591:remove_wme_from_rete
      * 
      * @param w The WME to remove
      */
@@ -222,7 +232,7 @@ public class Rete
     }
     
     /**
-     * rete.cpp: 6083
+     * rete.cpp:6083:remove_token_and_subtree
      * 
      * @param tokens
      */
@@ -247,7 +257,7 @@ public class Rete
       //null_activation_stats_for_left_activation(node);
     }
     /**
-     * rete.cpp:1011
+     * rete.cpp:1011:find_goal_for_match_set_change_assertion
      * @param msc
      * @return
      */
@@ -305,7 +315,7 @@ public class Rete
       }
     
     /**
-     * rete.cpp:1065
+     * rete.cpp:1065:find_goal_for_match_set_change_retraction
      * 
      * @param msc
      * @return
@@ -335,7 +345,7 @@ public class Rete
     }
     
     /**
-     * rete.cpp:1403
+     * rete.cpp:1403:get_next_alpha_mem_id
      * 
      * @return
      */
@@ -348,7 +358,7 @@ public class Rete
      * Adds a WME to an alpha memory (create a right_mem for it), but doesn't
      * inform any successors
      * 
-     * rete.cpp:1408
+     * rete.cpp:1408:add_wme_to_alpha_mem
      * 
      * @param w
      * @param am
@@ -372,7 +382,7 @@ public class Rete
      * Removes a WME (right_mem) from its alpha memory, but doesn't inform
      * any successors
      * 
-     * rete.cpp:1429
+     * rete.cpp:1429:remove_wme_from_alpha_mem
      * 
      * @param rm
      */
@@ -390,7 +400,7 @@ public class Rete
     }
 
     /**
-     * rete.cpp:1393
+     * rete.cpp:1393:table_for_tests
      * 
      * @param id
      * @param attr
@@ -409,7 +419,7 @@ public class Rete
     /**
      * Looks for an existing alpha mem, returns it or NIL if not found
      * 
-     * rete.cpp:1449
+     * rete.cpp:1449:find_alpha_mem
      * 
      * @param id
      * @param attr
@@ -436,7 +446,7 @@ public class Rete
      * Find and share existing alpha memory, or create new one.  Adjusts the 
      * reference count on the alpha memory accordingly.
      * 
-     * rete.cpp:1467
+     * rete.cpp:1467:find_or_make_alpha_mem
      * 
      * @param id
      * @param attr
@@ -511,7 +521,7 @@ public class Rete
      * memory in the indicated hash bucket.  If we find one, we add the wme to 
      * it and inform successor nodes.
      * 
-     * rete.cpp:1524
+     * rete.cpp:1524:add_wme_to_aht
      * 
      * @param ht
      * @param hash_value
@@ -544,7 +554,7 @@ public class Rete
 
 
     /**
-     * rete.cpp:1698
+     * rete.cpp:1698:get_next_beta_node_id
      * 
      * @return
      */
@@ -558,7 +568,7 @@ public class Rete
      * there so that (real) root nodes in the beta net can be handled the same
      * as non-root nodes.
      * 
-     * rete.cpp:1711
+     * rete.cpp:1711:init_dummy_top_node
      */
     void init_dummy_top_node()
     {
@@ -576,7 +586,7 @@ public class Rete
      * the node's parent.  DO NOT call this routine on (positive, unmerged)
      * join nodes.
      * 
-     * rete.cpp:1765
+     * rete.cpp:1765:update_node_with_matches_from_above
      * 
      * @param node
      */
@@ -636,7 +646,7 @@ public class Rete
      * in the parameter *result, and the function returns TRUE.  If no
      * binding is found, the function returns FALSE.
      * 
-     * rete.cpp:2373
+     * rete.cpp:2373:find_var_location
      * 
      * @param var
      * @param current_depth
@@ -663,7 +673,7 @@ public class Rete
      * boolean "dense" parameter.  Any variables receiving new bindings
      * are also pushed onto the given "varlist".
      * 
-     * rete.cpp:2394
+     * rete.cpp:2394:bind_variables_in_test
      * 
      * @param t
      * @param depth
@@ -671,7 +681,7 @@ public class Rete
      * @param dense
      * @param varlist
      */
-    void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, List<Variable> varlist)
+    static void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, LinkedList<Variable> varlist)
     {
 
         if (t.isBlank())
@@ -691,7 +701,7 @@ public class Rete
                 return;
             }
             referent.push_var_binding(depth, field_num);
-            varlist.add(0, referent); // push(thisAgent, referent, *varlist);
+            varlist.push(referent); // push(thisAgent, referent, *varlist);
             return;
         }
 
@@ -711,11 +721,11 @@ public class Rete
      * This is often used for un-binding a group of variables which got
      * bound in some procedure.
      * 
-     * rete.cpp:2430
+     * rete.cpp:2430:pop_bindings_and_deallocate_list_of_variables
      * 
      * @param vars
      */
-    void pop_bindings_and_deallocate_list_of_variables(List<Variable> vars)
+    static void pop_bindings_and_deallocate_list_of_variables(List<Variable> vars)
     {
         for (Variable v : vars)
         {
@@ -728,7 +738,7 @@ public class Rete
      * Note that it uses a nonrecursive tree traversal; each iteration, the
      * leaf being deleted is the leftmost leaf in the tree.
      * 
-     * rete.cpp:6083
+     * rete.cpp:6083:remove_token_and_subtree
      * 
      * @param root
      */

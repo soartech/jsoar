@@ -43,21 +43,45 @@ public class ReteTest
     ReteTest next; /* next in list of tests at the node */
 
     
+    /**
+     * rete.cpp:220:test_is_constant_relational_test
+     * 
+     * @param x
+     * @return
+     */
     public static boolean test_is_constant_relational_test(int x)
     {
       return (((x) & 0xF0)==0x00);
     }
 
+    /**
+     * rete.cpp:225:test_is_variable_relational_test
+     * 
+     * @param x
+     * @return
+     */
     public static boolean test_is_variable_relational_test(int x)
     {
       return (((x) & 0xF0)==0x10);
     }
     
+    /**
+     * rete.cpp:242:kind_of_relational_test
+     * 
+     * @param x
+     * @return
+     */
     public static int kind_of_relational_test(int x)
     {
       return ((x) & 0x0F);
     }
 
+    /**
+     * rete.cpp:247:test_is_not_equal_test
+     * 
+     * @param x
+     * @return
+     */
     public static boolean test_is_not_equal_test(int x)
     {
       return (((x)==0x01) || ((x)==0x11));
@@ -67,7 +91,7 @@ public class ReteTest
      * Deallocate_rete_test_list() deallocates a list of rete test structures,
      * removing references to symbols within them.
      *   
-     * rete.cpp:2201
+     * rete.cpp:2201:deallocate_rete_test_list
      * 
      * @param rt
      */

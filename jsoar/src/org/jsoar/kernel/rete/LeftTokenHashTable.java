@@ -32,6 +32,12 @@ public class LeftTokenHashTable
         }
     }
     
+    /**
+     * rete.cpp:678:left_ht_bucket
+     * 
+     * @param hv
+     * @return
+     */
     public AsListItem<LeftToken> left_ht_bucket(int hv) 
     {
         int index = hv & LEFT_HT_MASK;
@@ -40,7 +46,7 @@ public class LeftTokenHashTable
     }
     
     /**
-     * rete.cpp:694
+     * rete.cpp:694:insert_token_into_left_ht
      * 
      * @param tok
      * @param hv
@@ -56,7 +62,7 @@ public class LeftTokenHashTable
     }
     
     /**
-     * rete.cpp:705
+     * rete.cpp:705:remove_token_from_left_ht
      * 
      * @param tok
      * @param hv

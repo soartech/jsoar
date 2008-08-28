@@ -32,6 +32,12 @@ public class RightMemoryHashTable
         }
     }
     
+    /**
+     * rete.cpp:683:right_ht_bucket
+     * 
+     * @param hv
+     * @return
+     */
     public ListHead<RightMemory> right_ht_bucket(int hv) 
     {
         int index = hv & RIGHT_HT_MASK;

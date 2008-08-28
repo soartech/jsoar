@@ -43,7 +43,7 @@ public class AlphaMemory extends ItemInHashTable
     };
     
     /**
-     * rete.cpp:1358
+     * rete.cpp:1358:wme_matches_alpha_mem
      * 
      * @param w
      * @return
@@ -57,7 +57,7 @@ public class AlphaMemory extends ItemInHashTable
     }
 
     /**
-     * rete.cpp:1372
+     * rete.cpp:1372:alpha_hash_value
      * 
      * @param i
      * @param a
@@ -76,7 +76,7 @@ public class AlphaMemory extends ItemInHashTable
     /**
      * Decrements reference count, deallocates alpha memory if unused.
      * 
-     * rete.cpp:1656
+     * rete.cpp:1656:remove_ref_to_alpha_mem
      * 
      * @param rete
      */
