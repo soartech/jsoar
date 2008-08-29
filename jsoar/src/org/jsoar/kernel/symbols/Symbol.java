@@ -5,6 +5,9 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jsoar.kernel.DeciderFlag;
 import org.jsoar.kernel.Wme;
 
@@ -46,6 +49,20 @@ public abstract class Symbol
     public char getFirstLetter()
     {
         return '*';
+    }
+    
+    /**
+     * 
+     * production.cpp:128:copy_symbol_list_adding_references
+     * 
+     * @param syms
+     * @return
+     */
+    public static List<Symbol> copy_symbol_list_adding_references(List<Symbol> syms)
+    {
+        // TODO: add refs?
+        // TODO: What's the right type of list?
+        return new ArrayList<Symbol>(syms);
     }
     
     /* (non-Javadoc)

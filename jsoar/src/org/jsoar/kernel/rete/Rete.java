@@ -80,6 +80,8 @@ public class Rete
     private int beta_node_id_counter;
     ReteNode dummy_top_node;
     
+    Symbol[] rhs_variable_bindings = {};
+    
     public Rete()
     {
         // rete.cpp:8864
@@ -734,6 +736,27 @@ public class Rete
     } 
     
     /**
+     * When a production is fired, we use an array of gensyms to store 
+     * the bindings for the RHS unbound variables.  We have to grow the 
+     * memory block allocated for this array any time a production comes 
+     * along with more RHS unbound variables than we've ever seen before.
+     * This procedure checks the number of RHS unbound variables for a new
+     * production, and grows the array if necessary.
+     * 
+     * rete.cpp:3480:update_max_rhs_unbound_variables
+     * 
+     * @param num_for_new_production
+     */
+    void update_max_rhs_unbound_variables(int num_for_new_production)
+    {
+        if (num_for_new_production > rhs_variable_bindings.length)
+        {
+            rhs_variable_bindings = new Symbol[num_for_new_production]; // defaults to null.
+        }
+    }
+
+    
+    /**
      * This routine does tree-based removal of a token and its descendents.
      * Note that it uses a nonrecursive tree traversal; each iteration, the
      * leaf being deleted is the leftmost leaf in the tree.
@@ -865,4 +888,7 @@ public class Rete
     {
         // TODO: port p_node_left_removal(), rete.cpp:5887
     }
+    
+    
+    
 }
