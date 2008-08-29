@@ -17,6 +17,12 @@ public class Variable extends Symbol
     public String name;
     public int tc_number;
     public Symbol current_binding_value;
+    /**
+     * In C, this just gets shoved in the current_binding_value pointer. Can't do that in
+     * Java, so it's maintained separately.
+     */
+    public int unbound_variable_index;
+    
     public int gensym_number;
     
     /**

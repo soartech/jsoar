@@ -19,6 +19,17 @@ public class VarLocation
     int field_num;            /* 0=id, 1=attr, 2=value */
 
     /**
+     * Copy another var location into this one
+     * 
+     * @param other The other var location 
+     */
+    public void assign(VarLocation other)
+    {
+        this.levels_up = other.levels_up;
+        this.field_num = other.field_num;
+    }
+    
+    /**
      * rete.cpp:263:var_locations_equal
      * 
      * @param v1
