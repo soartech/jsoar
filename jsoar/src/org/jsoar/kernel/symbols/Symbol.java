@@ -19,7 +19,12 @@ public abstract class Symbol
     public DeciderFlag decider_flag;
     public Wme decider_wme;
     public int retesave_symindex;
-    public int hash_id;
+    public final int hash_id;
+    
+    /*package*/ Symbol(int hash_id)
+    {
+        this.hash_id = hash_id;
+    }
     
     public FloatConstant asFloatConstant()
     {
@@ -63,24 +68,5 @@ public abstract class Symbol
         // TODO: add refs?
         // TODO: What's the right type of list?
         return new ArrayList<Symbol>(syms);
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj)
-    {
-        return super.equals(obj);
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode()
-    {
-        return super.hashCode();
-    }
-    
+    }    
 }

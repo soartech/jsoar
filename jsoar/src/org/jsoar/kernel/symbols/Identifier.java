@@ -16,8 +16,8 @@ import org.jsoar.kernel.MatchSetChange;
  */
 public class Identifier extends Symbol
 {
-    public int name_number;
-    public char name_letter;
+    public final int name_number;
+    public final char name_letter;
     
     public boolean isa_goal;
     public boolean isa_impasse;
@@ -65,6 +65,18 @@ public class Identifier extends Symbol
     public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
 
     
+    /**
+     * @param hash_id
+     */
+    /*package*/ Identifier(int hash_id, char name_letter, int name_number)
+    {
+        super(hash_id);
+        
+        this.name_letter = name_letter;
+        this.name_number = name_number;
+    }
+
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Symbol#asIdentifier()
      */
@@ -83,41 +95,4 @@ public class Identifier extends Symbol
     {
         return name_letter;
     }
-
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + name_letter;
-        result = prime * result + name_number;
-        return result;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        final Identifier other = (Identifier) obj;
-        if (name_letter != other.name_letter)
-            return false;
-        if (name_number != other.name_number)
-            return false;
-        return true;
-    }
-
-    
-    
 }
