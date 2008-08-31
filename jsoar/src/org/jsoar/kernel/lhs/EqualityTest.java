@@ -39,6 +39,11 @@ public class EqualityTest extends Test
         return sym == null;
     }
     
+    /**
+     * gdatastructs.h:395:referent_of_equality_test
+     * 
+     * @return
+     */
     public Symbol getReferent()
     {
         return sym;

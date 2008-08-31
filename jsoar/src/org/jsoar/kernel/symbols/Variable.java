@@ -14,7 +14,7 @@ import java.util.Stack;
  */
 public class Variable extends Symbol
 {
-    public String name;
+    public final String name;
     public int tc_number;
     public Symbol current_binding_value;
     /**
@@ -28,8 +28,19 @@ public class Variable extends Symbol
     /**
      * See rete.cpp:2285 for why this is a stack. 
      */
-    public Stack<Integer> rete_binding_locations = new Stack<Integer>(); 
+    public final Stack<Integer> rete_binding_locations = new Stack<Integer>(); 
     
+    
+    /**
+     * @param hash_id
+     */
+    /*package*/ Variable(int hash_id, String name)
+    {
+        super(hash_id);
+        
+        this.name = name;
+    }
+
     public void markIfUnmarked(int tc_number, List<Variable> var_list)
     {
         if(this.tc_number != tc_number)
@@ -56,7 +67,7 @@ public class Variable extends Symbol
     }
     
     /**
-     * rete.cpp:2312
+     * rete.cpp:2312:var_is_bound
      * 
      * @return
      */
@@ -66,7 +77,7 @@ public class Variable extends Symbol
     }
 
     /**
-     * rete.cpp:2323
+     * rete.cpp:2323:varloc_to_dummy
      * 
      * @param depth
      * @param field_num
@@ -78,7 +89,7 @@ public class Variable extends Symbol
     }
 
     /**
-     * rete.cpp:2328
+     * rete.cpp:2328:dummy_to_varloc_depth
      * 
      * @param d
      * @return
@@ -89,7 +100,7 @@ public class Variable extends Symbol
     }
 
     /**
-     * rete.cpp:2333
+     * rete.cpp:2333:dummy_to_varloc_field_num
      * 
      * @param d
      * @return
@@ -100,7 +111,7 @@ public class Variable extends Symbol
     }
 
     /**
-     * rete.cpp:2342
+     * rete.cpp:2342:push_var_binding
      * 
      * @param depth
      * @param field_num
@@ -112,7 +123,7 @@ public class Variable extends Symbol
     }
 
     /**
-     * rete.cpp:2355
+     * rete.cpp:2355:pop_var_binding
      */
     public void pop_var_binding()
     {
@@ -137,40 +148,4 @@ public class Variable extends Symbol
     {
         return name.charAt(1);
     }
-
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
-    }
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        final Variable other = (Variable) obj;
-        if (name == null)
-        {
-            if (other.name != null)
-                return false;
-        }
-        else if (!name.equals(other.name))
-            return false;
-        return true;
-    }
-    
 }

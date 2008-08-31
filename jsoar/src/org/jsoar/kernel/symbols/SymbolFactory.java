@@ -8,6 +8,9 @@ package org.jsoar.kernel.symbols;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jsoar.kernel.ByRef;
+import org.jsoar.util.Arguments;
+
 /**
  * @author ray
  */
@@ -21,27 +24,27 @@ public class SymbolFactory
     private Map<String, Variable> variables = new HashMap<String, Variable>();
 
     private int current_tc_number = 0;
+    private int current_symbol_hash_id = 0; 
     
     public SymbolFactory()
     {
         reset_id_counters();
     }
     
-    /* =====================================================================
-
-    Increment TC Counter and Return New TC Number
-
-Get_new_tc_number() is called from lots of places.  Any time we need
-to mark a set of identifiers and/or variables, we get a new tc_number
-by calling this routine, then proceed to mark various ids or vars
-by setting the sym->id.tc_num or sym->var.tc_num fields.
-
-A global tc number counter is maintained and incremented by this
-routine in order to generate a different tc_number each time.  If
-the counter ever wraps around back to 0, we bump it up to 1 and
-reset the the tc_num fields on all existing identifiers and variables
-to 0.
-===================================================================== */
+    /**
+     * Get_new_tc_number() is called from lots of places.  Any time we need
+     * to mark a set of identifiers and/or variables, we get a new tc_number
+     * by calling this routine, then proceed to mark various ids or vars
+     * by setting the sym->id.tc_num or sym->var.tc_num fields.
+     * 
+     * A global tc number counter is maintained and incremented by this
+     * routine in order to generate a different tc_number each time.  If
+     * the counter ever wraps around back to 0, we bump it up to 1 and
+     * reset the the tc_num fields on all existing identifiers and variables
+     * to 0.
+     * 
+     * @return
+     */
     public int get_new_tc_number()
     {
         current_tc_number++;
@@ -52,6 +55,11 @@ to 0.
         return current_tc_number;
     }
     
+    /**
+     * symtab.cpp:474:reset_id_counters
+     * 
+     * @return
+     */
     public boolean reset_id_counters()
     {
         if(!identifiers.isEmpty())
@@ -71,6 +79,9 @@ to 0.
         return true;
     }
     
+    /**
+     * symtab.cpp:510:reset_id_and_variable_tc_numbers
+     */
     public void reset_id_and_variable_tc_numbers()
     {
         for(Identifier id : identifiers.values())
@@ -83,6 +94,9 @@ to 0.
         }
     }
     
+    /**
+     * symtab.cpp:523:reset_variable_gensym_numbers
+     */
     public void reset_variable_gensym_numbers()
     {
         for(Variable v : variables.values())
@@ -91,36 +105,57 @@ to 0.
         }
     }
     
+    /**
+     * symtab.cpp:195:find_variable
+     * 
+     * @param name
+     * @return
+     */
     public Variable find_variable(String name)
     {
         return variables.get(name);
     }
+    
     public Variable make_variable(String name)
     {
         Variable v = find_variable(name);
         if(v == null)
         {
-            v = new Variable();
-            v.name = name;
+            v = new Variable(get_next_hash_id(), name);
             variables.put(v.name, v);
         }
         return v;
     }
     
     
+    /**
+     * 
+     * symtab.cpp:207:find_identifier
+     * 
+     * @param name_letter
+     * @param name_number
+     * @return
+     */
     public Identifier find_identifier(char name_letter, int name_number)
     {
         return identifiers.get(new IdKey(name_letter, name_number));
     }
     
+    /**
+     * 
+     * symtab.cpp:280:make_new_identifier
+     * 
+     * @param name_letter
+     * @param level
+     * @return
+     */
     public Identifier make_new_identifier(char name_letter, short /*goal_stack_level*/ level)
     {
-        Identifier id = new Identifier();
-        
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
+        int name_number = id_counter[name_letter - 'A']++;
         
-        id.name_letter = name_letter;
-        id.name_number = id_counter[name_letter - 'A']++;
+        Identifier id = new Identifier(get_next_hash_id(), name_letter, name_number);
+        
         id.level = level;
         id.promotion_level = level;
         
@@ -134,42 +169,58 @@ to 0.
         return symConstants.get(name);
     }
     
+    /**
+     * symtab.cpp:328:make_sym_constant
+     * 
+     * @param name
+     * @return
+     */
     public SymConstant make_sym_constant(String name)
     {
         SymConstant sym = find_sym_constant(name);
         if(sym == null)
         {
-            sym = new SymConstant();
-            sym.name = name;
+            sym = new SymConstant(get_next_hash_id(), name);
             symConstants.put(name, sym);
         }
         return sym;
     }
     
-    public SymConstant generate_new_sym_constant(String prefix, int[] number)
+    /**
+     * symtab.cpp:546:generate_new_sym_constant
+     * 
+     * @param prefix Prefix for the constant
+     * @param number Starting index for search. Receives one more than final value 
+     *               of postfix index.
+     * @return New SymConstant
+     */
+    public SymConstant generate_new_sym_constant(String prefix, ByRef<Integer> number)
     {
-        if(number.length != 1)
-        {
-            throw new IllegalArgumentException("number must be an array of size 1");
-        }
+        Arguments.checkNotNull(prefix, "prefix");
+        Arguments.checkNotNull(number, "number");
         
-        String name = prefix + number[0]++;
+        String name = prefix + number.value++;
         SymConstant sym = find_sym_constant(name);
         while(sym != null)
         {
-            name = prefix + number[0]++;
+            name = prefix + number.value++;
             sym = find_sym_constant(name);
         }
         return make_sym_constant(name);
     }
     
+    /**
+     * symtab.cpp:346:make_int_constant
+     * 
+     * @param value
+     * @return
+     */
     public IntConstant make_int_constant(int value)
     {
         IntConstant sym = find_int_constant(value);
         if(sym == null)
         {
-            sym = new IntConstant();
-            sym.value = value;
+            sym = new IntConstant(get_next_hash_id(), value);
             intConstants.put(value, sym);
         }
         return sym;
@@ -180,13 +231,18 @@ to 0.
         return intConstants.get(value);
     }
     
+    /**
+     * symtab.cpp:363:make_float_constant
+     * 
+     * @param value
+     * @return
+     */
     public FloatConstant make_float_constant(double value)
     {
         FloatConstant sym = find_float_constant(value);
         if(sym == null)
         {
-            sym = new FloatConstant();
-            sym.value = value;
+            sym = new FloatConstant(get_next_hash_id(), value);
             floatConstants.put(value, sym);
         }
         return sym;
@@ -233,6 +289,15 @@ to 0.
         throw new IllegalArgumentException("Unkonwn symbol type!");
     }
     
+    /**
+     * symtab.cpp:153:get_next_hash_id
+     * 
+     * @return
+     */
+    private int get_next_hash_id()
+    {
+        return current_symbol_hash_id += 137;
+    }
     
     private static class IdKey
     {

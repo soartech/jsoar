@@ -9,13 +9,17 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jsoar.kernel.ByRef;
 import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.Wme;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.Test;
+import org.jsoar.kernel.lhs.TestTools;
+import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
@@ -81,9 +85,11 @@ public class Rete
     ReteNode dummy_top_node;
     
     Symbol[] rhs_variable_bindings = {};
+    private VariableGenerator variableGenerator;
     
-    public Rete()
+    public Rete(VariableGenerator variableGenerator)
     {
+        this.variableGenerator = variableGenerator;
         // rete.cpp:8864
         alpha_hash_tables = new ArrayList<SoarHashTable<AlphaMemory>>(16);
         for(int i = 0; i < 16; ++i)
@@ -755,7 +761,88 @@ public class Rete
         }
     }
 
-    
+    /**
+     * This routine destructively modifies a given test, adding to it a test
+     * for equality with a new gensym variable.
+     * 
+     * rete.cpp:3821:add_gensymmed_equality_test
+     * 
+     * @param t
+     * @param first_letter
+     */
+    private void add_gensymmed_equality_test(Test t, char first_letter)
+    {
+        Variable New = variableGenerator.generate_new_variable(Character.toString(first_letter));
+        Test eq_test = new EqualityTest(New);
+        // symbol_remove_ref (thisAgent, New);
+        TestTools.add_new_test_to_test(ByRef.create(t), eq_test);
+    }
+
+    /**
+     * We're reconstructing the conditions for a production in top-down
+     * fashion.  Suppose we come to a Rete test checking for equality with 
+     * the "value" field 3 levels up.  In that case, for the current condition,
+     * we want to include an equality test for whatever variable got bound
+     * in the value field 3 levels up.  This function scans up the list
+     * of conditions reconstructed so far, and finds the appropriate variable.
+     * 
+     * rete.cpp:3845:var_bound_in_reconstructed_conds
+     * 
+     * @param cond
+     * @param where_field_num
+     * @param where_levels_up
+     * @return
+     */
+    private Symbol var_bound_in_reconstructed_conds(Condition cond, int where_field_num, int where_levels_up)
+    {
+        while (where_levels_up != 0)
+        {
+            where_levels_up--;
+            cond = cond.prev;
+        }
+
+        ThreeFieldCondition tfc = cond.asThreeFieldCondition();
+        Test t = null;
+        if (where_field_num == 0)
+        {
+            t = tfc.id_test;
+        }
+        else if (where_field_num == 1)
+        {
+            t = tfc.attr_test;
+        }
+        else
+        {
+            t = tfc.value_test;
+        }
+
+        if (t.isBlank())
+        {
+            // goto abort_var_bound_in_reconstructed_conds;
+            throw new IllegalStateException("Internal error in var_bound_in_reconstructed_conds");
+        }
+        EqualityTest eq = t.asEqualityTest();
+        if (eq != null)
+        {
+            return eq.getReferent();
+        }
+
+        ConjunctiveTest ct = t.asConjunctiveTest();
+        if (ct != null)
+        {
+            for (Test c : ct.conjunct_list)
+            {
+                EqualityTest eq2 = c.asEqualityTest();
+                if (c.isBlank() && eq2 != null)
+                {
+                    return eq2.getReferent();
+                }
+            }
+        }
+
+        throw new IllegalStateException("Internal error in var_bound_in_reconstructed_conds");
+    }
+
     /**
      * This routine does tree-based removal of a token and its descendents.
      * Note that it uses a nonrecursive tree traversal; each iteration, the

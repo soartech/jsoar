@@ -10,9 +10,18 @@ package org.jsoar.kernel.symbols;
  */
 public class FloatConstant extends Symbol
 {
-    public double value;
+    public final double value;
 
-    
+    /**
+     * @param hash_id
+     */
+    /*package*/ FloatConstant(int hash_id, double value)
+    {
+        super(hash_id);
+        
+        this.value = value;
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Symbol#asFloatConstant()
      */
@@ -21,39 +30,4 @@ public class FloatConstant extends Symbol
     {
         return this;
     }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = super.hashCode();
-        long temp;
-        temp = Double.doubleToLongBits(value);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        return result;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        final FloatConstant other = (FloatConstant) obj;
-        if (Double.doubleToLongBits(value) != Double
-                .doubleToLongBits(other.value))
-            return false;
-        return true;
-    }
-    
-    
 }
