@@ -17,4 +17,12 @@ public final class Arguments
             throw new IllegalArgumentException("'" + name + "' must not be null");
         }
     }
+    
+    public static void check(boolean condition, String description)
+    {
+        if(!condition)
+        {
+            throw new IllegalArgumentException(description);
+        }
+    }
 }

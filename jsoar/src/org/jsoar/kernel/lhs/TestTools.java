@@ -8,9 +8,9 @@ package org.jsoar.kernel.lhs;
 import java.util.Collections;
 import java.util.List;
 
-import org.jsoar.kernel.ByRef;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.ByRef;
 
 /**
  * @author ray

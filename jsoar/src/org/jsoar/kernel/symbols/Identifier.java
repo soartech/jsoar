@@ -10,6 +10,7 @@ import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.Slot;
 import org.jsoar.kernel.Wme;
 import org.jsoar.kernel.MatchSetChange;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -53,9 +54,9 @@ public class Identifier extends Symbol
     public SavedFiringType saved_firing_type = SavedFiringType.NO_SAVED_PRODS;     /* FIRING_TYPE that must be restored if Waterfall
                   processing returns to this level.
                   See consistency.cpp */
-    public MatchSetChange ms_o_assertions; /* dll of o assertions at this level */
-    public MatchSetChange ms_i_assertions; /* dll of i assertions at this level */
-    public MatchSetChange ms_retractions;  /* dll of retractions at this level */
+    public final ListHead<MatchSetChange> ms_o_assertions = new ListHead<MatchSetChange>(); /* dll of o assertions at this level */
+    public final ListHead<MatchSetChange> ms_i_assertions = new ListHead<MatchSetChange>(); /* dll of i assertions at this level */
+    public final ListHead<MatchSetChange> ms_retractions = new ListHead<MatchSetChange>();  /* dll of retractions at this level */
     /* REW: end   08.20.97 */
 
     /* --- fields used for Soar I/O stuff --- */

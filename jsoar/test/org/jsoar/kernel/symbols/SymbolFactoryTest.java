@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-import org.jsoar.kernel.ByRef;
+import org.jsoar.util.ByRef;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

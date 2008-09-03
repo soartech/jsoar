@@ -6,12 +6,13 @@
 package org.jsoar.kernel.rete;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jsoar.kernel.ByRef;
 import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.Wme;
 import org.jsoar.kernel.lhs.Condition;
@@ -20,10 +21,16 @@ import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.TestTools;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
+import org.jsoar.kernel.rhs.Action;
+import org.jsoar.kernel.rhs.FunctionAction;
+import org.jsoar.kernel.rhs.MakeAction;
+import org.jsoar.kernel.rhs.RhsSymbolValue;
+import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.AsListItem;
+import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.SoarHashTable;
 
@@ -33,36 +40,86 @@ import org.jsoar.util.SoarHashTable;
 public class Rete
 {
 
-    
-    public static final int NO_REFRACTED_INST = 0;              /* no refracted inst. was given */
-    public static final int REFRACTED_INST_MATCHED = 1;         /* there was a match for the inst. */
-    public static final int REFRACTED_INST_DID_NOT_MATCH = 2;   /* there was no match for it */
-    public static final int DUPLICATE_PRODUCTION = 3;           /* the prod. was a duplicate */
-    
-    private static LeftAdditionRoutine[] left_addition_routines = new LeftAdditionRoutine[256];
-    private static RightAdditionRoutine[] right_addition_routines = new RightAdditionRoutine[256];
+    private static final LeftAdditionRoutine[] left_addition_routines = new LeftAdditionRoutine[256];
+    private static final RightAdditionRoutine[] right_addition_routines = new RightAdditionRoutine[256];
     static
     {
         // rete.cpp:8796 
         // TODO
 //        left_addition_routines[DUMMY_MATCHES_BNODE] = dummy_matches_node_left_addition;
-//        left_addition_routines[MEMORY_BNODE] = beta_memory_node_left_addition;
-//        left_addition_routines[UNHASHED_MEMORY_BNODE] = unhashed_beta_memory_node_left_addition;
-//        left_addition_routines[MP_BNODE] = mp_node_left_addition;
-//        left_addition_routines[UNHASHED_MP_BNODE] = unhashed_mp_node_left_addition;
+        left_addition_routines[ReteNode.MEMORY_BNODE] = new LeftAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
+            {
+                rete.beta_memory_node_left_addition(node, tok, w);
+            }};
+        left_addition_routines[ReteNode.UNHASHED_MEMORY_BNODE] = new LeftAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
+            {
+                rete.unhashed_beta_memory_node_left_addition(node, tok, w);
+            }
+            
+        };
+        left_addition_routines[ReteNode.MP_BNODE] = new LeftAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
+            {
+                rete.mp_node_left_addition(node, tok, w);
+            } };
+        left_addition_routines[ReteNode.UNHASHED_MP_BNODE] = new LeftAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
+            {
+                rete.unhashed_mp_node_left_addition(node, tok, w);
+            }};
 //        left_addition_routines[CN_BNODE] = cn_node_left_addition;
 //        left_addition_routines[CN_PARTNER_BNODE] = cn_partner_node_left_addition;
 //        left_addition_routines[P_BNODE] = p_node_left_addition;
 //        left_addition_routines[NEGATIVE_BNODE] = negative_node_left_addition;
 //        left_addition_routines[UNHASHED_NEGATIVE_BNODE] = unhashed_negative_node_left_addition;
 //
-//        right_addition_routines[POSITIVE_BNODE] = positive_node_right_addition;
-//        right_addition_routines[UNHASHED_POSITIVE_BNODE] = unhashed_positive_node_right_addition;
-//        right_addition_routines[MP_BNODE] = mp_node_right_addition;
+        right_addition_routines[ReteNode.POSITIVE_BNODE] = new RightAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Wme w)
+            {
+                rete.positive_node_right_addition(node, w);
+            }};
+        right_addition_routines[ReteNode.UNHASHED_POSITIVE_BNODE] = new RightAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Wme w)
+            {
+                rete.unhashed_positive_node_right_addition(node, w);
+            }};
+        right_addition_routines[ReteNode.MP_BNODE] = new RightAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Wme w)
+            {
+                rete.mp_node_right_addition(node, w);
+            }};
 //        right_addition_routines[UNHASHED_MP_BNODE] = unhashed_mp_node_right_addition;
 //        right_addition_routines[NEGATIVE_BNODE] = negative_node_right_addition;
 //        right_addition_routines[UNHASHED_NEGATIVE_BNODE] = unhashed_negative_node_right_addition;
     }
+    
+    /**
+     * rete.cpp:4417:rete_test_routines
+     */
+    private static final ReteTestRoutine rete_test_routines[] = new ReteTestRoutine[256];
+    static
+    {
+        // TODO
+    }
+    
+    /* Set to FALSE to preserve variable names in chunks (takes extra space) */
+    private final boolean discard_chunk_varnames = true;
     
     private LeftTokenHashTable left_ht = new LeftTokenHashTable();
     private RightMemoryHashTable right_ht = new RightMemoryHashTable();
@@ -76,7 +133,17 @@ public class Rete
      * agent.h:733
      * dll of all retractions for removed (ie nil) goals
      */
-    private ListHead<MatchSetChange> nil_goal_retractions = new ListHead<MatchSetChange>();
+    private final ListHead<MatchSetChange> nil_goal_retractions = new ListHead<MatchSetChange>();
+    /**
+     * changes to match set
+     * 
+     * agent.h:231
+     */
+    private final ListHead<MatchSetChange> ms_assertions = new ListHead<MatchSetChange>();
+    /**
+     * agent.h:231
+     */
+    private final ListHead<MatchSetChange> ms_retractions = new ListHead<MatchSetChange>();
     private int alpha_mem_id_counter; 
     private List<SoarHashTable<AlphaMemory>> alpha_hash_tables;
     private ListHead<Wme> all_wmes_in_rete = new ListHead<Wme>();
@@ -96,19 +163,358 @@ public class Rete
         {
             alpha_hash_tables.add(new SoarHashTable<AlphaMemory>(0, AlphaMemory.HASH_FUNCTION));
         }
-    }
-    
-    public int add_production_to_rete (Production p, Condition lhs_top,
-                                        Instantiation refracted_inst,
-                                        boolean warn_on_duplicates, boolean ignore_rhs /*= false*/)
-    {
-        return 0;
-    }
-    
-    public void excise_production_from_rete (Production p)
-    {
         
+        init_dummy_top_node();
     }
+    
+    public ProductionAddResult add_production_to_rete(Production p)
+    {
+        return add_production_to_rete(p, p.condition_list, null, true, false);
+    }
+    
+    /**
+     * Add_production_to_rete() adds a given production, with a given LHS,
+     * to the rete.  If "refracted_inst" is non-NIL, it should point to an
+     * initial instantiation of the production.  This routine returns 
+     * DUPLICATE_PRODUCTION if the production was a duplicate; else
+     * NO_REFRACTED_INST if no refracted inst. was given; else either
+     * REFRACTED_INST_MATCHED or REFRACTED_INST_DID_NOT_MATCH.
+
+     * The initial refracted instantiation is provided so the initial 
+     * instantiation of a newly-build chunk doesn't get fired.  We handle
+     * this as follows.  We store the initial instantiation as a "tentative
+     * retraction" on the new p-node.  Then we inform the p-node of any
+     * matches (tokens from above).  If any of them is the same as the
+     * refracted instantiation, then that instantiation will get removed
+     * from "tentative_retractions".  When the p-node has been informed of
+     * all matches, we just check whether the instantiation is still on
+     * tentative_retractions.  If not, there was a match (and the p-node's
+     * activation routine filled in the token info on the instantiation for
+     * us).  If so, there was no match for the refracted instantiation.
+     * 
+     * BUGBUG should we check for duplicate justifications?
+     * 
+     * rete.cpp:3515:add_production_to_rete
+     * 
+     * @param p
+     * @param lhs_top
+     * @param refracted_inst
+     * @param warn_on_duplicates
+     * @param ignore_rhs
+     * @return
+     */
+    public ProductionAddResult add_production_to_rete(Production p, Condition lhs_top, Instantiation refracted_inst,
+            boolean warn_on_duplicates, boolean ignore_rhs)
+    {
+        ProductionAddResult production_addition_result;
+
+        ReteBuilder builder = new ReteBuilder();
+        ByRef<ReteNode> bottom_node = ByRef.create(null);
+        ByRef<Integer> bottom_depth = ByRef.create(0);
+        ByRef<LinkedList<Variable>> vars_bound = ByRef.create(null);
+        /* --- build the network for all the conditions --- */
+        builder.build_network_for_condition_list(this, lhs_top, 1, dummy_top_node, bottom_node, bottom_depth,
+                vars_bound);
+
+        /*
+         * --- change variable names in RHS to Rete location references or
+         * unbound variable indices ---
+         */
+        LinkedList<Variable> rhs_unbound_vars_for_new_prod = new LinkedList<Variable>();
+        ByRef<Integer> num_rhs_unbound_vars_for_new_prod = ByRef.create(0);
+        int rhs_unbound_vars_tc = variableGenerator.getSyms().get_new_tc_number();
+        for (Action a = p.action_list; a != null; a = a.next)
+        {
+            MakeAction ma = a.asMakeAction();
+            if (ma != null)
+            {
+                // TODO: ByRef usage here is pretty bad. Refactor.
+                ByRef<RhsValue> a_value = ByRef.create(ma.value);
+                builder.fixup_rhs_value_variable_references(this, a_value, bottom_depth.value,
+                        rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
+                ma.value = a_value.value;
+
+                ByRef<RhsValue> a_id = ByRef.create(ma.id);
+                builder.fixup_rhs_value_variable_references(this, a_id, bottom_depth.value,
+                        rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
+                ma.id = (RhsSymbolValue) a_id.value; // TODO: Yucky
+
+                ByRef<RhsValue> a_attr = ByRef.create(ma.attr);
+                builder.fixup_rhs_value_variable_references(this, a_attr, bottom_depth.value,
+                        rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
+                ma.attr = a_attr.value;
+
+                if (a.preference_type.isBinary())
+                {
+                    ByRef<RhsValue> a_referent = ByRef.create(ma.referent);
+                    builder.fixup_rhs_value_variable_references(this, a_referent, bottom_depth.value,
+                            rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
+                    ma.referent = a_referent.value;
+                }
+            }
+            else
+            {
+                FunctionAction fa = a.asFunctionAction();
+                ByRef<RhsValue> a_value = ByRef.create(fa.call);
+                builder.fixup_rhs_value_variable_references(this, a_value, bottom_depth.value,
+                        rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
+
+            }
+        }
+
+        /* --- clean up variable bindings created by build_network...() --- */
+
+        pop_bindings_and_deallocate_list_of_variables(vars_bound.value);
+
+        update_max_rhs_unbound_variables(num_rhs_unbound_vars_for_new_prod.value);
+
+        /* --- look for an existing p node that matches --- */
+        for (ReteNode p_node = bottom_node.value.first_child; p_node != null; p_node = p_node.next_sibling)
+        {
+            if (p_node.node_type != ReteNode.P_BNODE)
+            {
+                continue;
+            }
+            if (!ignore_rhs && !Action.same_rhs(p_node.b_p.prod.action_list, p.action_list))
+            {
+                continue;
+            }
+            /* --- duplicate production found --- */
+            if (warn_on_duplicates)
+            {
+                // TODO: Warn
+                // TODO: Test
+                // std::stringstream output;
+                // output << "\nIgnoring "
+                // << symbol_to_string( thisAgent, p->name, TRUE, 0, 0 )
+                // << " because it is a duplicate of "
+                // << symbol_to_string( thisAgent, p_node->b.p.prod->name, TRUE,
+                // 0, 0 )
+                // << " ";
+                // xml_generate_warning( thisAgent, output.str().c_str() );
+                //
+                // print_with_symbols (thisAgent, "\nIgnoring %y because it is a
+                // duplicate of %y ",
+                // p->name, p_node->b.p.prod->name);
+            }
+            // deallocate_symbol_list_removing_references (thisAgent,
+            // rhs_unbound_vars_for_new_prod);
+            return ProductionAddResult.DUPLICATE_PRODUCTION;
+        }
+
+        /* --- build a new p node --- */
+        ReteNode p_node = ReteNode.make_new_production_node(this, bottom_node.value, p);
+        // adjust_sharing_factors_from_here_to_top (p_node, 1);
+
+        /*
+         * KJC 1/28/98 left these comments in to support REW comments below but
+         * commented out the operand_mode code
+         */
+        /* RCHONG: begin 10.11 */
+        /*
+         * 
+         * in operand, we don't want to refract the instantiation. consider this
+         * situation: a PE chunk was created during the IE phase. that
+         * instantiation shouldn't be applied and we prevent this from happening
+         * (see chunk_instantiation() in chunk.c). we eventually get to the
+         * OUTPUT_PHASE, then the QUIESCENCE_PHASE. up to this point, the chunk
+         * hasn't done it's thing. we start the PE_PHASE. now, it is at this
+         * time that the just-built PE chunk should match and fire. if we were
+         * to refract the chunk, it wouldn't fire it at this point and it's
+         * actions would never occur. by not refracting it, we allow the chunk
+         * to match and fire.
+         * 
+         * caveat: we must refract justifications, otherwise they would fire and
+         * in doing so would produce more chunks/justifications.
+         * 
+         * if ((thisAgent->operand_mode == TRUE) && 1) if (refracted_inst !=
+         * NIL) { if (refracted_inst->prod->type !=
+         * JUSTIFICATION_PRODUCTION_TYPE) refracted_inst = NIL; }
+         */
+        /* RCHONG: end 10.11 */
+
+        /* REW: begin 09.15.96 */
+        /*
+         * In Operand2, for now, we want both chunks and justifications to be
+         * treated as refracted instantiations, at least for now. At some point,
+         * this issue needs to be re-visited for chunks that immediately match
+         * with a different instantiation and a different type of support than
+         * the original, chunk-creating instantion.
+         */
+        /* REW: end 09.15.96 */
+
+        /*
+         * --- handle initial refraction by adding it to tentative_retractions
+         * ---
+         */
+        if (refracted_inst != null)
+        {
+            refracted_inst.inProdList.insertAtHead(p.instantiations);
+            refracted_inst.rete_token = null;
+            refracted_inst.rete_wme = null;
+            MatchSetChange msc = new MatchSetChange();
+            msc.inst = refracted_inst;
+            msc.p_node = p_node;
+            /* REW: begin 08.20.97 */
+            /*
+             * Because the RETE 'artificially' refracts this instantiation (ie,
+             * it is not actually firing -- the original instantiation fires but
+             * not the chunk), we make the refracted instantiation of the chunk
+             * a nil_goal retraction, rather than associating it with the
+             * activity of its match goal. In p_node_left_addition, where the
+             * tentative assertion will be generated, we make it a point to look
+             * at the goal value and exrtac from the appropriate list; here we
+             * just make a a simplifying assumption that the goal is NIL
+             * (although, in reality), it never will be.
+             */
+
+            /*
+             * This initialization is necessary (for at least safety reasons,
+             * for all msc's, regardless of the mode
+             */
+            msc.level = 0;
+            msc.goal = null;
+            if (operand2_mode)
+            {
+
+                // #ifdef DEBUG_WATERFALL
+                // print_with_symbols(thisAgent, "\n %y is a refracted
+                // instantiation",
+                // refracted_inst->prod->name);
+                // #endif
+                msc.in_level.insertAtHead(nil_goal_retractions);
+            }
+            /* REW: end 08.20.97 */
+
+            // TODO: Is BUG_139_WORKAROUND needed?
+            // #ifdef BUG_139_WORKAROUND
+            // msc->p_node->b.p.prod->already_fired = 0; /* RPM workaround for
+            // bug #139; mark prod as not fired yet */
+            // #endif
+            msc.in_ms_retractions.insertAtHead(ms_retractions);
+            msc.of_node.insertAtHead(p_node.b_p.tentative_retractions);
+        }
+
+        /* --- call new node's add_left routine with all the parent's tokens --- */
+        update_node_with_matches_from_above(p_node);
+
+        /* --- store result indicator --- */
+        if (refracted_inst == null)
+        {
+            production_addition_result = ProductionAddResult.NO_REFRACTED_INST;
+        }
+        else
+        {
+            refracted_inst.inProdList.remove(p.instantiations);
+            if (!p_node.b_p.tentative_retractions.isEmpty())
+            {
+                production_addition_result = ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH;
+                MatchSetChange msc = p_node.b_p.tentative_retractions.first.get();
+                p_node.b_p.tentative_retractions.first = null;
+                msc.in_ms_retractions.remove(ms_retractions);
+                /* REW: begin 10.03.97 *//* BUGFIX 2.125 */
+                if (operand2_mode)
+                {
+                    if (msc.goal != null)
+                    {
+                        msc.in_level.remove(msc.goal.ms_retractions);
+                    }
+                    else
+                    {
+                        msc.in_level.remove(nil_goal_retractions);
+                    }
+                }
+                /* REW: end   10.03.97 */
+
+            }
+            else
+            {
+                production_addition_result = ProductionAddResult.REFRACTED_INST_MATCHED;
+            }
+        }
+
+        /* --- if not a chunk, store variable name information --- */
+        if ((p.type == ProductionType.CHUNK_PRODUCTION_TYPE) && discard_chunk_varnames)
+        {
+            p.p_node.b_p.parents_nvn = null;
+            p.rhs_unbound_variables.clear();
+            //deallocate_symbol_list_removing_references (thisAgent, rhs_unbound_vars_for_new_prod);
+        }
+        else
+        {
+            p.p_node.b_p.parents_nvn = NodeVarNames.get_nvn_for_condition_list(lhs_top, null);
+            p.rhs_unbound_variables.addAll(rhs_unbound_vars_for_new_prod);
+            Collections.reverse(p.rhs_unbound_variables);
+            //p->rhs_unbound_variables = destructively_reverse_list (rhs_unbound_vars_for_new_prod);
+        }
+
+        /* --- invoke callback functions --- */
+        // TODO: Callback
+        //  soar_invoke_callbacks (thisAgent, PRODUCTION_JUST_ADDED_CALLBACK,
+        //                         (soar_call_data) p);
+        return production_addition_result;
+    }
+    
+    /**
+     * This removes a given production from the Rete net, and enqueues all 
+     * its existing instantiations as pending retractions.
+     * 
+     * rete.cpp:3726:excise_production_from_rete
+     * 
+     * @param p The production to remove
+     */
+    public void excise_production_from_rete(Production p)
+    {
+        // TODO: Callback
+        // soar_invoke_callbacks (thisAgent,
+        // PRODUCTION_JUST_ABOUT_TO_BE_EXCISED_CALLBACK,
+        // (soar_call_data) p);
+
+        // #ifdef _WINDOWS
+        // remove_production_from_stat_lists(prod_to_be_excised);
+        // #endif
+
+        ReteNode p_node = p.p_node;
+        p.p_node = null; /* mark production as not being in the rete anymore */
+        ReteNode parent = p_node.parent;
+
+        /* --- deallocate the variable name information --- */
+        if (p_node.b_p.parents_nvn != null)
+        {
+            NodeVarNames.deallocate_node_varnames(parent, dummy_top_node, p_node.b_p.parents_nvn);
+        }
+
+        /*
+         * --- cause all existing instantiations to retract, by removing any
+         * tokens at the node ---
+         */
+        while (!p_node.a_np.tokens.isEmpty())
+        {
+            remove_token_and_subtree(p_node.a_np.tokens);
+        }
+
+        /*
+         * --- At this point, there are no tentative_assertion's. Now set the
+         * p_node field of all tentative_retractions to NIL, to indicate that
+         * the p_node is being excised ---
+         */
+        for (MatchSetChange msc : p_node.b_p.tentative_retractions)
+        {
+            msc.p_node = null;
+        }
+
+        /* --- finally, excise the p_node --- */
+        p_node.remove_node_from_parents_list_of_children();
+        // update_stats_for_destroying_node (thisAgent, p_node); // TODO: clean
+        // up rete stats stuff
+
+        /* --- and propogate up the net --- */
+        if (parent.first_child == null)
+        {
+            ReteNode.deallocate_rete_node(this, parent);
+        }
+    }
+
 
     /**
      * 
@@ -802,6 +1208,10 @@ public class Rete
         }
 
         ThreeFieldCondition tfc = cond.asThreeFieldCondition();
+        if(tfc ==  null)
+        {
+            throw new IllegalStateException("Expected ThreeFieldCondition, got " + cond);
+        }
         Test t = null;
         if (where_field_num == 0)
         {
@@ -843,6 +1253,538 @@ public class Rete
         throw new IllegalStateException("Internal error in var_bound_in_reconstructed_conds");
     }
 
+    /**
+     * rete.cpp:4441:match_left_and_right
+     * 
+     * @param _rete_test
+     * @param left
+     * @param w
+     * @return
+     */
+    private boolean match_left_and_right(ReteTest _rete_test, LeftToken left, Wme w)
+    {
+        return rete_test_routines[(_rete_test).type].execute(this, _rete_test, left, w);
+    }
+    
+    /**
+     * rete.cpp:4719:beta_memory_node_left_addition
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
+    private void beta_memory_node_left_addition(ReteNode node, Token tok, Wme w)
+    {
+        left_node_activation(node, true);
+
+        Symbol referent = null;
+        {
+            int levels_up = node.left_hash_loc_levels_up;
+            if (levels_up == 1)
+            {
+                referent = VarLocation.field_from_wme(w, node.left_hash_loc_field_num);
+            }
+            else
+            { /* --- levels_up > 1 --- */
+                Token t = tok;
+                for (t = tok, levels_up -= 2; levels_up != 0; levels_up--)
+                {
+                    t = t.parent;
+                }
+                referent = VarLocation.field_from_wme(t.w, node.left_hash_loc_field_num);
+            }
+        }
+
+        int hv = node.node_id ^ referent.hash_id;
+
+        /* --- build new left token, add it to the hash table --- */
+        LeftToken New = new LeftToken(node, tok, w, referent);
+        left_ht.insert_token_into_left_ht(New, hv);
+
+        /* --- inform each linked child (positive join) node --- */
+        ReteNode next = null;
+        for (ReteNode child = node.b_mem.first_linked_child; child != null; child = next)
+        {
+            next = child.a_pos.next_from_beta_mem;
+            positive_node_left_addition(child, New, referent);
+        }
+    }
+    
+
+    /**
+     * rete.cpp:4759:unhashed_beta_memory_node_left_addition
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
+    private void unhashed_beta_memory_node_left_addition(ReteNode node, Token tok, Wme w)
+    {
+        left_node_activation(node, true);
+
+        int hv = node.node_id;
+
+        /* --- build new left token, add it to the hash table --- */
+        LeftToken New = new LeftToken(node, tok, w, null);
+        left_ht.insert_token_into_left_ht(New, hv);
+
+        /* --- inform each linked child (positive join) node --- */
+        ReteNode next = null;
+        for (ReteNode child = node.b_mem.first_linked_child; child != null; child = next)
+        {
+            next = child.a_pos.next_from_beta_mem;
+            unhashed_positive_node_left_addition(child, New);
+        }
+    }    
+
+    /**
+     * rete.cpp:4786:positive_node_left_addition
+     * 
+     * @param node
+     * @param New
+     * @param hash_referent
+     */
+    private void positive_node_left_addition(ReteNode node, LeftToken New, Symbol hash_referent)
+    {
+        left_node_activation(node, true);
+
+        AlphaMemory am = node.b_posneg.alpha_mem_;
+
+        if (node.node_is_right_unlinked())
+        {
+            node.relink_to_right_mem();
+            if (am.right_mems.isEmpty())
+            {
+                node.unlink_from_left_mem();
+                return;
+            }
+        }
+
+        /* --- look through right memory for matches --- */
+        int right_hv = am.am_id ^ hash_referent.hash_id;
+        for (RightMemory rm : right_ht.right_ht_bucket(right_hv))
+        {
+            if (rm.am != am)
+                continue;
+            /* --- does rm->w match New? --- */
+            if (hash_referent != rm.w.id)
+            {
+                continue;
+            }
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next) {
+                if (!match_left_and_right(rt, New, rm.w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            /* --- match found, so call each child node --- */
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type].execute(this, child, New, rm.w);
+            }
+        }
+    }   
+
+    /**
+     * rete.cpp:4830:unhashed_positive_node_left_addition
+     * 
+     * @param node
+     * @param New
+     */
+    private void unhashed_positive_node_left_addition(ReteNode node, LeftToken New)
+    {
+        left_node_activation(node, true);
+
+        if (node.node_is_right_unlinked())
+        {
+            node.relink_to_right_mem();
+            if (node.b_posneg.alpha_mem_.right_mems.isEmpty())
+            {
+                node.unlink_from_left_mem();
+                return;
+            }
+        }
+
+        /* --- look through right memory for matches --- */
+        for (RightMemory rm : node.b_posneg.alpha_mem_.right_mems)
+        {
+            /* --- does rm->w match new? --- */
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            {
+                if (!match_left_and_right(rt, New, rm.w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            /* --- match found, so call each child node --- */
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type].execute(this, child, New, rm.w);
+            }
+        }
+    }   
+
+    /**
+     * rete.cpp:4866:mp_node_left_addition
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
+    private void mp_node_left_addition(ReteNode node, Token tok, Wme w)
+    {
+        left_node_activation(node, true);
+
+        Symbol referent = null;
+        {
+            int levels_up = node.left_hash_loc_levels_up;
+            if (levels_up == 1)
+            {
+                referent = VarLocation.field_from_wme(w, node.left_hash_loc_field_num);
+            }
+            else
+            { /* --- levels_up > 1 --- */
+                Token t = tok;
+                for (t = tok, levels_up -= 2; levels_up != 0; levels_up--)
+                {
+                    t = t.parent;
+                }
+                referent = VarLocation.field_from_wme(t.w, node.left_hash_loc_field_num);
+            }
+        }
+
+        int hv = node.node_id ^ referent.hash_id;
+
+        /* --- build new left token, add it to the hash table --- */
+        LeftToken New = new LeftToken(node, tok, w, referent);
+        left_ht.insert_token_into_left_ht(New, hv);
+
+        if (node.mp_bnode_is_left_unlinked())
+        {
+            return;
+        }
+
+        AlphaMemory am = node.b_posneg.alpha_mem_;
+
+        if (node.node_is_right_unlinked())
+        {
+            node.relink_to_right_mem();
+            if (am.right_mems.isEmpty())
+            {
+                node.make_mp_bnode_left_unlinked();
+                return;
+            }
+        }
+
+        /* --- look through right memory for matches --- */
+        int right_hv = am.am_id ^ referent.hash_id;
+        for (RightMemory rm : right_ht.right_ht_bucket(right_hv))
+        {
+            if (rm.am != am)
+            {
+                continue;
+            }
+            /* --- does rm->w match new? --- */
+            if (referent != rm.w.id)
+            {
+                continue;
+            }
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+                if (!match_left_and_right(rt, New, rm.w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            /* --- match found, so call each child node --- */
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type].execute(this, child, New, rm.w);
+            }
+        }
+    }   
+    
+    /**
+     * rete.cpp:4939:unhashed_mp_node_left_addition
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
+    private void unhashed_mp_node_left_addition(ReteNode node, Token tok, Wme w)
+    {
+        left_node_activation(node, true);
+
+        int hv = node.node_id;
+
+        /* --- build new left token, add it to the hash table --- */
+        LeftToken New = new LeftToken(node, tok, w, null);
+        left_ht.insert_token_into_left_ht(New, hv);
+
+        if (node.mp_bnode_is_left_unlinked())
+        {
+            return;
+        }
+
+        if (node.node_is_right_unlinked())
+        {
+            node.relink_to_right_mem();
+            if (node.b_posneg.alpha_mem_.right_mems.isEmpty())
+            {
+                node.make_mp_bnode_left_unlinked();
+                return;
+            }
+        }
+
+        /* --- look through right memory for matches --- */
+        for (RightMemory rm : node.b_posneg.alpha_mem_.right_mems)
+        {
+            /* --- does rm->w match new? --- */
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            {
+                if (!match_left_and_right(rt, New, rm.w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            /* --- match found, so call each child node --- */
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type].execute(this, child, New, rm.w);
+            }
+        }
+    }
+
+    /**
+     * rete.cpp:4989:positive_node_right_addition
+     * 
+     * @param node
+     * @param w
+     */
+    void positive_node_right_addition(ReteNode node, Wme w)
+    {
+        right_node_activation(node, true);
+
+        if (node.node_is_left_unlinked())
+        {
+            node.relink_to_left_mem();
+            if (node.parent.a_np.tokens.isEmpty())
+            {
+                node.unlink_from_right_mem();
+                return;
+            }
+        }
+
+        Symbol referent = w.id;
+        int hv = node.parent.node_id ^ referent.hash_id;
+
+        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        {
+            if (tok.node != node.parent)
+            {
+                continue;
+            }
+            /* --- does tok match w? --- */
+            if (tok.referent != referent)
+            {
+                continue;
+            }
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            {
+                if (!match_left_and_right(rt, tok, w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+                continue;
+            /* --- match found, so call each child node --- */
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type].execute(this, child, tok, w);
+            }
+        }
+    }
+
+    /**
+     * rete.cpp:5030:unhashed_positive_node_right_addition
+     * 
+     * @param node
+     * @param w
+     */
+    void unhashed_positive_node_right_addition(ReteNode node, Wme w)
+    {
+        right_node_activation(node, true);
+
+        if (node.node_is_left_unlinked())
+        {
+            node.relink_to_left_mem();
+            if (node.parent.a_np.tokens.isEmpty())
+            {
+                node.unlink_from_right_mem();
+                return;
+            }
+        }
+
+        int hv = node.parent.node_id;
+
+        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        {
+            if (tok.node != node.parent)
+            {
+                continue;
+            }
+            /* --- does tok match w? --- */
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            {
+                if (!match_left_and_right(rt, tok, w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            /* --- match found, so call each child node --- */
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type].execute(this, child, tok, w);
+            }
+        }
+    }
+
+    /**
+     * rete.cpp:5068:mp_node_right_addition
+     * 
+     * @param node
+     * @param w
+     */
+    void mp_node_right_addition(ReteNode node, Wme w)
+    {
+        right_node_activation(node, true);
+
+        if (node.mp_bnode_is_left_unlinked())
+        {
+            node.make_mp_bnode_left_linked();
+            if (node.a_np.tokens.isEmpty())
+            {
+                node.unlink_from_right_mem();
+                return;
+            }
+        }
+
+        Symbol referent = w.id;
+        int hv = node.node_id ^ referent.hash_id;
+
+        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        {
+            if (tok.node != node)
+            {
+                continue;
+            }
+            /* --- does tok match w? --- */
+            if (tok.referent != referent)
+            {
+                continue;
+            }
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            {
+                if (!match_left_and_right(rt, tok, w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            /* --- match found, so call each child node --- */
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type].execute(this, child, tok, w);
+            }
+        }
+    }
+    
+
+    /**
+     * rete.cpp:5109:unhashed_mp_node_right_addition
+     * @param node
+     * @param w
+     */
+    void unhashed_mp_node_right_addition(ReteNode node, Wme w)
+    {
+        right_node_activation(node, true);
+
+        if (node.mp_bnode_is_left_unlinked())
+        {
+            node.make_mp_bnode_left_linked();
+            if (node.a_np.tokens.isEmpty())
+            {
+                node.unlink_from_right_mem();
+                return;
+            }
+        }
+
+        int hv = node.node_id;
+
+        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        {
+            if (tok.node != node)
+            {
+                continue;
+            }
+            /* --- does tok match w? --- */
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            {
+                if (!match_left_and_right(rt, tok, w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            /* --- match found, so call each child node --- */
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type].execute(this, child, tok, w);
+            }
+        }
+    }
+    
     /**
      * This routine does tree-based removal of a token and its descendents.
      * Note that it uses a nonrecursive tree traversal; each iteration, the

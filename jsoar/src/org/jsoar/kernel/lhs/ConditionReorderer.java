@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jsoar.kernel.ByRef;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.ByRef;
 
 /**
  * @author ray

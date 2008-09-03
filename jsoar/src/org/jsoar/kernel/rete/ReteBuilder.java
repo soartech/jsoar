@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jsoar.kernel.ByRef;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -28,6 +27,8 @@ import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.rhs.UnboundVariable;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.Arguments;
+import org.jsoar.util.ByRef;
 
 /**
  * @author ray
@@ -393,7 +394,11 @@ public class ReteBuilder
      */
     private ReteNode make_node_for_positive_cond(Rete rete, PositiveCondition cond, int current_depth, ReteNode parent)
     {
-
+        Arguments.checkNotNull(rete, "rete");
+        Arguments.checkNotNull(cond, "cond");
+        Arguments.check(current_depth >= 0, "current_depth >= 0");
+        Arguments.checkNotNull(parent, "parent");
+        
         LinkedList<Variable> vars_bound_here = new LinkedList<Variable>();
 
         /* --- Add sparse variable bindings for this condition --- */
@@ -610,7 +615,7 @@ public class ReteBuilder
      * @param dest_bottom_depth
      * @param dest_vars_bound
      */
-    private void build_network_for_condition_list(Rete rete, Condition cond_list, int depth_of_first_cond,
+    /*package*/ void build_network_for_condition_list(Rete rete, Condition cond_list, int depth_of_first_cond,
             ReteNode parent, ByRef<ReteNode> dest_bottom_node, ByRef<Integer> dest_bottom_depth,
             ByRef<LinkedList<Variable>> dest_vars_bound)
     {
@@ -714,7 +719,7 @@ public class ReteBuilder
      * @param num_rhs_unbound_vars_for_new_prod
      * @param rhs_unbound_vars_tc
      */
-    private void fixup_rhs_value_variable_references(Rete rete, ByRef<RhsValue> rv, int bottom_depth,
+    /*package*/ void fixup_rhs_value_variable_references(Rete rete, ByRef<RhsValue> rv, int bottom_depth,
             LinkedList<Variable> rhs_unbound_vars_for_new_prod, ByRef<Integer> num_rhs_unbound_vars_for_new_prod,
             int rhs_unbound_vars_tc)
     {
@@ -743,7 +748,12 @@ public class ReteBuilder
                     // symbol_add_ref (sym);
                     rhs_unbound_vars_for_new_prod.push(var);
                     var.tc_number = rhs_unbound_vars_tc;
-                    index = num_rhs_unbound_vars_for_new_prod.value++;
+                    
+                    // Note: This originally just used ++, but crashed with a VerifyError
+                    // which is actually a bug in Java:
+                    //    http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=eb3fcd8f72ab4713f96e378a7575?bug_id=6614974
+                    num_rhs_unbound_vars_for_new_prod.value = num_rhs_unbound_vars_for_new_prod.value + 1;
+                    index = num_rhs_unbound_vars_for_new_prod.value;
                     var.unbound_variable_index = index;
                 }
                 else

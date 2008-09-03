@@ -7,6 +7,7 @@ package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.MatchSetChange;
+import org.jsoar.util.ListHead;
 
 /**
  * data for production nodes only
@@ -18,9 +19,9 @@ import org.jsoar.kernel.MatchSetChange;
 public class ProductionNodeData
 {
     Production prod;                  /* the production */
-    // TODO struct node_varnames_struct *parents_nvn;        /* records variable names */
-    MatchSetChange tentative_assertions;   /* pending MS changes */
-    MatchSetChange tentative_retractions;
+    NodeVarNames parents_nvn;         /* records variable names */
+    ListHead<MatchSetChange> tentative_assertions = new ListHead<MatchSetChange>();   /* pending MS changes */
+    ListHead<MatchSetChange> tentative_retractions = new ListHead<MatchSetChange>();
     
     /**
      * @return Shallow copy of this object
