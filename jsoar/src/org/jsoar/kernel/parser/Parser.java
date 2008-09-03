@@ -8,7 +8,6 @@ package org.jsoar.kernel.parser;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.jsoar.kernel.ByRef;
 import org.jsoar.kernel.PreferenceType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
@@ -37,6 +36,8 @@ import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.Arguments;
+import org.jsoar.util.ByRef;
 
 /* =================================================================
 
@@ -75,6 +76,9 @@ public class Parser implements LexemeTypes
     
     public Parser(VariableGenerator varGen, Lexer lexer)
     {
+        Arguments.checkNotNull(varGen, "varGen");
+        Arguments.checkNotNull(lexer, "lexer");
+        
         this.varGen = varGen;
         this.syms = varGen.getSyms();
         this.lexer = lexer;

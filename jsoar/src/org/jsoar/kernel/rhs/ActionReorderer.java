@@ -8,8 +8,8 @@ package org.jsoar.kernel.rhs;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jsoar.kernel.ByRef;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.ByRef;
 
 /**
  * @author ray

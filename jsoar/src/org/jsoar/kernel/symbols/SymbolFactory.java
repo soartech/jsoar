@@ -8,8 +8,8 @@ package org.jsoar.kernel.symbols;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jsoar.kernel.ByRef;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.ByRef;
 
 /**
  * @author ray

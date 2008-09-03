@@ -54,14 +54,14 @@ public class ReteNode
     ReteNode next_sibling; /*   regardless of unlinking status */
     
     // TODO union rete_node_a_union {
-      PosNodeData a_pos;                   /* for pos. nodes */
-      NonPosNodeData a_np;                /* for all other nodes */
+      PosNodeData a_pos = new PosNodeData();                   /* for pos. nodes */
+      NonPosNodeData a_np = new NonPosNodeData();                /* for all other nodes */
     // TODO } a;
     // TODO union rete_node_b_union {
-      PosNegNodeData b_posneg;            /* for pos, neg, mp nodes */
-      BetaMemoryNodeData b_mem;          /* for beta memory nodes */
-      ConjunctiveNegationNodeData b_cn;                    /* for cn, cn_partner nodes */
-      ProductionNodeData b_p;                      /* for p nodes */
+      PosNegNodeData b_posneg = new PosNegNodeData();            /* for pos, neg, mp nodes */
+      BetaMemoryNodeData b_mem = new BetaMemoryNodeData();          /* for beta memory nodes */
+      ConjunctiveNegationNodeData b_cn = new ConjunctiveNegationNodeData(); /* for cn, cn_partner nodes */
+      ProductionNodeData b_p = new ProductionNodeData();                      /* for p nodes */
     // TODO} b;
 
       public static boolean bnode_is_hashed(int x) { return ((x) & 0x01) != 0; }

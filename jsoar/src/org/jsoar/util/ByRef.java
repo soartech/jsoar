@@ -3,7 +3,7 @@
  *
  * Created on Aug 19, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.util;
 
 /**
  * @author ray

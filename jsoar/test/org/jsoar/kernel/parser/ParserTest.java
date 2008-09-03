@@ -43,23 +43,6 @@ import org.junit.Test;
  */
 public class ParserTest extends JSoarTest
 {
-    private SymbolFactory syms;
-    
-    @Before
-    public void setUp()
-    {
-        this.syms = new SymbolFactory();
-    }
-
-    private Parser createParser(String input) throws IOException
-    {
-        Lexer lexer = new Lexer(new StringReader(input));
-        
-        Parser parser = new Parser(new VariableGenerator(syms), lexer);
-        lexer.getNextLexeme();
-        return parser;
-    }
-
     private void verifyVariableSymbol(Symbol sym, String name)
     {
         Variable sc = sym.asVariable();

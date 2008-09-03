@@ -5,14 +5,20 @@
  */
 package org.jsoar.kernel;
 
+import java.util.LinkedList;
+
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConditionReorderer;
+import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.ReteNode;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.ByRef;
+import org.jsoar.util.ListHead;
 
 public class Production
 {
@@ -26,6 +32,8 @@ public class Production
     public int firing_count = 0;
     public boolean trace_firings = false;
     public ReteNode p_node;
+    public final ListHead<Instantiation> instantiations = new ListHead<Instantiation>();
+    public final LinkedList<Variable> rhs_unbound_variables = new LinkedList<Variable>();
     
     /**
      * @param type
@@ -83,14 +91,12 @@ public class Production
             }
         }
 
-        // TODO name->sc.production = p;
+        name.production = this;
         // TODO insert_at_head_of_dll (thisAgent->all_productions_of_type[type], p, next, prev);
         // TODO thisAgent->num_productions_of_type[type]++;
-        // TODO p->p_node = NIL;               /* it's not in the Rete yet */
+        this.p_node = null;               /* it's not in the Rete yet */
         this.condition_list = lhs_top.value;
         this.action_list = rhs_top.value;
-        // TODO p->rhs_unbound_variables = NIL; /* the Rete fills this in */
-        // TODO p->instantiations = NIL;
         
         // Soar-RL stuff
         // TODO p->rl_update_count = 0;
