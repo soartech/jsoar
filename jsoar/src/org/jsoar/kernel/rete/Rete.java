@@ -47,14 +47,14 @@ public class Rete
         // rete.cpp:8796 
         // TODO
 //        left_addition_routines[DUMMY_MATCHES_BNODE] = dummy_matches_node_left_addition;
-        left_addition_routines[ReteNode.MEMORY_BNODE] = new LeftAdditionRoutine() {
+        left_addition_routines[ReteNodeType.MEMORY_BNODE.index()] = new LeftAdditionRoutine() {
 
             @Override
             public void execute(Rete rete, ReteNode node, Token tok, Wme w)
             {
                 rete.beta_memory_node_left_addition(node, tok, w);
             }};
-        left_addition_routines[ReteNode.UNHASHED_MEMORY_BNODE] = new LeftAdditionRoutine() {
+        left_addition_routines[ReteNodeType.UNHASHED_MEMORY_BNODE.index()] = new LeftAdditionRoutine() {
 
             @Override
             public void execute(Rete rete, ReteNode node, Token tok, Wme w)
@@ -63,14 +63,14 @@ public class Rete
             }
             
         };
-        left_addition_routines[ReteNode.MP_BNODE] = new LeftAdditionRoutine() {
+        left_addition_routines[ReteNodeType.MP_BNODE.index()] = new LeftAdditionRoutine() {
 
             @Override
             public void execute(Rete rete, ReteNode node, Token tok, Wme w)
             {
                 rete.mp_node_left_addition(node, tok, w);
             } };
-        left_addition_routines[ReteNode.UNHASHED_MP_BNODE] = new LeftAdditionRoutine() {
+        left_addition_routines[ReteNodeType.UNHASHED_MP_BNODE.index()] = new LeftAdditionRoutine() {
 
             @Override
             public void execute(Rete rete, ReteNode node, Token tok, Wme w)
@@ -83,21 +83,21 @@ public class Rete
 //        left_addition_routines[NEGATIVE_BNODE] = negative_node_left_addition;
 //        left_addition_routines[UNHASHED_NEGATIVE_BNODE] = unhashed_negative_node_left_addition;
 //
-        right_addition_routines[ReteNode.POSITIVE_BNODE] = new RightAdditionRoutine() {
+        right_addition_routines[ReteNodeType.POSITIVE_BNODE.index()] = new RightAdditionRoutine() {
 
             @Override
             public void execute(Rete rete, ReteNode node, Wme w)
             {
                 rete.positive_node_right_addition(node, w);
             }};
-        right_addition_routines[ReteNode.UNHASHED_POSITIVE_BNODE] = new RightAdditionRoutine() {
+        right_addition_routines[ReteNodeType.UNHASHED_POSITIVE_BNODE.index()] = new RightAdditionRoutine() {
 
             @Override
             public void execute(Rete rete, ReteNode node, Wme w)
             {
                 rete.unhashed_positive_node_right_addition(node, w);
             }};
-        right_addition_routines[ReteNode.MP_BNODE] = new RightAdditionRoutine() {
+        right_addition_routines[ReteNodeType.MP_BNODE.index()] = new RightAdditionRoutine() {
 
             @Override
             public void execute(Rete rete, ReteNode node, Wme w)
@@ -271,7 +271,7 @@ public class Rete
         /* --- look for an existing p node that matches --- */
         for (ReteNode p_node = bottom_node.value.first_child; p_node != null; p_node = p_node.next_sibling)
         {
-            if (p_node.node_type != ReteNode.P_BNODE)
+            if (p_node.node_type != ReteNodeType.P_BNODE)
             {
                 continue;
             }
@@ -609,12 +609,12 @@ public class Rete
             for (ReteNode node=am.beta_nodes; node!=null; node=next) {
               next = node.b_posneg.next_from_alpha_mem;
               switch (node.node_type) {
-              case ReteNode.POSITIVE_BNODE:
-              case ReteNode.UNHASHED_POSITIVE_BNODE:
+              case POSITIVE_BNODE:
+              case UNHASHED_POSITIVE_BNODE:
                 node.unlink_from_left_mem();
                 break;
-              case ReteNode.MP_BNODE:
-              case ReteNode.UNHASHED_MP_BNODE:
+              case MP_BNODE:
+              case UNHASHED_MP_BNODE:
                 node.make_mp_bnode_left_unlinked();
                 break;
               } /* end of switch (node.node_type) */
@@ -635,7 +635,7 @@ public class Rete
 
             if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
               for (ReteNode child=node.first_child; child!=null; child=child.next_sibling) {
-                left_addition_routines[child.node_type].execute(this, child, left, null);
+                left_addition_routines[child.node_type.index()].execute(this, child, left, null);
               }
             }
           } else {
@@ -880,17 +880,7 @@ public class Rete
         }
 
         /* --- no existing alpha_mem found, so create a new one --- */
-        am = new AlphaMemory();
-        am.next_in_hash_table = null;
-        // TODO am->reference_count = 1;
-        am.id = id;
-        // if (id) symbol_add_ref (id);
-        am.attr = attr;
-        // if (attr) symbol_add_ref (attr);
-        am.value = value;
-        // if (value) symbol_add_ref (value);
-        am.acceptable = acceptable;
-        am.am_id = get_next_alpha_mem_id();
+        am = new AlphaMemory(get_next_alpha_mem_id(), id, attr, value, acceptable);
         SoarHashTable<AlphaMemory> ht = table_for_tests(id, attr, value, acceptable);
         ht.add_to_hash_table(am);
 
@@ -958,7 +948,7 @@ public class Rete
                 for (ReteNode node = am.beta_nodes; node != null; node = next)
                 {
                     next = node.b_posneg.next_from_alpha_mem;
-                    right_addition_routines[node.node_type].execute(this, node, w);
+                    right_addition_routines[node.node_type.index()].execute(this, node, w);
                 }
                 return; /* only one possible alpha memory per table could match */
             }
@@ -987,7 +977,7 @@ public class Rete
     void init_dummy_top_node()
     {
         /* --- create the dummy top node --- */
-        dummy_top_node = new ReteNode(ReteNode.DUMMY_TOP_BNODE);
+        dummy_top_node = new ReteNode(ReteNodeType.DUMMY_TOP_BNODE);
 
         /* --- create the dummy top token --- */
         dummy_top_token = new RightToken(dummy_top_node, null, null, null);
@@ -1006,15 +996,15 @@ public class Rete
      */
     void update_node_with_matches_from_above(ReteNode child)
     {
-        if (ReteNode.bnode_is_bottom_of_split_mp(child.node_type)) {
+        if (child.node_type.bnode_is_bottom_of_split_mp()) {
             throw new IllegalArgumentException("Internal error: update_node_with_matches_from_above called on split node");
         }
         
         ReteNode parent = child.parent;
 
         /* --- if parent is dummy top node, tell child about dummy top token --- */ 
-        if (parent.node_type==ReteNode.DUMMY_TOP_BNODE) {
-          left_addition_routines[child.node_type].execute(this, child, dummy_top_token, null);
+        if (parent.node_type==ReteNodeType.DUMMY_TOP_BNODE) {
+          left_addition_routines[child.node_type.index()].execute(this, child, dummy_top_token, null);
           return;
         }
 
@@ -1022,7 +1012,7 @@ public class Rete
                to replace the list with "child"; then call parent's add_right 
                routine with each wme in the parent's alpha mem; then do surgery 
                to restore previous child list of parent. --- */
-        if (ReteNode.bnode_is_positive(parent.node_type)) {
+        if (parent.node_type.bnode_is_positive()) {
           /* --- If the node is right unlinked, then don't activate it.  This is
              important because some interpreter routines rely on the node
              being right linked whenever it gets right activated. */
@@ -1034,7 +1024,7 @@ public class Rete
           /* to avoid double-counting these right adds */
           for(RightMemory rm : parent.b_posneg.alpha_mem_.right_mems)
           {
-              right_addition_routines[parent.node_type].execute(this, parent, rm.w);
+              right_addition_routines[parent.node_type.index()].execute(this, parent, rm.w);
           }
           parent.first_child = saved_parents_first_child;
           child.next_sibling = saved_childs_next_sibling;
@@ -1048,7 +1038,7 @@ public class Rete
         {
             if(tok.negrm_tokens.isEmpty())
             {
-                left_addition_routines[child.node_type].execute(this, child, tok, null);
+                left_addition_routines[child.node_type.index()].execute(this, child, tok, null);
             }
         }
     }
@@ -1386,7 +1376,7 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type].execute(this, child, New, rm.w);
+                left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
             }
         }
     }   
@@ -1431,7 +1421,7 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type].execute(this, child, New, rm.w);
+                left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
             }
         }
     }   
@@ -1515,7 +1505,7 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type].execute(this, child, New, rm.w);
+                left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
             }
         }
     }   
@@ -1572,7 +1562,7 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type].execute(this, child, New, rm.w);
+                left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
             }
         }
     }
@@ -1625,7 +1615,7 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type].execute(this, child, tok, w);
+                left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
             }
         }
     }
@@ -1675,7 +1665,7 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type].execute(this, child, tok, w);
+                left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
             }
         }
     }
@@ -1730,7 +1720,7 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type].execute(this, child, tok, w);
+                left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
             }
         }
     }
@@ -1780,7 +1770,7 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type].execute(this, child, tok, w);
+                left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
             }
         }
     }
@@ -1817,10 +1807,10 @@ public class Rete
 //              fast_remove_from_dll (tok->w->tokens, tok, token,
 //                                       next_from_wme, prev_from_wme);
           }
-          int node_type = node.node_type;
+          ReteNodeType node_type = node.node_type;
 
           /* --- for merged Mem/Pos nodes --- */
-          if ((node_type==ReteNode.MP_BNODE)||(node_type==ReteNode.UNHASHED_MP_BNODE)) {
+          if ((node_type==ReteNodeType.MP_BNODE)||(node_type==ReteNodeType.UNHASHED_MP_BNODE)) {
               LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
               int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
               left_ht.remove_token_from_left_ht(lt, hv);
@@ -1829,12 +1819,12 @@ public class Rete
             }
 
           /* --- for P nodes --- */
-          } else if (node_type==ReteNode.P_BNODE) {
+          } else if (node_type==ReteNodeType.P_BNODE) {
             p_node_left_removal(node, tok.parent, tok.w);
 
           /* --- for Negative nodes --- */
-          } else if ((node_type==ReteNode.NEGATIVE_BNODE) ||
-                     (node_type==ReteNode.UNHASHED_NEGATIVE_BNODE)) {
+          } else if ((node_type==ReteNodeType.NEGATIVE_BNODE) ||
+                     (node_type==ReteNodeType.UNHASHED_NEGATIVE_BNODE)) {
             LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
             int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
             left_ht.remove_token_from_left_ht(lt, hv);
@@ -1845,7 +1835,7 @@ public class Rete
             }
 
           /* --- for Memory nodes --- */
-          } else if ((node_type==ReteNode.MEMORY_BNODE)||(node_type==ReteNode.UNHASHED_MEMORY_BNODE)) {
+          } else if ((node_type==ReteNodeType.MEMORY_BNODE)||(node_type==ReteNodeType.UNHASHED_MEMORY_BNODE)) {
               LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
               int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
               left_ht.remove_token_from_left_ht(lt, hv);
@@ -1868,7 +1858,7 @@ public class Rete
             }
 
           /* --- for CN nodes --- */
-          } else if (node_type==ReteNode.CN_BNODE) {
+          } else if (node_type==ReteNodeType.CN_BNODE) {
               // TODO: Is it ok to use hashcode in place of hashing on the adress?
               int hv = node.node_id ^ tok.parent.hashCode() ^ tok.w.hashCode();
             //int hv = node.node_id ^ (unsigned long)(tok->parent) ^ (unsigned long)(tok->w)
@@ -1884,7 +1874,7 @@ public class Rete
             }
 
           /* --- for CN Partner nodes --- */
-          } else if (node_type==ReteNode.CN_PARTNER_BNODE) {
+          } else if (node_type==ReteNodeType.CN_PARTNER_BNODE) {
             RightToken rt = (RightToken) tok; // TODO: Safe to assume this?
             Token left = rt.left_token;
             rt.negrm.remove(left.negrm_tokens);
@@ -1892,7 +1882,7 @@ public class Rete
 //                                  a.neg.next_negrm, a.neg.prev_negrm);
             if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
               for (ReteNode child=left.node.first_child; child!=null; child=child.next_sibling){
-                left_addition_routines[child.node_type].execute(this, child, left, null);
+                left_addition_routines[child.node_type.index()].execute(this, child, left, null);
               }
             }
 

@@ -17,17 +17,17 @@ import org.jsoar.util.ListHead;
  */
 public class Wme
 {
-    public Identifier id;
-    public Symbol attr;
-    public Symbol value;
-    public boolean acceptable;
+    public final Identifier id;
+    public final Symbol attr;
+    public final Symbol value;
+    public final boolean acceptable;
     
-//    unsigned long timetag;
+    public final int timetag;
 //    unsigned long reference_count;
 //    struct wme_struct *rete_next, *rete_prev; 
-    public AsListItem<Wme> in_rete = new AsListItem<Wme>(this); // used for dll of wmes in rete
-    public ListHead<RightMemory> right_mems = new ListHead<RightMemory>(); // used for dll of rm's it's in
-    public ListHead<Token> tokens = new ListHead<Token>(); // dll of tokens in rete
+    public final AsListItem<Wme> in_rete = new AsListItem<Wme>(this); // used for dll of wmes in rete
+    public final ListHead<RightMemory> right_mems = new ListHead<RightMemory>(); // used for dll of rm's it's in
+    public final ListHead<Token> tokens = new ListHead<Token>(); // dll of tokens in rete
 //    struct wme_struct *next, *prev;           /* (see above) */
 //    struct preference_struct *preference;     /* pref. supporting it, or NIL */
 //    struct output_link_struct *output_link;   /* for top-state output commands */
@@ -39,5 +39,29 @@ public class Wme
 //    struct gds_struct *gds;
 //    struct wme_struct *gds_next, *gds_prev; /* used for dll of wmes in gds */
 //    /* REW: end   09.15.96 */
+    
+    /**
+     * @param id
+     * @param attr
+     * @param value
+     * @param acceptable
+     * @param timetag
+     */
+    public Wme(Identifier id, Symbol attr, Symbol value, boolean acceptable, int timetag)
+    {
+        this.id = id;
+        this.attr = attr;
+        this.value = value;
+        this.acceptable = acceptable;
+        this.timetag = timetag;
+    }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return "<" + id + ", " + attr + ", " + value + ">:" + timetag;
+    }
 }

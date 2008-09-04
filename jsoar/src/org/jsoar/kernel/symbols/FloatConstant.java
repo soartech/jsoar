@@ -30,4 +30,15 @@ public class FloatConstant extends Symbol
     {
         return this;
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return Double.toString(value);
+    }
+    
+    
 }

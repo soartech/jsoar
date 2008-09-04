@@ -19,12 +19,24 @@ public class LeftToken extends Token
 //  Symbol *referent; /* referent of the hash test (thing we hashed on) */
 //} ht;
 
-    AsListItem<LeftToken> in_bucket = new AsListItem<LeftToken>(this); // part of hash bucket dll
-    Symbol referent; // referent of the hash test (thing we hashed on)
+    final AsListItem<LeftToken> in_bucket = new AsListItem<LeftToken>(this); // part of hash bucket dll
+    final Symbol referent; // referent of the hash test (thing we hashed on)
     
     public LeftToken(ReteNode current_node, Token parent_tok, Wme parent_wme, Symbol referent)
     {
         super(current_node, parent_tok, parent_wme);
         this.referent = referent;
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        // TODO Auto-generated method stub
+        return w + "/" + referent;
+    }
+    
+    
 }

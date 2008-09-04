@@ -433,18 +433,18 @@ public class ReteBuilder
          */
 
         /* --- determine desired node types --- */
-        int pos_node_type, mem_node_type, mp_node_type;
+        ReteNodeType pos_node_type, mem_node_type, mp_node_type;
         if (hash_this_node)
         {
-            pos_node_type = ReteNode.POSITIVE_BNODE;
-            mem_node_type = ReteNode.MEMORY_BNODE;
-            mp_node_type = ReteNode.MP_BNODE;
+            pos_node_type = ReteNodeType.POSITIVE_BNODE;
+            mem_node_type = ReteNodeType.MEMORY_BNODE;
+            mp_node_type = ReteNodeType.MP_BNODE;
         }
         else
         {
-            pos_node_type = ReteNode.UNHASHED_POSITIVE_BNODE;
-            mem_node_type = ReteNode.UNHASHED_MEMORY_BNODE;
-            mp_node_type = ReteNode.UNHASHED_MP_BNODE;
+            pos_node_type = ReteNodeType.UNHASHED_POSITIVE_BNODE;
+            mem_node_type = ReteNodeType.UNHASHED_MEMORY_BNODE;
+            mp_node_type = ReteNodeType.UNHASHED_MP_BNODE;
         }
 
         /* --- look for a matching existing memory node --- */
@@ -561,7 +561,7 @@ public class ReteBuilder
                 cond.test_for_acceptable_preference);
 
         /* --- determine desired node type --- */
-        int node_type = hash_this_node ? ReteNode.NEGATIVE_BNODE : ReteNode.UNHASHED_NEGATIVE_BNODE;
+        ReteNodeType node_type = hash_this_node ? ReteNodeType.NEGATIVE_BNODE : ReteNodeType.UNHASHED_NEGATIVE_BNODE;
 
         /* --- look for a matching existing node --- */
         ReteNode node;
@@ -651,7 +651,7 @@ public class ReteBuilder
                 ReteNode child;
                 for (child = node.first_child; child != null; child = child.next_sibling)
                 {
-                    if (child.node_type == ReteNode.CN_BNODE)
+                    if (child.node_type == ReteNodeType.CN_BNODE)
                     {
                         if (child.b_cn.partner.parent == subconditions_bottom_node.value)
                         {

@@ -10,14 +10,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.PreferenceType;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.DisjunctionTest;
@@ -33,9 +30,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IntConstant;
 import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Variable;
-import org.junit.Before;
 import org.junit.Test;
 
 /**

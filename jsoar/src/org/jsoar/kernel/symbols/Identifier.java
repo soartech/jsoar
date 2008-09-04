@@ -96,4 +96,16 @@ public class Identifier extends Symbol
     {
         return name_letter;
     }
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return name_letter + Integer.toString(name_number);
+    }
+    
+    
 }
