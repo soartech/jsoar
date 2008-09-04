@@ -26,11 +26,20 @@ public class NodeVarNames
         Object id_varnames;
         Object attr_varnames;
         Object value_varnames;
+        
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString()
+        {
+            return "<" + id_varnames + ", " + attr_varnames + ", " + value_varnames + ">";
+        }
     }
     
-    NodeVarNames parent;
+    final NodeVarNames parent;
     //union varname_data_union {
-    ThreeFieldVarNames fields; // TODO: Only allocate for non-CN_BNODE
+    final ThreeFieldVarNames fields = new ThreeFieldVarNames(); // TODO: Only allocate for non-CN_BNODE
     NodeVarNames bottom_of_subconditions;
     //} data;
     
@@ -53,7 +62,7 @@ public class NodeVarNames
 
         while (node != cutoff)
         {
-            if (node.node_type == ReteNode.CN_BNODE)
+            if (node.node_type == ReteNodeType.CN_BNODE)
             {
                 deallocate_node_varnames(node.b_cn.partner.parent, node.parent, nvn.bottom_of_subconditions);
             }
@@ -149,4 +158,12 @@ public class NodeVarNames
         return parent_nvn;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return fields + "/" + bottom_of_subconditions;
+    }
 }

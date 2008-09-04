@@ -12,7 +12,7 @@ package org.jsoar.kernel.rete;
  * 
  * @author ray
  */
-public class BetaMemoryNodeData
+public class BetaMemoryNodeData extends ReteNodeData
 {
     public static String bnode_type_names[/*256*/] =
     {

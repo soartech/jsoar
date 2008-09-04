@@ -14,7 +14,7 @@ import org.jsoar.util.ListHead;
  * 
  * @author ray
  */
-public class NonPosNodeData
+public class NonPosNodeData extends ReteNodeData
 {
     ListHead<Token> tokens = new ListHead<Token>(); // dll of tokens at this node
     boolean is_left_unlinked; //:1;           /* used on mp nodes only */

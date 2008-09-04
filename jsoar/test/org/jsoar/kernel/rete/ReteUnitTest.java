@@ -11,7 +11,6 @@ import static org.junit.Assert.*;
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.parser.Parser;
-import org.jsoar.util.AsListItem;
 import org.junit.Test;
 
 /**
@@ -24,7 +23,7 @@ public class ReteUnitTest extends JSoarTest
     {
         Rete rete = new Rete(varGen);
         assertNotNull(rete.dummy_top_node);
-        assertEquals(ReteNode.DUMMY_TOP_BNODE, rete.dummy_top_node.node_type);
+        assertEquals(ReteNodeType.DUMMY_TOP_BNODE, rete.dummy_top_node.node_type);
         RightToken dummyTopToken = (RightToken) rete.dummy_top_node.a_np.tokens.first.get();
         assertNotNull(dummyTopToken);
         assertNull(dummyTopToken.parent);

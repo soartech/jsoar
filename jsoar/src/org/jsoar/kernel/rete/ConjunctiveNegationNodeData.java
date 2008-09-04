@@ -12,7 +12,7 @@ package org.jsoar.kernel.rete;
  *  
  * @author ray
  */
-public class ConjunctiveNegationNodeData
+public class ConjunctiveNegationNodeData extends ReteNodeData
 {
     ReteNode partner;    /* cn, cn_partner point to each other */
 

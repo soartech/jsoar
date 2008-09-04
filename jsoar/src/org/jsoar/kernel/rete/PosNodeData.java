@@ -13,7 +13,7 @@ package org.jsoar.kernel.rete;
  * 
  * @author ray
  */
-public class PosNodeData
+public class PosNodeData extends ReteNodeData
 {
     /* --- dll of left-linked pos nodes from the parent beta memory --- */
     ReteNode next_from_beta_mem;

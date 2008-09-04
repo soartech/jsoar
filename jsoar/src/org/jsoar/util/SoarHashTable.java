@@ -168,5 +168,47 @@ public class SoarHashTable <T extends ItemInHashTable>
         this.size = new_size;
         this.log2size = new_log2size;
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        // Display like a Java map, indexed by hash value
+        StringBuilder builder = new StringBuilder();
+        builder.append("{");
+        for(int hv = 0;  hv < buckets.length; ++hv)
+        {
+            if(hv != 0)
+            {
+                builder.append(", ");
+            }
+            builder.append(hv);
+            builder.append(" : ");
+            itemListToString(builder, buckets[hv]);
+        }
+        builder.append("}");
+        return builder.toString();
+    }
     
+    private static void itemListToString(StringBuilder builder, ItemInHashTable first)
+    {
+        if(first == null)
+        {
+            builder.append(first);
+            return;
+        }
+        
+        builder.append("[");
+        for(ItemInHashTable i = first; i != null; i = i.next_in_hash_table)
+        {
+            if(i != first)
+            {
+                builder.append(", ");
+            }
+            builder.append(i);
+        }
+        builder.append("]");
+    }
 }

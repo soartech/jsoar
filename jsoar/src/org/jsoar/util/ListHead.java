@@ -77,6 +77,17 @@ public class ListHead <T> implements Iterable<T>
                 throw new UnsupportedOperationException();
             }};
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        // Display like a Java collection
+        return toList().toString();
+    }
+    
     
     
 }

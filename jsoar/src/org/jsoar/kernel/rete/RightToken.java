@@ -18,8 +18,8 @@ public class RightToken extends Token
 //  struct token_struct *left_token; /* token this is local join result for*/
 //} neg;
     
-    AsListItem<Token> negrm = new AsListItem<Token>(this); // part of other local join results dll
-    Token left_token; // token this is a local join result for
+    final AsListItem<Token> negrm = new AsListItem<Token>(this); // part of other local join results dll
+    final Token left_token; // token this is a local join result for
     
     /**
      * @param current_node
@@ -32,5 +32,12 @@ public class RightToken extends Token
         this.left_token = left_token;
     }
 
-
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return w.toString();
+    }
 }

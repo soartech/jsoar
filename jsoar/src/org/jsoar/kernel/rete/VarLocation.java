@@ -15,8 +15,8 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class VarLocation
 {
-    int levels_up; /* 0=current node's alphamem, 1=parent's, etc. */
-    int field_num;            /* 0=id, 1=attr, 2=value */
+    int levels_up; // 0=current node's alphamem, 1=parent's, etc.
+    int field_num; // 0=id, 1=attr, 2=value
 
     /**
      * Copy another var location into this one
@@ -59,5 +59,15 @@ public class VarLocation
         throw new IllegalArgumentException("field_num must be 0, 1, or 2, got" + field_num);
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return levels_up + ":" + field_num;
+    }
+
+    
 
 }

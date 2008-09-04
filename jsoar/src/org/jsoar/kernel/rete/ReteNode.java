@@ -14,32 +14,7 @@ import org.jsoar.kernel.Production;
  */
 public class ReteNode
 {
-    /* --- types and structure of beta nodes --- */  
-    /*   key:  bit 0 --> hashed                  */
-    /*         bit 1 --> memory                  */
-    /*         bit 2 --> positive join           */
-    /*         bit 3 --> negative join           */
-    /*         bit 4 --> split from beta memory  */
-    /*         bit 6 --> various special types   */
-
-    /* Warning: If you change any of these or add ones, be sure to update the
-       bit-twiddling macros just below */
-    public static final int UNHASHED_MEMORY_BNODE   = 0x02;
-    public static final int MEMORY_BNODE            = 0x03;
-    public static final int UNHASHED_MP_BNODE       = 0x06;
-    public static final int MP_BNODE                = 0x07;
-    public static final int UNHASHED_POSITIVE_BNODE = 0x14;
-    public static final int POSITIVE_BNODE          = 0x15;
-    public static final int UNHASHED_NEGATIVE_BNODE = 0x08;
-    public static final int NEGATIVE_BNODE          = 0x09;
-    public static final int DUMMY_TOP_BNODE         = 0x40;
-    public static final int DUMMY_MATCHES_BNODE     = 0x41;
-    public static final int CN_BNODE                = 0x42;
-    public static final int CN_PARTNER_BNODE        = 0x43;
-    public static final int P_BNODE                 = 0x44;
-
-    
-    int node_type;                  /* tells what kind of node this is */
+    ReteNodeType node_type;                  /* tells what kind of node this is */
 
     /* -- used only on hashed nodes -- */
     /* field_num: 0=id, 1=attr, 2=value */
@@ -53,52 +28,82 @@ public class ReteNode
     ReteNode first_child;  /* used for dll of all children, */
     ReteNode next_sibling; /*   regardless of unlinking status */
     
-    // TODO union rete_node_a_union {
-      PosNodeData a_pos = new PosNodeData();                   /* for pos. nodes */
-      NonPosNodeData a_np = new NonPosNodeData();                /* for all other nodes */
-    // TODO } a;
-    // TODO union rete_node_b_union {
-      PosNegNodeData b_posneg = new PosNegNodeData();            /* for pos, neg, mp nodes */
-      BetaMemoryNodeData b_mem = new BetaMemoryNodeData();          /* for beta memory nodes */
-      ConjunctiveNegationNodeData b_cn = new ConjunctiveNegationNodeData(); /* for cn, cn_partner nodes */
-      ProductionNodeData b_p = new ProductionNodeData();                      /* for p nodes */
-    // TODO} b;
+    // TODO: Fix this union hack
+    // union rete_node_a_union {
+    PosNodeData a_pos = null;                   /* for pos. nodes */
+    NonPosNodeData a_np = null;                /* for all other nodes */
+    // } a;
+    // TODO: Fix this union hack
+    // union rete_node_b_union {
+    PosNegNodeData b_posneg = null;            /* for pos, neg, mp nodes */
+    BetaMemoryNodeData b_mem = null;          /* for beta memory nodes */
+    ConjunctiveNegationNodeData b_cn = null; /* for cn, cn_partner nodes */
+    ProductionNodeData b_p = null;                      /* for p nodes */
+    // } b;
 
-      public static boolean bnode_is_hashed(int x) { return ((x) & 0x01) != 0; }
-      public static boolean bnode_is_memory(int x) { return ((x) & 0x02) != 0; }
-      public static boolean bnode_is_positive(int x) { return ((x) & 0x04) != 0; }
-      public static boolean bnode_is_negative(int x) { return ((x) & 0x08) != 0; }
-      public static boolean bnode_is_posneg(int x) { return ((x) & 0x0C) != 0; }
-      public static boolean bnode_is_bottom_of_split_mp(int x) { return ((x) & 0x10) != 0; }
       
-      public ReteNode(int type)
-      {
-          this.node_type = type;
-      }
+    public ReteNode(ReteNodeType type)
+    {
+        this.node_type = type;
+
+        if (type.bnode_is_positive())
+        {
+            a_pos = new PosNodeData();
+        }
+        else
+        {
+            a_np = new NonPosNodeData();
+        }
+
+        if (type == ReteNodeType.P_BNODE)
+        {
+            b_p = new ProductionNodeData();
+        }
+        else if (type == ReteNodeType.CN_BNODE || type == ReteNodeType.CN_PARTNER_BNODE)
+        {
+            b_cn = new ConjunctiveNegationNodeData();
+        }
+        else if (type == ReteNodeType.MEMORY_BNODE || type == ReteNodeType.UNHASHED_MEMORY_BNODE)
+        {
+            b_mem = new BetaMemoryNodeData();
+        }
+        else
+        {
+            b_posneg = new PosNegNodeData();
+        }
+
+        // Enforce a and b "unions"
+        assert (a_pos != null && a_np == null) || (a_pos == null && a_np != null);
+        assert (b_p != null && b_cn == null && b_mem == null && b_posneg == null)
+                || (b_p == null && b_cn != null && b_mem == null && b_posneg == null)
+                || (b_p == null && b_cn == null && b_mem != null && b_posneg == null)
+                || (b_p == null && b_cn == null && b_mem == null && b_posneg != null);
+    }
       
-      /**
-       * Returns a copy of this node with semantics equivalent to struct assignment in C.
-       * 
-       * @return A copy of this node
-       */
-      private ReteNode copy()
-      {
-          ReteNode newNode = new ReteNode(this.node_type);
-          newNode.left_hash_loc_levels_up = this.left_hash_loc_levels_up;
-          newNode.left_hash_loc_field_num = this.left_hash_loc_field_num;
-          newNode.node_id = this.node_id;
-          newNode.parent = this.parent;
-          newNode.first_child = this.first_child;
-          newNode.next_sibling = this.next_sibling;
-          newNode.a_pos = this.a_pos.copy();
-          newNode.a_np = this.a_np.copy();
-          newNode.b_posneg = this.b_posneg.copy();
-          newNode.b_mem = this.b_mem.copy();
-          newNode.b_cn = this.b_cn.copy();
-          newNode.b_p = this.b_p.copy();
-          
-          return newNode;
-      }
+    /**
+     * Returns a copy of this node with semantics equivalent to struct
+     * assignment in C.
+     * 
+     * @return A copy of this node
+     */
+    private ReteNode copy()
+    {
+        ReteNode newNode = new ReteNode(this.node_type);
+        newNode.left_hash_loc_levels_up = this.left_hash_loc_levels_up;
+        newNode.left_hash_loc_field_num = this.left_hash_loc_field_num;
+        newNode.node_id = this.node_id;
+        newNode.parent = this.parent;
+        newNode.first_child = this.first_child;
+        newNode.next_sibling = this.next_sibling;
+        newNode.a_pos = this.a_pos.copy();
+        newNode.a_np = this.a_np != null ? this.a_np.copy() : null;
+        newNode.b_posneg = this.b_posneg != null ? this.b_posneg.copy() : null;
+        newNode.b_mem = this.b_mem != null ? this.b_mem.copy() : null;
+        newNode.b_cn = this.b_cn != null ? this.b_cn.copy() : null;
+        newNode.b_p = this.b_p != null ? this.b_p.copy() : null;
+
+        return newNode;
+    }
 
     /**
      * rete.cpp:432:real_parent_node
@@ -107,7 +112,7 @@ public class ReteNode
      */
     public ReteNode real_parent_node()
     {
-        return (bnode_is_bottom_of_split_mp(node_type) ? parent.parent : parent);
+        return (node_type.bnode_is_bottom_of_split_mp() ? parent.parent : parent);
     }
     
     /**
@@ -131,41 +136,57 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:483:relink_to_right_mem 
+     * rete.cpp:483:relink_to_right_mem
      */
     public void relink_to_right_mem()
     {
-      /* find first ancestor that's linked */
-      ReteNode rtrm_ancestor = b_posneg.nearest_ancestor_with_same_am;
-      ReteNode rtrm_prev;
-      while (rtrm_ancestor != null && rtrm_ancestor.node_is_right_unlinked())
-      {
-        rtrm_ancestor = rtrm_ancestor.b_posneg.nearest_ancestor_with_same_am;
-      }
-      if (rtrm_ancestor != null) {
-        /* insert just before that ancestor */
-        rtrm_prev = rtrm_ancestor.b_posneg.prev_from_alpha_mem;
-        (this).b_posneg.next_from_alpha_mem = rtrm_ancestor;
-        (this).b_posneg.prev_from_alpha_mem = rtrm_prev;
-        rtrm_ancestor.b_posneg.prev_from_alpha_mem = (this);
-        if (rtrm_prev != null) { rtrm_prev.b_posneg.next_from_alpha_mem = (this); }
-        else { (this).b_posneg.alpha_mem_.beta_nodes = (this); }
-      } else {
-        /* no such ancestor, insert at tail of list */
-        rtrm_prev = (this).b_posneg.alpha_mem_.last_beta_node;
-        (this).b_posneg.next_from_alpha_mem = null;
-        (this).b_posneg.prev_from_alpha_mem = rtrm_prev;
-        (this).b_posneg.alpha_mem_.last_beta_node = (this);
-        if (rtrm_prev != null) { rtrm_prev.b_posneg.next_from_alpha_mem = (this); }
-        else { (this).b_posneg.alpha_mem_.beta_nodes = (this); }
-      }
+        /* find first ancestor that's linked */
+        ReteNode rtrm_ancestor = b_posneg.nearest_ancestor_with_same_am;
+        ReteNode rtrm_prev;
+        while (rtrm_ancestor != null && rtrm_ancestor.node_is_right_unlinked())
+        {
+            rtrm_ancestor = rtrm_ancestor.b_posneg.nearest_ancestor_with_same_am;
+        }
+        if (rtrm_ancestor != null)
+        {
+            /* insert just before that ancestor */
+            rtrm_prev = rtrm_ancestor.b_posneg.prev_from_alpha_mem;
+            this.b_posneg.next_from_alpha_mem = rtrm_ancestor;
+            this.b_posneg.prev_from_alpha_mem = rtrm_prev;
+            rtrm_ancestor.b_posneg.prev_from_alpha_mem = this;
+            if (rtrm_prev != null)
+            {
+                rtrm_prev.b_posneg.next_from_alpha_mem = this;
+            }
+            else
+            {
+                this.b_posneg.alpha_mem_.beta_nodes = this;
+            }
+        }
+        else
+        {
+            /* no such ancestor, insert at tail of list */
+            rtrm_prev = this.b_posneg.alpha_mem_.last_beta_node;
+            this.b_posneg.next_from_alpha_mem = null;
+            this.b_posneg.prev_from_alpha_mem = rtrm_prev;
+            this.b_posneg.alpha_mem_.last_beta_node = this;
+            if (rtrm_prev != null)
+            {
+                rtrm_prev.b_posneg.next_from_alpha_mem = this;
+            }
+            else
+            {
+                this.b_posneg.alpha_mem_.beta_nodes = this;
+            }
+        }
     }
     
     /**
      * rete.cpp:512:unlink_from_right_mem
      */
     public void unlink_from_right_mem() { 
-        if (this.b_posneg.next_from_alpha_mem == null) {
+        if (this.b_posneg.next_from_alpha_mem == null) 
+        {
           this.b_posneg.alpha_mem_.last_beta_node = this.b_posneg.prev_from_alpha_mem;
         }
         // TODO: remove_from_dll
@@ -278,13 +299,13 @@ public class ReteNode
     ReteNode nearest_ancestor_with_same_am(AlphaMemory am)
     {
         ReteNode node = this;
-        while (node.node_type != DUMMY_TOP_BNODE)
+        while (node.node_type != ReteNodeType.DUMMY_TOP_BNODE)
         {
-            if (node.node_type == CN_BNODE)
+            if (node.node_type == ReteNodeType.CN_BNODE)
                 node = node.b_cn.partner.parent;
             else
                 node = node.real_parent_node();
-            if (bnode_is_posneg(node.node_type) && (node.b_posneg.alpha_mem_ == am))
+            if (node.node_type.bnode_is_posneg() && (node.b_posneg.alpha_mem_ == am))
                 return node;
         }
         return null;
@@ -301,7 +322,7 @@ public class ReteNode
      * @param left_hash_loc
      * @return
      */
-    static ReteNode make_new_mem_node(Rete rete, ReteNode parent, int node_type, VarLocation left_hash_loc)
+    static ReteNode make_new_mem_node(Rete rete, ReteNode parent, ReteNodeType node_type, VarLocation left_hash_loc)
     {
         ReteNode node = new ReteNode(node_type);
 
@@ -334,7 +355,7 @@ public class ReteNode
      * @param prefer_left_unlinking
      * @return
      */
-    static ReteNode make_new_positive_node(Rete rete, ReteNode parent_mem, int node_type, AlphaMemory am, ReteTest rt,
+    static ReteNode make_new_positive_node(Rete rete, ReteNode parent_mem, ReteNodeType node_type, AlphaMemory am, ReteTest rt,
             boolean prefer_left_unlinking)
     {
         ReteNode node = new ReteNode(node_type);
@@ -382,19 +403,19 @@ public class ReteNode
      */
     static ReteNode split_mp_node(Rete rete, ReteNode mp_node)
     {
-        byte mem_node_type;
+        ReteNodeType mem_node_type = null;
 
         /* --- determine appropriate node types for new M and P nodes --- */
-        int node_type = -1;
-        if (mp_node.node_type == MP_BNODE)
+        ReteNodeType node_type = null;
+        if (mp_node.node_type == ReteNodeType.MP_BNODE)
         {
-            node_type = POSITIVE_BNODE;
-            mem_node_type = MEMORY_BNODE;
+            node_type = ReteNodeType.POSITIVE_BNODE;
+            mem_node_type = ReteNodeType.MEMORY_BNODE;
         }
         else
         {
-            node_type = UNHASHED_POSITIVE_BNODE;
-            mem_node_type = UNHASHED_MEMORY_BNODE;
+            node_type = ReteNodeType.UNHASHED_POSITIVE_BNODE;
+            mem_node_type = ReteNodeType.UNHASHED_MEMORY_BNODE;
         }
 
         /* --- save a copy of the MP data, then kill the MP node --- */
@@ -429,7 +450,7 @@ public class ReteNode
         /* --- transmogrify the old MP node into the new Pos node --- */
         // init_new_rete_node_with_type (thisAgent, pos_node, node_type);
         pos_node.node_type = node_type;
-        rete.rete_node_counts[pos_node.node_type]++;
+        rete.rete_node_counts[pos_node.node_type.index()]++;
         pos_node.parent = mem_node;
         pos_node.first_child = mp_copy.first_child;
         pos_node.next_sibling = null;
@@ -466,14 +487,14 @@ public class ReteNode
         }
 
         /* --- determine appropriate node type for new MP node --- */
-        int node_type = -1;
-        if (mem_node.node_type == MEMORY_BNODE)
+        ReteNodeType node_type = null;
+        if (mem_node.node_type == ReteNodeType.MEMORY_BNODE)
         {
-            node_type = MP_BNODE;
+            node_type = ReteNodeType.MP_BNODE;
         }
         else
         {
-            node_type = UNHASHED_MP_BNODE;
+            node_type = ReteNodeType.UNHASHED_MP_BNODE;
         }
 
         /* --- save a copy of the Pos data, then kill the Pos node --- */
@@ -485,10 +506,16 @@ public class ReteNode
         ReteNode mp_node = pos_node;
         // init_new_rete_node_with_type (thisAgent, mp_node, node_type);
         mp_node.node_type = node_type;
-        rete.rete_node_counts[mp_node.node_type]++;
+        rete.rete_node_counts[mp_node.node_type.index()]++;
         mp_node.b_posneg = pos_copy.b_posneg; // TODO: Should this be .copy()?
 
         /* --- transfer the Mem node's tokens to the MP node --- */
+        if(mp_node.a_np == null)
+        {
+            // TODO: This is very yucky
+            mp_node.a_pos = null;
+            mp_node.a_np = new NonPosNodeData();
+        }
         mp_node.a_np.tokens = mem_node.a_np.tokens;
         // for (t=mem_node->a.np.tokens; t!=NIL; t=t->next_of_node) t->node =
         // mp_node;
@@ -535,20 +562,20 @@ public class ReteNode
      * @param prefer_left_unlinking
      * @return
      */
-    static ReteNode make_new_mp_node(Rete rete, ReteNode parent, int node_type, VarLocation left_hash_loc,
+    static ReteNode make_new_mp_node(Rete rete, ReteNode parent, ReteNodeType node_type, VarLocation left_hash_loc,
             AlphaMemory am, ReteTest rt, boolean prefer_left_unlinking)
     {
-        int mem_node_type = -1, pos_node_type = -1;
+        ReteNodeType mem_node_type = null, pos_node_type = null;
 
-        if (node_type == MP_BNODE)
+        if (node_type == ReteNodeType.MP_BNODE)
         {
-            pos_node_type = POSITIVE_BNODE;
-            mem_node_type = MEMORY_BNODE;
+            pos_node_type = ReteNodeType.POSITIVE_BNODE;
+            mem_node_type = ReteNodeType.MEMORY_BNODE;
         }
         else
         {
-            pos_node_type = UNHASHED_POSITIVE_BNODE;
-            mem_node_type = UNHASHED_MEMORY_BNODE;
+            pos_node_type = ReteNodeType.UNHASHED_POSITIVE_BNODE;
+            mem_node_type = ReteNodeType.UNHASHED_MEMORY_BNODE;
         }
         ReteNode mem_node = make_new_mem_node(rete, parent, mem_node_type, left_hash_loc);
         ReteNode pos_node = make_new_positive_node(rete, mem_node, pos_node_type, am, rt, prefer_left_unlinking);
@@ -568,7 +595,7 @@ public class ReteNode
      * @param rt
      * @return
      */
-    static ReteNode make_new_negative_node(Rete rete, ReteNode parent, int node_type, VarLocation left_hash_loc,
+    static ReteNode make_new_negative_node(Rete rete, ReteNode parent, ReteNodeType node_type, VarLocation left_hash_loc,
             AlphaMemory am, ReteTest rt)
     {
         ReteNode node = new ReteNode(node_type);
@@ -612,17 +639,14 @@ public class ReteNode
     static ReteNode make_new_cn_node(Rete rete, ReteNode parent, ReteNode bottom_of_subconditions)
     {
         /* --- Find top node in the subconditions branch --- */
-        ReteNode ncc_subconditions_top_node = null; /*
-                                                     * unneeded, but avoids gcc
-                                                     * -Wall warn
-                                                     */
+        ReteNode ncc_subconditions_top_node = null;
         for (ReteNode node = bottom_of_subconditions; node != parent; node = node.parent)
         {
             ncc_subconditions_top_node = node;
         }
 
-        ReteNode node = new ReteNode(CN_BNODE);
-        ReteNode partner = new ReteNode(CN_PARTNER_BNODE);
+        ReteNode node = new ReteNode(ReteNodeType.CN_BNODE);
+        ReteNode partner = new ReteNode(ReteNodeType.CN_PARTNER_BNODE);
 
         /*
          * NOTE: for improved efficiency, <node> should be on the parent's
@@ -670,7 +694,7 @@ public class ReteNode
      */
     static ReteNode make_new_production_node(Rete rete, ReteNode parent, Production new_prod)
     {
-        ReteNode p_node = new ReteNode(P_BNODE);
+        ReteNode p_node = new ReteNode(ReteNodeType.P_BNODE);
 
         new_prod.p_node = p_node;
         p_node.parent = parent;
@@ -678,8 +702,6 @@ public class ReteNode
         parent.first_child = p_node;
         p_node.first_child = null;
         p_node.b_p.prod = new_prod;
-        p_node.b_p.tentative_assertions = null;
-        p_node.b_p.tentative_retractions = null;
         return p_node;
     }
     
@@ -697,7 +719,7 @@ public class ReteNode
             return;
 
         /* --- sanity check --- */
-        if (node.node_type == P_BNODE)
+        if (node.node_type == ReteNodeType.P_BNODE)
         {
             throw new IllegalArgumentException("deallocate_rete_node() called on p-node");
         }
@@ -705,13 +727,13 @@ public class ReteNode
         ReteNode parent = node.parent;
 
         /* --- if a cn node, deallocate its partner first --- */
-        if (node.node_type == CN_BNODE)
+        if (node.node_type == ReteNodeType.CN_BNODE)
         {
             deallocate_rete_node(rete, node.b_cn.partner);
         }
 
         /* --- clean up any tokens at the node --- */
-        if (!bnode_is_bottom_of_split_mp(node.node_type))
+        if (!node.node_type.bnode_is_bottom_of_split_mp())
         {
             while (!node.a_np.tokens.isEmpty())
             {
@@ -720,7 +742,7 @@ public class ReteNode
         }
 
         /* --- stuff for posneg nodes only --- */
-        if (bnode_is_posneg(node.node_type))
+        if (node.node_type.bnode_is_posneg())
         {
             ReteTest.deallocate_rete_test_list(node.b_posneg.other_tests);
             /* --- right unlink the node, cleanup alpha memory --- */
@@ -735,7 +757,7 @@ public class ReteNode
         node.remove_node_from_parents_list_of_children();
 
         /* --- for unmerged pos. nodes: unlink, maybe merge its parent --- */
-        if (bnode_is_bottom_of_split_mp(node.node_type))
+        if (node.node_type.bnode_is_bottom_of_split_mp())
         {
             if (!node.node_is_left_unlinked())
             {
@@ -763,4 +785,14 @@ public class ReteNode
         }
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return node_id + ":" + node_type;
+    }
+
+    
 }
