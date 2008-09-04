@@ -9,7 +9,7 @@ import org.jsoar.kernel.Preference;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.Wme;
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
@@ -30,7 +30,7 @@ public class Instantiation
 
     // TODO not_struct *nots;
     public ListHead<Preference>  preferences_generated;    // header for dll of prefs
-    public Symbol match_goal;                   // symbol, or NIL if none
+    public Identifier match_goal;                   // symbol, or NIL if none
     public int /*goal_stack_level*/ match_goal_level;    // level, or ATTRIBUTE_IMPASSE_LEVEL
     public boolean okay_to_variablize;
     public boolean in_ms;  // TRUE iff this inst. is still in the match set
