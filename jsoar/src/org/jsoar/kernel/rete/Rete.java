@@ -41,12 +41,10 @@ public class Rete
 {
 
     private static final LeftAdditionRoutine[] left_addition_routines = new LeftAdditionRoutine[256];
-    private static final RightAdditionRoutine[] right_addition_routines = new RightAdditionRoutine[256];
     static
     {
         // rete.cpp:8796 
-        // TODO
-//        left_addition_routines[DUMMY_MATCHES_BNODE] = dummy_matches_node_left_addition;
+// TODO:       left_addition_routines[DUMMY_MATCHES_BNODE] = dummy_matches_node_left_addition;
         left_addition_routines[ReteNodeType.MEMORY_BNODE.index()] = new LeftAdditionRoutine() {
 
             @Override
@@ -77,12 +75,39 @@ public class Rete
             {
                 rete.unhashed_mp_node_left_addition(node, tok, w);
             }};
-//        left_addition_routines[CN_BNODE] = cn_node_left_addition;
-//        left_addition_routines[CN_PARTNER_BNODE] = cn_partner_node_left_addition;
-//        left_addition_routines[P_BNODE] = p_node_left_addition;
-//        left_addition_routines[NEGATIVE_BNODE] = negative_node_left_addition;
-//        left_addition_routines[UNHASHED_NEGATIVE_BNODE] = unhashed_negative_node_left_addition;
-//
+        left_addition_routines[ReteNodeType.CN_BNODE.index()] = new LeftAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
+            {
+                rete.cn_node_left_addition(node, tok, w);
+            }};
+        left_addition_routines[ReteNodeType.CN_PARTNER_BNODE.index()] = new LeftAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
+            {
+                rete.cn_partner_node_left_addition(node, tok, w);
+            }};
+//        TODO: left_addition_routines[P_BNODE] = p_node_left_addition;
+        left_addition_routines[ReteNodeType.NEGATIVE_BNODE.index()] = new LeftAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
+            {
+                rete.negative_node_left_addition(node, tok, w);
+            }};
+        left_addition_routines[ReteNodeType.UNHASHED_NEGATIVE_BNODE.index()] = new LeftAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
+            {
+                rete.unhashed_negative_node_left_addition(node, tok, w);
+            }};
+    }
+    private static final RightAdditionRoutine[] right_addition_routines = new RightAdditionRoutine[256];
+    static
+    {
         right_addition_routines[ReteNodeType.POSITIVE_BNODE.index()] = new RightAdditionRoutine() {
 
             @Override
@@ -104,9 +129,27 @@ public class Rete
             {
                 rete.mp_node_right_addition(node, w);
             }};
-//        right_addition_routines[UNHASHED_MP_BNODE] = unhashed_mp_node_right_addition;
-//        right_addition_routines[NEGATIVE_BNODE] = negative_node_right_addition;
-//        right_addition_routines[UNHASHED_NEGATIVE_BNODE] = unhashed_negative_node_right_addition;
+        right_addition_routines[ReteNodeType.UNHASHED_MP_BNODE.index()] = new RightAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Wme w)
+            {
+                rete.unhashed_mp_node_right_addition(node, w);
+            }};
+        right_addition_routines[ReteNodeType.NEGATIVE_BNODE.index()] = new RightAdditionRoutine() {
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Wme w)
+            {
+                rete.negative_node_right_addition(node, w);
+            }};
+        right_addition_routines[ReteNodeType.UNHASHED_NEGATIVE_BNODE.index()] = new RightAdditionRoutine(){
+
+            @Override
+            public void execute(Rete rete, ReteNode node, Wme w)
+            {
+                rete.unhashed_negative_node_right_addition(node, w);
+            }};
     }
     
     /**
@@ -1774,7 +1817,323 @@ public class Rete
             }
         }
     }
+
+    /**
+     * rete.cpp:5153:negative_node_left_addition
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
+    void negative_node_left_addition(ReteNode node, Token tok, Wme w)
+    {
+        left_node_activation(node, true);
+
+        if (node.node_is_right_unlinked())
+        {
+            node.relink_to_right_mem();
+        }
+
+        Symbol referent = null;
+        {
+            int levels_up = node.left_hash_loc_levels_up;
+            if (levels_up == 1)
+            {
+                referent = VarLocation.field_from_wme(w, node.left_hash_loc_field_num);
+            }
+            else
+            { /* --- levels_up > 1 --- */
+                Token t = tok;
+                for (levels_up -= 2; levels_up != 0; levels_up--)
+                {
+                    t = t.parent;
+                }
+                referent = VarLocation.field_from_wme(t.w, node.left_hash_loc_field_num);
+            }
+        }
+
+        int hv = node.node_id ^ referent.hash_id;
+
+        /* --- build new token, add it to the hash table --- */
+        LeftToken New = new LeftToken(node, tok, w, referent);
+        left_ht.insert_token_into_left_ht(New, hv);
+
+        /* --- look through right memory for matches --- */
+        AlphaMemory am = node.b_posneg.alpha_mem_;
+        int right_hv = am.am_id ^ referent.hash_id;
+        for (RightMemory rm : right_ht.right_ht_bucket(right_hv))
+        {
+            if (rm.am != am)
+            {
+                continue;
+            }
+            /* --- does rm->w match new? --- */
+            if (referent != rm.w.id)
+            {
+                continue;
+            }
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            {
+                if (!match_left_and_right(rt, New, rm.w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            new RightToken(node, null, rm.w, New);
+        }
+
+        /* --- if no matches were found, call each child node --- */
+        if (New.negrm_tokens.isEmpty())
+        {
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type.index()].execute(this, child, New, null);
+            }
+        }
+    }
+
+    /**
+     * rete.cpp:5227:unhashed_negative_node_left_addition
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
+    void unhashed_negative_node_left_addition(ReteNode node, Token tok, Wme w)
+    {
+        left_node_activation(node, true);
+
+        if (node.node_is_right_unlinked())
+        {
+            node.relink_to_right_mem();
+        }
+
+        int hv = node.node_id;
+
+        /* --- build new token, add it to the hash table --- */
+        LeftToken New = new LeftToken(node, tok, w, null);
+        left_ht.insert_token_into_left_ht(New, hv);
+
+        /* --- look through right memory for matches --- */
+        for (RightMemory rm : node.b_posneg.alpha_mem_.right_mems)
+        {
+            /* --- does rm->w match new? --- */
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            {
+                if (!match_left_and_right(rt, New, rm.w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            new RightToken(node, null, rm.w, New);
+        }
+
+        /* --- if no matches were found, call each child node --- */
+        if (New.negrm_tokens.isEmpty())
+        {
+            for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+            {
+                left_addition_routines[child.node_type.index()].execute(this, child, New, null);
+            }
+        }
+    }
     
+
+    /**
+     * rete.cpp:5282:negative_node_right_addition
+     * 
+     * @param node
+     * @param w
+     */
+    void negative_node_right_addition(ReteNode node, Wme w)
+    {
+        right_node_activation(node, true);
+
+        Symbol referent = w.id;
+        int hv = node.node_id ^ referent.hash_id;
+
+        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        {
+            if (tok.node != node)
+            {
+                continue;
+            }
+            /* --- does tok match w? --- */
+            if (tok.referent != referent)
+            {
+                continue;
+            }
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            {
+                if (!match_left_and_right(rt, tok, w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            /* --- match found: build new negrm token, remove descendent tokens --- */
+            new RightToken(node, null, w, tok);
+
+            while (!tok.first_child.isEmpty())
+            {
+                remove_token_and_subtree(tok.first_child.first.get());
+            }
+        }
+    }
+
+    /**
+     * rete.cpp:5323:unhashed_negative_node_right_addition
+     * 
+     * @param node
+     * @param w
+     */
+    void unhashed_negative_node_right_addition(ReteNode node, Wme w)
+    {
+        right_node_activation(node, true);
+
+        int hv = node.node_id;
+
+        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        {
+            if (tok.node != node)
+            {
+                continue;
+            }
+            /* --- does tok match w? --- */
+            boolean failed_a_test = false;
+            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+                if (!match_left_and_right(rt, tok, w))
+                {
+                    failed_a_test = true;
+                    break;
+                }
+            if (failed_a_test)
+            {
+                continue;
+            }
+            /* --- match found: build new negrm token, remove descendent tokens --- */
+            new RightToken(node, null, w, tok);
+            while (!tok.first_child.isEmpty())
+            {
+                remove_token_and_subtree(tok.first_child.first.get());
+            }
+        }
+    }
+    
+
+    /**
+     * rete.cpp:5370:cn_node_left_addition
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
+    void cn_node_left_addition(ReteNode node, Token tok, Wme w)
+    {
+        left_node_activation(node, true);
+
+        // TODO: Is it ok to use hashcode in place of hashing on the address?
+        int hv = node.node_id ^ tok.hashCode() ^ w.hashCode();
+
+        /*
+         * --- look for a matching left token (since the partner node might have
+         * heard about this new token already, in which case it would have done
+         * the CN node's work already); if found, exit ---
+         */
+        for (LeftToken t : left_ht.left_ht_bucket(hv))
+        {
+            if ((t.node == node) && (t.parent == tok) && (t.w == w))
+            {
+                return;
+            }
+        }
+
+        /* --- build left token, add it to the hash table --- */
+        LeftToken New = new LeftToken(node, tok, w, null);
+        left_ht.insert_token_into_left_ht(New, hv);
+
+        /* --- pass the new token on to each child node --- */
+        for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+        {
+            left_addition_routines[child.node_type.index()].execute(this, child, New, null);
+        }
+    }
+
+    /**
+     * rete.cpp:5400:cn_partner_node_left_addition
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
+    void cn_partner_node_left_addition(ReteNode node, Token tok, Wme w)
+    {
+        left_node_activation(node, true);
+
+        ReteNode partner = node.b_cn.partner;
+
+        /* --- build new negrm token --- */
+        // TODO: Can this be created at "negrm_tok.left_token = left;" below so
+        // that
+        // left_toke can be final and list insertion can happen in constructor?
+        RightToken negrm_tok = new RightToken(node, tok, w, null);
+
+        /* --- advance (tok,w) up to the token from the top of the branch --- */
+        ReteNode temp = node.parent;
+        while (temp != partner.parent)
+        {
+            temp = temp.real_parent_node();
+            w = tok.w;
+            tok = tok.parent;
+        }
+
+        /* --- look for the matching left token --- */
+        // TODO: Is it ok to use hashcode in place of hashing on the address?
+        int hv = partner.node_id ^ tok.hashCode() ^ w.hashCode();
+        LeftToken left = null;
+        for (LeftToken tempLeft : left_ht.left_ht_bucket(hv))
+        {
+            if ((tempLeft.node == partner) && (tempLeft.parent == tok) && (tempLeft.w == w))
+            {
+                left = tempLeft;
+                break;
+            }
+        }
+
+        /* --- if not found, create a new left token --- */
+        if (left == null)
+        {
+            left = new LeftToken(partner, tok, w, null);
+            left_ht.insert_token_into_left_ht(left, hv);
+        }
+
+        /* --- add new negrm token to the left token --- */
+        negrm_tok.left_token = left;
+        negrm_tok.negrm.insertAtHead(left.negrm_tokens);
+
+        /* --- remove any descendent tokens of the left token --- */
+        while (!left.first_child.isEmpty())
+        {
+            remove_token_and_subtree(left.first_child.first.get());
+        }
+    }
     /**
      * This routine does tree-based removal of a token and its descendents.
      * Note that it uses a nonrecursive tree traversal; each iteration, the
