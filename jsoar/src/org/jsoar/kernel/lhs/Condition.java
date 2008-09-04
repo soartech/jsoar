@@ -18,8 +18,14 @@ public abstract class Condition
     // TODO  three_field_tests tests;             /* for pos, neg cond's only */
     // TODO  ncc_info ncc;                        /* for ncc's only */
     //} data;
-    // TODO bt_info bt;  /* for top-level positive cond's: used for BT and by the rete */
-    public ReorderInfo reorder = new ReorderInfo();  /* used only during reordering. TODO: PositiveCondition only? */
+    /**
+     * for top-level positive cond's: used for BT and by the rete
+     */
+    public final BackTraceInfo bt = new BackTraceInfo();
+    /**
+     * used only during reordering. TODO: PositiveCondition only?
+     */
+    public final ReorderInfo reorder = new ReorderInfo();
 
     public static Condition insertAtHead(Condition header, Condition c)
     {
