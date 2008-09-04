@@ -19,7 +19,7 @@ public class RightToken extends Token
 //} neg;
     
     final AsListItem<Token> negrm = new AsListItem<Token>(this); // part of other local join results dll
-    final Token left_token; // token this is a local join result for
+    /*final*/ Token left_token; // token this is a local join result for
     
     /**
      * @param current_node
@@ -30,6 +30,11 @@ public class RightToken extends Token
     {
         super(current_node, parent_tok, parent_wme);
         this.left_token = left_token;
+        
+        if(left_token != null)
+        {
+            negrm.insertAtHead(left_token.negrm_tokens);
+        }
     }
 
     /* (non-Javadoc)
