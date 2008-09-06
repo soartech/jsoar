@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rete;
 
+import org.jsoar.util.ListHead;
+
 /**
  * data for beta memory nodes only
  * 
@@ -35,16 +37,23 @@ public class BetaMemoryNodeData extends ReteNodeData
     };
 
     /* --- first pos node child that is left-linked --- */
-    ReteNode first_linked_child;
+    final ListHead<ReteNode> first_linked_child = new ListHead<ReteNode>();
 
+    public BetaMemoryNodeData()
+    {
+    }
+    
+    public BetaMemoryNodeData(BetaMemoryNodeData other)
+    {
+        this.first_linked_child.first = other.first_linked_child.first;
+    }
+    
     /**
      * @return Shallow copy of this object
      */
     public BetaMemoryNodeData copy()
     {
-        BetaMemoryNodeData n = new BetaMemoryNodeData();
-        n.first_linked_child = this.first_linked_child;
-        return n;
+        return new BetaMemoryNodeData(this);
     }  
 
 }

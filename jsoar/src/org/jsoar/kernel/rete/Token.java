@@ -21,12 +21,9 @@ public class Token
     tokens, non-NIL on all other tokens including CN and CN_P stuff.
     I put "parent" at offset 0 in the structure, so that upward scans
     are fast (saves doing an extra integer addition in the inner loop) --- */
-    final Token parent;
-// union token_a_union {
-    // See LeftToken and RightToken
-// } a;
+    public final Token parent;
     ReteNode node;
-    final Wme w;
+    public final Wme w;
     
     final ListHead<Token> first_child = new ListHead<Token>(); // head of dll of childen
     final AsListItem<Token> sibling = new AsListItem<Token>(this); // Part of dll of children
@@ -48,8 +45,6 @@ public class Token
         {
             this.sibling.insertAtHead(parent_tok.first_child);
         }
-        // insert_at_head_of_dll ((parent_tok)->first_child, (New),
-        // next_sibling, prev_sibling);
         this.w = parent_wme;
         if (parent_wme != null)
         {

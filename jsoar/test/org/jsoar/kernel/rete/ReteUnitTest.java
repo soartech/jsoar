@@ -8,9 +8,15 @@ package org.jsoar.kernel.rete;
 
 import static org.junit.Assert.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.Wme;
 import org.jsoar.kernel.parser.Parser;
+import org.jsoar.kernel.symbols.Identifier;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -18,10 +24,69 @@ import org.junit.Test;
  */
 public class ReteUnitTest extends JSoarTest
 {
+    private Rete rete;
+    private Listener listener;
+    
+    private class Listener implements ReteListener
+    {
+        Set<Production> matching = new HashSet<Production>();
+        
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rete.ReteListener#finishRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)
+         */
+        @Override
+        public boolean finishRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
+        {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rete.ReteListener#p_node_left_addition(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
+         */
+        @Override
+        public void p_node_left_addition(Rete rete, ReteNode node, Token tok, Wme w)
+        {
+            matching.add(node.b_p.prod);
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rete.ReteListener#p_node_left_removal(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
+         */
+        @Override
+        public void p_node_left_removal(Rete rete, ReteNode node, Token tok, Wme w)
+        {
+            matching.remove(node.b_p.prod);
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rete.ReteListener#startRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)
+         */
+        @Override
+        public void startRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
+        {
+            // TODO Auto-generated method stub
+            
+        }
+        
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.JSoarTest#setUp()
+     */
+    @Override
+    @Before
+    public void setUp() throws Exception
+    {
+        super.setUp();
+        
+        this.listener = new Listener();
+        this.rete = new Rete(this.listener, varGen);
+    }
+
     @Test
     public void testInitDummyTopNode() throws Exception
     {
-        Rete rete = new Rete(varGen);
         assertNotNull(rete.dummy_top_node);
         assertEquals(ReteNodeType.DUMMY_TOP_BNODE, rete.dummy_top_node.node_type);
         RightToken dummyTopToken = (RightToken) rete.dummy_top_node.a_np.tokens.first.get();
@@ -45,9 +110,53 @@ public class ReteUnitTest extends JSoarTest
         Production p = parser.parse_production();
         assertNotNull(p);
         
-        Rete rete = new Rete(varGen);
         ProductionAddResult result = rete.add_production_to_rete(p);
         assertNotNull(result);
         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+
+        // TODO: Test structure of built rete
+    }
+    
+    @Test
+    public void testSimpleAddWmeToRete() throws Exception
+    {
+        Parser parser = createParser(
+           "testAddProductionToRete \n" +
+           "(<root> ^integer 1 ^float 3.14 ^string |S| ^id <id>)" +
+           "--> \n" +
+           "(write <root>)");
+        
+        Production p = parser.parse_production();
+        assertNotNull(p);
+        
+        ProductionAddResult result = rete.add_production_to_rete(p);
+        assertNotNull(result);
+        assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+        
+        Identifier root = syms.make_new_identifier('R', (short) 0);
+        Wme intWme = new Wme(root, syms.make_sym_constant("integer"), syms.make_int_constant(1), false, 0);
+        rete.add_wme_to_rete(intWme);
+        assertFalse(listener.matching.contains(p));
+        
+        Wme floatWme = new Wme(root, syms.make_sym_constant("float"), syms.make_float_constant(3.14), false, 0);
+        rete.add_wme_to_rete(floatWme);
+        assertFalse(listener.matching.contains(p));
+        
+        Wme stringWme = new Wme(root, syms.make_sym_constant("string"), syms.make_sym_constant("S"), false, 0);
+        rete.add_wme_to_rete(stringWme);
+        assertFalse(listener.matching.contains(p));
+       
+        Wme idWme = new Wme(root, syms.make_sym_constant("id"), syms.make_new_identifier('i', (short) 0), false, 0);
+        rete.add_wme_to_rete(idWme);
+        assertTrue(listener.matching.contains(p));
+        
+        rete.remove_wme_from_rete(intWme);
+        assertFalse(listener.matching.contains(p));
+        rete.remove_wme_from_rete(floatWme);
+        assertFalse(listener.matching.contains(p));
+        rete.remove_wme_from_rete(idWme);
+        assertFalse(listener.matching.contains(p));
+        rete.remove_wme_from_rete(stringWme);
+        assertFalse(listener.matching.contains(p));
     }
 }

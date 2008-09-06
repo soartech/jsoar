@@ -18,7 +18,7 @@ import org.jsoar.util.ListHead;
  */
 public class ProductionNodeData extends ReteNodeData
 {
-    Production prod;                  /* the production */
+    public Production prod;                  /* the production */
     NodeVarNames parents_nvn;         /* records variable names */
     final ListHead<MatchSetChange> tentative_assertions;   // pending MS changes */
     final ListHead<MatchSetChange> tentative_retractions;

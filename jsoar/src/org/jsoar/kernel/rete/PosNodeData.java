@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rete;
 
+import org.jsoar.util.AsListItem;
+
 /**
  * 
  * Data for positive nodes only
@@ -16,20 +18,18 @@ package org.jsoar.kernel.rete;
 public class PosNodeData extends ReteNodeData
 {
     /* --- dll of left-linked pos nodes from the parent beta memory --- */
-    ReteNode next_from_beta_mem;
+    final AsListItem<ReteNode> from_beta_mem;
     boolean node_is_left_unlinked;
-    ReteNode prev_from_beta_mem;
     
-    /**
-     * @return A shallow copy of this object
-     */
-    public PosNodeData copy()
+    public PosNodeData(ReteNode node)
     {
-        PosNodeData n = new PosNodeData();
-        n.next_from_beta_mem = this.next_from_beta_mem;
-        n.node_is_left_unlinked = this.node_is_left_unlinked;
-        n.prev_from_beta_mem = this.prev_from_beta_mem;
-        return n;
+        this.from_beta_mem = new AsListItem<ReteNode>(node);
     }
-
+    
+    public PosNodeData(PosNodeData other)
+    {
+        this.from_beta_mem = new AsListItem<ReteNode>(other.from_beta_mem.get());
+        this.node_is_left_unlinked = other.node_is_left_unlinked;
+    }
+    
 }
