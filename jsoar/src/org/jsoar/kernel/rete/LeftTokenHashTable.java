@@ -38,10 +38,10 @@ public class LeftTokenHashTable
      * @param hv
      * @return
      */
-    public AsListItem<LeftToken> left_ht_bucket(int hv) 
+    public ListHead<LeftToken> left_ht_bucket(int hv) 
     {
         int index = hv & LEFT_HT_MASK;
-        return buckets.get(index).first;
+        return buckets.get(index);
         //return (* ( ((token **) thisAgent->left_ht) + ((hv) & LEFT_HT_MASK)));
     }
     

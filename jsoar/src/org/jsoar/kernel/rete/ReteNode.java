@@ -38,7 +38,7 @@ public class ReteNode
     PosNegNodeData b_posneg = null;            /* for pos, neg, mp nodes */
     BetaMemoryNodeData b_mem = null;          /* for beta memory nodes */
     ConjunctiveNegationNodeData b_cn = null; /* for cn, cn_partner nodes */
-    ProductionNodeData b_p = null;                      /* for p nodes */
+    public ProductionNodeData b_p = null;                      /* for p nodes */
     // } b;
 
       
@@ -46,9 +46,9 @@ public class ReteNode
     {
         this.node_type = type;
 
-        if (type.bnode_is_positive())
+        if (type.bnode_is_positive() && type != ReteNodeType.P_BNODE)
         {
-            a_pos = new PosNodeData();
+            a_pos = new PosNodeData(this);
         }
         else
         {
@@ -95,7 +95,7 @@ public class ReteNode
         newNode.parent = this.parent;
         newNode.first_child = this.first_child;
         newNode.next_sibling = this.next_sibling;
-        newNode.a_pos = this.a_pos.copy();
+        newNode.a_pos = this.a_pos != null ? new PosNodeData(this.a_pos) : null;
         newNode.a_np = this.a_np != null ? this.a_np.copy() : null;
         newNode.b_posneg = this.b_posneg != null ? this.b_posneg.copy() : null;
         newNode.b_mem = this.b_mem != null ? this.b_mem.copy() : null;
@@ -184,21 +184,37 @@ public class ReteNode
     /**
      * rete.cpp:512:unlink_from_right_mem
      */
-    public void unlink_from_right_mem() { 
+    public void unlink_from_right_mem() 
+    { 
         if (this.b_posneg.next_from_alpha_mem == null) 
         {
-          this.b_posneg.alpha_mem_.last_beta_node = this.b_posneg.prev_from_alpha_mem;
+            this.b_posneg.alpha_mem_.last_beta_node = this.b_posneg.prev_from_alpha_mem;
         }
-        // TODO: remove_from_dll
 //        remove_from_dll (this.b_posneg.alpha_mem_.beta_nodes, this, 
 //                         b.posneg.next_from_alpha_mem, 
 //                         b.posneg.prev_from_alpha_mem); 
+        if(this.b_posneg.next_from_alpha_mem != null)
+        {
+            this.b_posneg.next_from_alpha_mem.b_posneg.prev_from_alpha_mem = 
+                this.b_posneg.prev_from_alpha_mem;
+        }
+        if(this.b_posneg.prev_from_alpha_mem != null)
+        {
+            this.b_posneg.prev_from_alpha_mem.b_posneg.next_from_alpha_mem = 
+                this.b_posneg.next_from_alpha_mem;
+        }
+        else
+        {
+            this.b_posneg.alpha_mem_.beta_nodes = this.b_posneg.next_from_alpha_mem;
+        }
+//        
         mark_node_as_right_unlinked(); 
-     }
+    }
 
     /**
      * rete.cpp:532:node_is_left_unlinked
-     * @return
+     * 
+     * @return True if this node is left unlinked
      */
     public boolean node_is_left_unlinked()
     {
@@ -218,21 +234,17 @@ public class ReteNode
     /**
      * rete.cpp:547:relink_to_left_mem
      */
-    public void relink_to_left_mem() { 
-        // TODO: insert_at_head_of_dll
-//        insert_at_head_of_dll ((node)->parent->b.mem.first_linked_child, (node), 
-//                               a.pos.next_from_beta_mem, 
-//                               a.pos.prev_from_beta_mem); 
-        }
+    public void relink_to_left_mem() 
+    { 
+        a_pos.from_beta_mem.insertAtHead(parent.b_mem.first_linked_child);
+    }
 
     /**
      * rete.cpp:555:unlink_from_left_mem
      */
-    public void unlink_from_left_mem() {
-        // TODO:remove_from_dll
-//        remove_from_dll ((node)->parent->b.mem.first_linked_child, (node),
-//                         a.pos.next_from_beta_mem,
-//                         a.pos.prev_from_beta_mem);
+    public void unlink_from_left_mem() 
+    {
+        a_pos.from_beta_mem.remove(parent.b_mem.first_linked_child);
         mark_node_as_left_unlinked(); 
     }
     
