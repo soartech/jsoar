@@ -15,16 +15,35 @@ import org.jsoar.util.AsListItem;
  */
 public class RightMemory
 {
-    Wme w;                      /* the wme */
-    AlphaMemory am;               /* the alpha memory */
+    final Wme w;                      /* the wme */
+    final AlphaMemory am;               /* the alpha memory */
     
-    AsListItem<RightMemory> in_bucket = new AsListItem<RightMemory>(this); // hash bucket dll
+    
+    final AsListItem<RightMemory> in_bucket = new AsListItem<RightMemory>(this); // hash bucket dll
     //RightMemory next_in_bucket, prev_in_bucket; /*hash bucket dll*/
     
-    AsListItem<RightMemory> in_am = new AsListItem<RightMemory>(this); // rm's in this amem
+    final AsListItem<RightMemory> in_am = new AsListItem<RightMemory>(this); // rm's in this amem
     //RightMemory next_in_am, prev_in_am;       /*rm's in this amem*/
     
-    AsListItem<RightMemory> from_wme = new AsListItem<RightMemory>(this); // tree-based remove
+    final AsListItem<RightMemory> from_wme = new AsListItem<RightMemory>(this); // tree-based remove
     //RightMemory next_from_wme, prev_from_wme; /*tree-based remove*/
 
+    /**
+     * @param w
+     * @param am
+     */
+    public RightMemory(Wme w, AlphaMemory am)
+    {
+        this.w = w;
+        this.am = am;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return "am:" + am + "/w:" + w;
+    }
 }

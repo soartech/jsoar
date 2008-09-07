@@ -652,9 +652,7 @@ public class Rete
     void add_wme_to_alpha_mem(Wme w, AlphaMemory am)
     {
         /* --- allocate new right_mem, fill it fields --- */
-        RightMemory rm = new RightMemory();
-        rm.w = w;
-        rm.am = am;
+        RightMemory rm = new RightMemory(w, am);
 
         /* --- add it to dll's for the hash bucket, alpha mem, and wme --- */
         int hv = am.am_id ^ w.id.hash_id;
