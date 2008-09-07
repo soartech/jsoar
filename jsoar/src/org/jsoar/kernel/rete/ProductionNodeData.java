@@ -20,7 +20,10 @@ public class ProductionNodeData extends ReteNodeData
 {
     public Production prod;                  /* the production */
     NodeVarNames parents_nvn;         /* records variable names */
-    final ListHead<MatchSetChange> tentative_assertions;   // pending MS changes */
+    
+    // TODO: I think both of these fields belong in a Soar-specific sub-class
+    // or something to decouple generic rete from Soar.
+    final ListHead<MatchSetChange> tentative_assertions;   // pending MS changes
     final ListHead<MatchSetChange> tentative_retractions;
     
     public ProductionNodeData()

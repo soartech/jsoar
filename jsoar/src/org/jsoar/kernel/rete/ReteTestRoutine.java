@@ -8,6 +8,8 @@ package org.jsoar.kernel.rete;
 import org.jsoar.kernel.Wme;
 
 /**
+ * Interface to emulate XXX_rete_test_routine function pointers in rete.cpp
+ * 
  * @author ray
  */
 public interface ReteTestRoutine

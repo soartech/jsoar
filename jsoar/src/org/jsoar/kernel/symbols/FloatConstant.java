@@ -32,6 +32,79 @@ public class FloatConstant extends Symbol
     }
 
     /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#isSameTypeAs(org.jsoar.kernel.symbols.Symbol)
+     */
+    @Override
+    public boolean isSameTypeAs(Symbol other)
+    {
+        return other.asFloatConstant() != null;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#numericLess(org.jsoar.kernel.symbols.Symbol)
+     */
+    @Override
+    public boolean numericLess(Symbol other)
+    {
+        FloatConstant f = other.asFloatConstant();
+        if(f != null)
+        {
+            return value < f.value;
+        }
+        IntConstant i = other.asIntConstant();
+        
+        return i != null ? value < i.value : super.numericLess(other);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#numericLessOrEqual(org.jsoar.kernel.symbols.Symbol)
+     */
+    @Override
+    public boolean numericLessOrEqual(Symbol other)
+    {
+        FloatConstant f = other.asFloatConstant();
+        if(f != null)
+        {
+            return value <= f.value;
+        }
+        IntConstant i = other.asIntConstant();
+        
+        return i != null ? value <= i.value : super.numericLessOrEqual(other);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#numericGreater(org.jsoar.kernel.symbols.Symbol)
+     */
+    @Override
+    public boolean numericGreater(Symbol other)
+    {
+        FloatConstant f = other.asFloatConstant();
+        if(f != null)
+        {
+            return value > f.value;
+        }
+        IntConstant i = other.asIntConstant();
+        
+        return i != null ? value > i.value : super.numericLess(other);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#numericGreaterOrEqual(org.jsoar.kernel.symbols.Symbol)
+     */
+    @Override
+    public boolean numericGreaterOrEqual(Symbol other)
+    {
+        FloatConstant f = other.asFloatConstant();
+        if(f != null)
+        {
+            return value >= f.value;
+        }
+        IntConstant i = other.asIntConstant();
+        
+        return i != null ? value >= i.value : super.numericLessOrEqual(other);
+    }
+    
+    /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override

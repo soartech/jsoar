@@ -70,4 +70,17 @@ public interface ReteListener
      */
     void p_node_left_removal(Rete rete, ReteNode node, Token tok, Wme w);
 
+    /**
+     * Called when a production is being excised. This is called after the p-node's
+     * instantiations have been retracted (p_node_left_removal) but before the
+     * node itself is actually removed from the rete.
+     * 
+     * <p>This method was extracted into this interface to decouple Soar-specific
+     * rete stuff from the general rete algorithm. See 
+     * 
+     * @param rete The rete
+     * @param p_node The p-node
+     */
+    void removingProductionNode(Rete rete, ReteNode p_node);
+
 }

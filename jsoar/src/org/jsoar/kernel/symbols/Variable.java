@@ -141,6 +141,15 @@ public class Variable extends Symbol
     
     
     /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#isSameTypeAs(org.jsoar.kernel.symbols.Symbol)
+     */
+    @Override
+    public boolean isSameTypeAs(Symbol other)
+    {
+        return other.asVariable() != null;
+    }
+
+    /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.Symbol#getFirstLetter()
      */
     @Override

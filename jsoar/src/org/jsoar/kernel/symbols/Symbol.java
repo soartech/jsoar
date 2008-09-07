@@ -57,6 +57,64 @@ public abstract class Symbol
     }
     
     /**
+     * Return true if this symbol is the same type as other symbol. This is
+     * a replacement for comparing symbol type enums in the C kernel
+     * 
+     * @param other The symbol to test against
+     * @return True if this symbol has the same type as other
+     */
+    public abstract boolean isSameTypeAs(Symbol other);
+    
+    /**
+     * Return true if this symbol's numeric value is less than the numeric value of
+     * other. If neither symbol is numeric, returns false.
+     * 
+     * @param other Symbol to compare against
+     * @return Result of numeric less-than comparison
+     */
+    public boolean numericLess(Symbol other)
+    {
+        return false;
+    }
+    
+    /**
+     * Return true if this symbol's numeric value is less than or equal to the numeric value of
+     * other. If neither symbol is numeric, returns false.
+     * 
+     * @param other Symbol to compare against
+     * @return Result of numeric less-than comparison
+     */
+    public boolean numericLessOrEqual(Symbol other)
+    {
+        return false;
+    }
+    
+    /**
+     * Return true if this symbol's numeric value is greater than the numeric value of
+     * other. If neither symbol is numeric, returns false.
+     * 
+     * @param other Symbol to compare against
+     * @return Result of numeric less-than comparison
+     */
+    public boolean numericGreater(Symbol other)
+    {
+        return false;
+    }
+    
+    /**
+     * Return true if this symbol's numeric value is greater than or equal to the numeric value of
+     * other. If neither symbol is numeric, returns false.
+     * 
+     * @param other Symbol to compare against
+     * @return Result of numeric less-than comparison
+     */
+    public boolean numericGreaterOrEqual(Symbol other)
+    {
+        return false;
+    }
+    
+
+    /**
      * 
      * production.cpp:128:copy_symbol_list_adding_references
      * 
