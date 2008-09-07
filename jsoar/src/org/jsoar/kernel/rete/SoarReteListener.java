@@ -829,4 +829,25 @@ public class SoarReteListener implements ReteListener
         msc.of_node.insertAtHead(p_node.b_p.tentative_retractions);
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rete.ReteListener#removingProductionNode(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode)
+     */
+    @Override
+    public void removingProductionNode(Rete rete, ReteNode p_node)
+    {
+        // Originally in excise_production_from_rete() in rete.cpp. Extracted to
+        // decouple generic rete from Soar-specific stuff.
+        
+        /*
+         * --- At this point, there are no tentative_assertion's. Now set the
+         * p_node field of all tentative_retractions to NIL, to indicate that
+         * the p_node is being excised ---
+         */
+        
+        for (MatchSetChange msc : p_node.b_p.tentative_retractions)
+        {
+            msc.p_node = null;
+        }
+    }
+
 }

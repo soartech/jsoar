@@ -37,7 +37,6 @@ public class ReteUnitTest extends JSoarTest
         @Override
         public boolean finishRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
         {
-            // TODO Auto-generated method stub
             return false;
         }
 
@@ -65,8 +64,14 @@ public class ReteUnitTest extends JSoarTest
         @Override
         public void startRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
         {
-            // TODO Auto-generated method stub
-            
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rete.ReteListener#removingProductionNode(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode)
+         */
+        @Override
+        public void removingProductionNode(Rete rete, ReteNode p_node)
+        {
         }
         
     }
@@ -220,4 +225,59 @@ public class ReteUnitTest extends JSoarTest
         rete.add_wme_to_rete(stringWme);
         assertFalse(listener.matching.contains(p));
     }
+    
+    @Test
+    public void testSimpleReteTests() throws Exception
+    {
+        Parser parser = createParser(
+           "testAddProductionToRete \n" +
+           "(<root> ^integer  < 2 ^float >= 3.14 ^string << T UV S >> ^id <id>)" +
+           "--> \n" +
+           "(write <root>)");
+        
+        Production p = parser.parse_production();
+        assertNotNull(p);
+        
+        ProductionAddResult result = rete.add_production_to_rete(p);
+        assertNotNull(result);
+        assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+        
+        // Add WMEs one at a time and make sure there isn't a match until the last WME is added
+        Identifier root = syms.make_new_identifier('R', (short) 0);
+        Wme intWme = new Wme(root, syms.make_sym_constant("integer"), syms.make_int_constant(1), false, 0);
+        rete.add_wme_to_rete(intWme);
+        assertFalse(listener.matching.contains(p));
+        
+        Wme floatWme = new Wme(root, syms.make_sym_constant("float"), syms.make_float_constant(3.14), false, 0);
+        rete.add_wme_to_rete(floatWme);
+        assertFalse(listener.matching.contains(p));
+        
+        Wme stringWme = new Wme(root, syms.make_sym_constant("string"), syms.make_sym_constant("S"), false, 0);
+        rete.add_wme_to_rete(stringWme);
+        assertFalse(listener.matching.contains(p));
+       
+        Wme idWme = new Wme(root, syms.make_sym_constant("id"), syms.make_new_identifier('i', (short) 0), false, 0);
+        rete.add_wme_to_rete(idWme);
+        assertTrue(listener.matching.contains(p));
+        
+        // Remove int WME to verify the production unmatches
+        rete.remove_wme_from_rete(intWme);
+        assertFalse(listener.matching.contains(p));
+       
+        // Re-add it to verify it re-matches
+        rete.add_wme_to_rete(intWme);
+        assertTrue(listener.matching.contains(p));
+        
+        // Remove rest of WMEs to verify the production doesn't match again.
+        rete.remove_wme_from_rete(floatWme);
+        assertFalse(listener.matching.contains(p));
+        rete.remove_wme_from_rete(idWme);
+        assertFalse(listener.matching.contains(p));
+        rete.remove_wme_from_rete(stringWme);
+        assertFalse(listener.matching.contains(p));
+        
+        rete.remove_wme_from_rete(intWme);
+        assertFalse(listener.matching.contains(p));
+    }
+
 }

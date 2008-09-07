@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.VariableGenerator;
@@ -28,11 +27,11 @@ import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.SoarHashTable;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 /**
  * @author ray
@@ -40,6 +39,7 @@ import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 public class Rete
 {
 
+    // TODO: These should be polymorphic methods of ReteNode
     private static final LeftAdditionRoutine[] left_addition_routines = new LeftAdditionRoutine[256];
     static
     {
@@ -111,6 +111,8 @@ public class Rete
                 rete.unhashed_negative_node_left_addition(node, tok, w);
             }};
     }
+    
+    // TODO: These should be polymorphic methods of ReteNode
     private static final RightAdditionRoutine[] right_addition_routines = new RightAdditionRoutine[256];
     static
     {
@@ -158,14 +160,6 @@ public class Rete
             }};
     }
     
-    /**
-     * rete.cpp:4417:rete_test_routines
-     */
-    private static final ReteTestRoutine rete_test_routines[] = new ReteTestRoutine[256];
-    static
-    {
-        // TODO
-    }
     
     /* Set to FALSE to preserve variable names in chunks (takes extra space) */
     private final boolean discard_chunk_varnames = true;
@@ -189,6 +183,9 @@ public class Rete
     
     public Rete(ReteListener listener, VariableGenerator variableGenerator)
     {
+        Arguments.checkNotNull(listener, "listener");
+        Arguments.checkNotNull(variableGenerator, "variableGenerator");
+        
         this.listener = listener;
         this.variableGenerator = variableGenerator;
         
@@ -202,9 +199,15 @@ public class Rete
         init_dummy_top_node();
     }
     
+    /**
+     * Simpler method that adds a production to the rete with default options
+     * 
+     * @param p The production to add
+     * @return Production addition result
+     */
     public ProductionAddResult add_production_to_rete(Production p)
     {
-        return add_production_to_rete(p, p.condition_list, null, true, false);
+        return add_production_to_rete(p, null, true, false);
     }
     
     /**
@@ -231,16 +234,16 @@ public class Rete
      * 
      * rete.cpp:3515:add_production_to_rete
      * 
-     * @param p
-     * @param lhs_top
-     * @param refracted_inst
+     * @param p The production to add
+     * @param refracted_inst Refracted instantiation
      * @param warn_on_duplicates
      * @param ignore_rhs
      * @return
      */
-    public ProductionAddResult add_production_to_rete(Production p, Condition lhs_top, Instantiation refracted_inst,
+    public ProductionAddResult add_production_to_rete(Production p, Instantiation refracted_inst,
             boolean warn_on_duplicates, boolean ignore_rhs)
     {
+        Condition lhs_top = p.condition_list;
         ProductionAddResult production_addition_result;
 
         ReteBuilder builder = new ReteBuilder();
@@ -462,15 +465,7 @@ public class Rete
             remove_token_and_subtree(p_node.a_np.tokens.first.get());
         }
 
-        /*
-         * --- At this point, there are no tentative_assertion's. Now set the
-         * p_node field of all tentative_retractions to NIL, to indicate that
-         * the p_node is being excised ---
-         */
-        for (MatchSetChange msc : p_node.b_p.tentative_retractions)
-        {
-            msc.p_node = null;
-        }
+        listener.removingProductionNode(this, p_node);
 
         /* --- finally, excise the p_node --- */
         p_node.remove_node_from_parents_list_of_children();
@@ -1134,7 +1129,7 @@ public class Rete
      * @param w
      * @return
      */
-    static Symbol get_symbol_from_rete_loc(int levels_up, int field_num, Token tok, Wme w)
+    /*package*/ static Symbol get_symbol_from_rete_loc(int levels_up, int field_num, Token tok, Wme w)
     {
         while (levels_up != 0)
         {
@@ -1159,7 +1154,7 @@ public class Rete
      */
     private boolean match_left_and_right(ReteTest _rete_test, LeftToken left, Wme w)
     {
-        return rete_test_routines[(_rete_test).type].execute(this, _rete_test, left, w);
+        return ReteTestRoutines.table[(_rete_test).type].execute(this, _rete_test, left, w);
     }
     
     /**
@@ -1479,7 +1474,7 @@ public class Rete
      * @param node
      * @param w
      */
-    void positive_node_right_addition(ReteNode node, Wme w)
+    private void positive_node_right_addition(ReteNode node, Wme w)
     {
         right_node_activation(node, true);
 
@@ -1532,7 +1527,7 @@ public class Rete
      * @param node
      * @param w
      */
-    void unhashed_positive_node_right_addition(ReteNode node, Wme w)
+    private void unhashed_positive_node_right_addition(ReteNode node, Wme w)
     {
         right_node_activation(node, true);
 
@@ -1582,7 +1577,7 @@ public class Rete
      * @param node
      * @param w
      */
-    void mp_node_right_addition(ReteNode node, Wme w)
+    private void mp_node_right_addition(ReteNode node, Wme w)
     {
         right_node_activation(node, true);
 
@@ -1637,7 +1632,7 @@ public class Rete
      * @param node
      * @param w
      */
-    void unhashed_mp_node_right_addition(ReteNode node, Wme w)
+    private void unhashed_mp_node_right_addition(ReteNode node, Wme w)
     {
         right_node_activation(node, true);
 
@@ -1688,7 +1683,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    void negative_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void negative_node_left_addition(ReteNode node, Token tok, Wme w)
     {
         left_node_activation(node, true);
 
@@ -1768,7 +1763,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    void unhashed_negative_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void unhashed_negative_node_left_addition(ReteNode node, Token tok, Wme w)
     {
         left_node_activation(node, true);
 
@@ -1820,7 +1815,7 @@ public class Rete
      * @param node
      * @param w
      */
-    void negative_node_right_addition(ReteNode node, Wme w)
+    private void negative_node_right_addition(ReteNode node, Wme w)
     {
         right_node_activation(node, true);
 
@@ -1867,7 +1862,7 @@ public class Rete
      * @param node
      * @param w
      */
-    void unhashed_negative_node_right_addition(ReteNode node, Wme w)
+    private void unhashed_negative_node_right_addition(ReteNode node, Wme w)
     {
         right_node_activation(node, true);
 
@@ -1908,7 +1903,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    void cn_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void cn_node_left_addition(ReteNode node, Token tok, Wme w)
     {
         left_node_activation(node, true);
 
@@ -1945,7 +1940,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    void cn_partner_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void cn_partner_node_left_addition(ReteNode node, Token tok, Wme w)
     {
         left_node_activation(node, true);
 
@@ -2022,7 +2017,7 @@ public class Rete
      * 
      * @param root
      */
-    void remove_token_and_subtree(Token root)
+    /*package*/ void remove_token_and_subtree(Token root)
     {
         Token tok = root;
         
