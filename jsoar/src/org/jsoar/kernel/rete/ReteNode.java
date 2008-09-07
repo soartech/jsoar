@@ -129,7 +129,7 @@ public class ReteNode
     /**
      * rete.cpp:455:mark_node_as_right_unlinked
      */
-    public void mark_node_as_right_unlinked()
+    private void mark_node_as_right_unlinked()
     {
         b_posneg.node_is_right_unlinked = true;
         //(node)->b.posneg.next_from_alpha_mem = static_cast<rete_node_struct *>((void *)1);
@@ -179,6 +179,7 @@ public class ReteNode
                 this.b_posneg.alpha_mem_.beta_nodes = this;
             }
         }
+        this.b_posneg.node_is_right_unlinked = false;
     }
     
     /**
@@ -225,7 +226,7 @@ public class ReteNode
     /**
      * rete.cpp:539:mark_node_as_left_unlinked
      */
-    public void mark_node_as_left_unlinked()
+    private void mark_node_as_left_unlinked()
     {
       a_pos.node_is_left_unlinked = true;
       //(node)->a.pos.next_from_beta_mem = static_cast<rete_node_struct *>((void *)1);
@@ -237,6 +238,7 @@ public class ReteNode
     public void relink_to_left_mem() 
     { 
         a_pos.from_beta_mem.insertAtHead(parent.b_mem.first_linked_child);
+        a_pos.node_is_left_unlinked = false;
     }
 
     /**

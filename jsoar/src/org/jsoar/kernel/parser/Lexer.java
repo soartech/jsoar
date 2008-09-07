@@ -676,7 +676,7 @@ public class Lexer implements LexemeTypes
             try
             {
                 lexeme.type = FLOAT_CONSTANT_LEXEME;
-                lexeme.float_val = Float.valueOf(lexeme.string);
+                lexeme.float_val = Double.valueOf(lexeme.string);
             }
             catch (NumberFormatException e)
             {

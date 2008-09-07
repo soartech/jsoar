@@ -133,6 +133,7 @@ public class ReteUnitTest extends JSoarTest
         assertNotNull(result);
         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
         
+        // Add WMEs one at a time and make sure there isn't a match until the last WME is added
         Identifier root = syms.make_new_identifier('R', (short) 0);
         Wme intWme = new Wme(root, syms.make_sym_constant("integer"), syms.make_int_constant(1), false, 0);
         rete.add_wme_to_rete(intWme);
@@ -150,13 +151,23 @@ public class ReteUnitTest extends JSoarTest
         rete.add_wme_to_rete(idWme);
         assertTrue(listener.matching.contains(p));
         
+        // Remove int WME to verify the production unmatches
         rete.remove_wme_from_rete(intWme);
         assertFalse(listener.matching.contains(p));
+       
+        // Re-add it to verify it re-matches
+        rete.add_wme_to_rete(intWme);
+        assertTrue(listener.matching.contains(p));
+        
+        // Remove rest of WMEs to verify the production doesn't match again.
         rete.remove_wme_from_rete(floatWme);
         assertFalse(listener.matching.contains(p));
         rete.remove_wme_from_rete(idWme);
         assertFalse(listener.matching.contains(p));
         rete.remove_wme_from_rete(stringWme);
+        assertFalse(listener.matching.contains(p));
+        
+        rete.remove_wme_from_rete(intWme);
         assertFalse(listener.matching.contains(p));
     }
 }
