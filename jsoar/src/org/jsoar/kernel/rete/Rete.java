@@ -32,6 +32,7 @@ import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.SoarHashTable;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 /**
  * @author ray
@@ -483,6 +484,17 @@ public class Rete
         }
     }
 
+    /**
+     * Stand-in for taking the address of an object in C, where the address is
+     * used for hashing, e.g. cn_node_left_addition() in rete.cpp
+     * 
+     * @param o The object (token, wme, etc)
+     * @return A unique address for the the object
+     */
+    static int addressOf(Object o)
+    {
+        return System.identityHashCode(o);
+    }
 
     /**
      * 
@@ -1900,8 +1912,7 @@ public class Rete
     {
         left_node_activation(node, true);
 
-        // TODO: Is it ok to use hashcode in place of hashing on the address?
-        int hv = node.node_id ^ tok.hashCode() ^ w.hashCode();
+        int hv = node.node_id ^ addressOf(tok) ^ addressOf(w);
 
         /*
          * --- look for a matching left token (since the partner node might have
@@ -1956,8 +1967,7 @@ public class Rete
         }
 
         /* --- look for the matching left token --- */
-        // TODO: Is it ok to use hashcode in place of hashing on the address?
-        int hv = partner.node_id ^ tok.hashCode() ^ w.hashCode();
+        int hv = partner.node_id ^ addressOf(tok) ^ addressOf(w);
         LeftToken left = null;
         for (LeftToken tempLeft : left_ht.left_ht_bucket(hv))
         {
@@ -2087,8 +2097,7 @@ public class Rete
 
           /* --- for CN nodes --- */
           } else if (node_type==ReteNodeType.CN_BNODE) {
-              // TODO: Is it ok to use hashcode in place of hashing on the adress?
-              int hv = node.node_id ^ tok.parent.hashCode() ^ tok.w.hashCode();
+              int hv = node.node_id ^ addressOf(tok.parent) ^ addressOf(tok.w);
             //int hv = node.node_id ^ (unsigned long)(tok->parent) ^ (unsigned long)(tok->w)
               left_ht.remove_token_from_left_ht((LeftToken) tok, hv); // TODO: Safe to assume this?  
             for(Token t : tok.negrm_tokens)

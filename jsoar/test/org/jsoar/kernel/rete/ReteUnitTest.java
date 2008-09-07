@@ -170,4 +170,54 @@ public class ReteUnitTest extends JSoarTest
         rete.remove_wme_from_rete(intWme);
         assertFalse(listener.matching.contains(p));
     }
+    
+    @Test
+    public void testReteWithNegatedConjunctiveCondition() throws Exception
+    {
+        Parser parser = createParser(
+           "testReteWithNegatedConjunctiveCondition \n" +
+           "(<root> ^integer 1 ^float 3.14)\n" +
+           "-{ (<root> ^string |S|) " +
+           "   (<root> ^id <id>)}\n" +
+           "--> \n" +
+           "(write <root>)");
+        
+        Production p = parser.parse_production();
+        assertNotNull(p);
+        
+        ProductionAddResult result = rete.add_production_to_rete(p);
+        assertNotNull(result);
+        assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+        
+        Identifier root = syms.make_new_identifier('R', (short) 0);
+        Wme intWme = new Wme(root, syms.make_sym_constant("integer"), syms.make_int_constant(1), false, 0);
+        rete.add_wme_to_rete(intWme);
+        assertFalse(listener.matching.contains(p));
+        
+        Wme floatWme = new Wme(root, syms.make_sym_constant("float"), syms.make_float_constant(3.14), false, 0);
+        rete.add_wme_to_rete(floatWme);
+        
+        // At this point, the production should match because the negated condition is false
+        assertTrue(listener.matching.contains(p));
+        
+        Wme stringWme = new Wme(root, syms.make_sym_constant("string"), syms.make_sym_constant("S"), false, 0);
+        rete.add_wme_to_rete(stringWme);
+        
+        // NCC stays false when the string is added
+        assertTrue(listener.matching.contains(p));
+       
+        Wme idWme = new Wme(root, syms.make_sym_constant("id"), syms.make_new_identifier('i', (short) 0), false, 0);
+        rete.add_wme_to_rete(idWme);
+        
+        // Addint this WME makes the NCC true, so the production unmatches
+        assertFalse(listener.matching.contains(p));
+        
+        // Remove int WME to verify the production re-matches
+        rete.remove_wme_from_rete(stringWme);
+        assertTrue(listener.matching.contains(p));
+       
+        // Re-add it to verify it unmatches
+        rete.add_wme_to_rete(stringWme);
+        assertFalse(listener.matching.contains(p));
+    }
 }
