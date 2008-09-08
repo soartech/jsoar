@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.Wme;
+import org.jsoar.kernel.memory.Wme;
 
 /**
  * Interface to emulate XXX_rete_test_routine function pointers in rete.cpp

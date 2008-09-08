@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.lhs;
 
-import org.jsoar.kernel.Preference;
-import org.jsoar.kernel.Wme;
+import org.jsoar.kernel.memory.Preference;
+import org.jsoar.kernel.memory.Wme;
 
 /**
  * info on conditions used for backtracing (and by the rete)

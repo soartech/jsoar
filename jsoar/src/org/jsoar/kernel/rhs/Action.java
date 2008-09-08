@@ -7,7 +7,7 @@ package org.jsoar.kernel.rhs;
 
 import java.util.List;
 
-import org.jsoar.kernel.PreferenceType;
+import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.symbols.Variable;
 
 /**

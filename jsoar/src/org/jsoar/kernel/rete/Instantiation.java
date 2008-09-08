@@ -5,10 +5,10 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.Preference;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.Wme;
 import org.jsoar.kernel.lhs.Condition;
+import org.jsoar.kernel.memory.Preference;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
@@ -29,7 +29,7 @@ public class Instantiation
     public Condition bottom_of_instantiated_conditions;
 
     // TODO not_struct *nots;
-    public ListHead<Preference>  preferences_generated;    // header for dll of prefs
+    public final ListHead<Preference>  preferences_generated = new ListHead<Preference>();    // header for dll of prefs
     public Identifier match_goal;                   // symbol, or NIL if none
     public int /*goal_stack_level*/ match_goal_level;    // level, or ATTRIBUTE_IMPASSE_LEVEL
     public boolean okay_to_variablize;

@@ -6,7 +6,7 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.Wme;
+import org.jsoar.kernel.memory.Wme;
 
 /**
  * An interface intended to decouple Soar-specific handling of rete matches and unmatches

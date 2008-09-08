@@ -22,6 +22,11 @@ public class ListHead <T> implements Iterable<T>
         return first == null;
     }
     
+    public T getFirstItem()
+    {
+        return isEmpty() ? first.get() : null;
+    }
+    
     public int size()
     {
         return first != null ? first.count() : 0;

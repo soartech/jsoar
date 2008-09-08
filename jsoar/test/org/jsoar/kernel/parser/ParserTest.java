@@ -13,7 +13,6 @@ import static org.junit.Assert.assertSame;
 import java.util.List;
 
 import org.jsoar.JSoarTest;
-import org.jsoar.kernel.PreferenceType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -21,6 +20,7 @@ import org.jsoar.kernel.lhs.DisjunctionTest;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
+import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsFunctionCall;
