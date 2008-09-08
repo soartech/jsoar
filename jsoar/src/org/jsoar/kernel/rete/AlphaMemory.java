@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.Wme;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.HashFunction;
 import org.jsoar.util.ItemInHashTable;

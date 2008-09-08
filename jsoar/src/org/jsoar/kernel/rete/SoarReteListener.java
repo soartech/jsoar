@@ -7,18 +7,19 @@ package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.AssertListType;
 import org.jsoar.kernel.MatchSetChange;
-import org.jsoar.kernel.PreferenceType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
-import org.jsoar.kernel.Wme;
 import org.jsoar.kernel.lhs.Condition;
+import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.util.ListHead;
 
 /**
@@ -62,8 +63,16 @@ public class SoarReteListener implements ReteListener
     private final ListHead<MatchSetChange> ms_o_assertions = new ListHead<MatchSetChange>();
     private final ListHead<MatchSetChange> ms_i_assertions = new ListHead<MatchSetChange>();
     
-    private Identifier operator_symbol;
+    private final SymConstant operator_symbol;
     private int o_support_calculation_type = 4;
+
+    /**
+     * @param operator_symbol
+     */
+    public SoarReteListener(SymConstant operator_symbol)
+    {
+        this.operator_symbol = operator_symbol;
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.rete.ReteListener#finishRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)

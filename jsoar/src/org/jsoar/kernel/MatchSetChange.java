@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel;
 
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.ReteNode;
 import org.jsoar.kernel.rete.Token;

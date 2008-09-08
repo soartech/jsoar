@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.DeciderFlag;
-import org.jsoar.kernel.Wme;
+import org.jsoar.kernel.memory.Wme;
 
 /**
  * @author ray

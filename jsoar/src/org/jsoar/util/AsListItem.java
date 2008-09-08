@@ -28,6 +28,16 @@ public class AsListItem <T> implements Iterable<T>
         return item;
     }
     
+    public T getNextItem()
+    {
+        return next != null ? next.get() : null;
+    }
+    
+    public T getPreviousItem()
+    {
+        return previous != null ? previous.get() : null;
+    }
+    
     public void insertAtHead(ListHead<T> head)
     {
         Arguments.checkNotNull(head, "head");

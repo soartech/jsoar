@@ -8,7 +8,6 @@ package org.jsoar.kernel.parser;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.jsoar.kernel.PreferenceType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
@@ -26,6 +25,7 @@ import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.TestTools;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
+import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;

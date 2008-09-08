@@ -5,11 +5,11 @@
  */
 package org.jsoar.kernel.symbols;
 
-import org.jsoar.kernel.Preference;
 import org.jsoar.kernel.SavedFiringType;
-import org.jsoar.kernel.Slot;
-import org.jsoar.kernel.Wme;
 import org.jsoar.kernel.MatchSetChange;
+import org.jsoar.kernel.memory.Preference;
+import org.jsoar.kernel.memory.Slot;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.util.ListHead;
 
 /**
@@ -31,7 +31,7 @@ public class Identifier extends Symbol
     public short promotion_level;
     public int link_count;
     // TODO: dl_cons unknown_level
-    public Slot slots; /* dll of slots for this identifier */
+    public final ListHead<Slot> slots = new ListHead<Slot>(); // dll of slots for this identifier
     public int tc_number; /* used for transitive closures, marking, etc. */
     public Symbol variablization; /* used by the chunker */
 
@@ -41,7 +41,7 @@ public class Identifier extends Symbol
     /* --- fields used only on goals --- */
     public Symbol higher_goal, lower_goal;
     public Slot operator_slot;
-    public Preference preferences_from_goal;
+    public final ListHead<Preference> preferences_from_goal = new ListHead<Preference>();
 
     public Symbol reward_header;        // pointer to reward_link
     // TODO struct rl_data_struct *rl_info;           // various Soar-RL information

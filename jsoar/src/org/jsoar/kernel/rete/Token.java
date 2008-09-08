@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.Wme;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
