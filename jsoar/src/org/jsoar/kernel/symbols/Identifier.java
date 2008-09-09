@@ -36,10 +36,10 @@ public class Identifier extends Symbol
     public Symbol variablization; /* used by the chunker */
 
     /* --- fields used only on goals and impasse identifiers --- */
-    public Wme impasse_wmes;
+    public final ListHead<Wme> impasse_wmes = new ListHead<Wme>();
     
     /* --- fields used only on goals --- */
-    public Symbol higher_goal, lower_goal;
+    public Identifier higher_goal, lower_goal;
     public Slot operator_slot;
     public final ListHead<Preference> preferences_from_goal = new ListHead<Preference>();
 
@@ -61,7 +61,7 @@ public class Identifier extends Symbol
 
     /* --- fields used for Soar I/O stuff --- */
     // TODO ::list *associated_output_links;
-    public Wme input_wmes;
+    public final ListHead<Wme> input_wmes = new ListHead<Wme>();
 
     public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
 
