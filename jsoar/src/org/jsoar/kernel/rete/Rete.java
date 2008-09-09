@@ -1121,6 +1121,8 @@ public class Rete
     }
 
     /**
+     * TODO: Should this go somewhere else?
+     * 
      * rete.cpp:4391:get_symbol_from_rete_loc
      * 
      * @param levels_up
@@ -1129,7 +1131,7 @@ public class Rete
      * @param w
      * @return
      */
-    /*package*/ static Symbol get_symbol_from_rete_loc(int levels_up, int field_num, Token tok, Wme w)
+    public static Symbol get_symbol_from_rete_loc(int levels_up, int field_num, Token tok, Wme w)
     {
         while (levels_up != 0)
         {
