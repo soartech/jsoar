@@ -6,6 +6,7 @@
 package org.jsoar.kernel.lhs;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Variable;
@@ -49,7 +50,7 @@ public class ConjunctiveTest extends ComplexTest
      * @see org.jsoar.kernel.Test#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, List<Variable> var_list)
+    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
         for(Test child : conjunct_list)
         {
@@ -61,7 +62,7 @@ public class ConjunctiveTest extends ComplexTest
      * @see org.jsoar.kernel.Test#addBoundVariables(int, java.util.List)
      */
     @Override
-    public void addBoundVariables(int tc_number, List<Variable> var_list)
+    public void addBoundVariables(int tc_number, LinkedList<Variable> var_list)
     {
         for(Test child : conjunct_list)
         {

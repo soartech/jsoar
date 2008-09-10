@@ -5,13 +5,14 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.List;
+import java.util.LinkedList;
 
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Variable;
 
 public abstract class Condition
 {
-    boolean already_in_tc;                 /* used only by cond_is_in_tc stuff */
+    public boolean already_in_tc;                 /* used only by cond_is_in_tc stuff */
     public boolean test_for_acceptable_preference;   /* for pos, neg cond's only */
     public Condition  next, prev;
     //union condition_main_data_union {
@@ -66,7 +67,7 @@ public abstract class Condition
         return header;
     }
     
-    public static void addAllVariables(Condition header, int tc_number, List<Variable> var_list)
+    public static void addAllVariables(Condition header, int tc_number, LinkedList<Variable> var_list)
     {
         for(Condition c = header; c != null; c = c.next)
         {
@@ -74,7 +75,7 @@ public abstract class Condition
         }
     }
     
-    public static void addBoundVariables(Condition header, int tc_number, List<Variable> var_list)
+    public static void addBoundVariables(Condition header, int tc_number, LinkedList<Variable> var_list)
     {
         for(Condition c = header; c != null; c = c.next)
         {
@@ -82,9 +83,9 @@ public abstract class Condition
         }
     }
     
-    public abstract void addBoundVariables(int tc_number, List<Variable> var_list);
+    public abstract void addBoundVariables(int tc_number, LinkedList<Variable> var_list);
 
-    public abstract void addAllVariables(int tc_number, List<Variable> var_list);
+    public abstract void addAllVariables(int tc_number, LinkedList<Variable> var_list);
 
     public ThreeFieldCondition asThreeFieldCondition()
     {
@@ -102,6 +103,28 @@ public abstract class Condition
     public ConjunctiveNegationCondition asConjunctiveNegationCondition()
     {
         return null;
+    }
+
+    /**
+     * @param tc
+     * @return
+     */
+    public boolean cond_is_in_tc(int tc)
+    {
+        // TODO cond_is_in_tc: implement for sub-classes
+        throw new UnsupportedOperationException("Not implemented");
+        //return false;
+    }
+
+    /**
+     * @param tc
+     * @param id_list
+     * @param var_list
+     */
+    public void add_cond_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    {
+        // TODO add_cond_to_tc: implement for sub-classes
+        throw new UnsupportedOperationException("Not implemented");
     }
 
 

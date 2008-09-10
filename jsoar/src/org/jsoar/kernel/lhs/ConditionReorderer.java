@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.VariableGenerator;
@@ -57,7 +57,7 @@ public class ConditionReorderer
         int tc = vars.getSyms().get_new_tc_number();
         /* don't mark any variables, since nothing is bound outside the LHS */
 
-        List<Variable> roots = collect_root_variables(lhs_top.value, tc, true);
+        LinkedList<Variable> roots = collect_root_variables(lhs_top.value, tc, true);
 
         /*
          * SBH/MVP 6-24-94 Fix to include only root "STATE" test in the LHS of a
@@ -122,7 +122,7 @@ public class ConditionReorderer
      */
     private void restore_and_deallocate_saved_tests(Condition conds_list, int tc, SavedTest tests_to_restore)
     {
-        List<Variable> new_vars = new ArrayList<Variable>();
+        LinkedList<Variable> new_vars = new LinkedList<Variable>();
         for (Condition cond = conds_list; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();
@@ -295,7 +295,7 @@ public class ConditionReorderer
         Condition remaining_conds = top_of_conds.value; // header of dll
         Condition first_cond = null;
         Condition last_cond = null;
-        List<Variable> new_vars = new ArrayList<Variable>();
+        LinkedList<Variable> new_vars = new LinkedList<Variable>();
         Condition chosen;
 
         /*
@@ -536,7 +536,7 @@ public class ConditionReorderer
     private int find_lowest_cost_lookahead(Condition candidates, Condition chosen, int tc,
             List<Variable> root_vars_not_bound_yet)
     {
-        List<Variable> new_vars = new ArrayList<Variable>();
+        LinkedList<Variable> new_vars = new LinkedList<Variable>();
         chosen.addBoundVariables(tc, new_vars);
 
         int min_cost = MAX_COST + 1;
@@ -880,11 +880,7 @@ public class ConditionReorderer
         }
     }
 
-    /*
-     * =====================================================================
-     * 
-     * Finding the Root Variables in a Condition List
-     * 
+    /**
      * This routine finds the root variables in a given condition list. The
      * caller should setup the current tc to be the set of variables bound
      * outside the given condition list. (This should normally be an empty TC,
@@ -892,12 +888,20 @@ public class ConditionReorderer
      * "allow_printing_warnings" flag is TRUE, then this routine makes sure each
      * root variable is accompanied by a goal or impasse id test, and prints a
      * warning message if it isn't.
-     * =====================================================================
+     * 
+     * TODO: This belongs somewhere else
+     * 
+     * reorder.cpp:589:collect_root_variables
+     * 
+     * @param cond_list
+     * @param tc
+     * @param allow_printing_warnings
+     * @return
      */
-    private List<Variable> collect_root_variables(Condition cond_list, int tc, boolean allow_printing_warnings)
+    public static LinkedList<Variable> collect_root_variables(Condition cond_list, int tc, boolean allow_printing_warnings)
     {
-        /* --- find everthing that's in the value slot of some condition --- */
-        List<Variable> new_vars_from_value_slot = new ArrayList<Variable>();
+        // find everthing that's in the value slot of some condition
+        LinkedList<Variable> new_vars_from_value_slot = new LinkedList<Variable>();
         for (Condition cond = cond_list; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();
@@ -908,7 +912,7 @@ public class ConditionReorderer
         }
 
         /* --- now see what else we can add by throwing in the id slot --- */
-        List<Variable> new_vars_from_id_slot = new ArrayList<Variable>();
+        LinkedList<Variable> new_vars_from_id_slot = new LinkedList<Variable>();
         for (Condition cond = cond_list; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();
@@ -991,7 +995,7 @@ public class ConditionReorderer
     {
 
         /* --- add anything bound in a positive condition at this level --- */
-        List<Variable> new_bound_vars = new ArrayList<Variable>();
+        LinkedList<Variable> new_bound_vars = new LinkedList<Variable>();
         for (Condition c = cond_list; c != null; c = c.next)
         {
             PositiveCondition pc = c.asPositiveCondition();

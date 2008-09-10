@@ -5,8 +5,7 @@
  */
 package org.jsoar.kernel.rhs;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ByRef;
@@ -53,9 +52,15 @@ public class ActionReorderer
         this.prodName = prodName;
     }
 
+    /**
+     * reorder.cpp:86:reorder_action_list
+     * 
+     * @param action_list
+     * @param lhs_tc
+     */
     public void reorder_action_list(ByRef<Action> action_list, int lhs_tc)
     {
-        List<Variable> new_bound_vars = new ArrayList<Variable>();
+        LinkedList<Variable> new_bound_vars = new LinkedList<Variable>();
         Action remaining_actions = action_list.value;
         Action first_action = null;
         Action last_action = null;

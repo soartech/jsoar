@@ -5,9 +5,10 @@
  */
 package org.jsoar.kernel.rhs;
 
-import java.util.List;
+import java.util.LinkedList;
 
 import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Variable;
 
 /**
@@ -18,9 +19,9 @@ public abstract class Action
     public Action next;
     public PreferenceType preference_type;
     public ActionSupport support = ActionSupport.UNKNOWN_SUPPORT;
-    boolean already_in_tc;  /* used only by compile-time o-support calcs */
+    public boolean already_in_tc;  /* used only by compile-time o-support calcs */
     
-    public static void addAllVariables(Action head, int tc_number, List<Variable> var_list)
+    public static void addAllVariables(Action head, int tc_number, LinkedList<Variable> var_list)
     {
         for(Action a = head; a != null; a = a.next)
         {
@@ -28,7 +29,7 @@ public abstract class Action
         }
     }
     
-    public abstract void addAllVariables(int tc_number, List<Variable> var_list);
+    public abstract void addAllVariables(int tc_number, LinkedList<Variable> var_list);
 
     public MakeAction asMakeAction()
     {
@@ -99,5 +100,34 @@ public abstract class Action
 
         /* --- If we got this far, the RHS's must be identical. --- */
         return true;
+    }
+
+    /**
+     * production.cpp:1428:action_is_in_tc
+     * 
+     * @param tc
+     * @return
+     */
+    public boolean action_is_in_tc(int tc)
+    {
+        // TODO Implement action_is_in_tc in sub-classes
+        throw new UnsupportedOperationException("Not implemented");
+
+        //return false;
+    }
+
+    /**
+     * production.cpp:1353:add_action_to_tc
+     * 
+     * @param tc
+     * @param id_list
+     * @param var_list
+     */
+    public void add_action_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    {
+        // Do nothing by default
+        
+        // TODO: Implement add_action_to_tc in sub-classes
+        throw new UnsupportedOperationException("Not implemented");
     }
 }

@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.List;
+import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
 
@@ -36,7 +36,7 @@ public class NegativeCondition extends ThreeFieldCondition
      * @see org.jsoar.kernel.Condition#addBoundVariables(int, java.util.List)
      */
     @Override
-    public void addBoundVariables(int tc_number, List<Variable> var_list)
+    public void addBoundVariables(int tc_number, LinkedList<Variable> var_list)
     {
         // Do nothing
     }

@@ -18,8 +18,8 @@ public class PredefinedSymbols
     
     SymConstant problem_space_symbol = syms.make_sym_constant("problem-space");
     SymConstant state_symbol = syms.make_sym_constant("state");
-    SymConstant operator_symbol = syms.make_sym_constant("operator");
-    SymConstant superstate_symbol = syms.make_sym_constant("superstate");
+    public final SymConstant operator_symbol = syms.make_sym_constant("operator");
+    public final SymConstant superstate_symbol = syms.make_sym_constant("superstate");
     SymConstant io_symbol = syms.make_sym_constant("io");
     SymConstant object_symbol = syms.make_sym_constant("object");
     SymConstant attribute_symbol = syms.make_sym_constant("attribute");
@@ -38,7 +38,7 @@ public class PredefinedSymbols
     SymConstant item_symbol = syms.make_sym_constant("item");
     SymConstant quiescence_symbol = syms.make_sym_constant("quiescence");
     SymConstant t_symbol = syms.make_sym_constant("t");
-    SymConstant nil_symbol = syms.make_sym_constant("nil");
+    public final SymConstant nil_symbol = syms.make_sym_constant("nil");
     SymConstant type_symbol = syms.make_sym_constant("type");
     SymConstant goal_symbol = syms.make_sym_constant("goal");
     SymConstant name_symbol = syms.make_sym_constant("name");
@@ -62,6 +62,14 @@ public class PredefinedSymbols
     /* RPM 9/06 end */
 
     SymConstant reward_link_symbol = syms.make_sym_constant("reward-link" );
+
+    /**
+     * @return the syms
+     */
+    public SymbolFactory getSyms()
+    {
+        return syms;
+    }
 
     
 }

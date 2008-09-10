@@ -8,7 +8,6 @@ package org.jsoar.kernel.rete;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
 /**

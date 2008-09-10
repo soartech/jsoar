@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.List;
+import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
 
@@ -31,7 +31,7 @@ public abstract class ThreeFieldCondition extends Condition
      * @see org.jsoar.kernel.Condition#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, List<Variable> var_list)
+    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
         id_test.addAllVariables(tc_number, var_list);
         attr_test.addAllVariables(tc_number, var_list);

@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.List;
+import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
@@ -62,7 +62,7 @@ public class EqualityTest extends Test
      * @see org.jsoar.kernel.Test#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, List<Variable> var_list)
+    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
         Variable var = sym != null ? sym.asVariable() : null;
         if(var != null)
@@ -75,7 +75,7 @@ public class EqualityTest extends Test
      * @see org.jsoar.kernel.Test#addBoundVariables(int, java.util.List)
      */
     @Override
-    public void addBoundVariables(int tc_number, List<Variable> var_list)
+    public void addBoundVariables(int tc_number, LinkedList<Variable> var_list)
     {
         Variable var = sym != null ? sym.asVariable() : null;
         if(var != null)

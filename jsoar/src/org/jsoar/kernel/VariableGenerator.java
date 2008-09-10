@@ -5,8 +5,7 @@
  */
 package org.jsoar.kernel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rhs.Action;
@@ -75,7 +74,7 @@ public class VariableGenerator
 
         /* --- mark all variables in the given conds and actions --- */
         int tc_number = syms.get_new_tc_number();
-        List<Variable> var_list = new ArrayList<Variable>();
+        LinkedList<Variable> var_list = new LinkedList<Variable>();
 
         Condition.addAllVariables(conds_with_vars_to_avoid, tc_number, var_list);
         Action.addAllVariables(actions_with_vars_to_avoid, tc_number, var_list);
