@@ -6,7 +6,7 @@
 package org.jsoar.kernel.symbols;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Stack;
 
 /**
@@ -41,14 +41,14 @@ public class Variable extends Symbol
         this.name = name;
     }
 
-    public void markIfUnmarked(int tc_number, List<Variable> var_list)
+    public void markIfUnmarked(int tc_number, LinkedList<Variable> var_list)
     {
         if(this.tc_number != tc_number)
         {
             this.tc_number = tc_number;
             if(var_list != null)
             {
-                var_list.add(this);
+                var_list.push(this);
             }
         }
     }
@@ -156,6 +156,16 @@ public class Variable extends Symbol
     public char getFirstLetter()
     {
         return name.charAt(1);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
+     */
+    @Override
+    public void add_symbol_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    {
+        // TODO add_symbol_to_tc: implement for Variable
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /* (non-Javadoc)

@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.List;
+import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
 
@@ -30,7 +30,7 @@ public class ConjunctiveNegationCondition extends Condition
      * @see org.jsoar.kernel.Condition#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, List<Variable> var_list)
+    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
         addAllVariables(top, tc_number, var_list);
     }
@@ -39,7 +39,7 @@ public class ConjunctiveNegationCondition extends Condition
      * @see org.jsoar.kernel.Condition#addBoundVariables(int, java.util.List)
      */
     @Override
-    public void addBoundVariables(int tc_number, List<Variable> var_list)
+    public void addBoundVariables(int tc_number, LinkedList<Variable> var_list)
     {
         // Do nothing
     }

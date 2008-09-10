@@ -6,6 +6,7 @@
 package org.jsoar.kernel.rhs;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.SymConstant;
@@ -84,7 +85,7 @@ public class RhsFunctionCall extends RhsValue
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, List<Variable> var_list)
+    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
         for(RhsValue arg : arguments)
         {

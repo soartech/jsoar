@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.LinkedList;
+
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.kernel.memory.Preference;
@@ -105,6 +107,17 @@ public class Identifier extends Symbol
     public char getFirstLetter()
     {
         return name_letter;
+    }
+
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
+     */
+    @Override
+    public void add_symbol_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    {
+        // TODO add_symbol_to_tc: implement for Identifier
+        throw new UnsupportedOperationException("Not implemented");
     }
 
 

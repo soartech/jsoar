@@ -5,10 +5,17 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.lhs.Condition;
+import org.jsoar.kernel.lhs.ConditionReorderer;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
+import org.jsoar.kernel.lhs.DisjunctionTest;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.Test;
@@ -17,13 +24,13 @@ import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.Action;
+import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
@@ -35,8 +42,13 @@ import org.jsoar.util.ListHead;
  */
 public class OSupport
 {
-    private final SymbolFactory syms;
-    private final SymConstant operator_symbol;
+    private final PredefinedSymbols syms;
+    
+    private static enum YesNoMaybe
+    {
+        YES, NO, MAYBE
+    }
+    
     /**
      * agent.h:658:o_support_tc
      */
@@ -52,10 +64,9 @@ public class OSupport
      * @param syms
      * @param operator_symbol
      */
-    public OSupport(SymbolFactory syms, SymConstant operator_symbol)
+    public OSupport(PredefinedSymbols syms)
     {
         this.syms = syms;
-        this.operator_symbol = operator_symbol;
     }
 
     /**
@@ -114,7 +125,7 @@ public class OSupport
         }
         for (Slot s : id.slots)
         {
-            if ((!isa_state) || (s.attr != operator_symbol))
+            if ((!isa_state) || (s.attr != syms.operator_symbol))
             {
                 for (Preference pref : s.all_preferences)
                 {
@@ -133,7 +144,7 @@ public class OSupport
         {
             if (pref.id == id)
             {
-                if ((!isa_state) || (pref.attr != operator_symbol))
+                if ((!isa_state) || (pref.attr != syms.operator_symbol))
                 {
                     add_to_os_tc_if_needed(pref.value);
                     if (pref.type.isBinary())
@@ -155,7 +166,7 @@ public class OSupport
      */
     private void begin_os_tc(AsListItem<Preference> rhs_prefs_or_nil)
     {
-        o_support_tc = syms.get_new_tc_number();
+        o_support_tc = syms.getSyms().get_new_tc_number();
         rhs_prefs_from_instantiation.first = rhs_prefs_or_nil;
     }
     
@@ -240,7 +251,7 @@ public class OSupport
             {
                 if (TestTools.test_includes_equality_test_for_symbol(tfc.id_test,
                         match_state_to_exclude_test_of_the_operator_off_of)
-                        && TestTools.test_includes_equality_test_for_symbol(tfc.attr_test, operator_symbol))
+                        && TestTools.test_includes_equality_test_for_symbol(tfc.attr_test, syms.operator_symbol))
                 {
                     return false;
                 }
@@ -469,7 +480,7 @@ public class OSupport
                                 }
                                 else
                                 {
-                                    if ((w.attr == operator_symbol) && (w.acceptable == false)
+                                    if ((w.attr == syms.operator_symbol) && (w.acceptable == false)
                                             && (w.id == lowest_goal_wme.id))
                                     {
                                         if (o_support_calculation_type == 3 || o_support_calculation_type == 4)
@@ -627,7 +638,7 @@ public class OSupport
         for (Preference pref : rhs)
         {
             if ((pref.id == match_goal)
-                    && (pref.attr == operator_symbol)
+                    && (pref.attr == syms.operator_symbol)
                     && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE)))
             {
                 rhs_does_an_operator_creation = true;
@@ -652,7 +663,7 @@ public class OSupport
              * For NNPSCM, count something as "off the match state" only if it's
              * not the OPERATOR.
              */
-            if ((w.id == match_state) && (w.attr != operator_symbol))
+            if ((w.id == match_state) && (w.attr != syms.operator_symbol))
             {
                 lhs_is_known_to_test_something_off_match_state = true;
             }
@@ -664,7 +675,7 @@ public class OSupport
             {
                 lhs_tests_operator_installed = true;
             }
-            if ((w.id == match_goal) && (w.attr == operator_symbol))
+            if ((w.id == match_goal) && (w.attr == syms.operator_symbol))
             {
                 lhs_tests_operator_acceptable_or_installed = true;
             }
@@ -717,7 +728,7 @@ public class OSupport
                     /* gap 10/6/94 You need to check the id on all preferences that have
                        an attribute of operator to see if this is an operator slot of a
                        context being modified. */
-                    if (!((pref.attr == operator_symbol) && (is_state_id(top_goal, pref.id, match_state))))
+                    if (!((pref.attr == syms.operator_symbol) && (is_state_id(top_goal, pref.id, match_state))))
                     {
                         /* AGR 639 end */
                         pref.o_supported = true;
@@ -732,7 +743,7 @@ public class OSupport
                 for (Preference pref : rhs)
                 {
                     if ((pref.id == match_goal)
-                            && (pref.attr == operator_symbol)
+                            && (pref.attr == syms.operator_symbol)
                             && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE)))
                     {
                         add_to_os_tc_if_id(pref.value, false);
@@ -778,7 +789,7 @@ public class OSupport
                     if (pc != null)
                     {
                         w = pc.bt.wme_;
-                        if ((w.id == match_goal) && (w.attr == operator_symbol))
+                        if ((w.id == match_goal) && (w.attr == syms.operator_symbol))
                         {
                             add_to_os_tc_if_id(w.value, false);
                         }
@@ -857,7 +868,7 @@ public class OSupport
                 continue;
             }
             w = c.bt.wme_;
-            if ((w.id == match_state) && (w.attr == operator_symbol))
+            if ((w.id == match_state) && (w.attr == syms.operator_symbol))
             {
                 rule_2_or_3 = true;
                 break;
@@ -873,7 +884,7 @@ public class OSupport
         /* --- If they didn't apply, check rule 4 --- */
         if (!rule_2_or_3)
         {
-            o_support_tc = syms.get_new_tc_number();
+            o_support_tc = syms.getSyms().get_new_tc_number();
             /*
              * BUGBUG With Doug's scheme, o_support_tc no longer needs to be a
              * global variable -- it could simply be local to this procedure
@@ -886,7 +897,7 @@ public class OSupport
             for (Preference pref : rhs)
             {
                 if ((pref.id == match_state)
-                        && (pref.attr == operator_symbol)
+                        && (pref.attr == syms.operator_symbol)
                         && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE))
                         && (pref.value.asIdentifier() != null))
                 {
@@ -927,11 +938,637 @@ public class OSupport
         /* --- Finally, use rule 1, which overrides all the other rules. --- */
         for (Preference pref : rhs)
         {
-            if ((pref.id == match_state) && (pref.attr == operator_symbol))
+            if ((pref.id == match_state) && (pref.attr == syms.operator_symbol))
             {
                 pref.o_supported = false;
             }
         }
     }
 
+
+    /**
+     * This function determines whether a given symbol could be the match for a
+     * given test. It returns YES if the symbol is the only symbol that could
+     * pass the test (i.e., the test *forces* that symbol to be present in WM),
+     * NO if the symbol couldn't possibly pass the test, and MAYBE if it can't
+     * tell for sure. The symbol may be a variable; the test may contain
+     * variables.
+     * 
+     * osupport.cpp:747:test_is_for_symbol
+     * 
+     * @param t
+     * @param sym
+     * @return
+     */
+    private YesNoMaybe test_is_for_symbol(Test t, Symbol sym)
+    {
+        if (t.isBlank())
+        {
+            return YesNoMaybe.MAYBE;
+        }
+
+        EqualityTest eq = t.asEqualityTest();
+        if (eq != null)
+        {
+            Symbol referent = eq.getReferent();
+            if (referent == sym)
+            {
+                return YesNoMaybe.YES;
+            }
+            if (referent.asVariable() != null)
+            {
+                return YesNoMaybe.MAYBE;
+            }
+            if (sym.asVariable() != null)
+            {
+                return YesNoMaybe.MAYBE;
+            }
+            return YesNoMaybe.NO;
+        }
+
+        DisjunctionTest dt = t.asDisjunctionTest();
+        if (dt != null)
+        {
+            if (sym.asVariable() != null)
+            {
+                return YesNoMaybe.MAYBE;
+            }
+            if (dt.disjunction_list.contains(sym))
+            {
+                return YesNoMaybe.MAYBE;
+            }
+            return YesNoMaybe.NO;
+        }
+        ConjunctiveTest ct = t.asConjunctiveTest();
+        if (ct != null)
+        {
+            boolean maybe_found = false;
+            for (Test c : ct.conjunct_list)
+            {
+                YesNoMaybe temp = test_is_for_symbol(c, sym);
+                if (temp == YesNoMaybe.YES)
+                {
+                    return YesNoMaybe.YES;
+                }
+                if (temp == YesNoMaybe.MAYBE)
+                {
+                    maybe_found = true;
+                }
+            }
+            if (maybe_found)
+            {
+                return YesNoMaybe.MAYBE;
+            }
+            return YesNoMaybe.NO;
+        }
+        // goal/impasse tests, relational tests other than equality
+        return YesNoMaybe.MAYBE;
+    }
+    
+    /**
+     * This routine looks at the LHS and returns a list of variables that are
+     * certain to be bound to goals.
+     * 
+     * Note: this uses the TC routines and clobbers any existing TC.
+     * 
+     * BUGBUG should follow ^object links up the goal stack if possible
+     * 
+     * osupport.cpp:796:find_known_goals
+     * 
+     * @param lhs
+     * @return
+     */
+    private LinkedList<Variable> find_known_goals(Condition lhs)
+    {
+        int tc = syms.getSyms().get_new_tc_number();
+        LinkedList<Variable> vars = new LinkedList<Variable>();
+        for (Condition c = lhs; c != null; c = c.next)
+        {
+            PositiveCondition pc = c.asPositiveCondition();
+            if (pc == null)
+            {
+                continue;
+            }
+            if (TestTools.test_includes_goal_or_impasse_id_test(pc.id_test, true, false))
+            {
+                pc.id_test.addBoundVariables(tc, vars);
+            }
+        }
+        return vars;
+    }
+
+    /**
+     * Given the LHS and a list of known goals (i.e., variables that must be
+     * bound to goals at run-time), this routine tries to determine which
+     * variable will be the match goal. If successful, it returns that variable;
+     * if it can't tell which variable will be the match goal, it returns NIL.
+     * 
+     * Note: this uses the TC routines and clobbers any existing TC.
+     * 
+     * osupport.cpp:825:find_compile_time_match_goal
+     * 
+     * @param lhs
+     * @param known_goals
+     * @return
+     */
+    private Variable find_compile_time_match_goal(Condition lhs, List<Variable> known_goals)
+    {
+        /* --- find root variables --- */
+        int tc = syms.getSyms().get_new_tc_number();
+        List<Variable> roots = ConditionReorderer.collect_root_variables(lhs, tc, false);
+
+        /* --- intersect roots with known_goals, producing root_goals --- */
+        LinkedList<Variable> root_goals = new LinkedList<Variable>();
+        int num_root_goals = 0; // TODO Just use root_goals.size()?
+        for (Variable v : roots)
+        {
+            if (known_goals.contains(v))
+            {
+                root_goals.push(v);
+                num_root_goals++;
+            }
+        }
+
+        /* --- if more than one goal, remove any with "^object nil" --- */
+        if (num_root_goals > 1)
+        {
+            for (Condition cond = lhs; cond != null; cond = cond.next)
+            {
+                PositiveCondition pc = cond.asPositiveCondition();
+                if (pc != null && (test_is_for_symbol(pc.attr_test, syms.superstate_symbol) == YesNoMaybe.YES)
+                        && (test_is_for_symbol(pc.value_test, syms.nil_symbol) == YesNoMaybe.YES))
+                {
+
+                    Iterator<Variable> it = root_goals.iterator();
+                    while (it.hasNext())
+                    {
+                        Variable sym = it.next();
+                        if (test_is_for_symbol(pc.id_test, sym) == YesNoMaybe.YES)
+                        {
+                            // remove sym from the root_goals list
+                            it.remove();
+                            num_root_goals--;
+                            if (num_root_goals == 1)
+                            {
+                                break; // be sure not to remove them all 
+                            }
+                        }
+                    } /* end of for (c) loop */
+                    if (num_root_goals == 1)
+                        break; /* be sure not to remove them all */
+                }
+            } /* end of for (cond) loop */
+        }
+
+        // --- if there's only one root goal, that's it!
+        if (num_root_goals == 1)
+        {
+            return root_goals.getFirst();
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
+    /**
+     * Given the LHS and a the match goal variable, this routine looks for a
+     * positive condition testing (goal ^attr) for the given attribute "attr".
+     * If such a condition exists, and the value field contains an equality test
+     * for a variable, then that variable is returned. (If more than one such
+     * variable exists, one is chosen arbitrarily and returned.) Otherwise the
+     * function returns NIL.
+     * 
+     * Note: this uses the TC routines and clobbers any existing TC.
+     * 
+     * osupport.cpp:896:find_thing_off_goal
+     * 
+     * @param lhs
+     * @param goal
+     * @param attr
+     * @return
+     */
+    private Symbol find_thing_off_goal(Condition lhs, Variable goal, Symbol attr)
+    {
+        for (Condition c = lhs; c != null; c = c.next)
+        {
+            PositiveCondition pc = c.asPositiveCondition();
+            if (pc == null) continue;
+            if (test_is_for_symbol(pc.id_test, goal) != YesNoMaybe.YES) continue;
+            if (test_is_for_symbol(pc.attr_test, attr) != YesNoMaybe.YES) continue;
+            if (c.test_for_acceptable_preference) continue;
+            
+            int tc = syms.getSyms().get_new_tc_number();
+            LinkedList<Variable> vars = new LinkedList<Variable>();
+            pc.value_test.addBoundVariables(tc, vars);
+            if (!vars.isEmpty())
+            {
+                return vars.getFirst();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This checks whether a given condition list has an equality test for a
+     * given symbol in the id field of any condition (at any nesting level
+     * within NCC's).
+     * 
+     * osupport.cpp:928:condition_list_has_id_test_for_sym
+     * 
+     * @param conds
+     * @param sym
+     * @return
+     */
+    private boolean condition_list_has_id_test_for_sym(Condition conds, Symbol sym)
+    {
+        for (; conds != null; conds = conds.next)
+        {
+            ThreeFieldCondition tfc = conds.asThreeFieldCondition(); // Positive
+                                                                        // or
+                                                                        // negative
+            if (tfc != null)
+            {
+                if (TestTools.test_includes_equality_test_for_symbol(tfc.id_test, sym))
+                {
+                    return true;
+                }
+            }
+            ConjunctiveNegationCondition ncc = conds.asConjunctiveNegationCondition();
+            if (ncc != null)
+            {
+                if (condition_list_has_id_test_for_sym(ncc.top, sym))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * osupport.cpp:953:match_state_tests_non_operator_slot
+     * 
+     * @param conds
+     * @param match_state
+     * @return
+     */
+    private boolean match_state_tests_non_operator_slot(Condition conds, Symbol match_state)
+    {
+        YesNoMaybe ynm;
+
+        for (; conds != null; conds = conds.next)
+        {
+            ThreeFieldCondition tfc = conds.asThreeFieldCondition();
+            if (tfc != null)
+            {
+                if (TestTools.test_includes_equality_test_for_symbol(tfc.id_test, match_state))
+                {
+                    ynm = test_is_for_symbol(tfc.attr_test, syms.operator_symbol);
+                    if (ynm == YesNoMaybe.NO)
+                    {
+                        return true;
+                    }
+                }
+            }
+            ConjunctiveNegationCondition ncc = conds.asConjunctiveNegationCondition();
+            if (ncc != null)
+            {
+                if (match_state_tests_non_operator_slot(ncc.top, match_state))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This enlarges a given TC by adding to it any connected conditions in the
+     * LHS or actions in the RHS.
+     * 
+     * osupport.cpp:986:add_tc_through_lhs_and_rhs
+     * 
+     * @param lhs
+     * @param rhs
+     * @param tc
+     * @param id_list
+     * @param var_list
+     */
+    private void add_tc_through_lhs_and_rhs(Condition lhs, Action rhs, int tc, LinkedList<Identifier> id_list,
+            LinkedList<Variable> var_list)
+    {
+
+        for (Condition c = lhs; c != null; c = c.next)
+        {
+            c.already_in_tc = false;
+        }
+        for (Action a = rhs; a != null; a = a.next)
+        {
+            a.already_in_tc = false;
+        }
+
+        /* --- keep trying to add new stuff to the tc --- */
+        while (true)
+        {
+            boolean anything_changed = false;
+            for (Condition c = lhs; c != null; c = c.next)
+            {
+                if (!c.already_in_tc)
+                {
+                    if (c.cond_is_in_tc(tc))
+                    {
+                        c.add_cond_to_tc(tc, id_list, var_list);
+                        c.already_in_tc = true;
+                        anything_changed = true;
+                    }
+                }
+            }
+            for (Action a = rhs; a != null; a = a.next)
+            {
+                if (!a.already_in_tc)
+                {
+                    if (a.action_is_in_tc(tc))
+                    {
+                        a.add_action_to_tc(tc, id_list, var_list);
+                        a.already_in_tc = true;
+                        anything_changed = true;
+                    }
+                }
+            }
+            if (!anything_changed)
+                break;
+        }
+    }
+
+    
+/* -----------------------------------------------------------------------
+                   Calculate Compile Time O-Support
+
+   This takes the LHS and RHS, and fills in the a->support field in each
+   RHS action with either UNKNOWN_SUPPORT, O_SUPPORT, or I_SUPPORT.
+   (Actually, it only does this for MAKE_ACTION's--for FUNCALL_ACTION's,
+   the support doesn't matter.)
+----------------------------------------------------------------------- */
+
+public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean operand2_mode) {
+  Symbol  match_operator;
+  YesNoMaybe lhs_oa_support, lhs_oc_support, lhs_om_support;
+  Action a;
+  Condition cond;
+  YesNoMaybe ynm;
+  int tc;
+
+  /* --- initialize:  mark all rhs actions as "unknown" --- */
+  for (a=rhs; a!=null; a=a.next){
+      MakeAction ma = a.asMakeAction();
+    if (ma != null) {  a.support=ActionSupport.UNKNOWN_SUPPORT; }
+  }
+
+  /* --- if "operator" doesn't appear in any LHS attribute slot, and there
+         are no RHS +/! makes for "operator", then nothing gets support --- */
+  boolean operator_found = false;
+  boolean possible_operator_found = false;
+  for (cond=lhs; cond!=null; cond=cond.next) {
+    PositiveCondition pc = cond.asPositiveCondition();  
+    if (pc == null) {  continue; }
+    ynm = test_is_for_symbol (pc.attr_test, syms.operator_symbol);
+    if (ynm==YesNoMaybe.YES) { operator_found = possible_operator_found = true; break; }
+    if (ynm==YesNoMaybe.MAYBE) { possible_operator_found = true; }
+  }
+  if (! operator_found){
+    for (a=rhs; a!=null; a=a.next) {
+      MakeAction ma = a.asMakeAction();
+      if (ma == null) { continue; }
+      RhsSymbolValue rhsSym = ma.attr.asSymbolValue();
+      if (rhsSym != null) { /* RBD 3/29/95 general RHS attr's */
+        Symbol attr = rhsSym.getSym();
+        if (attr==syms.operator_symbol)
+          { operator_found = possible_operator_found = true; break; }
+        if (attr.asVariable() != null){
+          possible_operator_found = true;
+        }
+      } else {
+        possible_operator_found = true; // for funcall, must play it safe
+      }
+    }
+  }
+  if (! possible_operator_found) {
+    for (a=rhs; a!=null; a=a.next) {
+      if (a.asMakeAction() != null) { a.support=ActionSupport.I_SUPPORT; }
+    }
+    return;
+  }
+
+
+  /* --- find known goals; RHS augmentations of goals get no support --- */
+  LinkedList<Variable> known_goals = find_known_goals (lhs);
+ /* SBH: In NNPSCM, the only RHS-goal augmentations that can't get support are
+    preferences for the "operator" slot. */
+  for (Variable c : known_goals){
+    for (a=rhs; a!=null; a=a.next) {
+      MakeAction ma = a.asMakeAction();
+      if (ma == null) { continue; }
+      RhsSymbolValue rhsSym = ma.attr.asSymbolValue();
+      if (rhsSym != null &&  /* RBD 3/29/95 */
+          rhsSym.getSym()==syms.operator_symbol &&
+          (ma.id.getSym() == c)) {
+        a.support = ActionSupport.I_SUPPORT;
+      }
+    }
+  }
+
+  /* --- find match goal, state, and operator --- */
+  Variable match_state = find_compile_time_match_goal (lhs, known_goals);
+  if (match_state == null) { return; }
+  
+  match_operator = find_thing_off_goal (lhs, match_state, syms.operator_symbol);
+  /* --- If when checking (above) for "operator" appearing anywhere, we
+     found a possible operator but not a definite operator, now go back and
+     see if the possible operator was actually the match goal or match state;
+     if so, it's not a possible operator.  (Note:  by "possible operator" I
+     mean something appearing in the *attribute* field that might get bound
+     to the symbol "operator".)  --- */
+  if (possible_operator_found && !operator_found) {
+    possible_operator_found = false;
+    for (cond=lhs; cond!=null; cond=cond.next) {
+      PositiveCondition pc = cond.asPositiveCondition();
+      if (pc == null) { continue; }
+      ynm = test_is_for_symbol (pc.attr_test, syms.operator_symbol);
+      if ((ynm!=YesNoMaybe.NO) &&
+          (test_is_for_symbol (pc.attr_test, match_state)!=YesNoMaybe.YES))
+        { possible_operator_found = true; break; }
+    }
+    if (! possible_operator_found) {
+      for (a=rhs; a!=null; a=a.next) {
+        MakeAction ma = a.asMakeAction();
+        if (ma == null) { continue; }
+        /* we're looking for "operator" augs of goals only, and match_state
+           couldn't get bound to a goal */
+        if (ma.id.getSym() == match_state) {  continue; }
+        RhsSymbolValue rhsSym = ma.attr.asSymbolValue();
+        if (rhsSym != null) { /* RBD 3/29/95 */
+          Symbol attr = rhsSym.getSym();
+          if (attr.asVariable() != null && attr != match_state)
+            { possible_operator_found = true; break; }
+        } else { /* RBD 3/29/95 */
+          possible_operator_found = true; break;
+        }
+      }
+    }
+    if (! possible_operator_found) {
+      for (a=rhs; a!=null; a=a.next){
+        if (a.asMakeAction() != null) { a.support=ActionSupport.I_SUPPORT; }
+      }
+      return;
+    }
+  }
+  
+  /* --- calculate LHS support predicates --- */
+  lhs_oa_support = YesNoMaybe.MAYBE;
+  if (match_operator != null){
+
+/* SBH 7/1/94 #2 */
+    if ((condition_list_has_id_test_for_sym (lhs, match_operator)) &&
+    (match_state_tests_non_operator_slot(lhs,match_state))){
+/* end SBH 7/1/94 #2 */
+
+      lhs_oa_support = YesNoMaybe.YES;
+      }
+  }
+
+  lhs_oc_support = YesNoMaybe.MAYBE;
+  lhs_om_support = YesNoMaybe.MAYBE;
+
+/* SBH 7/1/94 #2 */
+  /* For NNPSCM, must test that there is a test of a non-operator slot off 
+     of the match_state. */
+  if (match_state_tests_non_operator_slot(lhs,match_state)) 
+    {
+/* end SBH 7/1/94 #2 */
+
+    lhs_oc_support = YesNoMaybe.YES; 
+    for (cond=lhs; cond!=null; cond=cond.next) {
+      PositiveCondition pc = cond.asPositiveCondition();
+      if (pc == null){ continue; }
+      if (test_is_for_symbol (pc.id_test, match_state) != YesNoMaybe.YES) { continue; }
+      if (test_is_for_symbol (pc.attr_test, syms.operator_symbol)
+          != YesNoMaybe.YES) {
+        continue;
+      }
+      lhs_om_support = YesNoMaybe.YES;
+      break;
+    }
+  }     
+
+  if (lhs_oa_support == YesNoMaybe.YES) {    /* --- look for RHS o-a support --- */
+    /* --- do TC(match_state) --- */
+    tc = syms.getSyms().get_new_tc_number();
+    match_state.add_symbol_to_tc (tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
+    add_tc_through_lhs_and_rhs (lhs, rhs, tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
+
+    /* --- any action with id in the TC gets support --- */
+    for (a=rhs; a!=null; a=a.next)  {
+
+      if (a.action_is_in_tc (tc)) {
+    /* SBH 7/1/94 Avoid resetting of support that was previously set to I_SUPPORT. */
+    /* gap 10/6/94 If the action has an attribue of operator, then you
+       don't know if it should get o-support until run time because of
+       the vagaries of knowing when this is matching a context object
+       or not. */
+        RhsSymbolValue rhsSym = a.asMakeAction().attr.asSymbolValue();
+        if (rhsSym != null &&
+            (rhsSym.getSym()==syms.operator_symbol)) {
+      if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.UNKNOWN_SUPPORT; }
+    } else {
+      if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.O_SUPPORT; }
+    }
+        /* end SBH 7/1/94 */
+    }
+    }
+  }
+  
+  if (lhs_oc_support == YesNoMaybe.YES) {    /* --- look for RHS o-c support --- */
+    /* --- do TC(rhs operators) --- */
+    tc = syms.getSyms().get_new_tc_number();
+    for (a=rhs; a!=null; a=a.next) {
+      MakeAction ma = a.asMakeAction();
+      if (ma == null) { continue; }
+      RhsSymbolValue rhsAttrSym = ma.attr.asSymbolValue();
+      if ((ma.id.getSym()==match_state) &&
+          rhsAttrSym != null &&
+          (rhsAttrSym.getSym()==syms.operator_symbol) &&
+          ((a.preference_type==PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) ||
+           (a.preference_type==PreferenceType.REQUIRE_PREFERENCE_TYPE)) ) {
+        RhsSymbolValue rhsValueSym = ma.value.asSymbolValue();
+        if (rhsValueSym != null) {
+            rhsValueSym.getSym().add_symbol_to_tc (tc, new LinkedList<Identifier>(),new LinkedList<Variable>());
+    }
+      }
+    }
+    add_tc_through_lhs_and_rhs (lhs, rhs, tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
+
+    /* --- any action with id in the TC gets support --- */
+    for (a=rhs; a!=null; a=a.next)  {
+
+
+      if (a.action_is_in_tc (tc)) {
+
+    /* SBH 6/7/94:
+       Make sure the action is not already marked as "I_SUPPORT".  This
+       avoids giving o-support in the case where the operator
+       points back to the goal, thus adding the goal to the TC,
+       thus adding the operator proposal itself to the TC; thus
+       giving o-support to an operator proposal.
+    */
+    if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.O_SUPPORT; }
+    /* End SBH 6/7/94 */
+
+
+       /* REW: begin 09.15.96 */
+       /*
+       in operand, operator proposals are now only i-supported.
+       */
+
+       if (operand2_mode) {
+           // TODO Verbose
+//           if (thisAgent->soar_verbose_flag == TRUE) {
+//               printf("\n         operator creation: setting a->support to I_SUPPORT");
+//               xml_generate_verbose(thisAgent, "operator creation: setting a->support to I_SUPPORT");
+//           }
+
+           a.support = ActionSupport.I_SUPPORT;
+       }
+       /* REW: end   09.15.96 */
+
+      }
+  }
+
+  if (lhs_om_support == YesNoMaybe.YES) {    /* --- look for RHS o-m support --- */
+    /* --- do TC(lhs operators) --- */
+    tc = syms.getSyms().get_new_tc_number();
+    for (cond=lhs; cond!=null; cond=cond.next) {
+      PositiveCondition pc = cond.asPositiveCondition();
+      if (pc == null) { continue; }
+      if (test_is_for_symbol (pc.id_test, match_state) == YesNoMaybe.YES){
+        if (test_is_for_symbol (pc.attr_test, syms.operator_symbol) == YesNoMaybe.YES){
+          pc.value_test.addBoundVariables(tc, new LinkedList<Variable>());
+        }
+      }
+    }
+    add_tc_through_lhs_and_rhs (lhs, rhs, tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
+
+    /* --- any action with id in the TC gets support --- */
+    for (a=rhs; a!=null; a=a.next) {
+
+      if (a.action_is_in_tc (tc)) {
+    /* SBH 7/1/94 Avoid resetting of support that was previously set to I_SUPPORT. */
+    if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.O_SUPPORT; }
+    /* end SBH 7/1/94 */
+      }
+    }
+  }
+}
+
+}
 }

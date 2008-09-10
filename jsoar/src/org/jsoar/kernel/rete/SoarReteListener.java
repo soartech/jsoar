@@ -18,7 +18,6 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
-import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.util.ListHead;
 

@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rhs;
 
-import java.util.List;
+import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
 
@@ -41,5 +41,5 @@ public abstract class RhsValue
         return '*';
     }
 
-    public abstract void addAllVariables(int tc_number, List<Variable> var_list);
+    public abstract void addAllVariables(int tc_number, LinkedList<Variable> var_list);
 }

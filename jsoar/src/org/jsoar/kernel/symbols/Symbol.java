@@ -6,6 +6,7 @@
 package org.jsoar.kernel.symbols;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.DeciderFlag;
@@ -126,5 +127,17 @@ public abstract class Symbol
         // TODO: add refs?
         // TODO: What's the right type of list?
         return new ArrayList<Symbol>(syms);
-    }    
+    }  
+    
+    /**
+     * production.cpp:1317:add_symbol_to_tc
+     * 
+     * @param tc
+     * @param id_list
+     * @param var_list
+     */
+    public void add_symbol_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    {
+        // DO nothing by default
+    }
 }
