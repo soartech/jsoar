@@ -29,8 +29,8 @@ public class Identifier extends Symbol
     public boolean allow_bottom_up_chunks;
     
     public boolean could_be_a_link_from_below;
-    public short level;
-    public short promotion_level;
+    public int level;
+    public int promotion_level;
     public int link_count;
     // TODO: dl_cons unknown_level
     public final ListHead<Slot> slots = new ListHead<Slot>(); // dll of slots for this identifier

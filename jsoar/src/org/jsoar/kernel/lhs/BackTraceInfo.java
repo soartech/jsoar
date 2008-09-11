@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.lhs;
 
+import java.util.LinkedList;
+
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Wme;
 
@@ -18,10 +20,10 @@ import org.jsoar.kernel.memory.Wme;
 public class BackTraceInfo
 {
     public Wme wme_;               /* the actual wme that was matched */
-    int level;   /* level (at firing time) of the id of the wme */
-    Preference trace;        /* preference for BT, or NIL */
+    public int level;   /* level (at firing time) of the id of the wme */
+    public Preference trace;        /* preference for BT, or NIL */
 
     /* mvp 5-17-94 */
-    // TODO ::list *prohibits;          /* list of prohibit prefs to backtrace through */
+    public final LinkedList<Preference> prohibits = new LinkedList<Preference>();  /* list of prohibit prefs to backtrace through */
 
 }

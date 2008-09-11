@@ -182,4 +182,8 @@ public class Slot
     {
         return preferences.get(pref.type.ordinal());
     }
+    public ListHead<Preference> getPreferenceList(PreferenceType type)
+    {
+        return preferences.get(type.ordinal());
+    }
 }

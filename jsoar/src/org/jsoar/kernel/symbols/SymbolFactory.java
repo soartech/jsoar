@@ -149,7 +149,7 @@ public class SymbolFactory
      * @param level
      * @return
      */
-    public Identifier make_new_identifier(char name_letter, short /*goal_stack_level*/ level)
+    public Identifier make_new_identifier(char name_letter, int /*goal_stack_level*/ level)
     {
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
         int name_number = id_counter[name_letter - 'A']++;
