@@ -345,6 +345,8 @@ public class OSupport
      *       I'm not sure whether this is right or not.  (It's a pretty
      *       obscure case, though.)
      * 
+     * TODO Re-check braces in this method :(
+     * 
      * osupport.cpp:267:calculate_support_for_instantiation_preferences
      * 
      * @param inst
@@ -1319,6 +1321,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
   YesNoMaybe ynm;
   int tc;
 
+  // TODO Re-check braces here
   /* --- initialize:  mark all rhs actions as "unknown" --- */
   for (a=rhs; a!=null; a=a.next){
       MakeAction ma = a.asMakeAction();

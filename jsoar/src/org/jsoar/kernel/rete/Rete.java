@@ -200,6 +200,28 @@ public class Rete
     }
     
     /**
+     * Access to rhs_variable_bindings array
+     * 
+     * @param index Index of binding
+     * @return The binding symbol
+     */
+    public Symbol getRhsVariableBinding(int index)
+    {
+        return rhs_variable_bindings[index];
+    }
+    
+    /**
+     * Access to rhs_variable_bindings array
+     * 
+     * @param index Index of binding
+     * @param sym New symbol value
+     */
+    public void setRhsVariableBinding(int index, Symbol sym)
+    {
+        rhs_variable_bindings[index] = sym;
+    }
+    
+    /**
      * Simpler method that adds a production to the rete with default options
      * 
      * @param p The production to add
