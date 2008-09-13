@@ -86,7 +86,8 @@ public class ReteUnitTest extends JSoarTest
         super.setUp();
         
         this.listener = new Listener();
-        this.rete = new Rete(this.listener, varGen);
+        this.rete = new Rete(varGen);
+        this.rete.setReteListener(listener);
     }
 
     @Test

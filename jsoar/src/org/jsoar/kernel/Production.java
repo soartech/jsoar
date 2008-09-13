@@ -36,6 +36,7 @@ public class Production
     public final LinkedList<Variable> rhs_unbound_variables = new LinkedList<Variable>();
     public boolean already_fired = false; /* RPM test workaround for bug #139 */
     public AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;
+    public int reference_count = 1;
     /**
      * @param type
      * @param name
@@ -119,6 +120,16 @@ public class Production
 //            }
 //        }
 
+    }
+    
+    /**
+     * @param b
+     */
+    public void excise_production(boolean b)
+    {
+        // TODO implement excise_production
+        throw new UnsupportedOperationException("excise_production not implemented");
+        
     }
     
     

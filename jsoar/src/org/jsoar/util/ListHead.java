@@ -17,6 +17,15 @@ public class ListHead <T> implements Iterable<T>
 {
     public AsListItem<T> first;
 
+    public ListHead()
+    {
+    }
+    
+    public ListHead(ListHead<T> other)
+    {
+        this.first = other.first;
+    }
+    
     public boolean isEmpty()
     {
         return first == null;
