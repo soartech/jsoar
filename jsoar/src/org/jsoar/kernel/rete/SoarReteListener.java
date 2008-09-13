@@ -29,6 +29,8 @@ import org.jsoar.util.ListHead;
  */
 public class SoarReteListener implements ReteListener
 {
+    private final Rete rete;
+    
     /**
      * false is Soar 7 mode
      * 
@@ -68,10 +70,21 @@ public class SoarReteListener implements ReteListener
     /**
      * @param operator_symbol
      */
-    public SoarReteListener(SymConstant operator_symbol)
+    public SoarReteListener(Rete rete, SymConstant operator_symbol)
     {
+        this.rete = rete;
         this.operator_symbol = operator_symbol;
     }
+
+    
+    /**
+     * @return the rete
+     */
+    public Rete getRete()
+    {
+        return rete;
+    }
+
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.rete.ReteListener#finishRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)
@@ -858,4 +871,37 @@ public class SoarReteListener implements ReteListener
         }
     }
 
+
+    /**
+     * @return
+     */
+    public SoarReteAssertion get_next_assertion()
+    {
+        // TODO implement get_next_assertion
+        throw new UnsupportedOperationException("get_next_assertion not implemented");
+    }
+
+
+    /**
+     * @return
+     */
+    public Instantiation get_next_retraction()
+    {
+        // TODO implement get_next_retraction
+        throw new UnsupportedOperationException("get_next_retraction not implemented");
+    }
+
+    public boolean hasNilGoalRetractions()
+    {
+        return !nil_goal_retractions.isEmpty();
+    }
+
+    /**
+     * @return
+     */
+    public Instantiation get_next_nil_goal_retraction()
+    {
+        // TODO implement get_next_nil_goal_retraction
+        throw new UnsupportedOperationException("get_next_nil_goal_retraction not implemented");
+    }
 }

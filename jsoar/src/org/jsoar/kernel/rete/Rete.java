@@ -181,12 +181,10 @@ public class Rete
     Symbol[] rhs_variable_bindings = {};
     private VariableGenerator variableGenerator;
     
-    public Rete(ReteListener listener, VariableGenerator variableGenerator)
+    public Rete(VariableGenerator variableGenerator)
     {
-        Arguments.checkNotNull(listener, "listener");
         Arguments.checkNotNull(variableGenerator, "variableGenerator");
         
-        this.listener = listener;
         this.variableGenerator = variableGenerator;
         
         // rete.cpp:8864
@@ -197,6 +195,15 @@ public class Rete
         }
         
         init_dummy_top_node();
+    }
+    
+    public void setReteListener(ReteListener listener)
+    {
+        if(this.listener != null)
+        {
+            throw new IllegalStateException("listener already set");
+        }
+        this.listener = listener;
     }
     
     /**
@@ -2150,5 +2157,27 @@ public class Rete
           tok = next_value_for_tok; /* else go get the leftmost leaf again */
         } 
         
+    }
+
+    /**
+     * P_node_to_conditions_and_nots() takes a p_node and (optionally) a
+     * token/wme pair, and reconstructs the (optionally instantiated) LHS for
+     * the production. If "dest_rhs" is non-NIL, it also reconstructs the RHS
+     * actions, and fills in dest_rhs with the action list. Note: if tok!=NIL,
+     * this routine also returns (in dest_nots) the top-level positive "<>"
+     * tests. If tok==NIL, dest_nots is not used.
+     * 
+     * rete.cpp:4350:p_node_to_conditions_and_nots
+     * 
+     * @param p_node
+     * @param tok
+     * @param w
+     * @param b
+     * @return
+     */
+    public ConditionsAndNots p_node_to_conditions_and_nots(ReteNode p_node, Token tok, Wme w, boolean b)
+    {
+        // TODO Implement p_node_to_conditions_and_nots
+        throw new UnsupportedOperationException("p_node_to_conditions_and_nots not implemented");
     }
 }

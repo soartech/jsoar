@@ -41,7 +41,7 @@ public class PredefinedSymbols
     public final SymConstant nil_symbol = syms.make_sym_constant("nil");
     SymConstant type_symbol = syms.make_sym_constant("type");
     SymConstant goal_symbol = syms.make_sym_constant("goal");
-    SymConstant name_symbol = syms.make_sym_constant("name");
+    public final SymConstant name_symbol = syms.make_sym_constant("name");
 
     Variable ts_context_variable = syms.make_variable ("<ts>");
     Variable to_context_variable = syms.make_variable ("<to>");

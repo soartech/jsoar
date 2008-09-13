@@ -44,6 +44,11 @@ public class OSupport
 {
     private final PredefinedSymbols syms;
     
+    /**
+     * agent.h:687:o_support_calculation_type
+     */
+    public int o_support_calculation_type = 4;
+
     private static enum YesNoMaybe
     {
         YES, NO, MAYBE
@@ -352,10 +357,9 @@ public class OSupport
      * @param inst
      * @param top_goal
      * @param operand2_mode
-     * @param o_support_calculation_type
      */
     public void calculate_support_for_instantiation_preferences(Instantiation inst, final Identifier top_goal,
-            final boolean operand2_mode, final int o_support_calculation_type)
+            final boolean operand2_mode)
     {
         Identifier match_goal, match_state, match_operator;
         Wme match_operator_wme;
