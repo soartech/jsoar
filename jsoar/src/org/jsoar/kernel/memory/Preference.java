@@ -17,15 +17,15 @@ import org.jsoar.util.AsListItem;
  */
 public class Preference
 {
-    final PreferenceType type;         /* acceptable, better, etc. */
+    public final PreferenceType type;         /* acceptable, better, etc. */
     boolean o_supported = false;  /* is the preference o-supported? */
     boolean in_tm = false;        /* is this currently in TM? */
     boolean on_goal_list = false; /* is this pref on the list for its match goal */
     int reference_count = 0;
-    final Identifier id;
-    final Symbol attr;
-    final Symbol value;
-    final Symbol referent;
+    public final Identifier id;
+    public final Symbol attr;
+    public final Symbol value;
+    public final Symbol referent;
     Slot slot = null;
 
     final AsListItem<Preference> next_prev = new AsListItem<Preference>(this); // dll of pref's of same type in same slot */

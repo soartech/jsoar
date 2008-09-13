@@ -85,10 +85,14 @@ public class Slot
      * 
      * TODO Sub-class instead of using this for two things
      */
-    Object changed;
-// TODO   dl_cons *acceptable_preference_changed; /* for context slots: either zero,
-//                                               or points to dl_cons if the slot
-//                                               has changed + or ! pref's */
+    public Object changed;
+    /**
+     * for context slots: either zero, or points to dl_cons if the slot has
+     * changed + or ! pref's
+     * 
+     * TODO Sub-class instead of using this for two things
+     */
+    public Object acceptable_preference_changed;
 
     /**
      * tempmem.cpp:64:make_slot

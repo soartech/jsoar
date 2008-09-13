@@ -30,6 +30,9 @@ public class SoarContext
     public final SoarReteListener soarReteListener = new SoarReteListener(rete, predefinedSyms.operator_symbol);
     public final RecognitionMemory recMemory = new RecognitionMemory(this);
     
+    public final Decider decider = new Decider(this);
+    public final Consistency consistency = new Consistency();
+    
     /**
      * agent.h:728:operand2_mode
      */
