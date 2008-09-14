@@ -14,7 +14,18 @@ import org.jsoar.kernel.rete.Token;
  */
 public class ReinforcementLearning
 {
-
+    private boolean enabled = false;
+    
+    /**
+     * reinforcement_learning.cpp:695:rl_enabled
+     * 
+     * @return
+     */
+    public boolean rl_enabled()
+    {
+        return enabled;
+    }
+    
     /**
      * @param inst
      * @param tok
@@ -26,4 +37,5 @@ public class ReinforcementLearning
         throw new UnsupportedOperationException("rl_build_template_instantiation is not implemented");
     }
 
+    
 }

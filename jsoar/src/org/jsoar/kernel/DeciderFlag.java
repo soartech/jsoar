@@ -33,6 +33,16 @@ public enum DeciderFlag
     /* REW: 2003-01-02 Behavior Variability Kernel Experiments 
        A new preference type: unary indifferent + constant (probability) value
     */
-    UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG
+    UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG;
 
+    /**
+     * Helper to handle code that relies on NOTHING_DECIDER_FLAG being 0 in
+     * boolean contexts in C (see above)
+     * 
+     * @return true if this flag is not NOTHING_DECIDER_FLAG
+     */
+    public boolean isSomething()
+    {
+        return this != NOTHING_DECIDER_FLAG;
+    }
 }

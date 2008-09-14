@@ -7,11 +7,13 @@ package org.jsoar.kernel.symbols;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -32,7 +34,7 @@ public class Identifier extends Symbol
     public int level;
     public int promotion_level;
     public int link_count;
-    // TODO: dl_cons unknown_level
+    public AsListItem<Identifier> unknown_level;
     public final ListHead<Slot> slots = new ListHead<Slot>(); // dll of slots for this identifier
     public int tc_number; /* used for transitive closures, marking, etc. */
     public Symbol variablization; /* used by the chunker */
@@ -49,7 +51,7 @@ public class Identifier extends Symbol
     // TODO struct rl_data_struct *rl_info;           // various Soar-RL information
 
     /* REW: begin 09.15.96 */
-    // TODO struct gds_struct *gds;    /* Pointer to a goal's dependency set */
+    public GoalDependencySet gds; // pointer to a goal's dependency set
     /* REW: begin 09.15.96 */
 
     /* REW: begin 08.20.97 */

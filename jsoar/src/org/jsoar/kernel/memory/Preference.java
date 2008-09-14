@@ -18,29 +18,29 @@ import org.jsoar.util.AsListItem;
 public class Preference
 {
     public final PreferenceType type;         /* acceptable, better, etc. */
-    boolean o_supported = false;  /* is the preference o-supported? */
+    public boolean o_supported = false;  /* is the preference o-supported? */
     boolean in_tm = false;        /* is this currently in TM? */
-    boolean on_goal_list = false; /* is this pref on the list for its match goal */
+    public boolean on_goal_list = false; /* is this pref on the list for its match goal */
     int reference_count = 0;
     public final Identifier id;
     public final Symbol attr;
     public final Symbol value;
     public final Symbol referent;
-    Slot slot = null;
+    public Slot slot = null;
 
-    final AsListItem<Preference> next_prev = new AsListItem<Preference>(this); // dll of pref's of same type in same slot */
+    public final AsListItem<Preference> next_prev = new AsListItem<Preference>(this); // dll of pref's of same type in same slot */
 
     final AsListItem<Preference> all_of_slot = new AsListItem<Preference>(this); // dll of all pref's in same slot
 
-    final AsListItem<Preference> all_of_goal = new AsListItem<Preference>(this); // dll of all pref's from the same match goal
+    public final AsListItem<Preference> all_of_goal = new AsListItem<Preference>(this); // dll of all pref's from the same match goal
     
     /* dll (without header) of cloned preferences (created when chunking) */
     Preference next_clone;
     Preference prev_clone;
       
-    Instantiation inst;
-    final AsListItem<Preference> inst_next_prev = new AsListItem<Preference>(this);
-    Preference next_candidate;
+    public Instantiation inst;
+    public final AsListItem<Preference> inst_next_prev = new AsListItem<Preference>(this);
+    public Preference next_candidate;
     Preference next_result;
 
     int total_preferences_for_candidate = 0;
