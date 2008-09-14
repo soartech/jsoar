@@ -144,7 +144,7 @@ public class WorkingMemory
      * @param w
      * @param updateWmeMap
      */
-    public void remove_wme_list_from_wm(Wme w, boolean updateWmeMap)
+    public void remove_wme_list_from_wm(Wme w, boolean updateWmeMap /*=false*/)
     {
         Wme next_w = null;
 

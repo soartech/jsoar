@@ -74,9 +74,9 @@ public class Slot
     public final ListHead<Wme> acceptable_preference_wmes = new ListHead<Wme>();  // dll of acceptable pref. wmes
     public final ListHead<Preference> all_preferences = new ListHead<Preference>(); // dll of all pref's in the slot
     public final List<ListHead<Preference>> preferences = new ArrayList<ListHead<Preference>>(PreferenceType.values().length); // dlls for each type
-    Identifier impasse_id = null;               // null if slot is not impassed
-    boolean isa_context_slot;            
-    ImpasseType impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
+    public Identifier impasse_id = null;               // null if slot is not impassed
+    public boolean isa_context_slot;            
+    public ImpasseType impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
     boolean marked_for_possible_removal = false;
     /**
      * for non-context slots: points to the corresponding

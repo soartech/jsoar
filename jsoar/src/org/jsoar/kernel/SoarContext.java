@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel;
 
+import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.learning.ReinforcementLearning;
 import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.PreferenceMemory;
 import org.jsoar.kernel.memory.RecognitionMemory;
@@ -32,6 +34,11 @@ public class SoarContext
     
     public final Decider decider = new Decider(this);
     public final Consistency consistency = new Consistency();
+    
+    public final ReinforcementLearning rl = new ReinforcementLearning();
+    public final DecisionManipulation decisionManip = new DecisionManipulation();
+    public final Exploration exploration = new Exploration();
+    public final InputOutput io = new InputOutput();
     
     /**
      * agent.h:728:operand2_mode

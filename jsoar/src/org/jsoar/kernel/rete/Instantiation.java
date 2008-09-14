@@ -28,7 +28,7 @@ public class Instantiation
     public Condition top_of_instantiated_conditions;
     public Condition bottom_of_instantiated_conditions;
 
-    public NotStruct nots;
+    public NotStruct nots = null;
     public final ListHead<Preference>  preferences_generated = new ListHead<Preference>();    // header for dll of prefs
     public Identifier match_goal;                   // symbol, or NIL if none
     public int /*goal_stack_level*/ match_goal_level;    // level, or ATTRIBUTE_IMPASSE_LEVEL
