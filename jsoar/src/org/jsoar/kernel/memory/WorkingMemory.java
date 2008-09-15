@@ -26,6 +26,11 @@ public class WorkingMemory
     private final LinkedList<Wme> wmes_to_remove = new LinkedList<Wme>();
     private int wme_addition_count;
     private int wme_removal_count;
+    
+    // Stats stuff
+    public int max_wm_size = 0;
+    public int cumulative_wm_size = 0;
+    public int num_wm_sizes_accumulated;
 
     
     /**

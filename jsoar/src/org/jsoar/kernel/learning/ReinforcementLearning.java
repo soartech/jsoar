@@ -58,5 +58,24 @@ public class ReinforcementLearning
         throw new UnsupportedOperationException("rl_tabulate_reward_values is not implemented");
     }
 
+    /**
+     * @param g
+     */
+    public void rl_tabulate_reward_value_for_goal(Identifier g)
+    {
+        // TODO Implement rl_tabulate_reward_value_for_goal
+        throw new UnsupportedOperationException("rl_tabulate_reward_value_for_goal is not implemented");
+    }
+
+    /**
+     * @param i
+     * @param g
+     */
+    public void rl_perform_update(int i, Identifier g)
+    {
+        // TODO Implement rl_perform_update
+        throw new UnsupportedOperationException("rl_perform_update is not implemented");
+    }
+
     
 }

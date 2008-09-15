@@ -16,6 +16,8 @@ import org.jsoar.kernel.symbols.Symbol;
 public class InputOutput
 {
 
+    public boolean output_link_changed;
+
     /**
      * @param id
      * @param attr

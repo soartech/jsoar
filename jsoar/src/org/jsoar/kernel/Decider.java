@@ -60,6 +60,7 @@ public class Decider
     private static final boolean DEBUG_LINKS = false;
     
     private final SoarContext context;
+    
     /**
      * agent.h:603:context_slots_with_changed_acceptable_preferences
      */
@@ -92,17 +93,18 @@ public class Decider
     private int lowest_level_anything_could_fall_to;
     private int walk_tc_number;
     private int walk_level;
-    private Identifier top_goal;
-    private Identifier bottom_goal;
+    
+    Identifier top_goal;
+    Identifier bottom_goal;
+    private Identifier top_state;
+    private Identifier active_goal;
+    private boolean waitsnc;
+    private boolean waitsnc_detect;
     
     /**
      * agent.h:384:parent_list_head
      */
     private ParentInstantiation parent_list_head;
-    private Identifier top_state;
-    private boolean waitsnc;
-    private boolean waitsnc_detect;
-    private Identifier active_goal;
     
     /**
      * @param context
@@ -2481,9 +2483,9 @@ public class Decider
     /**
      * decide.cpp:2409:do_decision_phase
      * 
-     * @param predict
+     * @param predict (defaulted to false in CSoar)
      */
-    public void do_decision_phase(boolean predict)
+    public void do_decision_phase(boolean predict /*=false*/)
     {
         if (!predict && context.rl.rl_enabled())
             context.rl.rl_tabulate_reward_values();

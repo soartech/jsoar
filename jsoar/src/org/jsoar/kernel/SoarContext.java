@@ -8,6 +8,7 @@ package org.jsoar.kernel;
 import java.io.OutputStreamWriter;
 
 import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.ReinforcementLearning;
 import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.PreferenceMemory;
@@ -39,6 +40,7 @@ public class SoarContext
     public final Decider decider = new Decider(this);
     public final Consistency consistency = new Consistency();
     
+    public final Chunker chunker = new Chunker();
     public final ReinforcementLearning rl = new ReinforcementLearning();
     public final DecisionManipulation decisionManip = new DecisionManipulation();
     public final Exploration exploration = new Exploration();
