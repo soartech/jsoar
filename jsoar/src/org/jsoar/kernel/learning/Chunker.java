@@ -14,6 +14,7 @@ import org.jsoar.kernel.rete.Instantiation;
  */
 public class Chunker
 {
+    public int chunks_this_d_cycle;
 
     /**
      * @param inst
@@ -24,5 +25,6 @@ public class Chunker
         // TODO Implement chunk_instantiation
         throw new UnsupportedOperationException("chunk_instantiation not implemented");
     }
+
 
 }

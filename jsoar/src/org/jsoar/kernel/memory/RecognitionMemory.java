@@ -83,7 +83,7 @@ public class RecognitionMemory
     /**
      * agent.h:720:FIRING_TYPE
      */
-    private SavedFiringType FIRING_TYPE;
+    public SavedFiringType FIRING_TYPE;
     
     /**
      * @param context
@@ -845,7 +845,7 @@ public class RecognitionMemory
         Chunker.chunk_instantiation(inst, false /* TODO thisAgent->sysparams[LEARNING_ON_SYSPARAM] != 0*/);
 
         /* MVP 6-8-94 */
-        // TODO: callback
+        // TODO callback FIRING_CALLBACK
         //   if (!thisAgent->system_halted) {
         //      /* --- invoke callback function --- */
         //      soar_invoke_callbacks(thisAgent, 
@@ -1173,10 +1173,10 @@ public class RecognitionMemory
      * 
      * recmem.cpp:1035:do_preference_phase
      * 
-     * @param root_goal
+     * @param top_goal
      * @param o_support_calculation_type
      */
-    public void do_preference_phase(Identifier root_goal, int o_support_calculation_type)
+    public void do_preference_phase(Identifier top_goal, int o_support_calculation_type)
     {
         /*
          * AGR 617/634: These are 2 bug reports that report the same problem,
@@ -1234,7 +1234,7 @@ public class RecognitionMemory
             // (soar_call_data) NULL);
             // return;
             // }
-            create_instantiation(assertion.production, assertion.token, assertion.wme, root_goal);
+            create_instantiation(assertion.production, assertion.token, assertion.wme, top_goal);
         }
 
         assert_new_preferences();

@@ -174,7 +174,7 @@ public class Rete
     private int alpha_mem_id_counter; 
     private List<SoarHashTable<AlphaMemory>> alpha_hash_tables;
     private ListHead<Wme> all_wmes_in_rete = new ListHead<Wme>();
-    private int num_wmes_in_rete= 0;
+    public int num_wmes_in_rete= 0;
     private int beta_node_id_counter;
     ReteNode dummy_top_node;
     

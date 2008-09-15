@@ -26,4 +26,31 @@ public class Consistency
         throw new UnsupportedOperationException("remove_operator_if_necessary not implemented");
     }
 
+    /**
+     * 
+     */
+    public void initialize_consistency_calculations_for_new_decision()
+    {
+        // TODO implement initialize_consistency_calculations_for_new_decision
+        throw new UnsupportedOperationException("initialize_consistency_calculations_for_new_decision not implemented");
+    }
+
+    /**
+     * 
+     */
+    public void determine_highest_active_production_level_in_stack_propose()
+    {
+        // TODO implement determine_highest_active_production_level_in_stack_propose
+        throw new UnsupportedOperationException("determine_highest_active_production_level_in_stack_propose not implemented");
+    }
+
+    /**
+     * 
+     */
+    public void determine_highest_active_production_level_in_stack_apply()
+    {
+        // TODO implement determine_highest_active_production_level_in_stack_apply
+        throw new UnsupportedOperationException("determine_highest_active_production_level_in_stack_apply not implemented");
+    }
+
 }

@@ -904,4 +904,14 @@ public class SoarReteListener implements ReteListener
         // TODO implement get_next_nil_goal_retraction
         throw new UnsupportedOperationException("get_next_nil_goal_retraction not implemented");
     }
+
+
+    /**
+     * @return
+     */
+    public boolean any_assertions_or_retractions_ready()
+    {
+        // TODO implement any_assertions_or_retractions_ready
+        throw new UnsupportedOperationException("any_assertions_or_retractions_ready not implemented");
+    }
 }
