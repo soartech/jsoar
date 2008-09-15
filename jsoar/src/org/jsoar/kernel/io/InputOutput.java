@@ -27,4 +27,22 @@ public class InputOutput
         throw new UnsupportedOperationException("add_input_wme not implemented");
     }
 
+    /**
+     * 
+     */
+    public void do_input_cycle()
+    {
+        // TODO implement do_input_cycle
+        throw new UnsupportedOperationException("do_input_cycle not implemented");
+    }
+
+    /**
+     * 
+     */
+    public void do_output_cycle()
+    {
+        // TODO implement do_output_cycle
+        throw new UnsupportedOperationException("do_output_cycle not implemented");
+    }
+
 }

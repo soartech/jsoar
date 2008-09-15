@@ -19,7 +19,7 @@ public class Preference
 {
     public final PreferenceType type;         /* acceptable, better, etc. */
     public boolean o_supported = false;  /* is the preference o-supported? */
-    boolean in_tm = false;        /* is this currently in TM? */
+    public boolean in_tm = false;        /* is this currently in TM? */
     public boolean on_goal_list = false; /* is this pref on the list for its match goal */
     int reference_count = 0;
     public final Identifier id;

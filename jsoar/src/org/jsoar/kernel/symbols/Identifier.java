@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.MatchSetChange;
+import org.jsoar.kernel.learning.ReinforcementLearningInfo;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
@@ -48,7 +49,7 @@ public class Identifier extends Symbol
     public final ListHead<Preference> preferences_from_goal = new ListHead<Preference>();
 
     public Symbol reward_header;        // pointer to reward_link
-    // TODO struct rl_data_struct *rl_info;           // various Soar-RL information
+    public ReinforcementLearningInfo rl_info;           // various Soar-RL information
 
     /* REW: begin 09.15.96 */
     public GoalDependencySet gds; // pointer to a goal's dependency set

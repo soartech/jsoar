@@ -32,8 +32,10 @@ public class TemporaryMemory
 {
     /**
      * agent.h:601:highest_goal_whose_context_changed
+     * 
+     * TODO Move to Decider?
      */
-    private Identifier highest_goal_whose_context_changed;
+    public Identifier highest_goal_whose_context_changed;
     /**
      * agent.h:602:changed_slots
      */
