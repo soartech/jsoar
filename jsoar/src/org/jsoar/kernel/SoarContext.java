@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel;
 
+import java.io.OutputStreamWriter;
+
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.learning.ReinforcementLearning;
 import org.jsoar.kernel.memory.OSupport;
@@ -21,6 +23,8 @@ import org.jsoar.kernel.symbols.SymbolFactory;
  */
 public class SoarContext
 {
+    public int MAX_GOAL_DEPTH = 100;
+    
     public final PredefinedSymbols predefinedSyms = new PredefinedSymbols();
     public final SymbolFactory syms = predefinedSyms.getSyms();
     public final VariableGenerator variableGenerator = new VariableGenerator(syms);
@@ -40,6 +44,8 @@ public class SoarContext
     public final Exploration exploration = new Exploration();
     public final InputOutput io = new InputOutput();
     
+    private Printer printer = new Printer(new OutputStreamWriter(System.out));
+    
     /**
      * agent.h:728:operand2_mode
      */
@@ -49,4 +55,14 @@ public class SoarContext
      * agent.h:688:attribute_preferences_mode
      */
     public int attribute_preferences_mode = 0;
+
+    /**
+     * @return the printer
+     */
+    public Printer getPrinter()
+    {
+        return printer;
+    }
+    
+    
 }

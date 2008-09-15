@@ -35,4 +35,22 @@ public class DecisionManipulation
         throw new UnsupportedOperationException("select_force not implemented");
     }
 
+    /**
+     * @param string
+     */
+    public void predict_set(String string)
+    {
+        // TODO implement predict_set
+        throw new UnsupportedOperationException("predict_set not implemented");
+    }
+
+    /**
+     * @param b
+     */
+    public void predict_srand_restore_snapshot(boolean clear_snapshot /*= true*/)
+    {
+        // TODO implement predict_srand_restore_snapshot
+        throw new UnsupportedOperationException("predict_srand_restore_snapshot not implemented");
+    }
+
 }

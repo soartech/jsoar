@@ -27,4 +27,13 @@ public class Exploration
         throw new UnsupportedOperationException("exploration_choose_according_to_policy not implemented");
     }
 
+    /**
+     * 
+     */
+    public void exploration_update_parameters()
+    {
+        // TODO implement exploration_update_parameters
+        throw new UnsupportedOperationException("exploration_update_parameters not implemented");
+    }
+
 }

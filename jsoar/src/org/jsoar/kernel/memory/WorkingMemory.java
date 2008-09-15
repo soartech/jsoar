@@ -142,7 +142,7 @@ public class WorkingMemory
      * wmem.cpp:167:remove_wme_list_from_wm
      * 
      * @param w
-     * @param updateWmeMap
+     * @param updateWmeMap (defaults to false in CSoar)
      */
     public void remove_wme_list_from_wm(Wme w, boolean updateWmeMap /*=false*/)
     {

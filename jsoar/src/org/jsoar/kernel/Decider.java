@@ -5,16 +5,15 @@
  */
 package org.jsoar.kernel;
 
-import java.util.Dictionary;
 import java.util.LinkedList;
 
+import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -56,6 +55,9 @@ public class Decider
         Instantiation inst;
     }
 
+    private static final boolean DEBUG_GDS = false;
+    private static final boolean DEBUG_GDS_HIGH = false;
+    private static final boolean DEBUG_LINKS = false;
     
     private final SoarContext context;
     /**
@@ -84,8 +86,6 @@ public class Decider
      */
     private final ListHead<Identifier> disconnected_ids = new ListHead<Identifier>();
     
-    
-    
     private int mark_tc_number;
     private int level_at_which_marking_started;
     private int highest_level_anything_could_fall_from;
@@ -93,11 +93,16 @@ public class Decider
     private int walk_tc_number;
     private int walk_level;
     private Identifier top_goal;
+    private Identifier bottom_goal;
     
     /**
      * agent.h:384:parent_list_head
      */
     private ParentInstantiation parent_list_head;
+    private Identifier top_state;
+    private boolean waitsnc;
+    private boolean waitsnc_detect;
+    private Identifier active_goal;
     
     /**
      * @param context
@@ -256,15 +261,14 @@ public class Decider
 
         to.link_count++;
 
-        // #ifdef DEBUG_LINKS
-        // if (from)
-        // print_with_symbols (thisAgent, "\nAdding link from %y to %y", from,
-        // to);
-        // else
-        // print_with_symbols (thisAgent, "\nAdding special link to %y", to);
-        // print (" (count=%lu)", to->id.link_count);
-        // #endif
-
+        if (DEBUG_LINKS)
+        {
+            if (from != null)
+                context.getPrinter().print("\nAdding link from %y to %y", from, to);
+            else
+                context.getPrinter().print("\nAdding special link to %y (count=%lu)", to, to.link_count);
+        }
+        
         if (from == null)
             return; /* if adding a special link, we're done */
 
@@ -377,18 +381,18 @@ public class Decider
 
         to.link_count--;
 
-        // #ifdef DEBUG_LINKS
-        // if (from) {
-        // print_with_symbols (thisAgent, "\nRemoving link from %y to %y", from,
-        // to);
-        // print (" (%d to %d)", from->id.level, to->id.level);
-        // } else {
-        // print_with_symbols (thisAgent, S"\nRemoving special link to %y ",
-        // to);
-        // print (" (%d)", to->id.level);
-        // }
-        // print (" (count=%lu)", to->id.link_count);
-        // #endif
+        if (DEBUG_LINKS)
+        {
+            if (from != null)
+            {
+                context.getPrinter().print("\nRemoving link from %y to %y (%d to %d)", from, to, from.level, to.level);
+            }
+            else
+            {
+                context.getPrinter().print("\nRemoving special link to %y  (%d)", to, to.level);
+            }
+            context.getPrinter().print(" (count=%lu)", to.link_count);
+        }
 
         // if a gc is in progress, handle differently
         if (link_update_mode == LinkUpdateType.JUST_UPDATE_COUNT)
@@ -432,9 +436,10 @@ public class Decider
      */
     private void garbage_collect_id(Identifier id)
     {
-        // #ifdef DEBUG_LINKS
-        // print_with_symbols (thisAgent, "\n*** Garbage collecting id: %y",id);
-        // #endif
+        if(DEBUG_LINKS)
+        {
+            context.getPrinter().print("\n*** Garbage collecting id: %s",id);
+        }
 
         /*
          * Note--for goal/impasse id's, this does not remove the impasse wme's.
@@ -623,7 +628,7 @@ public class Decider
             }
         }
 
-        /* --- keep garbage collecting ids until nothing left to gc --- */
+        // keep garbage collecting ids until nothing left to gc
         this.link_update_mode = LinkUpdateType.UPDATE_DISCONNECTED_IDS_LIST;
         while (!this.disconnected_ids.isEmpty())
         {
@@ -634,11 +639,11 @@ public class Decider
         }
         this.link_update_mode = LinkUpdateType.UPDATE_LINKS_NORMALLY;
 
-        /* --- if nothing's left with an unknown level, we're done --- */
+        // if nothing's left with an unknown level, we're done
         if (this.ids_with_unknown_level.isEmpty())
             return;
 
-        /* --- do the mark --- */
+        // do the mark
         this.highest_level_anything_could_fall_from = SoarConstants.LOWEST_POSSIBLE_GOAL_LEVEL;
         this.lowest_level_anything_could_fall_to = -1;
         this.mark_tc_number = context.syms.get_new_tc_number();
@@ -649,7 +654,7 @@ public class Decider
             mark_id_and_tc_as_unknown_level(id);
         }
 
-        /* --- do the walk --- */
+        // do the walk
         Identifier g = this.top_goal;
         while (true)
         {
@@ -666,7 +671,7 @@ public class Decider
             g = g.lower_goal;
         }
 
-        /* --- GC anything left with an unknown level after the walk --- */
+        // GC anything left with an unknown level after the walk
         this.link_update_mode = LinkUpdateType.JUST_UPDATE_COUNT;
         while (!ids_with_unknown_level.isEmpty())
         {
@@ -724,8 +729,7 @@ public class Decider
      */
     private ImpasseType require_preference_semantics(Slot s, ByRef<Preference> result_candidates)
     {
-
-        /* --- collect set of required items into candidates list --- */
+        // collect set of required items into candidates list --- */
         for (Preference p : s.getPreferenceList(PreferenceType.REQUIRE_PREFERENCE_TYPE))
             p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
         Preference candidates = null;
@@ -735,10 +739,7 @@ public class Decider
             {
                 p.next_candidate = candidates;
                 candidates = p;
-                /*
-                 * --- unmark it, in order to prevent it from being added twice
-                 * ---
-                 */
+                // unmark it, in order to prevent it from being added twice
                 p.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
             }
         }
@@ -758,9 +759,8 @@ public class Decider
         if (candidates != null && context.rl.rl_enabled())
         {
             // TODO reinforcement learning
-            // exploration_compute_value_of_candidate( thisAgent, candidates, s,
-            // 0 );
-            //       rl_perform_update( thisAgent, candidates->numeric_value, s->id );
+            // exploration_compute_value_of_candidate( thisAgent, candidates, s, 0 );
+            // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
         }
 
         return ImpasseType.NONE_IMPASSE_TYPE;
@@ -795,16 +795,14 @@ public class Decider
      * 
      * @param s
      * @param result_candidates
-     * @param consistency
-     * @param predict
+     * @param consistency (defaulted to false in CSoar)
+     * @param predict  (defaulted to false in CSoar)
      * @return
      */
     private ImpasseType run_preference_semantics(Slot s, ByRef<Preference> result_candidates,
             boolean consistency /* = false */, boolean predict /* = false */)
     {
-        // preference *p, *p2, *cand, *prev_cand;
-
-        /* --- if the slot has no preferences at all, things are trivial --- */
+        // if the slot has no preferences at all, things are trivial
         if (s.all_preferences.isEmpty())
         {
             if (!s.isa_context_slot)
@@ -828,10 +826,8 @@ public class Decider
                     if (!predict && context.rl.rl_enabled())
                     {
                         // TODO reinforcement learning
-                        // exploration_compute_value_of_candidate( thisAgent,
-                        // force_result, s, 0 );
-                        // rl_perform_update( thisAgent,
-                        // force_result->numeric_value, s->id );
+                        // exploration_compute_value_of_candidate( thisAgent, force_result, s, 0 );
+                        // rl_perform_update( thisAgent, force_result->numeric_value, s->id );
                     }
 
                     return ImpasseType.NONE_IMPASSE_TYPE;
@@ -839,10 +835,8 @@ public class Decider
                 else
                 {
                     // TODO warning
-                    // print( thisAgent, "WARNING: Invalid forced selection
-                    // operator id" );
-                    // xml_generate_warning( thisAgent, "WARNING: Invalid forced
-                    // selection operator id" );
+                    context.getPrinter().print( "WARNING: Invalid forced selection operator id" );
+                    // xml_generate_warning( thisAgent, "WARNING: Invalid forced selection operator id" );
                 }
             }
         }
@@ -855,10 +849,7 @@ public class Decider
 
         /* === Acceptables, Prohibits, Rejects === */
 
-        /*
-         * --- mark everything that's acceptable, then unmark the prohibited and
-         * rejected items ---
-         */
+        // mark everything that's acceptable, then unmark the prohibited and rejected items
         for (Preference p : s.getPreferenceList(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE))
             p.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
         for (Preference p : s.getPreferenceList(PreferenceType.PROHIBIT_PREFERENCE_TYPE))
@@ -874,10 +865,7 @@ public class Decider
             {
                 p.next_candidate = candidates;
                 candidates = p;
-                /*
-                 * --- unmark it, in order to prevent it from being added twice
-                 * ---
-                 */
+                // unmark it, in order to prevent it from being added twice
                 p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
             }
         }
@@ -898,10 +886,8 @@ public class Decider
             {
                 // perform update here for just one candidate
                 // TODO reinforcement learning
-                // exploration_compute_value_of_candidate( thisAgent,
-                // candidates, s, 0 );
-                // rl_perform_update( thisAgent, candidates->numeric_value,
-                // s->id );
+                // exploration_compute_value_of_candidate( thisAgent, candidates, s, 0 );
+                // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
             }
 
             return ImpasseType.NONE_IMPASSE_TYPE;
@@ -913,7 +899,7 @@ public class Decider
         {
             Symbol j, k;
 
-            /* -------------------- Algorithm to find conflicted set: 
+            /* Algorithm to find conflicted set: 
             conflicted = {}
             for each (j > k):
               if j is (candidate or conflicted)
@@ -1004,20 +990,14 @@ public class Decider
                 }
             }
 
-            /*
-             * --- now scan through candidates list, look for conflicted stuff
-             * ---
-             */
+            // now scan through candidates list, look for conflicted stuff
             Preference cand = null, prev_cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
                 if (cand.value.decider_flag == DeciderFlag.CONFLICTED_DECIDER_FLAG)
                     break;
             if (cand != null)
             {
-                /*
-                 * --- collect conflicted candidates into new candidates list
-                 * ---
-                 */
+                // collect conflicted candidates into new candidates list
                 prev_cand = null;
                 cand = candidates;
                 while (cand != null)
@@ -1039,10 +1019,7 @@ public class Decider
                 return ImpasseType.CONFLICT_IMPASSE_TYPE;
             }
 
-            /*
-             * --- no conflicts found, remove former_candidates from candidates
-             * ---
-             */
+            // no conflicts found, remove former_candidates from candidates
             prev_cand = null;
             cand = candidates;
             while (cand != null)
@@ -1115,10 +1092,8 @@ public class Decider
             {
                 // perform update here for just one candidate
                 // TODO reinforcement learning
-                // exploration_compute_value_of_candidate( thisAgent,
-                // candidates, s, 0 );
-                // rl_perform_update( thisAgent, candidates->numeric_value,
-                // s->id );
+                // exploration_compute_value_of_candidate( thisAgent, candidates, s, 0 );
+                // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
             }
 
             return ImpasseType.NONE_IMPASSE_TYPE;
@@ -1282,7 +1257,7 @@ public class Decider
      *            Goal stack level
      * @return
      */
-    private Identifier create_new_impasse(boolean isa_goal, Identifier object, Symbol attr, ImpasseType impasse_type,
+    private Identifier create_new_impasse(boolean isa_goal, Symbol object, Symbol attr, ImpasseType impasse_type,
             int level)
     {
         final PredefinedSymbols predefined = context.predefinedSyms; // reduce typing
@@ -1346,9 +1321,7 @@ public class Decider
         id.isa_impasse = true;
 
         // TODO callback CREATE_NEW_ATTRIBUTE_IMPASSE_CALLBACK
-        // soar_invoke_callbacks(thisAgent,
-        // CREATE_NEW_ATTRIBUTE_IMPASSE_CALLBACK,
-        // (soar_call_data) s);
+        // soar_invoke_callbacks(thisAgent, CREATE_NEW_ATTRIBUTE_IMPASSE_CALLBACK, (soar_call_data) s);
     }
 
     /**
@@ -1362,9 +1335,7 @@ public class Decider
     private void remove_existing_attribute_impasse_for_slot(Slot s)
     {
         // TODO callback REMOVE_ATTRIBUTE_IMPASSE_CALLBACK
-        // soar_invoke_callbacks(thisAgent,
-        // REMOVE_ATTRIBUTE_IMPASSE_CALLBACK,
-        // (soar_call_data) s);
+        // soar_invoke_callbacks(thisAgent, REMOVE_ATTRIBUTE_IMPASSE_CALLBACK, (soar_call_data) s);
 
         Identifier id = s.impasse_id;
         s.impasse_id = null;
@@ -1490,19 +1461,17 @@ public class Decider
         
         int item_count = count_candidates(items); // SBW 5/07
 
-        /* --- reset flags on existing items to "NOTHING" --- */
+        // reset flags on existing items to "NOTHING"
         for (Wme w : id.impasse_wmes)
             if (w.attr == predefined.item_symbol)
                 w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
 
-        /* --- mark set of desired items as "CANDIDATEs" --- */
+        // mark set of desired items as "CANDIDATEs"
         for (Preference cand = items; cand != null; cand = cand.next_candidate)
             cand.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
 
-        /*
-         * --- for each existing item: if it's supposed to be there still, then
-         * mark it "ALREADY_EXISTING"; otherwise remove it ---
-         */
+        // for each existing item: if it's supposed to be there still, then
+        // mark it "ALREADY_EXISTING"; otherwise remove it
         AsListItem<Wme> wmeItem = id.impasse_wmes.first;
         while (wmeItem != null)
         {
@@ -1696,7 +1665,7 @@ public class Decider
                         * then we need to create one */
                         if (w.preference.inst.match_goal_level == w.preference.id.level) {
                            
-                           create_gds_for_goal( thisAgent, w.preference.inst.match_goal );
+                           create_gds_for_goal(w.preference.inst.match_goal );
                            
                            /* REW: BUG When chunks and result instantiations both create
                            * preferences for the same WME, then we only want to create
@@ -1732,50 +1701,47 @@ public class Decider
                      */
                      
                      for (Preference pref=w.preference; pref!=null; pref=pref.next_prev.getNextItem()) {
-    //#ifdef DEBUG_GDS_HIGH
-    //                    print(thisAgent, thisAgent, "\n\n   "); print_preference(pref);
-    //                    print(thisAgent, "   Goal level of preference: %d\n",
-    //                       pref->id->id.level);
-    //#endif
+    if(DEBUG_GDS_HIGH){
+                        context.getPrinter().print("\n\n   ");
+                        context.getPrinter().print_preference(pref);
+                        context.getPrinter().print("   Goal level of preference: %d\n", pref.id.level);
+    }
                         
                         if (pref.inst.GDS_evaluated_already == false) {
-    //#ifdef DEBUG_GDS_HIGH
-    //                       print_with_symbols(thisAgent, "   Match goal lev of instantiation %y ",
-    //                          pref->inst->prod->name);
-    //                       print(thisAgent, "is %d\n", pref->inst->match_goal_level);
-    //#endif
+    if(DEBUG_GDS_HIGH){
+        context.getPrinter().print("   Match goal lev of instantiation %s is %d\n", pref.inst.prod.name, pref.inst.match_goal_level);
+    }
                            if (pref.inst.match_goal_level > pref.id.level) {
-    //#ifdef DEBUG_GDS_HIGH
-    //                          print_with_symbols(thisAgent, "        %y  is simply the instantiation that led to a chunk.\n        Not adding it the current instantiations.\n", pref->inst->prod->name);
-    //#endif
+    if(DEBUG_GDS_HIGH){
+        context.getPrinter().print("        %s  is simply the instantiation that led to a chunk.\n        Not adding it the current instantiations.\n", pref.inst.prod.name);
+    }
                               
                            } else {
-    //#ifdef DEBUG_GDS_HIGH
-    //                          print_with_symbols(thisAgent, "\n   Adding %y to list of parent instantiations\n", pref->inst->prod->name); 
-    //#endif
+    if(DEBUG_GDS_HIGH){
+        context.getPrinter().print("\n   Adding %s to list of parent instantiations\n", pref.inst.prod.name); 
+    }
                               uniquely_add_to_head_of_dll(pref.inst);
                               pref.inst.GDS_evaluated_already = true;
                            }
                         }  /* end if GDS_evaluated_already is FALSE */
-    //#ifdef DEBUG_GDS_HIGH
-    //                    else
-    //                       print_with_symbols(thisAgent, "\n    Instantiation %y was already explored; skipping it\n", pref->inst->prod->name);
-    //#endif
+                        else if(DEBUG_GDS_HIGH) {
+                            context.getPrinter().print("\n    Instantiation %s was already explored; skipping it\n", pref.inst.prod.name);
+                        }
                         
                      }  /* end of forloop over preferences for this wme */
                      
                      
-    //#ifdef DEBUG_GDS_HIGH
-    //                 print(thisAgent, "\n    CALLING ELABORATE GDS....\n");
-    //#endif 
+    if(DEBUG_GDS_HIGH){
+        context.getPrinter().print("\n    CALLING ELABORATE GDS....\n");
+    }
                      elaborate_gds();
                      
                      /* technically, the list should be empty at this point ??? */
                      
                      free_parent_list(); 
-    //#ifdef DEBUG_GDS_HIGH
-    //                 print(thisAgent, "    FINISHED ELABORATING GDS.\n\n");
-    //#endif
+    if(DEBUG_GDS_HIGH){
+        context.getPrinter().print("    FINISHED ELABORATING GDS.\n\n");
+    }
                   }  /* end if w->preference->o_supported == TRUE ... */
                   
                   
@@ -1889,4 +1855,1360 @@ public class Decider
         context.workingMemory.remove_wme_from_wm(w);
         s.wmes.first = null;
     }    
+    
+    /**
+     * This routine truncates the goal stack by removing the given goal and all
+     * its subgoals. (If the given goal is the top goal, the entire context
+     * stack is removed.)
+     * 
+     * decide.cpp:1836:remove_existing_context_and_descendents
+     * 
+     * @param goal
+     */
+    private void remove_existing_context_and_descendents(Identifier goal)
+    {
+        // remove descendents of this goal
+        if (goal.lower_goal != null)
+            remove_existing_context_and_descendents(goal.lower_goal);
+
+        // TODO callback POP_CONTEXT_STACK_CALLBACK
+        // invoke callback routine
+        // soar_invoke_callbacks(thisAgent,
+        // POP_CONTEXT_STACK_CALLBACK,
+        // (soar_call_data) goal);
+
+        /* --- disconnect this goal from the goal stack --- */
+        if (goal == top_goal)
+        {
+            top_goal = null;
+            bottom_goal = null;
+        }
+        else
+        {
+            bottom_goal = goal.higher_goal;
+            bottom_goal.lower_goal = null;
+        }
+
+        /* --- remove any preferences supported by this goal --- */
+        if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+        {
+            while (!goal.preferences_from_goal.isEmpty())
+            {
+                Preference p = goal.preferences_from_goal.getFirstItem();
+                p.all_of_goal.remove(goal.preferences_from_goal);
+                p.on_goal_list = false;
+                if (!context.prefMemory.remove_preference_from_clones(p))
+                    if (p.in_tm)
+                        context.prefMemory.remove_preference_from_tm(p);
+            }
+        }
+        else
+        {
+            /*
+             * KJC Aug 05: this seems to cure a potential for exceeding
+             * callstack when popping soar's goal stack and not doing
+             * DO_TOP_LEVEL_REF_CTS Probably should make this change for all
+             * cases, but needs testing.
+             */
+            /* Prefs are added to head of dll, so try removing from tail */
+            if (!goal.preferences_from_goal.isEmpty())
+            {
+                AsListItem<Preference> p = goal.preferences_from_goal.first;
+                while (p.next != null)
+                    p = p.next; // TODO Replace with ListHead.getTail() or
+                                // something
+                while (p != null)
+                {
+                    AsListItem<Preference> p_next = p.previous; // RPM 10/06 we
+                                                                // need to save
+                                                                // this because
+                                                                // p may be
+                                                                // freed by the
+                                                                // end of the
+                                                                // loop
+                    p.remove(goal.preferences_from_goal);
+                    p.get().on_goal_list = false;
+                    if (!context.prefMemory.remove_preference_from_clones(p.get()))
+                        if (p.get().in_tm)
+                            context.prefMemory.remove_preference_from_tm(p.get());
+                    p = p_next;
+                }
+            }
+        }
+        /* --- remove wmes for this goal, and garbage collect --- */
+        remove_wmes_for_context_slot(goal.operator_slot);
+        update_impasse_items(goal, null); /*
+                                             * causes items & fake pref's to go
+                                             * away
+                                             */
+
+        if (context.rl.rl_enabled())
+        {
+            // TODO reinforcement learning
+            // rl_tabulate_reward_value_for_goal( thisAgent, goal );
+            // rl_perform_update( thisAgent, 0, goal ); // this update only sees
+            // reward - there is no next state
+        }
+
+        context.workingMemory.remove_wme_list_from_wm(goal.impasse_wmes.getFirstItem(), false);
+        goal.impasse_wmes.first = null;
+        /* REW: begin 09.15.96 */
+        /*
+         * If there was a GDS for this goal, we want to set the pointer for the
+         * goal to NIL to indicate it no longer exists. BUG: We probably also
+         * need to make certain that the GDS doesn't need to be free'd here as
+         * well.
+         */
+        if (goal.gds != null)
+            goal.gds.goal = null;
+        /* REW: end 09.15.96 */
+
+        /* REW: begin 08.20.97 */
+
+        /*
+         * If we remove a goal WME, then we have to transfer any already
+         * existing retractions to the nil-goal list on the current agent. We
+         * should be able to do this more efficiently but the most obvious way
+         * (below) still requires scanning over the whole list (to set the goal
+         * pointer of each msc to NIL); therefore this solution should be
+         * acceptably efficient.
+         */
+
+        if (!goal.ms_retractions.isEmpty())
+        { /* There's something on the retraction list */
+
+            MatchSetChange head = goal.ms_retractions.getFirstItem();
+            MatchSetChange tail = head;
+
+            /* find the tail of this list */
+            while (tail.in_level.next != null)
+            {
+                tail.goal = null; /* force the goal to be NIL */
+                tail = tail.in_level.getNextItem();
+            }
+            tail.goal = null;
+
+            final ListHead<MatchSetChange> nil_goal_retractions = context.soarReteListener.nil_goal_retractions;
+            if (!nil_goal_retractions.isEmpty())
+            {
+                /* There are already retractions on the list */
+
+                /* Append this list to front of NIL goal list */
+                // TODO replace this with a splice operation
+                nil_goal_retractions.first.get().in_level.previous = tail.in_level;
+                tail.in_level.next = nil_goal_retractions.first;
+                nil_goal_retractions.first = head.in_level;
+
+            }
+            else
+            { /* If no retractions, make this list the NIL goal list */
+                nil_goal_retractions.first = head.in_level;
+            }
+        }
+
+        // TODO reinforcement learning
+        //  delete goal->id.rl_info->eligibility_traces;
+        //  free_list( thisAgent, goal->id.rl_info->prev_op_rl_rules );
+        //  symbol_remove_ref( thisAgent, goal->id.reward_header );
+        //  free_memory( thisAgent, goal->id.rl_info, MISCELLANEOUS_MEM_USAGE );
+
+        /* REW: BUG
+         * Tentative assertions can exist for removed goals.  However, it looks
+         * like the removal forces a tentative retraction, which then leads to
+         * the deletion of the tentative assertion.  However, I have not tested
+         * such cases exhaustively -- I would guess that some processing may be
+         * necessary for the assertions here at some point?
+         */
+
+        /* REW: end   08.20.97 */
+
+        post_link_removal(null, goal); /* remove the special link */
+    }
+
+    /**
+     * This routine creates a new goal context (becoming the new bottom goal)
+     * below the current bottom goal. If there is no current bottom goal, this
+     * routine creates a new goal and makes it both the top and bottom goal.
+     * 
+     * decide.cpp:1969:create_new_context
+     * 
+     * @param attr_of_impasse
+     * @param impasse_type
+     */
+    private void create_new_context(Symbol attr_of_impasse, ImpasseType impasse_type)
+    {
+        Identifier id;
+
+        if (bottom_goal != null)
+        {
+            /* Creating a sub-goal (or substate) */
+            id = create_new_impasse(true, bottom_goal, attr_of_impasse, impasse_type, bottom_goal.level + 1);
+            id.higher_goal = bottom_goal;
+            bottom_goal.lower_goal = id;
+            bottom_goal = id;
+            add_impasse_wme(id, context.predefinedSyms.quiescence_symbol, context.predefinedSyms.t_symbol, null);
+            if ((ImpasseType.NO_CHANGE_IMPASSE_TYPE == impasse_type) && (context.MAX_GOAL_DEPTH < bottom_goal.level))
+            {
+                // appear to be SNC'ing deep in goalstack, so interrupt and warn
+                // user
+                // KJC note: we actually halt, because there is no interrupt
+                // function in SoarKernel
+                // in the gSKI Agent code, if system_halted, MAX_GOAL_DEPTH is
+                // checked and if exceeded
+                // then the interrupt is generated and system_halted is set to
+                // FALSE so the user can recover.
+
+                // TODO warning
+                context.getPrinter().print("\nGoal stack depth exceeded %d on a no-change impasse.\n",
+                        context.MAX_GOAL_DEPTH);
+                context
+                        .getPrinter()
+                        .print(
+                                "Soar appears to be in an infinite loop.  \nContinuing to subgoal may cause Soar to \nexceed the program stack of your system.\n");
+                // xml_generate_warning(thisAgent, "\nGoal stack depth exceeded
+                // on a no-change impasse.\n");
+                // xml_generate_warning(thisAgent, "Soar appears to be in an
+                // infinite loop. \nContinuing to subgoal may cause Soar to
+                // \nexceed the program stack of your system.\n");
+
+                // TODO halt
+                // thisAgent->stop_soar = TRUE;
+                // thisAgent->system_halted = TRUE;
+                // thisAgent->reason_for_stopping = "Max Goal Depth exceeded.";
+            }
+        }
+        else
+        {
+            /* Creating the top state */
+            id = create_new_impasse(true, context.predefinedSyms.nil_symbol, null, ImpasseType.NONE_IMPASSE_TYPE,
+                    SoarConstants.TOP_GOAL_LEVEL);
+            top_goal = id;
+            bottom_goal = id;
+            top_state = top_goal;
+            id.higher_goal = null;
+            id.lower_goal = null;
+        }
+
+        id.isa_goal = true;
+        id.operator_slot = Slot.make_slot(id, context.predefinedSyms.operator_symbol,
+                context.predefinedSyms.operator_symbol);
+        id.allow_bottom_up_chunks = true;
+
+        // TODO reinforcement learning
+        // id->id.rl_info = static_cast<rl_data *>( allocate_memory( thisAgent,
+        // sizeof( rl_data ), MISCELLANEOUS_MEM_USAGE ) );
+        // id->id.rl_info->eligibility_traces = new rl_et_map(
+        // std::less<production *>(), SoarMemoryAllocator<std::pair<production*
+        // const, double> >( thisAgent, MISCELLANEOUS_MEM_USAGE ) );
+        // id->id.rl_info->prev_op_rl_rules = NIL;
+        // id->id.rl_info->previous_q = 0;
+        // id->id.rl_info->reward = 0;
+        //  id->id.rl_info->reward_age = 0;
+        //  id->id.rl_info->num_prev_op_rl_rules = 0;
+        //  id->id.rl_info->step = 0;  
+        //  id->id.rl_info->impasse_type = NONE_IMPASSE_TYPE;
+
+        /* --- invoke callback routine --- */
+        // TODO callback CREATE_NEW_CONTEXT_CALLBACK
+        //  soar_invoke_callbacks(thisAgent, 
+        //                       CREATE_NEW_CONTEXT_CALLBACK, 
+        //                       (soar_call_data) id);
+    }
+    
+    /**
+     * Given a goal, these routines return the type and attribute, respectively,
+     * of the impasse just below that goal context. It does so by looking at the
+     * impasse wmes for the next lower goal in the goal stack.
+     * 
+     * decide.cpp:2042:type_of_existing_impasse
+     * 
+     * @param goal
+     * @return
+     */
+    public ImpasseType type_of_existing_impasse(Identifier goal)
+    {
+        if (goal.lower_goal == null)
+            return ImpasseType.NONE_IMPASSE_TYPE;
+
+        final PredefinedSymbols predefined = context.predefinedSyms;
+        for (Wme w : goal.lower_goal.impasse_wmes)
+            if (w.attr == predefined.impasse_symbol)
+            {
+                if (w.value == predefined.no_change_symbol)
+                    return ImpasseType.NO_CHANGE_IMPASSE_TYPE;
+                if (w.value == predefined.tie_symbol)
+                    return ImpasseType.TIE_IMPASSE_TYPE;
+                if (w.value == predefined.constraint_failure_symbol)
+                    return ImpasseType.CONSTRAINT_FAILURE_IMPASSE_TYPE;
+                if (w.value == predefined.conflict_symbol)
+                    return ImpasseType.CONFLICT_IMPASSE_TYPE;
+                if (w.value == predefined.none_symbol)
+                    return ImpasseType.NONE_IMPASSE_TYPE;
+
+                throw new IllegalStateException("Internal error: bad type of existing impasse.");
+            }
+        throw new IllegalStateException("Internal error: couldn't find type of existing impasse.");
+    }
+    
+    /**
+     * 
+     * decide.cpp:2069:attribute_of_existing_impasse
+     * @param goal
+     * @return
+     */
+    public Symbol attribute_of_existing_impasse(Identifier goal)
+    {
+        if (goal.lower_goal == null)
+            return null;
+        
+        for (Wme w : goal.lower_goal.impasse_wmes)
+            if (w.attr == context.predefinedSyms.attribute_symbol)
+                return w.value;
+
+        throw new IllegalStateException("Internal error: couldn't find attribute of existing impasse.");
+    }
+
+    /**
+     * This decides the given context slot. It normally returns TRUE, but
+     * returns FALSE if the ONLY change as a result of the decision procedure
+     * was a change in the set of ^item's on the impasse below the given slot.
+     * 
+     * decide.cpp:2092:decide_context_slot
+     * 
+     * @param goal
+     * @param s
+     * @param predict (defaulted to false in CSoar)
+     * @return
+     */
+    private boolean decide_context_slot(Identifier goal, Slot s, boolean predict /*= false*/)
+    {
+        ImpasseType impasse_type;
+        Symbol attribute_of_impasse;
+        ByRef<Preference> candidates = ByRef.create(null);
+
+        if (!context_slot_is_decidable(s))
+        {
+            // the only time we decide a slot that's not "decidable" is when
+            // it's
+            // the last slot in the entire context stack, in which case we have
+            // a
+            // no-change impasse there
+            impasse_type = ImpasseType.NO_CHANGE_IMPASSE_TYPE;
+            candidates.value = null; /*
+                                         * we don't want any impasse ^item's
+                                         * later
+                                         */
+
+            if (predict)
+            {
+                context.decisionManip.predict_set("none");
+                return true;
+            }
+        }
+        else
+        {
+            /* --- the slot is decidable, so run preference semantics on it --- */
+            impasse_type = run_preference_semantics(s, candidates, false, false);
+
+            if (predict)
+            {
+                switch (impasse_type)
+                {
+                case CONSTRAINT_FAILURE_IMPASSE_TYPE:
+                    context.decisionManip.predict_set("constraint");
+                    break;
+
+                case CONFLICT_IMPASSE_TYPE:
+                    context.decisionManip.predict_set("conflict");
+                    break;
+
+                case TIE_IMPASSE_TYPE:
+                    context.decisionManip.predict_set("tie");
+                    break;
+
+                case NO_CHANGE_IMPASSE_TYPE:
+                    context.decisionManip.predict_set("none");
+                    break;
+
+                default:
+                    if (candidates.value == null || (candidates.value.value.asIdentifier() == null))
+                        context.decisionManip.predict_set("none");
+                    else
+                    {
+                        Identifier tempId = candidates.value.value.asIdentifier();
+                        // TODO can this be null?
+                        String temp = "" + tempId.name_letter + tempId.name_number;
+                        context.decisionManip.predict_set(temp);
+                    }
+                    break;
+                }
+
+                return true;
+            }
+
+            remove_wmes_for_context_slot(s); // must remove old wme before
+                                                // adding the new one (if any)
+            if (impasse_type == ImpasseType.NONE_IMPASSE_TYPE)
+            {
+                if (candidates.value == null)
+                {
+                    /*
+                     * --- no winner ==> no-change impasse on the previous slot
+                     * ---
+                     */
+                    impasse_type = ImpasseType.NO_CHANGE_IMPASSE_TYPE;
+                }
+                else if (candidates.value.next_candidate != null)
+                {
+                    /* --- more than one winner ==> internal error --- */
+                    throw new IllegalStateException("Internal error: more than one winner for context slot");
+                }
+            }
+        } /* end if !context_slot_is_decidable */
+
+        /* --- mark the slot as not changed --- */
+        s.changed = null;
+
+        // determine the attribute of the impasse (if there is no impasse, this
+        // doesn't matter)
+        if (impasse_type == ImpasseType.NO_CHANGE_IMPASSE_TYPE)
+        {
+            if (!s.wmes.isEmpty())
+            {
+                attribute_of_impasse = s.attr;
+            }
+            else
+            {
+                attribute_of_impasse = context.predefinedSyms.state_symbol;
+            }
+        }
+        else
+        {
+            // for all other kinds of impasses
+            attribute_of_impasse = s.attr;
+        }
+
+        // remove wme's for lower slots of this context
+        if (attribute_of_impasse == context.predefinedSyms.state_symbol)
+        {
+            remove_wmes_for_context_slot(goal.operator_slot);
+        }
+
+        // if we have a winner, remove any existing impasse and install the
+        // new value for the current slot
+        if (impasse_type == ImpasseType.NONE_IMPASSE_TYPE)
+        {
+            for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
+                temp.preference_add_ref();
+
+            if (goal.lower_goal != null)
+                remove_existing_context_and_descendents(goal.lower_goal);
+
+            Wme w = new Wme(s.id, s.attr, candidates.value.value, false, 0);
+            w.next_prev.insertAtHead(s.wmes);
+            w.preference = candidates.value;
+            w.preference.preference_add_ref();
+
+            /* JC Adding an operator to working memory in the current state */
+            context.workingMemory.add_wme_to_wm(w);
+
+            for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
+                temp.preference_remove_ref(context.prefMemory);
+
+            if (context.rl.rl_enabled())
+                context.rl.rl_store_data(goal, candidates.value);
+
+            return true;
+        }
+
+        // TODO move to rl_info
+        if (impasse_type != ImpasseType.NO_CHANGE_IMPASSE_TYPE)
+            goal.rl_info.impasse_type = impasse_type;
+        else if (!s.wmes.isEmpty())
+            goal.rl_info.impasse_type = ImpasseType.OP_NO_CHANGE_IMPASSE_TYPE;
+        else
+            goal.rl_info.impasse_type = ImpasseType.STATE_NO_CHANGE_IMPASSE_TYPE;
+
+        // no winner; if an impasse of the right type already existed, just
+        // update the ^item set on it
+        if ((impasse_type == type_of_existing_impasse(goal))
+                && (attribute_of_impasse == attribute_of_existing_impasse(goal)))
+        {
+            update_impasse_items(goal.lower_goal, candidates.value);
+            return false;
+        }
+
+        // no impasse already existed, or an impasse of the wrong type
+        // already existed
+        for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
+            temp.preference_add_ref();
+
+        if (goal.lower_goal != null)
+            remove_existing_context_and_descendents(goal.lower_goal);
+
+        /* REW: begin 10.24.97 */
+        if (context.operand2_mode && this.waitsnc && (impasse_type == ImpasseType.NO_CHANGE_IMPASSE_TYPE)
+                && (attribute_of_impasse == context.predefinedSyms.state_symbol))
+        {
+            this.waitsnc_detect = true;
+        }
+        else
+        {
+            /* REW: end     10.24.97 */
+            create_new_context(attribute_of_impasse, impasse_type);
+            update_impasse_items(goal.lower_goal, candidates.value);
+        }
+
+        for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
+            temp.preference_remove_ref(context.prefMemory);
+
+        return true;
+    }
+
+    /**
+     * This scans down the goal stack and runs the decision procedure on the
+     * appropriate context slots.
+     * 
+     * decide.cpp:2289:decide_context_slots
+     * 
+     * @param predict (defaulted to false in CSoar)
+     */
+    private void decide_context_slots(boolean predict /* = false */)
+    {
+        Identifier goal;
+
+        if (context.tempMemory.highest_goal_whose_context_changed != null)
+        {
+            goal = context.tempMemory.highest_goal_whose_context_changed;
+        }
+        else
+            /* no context changed, so jump right to the bottom */
+            goal = bottom_goal;
+
+        Slot s = goal.operator_slot;
+
+        /* --- loop down context stack --- */
+        while (true)
+        {
+            /* --- find next slot to decide --- */
+            while (true)
+            {
+                if (context_slot_is_decidable(s))
+                    break;
+
+                if ((s == goal.operator_slot) || (s.wmes.isEmpty()))
+                {
+                    // no more slots to look at for this goal; have we reached
+                    // the last slot in whole stack?
+                    if (goal.lower_goal == null)
+                        break;
+
+                    // no, go down one level
+                    goal = goal.lower_goal;
+                    s = goal.operator_slot;
+                }
+            } /* end of while (TRUE) find next slot to decide */
+
+            // now go and decide that slot
+            if (decide_context_slot(goal, s, predict))
+                break;
+
+        } /* end of while (TRUE) loop down context stack */
+
+        if (!predict)
+            context.tempMemory.highest_goal_whose_context_changed = null;
+    }
+    
+    /**
+     * does the end-of-phase processing of WM changes, ownership calculations,
+     * garbage collection, etc. 
+     * 
+     * decide.cpp::do_buffered_wm_and_ownership_changes
+     */
+    public void do_buffered_wm_and_ownership_changes()
+    {
+        do_buffered_acceptable_preference_wme_changes();
+        do_buffered_link_changes();
+        context.workingMemory.do_buffered_wm_changes();
+        context.tempMemory.remove_garbage_slots();
+    }
+    
+    /**
+     * 
+     * decide.cpp:2373:do_working_memory_phase
+     */
+    public void do_working_memory_phase()
+    {
+        // TODO trace phases
+        /*
+          if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM]) {
+             if (context.operand2_mode == true) {         
+                 if (thisAgent->current_phase == APPLY_PHASE) {  // it's always IE for PROPOSE
+                     xml_begin_tag(thisAgent, kTagSubphase);
+                     xml_att_val(thisAgent, kPhase_Name, kSubphaseName_ChangingWorkingMemory);
+                     switch (thisAgent->FIRING_TYPE) {
+                         case PE_PRODS:
+                             print (thisAgent, "\t--- Change Working Memory (PE) ---\n",0);
+                             xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_PE);
+                             break;      
+                         case IE_PRODS:    
+                             print (thisAgent, "\t--- Change Working Memory (IE) ---\n",0);
+                             xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_IE);
+                             break;
+                     }
+                     xml_end_tag(thisAgent, kTagSubphase);
+                 }
+             }
+             else
+                 // the XML for this is generated in this function
+                 print_phase (thisAgent, "\n--- Working Memory Phase ---\n",0);
+          }
+        */
+
+        decide_non_context_slots();
+        do_buffered_wm_and_ownership_changes();
+
+        // TODO trace phases
+        /*
+        if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM]) {
+          if (! thisAgent->operand2_mode) {
+           print_phase (thisAgent, "\n--- END Working Memory Phase ---\n",1);
+          }
+        }
+        */
+    }
+
+    /**
+     * decide.cpp:2409:do_decision_phase
+     * 
+     * @param predict
+     */
+    public void do_decision_phase(boolean predict)
+    {
+        if (!predict && context.rl.rl_enabled())
+            context.rl.rl_tabulate_reward_values();
+
+        context.decisionManip.predict_srand_restore_snapshot(!predict);
+
+        /* phase printing moved to init_soar: do_one_top_level_phase */
+
+        decide_context_slots(predict);
+
+        if (!predict)
+        {
+            do_buffered_wm_and_ownership_changes();
+
+            /*
+             * Bob provided a solution to fix WME's hanging around unsupported
+             * for an elaboration cycle.
+             */
+            decide_non_context_slots();
+            do_buffered_wm_and_ownership_changes();
+
+            context.exploration.exploration_update_parameters();
+        }
+    }
+
+    /**
+     * decide.cpp:2435:create_top_goal
+     */
+    public void create_top_goal()
+    {
+        create_new_context(null, ImpasseType.NONE_IMPASSE_TYPE);
+        context.tempMemory.highest_goal_whose_context_changed = null; // nothing changed yet
+        do_buffered_wm_and_ownership_changes();
+    }
+
+    /**
+     * decide.cpp:2442:clear_goal_stack
+     */
+    public void clear_goal_stack()
+    {
+        if (top_goal == null)
+            return;
+
+        remove_existing_context_and_descendents(top_goal);
+        context.tempMemory.highest_goal_whose_context_changed = null; // nothing changed yet
+        do_buffered_wm_and_ownership_changes();
+        top_state = null;
+        active_goal = null;
+
+        // TODO Do these really have any business benig here?
+        context.io.do_input_cycle(); // tell input functions that the top state is gone
+        context.io.do_output_cycle(); // tell output functions that output commands are gone
+    }
+    
+
+    /**
+     * decide.cpp:2522:uniquely_add_to_head_of_dll
+     * 
+     * @param inst
+     */
+    private void uniquely_add_to_head_of_dll(Instantiation inst)
+    {
+        /* print(thisAgent, "UNIQUE DLL:         scanning parent list...\n"); */
+
+        for (ParentInstantiation curr_pi = parent_list_head; curr_pi != null; curr_pi = curr_pi.next)
+        {
+            if (curr_pi.inst == inst)
+            {
+                if (DEBUG_GDS)
+                {
+                    context.getPrinter().print("UNIQUE DLL:            %s is already in parent list\n",
+                            curr_pi.inst.prod.name);
+                }
+                return;
+            }
+            if (DEBUG_GDS)
+            {
+                context.getPrinter().print("UNIQUE DLL:            %s\n", curr_pi.inst.prod.name);
+            }
+        } /* end for loop */
+
+        ParentInstantiation new_pi = new ParentInstantiation();
+        new_pi.next = null;
+        new_pi.prev = null;
+        new_pi.inst = inst;
+
+        new_pi.next = parent_list_head;
+
+        if (parent_list_head != null)
+            parent_list_head.prev = new_pi;
+
+        parent_list_head = new_pi;
+        if (DEBUG_GDS)
+        {
+            context.getPrinter().print("UNIQUE DLL:         added: %s\n", inst.prod.name);
+        }
+    }
+
+    /**
+     * Added this function to make one place for wme's being added to the GDS. Callback for wme 
+     * added to GDS is made here.
+     * 
+     * decide.cpp:2562:add_wme_to_gds
+     * 
+     * @param gds
+     * @param wme_to_add
+     */
+    private void add_wme_to_gds(GoalDependencySet gds, Wme wme_to_add)
+    {
+        // Set the correct GDS for this wme (wme's point to their gds)
+        wme_to_add.gds = gds;
+        wme_to_add.gds_next_prev.insertAtHead(gds.wmes_in_gds);
+
+        // TODO trace add wme to gds
+        /*
+        if (agentPtr->soar_verbose_flag || agentPtr->sysparams[TRACE_WM_CHANGES_SYSPARAM]) 
+        {                    
+            print(agentPtr, "Adding to GDS for S%ld: ", wme_to_add->gds->goal->id.name_number);    
+            print(agentPtr, " WME: "); 
+            char buf[256];
+            SNPRINTF(buf, 254, "Adding to GDS for S%ld: ", wme_to_add->gds->goal->id.name_number);
+
+            xml_begin_tag(agentPtr, kTagVerbose);
+            xml_att_val(agentPtr, kTypeString, buf);
+            print_wme(agentPtr, wme_to_add);
+            xml_end_tag(agentPtr, kTagVerbose);               
+        }
+        */
+    }
+    
+
+    /**
+     * decide.cpp:2587:elaborate_gds
+     */
+    private void elaborate_gds()
+    {
+        ParentInstantiation temp_pi = null;
+        for (ParentInstantiation curr_pi = parent_list_head; curr_pi != null; curr_pi = temp_pi)
+        {
+
+            Instantiation inst = curr_pi.inst;
+            /*
+            #ifdef DEBUG_GDS
+                  print_with_symbols("\n      EXPLORING INSTANTIATION: %y\n",curr_pi->inst->prod->name);
+                  print("      ");
+                  print_instantiation_with_wmes( thisAgent, curr_pi->inst , TIMETAG_WME_TRACE, -1);
+            #endif
+            */
+            for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
+            {
+                PositiveCondition pc = cond.asPositiveCondition();
+                if (pc == null)
+                    continue;
+
+                // We'll deal with negative instantiations after we get the
+                // positive ones figured out
+
+                Wme wme_matching_this_cond = cond.bt.wme_;
+                int wme_goal_level = cond.bt.level;
+                Preference pref_for_this_wme = wme_matching_this_cond.preference;
+                /*
+                #ifdef DEBUG_GDS
+                         context.getPrinter().print("\n       wme_matching_this_cond at goal_level = %d : ", wme_goal_level);
+                         print_wme(thisAgent, wme_matching_this_cond); 
+
+                         if (pref_for_this_wme) {
+                            print(thisAgent, "       pref_for_this_wme                        : ");
+                            print_preference(thisAgent, pref_for_this_wme);
+                         } 
+                #endif
+                */
+
+                // WME is in a supergoal or is arch-supported WME (except for fake instantiations,
+                // which do have prefs, so they get handled under "wme is local and i-supported")
+                if ((pref_for_this_wme == null) || (wme_goal_level < inst.match_goal_level))
+                {
+
+                    if (DEBUG_GDS)
+                    {
+                        if (pref_for_this_wme == null)
+                        {
+                            context.getPrinter().print(
+                                    "         this wme has no preferences (it's an arch-created wme)\n");
+                        }
+                        else if (wme_goal_level < inst.match_goal_level)
+                        {
+                            context.getPrinter().print("         this wme is in the supergoal\n");
+                        }
+                        context.getPrinter().print("inst->match_goal [%s]\n", inst.match_goal);
+                    }
+
+                    if (wme_matching_this_cond.gds != null)
+                    {
+                        // Then we want to check and see if the old GDS value
+                        // should be changed
+                        if (wme_matching_this_cond.gds.goal == null)
+                        {
+                            // The goal is NIL: meaning that the goal for the GDS
+                            // is no longer around
+                            wme_matching_this_cond.gds_next_prev.remove(wme_matching_this_cond.gds.wmes_in_gds);
+
+                            // We have to check for GDS removal anytime we take a
+                            // WME off the GDS wme list, not just when a WME is
+                            // removed from memory.
+                            if (wme_matching_this_cond.gds.wmes_in_gds.isEmpty())
+                            {
+                                wme_matching_this_cond.gds = null;
+                                // free_memory(thisAgent, wme_matching_this_cond->gds, MISCELLANEOUS_MEM_USAGE);
+
+                                if (DEBUG_GDS)
+                                {
+                                    context.getPrinter().print("\n  REMOVING GDS FROM MEMORY.");
+                                }
+                            }
+
+                            /* JC ADDED: Separate adding wme to GDS as a function */
+                            add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
+
+                            if (DEBUG_GDS)
+                            {
+                                context.getPrinter().print(
+                                        "\n       .....GDS' goal is NIL so switching from old to new GDS list....\n");
+                            }
+
+                        }
+                        else if (wme_matching_this_cond.gds.goal.level > inst.match_goal_level)
+                        {
+                            /* if the WME currently belongs to the GDS of a goal below
+                            * the current one */
+                            /* 1. Take WME off old (current) GDS list 
+                            * 2. Check to see if old GDS WME list is empty.  If so,
+                            *         remove(free) it.
+                            * 3. Add WME to new GDS list
+                            * 4. Update WME pointer to new GDS list
+                            */
+                            if (inst.match_goal_level == 1)
+                            {
+                                // TODO uhhh is this necessary??
+                                context.getPrinter().print("\n\n\n HELLO! HELLO! The inst->match_goal_level is 1");
+                            }
+
+                            wme_matching_this_cond.gds_next_prev.remove(wme_matching_this_cond.gds.wmes_in_gds);
+
+                            if (wme_matching_this_cond.gds.wmes_in_gds.isEmpty())
+                            {
+                                wme_matching_this_cond.gds = null;
+                                // free_memory(thisAgent, wme_matching_this_cond->gds, MISCELLANEOUS_MEM_USAGE);
+
+                                if (DEBUG_GDS)
+                                {
+                                    context.getPrinter().print("\n  REMOVING GDS FROM MEMORY.");
+                                }
+
+                            }
+                            /* JC ADDED: Separate adding wme to GDS as a function */
+                            add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
+
+                            if (DEBUG_GDS)
+                            {
+                                context.getPrinter().print("\n       ....switching from old to new GDS list....\n");
+                            }
+
+                            wme_matching_this_cond.gds = inst.match_goal.gds;
+                        }
+                    }
+                    else
+                    {
+                        /* We know that the WME should be in the GDS of the current
+                        * goal if the WME's GDS does not already exist.
+                        * (i.e., if NIL GDS) */
+
+                        /* JC ADDED: Separate adding wme to GDS as a function */
+                        add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
+
+                        if (wme_matching_this_cond.gds.wmes_in_gds.first.previous != null)
+                        {
+                            // TODO is this necessary??
+                            context.getPrinter().print(
+                                    "\nDEBUG DEBUG : The new header should never have a prev value.\n");
+                        }
+
+                        if (DEBUG_GDS)
+                        {
+                            context.getPrinter().print(
+                                    "\n       ......WME did not have defined GDS.  Now adding to goal [%s].\n",
+                                    wme_matching_this_cond.gds.goal);
+                        }
+
+                    } /* end else clause for "if wme_matching_this_cond->gds != NIL" */
+
+                    if (DEBUG_GDS)
+                    {
+                        context.getPrinter().print("            Added WME to GDS for goal = %d [%s]\n",
+                                wme_matching_this_cond.gds.goal.level, wme_matching_this_cond.gds.goal);
+                    }
+                } /* end "wme in supergoal or arch-supported" */
+                else
+                {
+                    /* wme must be local */
+
+                    /* if wme's pref is o-supported, then just ignore it and
+                    * move to next condition */
+                    if (pref_for_this_wme.o_supported == true)
+                    {
+                        if (DEBUG_GDS)
+                        {
+                            context.getPrinter().print("         this wme is local and o-supported\n");
+                        }
+                        continue;
+                    }
+
+                    else
+                    {
+                        /* wme's pref is i-supported, so remember it's instantiation
+                        * for later examination */
+
+                        /* this test avoids "backtracing" through the top state */
+                        if (inst.match_goal_level == 1)
+                        {
+                            if (DEBUG_GDS)
+                            {
+                                context.getPrinter().print("         don't back up through top state\n");
+                                if (inst.prod != null)
+                                    if (inst.prod.name != null)
+                                        context.getPrinter().print(
+                                                "         don't back up through top state for instantiation %s\n",
+                                                inst.prod.name);
+                            }
+                            continue;
+                        }
+
+                        else
+                        { /* (inst->match_goal_level != 1) */
+                            if (DEBUG_GDS)
+                            {
+                                context.getPrinter().print("         this wme is local and i-supported\n");
+                            }
+                            Slot s = Slot.find_slot(pref_for_this_wme.id, pref_for_this_wme.attr);
+                            if (s == null)
+                            {
+                                /* this must be an arch-wme from a fake instantiation */
+
+                                if (DEBUG_GDS)
+                                {
+                                    context.getPrinter().print("here's the wme with no slot:\t");
+                                    // TODO print_wme(thisAgent,
+                                    // pref_for_this_wme->inst->top_of_instantiated_conditions->bt.wme_);
+                                }
+
+                                /* this is the same code as above, just using the 
+                                * differently-named pointer.  it probably should
+                                * be a subroutine */
+                                {
+                                    Wme fake_inst_wme_cond = pref_for_this_wme.inst.top_of_instantiated_conditions.bt.wme_;
+                                    if (fake_inst_wme_cond.gds != null)
+                                    {
+                                        /* Then we want to check and see if the old GDS
+                                        * value should be changed */
+                                        if (fake_inst_wme_cond.gds.goal == null)
+                                        {
+                                            /* The goal is NIL: meaning that the goal for
+                                            * the GDS is no longer around */
+                                            fake_inst_wme_cond.gds_next_prev.remove(fake_inst_wme_cond.gds.wmes_in_gds);
+
+                                            /* We have to check for GDS removal anytime we take
+                                            * a WME off the GDS wme list, not just when a WME
+                                            * is removed from memory. */
+                                            if (fake_inst_wme_cond.gds.wmes_in_gds.isEmpty())
+                                            {
+                                                fake_inst_wme_cond.gds = null;
+                                                // free_memory(thisAgent, fake_inst_wme_cond->gds,
+                                                // MISCELLANEOUS_MEM_USAGE);
+                                                if (DEBUG_GDS)
+                                                {
+                                                    context.getPrinter().print("\n  REMOVING GDS FROM MEMORY.");
+                                                }
+                                            }
+
+                                            /* JC ADDED: Separate adding wme to GDS as a function */
+                                            add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
+
+                                            if (DEBUG_GDS)
+                                            {
+                                                context
+                                                        .getPrinter()
+                                                        .print(
+                                                                "\n       .....GDS' goal is NIL so switching from old to new GDS list....\n");
+                                            }
+                                        }
+                                        else if (fake_inst_wme_cond.gds.goal.level > inst.match_goal_level)
+                                        {
+                                            /* if the WME currently belongs to the GDS of a
+                                            *goal below the current one */
+                                            /* 1. Take WME off old (current) GDS list 
+                                            * 2. Check to see if old GDS WME list is empty.
+                                            *    If so, remove(free) it.
+                                            * 3. Add WME to new GDS list
+                                            * 4. Update WME pointer to new GDS list
+                                            */
+                                            if (inst.match_goal_level == 1)
+                                            {
+                                                // TODO necessary???
+                                                context.getPrinter().print(
+                                                        "\n\n\n\n\n HELLO! HELLO! The inst->match_goal_level is 1");
+                                            }
+
+                                            fake_inst_wme_cond.gds_next_prev.remove(fake_inst_wme_cond.gds.wmes_in_gds);
+                                            if (fake_inst_wme_cond.gds.wmes_in_gds.isEmpty())
+                                            {
+                                                fake_inst_wme_cond.gds = null;
+                                                // free_memory(thisAgent, fake_inst_wme_cond->gds,
+                                                // MISCELLANEOUS_MEM_USAGE);
+                                                if (DEBUG_GDS)
+                                                {
+                                                    context.getPrinter().print("\n  REMOVING GDS FROM MEMORY.");
+                                                }
+                                            }
+
+                                            /* JC ADDED: Separate adding wme to GDS as a function */
+                                            add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
+
+                                            if (DEBUG_GDS)
+                                            {
+                                                context.getPrinter().print(
+                                                        "\n       .....switching from old to new GDS list....\n");
+                                            }
+                                            fake_inst_wme_cond.gds = inst.match_goal.gds;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        /* We know that the WME should be in the GDS of
+                                        * the current goal if the WME's GDS does not
+                                        * already exist. (i.e., if NIL GDS) */
+
+                                        /* JC ADDED: Separate adding wme to GDS as a function */
+                                        add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
+
+                                        if (fake_inst_wme_cond.gds.wmes_in_gds.first.previous != null)
+                                        {
+                                            context.getPrinter().print(
+                                                    "\nDEBUG DEBUG : The new header should never have a prev value.\n");
+                                        }
+                                        if (DEBUG_GDS)
+                                        {
+                                            context
+                                                    .getPrinter()
+                                                    .print(
+                                                            "\n       ......WME did not have defined GDS.  Now adding to goal [%s].\n",
+                                                            fake_inst_wme_cond.gds.goal);
+                                        }
+                                    }
+                                    if (DEBUG_GDS)
+                                    {
+                                        context.getPrinter().print("            Added WME to GDS for goal = %d [%s]\n",
+                                                fake_inst_wme_cond.gds.goal.level, fake_inst_wme_cond.gds.goal);
+                                    }
+                                } /* matches { wme *fake_inst_wme_cond  */
+                            }
+                            else
+                            {
+                                /* this was the original "local & i-supported" action */
+                                for (Preference pref : s.getPreferenceList(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE))
+                                {
+                                    /*
+                                    #ifdef DEBUG_GDS
+                                                            print(thisAgent, "           looking at pref for the wme: ");
+                                                            print_preference(thisAgent, pref); 
+                                    #endif
+                                    */
+
+                                    /* REW: 2004-05-27: Bug fix
+                                       We must check that the value with acceptable pref for the slot
+                                       is the same as the value for the wme in the condition, since
+                                       operators can have acceptable preferences for values other than
+                                       the WME value.  We dont want to backtrack thru acceptable prefs
+                                       for other operators */
+
+                                    if (pref.value == wme_matching_this_cond.value)
+                                    {
+
+                                        /* REW BUG: may have to go over all insts regardless
+                                        * of this visited_already flag... */
+
+                                        if (pref.inst.GDS_evaluated_already == false)
+                                        {
+
+                                            if (DEBUG_GDS)
+                                            {
+                                                context.getPrinter().print(
+                                                        "\n           adding inst that produced the pref to GDS: %s\n",
+                                                        pref.inst.prod.name);
+                                            }
+                                            ////////////////////////////////////////////////////// 
+                                            /* REW: 2003-12-07 */
+                                            /* If the preference comes from a lower level inst, then 
+                                            ignore it. */
+                                            /* Preferences from lower levels must come from result 
+                                            instantiations;
+                                            we just want to use the justification/chunk 
+                                            instantiations at the match goal level*/
+                                            if (pref.inst.match_goal_level <= inst.match_goal_level)
+                                            {
+
+                                                ////////////////////////////////////////////////////// 
+                                                uniquely_add_to_head_of_dll(pref.inst);
+                                                pref.inst.GDS_evaluated_already = true;
+                                                ////////////////////////////////////////////////////// 
+                                            }
+                                            /*
+                                            #ifdef DEBUG_GDS
+                                                                       else 
+                                                                       {
+                                                                          print_with_symbols(thisAgent, "\n           ignoring inst %y because it is at a lower level than the GDS\n",pref->inst->prod->name);
+                                                                          pref->inst->GDS_evaluated_already = TRUE;
+                                                                       }
+                                            #endif
+                                            */
+                                            /* REW: 2003-12-07 */
+
+                                            //////////////////////////////////////////////////////
+                                        }
+                                        /*
+                                        #ifdef DEBUG_GDS
+                                                                else 
+                                                                {
+                                                                   print(thisAgent, "           the inst producing this pref was already explored; skipping it\n"); 
+                                                                }
+                                        #endif
+                                        */
+
+                                    }
+                                    /*
+                                    #ifdef DEBUG_GDS
+                                                            else
+                                                            {
+                                                               print("        this inst is for a pref with a differnt value than the condition WME; skippint it\n");
+                                                            }
+                                    #endif
+                                    */
+                                } /* for pref = s->pref[ACCEPTABLE_PREF ...*/
+                            }
+                        }
+                    }
+                }
+            } /* for (cond = inst->top_of_instantiated_cond ...  *;*/
+
+            /* remove just used instantiation from list */
+
+            if (DEBUG_GDS)
+            {
+                context.getPrinter().print("\n      removing instantiation: %s\n", curr_pi.inst.prod.name);
+            }
+
+            if (curr_pi.next != null)
+                curr_pi.next.prev = curr_pi.prev;
+
+            if (curr_pi.prev != null)
+                curr_pi.prev.next = curr_pi.next;
+
+            if (parent_list_head == curr_pi)
+                parent_list_head = curr_pi.next;
+
+            temp_pi = curr_pi.next;
+            //free(curr_pi);
+
+        } /* end of "for (curr_pi = thisAgent->parent_list_head ... */
+
+        if (parent_list_head != null)
+        {
+
+            if (DEBUG_GDS)
+            {
+                context.getPrinter().print("\n    RECURSING using these parents:\n");
+                for (ParentInstantiation curr_pi = parent_list_head; curr_pi != null; curr_pi = curr_pi.next)
+                {
+                    context.getPrinter().print("      %s\n", curr_pi.inst.prod.name);
+                }
+            }
+
+            /* recursively explore the parents of all the instantiations */
+            elaborate_gds();
+
+            /* free the parent instantiation list.  technically, the list
+            * should be empty at this point ??? */
+            free_parent_list();
+        }
+
+    }
+
+    /**
+     * REW BUG: this needs to be smarter to deal with wmes that get support 
+     * from multiple instantiations. for example ^enemy-out-there could be 
+     * made by 50 instantiations. if one of those instantiations goes, should 
+     * the goal be killed???? This routine says "yes" -- anytime a dependent 
+     * item gets changed, we're gonna yank out the goal -- even when that 
+     * i-supported element itself may not be removed (due to multiple 
+     * preferences). So, we'll say that this is a "twitchy" version of OPERAND2, 
+     * and leave open the possibility that other approaches may be better
+     * 
+     * decide.cpp::3040:gds_invalid_so_remove_goal
+     * 
+     * @param w
+     */
+    public void gds_invalid_so_remove_goal(Wme w)
+    {
+        /* REW: begin 11.25.96 */
+        // #ifndef NO_TIMING_STUFF
+        // #ifdef DETAILED_TIMING_STATS
+        // start_timer(thisAgent, &thisAgent->start_gds_tv);
+        // #endif
+        // #endif
+        /* REW: end   11.25.96 */
+
+        /* REW: BUG.  I have no idea right now if this is a terrible hack or
+         * actually what we want to do.  The idea here is that the context of
+         * the immediately higher goal above a retraction should be marked as
+         * having its context changed in order that the architecture doesn't
+         * look below this level for context changes.  I think it's a hack b/c
+         * it seems like there should aready be mechanisms for doing this in
+         * the architecture but I couldn't find any.
+         */
+        /* Note: the inner 'if' is correct -- we only want to change
+         * highest_goal_whose_context_changed if the pointer is currently at
+         * or below (greater than) the goal which we are going to retract.
+         * However, I'm not so sure about the outer 'else.'  If we don't set
+         * this to the goal above the retraction, even if the current value
+         * is NIL, we still seg fault in certain cases.  But setting it as we do 
+         * in the inner 'if' seems to clear up the difficulty.
+         */
+
+        if (context.tempMemory.highest_goal_whose_context_changed != null)
+        {
+            if (context.tempMemory.highest_goal_whose_context_changed.level >= w.gds.goal.level)
+            {
+                context.tempMemory.highest_goal_whose_context_changed = w.gds.goal.higher_goal;
+            }
+        }
+        else
+        {
+            // If nothing has yet changed (highest_ ... = NIL) then set the goal automatically
+            context.tempMemory.highest_goal_whose_context_changed = w.gds.goal.higher_goal;
+        }
+        // TODO trace
+        /*
+           if (thisAgent->sysparams[TRACE_OPERAND2_REMOVALS_SYSPARAM]) {
+             print_with_symbols(thisAgent, "\n    REMOVING GOAL [%y] due to change in GDS WME ",
+                    w->gds->goal);
+             print_wme(thisAgent, w);
+           }
+        */
+        remove_existing_context_and_descendents(w.gds.goal);
+        /* BUG: Need to reset highest_goal here ???*/
+
+        /* usually, we'd call do_buffered_wm_and_ownership_changes() here, but
+         * we don't need to because it will be done at the end of the working
+         * memory phase; cf. the end of do_working_memory_phase().
+         */
+
+        /* REW: begin 11.25.96 */
+        //  #ifndef NO_TIMING_STUFF
+        //  #ifdef DETAILED_TIMING_STATS
+        //  stop_timer(thisAgent, &thisAgent->start_gds_tv, 
+        //             &thisAgent->gds_cpu_time[thisAgent->current_phase]);
+        //  #endif
+        //  #endif
+        /* REW: end   11.25.96 */
+    }
+
+    /**
+     * decide.cpp:3107:free_parent_list
+     */
+    private void free_parent_list()
+    {
+        // parent_inst *curr_pi;
+        //
+        // for (curr_pi = thisAgent->parent_list_head;
+        // curr_pi;
+        // curr_pi = curr_pi->next)
+        // free(curr_pi);
+
+        this.parent_list_head = null;
+    }
+
+    /**
+     * decide.cpp:3119:create_gds_for_goal
+     * 
+     * TODO Make this a GoalDependencySet constructor?
+     * 
+     * @param goal
+     */
+    private void create_gds_for_goal(Identifier goal)
+    {
+        GoalDependencySet gds = new GoalDependencySet();
+
+        gds.goal = goal;
+        goal.gds = gds;
+        if (DEBUG_GDS)
+        {
+            context.getPrinter().print("\nCreated GDS for goal [%s].\n", gds.goal);
+        }
+    }
+
+    /**
+     * decide.cpp:3132:count_candidates
+     * 
+     * @param candidates
+     * @return
+     */
+    private int count_candidates(Preference candidates)
+    {
+        /*
+           Count up the number of candidates
+           REW: 2003-01-06
+           I'm assuming that all of the candidates have unary or 
+           unary+value (binary) indifferent preferences at this point.
+           So we loop over the candidates list and count the number of
+           elements in the list.
+         */
+
+        int numCandidates = 0;
+        for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
+            numCandidates++;
+
+        return numCandidates;
+    }
+
 }

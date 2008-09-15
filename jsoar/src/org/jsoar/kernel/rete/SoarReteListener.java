@@ -42,7 +42,7 @@ public class SoarReteListener implements ReteListener
      * agent.h:733
      * dll of all retractions for removed (ie nil) goals
      */
-    private final ListHead<MatchSetChange> nil_goal_retractions = new ListHead<MatchSetChange>();
+    public final ListHead<MatchSetChange> nil_goal_retractions = new ListHead<MatchSetChange>();
     
     /**
      * changes to match set

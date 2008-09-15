@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ListHead;
 
@@ -47,7 +48,7 @@ public class GoalDependencySet
     /**
      * pointer to the goal for the dependency set
      */
-    public Symbol goal;
+    public Identifier goal;
     /**
      * pointer to the dll of WMEs in GDS of goal
      */

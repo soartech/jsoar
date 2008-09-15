@@ -121,7 +121,45 @@ public class PreferenceMemory
         deallocate_preference(pref);
 
         return true;
-    }    
+    } 
+    
+    /**
+     * Remove_preference_from_clones() splices a given preference out of the
+     * list of clones. If the preference's reference_count is 0, it also
+     * deallocates it and returns TRUE. Otherwise it returns FALSE.
+     * 
+     * prefmem.cpp:176:remove_preference_from_clones
+     * 
+     * @param pref
+     * @return
+     */
+    public boolean remove_preference_from_clones(Preference pref)
+    {
+        Preference any_clone = null;
+        if (pref.next_clone != null)
+        {
+            any_clone = pref.next_clone;
+            pref.next_clone.prev_clone = pref.prev_clone;
+        }
+        if (pref.prev_clone != null)
+        {
+            any_clone = pref.prev_clone;
+            pref.prev_clone.next_clone = pref.next_clone;
+        }
+        pref.next_clone = pref.prev_clone = null;
+        if (any_clone != null)
+            possibly_deallocate_preference_and_clones(any_clone);
+        if (pref.reference_count == 0)
+        {
+            deallocate_preference(pref);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     /**
      * Add_preference_to_tm() adds a given preference to preference memory (and
      * hence temporary memory). 
