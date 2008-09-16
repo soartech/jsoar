@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.MatchSetChange;
+import org.jsoar.kernel.io.OutputLink;
 import org.jsoar.kernel.learning.ReinforcementLearningInfo;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
@@ -65,7 +66,7 @@ public class Identifier extends Symbol
     /* REW: end   08.20.97 */
 
     /* --- fields used for Soar I/O stuff --- */
-    // TODO ::list *associated_output_links;
+    public LinkedList<OutputLink> associated_output_links = null;
     public final ListHead<Wme> input_wmes = new ListHead<Wme>();
 
     public int depth; /* used to track depth of print (bug 988) RPM 4/07 */

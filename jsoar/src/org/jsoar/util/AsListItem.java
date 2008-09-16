@@ -134,7 +134,7 @@ public class AsListItem <T> implements Iterable<T>
     {
         for(AsListItem<T> m = this; m != null; m = m.next)
         {
-            if(item == m.get())
+            if((item != null && item.equals(m.get())) || item == m.get())
             {
                 return m;
             }

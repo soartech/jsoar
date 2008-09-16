@@ -14,7 +14,7 @@ import org.jsoar.kernel.symbols.Identifier;
  */
 public class DecisionCycle
 {
-    private final SoarContext context;
+    private final Agent context;
     
     /**
      * init_soar.h:127:top_level_phase
@@ -43,11 +43,15 @@ public class DecisionCycle
     public String reason_for_stopping = null;
     /**
      * agent.h:324:current_phase
+     * agent.cpp:153 (init)
      */
-    public Phase current_phase;
-    private GoType go_type;
+    public Phase current_phase = Phase.INPUT_PHASE;
+    /**
+     * agent.h:349:go_type
+     * agent.cpp:146 (init)
+     */
+    private GoType go_type = GoType.GO_DECISION;
     
-    private int chunks_this_d_cycle;
     private int e_cycles_this_d_cycle;
     private boolean input_cycle_flag;
     private int run_phase_count;
@@ -59,10 +63,10 @@ public class DecisionCycle
     private int pe_cycles_this_d_cycle;
     private int run_last_output_count;
     private int run_generated_output_count;
-    private int d_cycle_count;
+    public int d_cycle_count;
     private int decision_phases_count;
     
-    public DecisionCycle(SoarContext context)
+    public DecisionCycle(Agent context)
     {
         this.context = context;
     }
@@ -103,7 +107,7 @@ public class DecisionCycle
              */
             if (context.operand2_mode == true)
             {
-                this.chunks_this_d_cycle = 0;
+                this.context.chunker.chunks_this_d_cycle = 0;
                 this.e_cycles_this_d_cycle = 0;
             }
             // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */

@@ -8,12 +8,12 @@ package org.jsoar.kernel.memory;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
-import org.jsoar.kernel.SoarContext;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.ReinforcementLearning;
 import org.jsoar.kernel.lhs.Condition;
@@ -58,7 +58,7 @@ import org.jsoar.util.ListHead;
  */
 public class RecognitionMemory
 {
-    private final SoarContext context;
+    private final Agent context;
     
     /**
      * agent.h:174:firer_highest_rhs_unboundvar_index
@@ -88,7 +88,7 @@ public class RecognitionMemory
     /**
      * @param context
      */
-    public RecognitionMemory(SoarContext context)
+    public RecognitionMemory(Agent context)
     {
         this.context = context;
     }
