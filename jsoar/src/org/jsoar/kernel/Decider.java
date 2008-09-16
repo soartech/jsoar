@@ -59,7 +59,7 @@ public class Decider
     private static final boolean DEBUG_GDS_HIGH = false;
     private static final boolean DEBUG_LINKS = false;
     
-    private final SoarContext context;
+    private final Agent context;
     
     /**
      * agent.h:603:context_slots_with_changed_acceptable_preferences
@@ -96,7 +96,8 @@ public class Decider
     
     Identifier top_goal;
     Identifier bottom_goal;
-    private Identifier top_state;
+    public Identifier top_state;
+    public Identifier prev_top_state;
     private Identifier active_goal;
     private boolean waitsnc;
     private boolean waitsnc_detect;
@@ -109,7 +110,7 @@ public class Decider
     /**
      * @param context
      */
-    public Decider(SoarContext context)
+    public Decider(Agent context)
     {
         this.context = context;
     }
@@ -2431,7 +2432,7 @@ public class Decider
     {
         do_buffered_acceptable_preference_wme_changes();
         do_buffered_link_changes();
-        context.workingMemory.do_buffered_wm_changes();
+        context.workingMemory.do_buffered_wm_changes(context.io);
         context.tempMemory.remove_garbage_slots();
     }
     

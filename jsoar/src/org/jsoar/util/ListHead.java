@@ -41,6 +41,30 @@ public class ListHead <T> implements Iterable<T>
         return first != null ? first.count() : 0;
     }
     
+    /**
+     * Find the list item that contains the given value
+     * 
+     * @param value The value to search for
+     * @return The containing list item, or null if not found
+     */
+    public AsListItem<T> find(T value)
+    {
+        return first != null ? first.find(value) : null;
+    }
+    
+    /**
+     * Check whether this list contains the given value.
+     * 
+     * @param value The value to search for
+     * @return true if the list contains an item with the given value
+     */
+    public boolean contains(T value)
+    {
+        return find(value) != null;
+    }
+    
+    
+    
     public List<T> toList()
     {
         List<T> r = new ArrayList<T>();
@@ -100,8 +124,5 @@ public class ListHead <T> implements Iterable<T>
     {
         // Display like a Java collection
         return toList().toString();
-    }
-    
-    
-    
+    }    
 }

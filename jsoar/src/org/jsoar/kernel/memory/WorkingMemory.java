@@ -7,6 +7,7 @@ package org.jsoar.kernel.memory;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymConstant;
@@ -171,7 +172,7 @@ public class WorkingMemory
     /**
      * wmem.cpp:186:do_buffered_wm_changes
      */
-    public void do_buffered_wm_changes()
+    public void do_buffered_wm_changes(InputOutput io)
     {
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
@@ -186,15 +187,13 @@ public class WorkingMemory
         }
 
         // call output module in case any changes are output link changes
-        // TODO inform_output_module_of_wm_changes
-        // inform_output_module_of_wm_changes (thisAgent,
-        // thisAgent->wmes_to_add,
-        // thisAgent->wmes_to_remove);
+        io.inform_output_module_of_wm_changes (wmes_to_add, wmes_to_remove);
+        
         /* --- invoke callback routine. wmes_to_add and wmes_to_remove can --- */
         /* --- be fetched from the agent structure. --- */
         // TODO WM_CHANGES_CALLBACK
-        // soar_invoke_callbacks(thisAgent, WM_CHANGES_CALLBACK,
-        // (soar_call_data) NULL);
+        // soar_invoke_callbacks(thisAgent, WM_CHANGES_CALLBACK, (soar_call_data) NULL);
+        
         /* --- stuff wme changes through the rete net --- */
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
