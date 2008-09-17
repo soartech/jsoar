@@ -286,7 +286,7 @@ public class ReteBuilder
 
         if (ReteTest.test_is_constant_relational_test(rt1.type))
         {
-            return (rt1.constant_referent == rt2.constant_referent); // TODO: Assumes same symbols
+            return (rt1.constant_referent == rt2.constant_referent);
         }
 
         if (rt1.type == ReteTest.ID_IS_GOAL_RETE_TEST)
@@ -300,7 +300,7 @@ public class ReteBuilder
 
         if (rt1.type == ReteTest.DISJUNCTION_RETE_TEST)
         {
-            return rt1.disjunction_list.equals(rt2.disjunction_list); // TODO: Assumes same symbols
+            return rt1.disjunction_list.equals(rt2.disjunction_list);
         }
         throw new IllegalStateException("Error: found unknown rete test type while building rete: " + rt1 + ", " + rt2);
     }

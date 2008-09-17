@@ -17,6 +17,8 @@ public class Printer
 {
     private final PrintWriter writer;
     
+    private boolean printWarnings = true;
+    
     /**
      * @param writer
      */
@@ -25,9 +27,22 @@ public class Printer
         this.writer = new PrintWriter(writer);
     }
     
-    public void print(String format, Object ... args)
+    public Printer print(String format, Object ... args)
     {
         this.writer.printf(format, args);
+        return this;
+    }
+    
+    public Printer startNewLine()
+    {
+        this.writer.append('\n');
+        return this;
+    }
+    
+    public Printer flush()
+    {
+        this.writer.flush();
+        return this;
     }
 
     /**
@@ -38,4 +53,42 @@ public class Printer
         // TODO implement print_preference
         
     }
+    
+    public Printer warn(String format, Object ... args)
+    {
+        if(printWarnings)
+        {
+            print(format, args);
+        }
+        return this;
+    }
+
+    /**
+     * @return the printWarnings
+     */
+    public boolean isPrintWarnings()
+    {
+        return printWarnings;
+    }
+
+    /**
+     * @param printWarnings the printWarnings to set
+     */
+    public Printer setPrintWarnings(boolean printWarnings)
+    {
+        this.printWarnings = printWarnings;
+        return this;
+    }
+
+    /**
+     * @param string
+     * @param id
+     */
+    public Printer error(String format, Object ... args)
+    {
+        print("\nError: " + format, args);
+        return this;
+    }
+    
+    
 }

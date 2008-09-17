@@ -94,6 +94,33 @@ public class InputOutput
     {
         this.context = context;
     }
+    
+    /**
+     * I/O initialization originally in init_soar.cpp:init_agent_memory
+     */
+    public void init_agent_memory()
+    {
+        this.io_header = get_new_io_identifier ('I');
+        this.io_header_input = get_new_io_identifier ('I');
+        this.io_header_output = get_new_io_identifier ('I');
+
+      /* The following code was taken from the do_input_cycle function of io.cpp */
+      // Creating the io_header and adding the top state io header wme
+      this.io_header_link = add_input_wme (context.decider.top_state,
+                                           context.predefinedSyms.io_symbol,
+                                           this.io_header);
+      // Creating the input and output header symbols and wmes
+      // RPM 9/06 changed to use this.input/output_link_symbol
+      // Note we don't have to save these wmes for later release since their parent
+      //  is already being saved (above), and when we release it they will automatically be released
+      add_input_wme (this.io_header,
+              context.predefinedSyms.input_link_symbol,
+                     this.io_header_input);
+      add_input_wme (this.io_header,
+              context.predefinedSyms.output_link_symbol,
+                     this.io_header_output);
+        
+    }
 
     /**
      * io.cpp::get_new_io_identifier

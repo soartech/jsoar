@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.Trace;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.symbols.Identifier;
@@ -86,7 +87,7 @@ public class ReteUnitTest extends JSoarTest
         super.setUp();
         
         this.listener = new Listener();
-        this.rete = new Rete(varGen);
+        this.rete = new Rete(Trace.createStdOutTrace().enableAll(), varGen);
         this.rete.setReteListener(listener);
     }
 

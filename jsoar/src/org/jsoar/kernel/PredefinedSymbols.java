@@ -20,7 +20,7 @@ public class PredefinedSymbols
     SymConstant state_symbol = syms.make_sym_constant("state");
     public final SymConstant operator_symbol = syms.make_sym_constant("operator");
     public final SymConstant superstate_symbol = syms.make_sym_constant("superstate");
-    SymConstant io_symbol = syms.make_sym_constant("io");
+    public SymConstant io_symbol = syms.make_sym_constant("io");
     SymConstant object_symbol = syms.make_sym_constant("object");
     SymConstant attribute_symbol = syms.make_sym_constant("attribute");
     SymConstant impasse_symbol = syms.make_sym_constant("impasse");
@@ -57,8 +57,8 @@ public class PredefinedSymbols
     /* REW: end   10.24.97 */
 
     /* RPM 9/06 begin */
-    SymConstant input_link_symbol = syms.make_sym_constant("input-link");
-    SymConstant output_link_symbol = syms.make_sym_constant("output-link");
+    public SymConstant input_link_symbol = syms.make_sym_constant("input-link");
+    public SymConstant output_link_symbol = syms.make_sym_constant("output-link");
     /* RPM 9/06 end */
 
     SymConstant reward_link_symbol = syms.make_sym_constant("reward-link" );

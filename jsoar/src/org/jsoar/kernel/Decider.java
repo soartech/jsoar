@@ -7,6 +7,8 @@ package org.jsoar.kernel;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.Trace.Category;
+import org.jsoar.kernel.learning.ReinforcementLearningInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
@@ -98,7 +100,10 @@ public class Decider
     Identifier bottom_goal;
     public Identifier top_state;
     public Identifier prev_top_state;
-    private Identifier active_goal;
+    Identifier active_goal;
+    Identifier previous_active_goal;
+    int active_level;
+    int previous_active_level;
     private boolean waitsnc;
     private boolean waitsnc_detect;
     
@@ -1845,7 +1850,7 @@ public class Decider
      * 
      * @param s
      */
-    private void remove_wmes_for_context_slot(Slot s)
+    void remove_wmes_for_context_slot(Slot s)
     {
         if (s.wmes.isEmpty())
             return;
@@ -1868,7 +1873,7 @@ public class Decider
      * 
      * @param goal
      */
-    private void remove_existing_context_and_descendents(Identifier goal)
+    void remove_existing_context_and_descendents(Identifier goal)
     {
         // remove descendents of this goal
         if (goal.lower_goal != null)
@@ -2098,8 +2103,7 @@ public class Decider
         id.allow_bottom_up_chunks = true;
 
         // TODO reinforcement learning
-        // id->id.rl_info = static_cast<rl_data *>( allocate_memory( thisAgent,
-        // sizeof( rl_data ), MISCELLANEOUS_MEM_USAGE ) );
+        id.rl_info = new ReinforcementLearningInfo();
         // id->id.rl_info->eligibility_traces = new rl_et_map(
         // std::less<production *>(), SoarMemoryAllocator<std::pair<production*
         // const, double> >( thisAgent, MISCELLANEOUS_MEM_USAGE ) );
@@ -2109,7 +2113,7 @@ public class Decider
         //  id->id.rl_info->reward_age = 0;
         //  id->id.rl_info->num_prev_op_rl_rules = 0;
         //  id->id.rl_info->step = 0;  
-        //  id->id.rl_info->impasse_type = NONE_IMPASSE_TYPE;
+        // id.rl_info.impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
 
         /* --- invoke callback routine --- */
         // TODO callback CREATE_NEW_CONTEXT_CALLBACK
@@ -2442,43 +2446,43 @@ public class Decider
      */
     public void do_working_memory_phase()
     {
-        // TODO trace phases
-        /*
-          if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM]) {
-             if (context.operand2_mode == true) {         
-                 if (thisAgent->current_phase == APPLY_PHASE) {  // it's always IE for PROPOSE
-                     xml_begin_tag(thisAgent, kTagSubphase);
-                     xml_att_val(thisAgent, kPhase_Name, kSubphaseName_ChangingWorkingMemory);
-                     switch (thisAgent->FIRING_TYPE) {
-                         case PE_PRODS:
-                             print (thisAgent, "\t--- Change Working Memory (PE) ---\n",0);
-                             xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_PE);
-                             break;      
-                         case IE_PRODS:    
-                             print (thisAgent, "\t--- Change Working Memory (IE) ---\n",0);
-                             xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_IE);
-                             break;
-                     }
-                     xml_end_tag(thisAgent, kTagSubphase);
-                 }
-             }
-             else
-                 // the XML for this is generated in this function
-                 print_phase (thisAgent, "\n--- Working Memory Phase ---\n",0);
-          }
-        */
+        if (context.trace.isEnabled(Category.TRACE_PHASES_SYSPARAM))
+        {
+            if (context.operand2_mode == true)
+            {
+                if (context.decisionCycle.current_phase == Phase.APPLY_PHASE)
+                { // it's always IE for PROPOSE
+                    // TODO xml
+                    // xml_begin_tag(thisAgent, kTagSubphase);
+                    // xml_att_val(thisAgent, kPhase_Name, kSubphaseName_ChangingWorkingMemory);
+                    switch (context.recMemory.FIRING_TYPE)
+                    {
+                    case PE_PRODS:
+                        context.getPrinter().print("\t--- Change Working Memory (PE) ---\n");
+                        // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_PE);
+                        break;
+                    case IE_PRODS:
+                        context.getPrinter().print("\t--- Change Working Memory (IE) ---\n");
+                        // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_IE);
+                        break;
+                    }
+                    // TODO xml_end_tag(thisAgent, kTagSubphase);
+                }
+            }
+            else
+            {
+                // TODO the XML for this is generated in this function
+                Phase.WM_PHASE.trace(context.trace, true);
+            }
+        }
 
         decide_non_context_slots();
         do_buffered_wm_and_ownership_changes();
 
-        // TODO trace phases
-        /*
-        if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM]) {
-          if (! thisAgent->operand2_mode) {
-           print_phase (thisAgent, "\n--- END Working Memory Phase ---\n",1);
-          }
+        if(context.operand2_mode)
+        {
+            Phase.WM_PHASE.trace(context.trace, false);
         }
-        */
     }
 
     /**
@@ -3130,14 +3134,11 @@ public class Decider
             // If nothing has yet changed (highest_ ... = NIL) then set the goal automatically
             context.tempMemory.highest_goal_whose_context_changed = w.gds.goal.higher_goal;
         }
-        // TODO trace
-        /*
-           if (thisAgent->sysparams[TRACE_OPERAND2_REMOVALS_SYSPARAM]) {
-             print_with_symbols(thisAgent, "\n    REMOVING GOAL [%y] due to change in GDS WME ",
-                    w->gds->goal);
-             print_wme(thisAgent, w);
-           }
-        */
+        
+        context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM, 
+                            "\n    REMOVING GOAL [%s] due to change in GDS WME %s",
+                            w.gds.goal, w);
+        
         remove_existing_context_and_descendents(w.gds.goal);
         /* BUG: Need to reset highest_goal here ???*/
 

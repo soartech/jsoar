@@ -320,7 +320,7 @@ public class TestTools
         }
         
         EqualityTest eq1 = t1.asEqualityTest();
-        if(eq1 != null && eq1.sym == t2.asEqualityTest().sym) // TODO Assumes SymbolFactory caching
+        if(eq1 != null && eq1.sym == t2.asEqualityTest().sym)
         {
             return true;
         }
@@ -332,7 +332,6 @@ public class TestTools
         DisjunctionTest dt = t1.asDisjunctionTest();
         if(dt != null)
         {
-            // TODO: Assumes SymbolFactory caching
             return dt.disjunction_list.equals(t2.asDisjunctionTest().disjunction_list);
         }
 
