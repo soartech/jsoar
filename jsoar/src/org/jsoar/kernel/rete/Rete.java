@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.Trace;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -160,6 +161,7 @@ public class Rete
             }};
     }
     
+    private final Trace trace;
     
     /* Set to FALSE to preserve variable names in chunks (takes extra space) */
     private final boolean discard_chunk_varnames = true;
@@ -181,10 +183,12 @@ public class Rete
     Symbol[] rhs_variable_bindings = {};
     private VariableGenerator variableGenerator;
     
-    public Rete(VariableGenerator variableGenerator)
+    public Rete(Trace trace, VariableGenerator variableGenerator)
     {
+        Arguments.checkNotNull(trace, "trace");
         Arguments.checkNotNull(variableGenerator, "variableGenerator");
         
+        this.trace = trace;
         this.variableGenerator = variableGenerator;
         
         // rete.cpp:8864
@@ -349,23 +353,18 @@ public class Rete
             /* --- duplicate production found --- */
             if (warn_on_duplicates)
             {
-                // TODO: Warn
                 // TODO: Test
+                trace.getPrinter().warn("\nIgnoring %s because it is a duplicate of %s ",
+                                        p.name, p_node.b_p.prod.name);
+                
+                // TODO: XML Warn
                 // std::stringstream output;
-                // output << "\nIgnoring "
-                // << symbol_to_string( thisAgent, p->name, TRUE, 0, 0 )
-                // << " because it is a duplicate of "
-                // << symbol_to_string( thisAgent, p_node->b.p.prod->name, TRUE,
-                // 0, 0 )
+                // output << "\nIgnoring " << symbol_to_string( thisAgent, p->name, TRUE, 0, 0 )
+                // << " because it is a duplicate of " << symbol_to_string( thisAgent, p_node->b.p.prod->name, TRUE, 0, 0 )
                 // << " ";
                 // xml_generate_warning( thisAgent, output.str().c_str() );
-                //
-                // print_with_symbols (thisAgent, "\nIgnoring %y because it is a
-                // duplicate of %y ",
-                // p->name, p_node->b.p.prod->name);
             }
-            // deallocate_symbol_list_removing_references (thisAgent,
-            // rhs_unbound_vars_for_new_prod);
+            // deallocate_symbol_list_removing_references (thisAgent, rhs_unbound_vars_for_new_prod);
             return ProductionAddResult.DUPLICATE_PRODUCTION;
         }
 

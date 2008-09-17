@@ -9,11 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
+import org.jsoar.kernel.Trace.Category;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.ReinforcementLearning;
 import org.jsoar.kernel.lhs.Condition;
@@ -377,9 +379,7 @@ public class RecognitionMemory
         Identifier id = idSym.asIdentifier();
         if (id == null)
         {
-            // TODO: print error
-            // print_with_symbols (thisAgent, "Error: RHS makes a preference for
-            // %y (not an identifier)\n", id);
+            context.getPrinter().error("RHS makes a preference for %s (not an identifier)\n", id);
             return null; // goto abort_execute_action;
         }
 
@@ -413,17 +413,16 @@ public class RecognitionMemory
         {
             if ((context.attribute_preferences_mode == 2) || (context.operand2_mode == true))
             {
-                // TODO Print error
-                // print_with_symbols (thisAgent, "\nError: attribute preference
-                // other than +/- for %y ^%y -- ignoring it.", id, attr);
+                context.getPrinter().error("attribute preference" +
+                		" other than +/- for %s ^%s -- ignoring it.", id, attr);
                 return null; // goto abort_execute_action;
             }
             else if (context.attribute_preferences_mode == 1)
             {
-                // TODO Print warning
-                // print_with_symbols (thisAgent, "\nWarning: attribute
-                // preference other than +/- for %y ^%y.", id, attr);
-                //
+                context.getPrinter().warn("\nWarning: attribute preference" +
+                        " other than +/- for %s ^%s -- ignoring it.", id, attr);
+                
+                // TODO xml
                 // growable_string gs = make_blank_growable_string(thisAgent);
                 // add_to_growable_string(thisAgent, &gs, "Warning: attribute
                 // preference other than +/- for ");
@@ -515,10 +514,7 @@ public class RecognitionMemory
                     if (level > SoarConstants.TOP_GOAL_LEVEL)
                         cond.bt.wme_.wme_add_ref();
                 }
-                /*
-                 * --- if trace is for a lower level, find one for this level
-                 * ---
-                 */
+                // if trace is for a lower level, find one for this level
                 if (pc.bt.trace != null)
                 {
                     if (cond.bt.trace.inst.match_goal_level > level)
@@ -565,19 +561,15 @@ public class RecognitionMemory
             if ((inst.prod.declared_support != ProductionSupport.DECLARED_O_SUPPORT)
                     && (inst.prod.declared_support != ProductionSupport.DECLARED_I_SUPPORT))
             {
-                /*
-                 * --- At this point, we've done them the normal way. To look
-                 * for differences, save o-support flags on a list, then do
-                 * Doug's calculations, then compare and restore saved flags.
-                 * ---
-                 */
+                // At this point, we've done them the normal way. To look
+                // for differences, save o-support flags on a list, then do
+                // Doug's calculations, then compare and restore saved flags.
                 List<Preference> saved_flags = new ArrayList<Preference>();
                 for (Preference pref : inst.preferences_generated)
                 {
                     saved_flags.add(pref.o_supported ? pref : null);
                 }
-                // Note: I just used add() above, so the list isn't backwards in
-                // Java
+                // Note: I just used add() above, so the list isn't backwards in Java
                 // saved_flags = destructively_reverse_list (saved_flags);
                 context.osupport.dougs_calculate_support_for_instantiation_preferences(inst);
                 boolean difference_found = false;
@@ -592,9 +584,7 @@ public class RecognitionMemory
                 }
                 if (difference_found)
                 {
-                    // TODO: warning
-                    //        print_with_symbols(thisAgent, "\n*** O-support difference found in production %y",
-                    //                           inst.prod.name);
+                    context.getPrinter().warn("\n*** O-support difference found in production %s", inst.prod.name);
                 }
             }
         }
@@ -609,24 +599,6 @@ public class RecognitionMemory
         }
     }
     
-    /**
-     * Macro returning TRUE iff we're supposed to trace firings for the
-     * given instantiation, which should have the "prod" field filled in.
-     * 
-     * recmem.cpp:532:trace_firings_of_inst
-     * 
-     * @param inst
-     * @return
-     */
-    private boolean trace_firings_of_inst(Instantiation inst)
-    {
-        // TODO: Implement trace_firings_of_inst
-        return false;
-//      return ((inst)->prod &&
-//        (thisAgent->sysparams[TRACE_FIRINGS_OF_USER_PRODS_SYSPARAM+(inst)->prod->type] ||
-//        ((inst)->prod->trace_firings)));
-    }
-
     /**
      * This builds the instantiation for a new match, and adds it to
      * newly_created_instantiations. It also calls chunk_instantiation() to do
@@ -689,25 +661,11 @@ public class RecognitionMemory
             }
         }
 
-        /* --- print trace info --- */
-        boolean trace_it = trace_firings_of_inst(inst);
-        if (trace_it)
-        {
-            // TODO trace firings
-            // if (get_printer_output_column(thisAgent)!=1) print (thisAgent,
-            // "\n"); /* AGR 617/634 */
-            // print (thisAgent, "Firing ");
-            // print_instantiation_with_wmes
-            // (thisAgent, inst,
-            // (wme_trace_type)(thisAgent->sysparams[TRACE_FIRINGS_WME_TRACE_TYPE_SYSPARAM]),
-            // 0);
-        }
-
-        /*
-         * --- initialize rhs_variable_bindings array with names of variables
-         * (if there are any stored on the production -- for chunks there won't
-         * be any) ---
-         */
+        context.trace.startNewLine().print(inst.prod.type.getTraceCategory(),
+                "Firing %s", inst); // TODO print_instantiation with wmes
+        
+        // initialize rhs_variable_bindings array with names of variables
+        // (if there are any stored on the production -- for chunks there won't be any)
         int index = 0;
         for (Variable c : prod.rhs_unbound_variables)
         {
@@ -722,13 +680,13 @@ public class RecognitionMemory
          */
         /* --- Before executing the RHS actions, tell the user that the -- */
         /* --- phase has changed to output by printing the arrow --- */
-        // TODO trace firings
-        // if (trace_it &&
-        // thisAgent->sysparams[TRACE_FIRINGS_PREFERENCES_SYSPARAM]) {
-        // print (thisAgent, " -->\n");
-        // xml_object( thisAgent, kTagActionSideMarker );
-        // }
-        /* --- execute the RHS actions, collect the results --- */
+        if(context.trace.isEnabled(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM))
+        {
+            context.trace.print(inst.prod.type.getTraceCategory(), " -->\n");
+            // TODO xml_object( thisAgent, kTagActionSideMarker );
+        }
+
+        // execute the RHS actions, collect the results
         inst.preferences_generated.first = null;
         boolean need_to_do_support_calculations = false;
         for (Action a = prod.action_list; a != null; a = a.next)
@@ -777,14 +735,8 @@ public class RecognitionMemory
                         else
                         {
                             need_to_do_support_calculations = true;
-                            // TODO verbose
-                            // if (thisAgent->soar_verbose_flag == TRUE) {
-                            // printf("\n\nin create_instantiation():
-                            // need_to_do_support_calculations == TRUE!!!\n\n");
-                            // xml_generate_verbose(thisAgent, "in
-                            // create_instantiation():
-                            // need_to_do_support_calculations == TRUE!!!");
-                            // }
+                            context.trace.print(Category.TRACE_VERBOSE, "\n\nin create_instantiation(): need_to_do_support_calculations == TRUE!!!\n\n");
+                            // TODO xml_generate_verbose(thisAgent, "in create_instantiation(): need_to_do_support_calculations == TRUE!!!");
                         }
 
                     }
@@ -942,15 +894,12 @@ public class RecognitionMemory
      */
     public void retract_instantiation(Instantiation inst)
     {
-        // invoke callback function
-        // TODO callback
-        // soar_invoke_callbacks(thisAgent,
-        // RETRACTION_CALLBACK,
-        // (soar_call_data) inst);
+        // TODO callback RETRACTION_CALLBACK
+        // soar_invoke_callbacks(thisAgent, RETRACTION_CALLBACK, (soar_call_data) inst);
 
         boolean retracted_a_preference = false;
 
-        boolean trace_it = trace_firings_of_inst(inst);
+        final boolean trace_it = context.trace.isEnabled(inst.prod.type.getTraceCategory());
 
         // retract any preferences that are in TM and aren't o-supported
         AsListItem<Preference> prefItem = inst.preferences_generated.first;
@@ -961,28 +910,26 @@ public class RecognitionMemory
             Preference pref = prefItem.get();
             if (pref.in_tm && !pref.o_supported)
             {
-
                 // TODO trace
-                // if (trace_it) {
-                // if (!retracted_a_preference) {
-                // if (get_printer_output_column(thisAgent)!=1) print
-                // (thisAgent, "\n"); /* AGR 617/634 */
-                // print (thisAgent, "Retracting ");
-                // print_instantiation_with_wmes (thisAgent, inst,
-                // (wme_trace_type)thisAgent->sysparams[TRACE_FIRINGS_WME_TRACE_TYPE_SYSPARAM],1);
-                // if (thisAgent->sysparams[TRACE_FIRINGS_PREFERENCES_SYSPARAM])
-                // {
-                // print (thisAgent, " -->\n");
-                // xml_object( thisAgent, kTagActionSideMarker );
-                // }
-                // }
-                // if (thisAgent->sysparams[TRACE_FIRINGS_PREFERENCES_SYSPARAM])
-                // {
-                // print (thisAgent, " ");
-                // print_preference (thisAgent, pref);
-                // }
-                // }
-
+                /*
+                if (trace_it) {
+                    if (!retracted_a_preference) {
+                        if (get_printer_output_column(thisAgent)!=1) print(thisAgent, "\n");
+                        print (thisAgent, "Retracting ");
+                        print_instantiation_with_wmes (thisAgent, inst, (wme_trace_type)thisAgent->sysparams[TRACE_FIRINGS_WME_TRACE_TYPE_SYSPARAM],1);
+                        if (thisAgent->sysparams[TRACE_FIRINGS_PREFERENCES_SYSPARAM])
+                        {
+                            print (thisAgent, " -->\n");
+                            xml_object( thisAgent, kTagActionSideMarker );
+                        }
+                    }
+                    if (thisAgent->sysparams[TRACE_FIRINGS_PREFERENCES_SYSPARAM])
+                    {
+                        print (thisAgent, " ");
+                        print_preference (thisAgent, pref);
+                    }
+                }
+                */
                 context.prefMemory.remove_preference_from_tm(pref);
                 retracted_a_preference = true;
             }
@@ -1024,21 +971,14 @@ public class RecognitionMemory
     {
         final ListHead<Preference> o_rejects = new ListHead<Preference>();
 
-        // TODO verbose
-        // /* REW: begin 09.15.96 */
-        // if ((operand2_mode) &&
-        // (thisAgent->soar_verbose_flag == TRUE)) {
-        // printf("\n in assert_new_preferences:");
-        // xml_generate_verbose(thisAgent, "in assert_new_preferences:");
-        // }
-        // /* REW: end 09.15.96 */
+        if (context.operand2_mode)
+        {
+            context.trace.print(Category.TRACE_VERBOSE, "\n in assert_new_preferences:");
+            // TODO xml_generate_verbose(thisAgent, "in assert_new_preferences:");
+        }
 
         if (SoarConstants.O_REJECTS_FIRST)
         {
-
-            // slot *s;
-            // preference *p, *next_p;
-
             /*
              * Do an initial loop to process o-rejects, then re-loop to process
              * normal preferences.
@@ -1063,24 +1003,9 @@ public class RecognitionMemory
 
             if (!o_rejects.isEmpty())
                 context.prefMemory.process_o_rejects_and_deallocate_them(o_rejects.first);
-
-            // s = find_slot(pref->id, pref->attr);
-            // if (s) {
-            // /* --- remove all pref's in the slot that have the same value ---
-            // */
-            // p = s->all_preferences;
-            // while (p) {
-            // next_p = p->all_of_slot_next;
-            // if (p->value == pref->value)
-            // remove_preference_from_tm(thisAgent, p);
-            // p = next_p;
-            // }
-            // }
-            // //preference_remove_ref (thisAgent, pref);
-            // }
-            // }
-            // }
-
+            
+            // Note: In CSoar there is some random code commented out at this point.
+            // Is it important? Who knows?
         }
 
         AsListItem<Instantiation> inst, next_inst;
@@ -1092,25 +1017,18 @@ public class RecognitionMemory
                 inst.insertAtHead(inst.get().prod.instantiations);
             }
 
-            // Verbose
-            // /* REW: begin 09.15.96 */
-            // if (operand2_mode)
-            // {
-            // if (thisAgent->soar_verbose_flag == TRUE) {
-            // print_with_symbols(thisAgent, "\n asserting instantiation: %y\n",
-            // inst->prod->name);
-            // char buf[256];
-            // SNPRINTF(buf, 254, "asserting instantiation: %s",
-            // symbol_to_string(thisAgent, inst->prod->name, true, 0, 0));
-            // xml_generate_verbose(thisAgent, buf);
-            // }
-            // }
-            // /* REW: end 09.15.96 */
+             if (context.operand2_mode)
+             {
+                 context.trace.print(Category.TRACE_VERBOSE, "\n asserting instantiation: %y\n", inst.get().prod.name);
+//             SNPRINTF(buf, 254, "asserting instantiation: %s",
+//             symbol_to_string(thisAgent, inst->prod->name, true, 0, 0));
+// TODO            xml_generate_verbose(thisAgent, buf);
+             }
 
             AsListItem<Preference> pref, next_pref;
             for (pref = inst.get().preferences_generated.first; pref != null; pref = next_pref)
             {
-                // TODO all the pref.get()s in here is pretty ugly
+                // TODO all the pref.get()s in here are pretty ugly
                 next_pref = pref.next;
                 if ((pref.get().type == PreferenceType.REJECT_PREFERENCE_TYPE) && (pref.get().o_supported))
                 {
@@ -1120,9 +1038,7 @@ public class RecognitionMemory
                         pref.next = o_rejects.first;
                         o_rejects.first = pref;
                     }
-                    /* REW: begin 09.15.96 */
                     /* No knowledge retrieval necessary in Operand2 */
-                    /* REW: end 09.15.96 */
 
                 }
                 else if (inst.get().in_ms || pref.get().o_supported)
@@ -1130,9 +1046,7 @@ public class RecognitionMemory
                     /* --- normal case --- */
                     context.prefMemory.add_preference_to_tm(pref.get());
 
-                    /* REW: begin 09.15.96 */
                     /* No knowledge retrieval necessary in Operand2 */
-                    /* REW: end 09.15.96 */
                 }
                 else
                 {
@@ -1245,8 +1159,6 @@ public class RecognitionMemory
             retract_instantiation(inst);
         }
 
-        /* REW: begin 08.20.97 */
-
         /*
          * In Waterfall, if there are nil goal retractions, then we want to
          * retract them as well, even though they are not associated with any
@@ -1266,14 +1178,10 @@ public class RecognitionMemory
             }
         }
 
-        /* REW: end   08.20.97 */
-
-        // TODO trace
-        //  if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM]) {
-        //     if (! thisAgent->operand2_mode) {
-        //      print_phase (thisAgent, "\n--- END Preference Phase ---\n",1);
-        //     }
-        //  }
+        if(context.operand2_mode)
+        {
+            Phase.PREFERENCE_PHASE.trace(context.trace, false);
+        }
     }
 
 }

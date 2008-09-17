@@ -16,22 +16,6 @@ public class DecisionCycle
 {
     private final Agent context;
     
-    /**
-     * init_soar.h:127:top_level_phase
-     * 
-     * @author ray
-     */
-    public enum Phase
-    {
-        INPUT_PHASE, 
-        PROPOSE_PHASE,
-        DECISION_PHASE,
-        APPLY_PHASE,
-        OUTPUT_PHASE, 
-        PREFERENCE_PHASE, 
-        WM_PHASE,
-    }
-    
     public enum GoType
     {
         GO_PHASE, GO_ELABORATION, GO_DECISION,
@@ -52,7 +36,7 @@ public class DecisionCycle
      */
     private GoType go_type = GoType.GO_DECISION;
     
-    private int e_cycles_this_d_cycle;
+    int e_cycles_this_d_cycle;
     private boolean input_cycle_flag;
     private int run_phase_count;
     private int run_elaboration_count;
@@ -96,10 +80,7 @@ public class DecisionCycle
         {
 
         case INPUT_PHASE:
-
-            // TODO trace phase
-            // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])
-            // print_phase (thisAgent, "\n--- Input Phase --- \n",0);
+            current_phase.trace(context.trace, true);
 
             /* for Operand2 mode using the new decision cycle ordering,
              * we need to do some initialization in the INPUT PHASE, which
@@ -151,9 +132,7 @@ public class DecisionCycle
                     input_cycle_flag = false;
             } /* END if (input_cycle_flag==TRUE) AGR REW1 this line and 1 previous line */
 
-            // TODO trace phases
-            // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])
-            // print_phase (thisAgent, "\n--- END Input Phase --- \n",1);
+            Phase.INPUT_PHASE.trace(context.trace, false);
 
             // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */
             // stop_timer (thisAgent, &thisAgent->start_phase_tv,
@@ -190,9 +169,7 @@ public class DecisionCycle
              */
             if (this.e_cycles_this_d_cycle < 1)
             {
-                // TODO trace phases
-                // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])
-                // print_phase(thisAgent, "\n--- Proposal Phase ---\n",0);
+                Phase.PROPOSE_PHASE.trace(context.trace, true);
 
                 // TODO callback BEFORE_PROPOSE_PHASE_CALLBACK/PROPOSE_PHASE
                 // soar_invoke_callbacks(thisAgent,
@@ -266,10 +243,7 @@ public class DecisionCycle
                  * reset phase to DECISION
                  */
                 this.current_phase = Phase.PROPOSE_PHASE;
-                // TODO trace phases
-                // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM]) {
-                // print_phase(thisAgent, "\n--- END Proposal Phase ---\n",1);
-                // }
+                Phase.PROPOSE_PHASE.trace(context.trace, false);
 
                 this.run_phase_count++;
                 // TODO callback AFTER_PROPOSE_PHASE_CALLBACK/PROPOSE_PHASE
@@ -371,10 +345,7 @@ public class DecisionCycle
              */
             if (this.e_cycles_this_d_cycle < 1)
             {
-
-                // TODO trace phases
-                // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])
-                // print_phase (thisAgent, "\n--- Application Phase ---\n",0);
+                Phase.APPLY_PHASE.trace(context.trace, true);
 
                 // TODO callback BEFORE_APPLY_PHASE_CALLBACK/APPLY_PHASE
                 // soar_invoke_callbacks(thisAgent, BEFORE_APPLY_PHASE_CALLBACK, (soar_call_data) APPLY_PHASE);
@@ -453,10 +424,8 @@ public class DecisionCycle
                  * Set phase back to APPLY, do print_phase, callbacks and reset phase to OUTPUT
                  */
                 current_phase = Phase.APPLY_PHASE;
-                // TODO trace phases
-                // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM]) {
-                // print_phase(thisAgent, "\n--- END Application Phase ---\n",1);
-                // }
+                Phase.APPLY_PHASE.trace(context.trace, false);
+
                 this.run_phase_count++;
                 // TODO callback AFTER_APPLY_PHASE_CALLBACK/APPLY_PHASE
                 // soar_invoke_callbacks(thisAgent, AFTER_APPLY_PHASE_CALLBACK, (soar_call_data) APPLY_PHASE);
@@ -474,9 +443,7 @@ public class DecisionCycle
         // ///////////////////////////////////////////////////////////////////////////////
         case OUTPUT_PHASE:
 
-            // TODO trace phases
-            // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])
-            // print_phase (thisAgent, "\n--- Output Phase ---\n",0);
+            Phase.OUTPUT_PHASE.trace(context.trace, true);
 
             // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */
             // start_timer (thisAgent, &thisAgent->start_phase_tv);
@@ -517,9 +484,7 @@ public class DecisionCycle
                 // stop_timer (thisAgent, &thisAgent->start_phase_tv,
                 // &thisAgent->decision_cycle_phase_timers[OUTPUT_PHASE]);
                 // #endif
-                // TODO trace phases
-                // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])
-                // print_phase (thisAgent, "\n--- END Output Phase ---\n",1);
+                Phase.OUTPUT_PHASE.trace(context.trace, false);
                 current_phase = Phase.INPUT_PHASE;
                 this.d_cycle_count++;
                 break;
@@ -531,20 +496,15 @@ public class DecisionCycle
             this.e_cycles_this_d_cycle++;
             this.run_elaboration_count++; // All phases count as a run elaboration
 
-            // TODO trace phases
-            // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])
-            // print_phase (thisAgent, "\n--- END Output Phase ---\n",1);
+            Phase.OUTPUT_PHASE.trace(context.trace, false);
 
             /* MVP 6-8-94 */
             if (e_cycles_this_d_cycle >= 100
             /* TODO (unsigned long)(thisAgent->sysparams[MAX_ELABORATIONS_SYSPARAM])*/
             )
             {
-                // TODO warning
-                // if (thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM]) {
-                // print (thisAgent, "\nWarning: reached max-elaborations; proceeding to decision phase.");
+                context.getPrinter().warn("Warning: reached max-elaborations; proceeding to decision phase.");
                 // xml_generate_warning(thisAgent, "Warning: reached max-elaborations; proceeding to decision phase.");
-                // }
                 current_phase = Phase.DECISION_PHASE;
             }
             else
@@ -565,12 +525,12 @@ public class DecisionCycle
         case DECISION_PHASE:
             /* not yet cleaned up for 8.6.0 release */
 
-            // TODO trace phases
-            // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])
-            // print_phase (thisAgent, "\n--- Decision Phase ---\n",0);
+            Phase.DECISION_PHASE.trace(context.trace, true);
+
             // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */
             // start_timer (thisAgent, &thisAgent->start_phase_tv);
             // #endif
+            
             /* d_cycle_count moved to input phase for Soar 8 new decision cycle */
             if (context.operand2_mode == false)
                 this.d_cycle_count++;
@@ -610,9 +570,7 @@ public class DecisionCycle
                 // soar_invoke_callbacks(thisAgent, AFTER_DECISION_CYCLE_CALLBACK, (soar_call_data) DECISION_PHASE);
                 context.chunker.chunks_this_d_cycle = 0;
 
-                // TODO trace phases
-                // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])
-                // print_phase (thisAgent, "\n--- END Decision Phase ---\n",1);
+                Phase.DECISION_PHASE.trace(context.trace, false);
 
                 current_phase = Phase.INPUT_PHASE;
             }
@@ -664,9 +622,7 @@ public class DecisionCycle
                 #endif //AGRESSIVE_ONC
                 */
                 {
-                    // TODO trace phases
-                    //              if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM])           
-                    //                  print_phase (thisAgent, "\n--- END Decision Phase ---\n",1);
+                    Phase.DECISION_PHASE.trace(context.trace, false);
 
                     /* printf("\nSetting next phase to APPLY following a decision...."); */
                     this.applyPhase = true;

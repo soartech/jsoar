@@ -49,12 +49,12 @@ public class SoarReteListener implements ReteListener
      * 
      * agent.h:231
      */
-    private final ListHead<MatchSetChange> ms_assertions = new ListHead<MatchSetChange>();
+    public final ListHead<MatchSetChange> ms_assertions = new ListHead<MatchSetChange>();
     
     /**
      * agent.h:231
      */
-    private final ListHead<MatchSetChange> ms_retractions = new ListHead<MatchSetChange>();
+    public final ListHead<MatchSetChange> ms_retractions = new ListHead<MatchSetChange>();
     
     /**
      * changes to match set
@@ -62,7 +62,7 @@ public class SoarReteListener implements ReteListener
      * agent.h:723
      */
     private final ListHead<MatchSetChange> ms_o_assertions = new ListHead<MatchSetChange>();
-    private final ListHead<MatchSetChange> ms_i_assertions = new ListHead<MatchSetChange>();
+    public final ListHead<MatchSetChange> ms_i_assertions = new ListHead<MatchSetChange>();
     
     private final SymConstant operator_symbol;
     private int o_support_calculation_type = 4;

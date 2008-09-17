@@ -78,17 +78,7 @@ public class MatchSetChange
 //      #endif
              return lowest_goal_wme.id;
         }
-//        { 
             throw new IllegalStateException("\nError: Did not find goal for ms_change assertion: " + this.p_node.b_p.prod.name);
-            // TODO: Fatal Error
-//            char msg[BUFFER_MSG_SIZE];
-//        print_with_symbols(thisAgent, "\nError: Did not find goal for ms_change assertion: %y\n", msc->p_node->b.p.prod->name);
-//        SNPRINTF(msg, BUFFER_MSG_SIZE,"\nError: Did not find goal for ms_change assertion: %s\n",
-//               symbol_to_string(thisAgent, msc->p_node->b.p.prod->name,TRUE,NIL, 0));
-//        msg[BUFFER_MSG_SIZE - 1] = 0; /* ensure null termination */
-//        abort_with_fatal_error(thisAgent, msg);
-//        }
-//        return 0;
       }
     
     /**

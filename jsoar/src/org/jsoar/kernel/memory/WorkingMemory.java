@@ -7,6 +7,8 @@ package org.jsoar.kernel.memory;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.Printer;
+import org.jsoar.kernel.Trace;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.Identifier;
@@ -18,6 +20,7 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class WorkingMemory
 {
+    private final Trace trace;
     private final Rete rete;
     private final SymConstant operator_symbol;
     private final SymConstant name_symbol;
@@ -37,8 +40,9 @@ public class WorkingMemory
     /**
      * @param operator_symbol
      */
-    public WorkingMemory(Rete rete, SymConstant operator_symbol, SymConstant name_symbol)
+    public WorkingMemory(Trace trace, Rete rete, SymConstant operator_symbol, SymConstant name_symbol)
     {
+        this.trace = trace;
         this.rete = rete;
         this.operator_symbol = operator_symbol;
         this.name_symbol = name_symbol;
@@ -51,13 +55,11 @@ public class WorkingMemory
     {
         if (num_existing_wmes != 0)
         {
-            // TODO: reset_wme_timetags warning
-            // print (thisAgent, "Internal warning: wanted to reset wme timetag
-            // generator, but\n");
-            // print (thisAgent, "there are still some wmes allocated. (Probably
-            // a memory leak.)\n");
-            // print (thisAgent, "(Leaving timetag numbers alone.)\n");
-            // xml_generate_warning(thisAgent, "Internal warning: wanted to
+            final Printer printer = trace.getPrinter();
+            printer.warn("Internal warning: wanted to reset wme timetag generator, but\n" +
+            		"there are still some wmes allocated. (Probably a memory leak.)\n" +
+            		"(Leaving timetag numbers alone.)\n");
+            // TODO xml_generate_warning(thisAgent, "Internal warning: wanted to
             // reset wme timetag generator, but\nthere are still some wmes
             // allocated. (Probably a memory leak.)\n(Leaving timetag numbers
             // alone.)");
