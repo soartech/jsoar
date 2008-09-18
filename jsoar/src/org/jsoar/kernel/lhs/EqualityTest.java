@@ -34,6 +34,10 @@ public class EqualityTest extends Test
         return new EqualityTest(sym);
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.lhs.Test#isBlank()
+     */
+    @Override
     public boolean isBlank()
     {
         return sym == null;

@@ -15,8 +15,15 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.Trace;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.lhs.Condition;
+import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
+import org.jsoar.kernel.lhs.DisjunctionTest;
 import org.jsoar.kernel.lhs.EqualityTest;
+import org.jsoar.kernel.lhs.GoalIdTest;
+import org.jsoar.kernel.lhs.ImpasseIdTest;
+import org.jsoar.kernel.lhs.NegativeCondition;
+import org.jsoar.kernel.lhs.PositiveCondition;
+import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.TestTools;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
@@ -168,8 +175,8 @@ public class Rete
     
     private ReteListener listener;
     
-    private LeftTokenHashTable left_ht = new LeftTokenHashTable();
-    private RightMemoryHashTable right_ht = new RightMemoryHashTable();
+    private final LeftTokenHashTable left_ht = new LeftTokenHashTable();
+    private final RightMemoryHashTable right_ht = new RightMemoryHashTable();
     int rete_node_counts[] = new int[256];
     /*package*/ RightToken dummy_top_token;
     
@@ -180,8 +187,10 @@ public class Rete
     private int beta_node_id_counter;
     ReteNode dummy_top_node;
     
-    Symbol[] rhs_variable_bindings = {};
-    private VariableGenerator variableGenerator;
+    public Symbol[] rhs_variable_bindings = {};
+    public int highest_rhs_unboundvar_index;
+    
+    public final VariableGenerator variableGenerator;
     
     public Rete(Trace trace, VariableGenerator variableGenerator)
     {
@@ -308,7 +317,7 @@ public class Rete
                 ByRef<RhsValue> a_id = ByRef.create(ma.id);
                 builder.fixup_rhs_value_variable_references(this, a_id, bottom_depth.value,
                         rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
-                ma.id = (RhsSymbolValue) a_id.value; // TODO: Yucky
+                ma.id = a_id.value;
 
                 ByRef<RhsValue> a_attr = ByRef.create(ma.attr);
                 builder.fixup_rhs_value_variable_references(this, a_attr, bottom_depth.value,
@@ -1071,12 +1080,12 @@ public class Rete
      * @param t
      * @param first_letter
      */
-    private void add_gensymmed_equality_test(Test t, char first_letter)
+    private void add_gensymmed_equality_test(ByRef<Test> t, char first_letter)
     {
         Variable New = variableGenerator.generate_new_variable(Character.toString(first_letter));
         Test eq_test = new EqualityTest(New);
         // symbol_remove_ref (thisAgent, New);
-        TestTools.add_new_test_to_test(ByRef.create(t), eq_test);
+        TestTools.add_new_test_to_test(t, eq_test);
     }
 
     /**
@@ -1094,7 +1103,7 @@ public class Rete
      * @param where_levels_up
      * @return
      */
-    private Symbol var_bound_in_reconstructed_conds(Condition cond, int where_field_num, int where_levels_up)
+    public Symbol var_bound_in_reconstructed_conds(Condition cond, int where_field_num, int where_levels_up)
     {
         while (where_levels_up != 0)
         {
@@ -2157,7 +2166,7 @@ public class Rete
         } 
         
     }
-
+    
     /**
      * P_node_to_conditions_and_nots() takes a p_node and (optionally) a
      * token/wme pair, and reconstructs the (optionally instantiated) LHS for
@@ -2171,12 +2180,447 @@ public class Rete
      * @param p_node
      * @param tok
      * @param w
-     * @param b
+     * @param doRhs If true, RHS will be filled in too
      * @return
      */
-    public ConditionsAndNots p_node_to_conditions_and_nots(ReteNode p_node, Token tok, Wme w, boolean b)
+    public ConditionsAndNots p_node_to_conditions_and_nots(ReteNode p_node, Token tok, Wme w, boolean doRhs)
     {
-        // TODO Implement p_node_to_conditions_and_nots
-        throw new UnsupportedOperationException("p_node_to_conditions_and_nots not implemented");
+        ConditionsAndNots result = new ConditionsAndNots();
+        
+        Production prod = p_node.b_p.prod;
+        
+        if (tok==null) w=null;  /* just for safety */
+        variableGenerator.reset(null, null); // we'll be gensymming new vars
+        
+        ReteNodeToConditionsResult rntc =  rete_node_to_conditions (p_node.parent,
+                                 p_node.b_p.parents_nvn,
+                                 dummy_top_node,
+                                 tok, w, null);
+        result.dest_top_cond = rntc.dest_top_cond;
+        result.dest_bottom_cond = rntc.dest_bottom_cond;
+        
+        if (tok != null) result.dest_nots = rntc.nots_found_in_production;
+        rntc.nots_found_in_production = null; /* just for safety */
+        if (doRhs) 
+        {
+           this.highest_rhs_unboundvar_index = -1;
+           if (!prod.rhs_unbound_variables.isEmpty()) 
+           {
+               int i = 0;
+               for(Symbol c : prod.rhs_unbound_variables)
+               {
+                   this.rhs_variable_bindings[i++] = c;
+                   this.highest_rhs_unboundvar_index++;
+               }
+           }
+           result.dest_rhs = Action.copy_action_list_and_substitute_varnames (this, prod.action_list,
+                                                                               result.dest_bottom_cond);
+           int index = 0;
+           while (index++ <= highest_rhs_unboundvar_index) rhs_variable_bindings = null;
+        }
+        
+        return result;
     }
+
+    /**
+     * This routine adds (an equality test for) each variable in "vn" to the
+     * given test "t", destructively modifying t. This is used for restoring the
+     * original variables to test in a hand-coded production when we reconstruct
+     * its conditions.
+     * 
+     * rete.cpp:4058:add_varnames_to_test
+     * 
+     * @param vn
+     * @param t
+     */
+    void add_varnames_to_test(/*VarNames*/ Object vn, ByRef<Test> t)
+    {
+        if (vn == null)
+            return;
+        
+        if (VarNames.varnames_is_one_var(vn))
+        {
+            Test New = new EqualityTest(VarNames.varnames_to_one_var(vn));
+            TestTools.add_new_test_to_test(t, New);
+        }
+        else
+        {
+            for (Variable c : VarNames.varnames_to_var_list(vn))
+            {
+                Test New = new EqualityTest(c);
+                TestTools.add_new_test_to_test(t, New);
+            }
+        }
+    }
+
+    /**
+     * Given the additional Rete tests (besides the hashed equality test) at a
+     * certain node, we need to convert them into the equivalent tests in the
+     * conditions being reconstructed. This procedure does this -- it
+     * destructively modifies the given currently-being-reconstructed-cond by
+     * adding any necessary extra tests to its three field tests.
+     * 
+     * rete.cpp:3896:add_rete_test_list_to_tests
+     * 
+     * @param cond
+     * @param rtIn
+     */
+    void add_rete_test_list_to_tests(ThreeFieldCondition cond, final ReteTest rtIn)
+    {
+        for (ReteTest rt = rtIn; rt != null; rt = rt.next)
+        {
+            Test New = null;
+            if (rt.type == ReteTest.ID_IS_GOAL_RETE_TEST)
+            {
+                New = new GoalIdTest();
+            }
+            else if (rt.type == ReteTest.ID_IS_IMPASSE_RETE_TEST)
+            {
+                New = new ImpasseIdTest();
+            }
+            else if (rt.type == ReteTest.DISJUNCTION_RETE_TEST)
+            {
+                DisjunctionTest dt = new DisjunctionTest();
+                New = dt;
+                dt.disjunction_list = Symbol.copy_symbol_list_adding_references(rt.disjunction_list);
+            }
+            else if (ReteTest.test_is_constant_relational_test(rt.type))
+            {
+                int test_type = ReteBuilder.relational_test_type_to_test_type[ReteTest.kind_of_relational_test(rt.type)];
+                Symbol referent = rt.constant_referent;
+                if (test_type == ReteBuilder.EQUAL_TEST_TYPE)
+                {
+                    New = new EqualityTest(referent);
+                }
+                else
+                {
+                    New = new RelationalTest(test_type, referent);
+                }
+            }
+            else if (ReteTest.test_is_variable_relational_test(rt.type))
+            {
+                int test_type = ReteBuilder.relational_test_type_to_test_type[ReteTest.kind_of_relational_test(rt.type)];
+                if (rt.variable_referent.levels_up == 0)
+                {
+                    /* --- before calling var_bound_in_reconstructed_conds, make sure 
+                       there's an equality test in the referent location (add one if
+                       there isn't one already there), otherwise there'd be no variable
+                       there to test against --- */
+                    if (rt.variable_referent.field_num == 0)
+                    {
+                        if (!TestTools.test_includes_equality_test_for_symbol(cond.id_test, null))
+                        {
+                            ByRef<Test> id_test = ByRef.create(cond.id_test);
+                            add_gensymmed_equality_test(id_test, 's');
+                            cond.id_test = id_test.value;
+                        }
+                    }
+                    else if (rt.variable_referent.field_num == 1)
+                    {
+                        if (!TestTools.test_includes_equality_test_for_symbol(cond.attr_test, null))
+                        {
+                            ByRef<Test> attr_test = ByRef.create(cond.attr_test);
+                            add_gensymmed_equality_test(attr_test, 'a');
+                            cond.attr_test = attr_test.value;
+                        }
+                    }
+                    else
+                    {
+                        if (!TestTools.test_includes_equality_test_for_symbol(cond.value_test, null))
+                        {
+                            ByRef<Test> value_test = ByRef.create(cond.value_test);
+                            add_gensymmed_equality_test(value_test, TestTools.first_letter_from_test(cond.attr_test));
+                            cond.value_test = value_test.value;
+                        }
+                    }
+                }
+                Symbol referent = var_bound_in_reconstructed_conds(cond, rt.variable_referent.field_num,
+                        rt.variable_referent.levels_up);
+
+                if (test_type == ReteBuilder.EQUAL_TEST_TYPE)
+                {
+                    New = new EqualityTest(referent);
+                }
+                else
+                {
+                    New = new RelationalTest(test_type, referent);
+                }
+            }
+            else
+            {
+
+                throw new IllegalStateException("Error: bad test_type in add_rete_test_to_test");
+            }
+
+            if (rt.right_field_num == 0)
+            {
+                ByRef<Test> id_test = ByRef.create(cond.id_test);
+                TestTools.add_new_test_to_test(id_test, New);
+                cond.id_test = id_test.value;
+            }
+            else if (rt.right_field_num == 2)
+            {
+                ByRef<Test> value_test = ByRef.create(cond.value_test);
+                TestTools.add_new_test_to_test(value_test, New);
+                cond.value_test = value_test.value;
+            }
+            else
+            {
+                ByRef<Test> attr_test = ByRef.create(cond.attr_test);
+                TestTools.add_new_test_to_test(attr_test, New);
+                cond.attr_test = attr_test.value;
+            }
+        }
+    }
+
+    /**
+     * When we build the instantiated conditions for a production being fired,
+     * we also record all the "<>" tests between pairs of identifiers. (This
+     * information is used during chunking.) This procedure looks for any such <>
+     * tests in the given Rete test list (from the "other tests" at a Rete
+     * node), and adds records of them to the global variable
+     * nots_found_in_production. "Right_wme" is the wme that matched the current
+     * condition; "cond" is the currently-being-reconstructed condition.
+     * 
+     * rete.cpp:4000:collect_nots
+     * 
+     * @param rt
+     * @param right_wme
+     * @param cond
+     * @param nots_found_in_production
+     * @return
+     */
+    NotStruct collect_nots(ReteTest rt, Wme right_wme, Condition cond, NotStruct nots_found_in_production)
+    {
+        for (; rt != null; rt = rt.next)
+        {
+
+            if (!ReteTest.test_is_not_equal_test(rt.type))
+                continue;
+
+            Symbol right_sym = VarLocation.field_from_wme(right_wme, rt.right_field_num);
+
+            if (right_sym.asIdentifier() == null)
+                continue;
+
+            if (rt.type == ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST)
+            {
+                Symbol referent = rt.constant_referent;
+                if (referent.asIdentifier() == null)
+                    continue;
+
+                NotStruct new_not = new NotStruct();
+                new_not.next = nots_found_in_production;
+                nots_found_in_production = new_not;
+                new_not.s1 = right_sym;
+                new_not.s2 = referent;
+                continue;
+            }
+
+            if (rt.type == ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST)
+            {
+                Symbol referent = var_bound_in_reconstructed_conds(cond, rt.variable_referent.field_num,
+                        rt.variable_referent.levels_up);
+                if (referent.asIdentifier() == null)
+                    continue;
+
+                NotStruct new_not = new NotStruct();
+                new_not.next = nots_found_in_production;
+                nots_found_in_production = new_not;
+                new_not.s1 = right_sym;
+                new_not.s2 = referent;
+                continue;
+            }
+        }
+        return nots_found_in_production;
+    }
+
+    
+    /**
+     * This routine adds an equality test to the id field test in a given
+     * condition, destructively modifying that id test. The equality test is the
+     * one appropriate for the given hash location (field_num/levels_up).
+     * 
+     * rete.cpp:4082:add_hash_info_to_id_test
+     * 
+     * @param cond
+     * @param field_num
+     * @param levels_up
+     */
+    void add_hash_info_to_id_test(ThreeFieldCondition cond, int field_num, int levels_up)
+    {
+        Symbol temp = var_bound_in_reconstructed_conds(cond, field_num, levels_up);
+        Test New = new EqualityTest(temp);
+
+        ByRef<Test> id_test = ByRef.create(cond.id_test);
+        TestTools.add_new_test_to_test(id_test, New);
+        cond.id_test = id_test.value;
+
+    }   
+    
+    /**
+     * This is the main routine for reconstructing the LHS source code, and for
+     * building instantiated conditions when a production is fired. It builds
+     * the conditions corresponding to the given rete node ("node") and all its
+     * ancestors, up to the given "cutoff" node. The given node_varnames
+     * structure "nvn", if non-NIL, should be the node_varnames corresponding to
+     * "node". <tok,w> (if they are non-NIL) specifies the token/wme pair that
+     * emerged from "node" -- these are used only when firing, not when
+     * reconstructing. "conds_for_cutoff_and_up" should be the lowermost cond in
+     * the already-constructed chain of conditions for the "cutoff" node and
+     * higher. "Dest_top_cond" and "dest_bottom_cond" get filled in with the
+     * highest and lowest conditions built by this procedure.
+     * 
+     * Note: Original return by ref parameters in CSoar were replaced by a
+     * return structure in Java.
+     * 
+     * rete.cpp:4113:rete_node_to_conditions
+     * 
+     * @param node
+     * @param nvn
+     * @param cutoff
+     * @param tok
+     * @param w
+     * @param conds_for_cutoff_and_up
+     * @return
+     */
+    ReteNodeToConditionsResult rete_node_to_conditions(ReteNode node, NodeVarNames nvn, ReteNode cutoff, Token tok,
+            Wme w, Condition conds_for_cutoff_and_up)
+    {
+        ReteNodeToConditionsResult result = new ReteNodeToConditionsResult();
+        // Can't change Condition type on the fly, so this is a little differnt
+        // than CSoar...
+        Condition cond;
+        if (node.node_type == ReteNodeType.CN_BNODE)
+        {
+            cond = new ConjunctiveNegationCondition();
+        }
+        else if (node.node_type.bnode_is_positive())
+        {
+            cond = new PositiveCondition();
+        }
+        else
+        {
+            cond = new NegativeCondition(new PositiveCondition());
+        }
+
+        if (node.real_parent_node() == cutoff)
+        {
+            cond.prev = conds_for_cutoff_and_up; /* if this is the top of an NCC, this
+                                                        will get replaced by NIL later */
+            result.dest_top_cond = cond;
+        }
+        else
+        {
+            ReteNodeToConditionsResult sub = rete_node_to_conditions(node.real_parent_node(), nvn != null ? nvn.parent
+                    : null, cutoff, tok != null ? tok.parent : null, tok != null ? tok.w : null,
+                    conds_for_cutoff_and_up);
+            result.dest_top_cond = sub.dest_top_cond;
+            cond.prev = sub.dest_bottom_cond;
+            result.nots_found_in_production = sub.nots_found_in_production;
+
+            cond.prev.next = cond;
+        }
+        cond.next = null;
+        result.dest_bottom_cond = cond;
+
+        if (node.node_type == ReteNodeType.CN_BNODE)
+        {
+            ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+            ReteNodeToConditionsResult sub = rete_node_to_conditions(node.b_cn.partner.parent,
+                    nvn != null ? nvn.bottom_of_subconditions : null, node.parent, null, null, cond.prev);
+            ncc.top = sub.dest_top_cond;
+            ncc.bottom = sub.dest_bottom_cond;
+            result.nots_found_in_production = sub.nots_found_in_production;
+
+            ncc.top.prev = null;
+        }
+        else
+        {
+
+            if (w != null && cond.asPositiveCondition() != null)
+            {
+                PositiveCondition pc = cond.asPositiveCondition();
+                /* --- make simple tests and collect nots --- */
+                pc.id_test = new EqualityTest(w.id);
+                pc.attr_test = new EqualityTest(w.attr);
+                pc.value_test = new EqualityTest(w.value);
+                pc.test_for_acceptable_preference = w.acceptable;
+                cond.bt.wme_ = w;
+                if (node.b_posneg.other_tests != null)
+                { /* don't bother if there are no tests*/
+                    result.nots_found_in_production = collect_nots(node.b_posneg.other_tests, w, cond,
+                            result.nots_found_in_production);
+                }
+            }
+            else
+            {
+                NegativeCondition nc = cond.asNegativeCondition();
+                AlphaMemory am = node.b_posneg.alpha_mem_;
+                nc.id_test = new EqualityTest(am.id);
+                nc.attr_test = new EqualityTest(am.attr);
+                nc.value_test = new EqualityTest(am.value);
+                nc.test_for_acceptable_preference = am.acceptable;
+
+                if (nvn != null)
+                {
+                    // Simulating byref calls here :(
+                    ByRef<Test> id_test = ByRef.create(nc.id_test);
+                    add_varnames_to_test(nvn.fields.id_varnames, id_test);
+                    nc.id_test = id_test.value;
+
+                    ByRef<Test> attr_test = ByRef.create(nc.attr_test);
+                    add_varnames_to_test(nvn.fields.attr_varnames, attr_test);
+                    nc.attr_test = attr_test.value;
+
+                    ByRef<Test> value_test = ByRef.create(nc.value_test);
+                    add_varnames_to_test(nvn.fields.value_varnames, value_test);
+                    nc.value_test = value_test.value;
+                }
+
+                /* --- on hashed nodes, add equality test for the hash function --- */
+                if ((node.node_type == ReteNodeType.MP_BNODE) || (node.node_type == ReteNodeType.NEGATIVE_BNODE))
+                {
+                    add_hash_info_to_id_test(nc, node.left_hash_loc_field_num, node.left_hash_loc_levels_up);
+                }
+                else if (node.node_type == ReteNodeType.POSITIVE_BNODE)
+                {
+                    add_hash_info_to_id_test(nc, node.parent.left_hash_loc_field_num,
+                            node.parent.left_hash_loc_levels_up);
+                }
+
+                // if there are other tests, add them too
+                if (node.b_posneg.other_tests != null)
+                {
+                    add_rete_test_list_to_tests(nc, node.b_posneg.other_tests);
+                }
+
+                /* --- if we threw away the variable names, make sure there's some 
+                   equality test in each of the three fields --- */
+                if (nvn == null)
+                {
+                    if (!TestTools.test_includes_equality_test_for_symbol(nc.id_test, null))
+                    {
+                        ByRef<Test> id_test = ByRef.create(nc.id_test);
+                        add_gensymmed_equality_test(id_test, 's');
+                        nc.id_test = id_test.value;
+                    }
+                    if (!TestTools.test_includes_equality_test_for_symbol(nc.attr_test, null))
+                    {
+                        ByRef<Test> attr_test = ByRef.create(nc.attr_test);
+                        add_gensymmed_equality_test(attr_test, 'a');
+                        nc.attr_test = attr_test.value;
+                    }
+                    if (!TestTools.test_includes_equality_test_for_symbol(nc.value_test, null))
+                    {
+                        ByRef<Test> value_test = ByRef.create(nc.value_test);
+                        add_gensymmed_equality_test(value_test, TestTools.first_letter_from_test(nc.attr_test));
+                        nc.value_test = value_test.value;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
 }

@@ -1379,7 +1379,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
       RhsSymbolValue rhsSym = ma.attr.asSymbolValue();
       if (rhsSym != null &&  /* RBD 3/29/95 */
           rhsSym.getSym()==syms.operator_symbol &&
-          (ma.id.getSym() == c)) {
+          (ma.id.asSymbolValue().getSym() == c)) {
         a.support = ActionSupport.I_SUPPORT;
       }
     }
@@ -1412,7 +1412,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
         if (ma == null) { continue; }
         /* we're looking for "operator" augs of goals only, and match_state
            couldn't get bound to a goal */
-        if (ma.id.getSym() == match_state) {  continue; }
+        if (ma.id.asSymbolValue().getSym() == match_state) {  continue; }
         RhsSymbolValue rhsSym = ma.attr.asSymbolValue();
         if (rhsSym != null) { /* RBD 3/29/95 */
           Symbol attr = rhsSym.getSym();
@@ -1502,7 +1502,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
       MakeAction ma = a.asMakeAction();
       if (ma == null) { continue; }
       RhsSymbolValue rhsAttrSym = ma.attr.asSymbolValue();
-      if ((ma.id.getSym()==match_state) &&
+      if ((ma.id.asSymbolValue().getSym()==match_state) &&
           rhsAttrSym != null &&
           (rhsAttrSym.getSym()==syms.operator_symbol) &&
           ((a.preference_type==PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) ||

@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.memory;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
@@ -17,18 +17,16 @@ import org.jsoar.util.ListHead;
  */
 public class PreferenceMemory
 {
-    private final TemporaryMemory tempMem;
-    private final SymConstant operator_symbol;
+    private final Agent context;
 
     
     /**
      * @param tempMem
      * @param operator_symbol
      */
-    public PreferenceMemory(TemporaryMemory tempMem, SymConstant operator_symbol)
+    public PreferenceMemory(Agent context)
     {
-        this.tempMem = tempMem;
-        this.operator_symbol = operator_symbol;
+        this.context = context;
     }
 
     /**
@@ -176,7 +174,7 @@ public class PreferenceMemory
         // #endif
 
         // JC: This will retrieve the slot for pref->id if it already exists
-        Slot s = Slot.make_slot(pref.id, pref.attr, operator_symbol);
+        Slot s = Slot.make_slot(pref.id, pref.attr, context.predefinedSyms.operator_symbol);
         pref.slot = s;
         pref.all_of_slot.insertAtHead(s.all_preferences);
 
@@ -223,13 +221,13 @@ public class PreferenceMemory
         pref.in_tm = true;
         pref.preference_add_ref();
 
-        tempMem.mark_slot_as_changed(s);
+        context.tempMemory.mark_slot_as_changed(s);
 
         // update identifier levels
         Identifier valueId = pref.value.asIdentifier();
         if (valueId != null)
         {
-            // TODO post_link_addition (thisAgent, pref.id, valueId);
+            context.decider.post_link_addition (pref.id, valueId);
         }
 
         if (pref.type.isBinary())
@@ -237,7 +235,7 @@ public class PreferenceMemory
             Identifier refId = pref.referent.asIdentifier();
             if (refId != null)
             {
-                // TODO post_link_addition (thisAgent, pref.id, refId);
+                context.decider.post_link_addition (pref.id, refId);
             }
         }
 
@@ -246,7 +244,7 @@ public class PreferenceMemory
         if (s.isa_context_slot
                 && (pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE || pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE))
         {
-            // TODO mark_context_slot_as_acceptable_preference_changed (thisAgent, s);
+            context.decider.mark_context_slot_as_acceptable_preference_changed (s);
         }
     }
 
@@ -275,35 +273,31 @@ public class PreferenceMemory
         pref.in_tm = false;
         pref.slot = null; // BUG shouldn't we use pref->slot in place of pref->in_tm?
 
-        tempMem.mark_slot_as_changed(s);
+        context.tempMemory.mark_slot_as_changed(s);
 
-        /*
-         * --- if acceptable/require pref for context slot, we may need to
-         * remove a wme later ---
-         */
+        /// if acceptable/require pref for context slot, we may need to remove a wme later
         if ((s.isa_context_slot)
                 && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE)))
         {
-            // TODO mark_context_slot_as_acceptable_preference_changed
-            // (thisAgent, s);
+            context.decider.mark_context_slot_as_acceptable_preference_changed(s);
         }
 
         // update identifier levels
         Identifier valueId = pref.value.asIdentifier();
         if (valueId != null)
         {
-            // TODO post_link_removal (thisAgent, pref.id, valueId);
+            context.decider.post_link_removal (pref.id, valueId);
         }
         if (pref.type.isBinary())
         {
             Identifier refId = pref.referent.asIdentifier();
             if (refId != null)
             {
-                // TODO post_link_removal (thisAgent, pref.id, refId);
+                context.decider.post_link_removal (pref.id, refId);
             }
         }
 
-        /* --- deallocate it and clones if possible --- */
+        // deallocate it and clones if possible
         pref.preference_remove_ref(this);
     }
 

@@ -6,6 +6,9 @@
 package org.jsoar.kernel;
 
 
+import static org.junit.Assert.*;
+
+import org.jsoar.kernel.memory.Wme;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,12 +40,50 @@ public class DecisionCycleTest
     }
 
     @Test
-    public void testDoOneTopLevelPhase() throws Exception
+    public void testDoOneTopLevelPhaseWithEmptyAgent() throws Exception
     {
+        for(int i = 1; i < 10; ++i)
+        {
+            assertEquals(Phase.INPUT_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            assertEquals(Phase.PROPOSE_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            assertEquals(Phase.DECISION_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            assertEquals(Phase.APPLY_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            assertEquals(Phase.OUTPUT_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            
+            // Verify that new states are being generates
+            assertEquals("S" + (i + 1), agent.decider.bottom_goal.toString());
+        }
+    }
+    
+    @Test
+    public void testDoOneTopLevelPhaseWithSimpleProduction() throws Exception
+    {
+        // TODO this currently fails.
+        agent.loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^foo 1)");
+        agent.loadProduction("test2 (state <s> ^superstate nil ^foo 1) -->");
+        
+        assertFalse(agent.syms.find_sym_constant("test2").production.already_fired);
+        
+        assertEquals(Phase.INPUT_PHASE, this.agent.decisionCycle.current_phase);
         this.agent.decisionCycle.do_one_top_level_phase();
+        assertEquals(Phase.PROPOSE_PHASE, this.agent.decisionCycle.current_phase);
         this.agent.decisionCycle.do_one_top_level_phase();
-        // TODO keep going on this test :)
-//        this.agent.decisionCycle.do_one_top_level_phase();
-//        this.agent.decisionCycle.do_one_top_level_phase();
+        assertEquals(Phase.DECISION_PHASE, this.agent.decisionCycle.current_phase);
+        this.agent.decisionCycle.do_one_top_level_phase();
+        assertEquals(Phase.APPLY_PHASE, this.agent.decisionCycle.current_phase);
+        this.agent.decisionCycle.do_one_top_level_phase();
+        assertEquals(Phase.OUTPUT_PHASE, this.agent.decisionCycle.current_phase);
+        this.agent.decisionCycle.do_one_top_level_phase();
+        
+        // verify that (S1 foo 1) is being added to the rete by checking that test2 fired
+        assertTrue(agent.syms.find_sym_constant("test2").production.already_fired);
+        
+        // Verify that new states are being generates
+        assertEquals("S2", agent.decider.bottom_goal.toString());
     }
 }

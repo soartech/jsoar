@@ -346,4 +346,12 @@ public class ParserTest extends JSoarTest
         Production p = parser.parse_production();
         assertNotNull(p);
     }
+    
+    @Test
+    public void testParseProductionWithNoActions() throws Exception
+    {
+        Parser parser = createParser("test (state <s> ^superstate nil) -->");
+        Production p = parser.parse_production();
+        assertNotNull(p);
+    }
 }

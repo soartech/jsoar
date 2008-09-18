@@ -7,7 +7,9 @@ package org.jsoar.kernel.rhs;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Variable;
 
@@ -130,4 +132,78 @@ public abstract class Action
         // TODO: Implement add_action_to_tc in sub-classes
         throw new UnsupportedOperationException("Not implemented");
     }
+    
+
+    /**
+     * 
+     * TODO This function doesn't belong here. Circular dependency on rete package
+     * TODO This function should be polymorphic on Action
+     * 
+     * rete.cpp:4297:copy_action_list_and_substitute_varnames
+     * 
+     * @param rete
+     * @param actions
+     * @param cond
+     * @return
+     */
+    public static Action copy_action_list_and_substitute_varnames(Rete rete, Action actions, Condition cond)
+    {
+        Action prev = null;
+        Action first = null;
+        Action old = actions;
+        Action New = null;
+        while (old != null)
+        {
+            if (old instanceof MakeAction)
+            {
+                MakeAction oldMake = (MakeAction) old;
+                MakeAction newMake = new MakeAction();
+
+                newMake.id = (RhsSymbolValue) RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.id, cond,
+                        's');
+                newMake.attr = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.attr, cond, 'a');
+                char first_letter = newMake.attr.getFirstLetter();
+                newMake.value = RhsValue
+                        .copy_rhs_value_and_substitute_varnames(rete, oldMake.value, cond, first_letter);
+                if (old.preference_type.isBinary())
+                {
+                    newMake.referent = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.referent, cond,
+                            first_letter);
+                }
+
+                New = newMake;
+
+            }
+            else if (old instanceof FunctionAction)
+            {
+                FunctionAction oldFunc = (FunctionAction) old;
+                FunctionAction newFunc = new FunctionAction((RhsFunctionCall) RhsValue
+                        .copy_rhs_value_and_substitute_varnames(rete, oldFunc.call, cond, 'v'));
+
+                New = newFunc;
+            }
+            else
+            {
+                throw new IllegalStateException("Unknown action type: " + old);
+            }
+
+            if (prev != null)
+                prev.next = New;
+            else
+                first = New;
+            prev = New;
+
+            New.preference_type = old.preference_type;
+            New.support = old.support;
+
+            old = old.next;
+        }
+        
+        if (prev != null)
+            prev.next = null;
+        else
+            first = null;
+        return first;
+    }
+
 }

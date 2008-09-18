@@ -104,9 +104,7 @@ public class Slot
      */
     public static Slot make_slot(Identifier id, Symbol attr, SymConstant operator_symbol)
     {
-        /* JC: Search for a slot first.  If it exists
-         *  for the given symbol, then just return it
-         */
+        // Search for a slot first.  If it exists for the given symbol, then just return it
         Slot s = find_slot(id, attr);
         if(s != null)
         {

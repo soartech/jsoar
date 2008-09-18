@@ -7,6 +7,7 @@ package org.jsoar.kernel.rhs;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.rete.ReteBuilder;
 import org.jsoar.kernel.symbols.Variable;
 
 /**
@@ -14,7 +15,13 @@ import org.jsoar.kernel.symbols.Variable;
  */
 public class MakeAction extends Action
 {
-    public RhsSymbolValue id;
+    /**
+     * TODO Looking at the usage of this field in the kernel, it seems like it
+     * should always be RhsSymbol value, but {@link ReteBuilder#fixup_rhs_value_variable_references}
+     * seems like it can return a {@link ReteLocation} and I'm getting that in a simple
+     * unit test, so...
+     */
+    public RhsValue id;
     public RhsValue attr;
     public RhsValue value;
     public RhsValue referent;
@@ -24,13 +31,20 @@ public class MakeAction extends Action
         return this;
     }
 
+    private Variable getIdAsVariable()
+    {
+        RhsSymbolValue symVal = id.asSymbolValue();
+        
+        return symVal != null ? symVal.getSym().asVariable() : null;
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Action#addAllVariables(int, java.util.List)
      */
     @Override
     public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
-        Variable idVar = id.getSym().asVariable();
+        Variable idVar = getIdAsVariable();
         if(idVar != null)
         {
             idVar.markIfUnmarked(tc_number, var_list);
@@ -41,6 +55,16 @@ public class MakeAction extends Action
         {
             referent.addAllVariables(tc_number, var_list);
         }
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        // For debugging only.
+        return "(" + id + " ^" + attr + " " + value + " (" + referent + "))";
     }
     
     

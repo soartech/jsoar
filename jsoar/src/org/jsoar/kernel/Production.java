@@ -51,7 +51,6 @@ public class Production
         Arguments.checkNotNull(name, "name");
         Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
         Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
-        Arguments.checkNotNull(rhs_top_in, "rhs_top_in");
         
         if(name.production != null)
         {

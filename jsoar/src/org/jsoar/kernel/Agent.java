@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.learning.Chunker;
@@ -15,6 +17,8 @@ import org.jsoar.kernel.memory.PreferenceMemory;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.TemporaryMemory;
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.parser.Lexer;
+import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -33,11 +37,11 @@ public class Agent
     public final SymbolFactory syms = predefinedSyms.getSyms();
     public final VariableGenerator variableGenerator = new VariableGenerator(syms);
     public final Rete rete = new Rete(trace, variableGenerator);
-    public final WorkingMemory workingMemory = new WorkingMemory(trace, rete, predefinedSyms.operator_symbol, predefinedSyms.name_symbol);
+    public final WorkingMemory workingMemory = new WorkingMemory(this);
     public final TemporaryMemory tempMemory = new TemporaryMemory();
-    public final PreferenceMemory prefMemory = new PreferenceMemory(tempMemory, predefinedSyms.operator_symbol);
+    public final PreferenceMemory prefMemory = new PreferenceMemory(this);
     public final OSupport osupport = new OSupport(predefinedSyms);
-    public final SoarReteListener soarReteListener = new SoarReteListener(rete, predefinedSyms.operator_symbol);
+    public final SoarReteListener soarReteListener = new SoarReteListener(this);
     public final RecognitionMemory recMemory = new RecognitionMemory(this);
     
     public final Decider decider = new Decider(this);
@@ -53,7 +57,9 @@ public class Agent
     
     
     /**
-     * agent.h:728:operand2_mode
+     * false is Soar 7 mode
+     * 
+     * agent.h:728
      */
     public boolean operand2_mode = true;
     
@@ -64,6 +70,7 @@ public class Agent
 
     public Agent()
     {
+        rete.setReteListener(soarReteListener);
         init_agent_memory();
     }
     
@@ -75,10 +82,19 @@ public class Agent
         return printer;
     }
  
+    public void loadProduction(String productionBody) throws IOException
+    {
+        StringReader reader = new StringReader(productionBody);
+        Lexer lexer = new Lexer(reader);
+        Parser parser = new Parser(variableGenerator, lexer);
+        lexer.getNextLexeme();
+        Production prod = parser.parse_production();
+        rete.add_production_to_rete(prod);
+    }
     /**
      * init_soar.cpp:1374:init_agent_memory()
      */
-    void init_agent_memory()
+    private void init_agent_memory()
     {
         /* The following code was taken from the do_one_top_level_phase function
            near the top of this file */
