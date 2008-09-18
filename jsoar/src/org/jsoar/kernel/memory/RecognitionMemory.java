@@ -264,7 +264,7 @@ public class RecognitionMemory
     public Symbol instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, Wme w)
     {
         RhsSymbolValue rsv = rv.asSymbolValue();
-        if (rv != null)
+        if (rsv != null)
         {
             return rsv.getSym();
         }
@@ -794,7 +794,7 @@ public class RecognitionMemory
         this.production_being_fired = null;
 
         /* --- build chunks/justifications if necessary --- */
-        Chunker.chunk_instantiation(inst, false /* TODO thisAgent->sysparams[LEARNING_ON_SYSPARAM] != 0*/);
+        context.chunker.chunk_instantiation(inst, false /* TODO thisAgent->sysparams[LEARNING_ON_SYSPARAM] != 0*/);
 
         /* MVP 6-8-94 */
         // TODO callback FIRING_CALLBACK
@@ -1019,7 +1019,7 @@ public class RecognitionMemory
 
              if (context.operand2_mode)
              {
-                 context.trace.print(Category.TRACE_VERBOSE, "\n asserting instantiation: %y\n", inst.get().prod.name);
+                 context.trace.print(Category.TRACE_VERBOSE, "\n asserting instantiation: %s\n", inst.get().prod.name);
 //             SNPRINTF(buf, 254, "asserting instantiation: %s",
 //             symbol_to_string(thisAgent, inst->prod->name, true, 0, 0));
 // TODO            xml_generate_verbose(thisAgent, buf);

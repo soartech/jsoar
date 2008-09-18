@@ -20,10 +20,10 @@ public class Chunker
      * @param inst
      * @param b
      */
-    public static void chunk_instantiation(Instantiation inst, boolean b)
+    public void chunk_instantiation(Instantiation inst, boolean b)
     {
         // TODO Implement chunk_instantiation
-        throw new UnsupportedOperationException("chunk_instantiation not implemented");
+        //throw new UnsupportedOperationException("chunk_instantiation not implemented");
     }
 
 

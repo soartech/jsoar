@@ -68,10 +68,6 @@ public class Decider
      */
     private final ListHead<Slot> context_slots_with_changed_acceptable_preferences = new ListHead<Slot>();
     /**
-     * agent.h:602:changed_slots
-     */
-    private final ListHead<Slot> changed_slots = new ListHead<Slot>();
-    /**
      * agent.h:615:promoted_ids
      */
     private final LinkedList<Identifier> promoted_ids = new LinkedList<Identifier>();
@@ -97,12 +93,12 @@ public class Decider
     private int walk_level;
     
     Identifier top_goal;
-    Identifier bottom_goal;
+    public Identifier bottom_goal;
     public Identifier top_state;
     public Identifier prev_top_state;
-    Identifier active_goal;
+    public Identifier active_goal;
     Identifier previous_active_goal;
-    int active_level;
+    public int active_level;
     int previous_active_level;
     private boolean waitsnc;
     private boolean waitsnc_detect;
@@ -128,7 +124,7 @@ public class Decider
      * 
      * @param s
      */
-    private void mark_context_slot_as_acceptable_preference_changed(Slot s)
+    public void mark_context_slot_as_acceptable_preference_changed(Slot s)
     {
         if (s.acceptable_preference_changed != null)
             return;
@@ -1805,6 +1801,7 @@ public class Decider
      */
     private void decide_non_context_slots()
     {
+        final ListHead<Slot> changed_slots = context.tempMemory.changed_slots;
         while (!changed_slots.isEmpty())
         {
             AsListItem<Slot> dc = changed_slots.first;

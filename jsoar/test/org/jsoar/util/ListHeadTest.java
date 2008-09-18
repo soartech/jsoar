@@ -37,4 +37,16 @@ public class ListHeadTest
         assertEquals(strings.size(), head.size());
         assertEquals(strings, head.toList());
     }
+    
+    @Test
+    public void testGetFirstItem()
+    {
+        List<String> strings = Arrays.asList("a", "b", "c", "d", "e", "f");
+        ListHead<String> head = ListHead.fromCollection(strings);
+        assertEquals("a", head.getFirstItem());
+        head.first = null;
+        assertTrue(head.isEmpty());
+        assertNull(head.getFirstItem());
+        
+    }
 }

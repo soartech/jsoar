@@ -51,6 +51,14 @@ public class TestTools
         // return 0; /* unreachable, but without it, gcc -Wall warns here */
     }
 
+    /**
+     * TODO Rather than the dumb ByRef, just return the new test. Functional!
+     * 
+     * production.cpp:338:add_new_test_to_test
+     * 
+     * @param t
+     * @param add_me
+     */
     public static void add_new_test_to_test(ByRef<Test> t, Test add_me)
     {
         if (add_me.isBlank())

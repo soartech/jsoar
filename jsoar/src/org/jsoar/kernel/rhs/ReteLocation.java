@@ -57,6 +57,15 @@ public class ReteLocation extends RhsValue
     {
         // TODO: anything?
     }
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        // For debugging only
+        return "(rete-location " + levelsUp + ":" + fieldNum + ")";
+    }
     
     
 }

@@ -1753,7 +1753,7 @@ Action parse_rhs_action () throws IOException {
    <rhs> ::= <rhs_action>*
 ----------------------------------------------------------------- */
 
-Action parse_rhs () throws IOException {
+boolean parse_rhs (ByRef<Action> result) throws IOException {
 
   Action all_actions = null;
   Action last = null;
@@ -1768,10 +1768,11 @@ Action parse_rhs () throws IOException {
       all_actions = new_actions;
     } else {
       //deallocate_action_list (thisAgent, all_actions);
-      return null;
+      return false;
     }
   }
-  return all_actions;
+  result.value = all_actions;
+  return true;
 }
 
 
@@ -1882,14 +1883,15 @@ public Production parse_production ( /*unsigned char* rete_addition_result */ ) 
   lexer.getNextLexeme();
 
   /* --- read the RHS --- */
-  Action rhs = parse_rhs ();
-  if (rhs == null) {
+  ByRef<Action> rhsResult = ByRef.create(null);
+  if (!parse_rhs(rhsResult)) {
       // TODO
 //    print_with_symbols (thisAgent, "(Ignoring production %y)\n\n", name);
 //    symbol_remove_ref (thisAgent, name);
 //    deallocate_condition_list (thisAgent, lhs);
     return null;
   }
+  Action rhs = rhsResult.value;
   rhs = destructively_reverse_action_list (rhs);
 
   // TODO: DR: This makes no sense to me

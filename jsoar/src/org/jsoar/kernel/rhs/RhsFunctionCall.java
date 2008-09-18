@@ -92,6 +92,15 @@ public class RhsFunctionCall extends RhsValue
             arg.addAllVariables(tc_number, var_list);
         }
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return "(name " + arguments + ")";
+    }
     
     
     

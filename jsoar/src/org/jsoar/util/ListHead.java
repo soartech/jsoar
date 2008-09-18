@@ -33,7 +33,7 @@ public class ListHead <T> implements Iterable<T>
     
     public T getFirstItem()
     {
-        return isEmpty() ? first.get() : null;
+        return !isEmpty() ? first.get() : null;
     }
     
     public int size()

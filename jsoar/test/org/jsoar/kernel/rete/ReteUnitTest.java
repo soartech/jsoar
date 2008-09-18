@@ -282,4 +282,20 @@ public class ReteUnitTest extends JSoarTest
         assertFalse(listener.matching.contains(p));
     }
 
+    @Test
+    public void testAddProductionSimpleMakeAction() throws Exception
+    {
+        Parser parser = createParser(
+                "testAddProductionSimpleMakeAction \n" +
+                "(state <s> ^superstate nil)" +
+                "--> \n" +
+                "(<s> ^value 1)");
+             
+         Production p = parser.parse_production();
+         assertNotNull(p);
+         
+         ProductionAddResult result = rete.add_production_to_rete(p);
+         assertNotNull(result);
+         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+    }
 }

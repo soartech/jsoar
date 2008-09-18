@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AssertListType;
 import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.kernel.Production;
@@ -18,7 +19,7 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.ListHead;
 
 /**
@@ -29,14 +30,7 @@ import org.jsoar.util.ListHead;
  */
 public class SoarReteListener implements ReteListener
 {
-    private final Rete rete;
-    
-    /**
-     * false is Soar 7 mode
-     * 
-     * agent.h:728
-     */
-    private boolean operand2_mode = true;
+    private Agent context;
     
     /**
      * agent.h:733
@@ -64,16 +58,12 @@ public class SoarReteListener implements ReteListener
     private final ListHead<MatchSetChange> ms_o_assertions = new ListHead<MatchSetChange>();
     public final ListHead<MatchSetChange> ms_i_assertions = new ListHead<MatchSetChange>();
     
-    private final SymConstant operator_symbol;
-    private int o_support_calculation_type = 4;
-
     /**
      * @param operator_symbol
      */
-    public SoarReteListener(Rete rete, SymConstant operator_symbol)
+    public SoarReteListener(Agent context)
     {
-        this.rete = rete;
-        this.operator_symbol = operator_symbol;
+        this.context = context;
     }
 
     
@@ -82,7 +72,7 @@ public class SoarReteListener implements ReteListener
      */
     public Rete getRete()
     {
-        return rete;
+        return context.rete;
     }
 
 
@@ -100,7 +90,7 @@ public class SoarReteListener implements ReteListener
             p_node.b_p.tentative_retractions.first = null;
             msc.next_prev.remove(ms_retractions);
             /* REW: begin 10.03.97 *//* BUGFIX 2.125 */
-            if (operand2_mode)
+            if (context.operand2_mode)
             {
                 if (msc.goal != null)
                 {
@@ -260,7 +250,7 @@ public class SoarReteListener implements ReteListener
         /* operand code removed 1/22/99 - kjc */
 
         /* REW: begin 09.15.96 */
-        if (operand2_mode)
+        if (context.operand2_mode)
         {
 
             /* REW: begin 08.20.97 */
@@ -333,7 +323,7 @@ public class SoarReteListener implements ReteListener
                          * the operator will do. this code assumes that such a
                          * productions (instantiation) would get i-support.
                          * 
-                         * Modified 1/00 by KJC for operand2_mode == TRUE AND
+                         * Modified 1/00 by KJC for context.operand2_mode == TRUE AND
                          * o-support-mode == 3: prods that have ONLY operator
                          * elaborations (<o> ^attr ^value) are IE_PROD. If prod
                          * has both operator applications and <o> elabs, then
@@ -386,10 +376,10 @@ public class SoarReteListener implements ReteListener
                                 }
                                 else
                                 {
-                                    if ((temp_tok.w.attr == operator_symbol) && (temp_tok.w.acceptable == false)
+                                    if ((temp_tok.w.attr == context.predefinedSyms.operator_symbol) && (temp_tok.w.acceptable == false)
                                             && (temp_tok.w.id == lowest_goal_wme.id))
                                     {
-                                        if ((o_support_calculation_type == 3) || (o_support_calculation_type == 4))
+                                        if ((context.osupport.o_support_calculation_type == 3) || (context.osupport.o_support_calculation_type == 4))
                                         {
                                             /*
                                              * iff RHS has only operator
@@ -426,7 +416,7 @@ public class SoarReteListener implements ReteListener
                                                     {
                                                         op_elab = true;
                                                     }
-                                                    else if ((o_support_calculation_type == 4)
+                                                    else if ((context.osupport.o_support_calculation_type == 4)
                                                             && (rl != null)
                                                             && (temp_tok.w.value == rete.get_symbol_from_rete_loc(rl
                                                                     .getLevelsUp(), rl.getFieldNum(), tok, w)))
@@ -455,7 +445,7 @@ public class SoarReteListener implements ReteListener
                             } /* end while (temp_tok != NIL) ... */
 
                             if (prod_type == SavedFiringType.PE_PRODS)
-                                if ((o_support_calculation_type != 3) && (o_support_calculation_type != 4))
+                                if ((context.osupport.o_support_calculation_type != 3) && (context.osupport.o_support_calculation_type != 4))
                                 {
                                     break;
                                 }
@@ -464,7 +454,7 @@ public class SoarReteListener implements ReteListener
 
                                     /* warn user about mixed actions */
 
-                                    if ((o_support_calculation_type == 3) /*
+                                    if ((context.osupport.o_support_calculation_type == 3) /*
                                                                              * &&
                                                                              * thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM]
                                                                              */)
@@ -493,7 +483,7 @@ public class SoarReteListener implements ReteListener
                                         prod_type = SavedFiringType.PE_PRODS;
                                         break;
                                     }
-                                    else if ((o_support_calculation_type == 4) /*
+                                    else if ((context.osupport.o_support_calculation_type == 4) /*
                                                                                  * &&
                                                                                  * thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM]
                                                                                  */)
@@ -614,7 +604,7 @@ public class SoarReteListener implements ReteListener
                 msc.of_node.remove(node.b_p.tentative_assertions);
 
                 /* REW: begin 09.15.96 */
-                if (operand2_mode)
+                if (context.operand2_mode)
                 {
                     if (node.b_p.prod.OPERAND_which_assert_list == AssertListType.O_LIST)
                     {
@@ -678,7 +668,7 @@ public class SoarReteListener implements ReteListener
 
             /* REW: begin 08.20.97 */
 
-            if (operand2_mode)
+            if (context.operand2_mode)
             {
                 /*
                  * Determine what the goal of the msc is and add it to that
@@ -776,7 +766,7 @@ public class SoarReteListener implements ReteListener
         /* REW: begin 09.15.96 */
 
         // TODO: verbose
-        //  if (operand2_mode &&
+        //  if (context.operand2_mode &&
         //      (thisAgent->soar_verbose_flag == TRUE)) {
         //          print_with_symbols (thisAgent, "\n%y: ",node->b.p.prod->name);
         //          char buf[256];
@@ -830,7 +820,7 @@ public class SoarReteListener implements ReteListener
          */
         msc.level = 0;
         msc.goal = null;
-        if (operand2_mode)
+        if (context.operand2_mode)
         {
 
             // #ifdef DEBUG_WATERFALL
@@ -873,22 +863,138 @@ public class SoarReteListener implements ReteListener
 
 
     /**
+     * Get_next_assertion() retrieves a pending assertion (returning TRUE) or
+     * returns FALSE is no more are available.
+     * 
+     * rete.cpp:1157:get_next_assertion
+     * 
      * @return
      */
     public SoarReteAssertion get_next_assertion()
     {
-        // TODO implement get_next_assertion
-        throw new UnsupportedOperationException("get_next_assertion not implemented");
+        MatchSetChange msc = null;
+
+        if (context.operand2_mode)
+        {
+
+            /* In Waterfall, we return only assertions that match in the
+            currently active goal */
+
+            if (context.decider.active_goal != null)
+            { /* Just do asserts for current goal */
+                if (context.recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
+                {
+                    if (context.decider.active_goal.ms_o_assertions.isEmpty())
+                        return null;
+
+                    msc = context.decider.active_goal.ms_o_assertions.getFirstItem();
+                    msc.next_prev.remove(ms_o_assertions);
+                    msc.in_level.remove(context.decider.active_goal.ms_o_assertions);
+                }
+                else
+                {
+                    /* IE PRODS */
+                    if (context.decider.active_goal.ms_i_assertions.isEmpty())
+                        return null;
+
+                    msc = context.decider.active_goal.ms_i_assertions.getFirstItem();
+                    msc.next_prev.remove(ms_i_assertions);
+                    msc.in_level.remove(context.decider.active_goal.ms_i_assertions);
+                }
+
+            }
+            else
+            {
+
+                /* If there is not an active goal, then there should not be any
+                assertions.  If there are, then we generate and error message
+                   and abort. */
+
+                if ((!ms_i_assertions.isEmpty()) || (!ms_o_assertions.isEmpty()))
+                {
+
+                    // Commented out 11/2007
+                    // laird: I would like us to remove that error message that
+                    // happens
+                    // in Obscurebot. It just freaks people out and we have yet
+                    // to see an error in Soar because of it.
+
+                    // char msg[BUFFER_MSG_SIZE];
+                    // strncpy(msg,"\nrete.c: Error: No active goal, but
+                    // assertions are on the assertion list.", BUFFER_MSG_SIZE);
+                    // msg[BUFFER_MSG_SIZE - 1] = 0; /* ensure null termination
+                    // */
+                    // abort_with_fatal_error(thisAgent, msg);
+
+                }
+
+                return null; // if we are in an initiazation and there are no
+                // assertions, just retrurn FALSE to terminate the procedure.
+
+            }
+        }
+        else
+        {
+            if (ms_assertions.isEmpty())
+                return null;
+            msc = ms_assertions.getFirstItem();
+
+            msc.next_prev.remove(ms_assertions);
+        }
+
+        msc.of_node.remove(msc.p_node.b_p.tentative_assertions);
+
+        return new SoarReteAssertion(msc.p_node.b_p.prod, msc.tok, msc.w);
     }
 
-
     /**
+     * 
+     * rete.cpp:1238:get_next_retraction
+     * 
      * @return
      */
     public Instantiation get_next_retraction()
     {
-        // TODO implement get_next_retraction
-        throw new UnsupportedOperationException("get_next_retraction not implemented");
+        if (!context.operand2_mode)
+        {
+            // for non-Operand2 modes, just remove the head of the retractions
+            // list
+            if (ms_retractions.isEmpty())
+                return null;
+
+            MatchSetChange msc = ms_retractions.getFirstItem();
+            msc.next_prev.remove(ms_retractions);
+            if (msc.p_node != null)
+            {
+                msc.of_node.remove(msc.p_node.b_p.tentative_retractions);
+            }
+            return msc.inst;
+        }
+        else
+        {
+            /* just do the retractions for the current level */
+
+            /* initialization condition (2.107/2.111) */
+            if (context.decider.active_level == 0)
+                return null;
+
+            if (context.decider.active_goal.ms_retractions.isEmpty())
+                return null;
+
+            MatchSetChange msc = context.decider.active_goal.ms_retractions.getFirstItem();
+
+            /* remove from the complete retraction list */
+            msc.next_prev.remove(ms_retractions);
+            /* and remove from the Waterfall-specific list */
+            msc.in_level.remove(context.decider.active_goal.ms_retractions);
+
+            if (msc.p_node != null)
+            {
+                msc.of_node.remove(msc.p_node.b_p.tentative_retractions);
+            }
+
+            return msc.inst;
+        }
     }
 
     public boolean hasNilGoalRetractions()
@@ -907,11 +1013,43 @@ public class SoarReteListener implements ReteListener
 
 
     /**
+     * returns TRUE iff there are any pending changes to the match set. This is
+     * used to test for quiescence.
+     * 
+     * rete.cpp:1109:any_assertions_or_retractions_ready
+     * 
      * @return
      */
     public boolean any_assertions_or_retractions_ready()
     {
-        // TODO implement any_assertions_or_retractions_ready
-        throw new UnsupportedOperationException("any_assertions_or_retractions_ready not implemented");
+        if (context.operand2_mode)
+        {
+            /* Determining if assertions or retractions are ready require looping over
+               all goals in Waterfall/Operand2 */
+
+            if (!nil_goal_retractions.isEmpty())
+                return true;
+
+            /* Loop from bottom to top because we expect activity at
+               the bottom usually */
+
+            for (Identifier goal = context.decider.bottom_goal; goal != null; goal = goal.higher_goal)
+            {
+                /* if there are any assertions or retrctions for this goal,
+                   return TRUE */
+                if (!goal.ms_o_assertions.isEmpty() || !goal.ms_i_assertions.isEmpty()
+                        || !goal.ms_retractions.isEmpty())
+                    return true;
+            }
+
+            /* if there are no nil_goal_retractions and no assertions or retractions
+               for any  goal then return FALSE -- there aren't any productions
+               ready to fire or retract */
+
+            return false;
+
+        }
+        else
+            return (!ms_assertions.isEmpty() || !ms_retractions.isEmpty());
     }
 }

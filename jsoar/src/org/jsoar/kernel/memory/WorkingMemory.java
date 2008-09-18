@@ -7,12 +7,10 @@ package org.jsoar.kernel.memory;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Printer;
-import org.jsoar.kernel.Trace;
 import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
@@ -20,10 +18,8 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class WorkingMemory
 {
-    private final Trace trace;
-    private final Rete rete;
-    private final SymConstant operator_symbol;
-    private final SymConstant name_symbol;
+    private final Agent context;
+    
     private int num_existing_wmes;
     private int current_wme_timetag;
     private final LinkedList<Wme> wmes_to_add = new LinkedList<Wme>();
@@ -35,17 +31,13 @@ public class WorkingMemory
     public int max_wm_size = 0;
     public int cumulative_wm_size = 0;
     public int num_wm_sizes_accumulated;
-
     
     /**
      * @param operator_symbol
      */
-    public WorkingMemory(Trace trace, Rete rete, SymConstant operator_symbol, SymConstant name_symbol)
+    public WorkingMemory(Agent context)
     {
-        this.trace = trace;
-        this.rete = rete;
-        this.operator_symbol = operator_symbol;
-        this.name_symbol = name_symbol;
+        this.context = context;
     }
 
     /**
@@ -55,7 +47,7 @@ public class WorkingMemory
     {
         if (num_existing_wmes != 0)
         {
-            final Printer printer = trace.getPrinter();
+            final Printer printer = context.trace.getPrinter();
             printer.warn("Internal warning: wanted to reset wme timetag generator, but\n" +
             		"there are still some wmes allocated. (Probably a memory leak.)\n" +
             		"(Leaving timetag numbers alone.)\n");
@@ -96,8 +88,8 @@ public class WorkingMemory
         Identifier valueId = w.value.asIdentifier();
         if (valueId != null)
         {
-            // TODO post_link_addition(w.id, w.value);
-            if (w.attr == operator_symbol)
+            context.decider.post_link_addition(w.id, valueId);
+            if (w.attr == context.predefinedSyms.operator_symbol)
             {
                 valueId.isa_operator++;
             }
@@ -117,8 +109,8 @@ public class WorkingMemory
 
         if (valueId != null)
         {
-            // TODO post_link_removal(w.id, w.value);
-            if (w.attr == operator_symbol)
+            context.decider.post_link_removal(w.id, valueId);
+            if (w.attr == context.predefinedSyms.operator_symbol)
             {
                 /*
                  * Do this afterward so that gSKI can know that this is an
@@ -128,7 +120,6 @@ public class WorkingMemory
             }
         }
 
-        /* REW: begin 09.15.96 */
         /*
          * When we remove a WME, we always have to determine if it's on a GDS,
          * and, if so, after removing the WME, if there are no longer any WMEs
@@ -143,7 +134,6 @@ public class WorkingMemory
                 w.gds = null;
             }
         }
-        /* REW: end   09.15.96 */
     }
 
     /**
@@ -204,11 +194,11 @@ public class WorkingMemory
         // #endif
         for (Wme w : wmes_to_add)
         {
-            rete.add_wme_to_rete(w);
+            context.rete.add_wme_to_rete(w);
         }
         for (Wme w : wmes_to_remove)
         {
-            rete.remove_wme_from_rete(w);
+            context.rete.remove_wme_from_rete(w);
         }
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
@@ -280,7 +270,7 @@ public class WorkingMemory
         {
             return null;
         }
-        Slot s = Slot.find_slot(id, name_symbol);
+        Slot s = Slot.find_slot(id, context.predefinedSyms.name_symbol);
         if (s == null)
         {
             return null;

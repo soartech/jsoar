@@ -52,10 +52,10 @@ public class ReteBuilder
 
     /* Warning: the two items below must not be the same as any xxx_TEST's defined
     in soarkernel.h for the types of complex_test's */
-    private static final int EQUAL_TEST_TYPE = 254; 
+    /*package*/ static final int EQUAL_TEST_TYPE = 254; 
     private static final int ERROR_TEST_TYPE = 255;
     private static final int test_type_to_relational_test_type[];
-    private static final int relational_test_type_to_test_type[];
+    /*package*/ static final int relational_test_type_to_test_type[];
 
 
     static
