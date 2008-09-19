@@ -3,14 +3,14 @@
  *
  * Created on Sep 17, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.kernel.exploration;
 
 /**
- * exploration.cpp:188:exploration_validate_epsilon
+ * exploration.cpp:196:exploration_validate_temperature
  * 
  * @author ray
  */
-public class ExplorationValidateEpsilon implements ExplorationValueFunction
+public class ExplorationValidateTemperature implements ExplorationValueFunction
 {
 
     /* (non-Javadoc)
@@ -19,7 +19,7 @@ public class ExplorationValidateEpsilon implements ExplorationValueFunction
     @Override
     public boolean call(double value)
     {
-        return value >= 0 && value <= 1;
+        return value > 0;
     }
 
 }

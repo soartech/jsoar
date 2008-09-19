@@ -16,7 +16,6 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.Trace.Category;
-import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.ReinforcementLearning;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
@@ -34,6 +33,7 @@ import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.rhs.UnboundVariable;
+import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
@@ -307,7 +307,7 @@ public class RecognitionMemory
         }
 
         RhsFunctionCall fc = rv.asFunctionCall();
-        if (fc != null)
+        if (fc == null)
         {
             throw new IllegalStateException("Unknow RhsValue type: " + rv);
         }
@@ -340,8 +340,14 @@ public class RecognitionMemory
             //    start_timer (thisAgent, &thisAgent->start_total_tv);
             //    #endif
 
-            // TODO: Lookup RHS function and call it
-            throw new UnsupportedOperationException("RHS function call not implemented");
+            try
+            {
+                return context.getRhsFunctions().execute(fc.getName().name, arguments);
+            }
+            catch (RhsFunctionException e)
+            {
+                context.getPrinter().error("Error: " + e.getMessage());
+            }
 
             //    #ifndef NO_TIMING_STUFF  // restart the kernel timer
             //    start_timer (thisAgent, &thisAgent->start_kernel_tv);

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 
+import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.ReinforcementLearning;
@@ -21,6 +22,8 @@ import org.jsoar.kernel.parser.Lexer;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
+import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
+import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
 import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
@@ -55,6 +58,7 @@ public class Agent
     
     public final DecisionCycle decisionCycle = new DecisionCycle(this);
     
+    private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);
     
     /**
      * false is Soar 7 mode
@@ -70,6 +74,9 @@ public class Agent
 
     public Agent()
     {
+        // Set up standard RHS functions
+        new StandardRhsFunctions(this);
+        
         rete.setReteListener(soarReteListener);
         init_agent_memory();
     }
@@ -80,6 +87,11 @@ public class Agent
     public Printer getPrinter()
     {
         return printer;
+    }
+    
+    public RhsFunctionManager getRhsFunctions()
+    {
+        return rhsFunctions;
     }
  
     public void loadProduction(String productionBody) throws IOException

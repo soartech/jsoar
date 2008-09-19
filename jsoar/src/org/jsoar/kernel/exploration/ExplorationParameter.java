@@ -3,7 +3,7 @@
  *
  * Created on Sep 17, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.kernel.exploration;
 
 
 

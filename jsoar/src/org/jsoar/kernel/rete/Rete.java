@@ -31,7 +31,6 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
-import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
@@ -2555,67 +2554,69 @@ public class Rete
             }
             else
             {
-                NegativeCondition nc = cond.asNegativeCondition();
+                // Here (because of w != null in test above), the condition can still be 
+                // positive or negative, i.e. just a three-field condition
+                ThreeFieldCondition tfc = cond.asThreeFieldCondition();
                 AlphaMemory am = node.b_posneg.alpha_mem_;
-                nc.id_test = new EqualityTest(am.id);
-                nc.attr_test = new EqualityTest(am.attr);
-                nc.value_test = new EqualityTest(am.value);
-                nc.test_for_acceptable_preference = am.acceptable;
+                tfc.id_test = new EqualityTest(am.id);
+                tfc.attr_test = new EqualityTest(am.attr);
+                tfc.value_test = new EqualityTest(am.value);
+                tfc.test_for_acceptable_preference = am.acceptable;
 
                 if (nvn != null)
                 {
                     // Simulating byref calls here :(
-                    ByRef<Test> id_test = ByRef.create(nc.id_test);
+                    ByRef<Test> id_test = ByRef.create(tfc.id_test);
                     add_varnames_to_test(nvn.fields.id_varnames, id_test);
-                    nc.id_test = id_test.value;
+                    tfc.id_test = id_test.value;
 
-                    ByRef<Test> attr_test = ByRef.create(nc.attr_test);
+                    ByRef<Test> attr_test = ByRef.create(tfc.attr_test);
                     add_varnames_to_test(nvn.fields.attr_varnames, attr_test);
-                    nc.attr_test = attr_test.value;
+                    tfc.attr_test = attr_test.value;
 
-                    ByRef<Test> value_test = ByRef.create(nc.value_test);
+                    ByRef<Test> value_test = ByRef.create(tfc.value_test);
                     add_varnames_to_test(nvn.fields.value_varnames, value_test);
-                    nc.value_test = value_test.value;
+                    tfc.value_test = value_test.value;
                 }
 
                 /* --- on hashed nodes, add equality test for the hash function --- */
                 if ((node.node_type == ReteNodeType.MP_BNODE) || (node.node_type == ReteNodeType.NEGATIVE_BNODE))
                 {
-                    add_hash_info_to_id_test(nc, node.left_hash_loc_field_num, node.left_hash_loc_levels_up);
+                    add_hash_info_to_id_test(tfc, node.left_hash_loc_field_num, node.left_hash_loc_levels_up);
                 }
                 else if (node.node_type == ReteNodeType.POSITIVE_BNODE)
                 {
-                    add_hash_info_to_id_test(nc, node.parent.left_hash_loc_field_num,
+                    add_hash_info_to_id_test(tfc, node.parent.left_hash_loc_field_num,
                             node.parent.left_hash_loc_levels_up);
                 }
 
                 // if there are other tests, add them too
                 if (node.b_posneg.other_tests != null)
                 {
-                    add_rete_test_list_to_tests(nc, node.b_posneg.other_tests);
+                    add_rete_test_list_to_tests(tfc, node.b_posneg.other_tests);
                 }
 
                 /* --- if we threw away the variable names, make sure there's some 
                    equality test in each of the three fields --- */
                 if (nvn == null)
                 {
-                    if (!TestTools.test_includes_equality_test_for_symbol(nc.id_test, null))
+                    if (!TestTools.test_includes_equality_test_for_symbol(tfc.id_test, null))
                     {
-                        ByRef<Test> id_test = ByRef.create(nc.id_test);
+                        ByRef<Test> id_test = ByRef.create(tfc.id_test);
                         add_gensymmed_equality_test(id_test, 's');
-                        nc.id_test = id_test.value;
+                        tfc.id_test = id_test.value;
                     }
-                    if (!TestTools.test_includes_equality_test_for_symbol(nc.attr_test, null))
+                    if (!TestTools.test_includes_equality_test_for_symbol(tfc.attr_test, null))
                     {
-                        ByRef<Test> attr_test = ByRef.create(nc.attr_test);
+                        ByRef<Test> attr_test = ByRef.create(tfc.attr_test);
                         add_gensymmed_equality_test(attr_test, 'a');
-                        nc.attr_test = attr_test.value;
+                        tfc.attr_test = attr_test.value;
                     }
-                    if (!TestTools.test_includes_equality_test_for_symbol(nc.value_test, null))
+                    if (!TestTools.test_includes_equality_test_for_symbol(tfc.value_test, null))
                     {
-                        ByRef<Test> value_test = ByRef.create(nc.value_test);
-                        add_gensymmed_equality_test(value_test, TestTools.first_letter_from_test(nc.attr_test));
-                        nc.value_test = value_test.value;
+                        ByRef<Test> value_test = ByRef.create(tfc.value_test);
+                        add_gensymmed_equality_test(value_test, TestTools.first_letter_from_test(tfc.attr_test));
+                        tfc.value_test = value_test.value;
                     }
                 }
             }
