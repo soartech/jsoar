@@ -8,7 +8,7 @@ package org.jsoar.kernel;
 
 import static org.junit.Assert.*;
 
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.symbols.Identifier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,9 +65,9 @@ public class DecisionCycleTest
     {
         // TODO this currently fails.
         agent.loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^foo 1)");
-        agent.loadProduction("test2 (state <s> ^superstate nil ^foo 1) -->");
+        agent.loadProduction("test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
         
-        assertFalse(agent.syms.find_sym_constant("test2").production.already_fired);
+        assertTrue(agent.syms.find_sym_constant("test2").production.instantiations.isEmpty());
         
         assertEquals(Phase.INPUT_PHASE, this.agent.decisionCycle.current_phase);
         this.agent.decisionCycle.do_one_top_level_phase();
@@ -81,9 +81,52 @@ public class DecisionCycleTest
         this.agent.decisionCycle.do_one_top_level_phase();
         
         // verify that (S1 foo 1) is being added to the rete by checking that test2 fired
-        assertTrue(agent.syms.find_sym_constant("test2").production.already_fired);
+        assertFalse(agent.syms.find_sym_constant("test2").production.instantiations.isEmpty());
         
         // Verify that new states are being generates
         assertEquals("S2", agent.decider.bottom_goal.toString());
+    }
+    
+    @Test
+    public void testWaitOperatorOnStateNoChange() throws Exception
+    {
+        // A production that just proposes a wait operator every cycle
+        agent.loadProduction(
+                "top-state*propose*wait\n" +
+                "   (state <s> ^attribute state\n" +
+                "              ^choices none\n" +
+                "             -^operator.name wait)\n" +
+                "-->\n" +
+                "   (<s> ^operator <o> +)\n" +
+                "   (<o> ^name wait)");
+        
+        for(int i = 1; i < 10; ++i)
+        {
+            assertEquals(Phase.INPUT_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            assertEquals(Phase.PROPOSE_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            assertEquals(Phase.DECISION_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            assertEquals(Phase.APPLY_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            assertEquals(Phase.OUTPUT_PHASE, this.agent.decisionCycle.current_phase);
+            this.agent.decisionCycle.do_one_top_level_phase();
+            
+            // Verify that one state-no-change occurs, producting S2, but no further
+            // states are generated. Also verify that the current operator.
+            assertEquals("S2", agent.decider.bottom_goal.toString());
+            validateLastOperator(i);
+        }
+    }
+    
+    private void validateLastOperator(int number)
+    {
+        Identifier last = agent.syms.find_identifier('O', number);
+        assertNotNull(last);
+        assertTrue(last.isa_operator > 0);
+        
+        Identifier next = agent.syms.find_identifier('O', number + 1);
+        assertNull(next);
     }
 }

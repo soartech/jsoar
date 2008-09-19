@@ -3,12 +3,12 @@
  *
  * Created on Sep 13, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.kernel.exploration;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jsoar.kernel.ExplorationParameter.ReductionPolicy;
+import org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 

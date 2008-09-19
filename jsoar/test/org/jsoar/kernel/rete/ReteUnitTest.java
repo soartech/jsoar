@@ -298,4 +298,34 @@ public class ReteUnitTest extends JSoarTest
          assertNotNull(result);
          assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
     }
+    
+    @Test
+    public void testAddTwoProductionsToRete() throws Exception
+    {
+        Parser parser = createParser(
+                "testAddTwoProductionsToRete1 \n" +
+                "(state <s> ^superstate nil)" +
+                "--> \n" +
+                "(<s> ^value 1)");
+             
+         Production p = parser.parse_production();
+         assertNotNull(p);
+         
+         ProductionAddResult result = rete.add_production_to_rete(p);
+         assertNotNull(result);
+         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+         
+         parser = createParser(
+                 "testAddTwoProductionsToRete2 \n" +
+                 "(state <s> ^superstate nil ^value 1)" +
+                 "--> \n" +
+                 "(<s> ^value 2)");
+              
+          Production p2 = parser.parse_production();
+          assertNotNull(p2);
+          
+          result = rete.add_production_to_rete(p2);
+          assertNotNull(result);
+          assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+    }
 }

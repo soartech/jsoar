@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jsoar.util.Arguments;
@@ -253,6 +255,38 @@ public class SymbolFactory
         return floatConstants.get(value);
     }
     
+    /**
+     * Converts a list of arguments into a list of symbols of the appropriate type.
+     * First tries basic numeric types. If those fail, just creates string symbols
+     * using toString().
+     * 
+     * @param args List of objects
+     * @return List of symbols
+     */
+    public List<Symbol> makeList(Object... args)
+    {
+        List<Symbol> result = new ArrayList<Symbol>(args.length);
+        for(Object arg : args)
+        {
+            if(arg instanceof Double)
+            {
+                result.add(make_float_constant(((Double) arg).doubleValue()));
+            }
+            else if(arg instanceof Float)
+            {
+                result.add(make_float_constant(((Float) arg).doubleValue()));
+            }
+            else if(arg instanceof Integer)
+            {
+                result.add(make_int_constant(((Integer) arg).intValue()));
+            }
+            else
+            {
+                result.add(make_sym_constant(arg.toString()));
+            }
+        }
+        return result;
+    }
     
     public void deallocate_symbol(Symbol sym)
     {

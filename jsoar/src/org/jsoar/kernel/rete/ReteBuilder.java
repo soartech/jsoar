@@ -752,9 +752,9 @@ public class ReteBuilder
                     // Note: This originally just used ++, but crashed with a VerifyError
                     // which is actually a bug in Java:
                     //    http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=eb3fcd8f72ab4713f96e378a7575?bug_id=6614974
-                    num_rhs_unbound_vars_for_new_prod.value = num_rhs_unbound_vars_for_new_prod.value + 1;
                     index = num_rhs_unbound_vars_for_new_prod.value;
                     var.unbound_variable_index = index;
+                    num_rhs_unbound_vars_for_new_prod.value = num_rhs_unbound_vars_for_new_prod.value + 1;
                 }
                 else
                 {

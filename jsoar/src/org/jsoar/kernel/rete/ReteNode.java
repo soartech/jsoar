@@ -33,6 +33,7 @@ public class ReteNode
     PosNodeData a_pos = null;                   /* for pos. nodes */
     NonPosNodeData a_np = null;                /* for all other nodes */
     // } a;
+    
     // TODO: Fix this union hack
     // union rete_node_b_union {
     PosNegNodeData b_posneg = null;            /* for pos, neg, mp nodes */
@@ -458,12 +459,13 @@ public class ReteNode
         {
             t.node = mem_node;
         }
-        // for (t=mp_node->a.np.tokens; t!=NIL; t=t->next_of_node) { t->node =
-        // mem_node; }
 
         /* --- transmogrify the old MP node into the new Pos node --- */
+        // TODO All of this feels yucky
         // init_new_rete_node_with_type (thisAgent, pos_node, node_type);
         pos_node.node_type = node_type;
+        pos_node.a_np = null;
+        pos_node.a_pos = new PosNodeData(pos_node);
         rete.rete_node_counts[pos_node.node_type.index()]++;
         pos_node.parent = mem_node;
         pos_node.first_child = mp_copy.first_child;
