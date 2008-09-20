@@ -788,7 +788,7 @@ public class Rete
         AlphaMemory am = find_alpha_mem(id, attr, value, acceptable);
         if (am != null)
         {
-            // TODO: am->reference_count++;
+            am.reference_count++;
             return am;
         }
 
@@ -2043,7 +2043,7 @@ public class Rete
         /* --- build new left token (used only for tree-based remove) --- */
         LeftToken New = new LeftToken(node, tok, w, null);
 
-        listener.p_node_left_addition(this, node, New, w);
+        listener.p_node_left_addition(this, node, tok, w);
     }
     
     /**

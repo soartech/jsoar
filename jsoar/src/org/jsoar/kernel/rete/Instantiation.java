@@ -52,5 +52,16 @@ public class Instantiation
         this.rete_wme = rete_wme;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        // For debugging only
+        return prod.name.toString();
+    }
+
+    
     
 }

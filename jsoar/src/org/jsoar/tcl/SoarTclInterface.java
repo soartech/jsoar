@@ -8,6 +8,7 @@ package org.jsoar.tcl;
 import java.io.IOException;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Phase;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -78,9 +79,21 @@ public class SoarTclInterface
         Agent agent = new Agent();
         SoarTclInterface ifc = new SoarTclInterface(agent);
         
-        for(String arg : args)
+        ifc.sourceFile("c:/waterjug.soar");
+        
+        agent.trace.enableAll();
+        for(int i = 0; i< 200; ++i)
         {
-            ifc.interp.evalFile(arg);
+            agent.decisionCycle.do_one_top_level_phase();
+            if(agent.decisionCycle.current_phase == Phase.INPUT_PHASE)
+            {
+                agent.getPrinter().print("State = %s", agent.decider.bottom_goal);
+            }
+            agent.getPrinter().flush();
         }
+//        for(String arg : args)
+//        {
+//            ifc.interp.evalFile(arg);
+//        }
     }
 }

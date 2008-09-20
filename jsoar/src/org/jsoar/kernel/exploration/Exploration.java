@@ -7,6 +7,7 @@ package org.jsoar.kernel.exploration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy;
 import org.jsoar.kernel.memory.Preference;
@@ -86,6 +87,12 @@ public class Exploration
      * agent.h:752:exploration_params
      */
     private Map<String, ExplorationParameter> parameters = new HashMap<String, ExplorationParameter>();
+    
+    /**
+     * Temporary until exploration is fully implemented and I figure out how I want to deal with
+     * random number generation throughout the kernel (DR)
+     */
+    private Random random = new Random();
     
     /**
      * exploration.cpp:89:exploration_set_policy
@@ -330,8 +337,13 @@ public class Exploration
      */
     public Preference exploration_choose_according_to_policy(Slot s, Preference candidates)
     {
+        // TODO This is just a temporary implementation...
+        int count = Preference.countCandidates(candidates);
+        int selection = random.nextInt(count);
+        return Preference.getCandidate(candidates, selection);
+        
         // TODO implement exploration_choose_according_to_policy
-        throw new UnsupportedOperationException("exploration_choose_according_to_policy not implemented");
+        //throw new UnsupportedOperationException("exploration_choose_according_to_policy not implemented");
     }
 
 }

@@ -112,6 +112,8 @@ public class SoarReteListener implements ReteListener
     @Override
     public void p_node_left_addition(Rete rete, ReteNode node, Token tok, Wme w)
     {
+        assert tok.w != w;
+        
         /*
          * Algorithm:
          * 
@@ -222,10 +224,7 @@ public class SoarReteListener implements ReteListener
         // print_with_symbols (thisAgent, "\nAdding tentative assertion: %y",
         // node->b.p.prod->name);
         // #endif
-        msc = new MatchSetChange();
-        msc.tok = tok;
-        msc.w = w;
-        msc.p_node = node;
+        msc = new MatchSetChange(node, tok, w);
 
         /* RCHONG: begin 10.11 */
 
@@ -661,9 +660,8 @@ public class SoarReteListener implements ReteListener
             // #endif
             inst.rete_token = null;
             inst.rete_wme = null;
-            MatchSetChange msc = new MatchSetChange();
+            MatchSetChange msc = new MatchSetChange(node, null, null);
             msc.inst = inst;
-            msc.p_node = node;
             msc.of_node.insertAtHead(node.b_p.tentative_retractions);
 
             /* REW: begin 08.20.97 */
@@ -798,9 +796,8 @@ public class SoarReteListener implements ReteListener
         refracted_inst.inProdList.insertAtHead(p.instantiations);
         refracted_inst.rete_token = null;
         refracted_inst.rete_wme = null;
-        MatchSetChange msc = new MatchSetChange();
+        MatchSetChange msc = new MatchSetChange(p_node, null, null);
         msc.inst = refracted_inst;
-        msc.p_node = p_node;
         /* REW: begin 08.20.97 */
         /*
          * Because the RETE 'artificially' refracts this instantiation (ie,
