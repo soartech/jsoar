@@ -10,6 +10,8 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.AsListItem;
 
+import com.sun.xml.internal.ws.api.pipe.NextAction;
+
 /**
  * gdatastructs.h:191:preference_struct
  * 
@@ -84,6 +86,32 @@ public class Preference
          */
     }
 
+    /**
+     * Count the number of items in a candidates list
+     * 
+     * @param start The starting candidate, possibly null
+     * @return Number of candidates in the list
+     */
+    public static int countCandidates(Preference start)
+    {
+        int count = 0;
+        for(; start != null; start = start.next_candidate, ++count)
+        {
+            // nothing
+        }
+        return count;
+    }
+    
+    public static Preference getCandidate(Preference start, int index)
+    {
+        for(int i = 0; start != null && i < index; start = start.next_candidate, ++i)
+        {
+            // nothing
+        }
+        
+        return start;
+    }
+    
     /**
      * prefmem.h:68:preference_add_ref
      */

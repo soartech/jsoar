@@ -1,0 +1,23 @@
+
+sp {init*waterjug
+(state <s> ^superstate nil)
+-->
+(<s> ^jug <j1>)
+(<j1> ^volume 5 ^contents 0)
+}
+
+sp {elaborate*free
+(state <s> ^jug <j>)
+(<j> ^contents <contents>
+     ^volume <vol>)
+-->
+(matched elaborate*free)
+}
+
+sp {monitor*contents
+(state <s> ^jug <j>)
+(<j> ^contents <contents>)
+-->
+(matched monitor*contents)
+}
+

@@ -10,6 +10,7 @@ import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.ReteNode;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 
 /**
@@ -27,12 +28,20 @@ public class MatchSetChange
     
     
     public Instantiation inst;   // for retractions only
-  /* REW: begin 08.20.97 */
+
     public Identifier goal;
     public int level;              // Level of the match of the assertion or retraction
     public final AsListItem<MatchSetChange> in_level = new AsListItem<MatchSetChange>(this); // dll for goal level
-  /* REW: end   08.20.97 */
 
+    public MatchSetChange(ReteNode p_node, Token tok, Wme w)
+    {
+        assert (w == null && tok == null) || (w != tok.w);
+        
+        this.p_node = p_node;
+        this.tok = tok;
+        this.w = w;
+    }
+    
     /**
      * rete.cpp:1011:find_goal_for_match_set_change_assertion
      * @param msc
