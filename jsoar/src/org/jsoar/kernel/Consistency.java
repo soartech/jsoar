@@ -11,6 +11,7 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 
 /**
@@ -28,6 +29,10 @@ public class Consistency
     }
     
     private final Agent context;
+    /**
+     * gsysparam.h:MAX_ELABORATIONS_SYSPARAM
+     */
+    private int maxElaborations = 100;
     
     /**
      * @param context
@@ -36,6 +41,33 @@ public class Consistency
     {
         this.context = context;
     }
+    
+    
+    /**
+     * The current setting for max elaborations.
+     * 
+     * gsysparam.h::MAX_ELABORATIONS_SYSPARAM
+     * 
+     * @return the maxElaborations
+     */
+    public int getMaxElaborations()
+    {
+        return maxElaborations;
+    }
+
+    /**
+     * The the value of max elaborations.
+     * 
+     * gsysparam.g::MAX_ELABORATIONS_SYSPARAM
+     * 
+     * @param maxElaborations the maxElaborations to set
+     */
+    public void setMaxElaborations(int maxElaborations)
+    {
+        Arguments.check(maxElaborations > 0, "max elaborations must be greater than zero");
+        this.maxElaborations = maxElaborations;
+    }
+
     /**
      * 
      * consistency.cpp:41:remove_operator_if_necessary
@@ -651,11 +683,9 @@ public class Consistency
 
         /* Check for Max ELABORATIONS EXCEEDED */
 
-        if (context.decisionCycle.e_cycles_this_d_cycle >= 100 /* TODO (thisAgent->sysparams[MAX_ELABORATIONS_SYSPARAM])*/)
+        if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations )
         {
-            context.getPrinter().warn("\nWarning: reached max-elaborations; proceeding to output phase.");
-            // TODO xml_generate_warning(thisAgent, "Warning: reached
-            // max-elaborations; proceeding to output phase.");
+            context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to output phase.", maxElaborations);
             context.decisionCycle.current_phase = Phase.OUTPUT_PHASE;
             return;
         }
@@ -923,11 +953,9 @@ public class Consistency
 
         /* Check for Max ELABORATIONS EXCEEDED */
 
-        if (context.decisionCycle.e_cycles_this_d_cycle >= 100 /* TODO (thisAgent->sysparams[MAX_ELABORATIONS_SYSPARAM])*/)
+        if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations)
         {
-            context.getPrinter().warn("Warning: reached max-elaborations; proceeding to decision phase.");
-            // TODO xml_generate_warning(thisAgent, "Warning: reached
-            // max-elaborations; proceeding to decision phase.");
+            context.getPrinter().warn("Warning: reached max-elaborations(%d); proceeding to decision phase.", maxElaborations);
             context.decisionCycle.current_phase = Phase.DECISION_PHASE;
             return;
         }

@@ -92,7 +92,7 @@ public class Exploration
      * Temporary until exploration is fully implemented and I figure out how I want to deal with
      * random number generation throughout the kernel (DR)
      */
-    private Random random = new Random();
+    private Random random = new Random(); // TODO centralize random numbers
     
     /**
      * exploration.cpp:89:exploration_set_policy

@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.util.Arguments;
 
 /**
  * An attempt to encapsulate the Soar decision cycle
@@ -49,6 +50,11 @@ public class DecisionCycle
     private int run_generated_output_count;
     public int d_cycle_count;
     private int decision_phases_count;
+    
+    /**
+     * gsysparams.h::MAX_NIL_OUTPUT_CYCLES_SYSPARAM
+     */
+    private int maxNilOutputCycles = 15;
     
     public DecisionCycle(Agent context)
     {
@@ -457,9 +463,7 @@ public class DecisionCycle
             context.io.do_output_cycle();
 
             // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)
-            if (context.io.output_link_changed
-            /* TODO || ((++(thisAgent->run_last_output_count)) >= (unsigned long)thisAgent->sysparams[MAX_NIL_OUTPUT_CYCLES_SYSPARAM])*/
-            )
+            if (context.io.output_link_changed || ((++(run_last_output_count)) >= maxNilOutputCycles))
             {
                 this.run_last_output_count = 0;
                 this.run_generated_output_count++;
@@ -690,5 +694,172 @@ public class DecisionCycle
                 context.getPrinter().print("\n%s", reason_for_stopping);
             }
         }
+    }
+
+    /**
+     * init_soar.cpp:1123:run_for_n_phases
+     * 
+     * @param n Number of phases to run. Must be non-negative
+     * @throws IllegalArgumentException if n is negative
+     */
+    public void run_for_n_phases(int n)
+    {
+        Arguments.check(n >= 0, "n must be non-negative");
+        
+        // #ifndef NO_TIMING_STUFF
+        // start_timer (thisAgent, &thisAgent->start_total_tv);
+        // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+        // #endif
+        
+        stop_soar = false;
+        reason_for_stopping = null;
+        while (!stop_soar && n != 0)
+        {
+            do_one_top_level_phase();
+            n--;
+        }
+        
+        // #ifndef NO_TIMING_STUFF
+        // stop_timer (thisAgent, &thisAgent->start_kernel_tv,
+        // &thisAgent->total_kernel_time);
+        //  stop_timer (thisAgent, &thisAgent->start_total_tv, &thisAgent->total_cpu_time);
+        //#endif
+    }
+    
+
+    /**
+     * Run for n elaboration cycles
+     * 
+     * init_soar.cpp:1142:run_for_n_elaboration_cycles
+     * 
+     * @param n Number of elaboration cycles to run. Must be non-negative
+     * @throws IllegalArgumentException if n is negative
+     */
+    public void run_for_n_elaboration_cycles(int n)
+    {
+        Arguments.check(n >= 0, "n must be non-negative");
+
+        // #ifndef NO_TIMING_STUFF
+        // start_timer (thisAgent, &thisAgent->start_total_tv);
+        // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+        // #endif
+
+        stop_soar = false;
+        reason_for_stopping = null;
+        int e_cycles_at_start = e_cycle_count;
+        int d_cycles_at_start = d_cycle_count;
+        int elapsed_cycles = 0;
+        GoType save_go_type = GoType.GO_PHASE;
+        if (context.operand2_mode)
+        {
+            elapsed_cycles = -1;
+            save_go_type = go_type;
+            go_type = GoType.GO_ELABORATION;
+            // need next line or runs only the input phase for "d 1" after init-soar
+            if (d_cycles_at_start == 0)
+                d_cycles_at_start++;
+        }
+        while (!stop_soar)
+        {
+            if (context.operand2_mode)
+            {
+                elapsed_cycles++;
+            }
+            else
+            {
+                elapsed_cycles = (d_cycle_count - d_cycles_at_start) + (e_cycle_count - e_cycles_at_start);
+            }
+            if (n == elapsed_cycles)
+                break;
+            do_one_top_level_phase();
+        }
+        if (context.operand2_mode)
+        {
+            go_type = save_go_type;
+        }
+
+        //#ifndef NO_TIMING_STUFF
+        //  stop_timer (thisAgent, &thisAgent->start_total_tv, &thisAgent->total_cpu_time);
+        //  stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
+        //#endif
+    }
+
+    /**
+     * init_soar.cpp:1181:run_for_n_modifications_of_output
+     * 
+     * @param n Number of modifications. Must be non-negative.
+     * @throws IllegalArgumentException if n is negative
+     */
+    public void run_for_n_modifications_of_output(int n)
+    {
+        Arguments.check(n >= 0, "n must be non-negative");
+
+        // #ifndef NO_TIMING_STUFF
+        // start_timer (thisAgent, &thisAgent->start_total_tv);
+        // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+        // #endif
+
+        stop_soar = false;
+        reason_for_stopping = null;
+        int count = 0;
+        while (!stop_soar && n != 0)
+        {
+            boolean was_output_phase = current_phase == Phase.OUTPUT_PHASE;
+            do_one_top_level_phase();
+            if (was_output_phase)
+            {
+                if (context.io.output_link_changed)
+                {
+                    n--;
+                }
+                else
+                {
+                    count++;
+                }
+            }
+            if (count >= this.maxNilOutputCycles)
+            {
+                stop_soar = true;
+                reason_for_stopping = "exceeded max_nil_output_cycles with no output";
+            }
+        }
+        //#ifndef NO_TIMING_STUFF
+        //  stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
+        //  stop_timer (thisAgent, &thisAgent->start_total_tv, &thisAgent->total_cpu_time);
+        //#endif
+    }
+
+    /**
+     * Run for n decision cycles
+     * 
+     * @param n Number of cycles to run. Must be non-negative
+     * @throws IllegalArgumentException if n is negative
+     */
+    public void run_for_n_decision_cycles(int n)
+    {
+        Arguments.check(n >= 0, "n must be non-negative");
+
+        // #ifndef NO_TIMING_STUFF
+        // start_timer (thisAgent, &thisAgent->start_total_tv);
+        // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+        // #endif
+
+        stop_soar = false;
+        reason_for_stopping = null;
+        int d_cycles_at_start = d_cycle_count;
+        /* need next line or runs only the input phase for "d 1" after init-soar */
+        if (context.operand2_mode && (d_cycles_at_start == 0))
+            d_cycles_at_start++;
+        while (!stop_soar)
+        {
+            if (n == (d_cycle_count - d_cycles_at_start))
+                break;
+            do_one_top_level_phase();
+        }
+        // #ifndef NO_TIMING_STUFF
+        // stop_timer (thisAgent, &thisAgent->start_total_tv,
+        // &thisAgent->total_cpu_time);
+        //  stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
+        //#endif
     }
 }

@@ -38,13 +38,13 @@ public class Token
         
         this.node = current_node;
         this.of_node.insertAtHead(node.a_np.tokens);
-        // insert_at_head_of_dll ((current_node)->a.np.tokens, (New),
-        // next_of_node, prev_of_node);
+        
         this.parent = parent_tok;
         if(this.parent != null)
         {
             this.sibling.insertAtHead(parent_tok.first_child);
         }
+        
         this.w = parent_wme;
         if (parent_wme != null)
         {

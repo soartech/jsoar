@@ -56,15 +56,12 @@ public class PreferenceMemory
         // remove it from the list of pref's from that instantiation
         pref.inst_next_prev.remove(pref.inst.preferences_generated);
 
-        // TODO possibly_deallocate_instantiation(thisAgent, pref.inst);
+        context.recMemory.possibly_deallocate_instantiation(pref.inst);
 
         if (pref.type.isBinary())
         {
             //symbol_remove_ref (thisAgent, pref->referent);
         }
-
-        /* --- free the memory --- */
-        //free_with_pool (&thisAgent->preference_pool, pref);
     } 
     
     /**

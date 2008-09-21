@@ -43,7 +43,7 @@ public class Agent
     public final WorkingMemory workingMemory = new WorkingMemory(this);
     public final TemporaryMemory tempMemory = new TemporaryMemory();
     public final PreferenceMemory prefMemory = new PreferenceMemory(this);
-    public final OSupport osupport = new OSupport(predefinedSyms);
+    public final OSupport osupport = new OSupport(predefinedSyms, printer);
     public final SoarReteListener soarReteListener = new SoarReteListener(this);
     public final RecognitionMemory recMemory = new RecognitionMemory(this);
     

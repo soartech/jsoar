@@ -18,7 +18,7 @@ import org.jsoar.kernel.symbols.Identifier;
 public class DecisionManipulation
 {
     private final Decider decider;
-    private Random random = new Random();
+    private Random random = new Random(); // TODO: Centralize random numbers
     
     private boolean select_enabled = false;
     private String select_operator = "";

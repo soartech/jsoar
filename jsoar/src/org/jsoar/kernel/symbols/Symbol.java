@@ -124,7 +124,6 @@ public abstract class Symbol
      */
     public static List<Symbol> copy_symbol_list_adding_references(List<Symbol> syms)
     {
-        // TODO: add refs?
         // TODO: What's the right type of list?
         return new ArrayList<Symbol>(syms);
     }  

@@ -104,10 +104,9 @@ public class Wme implements Formattable
 //    tc_number potentials_tc, locals_tc;
 //    struct preference_struct *chunker_bt_pref;
 //
-    /* REW: begin 09.15.96 */
+    
     public GoalDependencySet gds;
     public AsListItem<Wme> gds_next_prev = new AsListItem<Wme>(this); // part of dll of wmes in gds
-    /* REW: end   09.15.96 */
     
     /**
      * @param id

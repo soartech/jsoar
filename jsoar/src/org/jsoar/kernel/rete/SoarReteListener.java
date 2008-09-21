@@ -7,7 +7,6 @@ package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AssertListType;
-import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
@@ -224,7 +223,7 @@ public class SoarReteListener implements ReteListener
         // print_with_symbols (thisAgent, "\nAdding tentative assertion: %y",
         // node->b.p.prod->name);
         // #endif
-        msc = new MatchSetChange(node, tok, w);
+        msc = MatchSetChange.createAssertion(node, tok, w);
 
         /* RCHONG: begin 10.11 */
 
@@ -452,58 +451,21 @@ public class SoarReteListener implements ReteListener
                                 {
 
                                     /* warn user about mixed actions */
-
-                                    if ((context.osupport.o_support_calculation_type == 3) /*
-                                                                             * &&
-                                                                             * thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM]
-                                                                             */)
+                                    final boolean warnings = context.getPrinter().isPrintWarnings();
+                                    if ((context.osupport.o_support_calculation_type == 3) && warnings)
                                     {
-                                        // TODO: Warning
-                                        // print_with_symbols(thisAgent,
-                                        // "\nWARNING: operator elaborations
-                                        // mixed with operator applications\nget
-                                        // o_support in prod %y",
-                                        // node->b.p.prod->name);
-                                        //                                    
-                                        // // XML generation
-                                        // growable_string gs =
-                                        // make_blank_growable_string(thisAgent);
-                                        // add_to_growable_string(thisAgent,
-                                        // &gs, "WARNING: operator elaborations
-                                        // mixed with operator applications\nget
-                                        // o_support in prod ");
-                                        // add_to_growable_string(thisAgent,
-                                        // &gs, symbol_to_string(thisAgent,
-                                        // node->b.p.prod->name, true, 0, 0));
-                                        // xml_generate_warning(thisAgent,
-                                        // text_of_growable_string(gs));
-                                        // free_growable_string(thisAgent, gs);
+                                        context.getPrinter().warn(
+                                        "\nWARNING: operator elaborations mixed with operator applications\n" +
+                                        "get o_support in prod %s", node.b_p.prod.name);
 
                                         prod_type = SavedFiringType.PE_PRODS;
                                         break;
                                     }
-                                    else if ((context.osupport.o_support_calculation_type == 4) /*
-                                                                                 * &&
-                                                                                 * thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM]
-                                                                                 */)
+                                    else if ((context.osupport.o_support_calculation_type == 4) && warnings)
                                     {
-                                        // TODO: Warning
-                                        // print_with_symbols(thisAgent,
-                                        // "\nWARNING: operator elaborations
-                                        // mixed with operator applications\nget
-                                        // i_support in prod %y",
-                                        // node->b.p.prod->name);
-                                        //
-                                        // // XML generation
-                                        // growable_string gs =
-                                        // make_blank_growable_string(thisAgent);
-                                        // add_to_growable_string(thisAgent,
-                                        // &gs, "WARNING: operator elaborations
-                                        // mixed with operator applications\nget
-                                        // i_support in prod ");
-                                        //                                    add_to_growable_string(thisAgent, &gs, symbol_to_string(thisAgent, node->b.p.prod->name, true, 0, 0));
-                                        //                                    xml_generate_warning(thisAgent, text_of_growable_string(gs));
-                                        //                                    free_growable_string(thisAgent, gs);
+                                        context.getPrinter().warn(
+                                        "\nWARNING: operator elaborations mixed with operator applications\n" +
+                                        "get i_support in prod %s", node.b_p.prod.name);
 
                                         prod_type = SavedFiringType.IE_PRODS;
                                         break;
@@ -660,8 +622,7 @@ public class SoarReteListener implements ReteListener
             // #endif
             inst.rete_token = null;
             inst.rete_wme = null;
-            MatchSetChange msc = new MatchSetChange(node, null, null);
-            msc.inst = inst;
+            MatchSetChange msc = MatchSetChange.createRetraction(node, inst);
             msc.of_node.insertAtHead(node.b_p.tentative_retractions);
 
             /* REW: begin 08.20.97 */
@@ -796,8 +757,9 @@ public class SoarReteListener implements ReteListener
         refracted_inst.inProdList.insertAtHead(p.instantiations);
         refracted_inst.rete_token = null;
         refracted_inst.rete_wme = null;
-        MatchSetChange msc = new MatchSetChange(p_node, null, null);
-        msc.inst = refracted_inst;
+        
+        MatchSetChange msc = MatchSetChange.createRefracted(p_node, refracted_inst);
+        
         /* REW: begin 08.20.97 */
         /*
          * Because the RETE 'artificially' refracts this instantiation (ie,

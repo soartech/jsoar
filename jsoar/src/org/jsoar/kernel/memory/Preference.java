@@ -20,8 +20,6 @@ import org.jsoar.util.AsListItem;
  */
 public class Preference implements Formattable
 {
-    // TODO implement formattable for print_preference
-    
     public final PreferenceType type;         /* acceptable, better, etc. */
     public boolean o_supported = false;  /* is the preference o-supported? */
     public boolean in_tm = false;        /* is this currently in TM? */

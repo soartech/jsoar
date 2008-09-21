@@ -6,7 +6,6 @@
 package org.jsoar.kernel.rete;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -299,44 +298,34 @@ public class Rete
          * --- change variable names in RHS to Rete location references or
          * unbound variable indices ---
          */
-        LinkedList<Variable> rhs_unbound_vars_for_new_prod = new LinkedList<Variable>();
-        ByRef<Integer> num_rhs_unbound_vars_for_new_prod = ByRef.create(0);
+        List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>();
         int rhs_unbound_vars_tc = variableGenerator.getSyms().get_new_tc_number();
         for (Action a = p.action_list; a != null; a = a.next)
         {
             MakeAction ma = a.asMakeAction();
             if (ma != null)
             {
-                // TODO: ByRef usage here is pretty bad. Refactor.
-                ByRef<RhsValue> a_value = ByRef.create(ma.value);
-                builder.fixup_rhs_value_variable_references(this, a_value, bottom_depth.value,
-                        rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
-                ma.value = a_value.value;
+                ma.value = builder.fixup_rhs_value_variable_references(this, ma.value, bottom_depth.value,
+                        rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
 
-                ByRef<RhsValue> a_id = ByRef.create(ma.id);
-                builder.fixup_rhs_value_variable_references(this, a_id, bottom_depth.value,
-                        rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
-                ma.id = a_id.value;
+                ma.id = builder.fixup_rhs_value_variable_references(this, ma.id, bottom_depth.value,
+                        rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
 
-                ByRef<RhsValue> a_attr = ByRef.create(ma.attr);
-                builder.fixup_rhs_value_variable_references(this, a_attr, bottom_depth.value,
-                        rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
-                ma.attr = a_attr.value;
+                ma.attr = builder.fixup_rhs_value_variable_references(this, ma.attr, bottom_depth.value,
+                        rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
 
                 if (a.preference_type.isBinary())
                 {
-                    ByRef<RhsValue> a_referent = ByRef.create(ma.referent);
-                    builder.fixup_rhs_value_variable_references(this, a_referent, bottom_depth.value,
-                            rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
-                    ma.referent = a_referent.value;
+                    ma.referent = builder.fixup_rhs_value_variable_references(this, ma.referent, bottom_depth.value,
+                            rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
                 }
             }
             else
             {
                 FunctionAction fa = a.asFunctionAction();
-                ByRef<RhsValue> a_value = ByRef.create(fa.call);
-                builder.fixup_rhs_value_variable_references(this, a_value, bottom_depth.value,
-                        rhs_unbound_vars_for_new_prod, num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
+                RhsValue result = builder.fixup_rhs_value_variable_references(this, fa.call, bottom_depth.value,
+                        rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
+                assert result == fa.call; // sanity check
 
             }
         }
@@ -345,7 +334,7 @@ public class Rete
 
         pop_bindings_and_deallocate_list_of_variables(vars_bound.value);
 
-        update_max_rhs_unbound_variables(num_rhs_unbound_vars_for_new_prod.value);
+        update_max_rhs_unbound_variables(rhs_unbound_vars_for_new_prod.size());
 
         /* --- look for an existing p node that matches --- */
         for (ReteNode p_node = bottom_node.value.first_child; p_node != null; p_node = p_node.next_sibling)
@@ -417,19 +406,16 @@ public class Rete
          */
         /* REW: end 09.15.96 */
 
-        /*
-         * --- handle initial refraction by adding it to tentative_retractions
-         * ---
-         */
+        // handle initial refraction by adding it to tentative_retractions
         if (refracted_inst != null)
         {
             listener.startRefraction(this, p, refracted_inst, p_node);
         }
 
-        /* --- call new node's add_left routine with all the parent's tokens --- */
+        // call new node's add_left routine with all the parent's tokens
         update_node_with_matches_from_above(p_node);
 
-        /* --- store result indicator --- */
+        // store result indicator
         if (refracted_inst == null)
         {
             production_addition_result = ProductionAddResult.NO_REFRACTED_INST;
@@ -451,8 +437,6 @@ public class Rete
         {
             p.p_node.b_p.parents_nvn = NodeVarNames.get_nvn_for_condition_list(lhs_top, null);
             p.rhs_unbound_variables.addAll(rhs_unbound_vars_for_new_prod);
-            Collections.reverse(p.rhs_unbound_variables);
-            //p->rhs_unbound_variables = destructively_reverse_list (rhs_unbound_vars_for_new_prod);
         }
 
         /* --- invoke callback functions --- */
@@ -2408,11 +2392,9 @@ public class Rete
                 if (referent.asIdentifier() == null)
                     continue;
 
-                NotStruct new_not = new NotStruct();
+                NotStruct new_not = new NotStruct(right_sym, referent);
                 new_not.next = nots_found_in_production;
                 nots_found_in_production = new_not;
-                new_not.s1 = right_sym;
-                new_not.s2 = referent;
                 continue;
             }
 
@@ -2423,11 +2405,9 @@ public class Rete
                 if (referent.asIdentifier() == null)
                     continue;
 
-                NotStruct new_not = new NotStruct();
+                NotStruct new_not = new NotStruct(right_sym, referent);
                 new_not.next = nots_found_in_production;
                 nots_found_in_production = new_not;
-                new_not.s1 = right_sym;
-                new_not.s2 = referent;
                 continue;
             }
         }

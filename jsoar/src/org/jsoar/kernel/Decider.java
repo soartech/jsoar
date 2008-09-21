@@ -17,6 +17,7 @@ import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.Instantiation;
+import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.AsListItem;
@@ -838,9 +839,7 @@ public class Decider
                 }
                 else
                 {
-                    // TODO warning
-                    context.getPrinter().print( "WARNING: Invalid forced selection operator id" );
-                    // xml_generate_warning( thisAgent, "WARNING: Invalid forced selection operator id" );
+                    context.getPrinter().warn( "WARNING: Invalid forced selection operator id" );
                 }
             }
         }
@@ -1538,8 +1537,6 @@ public class Decider
         {
             add_impasse_wme(id, predefined.item_count_symbol, context.syms.make_int_constant(item_count), null);
         }
-        // TODO does the int constant get its reference removed when the impasse goes
-        // away?
     }
 
     
@@ -1591,12 +1588,12 @@ public class Decider
                {
                   if (w.gds != null) 
                   {
-                     if (w.gds.goal != null)
+                     if (w.gds.getGoal() != null)
                      {
                          /* If the goal pointer is non-NIL, then goal is in the stack */
                          // TODO or soar_verbose_flag
                          context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, 
-                                 "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.goal.level, w);
+                                 "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.getGoal().level, w);
                          // TODO xml
     //                    if (thisAgent.soar_verbose_flag || thisAgent.sysparams[TRACE_WM_CHANGES_SYSPARAM]) 
     //                    {
@@ -1960,7 +1957,7 @@ public class Decider
 
         context.workingMemory.remove_wme_list_from_wm(goal.impasse_wmes.getFirstItem(), false);
         goal.impasse_wmes.first = null;
-        /* REW: begin 09.15.96 */
+        
         /*
          * If there was a GDS for this goal, we want to set the pointer for the
          * goal to NIL to indicate it no longer exists. BUG: We probably also
@@ -1968,8 +1965,9 @@ public class Decider
          * well.
          */
         if (goal.gds != null)
-            goal.gds.goal = null;
-        /* REW: end 09.15.96 */
+        {
+            goal.gds.clearGoal();
+        }
 
         /* REW: begin 08.20.97 */
 
@@ -2057,32 +2055,20 @@ public class Decider
             add_impasse_wme(id, context.predefinedSyms.quiescence_symbol, context.predefinedSyms.t_symbol, null);
             if ((ImpasseType.NO_CHANGE_IMPASSE_TYPE == impasse_type) && (context.MAX_GOAL_DEPTH < bottom_goal.level))
             {
-                // appear to be SNC'ing deep in goalstack, so interrupt and warn
-                // user
-                // KJC note: we actually halt, because there is no interrupt
-                // function in SoarKernel
-                // in the gSKI Agent code, if system_halted, MAX_GOAL_DEPTH is
-                // checked and if exceeded
-                // then the interrupt is generated and system_halted is set to
-                // FALSE so the user can recover.
+                // appear to be SNC'ing deep in goalstack, so interrupt and warn user
+                // KJC note: we actually halt, because there is no interrupt function in SoarKernel
+                // in the gSKI Agent code, if system_halted, MAX_GOAL_DEPTH is checked and if exceeded
+                // then the interrupt is generated and system_halted is set to FALSE so the user can recover.
 
-                // TODO warning
-                context.getPrinter().print("\nGoal stack depth exceeded %d on a no-change impasse.\n",
+                context.getPrinter().warn("\nGoal stack depth exceeded %d on a no-change impasse.\n" +
+                		"Soar appears to be in an infinite loop.  \n" +
+                		"Continuing to subgoal may cause Soar to \n" +
+                		"exceed the program stack of your system.\n",
                         context.MAX_GOAL_DEPTH);
-                context
-                        .getPrinter()
-                        .print(
-                                "Soar appears to be in an infinite loop.  \nContinuing to subgoal may cause Soar to \nexceed the program stack of your system.\n");
-                // xml_generate_warning(thisAgent, "\nGoal stack depth exceeded
-                // on a no-change impasse.\n");
-                // xml_generate_warning(thisAgent, "Soar appears to be in an
-                // infinite loop. \nContinuing to subgoal may cause Soar to
-                // \nexceed the program stack of your system.\n");
 
-                // TODO halt
-                // thisAgent->stop_soar = TRUE;
-                // thisAgent->system_halted = TRUE;
-                // thisAgent->reason_for_stopping = "Max Goal Depth exceeded.";
+                context.decisionCycle.stop_soar = true;
+                context.decisionCycle.system_halted = true;
+                context.decisionCycle.reason_for_stopping = "Max Goal Depth exceeded.";
             }
         }
         else
@@ -2604,21 +2590,9 @@ public class Decider
         wme_to_add.gds = gds;
         wme_to_add.gds_next_prev.insertAtHead(gds.wmes_in_gds);
 
-        // TODO trace add wme to gds
-        /*
-        if (agentPtr->soar_verbose_flag || agentPtr->sysparams[TRACE_WM_CHANGES_SYSPARAM]) 
-        {                    
-            print(agentPtr, "Adding to GDS for S%ld: ", wme_to_add->gds->goal->id.name_number);    
-            print(agentPtr, " WME: "); 
-            char buf[256];
-            SNPRINTF(buf, 254, "Adding to GDS for S%ld: ", wme_to_add->gds->goal->id.name_number);
-
-            xml_begin_tag(agentPtr, kTagVerbose);
-            xml_att_val(agentPtr, kTypeString, buf);
-            print_wme(agentPtr, wme_to_add);
-            xml_end_tag(agentPtr, kTagVerbose);               
-        }
-        */
+        // TODO trace add wme to gds in verbose mode as well
+        context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, 
+                "Adding to GDS for %s: WME: %s", wme_to_add.gds.getGoal(), wme_to_add);
     }
     
 
@@ -2686,7 +2660,7 @@ public class Decider
                     {
                         // Then we want to check and see if the old GDS value
                         // should be changed
-                        if (wme_matching_this_cond.gds.goal == null)
+                        if (wme_matching_this_cond.gds.getGoal() == null)
                         {
                             // The goal is NIL: meaning that the goal for the GDS
                             // is no longer around
@@ -2716,7 +2690,7 @@ public class Decider
                             }
 
                         }
-                        else if (wme_matching_this_cond.gds.goal.level > inst.match_goal_level)
+                        else if (wme_matching_this_cond.gds.getGoal().level > inst.match_goal_level)
                         {
                             /* if the WME currently belongs to the GDS of a goal below
                             * the current one */
@@ -2776,7 +2750,7 @@ public class Decider
                         {
                             context.getPrinter().print(
                                     "\n       ......WME did not have defined GDS.  Now adding to goal [%s].\n",
-                                    wme_matching_this_cond.gds.goal);
+                                    wme_matching_this_cond.gds.getGoal());
                         }
 
                     } /* end else clause for "if wme_matching_this_cond->gds != NIL" */
@@ -2784,7 +2758,7 @@ public class Decider
                     if (DEBUG_GDS)
                     {
                         context.getPrinter().print("            Added WME to GDS for goal = %d [%s]\n",
-                                wme_matching_this_cond.gds.goal.level, wme_matching_this_cond.gds.goal);
+                                wme_matching_this_cond.gds.getGoal().level, wme_matching_this_cond.gds.getGoal());
                     }
                 } /* end "wme in supergoal or arch-supported" */
                 else
@@ -2849,7 +2823,7 @@ public class Decider
                                     {
                                         /* Then we want to check and see if the old GDS
                                         * value should be changed */
-                                        if (fake_inst_wme_cond.gds.goal == null)
+                                        if (fake_inst_wme_cond.gds.getGoal() == null)
                                         {
                                             /* The goal is NIL: meaning that the goal for
                                             * the GDS is no longer around */
@@ -2880,7 +2854,7 @@ public class Decider
                                                                 "\n       .....GDS' goal is NIL so switching from old to new GDS list....\n");
                                             }
                                         }
-                                        else if (fake_inst_wme_cond.gds.goal.level > inst.match_goal_level)
+                                        else if (fake_inst_wme_cond.gds.getGoal().level > inst.match_goal_level)
                                         {
                                             /* if the WME currently belongs to the GDS of a
                                             *goal below the current one */
@@ -2940,13 +2914,13 @@ public class Decider
                                                     .getPrinter()
                                                     .print(
                                                             "\n       ......WME did not have defined GDS.  Now adding to goal [%s].\n",
-                                                            fake_inst_wme_cond.gds.goal);
+                                                            fake_inst_wme_cond.gds.getGoal());
                                         }
                                     }
                                     if (DEBUG_GDS)
                                     {
                                         context.getPrinter().print("            Added WME to GDS for goal = %d [%s]\n",
-                                                fake_inst_wme_cond.gds.goal.level, fake_inst_wme_cond.gds.goal);
+                                                fake_inst_wme_cond.gds.getGoal().level, fake_inst_wme_cond.gds.getGoal());
                                     }
                                 } /* matches { wme *fake_inst_wme_cond  */
                             }
@@ -3124,22 +3098,22 @@ public class Decider
 
         if (context.tempMemory.highest_goal_whose_context_changed != null)
         {
-            if (context.tempMemory.highest_goal_whose_context_changed.level >= w.gds.goal.level)
+            if (context.tempMemory.highest_goal_whose_context_changed.level >= w.gds.getGoal().level)
             {
-                context.tempMemory.highest_goal_whose_context_changed = w.gds.goal.higher_goal;
+                context.tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
             }
         }
         else
         {
             // If nothing has yet changed (highest_ ... = NIL) then set the goal automatically
-            context.tempMemory.highest_goal_whose_context_changed = w.gds.goal.higher_goal;
+            context.tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
         }
         
         context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM, 
                             "\n    REMOVING GOAL [%s] due to change in GDS WME %s",
-                            w.gds.goal, w);
+                            w.gds.getGoal(), w);
         
-        remove_existing_context_and_descendents(w.gds.goal);
+        remove_existing_context_and_descendents(w.gds.getGoal());
         /* BUG: Need to reset highest_goal here ???*/
 
         /* usually, we'd call do_buffered_wm_and_ownership_changes() here, but
@@ -3181,13 +3155,10 @@ public class Decider
      */
     private void create_gds_for_goal(Identifier goal)
     {
-        GoalDependencySet gds = new GoalDependencySet();
-
-        gds.goal = goal;
-        goal.gds = gds;
+        goal.gds = new GoalDependencySet(goal);
         if (DEBUG_GDS)
         {
-            context.getPrinter().print("\nCreated GDS for goal [%s].\n", gds.goal);
+            context.getPrinter().print("\nCreated GDS for goal [%s].\n", goal);
         }
     }
 

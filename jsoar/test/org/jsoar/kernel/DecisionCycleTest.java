@@ -63,7 +63,6 @@ public class DecisionCycleTest
     @Test
     public void testDoOneTopLevelPhaseWithSimpleProduction() throws Exception
     {
-        // TODO this currently fails.
         agent.loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^foo 1)");
         agent.loadProduction("test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
         

@@ -38,7 +38,7 @@ public enum PreferenceType
     
     public boolean isBinary()
     {
-        // TODO: yuck!
+        // Add a field for binary rather than testing against the ordinal
         return ordinal() >= BINARY_INDIFFERENT_PREFERENCE_TYPE.ordinal();
     }
 

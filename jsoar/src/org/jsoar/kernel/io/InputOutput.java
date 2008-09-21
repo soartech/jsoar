@@ -265,7 +265,7 @@ public class InputOutput
         {
             if (w.gds != null)
             {
-                if (w.gds.goal != null)
+                if (w.gds.getGoal() != null)
                 {
                     // TODO verbose trace wm changes
                     /*

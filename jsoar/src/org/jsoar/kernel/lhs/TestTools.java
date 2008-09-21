@@ -362,7 +362,6 @@ public class TestTools
             return true;
         }
 
-        // TODO: Assumes SymbolFactory caching
         return t1.asRelationalTest().referent == t2.asRelationalTest().referent;
     }
 

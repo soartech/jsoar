@@ -15,10 +15,7 @@ public abstract class Condition
     public boolean already_in_tc;                 /* used only by cond_is_in_tc stuff */
     public boolean test_for_acceptable_preference;   /* for pos, neg cond's only */
     public Condition  next, prev;
-    //union condition_main_data_union {
-    // TODO  three_field_tests tests;             /* for pos, neg cond's only */
-    // TODO  ncc_info ncc;                        /* for ncc's only */
-    //} data;
+
     /**
      * for top-level positive cond's: used for BT and by the rete
      */

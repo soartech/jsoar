@@ -22,8 +22,8 @@ import org.jsoar.util.ListHead;
 
 public class Production
 {
-    public ProductionType type;
-    public SymConstant name;
+    public final ProductionType type;
+    public final SymConstant name;
     public String documentation;
     public Condition condition_list;
     public Action action_list;
@@ -70,6 +70,8 @@ public class Production
           int tc = varGen.getSyms().get_new_tc_number();
           Condition.addBoundVariables(lhs_top.value, tc, null);
           
+          // TODO Shouldn't reordering be a separate step, independent of constructing
+          // the production object?
           ActionReorderer actionReorder = new ActionReorderer(this.name.name);
           actionReorder.reorder_action_list (rhs_top, tc);
           

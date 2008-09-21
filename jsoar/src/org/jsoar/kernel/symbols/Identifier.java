@@ -9,12 +9,12 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.SavedFiringType;
-import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.kernel.io.OutputLink;
 import org.jsoar.kernel.learning.ReinforcementLearningInfo;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
