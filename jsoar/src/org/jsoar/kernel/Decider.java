@@ -1593,8 +1593,11 @@ public class Decider
                   {
                      if (w.gds.goal != null)
                      {
-                         // TODO verbose trace
-    //                    /* If the goal pointer is non-NIL, then goal is in the stack */
+                         /* If the goal pointer is non-NIL, then goal is in the stack */
+                         // TODO or soar_verbose_flag
+                         context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, 
+                                 "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.goal.level, w);
+                         // TODO xml
     //                    if (thisAgent.soar_verbose_flag || thisAgent.sysparams[TRACE_WM_CHANGES_SYSPARAM]) 
     //                    {
     //                       print(thisAgent, "\nRemoving state S%d because element in GDS changed.", w.gds.goal.id.level);

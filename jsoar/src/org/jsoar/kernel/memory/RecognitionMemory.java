@@ -667,8 +667,7 @@ public class RecognitionMemory
             }
         }
 
-        context.trace.startNewLine().print(inst.prod.type.getTraceCategory(),
-                "Firing %s", inst); // TODO print_instantiation with wmes
+        context.trace.startNewLine().print(inst.prod.type.getTraceCategory(), "Firing %s", inst);
         
         // initialize rhs_variable_bindings array with names of variables
         // (if there are any stored on the production -- for chunks there won't be any)
@@ -916,26 +915,14 @@ public class RecognitionMemory
             Preference pref = prefItem.get();
             if (pref.in_tm && !pref.o_supported)
             {
-                // TODO trace
-                /*
                 if (trace_it) {
-                    if (!retracted_a_preference) {
-                        if (get_printer_output_column(thisAgent)!=1) print(thisAgent, "\n");
-                        print (thisAgent, "Retracting ");
-                        print_instantiation_with_wmes (thisAgent, inst, (wme_trace_type)thisAgent->sysparams[TRACE_FIRINGS_WME_TRACE_TYPE_SYSPARAM],1);
-                        if (thisAgent->sysparams[TRACE_FIRINGS_PREFERENCES_SYSPARAM])
-                        {
-                            print (thisAgent, " -->\n");
-                            xml_object( thisAgent, kTagActionSideMarker );
-                        }
-                    }
-                    if (thisAgent->sysparams[TRACE_FIRINGS_PREFERENCES_SYSPARAM])
+                    if (!retracted_a_preference) 
                     {
-                        print (thisAgent, " ");
-                        print_preference (thisAgent, pref);
+                        context.trace.startNewLine().print(inst.prod.type.getTraceCategory(), "Retracting %s", inst);
+                        context.trace.print(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM, " -->\n");
                     }
+                    context.trace.print(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM, " %s", pref);
                 }
-                */
                 context.prefMemory.remove_preference_from_tm(pref);
                 retracted_a_preference = true;
             }

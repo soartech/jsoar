@@ -5,6 +5,10 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.Formattable;
+import java.util.FormattableFlags;
+import java.util.Formatter;
+
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.io.OutputLink;
 import org.jsoar.kernel.rete.RightMemory;
@@ -81,7 +85,7 @@ import org.jsoar.util.ListHead;
  * 
  * @author ray
  */
-public class Wme
+public class Wme implements Formattable
 {
     public final Identifier id;
     public final Symbol attr;
@@ -144,4 +148,32 @@ public class Wme
     {
         return "<" + id + ", " + attr + ", " + value + ">:" + timetag;
     }
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter fmt, int f, int width, int precision)
+    {
+        // print.cpp:981:print_wme
+        // print.cpp:981:print_wme_without_timetag
+        
+        if((f & FormattableFlags.ALTERNATE) == 0)
+        {
+            // This is the normal print_wme case. It is specified with the 
+            // usual %s format string
+            fmt.format("(%d: %s ^%s %s%s)\n", timetag, id, attr, value, acceptable ? " +" : "");
+        }
+        else
+        {
+            // This is the print_wme_without_timetag case
+            // It is specified with the %#s format string.
+            fmt.format("(%s ^%s %s%s)\n", id, attr, value, acceptable ? " +" : "");
+        }
+
+        // <wme tag="123" id="s1" attr="foo" attrtype="string" val="123" valtype="string"></wme>
+        // TODO xml_object( thisAgent, w );
+    }
+    
+    
 }
