@@ -9,6 +9,7 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Printer;
+import org.jsoar.kernel.Trace.Category;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -212,19 +213,15 @@ public class WorkingMemory
         /* --- do tracing and cleanup stuff --- */
         for (Wme w : wmes_to_add)
         {
-            // TODO Trace wme add
-            // if (thisAgent->sysparams[TRACE_WM_CHANGES_SYSPARAM]) {
-            // filtered_print_wme_add(thisAgent, w); /* kjh(CUSP-B2) begin */
-            // }
+            // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...
+            context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, "=>WM: %s", w);
             w.wme_add_ref();
             wme_addition_count++;
         }
         for (Wme w : wmes_to_remove)
         {
-            // TODO Trace wme remove
-            // if (thisAgent->sysparams[TRACE_WM_CHANGES_SYSPARAM]) {
-            // filtered_print_wme_remove (thisAgent, w); /* kjh(CUSP-B2) begin */
-            // }
+            // TODO Originally "filtered_print_wme_remove", but filtering seems disabled in CSoar...
+            context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, "<=WM: %s", w);
 
             w.wme_remove_ref(this);
             wme_removal_count++;

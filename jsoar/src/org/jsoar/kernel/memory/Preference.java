@@ -5,19 +5,20 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.Formattable;
+import java.util.Formatter;
+
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.AsListItem;
-
-import com.sun.xml.internal.ws.api.pipe.NextAction;
 
 /**
  * gdatastructs.h:191:preference_struct
  * 
  * @author ray
  */
-public class Preference
+public class Preference implements Formattable
 {
     // TODO implement formattable for print_preference
     
@@ -127,5 +128,43 @@ public class Preference
         prefMem.possibly_deallocate_preference_and_clones(this);
       }
     }
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        formatter.format("(%s ^%s %s %c", id, attr, value, type.getIndicator());
+        if (type.isBinary()) 
+        {
+            formatter.format(" %s", referent);
+        }
+        if (o_supported) formatter.format("  :O ");
+        formatter.format(")\n");
+
+        /* TODO preference XML output
+        // <preference id="s1" attr="foo" value="123" pref_type=">"></preference>
+        xml_begin_tag(thisAgent, kTagPreference);
+        xml_att_val(thisAgent, kWME_Id, pref->id);
+        xml_att_val(thisAgent, kWME_Attribute, pref->attr);
+        xml_att_val(thisAgent, kWME_Value, pref->value);
+
+        char buf[2];
+        buf[0] = pref_type;
+        buf[1] = 0;
+        xml_att_val(thisAgent, kPreference_Type, (char*)buf);
+        
+        if (preference_is_binary(pref->type)) {
+            xml_att_val(thisAgent, kReferent, pref->referent);
+        }
+        if (pref->o_supported) {
+            xml_att_val(thisAgent, kOSupported, ":O");
+        }
+        xml_end_tag(thisAgent, kTagPreference);
+        */
+    }
+
+    
 
 }

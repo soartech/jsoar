@@ -55,6 +55,7 @@ public class FunctionalTests
     public void tearDown() throws Exception
     {
         agent.getPrinter().flush();
+        ifc.dispose();
     }
 
     @Test
