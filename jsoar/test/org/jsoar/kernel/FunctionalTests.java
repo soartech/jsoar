@@ -75,14 +75,7 @@ public class FunctionalTests
                 return null;
             }});
         
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
+        agent.decisionCycle.run_for_n_decision_cycles(1);
         
         assertTrue(matches.contains("J1_0"));
         assertTrue(matches.contains("J2_1"));
@@ -107,14 +100,7 @@ public class FunctionalTests
                 return null;
             }});
         
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
-        agent.decisionCycle.do_one_top_level_phase();
+        agent.decisionCycle.run_for_n_decision_cycles(1);
         
         assertTrue(matches.contains("monitor*contents"));
         assertTrue(matches.contains("elaborate*free"));
@@ -127,9 +113,6 @@ public class FunctionalTests
     {
         sourceTestFile("testWaterJug.soar");
         
-        for(int i = 0; i < 100; ++i)
-        {
-            agent.decisionCycle.do_one_top_level_phase();
-        }
+        agent.decisionCycle.run_for_n_decision_cycles(25);
     }
 }

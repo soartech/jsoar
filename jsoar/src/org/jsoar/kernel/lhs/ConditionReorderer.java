@@ -468,7 +468,7 @@ public class ConditionReorderer
     }
 
     /**
-     * reorder.cpp:508
+     * production.cpp:503:canonical_test
      * 
      * @param t
      * @return
@@ -488,7 +488,7 @@ public class ConditionReorderer
             Symbol sym = eq.getReferent();
             if (sym.asSymConstant() != null || sym.asIntConstant() != null || sym.asFloatConstant() != null)
             {
-                return sym.hashCode(); // TODO: hash_id???
+                return sym.hash_id;
             }
             return NON_EQUAL_TEST_RETURN_VAL;
         }

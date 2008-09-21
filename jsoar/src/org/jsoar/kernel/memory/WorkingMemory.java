@@ -52,10 +52,6 @@ public class WorkingMemory
             printer.warn("Internal warning: wanted to reset wme timetag generator, but\n" +
             		"there are still some wmes allocated. (Probably a memory leak.)\n" +
             		"(Leaving timetag numbers alone.)\n");
-            // TODO xml_generate_warning(thisAgent, "Internal warning: wanted to
-            // reset wme timetag generator, but\nthere are still some wmes
-            // allocated. (Probably a memory leak.)\n(Leaving timetag numbers
-            // alone.)");
             return;
         }
         current_wme_timetag = 1;

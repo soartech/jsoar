@@ -70,14 +70,17 @@ public class Slot
     public final AsListItem<Slot> next_prev = new AsListItem<Slot>(this); // dll of slots for this id
     public final Identifier id; 
     public final Symbol attr;
+
     public final ListHead<Wme> wmes = new ListHead<Wme>(); // dll of wmes in the slot
     public final ListHead<Wme> acceptable_preference_wmes = new ListHead<Wme>();  // dll of acceptable pref. wmes
     public final ListHead<Preference> all_preferences = new ListHead<Preference>(); // dll of all pref's in the slot
     public final List<ListHead<Preference>> preferences = new ArrayList<ListHead<Preference>>(PreferenceType.values().length); // dlls for each type
+
     public Identifier impasse_id = null;               // null if slot is not impassed
-    public boolean isa_context_slot;            
+    public final boolean isa_context_slot;            
     public ImpasseType impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
     boolean marked_for_possible_removal = false;
+    
     /**
      * for non-context slots: points to the corresponding
      * dl_cons in changed_slots;  for context slots: just
@@ -86,6 +89,7 @@ public class Slot
      * TODO Sub-class instead of using this for two things
      */
     public Object changed;
+    
     /**
      * for context slots: either zero, or points to dl_cons if the slot has
      * changed + or ! pref's

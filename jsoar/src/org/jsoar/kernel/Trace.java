@@ -181,16 +181,9 @@ public class Trace
         this.wmeTraceType = wmeTraceType;
     }
 
-    /**
-     * Trace a string in a particular category.
-     * 
-     * @param c The category
-     * @param format The printf-style format string
-     * @param args printf arguments
-     */
-    public Trace print(Category c, String format, Object... args)
+    public Trace print(String format, Object... args)
     {
-        if(enabled && settings[c.ordinal()])
+        if(enabled)
         {
             for(int i = 0; i < args.length; ++i)
             {
@@ -202,6 +195,23 @@ public class Trace
                 }
             }
             printer.print(format, args);
+        }
+        return this;
+        
+    }
+    
+    /**
+     * Trace a string in a particular category.
+     * 
+     * @param c The category
+     * @param format The printf-style format string
+     * @param args printf arguments
+     */
+    public Trace print(Category c, String format, Object... args)
+    {
+        if(enabled && settings[c.ordinal()])
+        {
+            print(format, args);
         }
         return this;
     }

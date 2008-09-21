@@ -6,7 +6,6 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.MatchSetChange;
 import org.jsoar.util.ListHead;
 
 /**

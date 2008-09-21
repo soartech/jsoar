@@ -707,29 +707,33 @@ public class ReteBuilder
      * e.g., "unbound varible number 6".  As we're doing this, we keep track
      * of the names of all the unbound variables.
      *
-     * When this routine is called, variables should be bound (densely) for
+     * <p>When this routine is called, variables should be bound (densely) for
      * the entire LHS.
+     * 
+     * <p>NOTE: In CSoar, variables are added to the front of the unbound var
+     * list and then reversed later by the calling code (because they're
+     * using CSoar's built in cons list). Here, we just add to the end of
+     * the list and omit the reversal.
      * 
      * rete.cpp:3424:fixup_rhs_value_variable_references
      * 
      * @param rete
-     * @param rv
+     * @param rv RHS value to fix up
      * @param bottom_depth
-     * @param rhs_unbound_vars_for_new_prod
-     * @param num_rhs_unbound_vars_for_new_prod
-     * @param rhs_unbound_vars_tc
+     * @param rhs_unbound_vars_for_new_prod Receives unbound variables
+     * @param rhs_unbound_vars_tc TC number for finding unbound variables
+     * @return The value to replace rv, possibly rv itself
      */
-    /*package*/ void fixup_rhs_value_variable_references(Rete rete, ByRef<RhsValue> rv, int bottom_depth,
-            LinkedList<Variable> rhs_unbound_vars_for_new_prod, ByRef<Integer> num_rhs_unbound_vars_for_new_prod,
-            int rhs_unbound_vars_tc)
+    /*package*/ RhsValue fixup_rhs_value_variable_references(Rete rete, RhsValue rv, int bottom_depth,
+            List<Variable> rhs_unbound_vars_for_new_prod, int rhs_unbound_vars_tc)
     {
-        RhsSymbolValue rvsym = rv.value.asSymbolValue();
+        RhsSymbolValue rvsym = rv.asSymbolValue();
         if (rvsym != null)
         {
             Variable var = rvsym.getSym().asVariable();
             if (var == null)
             {
-                return;
+                return rv;
             }
             /* --- Found a variable. Is is bound on the LHS? --- */
             VarLocation var_loc = new VarLocation();
@@ -737,7 +741,7 @@ public class ReteBuilder
             {
                 /* --- Yes, replace it with reteloc --- */
                 // symbol_remove_ref (thisAgent, sym);
-                rv.value = new ReteLocation(var_loc.field_num, var_loc.levels_up - 1);
+                return new ReteLocation(var_loc.field_num, var_loc.levels_up - 1);
             }
             else
             {
@@ -745,28 +749,23 @@ public class ReteBuilder
                 int index = 0;
                 if (var.tc_number != rhs_unbound_vars_tc)
                 {
-                    // symbol_add_ref (sym);
-                    rhs_unbound_vars_for_new_prod.push(var);
+                    // index of v
+                    index = rhs_unbound_vars_for_new_prod.size();
+                    
+                    rhs_unbound_vars_for_new_prod.add(var);
                     var.tc_number = rhs_unbound_vars_tc;
                     
-                    // Note: This originally just used ++, but crashed with a VerifyError
-                    // which is actually a bug in Java:
-                    //    http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=eb3fcd8f72ab4713f96e378a7575?bug_id=6614974
-                    index = num_rhs_unbound_vars_for_new_prod.value;
                     var.unbound_variable_index = index;
-                    num_rhs_unbound_vars_for_new_prod.value = num_rhs_unbound_vars_for_new_prod.value + 1;
                 }
                 else
                 {
                     index = var.unbound_variable_index;
                 }
-                rv.value = new UnboundVariable(index);
-                // symbol_remove_ref (thisAgent, sym);
+                return new UnboundVariable(index);
             }
-            return;
         }
 
-        RhsFunctionCall fc = rv.value.asFunctionCall();
+        RhsFunctionCall fc = rv.asFunctionCall();
         if (fc != null)
         {
             List<RhsValue> args = fc.getArguments();
@@ -774,11 +773,15 @@ public class ReteBuilder
                                                 // ref
             for (int i = 0; i < args.size(); ++i)
             {
-                ByRef<RhsValue> v = ByRef.create(args.get(i));
-                fixup_rhs_value_variable_references(rete, v, bottom_depth, rhs_unbound_vars_for_new_prod,
-                        num_rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
-                args.set(i, v.value);
+                RhsValue newV = fixup_rhs_value_variable_references(rete, args.get(i), bottom_depth, rhs_unbound_vars_for_new_prod,
+                        rhs_unbound_vars_tc);
+                args.set(i, newV);
             }
         }
+        else
+        {
+            throw new IllegalArgumentException("Unknown value type: " + rv);
+        }
+        return rv;
     }
 }

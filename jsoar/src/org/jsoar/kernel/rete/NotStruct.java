@@ -15,6 +15,18 @@ import org.jsoar.kernel.symbols.Symbol;
 public class NotStruct
 {
     NotStruct next;  /* next Not in the singly-linked list */
-    Symbol s1;               /* the two identifiers constrained to be "<>" */
-    Symbol s2;
+    final Symbol s1;               /* the two identifiers constrained to be "<>" */
+    final Symbol s2;
+    
+    /**
+     * @param s1
+     * @param s2
+     */
+    public NotStruct(Symbol s1, Symbol s2)
+    {
+        this.s1 = s1;
+        this.s2 = s2;
+    }
+    
+    
 }

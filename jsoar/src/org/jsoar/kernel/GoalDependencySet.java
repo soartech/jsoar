@@ -7,7 +7,7 @@ package org.jsoar.kernel;
 
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.util.Arguments;
 import org.jsoar.util.ListHead;
 
 /**
@@ -48,9 +48,33 @@ public class GoalDependencySet
     /**
      * pointer to the goal for the dependency set
      */
-    public Identifier goal;
+    private Identifier goal;
+    
     /**
      * pointer to the dll of WMEs in GDS of goal
      */
     public final ListHead<Wme> wmes_in_gds = new ListHead<Wme>();
+    
+    public GoalDependencySet(Identifier goal)
+    {
+        Arguments.checkNotNull(goal, "goal");
+        this.goal = goal;
+    }
+
+    /**
+     * @return the goal
+     */
+    public Identifier getGoal()
+    {
+        return goal;
+    }
+    
+    public void clearGoal()
+    {
+        if(this.goal == null)
+        {
+            throw new IllegalStateException("GDS goal has already been cleared");
+        }
+        this.goal = null;
+    }
 }

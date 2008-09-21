@@ -667,7 +667,11 @@ public class RecognitionMemory
             }
         }
 
-        context.trace.startNewLine().print(inst.prod.type.getTraceCategory(), "Firing %s", inst);
+        boolean trace_it = context.trace.isEnabled(inst.prod.type.getTraceCategory());
+        if(trace_it)
+        {
+            context.trace.startNewLine().print("Firing %s", inst);
+        }
         
         // initialize rhs_variable_bindings array with names of variables
         // (if there are any stored on the production -- for chunks there won't be any)
@@ -679,16 +683,11 @@ public class RecognitionMemory
         }
         this.firer_highest_rhs_unboundvar_index = index - 1;
 
-        /*
-         * 7.1/8 merge: Not sure about this. This code in 704, but not in either
-         * 7.1 or 703/soar8
-         */
         /* --- Before executing the RHS actions, tell the user that the -- */
         /* --- phase has changed to output by printing the arrow --- */
-        if(context.trace.isEnabled(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM))
+        if(trace_it && context.trace.isEnabled(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM))
         {
-            context.trace.print(inst.prod.type.getTraceCategory(), " -->\n");
-            // TODO xml_object( thisAgent, kTagActionSideMarker );
+            context.trace.print(" -->\n");
         }
 
         // execute the RHS actions, collect the results
@@ -741,7 +740,6 @@ public class RecognitionMemory
                         {
                             need_to_do_support_calculations = true;
                             context.trace.print(Category.TRACE_VERBOSE, "\n\nin create_instantiation(): need_to_do_support_calculations == TRUE!!!\n\n");
-                            // TODO xml_generate_verbose(thisAgent, "in create_instantiation(): need_to_do_support_calculations == TRUE!!!");
                         }
 
                     }
@@ -786,13 +784,13 @@ public class RecognitionMemory
         /* --- print trace info: printing preferences --- */
         /* Note: can't move this up, since fill_in_new_instantiation_stuff gives
            the o-support info for the preferences we're about to print */
-        // TODO trace
-        //   if (trace_it && thisAgent->sysparams[TRACE_FIRINGS_PREFERENCES_SYSPARAM]) {
-        //      for (pref=inst->preferences_generated; pref!=NIL; pref=pref->inst_next) {
-        //         print (thisAgent, " ");
-        //         print_preference (thisAgent, pref);
-        //      }
-        //   }
+        if (trace_it && context.trace.isEnabled(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM))
+        {
+            for (Preference pref : inst.preferences_generated)
+            {
+                context.trace.print(" %s", pref);
+            }
+        }
         /* mvp 5-17-94 */
         build_prohibits_list(inst);
 
@@ -883,7 +881,7 @@ public class RecognitionMemory
      * 
      * @param inst
      */
-    private void possibly_deallocate_instantiation(Instantiation inst)
+    void possibly_deallocate_instantiation(Instantiation inst)
     {
         if (inst.preferences_generated.isEmpty() && !inst.in_ms)
             deallocate_instantiation(inst);
@@ -967,7 +965,6 @@ public class RecognitionMemory
         if (context.operand2_mode)
         {
             context.trace.print(Category.TRACE_VERBOSE, "\n in assert_new_preferences:");
-            // TODO xml_generate_verbose(thisAgent, "in assert_new_preferences:");
         }
 
         if (SoarConstants.O_REJECTS_FIRST)
@@ -997,8 +994,7 @@ public class RecognitionMemory
             if (!o_rejects.isEmpty())
                 context.prefMemory.process_o_rejects_and_deallocate_them(o_rejects.first);
             
-            // Note: In CSoar there is some random code commented out at this point.
-            // Is it important? Who knows?
+            // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
         }
 
         AsListItem<Instantiation> inst, next_inst;
@@ -1013,9 +1009,6 @@ public class RecognitionMemory
              if (context.operand2_mode)
              {
                  context.trace.print(Category.TRACE_VERBOSE, "\n asserting instantiation: %s\n", inst.get().prod.name);
-//             SNPRINTF(buf, 254, "asserting instantiation: %s",
-//             symbol_to_string(thisAgent, inst->prod->name, true, 0, 0));
-// TODO            xml_generate_verbose(thisAgent, buf);
              }
 
             AsListItem<Preference> pref, next_pref;
@@ -1093,39 +1086,29 @@ public class RecognitionMemory
          * or not when we're ready to print a newline. 94.11.14
          */
 
-        // TODO trace
-        // if (thisAgent->sysparams[TRACE_PHASES_SYSPARAM]) {
-        // if (thisAgent->operand2_mode == TRUE) {
-        // if (thisAgent->current_phase == APPLY_PHASE) { /* it's always IE for
-        // PROPOSE */
-        // xml_begin_tag( thisAgent, kTagSubphase );
-        // xml_att_val( thisAgent, kPhase_Name, kSubphaseName_FiringProductions
-        // );
-        // switch (thisAgent->FIRING_TYPE) {
-        // case PE_PRODS:
-        // print (thisAgent, "\t--- Firing Productions (PE) For State At Depth
-        // %d ---\n", thisAgent->active_level); // SBW 8/4/2008: added
-        // active_level
-        // xml_att_val( thisAgent, kPhase_FiringType, kPhaseFiringType_PE );
-        // break;
-        // case IE_PRODS:
-        // print (thisAgent, "\t--- Firing Productions (IE) For State At Depth
-        // %d ---\n", thisAgent->active_level); // SBW 8/4/2008: added
-        // active_level
-        // xml_att_val( thisAgent, kPhase_FiringType, kPhaseFiringType_IE );
-        // break;
-        // }
-        // std::string* levelString = to_string(thisAgent->active_level);
-        // xml_att_val( thisAgent, kPhase_LevelNum, levelString->c_str()); //
-        // SBW 8/4/2008: active_level for XML output mode
-        // xml_end_tag( thisAgent, kTagSubphase );
-        // delete levelString;
-        // }
-        // }
-        // else
-        // // the XML for this is generated in this function
-        // print_phase (thisAgent, "\n--- Preference Phase ---\n",0);
-        // }
+        if (context.trace.isEnabled(Category.TRACE_PHASES_SYSPARAM))
+        {
+            if (context.operand2_mode)
+            {
+                if (context.decisionCycle.current_phase == Phase.APPLY_PHASE)
+                { /* it's always IE for PROPOSE */
+                    switch (FIRING_TYPE)
+                    {
+                    case PE_PRODS:
+                        context.trace.print("\t--- Firing Productions (PE) For State At Depth %d ---\n",
+                                context.decider.active_level);
+                        break;
+                    case IE_PRODS:
+                        context.trace.print("\t--- Firing Productions (IE) For State At Depth %d ---\n",
+                                context.decider.active_level);
+                        break;
+                    }
+                }
+            }
+            else
+                // the XML for this is generated in this function
+                context.trace.print("\n--- Preference Phase ---\n");
+        }
 
         this.newly_created_instantiations.first = null;
 

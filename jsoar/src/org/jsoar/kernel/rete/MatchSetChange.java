@@ -3,14 +3,10 @@
  *
  * Created on Aug 15, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.rete.Instantiation;
-import org.jsoar.kernel.rete.ReteNode;
-import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 
 /**
@@ -22,24 +18,54 @@ public class MatchSetChange
 {
     public final  AsListItem<MatchSetChange> next_prev = new AsListItem<MatchSetChange>(this); // dll for all p nodes
     public final AsListItem<MatchSetChange> of_node = new AsListItem<MatchSetChange>(this); // dll for just this p node
+    
     public ReteNode p_node; // for retractions, this can be null if the p node has been excised
-    public Token tok; // for assertions only
-    public Wme w; // for assertions only
+    public final Token tok; // for assertions only
+    public final Wme w; // for assertions only
     
     
-    public Instantiation inst;   // for retractions only
+    public final Instantiation inst;   // for retractions only
 
     public Identifier goal;
     public int level;              // Level of the match of the assertion or retraction
     public final AsListItem<MatchSetChange> in_level = new AsListItem<MatchSetChange>(this); // dll for goal level
 
-    public MatchSetChange(ReteNode p_node, Token tok, Wme w)
+    public static MatchSetChange createAssertion(ReteNode p_node, Token tok, Wme w)
     {
+        return new MatchSetChange(p_node, tok, w);
+    }
+    
+    public static MatchSetChange createRetraction(ReteNode p_node, Instantiation inst)
+    {
+        return new MatchSetChange(p_node, inst);
+    }
+    
+    public static MatchSetChange createRefracted(ReteNode p_node, Instantiation inst)
+    {
+        return new MatchSetChange(p_node, inst);
+    }
+    
+    private MatchSetChange(ReteNode p_node, Token tok, Wme w)
+    {
+        assert p_node.node_type == ReteNodeType.P_BNODE && p_node.b_p != null;
         assert (w == null && tok == null) || (w != tok.w);
         
         this.p_node = p_node;
         this.tok = tok;
         this.w = w;
+        this.inst = null;
+    }
+    
+    private MatchSetChange(ReteNode p_node, Instantiation inst)
+    {
+        assert p_node.node_type == ReteNodeType.P_BNODE && p_node.b_p != null;
+        assert inst != null;
+        
+        this.p_node = p_node;
+        this.inst = inst;
+        
+        this.w = null;
+        this.tok = null;
     }
     
     /**
@@ -53,14 +79,13 @@ public class MatchSetChange
 //        print_with_symbols(thisAgent, "\nMatch goal for assertion: %y", msc->p_node->b.p.prod->name); 
 //      #endif
 
-
         Wme lowest_goal_wme = null;
-        int lowest_level_so_far = -1;
+        //int lowest_level_so_far = -1;
 
         if (this.w != null) {
             if (this.w.id.isa_goal) {
               lowest_goal_wme = this.w;
-              lowest_level_so_far = this.w.id.level;
+              //lowest_level_so_far = this.w.id.level;
             }
         }
 

@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.PredefinedSymbols;
+import org.jsoar.kernel.Printer;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConditionReorderer;
@@ -43,6 +44,7 @@ import org.jsoar.util.ListHead;
 public class OSupport
 {
     private final PredefinedSymbols syms;
+    private final Printer printer;
     
     /**
      * agent.h:687:o_support_calculation_type
@@ -69,9 +71,10 @@ public class OSupport
      * @param syms
      * @param operator_symbol
      */
-    public OSupport(PredefinedSymbols syms)
+    public OSupport(PredefinedSymbols syms, Printer printer)
     {
         this.syms = syms;
+        this.printer = printer;
     }
 
     /**
@@ -548,57 +551,25 @@ public class OSupport
             {
                 if (op_elab == true)
                 {
-                    /* warn user about mixed actions */
+                    // warn user about mixed actions
                     if (o_support_calculation_type == 3)
                     {
-
-                        // TODO: Warn user about mixed actions
-                        // print_with_symbols(thisAgent, "\nWARNING: operator
-                        // elaborations mixed with operator applications\nget
-                        // o_support in prod %y", inst.prod.name);
-                        //                
-                        // growable_string gs =
-                        // make_blank_growable_string(thisAgent);
-                        // add_to_growable_string(thisAgent, &gs, "WARNING:
-                        // operator elaborations mixed with operator
-                        // applications\nget o_support in prod ");
-                        // add_to_growable_string(thisAgent, &gs,
-                        // symbol_to_string(thisAgent, inst.prod.name, true,
-                        // 0, 0));
-                        // xml_generate_warning(thisAgent,
-                        // text_of_growable_string(gs));
-                        // free_growable_string(thisAgent, gs);
+                        printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
+                        		     "get o_support in prod %s", inst.prod.name);
 
                         o_support = true;
                     }
                     else if (o_support_calculation_type == 4)
                     {
-                        // TODO: Warn user about mixed actions
-                        // print_with_symbols(thisAgent, "\nWARNING: operator
-                        // elaborations mixed with operator applications\nget
-                        // i_support in prod %y", inst.prod.name);
-                        //
-                        // growable_string gs =
-                        // make_blank_growable_string(thisAgent);
-                        // add_to_growable_string(thisAgent, &gs, "WARNING:
-                        // operator elaborations mixed with operator
-                        // applications\nget i_support in prod ");
-                        // add_to_growable_string(thisAgent, &gs,
-                        // symbol_to_string(thisAgent, inst.prod.name, true,
-                        // 0, 0));
-                        // xml_generate_warning(thisAgent,
-                        // text_of_growable_string(gs));
-                        // free_growable_string(thisAgent, gs);
+                        printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
+                        		"get i_support in prod %s", inst.prod.name);
 
                         o_support = false;
                     }
                 }
             }
 
-            /*
-             * assign every preference the correct support
-             */
-
+            // assign every preference the correct support
             for (Preference pref : inst.preferences_generated)
             {
                 pref.o_supported = o_support;
