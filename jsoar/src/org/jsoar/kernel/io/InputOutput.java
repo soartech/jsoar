@@ -41,7 +41,7 @@ import org.jsoar.util.ListHead;
  * Inform_output_module_of_wm_changes() and do_output_cycle() are the
  * two top-level entry points to the output routines.  The former is
  * called by the working memory manager, and the latter from the top-level
- * phase sequencer.
+ * phases sequencer.
  *
  * This module maintains information about all the existing output links
  * and the identifiers and wmes that are in the transitive closure of them.
@@ -376,7 +376,7 @@ public class InputOutput
         // TODO ol->cb = cb;
 
         /* SW 07 10 2003
-           previously, this wouldn't be done until the first OUTPUT phase.
+           previously, this wouldn't be done until the first OUTPUT phases.
            However, if we add an output command in the 1st decision cycle,
            Soar seems to ignore it.
 
@@ -384,8 +384,8 @@ public class InputOutput
            calculation, which may get done too late, in such a way that the
            initial calculation includes the command.  The other thing appears
            to be that some data structures are not initialized until the first 
-           output phase.  Namely, id->associated_output_links does not seem
-           reflect the current output links until the first output-phase.
+           output phases.  Namely, id->associated_output_links does not seem
+           reflect the current output links until the first output-phases.
 
            To get past these issues, we fake a transitive closure calculation
            with the knowledge that the only thing on the output link at this
@@ -608,7 +608,7 @@ public class InputOutput
     }
 
     /**
-     * This routine is called from the top-level sequencer, and it performs the whole output phase. It scans through the
+     * This routine is called from the top-level sequencer, and it performs the whole output phases. It scans through the
      * list of existing output links, and takes the appropriate action on each one that's changed.
      * 
      * io.cpp:677:do_output_cycle

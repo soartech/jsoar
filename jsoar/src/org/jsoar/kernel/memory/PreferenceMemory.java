@@ -302,7 +302,7 @@ public class PreferenceMemory
      * Process_o_rejects_and_deallocate_them() handles the processing of
      * o-supported reject preferences. This routine is called from the firer and
      * passed a list of all the o-rejects generated in the current preference
-     * phase (the list is linked via the "next" fields on the preference
+     * phases (the list is linked via the "next" fields on the preference
      * structures). This routine removes all preferences for matching values
      * from TM, and deallocates the o-reject preferences when done.
      * 

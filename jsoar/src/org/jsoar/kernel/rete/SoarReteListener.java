@@ -649,7 +649,7 @@ public class SoarReteListener implements ReteListener
                      * when the retraction is created. So the goal for a
                      * retraction will always be valid, even though, for
                      * retractions caused by goal removals, the goal will be
-                     * removed at the next WM phase. (You can see this by
+                     * removed at the next WM phases. (You can see this by
                      * printing the identifier for the goal in the elaboration
                      * cycle after goal removal. It's still there, although
                      * nothing is attacjed to it. One elab later, the identifier

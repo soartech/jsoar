@@ -232,7 +232,7 @@ public class Decider
     
 
     /**
-     * At the end of the phase, do_buffered_acceptable_preference_wme_changes()
+     * At the end of the phases, do_buffered_acceptable_preference_wme_changes()
      * is called to update the acceptable preference wmes. This should be called
      * *before* do_buffered_link_changes() and do_buffered_wm_changes().
      * 
@@ -2413,7 +2413,7 @@ public class Decider
     }
     
     /**
-     * does the end-of-phase processing of WM changes, ownership calculations,
+     * does the end-of-phases processing of WM changes, ownership calculations,
      * garbage collection, etc. 
      * 
      * decide.cpp::do_buffered_wm_and_ownership_changes
@@ -2483,7 +2483,7 @@ public class Decider
 
         context.decisionManip.predict_srand_restore_snapshot(!predict);
 
-        /* phase printing moved to init_soar: do_one_top_level_phase */
+        /* phases printing moved to init_soar: do_one_top_level_phase */
 
         decide_context_slots(predict);
 
@@ -3118,7 +3118,7 @@ public class Decider
 
         /* usually, we'd call do_buffered_wm_and_ownership_changes() here, but
          * we don't need to because it will be done at the end of the working
-         * memory phase; cf. the end of do_working_memory_phase().
+         * memory phases; cf. the end of do_working_memory_phase().
          */
 
         /* REW: begin 11.25.96 */

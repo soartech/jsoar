@@ -77,7 +77,7 @@ public class Trace
     
     public static Trace createStdOutTrace()
     {
-        return new Trace(new Printer(new OutputStreamWriter(System.out)));
+        return new Trace(new Printer(new OutputStreamWriter(System.out), true));
     }
     
     private final Printer printer;

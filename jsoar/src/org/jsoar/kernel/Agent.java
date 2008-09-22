@@ -33,7 +33,7 @@ public class Agent
 {
     public int MAX_GOAL_DEPTH = 100;
     
-    private Printer printer = new Printer(new OutputStreamWriter(System.out));
+    private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
     public final Trace trace = new Trace(printer);
     
     public final PredefinedSymbols predefinedSyms = new PredefinedSymbols();
@@ -141,10 +141,10 @@ public class Agent
         // update_for_top_state_wme_addition). This change added
         // an item to the associated_output_links list.
         // But the ol->ids_in_tc is still not initialized until the first output
-        // phase, so if we exit before that,
+        // phases, so if we exit before that,
         // remove_output_link_tc_info doesn't see it and doesn't clean up the
         // associated_output_links list.
-        // If we do run an output phase, though, the same item is added to the
+        // If we do run an output phases, though, the same item is added to the
         // associated_output_links list twice.
         // ol->ids_in_tc gets initialized, so remove_output_link_tc_info -- but
         // it only cleans up the first copy

@@ -107,7 +107,7 @@ public class Consistency
 
 
     /**
-     * This code concerns the implementation of a 'consistency check' following each IE phase. The basic idea is that we
+     * This code concerns the implementation of a 'consistency check' following each IE phases. The basic idea is that we
      * want context decisions to remain consistent with the current preferences, even if the proposal for some operator
      * is still acceptable 
      * 
@@ -657,14 +657,14 @@ public class Consistency
             /* This is quiescence */
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE
-            printf("\n(Full) APPLY phase Quiescence has been reached...going to output\n");
+            printf("\n(Full) APPLY phases Quiescence has been reached...going to output\n");
             #endif
             */
 
             /* Need to determine if this quiescence is also a minor quiescence,
             otherwise, an inconsistent decision could get retained here (because
             the consistency check was never run). (2.008).  Therefore, if
-            in the previous preference phase, IE_PRODS fired, then force a 
+            in the previous preference phases, IE_PRODS fired, then force a 
             consistency check over the entire stack (by checking at the
             bottom goal). */
 
@@ -674,7 +674,7 @@ public class Consistency
             }
 
             // TODO why is this here?
-            /* regardless of the outcome, we go to the output phase */
+            /* regardless of the outcome, we go to the output phases */
             context.decisionCycle.current_phase = Phase.OUTPUT_PHASE;
             return;
         }
@@ -685,7 +685,7 @@ public class Consistency
 
         if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations )
         {
-            context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to output phase.", maxElaborations);
+            context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to output phases.", maxElaborations);
             context.decisionCycle.current_phase = Phase.OUTPUT_PHASE;
             return;
         }
@@ -744,7 +744,7 @@ public class Consistency
             #endif
             */
             context.recMemory.FIRING_TYPE = active_production_type_at_goal(context.decider.active_goal);
-            /* in APPLY phase, we can test for ONC here, check ms_o_assertions */
+            /* in APPLY phases, we can test for ONC here, check ms_o_assertions */
             // KJC: thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -807,7 +807,7 @@ public class Consistency
                 break;
             }
 
-            /* else: just do a preference phase */
+            /* else: just do a preference phases */
             context.recMemory.FIRING_TYPE = active_production_type_at_goal(context.decider.active_goal);
             // KJC: thisAgent->current_phase = PREFERENCE_PHASE;
             break;
@@ -925,7 +925,7 @@ public class Consistency
         // previous
         // code change required #define, but it was never defined.
         /* We are only checking for i_assertions, not o_assertions, since we don't
-         *  want operators to fire in the proposal phase
+         *  want operators to fire in the proposal phases
          */
         if (!(!context.soarReteListener.ms_retractions.isEmpty() || !context.soarReteListener.ms_i_assertions.isEmpty()))
         {
@@ -942,7 +942,7 @@ public class Consistency
                 the bottom goal). */
                 goal_stack_consistent_through_goal(context.decider.bottom_goal);
 
-                /* Decision phase is always next */
+                /* Decision phases is always next */
 
                 context.decisionCycle.current_phase = Phase.DECISION_PHASE;
                 return;
@@ -955,7 +955,7 @@ public class Consistency
 
         if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations)
         {
-            context.getPrinter().warn("Warning: reached max-elaborations(%d); proceeding to decision phase.", maxElaborations);
+            context.getPrinter().warn("Warning: reached max-elaborations(%d); proceeding to decision phases.", maxElaborations);
             context.decisionCycle.current_phase = Phase.DECISION_PHASE;
             return;
         }
@@ -1026,13 +1026,13 @@ public class Consistency
             #endif
             */
             /* There is always a minor quiescence at the previous level
-               in the propose phase, so check for consistency. */
+               in the propose phases, so check for consistency. */
             if (!goal_stack_consistent_through_goal(context.decider.previous_active_goal))
             {
                 context.decisionCycle.current_phase = Phase.DECISION_PHASE;
                 break;
             }
-            /* else: just do a preference phase */
+            /* else: just do a preference phases */
             context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             // thisAgent->current_phase = PREFERENCE_PHASE;
             break;

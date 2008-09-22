@@ -21,7 +21,7 @@ import org.jsoar.util.ListHead;
  * preference to it (through some later action of the same production firing,
  * for example).
  * 
- * At the end of the phase, we call remove_garbage_slots(), which scans through
+ * At the end of the phases, we call remove_garbage_slots(), which scans through
  * each marked slot and garbage collects it if it has no wmes or preferences.
  * 
  * tempmem.cpp
