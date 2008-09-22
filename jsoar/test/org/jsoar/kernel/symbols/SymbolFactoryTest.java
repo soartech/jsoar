@@ -114,18 +114,20 @@ public class SymbolFactoryTest
     }
     
     @Test
-    @Ignore
     public void testGarbageCollectedSymbolsAreRemovedFromCache()
     {
-        // TODO: Implement this functionality using WeakReference
         for(int i = 0; i < 1000; ++i)
         {
-            syms.make_int_constant(i);
+            assertNotNull(syms.make_int_constant(i));
+            assertNotNull(syms.make_sym_constant(Integer.toString(i)));
         }
+        // Why do I believe this test works? Because it fails if I remove the
+        // call to the garbage collector here :)
         System.gc();
         for(int i = 0; i < 1000; ++i)
         {
             assertNull(syms.find_int_constant(i));
+            assertNull(syms.find_sym_constant(Integer.toString(i)));
         }
     }
 }
