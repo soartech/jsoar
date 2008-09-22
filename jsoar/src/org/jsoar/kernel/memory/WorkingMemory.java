@@ -288,7 +288,7 @@ public class WorkingMemory
         // for (cr=thisAgent->wmes_to_remove; cr!=NIL; cr=next_c) {
         // next_c = cr->rest;
         // if (w == cr->first) {
-        // const char * const kWarningMessage = "WARNING: WME added and removed in same phase : ";
+        // const char * const kWarningMessage = "WARNING: WME added and removed in same phases : ";
         // print (thisAgent, const_cast< char* >( kWarningMessage) );
         // xml_begin_tag( thisAgent, kTagWarning );
         // xml_att_val( thisAgent, kTypeString, kWarningMessage );

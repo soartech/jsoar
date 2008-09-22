@@ -240,6 +240,14 @@ public class Rete
     }
     
     /**
+     * @return List of all Wmes currently in the rete
+     */
+    public ListHead<Wme> getAllWmes()
+    {
+        return all_wmes_in_rete;
+    }
+    
+    /**
      * Simpler method that adds a production to the rete with default options
      * 
      * @param p The production to add
@@ -377,7 +385,7 @@ public class Rete
         /*
          * 
          * in operand, we don't want to refract the instantiation. consider this
-         * situation: a PE chunk was created during the IE phase. that
+         * situation: a PE chunk was created during the IE phases. that
          * instantiation shouldn't be applied and we prevent this from happening
          * (see chunk_instantiation() in chunk.c). we eventually get to the
          * OUTPUT_PHASE, then the QUIESCENCE_PHASE. up to this point, the chunk

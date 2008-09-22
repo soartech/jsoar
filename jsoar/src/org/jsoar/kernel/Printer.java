@@ -8,6 +8,7 @@ package org.jsoar.kernel;
 import java.io.PrintWriter;
 import java.io.Writer;
 
+import org.apache.commons.io.output.NullWriter;
 import org.jsoar.kernel.memory.Preference;
 
 /**
@@ -15,33 +16,57 @@ import org.jsoar.kernel.memory.Preference;
  */
 public class Printer
 {
-    private final PrintWriter writer;
+    private Writer internalWriter;
+    private PrintWriter wrappedWriter;
     
     private boolean printWarnings = true;
     
     /**
-     * @param writer
+     * @param writer The writer to write to. If null, then a NullWriter is used
+     *          and all output will be dropped.
      */
-    public Printer(Writer writer)
+    public Printer(Writer writer, boolean autoFlush)
     {
-        this.writer = new PrintWriter(writer);
+        this.internalWriter = writer != null ? writer : new NullWriter();
+        this.wrappedWriter = new PrintWriter(internalWriter, autoFlush);
+    }
+    
+    /**
+     * @return The current writer
+     */
+    public Writer getWriter()
+    {
+        return internalWriter;
+    }
+    
+    /**
+     * Set the current writer to print to.
+     * 
+     * @param writer The new writer to write to. If null, the a NullWriter is
+     *      used and all output will be dropped.
+     * @param autoFlush If true, writer will autoflush on prints
+     */
+    public void setWriter(Writer writer, boolean autoFlush)
+    {
+        this.internalWriter = writer != null ? writer : new NullWriter();
+        this.wrappedWriter = new PrintWriter(internalWriter, autoFlush);
     }
     
     public Printer print(String format, Object ... args)
     {
-        this.writer.printf(format, args);
+        this.wrappedWriter.printf(format, args);
         return this;
     }
     
     public Printer startNewLine()
     {
-        this.writer.append('\n');
+        this.wrappedWriter.append('\n');
         return this;
     }
     
     public Printer flush()
     {
-        this.writer.flush();
+        this.wrappedWriter.flush();
         return this;
     }
 

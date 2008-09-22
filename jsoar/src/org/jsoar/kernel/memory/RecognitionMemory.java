@@ -47,7 +47,7 @@ import org.jsoar.util.ListHead;
  * Init_firer() and init_chunker() should be called at startup time, to do
  * initialization.
  * 
- * Do_preference_phase() runs the entire preference phase. This is called from
+ * Do_preference_phase() runs the entire preference phases. This is called from
  * the top-level control in main.c.
  * 
  * Possibly_deallocate_instantiation() checks whether an instantiation can be
@@ -684,7 +684,7 @@ public class RecognitionMemory
         this.firer_highest_rhs_unboundvar_index = index - 1;
 
         /* --- Before executing the RHS actions, tell the user that the -- */
-        /* --- phase has changed to output by printing the arrow --- */
+        /* --- phases has changed to output by printing the arrow --- */
         if(trace_it && context.trace.isEnabled(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM))
         {
             context.trace.print(" -->\n");
@@ -1069,7 +1069,7 @@ public class RecognitionMemory
     }
 
     /**
-     * This routine is called from the top level to run the preference phase.
+     * This routine is called from the top level to run the preference phases.
      * 
      * recmem.cpp:1035:do_preference_phase
      * 

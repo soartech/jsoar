@@ -49,7 +49,7 @@ import org.jsoar.util.ListHead;
  *
  *    marked_for_possible_removal:  TRUE iff this slot is on the list of
  *      slots that might be deallocated at the end of the current top-level
- *      phase.
+ *      phases.
  *
  *    changed:  indicates whether the preferences for this slot have changed.
  *      For non-context slots, this is either NIL or a pointer to the
