@@ -6,24 +6,46 @@
 package org.jsoar.kernel.symbols;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 
+import com.google.common.base.ReferenceType;
+import com.google.common.collect.ReferenceMap;
+
 /**
+ * Primary symbol management class. This class maintains the symbol "cache"
+ * for an agent. When a symbol is created, it is cached for reuse the next
+ * time a symbol with the same value is requested. We use 
+ * <a href="http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/ReferenceMap.html">Google Collections ReferenceMap</a>
+ * to correctly manage the maps. Without this, the memory would grow larger over 
+ * time because symbols can't be garbage collected as long as they're in the
+ * cache.
+ * 
  * @author ray
  */
 public class SymbolFactory
 {
+    /**
+     * A helper method to make the initializations below a little less ugly.
+     * 
+     * @param <K> Map key type
+     * @param <V> Map value type
+     * @return Reference map with strong key references and weak value references
+     */
+    private static <K, V> Map<K, V> newReferenceMap()
+    {
+        return new ReferenceMap<K, V>(ReferenceType.STRONG, ReferenceType.WEAK);
+    }
+    
     private int id_counter[] = new int[26];
-    private Map<String, SymConstant> symConstants = new HashMap<String, SymConstant>();
-    private Map<Integer, IntConstant> intConstants = new HashMap<Integer, IntConstant>();
-    private Map<Double, FloatConstant> floatConstants = new HashMap<Double, FloatConstant>();
-    private Map<IdKey, Identifier> identifiers = new HashMap<IdKey, Identifier>();
-    private Map<String, Variable> variables = new HashMap<String, Variable>();
+    private Map<String, SymConstant> symConstants = newReferenceMap();
+    private Map<Integer, IntConstant> intConstants = newReferenceMap();
+    private Map<Double, FloatConstant> floatConstants = newReferenceMap();
+    private Map<IdKey, Identifier> identifiers = newReferenceMap();
+    private Map<String, Variable> variables = newReferenceMap();
 
     private int current_tc_number = 0;
     private int current_symbol_hash_id = 0; 
