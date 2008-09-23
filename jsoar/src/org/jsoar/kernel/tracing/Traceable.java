@@ -3,7 +3,7 @@
  *
  * Created on Sep 20, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.kernel.tracing;
 
 import java.util.Formatter;
 

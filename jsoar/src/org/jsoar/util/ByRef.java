@@ -12,7 +12,18 @@ public class ByRef<T>
 {
     public T value;
     
-    public static <T, U extends T> ByRef<T> create(U value)
+    /**
+     * Convenience function to create a new ByRef. 
+     * 
+     * Initially, there was an addition type parameter, U extends T, to make it
+     * a little easier to use, but it turns out that Eclipse compiles this usage
+     * fine, but the actual JDK compiler hates it. Way it goes.
+     *  
+     * @param <T>
+     * @param value
+     * @return
+     */
+    public static <T> ByRef<T> create(T value)
     {
         return new ByRef<T>(value);
     }

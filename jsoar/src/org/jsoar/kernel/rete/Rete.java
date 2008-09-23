@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
-import org.jsoar.kernel.Trace;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
@@ -33,6 +32,7 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;

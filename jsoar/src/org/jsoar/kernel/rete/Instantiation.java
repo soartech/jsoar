@@ -8,14 +8,14 @@ package org.jsoar.kernel.rete;
 import java.util.Formatter;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.Trace;
-import org.jsoar.kernel.Traceable;
-import org.jsoar.kernel.Trace.WmeTraceType;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.Traceable;
+import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 

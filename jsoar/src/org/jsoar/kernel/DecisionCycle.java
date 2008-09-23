@@ -5,7 +5,12 @@
  */
 package org.jsoar.kernel;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 
 /**
@@ -43,7 +48,7 @@ public class DecisionCycle
     private int run_elaboration_count;
     private int input_period;
     private boolean applyPhase;
-    private int e_cycle_count;
+    public int e_cycle_count;
     private int pe_cycle_count;
     private int pe_cycles_this_d_cycle;
     private int run_last_output_count;
@@ -557,11 +562,19 @@ public class DecisionCycle
             // TODO callback AFTER_DECISION_PHASE_CALLBACK/DECISION_PHASE
             // soar_invoke_callbacks(thisAgent, AFTER_DECISION_PHASE_CALLBACK, (soar_call_data) DECISION_PHASE);
 
-            // TODO trace decisions
-            // if (thisAgent->sysparams[TRACE_CONTEXT_DECISIONS_SYSPARAM]) {
-            // print_string (thisAgent, "\n");
-            // print_lowest_slot_in_context_stack (thisAgent);
-            // }
+            if (context.trace.isEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM)) {
+                final Writer writer = context.trace.getPrinter().getWriter();
+                try
+                {
+                    writer.append("\n");
+                    context.decider.print_lowest_slot_in_context_stack (writer);
+                }
+                catch (IOException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+             }
 
             if (context.operand2_mode == false)
             {
@@ -586,6 +599,7 @@ public class DecisionCycle
             if (context.operand2_mode == true)
             {
                 /*
+                 TODO What to do about this blob of code... AGRESSIVE_ONC
                 #ifdef AGRESSIVE_ONC
                 // test for Operator NC, if TRUE, generate substate and go to OUTPUT
                 if ((thisAgent->ms_o_assertions == NIL) &&

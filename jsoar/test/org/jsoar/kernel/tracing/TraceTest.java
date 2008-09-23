@@ -3,13 +3,15 @@
  *
  * Created on Sep 16, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.kernel.tracing;
 
 import static org.junit.Assert.*;
 
 import java.io.StringWriter;
 
-import org.jsoar.kernel.Trace.Category;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.Trace.Category;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel;
 
-import org.jsoar.kernel.Trace.Category;
+import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
  * @author ray

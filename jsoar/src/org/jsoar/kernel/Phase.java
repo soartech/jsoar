@@ -1,6 +1,7 @@
 package org.jsoar.kernel;
 
-import org.jsoar.kernel.Trace.Category;
+import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
  * init_soar.h:127:top_level_phase

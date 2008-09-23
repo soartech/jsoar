@@ -16,7 +16,6 @@ import static org.junit.Assert.assertSame;
 import org.jsoar.util.ByRef;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -70,7 +69,7 @@ public class SymbolFactoryTest
     {
         FloatConstant s = syms.make_float_constant(3.14);
         assertNotNull(s);
-        assertEquals(3.14, s.value);
+        assertEquals(3.14, s.value, 0.0001);
         assertFalse(s.hash_id == 0);
         assertSame(s, syms.find_float_constant(s.value));
         assertSame(s, syms.make_float_constant(s.value));
@@ -110,7 +109,7 @@ public class SymbolFactoryTest
         assertNotSame(a0, a2);
         assertNotSame(a1, a2);
         assertEquals("A2", a2.name);
-        assertEquals(3, number.value);
+        assertEquals(3, number.value.intValue());
     }
     
     @Test

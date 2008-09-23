@@ -15,7 +15,6 @@ import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
-import org.jsoar.kernel.Trace.Category;
 import org.jsoar.kernel.learning.ReinforcementLearning;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
@@ -37,6 +36,7 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 

@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.PredefinedSymbols;
-import org.jsoar.kernel.Printer;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConditionReorderer;
@@ -32,6 +31,7 @@ import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 

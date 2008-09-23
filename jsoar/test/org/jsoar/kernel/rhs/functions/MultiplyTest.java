@@ -38,7 +38,7 @@ public class MultiplyTest extends JSoarTest
     {
         Multiply multiply = new Multiply();
         
-        assertEquals(123.4, multiply.execute(syms, syms.makeList(123.4)).asFloatConstant().value);
+        assertEquals(123.4, multiply.execute(syms, syms.makeList(123.4)).asFloatConstant().value, 0.0001);
     }
     
     @Test
@@ -46,7 +46,7 @@ public class MultiplyTest extends JSoarTest
     {
         Multiply multiply = new Multiply();
         
-        assertEquals(2 * 123.4 * -2, multiply.execute(syms, syms.makeList(2, 123.4, -2)).asFloatConstant().value);
+        assertEquals(2 * 123.4 * -2, multiply.execute(syms, syms.makeList(2, 123.4, -2)).asFloatConstant().value, 0.0001);
     }
     
     @Test
@@ -62,7 +62,7 @@ public class MultiplyTest extends JSoarTest
     {
         Multiply multiply = new Multiply();
         
-        assertEquals(2.0 * 3.0 * 4.0 * -2.0, multiply.execute(syms, syms.makeList(2.0, 3.0, 4.0, -2.0)).asFloatConstant().value);
+        assertEquals(2.0 * 3.0 * 4.0 * -2.0, multiply.execute(syms, syms.makeList(2.0, 3.0, 4.0, -2.0)).asFloatConstant().value, 0.0001);
     }
 
 }
