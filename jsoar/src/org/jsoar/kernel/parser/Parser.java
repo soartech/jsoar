@@ -449,7 +449,7 @@ private void substitute_for_placeholders_in_action_list (Action a) {
     return parse_simple_test();
   /* --- parse and return conjunctive test --- */
   lexer.getNextLexeme();
-  ByRef<Test> t = ByRef.create(new EqualityTest(null)); // make_blank_test();
+  ByRef<Test> t = new ByRef<Test>(new EqualityTest(null)); // make_blank_test();
   do {
     Test temp = parse_simple_test();
     if (temp == null) {

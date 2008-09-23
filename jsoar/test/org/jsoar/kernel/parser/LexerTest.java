@@ -41,7 +41,7 @@ public class LexerTest
         assertNotNull(lexeme);
         
         assertEquals(LexemeTypes.FLOAT_CONSTANT_LEXEME, lexeme.type);
-        assertEquals(123.456f, lexeme.float_val);
+        assertEquals(123.456f, lexeme.float_val, 0.001);
         
     }
     

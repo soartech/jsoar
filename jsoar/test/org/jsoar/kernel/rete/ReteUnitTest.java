@@ -13,10 +13,10 @@ import java.util.Set;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.Trace;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.tracing.Trace;
 import org.junit.Before;
 import org.junit.Test;
 

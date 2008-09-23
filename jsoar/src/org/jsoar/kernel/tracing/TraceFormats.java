@@ -1,0 +1,1247 @@
+/*
+ * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
+ *
+ * Created on Sep 22, 2008
+ */
+package org.jsoar.kernel.tracing;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.memory.Slot;
+import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.util.StringTools;
+
+
+/**   
+ * Object and stack trace formats are managed by this module.
+ * 
+ * Init_tracing() initializes the tables; at this point, there are no trace
+ * formats for anything.  This routine should be called at startup time.
+ * 
+ * Trace formats are changed by calls to add_trace_format() and
+ * remove_trace_format().  Add_trace_format() returns TRUE if the
+ * format was successfully added, or FALSE if the format string didn't
+ * parse right.  Remove_trace_format() returns TRUE if a trace format
+ * was actually removed, or FALSE if there was no such trace format for
+ * the given type/name restrictions.  These routines take a "stack_trace"
+ * argument, which should be TRUE if the stack trace format is intended,
+ * or FALSE if the object trace format is intended.  Their
+ * "type_restriction" argument should be one of FOR_ANYTHING_TF, ...,
+ * FOR_OPERATORS_TF.  The "name_restriction" argument should be either
+ * a pointer to a symbol, if the trace format is  restricted to apply
+ * to objects with that name, or NIL if the format can apply to any object.
+ * 
+ * Print_all_trace_formats() prints out either all existing stack trace
+ * or object trace formats.
+ * 
+ * Print_object_trace() takes an object (any symbol).  It prints the
+ * trace for that object.  Print_stack_trace() takes a (context)
+ * object (the state or op), the current state, the "slot_type"
+ * (one of FOR_OPERATORS_TF, etc.), and a flag indicating whether to
+ * allow %dc and %ec escapes (this flag should normally be TRUE for
+ * watch 0 traces but FALSE during a "print -stack" command).  It prints
+ * the stack trace for that context object.
+ * 
+ * trace.cpp
+ * 
+ * The following functioms from trace.cpp weren't implemented:
+ * print_tracing_rule:unimplemented
+ * print_tracing_rule_tcl:unimplemented
+ * print_trace_callback_fn:unimplemented
+ * print_all_trace_formats:unimplemented
+ * print_all_trace_formats_tcl:unimplemented
+ * set_print_trace_formats:unimplemented
+ * set_tagged_trace_formats:unimplemented
+ * print_stack_trace_xml:unimplemented
+ * print_object_trace_using_provided_format_string:unimplemented
+ * 
+ * @author ray
+ */
+public class TraceFormats
+{
+    private final Agent context;
+    private String format;
+    private int offset;
+    private String format_string_error_message;
+    
+    private static Map<TraceFormatRestriction, Map<Symbol, TraceFormat>> createMap()
+    {
+        return new EnumMap<TraceFormatRestriction, Map<Symbol,TraceFormat>>(TraceFormatRestriction.class);
+    }
+    
+    // Converted to Java maps from Soar hashtables
+    private Map<TraceFormatRestriction, Map<Symbol, TraceFormat>> stack_tr_ht = createMap();
+    private Map<TraceFormatRestriction, Map<Symbol, TraceFormat>> object_tr_ht = createMap();
+    private Map<TraceFormatRestriction, TraceFormat> stack_tf_for_anything = new EnumMap<TraceFormatRestriction, TraceFormat>(TraceFormatRestriction.class);
+    private Map<TraceFormatRestriction, TraceFormat> object_tf_for_anything = new EnumMap<TraceFormatRestriction, TraceFormat>(TraceFormatRestriction.class);
+    
+    /**
+     * set to TRUE whenever an escape sequence result is undefined--for use with %ifdef
+     * 
+     * trace.cpp:921:found_undefined
+     */
+    private boolean found_undefined = false;
+    
+    /**
+     * trace.cpp:924:tracing_parameters
+     */
+    private static class TracingParameters
+    {
+        Identifier current_s = null;            // current state, etc. -- for use in %cs, etc.
+        Identifier current_o = null;
+        boolean allow_cycle_counts = false; // TRUE means allow %dc and %ec
+        
+        public TracingParameters() {}
+        public TracingParameters(TracingParameters other)
+        {
+            this.current_s = other.current_s;
+            this.current_o = other.current_o;
+            this.allow_cycle_counts = other.allow_cycle_counts;
+        }
+    }
+    
+    /**
+     * trace.cpp:928:tparams
+     */
+    private TracingParameters tparams = new TracingParameters();
+    private int tf_printing_tc;
+    
+    /**
+     * @param context
+     */
+    public TraceFormats(Agent context)
+    {
+        this.context = context;
+        
+        // trace.cpp:654:init_tracing
+        for(TraceFormatRestriction r : TraceFormatRestriction.values())
+        {
+            stack_tr_ht.put(r, new HashMap<Symbol, TraceFormat>());
+            object_tr_ht.put(r, new HashMap<Symbol, TraceFormat>());
+        }
+    }
+
+
+    /**
+     * parses a format string and returns a trace_format structure for it, or 
+     * NIL if any error occurred.  This is the top-level routine here.
+     * 
+     * trace.cpp:152:parse_format_string
+     * 
+     * @param string
+     * @return
+     */
+    private TraceFormat parse_format_string(String string)
+    {
+        format = string;
+
+        TraceFormat prev = null;
+        TraceFormat first = null;
+        offset = 0;
+        while (offset < string.length())
+        {
+            TraceFormat New = parse_item_from_format_string();
+            if (New == null)
+            {
+                context.getPrinter().error("Error:  bad trace format string: %s\n", string);
+                if (format_string_error_message != null) 
+                {
+                    context.getPrinter().print (" %s\n Error found at: %s\n", format_string_error_message, format);
+                }
+                return null;
+            }
+            if (prev != null)
+                prev.next = New;
+            else
+                first = New;
+            prev = New;
+        }
+        if (prev != null)
+            prev.next = null;
+        else
+            first = null;
+
+        return first;
+    }
+    
+
+    /**
+     * trace.cpp:180:parse_attribute_path_in_brackets
+     * 
+     * @return
+     */
+    private List<Symbol> parse_attribute_path_in_brackets()
+    {
+        /* --- look for opening bracket --- */
+        if (format.charAt(offset) != '[')
+        {
+            format_string_error_message = "Expected '[' followed by attribute (path)";
+            return null;
+        }
+        offset++;
+
+        List<Symbol> path = null;
+
+        /* --- check for '*' (null path) --- */
+        if (format.charAt(offset) == '*')
+        {
+            path = null;
+            offset++;
+        }
+        else
+        {
+            /* --- normal case: read the attribute path --- */
+            path = new ArrayList<Symbol>();
+            while (true)
+            {
+                String name = "";
+                while ((offset != format.length()) && (format.charAt(offset) != ']') && (format.charAt(offset) != '.'))
+                {
+                    name += format.charAt(offset);
+                    offset++;
+                }
+                if (offset == format.length())
+                {
+                    format_string_error_message = "'[' without closing ']'";
+                    return null;
+                }
+                if (name.length() == 0)
+                {
+                    format_string_error_message = "null attribute found in attribute path";
+                    return null;
+                }
+                path.add(context.syms.make_sym_constant(name));
+                if (format.charAt(offset) == ']')
+                    break;
+                offset++; /* skip past '.' */
+            }
+        }
+
+        /* --- look for closing bracket --- */
+        if (format.charAt(offset) != ']')
+        {
+            format_string_error_message = "'[' without closing ']'";
+            return null;
+        }
+        offset++;
+
+        return path;
+    }
+
+    /**
+     * trace.cpp:232:parse_pattern_in_brackets
+     * 
+     * @param read_opening_bracket
+     * @return
+     */
+    private TraceFormat parse_pattern_in_brackets(boolean read_opening_bracket)
+    {
+        /* --- look for opening bracket --- */
+        if (read_opening_bracket)
+        {
+            if (format.charAt(offset) != '[')
+            {
+                format_string_error_message = "Expected '[' followed by attribute path";
+                return null;
+            }
+            offset++;
+        }
+
+        /* --- read pattern --- */
+        TraceFormat prev = null;
+        TraceFormat first = null;
+        while ((offset < format.length()) && (format.charAt(offset) != ']'))
+        {
+            TraceFormat New = parse_item_from_format_string();
+            if (New == null)
+            {
+                return null;
+            }
+            if (prev != null)
+                prev.next = New;
+            else
+                first = New;
+            prev = New;
+        }
+        if (prev != null)
+            prev.next = null;
+        else
+            first = null;
+
+        /* --- look for closing bracket --- */
+        if (format.charAt(offset) != ']')
+        {
+            format_string_error_message = "'[' without closing ']'";
+            return null;
+        }
+        offset++;
+
+        return first;
+    }
+    
+
+    /**
+     * trace.cpp:270:parse_item_from_format_string
+     * 
+     * @return
+     */
+    private TraceFormat parse_item_from_format_string()
+    {
+        if (offset >= format.length())
+            return null;
+        if (format.charAt(offset) == ']')
+            return null;
+        if (format.charAt(offset) == '[')
+        {
+            format_string_error_message = "unexpected '[' character";
+            return null;
+        }
+
+        if (format.charAt(offset) != '%')
+        {
+
+            String buf = "";
+            while ((offset < format.length()) && (format.charAt(offset) != '%') && (format.charAt(offset) != '[')
+                    && (format.charAt(offset) != ']'))
+            {
+                buf += format.charAt(offset);
+                offset++;
+            }
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.STRING_TFT;
+            tf.data_string = buf;
+            return tf;
+        }
+
+        /* --- otherwise *format is '%', so parse the escape sequence --- */
+
+        if (format.startsWith("%v", offset))
+        {
+            offset += 2;
+            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
+            if (format_string_error_message != null)
+                return null;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.VALUES_TFT;
+            tf.data_attribute_path = attribute_path;
+            return tf;
+        }
+
+        if (format.startsWith("%o", offset))
+        {
+            offset += 2;
+            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
+            if (format_string_error_message != null)
+                return null;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.VALUES_RECURSIVELY_TFT;
+            tf.data_attribute_path = attribute_path;
+            return tf;
+        }
+
+        if (format.startsWith("%av", offset))
+        {
+            offset += 3;
+            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
+            if (format_string_error_message != null)
+                return null;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.ATTS_AND_VALUES_TFT;
+            tf.data_attribute_path = attribute_path;
+            return tf;
+        }
+
+        if (format.startsWith("%ao", offset))
+        {
+            offset += 3;
+            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
+            if (format_string_error_message != null)
+                return null;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.ATTS_AND_VALUES_RECURSIVELY_TFT;
+            tf.data_attribute_path = attribute_path;
+            return tf;
+        }
+
+        if (format.startsWith("%cs", offset))
+        {
+            offset += 3;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.CURRENT_STATE_TFT;
+            return tf;
+        }
+
+        if (format.startsWith("%co", offset))
+        {
+            offset += 3;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.CURRENT_OPERATOR_TFT;
+            return tf;
+        }
+
+        if (format.startsWith("%dc", offset))
+        {
+            offset += 3;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.DECISION_CYCLE_COUNT_TFT;
+            return tf;
+        }
+
+        if (format.startsWith("%ec", offset))
+        {
+            offset += 3;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.ELABORATION_CYCLE_COUNT_TFT;
+            return tf;
+        }
+
+        if (format.startsWith("%%", offset))
+        {
+            offset += 2;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.PERCENT_TFT;
+            return tf;
+        }
+
+        if (format.startsWith("%[", offset))
+        {
+            offset += 2;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.L_BRACKET_TFT;
+            return tf;
+        }
+
+        if (format.startsWith("%]", offset))
+        {
+            offset += 2;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.R_BRACKET_TFT;
+            return tf;
+        }
+
+        if (format.startsWith("%sd", offset))
+        {
+            offset += 3;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.SUBGOAL_DEPTH_TFT;
+            return tf;
+        }
+
+        if (format.startsWith("%id", offset))
+        {
+            offset += 3;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.IDENTIFIER_TFT;
+            return tf;
+        }
+
+        if (format.startsWith("%ifdef", offset))
+        {
+            offset += 6;
+            TraceFormat pattern = parse_pattern_in_brackets(true);
+            if (format_string_error_message != null)
+                return null;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.IF_ALL_DEFINED_TFT;
+            tf.data_subformat = pattern;
+            return tf;
+        }
+
+        if (format.startsWith("%left", offset))
+        {
+            offset += 5;
+            if (format.charAt(offset) != '[')
+            {
+                format_string_error_message = "Expected '[' after %left";
+                return null;
+            }
+            offset++;
+            if (!Character.isDigit(format.charAt(offset)))
+            {
+                format_string_error_message = "Expected number with %left";
+                return null;
+            }
+            int n = 0;
+            while (Character.isDigit(format.charAt(offset)))
+                n = 10 * n + (format.charAt(offset++) - '0');
+            if (format.charAt(offset) != ',')
+            {
+                format_string_error_message = "Expected ',' after number in %left";
+                return null;
+            }
+            offset++;
+            TraceFormat pattern = parse_pattern_in_brackets(false);
+            if (format_string_error_message != null)
+                return null;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.LEFT_JUSTIFY_TFT;
+            tf.num = n;
+            tf.data_subformat = pattern;
+            return tf;
+        }
+
+        if (format.startsWith("%right", offset))
+        {
+            offset += 6;
+            if (format.charAt(offset) != '[')
+            {
+                format_string_error_message = "Expected '[' after %right";
+                return null;
+            }
+            offset++;
+            if (!Character.isDigit(format.charAt(offset)))
+            {
+                format_string_error_message = "Expected number with %right";
+                return null;
+            }
+            int n = 0;
+            while (Character.isDigit(format.charAt(offset)))
+                n = 10 * n + (format.charAt(offset++) - '0');
+            if (format.charAt(offset) != ',')
+            {
+                format_string_error_message = "Expected ',' after number in %right";
+                return null;
+            }
+            offset++;
+            TraceFormat pattern = parse_pattern_in_brackets(false);
+            if (format_string_error_message != null)
+                return null;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.RIGHT_JUSTIFY_TFT;
+            tf.num = n;
+            tf.data_subformat = pattern;
+            return tf;
+        }
+
+        if (format.startsWith("%rsd", offset))
+        {
+            offset += 4;
+            TraceFormat pattern = parse_pattern_in_brackets(true);
+            if (format_string_error_message != null)
+                return null;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.REPEAT_SUBGOAL_DEPTH_TFT;
+            tf.data_subformat = pattern;
+            return tf;
+        }
+
+        if (format.startsWith("%nl", offset))
+        {
+            offset += 3;
+            TraceFormat tf = new TraceFormat();
+            tf.type = TraceFormatType.NEWLINE_TFT;
+            return tf;
+        }
+
+        /* --- if we haven't recognized it yet, we don't understand it --- */
+        format_string_error_message = "Unrecognized escape sequence";
+        return null;
+    }
+
+    /**
+     * This routine takes a trace format (list) and prints it out as a format
+     * string (without the surrounding quotation marks).
+     * 
+     * trace.cpp:514:print_trace_format_list
+     * 
+     * @param writer
+     * @param tf
+     * @throws IOException
+     */
+    private void print_trace_format_list(Writer writer, TraceFormat tf) throws IOException
+    {
+        for (; tf != null; tf = tf.next)
+        {
+            switch (tf.type)
+            {
+            case STRING_TFT:
+                writer.append(StringTools.string_to_escaped_string(tf.data_string, '"'));
+                break;
+            case PERCENT_TFT:
+                writer.append("%%");
+                break;
+            case L_BRACKET_TFT:
+                writer.append("%[");
+                break;
+            case R_BRACKET_TFT:
+                writer.append("%]");
+                break;
+
+            case VALUES_TFT:
+            case VALUES_RECURSIVELY_TFT:
+            case ATTS_AND_VALUES_TFT:
+            case ATTS_AND_VALUES_RECURSIVELY_TFT:
+                if (tf.type == TraceFormatType.VALUES_TFT)
+                    writer.append("%v[");
+                else if (tf.type == TraceFormatType.VALUES_RECURSIVELY_TFT)
+                    writer.append("%o[");
+                else if (tf.type == TraceFormatType.ATTS_AND_VALUES_TFT)
+                    writer.append("%av[");
+                else
+                    writer.append("%ao[");
+                if (tf.data_attribute_path != null)
+                {
+                    for (Iterator<Symbol> it = tf.data_attribute_path.iterator(); it.hasNext();)
+                    {
+                        Symbol c = it.next();
+                        writer.append(c.asSymConstant().name);
+                        if (it.hasNext())
+                            writer.append(".");
+                    }
+                }
+                else
+                {
+                    writer.append("*");
+                }
+                writer.append("]");
+                break;
+
+            case CURRENT_STATE_TFT:
+                writer.append("%cs");
+                break;
+            case CURRENT_OPERATOR_TFT:
+                writer.append("%co");
+                break;
+            case DECISION_CYCLE_COUNT_TFT:
+                writer.append("%dc");
+                break;
+            case ELABORATION_CYCLE_COUNT_TFT:
+                writer.append("%ec");
+                break;
+            case IDENTIFIER_TFT:
+                writer.append("%id");
+                break;
+
+            case IF_ALL_DEFINED_TFT:
+                writer.append("%ifdef[");
+                print_trace_format_list(writer, tf.data_subformat);
+                writer.append("]");
+                break;
+
+            case LEFT_JUSTIFY_TFT:
+            case RIGHT_JUSTIFY_TFT:
+                if (tf.type == TraceFormatType.LEFT_JUSTIFY_TFT)
+                    writer.append("%left[");
+                else
+                    writer.append("%right[");
+                writer.append(Integer.toString(tf.num));
+                print_trace_format_list(writer, tf.data_subformat);
+                writer.append("]");
+                break;
+
+            case SUBGOAL_DEPTH_TFT:
+                writer.append("%sd");
+                break;
+
+            case REPEAT_SUBGOAL_DEPTH_TFT:
+                writer.append("%rsd[");
+                print_trace_format_list(writer, tf.data_subformat);
+                writer.append("]");
+                break;
+
+            case NEWLINE_TFT:
+                writer.append("%nl");
+                break;
+
+            default:
+                throw new IllegalStateException("Internal error: bad trace format type: " + tf.type);
+            }
+        }
+    }
+
+    /**
+     * returns the trace format matching a given type restriction and/or name
+     * restriction, or NIL if no such format has been specified.
+     * 
+     * trace.cpp:665:lookup_trace_format
+     * 
+     * @param stack_trace
+     * @param type_restriction
+     * @param name_restriction
+     * @return
+     */
+    private TraceFormat lookup_trace_format(boolean stack_trace, TraceFormatRestriction type_restriction,
+            Symbol name_restriction)
+    {
+
+        if (name_restriction != null)
+        {
+            if (stack_trace)
+                return stack_tr_ht.get(type_restriction).get(name_restriction);
+            else
+                return object_tr_ht.get(type_restriction).get(name_restriction);
+        }
+        /* --- no name restriction --- */
+        if (stack_trace)
+            return stack_tf_for_anything.get(type_restriction);
+        else
+            return object_tf_for_anything.get(type_restriction);
+    }
+    
+
+    /**
+     * returns TRUE if a trace format was actually removed, or FALSE if there
+     * was no such trace format for the given type/name restrictions.
+     * 
+     * trace.cpp:691:remove_trace_format
+     * 
+     * @param stack_trace
+     * @param type_restriction
+     * @param name_restriction
+     * @return
+     */
+    public boolean remove_trace_format(boolean stack_trace, TraceFormatRestriction type_restriction,
+            Symbol name_restriction)
+    {
+        if (name_restriction != null)
+        {
+            if (stack_trace)
+                return null != stack_tr_ht.get(type_restriction).remove(name_restriction);
+            else
+                return null != object_tr_ht.get(type_restriction).remove(name_restriction);
+        }
+        /* --- no name restriction --- */
+        if (stack_trace)
+            return null != stack_tf_for_anything.remove(type_restriction);
+        else
+            return null != object_tf_for_anything.remove(type_restriction);
+    }
+    
+
+    /**
+     * trace.cpp:727:add_trace_format
+     * 
+     * @param stack_trace
+     * @param type_restriction
+     * @param name_restriction
+     * @param format_string
+     * @return
+     */
+    public boolean add_trace_format(boolean stack_trace, TraceFormatRestriction type_restriction,
+            Symbol name_restriction, String format_string)
+    {
+
+        // parse the format string into a trace_format
+        TraceFormat new_tf = parse_format_string(format_string);
+        if (new_tf == null)
+            return false;
+
+        // first remove any existing trace format with same conditions
+        remove_trace_format(stack_trace, type_restriction, name_restriction);
+
+        /* --- now add the new one --- */
+        if (name_restriction != null)
+        {
+            if (stack_trace)
+                stack_tr_ht.get(type_restriction).put(name_restriction, new_tf);
+            else
+                object_tr_ht.get(type_restriction).put(name_restriction, new_tf);
+            return true;
+        }
+        /* --- no name restriction --- */
+        if (stack_trace)
+            stack_tf_for_anything.put(type_restriction, new_tf);
+        else
+            object_tf_for_anything.put(type_restriction, new_tf);
+
+        return true;
+    }
+    
+    /**
+     * Adds all values of the given attribute path off the given object to the
+     * "*result" growable_string. If "recursive" is TRUE, the values are printed
+     * recursively as objects, rather than as simple atomic values. "*count" is
+     * incremented each time a value is printed. (To get a count of how many
+     * values were printed, the caller should initialize this to 0, then call
+     * this routine.)
+     * 
+     * trace.cpp:939:add_values_of_attribute_path
+     * 
+     * @param object
+     * @param path
+     * @param pathIndex
+     * @param result
+     * @param recursive
+     * @param count
+     * @return
+     */
+    private int add_values_of_attribute_path(Symbol object, List<Symbol> path, int pathIndex, StringBuilder result,
+            boolean recursive, int count)
+    {
+        if (pathIndex >= path.size())
+        { /* path is NIL, so we've reached the end of the path */
+            result.append(" ");
+            if (recursive)
+            {
+                result.append(object_to_trace_string(object));
+            }
+            else
+            {
+                result.append(object /*TODO symbol_to_string(object, true, null, 0)*/);
+            }
+            count++;
+            return count;
+        }
+
+        /* --- not at end of path yet --- */
+        /* --- can't follow any more path segments off of a non-identifier --- */
+        Identifier id = object.asIdentifier();
+        if (id == null)
+            return count;
+
+        /* --- call this routine recursively on any wme matching the first segment
+           of the attribute path --- */
+        for (Wme w : id.impasse_wmes)
+            if (w.attr == path.get(pathIndex))
+                count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
+        for (Wme w : id.input_wmes)
+            if (w.attr == path.get(pathIndex))
+                count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
+        Slot s = Slot.find_slot(id, path.get(pathIndex));
+        if (s != null)
+        {
+            for (Wme w : s.wmes)
+                count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
+        }
+        return count;
+    }
+    
+    /**
+     * Adds info for a wme to the given "*result" growable_string. If
+     * "print_attribute" is TRUE, then "^att-name" is included. If "recursive"
+     * is TRUE, the value is printed recursively as an object, rather than as a
+     * simple atomic value.
+     * 
+     * trace.cpp:993:add_trace_for_wme
+     * 
+     * @param result
+     * @param w
+     * @param print_attribute
+     * @param recursive
+     */
+    void add_trace_for_wme(StringBuilder result, Wme w, boolean print_attribute, boolean recursive)
+    {
+        result.append(" ");
+        if (print_attribute)
+        {
+            result.append("^");
+            result.append(w.attr /*TODO symbol_to_string(w.attr, true, null, 0)*/);
+            result.append(" ");
+        }
+        if (recursive)
+        {
+            result.append(object_to_trace_string(w.value));
+        }
+        else
+        {
+            result.append(w.value /*TODO symbol_to_string(w.value, true, null, 0)*/);
+        }
+    }
+
+    /**
+     * Adds the trace for values of a given attribute path off a given object,
+     * to the given "*result" growable_string. If "print_attributes" is TRUE,
+     * then "^att-name" is included. If "recursive" is TRUE, the values are
+     * printed recursively as objects, rather than as a simple atomic value. If
+     * the given path is NIL, then all values of all attributes of the given
+     * object are printed.
+     * 
+     * trace.cpp:1028:add_trace_for_attribute_path
+     * 
+     * @param object
+     * @param path
+     * @param result
+     * @param print_attributes
+     * @param recursive
+     */
+    private void add_trace_for_attribute_path(Symbol object, List<Symbol> path, StringBuilder result,
+            boolean print_attributes, boolean recursive)
+    {
+        StringBuilder values = new StringBuilder();
+
+        if (path.isEmpty())
+        {
+            Identifier id = object.asIdentifier();
+            if (id == null)
+                return;
+            for (Slot s : id.slots)
+                for (Wme w : s.wmes)
+                    add_trace_for_wme(values, w, print_attributes, recursive);
+            for (Wme w : id.impasse_wmes)
+                add_trace_for_wme(values, w, print_attributes, recursive);
+            for (Wme w : id.input_wmes)
+                add_trace_for_wme(values, w, print_attributes, recursive);
+            if (values.length() > 0)
+                result.append(values.substring(1));
+            return;
+        }
+
+        int count = 0;
+        count = add_values_of_attribute_path(object, path, 0, values, recursive, count);
+        if (count == 0)
+        {
+            this.found_undefined = true;
+            return;
+        }
+
+        if (print_attributes)
+        {
+            result.append("^");
+            for (Iterator<Symbol> it = path.iterator(); it.hasNext();)
+            {
+                Symbol c = it.next();
+                result.append(c /*TODO symbol_to_string(c, true, null, 0)*/);
+                if (it.hasNext())
+                    result.append(".");
+            }
+            result.append(" ");
+        }
+        if (values.length() > 0)
+            result.append(values.substring(1));
+    }
+
+    /**
+     * This is the main routine here. It returns a growable_string, given a
+     * trace format list (the format to use) and an object (the object being
+     * printed).
+     * 
+     * trace.cpp:1086:trace_format_list_to_string
+     * 
+     * @param tf
+     * @param object
+     * @return
+     */
+    public String trace_format_list_to_string(TraceFormat tf, Symbol object)
+    {
+        StringBuilder result = new StringBuilder();
+
+        for (; tf != null; tf = tf.next)
+        {
+            switch (tf.type)
+            {
+            case STRING_TFT:
+                result.append(tf.data_string);
+                break;
+            case PERCENT_TFT:
+                result.append("%");
+                break;
+            case L_BRACKET_TFT:
+                result.append("[");
+                break;
+            case R_BRACKET_TFT:
+                result.append("]");
+                break;
+
+            case VALUES_TFT:
+                add_trace_for_attribute_path(object, tf.data_attribute_path, result, false, false);
+                break;
+            case VALUES_RECURSIVELY_TFT:
+                add_trace_for_attribute_path(object, tf.data_attribute_path, result, false, true);
+                break;
+            case ATTS_AND_VALUES_TFT:
+                add_trace_for_attribute_path(object, tf.data_attribute_path, result, true, false);
+                break;
+            case ATTS_AND_VALUES_RECURSIVELY_TFT:
+                add_trace_for_attribute_path(object, tf.data_attribute_path, result, true, true);
+                break;
+
+            case CURRENT_STATE_TFT:
+                if (tparams.current_s == null)
+                {
+                    found_undefined = true;
+                }
+                else
+                {
+                    String temp_gs = object_to_trace_string(tparams.current_s);
+                    result.append(temp_gs);
+                }
+                break;
+            case CURRENT_OPERATOR_TFT:
+                if (tparams.current_o == null)
+                {
+                    found_undefined = true;
+                }
+                else
+                {
+                    String temp_gs = object_to_trace_string(tparams.current_o);
+                    result.append(temp_gs);
+                }
+                break;
+
+            case DECISION_CYCLE_COUNT_TFT:
+                if (tparams.allow_cycle_counts)
+                {
+                    result.append(context.decisionCycle.d_cycle_count);
+                }
+                else
+                {
+                    found_undefined = true;
+                }
+                break;
+            case ELABORATION_CYCLE_COUNT_TFT:
+                if (tparams.allow_cycle_counts)
+                {
+                    result.append(context.decisionCycle.e_cycle_count);
+                }
+                else
+                {
+                    found_undefined = true;
+                }
+                break;
+
+            case IDENTIFIER_TFT:
+                result.append(object /*TODO symbol_to_string (thisAgent, object, true, NULL, 0)*/);
+                break;
+
+            case IF_ALL_DEFINED_TFT:
+            {
+                boolean saved_found_undefined = found_undefined;
+                found_undefined = false;
+                String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
+                if (!found_undefined)
+                    result.append(temp_gs);
+                found_undefined = saved_found_undefined;
+            }
+                break;
+
+            case LEFT_JUSTIFY_TFT:
+            {
+                String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
+                result.append(temp_gs);
+                for (int i = tf.num - temp_gs.length(); i > 0; i--)
+                    result.append(" ");
+            }
+                break;
+
+            case RIGHT_JUSTIFY_TFT:
+            {
+                String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
+                for (int i = tf.num - temp_gs.length(); i > 0; i--)
+                    result.append(" ");
+                result.append(temp_gs);
+            }
+                break;
+
+            case SUBGOAL_DEPTH_TFT:
+                if (tparams.current_s != null)
+                {
+                    result.append(tparams.current_s.level - 1);
+                }
+                else
+                {
+                    found_undefined = true;
+                }
+                break;
+
+            case REPEAT_SUBGOAL_DEPTH_TFT:
+                if (tparams.current_s != null)
+                {
+                    String temp_gs = trace_format_list_to_string(tf.data_subformat, object);
+                    for (int i = tparams.current_s.level - 1; i > 0; i--)
+                        result.append(temp_gs);
+                }
+                else
+                {
+                    found_undefined = true;
+                }
+                break;
+
+            case NEWLINE_TFT:
+                result.append("\n");
+                break;
+
+            default:
+                throw new IllegalStateException("Internal error: bad trace format type: " + tf.type);
+            }
+        }
+        return result.toString();
+    }
+    
+    /**
+     * trace.cpp:1257:find_appropriate_trace_format
+     * 
+     * @param stack_trace
+     * @param type
+     * @param name
+     * @return
+     */
+    private TraceFormat find_appropriate_trace_format(boolean stack_trace, TraceFormatRestriction type, Symbol name)
+    {
+        // first try to find the exact one
+        TraceFormat tf = lookup_trace_format(stack_trace, type, name);
+        if (tf != null)
+            return tf;
+
+        // failing that, try ignoring the type but retaining the name
+        if (type != TraceFormatRestriction.FOR_ANYTHING_TF)
+        {
+            tf = lookup_trace_format(stack_trace, TraceFormatRestriction.FOR_ANYTHING_TF, name);
+            if (tf != null)
+                return tf;
+        }
+
+        // failing that, try ignoring the name but retaining the type
+        if (name != null)
+        {
+            tf = lookup_trace_format(stack_trace, type, null);
+            if (tf != null)
+                return tf;
+        }
+
+        // last resort: find a format that applies to anything at all
+        return lookup_trace_format(stack_trace, TraceFormatRestriction.FOR_ANYTHING_TF, null);
+    }
+    
+
+    /**
+     * trace.cpp:1283:object_to_trace_string
+     * 
+     * @param object
+     * @return
+     */
+    private String object_to_trace_string(Symbol object)
+    {
+        // If it's not an identifier, just print it as an atom. Also, if it's
+        // already being printed, print it as an atom to avoid getting into an
+        // infinite loop.
+        Identifier id = object.asIdentifier();
+        if (id == null || id.tc_number == tf_printing_tc)
+        {
+            return object.toString(); // TODO symbol_to_string (thisAgent,
+                                        // object, TRUE, NIL, 0));
+        }
+
+        // mark it as being printed
+        id.tc_number = tf_printing_tc;
+
+        // determine the type and name of the object
+        TraceFormatRestriction type_of_object;
+        if (id.isa_goal)
+            type_of_object = TraceFormatRestriction.FOR_STATES_TF;
+        else if (id.isa_operator != 0)
+            type_of_object = TraceFormatRestriction.FOR_OPERATORS_TF;
+        else
+            type_of_object = TraceFormatRestriction.FOR_ANYTHING_TF;
+
+        Symbol name = WorkingMemory.find_name_of_object(object, context.predefinedSyms.name_symbol);
+
+        // find the trace format to use
+        TraceFormat tf = find_appropriate_trace_format(false, type_of_object, name);
+
+        // now call trace_format_list_to_string()
+        String gs = null;
+        if (tf != null)
+        {
+            TracingParameters saved_tparams = new TracingParameters(tparams);
+            tparams.current_s = tparams.current_o = null;
+            tparams.allow_cycle_counts = false;
+            gs = trace_format_list_to_string(tf, object);
+            tparams = saved_tparams;
+        }
+        else
+        {
+            // no applicable trace format, so just print the object itself
+            gs = object.toString(); // TODO symbol_to_string (thisAgent, object, TRUE, NIL, 0));
+        }
+
+        id.tc_number = 0; // unmark it now that we're done 
+        return gs;
+    }
+    
+
+    /**
+     * trace.cpp:1330:selection_to_trace_string
+     * 
+     * @param object
+     * @param current_state
+     * @param selection_type
+     * @param allow_cycle_counts
+     * @return
+     */
+    private String selection_to_trace_string(Symbol object, Identifier current_state,
+            TraceFormatRestriction selection_type, boolean allow_cycle_counts)
+    {
+        // find the problem space name
+        Symbol name = null;
+
+        // find the trace format to use
+        TraceFormat tf = find_appropriate_trace_format(true, selection_type, name);
+
+        /* --- if there's no applicable trace format, print nothing --- */
+        if (tf == null)
+            return "";
+
+        /* --- save/restore tparams, and call trace_format_list_to_string() --- */
+        TracingParameters saved_tparams = new TracingParameters(tparams);
+        tparams.current_s = tparams.current_o = null;
+        if (current_state != null)
+        {
+            tparams.current_s = current_state;
+            if (!current_state.operator_slot.wmes.isEmpty())
+            {
+                // TODO Is it safe to assume this is an Identifier?
+                tparams.current_o = current_state.operator_slot.wmes.getFirstItem().value.asIdentifier(); 
+            }
+        }
+        tparams.allow_cycle_counts = allow_cycle_counts;
+        String gs = trace_format_list_to_string(tf, object);
+        tparams = saved_tparams;
+
+        return gs;
+    }
+    
+    /**
+     * Print_object_trace() takes an object (any symbol). It prints the trace
+     * for that object.
+     * 
+     * trace.cpp:1377:print_object_trace
+     * 
+     * @param writer
+     * @param object
+     * @throws IOException 
+     */
+    public void print_object_trace(Writer writer, Symbol object) throws IOException
+    {
+        tf_printing_tc = context.syms.get_new_tc_number();
+        String gs = object_to_trace_string(object);
+        writer.append(gs);
+    }
+
+    /**
+     * Print_stack_trace() takes a (context) object (the state or op), the
+     * current state, the "slot_type" (one of FOR_OPERATORS_TF, etc.), and a
+     * flag indicating whether to allow %dc and %ec escapes (this flag should
+     * normally be TRUE for watch 0 traces but FALSE during a "pgs" command). It
+     * prints the trace for that context object.
+     * 
+     * trace.cpp:1459:print_stack_trace
+     * 
+     * @param writer
+     * @param object
+     * @param state
+     * @param slot_type
+     * @param allow_cycle_counts
+     * @throws IOException
+     */
+    public void print_stack_trace(Writer writer, Symbol object, Identifier state, TraceFormatRestriction slot_type,
+            boolean allow_cycle_counts) throws IOException
+    {
+        tf_printing_tc = context.syms.get_new_tc_number();
+        String gs = selection_to_trace_string(object, state, slot_type, allow_cycle_counts);
+        writer.append(gs);
+
+        // RPM 5/05
+        // print_stack_trace_xml(thisAgent, object, state, slot_type, allow_cycle_counts);
+    }
+}

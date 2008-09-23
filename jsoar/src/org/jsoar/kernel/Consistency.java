@@ -5,12 +5,12 @@
  */
 package org.jsoar.kernel;
 
-import org.jsoar.kernel.Trace.Category;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 

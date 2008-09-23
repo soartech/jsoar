@@ -3,7 +3,7 @@
  *
  * Created on Sep 14, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.kernel.tracing;
 
 import java.io.PrintWriter;
 import java.io.Writer;

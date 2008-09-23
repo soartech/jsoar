@@ -222,7 +222,7 @@ public class TestTools
         ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
-            ByRef<Test> new_t = ByRef.create(new EqualityTest(null));
+            ByRef<Test> new_t = new ByRef<Test>(new EqualityTest(null));
             for (Test c : ct.conjunct_list)
             {
                 Test temp = copy_test_removing_goal_impasse_tests(c,

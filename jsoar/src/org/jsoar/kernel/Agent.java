@@ -8,6 +8,7 @@ package org.jsoar.kernel;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.Writer;
 
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
@@ -25,6 +26,11 @@ import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
 import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.TraceFormatRestriction;
+import org.jsoar.kernel.tracing.TraceFormats;
+import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
  * @author ray
@@ -35,6 +41,7 @@ public class Agent
     
     private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
     public final Trace trace = new Trace(printer);
+    public final TraceFormats traceFormats = new TraceFormats(this);
     
     public final PredefinedSymbols predefinedSyms = new PredefinedSymbols();
     public final SymbolFactory syms = predefinedSyms.getSyms();
@@ -76,9 +83,11 @@ public class Agent
     {
         // Set up standard RHS functions
         new StandardRhsFunctions(this);
+        installDefaultTraceFormats();
         
         rete.setReteListener(soarReteListener);
         init_agent_memory();
+        
     }
     
     /**
@@ -119,13 +128,20 @@ public class Agent
 
         decider.create_top_goal();
 
-        /* TODO trace
-        if (thisAgent->sysparams[TRACE_CONTEXT_DECISIONS_SYSPARAM]) 
-          {
-            print_string (thisAgent, "\n");
-            print_lowest_slot_in_context_stack (thisAgent);
-          }
-          */
+        if (trace.isEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM))
+        {
+            final Writer writer = trace.getPrinter().getWriter();
+            try
+            {
+                writer.append("\n");
+                decider.print_lowest_slot_in_context_stack (writer);
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         decisionCycle.current_phase = Phase.INPUT_PHASE;
         if (operand2_mode)
             decisionCycle.d_cycle_count++;
@@ -198,6 +214,27 @@ public class Agent
         // (see io.cpp for details)
         decider.prev_top_state = decider.top_state;
 
+    }
+    
+    /**
+     * agent.cpp:90:init_soar_agent
+     */
+    private void installDefaultTraceFormats()
+    {
+        // add default object trace formats
+        traceFormats.add_trace_format (false, TraceFormatRestriction.FOR_ANYTHING_TF, null,
+                                       "%id %ifdef[(%v[name])]");
+        traceFormats.add_trace_format (false, TraceFormatRestriction.FOR_STATES_TF, null,
+                                       "%id %ifdef[(%v[attribute] %v[impasse])]");
+        traceFormats.add_trace_format (false, TraceFormatRestriction.FOR_OPERATORS_TF, 
+                                       syms.make_sym_constant ("evaluate-object"),
+                                       "%id (evaluate-object %o[object])");
+        
+        // add default stack trace formats
+        traceFormats.add_trace_format (true, TraceFormatRestriction.FOR_STATES_TF, null,
+                                       "%right[6,%dc]: %rsd[   ]==>S: %cs");
+        traceFormats.add_trace_format (true, TraceFormatRestriction.FOR_OPERATORS_TF, null,
+                                       "%right[6,%dc]: %rsd[   ]   O: %co");
     }
 
 }

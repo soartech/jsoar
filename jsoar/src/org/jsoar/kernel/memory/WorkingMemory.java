@@ -8,11 +8,12 @@ package org.jsoar.kernel.memory;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.Printer;
-import org.jsoar.kernel.Trace.Category;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
  * @author ray
@@ -256,14 +257,14 @@ public class WorkingMemory
      * @param object
      * @return
      */
-    public Symbol find_name_of_object(Symbol object)
+    public static Symbol find_name_of_object(Symbol object, SymConstant name_symbol)
     {
         Identifier id = object.asIdentifier();
         if (id == null)
         {
             return null;
         }
-        Slot s = Slot.find_slot(id, context.predefinedSyms.name_symbol);
+        Slot s = Slot.find_slot(id, name_symbol);
         if (s == null)
         {
             return null;

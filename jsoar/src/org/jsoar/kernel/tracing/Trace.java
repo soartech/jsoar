@@ -3,7 +3,7 @@
  *
  * Created on Sep 16, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.kernel.tracing;
 
 import java.io.OutputStreamWriter;
 import java.util.Formattable;
