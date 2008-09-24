@@ -163,6 +163,16 @@ public class Preference implements Formattable
         */
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        // For debugging only
+        return String.format("%s", this);
+    }
+
     
 
 }
