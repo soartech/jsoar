@@ -1018,7 +1018,7 @@ public class RecognitionMemory
                 next_pref = pref.next;
                 if ((pref.get().type == PreferenceType.REJECT_PREFERENCE_TYPE) && (pref.get().o_supported))
                 {
-                    if (SoarConstants.O_REJECTS_FIRST)
+                    if (!SoarConstants.O_REJECTS_FIRST)
                     {
                         /* --- o-reject: just put it in the buffer for later --- */
                         pref.next = o_rejects.first;
@@ -1061,7 +1061,7 @@ public class RecognitionMemory
             }
         }
 
-        if (SoarConstants.O_REJECTS_FIRST)
+        if (!SoarConstants.O_REJECTS_FIRST)
         {
             if (!o_rejects.isEmpty())
                 context.prefMemory.process_o_rejects_and_deallocate_them(o_rejects.first);

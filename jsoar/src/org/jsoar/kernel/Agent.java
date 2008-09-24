@@ -63,9 +63,9 @@ public class Agent
     public final Exploration exploration = new Exploration();
     public final InputOutput io = new InputOutput(this);
     
+    private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);
     public final DecisionCycle decisionCycle = new DecisionCycle(this);
     
-    private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);
     
     /**
      * false is Soar 7 mode
