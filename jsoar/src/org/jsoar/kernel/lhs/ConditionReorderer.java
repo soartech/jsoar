@@ -12,6 +12,7 @@ import java.util.List;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 
@@ -28,7 +29,9 @@ public class ConditionReorderer
     private static final int BF_FOR_VALUES = 8; // cost of (. ^. <var>)
     private static final int BF_FOR_ATTRIBUTES = 8; // cost of (. ^<var> .)
 
-    private VariableGenerator vars;
+    private final VariableGenerator vars;
+    private final Trace trace;
+    private final MultiAttributes multiAttrs;
 
     private static class SavedTest
     {
@@ -47,11 +50,20 @@ public class ConditionReorderer
         ComplexTest the_test;
     }
 
-    public ConditionReorderer(VariableGenerator vars)
+    public ConditionReorderer(VariableGenerator vars, Trace trace, MultiAttributes multiAttrs)
     {
         this.vars = vars;
+        this.trace = trace;
+        this.multiAttrs = multiAttrs;
     }
     
+    /**
+     * reorder.cpp:1064:reorder_lhs
+     * 
+     * @param lhs_top
+     * @param lhs_bottom
+     * @param reorder_nccs
+     */
     public void reorder_lhs(ByRef<Condition> lhs_top, ByRef<Condition> lhs_bottom, boolean reorder_nccs)
     {
         int tc = vars.getSyms().get_new_tc_number();
@@ -103,6 +115,23 @@ public class ConditionReorderer
         remove_vars_requiring_bindings(lhs_top.value);
     }
 
+    /**
+     * Reorder the given list of conditions. The "top_of_conds" and
+     * "bottom_of_conds" arguments are destructively modified to reflect the
+     * reordered conditions. The "bound_vars_tc_number" should reflect the
+     * variables bound outside the given condition list. The "reorder_nccs" flag
+     * indicates whether it is necessary to recursively reorder the
+     * subconditions of NCC's. (For newly built chunks, this is never
+     * necessary.)
+     * 
+     * reorder.cpp:979:reorder_condition_list
+     * 
+     * @param top_of_conds
+     * @param bottom_of_conds
+     * @param roots
+     * @param tc
+     * @param reorder_nccs
+     */
     private void reorder_condition_list(ByRef<Condition> top_of_conds, ByRef<Condition> bottom_of_conds,
             List<Variable> roots, int tc, boolean reorder_nccs)
     {
@@ -114,7 +143,7 @@ public class ConditionReorderer
 
     /**
      * 
-     * reorder.cpp:405
+     * reorder.cpp:398:restore_and_deallocate_saved_tests
      * 
      * @param value
      * @param tc
@@ -281,7 +310,7 @@ public class ConditionReorderer
 
     /**
      * 
-     * reorder.cpp:836
+     * reorder.cpp:828:reorder_simplified_conditions
      * 
      * @param top_of_conds
      * @param bottom_of_conds
@@ -329,7 +358,7 @@ public class ConditionReorderer
                  * tie set we can't check the canonical order.
                  */
             }
-            /* --- if min_cost==MAX_COST, print error message --- */
+            // if min_cost==MAX_COST, print error message
             if (min_cost == MAX_COST /*
                                          * TODO &&
                                          * thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM]
@@ -354,12 +383,12 @@ public class ConditionReorderer
                 // free_growable_string(thisAgent, gs);
 
             }
-            /* --- if more than one min-cost item, and cost>1, do lookahead --- */
+            // if more than one min-cost item, and cost>1, do lookahead
             if (min_cost > 1 && min_cost_conds.reorder.next_min_cost != null)
             {
                 min_cost = MAX_COST + 1;
-                for (Condition cond = min_cost_conds, next_cond = cond.reorder.next_min_cost; cond != null; cond = next_cond, next_cond = (cond != null ? cond.reorder.next_min_cost
-                        : null))
+                for (Condition cond = min_cost_conds, next_cond = cond.reorder.next_min_cost; cond != null; 
+                     cond = next_cond, next_cond = (cond != null ? cond.reorder.next_min_cost : null))
                 {
                     cost = find_lowest_cost_lookahead(remaining_conds, cond, bound_vars_tc_number, roots);
                     if (cost < min_cost)
@@ -387,8 +416,6 @@ public class ConditionReorderer
                             }
                         }
                     }
-                    /** **************************************************************** */
-
                 }
             }
             /** **************************************************************** */
@@ -420,10 +447,7 @@ public class ConditionReorderer
             }
             last_cond = Condition.insertAtEnd(last_cond, chosen);
 
-            /*
-             * --- if a conjunctive negation, recursively reorder its conditions
-             * ---
-             */
+            // if a conjunctive negation, recursively reorder its conditions
             ConjunctiveNegationCondition ncc = chosen.asConjunctiveNegationCondition();
             if (ncc != null && reorder_nccs)
             {
@@ -435,13 +459,10 @@ public class ConditionReorderer
                 ncc.bottom = bottom.value;
             }
 
-            /* --- update set of bound variables for newly added condition --- */
+            // update set of bound variables for newly added condition
             chosen.addBoundVariables(bound_vars_tc_number, new_vars);
 
-            /*
-             * --- if all roots are bound, set roots=NIL: don't need 'em anymore
-             * ---
-             */
+            // if all roots are bound, set roots=NIL: don't need 'em anymore
             if (!roots.isEmpty())
             {
                 boolean allBound = true;
@@ -477,7 +498,7 @@ public class ConditionReorderer
     {
         final int NON_EQUAL_TEST_RETURN_VAL = 0; /* some unusual number */
 
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             return NON_EQUAL_TEST_RETURN_VAL;
         }
@@ -525,7 +546,7 @@ public class ConditionReorderer
      * Return an estimate of the "cost" of the lowest-cost condition that could
      * be added next, IF the given "chosen" condition is added first.
      * 
-     * reorder.cpp:796
+     * reorder.cpp:787:find_lowest_cost_lookahead
      * 
      * @param candidates
      * @param chosen
@@ -555,8 +576,8 @@ public class ConditionReorderer
                 }
             }
         }
-        Variable.unmark(new_vars); // unmark_variables_and_free_list
-                                    // (thisAgent, new_vars);
+        Variable.unmark(new_vars);
+
         return min_cost;
     }
 
@@ -565,7 +586,7 @@ public class ConditionReorderer
      * should be the set of previously bound variables;
      * "root_vars_not_bound_yet" should be the set of other root variables.
      * 
-     * reorder.cpp:724
+     * reorder.cpp:716:cost_of_adding_condition
      * 
      * @param cond
      * @param bound_vars_tc_number
@@ -578,9 +599,11 @@ public class ConditionReorderer
 
         /* --- handle the common simple case quickly up front --- */
         PositiveCondition pc = cond.asPositiveCondition();
-        if (root_vars_not_bound_yet.isEmpty() && pc != null && pc.id_test.asEqualityTest() != null
-                && pc.attr_test.asEqualityTest() != null && pc.value_test.asEqualityTest() != null
-                && !pc.id_test.isBlank() && !pc.attr_test.isBlank() && !pc.value_test.isBlank())
+        if (root_vars_not_bound_yet.isEmpty() && pc != null && 
+                !Test.isBlank(pc.id_test) && !Test.isBlank(pc.attr_test) && !Test.isBlank(pc.value_test) &&
+                pc.id_test.asEqualityTest() != null && 
+                pc.attr_test.asEqualityTest() != null && 
+                pc.value_test.asEqualityTest() != null)
         {
 
             if (!symbol_is_constant_or_marked_variable(pc.id_test.asEqualityTest().getReferent(), tc))
@@ -589,7 +612,7 @@ public class ConditionReorderer
             }
             if (symbol_is_constant_or_marked_variable(pc.attr_test.asEqualityTest().getReferent(), tc))
             {
-                result = get_cost_of_possible_multi_attribute(pc.attr_test.asEqualityTest().getReferent());
+                result = multiAttrs.getCost(pc.attr_test.asEqualityTest().getReferent(), 1);
             }
             else
             {
@@ -654,31 +677,11 @@ public class ConditionReorderer
     }
 
     /**
-     * Returns the user set value of the expected match cost of the
-     * multi-attribute, or 1 if the input symbol isn't in the user set list.
-     * 
-     * reorder.cpp:707
-     * 
-     * @param referent
-     * @return
-     */
-    private int get_cost_of_possible_multi_attribute(Symbol referent)
-    {
-        // TODO: Implement this when multi_attributes is implemented
-        // multi_attribute *m = thisAgent->multi_attributes;
-        // while(m) {
-        // if(m->symbol == sym) return m->value;
-        // m = m->next;
-        // }
-        return 1;
-    }
-
-    /**
      * Return TRUE iff the given test is covered by the previously bound
      * variables. The set of previously bound variables is given by the current
      * TC, PLUS any variables in the list "extra_vars."
      * 
-     * reorder.cpp:677
+     * reorder.cpp:669:test_covered_by_bound_vars
      * 
      * @param id_test
      * @param tc
@@ -687,7 +690,7 @@ public class ConditionReorderer
      */
     private boolean test_covered_by_bound_vars(Test t, int tc, List<Variable> extra_vars)
     {
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             return false;
         }
@@ -757,10 +760,10 @@ public class ConditionReorderer
      */
     private SavedTest simplify_test(ByRef<Test> t, SavedTest old_sts)
     {
-        if (t.value.isBlank())
+        if (Test.isBlank(t.value))
         {
             Symbol sym = vars.generate_new_variable("dummy-");
-            t.value = new EqualityTest(sym);
+            t.value = EqualityTest.makeEqualityTest(sym);
             return old_sts;
         }
 
@@ -786,7 +789,7 @@ public class ConditionReorderer
             if (sym == null)
             {
                 sym = vars.generate_new_variable("dummy-");
-                EqualityTest newTest = new EqualityTest(sym);
+                EqualityTest newTest = EqualityTest.makeEqualityTest(sym);
                 ct.conjunct_list.add(0, newTest);
             }
             /*
@@ -818,7 +821,7 @@ public class ConditionReorderer
              * ---
              */
             Variable var = vars.generate_new_variable("dummy-");
-            EqualityTest New = new EqualityTest(var);
+            EqualityTest New = EqualityTest.makeEqualityTest(var);
             SavedTest saved = new SavedTest(old_sts, var, t.value.asComplexTest());
 
             old_sts = saved;
@@ -829,19 +832,19 @@ public class ConditionReorderer
     }
 
     /**
-     * reorder.cpp:560
+     * reorder.cpp:554:remove_vars_requiring_bindings
      * 
      * @param cond_list
      */
     private void remove_vars_requiring_bindings(Condition cond_list)
     {
-        /* --- scan through negated and NC cond's, remove lists from them --- */
+        // scan through negated and NC cond's, remove lists from them
         for (Condition c = cond_list; c != null; c = c.next)
         {
             PositiveCondition pc = c.asPositiveCondition();
-            if (pc != null)
+            if (pc == null)
             {
-                pc.reorder.vars_requiring_bindings.clear();
+                c.reorder.vars_requiring_bindings.clear();
             }
             ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
             if (ncc != null)
@@ -853,7 +856,7 @@ public class ConditionReorderer
 
     /**
      * 
-     * reorder.cpp:1040
+     * reorder.cpp:1040:remove_isa_state_tests_for_non_roots
      * 
      * @param lhs_top
      * @param lhs_bottom
@@ -872,10 +875,7 @@ public class ConditionReorderer
                     && TestTools.test_includes_goal_or_impasse_id_test(pc.id_test, true, false)
                     && !TestTools.test_tests_for_root(pc.id_test, roots))
             {
-                Test temp = pc.id_test;
-                pc.id_test = TestTools.copy_test_removing_goal_impasse_tests(temp, a, b);
-                // deallocate_test (thisAgent, temp); /* RBD fixed memory leak
-                // 3/29/95 */
+                pc.id_test = TestTools.copy_test_removing_goal_impasse_tests(pc.id_test, a, b);
             }
         }
     }
@@ -891,7 +891,7 @@ public class ConditionReorderer
      * 
      * TODO: This belongs somewhere else
      * 
-     * reorder.cpp:589:collect_root_variables
+     * reorder.cpp:580:collect_root_variables
      * 
      * @param cond_list
      * @param tc
@@ -986,15 +986,14 @@ public class ConditionReorderer
 
     /**
      * 
-     * reorder.cpp:532
+     * reorder.cpp:532:fill_in_vars_requiring_bindings
      * 
      * @param cond_list
      * @param tc
      */
     private void fill_in_vars_requiring_bindings(Condition cond_list, int tc)
     {
-
-        /* --- add anything bound in a positive condition at this level --- */
+        // add anything bound in a positive condition at this level
         LinkedList<Variable> new_bound_vars = new LinkedList<Variable>();
         for (Condition c = cond_list; c != null; c = c.next)
         {
@@ -1005,13 +1004,13 @@ public class ConditionReorderer
             }
         }
 
-        /* --- scan through negated and NC cond's, fill in stuff --- */
+        // scan through negated and NC cond's, fill in stuff
         for (Condition c = cond_list; c != null; c = c.next)
         {
             PositiveCondition pc = c.asPositiveCondition();
-            if (pc != null)
+            if (pc == null)
             {
-                collect_vars_tested_by_cond_that_are_bound(c, tc, pc.reorder.vars_requiring_bindings);
+                c.reorder.vars_requiring_bindings = collect_vars_tested_by_cond_that_are_bound(c, tc, new LinkedList<Variable>());
             }
             ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
             if (ncc != null)
@@ -1025,15 +1024,16 @@ public class ConditionReorderer
 
     /**
      * 
-     * reorder.cpp:509
+     * reorder.cpp:509:collect_vars_tested_by_cond_that_are_bound
      * 
      * @param cond
      * @param tc
      * @param starting_list
      */
-    private void collect_vars_tested_by_cond_that_are_bound(Condition cond, int tc, List<Variable> starting_list)
+    private LinkedList<Variable> collect_vars_tested_by_cond_that_are_bound(Condition cond, int tc, LinkedList<Variable> starting_list)
     {
-
+        Arguments.checkNotNull(starting_list, "startingList");
+        
         ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
         if (ncc != null)
         {
@@ -1050,20 +1050,23 @@ public class ConditionReorderer
             collect_vars_tested_by_test_that_are_bound(tfc.attr_test, tc, starting_list);
             collect_vars_tested_by_test_that_are_bound(tfc.value_test, tc, starting_list);
         }
+        
+        return starting_list;
     }
 
     /**
      * 
-     * reorder.cpp:468
+     * reorder.cpp:468:collect_vars_tested_by_test_that_are_bound
      * 
      * @param t
      * @param tc
      * @param starting_list
      */
-    private void collect_vars_tested_by_test_that_are_bound(Test t, int tc, List<Variable> starting_list)
+    private void collect_vars_tested_by_test_that_are_bound(Test t, int tc, LinkedList<Variable> starting_list)
     {
-
-        if (t.isBlank())
+        Arguments.checkNotNull(starting_list, "starting_list");
+        
+        if (Test.isBlank(t))
         {
             return;
         }
@@ -1074,7 +1077,7 @@ public class ConditionReorderer
             Variable referent = eq.getReferent().asVariable();
             if (referent != null && referent.tc_number == tc && !starting_list.contains(referent))
             {
-                starting_list.add(referent);
+                starting_list.push(referent);
             }
             return;
         }

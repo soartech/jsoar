@@ -5,9 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.jsoar.kernel.symbols.Variable;
 
@@ -17,7 +15,7 @@ import org.jsoar.kernel.symbols.Variable;
 public class ConjunctiveTest extends ComplexTest
 {
     
-    public List<Test> conjunct_list = new ArrayList<Test>();
+    public LinkedList<Test> conjunct_list = new LinkedList<Test>();
     
     public ConjunctiveTest()
     {

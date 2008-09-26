@@ -17,10 +17,15 @@ public class EqualityTest extends Test
 {
     public Symbol sym;
     
+    public static EqualityTest makeEqualityTest(Symbol sym)
+    {
+        return sym != null ? new EqualityTest(sym) : null;
+    }
+    
     /**
      * @param sym
      */
-    public EqualityTest(Symbol sym)
+    private EqualityTest(Symbol sym)
     {
         this.sym = sym;
     }
@@ -34,15 +39,6 @@ public class EqualityTest extends Test
         return new EqualityTest(sym);
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.lhs.Test#isBlank()
-     */
-    @Override
-    public boolean isBlank()
-    {
-        return sym == null;
-    }
-    
     /**
      * gdatastructs.h:395:referent_of_equality_test
      * 

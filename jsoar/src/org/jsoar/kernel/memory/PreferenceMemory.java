@@ -36,6 +36,9 @@ public class PreferenceMemory
      */
     void deallocate_preference (Preference pref) 
     {
+        assert !pref.deallocated;
+        assert pref.reference_count == 0;
+        
 //        #ifdef DEBUG_PREFS  
 //          print (thisAgent, "\nDeallocating preference at 0x%8x: ",(unsigned long)pref);
 //          print_preference (thisAgent, pref);
@@ -62,6 +65,9 @@ public class PreferenceMemory
         {
             //symbol_remove_ref (thisAgent, pref->referent);
         }
+        
+        pref.deallocated = true;
+        
     } 
     
     /**
@@ -96,6 +102,11 @@ public class PreferenceMemory
             }
         }
 
+        // S1 clear P3
+        if(pref.id.toString().equals("S1") && pref.attr.toString().equals("clear") && pref.value.toString().equals("P3"))
+        {
+            System.out.println("here");
+        }
         // deallocate all the clones
         Preference clone = pref.next_clone;
         while (clone != null)

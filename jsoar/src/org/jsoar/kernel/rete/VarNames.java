@@ -122,7 +122,7 @@ public class VarNames
      */
     public static Object add_unbound_varnames_in_test(Test t, Object starting_vn)
     {
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             return starting_vn;
         }

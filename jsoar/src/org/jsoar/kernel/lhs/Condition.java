@@ -82,6 +82,12 @@ public abstract class Condition
     
     public abstract void addBoundVariables(int tc_number, LinkedList<Variable> var_list);
 
+    /**
+     * production.cpp:1191:add_all_variables_in_condition
+     * 
+     * @param tc_number
+     * @param var_list
+     */
     public abstract void addAllVariables(int tc_number, LinkedList<Variable> var_list);
 
     public ThreeFieldCondition asThreeFieldCondition()

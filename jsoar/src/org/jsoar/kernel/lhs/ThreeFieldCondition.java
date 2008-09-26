@@ -18,6 +18,22 @@ public abstract class ThreeFieldCondition extends Condition
     public Test attr_test;
     public Test value_test;
     
+    protected ThreeFieldCondition()
+    {
+        
+    }
+    
+    /**
+     * Copy constructor used to negate pos and neg conditions. Test fields are
+     * only a shallow copy!
+     */
+    protected ThreeFieldCondition(ThreeFieldCondition other)
+    {
+        this.id_test = other.id_test;
+        this.attr_test = other.attr_test;
+        this.value_test = other.value_test;
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Condition#asThreeFieldCondition()
      */
@@ -33,8 +49,17 @@ public abstract class ThreeFieldCondition extends Condition
     @Override
     public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
-        id_test.addAllVariables(tc_number, var_list);
-        attr_test.addAllVariables(tc_number, var_list);
-        value_test.addAllVariables(tc_number, var_list);
+        if(id_test != null)
+        {
+            id_test.addAllVariables(tc_number, var_list);
+        }
+        if(attr_test != null)
+        {
+            attr_test.addAllVariables(tc_number, var_list);
+        }
+        if(value_test != null)
+        {
+            value_test.addAllVariables(tc_number, var_list);
+        }
     }
 }

@@ -8,6 +8,7 @@ package org.jsoar.kernel;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -109,10 +110,106 @@ public class FunctionalTests
     }
     
     @Test
+    public void testTowersOfHanoiProductionThatCrashesRete() throws IOException
+    {
+        // 9/24/2008 - This production caused a crash in the initial match of the
+        // production. Nothing to test other than that no exceptions are thrown.
+        agent.loadProduction("towers-of-hanoi*propose*initialize\n" +
+        "   (state <s> ^superstate nil\n" +
+        "             -^name)\n" +
+        "-->\n" +
+        "   (<s> ^operator <o> +)\n" +
+        "   (<o> ^name initialize-toh)");
+    }
+    
+    @Test
+    public void testTowersOfHanoiProductionThatCausesMaxElaborations() throws IOException
+    {
+        // 9/24/2008 - This production caused a crash in the initial match of the
+        // production. Nothing to test other than that no exceptions are thrown.
+        agent.loadProduction("towers-of-hanoi*propose*initialize\n" +
+        "   (state <s> ^superstate nil\n" +
+        "             -^name)\n" +
+        "-->\n" +
+        "   (<s> ^operator <o> +)\n" +
+        "   (<o> ^name initialize-toh)");
+        
+        agent.consistency.setMaxElaborations(5);
+        agent.decisionCycle.run_for_n_decision_cycles(1);
+        assertFalse(agent.consistency.isHitMaxElaborations()); //  TODO replace with callback?
+        
+    }    
+    
+    @Test(timeout=5000)
     public void testWaterJug() throws Exception
     {
         sourceTestFile("testWaterJug.soar");
         
-        agent.decisionCycle.run_for_n_decision_cycles(25);
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        final boolean halted[] = { false };
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted[0] = true;
+                return oldHalt.execute(syms, arguments);
+            }});
+        
+        agent.decisionCycle.run_for_n_decision_cycles(1000);
+        assertTrue("waterjugs functional test did not halt", halted[0]);
+    }
+    
+    @Test(timeout=10000)
+    public void testTowersOfHanoi() throws Exception
+    {
+        sourceTestFile("testTowersOfHanoi.soar");
+        
+        agent.trace.setEnabled(false);
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        final boolean halted[] = { false };
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted[0] = true;
+                return oldHalt.execute(syms, arguments);
+            }});
+        
+        agent.decisionCycle.run_for_n_decision_cycles(5000);
+        assertTrue("toh functional test did not halt", halted[0]);
+        assertEquals(2048, agent.decisionCycle.d_cycle_count); // deterministic!
+    }
+    
+    @Test(timeout=10000)
+    public void testTowersOfHanoiFast() throws Exception
+    {
+        sourceTestFile("testTowersOfHanoiFast.soar");
+        
+        agent.trace.setEnabled(false);
+        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
+        assertNotNull(oldHalt);
+        
+        final boolean halted[] = { false };
+        
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
+
+            @Override
+            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted[0] = true;
+                return oldHalt.execute(syms, arguments);
+            }});
+        
+        agent.decisionCycle.run_for_n_decision_cycles(5000);
+        assertTrue("toh functional test did not halt", halted[0]);
+        assertEquals(2048, agent.decisionCycle.d_cycle_count); // deterministic!
     }
 }

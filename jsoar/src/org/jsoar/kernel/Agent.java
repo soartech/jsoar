@@ -14,6 +14,8 @@ import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.ReinforcementLearning;
+import org.jsoar.kernel.lhs.ConditionReorderer;
+import org.jsoar.kernel.lhs.MultiAttributes;
 import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.PreferenceMemory;
 import org.jsoar.kernel.memory.RecognitionMemory;
@@ -23,6 +25,7 @@ import org.jsoar.kernel.parser.Lexer;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
+import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -46,6 +49,7 @@ public class Agent
     public final PredefinedSymbols predefinedSyms = new PredefinedSymbols();
     public final SymbolFactory syms = predefinedSyms.getSyms();
     public final VariableGenerator variableGenerator = new VariableGenerator(syms);
+    private final MultiAttributes multiAttrs = new MultiAttributes();
     public final Rete rete = new Rete(trace, variableGenerator);
     public final WorkingMemory workingMemory = new WorkingMemory(this);
     public final TemporaryMemory tempMemory = new TemporaryMemory();
@@ -102,6 +106,11 @@ public class Agent
     {
         return rhsFunctions;
     }
+    
+    public MultiAttributes getMultiAttributes()
+    {
+        return multiAttrs;
+    }
  
     public void loadProduction(String productionBody) throws IOException
     {
@@ -109,9 +118,36 @@ public class Agent
         Lexer lexer = new Lexer(reader);
         Parser parser = new Parser(variableGenerator, lexer);
         lexer.getNextLexeme();
-        Production prod = parser.parse_production();
-        rete.add_production_to_rete(prod);
+        addProduction(parser.parse_production(), true);
     }
+    
+    /**
+     * Add the given production to the agent.
+     * 
+     * <p>This is part of a refactoring of make_production().
+     * 
+     * @param p
+     * @param reorder_nccs
+     */
+    private void addProduction(Production p, boolean reorder_nccs)
+    {
+        // Reorder the production
+        p.reorder(variableGenerator, 
+                  new ConditionReorderer(variableGenerator, trace, multiAttrs), 
+                  new ActionReorderer(p.name.name), reorder_nccs);
+
+        // Tell RL about the new production
+        rl.addProduction(p);
+        
+        // Add it to the rete.
+        rete.add_production_to_rete(p);
+        // TODO (from parser.cpp)
+    //  if (*rete_addition_result==DUPLICATE_PRODUCTION) {
+//      excise_production (thisAgent, p, false);
+//      p = null;
+  //  }
+    }
+    
     /**
      * init_soar.cpp:1374:init_agent_memory()
      */

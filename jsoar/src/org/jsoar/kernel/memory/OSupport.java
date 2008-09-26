@@ -196,7 +196,7 @@ public class OSupport
      */
     private boolean test_has_id_in_os_tc(Test t, Symbol excluded_sym)
     {
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             return false;
         }
@@ -939,7 +939,7 @@ public class OSupport
      */
     private YesNoMaybe test_is_for_symbol(Test t, Symbol sym)
     {
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             return YesNoMaybe.MAYBE;
         }

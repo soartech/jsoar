@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.learning;
 
+import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.Instantiation;
@@ -75,6 +77,36 @@ public class ReinforcementLearning
     {
         // TODO Implement rl_perform_update
         throw new UnsupportedOperationException("rl_perform_update is not implemented");
+    }
+
+    /**
+     * Function introduced while trying to tease apart production construction
+     * 
+     * production.cpp:1507:make_production
+     * 
+     * @param p
+     */
+    public void addProduction(Production p)
+    {
+        // Soar-RL stuff
+        // TODO p->rl_update_count = 0;
+        // TODO p->rl_rule = false;
+        if ( ( p.type != ProductionType.JUSTIFICATION_PRODUCTION_TYPE ) && ( p.type != ProductionType.TEMPLATE_PRODUCTION_TYPE ) ) 
+        {
+            // TODO p->rl_rule = rl_valid_rule( p );  
+        }
+        // TODO rl_update_template_tracking( thisAgent, name->sc.name );
+        
+        // TODO - parser.cpp
+//        if ( prod_type == ProductionType.TEMPLATE_PRODUCTION_TYPE )
+//        {
+//            if ( !rl_valid_template( p ) )
+//            {
+//                print_with_symbols( thisAgent, "Invalid Soar-RL template (%y)\n\n", name );
+//                excise_production( thisAgent, p, false );
+//                return null;
+//            }
+//        }
     }
 
     

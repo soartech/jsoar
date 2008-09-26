@@ -15,10 +15,14 @@
 	
     <property name="dist" location="dist" />
     <property name="version" value="0.0.0" />
+	<property name="copyright" value="(c) Dave Ray, 2008"/>
 	
 	<property name="java.source.level" value="1.6"/>
 	
     <property name="jar.main.class" value="org.jsoar.debugger.LittleDebugger"/>
+	<property name="jar.min.name" value="${ant.project.name}.jar"/>
+	<property name="jar.complete.name" vlaue="${and.project.name}-complete.jar"/>
+	
     <condition property="os.is.windows">
        <os family="windows"/>
     </condition>
@@ -133,7 +137,7 @@
             </fileset>
         </copy>
 
-        <jar destfile="${dist}/${ant.project.name}.jar">
+        <jar destfile="${dist}/${jar.min.name}">
 
             <fileset dir="${build.classes}" />
 
@@ -143,9 +147,23 @@
                 <attribute name="Date" value="${TODAY} ${TSTAMP}" />
                 <attribute name="Version" value="${version}" />
                 <attribute name="Built-By" value="${user.name}" />
-                <attribute name="Copyright" value="(c) Dave Ray, 2008" />
+                <attribute name="Copyright" value="${copyright}" />
                 <attribute name="Main-Class" value="${jar.main.class}" />
                 <attribute name="Class-Path" value=". ${mf-classpath}" />
+            </manifest>
+        </jar>
+		
+        <jar destfile="${dist}/${jar.complete.name}">
+        	<zipgroupfileset dir="${lib}" includes="*.jar"/>
+            <zipfileset src="${dist}/${jar.min.name}" />
+            <manifest>
+                <attribute name="Title" value="${ant.project.name} ${version}" />
+                <attribute name="Vendor" value="Dave Ray" />
+                <attribute name="Date" value="${TODAY} ${TSTAMP}" />
+                <attribute name="Version" value="${version}" />
+                <attribute name="Built-By" value="${user.name}" />
+                <attribute name="Copyright" value="${copyright}" />
+                <attribute name="Main-Class" value="${jar.main.class}" />
             </manifest>
         </jar>
 		

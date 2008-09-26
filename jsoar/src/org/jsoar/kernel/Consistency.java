@@ -33,6 +33,7 @@ public class Consistency
      * gsysparam.h:MAX_ELABORATIONS_SYSPARAM
      */
     private int maxElaborations = 100;
+    private boolean hitMaxElaborations = false;
     
     /**
      * @param context
@@ -67,6 +68,24 @@ public class Consistency
         Arguments.check(maxElaborations > 0, "max elaborations must be greater than zero");
         this.maxElaborations = maxElaborations;
     }
+    
+
+    /**
+     * @return the hitMaxElaborations
+     */
+    public boolean isHitMaxElaborations()
+    {
+        return hitMaxElaborations;
+    }
+
+    /**
+     * @param hitMaxElaborations the hitMaxElaborations to set
+     */
+    public void setHitMaxElaborations(boolean hitMaxElaborations)
+    {
+        this.hitMaxElaborations = hitMaxElaborations;
+    }
+
 
     /**
      * 
@@ -685,6 +704,7 @@ public class Consistency
 
         if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations )
         {
+            setHitMaxElaborations(true);
             context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to output phases.", maxElaborations);
             context.decisionCycle.current_phase = Phase.OUTPUT_PHASE;
             return;
@@ -955,6 +975,7 @@ public class Consistency
 
         if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations)
         {
+            setHitMaxElaborations(true);
             context.getPrinter().warn("Warning: reached max-elaborations(%d); proceeding to decision phases.", maxElaborations);
             context.decisionCycle.current_phase = Phase.DECISION_PHASE;
             return;

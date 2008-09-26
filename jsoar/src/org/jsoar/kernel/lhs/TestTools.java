@@ -20,7 +20,7 @@ public class TestTools
     public static EqualityTest copy_of_equality_test_found_in_test(Test t)
     {
 
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             throw new IllegalArgumentException(
                     "Internal error: can't find equality test in blank test");
@@ -35,7 +35,7 @@ public class TestTools
         {
             for (Test child : ct.conjunct_list)
             {
-                if (!child.isBlank() && child.asEqualityTest() != null)
+                if (!Test.isBlank(child) && child.asEqualityTest() != null)
                 {
                     return (EqualityTest) child.copy();
                 }
@@ -52,6 +52,10 @@ public class TestTools
     }
 
     /**
+     * Destructively modifies the first test (t) by adding the second one
+     * (add_me) to it (usually as a new conjunct). The first test need not be a
+     * conjunctive test.
+     * 
      * TODO Rather than the dumb ByRef, just return the new test. Functional!
      * 
      * production.cpp:338:add_new_test_to_test
@@ -61,12 +65,12 @@ public class TestTools
      */
     public static void add_new_test_to_test(ByRef<Test> t, Test add_me)
     {
-        if (add_me.isBlank())
+        if (Test.isBlank(add_me))
         {
             return;
         }
 
-        if (t.value.isBlank())
+        if (Test.isBlank(t.value))
         {
             t.value = add_me;
             return;
@@ -78,25 +82,25 @@ public class TestTools
         if (!already_a_conjunctive_test)
         {
             ConjunctiveTest ct = new ConjunctiveTest();
-            ct.conjunct_list.add(t.value);
+            ct.conjunct_list.push(t.value);
             t.value = ct;
         }
         /* --- at this point, ct points to the complex test structure for *t --- */
 
         /* --- now add add_me to the conjunct list --- */
-        t.value.asConjunctiveTest().conjunct_list.add(0, add_me);
+        t.value.asConjunctiveTest().conjunct_list.push(add_me);
     }
 
     public static boolean test_includes_equality_test_for_symbol(Test test,
             Symbol sym)
     {
-        if(test.isBlank()) { return false; }
+        if(Test.isBlank(test)) { return false; }
         EqualityTest eq = test.asEqualityTest();
-        if(eq != null && sym != null && eq.sym == sym)
+        if(eq != null)
         {
+            if(sym != null) return eq.getReferent() == sym;
             return true;
         }
-        
         
         ConjunctiveTest ct = test.asConjunctiveTest();
         if (ct != null) {
@@ -144,7 +148,7 @@ public class TestTools
 
     /**
      * 
-     * reorder.cpp:999
+     * reorder.cpp:999test_tests_for_root:
      * 
      * @param t
      * @param roots
@@ -152,7 +156,7 @@ public class TestTools
      */
     public static boolean test_tests_for_root(Test t, List<Variable> roots)
     {
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             return false;
         }
@@ -160,7 +164,7 @@ public class TestTools
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
-            Variable referent = eq.sym.asVariable();
+            Variable referent = eq.getReferent().asVariable();
             return referent != null && roots.contains(referent);
         }
 
@@ -204,7 +208,7 @@ public class TestTools
             ByRef<Boolean> removed_goal, ByRef<Boolean> removed_impasse)
     {
 
-        if (t.isBlank() || t.asEqualityTest() != null)
+        if (Test.isBlank(t) || t.asEqualityTest() != null)
         {
             return t.copy();
         }
@@ -212,26 +216,27 @@ public class TestTools
         if (t.asGoalIdTest() != null)
         {
             removed_goal.value = true;
-            return new EqualityTest(null);
+            return null; // blank test
         }
         if (t.asImpasseIdTest() != null)
         {
             removed_impasse.value = true;
-            return new EqualityTest(null);
+            return null; // blank test
         }
         ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
-            ByRef<Test> new_t = new ByRef<Test>(new EqualityTest(null));
+            ByRef<Test> new_t = new ByRef<Test>(null);
             for (Test c : ct.conjunct_list)
             {
                 Test temp = copy_test_removing_goal_impasse_tests(c,
                         removed_goal, removed_impasse);
-                if (!temp.isBlank())
+                if (!Test.isBlank(temp))
                 {
                     add_new_test_to_test(new_t, temp);
                 }
             }
+            // TODO I don't think reverse is correct here.
             ConjunctiveTest newct = new_t.value.asConjunctiveTest();
             if (newct != null)
             {
@@ -245,7 +250,7 @@ public class TestTools
 
     public static char first_letter_from_test (Test t) {
         
-        if(t.isBlank()) { return '*'; }
+        if(Test.isBlank(t)) { return '*'; }
         EqualityTest eq = t.asEqualityTest();
         if (eq != null) {
           return eq.sym.getFirstLetter();

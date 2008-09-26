@@ -143,6 +143,13 @@ public class ActionReorderer
 
     }
 
+    /**
+     * reorder.cpp:164:legal_to_execute_action
+     * 
+     * @param a
+     * @param tc
+     * @return
+     */
     private boolean legal_to_execute_action(Action a, int tc)
     {
         MakeAction ma = a.asMakeAction();

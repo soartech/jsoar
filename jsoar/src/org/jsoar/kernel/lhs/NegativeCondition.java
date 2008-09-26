@@ -16,7 +16,7 @@ public class NegativeCondition extends ThreeFieldCondition
 {
     public NegativeCondition(PositiveCondition positiveCondition)
     {
-        // TODO Auto-generated constructor stub
+        super(positiveCondition);
     }
 
     public PositiveCondition negate()

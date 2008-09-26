@@ -354,4 +354,19 @@ public class ParserTest extends JSoarTest
         Production p = parser.parse_production();
         assertNotNull(p);
     }
+    
+    @Test
+    public void testParseProduction3() throws Exception
+    {
+        // Testing a problematic production from towers-of-hanoi
+        Parser parser = createParser("towers-of-hanoi*propose*initialize\n" +
+"   (state <s> ^superstate nil\n" +
+"             -^name)\n" +
+"-->\n" +
+"   (<s> ^operator <o> +)\n" +
+"   (<o> ^name initialize-toh)");
+        Production p = parser.parse_production();
+        assertNotNull(p);
+    }
+
 }
