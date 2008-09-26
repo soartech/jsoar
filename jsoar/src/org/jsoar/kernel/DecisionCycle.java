@@ -586,7 +586,7 @@ public class DecisionCycle
             // TODO callback AFTER_DECISION_PHASE_CALLBACK/DECISION_PHASE
             // soar_invoke_callbacks(thisAgent, AFTER_DECISION_PHASE_CALLBACK, (soar_call_data) DECISION_PHASE);
 
-            if (context.trace.isEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM)) {
+            if (context.trace.isEnabled() && context.trace.isEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM)) {
                 final Writer writer = context.trace.getPrinter().getWriter();
                 try
                 {

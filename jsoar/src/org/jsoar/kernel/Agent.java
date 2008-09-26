@@ -164,7 +164,7 @@ public class Agent
 
         decider.create_top_goal();
 
-        if (trace.isEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM))
+        if (trace.isEnabled() && trace.isEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM))
         {
             final Writer writer = trace.getPrinter().getWriter();
             try
