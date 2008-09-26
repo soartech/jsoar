@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.List;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.AsListItem;
@@ -102,11 +104,6 @@ public class PreferenceMemory
             }
         }
 
-        // S1 clear P3
-        if(pref.id.toString().equals("S1") && pref.attr.toString().equals("clear") && pref.value.toString().equals("P3"))
-        {
-            System.out.println("here");
-        }
         // deallocate all the clones
         Preference clone = pref.next_clone;
         while (clone != null)
@@ -321,13 +318,11 @@ public class PreferenceMemory
      * 
      * @param o_rejects
      */
-    public void process_o_rejects_and_deallocate_them(AsListItem<Preference> o_rejects)
+    public void process_o_rejects_and_deallocate_them(List<Preference> o_rejects)
     {
-        // preference *pref, *next_pref, *p, *next_p;
-
-        for (AsListItem<Preference> pref = o_rejects; pref != null; pref = pref.next)
+        for (Preference pref : o_rejects)
         {
-            pref.get().preference_add_ref(); /*
+            pref.preference_add_ref(); /*
                                                  * prevents it from being
                                                  * deallocated if it's a clone
                                                  * of some other pref we're
@@ -340,11 +335,8 @@ public class PreferenceMemory
             // #endif
         }
 
-        AsListItem<Preference> prefIt = o_rejects;
-        while (prefIt != null)
+        for(Preference pref : o_rejects)
         {
-            AsListItem<Preference> next_pref = prefIt.next;
-            Preference pref = prefIt.get();
             Slot s = Slot.find_slot(pref.id, pref.attr);
             if (s != null)
             {
@@ -361,7 +353,6 @@ public class PreferenceMemory
                 }
             }
             pref.preference_remove_ref(this);
-            prefIt = next_pref;
         }
     }
 
