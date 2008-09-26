@@ -210,6 +210,6 @@ public class FunctionalTests
         
         agent.decisionCycle.run_for_n_decision_cycles(5000);
         assertTrue("toh functional test did not halt", halted[0]);
-        assertEquals(2048, agent.decisionCycle.d_cycle_count); // deterministic!
+        assertEquals(2047, agent.decisionCycle.d_cycle_count); // deterministic!
     }
 }

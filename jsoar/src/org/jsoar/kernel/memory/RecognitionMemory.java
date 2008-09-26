@@ -6,6 +6,7 @@
 package org.jsoar.kernel.memory;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
@@ -960,7 +961,11 @@ public class RecognitionMemory
      */
     private void assert_new_preferences()
     {
-        final ListHead<Preference> o_rejects = new ListHead<Preference>();
+        // Note: In CSoar, this list is just build up using the next link in the
+        // Preference object. When I tried to do that, I was getting some occasional
+        // weird behavior. So, since this list is really supposed to be independent
+        // for this function anyway, why not just use a normal list? Yay.
+        final LinkedList<Preference> o_rejects = new LinkedList<Preference>();
 
         if (context.operand2_mode)
         {
@@ -985,16 +990,13 @@ public class RecognitionMemory
                     if ((pref.get().type == PreferenceType.REJECT_PREFERENCE_TYPE) && (pref.get().o_supported))
                     {
                         // o-reject: just put it in the buffer for later
-                        pref.next = o_rejects.first;
-                        o_rejects.first = pref;
-                        
-                        assert pref.next != pref;
+                        o_rejects.push(pref.get());
                     }
                 }
             }
 
             if (!o_rejects.isEmpty())
-                context.prefMemory.process_o_rejects_and_deallocate_them(o_rejects.first);
+                context.prefMemory.process_o_rejects_and_deallocate_them(o_rejects);
             
             // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
         }
@@ -1023,9 +1025,7 @@ public class RecognitionMemory
                     if (!SoarConstants.O_REJECTS_FIRST)
                     {
                         /* --- o-reject: just put it in the buffer for later --- */
-                        pref.next = o_rejects.first;
-                        o_rejects.first = pref;
-                        assert pref.next != pref;
+                        o_rejects.push(pref.get());
                     }
                     /* No knowledge retrieval necessary in Operand2 */
 
@@ -1065,7 +1065,7 @@ public class RecognitionMemory
         if (!SoarConstants.O_REJECTS_FIRST)
         {
             if (!o_rejects.isEmpty())
-                context.prefMemory.process_o_rejects_and_deallocate_them(o_rejects.first);
+                context.prefMemory.process_o_rejects_and_deallocate_them(o_rejects);
         }
     }
 
