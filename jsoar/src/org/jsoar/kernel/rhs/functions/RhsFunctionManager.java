@@ -34,12 +34,24 @@ public class RhsFunctionManager
      * Register a RHS function
      * 
      * @param handler The handler to call for the function
+     * @return The previosly registered handler
      */
-    public void registerHandler(RhsFunctionHandler handler)
+    public RhsFunctionHandler registerHandler(RhsFunctionHandler handler)
     {
         Arguments.checkNotNull(handler, "handler");
         
-        handlers.put(handler.getName(), handler);
+        return handlers.put(handler.getName(), handler);
+    }
+    
+    /**
+     * Lookup a registered handler by name
+     * 
+     * @param name The name of the handler
+     * @return The handler or null if none is registered
+     */
+    public RhsFunctionHandler getHandler(String name)
+    {
+        return handlers.get(name);
     }
     
     /**

@@ -42,12 +42,14 @@ public class Preference implements Formattable
     Preference prev_clone;
       
     public Instantiation inst;
-    public final AsListItem<Preference> inst_next_prev = new AsListItem<Preference>(this);
+    final AsListItem<Preference> inst_next_prev = new AsListItem<Preference>(this);
     public Preference next_candidate;
     Preference next_result;
 
     int total_preferences_for_candidate = 0;
     double numeric_value = 0.0;
+    
+    boolean deallocated = false;
 
     /**
      * Make_preference() creates a new preference structure of the given type
@@ -111,6 +113,13 @@ public class Preference implements Formattable
         return start;
     }
     
+    public void setInstantiation(Instantiation inst)
+    {
+        assert this.inst == null;
+        this.inst = inst;
+        this.inst_next_prev.insertAtHead(inst.preferences_generated);
+    }
+    
     /**
      * prefmem.h:68:preference_add_ref
      */
@@ -121,10 +130,13 @@ public class Preference implements Formattable
     
     public void preference_remove_ref(PreferenceMemory prefMem)
     {
-      this.reference_count--;
-      if (reference_count == 0){
-        prefMem.possibly_deallocate_preference_and_clones(this);
-      }
+        assert this.reference_count > 0;
+        
+        this.reference_count--;
+        if (reference_count == 0)
+        {
+            prefMem.possibly_deallocate_preference_and_clones(this);
+        }
     }
 
     /* (non-Javadoc)

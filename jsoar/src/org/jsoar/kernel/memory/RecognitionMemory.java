@@ -691,7 +691,7 @@ public class RecognitionMemory
         }
 
         // execute the RHS actions, collect the results
-        inst.preferences_generated.first = null;
+        assert inst.preferences_generated.isEmpty();
         boolean need_to_do_support_calculations = false;
         for (Action a = prod.action_list; a != null; a = a.next)
         {
@@ -713,8 +713,8 @@ public class RecognitionMemory
              */
             while (pref != null)
             {
-                pref.inst = inst;
-                pref.inst_next_prev.insertAtHead(inst.preferences_generated);
+                pref.setInstantiation(inst);
+                
                 if (inst.prod.declared_support == ProductionSupport.DECLARED_O_SUPPORT)
                     pref.o_supported = true;
                 else if (inst.prod.declared_support == ProductionSupport.DECLARED_I_SUPPORT)
@@ -987,6 +987,8 @@ public class RecognitionMemory
                         // o-reject: just put it in the buffer for later
                         pref.next = o_rejects.first;
                         o_rejects.first = pref;
+                        
+                        assert pref.next != pref;
                     }
                 }
             }
@@ -1023,6 +1025,7 @@ public class RecognitionMemory
                         /* --- o-reject: just put it in the buffer for later --- */
                         pref.next = o_rejects.first;
                         o_rejects.first = pref;
+                        assert pref.next != pref;
                     }
                     /* No knowledge retrieval necessary in Operand2 */
 
@@ -1036,10 +1039,8 @@ public class RecognitionMemory
                 }
                 else
                 {
-                    /*
-                     * --- inst. is refracted chunk, and pref. is not
-                     * o-supported: remove the preference ---
-                     */
+                    // inst. is refracted chunk, and pref. 
+                    // is not o-supported: remove the preference
 
                     /*
                      * --- first splice it out of the clones list--otherwise we
@@ -1154,7 +1155,7 @@ public class RecognitionMemory
             }
         }
 
-        if(context.operand2_mode)
+        if(!context.operand2_mode)
         {
             Phase.PREFERENCE_PHASE.trace(context.trace, false);
         }

@@ -10,13 +10,13 @@ import org.jsoar.kernel.tracing.Trace.Category;
  */
 public enum Phase
 {
-    INPUT_PHASE("Input Phase"), 
-    PROPOSE_PHASE("Proposal"),
-    DECISION_PHASE("Decision"),
-    APPLY_PHASE("Application"),
-    OUTPUT_PHASE("Output"),
-    PREFERENCE_PHASE("Input"), 
-    WM_PHASE("Working Memory");
+    INPUT_PHASE("input"), 
+    PROPOSE_PHASE("propose"),
+    DECISION_PHASE("decision"),
+    APPLY_PHASE("apply"),
+    OUTPUT_PHASE("output"),
+    PREFERENCE_PHASE("preference"), 
+    WM_PHASE("working memory");
         
     private final String traceName;
     private final String traceEndName;
@@ -34,6 +34,6 @@ public enum Phase
     
     public void trace(Trace trace, boolean startOfPhase)
     {
-        trace.print(Category.TRACE_PHASES_SYSPARAM, "\n--- " + getTraceName(startOfPhase) + " ---\n");
+        trace.print(Category.TRACE_PHASES_SYSPARAM, "\n--- " + getTraceName(startOfPhase) + " phase ---\n");
     }
 }

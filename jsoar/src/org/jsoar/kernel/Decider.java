@@ -1402,8 +1402,7 @@ public class Decider
 
         /* --- make the fake instantiation --- */
         Instantiation inst = new Instantiation(null, null, null);
-        pref.inst = inst;
-        inst.preferences_generated.first = pref.inst_next_prev;
+        pref.setInstantiation(inst);
         inst.match_goal = goal;
         inst.match_goal_level = goal.level;
         inst.okay_to_variablize = true;
@@ -1416,10 +1415,10 @@ public class Decider
         inst.top_of_instantiated_conditions = cond;
         inst.bottom_of_instantiated_conditions = cond;
         inst.nots = null;
-        cond.id_test = new EqualityTest(ap_wme.get().id); // make_equality_test
+        cond.id_test = EqualityTest.makeEqualityTest(ap_wme.get().id); // make_equality_test
                                                             // (ap_wme->id);
-        cond.attr_test = new EqualityTest(ap_wme.get().attr);
-        cond.value_test = new EqualityTest(ap_wme.get().value);
+        cond.attr_test = EqualityTest.makeEqualityTest(ap_wme.get().attr);
+        cond.value_test = EqualityTest.makeEqualityTest(ap_wme.get().value);
         cond.test_for_acceptable_preference = true;
         cond.bt.wme_ = ap_wme.get();
         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
@@ -2435,7 +2434,7 @@ public class Decider
      */
     public void do_working_memory_phase()
     {
-        if (context.trace.isEnabled(Category.TRACE_PHASES_SYSPARAM))
+        if (context.trace.isEnabled() && context.trace.isEnabled(Category.TRACE_PHASES_SYSPARAM))
         {
             if (context.operand2_mode == true)
             {
@@ -2468,7 +2467,7 @@ public class Decider
         decide_non_context_slots();
         do_buffered_wm_and_ownership_changes();
 
-        if(context.operand2_mode)
+        if(!context.operand2_mode)
         {
             Phase.WM_PHASE.trace(context.trace, false);
         }

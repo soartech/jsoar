@@ -328,4 +328,22 @@ public class ReteUnitTest extends JSoarTest
           assertNotNull(result);
           assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
     }
+    
+    @Test
+    public void testAddProblematicTowersOfHanoiProduction() throws Exception
+    {
+        Parser parser = createParser("towers-of-hanoi*propose*initialize\n" +
+                "   (state <s> ^superstate nil\n" +
+                "             -^name)\n" +
+                "-->\n" +
+                "   (<s> ^operator <o> +)\n" +
+                "   (<o> ^name initialize-toh)");
+        
+        Production p = parser.parse_production();
+        assertNotNull(p);
+        
+        ProductionAddResult result = rete.add_production_to_rete(p);
+        assertNotNull(result);
+        assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
+    }
 }

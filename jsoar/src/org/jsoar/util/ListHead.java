@@ -52,6 +52,11 @@ public class ListHead <T> implements Iterable<T>
         return first != null ? first.find(value) : null;
     }
     
+    /*package*/ boolean containsAsListItem(AsListItem<T> item)
+    {
+        return first != null ? first.containsAsListItem(item) : false;
+    }
+    
     /**
      * Check whether this list contains the given value.
      * 

@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Phase;
+import org.jsoar.kernel.symbols.SymConstant;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -43,6 +44,23 @@ public class SoarTclInterface
                 throw new TclException(interp, e.getMessage());
             }
         }};
+        
+    private Command multiAttrCommand = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            if(args.length != 3)
+            {
+                throw new TclNumArgsException(interp, 2, args, "attr cost");
+            }
+            
+            SymConstant attr = agent.syms.make_sym_constant(args[1].toString());
+            int cost = Integer.valueOf(args[2].toString());
+            agent.getMultiAttributes().setCost(attr, cost);
+        }
+        
+    };
 
     /**
      * @param agent
@@ -52,6 +70,7 @@ public class SoarTclInterface
         this.agent = agent;
         
         interp.createCommand("sp", spCommand);
+        interp.createCommand("multi-attributes", multiAttrCommand);
     }
     
     public void dispose()
@@ -79,21 +98,9 @@ public class SoarTclInterface
         Agent agent = new Agent();
         SoarTclInterface ifc = new SoarTclInterface(agent);
         
-        ifc.sourceFile("c:/waterjug.soar");
+        ifc.sourceFile("single.soar");
         
-        agent.trace.enableAll();
-        for(int i = 0; i< 200; ++i)
-        {
-            agent.decisionCycle.do_one_top_level_phase();
-            if(agent.decisionCycle.current_phase == Phase.INPUT_PHASE)
-            {
-                agent.getPrinter().print("State = %s", agent.decider.bottom_goal);
-            }
-            agent.getPrinter().flush();
-        }
-//        for(String arg : args)
-//        {
-//            ifc.interp.evalFile(arg);
-//        }
+        agent.trace.setEnabled(false);
+        agent.decisionCycle.run_for_n_decision_cycles(3000);
     }
 }

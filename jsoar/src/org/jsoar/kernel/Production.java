@@ -26,6 +26,7 @@ public class Production
     public final SymConstant name;
     public String documentation;
     public Condition condition_list;
+    private Condition bottomOfConditionList;
     public Action action_list;
     public ProductionSupport declared_support = ProductionSupport.UNDECLARED_SUPPORT;
     public boolean interrupt = false;
@@ -37,16 +38,20 @@ public class Production
     public boolean already_fired = false; /* RPM test workaround for bug #139 */
     public AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;
     public int reference_count = 1;
+    
+    private boolean reordered = false;
+    
+
     /**
-     * @param type
-     * @param name
-     * @param documentation
-     * @param action_list
+     * Function introduced while trying to tease apart production construction
+     * 
+     * production.cpp:1507:make_production
+     * 
+     * @param p
      */
-    public Production(VariableGenerator varGen, ProductionType type, SymConstant name,
-                      Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in, boolean reorder_nccs)
+    public Production(ProductionType type, SymConstant name,
+                      Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in)
     {
-        Arguments.checkNotNull(varGen, "varGen");
         Arguments.checkNotNull(type, "type");
         Arguments.checkNotNull(name, "name");
         Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
@@ -59,68 +64,74 @@ public class Production
         
         this.type = type;
         this.name = name;
+        name.production = this;
+        // TODO insert_at_head_of_dll (thisAgent->all_productions_of_type[type], p, next, prev);
+        // TODO thisAgent->num_productions_of_type[type]++;
+        this.p_node = null;               /* it's not in the Rete yet */
         
-        ByRef<Condition> lhs_top = ByRef.create(lhs_top_in);
-        ByRef<Condition> lhs_bottom = ByRef.create(lhs_bottom_in);
-        ByRef<Action> rhs_top = ByRef.create(rhs_top_in);
-        // ??? thisAgent->name_of_production_being_reordered = name->sc.name;
+        this.condition_list = lhs_top_in;
+        this.bottomOfConditionList = lhs_bottom_in;
+        this.action_list = rhs_top_in;
+    }
+    
+    /**
+     * Performs reordering of the LHS and RHS of the production using the given
+     * reorderer objects. This will modify the conditions and actions of the
+     * production. 
+     * 
+     * <p>Function introduced while trying to tease apart production construction
+     * 
+     * production.cpp:1507:make_production
+     * 
+     * @param varGen A variable generator
+     * @param cr A condition reorderer
+     * @param ar An action reorderer
+     * @param reorder_nccs True if NCCs should be reordered.
+     * @throws IllegalStateException if the production has already been reordered
+     */
+    public void reorder(VariableGenerator varGen, ConditionReorderer cr, ActionReorderer ar, boolean reorder_nccs)
+    {
+        if (reordered)
+        {
+            throw new IllegalStateException("Production '" + name + "' already reordered");
+        }
+        if (type != ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        {
+            ByRef<Condition> lhs_top = ByRef.create(condition_list);
+            ByRef<Condition> lhs_bottom = ByRef.create(bottomOfConditionList);
+            ByRef<Action> rhs_top = ByRef.create(action_list);
+            // ??? thisAgent->name_of_production_being_reordered =
+            // name->sc.name;
 
-        if (type!=ProductionType.JUSTIFICATION_PRODUCTION_TYPE) {
-          varGen.reset(lhs_top.value, rhs_top.value);
-          int tc = varGen.getSyms().get_new_tc_number();
-          Condition.addBoundVariables(lhs_top.value, tc, null);
-          
-          // TODO Shouldn't reordering be a separate step, independent of constructing
-          // the production object?
-          ActionReorderer actionReorder = new ActionReorderer(this.name.name);
-          actionReorder.reorder_action_list (rhs_top, tc);
-          
-          ConditionReorderer conditionReorderer = new ConditionReorderer(varGen);
-          conditionReorderer.reorder_lhs (lhs_top, lhs_bottom, reorder_nccs);
-          
-          // TODO: Is this necessary since this is the default value?
-          for(Action a = rhs_top.value; a != null; a = a.next)
-          {
-              a.support = ActionSupport.UNKNOWN_SUPPORT;
-          }
-        } else {
-          /* --- for justifications --- */
-          /* force run-time o-support (it'll only be done once) */
-            
+            varGen.reset(lhs_top.value, rhs_top.value);
+            int tc = varGen.getSyms().get_new_tc_number();
+            Condition.addBoundVariables(lhs_top.value, tc, null);
+
+            ar.reorder_action_list(rhs_top, tc);
+            cr.reorder_lhs(lhs_top, lhs_bottom, reorder_nccs);
+
             // TODO: Is this necessary since this is the default value?
-            for(Action a = rhs_top.value; a != null; a = a.next)
+            for (Action a = rhs_top.value; a != null; a = a.next)
+            {
+                a.support = ActionSupport.UNKNOWN_SUPPORT;
+            }
+
+            this.condition_list = lhs_top.value;
+            this.action_list = rhs_top.value;
+        }
+        else
+        {
+            /* --- for justifications --- */
+            /* force run-time o-support (it'll only be done once) */
+
+            // TODO: Is this necessary since this is the default value?
+            for (Action a = action_list; a != null; a = a.next)
             {
                 a.support = ActionSupport.UNKNOWN_SUPPORT;
             }
         }
 
-        name.production = this;
-        // TODO insert_at_head_of_dll (thisAgent->all_productions_of_type[type], p, next, prev);
-        // TODO thisAgent->num_productions_of_type[type]++;
-        this.p_node = null;               /* it's not in the Rete yet */
-        this.condition_list = lhs_top.value;
-        this.action_list = rhs_top.value;
-        
-        // Soar-RL stuff
-        // TODO p->rl_update_count = 0;
-        // TODO p->rl_rule = false;
-        if ( ( type != ProductionType.JUSTIFICATION_PRODUCTION_TYPE ) && ( type != ProductionType.TEMPLATE_PRODUCTION_TYPE ) ) 
-        {
-            // TODO p->rl_rule = rl_valid_rule( p );  
-        }
-        // TODO rl_update_template_tracking( thisAgent, name->sc.name );
-        
-        // TODO - parser.cpp
-//        if ( prod_type == ProductionType.TEMPLATE_PRODUCTION_TYPE )
-//        {
-//            if ( !rl_valid_template( p ) )
-//            {
-//                print_with_symbols( thisAgent, "Invalid Soar-RL template (%y)\n\n", name );
-//                excise_production( thisAgent, p, false );
-//                return null;
-//            }
-//        }
-
+        reordered = true;
     }
     
     /**

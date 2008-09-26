@@ -885,7 +885,7 @@ public class Rete
         dummy_top_node = new ReteNode(ReteNodeType.DUMMY_TOP_BNODE);
 
         /* --- create the dummy top token --- */
-        dummy_top_token = new RightToken(dummy_top_node, null, null, null);
+        dummy_top_token = RightToken.createDummy(dummy_top_node);
         dummy_top_node.a_np.tokens.first = dummy_top_token.of_node;
     }
     
@@ -993,7 +993,7 @@ public class Rete
     static void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, LinkedList<Variable> varlist)
     {
 
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             return;
         }
@@ -1074,8 +1074,7 @@ public class Rete
     private void add_gensymmed_equality_test(ByRef<Test> t, char first_letter)
     {
         Variable New = variableGenerator.generate_new_variable(Character.toString(first_letter));
-        Test eq_test = new EqualityTest(New);
-        // symbol_remove_ref (thisAgent, New);
+        Test eq_test = EqualityTest.makeEqualityTest(New);
         TestTools.add_new_test_to_test(t, eq_test);
     }
 
@@ -1121,7 +1120,7 @@ public class Rete
             t = tfc.value_test;
         }
 
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             // goto abort_var_bound_in_reconstructed_conds;
             throw new IllegalStateException("Internal error in var_bound_in_reconstructed_conds");
@@ -1138,7 +1137,7 @@ public class Rete
             for (Test c : ct.conjunct_list)
             {
                 EqualityTest eq2 = c.asEqualityTest();
-                if (c.isBlank() && eq2 != null)
+                if (Test.isBlank(c) && eq2 != null)
                 {
                     return eq2.getReferent();
                 }
@@ -1773,7 +1772,7 @@ public class Rete
             {
                 continue;
             }
-            new RightToken(node, null, rm.w, New);
+            RightToken.create(node, null, rm.w, New);
         }
 
         /* --- if no matches were found, call each child node --- */
@@ -1825,7 +1824,7 @@ public class Rete
             {
                 continue;
             }
-            new RightToken(node, null, rm.w, New);
+            RightToken.create(node, null, rm.w, New);
         }
 
         /* --- if no matches were found, call each child node --- */
@@ -1877,7 +1876,7 @@ public class Rete
                 continue;
             }
             /* --- match found: build new negrm token, remove descendent tokens --- */
-            new RightToken(node, null, w, tok);
+            RightToken.create(node, null, w, tok);
 
             while (!tok.first_child.isEmpty())
             {
@@ -1917,7 +1916,7 @@ public class Rete
                 continue;
             }
             /* --- match found: build new negrm token, remove descendent tokens --- */
-            new RightToken(node, null, w, tok);
+            RightToken.create(node, null, w, tok);
             while (!tok.first_child.isEmpty())
             {
                 remove_token_and_subtree(tok.first_child.first.get());
@@ -1980,7 +1979,7 @@ public class Rete
         // TODO: Can this be created at "negrm_tok.left_token = left;" below so
         // that
         // left_toke can be final and list insertion can happen in constructor?
-        RightToken negrm_tok = new RightToken(node, tok, w, null);
+        RightToken negrm_tok = RightToken.create(node, tok, w, null);
 
         /* --- advance (tok,w) up to the token from the top of the branch --- */
         ReteNode temp = node.parent;
@@ -2231,14 +2230,14 @@ public class Rete
         
         if (VarNames.varnames_is_one_var(vn))
         {
-            Test New = new EqualityTest(VarNames.varnames_to_one_var(vn));
+            Test New = EqualityTest.makeEqualityTest(VarNames.varnames_to_one_var(vn));
             TestTools.add_new_test_to_test(t, New);
         }
         else
         {
             for (Variable c : VarNames.varnames_to_var_list(vn))
             {
-                Test New = new EqualityTest(c);
+                Test New = EqualityTest.makeEqualityTest(c);
                 TestTools.add_new_test_to_test(t, New);
             }
         }
@@ -2281,7 +2280,7 @@ public class Rete
                 Symbol referent = rt.constant_referent;
                 if (test_type == ReteBuilder.EQUAL_TEST_TYPE)
                 {
-                    New = new EqualityTest(referent);
+                    New = EqualityTest.makeEqualityTest(referent);
                 }
                 else
                 {
@@ -2330,7 +2329,7 @@ public class Rete
 
                 if (test_type == ReteBuilder.EQUAL_TEST_TYPE)
                 {
-                    New = new EqualityTest(referent);
+                    New = EqualityTest.makeEqualityTest(referent);
                 }
                 else
                 {
@@ -2437,7 +2436,7 @@ public class Rete
     void add_hash_info_to_id_test(ThreeFieldCondition cond, int field_num, int levels_up)
     {
         Symbol temp = var_bound_in_reconstructed_conds(cond, field_num, levels_up);
-        Test New = new EqualityTest(temp);
+        Test New = EqualityTest.makeEqualityTest(temp);
 
         ByRef<Test> id_test = ByRef.create(cond.id_test);
         TestTools.add_new_test_to_test(id_test, New);
@@ -2529,9 +2528,9 @@ public class Rete
             {
                 PositiveCondition pc = cond.asPositiveCondition();
                 /* --- make simple tests and collect nots --- */
-                pc.id_test = new EqualityTest(w.id);
-                pc.attr_test = new EqualityTest(w.attr);
-                pc.value_test = new EqualityTest(w.value);
+                pc.id_test = EqualityTest.makeEqualityTest(w.id);
+                pc.attr_test = EqualityTest.makeEqualityTest(w.attr);
+                pc.value_test = EqualityTest.makeEqualityTest(w.value);
                 pc.test_for_acceptable_preference = w.acceptable;
                 cond.bt.wme_ = w;
                 if (node.b_posneg.other_tests != null)
@@ -2546,9 +2545,9 @@ public class Rete
                 // positive or negative, i.e. just a three-field condition
                 ThreeFieldCondition tfc = cond.asThreeFieldCondition();
                 AlphaMemory am = node.b_posneg.alpha_mem_;
-                tfc.id_test = new EqualityTest(am.id);
-                tfc.attr_test = new EqualityTest(am.attr);
-                tfc.value_test = new EqualityTest(am.value);
+                tfc.id_test = EqualityTest.makeEqualityTest(am.id);
+                tfc.attr_test = EqualityTest.makeEqualityTest(am.attr);
+                tfc.value_test = EqualityTest.makeEqualityTest(am.value);
                 tfc.test_for_acceptable_preference = am.acceptable;
 
                 if (nvn != null)

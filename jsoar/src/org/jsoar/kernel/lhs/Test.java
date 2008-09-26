@@ -16,9 +16,9 @@ public abstract class Test
 {
     public abstract Test copy();
     
-    public boolean isBlank()
+    public static boolean isBlank(Test t)
     {
-        return false;
+        return t == null;
     }
     
     public EqualityTest asEqualityTest()

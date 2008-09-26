@@ -120,7 +120,7 @@ public class ReteBuilder
     void add_rete_tests_for_test(Rete rete, Test t, int current_depth, int field_num, ByRef<ReteTest> rt,
             ByRef<Symbol> alpha_constant)
     {
-        if (t.isBlank())
+        if (Test.isBlank(t))
         {
             return;
         }
@@ -334,7 +334,7 @@ public class ReteBuilder
      * test to use for hashing.  The Rete test list ("rt") is destructively
      * modified to splice out the extracted test.
      * 
-     * rete.cpp:3036:extract_rete_test_to_hash_with
+     * rete.cpp:3042:extract_rete_test_to_hash_with
      * 
      * @param rt
      * @param dest_hash_loc

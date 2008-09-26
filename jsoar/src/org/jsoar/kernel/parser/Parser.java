@@ -147,7 +147,7 @@ private Test make_placeholder_test (char first_letter) {
   new_var.current_binding_value = null; 
   
   /* --- return an equality test for that variable --- */
-  return new EqualityTest(new_var);
+  return EqualityTest.makeEqualityTest(new_var);
   //return make_equality_test_without_adding_reference (new_var);
 }
 
@@ -196,7 +196,7 @@ private void substitute_for_placeholders_in_symbol (Symbol[] sym) {
 
 private void substitute_for_placeholders_in_test (Test t) {
 
-  if (t.isBlank()) return;
+  if (Test.isBlank(t)) return;
   EqualityTest eqTest = t.asEqualityTest();
   if (eqTest != null) {
      Symbol sym[] = new Symbol[] { eqTest.sym }; // pointer to pointer trick
@@ -367,7 +367,7 @@ private void substitute_for_placeholders_in_action_list (Action a) {
     Symbol referent = make_symbol_for_current_lexeme();
     lexer.getNextLexeme();
     if (use_equality_test) {
-      t = new EqualityTest(referent);
+      t = EqualityTest.makeEqualityTest(referent);
     } else {
       t = new RelationalTest(test_type, referent);
     }
@@ -449,7 +449,7 @@ private void substitute_for_placeholders_in_action_list (Action a) {
     return parse_simple_test();
   /* --- parse and return conjunctive test --- */
   lexer.getNextLexeme();
-  ByRef<Test> t = new ByRef<Test>(new EqualityTest(null)); // make_blank_test();
+  ByRef<Test> t = new ByRef<Test>(null); // make_blank_test();
   do {
     Test temp = parse_simple_test();
     if (temp == null) {
@@ -460,15 +460,13 @@ private void substitute_for_placeholders_in_action_list (Action a) {
   } while (lexer.getCurrentLexeme().type!=R_BRACE_LEXEME);
   lexer.getNextLexeme(); /* consume the "}" */
 
-  Test ct = t.value.asComplexTest();
-  if (ct != null) {
-    ConjunctiveTest cjt = ct.asConjunctiveTest();
+  // TODO I don't think reverse is correct here.
+    ConjunctiveTest cjt = t.value.asConjunctiveTest();
     if (cjt != null)
     {
         Collections.reverse(cjt.conjunct_list);
         //ct->data.conjunct_list = destructively_reverse_list (ct->data.conjunct_list);
     }
-  }
 
   return t.value;
 }
@@ -595,45 +593,50 @@ private void fill_in_attr_tests (Condition conds, Test t) {
   }
 }
 
-/* -----------------------------------------------------------------
-                     Negate Condition List
-   
-   Returns the negation of the given condition list.  If the given
-   list is a single positive or negative condition, it just toggles
-   the type.  If the given list is a single ncc, it strips off the ncc
-   part and returns the subconditions.  Otherwise it makes a new ncc
-   using the given conditions.
------------------------------------------------------------------ */
 
-private Condition negate_condition_list (Condition conds) {
-
-  if (conds.next==null) {
-    /* --- only one condition to negate, so toggle the type --- */
-    PositiveCondition pc = conds.asPositiveCondition();
-    if(pc != null)
+    /**
+     * Returns the negation of the given condition list. If the given list is a
+     * single positive or negative condition, it just toggles the type. If the
+     * given list is a single ncc, it strips off the ncc part and returns the
+     * subconditions. Otherwise it makes a new ncc using the given conditions.
+     * 
+     * parser.cpp:568:negate_condition_list
+     * 
+     * @param conds
+     * @return
+     */
+    private Condition negate_condition_list(Condition conds)
     {
-        return pc.negate();
+        if (conds.next == null)
+        {
+            /* --- only one condition to negate, so toggle the type --- */
+            PositiveCondition pc = conds.asPositiveCondition();
+            if (pc != null)
+            {
+                return pc.negate();
+            }
+            NegativeCondition nc = conds.asNegativeCondition();
+            if (nc != null)
+            {
+                return nc.negate();
+            }
+            ConjunctiveNegationCondition ncc = conds.asConjunctiveNegationCondition();
+            if (ncc != null)
+            {
+                return ncc.top;
+            }
+            throw new IllegalStateException("Unknown condition type: " + conds);
+        }
+        /* --- more than one condition; so build a conjunctive negation --- */
+        ConjunctiveNegationCondition tempNcc = new ConjunctiveNegationCondition();
+        tempNcc.top = conds;
+        Condition last = conds;
+        for (; last.next != null; last = last.next)
+        {
+        }
+        tempNcc.bottom = last;
+        return tempNcc;
     }
-    NegativeCondition nc = conds.asNegativeCondition();
-    if(nc != null)
-    {
-        return nc.negate();
-    }
-    ConjunctiveNegationCondition ncc = conds.asConjunctiveNegationCondition();
-    if(ncc != null)
-    {
-        return ncc.top;
-    }
-    throw new IllegalStateException("Unknown condition type: " + conds);
-  }
-  /* --- more than one condition; so build a conjunctive negation --- */
-  ConjunctiveNegationCondition tempNcc = new ConjunctiveNegationCondition();
-  tempNcc.top = conds;
-  Condition last = conds;
-  for (; last.next!=null; last=last.next) {}
-  tempNcc.bottom = last;
-  return tempNcc;
-}
 
 /* -----------------------------------------------------------------
                         Parse Value Test Star
@@ -733,7 +736,7 @@ private Condition negate_condition_list (Condition conds) {
   
   /* --- read first <attr_test> --- */
   ByRef<Test> attr_test = ByRef.create(parse_test());
-  if (attr_test == null) 
+  if (attr_test.value == null) 
   {
       return null;
   }
@@ -833,10 +836,10 @@ private Test parse_head_of_conds_for_one_id (char first_letter_if_no_id_given) t
       lexer.getNextLexeme();
       first_letter_if_no_id_given = 'i';
     } else {
-      id_goal_impasse_test = new EqualityTest(null); // make_blank_test();
+      id_goal_impasse_test = null; // make_blank_test();
     }
   } else {
-    id_goal_impasse_test =  new EqualityTest(null); // make_blank_test();
+    id_goal_impasse_test =  null; // make_blank_test();
   }
 
   ByRef<Test> id_test = ByRef.create(null);
@@ -1921,9 +1924,11 @@ public Production parse_production ( /*unsigned char* rete_addition_result */ ) 
   {
       // Nothing
   }
-  Production p = new Production(varGen, prod_type, name, lhs_top, lhs_bottom, rhs, true);
-  //p = make_production (thisAgent, prod_type, name, &lhs_top, &lhs_bottom, &rhs, true);
+  
+  Production p = new Production(prod_type, name, lhs_top, lhs_bottom, rhs);
 
+  
+  
   // TODO
 //  if (!p) {
 //    print_with_symbols (thisAgent, "(Ignoring production %y)\n\n", name);
@@ -1937,15 +1942,6 @@ public Production parse_production ( /*unsigned char* rete_addition_result */ ) 
   p.declared_support = declared_support;
   p.interrupt = interrupt_on_match;
   
-  // TODO
-//  *rete_addition_result = add_production_to_rete (thisAgent, p, lhs_top, null, true);
-//  deallocate_condition_list (thisAgent, lhs_top);
-//
-//  if (*rete_addition_result==DUPLICATE_PRODUCTION) {
-//    excise_production (thisAgent, p, false);
-//    p = null;
-//  }
-
   return p;
 }
 /* =================================================================

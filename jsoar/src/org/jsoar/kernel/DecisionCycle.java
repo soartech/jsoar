@@ -751,6 +751,7 @@ public class DecisionCycle
         
         stop_soar = false;
         reason_for_stopping = null;
+        context.consistency.setHitMaxElaborations(false);
         while (!stop_soar && n != 0)
         {
             do_one_top_level_phase();

@@ -42,6 +42,8 @@ public class AsListItem <T> implements Iterable<T>
     {
         Arguments.checkNotNull(head, "head");
         
+        assert !head.containsAsListItem(this);
+        
         next = head.first;
         previous = null;
         if(head.first != null)
@@ -70,6 +72,9 @@ public class AsListItem <T> implements Iterable<T>
     public void insertAfter(ListHead<T> head, AsListItem<T> other)
     {
         Arguments.checkNotNull(head, "head");
+        Arguments.check(other != this, "Attempt to insert after this");
+        
+        assert !head.containsAsListItem(this);
         
         this.previous = other;
         if(other == null)
@@ -92,6 +97,8 @@ public class AsListItem <T> implements Iterable<T>
     {
         Arguments.checkNotNull(head, "head");
 
+        //assert head.containsAsListItem(this);
+        
         if(next != null)
         {
             next.previous = previous;
@@ -104,6 +111,8 @@ public class AsListItem <T> implements Iterable<T>
         {
             head.first = next;
         }
+        next = null;
+        previous = null;
     }
     
     /**
@@ -141,6 +150,19 @@ public class AsListItem <T> implements Iterable<T>
         }
         return null;
     }
+    
+    /*package*/ boolean containsAsListItem(AsListItem<T> item)
+    {
+        for(AsListItem<T> m = this; m != null; m = m.next)
+        {
+            if(item == m)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
 //  public AsListItem<T> getTail()
 //  {
 //      AsListItem<T> tail = this;
