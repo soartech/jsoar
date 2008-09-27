@@ -27,14 +27,14 @@ public class ReteLocation extends RhsValue
         this.levelsUp = levelsUp;
     }
     /**
-     * @return the fieldNum
+     * @return The rete field number
      */
     public int getFieldNum()
     {
         return fieldNum;
     }
     /**
-     * @return the levelsUp
+     * @return Number of rete levels up
      */
     public int getLevelsUp()
     {
@@ -49,14 +49,17 @@ public class ReteLocation extends RhsValue
     {
         return this;
     }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
     public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
-        // TODO: anything?
+        // See comment in RhsValue.addAllVariables.
+        throw new UnsupportedOperationException("addAllVariables not supported on ReteLocation RhsValue");
     }
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */

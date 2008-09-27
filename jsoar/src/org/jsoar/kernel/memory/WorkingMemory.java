@@ -23,7 +23,7 @@ public class WorkingMemory
     private final Agent context;
     
     private int num_existing_wmes;
-    private int current_wme_timetag;
+    private int current_wme_timetag = 1;
     private final LinkedList<Wme> wmes_to_add = new LinkedList<Wme>();
     private final LinkedList<Wme> wmes_to_remove = new LinkedList<Wme>();
     private int wme_addition_count;

@@ -7,7 +7,6 @@ package org.jsoar.kernel.symbols;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Stack;
 
 /**
  * @author ray
@@ -28,7 +27,7 @@ public class Variable extends Symbol
     /**
      * See rete.cpp:2285 for why this is a stack. 
      */
-    public final Stack<Integer> rete_binding_locations = new Stack<Integer>(); 
+    public final LinkedList<Integer> rete_binding_locations = new LinkedList<Integer>(); 
     
     
     /**

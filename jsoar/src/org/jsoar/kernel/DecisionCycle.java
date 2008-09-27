@@ -135,9 +135,7 @@ public class DecisionCycle
             if (e_cycles_this_d_cycle == 0)
             {
                 // TODO callback BEFORE_DECISION_CYCLE_CALLBACK/INPUT_PHASE
-                // soar_invoke_callbacks(thisAgent,
-                // BEFORE_DECISION_CYCLE_CALLBACK,
-                // (soar_call_data) INPUT_PHASE);
+                // soar_invoke_callbacks(thisAgent, BEFORE_DECISION_CYCLE_CALLBACK, (soar_call_data) INPUT_PHASE);
             } /* end if e_cycles_this_d_cycle == 0 */
 
             // #ifdef REAL_TIME_BEHAVIOR /* RM Jones */
@@ -150,18 +148,14 @@ public class DecisionCycle
             if (input_cycle_flag == true)
             { /* Soar 7 flag, but always true for Soar8 */
                 // TODO callback BEFORE_INPUT_PHASE_CALLBACK/INPUT_PHASE
-                // soar_invoke_callbacks(thisAgent,
-                // BEFORE_INPUT_PHASE_CALLBACK,
-                // (soar_call_data) INPUT_PHASE);
+                // soar_invoke_callbacks(thisAgent, BEFORE_INPUT_PHASE_CALLBACK, (soar_call_data) INPUT_PHASE);
 
                 context.io.do_input_cycle();
 
                 run_phase_count++;
                 run_elaboration_count++; // All phases count as a run elaboration
                 // TODO callback AFTER_INPUT_PHASE_CALLBACK/INPUT_PHASE
-                // soar_invoke_callbacks(thisAgent,
-                // AFTER_INPUT_PHASE_CALLBACK,
-                // (soar_call_data) INPUT_PHASE);
+                // soar_invoke_callbacks(thisAgent, AFTER_INPUT_PHASE_CALLBACK, (soar_call_data) INPUT_PHASE);
 
                 if (input_period != 0)
                     input_cycle_flag = false;
@@ -207,9 +201,7 @@ public class DecisionCycle
                 Phase.PROPOSE_PHASE.trace(context.trace, true);
 
                 // TODO callback BEFORE_PROPOSE_PHASE_CALLBACK/PROPOSE_PHASE
-                // soar_invoke_callbacks(thisAgent,
-                // BEFORE_PROPOSE_PHASE_CALLBACK,
-                // (soar_call_data) PROPOSE_PHASE);
+                // soar_invoke_callbacks(thisAgent, BEFORE_PROPOSE_PHASE_CALLBACK, (soar_call_data) PROPOSE_PHASE);
 
                 // TODO callback BEFORE_ELABORATION_CALLBACK
                 // We need to generate this event here in case no elaborations fire...
@@ -244,8 +236,7 @@ public class DecisionCycle
             {
                 if (e_cycles_this_d_cycle != 0)
                 {
-                    // TODO callback BEFORE_ELABORATION_CALLBACK
-                    // only for 2nd cycle or higher. 1st cycle fired above
+                    // TODO callback BEFORE_ELABORATION_CALLBACK only for 2nd cycle or higher. 1st cycle fired above
                     // FIXME return the correct enum top_level_phase constant in soar_call_data?
                     // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
                     // soar_invoke_callbacks(thisAgent, BEFORE_ELABORATION_CALLBACK, NULL ) ;
@@ -253,15 +244,19 @@ public class DecisionCycle
                 context.recMemory.do_preference_phase(context.decider.top_goal,
                         context.osupport.o_support_calculation_type);
                 context.decider.do_working_memory_phase();
+                
                 /* Update accounting.  Moved here by KJC 04/05/05 */
                 this.e_cycle_count++;
                 this.e_cycles_this_d_cycle++;
                 this.run_elaboration_count++;
+                
                 context.consistency.determine_highest_active_production_level_in_stack_propose();
+                
                 // TODO callback AFTER_ELABORATION_CALLBACK
                 // FIXME return the correct enum top_level_phase constant in soar_call_data?
                 // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
                 // soar_invoke_callbacks(thisAgent, AFTER_ELABORATION_CALLBACK, NULL ) ;
+                
                 if (this.go_type == GoType.GO_ELABORATION)
                     break;
             }
@@ -282,15 +277,12 @@ public class DecisionCycle
 
                 this.run_phase_count++;
                 // TODO callback AFTER_PROPOSE_PHASE_CALLBACK/PROPOSE_PHASE
-                // soar_invoke_callbacks(thisAgent,
-                // AFTER_PROPOSE_PHASE_CALLBACK,
-                // (soar_call_data) PROPOSE_PHASE);
+                // soar_invoke_callbacks(thisAgent, AFTER_PROPOSE_PHASE_CALLBACK, (soar_call_data) PROPOSE_PHASE);
                 this.current_phase = Phase.DECISION_PHASE;
             }
 
             // #ifndef NO_TIMING_STUFF
-            // stop_timer (thisAgent, &thisAgent->start_phase_tv,
-            // &thisAgent->decision_cycle_phase_timers[PROPOSE_PHASE]);
+            // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[PROPOSE_PHASE]);
             // #endif
 
             break; /* END of Soar8 PROPOSE PHASE */
@@ -308,18 +300,14 @@ public class DecisionCycle
             // start_timer (thisAgent, &thisAgent->start_phase_tv);
             // #endif
             // TODO callback BEFORE_PREFERENCE_PHASE_CALLBACK/PREFERENCE_PHASE
-            // soar_invoke_callbacks(thisAgent,
-            // BEFORE_PREFERENCE_PHASE_CALLBACK,
-            // (soar_call_data) PREFERENCE_PHASE);
+            // soar_invoke_callbacks(thisAgent, BEFORE_PREFERENCE_PHASE_CALLBACK, (soar_call_data) PREFERENCE_PHASE);
             context.recMemory
                     .do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
 
             this.run_phase_count++;
             this.run_elaboration_count++; // All phases count as a run elaboration
             // TODO callback AFTER_PREFERENCE_PHASE_CALLBACK/PREFERENCE_PHASE
-            // soar_invoke_callbacks(thisAgent,
-            // AFTER_PREFERENCE_PHASE_CALLBACK,
-            // (soar_call_data) PREFERENCE_PHASE);
+            // soar_invoke_callbacks(thisAgent, AFTER_PREFERENCE_PHASE_CALLBACK, (soar_call_data) PREFERENCE_PHASE);
             current_phase = Phase.WM_PHASE;
 
             // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */
@@ -327,8 +315,6 @@ public class DecisionCycle
             // &thisAgent->decision_cycle_phase_timers[PREFERENCE_PHASE]);
             // #endif
 
-            /* tell gSKI PREF_PHASE ending... 
-            */
             break; /* END of Soar7 PREFERENCE PHASE */
 
         // ///////////////////////////////////////////////////////////////////////////////
@@ -342,9 +328,7 @@ public class DecisionCycle
             // start_timer (thisAgent, &thisAgent->start_phase_tv);
             // #endif
             // TODO callback BEFORE_WM_PHASE_CALLBACK/WM_PHASE
-            // soar_invoke_callbacks(thisAgent,
-            // BEFORE_WM_PHASE_CALLBACK,
-            // (soar_call_data) WM_PHASE);
+            // soar_invoke_callbacks(thisAgent, BEFORE_WM_PHASE_CALLBACK, (soar_call_data) WM_PHASE);
             context.decider.do_working_memory_phase();
 
             this.run_phase_count++;
@@ -532,9 +516,7 @@ public class DecisionCycle
             Phase.OUTPUT_PHASE.trace(context.trace, false);
 
             /* MVP 6-8-94 */
-            if (e_cycles_this_d_cycle >= 100
-            /* TODO (unsigned long)(thisAgent->sysparams[MAX_ELABORATIONS_SYSPARAM])*/
-            )
+            if (e_cycles_this_d_cycle >= context.consistency.getMaxElaborations())
             {
                 context.getPrinter().warn("Warning: reached max-elaborations; proceeding to decision phases.");
                 // xml_generate_warning(thisAgent, "Warning: reached max-elaborations; proceeding to decision phases.");
@@ -715,18 +697,6 @@ public class DecisionCycle
 
         if (stop_soar)
         {
-            /* (voigtjr)
-               this old test is nonsense, it compares pointers:
-
-               if (thisAgent->reason_for_stopping != "")
-
-               what really should happen here is reason_for_stopping should be
-               set to NULL in the cases where nothing should be printed, instead 
-               of being assigned a pointer to a zero length (NULL) string, then
-               we could simply say:
-
-               if (thisAgent->reason_for_stopping) 
-             */
             if (reason_for_stopping != null && reason_for_stopping.length() > 0)
             {
                 context.getPrinter().print("\n%s", reason_for_stopping);

@@ -8,7 +8,7 @@ package org.jsoar.tcl;
 import java.io.IOException;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.Phase;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymConstant;
 
 import tcl.lang.Command;
@@ -40,6 +40,10 @@ public class SoarTclInterface
                 agent.loadProduction(args[1].toString());
             }
             catch (IOException e)
+            {
+                throw new TclException(interp, e.getMessage());
+            }
+            catch (ReordererException e)
             {
                 throw new TclException(interp, e.getMessage());
             }
@@ -83,20 +87,35 @@ public class SoarTclInterface
         return agent;
     }
     
-    public void sourceFile(String file) throws TclException
+    public void sourceFile(String file) throws SoarTclException
     {
-        interp.evalFile(file);
+        try
+        {
+            interp.evalFile(file);
+        }
+        catch (TclException e)
+        {
+            throw new SoarTclException(interp);
+        }
     }
     
-    public void sourceResource(String resource) throws TclException
+    public void sourceResource(String resource) throws SoarTclException
     {
-        interp.evalResource(resource);
+        try
+        {
+            interp.evalResource(resource);
+        }
+        catch (TclException e)
+        {
+            throw new SoarTclException(interp);
+        }
     }
     
-    public static void main(String[] args) throws TclException
+    public static void main(String[] args) throws SoarTclException
     {
         Agent agent = new Agent();
         SoarTclInterface ifc = new SoarTclInterface(agent);
+        agent.initialize();
         
         ifc.sourceFile("single.soar");
         

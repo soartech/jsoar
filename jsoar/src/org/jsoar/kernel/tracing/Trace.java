@@ -143,6 +143,20 @@ public class Trace
     }
     
     /**
+     * Disable all trace categories
+     * 
+     * @return this
+     */
+    public Trace disableAll()
+    {
+        for(int i = 0; i < settings.length; ++i)
+        {
+            settings[i] = false;
+        }
+        return this;
+    }
+    
+    /**
      * @param c The category to query
      * @return True if tracing is enabled for the particular category
      */

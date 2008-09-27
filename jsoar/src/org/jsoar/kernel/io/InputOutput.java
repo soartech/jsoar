@@ -200,7 +200,7 @@ public class InputOutput
         Arguments.checkNotNull(value, "value");
 
         /* --- go ahead and add the wme --- */
-        Wme w = new Wme(id, attr, value, false, 0);
+        Wme w = context.workingMemory.make_wme(id, attr, value, false);
         w.next_prev.insertAtHead(id.input_wmes);
         context.workingMemory.add_wme_to_wm(w);
 

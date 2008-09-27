@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Variable;
@@ -15,6 +14,6 @@ import org.jsoar.kernel.symbols.Variable;
  */
 public class ReorderInfo
 {
-    public List<Variable> vars_requiring_bindings = new ArrayList<Variable>();
+    public List<Variable> vars_requiring_bindings = null;
     public Condition next_min_cost = null;
 }

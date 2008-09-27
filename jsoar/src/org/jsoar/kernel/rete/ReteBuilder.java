@@ -33,7 +33,7 @@ import org.jsoar.util.ByRef;
 /**
  * @author ray
  */
-public class ReteBuilder
+/*package*/ class ReteBuilder
 {
 
     /* ---------------------------------------------------------------------
@@ -85,11 +85,6 @@ public class ReteBuilder
     }
     
     
-/* ------------------------------------------------------------------------
-                         Add Rete Tests for Test
-
------------------------------------------------------------------------- */
-
     /**
      * This is used for converting tests (from conditions) into the appropriate
      * rete_test's and/or constant-to-be-tested-by-the-alpha-network.  It takes
@@ -130,27 +125,26 @@ public class ReteBuilder
         {
             Symbol referent = eq.getReferent();
 
-            /* --- if constant test and alpha=NIL, install alpha test --- */
+            // if constant test and alpha=NIL, install alpha test
             if (referent.asVariable() == null && alpha_constant.value == null)
             {
                 alpha_constant.value = referent;
                 return;
             }
 
-            /* --- if constant, make = constant test --- */
+            // if constant, make = constant test
             if (referent.asVariable() == null)
             {
                 ReteTest new_rt = new ReteTest();
                 new_rt.right_field_num = field_num;
                 new_rt.type = ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST;
                 new_rt.constant_referent = referent;
-                // symbol_add_ref (referent);
                 new_rt.next = rt.value;
                 rt.value = new_rt;
                 return;
             }
 
-            /* --- variable: if binding is for current field, do nothing --- */
+            // variable: if binding is for current field, do nothing
             VarLocation where = new VarLocation();
             if (!rete.find_var_location(referent.asVariable(), current_depth, where))
             {
@@ -161,7 +155,7 @@ public class ReteBuilder
                 return;
             }
 
-            /* --- else make variable equality test --- */
+            // else make variable equality test
             ReteTest new_rt = new ReteTest();
             new_rt.right_field_num = field_num;
             new_rt.type = ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST;
@@ -175,7 +169,7 @@ public class ReteBuilder
         if (relational != null)
         {
 
-            /* --- if constant, make constant test --- */
+            // if constant, make constant test
             if (relational.referent.asVariable() == null)
             {
                 ReteTest new_rt = new ReteTest();
@@ -188,7 +182,7 @@ public class ReteBuilder
                 rt.value = new_rt;
                 return;
             }
-            /* --- else make variable test --- */
+            // else make variable test
             VarLocation where = new VarLocation();
             if (!rete.find_var_location(relational.referent.asVariable(), current_depth, where))
             {
@@ -343,24 +337,23 @@ public class ReteBuilder
     private static boolean extract_rete_test_to_hash_with(ByRef<ReteTest> rt, VarLocation dest_hash_loc)
     {
 
-        /* --- look through rt list, find the first variable equality test --- */
+        // look through rt list, find the first variable equality test
         ReteTest current = null, prev = null;
         for (current = rt.value; current != null; prev = current, current = current.next)
         {
             if (current.type == ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST)
             {
                 break;
-
             }
         }
 
-        /* no variable equality test was found */
+        // no variable equality test was found
         if (current == null)
         {
             return false;
         }
 
-        /* --- unlink it from rt --- */
+        // unlink it from rt
         if (prev != null)
         {
             prev.next = current.next;
@@ -370,7 +363,7 @@ public class ReteBuilder
             rt.value = current.next;
         }
 
-        /* --- extract info, and deallocate that single test --- */
+        // extract info, and deallocate that single test
         dest_hash_loc.assign(current.variable_referent);
         current.next = null;
         //deallocate_rete_test_list (thisAgent, current);
@@ -401,12 +394,12 @@ public class ReteBuilder
         
         LinkedList<Variable> vars_bound_here = new LinkedList<Variable>();
 
-        /* --- Add sparse variable bindings for this condition --- */
+        // Add sparse variable bindings for this condition
         Rete.bind_variables_in_test(cond.id_test, current_depth, 0, false, vars_bound_here);
         Rete.bind_variables_in_test(cond.attr_test, current_depth, 1, false, vars_bound_here);
         Rete.bind_variables_in_test(cond.value_test, current_depth, 2, false, vars_bound_here);
 
-        /* --- Get Rete tests, alpha constants, and hash location --- */
+        // Get Rete tests, alpha constants, and hash location
         ByRef<Symbol> alpha_id = ByRef.create(null);
         ByRef<Symbol> alpha_attr = ByRef.create(null);
         ByRef<Symbol> alpha_value = ByRef.create(null);
@@ -417,22 +410,22 @@ public class ReteBuilder
         add_rete_tests_for_test(rete, cond.attr_test, current_depth, 1, rt, alpha_attr);
         add_rete_tests_for_test(rete, cond.value_test, current_depth, 2, rt, alpha_value);
 
-        /* --- Pop sparse variable bindings for this condition --- */
+        // Pop sparse variable bindings for this condition
         Rete.pop_bindings_and_deallocate_list_of_variables(vars_bound_here);
 
-        /* --- Get alpha memory --- */
+        // Get alpha memory
         AlphaMemory am = rete.find_or_make_alpha_mem(alpha_id.value, alpha_attr.value, alpha_value.value,
                 cond.test_for_acceptable_preference);
 
         /*
-         * --- Algorithm for adding node: 1. look for matching mem node; if
+         * Algorithm for adding node: 1. look for matching mem node; if
          * found then look for matching join node; create new one if no match 2.
          * no matching mem node: look for mp node with matching mem if found, if
          * join part matches too, then done else delete mp node, create mem node
          * and 2 joins if not matching mem node, create new mp node.
          */
 
-        /* --- determine desired node types --- */
+        // determine desired node types
         ReteNodeType pos_node_type, mem_node_type, mp_node_type;
         if (hash_this_node)
         {
@@ -447,7 +440,7 @@ public class ReteBuilder
             mp_node_type = ReteNodeType.UNHASHED_MP_BNODE;
         }
 
-        /* --- look for a matching existing memory node --- */
+        // look for a matching existing memory node
         ReteNode node, mem_node;
         for (mem_node = parent.first_child; mem_node != null; mem_node = mem_node.next_sibling)
         {
@@ -471,22 +464,21 @@ public class ReteBuilder
             }
 
             if (node != null)
-            { /* --- A matching join node was found --- */
-                ReteTest.deallocate_rete_test_list(rt.value);
+            { 
+                // A matching join node was found
+                rt.value = null; 
                 am.remove_ref_to_alpha_mem(rete);
                 return node;
             }
             else
-            { /* --- No match was found, so create a new node --- */
+            { 
+                // No match was found, so create a new node
                 node = ReteNode.make_new_positive_node(rete, mem_node, pos_node_type, am, rt.value, false);
                 return node;
             }
         }
 
-        /*
-         * --- No matching memory node was found; look for MP with matching M
-         * ---
-         */
+        // No matching memory node was found; look for MP with matching M
         ReteNode mp_node;
         for (mp_node = parent.first_child; mp_node != null; mp_node = mp_node.next_sibling)
         {
@@ -498,23 +490,24 @@ public class ReteBuilder
         }
 
         if (mp_node != null)
-        { /* --- Found matching M part of MP --- */
+        { 
+            // Found matching M part of MP
             if ((am == mp_node.b_posneg.alpha_mem_)
                     && rete_test_lists_are_identical(mp_node.b_posneg.other_tests, rt.value))
             {
-                /* --- Complete MP match was found --- */
-                ReteTest.deallocate_rete_test_list(rt.value);
+                // Complete MP match was found
+                rt.value = null;
                 am.remove_ref_to_alpha_mem(rete);
                 return mp_node;
             }
 
-            /* --- Delete MP node, replace it with M and two positive joins --- */
+            // Delete MP node, replace it with M and two positive joins
             mem_node = ReteNode.split_mp_node(rete, mp_node);
             node = ReteNode.make_new_positive_node(rete, mem_node, pos_node_type, am, rt.value, false);
             return node;
         }
 
-        /* --- Didn't even find a matching M part of MP, so make a new MP node --- */
+        // Didn't even find a matching M part of MP, so make a new MP node
         return ReteNode.make_new_mp_node(rete, parent, mp_node_type, left_hash_loc, am, rt.value, false);
     }  
 
@@ -544,13 +537,16 @@ public class ReteBuilder
 
         /* --- Get Rete tests, alpha constants, and hash location --- */
         ByRef<Symbol> alpha_id = ByRef.create(null);
-        ByRef<Symbol> alpha_attr = ByRef.create(null);
-        ByRef<Symbol> alpha_value = ByRef.create(null);
         ByRef<ReteTest> rt = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.id_test, current_depth, 0, rt, alpha_id);
+        
         VarLocation left_hash_loc = new VarLocation();
         boolean hash_this_node = extract_rete_test_to_hash_with(rt, left_hash_loc);
+        
+        ByRef<Symbol> alpha_attr = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.attr_test, current_depth, 1, rt, alpha_attr);
+        
+        ByRef<Symbol> alpha_value = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.value_test, current_depth, 2, rt, alpha_value);
 
         /* --- Pop sparse variable bindings for this condition --- */
@@ -575,9 +571,11 @@ public class ReteBuilder
                 break;
             }
         }
+        
         if (node != null)
-        { /* --- A matching node was found --- */
-            ReteTest.deallocate_rete_test_list(rt.value);
+        { 
+            // A matching node was found
+            rt.value = null;
             am.remove_ref_to_alpha_mem(rete);
             return node;
         }

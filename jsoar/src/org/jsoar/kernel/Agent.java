@@ -26,6 +26,7 @@ import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.ActionReorderer;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -90,8 +91,20 @@ public class Agent
         installDefaultTraceFormats();
         
         rete.setReteListener(soarReteListener);
+    }
+    
+    /**
+     * Must be called before the agent is run. This is separate from the 
+     * constructor to give client code the change to register callbacks,
+     * modify the trace level or printer, etc before the agent is initialized,
+     * which may initiate these actions.
+     *  
+     */
+    public void initialize()
+    {
+        // TODO reinitialize if called again
+        // TODO Call automatically if any function that requires it is called?
         init_agent_memory();
-        
     }
     
     /**
@@ -112,7 +125,7 @@ public class Agent
         return multiAttrs;
     }
  
-    public void loadProduction(String productionBody) throws IOException
+    public void loadProduction(String productionBody) throws IOException, ReordererException
     {
         StringReader reader = new StringReader(productionBody);
         Lexer lexer = new Lexer(reader);
@@ -128,13 +141,15 @@ public class Agent
      * 
      * @param p
      * @param reorder_nccs
+     * @throws ReordererException 
      */
-    private void addProduction(Production p, boolean reorder_nccs)
+    private void addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
         // Reorder the production
         p.reorder(variableGenerator, 
-                  new ConditionReorderer(variableGenerator, trace, multiAttrs), 
-                  new ActionReorderer(p.name.name), reorder_nccs);
+                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.name), 
+                  new ActionReorderer(printer, p.name.name), 
+                  reorder_nccs);
 
         // Tell RL about the new production
         rl.addProduction(p);

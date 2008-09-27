@@ -7,7 +7,6 @@ package org.jsoar.kernel.rhs;
 
 import java.util.LinkedList;
 
-import org.jsoar.kernel.rete.ReteBuilder;
 import org.jsoar.kernel.symbols.Variable;
 
 /**

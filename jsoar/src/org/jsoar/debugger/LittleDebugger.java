@@ -34,9 +34,8 @@ import javax.swing.SwingUtilities;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
-
-import tcl.lang.TclException;
 
 /**
  * @author ray
@@ -136,6 +135,8 @@ public class LittleDebugger extends JPanel
         agent.getPrinter().setWriter(outputWriter, true);
         agent.trace.enableAll();
         
+        agent.initialize();
+        
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
                                           new JScrollPane(outputWindow), 
                                           new JScrollPane(wmeList));
@@ -224,7 +225,7 @@ public class LittleDebugger extends JPanel
             {
                 littleDebugger.ifc.sourceFile(arg);
             }
-            catch (TclException e)
+            catch (SoarTclException e)
             {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
