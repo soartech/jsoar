@@ -280,7 +280,7 @@ public class Rete
      * 
      * BUGBUG should we check for duplicate justifications?
      * 
-     * rete.cpp:3515:add_production_to_rete
+     * rete.cpp:3522:add_production_to_rete
      * 
      * @param p The production to add
      * @param refracted_inst Refracted instantiation
@@ -298,14 +298,13 @@ public class Rete
         ByRef<ReteNode> bottom_node = ByRef.create(null);
         ByRef<Integer> bottom_depth = ByRef.create(0);
         ByRef<LinkedList<Variable>> vars_bound = ByRef.create(null);
-        /* --- build the network for all the conditions --- */
+        // build the network for all the conditions
         builder.build_network_for_condition_list(this, lhs_top, 1, dummy_top_node, bottom_node, bottom_depth,
                 vars_bound);
 
-        /*
-         * --- change variable names in RHS to Rete location references or
-         * unbound variable indices ---
-         */
+        // change variable names in RHS to Rete location references or
+        // unbound variable indices
+
         List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>();
         int rhs_unbound_vars_tc = variableGenerator.getSyms().get_new_tc_number();
         for (Action a = p.action_list; a != null; a = a.next)
@@ -338,13 +337,13 @@ public class Rete
             }
         }
 
-        /* --- clean up variable bindings created by build_network...() --- */
+        // clean up variable bindings created by build_network...
 
         pop_bindings_and_deallocate_list_of_variables(vars_bound.value);
 
         update_max_rhs_unbound_variables(rhs_unbound_vars_for_new_prod.size());
 
-        /* --- look for an existing p node that matches --- */
+        // look for an existing p node that matches
         for (ReteNode p_node = bottom_node.value.first_child; p_node != null; p_node = p_node.next_sibling)
         {
             if (p_node.node_type != ReteNodeType.P_BNODE)
@@ -444,6 +443,7 @@ public class Rete
         else
         {
             p.p_node.b_p.parents_nvn = NodeVarNames.get_nvn_for_condition_list(lhs_top, null);
+            p.rhs_unbound_variables.clear();
             p.rhs_unbound_variables.addAll(rhs_unbound_vars_for_new_prod);
         }
 
@@ -466,28 +466,24 @@ public class Rete
     public void excise_production_from_rete(Production p)
     {
         // TODO: Callback
-        // soar_invoke_callbacks (thisAgent,
-        // PRODUCTION_JUST_ABOUT_TO_BE_EXCISED_CALLBACK,
-        // (soar_call_data) p);
+        // soar_invoke_callbacks (thisAgent, PRODUCTION_JUST_ABOUT_TO_BE_EXCISED_CALLBACK, (soar_call_data) p);
 
         // #ifdef _WINDOWS
         // remove_production_from_stat_lists(prod_to_be_excised);
         // #endif
 
         ReteNode p_node = p.p_node;
-        p.p_node = null; /* mark production as not being in the rete anymore */
+        p.p_node = null; // mark production as not being in the rete anymore
         ReteNode parent = p_node.parent;
 
-        /* --- deallocate the variable name information --- */
+        // deallocate the variable name information
         if (p_node.b_p.parents_nvn != null)
         {
             NodeVarNames.deallocate_node_varnames(parent, dummy_top_node, p_node.b_p.parents_nvn);
         }
 
-        /*
-         * --- cause all existing instantiations to retract, by removing any
-         * tokens at the node ---
-         */
+        // cause all existing instantiations to retract, by removing any
+        // tokens at the node
         while (!p_node.a_np.tokens.isEmpty())
         {
             remove_token_and_subtree(p_node.a_np.tokens.first.get());
@@ -495,12 +491,10 @@ public class Rete
 
         listener.removingProductionNode(this, p_node);
 
-        /* --- finally, excise the p_node --- */
+        // finally, excise the p_node
         p_node.remove_node_from_parents_list_of_children();
-        // update_stats_for_destroying_node (thisAgent, p_node); // TODO: clean
-        // up rete stats stuff
 
-        /* --- and propogate up the net --- */
+        // and propogate up the net
         if (parent.first_child == null)
         {
             ReteNode.deallocate_rete_node(this, parent);
@@ -647,23 +641,6 @@ public class Rete
         }
         
     }
-    
-    /* --- Invoked on every right activation; add=TRUE means right addition --- */
-    /* NOT invoked on removals unless DO_ACTIVATION_STATS_ON_REMOVALS is set */
-    void right_node_activation(ReteNode node, boolean add)
-    {
-        // TODO: Delete this?
-      //null_activation_stats_for_right_activation(node, null);
-    }
-
-    /* --- Invoked on every left activation; add=TRUE means left addition --- */
-    /* NOT invoked on removals unless DO_ACTIVATION_STATS_ON_REMOVALS is set */
-    void left_node_activation(ReteNode node, boolean add)
-    {
-        // TODO: Delete this?
-      //null_activation_stats_for_left_activation(node);
-    }
-
     
     /**
      * rete.cpp:1403:get_next_alpha_mem_id
@@ -1195,8 +1172,6 @@ public class Rete
      */
     private void beta_memory_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        left_node_activation(node, true);
-
         Symbol referent = null;
         {
             int levels_up = node.left_hash_loc_levels_up;
@@ -1240,8 +1215,6 @@ public class Rete
      */
     private void unhashed_beta_memory_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        left_node_activation(node, true);
-
         int hv = node.node_id;
 
         /* --- build new left token, add it to the hash table --- */
@@ -1266,8 +1239,6 @@ public class Rete
      */
     private void positive_node_left_addition(ReteNode node, LeftToken New, Symbol hash_referent)
     {
-        left_node_activation(node, true);
-
         AlphaMemory am = node.b_posneg.alpha_mem_;
 
         if (node.node_is_right_unlinked())
@@ -1319,8 +1290,6 @@ public class Rete
      */
     private void unhashed_positive_node_left_addition(ReteNode node, LeftToken New)
     {
-        left_node_activation(node, true);
-
         if (node.node_is_right_unlinked())
         {
             node.relink_to_right_mem();
@@ -1365,8 +1334,6 @@ public class Rete
      */
     private void mp_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        left_node_activation(node, true);
-
         Symbol referent = null;
         {
             int levels_up = node.left_hash_loc_levels_up;
@@ -1449,8 +1416,6 @@ public class Rete
      */
     private void unhashed_mp_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        left_node_activation(node, true);
-
         int hv = node.node_id;
 
         /* --- build new left token, add it to the hash table --- */
@@ -1505,8 +1470,6 @@ public class Rete
      */
     private void positive_node_right_addition(ReteNode node, Wme w)
     {
-        right_node_activation(node, true);
-
         if (node.node_is_left_unlinked())
         {
             node.relink_to_left_mem();
@@ -1558,8 +1521,6 @@ public class Rete
      */
     private void unhashed_positive_node_right_addition(ReteNode node, Wme w)
     {
-        right_node_activation(node, true);
-
         if (node.node_is_left_unlinked())
         {
             node.relink_to_left_mem();
@@ -1608,8 +1569,6 @@ public class Rete
      */
     private void mp_node_right_addition(ReteNode node, Wme w)
     {
-        right_node_activation(node, true);
-
         if (node.mp_bnode_is_left_unlinked())
         {
             node.make_mp_bnode_left_linked();
@@ -1663,8 +1622,6 @@ public class Rete
      */
     private void unhashed_mp_node_right_addition(ReteNode node, Wme w)
     {
-        right_node_activation(node, true);
-
         if (node.mp_bnode_is_left_unlinked())
         {
             node.make_mp_bnode_left_linked();
@@ -1714,8 +1671,6 @@ public class Rete
      */
     private void negative_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        left_node_activation(node, true);
-
         if (node.node_is_right_unlinked())
         {
             node.relink_to_right_mem();
@@ -1794,8 +1749,6 @@ public class Rete
      */
     private void unhashed_negative_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        left_node_activation(node, true);
-
         if (node.node_is_right_unlinked())
         {
             node.relink_to_right_mem();
@@ -1846,8 +1799,6 @@ public class Rete
      */
     private void negative_node_right_addition(ReteNode node, Wme w)
     {
-        right_node_activation(node, true);
-
         Symbol referent = w.id;
         int hv = node.node_id ^ referent.hash_id;
 
@@ -1893,8 +1844,6 @@ public class Rete
      */
     private void unhashed_negative_node_right_addition(ReteNode node, Wme w)
     {
-        right_node_activation(node, true);
-
         int hv = node.node_id;
 
         for (LeftToken tok : left_ht.left_ht_bucket(hv))
@@ -1934,8 +1883,6 @@ public class Rete
      */
     private void cn_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        left_node_activation(node, true);
-
         int hv = node.node_id ^ addressOf(tok) ^ addressOf(w);
 
         /*
@@ -1971,8 +1918,6 @@ public class Rete
      */
     private void cn_partner_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        left_node_activation(node, true);
-
         ReteNode partner = node.b_cn.partner;
 
         /* --- build new negrm token --- */
@@ -2029,8 +1974,6 @@ public class Rete
      */
     private void p_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        left_node_activation(node, true);
-
         /* --- build new left token (used only for tree-based remove) --- */
         LeftToken New = new LeftToken(node, tok, w, null);
 
@@ -2057,7 +2000,6 @@ public class Rete
 
           /* --- cleanup stuff common to all types of nodes --- */
           ReteNode node = tok.node;
-          left_node_activation(node,false);
           tok.of_node.remove(node.a_np.tokens);
 //          fast_remove_from_dll (node->a.np.tokens, tok, token, next_of_node,
 //                                prev_of_node);
@@ -2093,7 +2035,6 @@ public class Rete
             if (node.a_np.tokens.isEmpty()) { node.unlink_from_right_mem(); }
             for (Token t : tok.negrm_tokens) {
                 t.from_wme.remove(t.w.tokens);
-//              fast_remove_from_dll(t->w->tokens,t,token,next_from_wme,prev_from_wme);
             }
 
           /* --- for Memory nodes --- */
@@ -2101,7 +2042,7 @@ public class Rete
               LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
               int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
               left_ht.remove_token_from_left_ht(lt, hv);
-// TODO
+
 //      #ifdef DO_ACTIVATION_STATS_ON_REMOVALS
 //            /* --- if doing statistics stuff, then activate each attached node --- */
 //            for (child=node->b.mem.first_linked_child; child!=NIL; child=next) {

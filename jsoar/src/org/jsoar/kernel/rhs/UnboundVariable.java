@@ -47,7 +47,8 @@ public class UnboundVariable extends RhsValue
     @Override
     public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
-        // TODO: anything?
+        // See comment in RhsValue.addAllVariables.
+        throw new UnsupportedOperationException("addAllVariables not supported on UnboundVariable RhsValue");
     }
 
     /* (non-Javadoc)

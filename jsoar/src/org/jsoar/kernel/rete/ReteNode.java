@@ -139,7 +139,7 @@ public class ReteNode
     /**
      * rete.cpp:483:relink_to_right_mem
      */
-    public void relink_to_right_mem()
+    /*package*/ void relink_to_right_mem()
     {
         /* find first ancestor that's linked */
         ReteNode rtrm_ancestor = b_posneg.nearest_ancestor_with_same_am;
@@ -186,12 +186,13 @@ public class ReteNode
     /**
      * rete.cpp:512:unlink_from_right_mem
      */
-    public void unlink_from_right_mem() 
+    /*package*/ void unlink_from_right_mem() 
     { 
         if (this.b_posneg.next_from_alpha_mem == null) 
         {
             this.b_posneg.alpha_mem_.last_beta_node = this.b_posneg.prev_from_alpha_mem;
         }
+        // The code below is an expansion of this remove_from_dll macro...
 //        remove_from_dll (this.b_posneg.alpha_mem_.beta_nodes, this, 
 //                         b.posneg.next_from_alpha_mem, 
 //                         b.posneg.prev_from_alpha_mem); 
@@ -209,7 +210,7 @@ public class ReteNode
         {
             this.b_posneg.alpha_mem_.beta_nodes = this.b_posneg.next_from_alpha_mem;
         }
-//        
+
         mark_node_as_right_unlinked(); 
     }
 
@@ -218,7 +219,7 @@ public class ReteNode
      * 
      * @return True if this node is left unlinked
      */
-    public boolean node_is_left_unlinked()
+    /*package*/ boolean node_is_left_unlinked()
     {
         return a_pos.node_is_left_unlinked;
         //return (((unsigned long)((node)->a.pos.next_from_beta_mem)) & 1);
@@ -227,7 +228,7 @@ public class ReteNode
     /**
      * rete.cpp:539:mark_node_as_left_unlinked
      */
-    private void mark_node_as_left_unlinked()
+    /*package*/ void mark_node_as_left_unlinked()
     {
       a_pos.node_is_left_unlinked = true;
       //(node)->a.pos.next_from_beta_mem = static_cast<rete_node_struct *>((void *)1);
@@ -236,7 +237,7 @@ public class ReteNode
     /**
      * rete.cpp:547:relink_to_left_mem
      */
-    public void relink_to_left_mem() 
+    /*package*/ void relink_to_left_mem() 
     { 
         a_pos.from_beta_mem.insertAtHead(parent.b_mem.first_linked_child);
         a_pos.node_is_left_unlinked = false;
@@ -245,7 +246,7 @@ public class ReteNode
     /**
      * rete.cpp:555:unlink_from_left_mem
      */
-    public void unlink_from_left_mem() 
+    /*package*/ void unlink_from_left_mem() 
     {
         a_pos.from_beta_mem.remove(parent.b_mem.first_linked_child);
         mark_node_as_left_unlinked(); 
@@ -254,7 +255,7 @@ public class ReteNode
     /**
      * rete.cpp:570:make_mp_bnode_left_unlinked
      */
-    public void make_mp_bnode_left_unlinked() 
+    /*package*/ void make_mp_bnode_left_unlinked() 
     {
       this.a_np.is_left_unlinked = true;
     }
@@ -262,7 +263,7 @@ public class ReteNode
     /**
      * rete.cpp:575:make_mp_bnode_left_linked
      */
-    public void make_mp_bnode_left_linked() 
+    /*package*/ void make_mp_bnode_left_linked() 
     {
       this.a_np.is_left_unlinked = false;
     }
@@ -272,7 +273,7 @@ public class ReteNode
      * 
      * @return
      */
-    public boolean mp_bnode_is_left_unlinked() 
+    /*package*/ boolean mp_bnode_is_left_unlinked() 
     { 
       return this.a_np.is_left_unlinked;
     }
@@ -286,7 +287,7 @@ public class ReteNode
      * 
      * @param node
      */
-    void remove_node_from_parents_list_of_children()
+    /*package*/ void remove_node_from_parents_list_of_children()
     {
 
         ReteNode prev_sibling = this.parent.first_child;
@@ -384,12 +385,10 @@ public class ReteNode
         node.b_posneg.nearest_ancestor_with_same_am = node.nearest_ancestor_with_same_am(am);
         node.relink_to_right_mem();
 
-        /*
-         * --- don't need to force WM through new node yet, as it's just a join
-         * node with no children ---
-         */
+        //don't need to force WM through new node yet, as it's just a join
+        // node with no children
 
-        /* --- unlink the join node from one side if possible --- */
+        // unlink the join node from one side if possible
         if (parent_mem.a_np.tokens.isEmpty())
         {
             node.unlink_from_right_mem();
@@ -420,7 +419,7 @@ public class ReteNode
     {
         ReteNodeType mem_node_type = null;
 
-        /* --- determine appropriate node types for new M and P nodes --- */
+        // determine appropriate node types for new M and P nodes
         ReteNodeType node_type = null;
         if (mp_node.node_type == ReteNodeType.MP_BNODE)
         {
@@ -433,17 +432,17 @@ public class ReteNode
             mem_node_type = ReteNodeType.UNHASHED_MEMORY_BNODE;
         }
 
-        /* --- save a copy of the MP data, then kill the MP node --- */
+        // save a copy of the MP data, then kill the MP node
         ReteNode mp_copy = mp_node.copy();
         ReteNode parent = mp_node.parent;
         mp_node.remove_node_from_parents_list_of_children();
         // TODO update_stats_for_destroying_node (thisAgent, mp_node); /* clean
         // up rete stats stuff */
 
-        /* --- the old MP node will get transmogrified into the new Pos node --- */
+        // the old MP node will get transmogrified into the new Pos node
         ReteNode pos_node = mp_node;
 
-        /* --- create the new M node, transfer the MP node's tokens to it --- */
+        // create the new M node, transfer the MP node's tokens to it
         ReteNode mem_node = new ReteNode(mem_node_type);
 
         mem_node.parent = parent;
@@ -460,7 +459,7 @@ public class ReteNode
             t.node = mem_node;
         }
 
-        /* --- transmogrify the old MP node into the new Pos node --- */
+        // transmogrify the old MP node into the new Pos node
         // TODO All of this feels yucky
         // init_new_rete_node_with_type (thisAgent, pos_node, node_type);
         pos_node.node_type = node_type;
@@ -473,7 +472,7 @@ public class ReteNode
         pos_node.b_posneg = mp_copy.b_posneg;
         pos_node.relink_to_left_mem(); /* for now, but might undo this below */
 
-        /* --- set join node's unlinking status according to mp_copy's --- */
+        // set join node's unlinking status according to mp_copy's
         if (mp_copy.mp_bnode_is_left_unlinked())
         {
             pos_node.unlink_from_left_mem();
@@ -496,13 +495,13 @@ public class ReteNode
         ReteNode pos_node = mem_node.first_child;
         ReteNode parent = mem_node.parent;
 
-        /* --- sanity check: Mem node must have exactly one child --- */
+        // sanity check: Mem node must have exactly one child
         if (pos_node == null || pos_node.next_sibling != null)
         {
             throw new IllegalArgumentException("Internal error: tried to merge_into_mp_node, but <>1 child");
         }
 
-        /* --- determine appropriate node type for new MP node --- */
+        // determine appropriate node type for new MP node
         ReteNodeType node_type = null;
         if (mem_node.node_type == ReteNodeType.MEMORY_BNODE)
         {
@@ -513,19 +512,19 @@ public class ReteNode
             node_type = ReteNodeType.UNHASHED_MP_BNODE;
         }
 
-        /* --- save a copy of the Pos data, then kill the Pos node --- */
+        // save a copy of the Pos data, then kill the Pos node
         ReteNode pos_copy = pos_node.copy();
         // TODO update_stats_for_destroying_node (thisAgent, pos_node); /* clean
         // up rete stats stuff */
 
-        /* --- the old Pos node gets transmogrified into the new MP node --- */
+        // the old Pos node gets transmogrified into the new MP node
         ReteNode mp_node = pos_node;
         // init_new_rete_node_with_type (thisAgent, mp_node, node_type);
         mp_node.node_type = node_type;
         rete.rete_node_counts[mp_node.node_type.index()]++;
         mp_node.b_posneg = pos_copy.b_posneg; // TODO: Should this be .copy()?
 
-        /* --- transfer the Mem node's tokens to the MP node --- */
+        // transfer the Mem node's tokens to the MP node
         if(mp_node.a_np == null)
         {
             // TODO: This is very yucky
@@ -533,8 +532,6 @@ public class ReteNode
             mp_node.a_np = new NonPosNodeData();
         }
         mp_node.a_np.tokens = mem_node.a_np.tokens;
-        // for (t=mem_node->a.np.tokens; t!=NIL; t=t->next_of_node) t->node =
-        // mp_node;
         for (Token t : mem_node.a_np.tokens)
         {
             t.node = mp_node;
@@ -543,7 +540,7 @@ public class ReteNode
         mp_node.left_hash_loc_levels_up = mem_node.left_hash_loc_levels_up;
         mp_node.node_id = mem_node.node_id;
 
-        /* --- replace the Mem node with the new MP node --- */
+        // replace the Mem node with the new MP node
         mp_node.parent = parent;
         mp_node.next_sibling = parent.first_child;
         parent.first_child = mp_node;
@@ -553,7 +550,7 @@ public class ReteNode
         // TODO update_stats_for_destroying_node (thisAgent, mem_node); /* clean
         // up rete stats stuff */
 
-        /* --- set MP node's unlinking status according to pos_copy's --- */
+        // set MP node's unlinking status according to pos_copy's
         mp_node.make_mp_bnode_left_linked();
         if (pos_copy.node_is_left_unlinked())
         {
@@ -594,6 +591,7 @@ public class ReteNode
             mem_node_type = ReteNodeType.UNHASHED_MEMORY_BNODE;
         }
         ReteNode mem_node = make_new_mem_node(rete, parent, mem_node_type, left_hash_loc);
+        @SuppressWarnings("unused")
         ReteNode pos_node = make_new_positive_node(rete, mem_node, pos_node_type, am, rt, prefer_left_unlinking);
         return merge_into_mp_node(rete, mem_node);
     }
@@ -628,10 +626,10 @@ public class ReteNode
 
         node.node_id = rete.get_next_beta_node_id();
 
-        /* --- call new node's add_left routine with all the parent's tokens --- */
+        // call new node's add_left routine with all the parent's tokens
         rete.update_node_with_matches_from_above(node);
 
-        /* --- if no tokens arrived from parent, unlink the node --- */
+        // if no tokens arrived from parent, unlink the node
         if (node.a_np.tokens.isEmpty())
         {
             node.unlink_from_right_mem();
@@ -654,7 +652,7 @@ public class ReteNode
      */
     static ReteNode make_new_cn_node(Rete rete, ReteNode parent, ReteNode bottom_of_subconditions)
     {
-        /* --- Find top node in the subconditions branch --- */
+        // Find top node in the subconditions branch
         ReteNode ncc_subconditions_top_node = null;
         for (ReteNode node = bottom_of_subconditions; node != parent; node = node.parent)
         {
@@ -684,9 +682,9 @@ public class ReteNode
         partner.first_child = null;
         partner.b_cn.partner = node;
 
-        /* --- call partner's add_left routine with all the parent's tokens --- */
+        // call partner's add_left routine with all the parent's tokens
         rete.update_node_with_matches_from_above(partner);
-        /* --- call new node's add_left routine with all the parent's tokens --- */
+        // call new node's add_left routine with all the parent's tokens
         rete.update_node_with_matches_from_above(node);
 
         return node;
@@ -729,12 +727,11 @@ public class ReteNode
      */
     static void deallocate_rete_node(Rete rete, ReteNode node)
     {
-
-        /* --- don't deallocate the dummy top node --- */
+        // don't deallocate the dummy top node
         if (node == rete.dummy_top_node)
             return;
 
-        /* --- sanity check --- */
+        // sanity check
         if (node.node_type == ReteNodeType.P_BNODE)
         {
             throw new IllegalArgumentException("deallocate_rete_node() called on p-node");
@@ -742,13 +739,13 @@ public class ReteNode
 
         ReteNode parent = node.parent;
 
-        /* --- if a cn node, deallocate its partner first --- */
+        // if a cn node, deallocate its partner first
         if (node.node_type == ReteNodeType.CN_BNODE)
         {
             deallocate_rete_node(rete, node.b_cn.partner);
         }
 
-        /* --- clean up any tokens at the node --- */
+        // clean up any tokens at the node
         if (!node.node_type.bnode_is_bottom_of_split_mp())
         {
             while (!node.a_np.tokens.isEmpty())
@@ -757,11 +754,12 @@ public class ReteNode
             }
         }
 
-        /* --- stuff for posneg nodes only --- */
+        // stuff for posneg nodes only
         if (node.node_type.bnode_is_posneg())
         {
-            ReteTest.deallocate_rete_test_list(node.b_posneg.other_tests);
-            /* --- right unlink the node, cleanup alpha memory --- */
+            node.b_posneg.other_tests = null;
+            
+            // right unlink the node, cleanup alpha memory
             if (!node.node_is_right_unlinked())
             {
                 node.unlink_from_right_mem();
@@ -769,17 +767,17 @@ public class ReteNode
             node.b_posneg.alpha_mem_.remove_ref_to_alpha_mem(rete);
         }
 
-        /* --- remove the node from its parent's list --- */
+        // remove the node from its parent's list
         node.remove_node_from_parents_list_of_children();
 
-        /* --- for unmerged pos. nodes: unlink, maybe merge its parent --- */
+        // for unmerged pos. nodes: unlink, maybe merge its parent
         if (node.node_type.bnode_is_bottom_of_split_mp())
         {
             if (!node.node_is_left_unlinked())
             {
                 node.unlink_from_left_mem();
             }
-            /* --- if parent is mem node with just one child, merge them --- */
+            // if parent is mem node with just one child, merge them
             if (parent.first_child != null && parent.first_child.next_sibling == null)
             {
                 merge_into_mp_node(rete, parent);
@@ -790,7 +788,7 @@ public class ReteNode
         // TODO: update_stats_for_destroying_node (thisAgent, node); /* clean up
         // rete stats stuff */
 
-        /* --- if parent has no other children, deallocate it, and recurse --- */
+        // if parent has no other children, deallocate it, and recurse
         /*
          * Added check to make sure that parent wasn't deallocated in previous
          * merge

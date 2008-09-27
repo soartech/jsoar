@@ -13,8 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import tcl.lang.TclException;
-
 /**
  * @author ray
  */
@@ -28,7 +26,9 @@ public class SoarTclInterfaceTest
     @Before
     public void setUp() throws Exception
     {
-        ifc = new SoarTclInterface(new Agent());
+        final Agent agent = new Agent();
+        ifc = new SoarTclInterface(agent);
+        agent.initialize();
     }
 
     /**
@@ -42,7 +42,7 @@ public class SoarTclInterfaceTest
     }
     
     @Test
-    public void testSourceResource() throws TclException
+    public void testSourceResource() throws SoarTclException
     {
         ifc.sourceResource("/" + SoarTclInterfaceTest.class.getCanonicalName().replace('.', '/') + "_sourceResource.soar");
         

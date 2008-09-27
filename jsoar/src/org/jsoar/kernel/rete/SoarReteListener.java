@@ -111,7 +111,7 @@ public class SoarReteListener implements ReteListener
     @Override
     public void p_node_left_addition(Rete rete, ReteNode node, Token tok, Wme w)
     {
-        assert tok.w != w;
+        assert (tok.w == null && w == null) || tok.w != w;
         
         /*
          * Algorithm:
@@ -156,7 +156,6 @@ public class SoarReteListener implements ReteListener
             }
         }
 
-        // TODO: Is BUG_139_WORKAROUND needed?
         // #ifdef BUG_139_WORKAROUND
         /*
          * --- test workaround for bug #139: don't rematch justifications; let
@@ -187,45 +186,36 @@ public class SoarReteListener implements ReteListener
             msc.inst.rete_wme = w;
             msc.of_node.remove(node.b_p.tentative_retractions);
             msc.next_prev.remove(ms_retractions);
-            /* REW: begin 08.20.97 */
+
             if (msc.goal != null)
             {
                 msc.in_level.remove(msc.goal.ms_retractions);
             }
             else
             {
-                // BUGBUG FIXME BADBAD TODO
+                // BUGBUG FIXME BADBAD
                 // RPM 6/05
-                // This if statement is to avoid a crash we get on most
-                // platforms in Soar 7 mode
-                // It's unknown what consequences it has, but the Soar 7 demos
-                // seem to work
-                // To return things to how they were, simply remove the if
-                // statement (but leave
+                // This if statement is to avoid a crash we get on most platforms in Soar 7 mode
+                // It's unknown what consequences it has, but the Soar 7 demos seem to work
+                // To return things to how they were, simply remove the if statement (but leave
                 // the remove_from_dll line).
                 if (!nil_goal_retractions.isEmpty())
                 {
                     msc.in_level.remove(nil_goal_retractions);
                 }
             }
-            /* REW: end 08.20.97 */
 
             // #ifdef DEBUG_RETE_PNODES
-            // print_with_symbols (thisAgent, "\nRemoving tentative retraction:
-            // %y",
-            // node->b.p.prod->name);
+            // print_with_symbols (thisAgent, "\nRemoving tentative retraction: %y", node->b.p.prod->name);
             // #endif
             return;
         }
 
-        /* --- no match found, so add new assertion --- */
+        // no match found, so add new assertion
         // #ifdef DEBUG_RETE_PNODES
-        // print_with_symbols (thisAgent, "\nAdding tentative assertion: %y",
-        // node->b.p.prod->name);
+        // print_with_symbols (thisAgent, "\nAdding tentative assertion: %y", node->b.p.prod->name);
         // #endif
         msc = MatchSetChange.createAssertion(node, tok, w);
-
-        /* RCHONG: begin 10.11 */
 
         /*
          * (this is a RCHONG comment, but might also apply to Operand2...?)
@@ -242,20 +232,15 @@ public class SoarReteListener implements ReteListener
          * BUGBUG i haven't tested this with a production that has more than one
          * match where the matches could have different support. is that even
          * possible???
-         * 
          */
 
         /* operand code removed 1/22/99 - kjc */
 
-        /* REW: begin 09.15.96 */
         if (context.operand2_mode)
         {
-
-            /* REW: begin 08.20.97 */
             /* Find the goal and level for this ms change */
             msc.goal = msc.find_goal_for_match_set_change_assertion(rete.dummy_top_token);
             msc.level = msc.goal.level;
-            /* REW: end 08.20.97 */
 
             SavedFiringType prod_type = SavedFiringType.IE_PRODS;
 
@@ -269,12 +254,9 @@ public class SoarReteListener implements ReteListener
             }
             else if (node.b_p.prod.declared_support == ProductionSupport.UNDECLARED_SUPPORT)
             {
-
-                /*
-                 * check if the instantiation is proposing an operator. if it
+                /* check if the instantiation is proposing an operator. if it
                  * is, then this instantiation is i-supported.
                  */
-
                 boolean operator_proposal = false;
 
                 for (Action act = node.b_p.prod.action_list; act != null; act = act.next)
@@ -286,9 +268,7 @@ public class SoarReteListener implements ReteListener
                                 && (act.preference_type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE))
                         {
                             operator_proposal = true;
-                            prod_type = SavedFiringType.IE_PRODS; // TODO ???
-                                                                    // !PE_PRODS;
-                                                                    // ???
+                            prod_type = SavedFiringType.IE_PRODS; // TODO !PE_PRODS; ???
                             break;
                         }
                     }
@@ -296,14 +276,11 @@ public class SoarReteListener implements ReteListener
 
                 if (!operator_proposal)
                 {
-
                     // examine all the different matches for this productions
 
                     for (Token OPERAND_curr_tok : node.a_np.tokens)
                     {
-
                         /*
-                         * 
                          * i'll need to make two passes over each set of wmes
                          * that match this production. the first pass looks for
                          * the lowest goal identifier. the second pass looks for
@@ -327,14 +304,12 @@ public class SoarReteListener implements ReteListener
                          * has both operator applications and <o> elabs, then
                          * it's PE_PROD and the user is warned that <o> elabs
                          * will be o-supported.
-                         * 
                          */
                         boolean op_elab = false;
                         Wme lowest_goal_wme = null;
 
                         for (int pass = 0; pass != 2; pass++)
                         {
-
                             Token temp_tok = OPERAND_curr_tok;
                             while (temp_tok != null)
                             {
@@ -416,7 +391,7 @@ public class SoarReteListener implements ReteListener
                                                     }
                                                     else if ((context.osupport.o_support_calculation_type == 4)
                                                             && (rl != null)
-                                                            && (temp_tok.w.value == rete.get_symbol_from_rete_loc(rl
+                                                            && (temp_tok.w.value == Rete.get_symbol_from_rete_loc(rl
                                                                     .getLevelsUp(), rl.getFieldNum(), tok, w)))
                                                     {
                                                         op_elab = true;
@@ -449,7 +424,6 @@ public class SoarReteListener implements ReteListener
                                 }
                                 else if (op_elab)
                                 {
-
                                     /* warn user about mixed actions */
                                     final boolean warnings = context.getPrinter().isPrintWarnings();
                                     if ((context.osupport.o_support_calculation_type == 3) && warnings)
@@ -529,7 +503,6 @@ public class SoarReteListener implements ReteListener
                 //        }
             }
         }
-        /* REW: end   09.15.96 */
 
         else
         { /* non-Operand* flavor Soar */
@@ -537,8 +510,6 @@ public class SoarReteListener implements ReteListener
         }
         ///
         // Location for Match Interrupt
-
-        /* RCHONG: end 10.11 */
 
         msc.of_node.insertAtHead(node.b_p.tentative_assertions);
     }
@@ -556,52 +527,43 @@ public class SoarReteListener implements ReteListener
          * and add it to tentative_retractions.
          */
         
-        /* --- check for match in tentative_assertions --- */
+        // check for match in tentative_assertions
         for (MatchSetChange msc : node.b_p.tentative_assertions)
         {
             if ((msc.tok == tok) && (msc.w == w))
             {
-                /* --- match found in tentative_assertions, so remove it --- */
+                // match found in tentative_assertions, so remove it
                 msc.of_node.remove(node.b_p.tentative_assertions);
 
-                /* REW: begin 09.15.96 */
                 if (context.operand2_mode)
                 {
                     if (node.b_p.prod.OPERAND_which_assert_list == AssertListType.O_LIST)
                     {
                         msc.next_prev.remove(ms_o_assertions);
-                        /* REW: begin 08.20.97 */
                         /*
                          * msc already defined for the assertion so the goal
                          * should be defined as well.
                          */
                         msc.in_level.remove(msc.goal.ms_o_assertions);
-                        /* REW: end 08.20.97 */
                     }
                     else if (node.b_p.prod.OPERAND_which_assert_list == AssertListType.I_LIST)
                     {
                         msc.next_prev.remove(ms_i_assertions);
-                        /* REW: begin 08.20.97 */
                         msc.in_level.remove(msc.goal.ms_i_assertions);
-                        /* REW: end 08.20.97 */
                     }
                 }
-                /* REW: end 09.15.96 */
-
                 else
                 {
                     msc.next_prev.remove(ms_assertions);
                 }
                 // #ifdef DEBUG_RETE_PNODES
-                // print_with_symbols (thisAgent, "\nRemoving tentative
-                // assertion: %y",
-                // node->b.p.prod->name);
+                // print_with_symbols (thisAgent, "\nRemoving tentative assertion: %y", node->b.p.prod->name);
                 // #endif
                 return;
             }
         } /* end of for loop */
 
-        /* --- find the instantiation corresponding to this token --- */
+        // find the instantiation corresponding to this token
         Instantiation inst = null;
         for (Instantiation instTemp : node.b_p.prod.instantiations)
         {
@@ -614,18 +576,14 @@ public class SoarReteListener implements ReteListener
 
         if (inst != null)
         {
-            /* --- add that instantiation to tentative_retractions --- */
+            // add that instantiation to tentative_retractions
             // #ifdef DEBUG_RETE_PNODES
-            // print_with_symbols (thisAgent, "\nAdding tentative retraction:
-            // %y",
-            // node->b.p.prod->name);
+            // print_with_symbols (thisAgent, "\nAdding tentative retraction: %y", node->b.p.prod->name);
             // #endif
             inst.rete_token = null;
             inst.rete_wme = null;
             MatchSetChange msc = MatchSetChange.createRetraction(node, inst);
             msc.of_node.insertAtHead(node.b_p.tentative_retractions);
-
-            /* REW: begin 08.20.97 */
 
             if (context.operand2_mode)
             {
@@ -665,10 +623,7 @@ public class SoarReteListener implements ReteListener
                      * (because the items on the ms_change list on the symbol
                      * will never be freed).
                      */
-                    /*
-                     * print("\nThis goal is being removed. Changing msc goal
-                     * pointer to NIL.");
-                     */
+                    // print("\nThis goal is being removed. Changing msc goal pointer to NIL.");
                     msc.goal = null;
                 }
 
@@ -722,8 +677,6 @@ public class SoarReteListener implements ReteListener
             return;
         }
 
-        /* REW: begin 09.15.96 */
-
         // TODO: verbose
         //  if (context.operand2_mode &&
         //      (thisAgent->soar_verbose_flag == TRUE)) {
@@ -732,7 +685,7 @@ public class SoarReteListener implements ReteListener
         //          SNPRINTF(buf, 254, "%s: ", symbol_to_string(thisAgent, node->b.p.prod->name, true, 0, 0));
         //          xml_generate_verbose(thisAgent, buf);
         //      }
-        /* REW: end   09.15.96 */
+        
         //#ifdef BUG_139_WORKAROUND
         if (node.b_p.prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
         {
@@ -760,7 +713,6 @@ public class SoarReteListener implements ReteListener
         
         MatchSetChange msc = MatchSetChange.createRefracted(p_node, refracted_inst);
         
-        /* REW: begin 08.20.97 */
         /*
          * Because the RETE 'artificially' refracts this instantiation (ie,
          * it is not actually firing -- the original instantiation fires but
@@ -781,17 +733,12 @@ public class SoarReteListener implements ReteListener
         msc.goal = null;
         if (context.operand2_mode)
         {
-
             // #ifdef DEBUG_WATERFALL
-            // print_with_symbols(thisAgent, "\n %y is a refracted
-            // instantiation",
-            // refracted_inst->prod->name);
+            // print_with_symbols(thisAgent, "\n %y is a refracted instantiation", refracted_inst->prod->name);
             // #endif
             msc.in_level.insertAtHead(nil_goal_retractions);
         }
-        /* REW: end 08.20.97 */
 
-        // TODO: Is BUG_139_WORKAROUND needed?
         // #ifdef BUG_139_WORKAROUND
         msc.p_node.b_p.prod.already_fired = false; // RPM workaround for bug #139; mark prod as not fired yet */
         // #endif
@@ -808,18 +755,14 @@ public class SoarReteListener implements ReteListener
         // Originally in excise_production_from_rete() in rete.cpp. Extracted to
         // decouple generic rete from Soar-specific stuff.
         
-        /*
-         * --- At this point, there are no tentative_assertion's. Now set the
-         * p_node field of all tentative_retractions to NIL, to indicate that
-         * the p_node is being excised ---
-         */
-        
+        // At this point, there are no tentative_assertion's. Now set the
+        // p_node field of all tentative_retractions to NIL, to indicate that
+        // the p_node is being excised
         for (MatchSetChange msc : p_node.b_p.tentative_retractions)
         {
             msc.p_node = null;
         }
     }
-
 
     /**
      * Get_next_assertion() retrieves a pending assertion (returning TRUE) or
@@ -836,8 +779,8 @@ public class SoarReteListener implements ReteListener
         if (context.operand2_mode)
         {
 
-            /* In Waterfall, we return only assertions that match in the
-            currently active goal */
+            // In Waterfall, we return only assertions that match in the
+            // currently active goal
 
             if (context.decider.active_goal != null)
             { /* Just do asserts for current goal */
@@ -864,14 +807,12 @@ public class SoarReteListener implements ReteListener
             }
             else
             {
-
-                /* If there is not an active goal, then there should not be any
-                assertions.  If there are, then we generate and error message
-                   and abort. */
+                // If there is not an active goal, then there should not be any
+                // assertions.  If there are, then we generate and error message
+                // and abort.
 
                 if ((!ms_i_assertions.isEmpty()) || (!ms_o_assertions.isEmpty()))
                 {
-
                     // Commented out 11/2007
                     // laird: I would like us to remove that error message that
                     // happens
@@ -884,12 +825,10 @@ public class SoarReteListener implements ReteListener
                     // msg[BUFFER_MSG_SIZE - 1] = 0; /* ensure null termination
                     // */
                     // abort_with_fatal_error(thisAgent, msg);
-
                 }
 
                 return null; // if we are in an initiazation and there are no
-                // assertions, just retrurn FALSE to terminate the procedure.
-
+                             // assertions, just retrurn FALSE to terminate the procedure.
             }
         }
         else
@@ -907,7 +846,6 @@ public class SoarReteListener implements ReteListener
     }
 
     /**
-     * 
      * rete.cpp:1238:get_next_retraction
      * 
      * @return
@@ -962,14 +900,35 @@ public class SoarReteListener implements ReteListener
     }
 
     /**
-     * @return
+     * Retract an instantiation on the nil goal list. If there are no
+     * retractions on the nil goal retraction list, return FALSE. This procedure
+     * is only called in Operand2 mode, so there is no need for any checks for
+     * Operand2-specific processing.
+     * 
+     * rete.cpp:1293:get_next_nil_goal_retraction
+     * 
+     * @return Retracted instantiation, or null if there are none.
      */
     public Instantiation get_next_nil_goal_retraction()
     {
-        // TODO implement get_next_nil_goal_retraction
-        throw new UnsupportedOperationException("get_next_nil_goal_retraction not implemented");
-    }
+        if (nil_goal_retractions.isEmpty()) return null;
+        
+        MatchSetChange msc = nil_goal_retractions.getFirstItem();
 
+        // Remove this retraction from the NIL goal list
+        msc.in_level.remove(nil_goal_retractions);
+
+        // next and prev set and used in Operand2 exactly as used in Soar 7 --
+        // so we have to make sure and delete this retraction from the regular
+        // list
+        msc.next_prev.remove(ms_retractions);
+
+        if (msc.p_node != null) 
+        {
+            msc.of_node.remove(msc.p_node.b_p.tentative_retractions);
+        }
+        return msc.inst;
+    }
 
     /**
      * returns TRUE iff there are any pending changes to the match set. This is

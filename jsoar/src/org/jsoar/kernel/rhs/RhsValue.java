@@ -44,10 +44,24 @@ public abstract class RhsValue
         return '*';
     }
 
+    /**
+     * Finding all variables from rhs_value's, actions, and action lists
+     * 
+     * These routines collect all the variables in rhs_value's, etc. Their
+     * "var_list" arguments should either be NIL or else should point to the
+     * header of the list of marked variables being constructed.
+     * 
+     * Warning: These are part of the reorderer and handle only productions in
+     * non-reteloc, etc. format. They don't handle reteloc's or RHS unbound
+     * variables.
+     * 
+     * production.cpp:1223:add_all_variables_in_rhs_value
+     * 
+     * @param tc_number
+     * @param var_list
+     */
     public abstract void addAllVariables(int tc_number, LinkedList<Variable> var_list);
     
-    
-
     /**
      * When we print a production (but not when we fire one), we have to
      * reconstruct the RHS actions. This is because many of the variables in the

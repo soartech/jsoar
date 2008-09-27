@@ -8,6 +8,7 @@ package org.jsoar.kernel.rhs;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ByRef;
 
 /**
@@ -15,8 +16,8 @@ import org.jsoar.util.ByRef;
  */
 public class ActionReorderer
 {
-    private String prodName;
-
+    private final Printer printer;
+    private final String prodName;
     
     /*
      * =====================================================================
@@ -45,10 +46,14 @@ public class ActionReorderer
      */
 
     /**
-     * @param prodName
+     * Construct a new reorderer
+     * 
+     * @param printer Printer used for errors
+     * @param prodName Name of production
      */
-    public ActionReorderer(String prodName)
+    public ActionReorderer(Printer printer, String prodName)
     {
+        this.printer = printer;
         this.prodName = prodName;
     }
 
@@ -57,8 +62,9 @@ public class ActionReorderer
      * 
      * @param action_list
      * @param lhs_tc
+     * @throws ReordererException on error
      */
-    public void reorder_action_list(ByRef<Action> action_list, int lhs_tc)
+    public void reorder_action_list(ByRef<Action> action_list, int lhs_tc) throws ReordererException
     {
         LinkedList<Variable> new_bound_vars = new LinkedList<Variable>();
         Action remaining_actions = action_list.value;
@@ -68,7 +74,7 @@ public class ActionReorderer
 
         while (remaining_actions != null)
         {
-            /* --- scan through remaining_actions, look for one that's legal --- */
+            // scan through remaining_actions, look for one that's legal
             prev_a = null;
             Action a = remaining_actions;
             while (true)
@@ -88,7 +94,7 @@ public class ActionReorderer
             {
                 break;
             }
-            /* --- move action a from remaining_actions to reordered list --- */
+            // move action a from remaining_actions to reordered list
             if (prev_a != null)
             {
                 prev_a.next = a.next;
@@ -107,7 +113,8 @@ public class ActionReorderer
                 first_action = a;
             }
             last_action = a;
-            /* --- add new variables from a to new_bound_vars --- */
+            
+            // add new variables from a to new_bound_vars
             Action.addAllVariables(a, lhs_tc, new_bound_vars);
         }
 
@@ -118,18 +125,15 @@ public class ActionReorderer
                 last_action.next = remaining_actions;
             else
                 first_action = remaining_actions;
-            // TODO
-            throw new IllegalStateException("Production " + prodName
-                    + " has a bad RHS");
-            // /* --- there are remaining_actions but none can be legally added
-            // --- */
-            // print (thisAgent, "Error: production %s has a bad RHS--\n",
-            // thisAgent->name_of_production_being_reordered);
-            // print (thisAgent, " Either it creates structure not connected to
-            // anything\n");
-            // print (thisAgent, " else in WM, or it tries to pass an unbound
-            // variable as\n");
-            // print (thisAgent, " an argument to a function.\n");
+
+            // There are remaining_actions but none can be legally added
+            String message = String.format("Error: production %s has a bad RHS--\n" +
+                          " Either it creates structure not connected to anything\n" +  
+                          " else in WM, or it tries to pass an unbound variable as\n" + 
+                          " an argument to a function.\n", prodName);
+            printer.error(message);
+            
+            throw new ReordererException(message);
         }
 
         /* --- unmark variables that we just marked --- */

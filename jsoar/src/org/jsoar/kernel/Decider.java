@@ -45,7 +45,6 @@ public class Decider
         UPDATE_DISCONNECTED_IDS_LIST,
         JUST_UPDATE_COUNT,
     }
-    
 
     /**
      * A dll of instantiations that will be used to determine the gds through a
@@ -174,7 +173,7 @@ public class Decider
             else
             {
                 w.next_prev.remove(s.acceptable_preference_wmes);
-                /* REW: begin 09.15.96 */
+                
                 /*
                  * IF we lose an acceptable preference for an operator, then
                  * that operator comes out of the slot immediately in OPERAND2.
@@ -184,7 +183,7 @@ public class Decider
                  */
                 if (context.operand2_mode)
                     context.consistency.remove_operator_if_necessary(s, w);
-                /* REW: end 09.15.96 */
+
                 context.workingMemory.remove_wme_from_wm(w);
             }
             wmeItem = next_w;
@@ -203,7 +202,7 @@ public class Decider
             }
             else
             {
-                Wme w = new Wme(p.id, p.attr, p.value, true, 0);
+                Wme w = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
                 w.next_prev.insertAtHead(s.acceptable_preference_wmes);
                 w.preference = p;
                 context.workingMemory.add_wme_to_wm(w);
@@ -223,7 +222,7 @@ public class Decider
             }
             else
             {
-                Wme w = new Wme(p.id, p.attr, p.value, true, 0);
+                Wme w = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
                 w.next_prev.insertAtHead(s.acceptable_preference_wmes);
                 w.preference = p;
                 context.workingMemory.add_wme_to_wm(w);
@@ -1242,7 +1241,7 @@ public class Decider
      */
     private void add_impasse_wme(Identifier id, Symbol attr, Symbol value, Preference p)
     {
-        Wme w = new Wme(id, attr, value, false, 0);
+        Wme w = context.workingMemory.make_wme(id, attr, value, false);
         w.next_prev.insertAtHead(id.impasse_wmes);
         w.preference = p;
         context.workingMemory.add_wme_to_wm(w);
@@ -1632,7 +1631,7 @@ public class Decider
             } 
             else 
             {
-               Wme w = new Wme(cand.id, cand.attr, cand.value, false, 0);
+               Wme w = context.workingMemory.make_wme(cand.id, cand.attr, cand.value, false);
                w.next_prev.insertAtHead(s.wmes);
                w.preference = cand;
                
@@ -2299,7 +2298,7 @@ public class Decider
             if (goal.lower_goal != null)
                 remove_existing_context_and_descendents(goal.lower_goal);
 
-            Wme w = new Wme(s.id, s.attr, candidates.value.value, false, 0);
+            Wme w = context.workingMemory.make_wme(s.id, s.attr, candidates.value.value, false);
             w.next_prev.insertAtHead(s.wmes);
             w.preference = candidates.value;
             w.preference.preference_add_ref();

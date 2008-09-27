@@ -14,6 +14,7 @@ import org.jsoar.kernel.rete.ReteNode;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ActionSupport;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.Arguments;
@@ -87,9 +88,10 @@ public class Production
      * @param cr A condition reorderer
      * @param ar An action reorderer
      * @param reorder_nccs True if NCCs should be reordered.
+     * @throws ReordererException 
      * @throws IllegalStateException if the production has already been reordered
      */
-    public void reorder(VariableGenerator varGen, ConditionReorderer cr, ActionReorderer ar, boolean reorder_nccs)
+    public void reorder(VariableGenerator varGen, ConditionReorderer cr, ActionReorderer ar, boolean reorder_nccs) throws ReordererException
     {
         if (reordered)
         {
@@ -143,6 +145,16 @@ public class Production
         throw new UnsupportedOperationException("excise_production not implemented");
         
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return name.toString() + " (" + type + ")";
+    }
     
+ 
     
 }

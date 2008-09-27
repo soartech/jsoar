@@ -88,7 +88,7 @@ public class SymbolFactory
     {
         if(!identifiers.isEmpty())
         {
-            // TODO
+            // TODO: caller should print this warning on false return
 //            print (thisAgent, "Internal warning:  wanted to reset identifier generator numbers, but\n");
 //            print (thisAgent, "there are still some identifiers allocated.  (Probably a memory leak.)\n");
 //            print (thisAgent, "(Leaving identifier numbers alone.)\n");

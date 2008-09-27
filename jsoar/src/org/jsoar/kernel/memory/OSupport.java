@@ -250,7 +250,7 @@ public class OSupport
          */
         for (; conds != null; conds = conds.next)
         {
-            // TODO: The original switch statement here was a little tricky. 
+            // The original switch statement here was a little tricky.
             // I think I got the gist of it though.
             
             // Positive or negative condition
@@ -261,7 +261,9 @@ public class OSupport
                         match_state_to_exclude_test_of_the_operator_off_of)
                         && TestTools.test_includes_equality_test_for_symbol(tfc.attr_test, syms.operator_symbol))
                 {
-                    return false;
+                    // This is a break in the original switch, which should mean break out
+                    // of the switch and start the loop again...
+                    continue;
                 }
                 if (test_has_id_in_os_tc(tfc.id_test, null))
                 {
@@ -421,7 +423,6 @@ public class OSupport
                     MakeAction ma = act.asMakeAction();
                     if (ma != null && ma.attr.asSymbolValue() != null)
                     {
-
                         // TODO: Is toString() correct here?
                         if (ma.attr.asSymbolValue().sym.toString().equals("operator")
                                 && (act.preference_type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE))
@@ -461,7 +462,6 @@ public class OSupport
 
                     for (pass = 0; pass != 2; pass++)
                     {
-
                         for (c = inst.top_of_instantiated_conditions; c != null; c = c.next)
                         {
                             PositiveCondition pc = c.asPositiveCondition();
@@ -485,7 +485,6 @@ public class OSupport
                                             }
                                         }
                                     }
-
                                 }
                                 else
                                 {
@@ -591,7 +590,6 @@ public class OSupport
         if (match_goal == null)
         {
             return; // goto o_support_done; // nothing gets o-support
-
         }
 
         match_state = match_goal;
@@ -636,10 +634,8 @@ public class OSupport
                 continue;
             }
             w = pc.bt.wme_;
-            /*
-             * For NNPSCM, count something as "off the match state" only if it's
-             * not the OPERATOR.
-             */
+            // For NNPSCM, count something as "off the match state" only if it's
+            // not the OPERATOR.
             if ((w.id == match_state) && (w.attr != syms.operator_symbol))
             {
                 lhs_is_known_to_test_something_off_match_state = true;
@@ -658,7 +654,7 @@ public class OSupport
             }
         }
 
-        /* --- calcluate lhs support flags --- */
+        // calcluate lhs support flags
         oa_support_possible = lhs_tests_operator_installed;
         oc_support_possible = rhs_does_an_operator_creation;
         om_support_possible = lhs_tests_operator_acceptable_or_installed;
@@ -1296,15 +1292,14 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
   YesNoMaybe ynm;
   int tc;
 
-  // TODO Re-check braces here
-  /* --- initialize:  mark all rhs actions as "unknown" --- */
+  // initialize:  mark all rhs actions as "unknown"
   for (a=rhs; a!=null; a=a.next){
-      MakeAction ma = a.asMakeAction();
+    MakeAction ma = a.asMakeAction();
     if (ma != null) {  a.support=ActionSupport.UNKNOWN_SUPPORT; }
   }
 
-  /* --- if "operator" doesn't appear in any LHS attribute slot, and there
-         are no RHS +/! makes for "operator", then nothing gets support --- */
+  // if "operator" doesn't appear in any LHS attribute slot, and there
+  // are no RHS +/! makes for "operator", then nothing gets support
   boolean operator_found = false;
   boolean possible_operator_found = false;
   for (cond=lhs; cond!=null; cond=cond.next) {
@@ -1348,9 +1343,9 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
       MakeAction ma = a.asMakeAction();
       if (ma == null) { continue; }
       RhsSymbolValue rhsSym = ma.attr.asSymbolValue();
-      if (rhsSym != null &&  /* RBD 3/29/95 */
+      if (rhsSym != null &&
           rhsSym.getSym()==syms.operator_symbol &&
-          (ma.id.asSymbolValue().getSym() == c)) {
+          ma.id.asSymbolValue().getSym() == c) {
         a.support = ActionSupport.I_SUPPORT;
       }
     }
@@ -1488,7 +1483,6 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
 
     /* --- any action with id in the TC gets support --- */
     for (a=rhs; a!=null; a=a.next)  {
-
 
       if (a.action_is_in_tc (tc)) {
 

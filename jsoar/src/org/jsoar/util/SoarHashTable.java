@@ -75,15 +75,12 @@ public class SoarHashTable <T extends ItemInHashTable>
         int hash_value = h.calculate(item, log2size);
         if (buckets[hash_value] == this_one)
         {
-            /* --- hs is the first one on the list for the bucket --- */
+            // hs is the first one on the list for the bucket
             buckets[hash_value] = this_one.next_in_hash_table;
         }
         else
         {
-            /*
-             * --- hs is not the first one on the list, so find its predecessor
-             * ---
-             */
+            // hs is not the first one on the list, so find its predecessor
             ItemInHashTable prev = buckets[hash_value];
             while (prev != null && prev.next_in_hash_table != this_one)
             {
@@ -92,14 +89,13 @@ public class SoarHashTable <T extends ItemInHashTable>
             if (prev == null)
             {
                 /* Reaching here means that we couldn't find this_one item */
-                // TODO: assert(prev && "Couldn't find item to remove from hash
-                // table!");
+                // TODO: assert(prev && "Couldn't find item to remove from hash table!");
                 return;
             }
             prev.next_in_hash_table = this_one.next_in_hash_table;
         }
         this_one.next_in_hash_table = null; /* just for safety */
-        /* --- update count and possibly resize the table --- */
+        // update count and possibly resize the table
         this.count--;
         if ((this.count < this.size / 2) && (this.log2size > this.minimum_log2size))
         {

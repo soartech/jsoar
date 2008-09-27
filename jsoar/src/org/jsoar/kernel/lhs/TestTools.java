@@ -17,19 +17,30 @@ import org.jsoar.util.ByRef;
  */
 public class TestTools
 {
+    /**
+     * Looks through a test, and returns a new copy of the first equality test
+     * it finds. Signals an error if there is no equality test in the given
+     * test.
+     * 
+     * production.cpp:686:copy_of_equality_test_found_in_test
+     * 
+     * @param t
+     * @return
+     * @throws IllegalStateException If there is no equality test found.
+     */
     public static EqualityTest copy_of_equality_test_found_in_test(Test t)
     {
-
         if (Test.isBlank(t))
         {
-            throw new IllegalArgumentException(
-                    "Internal error: can't find equality test in blank test");
+            throw new IllegalStateException("Internal error: can't find equality test in blank test");
         }
+        
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
             return (EqualityTest) eq.copy();
         }
+        
         ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
@@ -42,13 +53,7 @@ public class TestTools
             }
         }
 
-        // TODO
-        throw new IllegalStateException(
-                "Internal error: can't find equality test in test\n");
-        // strncpy (msg, "Internal error: can't find equality test in
-        // test\n",BUFFER_MSG_SIZE);
-        // abort_with_fatal_error(thisAgent, msg);
-        // return 0; /* unreachable, but without it, gcc -Wall warns here */
+        throw new IllegalStateException("Internal error: can't find equality test in test\n");
     }
 
     /**

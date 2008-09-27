@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.VariableGenerator;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
@@ -33,6 +34,8 @@ public class ConditionReorderer
     private final Trace trace;
     private final MultiAttributes multiAttrs;
 
+    private Object prodName;
+
     private static class SavedTest
     {
         public SavedTest(SavedTest old_sts, Symbol var, ComplexTest the_test)
@@ -50,7 +53,7 @@ public class ConditionReorderer
         ComplexTest the_test;
     }
 
-    public ConditionReorderer(VariableGenerator vars, Trace trace, MultiAttributes multiAttrs)
+    public ConditionReorderer(VariableGenerator vars, Trace trace, MultiAttributes multiAttrs, String prodName)
     {
         this.vars = vars;
         this.trace = trace;
@@ -63,8 +66,9 @@ public class ConditionReorderer
      * @param lhs_top
      * @param lhs_bottom
      * @param reorder_nccs
+     * @throws ReordererException 
      */
-    public void reorder_lhs(ByRef<Condition> lhs_top, ByRef<Condition> lhs_bottom, boolean reorder_nccs)
+    public void reorder_lhs(ByRef<Condition> lhs_top, ByRef<Condition> lhs_bottom, boolean reorder_nccs) throws ReordererException
     {
         int tc = vars.getSyms().get_new_tc_number();
         /* don't mark any variables, since nothing is bound outside the LHS */
@@ -100,14 +104,10 @@ public class ConditionReorderer
 
         if (roots.isEmpty())
         {
-            // TODO: Warning
-            throw new IllegalStateException("LHS has no roots");
-            // print (thisAgent, "Error: in production %s,\n",
-            // thisAgent->name_of_production_being_reordered);
-            // print (thisAgent, " The LHS has no roots.\n");
-            // /* hmmm... most people aren't going to understand this error
-            // message */
-            // return FALSE;
+            String message = String.format("Error: in production %s,\n"+
+                    " The LHS has no roots.\n", prodName);
+            trace.getPrinter().print(message);
+            throw new ReordererException(message);
         }
 
         fill_in_vars_requiring_bindings(lhs_top.value, tc);
@@ -184,12 +184,10 @@ public class ConditionReorderer
                 // TODO: Warning
                 // print (thisAgent, "\nWarning: in production %s,\n",
                 // thisAgent->name_of_production_being_reordered);
-                // print (thisAgent, " ignoring test(s) whose referent is
-                // unbound:\n");
+                // print (thisAgent, " ignoring test(s) whose referent is unbound:\n");
                 // print_saved_test_list (thisAgent, tests_to_restore);
                 // // TODO: XML tagged output -- how to create this string?
-                // // KJC TODO: need a tagged output version of
-                // print_saved_test_list
+                // // KJC TODO: need a tagged output version of print_saved_test_list
                 //
                 // // XML generation
                 // growable_string gs = make_blank_growable_string(thisAgent);
@@ -213,8 +211,7 @@ public class ConditionReorderer
             }
             /* ought to deallocate the saved tests, but who cares */
         }
-        Variable.unmark(new_vars); // unmark_variables_and_free_list
-                                    // (thisAgent, new_vars);
+        Variable.unmark(new_vars);
     }
 
     /**
@@ -359,16 +356,11 @@ public class ConditionReorderer
                  */
             }
             // if min_cost==MAX_COST, print error message
-            if (min_cost == MAX_COST /*
-                                         * TODO &&
-                                         * thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM]
-                                         */)
+            if (min_cost == MAX_COST)
             {
-                // TODO WARNING
-                // print (thisAgent, "Warning: in production %s,\n",
-                // thisAgent->name_of_production_being_reordered);
-                // print (thisAgent, " The LHS conditions are not all
-                // connected.\n");
+                trace.getPrinter().warn("Warning: in production %s,\n" +
+                        " The LHS conditions are not all connected.\n", prodName);
+                
                 // /* BUGBUG I'm not sure whether this can ever happen. */
                 //
                 // // XML geneneration
@@ -381,7 +373,6 @@ public class ConditionReorderer
                 // are not all connected.");
                 // xml_generate_warning(thisAgent, text_of_growable_string(gs));
                 // free_growable_string(thisAgent, gs);
-
             }
             // if more than one min-cost item, and cost>1, do lookahead
             if (min_cost > 1 && min_cost_conds.reorder.next_min_cost != null)
@@ -790,22 +781,16 @@ public class ConditionReorderer
             {
                 sym = vars.generate_new_variable("dummy-");
                 EqualityTest newTest = EqualityTest.makeEqualityTest(sym);
-                ct.conjunct_list.add(0, newTest);
+                ct.conjunct_list.push(newTest);
             }
-            /*
-             * --- scan through, create saved_test for subtests except equality
-             * ---
-             */
+            // scan through, create saved_test for subtests except equality
             Iterator<Test> it = ct.conjunct_list.iterator();
             while (it.hasNext())
             {
                 Test subtest = it.next();
                 if (subtest.asEqualityTest() == null)
                 {
-                    /*
-                     * --- create saved_test, splice this cons out of
-                     * conjunct_list ---
-                     */
+                    // create saved_test, splice this cons out of conjunct_list
                     SavedTest saved = new SavedTest(old_sts, sym, subtest.asComplexTest());
 
                     old_sts = saved;
@@ -816,10 +801,7 @@ public class ConditionReorderer
         }
         else
         {
-            /*
-             * --- goal/impasse, disjunction, and non-equality relational tests
-             * ---
-             */
+            // goal/impasse, disjunction, and non-equality relational tests
             Variable var = vars.generate_new_variable("dummy-");
             EqualityTest New = EqualityTest.makeEqualityTest(var);
             SavedTest saved = new SavedTest(old_sts, var, t.value.asComplexTest());
@@ -922,16 +904,13 @@ public class ConditionReorderer
             }
         }
 
-        /* --- unmark everything we just marked --- */
+        // unmark everything we just marked
         Variable.unmark(new_vars_from_value_slot);
         new_vars_from_value_slot = null; // unmark and deallocate list
         Variable.unmark(new_vars_from_id_slot);
 
-        /* --- make sure each root var has some condition with goal/impasse --- */
-        if (allow_printing_warnings /*
-                                     * TODO &&
-                                     * thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM]
-                                     */)
+        // make sure each root var has some condition with goal/impasse
+        if (allow_printing_warnings /* TODO && thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM] */)
         {
             for (Variable var : new_vars_from_id_slot)
             {
@@ -954,11 +933,9 @@ public class ConditionReorderer
                 {
                     // TODO: WARNING
 
-                    // print (thisAgent, "\nWarning: On the LHS of production
-                    // %s, identifier ",
+                    // print (thisAgent, "\nWarning: On the LHS of production %s, identifier ",
                     // thisAgent->name_of_production_being_reordered);
-                    // print_with_symbols (thisAgent, "%y is not connected to
-                    // any goal or impasse.\n",
+                    // print_with_symbols (thisAgent, "%y is not connected to any goal or impasse.\n",
                     // (Symbol *)(c->first));
                     //
                     // // XML geneneration
