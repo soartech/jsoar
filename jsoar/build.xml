@@ -21,7 +21,7 @@
 	
     <property name="jar.main.class" value="org.jsoar.debugger.LittleDebugger"/>
 	<property name="jar.min.name" value="${ant.project.name}.jar"/>
-	<property name="jar.complete.name" value="${and.project.name}-complete.jar"/>
+	<property name="jar.complete.name" value="${ant.project.name}-complete.jar"/>
 	
     <condition property="os.is.windows">
        <os family="windows"/>

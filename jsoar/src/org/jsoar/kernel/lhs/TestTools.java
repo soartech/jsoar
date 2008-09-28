@@ -195,7 +195,7 @@ public class TestTools
 
         return false;
     }
-    
+
     /**
      * Same as copy_test(), only it doesn't include goal or impasse tests
      * in the new copy.  The caller should initialize the two flags to FALSE
@@ -326,7 +326,7 @@ public class TestTools
      * @param add_me
      * @return
      */
-    private static boolean tests_are_equal(Test t1, Test t2)
+    static boolean tests_are_equal(Test t1, Test t2)
     {
         if(t1 == t2)
         {

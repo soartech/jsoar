@@ -2340,7 +2340,7 @@ public class Rete
                 if (referent.asIdentifier() == null)
                     continue;
 
-                NotStruct new_not = new NotStruct(right_sym, referent);
+                NotStruct new_not = new NotStruct(right_sym.asIdentifier(), referent.asIdentifier());
                 new_not.next = nots_found_in_production;
                 nots_found_in_production = new_not;
                 continue;
@@ -2353,7 +2353,7 @@ public class Rete
                 if (referent.asIdentifier() == null)
                     continue;
 
-                NotStruct new_not = new NotStruct(right_sym, referent);
+                NotStruct new_not = new NotStruct(right_sym.asIdentifier(), referent.asIdentifier());
                 new_not.next = nots_found_in_production;
                 nots_found_in_production = new_not;
                 continue;
