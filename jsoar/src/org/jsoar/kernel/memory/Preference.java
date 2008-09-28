@@ -38,13 +38,13 @@ public class Preference implements Formattable
     public final AsListItem<Preference> all_of_goal = new AsListItem<Preference>(this); // dll of all pref's from the same match goal
     
     /* dll (without header) of cloned preferences (created when chunking) */
-    Preference next_clone;
-    Preference prev_clone;
+    public Preference next_clone;
+    public Preference prev_clone;
       
     public Instantiation inst;
     final AsListItem<Preference> inst_next_prev = new AsListItem<Preference>(this);
     public Preference next_candidate;
-    Preference next_result;
+    public Preference next_result;
 
     int total_preferences_for_candidate = 0;
     double numeric_value = 0.0;

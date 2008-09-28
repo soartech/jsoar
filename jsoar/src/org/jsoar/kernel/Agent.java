@@ -62,7 +62,7 @@ public class Agent
     public final Decider decider = new Decider(this);
     public final Consistency consistency = new Consistency(this);
     
-    public final Chunker chunker = new Chunker();
+    public final Chunker chunker = new Chunker(this);
     public final ReinforcementLearning rl = new ReinforcementLearning();
     public final DecisionManipulation decisionManip = new DecisionManipulation(decider);
     public final Exploration exploration = new Exploration();

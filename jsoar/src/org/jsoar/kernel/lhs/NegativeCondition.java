@@ -14,6 +14,11 @@ import org.jsoar.kernel.symbols.Variable;
  */
 public class NegativeCondition extends ThreeFieldCondition
 {
+    public NegativeCondition()
+    {
+        
+    }
+    
     public NegativeCondition(PositiveCondition positiveCondition)
     {
         super(positiveCondition);
