@@ -48,9 +48,13 @@ public class ChunkCondition
         cc.hash_value = Condition.hash_condition(cond);
         int remainder = cc.hash_value;
         int hv = 0;
-        while (remainder != 0)
+        // Have to test for -1 here as well because Java doesn't have unsigned ints
+        // which means that the shift below can force it to 0xffffffff, i.e. -1 which
+        // will never get to 0.
+        while (remainder != 0 && remainder != -1)
         {
-            hv ^= (remainder & SoarHashTable.masks_for_n_low_order_bits[ChunkConditionSet.LOG_2_CHUNK_COND_HASH_TABLE_SIZE]);
+            final int masked = remainder & SoarHashTable.masks_for_n_low_order_bits[ChunkConditionSet.LOG_2_CHUNK_COND_HASH_TABLE_SIZE];
+            hv ^= (masked);
             remainder = remainder >> ChunkConditionSet.LOG_2_CHUNK_COND_HASH_TABLE_SIZE;
         }
         cc.compressed_hash_value = hv;

@@ -7,6 +7,7 @@ package org.jsoar.kernel.tracing;
 
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Arrays;
 
 import org.apache.commons.io.output.NullWriter;
 import org.jsoar.kernel.memory.Preference;
@@ -16,6 +17,12 @@ import org.jsoar.kernel.memory.Preference;
  */
 public class Printer
 {
+    private static final char[] SPACES = new char[80];
+    static
+    {
+        Arrays.fill(SPACES, ' ');
+    }
+    
     private Writer internalWriter;
     private PrintWriter wrappedWriter;
     
@@ -112,6 +119,41 @@ public class Printer
     public Printer error(String format, Object ... args)
     {
         print("\nError: " + format, args);
+        return this;
+    }
+
+    /**
+     * @return
+     */
+    public int getColumnsPerLine()
+    {
+        // TODO Auto-generated method stub
+        return 80;
+    }
+
+    /**
+     * @return
+     */
+    public int get_printer_output_column()
+    {
+        // TODO implemente get_printer_output_column
+        return 0;
+    }
+    
+    /**
+     * Append n spaces to the printer
+     * 
+     * @param n Number of spaces
+     * @return this
+     */
+    public Printer spaces(int n)
+    {
+        while(n > 0)
+        {
+            int c = Math.min(n, SPACES.length);
+            wrappedWriter.write(SPACES, 0, c);
+            n -= c;
+        }
         return this;
     }
     

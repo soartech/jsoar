@@ -24,6 +24,27 @@ public class BackTraceInfo
     public Preference trace;        /* preference for BT, or NIL */
 
     /* mvp 5-17-94 */
-    public final LinkedList<Preference> prohibits = new LinkedList<Preference>();  /* list of prohibit prefs to backtrace through */
+    public final LinkedList<Preference> prohibits;  /* list of prohibit prefs to backtrace through */
+
+    public BackTraceInfo()
+    {
+        prohibits = new LinkedList<Preference>();
+    }
+    
+    public BackTraceInfo(BackTraceInfo other)
+    {
+        this.wme_ = other.wme_;
+        this.level = other.level;
+        this.trace = other.trace;
+        this.prohibits = other.prohibits;
+    }
+    
+    /**
+     * @return A shallow copy of this backtrace into
+     */
+    public BackTraceInfo copy()
+    {
+        return new BackTraceInfo(this);
+    }
 
 }

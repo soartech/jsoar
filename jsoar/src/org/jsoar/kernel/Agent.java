@@ -12,7 +12,9 @@ import java.io.Writer;
 
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.learning.Backtracer;
 import org.jsoar.kernel.learning.Chunker;
+import org.jsoar.kernel.learning.Explain;
 import org.jsoar.kernel.learning.ReinforcementLearning;
 import org.jsoar.kernel.lhs.ConditionReorderer;
 import org.jsoar.kernel.lhs.MultiAttributes;
@@ -50,7 +52,7 @@ public class Agent
     public final PredefinedSymbols predefinedSyms = new PredefinedSymbols();
     public final SymbolFactory syms = predefinedSyms.getSyms();
     public final VariableGenerator variableGenerator = new VariableGenerator(syms);
-    private final MultiAttributes multiAttrs = new MultiAttributes();
+    public final MultiAttributes multiAttrs = new MultiAttributes();
     public final Rete rete = new Rete(trace, variableGenerator);
     public final WorkingMemory workingMemory = new WorkingMemory(this);
     public final TemporaryMemory tempMemory = new TemporaryMemory();
@@ -63,7 +65,10 @@ public class Agent
     public final Consistency consistency = new Consistency(this);
     
     public final Chunker chunker = new Chunker(this);
+    public final Explain explain = new Explain(this);
+    public final Backtracer backtrace = new Backtracer(this);
     public final ReinforcementLearning rl = new ReinforcementLearning();
+    
     public final DecisionManipulation decisionManip = new DecisionManipulation(decider);
     public final Exploration exploration = new Exploration();
     public final InputOutput io = new InputOutput(this);

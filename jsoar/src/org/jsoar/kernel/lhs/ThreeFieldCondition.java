@@ -62,4 +62,13 @@ public abstract class ThreeFieldCondition extends Condition
             value_test.addAllVariables(tc_number, var_list);
         }
     }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.lhs.Condition#cond_is_in_tc(int)
+     */
+    @Override
+    public boolean cond_is_in_tc(int tc)
+    {
+        return TestTools.test_is_in_tc(id_test, tc);
+    }
 }

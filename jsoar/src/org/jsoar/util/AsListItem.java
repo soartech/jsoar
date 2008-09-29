@@ -208,6 +208,18 @@ public class AsListItem <T> implements Iterable<T>
 //      }
 //      return start;
 //  }
+    
+    /**
+     * Create a list head whose first item is this one.
+     * 
+     * @return New list head
+     */
+    public ListHead<T> toListHead()
+    {
+        ListHead<T> head = new ListHead<T>();
+        head.first = this;
+        return head;
+    }
 
     /* (non-Javadoc)
      * @see java.lang.Iterable#iterator()
@@ -259,4 +271,5 @@ public class AsListItem <T> implements Iterable<T>
         }
         
     }
+
 }

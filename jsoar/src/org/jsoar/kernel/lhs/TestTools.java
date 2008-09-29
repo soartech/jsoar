@@ -6,8 +6,10 @@
 package org.jsoar.kernel.lhs;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ByRef;
@@ -338,9 +340,9 @@ public class TestTools
         }
         
         EqualityTest eq1 = t1.asEqualityTest();
-        if(eq1 != null && eq1.sym == t2.asEqualityTest().sym)
+        if(eq1 != null)
         {
-            return true;
+            return eq1.sym == t2.asEqualityTest().sym;
         }
 
         if(t1.asGoalIdTest() != null || t1.asImpasseIdTest() != null)
@@ -373,6 +375,63 @@ public class TestTools
         }
 
         return t1.asRelationalTest().referent == t2.asRelationalTest().referent;
+    }
+
+    /**
+     * 
+     * <p>TODO Make add_test_to_tc polymorphic on Test
+     * <p>production.cpp:1308:add_test_to_tc
+     * 
+     * @param t
+     * @param tc
+     * @param id_list
+     * @param var_list
+     */
+    static void add_test_to_tc(Test t, int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    {
+        if (Test.isBlank(t))
+            return;
+        EqualityTest eq = t.asEqualityTest();
+        if (eq != null)
+        {
+            eq.getReferent().add_symbol_to_tc(tc, id_list, var_list);
+            return;
+        }
+
+        ConjunctiveTest ct = t.asConjunctiveTest();
+        if (ct != null)
+        {
+            for (Test c : ct.conjunct_list)
+                add_test_to_tc(c, tc, id_list, var_list);
+        }
+    }
+
+    /**
+     * <p>production.cpp:1354:test_is_in_tc
+     * 
+     * @param t
+     * @param tc
+     * @return
+     */
+    static boolean test_is_in_tc(Test t, int tc)
+    {
+        if (Test.isBlank(t))
+            return false;
+        EqualityTest eq = t.asEqualityTest();
+        if (eq != null)
+        {
+            return eq.getReferent().symbol_is_in_tc(tc);
+        }
+
+        ConjunctiveTest ct = t.asConjunctiveTest();
+        if (ct != null)
+        {
+            for (Test c : ct.conjunct_list)
+                if (test_is_in_tc(c, tc))
+                    return true;
+            return false;
+        }
+        return false;
     }
 
 }

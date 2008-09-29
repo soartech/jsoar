@@ -19,8 +19,10 @@ public abstract class Condition
 
     /**
      * for top-level positive cond's: used for BT and by the rete
+     * 
+     * <p>TODO Move this down to PositiveCondition
      */
-    public final BackTraceInfo bt = new BackTraceInfo();
+    public BackTraceInfo bt = new BackTraceInfo();
     /**
      * used only during reordering. TODO: PositiveCondition only?
      */
@@ -110,26 +112,23 @@ public abstract class Condition
     }
 
     /**
+     * <p>Note: polymorphized in JSoar
+     * <p>production.cpp:1372:cond_is_in_tc
+     * 
      * @param tc
      * @return
      */
-    public boolean cond_is_in_tc(int tc)
-    {
-        // TODO cond_is_in_tc: implement for sub-classes
-        throw new UnsupportedOperationException("Not implemented");
-        //return false;
-    }
+    public abstract boolean cond_is_in_tc(int tc);
 
     /**
+     * <p>production.cpp:1327:add_cond_to_tc
+     * <p>Note: polymorphized in JSoar
+     * 
      * @param tc
      * @param id_list
      * @param var_list
      */
-    public void add_cond_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
-    {
-        // TODO add_cond_to_tc: implement for sub-classes
-        throw new UnsupportedOperationException("Not implemented");
-    }
+    public abstract void add_cond_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list);
 
     /**
      * Returns a hash value for the given condition.
@@ -255,6 +254,7 @@ public abstract class Condition
             New.attr_test = Test.copy(pc.attr_test);
             New.value_test = Test.copy(pc.value_test);
             New.test_for_acceptable_preference = pc.test_for_acceptable_preference;
+            New.bt = pc.bt.copy();
             return New;
         }
         NegativeCondition nc = cond.asNegativeCondition();

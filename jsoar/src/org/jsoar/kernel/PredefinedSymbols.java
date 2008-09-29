@@ -17,12 +17,12 @@ public class PredefinedSymbols
     private SymbolFactory syms = new SymbolFactory();
     
     SymConstant problem_space_symbol = syms.make_sym_constant("problem-space");
-    SymConstant state_symbol = syms.make_sym_constant("state");
+    public SymConstant state_symbol = syms.make_sym_constant("state");
     public final SymConstant operator_symbol = syms.make_sym_constant("operator");
     public final SymConstant superstate_symbol = syms.make_sym_constant("superstate");
     public SymConstant io_symbol = syms.make_sym_constant("io");
     SymConstant object_symbol = syms.make_sym_constant("object");
-    SymConstant attribute_symbol = syms.make_sym_constant("attribute");
+    public SymConstant attribute_symbol = syms.make_sym_constant("attribute");
     SymConstant impasse_symbol = syms.make_sym_constant("impasse");
     SymConstant choices_symbol = syms.make_sym_constant("choices");
     SymConstant none_symbol = syms.make_sym_constant("none");
@@ -36,8 +36,8 @@ public class PredefinedSymbols
     SymConstant conflict_symbol = syms.make_sym_constant("conflict");
     SymConstant tie_symbol = syms.make_sym_constant("tie");
     SymConstant item_symbol = syms.make_sym_constant("item");
-    SymConstant quiescence_symbol = syms.make_sym_constant("quiescence");
-    SymConstant t_symbol = syms.make_sym_constant("t");
+    public SymConstant quiescence_symbol = syms.make_sym_constant("quiescence");
+    public SymConstant t_symbol = syms.make_sym_constant("t");
     public final SymConstant nil_symbol = syms.make_sym_constant("nil");
     SymConstant type_symbol = syms.make_sym_constant("type");
     SymConstant goal_symbol = syms.make_sym_constant("goal");

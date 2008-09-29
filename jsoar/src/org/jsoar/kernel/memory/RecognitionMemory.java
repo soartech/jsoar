@@ -70,7 +70,7 @@ public class RecognitionMemory
     /**
      * agent.h:571:newly_created_instantiations
      */
-    private final ListHead<Instantiation> newly_created_instantiations = new ListHead<Instantiation>();
+    public final ListHead<Instantiation> newly_created_instantiations = new ListHead<Instantiation>();
     
     /**
      * during firing, points to the prod. being fired 
@@ -475,7 +475,7 @@ public class RecognitionMemory
      * @param top_goal
      * @param o_support_calculation_type
      */
-    void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations,
+    public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations,
             final Identifier top_goal)
     {
 
@@ -792,13 +792,13 @@ public class RecognitionMemory
                 context.trace.print(" %s", pref);
             }
         }
-        /* mvp 5-17-94 */
+        
         build_prohibits_list(inst);
 
         this.production_being_fired = null;
 
-        /* --- build chunks/justifications if necessary --- */
-        context.chunker.chunk_instantiation(inst, false /* TODO thisAgent->sysparams[LEARNING_ON_SYSPARAM] != 0*/);
+        // build chunks/justifications if necessary
+        context.chunker.chunk_instantiation(inst, context.chunker.isLearningOn());
 
         /* MVP 6-8-94 */
         // TODO callback FIRING_CALLBACK

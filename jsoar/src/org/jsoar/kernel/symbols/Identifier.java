@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.Collection;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.GoalDependencySet;
@@ -113,6 +114,36 @@ public class Identifier extends Symbol
         return name_letter;
     }
 
+    /**
+     * <p>production.cpp:1043:mark_identifier_if_unmarked
+     * 
+     * @param tc
+     * @param id_list
+     */
+    private void mark_identifier_if_unmarked(int tc, LinkedList<Identifier> id_list)
+    {
+        if (tc_number != (tc))
+        {
+            tc_number = (tc);
+            if (id_list != null)
+            {
+                id_list.push(this);
+            }
+        }
+    }
+    
+    /**
+     * <p>production.cpp:1068:unmark_identifiers_and_free_list
+     * 
+     * @param ids
+     */
+    public static void unmark(Collection<Identifier> ids)
+    {
+        for(Identifier id : ids)
+        {
+            id.tc_number = 0;
+        }
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.Symbol#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
@@ -120,10 +151,17 @@ public class Identifier extends Symbol
     @Override
     public void add_symbol_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
     {
-        // TODO add_symbol_to_tc: implement for Identifier
-        throw new UnsupportedOperationException("Not implemented");
+        mark_identifier_if_unmarked (tc, id_list);
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#symbol_is_in_tc(int)
+     */
+    @Override
+    public boolean symbol_is_in_tc(int tc)
+    {
+        return tc_number == tc;
+    }
 
     /* (non-Javadoc)
      * @see java.lang.Object#toString()

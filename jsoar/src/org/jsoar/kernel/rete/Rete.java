@@ -2468,7 +2468,7 @@ public class Rete
             if (w != null && cond.asPositiveCondition() != null)
             {
                 PositiveCondition pc = cond.asPositiveCondition();
-                /* --- make simple tests and collect nots --- */
+                // make simple tests and collect nots
                 pc.id_test = EqualityTest.makeEqualityTest(w.id);
                 pc.attr_test = EqualityTest.makeEqualityTest(w.attr);
                 pc.value_test = EqualityTest.makeEqualityTest(w.value);
