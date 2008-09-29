@@ -53,6 +53,7 @@ public class FunctionalTests
         assertNotNull(oldHalt);
         
         final boolean halted[] = { false };
+        final boolean failed[] = { false };
         
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
@@ -62,9 +63,28 @@ public class FunctionalTests
                 halted[0] = true;
                 return oldHalt.execute(syms, arguments);
             }});
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed") {
+
+            @Override
+            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted[0] = true;
+                failed[0] = true;
+                return oldHalt.execute(syms, arguments);
+            }});
+        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded") {
+
+            @Override
+            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            {
+                halted[0] = true;
+                failed[0] = false;
+                return oldHalt.execute(syms, arguments);
+            }});
         
         agent.decisionCycle.run_for_n_decision_cycles(50000);
         assertTrue(testName + " functional test did not halt", halted[0]);
+        assertFalse(testName + " functional test failed", failed[0]);
         if(expectedDecisions >= 0)
         {
             assertEquals(expectedDecisions, agent.decisionCycle.d_cycle_count); // deterministic!
@@ -198,11 +218,10 @@ public class FunctionalTests
         runTest("testEightPuzzle", -1);
     }
     
-    @Ignore
-    @Test(/*timeout=10000*/)
+    @Test(timeout=10000)
     public void testJustifications() throws Exception
     {
-        runTest("testJustifications", -1);
+        runTest("testJustifications", 2);
     }
 
 }
