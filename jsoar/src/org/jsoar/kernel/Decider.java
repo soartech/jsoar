@@ -95,7 +95,7 @@ public class Decider
     private int walk_tc_number;
     private int walk_level;
     
-    Identifier top_goal;
+    public Identifier top_goal;
     public Identifier bottom_goal;
     public Identifier top_state;
     public Identifier prev_top_state;
@@ -117,6 +117,21 @@ public class Decider
     public Decider(Agent context)
     {
         this.context = context;
+    }
+    
+    /**
+     * 
+     * <p>chunk.cpp:753:find_goal_at_goal_stack_level
+     * 
+     * @param level
+     * @return
+     */
+    public Identifier find_goal_at_goal_stack_level(int level)
+    {
+        for (Identifier g = top_goal; g != null; g = g.lower_goal)
+            if (g.level == level)
+                return (g);
+        return null;
     }
 
     /**
@@ -271,9 +286,9 @@ public class Decider
         if (DEBUG_LINKS)
         {
             if (from != null)
-                context.getPrinter().print("\nAdding link from %y to %y", from, to);
+                context.getPrinter().print("\nAdding link from %s to %s", from, to);
             else
-                context.getPrinter().print("\nAdding special link to %y (count=%lu)", to, to.link_count);
+                context.getPrinter().print("\nAdding special link to %s (count=%lu)", to, to.link_count);
         }
         
         if (from == null)
@@ -392,11 +407,11 @@ public class Decider
         {
             if (from != null)
             {
-                context.getPrinter().print("\nRemoving link from %y to %y (%d to %d)", from, to, from.level, to.level);
+                context.getPrinter().print("\nRemoving link from %s to %s (%d to %d)", from, to, from.level, to.level);
             }
             else
             {
-                context.getPrinter().print("\nRemoving special link to %y  (%d)", to, to.level);
+                context.getPrinter().print("\nRemoving special link to %s  (%d)", to, to.level);
             }
             context.getPrinter().print(" (count=%lu)", to.link_count);
         }

@@ -192,11 +192,17 @@ public class FunctionalTests
         runTest("testTowersOfHanoiFast", 2047);
     }
     
-    @Ignore
-    @Test(/*timeout=10000*/)
+    @Test(timeout=10000)
     public void testEightPuzzle() throws Exception
     {
         runTest("testEightPuzzle", -1);
+    }
+    
+    @Ignore
+    @Test(/*timeout=10000*/)
+    public void testJustifications() throws Exception
+    {
+        runTest("testJustifications", -1);
     }
 
 }

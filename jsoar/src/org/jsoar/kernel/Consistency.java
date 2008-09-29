@@ -144,7 +144,7 @@ public class Consistency
             if (s.isa_context_slot)
             {
                 context.getPrinter().print(
-                        "    slot (s)  isa context slot: " + "    Slot Identifier [%y] and attribute [%y]\n", s.id,
+                        "    slot (s)  isa context slot: " + "    Slot Identifier [%s] and attribute [%s]\n", s.id,
                         s.attr);
             }
             /* printf("    Address of s: %x\n", s); */

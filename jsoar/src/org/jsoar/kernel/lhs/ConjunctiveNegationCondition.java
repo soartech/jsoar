@@ -7,6 +7,7 @@ package org.jsoar.kernel.lhs;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Variable;
 
 /**
@@ -43,4 +44,56 @@ public class ConjunctiveNegationCondition extends Condition
     {
         // Do nothing
     }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.lhs.Condition#add_cond_to_tc(int, java.util.LinkedList, java.util.LinkedList)
+     */
+    @Override
+    public void add_cond_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    {
+        // Do nothing
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.lhs.Condition#cond_is_in_tc(int)
+     */
+    @Override
+    public boolean cond_is_in_tc(int tc)
+    {
+        // conjunctive negations: keep trying to add stuff to the TC
+        LinkedList<Identifier> new_ids = new LinkedList<Identifier>();
+        LinkedList<Variable> new_vars = new LinkedList<Variable>();
+
+        for (Condition c = top; c != null; c = c.next)
+            c.already_in_tc = false;
+
+        while (true)
+        {
+            boolean anything_changed = false;
+            for (Condition c = top; c != null; c = c.next)
+                if (!c.already_in_tc)
+                    if (c.cond_is_in_tc(tc))
+                    {
+                        c.add_cond_to_tc(tc, new_ids, new_vars);
+                        c.already_in_tc = true;
+                        anything_changed = true;
+                    }
+            if (!anything_changed)
+                break;
+        }
+
+        // complete TC found, look for anything that didn't get hit
+        boolean result = true;
+        for (Condition c = top; c != null; c = c.next)
+            if (!c.already_in_tc)
+                result = false;
+
+        // unmark identifiers and variables that we just marked
+        Identifier.unmark(new_ids);
+        Variable.unmark(new_vars);
+
+        return result;
+    }
+    
+
 }

@@ -100,10 +100,10 @@ public class Wme implements Formattable
     public final AsListItem<Wme> next_prev = new AsListItem<Wme>(this); // (see above)
     public Preference preference;     // pref. supporting it, or null
     public OutputLink output_link;   /* for top-state output commands */
-//    tc_number grounds_tc;                     /* for chunker use only */
-//    tc_number potentials_tc, locals_tc;
-//    struct preference_struct *chunker_bt_pref;
-//
+    
+    public int grounds_tc;                     /* for chunker use only */
+    public int potentials_tc, locals_tc;
+    public Preference chunker_bt_pref;
     
     public GoalDependencySet gds;
     public AsListItem<Wme> gds_next_prev = new AsListItem<Wme>(this); // part of dll of wmes in gds

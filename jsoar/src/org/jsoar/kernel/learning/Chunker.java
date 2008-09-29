@@ -8,7 +8,11 @@ package org.jsoar.kernel.learning;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.ImpasseType;
+import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.lhs.Condition;
+import org.jsoar.kernel.lhs.ConditionReorderer;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.EqualityTest;
@@ -24,9 +28,14 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.NotStruct;
+import org.jsoar.kernel.rete.ProductionAddResult;
+import org.jsoar.kernel.rhs.Action;
+import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.MakeAction;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -43,14 +52,23 @@ public class Chunker
 {
     private final Agent context;
     public int chunks_this_d_cycle;
+    /**
+     * <p>gsysparam.h:118:MAX_CHUNKS_SYSPARAM
+     * <p>Defaults to 50 in init_soar()
+     */
+    private int maxChunks = 50;
+    /**
+     * <p>agent.h:336:max_chunks_reached
+     */
+    private boolean maxChunksReached = false;
+    
     private int results_match_goal_level;
     private int results_tc_number;
     private Preference results;
     private ListHead<Preference> extra_result_prefs_from_instantiation;
-    private boolean variablize_this_chunk;
+    boolean variablize_this_chunk;
     private int variablization_tc;
-    private final LinkedList<Condition> grounds = new LinkedList<Condition>();
-    private final ChunkConditionSet negated_set = new ChunkConditionSet();
+    final ChunkConditionSet negated_set = new ChunkConditionSet();
     
     /**
      * <p>gsysparam.h:179:CHUNK_THROUGH_LOCAL_NEGATIONS_SYSPARAM
@@ -60,8 +78,74 @@ public class Chunker
     /**
      * <p>agent.h:534:quiescence_t_flag
      */
-    private boolean quiescence_t_flag = false;
+    boolean quiescence_t_flag = false;
+    
+    /**
+     * <p>gsysparam.h:143:USE_LONG_CHUNK_NAMES
+     * <p>Defaults to true in init_soar() 
+     */
+    private boolean useLongChunkNames = true;
+    
+    /**
+     * <p>agent.h:535:chunk_name_prefix
+     * <p>Defautls to "chunk" in init_soar()
+     */
+    private String chunk_name_prefix = "chunk";
+    /**
+     * <p>agent.h:516:chunk_count
+     * <p>Defautls to 1 in create_soar_agent()
+     */
+    private ByRef<Integer> chunk_count = ByRef.create(Integer.valueOf(1));
+    
+    /**
+     * <p>agent.h:517:justification_count
+     * <p>Defaults to 1 in create_soar_agent()
+     */
+    private ByRef<Integer> justification_count = ByRef.create(Integer.valueOf(1));
+    /**
+     * <p>gsysparam.h:123:LEARNING_ON_SYSPARAM
+     * <p>Defaults to false in init_soar()
+     */
+    private boolean learningOn = false;
+    
+    /**
+     * <p>gsysparam.h:126:LEARNING_ALL_GOALS_SYSPARAM
+     * <p>Defaults to true in init_soar()
+     */
+    private boolean learningAllGoals = true;
+    private boolean chunk_free_flag;
+    private boolean chunky_flag;
 
+    /**
+     * <p>gsysparam.h:125:LEARNING_EXCEPT_SYSPARAM
+     * <p>Defaults to false in init_soar
+     */
+    private boolean learningExcept = false;
+    
+    /**
+     * <p>gsysparam.h:124:LEARNING_ONLY_SYSPARAM
+     * <p>Defaults to false in init_soar
+     */
+    private boolean learningOnly = false;
+    
+    /**
+     * lists of symbols (PS names) declared chunk-free
+     * <p>agent.h:312:chunk_free_problem_spaces
+     */
+    private final LinkedList<Identifier> chunk_free_problem_spaces = new LinkedList<Identifier>();
+    
+    /**
+     * lists of symbols (PS names) declared chunky
+     * 
+     * <p>agent.h:313:chunky_problem_spaces
+     */
+    private final LinkedList<Identifier> chunky_problem_spaces = new LinkedList<Identifier>();
+    
+    /**
+     * <p>agent.h:522:instantiations_with_nots
+     */
+    final LinkedList<Instantiation> instantiations_with_nots = new LinkedList<Instantiation>();
+    
     /**
      * @param context
      */
@@ -69,6 +153,25 @@ public class Chunker
     {
         this.context = context;
     }
+
+    /**
+     * @return the learningOn
+     */
+    public boolean isLearningOn()
+    {
+        return learningOn;
+    }
+
+    /**
+     * @param learningOn the learningOn to set
+     */
+    public void setLearningOn(boolean learningOn)
+    {
+        // TODO: Probably more to this (learningOn)
+        this.learningOn = learningOn;
+    }
+
+
 
     /**
      * <p>chunk.cpp:77:add_results_if_needed
@@ -335,9 +438,9 @@ public class Chunker
 
         // build instantiated conds for grounds and setup their TC
         AsListItem<ChunkCondition> prev_cc = null;
-        while (!grounds.isEmpty())
+        while (!context.backtrace.grounds.isEmpty())
         {
-            Condition ground = grounds.pop();
+            Condition ground = context.backtrace.grounds.pop();
             // make the instantiated condition
             ChunkCondition cc = new ChunkCondition(ground);
             cc.instantiated_cond = Condition.copy_condition(cc.cond);
@@ -406,7 +509,7 @@ public class Chunker
                     // and set flags like we saw a ^quiescence t so it won't be
                     // created
                     // TODO Implement report_local_negation()
-                    // report_local_negation ( thisAgent, cc.cond ); // in backtrace.cpp
+                    context.backtrace.report_local_negation ( cc.cond );
                     this.quiescence_t_flag = true;
                     this.variablize_this_chunk = false;
                 }
@@ -658,15 +761,609 @@ public class Chunker
             cc.variablized_cond.prev = cc.saved_prev_pointer_of_variablized_cond;
         }
     }
+    
     /**
-     * @param inst
-     * @param b
+     * When we build the initial instantiation of the new chunk, we have to fill
+     * in preferences_generated with *copies* of all the result preferences.
+     * These copies are clones of the results. This routine makes these clones
+     * and fills in chunk_inst->preferences_generated.
+     * 
+     * <p>chunk.cpp:726:make_clones_of_results
+     * 
+     * @param results
+     * @param chunk_inst
      */
-    public void chunk_instantiation(Instantiation inst, boolean b)
+    private void make_clones_of_results(Preference results, Instantiation chunk_inst)
     {
-        // TODO Implement chunk_instantiation
-        //throw new UnsupportedOperationException("chunk_instantiation not implemented");
-    }
+        chunk_inst.preferences_generated.first = null;
+        for (Preference result_p = results; result_p != null; result_p = result_p.next_result)
+        {
+            // copy the preference
+            Preference p = new Preference(result_p.type, result_p.id, result_p.attr, result_p.value, result_p.referent);
 
+            // put it onto the list for chunk_inst
+            p.inst = chunk_inst;
+            p.inst_next_prev.insertAtHead(chunk_inst.preferences_generated);
+
+            // insert it into the list of clones for this preference
+            p.next_clone = result_p;
+            p.prev_clone = result_p.prev_clone;
+            result_p.prev_clone = p;
+            if (p.prev_clone != null)
+                p.prev_clone.next_clone = p;
+        }
+    }
+    
+    /**
+     * chunk.cpp:762:find_impasse_wme_value
+     * 
+     * @param id
+     * @param attr
+     * @return
+     */
+    private static Symbol find_impasse_wme_value(Identifier id, Symbol attr)
+    {
+        for (Wme w : id.impasse_wmes)
+            if (w.attr == attr)
+                return w.value;
+        return null;
+    }
+    
+    /**
+     * 
+     * <p>chunk.cpp:770:generate_chunk_name_sym_constant
+     * 
+     * @param inst
+     * @return
+     */
+    private SymConstant generate_chunk_name_sym_constant(Instantiation inst)
+    {
+        if (!this.useLongChunkNames)
+            return (context.syms.generate_new_sym_constant(this.chunk_name_prefix, this.chunk_count));
+
+        int lowest_result_level = context.decider.top_goal.level;
+        for (Preference p : inst.preferences_generated)
+            if (p.id.level > lowest_result_level)
+                lowest_result_level = p.id.level;
+
+        Identifier goal = context.decider.find_goal_at_goal_stack_level(lowest_result_level);
+
+        String impass_name = null;
+        if (goal != null)
+        {
+            ImpasseType impasse_type = context.decider.type_of_existing_impasse(goal);
+            // TODO: make this a method of ImpasseType
+            switch (impasse_type)
+            {
+            case NONE_IMPASSE_TYPE:
+                // #ifdef DEBUG_CHUNK_NAMES
+                // print ("Warning: impasse_type is NONE_IMPASSE_TYPE during
+                // chunk creation.\n");
+                // xml_generate_warning(thisAgent, "Warning: impasse_type is
+                // NONE_IMPASSE_TYPE during chunk creation.");
+                // #endif
+                impass_name = "unknownimpasse";
+                break;
+            case CONSTRAINT_FAILURE_IMPASSE_TYPE:
+                impass_name = "cfailure";
+                break;
+            case CONFLICT_IMPASSE_TYPE:
+                impass_name = "conflict";
+                break;
+            case TIE_IMPASSE_TYPE:
+                impass_name = "tie";
+                break;
+            case NO_CHANGE_IMPASSE_TYPE:
+            {
+                Symbol sym = find_impasse_wme_value(goal.lower_goal, context.predefinedSyms.attribute_symbol);
+
+                if (sym == null)
+                {
+                    // #ifdef DEBUG_CHUNK_NAMES
+                    // // TODO: generate warning XML: I think we need to get a
+                    // string for "do_print_for_identifier" and append it
+                    // // but this seems low priority since it's not even
+                    // included in a normal build
+                    // print ("Warning: Failed to find ^attribute impasse
+                    // wme.\n");
+                    // do_print_for_identifier(goal->id.lower_goal, 1, 0, 0);
+                    // #endif
+                    impass_name = "unknownimpasse";
+                }
+                else if (sym == context.predefinedSyms.operator_symbol)
+                {
+                    impass_name = "opnochange";
+                }
+                else if (sym == context.predefinedSyms.state_symbol)
+                {
+                    impass_name = "snochange";
+                }
+                else
+                {
+                    // #ifdef DEBUG_CHUNK_NAMES
+                    // print ("Warning: ^attribute impasse wme has unexpected
+                    // value.\n");
+                    // xml_generate_warning(thisAgent, "Warning: ^attribute
+                    // impasse wme has unexpected value.");
+                    // #endif
+                    impass_name = "unknownimpasse";
+                }
+            }
+                break;
+            default:
+                // #ifdef DEBUG_CHUNK_NAMES
+                // // TODO: generate warning XML: I think we need to create a
+                // buffer and SNPRINTF the impasse_type into it (since it's a
+                // byte)
+                // // but this seems low priority since it's not even included
+                // in a normal build
+                // print ("Warning: encountered unknown impasse_type: %d.\n",
+                // impasse_type);
+                //
+                // #endif
+                impass_name = "unknownimpasse";
+                break;
+            }
+        }
+        else
+        {
+            // #ifdef DEBUG_CHUNK_NAMES
+            // print ("Warning: Failed to determine impasse type.\n");
+            // xml_generate_warning(thisAgent, "Warning: Failed to determine
+            // impasse type.");
+            // #endif
+            impass_name = "unknownimpasse";
+        }
+
+        chunk_count.value = chunk_count.value + 1;
+        String name = chunk_name_prefix + "-" + chunk_count + "*d" + context.decisionCycle.d_cycle_count + "*"
+                + impass_name + "*" + chunks_this_d_cycle;
+
+        /* Any user who named a production like this deserves to be burned, but we'll have mercy: */
+        if (context.syms.find_sym_constant(name) != null)
+        {
+            int collision_count = 1;
+
+            context.getPrinter().warn("Warning: generated chunk name (%s) already exists.  Will find unique name.\n",
+                    name);
+            do
+            {
+                name = chunk_name_prefix + "-" + chunk_count + "*d" + context.decisionCycle.d_cycle_count + "*"
+                        + impass_name + "*" + chunks_this_d_cycle + "*" + collision_count++;
+
+            } while (context.syms.find_sym_constant(name) != null);
+        }
+
+        return context.syms.make_sym_constant(name);
+    }
+    
+    /**
+     * This the main chunking routine. It takes an instantiation, and a flag
+     * "allow_variablization"--if FALSE, the chunk will not be variablized. (If
+     * TRUE, it may still not be variablized, due to chunk-free-problem-spaces,
+     * ^quiescence t, etc.)
+     * 
+     * <p>chunk.cpp:902:chunk_instantiation
+     * 
+     * @param inst
+     * @param allow_variablization
+     */
+    public void chunk_instantiation(Instantiation inst, boolean allow_variablization)
+    {
+        // if it only matched an attribute impasse, don't chunk
+        if (inst.match_goal == null)
+            return;
+
+        // #ifndef NO_TIMING_STUFF
+        // #ifdef DETAILED_TIMING_STATS
+        // struct timeval saved_start_tv;
+        // #endif
+        // #endif
+
+        // if no preference is above the match goal level, exit
+        Preference pref = null;
+        for (AsListItem<Preference> i = inst.preferences_generated.first; i != null; i = i.next)
+        {
+            Preference temp = i.get();
+            if (temp.id.level < inst.match_goal_level)
+            {
+                pref = temp;
+                break;
+            }
+        }
+        if (pref == null)
+            return;
+
+        // #ifndef NO_TIMING_STUFF
+        // #ifdef DETAILED_TIMING_STATS
+        // start_timer (thisAgent, &saved_start_tv);
+        // #endif
+        // #endif
+
+        /*
+          in OPERAND, we only wanna built a chunk for the top goal; i.e. no
+          intermediate chunks are build.  we're essentially creating
+          "top-down chunking"; just the opposite of the "bottom-up chunking"
+          that is available through a soar prompt-level comand.
+          
+            (why do we do this??  i don't remember...)
+            
+              we accomplish this by forcing only justifications to be built for
+              subgoal chunks.  and when we're about to build the top level
+              result, we make a chunk.  a cheat, but it appears to work.  of
+              course, this only kicks in if learning is turned on.
+              
+                i get the behavior i want by twiddling the allow_variablization
+                flag.  i set it to FALSE for intermediate results.  then for the
+                last (top-most) result, i set it to whatever it was when the
+                function was called.
+                
+                  by the way, i need the lower level justificiations because they
+                  support the upper level justifications; i.e. a justification at
+                  level i supports the justification at level i-1.  i'm talkin' outa
+                  my butt here since i don't know that for a fact.  it's just that
+                  i tried building only the top level chunk and ignored the
+                  intermediate justifications and the system complained.  my
+                  explanation seemed reasonable, at the moment.
+        */
+
+        boolean making_topmost_chunk = false;
+        if (context.operand2_mode)
+        {
+
+            if (this.learningOn)
+            {
+                if (pref.id.level < (inst.match_goal_level - 1))
+                {
+                    making_topmost_chunk = false;
+                    allow_variablization = false;
+                    inst.okay_to_variablize = false;
+
+                    context.trace.print(Category.TRACE_VERBOSE,
+                            "\n   in chunk_instantiation: making justification only");
+                }
+                else
+                {
+                    making_topmost_chunk = true;
+                    allow_variablization = isLearningOn();
+                    inst.okay_to_variablize = isLearningOn();
+
+                    context.trace.print(Category.TRACE_VERBOSE,
+                            "\n   in chunk_instantiation: resetting allow_variablization to %s", allow_variablization);
+                }
+            }
+            else
+            {
+                making_topmost_chunk = true;
+            }
+        }
+
+        Preference results = get_results_for_instantiation(inst);
+        if (results == null)
+        {
+            return; // TODO goto chunking_done;
+        }
+
+        // update flags on goal stack for bottom-up chunking
+        for (Identifier g = inst.match_goal.higher_goal; g != null && g.allow_bottom_up_chunks; g = g.higher_goal)
+            g.allow_bottom_up_chunks = false;
+
+        int grounds_level = inst.match_goal_level - 1;
+
+        // TODO All these ops should be in Backtracer
+        context.backtrace.backtrace_number++;
+        if (context.backtrace.backtrace_number == 0)
+            context.backtrace.backtrace_number = 1;
+        context.backtrace.grounds_tc++;
+        if (context.backtrace.grounds_tc == 0)
+            context.backtrace.grounds_tc = 1;
+        context.backtrace.potentials_tc++;
+        if (context.backtrace.potentials_tc == 0)
+            context.backtrace.potentials_tc = 1;
+        context.backtrace.locals_tc++;
+        if (context.backtrace.locals_tc == 0)
+            context.backtrace.locals_tc = 1;
+        context.backtrace.grounds.clear();
+        context.backtrace.positive_potentials.clear();
+        context.backtrace.locals.clear();
+        this.instantiations_with_nots.clear();
+
+        if (allow_variablization && (!learningAllGoals))
+            allow_variablization = inst.match_goal.allow_bottom_up_chunks;
+
+        /* DJP : Need to initialize chunk_free_flag to be FALSE, as default before
+        looking for problem spaces and setting the chunk_free_flag below  */
+
+        this.chunk_free_flag = false;
+        /* DJP : Noticed this also isn't set if no ps_name */
+        this.chunky_flag = false;
+
+        // check whether ps name is in chunk_free_problem_spaces
+        if (allow_variablization)
+        {
+            /* KJC new implementation of learn cmd:  old SPECIFY ==> ONLY,
+            * old ON ==> EXCEPT,  now ON is just ON always
+            * checking if state is chunky or chunk-free...
+                */
+            if (learningExcept)
+            {
+                if (chunk_free_problem_spaces.contains(inst.match_goal))
+                {
+                    allow_variablization = false;
+                    this.chunk_free_flag = true;
+                }
+            }
+            else if (learningOnly)
+            {
+                if (chunky_problem_spaces.contains(inst.match_goal))
+                {
+                    allow_variablization = true;
+                    this.chunky_flag = true;
+                }
+                else
+                {
+                    allow_variablization = false;
+                    this.chunky_flag = false;
+                }
+            }
+        }
+
+        this.variablize_this_chunk = allow_variablization;
+
+        // Start a new structure for this potential chunk
+        ExplainChunk temp_explain_chunk = null;
+        if (context.explain.isEnabled())
+        {
+            temp_explain_chunk = new ExplainChunk();
+            context.explain.reset_backtrace_list();
+        }
+
+        /* --- backtrace through the instantiation that produced each result --- */
+        for (pref = results; pref != null; pref = pref.next_result)
+        {
+            context.trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "\nFor result preference %s ", pref);
+            context.backtrace.backtrace_through_instantiation(pref.inst, grounds_level, null, 0);
+        }
+
+        this.quiescence_t_flag = false;
+
+        while (true)
+        {
+            context.backtrace.trace_locals(grounds_level);
+            context.backtrace.trace_grounded_potentials();
+            if (!context.backtrace.trace_ungrounded_potentials(grounds_level))
+                break;
+        }
+
+        context.backtrace.positive_potentials.clear();
+
+        // backtracing done; collect the grounds into the chunk
+        ByRef<ChunkCondition> top_cc = ByRef.create(null);
+        ByRef<ChunkCondition> bottom_cc = ByRef.create(null);
+        NotStruct nots = null;
+        {
+            int tc_for_grounds = context.syms.get_new_tc_number();
+            build_chunk_conds_for_grounds_and_add_negateds(top_cc, bottom_cc, tc_for_grounds);
+            nots = get_nots_for_instantiated_conditions(instantiations_with_nots, tc_for_grounds);
+        }
+
+        // get symbol for name of new chunk or justification
+        SymConstant prod_name = null;
+        ProductionType prod_type = null;
+        boolean print_name = false;
+        boolean print_prod = false;
+        if (this.variablize_this_chunk)
+        {
+            this.chunks_this_d_cycle++;
+            prod_name = generate_chunk_name_sym_constant(inst);
+
+            /*   old way of generating chunk names ...
+            prod_name = generate_new_sym_constant ("chunk-",&thisAgent->chunk_count);
+            thisAgent->chunks_this_d_cycle)++;
+            */
+
+            prod_type = ProductionType.CHUNK_PRODUCTION_TYPE;
+            // TODO startNewLine()?
+            print_name = context.trace.isEnabled(Category.TRACE_CHUNK_NAMES_SYSPARAM);
+            context.trace.print(Category.TRACE_CHUNK_NAMES_SYSPARAM, "Building %s", prod_name);
+            print_prod = context.trace.isEnabled(Category.TRACE_CHUNKS_SYSPARAM);
+        }
+        else
+        {
+            prod_name = context.syms.generate_new_sym_constant("justification-", justification_count);
+            prod_type = ProductionType.JUSTIFICATION_PRODUCTION_TYPE;
+            // TODO startNewLine()?
+            print_name = context.trace.isEnabled(Category.TRACE_JUSTIFICATION_NAMES_SYSPARAM);
+            context.trace.print(Category.TRACE_JUSTIFICATION_NAMES_SYSPARAM, "Building %s", prod_name);
+            print_prod = context.trace.isEnabled(Category.TRACE_JUSTIFICATIONS_SYSPARAM);
+        }
+
+        // if there aren't any grounds, exit
+        if (top_cc.value == null)
+        {
+            context.getPrinter().print("Warning: chunk has no grounds, ignoring it.");
+            return; // TODO goto chunking_done;
+        }
+
+        if (this.chunks_this_d_cycle > maxChunks)
+        {
+            context.getPrinter().warn("\nWarning: reached max-chunks! Halting system.");
+            this.maxChunksReached = true;
+            return; // TODO goto chunking_done;
+        }
+
+        // variablize it
+        Condition lhs_top = top_cc.value.variablized_cond;
+        Condition lhs_bottom = bottom_cc.value.variablized_cond;
+        context.variableGenerator.reset(lhs_top, null);
+        this.variablization_tc = context.syms.get_new_tc_number();
+        variablize_condition_list(lhs_top);
+        variablize_nots_and_insert_into_conditions(nots, lhs_top);
+        Action rhs = copy_and_variablize_result_list(results);
+
+        // add goal/impasse tests to it
+        add_goal_or_impasse_tests(top_cc.value.next_prev);
+
+        // make the production
+
+        Production prod = new Production(prod_type, prod_name, lhs_top, lhs_bottom, rhs);
+        // Reorder the production
+        try
+        {
+            prod.reorder(context.variableGenerator, new ConditionReorderer(context.variableGenerator, context.trace,
+                    context.multiAttrs, prod.name.name), new ActionReorderer(context.getPrinter(), prod.name.name),
+                    false);
+        }
+        catch (ReordererException e)
+        {
+            // TODO print error
+            // print (thisAgent, "\nUnable to reorder this chunk:\n ");
+            // print_condition_list (thisAgent, lhs_top, 2, FALSE);
+            // print (thisAgent, "\n -->\n ");
+            // print_action_list (thisAgent, rhs, 3, FALSE);
+            // print (thisAgent, "\n\n(Ignoring this chunk. Weird things could
+            // happen from now on...)\n");
+            return; // TODO chunking_done; /* this leaks memory but who cares */
+
+            // e.printStackTrace();
+        }
+
+        // TODO do RL stuff
+        // TODO do other stuff originally in make_production
+
+        // TODO
+        // if (!prod) {
+        // print (thisAgent, "\nUnable to reorder this chunk:\n ");
+        // print_condition_list (thisAgent, lhs_top, 2, FALSE);
+        // print (thisAgent, "\n -->\n ");
+        // print_action_list (thisAgent, rhs, 3, FALSE);
+        // print (thisAgent, "\n\n(Ignoring this chunk. Weird things could
+        // happen from now on...)\n");
+        // goto chunking_done; /* this leaks memory but who cares */
+        // }
+
+        Instantiation chunk_inst = null;
+
+        {
+            ByRef<Condition> inst_lhs_top = ByRef.create(null);
+            ByRef<Condition> inst_lhs_bottom = ByRef.create(null);
+
+            reorder_instantiated_conditions(top_cc.value.next_prev.toListHead(), inst_lhs_top, inst_lhs_bottom);
+
+            // Record the list of grounds in the order they will appear in the
+            // chunk.
+            if (context.explain.isEnabled())
+                temp_explain_chunk.all_grounds = inst_lhs_top.value; /* Not a copy yet */
+
+            chunk_inst = new Instantiation(prod, null, null);
+            chunk_inst.top_of_instantiated_conditions = inst_lhs_top.value;
+            chunk_inst.bottom_of_instantiated_conditions = inst_lhs_bottom.value;
+            chunk_inst.nots = nots;
+
+            chunk_inst.GDS_evaluated_already = false; /* REW:  09.15.96 */
+
+            /* If:
+            - you don't want to variablize this chunk, and
+            - the reason is ONLY that it's chunk free, and
+            - NOT that it's also quiescence, then
+            it's okay to variablize through this instantiation later.
+            */
+
+            if (!learningOnly)
+            {
+                if ((!this.variablize_this_chunk) && (this.chunk_free_flag) && (!this.quiescence_t_flag))
+                    chunk_inst.okay_to_variablize = true;
+                else
+                    chunk_inst.okay_to_variablize = this.variablize_this_chunk;
+            }
+            else
+            {
+                if ((!this.variablize_this_chunk) && (!this.chunky_flag) && (!this.quiescence_t_flag))
+                    chunk_inst.okay_to_variablize = true;
+                else
+                    chunk_inst.okay_to_variablize = this.variablize_this_chunk;
+            }
+
+            chunk_inst.in_ms = true; /* set TRUE for now, we'll find out later... */
+            make_clones_of_results(results, chunk_inst);
+            context.recMemory.fill_in_new_instantiation_stuff(chunk_inst, true, context.decider.top_goal);
+
+        } /* matches { condition *inst_lhs_top, *inst_lhs_bottom ...  */
+
+        /* RBD 4/6/95 Need to copy cond's and actions for the production here,
+        otherwise some of the variables might get deallocated by the call to
+        add_production_to_rete() when it throws away chunk variable names. */
+        if (context.explain.isEnabled())
+        {
+
+            ByRef<Condition> new_top = ByRef.create(null);
+            ByRef<Condition> new_bottom = ByRef.create(null);
+            Condition.copy_condition_list(prod.condition_list, new_top, new_bottom);
+            temp_explain_chunk.conds = new_top.value;
+            temp_explain_chunk.actions = copy_and_variablize_result_list(results);
+        }
+
+        ProductionAddResult rete_addition_result = context.rete.add_production_to_rete(prod, chunk_inst, print_name,
+                false);
+
+        // If didn't immediately excise the chunk from the rete net
+        // then record the temporary structure in the list of explained chunks.
+
+        if (context.explain.isEnabled())
+            if ((rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION)
+                    && ((prod_type != ProductionType.JUSTIFICATION_PRODUCTION_TYPE) || (rete_addition_result != ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH)))
+            {
+                temp_explain_chunk.name = prod_name.name;
+                context.explain.explain_add_temp_to_chunk_list(temp_explain_chunk);
+            }
+            else
+            {
+                // RBD 4/6/95 if excised the chunk, discard previously-copied stuff
+                // Not much to do here in Java
+            }
+
+        // deallocate chunks conds and variablized conditions
+        // Not much to do in Java...
+
+        if (print_prod && (rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION))
+        {
+            // TODO print chunk production
+            //          print_string (thisAgent, "\n");
+            //          xml_begin_tag(thisAgent, kTagLearning);
+            //          print_production (thisAgent, prod, FALSE);
+            //          xml_end_tag(thisAgent, kTagLearning);
+        }
+
+        if (rete_addition_result == ProductionAddResult.DUPLICATE_PRODUCTION)
+        {
+            prod.excise_production(false);
+        }
+        else if ((prod_type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+                && (rete_addition_result == ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH))
+        {
+            prod.excise_production(false);
+        }
+
+        if (rete_addition_result != ProductionAddResult.REFRACTED_INST_MATCHED)
+        {
+            // it didn't match, or it was a duplicate production
+            // tell the firer it didn't match, so it'll only assert the o-supported preferences
+            chunk_inst.in_ms = false;
+        }
+
+        // assert the preferences
+        chunk_inst.inProdList.insertAtHead(context.recMemory.newly_created_instantiations);
+
+        if (!maxChunksReached)
+            chunk_instantiation(chunk_inst, variablize_this_chunk);
+
+        // TODO chunking_done:
+        //#ifndef NO_TIMING_STUFF
+        //#ifdef DETAILED_TIMING_STATS
+        //               stop_timer (thisAgent, &saved_start_tv, &thisAgent->chunking_cpu_time[thisAgent->current_phase]);
+        //#endif
+        //#endif
+        return;
+    }
 
 }

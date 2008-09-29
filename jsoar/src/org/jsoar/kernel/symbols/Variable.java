@@ -40,6 +40,12 @@ public class Variable extends Symbol
         this.name = name;
     }
 
+    /**
+     * <p>production.cpp:1058:mark_variable_if_unmarked
+     * 
+     * @param tc_number
+     * @param var_list
+     */
     public void markIfUnmarked(int tc_number, LinkedList<Variable> var_list)
     {
         if(this.tc_number != tc_number)
@@ -52,6 +58,11 @@ public class Variable extends Symbol
         }
     }
     
+    /**
+     * <p>production.cpp:1081:unmark_variables_and_free_list
+     * 
+     * @param vars
+     */
     public static void unmark(Collection<Variable> vars)
     {
         for(Variable var : vars)
@@ -163,8 +174,16 @@ public class Variable extends Symbol
     @Override
     public void add_symbol_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
     {
-        // TODO add_symbol_to_tc: implement for Variable
-        throw new UnsupportedOperationException("Not implemented");
+        markIfUnmarked(tc, var_list);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#symbol_is_in_tc(int)
+     */
+    @Override
+    public boolean symbol_is_in_tc(int tc)
+    {
+        return tc_number == tc;
     }
 
     /* (non-Javadoc)

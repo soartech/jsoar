@@ -7,6 +7,7 @@ package org.jsoar.kernel.lhs;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Variable;
 
 /**
@@ -45,7 +46,13 @@ public class NegativeCondition extends ThreeFieldCondition
     {
         // Do nothing
     }
-    
-    
-    
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.lhs.Condition#add_cond_to_tc(int, java.util.LinkedList, java.util.LinkedList)
+     */
+    @Override
+    public void add_cond_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    {
+        // Do nothing
+    }
 }

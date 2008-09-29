@@ -129,7 +129,7 @@ public abstract class Symbol
     }  
     
     /**
-     * production.cpp:1317:add_symbol_to_tc
+     * <p>production.cpp:1299:add_symbol_to_tc
      * 
      * @param tc
      * @param id_list
@@ -138,5 +138,17 @@ public abstract class Symbol
     public void add_symbol_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
     {
         // DO nothing by default
+    }
+    
+    /**
+     * <p>production.cpp:1346:symbol_is_in_tc
+     * 
+     * @param tc
+     * @return
+     */
+    public boolean symbol_is_in_tc(int tc)
+    {
+        // False by default
+        return false;
     }
 }
