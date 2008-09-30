@@ -1437,8 +1437,8 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
   if (lhs_oa_support == YesNoMaybe.YES) {    /* --- look for RHS o-a support --- */
     /* --- do TC(match_state) --- */
     tc = syms.getSyms().get_new_tc_number();
-    match_state.add_symbol_to_tc (tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
-    add_tc_through_lhs_and_rhs (lhs, rhs, tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
+    match_state.add_symbol_to_tc (tc, null, null);
+    add_tc_through_lhs_and_rhs (lhs, rhs, tc, null, null);
 
     /* --- any action with id in the TC gets support --- */
     for (a=rhs; a!=null; a=a.next)  {
@@ -1475,13 +1475,13 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
            (a.preference_type==PreferenceType.REQUIRE_PREFERENCE_TYPE)) ) {
         RhsSymbolValue rhsValueSym = ma.value.asSymbolValue();
         if (rhsValueSym != null) {
-            rhsValueSym.getSym().add_symbol_to_tc (tc, new LinkedList<Identifier>(),new LinkedList<Variable>());
+            rhsValueSym.getSym().add_symbol_to_tc (tc, null, null);
     }
       }
     }
-    add_tc_through_lhs_and_rhs (lhs, rhs, tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
+    add_tc_through_lhs_and_rhs (lhs, rhs, tc, null, null);
 
-    /* --- any action with id in the TC gets support --- */
+    // any action with id in the TC gets support
     for (a=rhs; a!=null; a=a.next)  {
 
       if (a.action_is_in_tc (tc)) {
@@ -1494,10 +1494,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
        giving o-support to an operator proposal.
     */
     if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.O_SUPPORT; }
-    /* End SBH 6/7/94 */
 
-
-       /* REW: begin 09.15.96 */
        /*
        in operand, operator proposals are now only i-supported.
        */
@@ -1511,8 +1508,6 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
 
            a.support = ActionSupport.I_SUPPORT;
        }
-       /* REW: end   09.15.96 */
-
       }
   }
 
@@ -1524,11 +1519,11 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
       if (pc == null) { continue; }
       if (test_is_for_symbol (pc.id_test, match_state) == YesNoMaybe.YES){
         if (test_is_for_symbol (pc.attr_test, syms.operator_symbol) == YesNoMaybe.YES){
-          pc.value_test.addBoundVariables(tc, new LinkedList<Variable>());
+          pc.value_test.addBoundVariables(tc, null);
         }
       }
     }
-    add_tc_through_lhs_and_rhs (lhs, rhs, tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
+    add_tc_through_lhs_and_rhs (lhs, rhs, tc, null, null);
 
     /* --- any action with id in the TC gets support --- */
     for (a=rhs; a!=null; a=a.next) {

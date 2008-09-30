@@ -505,8 +505,7 @@ public class Backtracer
         int tc = context.syms.get_new_tc_number();
         for (Condition c : grounds)
         {
-            // TODO eliminate unneeded lists
-            c.add_cond_to_tc(tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
+            c.add_cond_to_tc(tc, null, null);
         }
 
         boolean need_another_pass = true;
@@ -530,8 +529,7 @@ public class Backtracer
                     { /* add pot to grounds */
                         pot.bt.wme_.grounds_tc = grounds_tc;
                         grounds.push(pot);
-                        // TODO eliminate unneeded lists
-                        pot.add_cond_to_tc(tc, new LinkedList<Identifier>(), new LinkedList<Variable>());
+                        pot.add_cond_to_tc(tc, null, null);
                         need_another_pass = true;
                     }
                     else

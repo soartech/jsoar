@@ -461,7 +461,7 @@ public class Chunker
             prev_cc = cc.next_prev;
             // add this in to the TC
             // TODO eliminate dummy lists
-            ground.add_cond_to_tc(tc_to_use, new LinkedList<Identifier>(), new LinkedList<Variable>());
+            ground.add_cond_to_tc(tc_to_use, null, null);
         }
 
         // scan through negated conditions and check which ones are connected
