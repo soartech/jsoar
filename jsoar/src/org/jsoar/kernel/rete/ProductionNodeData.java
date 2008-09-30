@@ -27,8 +27,8 @@ public class ProductionNodeData extends ReteNodeData
     
     public ProductionNodeData()
     {
-        this.tentative_assertions = new ListHead<MatchSetChange>();
-        this.tentative_retractions = new ListHead<MatchSetChange>();
+        this.tentative_assertions = ListHead.newInstance();
+        this.tentative_retractions = ListHead.newInstance();
     }
     
     public ProductionNodeData(ProductionNodeData other)

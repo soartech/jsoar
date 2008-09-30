@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
@@ -37,6 +39,8 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.timing.DefaultExecutionTimer;
+import org.jsoar.util.timing.ExecutionTimer;
 
 /**
  * @author ray
@@ -76,6 +80,14 @@ public class Agent
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);
     public final DecisionCycle decisionCycle = new DecisionCycle(this);
     
+    /**
+     * agent.h:480:total_cpu_time
+     */
+    private final ExecutionTimer totalCpuTimer = DefaultExecutionTimer.newInstance().setName("Total CPU time");
+    /**
+     * agent.h:482:total_kernel_time
+     */
+    private final ExecutionTimer totalKernelTimer = DefaultExecutionTimer.newInstance().setName("Total kernel time");
     
     /**
      * false is Soar 7 mode
@@ -130,6 +142,28 @@ public class Agent
         return multiAttrs;
     }
  
+    
+    /**
+     * @return the totalCpuTimer
+     */
+    public ExecutionTimer getTotalCpuTimer()
+    {
+        return totalCpuTimer;
+    }
+
+    /**
+     * @return the totalKernelTimer
+     */
+    public ExecutionTimer getTotalKernelTimer()
+    {
+        return totalKernelTimer;
+    }
+
+    public List<ExecutionTimer> getAllTimers()
+    {
+        return Arrays.asList(totalCpuTimer, totalKernelTimer);
+    }
+    
     public void loadProduction(String productionBody) throws IOException, ReordererException
     {
         StringReader reader = new StringReader(productionBody);
@@ -243,12 +277,10 @@ public class Agent
 
         /* executing the IO cycles above, increments the timers, so reset */
         /* Initializing all the timer structures */
+        totalCpuTimer.reset();
+        totalKernelTimer.reset();
         /* TODO reset timers
-        reset_timer (&thisAgent->start_total_tv);
-        reset_timer (&thisAgent->total_cpu_time);
-        reset_timer (&thisAgent->start_kernel_tv);
         reset_timer (&thisAgent->start_phase_tv);
-        reset_timer (&thisAgent->total_kernel_time);
 
         reset_timer (&thisAgent->input_function_cpu_time);
         reset_timer (&thisAgent->output_function_cpu_time);

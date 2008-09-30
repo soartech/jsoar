@@ -52,5 +52,4 @@ public final class SoarConstants
      * kernel.h:165:O_REJECTS_FIRST
      */
     public static final boolean O_REJECTS_FIRST = false;
-    
 }

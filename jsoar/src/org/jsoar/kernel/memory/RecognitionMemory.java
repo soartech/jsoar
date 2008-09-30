@@ -40,6 +40,7 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.timing.ExecutionTimers;
 
 /**
  * Recognition Memory (Firer and Chunker) Routines (Does not include the Rete
@@ -70,7 +71,7 @@ public class RecognitionMemory
     /**
      * agent.h:571:newly_created_instantiations
      */
-    public final ListHead<Instantiation> newly_created_instantiations = new ListHead<Instantiation>();
+    public final ListHead<Instantiation> newly_created_instantiations = ListHead.newInstance();
     
     /**
      * during firing, points to the prod. being fired 
@@ -333,13 +334,8 @@ public class RecognitionMemory
             // stop the kernel timer while doing RHS funcalls KJC 11/04
             // the total_cpu timer needs to be updated in case RHS fun is
             // statsCmd
-            // #ifndef NO_TIMING_STUFF
-            // stop_timer (thisAgent, &thisAgent->start_kernel_tv,
-            // &thisAgent->total_kernel_time);
-            // stop_timer (thisAgent, &thisAgent->start_total_tv,
-            //            &thisAgent->total_cpu_time);
-            //    start_timer (thisAgent, &thisAgent->start_total_tv);
-            //    #endif
+            ExecutionTimers.pause(context.getTotalKernelTimer());
+            ExecutionTimers.update(context.getTotalCpuTimer());
 
             try
             {
@@ -349,11 +345,10 @@ public class RecognitionMemory
             {
                 context.getPrinter().error("Error: " + e.getMessage());
             }
-
-            //    #ifndef NO_TIMING_STUFF  // restart the kernel timer
-            //    start_timer (thisAgent, &thisAgent->start_kernel_tv);
-            //    #endif
-
+            finally
+            {
+                ExecutionTimers.start(context.getTotalKernelTimer());
+            }
         }
 
         return null;
@@ -1111,7 +1106,7 @@ public class RecognitionMemory
                 context.trace.print("\n--- Preference Phase ---\n");
         }
 
-        this.newly_created_instantiations.first = null;
+        this.newly_created_instantiations.clear();
 
         /* MVP 6-8-94 */
         SoarReteAssertion assertion = null;

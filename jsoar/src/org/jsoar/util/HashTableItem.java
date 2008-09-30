@@ -8,7 +8,7 @@ package org.jsoar.util;
 /**
  * @author ray
  */
-public class ItemInHashTable
+public class HashTableItem
 {
-    public ItemInHashTable next_in_hash_table;
+    public HashTableItem next_in_hash_table;
 }

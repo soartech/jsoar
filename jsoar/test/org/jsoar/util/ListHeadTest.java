@@ -44,7 +44,7 @@ public class ListHeadTest
         List<String> strings = Arrays.asList("a", "b", "c", "d", "e", "f");
         ListHead<String> head = ListHead.fromCollection(strings);
         assertEquals("a", head.getFirstItem());
-        head.first = null;
+        head.clear();
         assertTrue(head.isEmpty());
         assertNull(head.getFirstItem());
         

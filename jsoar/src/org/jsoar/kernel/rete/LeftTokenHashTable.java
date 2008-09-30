@@ -27,7 +27,7 @@ public class LeftTokenHashTable
         this.buckets = new ArrayList<ListHead<LeftToken>>(LEFT_HT_SIZE);
         for(int i = 0; i < LEFT_HT_SIZE; ++i)
         {
-            this.buckets.add(new ListHead<LeftToken>());
+            this.buckets.add(ListHead.<LeftToken>newInstance());
         }
     }
     

@@ -69,7 +69,7 @@ public class Decider
     /**
      * agent.h:603:context_slots_with_changed_acceptable_preferences
      */
-    private final ListHead<Slot> context_slots_with_changed_acceptable_preferences = new ListHead<Slot>();
+    private final ListHead<Slot> context_slots_with_changed_acceptable_preferences = ListHead.newInstance();
     /**
      * agent.h:615:promoted_ids
      */
@@ -82,11 +82,11 @@ public class Decider
     /**
      * agent.h:609:ids_with_unknown_level
      */
-    private final ListHead<Identifier> ids_with_unknown_level = new ListHead<Identifier>();
+    private final ListHead<Identifier> ids_with_unknown_level = ListHead.newInstance();
     /**
      * agent.h:607:disconnected_ids
      */
-    private final ListHead<Identifier> disconnected_ids = new ListHead<Identifier>();
+    private final ListHead<Identifier> disconnected_ids = ListHead.newInstance();
     
     private int mark_tc_number;
     private int level_at_which_marking_started;
@@ -470,7 +470,7 @@ public class Decider
 
         // remove any input wmes from the id
         context.workingMemory.remove_wme_list_from_wm(id.input_wmes.getFirstItem(), true);
-        id.input_wmes.first = null;
+        id.input_wmes.clear();
 
         for (Slot s : id.slots)
         {
@@ -480,7 +480,7 @@ public class Decider
 
             /* --- remove all wme's from the slot --- */
             context.workingMemory.remove_wme_list_from_wm(s.wmes.getFirstItem(), false);
-            s.wmes.first = null;
+            s.wmes.clear();
 
             /* --- remove all preferences for the slot --- */
             AsListItem<Preference> pref = s.all_preferences.first;
@@ -1362,7 +1362,7 @@ public class Decider
         s.impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
 
         context.workingMemory.remove_wme_list_from_wm(id.impasse_wmes.getFirstItem(), false);
-        id.impasse_wmes.first = null;
+        id.impasse_wmes.clear();
         post_link_removal(null, id); /* remove the special link */
     }
 
@@ -1789,7 +1789,7 @@ public class Decider
        {  
           // remove any existing wmes
           context.workingMemory.remove_wme_list_from_wm (s.wmes.getFirstItem(), false); 
-          s.wmes.first = null;
+          s.wmes.clear();
        }
     
        /* --- create and/or update impasse structure --- */
@@ -1874,7 +1874,7 @@ public class Decider
         Wme w = s.wmes.getFirstItem();
         w.preference.preference_remove_ref(context.prefMemory);
         context.workingMemory.remove_wme_from_wm(w);
-        s.wmes.first = null;
+        s.wmes.clear();
     }    
     
     /**
@@ -1972,7 +1972,7 @@ public class Decider
         }
 
         context.workingMemory.remove_wme_list_from_wm(goal.impasse_wmes.getFirstItem(), false);
-        goal.impasse_wmes.first = null;
+        goal.impasse_wmes.clear();
         
         /*
          * If there was a GDS for this goal, we want to set the pointer for the
@@ -2017,7 +2017,7 @@ public class Decider
 
                 /* Append this list to front of NIL goal list */
                 // TODO replace this with a splice operation
-                nil_goal_retractions.first.get().in_level.previous = tail.in_level;
+                nil_goal_retractions.getFirstItem().in_level.previous = tail.in_level;
                 tail.in_level.next = nil_goal_retractions.first;
                 nil_goal_retractions.first = head.in_level;
 

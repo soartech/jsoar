@@ -53,7 +53,7 @@ public class GoalDependencySet
     /**
      * pointer to the dll of WMEs in GDS of goal
      */
-    public final ListHead<Wme> wmes_in_gds = new ListHead<Wme>();
+    public final ListHead<Wme> wmes_in_gds = ListHead.newInstance();
     
     public GoalDependencySet(Identifier goal)
     {

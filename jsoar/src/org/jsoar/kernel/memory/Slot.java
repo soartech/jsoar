@@ -71,9 +71,9 @@ public class Slot
     public final Identifier id; 
     public final Symbol attr;
 
-    public final ListHead<Wme> wmes = new ListHead<Wme>(); // dll of wmes in the slot
-    public final ListHead<Wme> acceptable_preference_wmes = new ListHead<Wme>();  // dll of acceptable pref. wmes
-    public final ListHead<Preference> all_preferences = new ListHead<Preference>(); // dll of all pref's in the slot
+    public final ListHead<Wme> wmes = ListHead.newInstance(); // dll of wmes in the slot
+    public final ListHead<Wme> acceptable_preference_wmes = ListHead.newInstance();  // dll of acceptable pref. wmes
+    public final ListHead<Preference> all_preferences = ListHead.newInstance(); // dll of all pref's in the slot
     public final List<ListHead<Preference>> preferences = new ArrayList<ListHead<Preference>>(PreferenceType.values().length); // dlls for each type
 
     public Identifier impasse_id = null;               // null if slot is not impassed
@@ -154,7 +154,7 @@ public class Slot
          */
         for (int i = 0; i < PreferenceType.values().length; ++i)
         {
-            preferences.add(new ListHead<Preference>());
+            preferences.add(ListHead.<Preference>newInstance());
         }
     }
 

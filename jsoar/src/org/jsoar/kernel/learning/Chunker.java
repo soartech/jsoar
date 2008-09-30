@@ -775,7 +775,7 @@ public class Chunker
      */
     private void make_clones_of_results(Preference results, Instantiation chunk_inst)
     {
-        chunk_inst.preferences_generated.first = null;
+        chunk_inst.preferences_generated.clear();
         for (Preference result_p = results; result_p != null; result_p = result_p.next_result)
         {
             // copy the preference

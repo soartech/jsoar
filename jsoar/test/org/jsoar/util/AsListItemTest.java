@@ -17,7 +17,7 @@ public class AsListItemTest
     @Test
     public void testInsertAtHead()
     {
-        ListHead<String> head = new ListHead<String>();
+        ListHead<String> head = ListHead.newInstance();
         assertTrue(head.isEmpty());
         
         AsListItem<String> a = new AsListItem<String>("a");

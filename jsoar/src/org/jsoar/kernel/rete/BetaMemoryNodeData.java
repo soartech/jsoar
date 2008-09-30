@@ -36,16 +36,17 @@ public class BetaMemoryNodeData extends ReteNodeData
        "","","","","","","","","","","","","","","",""  
     };
 
-    /* --- first pos node child that is left-linked --- */
-    final ListHead<ReteNode> first_linked_child = new ListHead<ReteNode>();
+    // first pos node child that is left-linked
+    final ListHead<ReteNode> first_linked_child;
 
     public BetaMemoryNodeData()
     {
+        this.first_linked_child = ListHead.newInstance();
     }
     
     public BetaMemoryNodeData(BetaMemoryNodeData other)
     {
-        this.first_linked_child.first = other.first_linked_child.first;
+        this.first_linked_child = ListHead.newInstance(other.first_linked_child);
     }
     
     /**

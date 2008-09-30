@@ -25,12 +25,12 @@ public class Token
     ReteNode node;
     public final Wme w;
     
-    final ListHead<Token> first_child = new ListHead<Token>(); // head of dll of childen
+    final ListHead<Token> first_child = ListHead.newInstance(); // head of dll of childen
     final AsListItem<Token> sibling = new AsListItem<Token>(this); // Part of dll of children
     final AsListItem<Token> of_node = new AsListItem<Token>(this); // Part of dll of tokens at node
     final AsListItem<Token> from_wme = new AsListItem<Token>(this); // Part of dll from wme, tree-based remove
     
-    final ListHead<Token> negrm_tokens = new ListHead<Token>(); /* join results: for Neg, CN nodes only */
+    final ListHead<Token> negrm_tokens = ListHead.newInstance(); /* join results: for Neg, CN nodes only */
     
     public Token(ReteNode current_node, Token parent_tok, Wme parent_wme)
     {

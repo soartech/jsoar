@@ -37,7 +37,7 @@ import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
-import org.jsoar.util.SoarHashTable;
+import org.jsoar.util.HashTable;
 
 /**
  * @author ray
@@ -179,8 +179,8 @@ public class Rete
     /*package*/ RightToken dummy_top_token;
     
     private int alpha_mem_id_counter; 
-    private List<SoarHashTable<AlphaMemory>> alpha_hash_tables;
-    private ListHead<Wme> all_wmes_in_rete = new ListHead<Wme>();
+    private List<HashTable<AlphaMemory>> alpha_hash_tables;
+    private ListHead<Wme> all_wmes_in_rete = ListHead.newInstance();
     public int num_wmes_in_rete= 0;
     private int beta_node_id_counter;
     ReteNode dummy_top_node;
@@ -199,10 +199,10 @@ public class Rete
         this.variableGenerator = variableGenerator;
         
         // rete.cpp:8864
-        alpha_hash_tables = new ArrayList<SoarHashTable<AlphaMemory>>(16);
+        alpha_hash_tables = new ArrayList<HashTable<AlphaMemory>>(16);
         for(int i = 0; i < 16; ++i)
         {
-            alpha_hash_tables.add(new SoarHashTable<AlphaMemory>(0, AlphaMemory.HASH_FUNCTION));
+            alpha_hash_tables.add(new HashTable<AlphaMemory>(0, AlphaMemory.HASH_FUNCTION));
         }
         
         init_dummy_top_node();
@@ -541,8 +541,8 @@ public class Rete
         num_wmes_in_rete++;
 
         /* --- it's not in any right memories or tokens yet --- */
-        w.right_mems.first = null;
-        w.tokens.first = null;
+        w.right_mems.clear();
+        w.tokens.clear();
 
         /* --- add w to the appropriate alpha_mem in each of 8 possible tables --- */
         int hi = w.id.hash_id;
@@ -704,7 +704,7 @@ public class Rete
      * @param acceptable
      * @return
      */
-    /*package*/ SoarHashTable<AlphaMemory> table_for_tests(Symbol id, Symbol attr, Symbol value, boolean acceptable)
+    /*package*/ HashTable<AlphaMemory> table_for_tests(Symbol id, Symbol attr, Symbol value, boolean acceptable)
     {
         int index = ((id != null) ? 1 : 0) + ((attr != null) ? 2 : 0) +
                                               ((value != null) ? 4 : 0) +
@@ -725,7 +725,7 @@ public class Rete
      */
     AlphaMemory find_alpha_mem(Symbol id, Symbol attr, Symbol value, boolean acceptable)
     {
-        SoarHashTable<AlphaMemory> ht = table_for_tests(id, attr, value, acceptable);
+        HashTable<AlphaMemory> ht = table_for_tests(id, attr, value, acceptable);
         int hash_value = AlphaMemory.alpha_hash_value(id, attr, value, ht.getLog2Size());
 
         for (AlphaMemory am = ht.getBucket(hash_value); am != null; am = (AlphaMemory) am.next_in_hash_table)
@@ -763,7 +763,7 @@ public class Rete
 
         /* --- no existing alpha_mem found, so create a new one --- */
         am = new AlphaMemory(get_next_alpha_mem_id(), id, attr, value, acceptable);
-        SoarHashTable<AlphaMemory> ht = table_for_tests(id, attr, value, acceptable);
+        HashTable<AlphaMemory> ht = table_for_tests(id, attr, value, acceptable);
         ht.add_to_hash_table(am);
 
         /* --- fill new mem with any existing matching WME's --- */
@@ -813,10 +813,10 @@ public class Rete
      * @param hash_value
      * @param w
      */
-    void add_wme_to_aht(SoarHashTable<AlphaMemory> ht, int hash_value, Wme w)
+    void add_wme_to_aht(HashTable<AlphaMemory> ht, int hash_value, Wme w)
     {
         // TODO: Move this op into getBucket()
-        hash_value = hash_value & SoarHashTable.masks_for_n_low_order_bits[ht.getLog2Size()];
+        hash_value = hash_value & HashTable.masks_for_n_low_order_bits[ht.getLog2Size()];
         AlphaMemory am = ht.getBucket(hash_value);
         while (am != null)
         {

@@ -11,7 +11,7 @@ import java.util.Iterator;
  */
 public class AsListItem <T> implements Iterable<T>
 {
-    private T item;
+    private final T item;
     public AsListItem<T> next;
     public AsListItem<T> previous;
     
@@ -216,7 +216,7 @@ public class AsListItem <T> implements Iterable<T>
      */
     public ListHead<T> toListHead()
     {
-        ListHead<T> head = new ListHead<T>();
+        ListHead<T> head = ListHead.newInstance();
         head.first = this;
         return head;
     }

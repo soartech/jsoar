@@ -10,6 +10,8 @@ import java.io.IOException;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.timing.ExecutionTimer;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -65,6 +67,20 @@ public class SoarTclInterface
         }
         
     };
+    
+    private Command statsCommand = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            final Printer p = agent.getPrinter();
+            
+            p.startNewLine();
+            for(ExecutionTimer t : agent.getAllTimers())
+            {
+                p.print("%s %f\n", t.getName(), t.getTotalSeconds());
+            }
+        }};
 
     /**
      * @param agent
@@ -75,6 +91,7 @@ public class SoarTclInterface
         
         interp.createCommand("sp", spCommand);
         interp.createCommand("multi-attributes", multiAttrCommand);
+        interp.createCommand("stats", statsCommand);
     }
     
     public void dispose()
@@ -104,6 +121,19 @@ public class SoarTclInterface
         try
         {
             interp.evalResource(resource);
+        }
+        catch (TclException e)
+        {
+            throw new SoarTclException(interp);
+        }
+    }
+    
+    public String eval(String command) throws SoarTclException
+    {
+        try
+        {
+            interp.eval(command);
+            return interp.getResult().toString();
         }
         catch (TclException e)
         {
