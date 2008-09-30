@@ -70,7 +70,7 @@ public class InputOutput
     
     public boolean output_link_changed = false;
 
-    public final ListHead<OutputLink> existing_output_links = new ListHead<OutputLink>();
+    public final ListHead<OutputLink> existing_output_links = ListHead.newInstance();
     
     private Identifier io_header;
 

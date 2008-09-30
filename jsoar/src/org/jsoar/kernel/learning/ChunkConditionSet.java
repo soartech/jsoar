@@ -25,7 +25,7 @@ public class ChunkConditionSet
     /**
      * header for dll of all chunk_cond's in the set
      */
-    final ListHead<ChunkCondition> all = new ListHead<ChunkCondition>();
+    final ListHead<ChunkCondition> all = ListHead.newInstance();
     /**
      * hash table buckets. Defaults to null, so no need to initialize
      */
@@ -33,7 +33,7 @@ public class ChunkConditionSet
     {
         for(int i = 0; i < CHUNK_COND_HASH_TABLE_SIZE; ++i)
         {
-            table.add(new ListHead<ChunkCondition>());
+            table.add(ListHead.<ChunkCondition>newInstance());
         }
     }
 

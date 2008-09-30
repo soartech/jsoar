@@ -6,6 +6,7 @@
     <property name="lib" location="lib" />
     <property name="scripts" location="scripts" />
     <property name="resources" location="resources" />
+    <property name="tools" location="tools" />
     <property name="test.src" location="test" />
     
     <property name="build" location="build" />
@@ -172,6 +173,11 @@
     <target name="dist" depends="clean,jar" description="generate the distribution">
 		
     	<copy todir="${dist}">
+    		
+            <fileset dir="${tools}">
+                <include name="*.bat"/>
+            </fileset>
+    		
             <!-- Copy in JARS and their associated license files -->
             <fileset dir="${lib}">
                 <include name="*.jar"/>

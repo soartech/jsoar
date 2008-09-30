@@ -39,7 +39,7 @@ public class TemporaryMemory
     /**
      * agent.h:602:changed_slots
      */
-    public final ListHead<Slot> changed_slots = new ListHead<Slot>();
+    public final ListHead<Slot> changed_slots = ListHead.newInstance();
     
     /**
      * agent.h:605:slots_for_possible_removal

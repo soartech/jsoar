@@ -11,7 +11,7 @@ package org.jsoar.util;
  * 
  * @author ray
  */
-public class SoarHashTable <T extends ItemInHashTable>
+public class HashTable <T extends HashTableItem>
 {
     /**
      * mem.cpp:487
@@ -30,7 +30,7 @@ public class SoarHashTable <T extends ItemInHashTable>
     private int size;       /* number of buckets */
     private int log2size;           /* log (base 2) of size */
     private int minimum_log2size;   /* table never shrinks below this size */
-    private ItemInHashTable[] buckets;
+    private HashTableItem[] buckets;
     private HashFunction<T> h;          // call this to hash or rehash an item
 
     /**
@@ -39,7 +39,7 @@ public class SoarHashTable <T extends ItemInHashTable>
      * @param minimum_log2size
      * @param h
      */
-    public SoarHashTable(int minimum_log2size, HashFunction<T> h)
+    public HashTable(int minimum_log2size, HashFunction<T> h)
     {
         this.count = 0;
         this.minimum_log2size = minimum_log2size < 1 ? 1 : minimum_log2size;
@@ -70,7 +70,7 @@ public class SoarHashTable <T extends ItemInHashTable>
      */
     public void remove_from_hash_table(T item)
     {
-        ItemInHashTable this_one = item;
+        HashTableItem this_one = item;
 
         int hash_value = h.calculate(item, log2size);
         if (buckets[hash_value] == this_one)
@@ -81,7 +81,7 @@ public class SoarHashTable <T extends ItemInHashTable>
         else
         {
             // hs is not the first one on the list, so find its predecessor
-            ItemInHashTable prev = buckets[hash_value];
+            HashTableItem prev = buckets[hash_value];
             while (prev != null && prev.next_in_hash_table != this_one)
             {
                 prev = prev.next_in_hash_table;
@@ -111,7 +111,7 @@ public class SoarHashTable <T extends ItemInHashTable>
      */
     public void add_to_hash_table(T item)
     {
-        ItemInHashTable this_one = item;
+        HashTableItem this_one = item;
         this.count++;
         if (this.count >= this.size * 2)
         {
@@ -131,9 +131,9 @@ public class SoarHashTable <T extends ItemInHashTable>
 //       hash_table_callback_fn f,
 //       unsigned long hash_value);
 
-    private static ItemInHashTable[] allocateBuckets(int size)
+    private static HashTableItem[] allocateBuckets(int size)
     {
-        return new ItemInHashTable[size];
+        return new HashTableItem[size];
     }
     
     /**
@@ -145,12 +145,12 @@ public class SoarHashTable <T extends ItemInHashTable>
     private void resize_hash_table(int new_log2size)
     {
         int new_size = 1 << new_log2size;
-        ItemInHashTable[] new_buckets = allocateBuckets(new_size);
+        HashTableItem[] new_buckets = allocateBuckets(new_size);
 
-        ItemInHashTable next = null;
+        HashTableItem next = null;
         for (int i = 0; i < size; i++)
         {
-            for (ItemInHashTable item = buckets[i]; item != null; item = next)
+            for (HashTableItem item = buckets[i]; item != null; item = next)
             {
                 next = item.next_in_hash_table;
                 /* --- insert item into new buckets --- */
@@ -188,7 +188,7 @@ public class SoarHashTable <T extends ItemInHashTable>
         return builder.toString();
     }
     
-    private static void itemListToString(StringBuilder builder, ItemInHashTable first)
+    private static void itemListToString(StringBuilder builder, HashTableItem first)
     {
         if(first == null)
         {
@@ -197,7 +197,7 @@ public class SoarHashTable <T extends ItemInHashTable>
         }
         
         builder.append("[");
-        for(ItemInHashTable i = first; i != null; i = i.next_in_hash_table)
+        for(HashTableItem i = first; i != null; i = i.next_in_hash_table)
         {
             if(i != first)
             {

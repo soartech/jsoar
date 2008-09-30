@@ -34,7 +34,7 @@ public class Production
     public int firing_count = 0;
     public boolean trace_firings = false;
     public ReteNode p_node;
-    public final ListHead<Instantiation> instantiations = new ListHead<Instantiation>();
+    public final ListHead<Instantiation> instantiations = ListHead.newInstance();
     public final LinkedList<Variable> rhs_unbound_variables = new LinkedList<Variable>();
     public boolean already_fired = false; /* RPM test workaround for bug #139 */
     public AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;

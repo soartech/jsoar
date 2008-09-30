@@ -64,7 +64,7 @@ public class OSupport
     /**
      * agent.h:659:rhs_prefs_from_instantiation
      */
-    private ListHead<Preference> rhs_prefs_from_instantiation = new ListHead<Preference>();
+    private ListHead<Preference> rhs_prefs_from_instantiation = ListHead.newInstance();
     
     
     /**

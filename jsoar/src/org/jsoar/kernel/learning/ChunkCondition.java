@@ -7,7 +7,7 @@ package org.jsoar.kernel.learning;
 
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.util.AsListItem;
-import org.jsoar.util.SoarHashTable;
+import org.jsoar.util.HashTable;
 
 /**
  * chunk.h:27:chunk_cond
@@ -53,7 +53,7 @@ public class ChunkCondition
         // will never get to 0.
         while (remainder != 0 && remainder != -1)
         {
-            final int masked = remainder & SoarHashTable.masks_for_n_low_order_bits[ChunkConditionSet.LOG_2_CHUNK_COND_HASH_TABLE_SIZE];
+            final int masked = remainder & HashTable.masks_for_n_low_order_bits[ChunkConditionSet.LOG_2_CHUNK_COND_HASH_TABLE_SIZE];
             hv ^= (masked);
             remainder = remainder >> ChunkConditionSet.LOG_2_CHUNK_COND_HASH_TABLE_SIZE;
         }

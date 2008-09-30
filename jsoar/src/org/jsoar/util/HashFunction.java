@@ -8,7 +8,7 @@ package org.jsoar.util;
 /**
  * @author ray
  */
-public interface HashFunction <T extends ItemInHashTable>
+public interface HashFunction <T extends HashTableItem>
 {
     int calculate(T item, int num_bits);
 }

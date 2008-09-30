@@ -35,27 +35,27 @@ public class SoarReteListener implements ReteListener
      * agent.h:733
      * dll of all retractions for removed (ie nil) goals
      */
-    public final ListHead<MatchSetChange> nil_goal_retractions = new ListHead<MatchSetChange>();
+    public final ListHead<MatchSetChange> nil_goal_retractions = ListHead.newInstance();
     
     /**
      * changes to match set
      * 
      * agent.h:231
      */
-    public final ListHead<MatchSetChange> ms_assertions = new ListHead<MatchSetChange>();
+    public final ListHead<MatchSetChange> ms_assertions = ListHead.newInstance();
     
     /**
      * agent.h:231
      */
-    public final ListHead<MatchSetChange> ms_retractions = new ListHead<MatchSetChange>();
+    public final ListHead<MatchSetChange> ms_retractions = ListHead.newInstance();
     
     /**
      * changes to match set
      * 
      * agent.h:723
      */
-    private final ListHead<MatchSetChange> ms_o_assertions = new ListHead<MatchSetChange>();
-    public final ListHead<MatchSetChange> ms_i_assertions = new ListHead<MatchSetChange>();
+    private final ListHead<MatchSetChange> ms_o_assertions = ListHead.newInstance();
+    public final ListHead<MatchSetChange> ms_i_assertions = ListHead.newInstance();
     
     /**
      * @param operator_symbol
@@ -86,7 +86,7 @@ public class SoarReteListener implements ReteListener
         if (!refactedInstMatched)
         {
             MatchSetChange msc = p_node.b_p.tentative_retractions.first.get();
-            p_node.b_p.tentative_retractions.first = null;
+            p_node.b_p.tentative_retractions.clear();
             msc.next_prev.remove(ms_retractions);
             /* REW: begin 10.03.97 *//* BUGFIX 2.125 */
             if (context.operand2_mode)

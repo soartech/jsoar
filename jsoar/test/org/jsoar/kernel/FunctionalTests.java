@@ -82,14 +82,15 @@ public class FunctionalTests
                 return oldHalt.execute(syms, arguments);
             }});
         
-        agent.decisionCycle.run_for_n_decision_cycles(50000);
+        agent.decisionCycle.runForever();
         assertTrue(testName + " functional test did not halt", halted[0]);
         assertFalse(testName + " functional test failed", failed[0]);
         if(expectedDecisions >= 0)
         {
             assertEquals(expectedDecisions, agent.decisionCycle.d_cycle_count); // deterministic!
         }
-
+        
+        ifc.eval("stats");
     }
     /**
      * @throws java.lang.Exception

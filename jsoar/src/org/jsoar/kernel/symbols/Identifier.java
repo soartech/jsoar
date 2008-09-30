@@ -38,17 +38,17 @@ public class Identifier extends Symbol
     public int promotion_level;
     public int link_count;
     public AsListItem<Identifier> unknown_level;
-    public final ListHead<Slot> slots = new ListHead<Slot>(); // dll of slots for this identifier
+    public final ListHead<Slot> slots = ListHead.newInstance(); // dll of slots for this identifier
     public int tc_number; /* used for transitive closures, marking, etc. */
     public Symbol variablization; /* used by the chunker */
 
     /* --- fields used only on goals and impasse identifiers --- */
-    public final ListHead<Wme> impasse_wmes = new ListHead<Wme>();
+    public final ListHead<Wme> impasse_wmes = ListHead.newInstance();
     
     /* --- fields used only on goals --- */
     public Identifier higher_goal, lower_goal;
     public Slot operator_slot;
-    public final ListHead<Preference> preferences_from_goal = new ListHead<Preference>();
+    public final ListHead<Preference> preferences_from_goal = ListHead.newInstance();
 
     public Symbol reward_header;        // pointer to reward_link
     public ReinforcementLearningInfo rl_info;           // various Soar-RL information
@@ -61,14 +61,14 @@ public class Identifier extends Symbol
     public SavedFiringType saved_firing_type = SavedFiringType.NO_SAVED_PRODS;     /* FIRING_TYPE that must be restored if Waterfall
                   processing returns to this level.
                   See consistency.cpp */
-    public final ListHead<MatchSetChange> ms_o_assertions = new ListHead<MatchSetChange>(); /* dll of o assertions at this level */
-    public final ListHead<MatchSetChange> ms_i_assertions = new ListHead<MatchSetChange>(); /* dll of i assertions at this level */
-    public final ListHead<MatchSetChange> ms_retractions = new ListHead<MatchSetChange>();  /* dll of retractions at this level */
+    public final ListHead<MatchSetChange> ms_o_assertions = ListHead.newInstance(); /* dll of o assertions at this level */
+    public final ListHead<MatchSetChange> ms_i_assertions = ListHead.newInstance(); /* dll of i assertions at this level */
+    public final ListHead<MatchSetChange> ms_retractions = ListHead.newInstance();  /* dll of retractions at this level */
     /* REW: end   08.20.97 */
 
     /* --- fields used for Soar I/O stuff --- */
     public LinkedList<OutputLink> associated_output_links = null;
-    public final ListHead<Wme> input_wmes = new ListHead<Wme>();
+    public final ListHead<Wme> input_wmes = ListHead.newInstance();
 
     public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
 

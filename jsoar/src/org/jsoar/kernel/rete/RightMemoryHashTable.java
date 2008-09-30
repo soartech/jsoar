@@ -27,7 +27,7 @@ public class RightMemoryHashTable
         this.buckets = new ArrayList<ListHead<RightMemory>>(RIGHT_HT_SIZE);
         for(int i = 0; i < RIGHT_HT_SIZE; ++i)
         {
-            this.buckets.add(new ListHead<RightMemory>());
+            this.buckets.add(ListHead.<RightMemory>newInstance());
         }
     }
     

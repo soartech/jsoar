@@ -95,8 +95,8 @@ public class Wme implements Formattable
     public final int timetag;
     private int reference_count;
     public final AsListItem<Wme> in_rete = new AsListItem<Wme>(this); // used for dll of wmes in rete
-    public final ListHead<RightMemory> right_mems = new ListHead<RightMemory>(); // used for dll of rm's it's in
-    public final ListHead<Token> tokens = new ListHead<Token>(); // dll of tokens in rete
+    public final ListHead<RightMemory> right_mems = ListHead.newInstance(); // used for dll of rm's it's in
+    public final ListHead<Token> tokens = ListHead.newInstance(); // dll of tokens in rete
     public final AsListItem<Wme> next_prev = new AsListItem<Wme>(this); // (see above)
     public Preference preference;     // pref. supporting it, or null
     public OutputLink output_link;   /* for top-state output commands */

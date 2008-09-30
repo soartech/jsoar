@@ -18,6 +18,7 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.timing.ExecutionTimers;
 
 /**
  * An attempt to encapsulate the Soar decision cycle
@@ -714,10 +715,8 @@ public class DecisionCycle
     {
         Arguments.check(n >= 0, "n must be non-negative");
         
-        // #ifndef NO_TIMING_STUFF
-        // start_timer (thisAgent, &thisAgent->start_total_tv);
-        // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-        // #endif
+        ExecutionTimers.start(context.getTotalCpuTimer());
+        ExecutionTimers.start(context.getTotalKernelTimer());
         
         stop_soar = false;
         reason_for_stopping = null;
@@ -728,11 +727,8 @@ public class DecisionCycle
             n--;
         }
         
-        // #ifndef NO_TIMING_STUFF
-        // stop_timer (thisAgent, &thisAgent->start_kernel_tv,
-        // &thisAgent->total_kernel_time);
-        //  stop_timer (thisAgent, &thisAgent->start_total_tv, &thisAgent->total_cpu_time);
-        //#endif
+        ExecutionTimers.pause(context.getTotalCpuTimer());
+        ExecutionTimers.pause(context.getTotalKernelTimer());
     }
     
 
@@ -748,10 +744,8 @@ public class DecisionCycle
     {
         Arguments.check(n >= 0, "n must be non-negative");
 
-        // #ifndef NO_TIMING_STUFF
-        // start_timer (thisAgent, &thisAgent->start_total_tv);
-        // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-        // #endif
+        ExecutionTimers.start(context.getTotalCpuTimer());
+        ExecutionTimers.start(context.getTotalKernelTimer());
 
         stop_soar = false;
         reason_for_stopping = null;
@@ -787,10 +781,8 @@ public class DecisionCycle
             go_type = save_go_type;
         }
 
-        //#ifndef NO_TIMING_STUFF
-        //  stop_timer (thisAgent, &thisAgent->start_total_tv, &thisAgent->total_cpu_time);
-        //  stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
-        //#endif
+        ExecutionTimers.pause(context.getTotalCpuTimer());
+        ExecutionTimers.pause(context.getTotalKernelTimer());
     }
 
     /**
@@ -803,10 +795,8 @@ public class DecisionCycle
     {
         Arguments.check(n >= 0, "n must be non-negative");
 
-        // #ifndef NO_TIMING_STUFF
-        // start_timer (thisAgent, &thisAgent->start_total_tv);
-        // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-        // #endif
+        ExecutionTimers.start(context.getTotalCpuTimer());
+        ExecutionTimers.start(context.getTotalKernelTimer());
 
         stop_soar = false;
         reason_for_stopping = null;
@@ -832,10 +822,9 @@ public class DecisionCycle
                 reason_for_stopping = "exceeded max_nil_output_cycles with no output";
             }
         }
-        //#ifndef NO_TIMING_STUFF
-        //  stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
-        //  stop_timer (thisAgent, &thisAgent->start_total_tv, &thisAgent->total_cpu_time);
-        //#endif
+        
+        ExecutionTimers.pause(context.getTotalCpuTimer());
+        ExecutionTimers.pause(context.getTotalKernelTimer());
     }
 
     /**
@@ -848,10 +837,8 @@ public class DecisionCycle
     {
         Arguments.check(n >= 0, "n must be non-negative");
 
-        // #ifndef NO_TIMING_STUFF
-        // start_timer (thisAgent, &thisAgent->start_total_tv);
-        // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-        // #endif
+        ExecutionTimers.start(context.getTotalCpuTimer());
+        ExecutionTimers.start(context.getTotalKernelTimer());
 
         stop_soar = false;
         reason_for_stopping = null;
@@ -865,10 +852,28 @@ public class DecisionCycle
                 break;
             do_one_top_level_phase();
         }
-        // #ifndef NO_TIMING_STUFF
-        // stop_timer (thisAgent, &thisAgent->start_total_tv,
-        // &thisAgent->total_cpu_time);
-        //  stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
-        //#endif
+        
+        ExecutionTimers.pause(context.getTotalCpuTimer());
+        ExecutionTimers.pause(context.getTotalKernelTimer());
     }
+    
+    /**
+     * init_soar.cpp:1105:run_forever
+     */
+    public void runForever()
+    {
+        ExecutionTimers.start(context.getTotalCpuTimer());
+        ExecutionTimers.start(context.getTotalKernelTimer());
+        
+        stop_soar = false;
+        reason_for_stopping = null;
+        while (!stop_soar)
+        {
+            do_one_top_level_phase();
+        }
+        
+        ExecutionTimers.pause(context.getTotalCpuTimer());
+        ExecutionTimers.pause(context.getTotalKernelTimer());
+    }
+
 }
