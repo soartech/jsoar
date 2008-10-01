@@ -220,8 +220,8 @@ public class SymbolFactory
      */
     public SymConstant generate_new_sym_constant(String prefix, ByRef<Integer> number)
     {
-        Arguments.checkNotNull(prefix, "prefix");
-        Arguments.checkNotNull(number, "number");
+//        Arguments.checkNotNull(prefix, "prefix");
+//        Arguments.checkNotNull(number, "number");
         
         String name = prefix + number.value++;
         SymConstant sym = find_sym_constant(name);

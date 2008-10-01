@@ -486,7 +486,7 @@ public class Rete
         // tokens at the node
         while (!p_node.a_np.tokens.isEmpty())
         {
-            remove_token_and_subtree(p_node.a_np.tokens.first.get());
+            remove_token_and_subtree(p_node.a_np.tokens.first.item);
         }
 
         listener.removingProductionNode(this, p_node);
@@ -586,7 +586,7 @@ public class Rete
         
         /* --- remove w from each alpha_mem it's in --- */
         while (!w.right_mems.isEmpty()) {
-          RightMemory rm = w.right_mems.first.get();
+          RightMemory rm = w.right_mems.first.item;
           AlphaMemory am = rm.am;
           /* --- found the alpha memory, first remove the wme from it --- */
           remove_wme_from_alpha_mem (rm);
@@ -621,7 +621,7 @@ public class Rete
        
         /* --- tree-based removal of all tokens that involve w --- */
         while (!w.tokens.isEmpty()) {
-          Token tok = w.tokens.first.get();
+          Token tok = w.tokens.first.item;
           ReteNode node = tok.node;
           if (tok.parent == null) {
             /* Note: parent pointer is NIL only on negative node negrm tokens */
@@ -636,7 +636,7 @@ public class Rete
               }
             }
           } else {
-            remove_token_and_subtree (w.tokens.first.get());
+            remove_token_and_subtree (w.tokens.first.item);
           }
         }
         
@@ -781,9 +781,9 @@ public class Rete
             /* --- fill new mem using the existing more general one --- */
             for (AsListItem<RightMemory> rm = more_general_am.right_mems.first; rm != null; rm = rm.next)
             {
-                if (am.wme_matches_alpha_mem(rm.get().w))
+                if (am.wme_matches_alpha_mem(rm.item.w))
                 {
-                    add_wme_to_alpha_mem(rm.get().w, am);
+                    add_wme_to_alpha_mem(rm.item.w, am);
                 }
             }
         }
@@ -792,9 +792,9 @@ public class Rete
             /* --- couldn't find such an existing mem, so do it the hard way --- */
             for (AsListItem<Wme> w = all_wmes_in_rete.first; w != null; w = w.next)
             {
-                if (am.wme_matches_alpha_mem(w.get()))
+                if (am.wme_matches_alpha_mem(w.item))
                 {
-                    add_wme_to_alpha_mem(w.get(), am);
+                    add_wme_to_alpha_mem(w.item, am);
                 }
             }
         }
@@ -904,9 +904,9 @@ public class Rete
           parent.first_child = child;
           child.next_sibling = null;
           /* to avoid double-counting these right adds */
-          for(RightMemory rm : parent.b_posneg.alpha_mem_.right_mems)
+          for(AsListItem<RightMemory> rm = parent.b_posneg.alpha_mem_.right_mems.first; rm != null; rm = rm.next)
           {
-              right_addition_routines[parent.node_type.index()].execute(this, parent, rm.w);
+              right_addition_routines[parent.node_type.index()].execute(this, parent, rm.item.w);
           }
           parent.first_child = saved_parents_first_child;
           child.next_sibling = saved_childs_next_sibling;
@@ -916,11 +916,11 @@ public class Rete
         /* --- if parent is negative or cn: easy, just look at the list of tokens
                on the parent node. --- */
         //for (tok=parent->a.np.tokens; tok!=NIL; tok=tok->next_of_node)
-        for(Token tok : parent.a_np.tokens)
+        for(AsListItem<Token> tok = parent.a_np.tokens.first; tok != null; tok = tok.next)
         {
-            if(tok.negrm_tokens.isEmpty())
+            if(tok.item.negrm_tokens.isEmpty())
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, tok, null);
+                left_addition_routines[child.node_type.index()].execute(this, child, tok.item, null);
             }
         }
     }
@@ -1200,8 +1200,8 @@ public class Rete
         AsListItem<ReteNode> next = null;
         for (AsListItem<ReteNode> child = node.b_mem.first_linked_child.first; child != null; child = next)
         {
-            next = child.get().a_pos.from_beta_mem.next;
-            positive_node_left_addition(child.get(), New, referent);
+            next = child.item.a_pos.from_beta_mem.next;
+            positive_node_left_addition(child.item, New, referent);
         }
     }
     
@@ -1225,8 +1225,8 @@ public class Rete
         AsListItem<ReteNode> next = null;
         for (AsListItem<ReteNode> child = node.b_mem.first_linked_child.first; child != null; child = next)
         {
-            next = child.get().a_pos.from_beta_mem.next;
-            unhashed_positive_node_left_addition(child.get(), New);
+            next = child.item.a_pos.from_beta_mem.next;
+            unhashed_positive_node_left_addition(child.item, New);
         }
     }    
 
@@ -1251,10 +1251,12 @@ public class Rete
             }
         }
 
-        /* --- look through right memory for matches --- */
+        // look through right memory for matches
         int right_hv = am.am_id ^ hash_referent.hash_id;
-        for (RightMemory rm : right_ht.right_ht_bucket(right_hv))
+        for (AsListItem<RightMemory> rmIt = right_ht.right_ht_bucket(right_hv).first; rmIt != null; rmIt = rmIt.next)
         {
+            final RightMemory rm = rmIt.item;
+            
             if (rm.am != am)
                 continue;
             /* --- does rm->w match New? --- */
@@ -1300,9 +1302,10 @@ public class Rete
             }
         }
 
-        /* --- look through right memory for matches --- */
-        for (RightMemory rm : node.b_posneg.alpha_mem_.right_mems)
+        // look through right memory for matches
+        for (AsListItem<RightMemory> rmIt = node.b_posneg.alpha_mem_.right_mems.first; rmIt != null; rmIt = rmIt.next)
         {
+            final RightMemory rm = rmIt.item; 
             /* --- does rm->w match new? --- */
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
@@ -1377,8 +1380,10 @@ public class Rete
 
         /* --- look through right memory for matches --- */
         int right_hv = am.am_id ^ referent.hash_id;
-        for (RightMemory rm : right_ht.right_ht_bucket(right_hv))
+        for (AsListItem<RightMemory> rmIt = right_ht.right_ht_bucket(right_hv).first; rmIt != null; rmIt = rmIt.next)
         {
+            final RightMemory rm = rmIt.item;
+            
             if (rm.am != am)
             {
                 continue;
@@ -1438,8 +1443,10 @@ public class Rete
         }
 
         /* --- look through right memory for matches --- */
-        for (RightMemory rm : node.b_posneg.alpha_mem_.right_mems)
+        for (AsListItem<RightMemory> rmIt = node.b_posneg.alpha_mem_.right_mems.first; rmIt != null; rmIt = rmIt.next)
         {
+            final RightMemory rm = rmIt.item;
+            
             /* --- does rm->w match new? --- */
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
@@ -1483,8 +1490,10 @@ public class Rete
         Symbol referent = w.id;
         int hv = node.parent.node_id ^ referent.hash_id;
 
-        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
         {
+            final LeftToken tok = tokIt.item;
+            
             if (tok.node != node.parent)
             {
                 continue;
@@ -1533,8 +1542,9 @@ public class Rete
 
         int hv = node.parent.node_id;
 
-        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
         {
+            final LeftToken tok = tokIt.item;
             if (tok.node != node.parent)
             {
                 continue;
@@ -1582,8 +1592,10 @@ public class Rete
         Symbol referent = w.id;
         int hv = node.node_id ^ referent.hash_id;
 
-        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
         {
+            final LeftToken tok = tokIt.item;
+            
             if (tok.node != node)
             {
                 continue;
@@ -1634,8 +1646,9 @@ public class Rete
 
         int hv = node.node_id;
 
-        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
         {
+            final LeftToken tok = tokIt.item;
             if (tok.node != node)
             {
                 continue;
@@ -1703,8 +1716,9 @@ public class Rete
         /* --- look through right memory for matches --- */
         AlphaMemory am = node.b_posneg.alpha_mem_;
         int right_hv = am.am_id ^ referent.hash_id;
-        for (RightMemory rm : right_ht.right_ht_bucket(right_hv))
+        for (AsListItem<RightMemory> rmIt = right_ht.right_ht_bucket(right_hv).first; rmIt != null; rmIt = rmIt.next)
         {
+            final RightMemory rm = rmIt.item;
             if (rm.am != am)
             {
                 continue;
@@ -1761,8 +1775,9 @@ public class Rete
         left_ht.insert_token_into_left_ht(New, hv);
 
         /* --- look through right memory for matches --- */
-        for (RightMemory rm : node.b_posneg.alpha_mem_.right_mems)
+        for (AsListItem<RightMemory> rmIt = node.b_posneg.alpha_mem_.right_mems.first; rmIt != null; rmIt = rmIt.next)
         {
+            final RightMemory rm = rmIt.item;
             /* --- does rm->w match new? --- */
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
@@ -1802,8 +1817,10 @@ public class Rete
         Symbol referent = w.id;
         int hv = node.node_id ^ referent.hash_id;
 
-        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
         {
+            final LeftToken tok = tokIt.item;
+            
             if (tok.node != node)
             {
                 continue;
@@ -1831,7 +1848,7 @@ public class Rete
 
             while (!tok.first_child.isEmpty())
             {
-                remove_token_and_subtree(tok.first_child.first.get());
+                remove_token_and_subtree(tok.first_child.first.item);
             }
         }
     }
@@ -1846,8 +1863,9 @@ public class Rete
     {
         int hv = node.node_id;
 
-        for (LeftToken tok : left_ht.left_ht_bucket(hv))
+        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
         {
+            LeftToken tok = tokIt.item;
             if (tok.node != node)
             {
                 continue;
@@ -1868,7 +1886,7 @@ public class Rete
             RightToken.create(node, null, w, tok);
             while (!tok.first_child.isEmpty())
             {
-                remove_token_and_subtree(tok.first_child.first.get());
+                remove_token_and_subtree(tok.first_child.first.item);
             }
         }
     }
@@ -1890,8 +1908,9 @@ public class Rete
          * heard about this new token already, in which case it would have done
          * the CN node's work already); if found, exit ---
          */
-        for (LeftToken t : left_ht.left_ht_bucket(hv))
+        for (AsListItem<LeftToken> it = left_ht.left_ht_bucket(hv).first; it != null; it = it.next)
         {
+            final LeftToken t = it.item;
             if ((t.node == node) && (t.parent == tok) && (t.w == w))
             {
                 return;
@@ -1938,8 +1957,9 @@ public class Rete
         /* --- look for the matching left token --- */
         int hv = partner.node_id ^ addressOf(tok) ^ addressOf(w);
         LeftToken left = null;
-        for (LeftToken tempLeft : left_ht.left_ht_bucket(hv))
+        for (AsListItem<LeftToken> it = left_ht.left_ht_bucket(hv).first; it != null; it = it.next)
         {
+            final LeftToken tempLeft = it.item;
             if ((tempLeft.node == partner) && (tempLeft.parent == tok) && (tempLeft.w == w))
             {
                 left = tempLeft;
@@ -1961,7 +1981,7 @@ public class Rete
         /* --- remove any descendent tokens of the left token --- */
         while (!left.first_child.isEmpty())
         {
-            remove_token_and_subtree(left.first_child.first.get());
+            remove_token_and_subtree(left.first_child.first.item);
         }
     }
     
@@ -1995,8 +2015,8 @@ public class Rete
         
         while (true) {
           /* --- move down to the leftmost leaf --- */
-          while (!tok.first_child.isEmpty()) { tok = tok.first_child.first.get(); }
-          Token next_value_for_tok = tok.sibling.next != null ? tok.sibling.next.get() : tok.parent;
+          while (!tok.first_child.isEmpty()) { tok = tok.first_child.first.item; }
+          Token next_value_for_tok = tok.sibling.next != null ? tok.sibling.next.item : tok.parent;
 
           /* --- cleanup stuff common to all types of nodes --- */
           ReteNode node = tok.node;
@@ -2033,8 +2053,8 @@ public class Rete
             int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
             left_ht.remove_token_from_left_ht(lt, hv);
             if (node.a_np.tokens.isEmpty()) { node.unlink_from_right_mem(); }
-            for (Token t : tok.negrm_tokens) {
-                t.from_wme.remove(t.w.tokens);
+            for (AsListItem<Token> t = tok.negrm_tokens.first; t != null; t = t.next) {
+                t.item.from_wme.remove(t.item.w.tokens);
             }
 
           /* --- for Memory nodes --- */
@@ -2055,8 +2075,8 @@ public class Rete
             if (node.a_np.tokens.isEmpty()) {
                 AsListItem<ReteNode> next = null;
               for (AsListItem<ReteNode> child=node.b_mem.first_linked_child.first; child!=null; child=next) {
-                next = child.get().a_pos.from_beta_mem.next;
-                child.get().unlink_from_right_mem();
+                next = child.item.a_pos.from_beta_mem.next;
+                child.item.unlink_from_right_mem();
               }
             }
 
@@ -2065,8 +2085,9 @@ public class Rete
               int hv = node.node_id ^ addressOf(tok.parent) ^ addressOf(tok.w);
             //int hv = node.node_id ^ (unsigned long)(tok->parent) ^ (unsigned long)(tok->w)
               left_ht.remove_token_from_left_ht((LeftToken) tok, hv); // TODO: Safe to assume this?  
-            for(Token t : tok.negrm_tokens)
+            for(AsListItem<Token> it = tok.negrm_tokens.first; it != null; it = it.next)
             {
+                final Token t = it.item;
                 if(t.w != null)
                 {
                     t.from_wme.remove(t.w.tokens);

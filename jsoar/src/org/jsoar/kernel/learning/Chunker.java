@@ -247,21 +247,22 @@ public class Chunker
         id.tc_number = this.results_tc_number;
 
         // scan through all preferences and wmes for all slots for this id
-        for (Wme w : id.input_wmes)
-            add_results_if_needed(w.value);
-        for (Slot s : id.slots)
+        for (AsListItem<Wme> w = id.input_wmes.first; w != null; w = w.next)
+            add_results_if_needed(w.item.value);
+        for (AsListItem<Slot> it = id.slots.first; it != null; it = it.next)
         {
-            for (Preference pref : s.all_preferences)
-                add_pref_to_results(pref);
-            for (Wme w : s.wmes)
-                add_results_if_needed(w.value);
+            final Slot s = it.item;
+            for (AsListItem<Preference> pref = s.all_preferences.first; pref != null; pref = pref.next)
+                add_pref_to_results(pref.item);
+            for (AsListItem<Wme> w = s.wmes.first; w != null; w = w.next)
+                add_results_if_needed(w.item.value);
         }
 
         // now scan through extra prefs and look for any with this id
-        for (Preference pref : this.extra_result_prefs_from_instantiation)
+        for (AsListItem<Preference> pref = this.extra_result_prefs_from_instantiation.first; pref != null; pref = pref.next)
         {
-            if (pref.id == id)
-                add_pref_to_results(pref);
+            if (pref.item.id == id)
+                add_pref_to_results(pref.item);
         }
     }
  
@@ -279,11 +280,14 @@ public class Chunker
         this.results_match_goal_level = inst.match_goal_level;
         this.results_tc_number = context.syms.get_new_tc_number();
         this.extra_result_prefs_from_instantiation = inst.preferences_generated;
-        for (Preference pref : inst.preferences_generated)
+        for (AsListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
+        {
+            final Preference pref = it.item;
             if ((pref.id.level < this.results_match_goal_level) && (pref.id.tc_number != this.results_tc_number))
             {
                 add_pref_to_results(pref);
             }
+        }
         return this.results;
     }
     
@@ -449,8 +453,8 @@ public class Chunker
             {
                 prev_cc.next = cc.next_prev;
                 cc.next_prev.previous = prev_cc;
-                cc.variablized_cond.prev = prev_cc.get().variablized_cond;
-                prev_cc.get().variablized_cond.next = cc.variablized_cond;
+                cc.variablized_cond.prev = prev_cc.item.variablized_cond;
+                prev_cc.item.variablized_cond.next = cc.variablized_cond;
             }
             else
             {
@@ -485,8 +489,8 @@ public class Chunker
                 {
                     prev_cc.next = cc.next_prev;
                     cc.next_prev.previous = prev_cc;
-                    cc.variablized_cond.prev = prev_cc.get().variablized_cond;
-                    prev_cc.get().variablized_cond.next = cc.variablized_cond;
+                    cc.variablized_cond.prev = prev_cc.item.variablized_cond;
+                    prev_cc.item.variablized_cond.next = cc.variablized_cond;
                 }
                 else
                 {
@@ -521,15 +525,15 @@ public class Chunker
         if (prev_cc != null)
         {
             prev_cc.next = null;
-            prev_cc.get().variablized_cond.next = null;
+            prev_cc.item.variablized_cond.next = null;
         }
         else
         {
             first_cc = null;
         }
 
-        dest_top.value = first_cc.get();
-        dest_bottom.value = prev_cc.get();
+        dest_top.value = first_cc.item;
+        dest_bottom.value = prev_cc.item;
     }
     
     /**
@@ -667,7 +671,7 @@ public class Chunker
         int tc = context.syms.get_new_tc_number();
         for (AsListItem<ChunkCondition> ccIter = all_ccs; ccIter != null; ccIter = ccIter.next)
         {
-            ChunkCondition cc = ccIter.get();
+            ChunkCondition cc = ccIter.item;
             PositiveCondition pc = cc.instantiated_cond.asPositiveCondition();
             if (pc == null)
                 continue;
@@ -725,15 +729,17 @@ public class Chunker
         // Step 1: swap prev pointers out of variablized conds into chunk_conds,
         // and swap pointer to the corresponding instantiated conds into the
         // variablized conds' prev pointers
-        for (ChunkCondition cc : top_cc)
+        for (AsListItem<ChunkCondition> it = top_cc.first; it != null; it = it.next)
         {
+            final ChunkCondition cc = it.item;
             cc.saved_prev_pointer_of_variablized_cond = cc.variablized_cond.prev;
             cc.variablized_cond.prev = cc.instantiated_cond;
         }
 
         // Step 2: do the reordering of the instantiated conds
-        for (ChunkCondition cc : top_cc)
+        for (AsListItem<ChunkCondition> it = top_cc.first; it != null; it = it.next)
         {
+            final ChunkCondition cc = it.item;
             if (cc.variablized_cond.next != null)
             {
                 cc.instantiated_cond.next = cc.variablized_cond.next.prev;
@@ -756,8 +762,9 @@ public class Chunker
         }
 
         // Step 3:  restore the prev pointers on variablized conds
-        for (ChunkCondition cc : top_cc)
+        for (AsListItem<ChunkCondition> it = top_cc.first; it != null; it = it.next)
         {
+            final ChunkCondition cc = it.item;
             cc.variablized_cond.prev = cc.saved_prev_pointer_of_variablized_cond;
         }
     }
@@ -803,9 +810,9 @@ public class Chunker
      */
     private static Symbol find_impasse_wme_value(Identifier id, Symbol attr)
     {
-        for (Wme w : id.impasse_wmes)
-            if (w.attr == attr)
-                return w.value;
+        for (AsListItem<Wme> w = id.impasse_wmes.first; w != null; w = w.next)
+            if (w.item.attr == attr)
+                return w.item.value;
         return null;
     }
     
@@ -822,9 +829,9 @@ public class Chunker
             return (context.syms.generate_new_sym_constant(this.chunk_name_prefix, this.chunk_count));
 
         int lowest_result_level = context.decider.top_goal.level;
-        for (Preference p : inst.preferences_generated)
-            if (p.id.level > lowest_result_level)
-                lowest_result_level = p.id.level;
+        for (AsListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
+            if (p.item.id.level > lowest_result_level)
+                lowest_result_level = p.item.id.level;
 
         Identifier goal = context.decider.find_goal_at_goal_stack_level(lowest_result_level);
 
@@ -964,7 +971,7 @@ public class Chunker
         Preference pref = null;
         for (AsListItem<Preference> i = inst.preferences_generated.first; i != null; i = i.next)
         {
-            Preference temp = i.get();
+            final Preference temp = i.item;
             if (temp.id.level < inst.match_goal_level)
             {
                 pref = temp;

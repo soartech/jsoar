@@ -15,7 +15,7 @@ import java.util.List;
  * 
  * @author ray
  */
-public class ListHead <T> implements Iterable<T>
+public final class ListHead <T> implements Iterable<T>
 {
     /**
      * The first item in the list
@@ -79,7 +79,7 @@ public class ListHead <T> implements Iterable<T>
      */
     public T getFirstItem()
     {
-        return !isEmpty() ? first.get() : null;
+        return !isEmpty() ? first.item : null;
     }
     
     /**

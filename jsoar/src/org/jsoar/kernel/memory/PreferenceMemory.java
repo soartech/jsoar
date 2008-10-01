@@ -202,9 +202,7 @@ public class PreferenceMemory
             AsListItem<Preference> it = s_prefs.first;
             for (; it.next != null; it = it.next)
             {
-                Preference p2 = it.get();
-                Preference next = it.getNextItem();
-
+                Preference p2 = it.item;
                 if (p2.inst.match_goal_level >= pref.inst.match_goal_level)
                 {
                     break;
@@ -345,9 +343,9 @@ public class PreferenceMemory
                 while (p != null)
                 {
                     AsListItem<Preference> next_p = p.next;
-                    if (p.get().value == pref.value)
+                    if (p.item.value == pref.value)
                     {
-                        remove_preference_from_tm(p.get());
+                        remove_preference_from_tm(p.item);
                     }
                     p = next_p;
                 }

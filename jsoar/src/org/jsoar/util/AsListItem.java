@@ -9,38 +9,33 @@ import java.util.Iterator;
 /**
  * @author ray
  */
-public class AsListItem <T> implements Iterable<T>
+public final class AsListItem <T> implements Iterable<T>
 {
-    private final T item;
+    public final T item;
     public AsListItem<T> next;
     public AsListItem<T> previous;
     
     public AsListItem(T item)
     {
-        Arguments.checkNotNull(item, "item");
+//        Arguments.checkNotNull(item, "item");
         this.item = item;
         this.next = null;
         this.previous = null;
     }
     
-    public T get()
-    {
-        return item;
-    }
-    
     public T getNextItem()
     {
-        return next != null ? next.get() : null;
+        return next != null ? next.item : null;
     }
     
     public T getPreviousItem()
     {
-        return previous != null ? previous.get() : null;
+        return previous != null ? previous.item : null;
     }
     
     public void insertAtHead(ListHead<T> head)
     {
-        Arguments.checkNotNull(head, "head");
+//        Arguments.checkNotNull(head, "head");
         
         assert !head.containsAsListItem(this);
         
@@ -71,9 +66,8 @@ public class AsListItem <T> implements Iterable<T>
 //    
     public void insertAfter(ListHead<T> head, AsListItem<T> other)
     {
-        Arguments.checkNotNull(head, "head");
-        Arguments.check(other != this, "Attempt to insert after this");
-        
+        assert head != null;
+        assert other != this;
         assert !head.containsAsListItem(this);
         
         this.previous = other;
@@ -95,8 +89,7 @@ public class AsListItem <T> implements Iterable<T>
     
     public void remove(ListHead<T> head)
     {
-        Arguments.checkNotNull(head, "head");
-
+        assert head != null;
         //assert head.containsAsListItem(this);
         
         if(next != null)
@@ -143,7 +136,7 @@ public class AsListItem <T> implements Iterable<T>
     {
         for(AsListItem<T> m = this; m != null; m = m.next)
         {
-            if((item != null && item.equals(m.get())) || item == m.get())
+            if((item != null && item.equals(m.item)) || item == m.item)
             {
                 return m;
             }

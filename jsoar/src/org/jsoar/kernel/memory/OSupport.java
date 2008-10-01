@@ -127,29 +127,32 @@ public class OSupport
         id.tc_number = o_support_tc;
 
         // scan through all preferences and wmes for all slots for this id
-        for (Wme w : id.input_wmes)
+        for (AsListItem<Wme> w = id.input_wmes.first; w != null; w = w.next)
         {
-            add_to_os_tc_if_needed(w.value);
+            add_to_os_tc_if_needed(w.item.value);
         }
-        for (Slot s : id.slots)
+        for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
+            final Slot s = sit.item;
             if ((!isa_state) || (s.attr != syms.operator_symbol))
             {
-                for (Preference pref : s.all_preferences)
+                for (AsListItem<Preference> pit = s.all_preferences.first; pit != null; pit = pit.next)
                 {
+                    final Preference pref = pit.item;
                     add_to_os_tc_if_needed(pref.value);
                     if (pref.type.isBinary())
                         add_to_os_tc_if_needed(pref.referent);
                 }
-                for (Wme w : s.wmes)
+                for (AsListItem<Wme> w = s.wmes.first; w != null; w = w.next)
                 {
-                    add_to_os_tc_if_needed(w.value);
+                    add_to_os_tc_if_needed(w.item.value);
                 }
             }
         } /* end of for slots loop */
-        /* --- now scan through RHS prefs and look for any with this id --- */
-        for (Preference pref : rhs_prefs_from_instantiation)
+        // now scan through RHS prefs and look for any with this id
+        for (AsListItem<Preference> pit = rhs_prefs_from_instantiation.first; pit != null; pit = pit.next)
         {
+            final Preference pref = pit.item;
             if (pref.id == id)
             {
                 if ((!isa_state) || (pref.attr != syms.operator_symbol))
@@ -569,23 +572,21 @@ public class OSupport
             }
 
             // assign every preference the correct support
-            for (Preference pref : inst.preferences_generated)
+            for (AsListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
             {
-                pref.o_supported = o_support;
+                pref.item.o_supported = o_support;
             }
 
             return; // goto o_support_done;
         }
 
-        /* REW: end 09.15.96 */
-
-        /* --- initialize by giving everything NO o_support --- */
-        for (Preference pref : inst.preferences_generated)
+        // initialize by giving everything NO o_support
+        for (AsListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
         {
-            pref.o_supported = false;
+            pref.item.o_supported = false;
         }
 
-        /* --- find the match goal, match state, and match operator --- */
+        // find the match goal, match state, and match operator
         match_goal = inst.match_goal;
         if (match_goal == null)
         {
@@ -605,13 +606,14 @@ public class OSupport
         }
 
         lhs = inst.top_of_instantiated_conditions;
-        ListHead<Preference> rhs = inst.preferences_generated;
+        final ListHead<Preference> rhs = inst.preferences_generated;
 
-        /* --- scan through rhs to look for various things --- */
+        // scan through rhs to look for various things
         rhs_does_an_operator_creation = false;
 
-        for (Preference pref : rhs)
+        for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
         {
+            Preference pref = pit.item;
             if ((pref.id == match_goal)
                     && (pref.attr == syms.operator_symbol)
                     && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE)))
@@ -620,7 +622,7 @@ public class OSupport
             }
         }
 
-        /* --- scan through lhs to look for various tests --- */
+        // scan through lhs to look for various tests
         lhs_tests_operator_acceptable_or_installed = false;
         lhs_tests_operator_installed = false;
         lhs_is_known_to_test_something_off_match_state = false;
@@ -686,13 +688,14 @@ public class OSupport
             }
         }
 
-        /* --- look for rhs oa support --- */
+        // look for rhs oa support
         if (oa_support_possible)
         {
             begin_os_tc(rhs.first);
             add_to_os_tc_if_id(match_state, true);
-            for (Preference pref : rhs)
+            for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
             {
+                final Preference pref = pit.item;
                 if (pref.id.tc_number == o_support_tc)
                 {
                     /* RBD 8/19/94 added extra NNPSCM test -- ^operator augs on the state
@@ -713,18 +716,19 @@ public class OSupport
             if (oc_support_possible)
             {
                 begin_os_tc(rhs.first);
-                for (Preference pref : rhs)
+                for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
                 {
-                    if ((pref.id == match_goal)
+                   final Preference pref = pit.item;
+                   if ((pref.id == match_goal)
                             && (pref.attr == syms.operator_symbol)
                             && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE)))
                     {
                         add_to_os_tc_if_id(pref.value, false);
                     }
                 }
-                for (Preference pref : rhs)
+                for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
                 {
-                    /* SBH 6/23/94 */
+                    final Preference pref = pit.item;
                     if ((pref.id.tc_number == o_support_tc) && pref.id != match_state)
                     {
                         /* SBH: Added 2nd test to avoid circular assignment of o-support
@@ -768,8 +772,9 @@ public class OSupport
                         }
                     }
                 }
-                for (Preference pref : rhs)
+                for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
                 {
+                    final Preference pref = pit.item;
                     if (pref.id.tc_number == o_support_tc)
                     {
                         pref.o_supported = true;
@@ -849,8 +854,9 @@ public class OSupport
         }
 
         /* --- Initialize all pref's according to rules 2 and 3 --- */
-        for (Preference pref : rhs)
+        for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
         {
+            final Preference pref = pit.item;
             pref.o_supported = rule_2_or_3;
         }
 
@@ -867,8 +873,9 @@ public class OSupport
              * --- look for RHS operators, add 'em (starting points) to the TC
              * ---
              */
-            for (Preference pref : rhs)
+            for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
             {
+                final Preference pref = pit.item;
                 if ((pref.id == match_state)
                         && (pref.attr == syms.operator_symbol)
                         && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE))
@@ -882,8 +889,9 @@ public class OSupport
             while (anything_added)
             {
                 anything_added = false;
-                for (Preference pref : rhs)
+                for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
                 {
+                    final Preference pref = pit.item;
                     if (pref.id.tc_number != o_support_tc)
                     {
                         continue;
@@ -909,8 +917,9 @@ public class OSupport
         }
 
         /* --- Finally, use rule 1, which overrides all the other rules. --- */
-        for (Preference pref : rhs)
+        for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
         {
+            final Preference pref = pit.item;
             if ((pref.id == match_state) && (pref.attr == syms.operator_symbol))
             {
                 pref.o_supported = false;

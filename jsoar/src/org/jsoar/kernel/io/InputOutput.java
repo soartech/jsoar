@@ -621,7 +621,7 @@ public class InputOutput
         for (olItem = existing_output_links.first; olItem != null; olItem = next_ol)
         {
             next_ol = olItem.next;
-            OutputLink ol = olItem.get();
+            OutputLink ol = olItem.item;
 
             InputOutputWme iw_list = null;
 
