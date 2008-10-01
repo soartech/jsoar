@@ -5,8 +5,7 @@
  */
 package org.jsoar.kernel.memory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.EnumMap;
 
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.symbols.Identifier;
@@ -61,7 +60,7 @@ import org.jsoar.util.ListHead;
  *      if one has changed, it points to a dl_cons.
  *
  * 
- * gdatastructs.h:288
+ * <p>gdatastructs.h:288
  * 
  * @author ray
  */
@@ -74,7 +73,7 @@ public class Slot
     public final ListHead<Wme> wmes = ListHead.newInstance(); // dll of wmes in the slot
     public final ListHead<Wme> acceptable_preference_wmes = ListHead.newInstance();  // dll of acceptable pref. wmes
     public final ListHead<Preference> all_preferences = ListHead.newInstance(); // dll of all pref's in the slot
-    public final List<ListHead<Preference>> preferences = new ArrayList<ListHead<Preference>>(PreferenceType.values().length); // dlls for each type
+    private final EnumMap<PreferenceType, ListHead<Preference>> preferencesByType = new EnumMap<PreferenceType, ListHead<Preference>>(PreferenceType.class);
 
     public Identifier impasse_id = null;               // null if slot is not impassed
     public final boolean isa_context_slot;            
@@ -99,7 +98,7 @@ public class Slot
     public Object acceptable_preference_changed;
 
     /**
-     * tempmem.cpp:64:make_slot
+     * <p>tempmem.cpp:64:make_slot
      * 
      * @param id
      * @param attr
@@ -120,7 +119,7 @@ public class Slot
     
     /**
      * 
-     * tempmem.cpp:64:make_slot
+     * <p>tempmem.cpp:64:make_slot
      * 
      * @param id
      * @param attr
@@ -147,22 +146,13 @@ public class Slot
         // s->acceptable_preference_changed = NIL;
         this.id = id;
         this.attr = attr;
-
-        /*
-         * JC: This is the same as all_preferences except they are indexed by
-         * type.
-         */
-        for (int i = 0; i < PreferenceType.values().length; ++i)
-        {
-            preferences.add(ListHead.<Preference>newInstance());
-        }
     }
 
     /**
      * Find_slot() looks for an existing slot for a given id/attr pair, and
      * returns it if found.  If no such slot exists, it returns NIL.
      * 
-     * tempmem.cpp:55:find_slot
+     * <p>tempmem.cpp:55:find_slot
      * 
      * @param id
      * @param attr
@@ -174,11 +164,11 @@ public class Slot
         {
             return null; // fixes bug #135 kjh
         } 
-        for (Slot s : id.slots)
+        for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
         {
-            if (s.attr == attr)
+            if (s.get().attr == attr)
             {
-                return s;
+                return s.get();
             }
         }
         return null;
@@ -186,10 +176,18 @@ public class Slot
     
     public ListHead<Preference> getPreferenceList(Preference pref)
     {
-        return preferences.get(pref.type.ordinal());
+        return getPreferenceList(pref.type);
     }
+    
     public ListHead<Preference> getPreferenceList(PreferenceType type)
     {
-        return preferences.get(type.ordinal());
+        ListHead<Preference> list =  preferencesByType.get(type);
+        if(list == null)
+        {
+            list = ListHead.newInstance();
+            preferencesByType.put(type, list);
+        }
+
+        return list;
     }
 }
