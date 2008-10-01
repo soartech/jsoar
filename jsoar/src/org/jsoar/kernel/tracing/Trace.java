@@ -6,6 +6,7 @@
 package org.jsoar.kernel.tracing;
 
 import java.io.OutputStreamWriter;
+import java.util.EnumSet;
 import java.util.Formattable;
 import java.util.Formatter;
 
@@ -81,7 +82,7 @@ public class Trace
     }
     
     private final Printer printer;
-    private final boolean settings[] = new boolean[Category.values().length];
+    private EnumSet<Category> settings = EnumSet.noneOf(Category.class);
     private boolean enabled = true;
     private WmeTraceType wmeTraceType = WmeTraceType.NONE_WME_TRACE;
     
@@ -94,7 +95,10 @@ public class Trace
         
         for(Category c : Category.values())
         {
-            settings[c.ordinal()] = c.defaultSetting;
+            if(c.defaultSetting)
+            {
+                settings.add(c);
+            }
         }
     }
     
@@ -134,10 +138,7 @@ public class Trace
     public Trace enableAll()
     {
         setEnabled(true);
-        for(int i = 0; i < settings.length; ++i)
-        {
-            settings[i] = true;
-        }
+        settings = EnumSet.allOf(Category.class);
         this.setWmeTraceType(WmeTraceType.FULL_WME_TRACE);
         return this;
     }
@@ -149,10 +150,7 @@ public class Trace
      */
     public Trace disableAll()
     {
-        for(int i = 0; i < settings.length; ++i)
-        {
-            settings[i] = false;
-        }
+        settings.clear();
         return this;
     }
     
@@ -162,7 +160,7 @@ public class Trace
      */
     public boolean isEnabled(Category c)
     {
-        return settings[c.ordinal()];
+        return settings.contains(c);
     }
 
     /**
@@ -175,7 +173,14 @@ public class Trace
      */
     public Trace setEnabled(Category c, boolean enabled)
     {
-        this.settings[c.ordinal()] = enabled;
+        if(enabled)
+        {
+            settings.add(c);
+        }
+        else
+        {
+            settings.remove(c);
+        }
         return this;
     }
 
@@ -223,7 +228,7 @@ public class Trace
      */
     public Trace print(Category c, String format, Object... args)
     {
-        if(enabled && settings[c.ordinal()])
+        if(enabled && isEnabled(c))
         {
             print(format, args);
         }
