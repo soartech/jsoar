@@ -6,6 +6,7 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Production;
+import org.jsoar.util.AsListItem;
 
 /**
  * rete.cpp:401
@@ -454,9 +455,9 @@ public class ReteNode
         mem_node.node_id = mp_copy.node_id;
 
         mem_node.a_np.tokens = mp_node.a_np.tokens;
-        for (Token t : mp_node.a_np.tokens)
+        for (AsListItem<Token> t = mp_node.a_np.tokens.first; t != null; t = t.next)
         {
-            t.node = mem_node;
+            t.item.node = mem_node;
         }
 
         // transmogrify the old MP node into the new Pos node
@@ -532,9 +533,9 @@ public class ReteNode
             mp_node.a_np = new NonPosNodeData();
         }
         mp_node.a_np.tokens = mem_node.a_np.tokens;
-        for (Token t : mem_node.a_np.tokens)
+        for (AsListItem<Token> t = mem_node.a_np.tokens.first; t != null; t = t.next)
         {
-            t.node = mp_node;
+            t.item.node = mp_node;
         }
         mp_node.left_hash_loc_field_num = mem_node.left_hash_loc_field_num;
         mp_node.left_hash_loc_levels_up = mem_node.left_hash_loc_levels_up;
@@ -750,7 +751,7 @@ public class ReteNode
         {
             while (!node.a_np.tokens.isEmpty())
             {
-                rete.remove_token_and_subtree(node.a_np.tokens.first.get());
+                rete.remove_token_and_subtree(node.a_np.tokens.first.item);
             }
         }
 

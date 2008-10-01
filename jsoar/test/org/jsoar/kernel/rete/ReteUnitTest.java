@@ -96,7 +96,7 @@ public class ReteUnitTest extends JSoarTest
     {
         assertNotNull(rete.dummy_top_node);
         assertEquals(ReteNodeType.DUMMY_TOP_BNODE, rete.dummy_top_node.node_type);
-        RightToken dummyTopToken = (RightToken) rete.dummy_top_node.a_np.tokens.first.get();
+        RightToken dummyTopToken = (RightToken) rete.dummy_top_node.a_np.tokens.first.item;
         assertNotNull(dummyTopToken);
         assertNull(dummyTopToken.parent);
         assertSame(rete.dummy_top_node, dummyTopToken.node);

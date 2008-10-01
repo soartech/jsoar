@@ -40,8 +40,8 @@ public class ConditionReorderer
     {
         public SavedTest(SavedTest old_sts, Symbol var, ComplexTest the_test)
         {
-            Arguments.checkNotNull(var, "var");
-            Arguments.checkNotNull(the_test, "the_test");
+            assert var != null;
+            assert the_test != null;
 
             this.next = old_sts;
             this.var = var;

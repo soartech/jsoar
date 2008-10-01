@@ -114,7 +114,7 @@ public class AlphaMemory extends HashTableItem
         // if (am->value) symbol_remove_ref (thisAgent, am->value);
         while (!right_mems.isEmpty())
         {
-            rete.remove_wme_from_alpha_mem(right_mems.first.get());
+            rete.remove_wme_from_alpha_mem(right_mems.first.item);
         }
     }
 

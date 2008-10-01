@@ -44,9 +44,9 @@ public class AsListItemTest
         AsListItem<String> c = b.next;
         assertNotNull(c);
         assertNull(c.next);
-        assertEquals("a", a.get());
-        assertEquals("b", b.get());
-        assertEquals("c", c.get());
+        assertEquals("a", a.item);
+        assertEquals("b", b.item);
+        assertEquals("c", c.item);
         
         b.remove(head);
         assertSame(a, head.first);

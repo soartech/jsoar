@@ -19,6 +19,7 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -82,10 +83,10 @@ public class SoarReteListener implements ReteListener
     public boolean finishRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
     {
         refracted_inst.inProdList.remove(p.instantiations);
-        boolean refactedInstMatched = p_node.b_p.tentative_retractions.isEmpty();
+        final boolean refactedInstMatched = p_node.b_p.tentative_retractions.isEmpty();
         if (!refactedInstMatched)
         {
-            MatchSetChange msc = p_node.b_p.tentative_retractions.first.get();
+            final MatchSetChange msc = p_node.b_p.tentative_retractions.first.item;
             p_node.b_p.tentative_retractions.clear();
             msc.next_prev.remove(ms_retractions);
             /* REW: begin 10.03.97 *//* BUGFIX 2.125 */
@@ -278,8 +279,9 @@ public class SoarReteListener implements ReteListener
                 {
                     // examine all the different matches for this productions
 
-                    for (Token OPERAND_curr_tok : node.a_np.tokens)
+                    for (AsListItem<Token> it = node.a_np.tokens.first; it != null; it = it.next)
                     {
+                        final Token OPERAND_curr_tok = it.item;
                         /*
                          * i'll need to make two passes over each set of wmes
                          * that match this production. the first pass looks for

@@ -66,6 +66,8 @@ import org.jsoar.util.ListHead;
  */
 public class Slot
 {
+    private final static ListHead<Preference> defaultPreferenceList = ListHead.newInstance();
+    
     public final AsListItem<Slot> next_prev = new AsListItem<Slot>(this); // dll of slots for this id
     public final Identifier id; 
     public final Symbol attr;
@@ -166,9 +168,9 @@ public class Slot
         } 
         for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
         {
-            if (s.get().attr == attr)
+            if (s.item.attr == attr)
             {
-                return s.get();
+                return s.item;
             }
         }
         return null;
@@ -176,11 +178,15 @@ public class Slot
     
     public ListHead<Preference> getPreferenceList(Preference pref)
     {
+        assert defaultPreferenceList.first == null;
+        
         return getPreferenceList(pref.type);
     }
     
     public ListHead<Preference> getPreferenceList(PreferenceType type)
     {
+        assert defaultPreferenceList.first == null;
+        
         ListHead<Preference> list =  preferencesByType.get(type);
         if(list == null)
         {
@@ -189,5 +195,22 @@ public class Slot
         }
 
         return list;
+    }
+    
+    /**
+     * Fast version of {@link #getPreferenceList(PreferenceType)}. This should
+     * only be called when the returned list head will be used in a read-only
+     * manner, i.e. for iteration rather than insertion or removal from the
+     * list.
+     * 
+     * @param type
+     * @return
+     */
+    public ListHead<Preference> getFastPreferenceList(PreferenceType type)
+    {
+        assert defaultPreferenceList.first == null;
+        
+        ListHead<Preference> list =  preferencesByType.get(type);
+        return list != null ? list : defaultPreferenceList;
     }
 }

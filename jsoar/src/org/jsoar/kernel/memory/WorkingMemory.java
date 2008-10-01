@@ -273,7 +273,7 @@ public class WorkingMemory
         {
             return null;
         }
-        return s.wmes.first.get().value;
+        return s.wmes.first.item.value;
     } 
     
     /**

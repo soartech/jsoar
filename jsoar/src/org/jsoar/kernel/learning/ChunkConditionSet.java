@@ -49,8 +49,8 @@ public class ChunkConditionSet
         AsListItem<ChunkCondition> old;
         final ListHead<ChunkCondition> bucket = this.table.get(new_cc.compressed_hash_value);
         for (old = bucket.first; old != null; old = old.next)
-            if (old.get().hash_value == new_cc.hash_value)
-                if (Condition.conditions_are_equal(old.get().cond, new_cc.cond))
+            if (old.item.hash_value == new_cc.hash_value)
+                if (Condition.conditions_are_equal(old.item.cond, new_cc.cond))
                     break;
         
         if (old != null)
