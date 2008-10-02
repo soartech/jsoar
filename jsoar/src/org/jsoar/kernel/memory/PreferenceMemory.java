@@ -180,8 +180,7 @@ public class PreferenceMemory
 
         // JC: This will retrieve the slot for pref->id if it already exists
         Slot s = Slot.make_slot(pref.id, pref.attr, context.predefinedSyms.operator_symbol);
-        pref.slot = s;
-        pref.all_of_slot.insertAtHead(s.all_preferences);
+        s.addPreference(pref);
 
         // add preference to the list (in the right place, according to match
         // goal level of the instantiations) for the slot
@@ -269,12 +268,10 @@ public class PreferenceMemory
         // #endif
 
         // remove preference from the list for the slot
-        pref.all_of_slot.remove(s.all_preferences);
-        pref.next_prev.remove(s.getPreferenceList(pref));
+        s.removePreference(pref);
 
         // other miscellaneous stuff
         pref.in_tm = false;
-        pref.slot = null; // BUG shouldn't we use pref->slot in place of pref->in_tm?
 
         context.tempMemory.mark_slot_as_changed(s);
 
@@ -339,13 +336,13 @@ public class PreferenceMemory
             if (s != null)
             {
                 // remove all pref's in the slot that have the same value
-                AsListItem<Preference> p = s.all_preferences.first;
+                Preference p = s.getAllPreferences();
                 while (p != null)
                 {
-                    AsListItem<Preference> next_p = p.next;
-                    if (p.item.value == pref.value)
+                    final Preference next_p = p.next_of_slot;
+                    if (p.value == pref.value)
                     {
-                        remove_preference_from_tm(p.item);
+                        remove_preference_from_tm(p);
                     }
                     p = next_p;
                 }

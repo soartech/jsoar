@@ -6,7 +6,6 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.util.AsListItem;
 
 /**
  * rete.cpp:401
@@ -390,7 +389,7 @@ public class ReteNode
         // node with no children
 
         // unlink the join node from one side if possible
-        if (parent_mem.a_np.tokens.isEmpty())
+        if (parent_mem.a_np.tokens == null)
         {
             node.unlink_from_right_mem();
         }
@@ -398,7 +397,7 @@ public class ReteNode
         {
             node.unlink_from_left_mem();
         }
-        if (prefer_left_unlinking && (parent_mem.a_np.tokens.isEmpty()) && (am.right_mems.isEmpty()))
+        if (prefer_left_unlinking && (parent_mem.a_np.tokens == null) && (am.right_mems.isEmpty()))
         {
             node.relink_to_right_mem();
             node.unlink_from_left_mem();
@@ -455,9 +454,9 @@ public class ReteNode
         mem_node.node_id = mp_copy.node_id;
 
         mem_node.a_np.tokens = mp_node.a_np.tokens;
-        for (AsListItem<Token> t = mp_node.a_np.tokens.first; t != null; t = t.next)
+        for (Token t = mp_node.a_np.tokens; t != null; t = t.next_of_node)
         {
-            t.item.node = mem_node;
+            t.node = mem_node;
         }
 
         // transmogrify the old MP node into the new Pos node
@@ -466,7 +465,7 @@ public class ReteNode
         pos_node.node_type = node_type;
         pos_node.a_np = null;
         pos_node.a_pos = new PosNodeData(pos_node);
-        rete.rete_node_counts[pos_node.node_type.index()]++;
+        // TODO rete.rete_node_counts[pos_node.node_type.index()]++;
         pos_node.parent = mem_node;
         pos_node.first_child = mp_copy.first_child;
         pos_node.next_sibling = null;
@@ -522,7 +521,7 @@ public class ReteNode
         ReteNode mp_node = pos_node;
         // init_new_rete_node_with_type (thisAgent, mp_node, node_type);
         mp_node.node_type = node_type;
-        rete.rete_node_counts[mp_node.node_type.index()]++;
+        // TODO rete.rete_node_counts[mp_node.node_type.index()]++;
         mp_node.b_posneg = pos_copy.b_posneg; // TODO: Should this be .copy()?
 
         // transfer the Mem node's tokens to the MP node
@@ -533,9 +532,9 @@ public class ReteNode
             mp_node.a_np = new NonPosNodeData();
         }
         mp_node.a_np.tokens = mem_node.a_np.tokens;
-        for (AsListItem<Token> t = mem_node.a_np.tokens.first; t != null; t = t.next)
+        for (Token t = mem_node.a_np.tokens; t != null; t = t.next_of_node)
         {
-            t.item.node = mp_node;
+            t.node = mp_node;
         }
         mp_node.left_hash_loc_field_num = mem_node.left_hash_loc_field_num;
         mp_node.left_hash_loc_levels_up = mem_node.left_hash_loc_levels_up;
@@ -631,7 +630,7 @@ public class ReteNode
         rete.update_node_with_matches_from_above(node);
 
         // if no tokens arrived from parent, unlink the node
-        if (node.a_np.tokens.isEmpty())
+        if (node.a_np.tokens == null)
         {
             node.unlink_from_right_mem();
         }
@@ -749,9 +748,9 @@ public class ReteNode
         // clean up any tokens at the node
         if (!node.node_type.bnode_is_bottom_of_split_mp())
         {
-            while (!node.a_np.tokens.isEmpty())
+            while (node.a_np.tokens != null)
             {
-                rete.remove_token_and_subtree(node.a_np.tokens.first.item);
+                rete.remove_token_and_subtree(node.a_np.tokens);
             }
         }
 

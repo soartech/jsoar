@@ -10,13 +10,11 @@ package org.jsoar.kernel.lhs;
  */
 public class ImpasseIdTest extends ComplexTest
 {
-    public ImpasseIdTest()
+    public static ImpasseIdTest INSTANCE = new ImpasseIdTest();
+    
+    private ImpasseIdTest()
     {
         
-    }
-    private ImpasseIdTest(ImpasseIdTest impasseIdTest)
-    {
-        // TODO Auto-generated constructor stub
     }
 
     public ImpasseIdTest asImpasseIdTest()
@@ -30,8 +28,6 @@ public class ImpasseIdTest extends ComplexTest
     @Override
     public Test copy()
     {
-        return new ImpasseIdTest(this);
+        return this;
     }
-
-    
 }

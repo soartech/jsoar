@@ -22,6 +22,7 @@ public class RelationalTest extends ComplexTest
     public static final int GREATER_OR_EQUAL_TEST = 5;
     public static final int SAME_TYPE_TEST = 6;
     
+    // TODO Make these final so the object can be immutable. Eliminate copies, etc
     public int type;
     public Symbol referent;
     
@@ -71,6 +72,14 @@ public class RelationalTest extends ComplexTest
         return this;
     }
 
+    public RelationalTest withNewReferent(Symbol referent)
+    {
+        if(referent == this.referent)
+        {
+            return this;
+        }
+        return new RelationalTest(type, referent);
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Test#copy()

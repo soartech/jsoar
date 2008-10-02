@@ -489,7 +489,7 @@ public class ConditionReorderer
     {
         final int NON_EQUAL_TEST_RETURN_VAL = 0; /* some unusual number */
 
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             return NON_EQUAL_TEST_RETURN_VAL;
         }
@@ -591,7 +591,7 @@ public class ConditionReorderer
         /* --- handle the common simple case quickly up front --- */
         PositiveCondition pc = cond.asPositiveCondition();
         if (root_vars_not_bound_yet.isEmpty() && pc != null && 
-                !Test.isBlank(pc.id_test) && !Test.isBlank(pc.attr_test) && !Test.isBlank(pc.value_test) &&
+                !TestTools.isBlank(pc.id_test) && !TestTools.isBlank(pc.attr_test) && !TestTools.isBlank(pc.value_test) &&
                 pc.id_test.asEqualityTest() != null && 
                 pc.attr_test.asEqualityTest() != null && 
                 pc.value_test.asEqualityTest() != null)
@@ -681,7 +681,7 @@ public class ConditionReorderer
      */
     private boolean test_covered_by_bound_vars(Test t, int tc, List<Variable> extra_vars)
     {
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             return false;
         }
@@ -751,10 +751,10 @@ public class ConditionReorderer
      */
     private SavedTest simplify_test(ByRef<Test> t, SavedTest old_sts)
     {
-        if (Test.isBlank(t.value))
+        if (TestTools.isBlank(t.value))
         {
             Symbol sym = vars.generate_new_variable("dummy-");
-            t.value = EqualityTest.makeEqualityTest(sym);
+            t.value = Symbol.makeEqualityTest(sym);
             return old_sts;
         }
 
@@ -780,7 +780,7 @@ public class ConditionReorderer
             if (sym == null)
             {
                 sym = vars.generate_new_variable("dummy-");
-                EqualityTest newTest = EqualityTest.makeEqualityTest(sym);
+                EqualityTest newTest = Symbol.makeEqualityTest(sym);
                 ct.conjunct_list.push(newTest);
             }
             // scan through, create saved_test for subtests except equality
@@ -803,7 +803,7 @@ public class ConditionReorderer
         {
             // goal/impasse, disjunction, and non-equality relational tests
             Variable var = vars.generate_new_variable("dummy-");
-            EqualityTest New = EqualityTest.makeEqualityTest(var);
+            EqualityTest New = Symbol.makeEqualityTest(var);
             SavedTest saved = new SavedTest(old_sts, var, t.value.asComplexTest());
 
             old_sts = saved;
@@ -1043,7 +1043,7 @@ public class ConditionReorderer
     {
         Arguments.checkNotNull(starting_list, "starting_list");
         
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             return;
         }

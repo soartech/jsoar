@@ -104,9 +104,9 @@ public class Consistency
 
         // Note: Deleted about 40 lines of commented printf debugging code here from CSoar
 
-        if (!s.wmes.isEmpty())
+        if (s.getWmes() != null)
         { /* If there is something in the context slot */
-            if (s.wmes.getFirstItem().value == w.value)
+            if (s.getWmes().value == w.value)
             { /* The WME in the context slot is WME whose pref changed */
                 context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM,
                         "\n        REMOVING: Operator from context slot (proposal no longer matches): %s", w);
@@ -156,10 +156,10 @@ public class Consistency
         /* Determine the current operator/impasse in the slot*/
         Wme current_operator;
         boolean operator_in_slot;
-        if (!goal.operator_slot.wmes.isEmpty())
+        if (goal.operator_slot.getWmes() != null)
         {
             /* There is an operator in the slot */
-            current_operator = goal.operator_slot.wmes.getFirstItem();
+            current_operator = goal.operator_slot.getWmes();
             operator_in_slot = true;
         }
         else
@@ -346,7 +346,7 @@ public class Consistency
      */
     private void remove_current_decision(Slot s)
     {
-        if (s.wmes.isEmpty())
+        if (s.getWmes() == null)
             context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM,
                     "\n       REMOVING CONTEXT SLOT: Slot Identifier [%s] and attribute [%s]\n", s.id, s.attr);
 
@@ -395,7 +395,7 @@ public class Consistency
 
             Slot s = goal.operator_slot;
 
-            if ((goal.lower_goal != null) || (!s.wmes.isEmpty()))
+            if ((goal.lower_goal != null) || (s.getWmes() != null))
             { /* If we are not at the bottom goal or if there is an operator in the
                          bottom goal's operator slot */
                 if (DEBUG_CONSISTENCY_CHECK)

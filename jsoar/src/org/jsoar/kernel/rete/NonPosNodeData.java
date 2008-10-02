@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.util.ListHead;
 
 /**
  * data for all except positive nodes
@@ -16,7 +15,7 @@ import org.jsoar.util.ListHead;
  */
 public class NonPosNodeData extends ReteNodeData
 {
-    ListHead<Token> tokens = ListHead.newInstance(); // dll of tokens at this node
+    Token tokens = null; // dll of tokens at this node
     boolean is_left_unlinked; //:1;           /* used on mp nodes only */
     
     /**

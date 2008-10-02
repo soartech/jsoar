@@ -13,30 +13,15 @@ import org.jsoar.kernel.symbols.Variable;
 /**
  * @author ray
  */
-public class EqualityTest extends Test
+public abstract class EqualityTest extends Test
 {
-    public Symbol sym;
-    
-    public static EqualityTest makeEqualityTest(Symbol sym)
-    {
-        return sym != null ? new EqualityTest(sym) : null;
-    }
-    
-    /**
-     * @param sym
-     */
-    private EqualityTest(Symbol sym)
-    {
-        this.sym = sym;
-    }
-
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Test#copy()
      */
     @Override
     public Test copy()
     {
-        return new EqualityTest(sym);
+        return this; //new EqualityTest(sym);
     }
 
     /**
@@ -44,10 +29,7 @@ public class EqualityTest extends Test
      * 
      * @return
      */
-    public Symbol getReferent()
-    {
-        return sym;
-    }
+    public  abstract Symbol getReferent();
     
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Test#asBlankTest()
@@ -64,6 +46,7 @@ public class EqualityTest extends Test
     @Override
     public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
     {
+        final Symbol sym = getReferent();
         Variable var = sym != null ? sym.asVariable() : null;
         if(var != null)
         {
@@ -77,6 +60,7 @@ public class EqualityTest extends Test
     @Override
     public void addBoundVariables(int tc_number, LinkedList<Variable> var_list)
     {
+        final Symbol sym = getReferent();
         Variable var = sym != null ? sym.asVariable() : null;
         if(var != null)
         {

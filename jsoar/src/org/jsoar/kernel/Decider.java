@@ -162,8 +162,8 @@ public class Decider
     private void do_acceptable_preference_wme_changes_for_slot(Slot s)
     {
         // first, reset marks to "NOTHING"
-        for (AsListItem<Wme> w = s.acceptable_preference_wmes.first; w != null; w = w.next)
-            w.item.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+        for (Wme w = s.getAcceptablePreferenceWmes(); w != null; w = w.next)
+            w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
 
         // now mark values for which we WANT a wme as "CANDIDATE" values
         for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.REQUIRE_PREFERENCE_TYPE).first; p != null; p = p.next)
@@ -174,11 +174,10 @@ public class Decider
         // remove any existing wme's that aren't CANDIDATEs; mark the rest as
         // ALREADY_EXISTING
 
-        AsListItem<Wme> wmeItem = s.acceptable_preference_wmes.first;
-        while (wmeItem != null)
+        Wme w = s.getAcceptablePreferenceWmes();
+        while (w != null)
         {
-            AsListItem<Wme> next_w = wmeItem.next;
-            Wme w = wmeItem.item;
+            Wme next_w = w.next;
             if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
             {
                 w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
@@ -187,7 +186,7 @@ public class Decider
             }
             else
             {
-                w.next_prev.remove(s.acceptable_preference_wmes);
+                s.removeAcceptablePreferenceWme(w);
                 
                 /*
                  * IF we lose an acceptable preference for an operator, then
@@ -201,7 +200,7 @@ public class Decider
 
                 context.workingMemory.remove_wme_from_wm(w);
             }
-            wmeItem = next_w;
+            w = next_w;
         }
 
         // add the necessary wme's that don't ALREADY_EXIST
@@ -212,18 +211,18 @@ public class Decider
             if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
             {
                 // found existing wme, so just update its trace
-                Wme w = p.value.decider_wme;
-                if (w.preference == null)
-                    w.preference = p;
+                Wme wme = p.value.decider_wme;
+                if (wme.preference == null)
+                    wme.preference = p;
             }
             else
             {
-                Wme w = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
-                w.next_prev.insertAtHead(s.acceptable_preference_wmes);
-                w.preference = p;
-                context.workingMemory.add_wme_to_wm(w);
+                Wme wme = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
+                s.addAcceptablePreferenceWme(wme);
+                wme.preference = p;
+                context.workingMemory.add_wme_to_wm(wme);
                 p.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
-                p.value.decider_wme = w;
+                p.value.decider_wme = wme;
             }
         }
 
@@ -233,18 +232,18 @@ public class Decider
             if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
             {
                 // found existing wme, so just update its trace
-                Wme w = p.value.decider_wme;
-                if (w.preference == null)
-                    w.preference = p;
+                Wme wme = p.value.decider_wme;
+                if (wme.preference == null)
+                    wme.preference = p;
             }
             else
             {
-                Wme w = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
-                w.next_prev.insertAtHead(s.acceptable_preference_wmes);
-                w.preference = p;
-                context.workingMemory.add_wme_to_wm(w);
+                Wme wme = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
+                s.addAcceptablePreferenceWme(wme);
+                wme.preference = p;
+                context.workingMemory.add_wme_to_wm(wme);
                 p.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
-                p.value.decider_wme = w;
+                p.value.decider_wme = wme;
             }
         }
     }
@@ -359,20 +358,19 @@ public class Decider
         }
 
         // scan through all preferences and wmes for all slots for this id
-        for (AsListItem<Wme> w = id.input_wmes.first; w != null; w = w.next)
-            promote_if_needed(w.item.value, new_level);
+        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+            promote_if_needed(w.value, new_level);
         
         for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
         {
-            for (AsListItem<Preference> prIt = s.item.all_preferences.first; prIt != null; prIt = prIt.next)
+            for (Preference pref = s.item.getAllPreferences(); pref != null; pref = pref.next_of_slot)
             {
-                final Preference pref = prIt.item;
                 promote_if_needed(pref.value, new_level);
                 if (pref.type.isBinary())
                     promote_if_needed(pref.referent, new_level);
             }
-            for (AsListItem<Wme> w = s.item.wmes.first; w != null; w = w.next)
-                promote_if_needed(w.item.value, new_level);
+            for (Wme w = s.item.getWmes(); w != null; w = w.next)
+                promote_if_needed(w.value, new_level);
         }
     }
 
@@ -472,8 +470,8 @@ public class Decider
          */
 
         // remove any input wmes from the id
-        context.workingMemory.remove_wme_list_from_wm(id.input_wmes.getFirstItem(), true);
-        id.input_wmes.clear();
+        context.workingMemory.remove_wme_list_from_wm(id.getInputWmes(), true);
+        id.removeAllInputWmes();
 
         for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
@@ -484,15 +482,15 @@ public class Decider
                 remove_existing_attribute_impasse_for_slot(s);
 
             // remove all wme's from the slot
-            context.workingMemory.remove_wme_list_from_wm(s.wmes.getFirstItem(), false);
-            s.wmes.clear();
+            context.workingMemory.remove_wme_list_from_wm(s.getWmes(), false);
+            s.removeAllWmes();
 
             // remove all preferences for the slot
-            AsListItem<Preference> pref = s.all_preferences.first;
+            Preference pref = s.getAllPreferences();
             while (pref != null)
             {
-                AsListItem<Preference> next_pref = pref.next;
-                context.prefMemory.remove_preference_from_tm(pref.item);
+                final Preference next_pref = pref.next_of_slot;
+                context.prefMemory.remove_preference_from_tm(pref);
 
                 /*
                  * Note: the call to remove_preference_from_slot handles the
@@ -557,22 +555,21 @@ public class Decider
         }
 
         // scan through all preferences and wmes for all slots for this id
-        for (AsListItem<Wme> w = id.input_wmes.first; w != null; w = w.next)
-            mark_unknown_level_if_needed(w.item.value);
+        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+            mark_unknown_level_if_needed(w.value);
         for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
             final Slot s = sit.item;
-            for (AsListItem<Preference> prefIt = s.all_preferences.first; prefIt != null; prefIt = prefIt.next)
+            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.next_of_slot)
             {
-                final Preference pref = prefIt.item;
                 mark_unknown_level_if_needed(pref.value);
                 if (pref.type.isBinary())
                     mark_unknown_level_if_needed(pref.referent);
             }
             if (s.impasse_id != null)
                 mark_unknown_level_if_needed(s.impasse_id);
-            for (AsListItem<Wme> w = s.wmes.first; w != null; w = w.next)
-                mark_unknown_level_if_needed(w.item.value);
+            for (Wme w = s.getWmes(); w != null; w = w.next)
+                mark_unknown_level_if_needed(w.value);
         }
     }
 
@@ -618,22 +615,21 @@ public class Decider
         }
 
         // scan through all preferences and wmes for all slots for this id
-        for (AsListItem<Wme> w = id.input_wmes.first; w != null; w = w.next)
-            update_levels_if_needed(w.item.value);
+        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+            update_levels_if_needed(w.value);
         for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
             final Slot s = sit.item;
-            for (AsListItem<Preference> prefIt = s.all_preferences.first; prefIt != null; prefIt = prefIt.next)
+            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.next_of_slot)
             {
-                final Preference pref = prefIt.item;
                 update_levels_if_needed(pref.value);
                 if (pref.type.isBinary())
                     update_levels_if_needed(pref.referent);
             }
             if (s.impasse_id != null)
                 update_levels_if_needed(s.impasse_id);
-            for (AsListItem<Wme> w = s.wmes.first; w != null; w = w.next)
-                update_levels_if_needed(w.item.value);
+            for (Wme w = s.getWmes(); w != null; w = w.next)
+                update_levels_if_needed(w.value);
         }
     }
 
@@ -834,7 +830,7 @@ public class Decider
             boolean consistency /* = false */, boolean predict /* = false */)
     {
         // if the slot has no preferences at all, things are trivial
-        if (s.all_preferences.isEmpty())
+        if (s.getAllPreferences() == null)
         {
             if (!s.isa_context_slot)
                 context.tempMemory.mark_slot_for_possible_removal(s);
@@ -848,7 +844,7 @@ public class Decider
         {
             if (context.decisionManip.select_get_operator() != null)
             {
-                Preference force_result = context.decisionManip.select_force(s.all_preferences.first.item, !predict);
+                Preference force_result = context.decisionManip.select_force(s.getAllPreferences(), !predict);
 
                 if (force_result != null)
                 {
@@ -1280,7 +1276,7 @@ public class Decider
     private void add_impasse_wme(Identifier id, Symbol attr, Symbol value, Preference p)
     {
         Wme w = context.workingMemory.make_wme(id, attr, value, false);
-        w.next_prev.insertAtHead(id.impasse_wmes);
+        id.addImpasseWme(w);
         w.preference = p;
         context.workingMemory.add_wme_to_wm(w);
     }
@@ -1384,8 +1380,8 @@ public class Decider
         s.impasse_id = null;
         s.impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
 
-        context.workingMemory.remove_wme_list_from_wm(id.impasse_wmes.getFirstItem(), false);
-        id.impasse_wmes.clear();
+        context.workingMemory.remove_wme_list_from_wm(id.getImpasseWmes(), false);
+        id.removeAllImpasseWmes();
         post_link_removal(null, id); /* remove the special link */
     }
 
@@ -1421,9 +1417,9 @@ public class Decider
     {
         /* --- find the acceptable preference wme we want to backtrace to --- */
         Slot s = cand.slot;
-        AsListItem<Wme> ap_wme;
-        for (ap_wme = s.acceptable_preference_wmes.first; ap_wme != null; ap_wme = ap_wme.next)
-            if (ap_wme.item.value == cand.value)
+        Wme ap_wme;
+        for (ap_wme = s.getAcceptablePreferenceWmes(); ap_wme != null; ap_wme = ap_wme.next)
+            if (ap_wme.value == cand.value)
                 break;
         if (ap_wme == null)
         {
@@ -1452,22 +1448,22 @@ public class Decider
         inst.top_of_instantiated_conditions = cond;
         inst.bottom_of_instantiated_conditions = cond;
         inst.nots = null;
-        cond.id_test = EqualityTest.makeEqualityTest(ap_wme.item.id); // make_equality_test
+        cond.id_test = Symbol.makeEqualityTest(ap_wme.id); // make_equality_test
                                                             // (ap_wme->id);
-        cond.attr_test = EqualityTest.makeEqualityTest(ap_wme.item.attr);
-        cond.value_test = EqualityTest.makeEqualityTest(ap_wme.item.value);
+        cond.attr_test = Symbol.makeEqualityTest(ap_wme.attr);
+        cond.value_test = Symbol.makeEqualityTest(ap_wme.value);
         cond.test_for_acceptable_preference = true;
-        cond.bt.wme_ = ap_wme.item;
+        cond.bt.wme_ = ap_wme;
         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
         {
-            ap_wme.item.wme_add_ref();
+            ap_wme.wme_add_ref();
         }
         else
         {
             if (inst.match_goal_level > SoarConstants.TOP_GOAL_LEVEL)
-                ap_wme.item.wme_add_ref();
+                ap_wme.wme_add_ref();
         }
-        cond.bt.level = ap_wme.item.id.level;
+        cond.bt.level = ap_wme.id.level;
 
         /* --- return the fake preference --- */
         return pref;
@@ -1504,9 +1500,9 @@ public class Decider
         int item_count = count_candidates(items); // SBW 5/07
 
         // reset flags on existing items to "NOTHING"
-        for (AsListItem<Wme> w = id.impasse_wmes.first; w != null; w = w.next)
-            if (w.item.attr == predefined.item_symbol)
-                w.item.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+        for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
+            if (w.attr == predefined.item_symbol)
+                w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
 
         // mark set of desired items as "CANDIDATEs"
         for (Preference cand = items; cand != null; cand = cand.next_candidate)
@@ -1514,11 +1510,10 @@ public class Decider
 
         // for each existing item: if it's supposed to be there still, then
         // mark it "ALREADY_EXISTING"; otherwise remove it
-        AsListItem<Wme> wmeItem = id.impasse_wmes.first;
-        while (wmeItem != null)
+        Wme w = id.getImpasseWmes();
+        while (w != null)
         {
-            final Wme w = wmeItem.item;
-            final AsListItem<Wme> next_w = wmeItem.next;
+            final Wme next_w = w.next;
             if (w.attr == predefined.item_symbol)
             {
                 if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
@@ -1531,7 +1526,7 @@ public class Decider
                 }
                 else
                 {
-                    w.next_prev.remove(id.impasse_wmes);
+                    id.removeImpasseWme(w);
                     if (id.isa_goal)
                         remove_fake_preference_for_goal_item(w.preference);
                     context.workingMemory.remove_wme_from_wm(w);
@@ -1542,11 +1537,11 @@ public class Decider
             // remove item-count WME if it exists
             else if (w.attr == predefined.item_count_symbol)
             {
-                w.next_prev.remove(id.impasse_wmes);
+                id.removeImpasseWme(w);
                 context.workingMemory.remove_wme_from_wm(w);
             }
 
-            wmeItem = next_w;
+            w = next_w;
         }
 
         /* --- for each desired item: if it doesn't ALREADY_EXIST, add it --- */
@@ -1601,19 +1596,20 @@ public class Decider
             remove_existing_attribute_impasse_for_slot (s);
          
          // reset marks on existing wme values to "NOTHING"
-         for (AsListItem<Wme> w = s.wmes.first; w != null; w = w.next)
-            w.item.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+         for (Wme w = s.getWmes(); w != null; w = w.next)
+            w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
          
          // set marks on desired values to "CANDIDATES"
          for (Preference cand=candidates.value; cand!=null; cand=cand.next_candidate)
             cand.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
          
             // for each existing wme, if we want it there, mark it as ALREADY_EXISTING; otherwise remove it
-         AsListItem<Wme> wmeItem = s.wmes.first;
-         while (wmeItem != null) 
+         Wme it = s.getWmes();
+         while (it != null) 
          {
-            final Wme w = wmeItem.item;
-            final AsListItem<Wme> next_w = wmeItem.next;
+            final Wme w = it;
+            it = w.next;
+            
             if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG) 
             {
                w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
@@ -1621,8 +1617,7 @@ public class Decider
             } 
             else 
             {
-               w.next_prev.remove(s.wmes);
-               /* REW: begin 09.15.96 */
+               s.removeWme(w);
                if (context.operand2_mode)
                {
                   if (w.gds != null) 
@@ -1650,30 +1645,24 @@ public class Decider
                      }
                   }
                }
-               /* REW: end   09.15.96 */
                context.workingMemory.remove_wme_from_wm (w);
             }
-            wmeItem = next_w;
          } 
          
-         /* --- for each desired value, if it's not already there, add it --- */
+         // for each desired value, if it's not already there, add it
          for (Preference cand=candidates.value; cand!=null; cand=cand.next_candidate) 
          {
             if (cand.value.decider_flag==DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
             {
-               /* REW: begin 11.22.97 */ 
                /* print(thisAgent, "\n This WME was marked as already existing...."); print_wme(cand->value->common.a.decider_wme); */
-               
-               /* REW: end   11.22.97 */ 
                cand.value.decider_wme.preference = cand;
             } 
             else 
             {
                Wme w = context.workingMemory.make_wme(cand.id, cand.attr, cand.value, false);
-               w.next_prev.insertAtHead(s.wmes);
+               s.addWme(w);
                w.preference = cand;
                
-               /* REW: begin 09.15.96 */
                if (context.operand2_mode)
                {
                /* Whenever we add a WME to WM, we also want to check and see if
@@ -1683,13 +1672,11 @@ public class Decider
                element was not created in the top state -- the top goal has
                   no gds).  */
                   
-                  /* REW: begin 11.25.96 */ 
     //#ifndef NO_TIMING_STUFF
     //#ifdef DETAILED_TIMING_STATS
     //              start_timer(thisAgent, &thisAgent->start_gds_tv);
     //#endif 
     //#endif
-                  /* REW: end   11.25.96 */ 
                   
                   this.parent_list_head = null;
                   
@@ -1808,11 +1795,11 @@ public class Decider
        } /* end of if impasse type == NONE */
     
        // impasse type != NONE
-       if (!s.wmes.isEmpty()) 
+       if (s.getWmes() != null) 
        {  
           // remove any existing wmes
-          context.workingMemory.remove_wme_list_from_wm (s.wmes.getFirstItem(), false); 
-          s.wmes.clear();
+          context.workingMemory.remove_wme_list_from_wm (s.getWmes(), false); 
+          s.removeAllWmes();
        }
     
        /* --- create and/or update impasse structure --- */
@@ -1865,10 +1852,10 @@ public class Decider
      */
     private boolean context_slot_is_decidable(Slot s)
     {
-        if (s.wmes.isEmpty())
+        if (s.getWmes() == null)
             return s.changed != null;
 
-        Symbol v = s.wmes.getFirstItem().value;
+        Symbol v = s.getWmes().value;
         for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.RECONSIDER_PREFERENCE_TYPE).first; p != null; p = p.next)
         {
             if (v == p.item.value)
@@ -1888,16 +1875,16 @@ public class Decider
      */
     void remove_wmes_for_context_slot(Slot s)
     {
-        if (s.wmes.isEmpty())
+        if (s.getWmes() == null)
             return;
         /*
          * Note that we only need to handle one wme--context slots never have
          * more than one wme in them
          */
-        Wme w = s.wmes.getFirstItem();
+        final Wme w = s.getWmes();
         w.preference.preference_remove_ref(context.prefMemory);
         context.workingMemory.remove_wme_from_wm(w);
-        s.wmes.clear();
+        s.removeAllWmes();
     }    
     
     /**
@@ -1994,8 +1981,8 @@ public class Decider
             // reward - there is no next state
         }
 
-        context.workingMemory.remove_wme_list_from_wm(goal.impasse_wmes.getFirstItem(), false);
-        goal.impasse_wmes.clear();
+        context.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
+        goal.removeAllImpasseWmes();
         
         /*
          * If there was a GDS for this goal, we want to set the pointer for the
@@ -2007,8 +1994,6 @@ public class Decider
         {
             goal.gds.clearGoal();
         }
-
-        /* REW: begin 08.20.97 */
 
         /*
          * If we remove a goal WME, then we have to transfer any already
@@ -2163,9 +2148,8 @@ public class Decider
             return ImpasseType.NONE_IMPASSE_TYPE;
 
         final PredefinedSymbols predefined = context.predefinedSyms;
-        for (AsListItem<Wme> it = goal.lower_goal.impasse_wmes.first; it != null; it = it.next)
+        for (Wme w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
         {
-            final Wme w = it.item;
             if (w.attr == predefined.impasse_symbol)
             {
                 if (w.value == predefined.no_change_symbol)
@@ -2196,9 +2180,9 @@ public class Decider
         if (goal.lower_goal == null)
             return null;
         
-        for (AsListItem<Wme> w = goal.lower_goal.impasse_wmes.first; w != null; w = w.next)
-            if (w.item.attr == context.predefinedSyms.attribute_symbol)
-                return w.item.value;
+        for (Wme w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
+            if (w.attr == context.predefinedSyms.attribute_symbol)
+                return w.value;
 
         throw new IllegalStateException("Internal error: couldn't find attribute of existing impasse.");
     }
@@ -2308,7 +2292,7 @@ public class Decider
         // doesn't matter)
         if (impasse_type == ImpasseType.NO_CHANGE_IMPASSE_TYPE)
         {
-            if (!s.wmes.isEmpty())
+            if (s.getWmes() != null)
             {
                 attribute_of_impasse = s.attr;
             }
@@ -2340,7 +2324,7 @@ public class Decider
                 remove_existing_context_and_descendents(goal.lower_goal);
 
             Wme w = context.workingMemory.make_wme(s.id, s.attr, candidates.value.value, false);
-            w.next_prev.insertAtHead(s.wmes);
+            s.addWme(w);
             w.preference = candidates.value;
             w.preference.preference_add_ref();
 
@@ -2359,7 +2343,7 @@ public class Decider
         // TODO move to rl_info
         if (impasse_type != ImpasseType.NO_CHANGE_IMPASSE_TYPE)
             goal.rl_info.impasse_type = impasse_type;
-        else if (!s.wmes.isEmpty())
+        else if (s.getWmes() != null)
             goal.rl_info.impasse_type = ImpasseType.OP_NO_CHANGE_IMPASSE_TYPE;
         else
             goal.rl_info.impasse_type = ImpasseType.STATE_NO_CHANGE_IMPASSE_TYPE;
@@ -2431,7 +2415,7 @@ public class Decider
                 if (context_slot_is_decidable(s))
                     break;
 
-                if ((s == goal.operator_slot) || (s.wmes.isEmpty()))
+                if ((s == goal.operator_slot) || (s.getWmes() == null))
                 {
                     // no more slots to look at for this goal; have we reached
                     // the last slot in whole stack?
@@ -3255,9 +3239,9 @@ public class Decider
          */
         /* REW: end   10.24.97 */
 
-        if (!bottom_goal.operator_slot.wmes.isEmpty())
+        if (bottom_goal.operator_slot.getWmes() != null)
         {
-            context.traceFormats.print_stack_trace(writer, bottom_goal.operator_slot.wmes.getFirstItem().value,
+            context.traceFormats.print_stack_trace(writer, bottom_goal.operator_slot.getWmes().value,
                     bottom_goal, TraceFormatRestriction.FOR_OPERATORS_TF, true);
         }
 
@@ -3283,7 +3267,7 @@ public class Decider
                             TraceFormatRestriction.FOR_STATES_TF, true);
                 else
                 {
-                    if (bottom_goal.higher_goal != null && !bottom_goal.higher_goal.operator_slot.wmes.isEmpty())
+                    if (bottom_goal.higher_goal != null && bottom_goal.higher_goal.operator_slot.getWmes() != null)
                     {
                         context.traceFormats.print_stack_trace(writer, bottom_goal, bottom_goal,
                                 TraceFormatRestriction.FOR_STATES_TF, true);

@@ -800,18 +800,18 @@ public class TraceFormats
         if (id == null)
             return count;
 
-        /* --- call this routine recursively on any wme matching the first segment
-           of the attribute path --- */
-        for (Wme w : id.impasse_wmes)
+        // call this routine recursively on any wme matching the first segment
+        //   of the attribute path
+        for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == path.get(pathIndex))
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
-        for (Wme w : id.input_wmes)
+        for (Wme w = id.getInputWmes(); w != null; w = w.next)
             if (w.attr == path.get(pathIndex))
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
         Slot s = Slot.find_slot(id, path.get(pathIndex));
         if (s != null)
         {
-            for (Wme w : s.wmes)
+            for (Wme w = s.getWmes(); w != null; w = w.next)
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
         }
         return count;
@@ -876,11 +876,11 @@ public class TraceFormats
             if (id == null)
                 return;
             for (Slot s : id.slots)
-                for (Wme w : s.wmes)
+                for (Wme w = s.getWmes(); w != null; w = w.next)
                     add_trace_for_wme(values, w, print_attributes, recursive);
-            for (Wme w : id.impasse_wmes)
+            for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
                 add_trace_for_wme(values, w, print_attributes, recursive);
-            for (Wme w : id.input_wmes)
+            for (Wme w = id.getInputWmes(); w != null; w = w.next)
                 add_trace_for_wme(values, w, print_attributes, recursive);
             if (values.length() > 0)
                 result.append(values.substring(1));
@@ -1188,10 +1188,10 @@ public class TraceFormats
         if (current_state != null)
         {
             tparams.current_s = current_state;
-            if (!current_state.operator_slot.wmes.isEmpty())
+            if (current_state.operator_slot.getWmes() != null)
             {
                 // TODO Is it safe to assume this is an Identifier?
-                tparams.current_o = current_state.operator_slot.wmes.getFirstItem().value.asIdentifier(); 
+                tparams.current_o = current_state.operator_slot.getWmes().value.asIdentifier(); 
             }
         }
         tparams.allow_cycle_counts = allow_cycle_counts;

@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.Test;
+import org.jsoar.kernel.lhs.TestTools;
 import org.jsoar.kernel.symbols.Variable;
 
 /**
@@ -123,7 +124,7 @@ public class VarNames
      */
     public static Object add_unbound_varnames_in_test(Test t, Object starting_vn)
     {
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             return starting_vn;
         }

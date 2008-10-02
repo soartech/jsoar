@@ -238,7 +238,7 @@ public class Chunker
     }
 
     /**
-     * chunk.cpp:121:add_results_for_id
+     * <p>chunk.cpp:121:add_results_for_id
      * 
      * @param id
      */
@@ -247,15 +247,18 @@ public class Chunker
         id.tc_number = this.results_tc_number;
 
         // scan through all preferences and wmes for all slots for this id
-        for (AsListItem<Wme> w = id.input_wmes.first; w != null; w = w.next)
-            add_results_if_needed(w.item.value);
+        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+            add_results_if_needed(w.value);
+        
         for (AsListItem<Slot> it = id.slots.first; it != null; it = it.next)
         {
             final Slot s = it.item;
-            for (AsListItem<Preference> pref = s.all_preferences.first; pref != null; pref = pref.next)
-                add_pref_to_results(pref.item);
-            for (AsListItem<Wme> w = s.wmes.first; w != null; w = w.next)
-                add_results_if_needed(w.item.value);
+            
+            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.next_of_slot)
+                add_pref_to_results(pref);
+            
+            for (Wme w = s.getWmes(); w != null; w = w.next)
+                add_results_if_needed(w.value);
         }
 
         // now scan through extra prefs and look for any with this id
@@ -269,7 +272,7 @@ public class Chunker
 
     /**
      * 
-     * chunk.cpp:144:get_results_for_instantiation
+     * <p>chunk.cpp:144:get_results_for_instantiation
      * 
      * @param inst
      * @return
@@ -325,36 +328,39 @@ public class Chunker
      * chunk.cpp:207:variablize_test
      * @param t
      */
-    private void variablize_test(Test t)
+    private Test variablize_test(Test t)
     {
-        if (Test.isBlank(t))
-            return;
+        if (TestTools.isBlank(t))
+            return t;
         
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
-            eq.sym = variablize_symbol(eq.sym);
+            //eq.sym = variablize_symbol(eq.sym);
             /* Warning: this relies on the representation of tests */
-            return;
+            return Symbol.makeEqualityTest(variablize_symbol(eq.getReferent()));
         }
 
         if (t.asGoalIdTest() != null || t.asImpasseIdTest() != null || t.asDisjunctionTest() != null)
         {
-            return;
+            return t;
         }
 
         ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
+            // TODO: Use array or arraylist instead
+            LinkedList<Test> newConjunctList = new LinkedList<Test>();
             for (Test c : ct.conjunct_list)
             {
-                variablize_test(c);
+                newConjunctList.add(variablize_test(c));
             }
-            return;
+            ct.conjunct_list = newConjunctList;
+            return ct;
         }
         // relational tests other than equality
         RelationalTest rt = t.asRelationalTest();
-        rt.referent = variablize_symbol(rt.referent);
+        return rt.withNewReferent(variablize_symbol(rt.referent));
     }
 
     /**
@@ -369,9 +375,9 @@ public class Chunker
             ThreeFieldCondition tfc = cond.asThreeFieldCondition();
             if (tfc != null)
             {
-                variablize_test(tfc.id_test);
-                variablize_test(tfc.attr_test);
-                variablize_test(tfc.value_test);
+                tfc.id_test = variablize_test(tfc.id_test);
+                tfc.attr_test = variablize_test(tfc.attr_test);
+                tfc.value_test = variablize_test(tfc.value_test);
             }
 
             ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
@@ -681,7 +687,7 @@ public class Chunker
 
             if ((id.isa_goal || id.isa_impasse) && (id.tc_number != tc))
             {
-                Test t = id.isa_goal ? new GoalIdTest() : new ImpasseIdTest();
+                Test t = id.isa_goal ? GoalIdTest.INSTANCE : ImpasseIdTest.INSTANCE;
                 // TODO Assumes variablized_cond is three-field (put this
                 // assumption in class?)
                 ByRef<Test> id_test = ByRef.create(cc.variablized_cond.asThreeFieldCondition().id_test);
@@ -810,9 +816,9 @@ public class Chunker
      */
     private static Symbol find_impasse_wme_value(Identifier id, Symbol attr)
     {
-        for (AsListItem<Wme> w = id.impasse_wmes.first; w != null; w = w.next)
-            if (w.item.attr == attr)
-                return w.item.value;
+        for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
+            if (w.attr == attr)
+                return w.value;
         return null;
     }
     

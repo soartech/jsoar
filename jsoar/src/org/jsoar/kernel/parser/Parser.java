@@ -7,6 +7,7 @@ package org.jsoar.kernel.parser;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedList;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
@@ -147,7 +148,7 @@ private Test make_placeholder_test (char first_letter) {
   new_var.current_binding_value = null; 
   
   /* --- return an equality test for that variable --- */
-  return EqualityTest.makeEqualityTest(new_var);
+  return Symbol.makeEqualityTest(new_var);
   //return make_equality_test_without_adding_reference (new_var);
 }
 
@@ -194,34 +195,37 @@ private void substitute_for_placeholders_in_symbol (Symbol[] sym) {
   //if (!just_created) symbol_add_ref (var);
 }
 
-private void substitute_for_placeholders_in_test (Test t) {
+private Test substitute_for_placeholders_in_test (Test t) {
 
-  if (Test.isBlank(t)) return;
+  if (TestTools.isBlank(t)) return t;
   EqualityTest eqTest = t.asEqualityTest();
   if (eqTest != null) {
-     Symbol sym[] = new Symbol[] { eqTest.sym }; // pointer to pointer trick
+     Symbol sym[] = new Symbol[] { eqTest.getReferent() }; // pointer to pointer trick
     substitute_for_placeholders_in_symbol (sym /*(Symbol **) t*/);
-    eqTest.sym = sym[0];
+    //eqTest.sym = sym[0];
     /* Warning: this relies on the representation of tests */
-    return;
+    return Symbol.makeEqualityTest(sym[0]);
   }
 
   Test ct = t.asComplexTest();
   if(ct.asGoalIdTest() != null || ct.asImpasseIdTest() != null || ct.asDisjunctionTest() != null)
   {
-      return;
+      return ct;
   }
   ConjunctiveTest conjunctive = ct.asConjunctiveTest();
   if(conjunctive != null)
   {
+      // TODO: Use array or arraylist instead
+      LinkedList<Test> newConjuntList = new LinkedList<Test>();
       for(Test child : conjunctive.conjunct_list)
       {
-          substitute_for_placeholders_in_test(child);
+          newConjuntList.add(substitute_for_placeholders_in_test(child));
       }
+      conjunctive.conjunct_list = newConjuntList;
 //      for (c=ct->data.conjunct_list; c!=null; c=c->rest)
 //          substitute_for_placeholders_in_test (thisAgent, (test *)(&(c->first)));
       
-      return;
+      return conjunctive;
   }
   /* relational tests other than equality */
   RelationalTest relational = ct.asRelationalTest();
@@ -229,8 +233,7 @@ private void substitute_for_placeholders_in_test (Test t) {
   {
       Symbol[] sym = new Symbol[] { relational.referent };
       substitute_for_placeholders_in_symbol (sym);
-      relational.referent = sym[0];
-      return;
+      return relational.withNewReferent(sym[0]);
   }
   throw new IllegalStateException("Unexpected complex test: " + ct);
 }
@@ -242,9 +245,9 @@ private void substitute_for_placeholders_in_condition_list (Condition cond) {
     {
 //    case POSITIVE_CONDITION:
 //    case NEGATIVE_CONDITION:
-      substitute_for_placeholders_in_test (tfc.id_test);
-      substitute_for_placeholders_in_test (tfc.attr_test);
-      substitute_for_placeholders_in_test (tfc.value_test);
+      tfc.id_test = substitute_for_placeholders_in_test (tfc.id_test);
+      tfc.attr_test = substitute_for_placeholders_in_test (tfc.attr_test);
+      tfc.value_test = substitute_for_placeholders_in_test (tfc.value_test);
     }
     ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
     if(ncc != null)
@@ -367,7 +370,7 @@ private void substitute_for_placeholders_in_action_list (Action a) {
     Symbol referent = make_symbol_for_current_lexeme();
     lexer.getNextLexeme();
     if (use_equality_test) {
-      t = EqualityTest.makeEqualityTest(referent);
+      t = Symbol.makeEqualityTest(referent);
     } else {
       t = new RelationalTest(test_type, referent);
     }
@@ -828,11 +831,11 @@ private Test parse_head_of_conds_for_one_id (char first_letter_if_no_id_given) t
   /* --- look for goal/impasse indicator --- */
   if (lexer.getCurrentLexeme().type==SYM_CONSTANT_LEXEME) {
     if (lexer.getCurrentLexeme().string.equals("state")) {
-      id_goal_impasse_test = new GoalIdTest();
+      id_goal_impasse_test = GoalIdTest.INSTANCE;
       lexer.getNextLexeme();
       first_letter_if_no_id_given = 's';
     } else if (lexer.getCurrentLexeme().string.equals("impasse")) {
-      id_goal_impasse_test = new ImpasseIdTest();
+      id_goal_impasse_test = ImpasseIdTest.INSTANCE;
       lexer.getNextLexeme();
       first_letter_if_no_id_given = 'i';
     } else {
@@ -858,7 +861,7 @@ private Test parse_head_of_conds_for_one_id (char first_letter_if_no_id_given) t
       TestTools.add_new_test_to_test(id_test, make_placeholder_test(first_letter_if_no_id_given));
     } else {
       check_for_symconstant = TestTools.copy_of_equality_test_found_in_test(id_test.value);
-      sym = check_for_symconstant.asEqualityTest().sym; // referent_of_equality_test(check_for_symconstant);
+      sym = check_for_symconstant.asEqualityTest().getReferent(); // referent_of_equality_test(check_for_symconstant);
       //deallocate_test (thisAgent, check_for_symconstant); /* RBD added 3/28/95 */
       if(sym.asVariable() == null) {
           // TODO

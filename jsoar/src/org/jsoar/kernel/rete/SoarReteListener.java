@@ -19,7 +19,6 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -279,9 +278,9 @@ public class SoarReteListener implements ReteListener
                 {
                     // examine all the different matches for this productions
 
-                    for (AsListItem<Token> it = node.a_np.tokens.first; it != null; it = it.next)
+                    for (Token it = node.a_np.tokens; it != null; it = it.next_of_node)
                     {
-                        final Token OPERAND_curr_tok = it.item;
+                        final Token OPERAND_curr_tok = it;
                         /*
                          * i'll need to make two passes over each set of wmes
                          * that match this production. the first pass looks for

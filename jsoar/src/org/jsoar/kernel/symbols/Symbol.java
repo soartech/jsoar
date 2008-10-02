@@ -10,12 +10,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.DeciderFlag;
+import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.memory.Wme;
 
 /**
  * @author ray
  */
-public abstract class Symbol
+public abstract class Symbol extends EqualityTest
 {
     public DeciderFlag decider_flag;
     public Wme decider_wme;
@@ -151,4 +152,20 @@ public abstract class Symbol
         // False by default
         return false;
     }
+    
+    public static EqualityTest makeEqualityTest(Symbol sym)
+    {
+        return sym;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.lhs.EqualityTest#getReferent()
+     */
+    @Override
+    public Symbol getReferent()
+    {
+        return this;
+    }
+    
+    
 }

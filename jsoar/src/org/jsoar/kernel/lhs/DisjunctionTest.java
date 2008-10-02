@@ -15,6 +15,7 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class DisjunctionTest extends ComplexTest
 {
+    // TODO Make disjunction test immutable
     public List<Symbol> disjunction_list = new ArrayList<Symbol>();
     
     public DisjunctionTest()

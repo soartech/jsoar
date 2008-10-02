@@ -42,8 +42,8 @@ public class Identifier extends Symbol
     public int tc_number; /* used for transitive closures, marking, etc. */
     public Symbol variablization; /* used by the chunker */
 
-    /* --- fields used only on goals and impasse identifiers --- */
-    public final ListHead<Wme> impasse_wmes = ListHead.newInstance();
+    // fields used only on goals and impasse identifiers
+    private Wme impasse_wmes;
     
     /* --- fields used only on goals --- */
     public Identifier higher_goal, lower_goal;
@@ -68,7 +68,7 @@ public class Identifier extends Symbol
 
     /* --- fields used for Soar I/O stuff --- */
     public LinkedList<OutputLink> associated_output_links = null;
-    public final ListHead<Wme> input_wmes = ListHead.newInstance();
+    private Wme input_wmes;
 
     public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
 
@@ -132,6 +132,45 @@ public class Identifier extends Symbol
         }
     }
     
+    public Wme getInputWmes()
+    {
+        return input_wmes;
+    }
+    
+    public void addInputWme(Wme w)
+    {
+        this.input_wmes = w.addToList(this.input_wmes);
+    }
+    
+    public void removeInputWme(Wme w)
+    {
+        this.input_wmes = w.removeFromList(this.input_wmes);
+    }
+    
+    public void removeAllInputWmes()
+    {
+        this.input_wmes = null;
+    }
+    
+    public Wme getImpasseWmes()
+    {
+        return impasse_wmes;
+    }
+    
+    public void addImpasseWme(Wme w)
+    {
+        this.impasse_wmes = w.addToList(this.impasse_wmes);
+    }
+    
+    public void removeAllImpasseWmes()
+    {
+        this.impasse_wmes = null;
+    }
+    
+    public void removeImpasseWme(Wme w)
+    {
+        this.impasse_wmes = w.removeFromList(this.impasse_wmes);
+    }
     /**
      * <p>production.cpp:1068:unmark_identifiers_and_free_list
      * 
