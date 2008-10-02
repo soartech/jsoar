@@ -89,7 +89,7 @@ public class ParserTest extends JSoarTest
         
         EqualityTest rt = parser.parse_relational_test().asEqualityTest();
         assertNotNull(rt);
-        verifyStringSymbol(rt.sym, "hello there");
+        verifyStringSymbol(rt.getReferent(), "hello there");
     }
 
     @Test

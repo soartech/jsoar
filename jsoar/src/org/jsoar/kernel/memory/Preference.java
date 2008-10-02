@@ -33,7 +33,8 @@ public class Preference implements Formattable
 
     public final AsListItem<Preference> next_prev = new AsListItem<Preference>(this); // dll of pref's of same type in same slot */
 
-    final AsListItem<Preference> all_of_slot = new AsListItem<Preference>(this); // dll of all pref's in same slot
+    public Preference next_of_slot;
+    public Preference previous_of_slot;
 
     public final AsListItem<Preference> all_of_goal = new AsListItem<Preference>(this); // dll of all pref's from the same match goal
     

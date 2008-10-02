@@ -72,9 +72,12 @@ public class Slot
     public final Identifier id; 
     public final Symbol attr;
 
-    public final ListHead<Wme> wmes = ListHead.newInstance(); // dll of wmes in the slot
-    public final ListHead<Wme> acceptable_preference_wmes = ListHead.newInstance();  // dll of acceptable pref. wmes
-    public final ListHead<Preference> all_preferences = ListHead.newInstance(); // dll of all pref's in the slot
+    private Wme wmes; // dll of wmes in the slot
+    private Wme acceptable_preference_wmes;  // dll of acceptable pref. wmes
+    
+    private Preference all_preferences; // dll of all pref's in the slot
+    
+    // TODO: Replace with array of normal pointers, i.e. eliminate ListHead/AsListItem
     private final EnumMap<PreferenceType, ListHead<Preference>> preferencesByType = new EnumMap<PreferenceType, ListHead<Preference>>(PreferenceType.class);
 
     public Identifier impasse_id = null;               // null if slot is not impassed
@@ -212,5 +215,81 @@ public class Slot
         
         ListHead<Preference> list =  preferencesByType.get(type);
         return list != null ? list : defaultPreferenceList;
+    }
+    
+    public Wme getWmes()
+    {
+        return this.wmes;
+    }
+    
+    public void addWme(Wme w)
+    {
+        this.wmes = w.addToList(this.wmes);
+    }
+    
+    public void removeWme(Wme w)
+    {
+        this.wmes = w.removeFromList(this.wmes);
+    }
+    
+    public void removeAllWmes()
+    {
+        this.wmes = null;
+    }
+    
+    public Wme getAcceptablePreferenceWmes()
+    {
+        return acceptable_preference_wmes;
+    }
+    
+    public void addAcceptablePreferenceWme(Wme wme)
+    {
+        this.acceptable_preference_wmes = wme.addToList(this.acceptable_preference_wmes);
+    }
+    
+    public void removeAcceptablePreferenceWme(Wme w)
+    {
+        this.acceptable_preference_wmes = w.removeFromList(this.acceptable_preference_wmes);
+    }
+    
+    public Preference getAllPreferences()
+    {
+        return all_preferences;
+    }
+    
+    public void addPreference(Preference pref)
+    {
+        pref.slot = this;
+        
+        pref.next_of_slot = all_preferences;
+        pref.previous_of_slot = null;
+        if(all_preferences != null)
+        {
+            all_preferences.previous_of_slot = pref;
+        }
+        all_preferences = pref;
+    }
+    
+    public void removePreference(Preference pref)
+    {
+        pref.slot = null; // BUG shouldn't we use pref->slot in place of pref->in_tm?
+        
+        pref.next_prev.remove(getPreferenceList(pref));
+        
+        if(pref.next_of_slot != null)
+        {
+            pref.next_of_slot.previous_of_slot = pref.previous_of_slot;
+        }
+        if(pref.previous_of_slot != null)
+        {
+            pref.previous_of_slot.next_of_slot = pref.next_of_slot;
+        }
+        else
+        {
+            all_preferences = pref.next_of_slot;
+        }
+        pref.next_of_slot = null;
+        pref.previous_of_slot = null;
+
     }
 }

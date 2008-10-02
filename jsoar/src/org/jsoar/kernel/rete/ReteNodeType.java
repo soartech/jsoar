@@ -41,11 +41,6 @@ public enum ReteNodeType
         this.index = index;
     }
     
-    public int index()
-    {
-        return index;
-    }
-    
     public boolean bnode_is_hashed() { return (index & 0x01) != 0; }
     public boolean bnode_is_memory() { return (index & 0x02) != 0; }
     public boolean bnode_is_positive() { return (index & 0x04) != 0; }

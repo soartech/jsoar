@@ -21,191 +21,140 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4485:disjunction_rete_test_routine
      */
-    private static final ReteTestRoutine disjunction_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            Symbol sym = VarLocation.field_from_wme(w, rt.right_field_num);
-            return rt.disjunction_list.contains(sym);
-        }};
+    private static boolean disjunction_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        Symbol sym = VarLocation.field_from_wme(w, rt.right_field_num);
+        return rt.disjunction_list.contains(sym);
+    }
         
     /**
      * rete.cpp:4477:id_is_goal_rete_test_routine
      */
-    private static final ReteTestRoutine id_is_goal_rete_test_routine =  new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return w.id.isa_goal;
-        }};
+    private static boolean id_is_goal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return w.id.isa_goal;
+    }
 
     /**
      * rete.cpp:4481:id_is_impasse_rete_test_routine
      */
-    private static final ReteTestRoutine id_is_impasse_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return w.id.isa_impasse;
-        }};
+    private static boolean id_is_impasse_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return w.id.isa_impasse;
+    }
 
     /**
      * rete.cpp:4495:constant_equal_rete_test_routine
      */
-    private static final ReteTestRoutine constant_equal_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return equalTest(rt, w, rt.constant_referent);
-        }};
+    private static boolean constant_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return equalTest(rt, w, rt.constant_referent);
+    }
 
     /**
      * rete.cpp:4503:constant_not_equal_rete_test_routine
      */
-    private static final ReteTestRoutine constant_not_equal_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return !equalTest(rt, w, rt.constant_referent);
-        }};
+    private static boolean constant_not_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return !equalTest(rt, w, rt.constant_referent);
+    }
 
 
     /**
      * rete.cpp:4546:constant_same_type_rete_test_routine
      */
-    private static final ReteTestRoutine constant_same_type_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return sameTypeTest(rt, w, rt.constant_referent);
-        }};
+    private static boolean constant_same_type_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return sameTypeTest(rt, w, rt.constant_referent);
+    }
 
     /**
      * rete.cpp:4512:constant_less_rete_test_routine
      */
-    private static final ReteTestRoutine constant_less_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return lessTest(rt, w, rt.constant_referent);
-        }};
+    private static boolean constant_less_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return lessTest(rt, w, rt.constant_referent);
+    }
         
     /**
      * rete.cpp:4520:constant_greater_rete_test_routine
      */
-    private static final ReteTestRoutine constant_greater_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return greaterTest(rt, w, rt.constant_referent);
-        }};
+    private static boolean constant_greater_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return greaterTest(rt, w, rt.constant_referent);
+    }
 
     /**
      * rete.cpp:4528:constant_less_or_equal_rete_test_routine
      */
-    private static final ReteTestRoutine constant_less_or_equal_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return lessEqualTest(rt, w, rt.constant_referent);
-        }};
+    private static boolean constant_less_or_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return lessEqualTest(rt, w, rt.constant_referent);
+    }
 
     /**
      * rete.cpp:4537:constant_greater_or_equal_rete_test_routine
      */
-    private static final ReteTestRoutine constant_greater_or_equal_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return greaterEqualTest(rt, w, rt.constant_referent);
-        }};
+    private static boolean constant_greater_or_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return greaterEqualTest(rt, w, rt.constant_referent);
+    }
 
     /**
      * rete.cpp:4555:variable_equal_rete_test_routine
      */
-    private static final ReteTestRoutine variable_equal_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return equalTest(rt, w, getVariableSymbol(rt, left, w));
-        }};
+    private static boolean variable_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return equalTest(rt, w, getVariableSymbol(rt, left, w));
+    }
 
     /**
      * rete.cpp:4474:variable_not_equal_rete_test_routine
      */
-    private static final ReteTestRoutine variable_not_equal_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return !equalTest(rt, w, getVariableSymbol(rt, left, w));
-        }};
+    private static boolean variable_not_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return !equalTest(rt, w, getVariableSymbol(rt, left, w));
+    }
 
     /**
      * rete.cpp:4594:variable_less_rete_test_routine
      */
-    private static final ReteTestRoutine variable_less_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return lessTest(rt, w, getVariableSymbol(rt, left, w));
-        }};
+    private static boolean variable_less_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return lessTest(rt, w, getVariableSymbol(rt, left, w));
+    }
 
     /**
      * rete.cpp:4613:variable_greater_rete_test_routine
      */
-    private static final ReteTestRoutine variable_greater_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return greaterTest(rt, w, getVariableSymbol(rt, left, w));
-        }};
+    private static boolean variable_greater_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return greaterTest(rt, w, getVariableSymbol(rt, left, w));
+    }
 
     /**
      * rete.cpp:4632:variable_less_or_equal_rete_test_routine
      */
-    private static final ReteTestRoutine variable_less_or_equal_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return lessEqualTest(rt, w, getVariableSymbol(rt, left, w));
-        }};
+    private static boolean variable_less_or_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return lessEqualTest(rt, w, getVariableSymbol(rt, left, w));
+    }
 
     /**
      * rete.cpp:4652:variable_greater_or_equal_rete_test_routine
      */
-    private static final ReteTestRoutine variable_greater_or_equal_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return greaterEqualTest(rt, w, getVariableSymbol(rt, left, w));
-        }};
+    private static boolean variable_greater_or_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return greaterEqualTest(rt, w, getVariableSymbol(rt, left, w));
+    }
 
     /**
      * rete.cpp:4672:variable_same_type_rete_test_routine
      */
-    private static final ReteTestRoutine variable_same_type_rete_test_routine = new ReteTestRoutine() {
-
-        @Override
-        public boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w)
-        {
-            return sameTypeTest(rt, w, getVariableSymbol(rt, left, w));
-        }};
+    private static boolean variable_same_type_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    {
+        return sameTypeTest(rt, w, getVariableSymbol(rt, left, w));
+    }
     
 
     private static boolean equalTest(ReteTest rt, Wme w, Symbol s2)
@@ -267,34 +216,41 @@ public class ReteTestRoutines
             w = left.w;
           }
           return VarLocation.field_from_wme (w, rt.variable_referent.field_num);
-
     }
     
     /**
-     * The rete test routine table. Package private so it can be accessed by {@link Rete}
+     * <p>rete.cpp:4441:match_left_and_right
      * 
-     * rete.cpp:4417:rete_test_routines
+     * @param _rete_test
+     * @param left
+     * @param w
+     * @return
      */
-    /*package*/ static final ReteTestRoutine table[] = new ReteTestRoutine[256];
-    static
+    static boolean match_left_and_right(ReteTest _rete_test, LeftToken left, Wme w)
     {
-        table[ReteTest.DISJUNCTION_RETE_TEST] = disjunction_rete_test_routine;
-        table[ReteTest.ID_IS_GOAL_RETE_TEST] = id_is_goal_rete_test_routine;            
-        table[ReteTest.ID_IS_IMPASSE_RETE_TEST]= id_is_impasse_rete_test_routine;            
-        table[ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST] = constant_equal_rete_test_routine;            
-        table[ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST] = constant_not_equal_rete_test_routine;           
-        table[ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_RETE_TEST] = constant_less_rete_test_routine;
-        table[ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_RETE_TEST] = constant_greater_rete_test_routine;
-        table[ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_OR_EQUAL_RETE_TEST] = constant_less_or_equal_rete_test_routine;
-        table[ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_OR_EQUAL_RETE_TEST] = constant_greater_or_equal_rete_test_routine;
-        table[ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_SAME_TYPE_RETE_TEST] = constant_same_type_rete_test_routine;
-        table[ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST] = variable_equal_rete_test_routine;
-        table[ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST] = variable_not_equal_rete_test_routine;
-        table[ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_RETE_TEST] = variable_less_rete_test_routine;
-        table[ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_RETE_TEST] = variable_greater_rete_test_routine;
-        table[ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_OR_EQUAL_RETE_TEST] = variable_less_or_equal_rete_test_routine;
-        table[ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_OR_EQUAL_RETE_TEST] = variable_greater_or_equal_rete_test_routine;
-        table[ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_SAME_TYPE_RETE_TEST] = variable_same_type_rete_test_routine;
+        // rete.cpp:4417:rete_test_routines
+        switch(_rete_test.type)
+        {
+        case ReteTest.DISJUNCTION_RETE_TEST: return disjunction_rete_test_routine(_rete_test, left, w);
+        case ReteTest.ID_IS_GOAL_RETE_TEST: return id_is_goal_rete_test_routine(_rete_test, left, w);            
+        case ReteTest.ID_IS_IMPASSE_RETE_TEST: return id_is_impasse_rete_test_routine(_rete_test, left, w);            
+        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST: return constant_equal_rete_test_routine(_rete_test, left, w);            
+        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST: return constant_not_equal_rete_test_routine(_rete_test, left, w);           
+        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_RETE_TEST: return constant_less_rete_test_routine(_rete_test, left, w);
+        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_RETE_TEST: return constant_greater_rete_test_routine(_rete_test, left, w);
+        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_OR_EQUAL_RETE_TEST: return constant_less_or_equal_rete_test_routine(_rete_test, left, w);
+        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_OR_EQUAL_RETE_TEST: return constant_greater_or_equal_rete_test_routine(_rete_test, left, w);
+        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_SAME_TYPE_RETE_TEST: return constant_same_type_rete_test_routine(_rete_test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST: return variable_equal_rete_test_routine(_rete_test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST: return variable_not_equal_rete_test_routine(_rete_test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_RETE_TEST: return variable_less_rete_test_routine(_rete_test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_RETE_TEST: return variable_greater_rete_test_routine(_rete_test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_OR_EQUAL_RETE_TEST: return variable_less_or_equal_rete_test_routine(_rete_test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_OR_EQUAL_RETE_TEST: return variable_greater_or_equal_rete_test_routine(_rete_test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_SAME_TYPE_RETE_TEST: return variable_same_type_rete_test_routine(_rete_test, left, w);
+        default:
+            throw new IllegalStateException("Unknown Rete test type: " + _rete_test.type);
+        }
     }
 
 }

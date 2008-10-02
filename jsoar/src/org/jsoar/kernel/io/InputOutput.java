@@ -199,9 +199,9 @@ public class InputOutput
         Arguments.checkNotNull(attr, "attr");
         Arguments.checkNotNull(value, "value");
 
-        /* --- go ahead and add the wme --- */
+        // go ahead and add the wme
         Wme w = context.workingMemory.make_wme(id, attr, value, false);
-        w.next_prev.insertAtHead(id.input_wmes);
+        id.addInputWme(w);
         context.workingMemory.add_wme_to_wm(w);
 
         return w;
@@ -222,7 +222,7 @@ public class InputOutput
         idSym.tc_number = tc;
 
         // This is inefficient. Using a hash table could save a lot here.
-        for (Wme pWME : idSym.input_wmes)
+        for (Wme pWME = idSym.getInputWmes(); pWME != null; pWME = pWME.next)
         {
             // PrintDebugFormat("Timetag %ld", pWME->timetag) ;
             if (pWME.timetag == timetag)
@@ -250,7 +250,7 @@ public class InputOutput
     {
         Arguments.checkNotNull(w, "w");
 
-        if (!w.id.input_wmes.contains(w))
+        if (!w.isMemberOfList(w.id.getInputWmes()))
         {
             throw new IllegalArgumentException("w is not currently in working memory");
         }
@@ -258,9 +258,9 @@ public class InputOutput
         /* Note: for efficiency, it might be better to use a hash table for the
         above test, rather than scanning the linked list.  We could have one
         global hash table for all the input wmes in the system. */
-        /* --- go ahead and remove the wme --- */
-        w.next_prev.remove(w.id.input_wmes);
-        /* REW: begin 09.15.96 */
+        // go ahead and remove the wme
+        w.id.removeInputWme(w);
+
         if (context.operand2_mode)
         {
             if (w.gds != null)
@@ -528,14 +528,14 @@ public class InputOutput
 
         // do TC through working memory
         // scan through all wmes for all slots for this id
-        for (Wme w : id.input_wmes)
+        for (Wme w = id.getInputWmes(); w != null; w = w.next)
         {
             Identifier valueAsId = w.value.asIdentifier();
             if (valueAsId != null)
                 add_id_to_output_link_tc(valueAsId);
         }
         for (Slot s : id.slots)
-            for (Wme w : s.wmes)
+            for (Wme w = s.getWmes(); w != null; w = w.next)
             {
                 Identifier valueAsId = w.value.asIdentifier();
                 if (valueAsId != null)
@@ -598,10 +598,10 @@ public class InputOutput
         add_wme_to_collected_io_wmes(ol.link_wme);
         for (Identifier id : ol.ids_in_tc)
         {
-            for (Wme w : id.input_wmes)
+            for (Wme w = id.getInputWmes(); w != null; w = w.next)
                 add_wme_to_collected_io_wmes(w);
             for (Slot s : id.slots)
-                for (Wme w : s.wmes)
+                for (Wme w = s.getWmes(); w != null; w = w.next)
                     add_wme_to_collected_io_wmes(w);
         }
         return this.collected_io_wmes;

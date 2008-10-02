@@ -44,128 +44,6 @@ import org.jsoar.util.HashTable;
  */
 public class Rete
 {
-
-    // TODO: These should be polymorphic methods of ReteNode
-    private static final LeftAdditionRoutine[] left_addition_routines = new LeftAdditionRoutine[256];
-    static
-    {
-        // rete.cpp:8796 
-// TODO:       left_addition_routines[DUMMY_MATCHES_BNODE] = dummy_matches_node_left_addition;
-        left_addition_routines[ReteNodeType.MEMORY_BNODE.index()] = new LeftAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
-            {
-                rete.beta_memory_node_left_addition(node, tok, w);
-            }};
-        left_addition_routines[ReteNodeType.UNHASHED_MEMORY_BNODE.index()] = new LeftAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
-            {
-                rete.unhashed_beta_memory_node_left_addition(node, tok, w);
-            }
-            
-        };
-        left_addition_routines[ReteNodeType.MP_BNODE.index()] = new LeftAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
-            {
-                rete.mp_node_left_addition(node, tok, w);
-            } };
-        left_addition_routines[ReteNodeType.UNHASHED_MP_BNODE.index()] = new LeftAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
-            {
-                rete.unhashed_mp_node_left_addition(node, tok, w);
-            }};
-        left_addition_routines[ReteNodeType.CN_BNODE.index()] = new LeftAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
-            {
-                rete.cn_node_left_addition(node, tok, w);
-            }};
-        left_addition_routines[ReteNodeType.CN_PARTNER_BNODE.index()] = new LeftAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
-            {
-                rete.cn_partner_node_left_addition(node, tok, w);
-            }};
-        left_addition_routines[ReteNodeType.P_BNODE.index()] = new LeftAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
-            {
-                rete.p_node_left_addition(node, tok, w);
-            }};
-        left_addition_routines[ReteNodeType.NEGATIVE_BNODE.index()] = new LeftAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
-            {
-                rete.negative_node_left_addition(node, tok, w);
-            }};
-        left_addition_routines[ReteNodeType.UNHASHED_NEGATIVE_BNODE.index()] = new LeftAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Token tok, Wme w)
-            {
-                rete.unhashed_negative_node_left_addition(node, tok, w);
-            }};
-    }
-    
-    // TODO: These should be polymorphic methods of ReteNode
-    private static final RightAdditionRoutine[] right_addition_routines = new RightAdditionRoutine[256];
-    static
-    {
-        right_addition_routines[ReteNodeType.POSITIVE_BNODE.index()] = new RightAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Wme w)
-            {
-                rete.positive_node_right_addition(node, w);
-            }};
-        right_addition_routines[ReteNodeType.UNHASHED_POSITIVE_BNODE.index()] = new RightAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Wme w)
-            {
-                rete.unhashed_positive_node_right_addition(node, w);
-            }};
-        right_addition_routines[ReteNodeType.MP_BNODE.index()] = new RightAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Wme w)
-            {
-                rete.mp_node_right_addition(node, w);
-            }};
-        right_addition_routines[ReteNodeType.UNHASHED_MP_BNODE.index()] = new RightAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Wme w)
-            {
-                rete.unhashed_mp_node_right_addition(node, w);
-            }};
-        right_addition_routines[ReteNodeType.NEGATIVE_BNODE.index()] = new RightAdditionRoutine() {
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Wme w)
-            {
-                rete.negative_node_right_addition(node, w);
-            }};
-        right_addition_routines[ReteNodeType.UNHASHED_NEGATIVE_BNODE.index()] = new RightAdditionRoutine(){
-
-            @Override
-            public void execute(Rete rete, ReteNode node, Wme w)
-            {
-                rete.unhashed_negative_node_right_addition(node, w);
-            }};
-    }
-    
     private final Trace trace;
     
     /* Set to FALSE to preserve variable names in chunks (takes extra space) */
@@ -175,6 +53,7 @@ public class Rete
     
     private final LeftTokenHashTable left_ht = new LeftTokenHashTable();
     private final RightMemoryHashTable right_ht = new RightMemoryHashTable();
+    // TODO rete_node_counts should be populated
     int rete_node_counts[] = new int[256];
     /*package*/ RightToken dummy_top_token;
     
@@ -484,9 +363,9 @@ public class Rete
 
         // cause all existing instantiations to retract, by removing any
         // tokens at the node
-        while (!p_node.a_np.tokens.isEmpty())
+        while (p_node.a_np.tokens != null)
         {
-            remove_token_and_subtree(p_node.a_np.tokens.first.item);
+            remove_token_and_subtree(p_node.a_np.tokens);
         }
 
         listener.removingProductionNode(this, p_node);
@@ -542,7 +421,7 @@ public class Rete
 
         /* --- it's not in any right memories or tokens yet --- */
         w.right_mems.clear();
-        w.tokens.clear();
+        w.tokens = null;
 
         /* --- add w to the appropriate alpha_mem in each of 8 possible tables --- */
         int hi = w.id.hash_id;
@@ -620,23 +499,24 @@ public class Rete
         }
        
         /* --- tree-based removal of all tokens that involve w --- */
-        while (!w.tokens.isEmpty()) {
-          Token tok = w.tokens.first.item;
+        while (w.tokens != null) {
+          final Token tok = w.tokens;
           ReteNode node = tok.node;
           if (tok.parent == null) {
             /* Note: parent pointer is NIL only on negative node negrm tokens */
               RightToken rt = (RightToken) tok;
             Token left = rt.left_token;
-            tok.from_wme.remove(w.tokens);
+            tok.removeFromWme();
             rt.negrm.remove(left.negrm_tokens);
 
             if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
               for (ReteNode child=node.first_child; child!=null; child=child.next_sibling) {
-                left_addition_routines[child.node_type.index()].execute(this, child, left, null);
+                  executeLeftAddition(child, left, null);
+                //left_addition_routines[child.node_type.index()].execute(this, child, left, null);
               }
             }
           } else {
-            remove_token_and_subtree (w.tokens.first.item);
+            remove_token_and_subtree (tok);
           }
         }
         
@@ -830,7 +710,8 @@ public class Rete
                 for (ReteNode node = am.beta_nodes; node != null; node = next)
                 {
                     next = node.b_posneg.next_from_alpha_mem;
-                    right_addition_routines[node.node_type.index()].execute(this, node, w);
+                    executeRightAddition(node, w);
+                    //right_addition_routines[node.node_type.index()].execute(this, node, w);
                 }
                 return; /* only one possible alpha memory per table could match */
             }
@@ -863,7 +744,6 @@ public class Rete
 
         /* --- create the dummy top token --- */
         dummy_top_token = RightToken.createDummy(dummy_top_node);
-        dummy_top_node.a_np.tokens.first = dummy_top_token.of_node;
     }
     
 
@@ -886,7 +766,8 @@ public class Rete
 
         /* --- if parent is dummy top node, tell child about dummy top token --- */ 
         if (parent.node_type==ReteNodeType.DUMMY_TOP_BNODE) {
-          left_addition_routines[child.node_type.index()].execute(this, child, dummy_top_token, null);
+          executeLeftAddition(child, dummy_top_token, null);
+          //left_addition_routines[child.node_type.index()].execute(this, child, dummy_top_token, null);
           return;
         }
 
@@ -906,7 +787,8 @@ public class Rete
           /* to avoid double-counting these right adds */
           for(AsListItem<RightMemory> rm = parent.b_posneg.alpha_mem_.right_mems.first; rm != null; rm = rm.next)
           {
-              right_addition_routines[parent.node_type.index()].execute(this, parent, rm.item.w);
+              executeRightAddition(parent, rm.item.w);
+              //right_addition_routines[parent.node_type.index()].execute(this, parent, rm.item.w);
           }
           parent.first_child = saved_parents_first_child;
           child.next_sibling = saved_childs_next_sibling;
@@ -916,11 +798,12 @@ public class Rete
         /* --- if parent is negative or cn: easy, just look at the list of tokens
                on the parent node. --- */
         //for (tok=parent->a.np.tokens; tok!=NIL; tok=tok->next_of_node)
-        for(AsListItem<Token> tok = parent.a_np.tokens.first; tok != null; tok = tok.next)
+        for(Token tok = parent.a_np.tokens; tok != null; tok = tok.next_of_node)
         {
-            if(tok.item.negrm_tokens.isEmpty())
+            if(tok.negrm_tokens.isEmpty())
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, tok.item, null);
+                executeLeftAddition(child, tok, null);
+                //left_addition_routines[child.node_type.index()].execute(this, child, tok.item, null);
             }
         }
     }
@@ -970,7 +853,7 @@ public class Rete
     static void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, LinkedList<Variable> varlist)
     {
 
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             return;
         }
@@ -1051,7 +934,7 @@ public class Rete
     private void add_gensymmed_equality_test(ByRef<Test> t, char first_letter)
     {
         Variable New = variableGenerator.generate_new_variable(Character.toString(first_letter));
-        Test eq_test = EqualityTest.makeEqualityTest(New);
+        Test eq_test = Symbol.makeEqualityTest(New);
         TestTools.add_new_test_to_test(t, eq_test);
     }
 
@@ -1097,7 +980,7 @@ public class Rete
             t = tfc.value_test;
         }
 
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             // goto abort_var_bound_in_reconstructed_conds;
             throw new IllegalStateException("Internal error in var_bound_in_reconstructed_conds");
@@ -1114,7 +997,7 @@ public class Rete
             for (Test c : ct.conjunct_list)
             {
                 EqualityTest eq2 = c.asEqualityTest();
-                if (Test.isBlank(c) && eq2 != null)
+                if (TestTools.isBlank(c) && eq2 != null)
                 {
                     return eq2.getReferent();
                 }
@@ -1150,18 +1033,43 @@ public class Rete
         return w.value;
     }
     
-    /**
-     * rete.cpp:4441:match_left_and_right
-     * 
-     * @param _rete_test
-     * @param left
-     * @param w
-     * @return
-     */
-    private boolean match_left_and_right(ReteTest _rete_test, LeftToken left, Wme w)
+
+    private void executeLeftAddition(ReteNode node, Token tok, Wme w)
     {
-        return ReteTestRoutines.table[(_rete_test).type].execute(this, _rete_test, left, w);
+        // TODO: These should be polymorphic methods of ReteNode
+        // TODO: left_addition_routines[DUMMY_MATCHES_BNODE] = dummy_matches_node_left_addition;
+        // rete.cpp:8796 
+        switch(node.node_type)
+        {
+        case MEMORY_BNODE: beta_memory_node_left_addition(node, tok, w); break;
+        case UNHASHED_MEMORY_BNODE: unhashed_beta_memory_node_left_addition(node, tok, w); break;
+        case MP_BNODE: mp_node_left_addition(node, tok, w); break;
+        case UNHASHED_MP_BNODE: unhashed_mp_node_left_addition(node, tok, w); break;
+        case CN_BNODE: cn_node_left_addition(node, tok, w); break;
+        case CN_PARTNER_BNODE: cn_partner_node_left_addition(node, tok, w); break;
+        case P_BNODE: p_node_left_addition(node, tok, w); break;
+        case NEGATIVE_BNODE: negative_node_left_addition(node, tok, w); break;
+        case UNHASHED_NEGATIVE_BNODE: unhashed_negative_node_left_addition(node, tok, w); break;
+        default:
+            throw new IllegalStateException("Unhandled node type " + node.node_type);
+        }
     }
+    
+    private void executeRightAddition(ReteNode node, Wme w)
+    {
+        switch(node.node_type)
+        {
+        case POSITIVE_BNODE: positive_node_right_addition(node, w); break;
+        case UNHASHED_POSITIVE_BNODE: unhashed_positive_node_right_addition(node, w); break;
+        case MP_BNODE: mp_node_right_addition(node, w); break;
+        case UNHASHED_MP_BNODE: unhashed_mp_node_right_addition(node, w); break;
+        case NEGATIVE_BNODE: negative_node_right_addition(node, w); break;
+        case UNHASHED_NEGATIVE_BNODE: unhashed_negative_node_right_addition(node, w); break;
+        default:
+            throw new IllegalStateException("Unhandled node type " + node.node_type);
+        }
+    }
+    
     
     /**
      * rete.cpp:4719:beta_memory_node_left_addition
@@ -1266,7 +1174,7 @@ public class Rete
             }
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next) {
-                if (!match_left_and_right(rt, New, rm.w))
+                if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
                     failed_a_test = true;
                     break;
@@ -1279,7 +1187,8 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
+                executeLeftAddition(child, New, rm.w);
+                //left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
             }
         }
     }   
@@ -1310,7 +1219,7 @@ public class Rete
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
             {
-                if (!match_left_and_right(rt, New, rm.w))
+                if (!ReteTestRoutines.match_left_and_right( rt, New, rm.w))
                 {
                     failed_a_test = true;
                     break;
@@ -1323,7 +1232,8 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
+                executeLeftAddition(child, New, rm.w);
+                //left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
             }
         }
     }   
@@ -1395,7 +1305,7 @@ public class Rete
             }
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
-                if (!match_left_and_right(rt, New, rm.w))
+                if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
                     failed_a_test = true;
                     break;
@@ -1407,7 +1317,8 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
+                executeLeftAddition(child, New, rm.w);
+                //left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
             }
         }
     }   
@@ -1451,7 +1362,7 @@ public class Rete
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
             {
-                if (!match_left_and_right(rt, New, rm.w))
+                if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
                     failed_a_test = true;
                     break;
@@ -1464,7 +1375,8 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
+                executeLeftAddition(child, New, rm.w);
+                //left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
             }
         }
     }
@@ -1480,7 +1392,7 @@ public class Rete
         if (node.node_is_left_unlinked())
         {
             node.relink_to_left_mem();
-            if (node.parent.a_np.tokens.isEmpty())
+            if (node.parent.a_np.tokens == null)
             {
                 node.unlink_from_right_mem();
                 return;
@@ -1506,7 +1418,7 @@ public class Rete
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
             {
-                if (!match_left_and_right(rt, tok, w))
+                if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
                     failed_a_test = true;
                     break;
@@ -1517,7 +1429,8 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
+                executeLeftAddition(child, tok, w);
+                //left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
             }
         }
     }
@@ -1533,7 +1446,7 @@ public class Rete
         if (node.node_is_left_unlinked())
         {
             node.relink_to_left_mem();
-            if (node.parent.a_np.tokens.isEmpty())
+            if (node.parent.a_np.tokens == null)
             {
                 node.unlink_from_right_mem();
                 return;
@@ -1553,7 +1466,7 @@ public class Rete
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
             {
-                if (!match_left_and_right(rt, tok, w))
+                if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
                     failed_a_test = true;
                     break;
@@ -1566,7 +1479,8 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
+                executeLeftAddition(child, tok, w);
+                //left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
             }
         }
     }
@@ -1582,7 +1496,7 @@ public class Rete
         if (node.mp_bnode_is_left_unlinked())
         {
             node.make_mp_bnode_left_linked();
-            if (node.a_np.tokens.isEmpty())
+            if (node.a_np.tokens == null)
             {
                 node.unlink_from_right_mem();
                 return;
@@ -1608,7 +1522,7 @@ public class Rete
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
             {
-                if (!match_left_and_right(rt, tok, w))
+                if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
                     failed_a_test = true;
                     break;
@@ -1621,7 +1535,8 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
+                executeLeftAddition(child, tok, w);
+                //left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
             }
         }
     }
@@ -1637,7 +1552,7 @@ public class Rete
         if (node.mp_bnode_is_left_unlinked())
         {
             node.make_mp_bnode_left_linked();
-            if (node.a_np.tokens.isEmpty())
+            if (node.a_np.tokens == null)
             {
                 node.unlink_from_right_mem();
                 return;
@@ -1657,7 +1572,7 @@ public class Rete
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
             {
-                if (!match_left_and_right(rt, tok, w))
+                if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
                     failed_a_test = true;
                     break;
@@ -1670,7 +1585,8 @@ public class Rete
             /* --- match found, so call each child node --- */
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
+                executeLeftAddition(child, tok, w);
+                ///left_addition_routines[child.node_type.index()].execute(this, child, tok, w);
             }
         }
     }
@@ -1731,7 +1647,7 @@ public class Rete
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
             {
-                if (!match_left_and_right(rt, New, rm.w))
+                if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
                     failed_a_test = true;
                     break;
@@ -1749,7 +1665,8 @@ public class Rete
         {
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, New, null);
+                executeLeftAddition(child, New, null);
+                //left_addition_routines[child.node_type.index()].execute(this, child, New, null);
             }
         }
     }
@@ -1782,7 +1699,7 @@ public class Rete
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
             {
-                if (!match_left_and_right(rt, New, rm.w))
+                if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
                     failed_a_test = true;
                     break;
@@ -1800,7 +1717,8 @@ public class Rete
         {
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
-                left_addition_routines[child.node_type.index()].execute(this, child, New, null);
+                executeLeftAddition(child, New, null);
+                //left_addition_routines[child.node_type.index()].execute(this, child, New, null);
             }
         }
     }
@@ -1833,7 +1751,7 @@ public class Rete
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
             {
-                if (!match_left_and_right(rt, tok, w))
+                if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
                     failed_a_test = true;
                     break;
@@ -1846,9 +1764,9 @@ public class Rete
             /* --- match found: build new negrm token, remove descendent tokens --- */
             RightToken.create(node, null, w, tok);
 
-            while (!tok.first_child.isEmpty())
+            while (tok.first_child != null)
             {
-                remove_token_and_subtree(tok.first_child.first.item);
+                remove_token_and_subtree(tok.first_child);
             }
         }
     }
@@ -1873,7 +1791,7 @@ public class Rete
             /* --- does tok match w? --- */
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
-                if (!match_left_and_right(rt, tok, w))
+                if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
                     failed_a_test = true;
                     break;
@@ -1884,9 +1802,9 @@ public class Rete
             }
             /* --- match found: build new negrm token, remove descendent tokens --- */
             RightToken.create(node, null, w, tok);
-            while (!tok.first_child.isEmpty())
+            while (tok.first_child != null)
             {
-                remove_token_and_subtree(tok.first_child.first.item);
+                remove_token_and_subtree(tok.first_child);
             }
         }
     }
@@ -1924,7 +1842,8 @@ public class Rete
         /* --- pass the new token on to each child node --- */
         for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
         {
-            left_addition_routines[child.node_type.index()].execute(this, child, New, null);
+            executeLeftAddition(child, New, null);
+            //left_addition_routines[child.node_type.index()].execute(this, child, New, null);
         }
     }
 
@@ -1979,9 +1898,9 @@ public class Rete
         negrm_tok.negrm.insertAtHead(left.negrm_tokens);
 
         /* --- remove any descendent tokens of the left token --- */
-        while (!left.first_child.isEmpty())
+        while (left.first_child != null)
         {
-            remove_token_and_subtree(left.first_child.first.item);
+            remove_token_and_subtree(left.first_child);
         }
     }
     
@@ -2015,22 +1934,14 @@ public class Rete
         
         while (true) {
           /* --- move down to the leftmost leaf --- */
-          while (!tok.first_child.isEmpty()) { tok = tok.first_child.first.item; }
-          Token next_value_for_tok = tok.sibling.next != null ? tok.sibling.next.item : tok.parent;
+          while (tok.first_child != null) { tok = tok.first_child; }
+          final Token next_value_for_tok = tok.getNextSiblingOrParent();
 
           /* --- cleanup stuff common to all types of nodes --- */
-          ReteNode node = tok.node;
-          tok.of_node.remove(node.a_np.tokens);
-//          fast_remove_from_dll (node->a.np.tokens, tok, token, next_of_node,
-//                                prev_of_node);
-          tok.sibling.remove(tok.parent.first_child);
-//          fast_remove_from_dll (tok->parent->first_child, tok, token,
-//                                next_sibling,prev_sibling);
-          if (tok.w != null) { 
-              tok.from_wme.remove(tok.w.tokens);
-//              fast_remove_from_dll (tok->w->tokens, tok, token,
-//                                       next_from_wme, prev_from_wme);
-          }
+          final ReteNode node = tok.node;
+          tok.removeFromNode();
+          tok.removeFromParent();
+          tok.removeFromWme();
           ReteNodeType node_type = node.node_type;
 
           /* --- for merged Mem/Pos nodes --- */
@@ -2039,7 +1950,7 @@ public class Rete
               int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
               left_ht.remove_token_from_left_ht(lt, hv);
             if (! node.mp_bnode_is_left_unlinked()) {
-              if (node.a_np.tokens.isEmpty()) { node.unlink_from_right_mem (); }
+              if (node.a_np.tokens == null) { node.unlink_from_right_mem (); }
             }
 
           /* --- for P nodes --- */
@@ -2052,9 +1963,9 @@ public class Rete
             LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
             int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
             left_ht.remove_token_from_left_ht(lt, hv);
-            if (node.a_np.tokens.isEmpty()) { node.unlink_from_right_mem(); }
-            for (AsListItem<Token> t = tok.negrm_tokens.first; t != null; t = t.next) {
-                t.item.from_wme.remove(t.item.w.tokens);
+            if (node.a_np.tokens == null) { node.unlink_from_right_mem(); }
+            for (AsListItem<RightToken> t = tok.negrm_tokens.first; t != null; t = t.next) {
+                t.item.removeFromWme();
             }
 
           /* --- for Memory nodes --- */
@@ -2072,7 +1983,7 @@ public class Rete
 //      #endif
             /* --- for right unlinking, then if the beta memory just went to
                zero, right unlink any attached Pos nodes --- */
-            if (node.a_np.tokens.isEmpty()) {
+            if (node.a_np.tokens == null) {
                 AsListItem<ReteNode> next = null;
               for (AsListItem<ReteNode> child=node.b_mem.first_linked_child.first; child!=null; child=next) {
                 next = child.item.a_pos.from_beta_mem.next;
@@ -2085,15 +1996,12 @@ public class Rete
               int hv = node.node_id ^ addressOf(tok.parent) ^ addressOf(tok.w);
             //int hv = node.node_id ^ (unsigned long)(tok->parent) ^ (unsigned long)(tok->w)
               left_ht.remove_token_from_left_ht((LeftToken) tok, hv); // TODO: Safe to assume this?  
-            for(AsListItem<Token> it = tok.negrm_tokens.first; it != null; it = it.next)
+            for(AsListItem<RightToken> it = tok.negrm_tokens.first; it != null; it = it.next)
             {
                 final Token t = it.item;
-                if(t.w != null)
-                {
-                    t.from_wme.remove(t.w.tokens);
-                }
-                t.of_node.remove(t.node.a_np.tokens);
-                t.sibling.remove(t.parent.first_child);
+                t.removeFromWme();
+                t.removeFromNode();
+                t.removeFromParent();
             }
 
           /* --- for CN Partner nodes --- */
@@ -2105,12 +2013,13 @@ public class Rete
 //                                  a.neg.next_negrm, a.neg.prev_negrm);
             if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
               for (ReteNode child=left.node.first_child; child!=null; child=child.next_sibling){
-                left_addition_routines[child.node_type.index()].execute(this, child, left, null);
+                executeLeftAddition(child, left, null);
+                //left_addition_routines[child.node_type.index()].execute(this, child, left, null);
               }
             }
 
           } else {
-              throw new IllegalArgumentException("Internal error: bad node type " + node.node_type + " in remove_token_and_subtree");
+              throw new IllegalStateException("Internal error: bad node type " + node.node_type + " in remove_token_and_subtree");
           }
           
           if (tok==root) break; /* if leftmost leaf was the root, we're done */
@@ -2192,14 +2101,14 @@ public class Rete
         
         if (VarNames.varnames_is_one_var(vn))
         {
-            Test New = EqualityTest.makeEqualityTest(VarNames.varnames_to_one_var(vn));
+            Test New = Symbol.makeEqualityTest(VarNames.varnames_to_one_var(vn));
             TestTools.add_new_test_to_test(t, New);
         }
         else
         {
             for (Variable c : VarNames.varnames_to_var_list(vn))
             {
-                Test New = EqualityTest.makeEqualityTest(c);
+                Test New = Symbol.makeEqualityTest(c);
                 TestTools.add_new_test_to_test(t, New);
             }
         }
@@ -2224,11 +2133,11 @@ public class Rete
             Test New = null;
             if (rt.type == ReteTest.ID_IS_GOAL_RETE_TEST)
             {
-                New = new GoalIdTest();
+                New = GoalIdTest.INSTANCE;
             }
             else if (rt.type == ReteTest.ID_IS_IMPASSE_RETE_TEST)
             {
-                New = new ImpasseIdTest();
+                New = ImpasseIdTest.INSTANCE;
             }
             else if (rt.type == ReteTest.DISJUNCTION_RETE_TEST)
             {
@@ -2242,7 +2151,7 @@ public class Rete
                 Symbol referent = rt.constant_referent;
                 if (test_type == ReteBuilder.EQUAL_TEST_TYPE)
                 {
-                    New = EqualityTest.makeEqualityTest(referent);
+                    New = Symbol.makeEqualityTest(referent);
                 }
                 else
                 {
@@ -2291,7 +2200,7 @@ public class Rete
 
                 if (test_type == ReteBuilder.EQUAL_TEST_TYPE)
                 {
-                    New = EqualityTest.makeEqualityTest(referent);
+                    New = Symbol.makeEqualityTest(referent);
                 }
                 else
                 {
@@ -2398,7 +2307,7 @@ public class Rete
     void add_hash_info_to_id_test(ThreeFieldCondition cond, int field_num, int levels_up)
     {
         Symbol temp = var_bound_in_reconstructed_conds(cond, field_num, levels_up);
-        Test New = EqualityTest.makeEqualityTest(temp);
+        Test New = Symbol.makeEqualityTest(temp);
 
         ByRef<Test> id_test = ByRef.create(cond.id_test);
         TestTools.add_new_test_to_test(id_test, New);
@@ -2490,9 +2399,9 @@ public class Rete
             {
                 PositiveCondition pc = cond.asPositiveCondition();
                 // make simple tests and collect nots
-                pc.id_test = EqualityTest.makeEqualityTest(w.id);
-                pc.attr_test = EqualityTest.makeEqualityTest(w.attr);
-                pc.value_test = EqualityTest.makeEqualityTest(w.value);
+                pc.id_test = Symbol.makeEqualityTest(w.id);
+                pc.attr_test = Symbol.makeEqualityTest(w.attr);
+                pc.value_test = Symbol.makeEqualityTest(w.value);
                 pc.test_for_acceptable_preference = w.acceptable;
                 cond.bt.wme_ = w;
                 if (node.b_posneg.other_tests != null)
@@ -2507,9 +2416,9 @@ public class Rete
                 // positive or negative, i.e. just a three-field condition
                 ThreeFieldCondition tfc = cond.asThreeFieldCondition();
                 AlphaMemory am = node.b_posneg.alpha_mem_;
-                tfc.id_test = EqualityTest.makeEqualityTest(am.id);
-                tfc.attr_test = EqualityTest.makeEqualityTest(am.attr);
-                tfc.value_test = EqualityTest.makeEqualityTest(am.value);
+                tfc.id_test = Symbol.makeEqualityTest(am.id);
+                tfc.attr_test = Symbol.makeEqualityTest(am.attr);
+                tfc.value_test = Symbol.makeEqualityTest(am.value);
                 tfc.test_for_acceptable_preference = am.acceptable;
 
                 if (nvn != null)

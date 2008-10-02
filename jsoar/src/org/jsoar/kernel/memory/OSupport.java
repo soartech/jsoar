@@ -127,25 +127,24 @@ public class OSupport
         id.tc_number = o_support_tc;
 
         // scan through all preferences and wmes for all slots for this id
-        for (AsListItem<Wme> w = id.input_wmes.first; w != null; w = w.next)
+        for (Wme w = id.getInputWmes(); w != null; w = w.next)
         {
-            add_to_os_tc_if_needed(w.item.value);
+            add_to_os_tc_if_needed(w.value);
         }
         for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
             final Slot s = sit.item;
             if ((!isa_state) || (s.attr != syms.operator_symbol))
             {
-                for (AsListItem<Preference> pit = s.all_preferences.first; pit != null; pit = pit.next)
+                for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.next_of_slot)
                 {
-                    final Preference pref = pit.item;
                     add_to_os_tc_if_needed(pref.value);
                     if (pref.type.isBinary())
                         add_to_os_tc_if_needed(pref.referent);
                 }
-                for (AsListItem<Wme> w = s.wmes.first; w != null; w = w.next)
+                for (Wme w = s.getWmes(); w != null; w = w.next)
                 {
-                    add_to_os_tc_if_needed(w.item.value);
+                    add_to_os_tc_if_needed(w.value);
                 }
             }
         } /* end of for slots loop */
@@ -199,7 +198,7 @@ public class OSupport
      */
     private boolean test_has_id_in_os_tc(Test t, Symbol excluded_sym)
     {
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             return false;
         }
@@ -595,7 +594,7 @@ public class OSupport
 
         match_state = match_goal;
 
-        match_operator_wme = match_goal.operator_slot.wmes.getFirstItem();
+        match_operator_wme = match_goal.operator_slot.getWmes();
         if (match_operator_wme != null)
         {
             match_operator = match_operator_wme.value.asIdentifier();
@@ -944,7 +943,7 @@ public class OSupport
      */
     private YesNoMaybe test_is_for_symbol(Test t, Symbol sym)
     {
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             return YesNoMaybe.MAYBE;
         }

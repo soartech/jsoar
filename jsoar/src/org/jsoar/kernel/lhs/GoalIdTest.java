@@ -10,13 +10,11 @@ package org.jsoar.kernel.lhs;
  */
 public class GoalIdTest extends ComplexTest
 {
-    public GoalIdTest()
+    public static GoalIdTest INSTANCE = new GoalIdTest();
+    
+    private GoalIdTest()
     {
         
-    }
-    private GoalIdTest(GoalIdTest goalIdTest)
-    {
-        // TODO Auto-generated constructor stub
     }
 
     public GoalIdTest asGoalIdTest()
@@ -30,7 +28,7 @@ public class GoalIdTest extends ComplexTest
     @Override
     public Test copy()
     {
-        return new GoalIdTest(this);
+        return this;
     }
 
     

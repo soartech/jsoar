@@ -142,11 +142,9 @@ public class WorkingMemory
      */
     public void remove_wme_list_from_wm(Wme w, boolean updateWmeMap /*=false*/)
     {
-        Wme next_w = null;
-
         while (w != null)
         {
-            next_w = w.next_prev.getNextItem();
+            final Wme next_w = w.next;
 
             if (updateWmeMap)
             {
@@ -269,11 +267,7 @@ public class WorkingMemory
         {
             return null;
         }
-        if (s.wmes.isEmpty())
-        {
-            return null;
-        }
-        return s.wmes.first.item.value;
+        return s.getWmes() != null ? s.getWmes().value : null;
     } 
     
     /**

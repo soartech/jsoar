@@ -71,9 +71,6 @@ import org.jsoar.util.ListHead;
      then the values for these pointers will all be NIL. If a WME is
      dependent for more than one goal, then it will point to the GDS
      of the highest goal.
-    
-
-      
 
    Reference counts on wmes:
       +1 if the wme is currently in WM
@@ -81,7 +78,7 @@ import org.jsoar.util.ListHead;
    We deallocate a wme when its reference count goes to 0.
 
  * 
- * wmem.h:125:wme
+ * <p>wmem.h:125:wme
  * 
  * @author ray
  */
@@ -96,13 +93,26 @@ public class Wme implements Formattable
     private int reference_count;
     public final AsListItem<Wme> in_rete = new AsListItem<Wme>(this); // used for dll of wmes in rete
     public final ListHead<RightMemory> right_mems = ListHead.newInstance(); // used for dll of rm's it's in
-    public final ListHead<Token> tokens = ListHead.newInstance(); // dll of tokens in rete
-    public final AsListItem<Wme> next_prev = new AsListItem<Wme>(this); // (see above)
+    
+    public Token tokens = null; // dll of tokens in rete
+    
+    /**
+     * next/previous pointers for lists this WME is a member of. Possible list heads are:
+     * Identifier.impasse_wmes
+     * Identifier.input_wmes
+     * Slot.wmes
+     * Slot.acceptable_preference_wmes
+     */
+    public Wme next;
+    private Wme previous;
+    
     public Preference preference;     // pref. supporting it, or null
     public OutputLink output_link;   /* for top-state output commands */
     
     public int grounds_tc;                     /* for chunker use only */
-    public int potentials_tc, locals_tc;
+    public int potentials_tc;
+    public int locals_tc;
+    
     public Preference chunker_bt_pref;
     
     public GoalDependencySet gds;
@@ -138,7 +148,53 @@ public class Wme implements Formattable
          correctly. */
       if (reference_count != 0) { reference_count--; }
       if (reference_count == 0) { wm.deallocate_wme(this); }
-    }    
+    } 
+    
+    public boolean isMemberOfList(Wme head)
+    {
+        for(Wme w = head; w != null; w = w.next)
+        {
+            if(w == this)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public Wme addToList(Wme head)
+    {
+        assert head != null;
+        
+        next = head;
+        previous = null;
+        if(head != null)
+        {
+            head.previous = this;
+        }
+        return this;
+    }
+    
+    public Wme removeFromList(Wme head)
+    {
+        if(next != null)
+        {
+            next.previous = previous;
+        }
+        if(previous != null)
+        {
+            previous.next = next;
+        }
+        else
+        {
+            head = next;
+        }
+        next = null;
+        previous = null;
+        
+        return head;
+    }
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */

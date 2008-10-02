@@ -32,7 +32,7 @@ public class TestTools
      */
     public static EqualityTest copy_of_equality_test_found_in_test(Test t)
     {
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             throw new IllegalStateException("Internal error: can't find equality test in blank test");
         }
@@ -48,7 +48,7 @@ public class TestTools
         {
             for (Test child : ct.conjunct_list)
             {
-                if (!Test.isBlank(child) && child.asEqualityTest() != null)
+                if (!TestTools.isBlank(child) && child.asEqualityTest() != null)
                 {
                     return (EqualityTest) child.copy();
                 }
@@ -72,12 +72,12 @@ public class TestTools
      */
     public static void add_new_test_to_test(ByRef<Test> t, Test add_me)
     {
-        if (Test.isBlank(add_me))
+        if (TestTools.isBlank(add_me))
         {
             return;
         }
 
-        if (Test.isBlank(t.value))
+        if (TestTools.isBlank(t.value))
         {
             t.value = add_me;
             return;
@@ -101,7 +101,7 @@ public class TestTools
     public static boolean test_includes_equality_test_for_symbol(Test test,
             Symbol sym)
     {
-        if(Test.isBlank(test)) { return false; }
+        if(TestTools.isBlank(test)) { return false; }
         EqualityTest eq = test.asEqualityTest();
         if(eq != null)
         {
@@ -163,7 +163,7 @@ public class TestTools
      */
     public static boolean test_tests_for_root(Test t, List<Variable> roots)
     {
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
         {
             return false;
         }
@@ -215,7 +215,7 @@ public class TestTools
             ByRef<Boolean> removed_goal, ByRef<Boolean> removed_impasse)
     {
 
-        if (Test.isBlank(t) || t.asEqualityTest() != null)
+        if (TestTools.isBlank(t) || t.asEqualityTest() != null)
         {
             return t.copy();
         }
@@ -238,7 +238,7 @@ public class TestTools
             {
                 Test temp = copy_test_removing_goal_impasse_tests(c,
                         removed_goal, removed_impasse);
-                if (!Test.isBlank(temp))
+                if (!TestTools.isBlank(temp))
                 {
                     add_new_test_to_test(new_t, temp);
                 }
@@ -257,10 +257,10 @@ public class TestTools
 
     public static char first_letter_from_test (Test t) {
         
-        if(Test.isBlank(t)) { return '*'; }
+        if(TestTools.isBlank(t)) { return '*'; }
         EqualityTest eq = t.asEqualityTest();
         if (eq != null) {
-          return eq.sym.getFirstLetter();
+          return eq.getReferent().getFirstLetter();
         }
 
         if(t.asGoalIdTest() != null)
@@ -342,7 +342,7 @@ public class TestTools
         EqualityTest eq1 = t1.asEqualityTest();
         if(eq1 != null)
         {
-            return eq1.sym == t2.asEqualityTest().sym;
+            return eq1.getReferent() == t2.asEqualityTest().getReferent();
         }
 
         if(t1.asGoalIdTest() != null || t1.asImpasseIdTest() != null)
@@ -389,7 +389,7 @@ public class TestTools
      */
     static void add_test_to_tc(Test t, int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
     {
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
             return;
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
@@ -415,7 +415,7 @@ public class TestTools
      */
     static boolean test_is_in_tc(Test t, int tc)
     {
-        if (Test.isBlank(t))
+        if (TestTools.isBlank(t))
             return false;
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
@@ -432,6 +432,75 @@ public class TestTools
             return false;
         }
         return false;
+    }
+
+    /**
+     * Returns a hash value for the given test.
+     * 
+     * <p>TODO make this polymorphic
+     * <p>production.cpp:450:hash_test
+     * 
+     * @param t The test to hash
+     * @return The has value for the test
+     */
+    public static int hash_test(Test t)
+    {
+        if (TestTools.isBlank(t))
+            return 0;
+    
+        EqualityTest eq = t.asEqualityTest();
+        if (eq != null)
+            return eq.getReferent().hash_id;
+    
+        if (t.asGoalIdTest() != null)
+        {
+            return 34894895; /* just use some unusual number */
+        }
+        if (t.asImpasseIdTest() != null)
+        {
+            return 2089521;
+        }
+        DisjunctionTest dt = t.asDisjunctionTest();
+        if (dt != null)
+        {
+            int result = 7245;
+            for (Symbol c : dt.disjunction_list)
+                result = result + c.hash_id;
+            return result;
+        }
+        ConjunctiveTest ct = t.asConjunctiveTest();
+        if (ct != null)
+        {
+            int result = 100276;
+            for (Test c : ct.conjunct_list)
+                result = result + hash_test(c);
+            return result;
+        }
+        RelationalTest rt = t.asRelationalTest();
+        if (rt != null)
+        {
+            return (rt.type << 24) + rt.referent.hash_id;
+        }
+        throw new IllegalStateException("Error: bad test type in hash_test: " + t);
+    }
+
+    /**
+     * Copy a test, safely handling the case of null tests.
+     * 
+     * <p>production.cpp:187:copy_test
+     * 
+     * @see {@link #copy()}
+     * @param t A test, possibly <code>null</code>
+     * @return Copy of t
+     */
+    public static Test copy(Test t)
+    {
+        return t != null ? t.copy() : null;
+    }
+
+    public static boolean isBlank(Test t)
+    {
+        return t == null;
     }
 
 }

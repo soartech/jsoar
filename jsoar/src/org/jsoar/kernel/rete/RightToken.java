@@ -18,7 +18,7 @@ public class RightToken extends Token
 //  struct token_struct *left_token; /* token this is local join result for*/
 //} neg;
     
-    final AsListItem<Token> negrm = new AsListItem<Token>(this); // part of other local join results dll
+    final AsListItem<RightToken> negrm = new AsListItem<RightToken>(this); // part of other local join results dll
     /*final*/ Token left_token; // token this is a local join result for
     
     public static RightToken create(ReteNode current_node, Token parent_tok, Wme parent_wme, Token left_token)
@@ -32,7 +32,9 @@ public class RightToken extends Token
     public static RightToken createDummy(ReteNode current_node)
     {
         assert current_node != null && current_node.node_type == ReteNodeType.DUMMY_TOP_BNODE;
-        return new RightToken(current_node, null, null, null);
+        RightToken t = new RightToken(current_node, null, null, null);
+        current_node.a_np.tokens = t;
+        return t;
     }
     
     /**

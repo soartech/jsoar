@@ -99,7 +99,7 @@ public class TemporaryMemory
     }
     
     /**
-     * tempmem.cpp:159:remove_garbage_slots
+     * <p>tempmem.cpp:159:remove_garbage_slots
      */
     @SuppressWarnings("unchecked")
     public void remove_garbage_slots()
@@ -108,7 +108,7 @@ public class TemporaryMemory
         {
             Slot s = slots_for_possible_removal.pop();
 
-            if (!s.wmes.isEmpty() || !s.all_preferences.isEmpty())
+            if (s.getWmes() != null || s.getAllPreferences() != null)
             {
                 // don't deallocate it if it still has any wmes or preferences
                 s.marked_for_possible_removal = false;

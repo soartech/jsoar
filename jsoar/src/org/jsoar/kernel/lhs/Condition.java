@@ -147,11 +147,11 @@ public abstract class Condition
         PositiveCondition pc = cond.asPositiveCondition();
         if (pc != null)
         {
-            result = Test.hash_test(pc.id_test);
+            result = TestTools.hash_test(pc.id_test);
             result = (result << 24) | (result >> 8);
-            result ^= Test.hash_test(pc.attr_test);
+            result ^= TestTools.hash_test(pc.attr_test);
             result = (result << 24) | (result >> 8);
-            result ^= Test.hash_test(pc.value_test);
+            result ^= TestTools.hash_test(pc.value_test);
             if (cond.test_for_acceptable_preference)
                 result++;
 
@@ -162,11 +162,11 @@ public abstract class Condition
         if (nc != null)
         {
             result = 1267818;
-            result ^= Test.hash_test(nc.id_test);
+            result ^= TestTools.hash_test(nc.id_test);
             result = (result << 24) | (result >> 8);
-            result ^= Test.hash_test(nc.attr_test);
+            result ^= TestTools.hash_test(nc.attr_test);
             result = (result << 24) | (result >> 8);
-            result ^= Test.hash_test(nc.value_test);
+            result ^= TestTools.hash_test(nc.value_test);
             if (cond.test_for_acceptable_preference)
                 result++;
 
@@ -250,9 +250,9 @@ public abstract class Condition
         if (pc != null)
         {
             PositiveCondition New = new PositiveCondition();
-            New.id_test = Test.copy(pc.id_test);
-            New.attr_test = Test.copy(pc.attr_test);
-            New.value_test = Test.copy(pc.value_test);
+            New.id_test = TestTools.copy(pc.id_test);
+            New.attr_test = TestTools.copy(pc.attr_test);
+            New.value_test = TestTools.copy(pc.value_test);
             New.test_for_acceptable_preference = pc.test_for_acceptable_preference;
             New.bt = pc.bt.copy();
             return New;
@@ -261,9 +261,9 @@ public abstract class Condition
         if (nc != null)
         {
             NegativeCondition New = new NegativeCondition();
-            New.id_test = Test.copy(nc.id_test);
-            New.attr_test = Test.copy(nc.attr_test);
-            New.value_test = Test.copy(nc.value_test);
+            New.id_test = TestTools.copy(nc.id_test);
+            New.attr_test = TestTools.copy(nc.attr_test);
+            New.value_test = TestTools.copy(nc.value_test);
             New.test_for_acceptable_preference = nc.test_for_acceptable_preference;
             return New;
         }
