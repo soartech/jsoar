@@ -22,6 +22,18 @@ public class PerformanceTimer
      */
     public static void main(String[] args) throws SoarTclException
     {
+        for(int i = 0; i < 15; ++i)
+        {
+            doRun(args);
+        }
+    }
+
+    /**
+     * @param args
+     * @throws SoarTclException
+     */
+    private static void doRun(String[] args) throws SoarTclException
+    {
         Agent agent = new Agent();
         agent.trace.setEnabled(false);
         Writer oldWriter = agent.getPrinter().getWriter();
@@ -38,5 +50,6 @@ public class PerformanceTimer
         
         agent.getPrinter().setWriter(oldWriter, true);
         ifc.eval("stats");
+        ifc.dispose();
     }
 }
