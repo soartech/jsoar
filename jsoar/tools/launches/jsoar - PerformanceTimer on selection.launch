@@ -14,4 +14,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.jsoar.kernel.PerformanceTimer"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;${resource_loc}&quot;"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jsoar"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx1000M"/>
 </launchConfiguration>

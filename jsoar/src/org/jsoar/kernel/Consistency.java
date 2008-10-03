@@ -219,7 +219,7 @@ public class Consistency
         {
             context.getPrinter().print("    Impasse Type returned by run preference semantics: %d\n", new_impasse_type);
 
-            for (Preference cand = candidates.value; cand != null; cand = cand.next_prev.getNextItem())
+            for (Preference cand = candidates.value; cand != null; cand = cand.next)
             {
                 context.getPrinter().print("    Preference for slot: %s", cand);
             }

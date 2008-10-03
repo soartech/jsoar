@@ -76,12 +76,37 @@ public class SoarTclInterface
             final Printer p = agent.getPrinter();
             
             p.startNewLine();
+            p.print("%d decision cycles%n", agent.decisionCycle.d_cycle_count);
             for(ExecutionTimer t : agent.getAllTimers())
             {
                 p.print("%s %f\n", t.getName(), t.getTotalSeconds());
             }
         }};
 
+    private Command learnCommand = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            if(args.length != 2)
+            {
+                throw new TclNumArgsException(interp, 2, args, "[--on|--off]");
+            }
+            
+            if("--on".equals(args[1].toString()))
+            {
+                agent.chunker.setLearningOn(true);
+            }
+            else if("--off".equals(args[1].toString()))
+            {
+                agent.chunker.setLearningOn(false);
+            }
+            else
+            {
+                throw new TclException(interp, "Option must be --on or --off");
+            }
+        }};
+        
     /**
      * @param agent
      */
@@ -92,6 +117,7 @@ public class SoarTclInterface
         interp.createCommand("sp", spCommand);
         interp.createCommand("multi-attributes", multiAttrCommand);
         interp.createCommand("stats", statsCommand);
+        interp.createCommand("learn", learnCommand);
     }
     
     public void dispose()

@@ -38,7 +38,7 @@ public class Production
     public final LinkedList<Variable> rhs_unbound_variables = new LinkedList<Variable>();
     public boolean already_fired = false; /* RPM test workaround for bug #139 */
     public AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;
-    public int reference_count = 1;
+    private int reference_count = 1;
     
     private boolean reordered = false;
     
@@ -135,17 +135,35 @@ public class Production
 
         reordered = true;
     }
+
+    public int getReferenceCount()
+    {
+        return reference_count;
+    }
     
     /**
-     * @param b
+     * <p>production.h:380:production_add_ref
      */
-    public void excise_production(boolean b)
+    public void production_add_ref()
     {
-        // TODO implement excise_production
-        throw new UnsupportedOperationException("excise_production not implemented");
-        
+        reference_count++;
     }
 
+    /**
+     * <p>production.h:385:production_remove_ref
+     */
+    public void production_remove_ref()
+    {
+        reference_count--;
+        if (reference_count == 0)
+        {
+            if (!instantiations.isEmpty())
+            {
+                throw new IllegalStateException("Internal error: deallocating prod. that still has inst's");
+            }
+        }
+    }
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */

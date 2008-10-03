@@ -166,10 +166,10 @@ public class Decider
             w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
 
         // now mark values for which we WANT a wme as "CANDIDATE" values
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.REQUIRE_PREFERENCE_TYPE).first; p != null; p = p.next)
-            p.item.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE).first; p != null; p = p.next)
-            p.item.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
 
         // remove any existing wme's that aren't CANDIDATEs; mark the rest as
         // ALREADY_EXISTING
@@ -205,9 +205,8 @@ public class Decider
 
         // add the necessary wme's that don't ALREADY_EXIST
 
-        for (AsListItem<Preference> it = s.getFastPreferenceList(PreferenceType.REQUIRE_PREFERENCE_TYPE).first; it != null; it = it.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
         {
-            final Preference p = it.item;
             if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
             {
                 // found existing wme, so just update its trace
@@ -226,9 +225,8 @@ public class Decider
             }
         }
 
-        for (AsListItem<Preference> it = s.getFastPreferenceList(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE).first; it != null; it = it.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); p != null; p = p.next)
         {
-            final Preference p = it.item;
             if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
             {
                 // found existing wme, so just update its trace
@@ -363,7 +361,7 @@ public class Decider
         
         for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
         {
-            for (Preference pref = s.item.getAllPreferences(); pref != null; pref = pref.next_of_slot)
+            for (Preference pref = s.item.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
             {
                 promote_if_needed(pref.value, new_level);
                 if (pref.type.isBinary())
@@ -489,7 +487,7 @@ public class Decider
             Preference pref = s.getAllPreferences();
             while (pref != null)
             {
-                final Preference next_pref = pref.next_of_slot;
+                final Preference next_pref = pref.nextOfSlot;
                 context.prefMemory.remove_preference_from_tm(pref);
 
                 /*
@@ -560,7 +558,7 @@ public class Decider
         for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
             final Slot s = sit.item;
-            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.next_of_slot)
+            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
             {
                 mark_unknown_level_if_needed(pref.value);
                 if (pref.type.isBinary())
@@ -620,7 +618,7 @@ public class Decider
         for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
             final Slot s = sit.item;
-            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.next_of_slot)
+            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
             {
                 update_levels_if_needed(pref.value);
                 if (pref.type.isBinary())
@@ -756,12 +754,11 @@ public class Decider
     private ImpasseType require_preference_semantics(Slot s, ByRef<Preference> result_candidates)
     {
         // collect set of required items into candidates list --- */
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.REQUIRE_PREFERENCE_TYPE).first; p != null; p = p.next)
-            p.item.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
         Preference candidates = null;
-        for (AsListItem<Preference> it = s.getFastPreferenceList(PreferenceType.REQUIRE_PREFERENCE_TYPE).first; it != null; it = it.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
         {
-            final Preference p = it.item;
             if (p.value.decider_flag == DeciderFlag.NOTHING_DECIDER_FLAG)
             {
                 p.next_candidate = candidates;
@@ -778,8 +775,8 @@ public class Decider
 
         // just one require, check for require-prohibit impasse
         Symbol value = candidates.value;
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.PROHIBIT_PREFERENCE_TYPE).first; p != null; p = p.next)
-            if (p.item.value == value)
+        for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT_PREFERENCE_TYPE); p != null; p = p.next)
+            if (p.value == value)
                 return ImpasseType.CONSTRAINT_FAILURE_IMPASSE_TYPE;
 
         // the lone require is the winner
@@ -867,7 +864,7 @@ public class Decider
         }
 
         /* === Requires === */
-        if (!s.getFastPreferenceList(PreferenceType.REQUIRE_PREFERENCE_TYPE).isEmpty())
+        if (s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE) != null)
         {
             return require_preference_semantics(s, result_candidates);
         }
@@ -875,18 +872,17 @@ public class Decider
         /* === Acceptables, Prohibits, Rejects === */
 
         // mark everything that's acceptable, then unmark the prohibited and rejected items
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE).first; p != null; p = p.next)
-            p.item.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.PROHIBIT_PREFERENCE_TYPE).first; p != null; p = p.next)
-            p.item.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.REJECT_PREFERENCE_TYPE).first; p != null; p = p.next)
-            p.item.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT_PREFERENCE_TYPE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.REJECT_PREFERENCE_TYPE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
 
         /* --- now scan through acceptables and build the list of candidates --- */
         Preference candidates = null;
-        for (AsListItem<Preference> it = s.getFastPreferenceList(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE).first; it != null; it = it.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); p != null; p = p.next)
         {
-            final Preference p = it.item;
             if (p.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
             {
                 p.next_candidate = candidates;
@@ -920,8 +916,8 @@ public class Decider
         }
 
         /* === Better/Worse === */
-        if (!s.getFastPreferenceList(PreferenceType.BETTER_PREFERENCE_TYPE).isEmpty()
-                || !s.getFastPreferenceList(PreferenceType.WORSE_PREFERENCE_TYPE).isEmpty())
+        if (s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE) != null
+                || s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE) != null)
         {
             Symbol j, k;
 
@@ -948,24 +944,22 @@ public class Decider
                       candidate -= k, if not already true
             ----------------------- */
 
-            for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.BETTER_PREFERENCE_TYPE).first; p != null; p = p.next)
+            for (Preference p = s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE); p != null; p = p.next)
             {
-                p.item.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-                p.item.referent.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+                p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+                p.referent.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
             }
-            for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.WORSE_PREFERENCE_TYPE).first; p != null; p = p.next)
+            for (Preference p = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p != null; p = p.next)
             {
-                p.item.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-                p.item.referent.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+                p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+                p.referent.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
             }
             for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
             {
                 cand.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
             }
-            for (AsListItem<Preference> pit = s.getFastPreferenceList(PreferenceType.BETTER_PREFERENCE_TYPE).first; pit != null; pit = pit.next)
+            for (Preference p = s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE); p != null; p = p.next)
             {
-                final Preference p = pit.item;
-                
                 j = p.value;
                 k = p.referent;
                 if (j == k)
@@ -977,15 +971,15 @@ public class Decider
                     if ((j.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG)
                             || (k.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG))
                     {
-                        for (AsListItem<Preference> p2 = s.getFastPreferenceList(PreferenceType.BETTER_PREFERENCE_TYPE).first; p2 != null; p2 = p2.next)
-                            if ((p2.item.value == k) && (p2.item.referent == j))
+                        for (Preference p2 = s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE); p2 != null; p2 = p2.next)
+                            if ((p2.value == k) && (p2.referent == j))
                             {
                                 j.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
                                 k.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
                                 break;
                             }
-                        for (AsListItem<Preference> p2 = s.getFastPreferenceList(PreferenceType.WORSE_PREFERENCE_TYPE).first; p2 != null; p2 = p2.next)
-                            if ((p2.item.value == j) && (p2.item.referent == k))
+                        for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p2 != null; p2 = p2.next)
+                            if ((p2.value == j) && (p2.referent == k))
                             {
                                 j.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
                                 k.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
@@ -994,9 +988,8 @@ public class Decider
                     }
                 }
             }
-            for (AsListItem<Preference> it = s.getFastPreferenceList(PreferenceType.WORSE_PREFERENCE_TYPE).first; it != null; it = it.next)
+            for (Preference p = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p != null; p = p.next)
             {
-                final Preference p = it.item;
                 j = p.value;
                 k = p.referent;
                 if (j == k)
@@ -1008,8 +1001,8 @@ public class Decider
                     if ((j.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG)
                             || (k.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG))
                     {
-                        for (AsListItem<Preference> p2 = s.getFastPreferenceList(PreferenceType.WORSE_PREFERENCE_TYPE).first; p2 != null; p2 = p2.next)
-                            if ((p2.item.value == k) && (p2.item.referent == j))
+                        for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p2 != null; p2 = p2.next)
+                            if ((p2.value == k) && (p2.referent == j))
                             {
                                 j.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
                                 k.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
@@ -1069,13 +1062,13 @@ public class Decider
         }
 
         /* === Bests === */
-        if (!s.getFastPreferenceList(PreferenceType.BEST_PREFERENCE_TYPE).isEmpty())
+        if (s.getPreferencesByType(PreferenceType.BEST_PREFERENCE_TYPE) != null)
         {
             Preference cand, prev_cand;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
                 cand.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-            for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.BEST_PREFERENCE_TYPE).first; p != null; p = p.next)
-                p.item.value.decider_flag = DeciderFlag.BEST_DECIDER_FLAG;
+            for (Preference p = s.getPreferencesByType(PreferenceType.BEST_PREFERENCE_TYPE); p != null; p = p.next)
+                p.value.decider_flag = DeciderFlag.BEST_DECIDER_FLAG;
             prev_cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
                 if (cand.value.decider_flag == DeciderFlag.BEST_DECIDER_FLAG)
@@ -1091,13 +1084,13 @@ public class Decider
         }
 
         /* === Worsts === */
-        if (!s.getFastPreferenceList(PreferenceType.WORST_PREFERENCE_TYPE).isEmpty())
+        if (s.getPreferencesByType(PreferenceType.WORST_PREFERENCE_TYPE) != null)
         {
             Preference cand, prev_cand;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
                 cand.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-            for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.WORST_PREFERENCE_TYPE).first; p != null; p = p.next)
-                p.item.value.decider_flag = DeciderFlag.WORST_DECIDER_FLAG;
+            for (Preference p = s.getPreferencesByType(PreferenceType.WORST_PREFERENCE_TYPE); p != null; p = p.next)
+                p.value.decider_flag = DeciderFlag.WORST_DECIDER_FLAG;
             prev_cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
                 if (cand.value.decider_flag != DeciderFlag.WORST_DECIDER_FLAG)
@@ -1131,15 +1124,14 @@ public class Decider
         /* === Indifferents === */
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
             cand.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.UNARY_INDIFFERENT_PREFERENCE_TYPE).first; p != null; p = p.next)
-            p.item.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT_PREFERENCE_TYPE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_DECIDER_FLAG;
 
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.NUMERIC_INDIFFERENT_PREFERENCE_TYPE).first; p != null; p = p.next)
-            p.item.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT_PREFERENCE_TYPE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG;
 
-        for (AsListItem<Preference> it = s.getFastPreferenceList(PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE).first; it != null; it = it.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE); p != null; p = p.next)
         {
-            final Preference p = it.item;
             if ((p.referent.asIntConstant() != null) || (p.referent.asFloatConstant() != null))
                 p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG;
         }
@@ -1158,10 +1150,9 @@ public class Decider
                 if (p == cand)
                     continue;
                 boolean match_found = false;
-                for (AsListItem<Preference> it = s.getFastPreferenceList(PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE).first;
-                         it != null; it = it.next)
+                for (Preference p2 = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE);
+                         p2 != null; p2 = p2.next)
                 {
-                    final Preference p2 = it.item;
                     if (((p2.value == cand.value) && (p2.referent == p.value))
                             || ((p2.value == p.value) && (p2.referent == cand.value)))
                     {
@@ -1202,8 +1193,8 @@ public class Decider
         /* === Parallels === */
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
             cand.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.UNARY_PARALLEL_PREFERENCE_TYPE).first; p != null; p = p.next)
-            p.item.value.decider_flag = DeciderFlag.UNARY_PARALLEL_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_PARALLEL_PREFERENCE_TYPE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.UNARY_PARALLEL_DECIDER_FLAG;
         boolean not_all_parallel = false;
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
         {
@@ -1216,9 +1207,8 @@ public class Decider
                 if (p == cand)
                     continue;
                 boolean match_found = false;
-                for (AsListItem<Preference> it = s.getFastPreferenceList(PreferenceType.BINARY_PARALLEL_PREFERENCE_TYPE).first; it != null; it = it.next)
+                for (Preference p2 = s.getPreferencesByType(PreferenceType.BINARY_PARALLEL_PREFERENCE_TYPE); p2 != null; p2 = p2.next)
                 {
-                    final Preference p2 = it.item;
                     if (((p2.value == cand.value) && (p2.referent == p.value))
                             || ((p2.value == p.value) && (p2.referent == cand.value)))
                     {
@@ -1730,7 +1720,7 @@ public class Decider
                        *          will be explored in elaborate_gds().
                      */
                      
-                     for (Preference pref=w.preference; pref!=null; pref=pref.next_prev.getNextItem()) {
+                     for (Preference pref=w.preference; pref!=null; pref=pref.next) {
     if(DEBUG_GDS_HIGH){
                         context.getPrinter().print("\n\n   ");
                         context.getPrinter().print_preference(pref);
@@ -1856,9 +1846,9 @@ public class Decider
             return s.changed != null;
 
         Symbol v = s.getWmes().value;
-        for (AsListItem<Preference> p = s.getFastPreferenceList(PreferenceType.RECONSIDER_PREFERENCE_TYPE).first; p != null; p = p.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.RECONSIDER_PREFERENCE_TYPE); p != null; p = p.next)
         {
-            if (v == p.item.value)
+            if (v == p.value)
                 return true;
         }
 
@@ -1929,7 +1919,7 @@ public class Decider
                 p.all_of_goal.remove(goal.preferences_from_goal);
                 p.on_goal_list = false;
                 if (!context.prefMemory.remove_preference_from_clones(p))
-                    if (p.in_tm)
+                    if (p.isInTempMemory())
                         context.prefMemory.remove_preference_from_tm(p);
             }
         }
@@ -1960,7 +1950,7 @@ public class Decider
                     p.remove(goal.preferences_from_goal);
                     p.item.on_goal_list = false;
                     if (!context.prefMemory.remove_preference_from_clones(p.item))
-                        if (p.item.in_tm)
+                        if (p.item.isInTempMemory())
                             context.prefMemory.remove_preference_from_tm(p.item);
                     p = p_next;
                 }
@@ -2953,9 +2943,9 @@ public class Decider
                             else
                             {
                                 /* this was the original "local & i-supported" action */
-                                for (AsListItem<Preference> it = s.getFastPreferenceList(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE).first; it != null; it = it.next)
+                                for (Preference pref = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); 
+                                     pref != null; pref = pref.next)
                                 {
-                                    final Preference pref = it.item;
                                     /*
                                     #ifdef DEBUG_GDS
                                                             print(thisAgent, "           looking at pref for the wme: ");

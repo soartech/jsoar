@@ -108,6 +108,8 @@
 	
     <target name="test" depends="build" description="Run unit tests">
         <junit printsummary="on" haltonfailure="yes" fork="yes" forkmode="perBatch" showoutput="true">
+        	<jvmarg value="-Xmx1000M"/>
+
             <classpath>
                 <pathelement path="${build.classes}" />
                 <pathelement path="${test.classes}" />

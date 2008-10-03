@@ -22,19 +22,33 @@ public class Preference implements Formattable
 {
     public final PreferenceType type;         /* acceptable, better, etc. */
     public boolean o_supported = false;  /* is the preference o-supported? */
-    public boolean in_tm = false;        /* is this currently in TM? */
     public boolean on_goal_list = false; /* is this pref on the list for its match goal */
     int reference_count = 0;
     public final Identifier id;
     public final Symbol attr;
     public final Symbol value;
     public final Symbol referent;
+    
+    /**
+     * The slot this preference is in. This is also a replacement for in_tm
+     */
     public Slot slot = null;
 
-    public final AsListItem<Preference> next_prev = new AsListItem<Preference>(this); // dll of pref's of same type in same slot */
+    /**
+     * next pointer for list of preferences in a slot by type. Use this when
+     * iterating over the list head returned by
+     * {@link Slot#getPreferencesByType(PreferenceType)}
+     */
+    public Preference next;
+    Preference previous;
 
-    public Preference next_of_slot;
-    public Preference previous_of_slot;
+    /**
+     * next pointer for list of all preference in a slot. Use this when 
+     * iterating over the list head returned by
+     * {@link Slot#getAllPreferences()}
+     */
+    public Preference nextOfSlot;
+    Preference previousOfSlot;
 
     public final AsListItem<Preference> all_of_goal = new AsListItem<Preference>(this); // dll of all pref's from the same match goal
     
@@ -119,6 +133,14 @@ public class Preference implements Formattable
         assert this.inst == null;
         this.inst = inst;
         this.inst_next_prev.insertAtHead(inst.preferences_generated);
+    }
+    
+    /**
+     * @return True if this preference is in temp memory, i.e. it's in a Slot.
+     */
+    public boolean isInTempMemory()
+    {
+        return slot != null;
     }
     
     /**

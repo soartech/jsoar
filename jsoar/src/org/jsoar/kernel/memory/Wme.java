@@ -164,8 +164,6 @@ public class Wme implements Formattable
     
     public Wme addToList(Wme head)
     {
-        assert head != null;
-        
         next = head;
         previous = null;
         if(head != null)
