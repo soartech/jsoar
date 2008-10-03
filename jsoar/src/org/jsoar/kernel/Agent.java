@@ -203,7 +203,34 @@ public class Agent
     }
     
     /**
-     * init_soar.cpp:1374:init_agent_memory()
+     * 
+     * <p>production.cpp:1595:excise_production
+     * 
+     * @param prod
+     * @param print_sharp_sign
+     */
+    public void exciseProduction(Production prod, boolean print_sharp_sign)
+    {
+        // TODO if (prod->trace_firings) remove_pwatch (thisAgent, prod);
+        // TODO remove_from_dll (thisAgent->all_productions_of_type[prod->type], prod, next, prev);
+
+        rl.exciseProduction(prod);
+
+        // TODO thisAgent->num_productions_of_type[prod->type]--;
+        if (print_sharp_sign)
+        {
+            getPrinter().print("#");
+        }
+        if (prod.p_node != null)
+        {
+            rete.excise_production_from_rete(prod);
+        }
+        prod.name.production = null;
+        prod.production_remove_ref();
+    }
+    
+    /**
+     * <p>init_soar.cpp:1374:init_agent_memory()
      */
     private void init_agent_memory()
     {
@@ -223,7 +250,7 @@ public class Agent
             final Writer writer = trace.getPrinter().getWriter();
             try
             {
-                writer.append("\n");
+                writer.write("\n");
                 decider.print_lowest_slot_in_context_stack (writer);
             }
             catch (IOException e)

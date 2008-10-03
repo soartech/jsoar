@@ -931,11 +931,11 @@ public class Rete
      * @param t
      * @param first_letter
      */
-    private void add_gensymmed_equality_test(ByRef<Test> t, char first_letter)
+    private Test add_gensymmed_equality_test(Test t, char first_letter)
     {
         Variable New = variableGenerator.generate_new_variable(Character.toString(first_letter));
         Test eq_test = Symbol.makeEqualityTest(New);
-        TestTools.add_new_test_to_test(t, eq_test);
+        return TestTools.add_new_test_to_test(t, eq_test);
     }
 
     /**
@@ -2094,24 +2094,25 @@ public class Rete
      * @param vn
      * @param t
      */
-    void add_varnames_to_test(/*VarNames*/ Object vn, ByRef<Test> t)
+    Test add_varnames_to_test(/*VarNames*/ Object vn, Test t)
     {
         if (vn == null)
-            return;
+            return t;
         
         if (VarNames.varnames_is_one_var(vn))
         {
             Test New = Symbol.makeEqualityTest(VarNames.varnames_to_one_var(vn));
-            TestTools.add_new_test_to_test(t, New);
+            t = TestTools.add_new_test_to_test(t, New);
         }
         else
         {
             for (Variable c : VarNames.varnames_to_var_list(vn))
             {
                 Test New = Symbol.makeEqualityTest(c);
-                TestTools.add_new_test_to_test(t, New);
+                t = TestTools.add_new_test_to_test(t, New);
             }
         }
+        return t;
     }
 
     /**
@@ -2171,27 +2172,21 @@ public class Rete
                     {
                         if (!TestTools.test_includes_equality_test_for_symbol(cond.id_test, null))
                         {
-                            ByRef<Test> id_test = ByRef.create(cond.id_test);
-                            add_gensymmed_equality_test(id_test, 's');
-                            cond.id_test = id_test.value;
+                            cond.id_test = add_gensymmed_equality_test(cond.id_test, 's');
                         }
                     }
                     else if (rt.variable_referent.field_num == 1)
                     {
                         if (!TestTools.test_includes_equality_test_for_symbol(cond.attr_test, null))
                         {
-                            ByRef<Test> attr_test = ByRef.create(cond.attr_test);
-                            add_gensymmed_equality_test(attr_test, 'a');
-                            cond.attr_test = attr_test.value;
+                            cond.attr_test = add_gensymmed_equality_test(cond.attr_test, 'a');
                         }
                     }
                     else
                     {
                         if (!TestTools.test_includes_equality_test_for_symbol(cond.value_test, null))
                         {
-                            ByRef<Test> value_test = ByRef.create(cond.value_test);
-                            add_gensymmed_equality_test(value_test, TestTools.first_letter_from_test(cond.attr_test));
-                            cond.value_test = value_test.value;
+                            cond.value_test = add_gensymmed_equality_test(cond.value_test, TestTools.first_letter_from_test(cond.attr_test));
                         }
                     }
                 }
@@ -2215,21 +2210,15 @@ public class Rete
 
             if (rt.right_field_num == 0)
             {
-                ByRef<Test> id_test = ByRef.create(cond.id_test);
-                TestTools.add_new_test_to_test(id_test, New);
-                cond.id_test = id_test.value;
+                cond.id_test = TestTools.add_new_test_to_test(cond.id_test, New);
             }
             else if (rt.right_field_num == 2)
             {
-                ByRef<Test> value_test = ByRef.create(cond.value_test);
-                TestTools.add_new_test_to_test(value_test, New);
-                cond.value_test = value_test.value;
+                cond.value_test = TestTools.add_new_test_to_test(cond.value_test, New);
             }
             else
             {
-                ByRef<Test> attr_test = ByRef.create(cond.attr_test);
-                TestTools.add_new_test_to_test(attr_test, New);
-                cond.attr_test = attr_test.value;
+                cond.attr_test = TestTools.add_new_test_to_test(cond.attr_test, New);
             }
         }
     }
@@ -2309,10 +2298,7 @@ public class Rete
         Symbol temp = var_bound_in_reconstructed_conds(cond, field_num, levels_up);
         Test New = Symbol.makeEqualityTest(temp);
 
-        ByRef<Test> id_test = ByRef.create(cond.id_test);
-        TestTools.add_new_test_to_test(id_test, New);
-        cond.id_test = id_test.value;
-
+        cond.id_test = TestTools.add_new_test_to_test(cond.id_test, New);
     }   
     
     /**
@@ -2423,29 +2409,21 @@ public class Rete
 
                 if (nvn != null)
                 {
-                    // Simulating byref calls here :(
-                    ByRef<Test> id_test = ByRef.create(tfc.id_test);
-                    add_varnames_to_test(nvn.fields.id_varnames, id_test);
-                    tfc.id_test = id_test.value;
-
-                    ByRef<Test> attr_test = ByRef.create(tfc.attr_test);
-                    add_varnames_to_test(nvn.fields.attr_varnames, attr_test);
-                    tfc.attr_test = attr_test.value;
-
-                    ByRef<Test> value_test = ByRef.create(tfc.value_test);
-                    add_varnames_to_test(nvn.fields.value_varnames, value_test);
-                    tfc.value_test = value_test.value;
+                    tfc.id_test = add_varnames_to_test(nvn.fields.id_varnames, tfc.id_test);
+                    tfc.attr_test = add_varnames_to_test(nvn.fields.attr_varnames, tfc.attr_test);
+                    tfc.value_test = add_varnames_to_test(nvn.fields.value_varnames, tfc.value_test);
                 }
 
-                /* --- on hashed nodes, add equality test for the hash function --- */
+                // on hashed nodes, add equality test for the hash function
                 if ((node.node_type == ReteNodeType.MP_BNODE) || (node.node_type == ReteNodeType.NEGATIVE_BNODE))
                 {
                     add_hash_info_to_id_test(tfc, node.left_hash_loc_field_num, node.left_hash_loc_levels_up);
                 }
                 else if (node.node_type == ReteNodeType.POSITIVE_BNODE)
                 {
-                    add_hash_info_to_id_test(tfc, node.parent.left_hash_loc_field_num,
-                            node.parent.left_hash_loc_levels_up);
+                    add_hash_info_to_id_test(tfc, 
+                                             node.parent.left_hash_loc_field_num,
+                                             node.parent.left_hash_loc_levels_up);
                 }
 
                 // if there are other tests, add them too
@@ -2454,27 +2432,21 @@ public class Rete
                     add_rete_test_list_to_tests(tfc, node.b_posneg.other_tests);
                 }
 
-                /* --- if we threw away the variable names, make sure there's some 
-                   equality test in each of the three fields --- */
+                // if we threw away the variable names, make sure there's some 
+                //   equality test in each of the three fields
                 if (nvn == null)
                 {
                     if (!TestTools.test_includes_equality_test_for_symbol(tfc.id_test, null))
                     {
-                        ByRef<Test> id_test = ByRef.create(tfc.id_test);
-                        add_gensymmed_equality_test(id_test, 's');
-                        tfc.id_test = id_test.value;
+                        tfc.id_test = add_gensymmed_equality_test(tfc.id_test, 's');
                     }
                     if (!TestTools.test_includes_equality_test_for_symbol(tfc.attr_test, null))
                     {
-                        ByRef<Test> attr_test = ByRef.create(tfc.attr_test);
-                        add_gensymmed_equality_test(attr_test, 'a');
-                        tfc.attr_test = attr_test.value;
+                        tfc.attr_test = add_gensymmed_equality_test(tfc.attr_test, 'a');
                     }
                     if (!TestTools.test_includes_equality_test_for_symbol(tfc.value_test, null))
                     {
-                        ByRef<Test> value_test = ByRef.create(tfc.value_test);
-                        add_gensymmed_equality_test(value_test, TestTools.first_letter_from_test(tfc.attr_test));
-                        tfc.value_test = value_test.value;
+                        tfc.value_test = add_gensymmed_equality_test(tfc.value_test, TestTools.first_letter_from_test(tfc.attr_test));
                     }
                 }
             }

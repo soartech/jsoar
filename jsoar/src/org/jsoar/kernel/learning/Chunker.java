@@ -6,6 +6,7 @@
 package org.jsoar.kernel.learning;
 
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ImpasseType;
@@ -254,7 +255,7 @@ public class Chunker
         {
             final Slot s = it.item;
             
-            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.next_of_slot)
+            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
                 add_pref_to_results(pref);
             
             for (Wme w = s.getWmes(); w != null; w = w.next)
@@ -349,13 +350,11 @@ public class Chunker
         ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
-            // TODO: Use array or arraylist instead
-            LinkedList<Test> newConjunctList = new LinkedList<Test>();
-            for (Test c : ct.conjunct_list)
+            for(ListIterator<Test> it = ct.conjunct_list.listIterator(); it.hasNext();)
             {
-                newConjunctList.add(variablize_test(c));
+                final Test c = it.next();
+                it.set(variablize_test(c));
             }
-            ct.conjunct_list = newConjunctList;
             return ct;
         }
         // relational tests other than equality
@@ -627,25 +626,19 @@ public class Chunker
 
                 if (TestTools.test_includes_equality_test_for_symbol(pc.id_test, var1))
                 {
-                    ByRef<Test> id_test = ByRef.create(pc.id_test);
-                    TestTools.add_new_test_to_test(id_test, t);
-                    pc.id_test = id_test.value;
+                    pc.id_test = TestTools.add_new_test_to_test(pc.id_test, t);
                     added_it = true;
                     break;
                 }
                 if (TestTools.test_includes_equality_test_for_symbol(pc.attr_test, var1))
                 {
-                    ByRef<Test> attr_test = ByRef.create(pc.attr_test);
-                    TestTools.add_new_test_to_test(attr_test, t);
-                    pc.attr_test = attr_test.value;
+                    pc.attr_test = TestTools.add_new_test_to_test(pc.attr_test, t);
                     added_it = true;
                     break;
                 }
                 if (TestTools.test_includes_equality_test_for_symbol(pc.value_test, var1))
                 {
-                    ByRef<Test> value_test = ByRef.create(pc.value_test);
-                    TestTools.add_new_test_to_test(value_test, t);
-                    pc.value_test = value_test.value;
+                    pc.value_test = TestTools.add_new_test_to_test(pc.value_test, t);
                     added_it = true;
                     break;
                 }
@@ -688,11 +681,10 @@ public class Chunker
             if ((id.isa_goal || id.isa_impasse) && (id.tc_number != tc))
             {
                 Test t = id.isa_goal ? GoalIdTest.INSTANCE : ImpasseIdTest.INSTANCE;
-                // TODO Assumes variablized_cond is three-field (put this
-                // assumption in class?)
-                ByRef<Test> id_test = ByRef.create(cc.variablized_cond.asThreeFieldCondition().id_test);
-                TestTools.add_new_test_to_test(id_test, t);
-                cc.variablized_cond.asThreeFieldCondition().id_test = id_test.value;
+                
+                // TODO Assumes variablized_cond is three-field (put this assumption in class?)
+                ThreeFieldCondition tfc = cc.variablized_cond.asThreeFieldCondition();
+                tfc.id_test = TestTools.add_new_test_to_test(tfc.id_test, t);
 
                 id.tc_number = tc;
             }
@@ -1349,12 +1341,12 @@ public class Chunker
 
         if (rete_addition_result == ProductionAddResult.DUPLICATE_PRODUCTION)
         {
-            prod.excise_production(false);
+            context.exciseProduction(prod, false);
         }
         else if ((prod_type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
                 && (rete_addition_result == ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH))
         {
-            prod.excise_production(false);
+            context.exciseProduction(prod, false);
         }
 
         if (rete_addition_result != ProductionAddResult.REFRACTED_INST_MATCHED)

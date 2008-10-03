@@ -136,7 +136,7 @@ public class OSupport
             final Slot s = sit.item;
             if ((!isa_state) || (s.attr != syms.operator_symbol))
             {
-                for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.next_of_slot)
+                for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
                 {
                     add_to_os_tc_if_needed(pref.value);
                     if (pref.type.isBinary())

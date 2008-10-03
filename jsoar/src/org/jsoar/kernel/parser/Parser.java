@@ -8,6 +8,7 @@ package org.jsoar.kernel.parser;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
@@ -215,15 +216,11 @@ private Test substitute_for_placeholders_in_test (Test t) {
   ConjunctiveTest conjunctive = ct.asConjunctiveTest();
   if(conjunctive != null)
   {
-      // TODO: Use array or arraylist instead
-      LinkedList<Test> newConjuntList = new LinkedList<Test>();
-      for(Test child : conjunctive.conjunct_list)
+      for(ListIterator<Test> it = conjunctive.conjunct_list.listIterator(); it.hasNext();)
       {
-          newConjuntList.add(substitute_for_placeholders_in_test(child));
+          final Test child = it.next();
+          it.set(substitute_for_placeholders_in_test(child));
       }
-      conjunctive.conjunct_list = newConjuntList;
-//      for (c=ct->data.conjunct_list; c!=null; c=c->rest)
-//          substitute_for_placeholders_in_test (thisAgent, (test *)(&(c->first)));
       
       return conjunctive;
   }
@@ -452,26 +449,26 @@ private void substitute_for_placeholders_in_action_list (Action a) {
     return parse_simple_test();
   /* --- parse and return conjunctive test --- */
   lexer.getNextLexeme();
-  ByRef<Test> t = new ByRef<Test>(null); // make_blank_test();
+  Test t = null; // make_blank_test();
   do {
     Test temp = parse_simple_test();
     if (temp == null) {
       //deallocate_test(thisAgent, t);
       return null;
     }
-    TestTools.add_new_test_to_test(t, temp);
+    t = TestTools.add_new_test_to_test(t, temp);
   } while (lexer.getCurrentLexeme().type!=R_BRACE_LEXEME);
   lexer.getNextLexeme(); /* consume the "}" */
 
   // TODO I don't think reverse is correct here.
-    ConjunctiveTest cjt = t.value.asConjunctiveTest();
+    ConjunctiveTest cjt = t.asConjunctiveTest();
     if (cjt != null)
     {
         Collections.reverse(cjt.conjunct_list);
         //ct->data.conjunct_list = destructively_reverse_list (ct->data.conjunct_list);
     }
 
-  return t.value;
+  return t;
 }
 
 /* =================================================================
@@ -684,7 +681,7 @@ private void fill_in_attr_tests (Condition conds, Test t) {
         return null;
       }
       if (! TestTools.test_includes_equality_test_for_symbol (value_test.value, null)) {
-        TestTools.add_new_test_to_test (value_test,make_placeholder_test(first_letter));
+        value_test.value = TestTools.add_new_test_to_test (value_test.value,make_placeholder_test(first_letter));
       }
     }
     /* --- check for acceptable preference indicator --- */
@@ -744,7 +741,7 @@ private void fill_in_attr_tests (Condition conds, Test t) {
       return null;
   }
   if (! TestTools.test_includes_equality_test_for_symbol (attr_test.value, null)) {
-    TestTools.add_new_test_to_test (attr_test, make_placeholder_test ('a'));
+    attr_test.value = TestTools.add_new_test_to_test (attr_test.value, make_placeholder_test ('a'));
   }
 
   /* --- read optional attribute path --- */
@@ -780,7 +777,7 @@ private void fill_in_attr_tests (Condition conds, Test t) {
     }
 /* AGR 544 begin */
     if (! TestTools.test_includes_equality_test_for_symbol (attr_test.value, null)) {
-      TestTools.add_new_test_to_test (attr_test,make_placeholder_test('a'));
+      attr_test.value = TestTools.add_new_test_to_test (attr_test.value,make_placeholder_test('a'));
     }
 /* AGR 544 end */
   } /* end of while (lexer.getCurrentLexeme().type==PERIOD_LEXEME) */
@@ -858,7 +855,7 @@ private Test parse_head_of_conds_for_one_id (char first_letter_if_no_id_given) t
       return null;
     }
     if (! TestTools.test_includes_equality_test_for_symbol (id_test.value, null)) {
-      TestTools.add_new_test_to_test(id_test, make_placeholder_test(first_letter_if_no_id_given));
+        id_test.value = TestTools.add_new_test_to_test(id_test.value, make_placeholder_test(first_letter_if_no_id_given));
     } else {
       check_for_symconstant = TestTools.copy_of_equality_test_found_in_test(id_test.value);
       sym = check_for_symconstant.asEqualityTest().getReferent(); // referent_of_equality_test(check_for_symconstant);
@@ -885,7 +882,7 @@ private Test parse_head_of_conds_for_one_id (char first_letter_if_no_id_given) t
   }
   
   /* --- add the goal/impasse test to the id test --- */
-  TestTools.add_new_test_to_test (id_test, id_goal_impasse_test);
+  id_test.value = TestTools.add_new_test_to_test (id_test.value, id_goal_impasse_test);
 
   /* --- return the resulting id test --- */
   return id_test.value;

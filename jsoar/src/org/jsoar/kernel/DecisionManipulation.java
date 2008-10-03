@@ -98,7 +98,7 @@ public class DecisionManipulation
                         return_val = cand;
                 }
                 
-                cand = cand.next_prev.getNextItem();
+                cand = cand.next;
             }
 
             if ( reinit )

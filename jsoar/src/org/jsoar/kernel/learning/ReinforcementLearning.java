@@ -109,5 +109,18 @@ public class ReinforcementLearning
 //        }
     }
 
+    /**
+     * Function introduced while teasing apary excise functionality
+     * 
+     * <p>production.cpp:1595:excise_production
+     * 
+     * @param prod
+     */
+    public void exciseProduction(Production prod)
+    {
+        // Remove RL-related pointers to this production (unnecessary if rule never fired).
+        //if ( prod->rl_rule && prod->firing_count ) 
+        //    rl_remove_refs_for_prod( thisAgent, prod ); 
+    }
     
 }

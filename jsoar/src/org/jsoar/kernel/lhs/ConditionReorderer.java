@@ -239,7 +239,7 @@ public class ConditionReorderer
             {
                 if (TestTools.test_includes_equality_test_for_symbol(t.value, st.var))
                 {
-                    TestTools.add_new_test_to_test_if_not_already_there(t, st.the_test);
+                    t.value =  TestTools.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
                     added_it = true;
                 }
             }
@@ -251,7 +251,7 @@ public class ConditionReorderer
                 {
                     if (symbol_is_constant_or_marked_variable(referent, bound_vars_tc_number) || (st.var == referent))
                     {
-                        TestTools.add_new_test_to_test_if_not_already_there(t, st.the_test);
+                        t.value = TestTools.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
                         added_it = true;
                     }
                 }
@@ -263,7 +263,7 @@ public class ConditionReorderer
                         rt.type = RelationalTest.reverse_direction_of_relational_test(rt.type);
                         rt.referent = st.var;
                         st.var = referent;
-                        TestTools.add_new_test_to_test_if_not_already_there(t, st.the_test);
+                        t.value = TestTools.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
                         added_it = true;
                     }
                 }
@@ -766,7 +766,7 @@ public class ConditionReorderer
         ConjunctiveTest ct = t.value.asConjunctiveTest();
         if (ct != null)
         {
-            /* --- look at subtests for an equality test --- */
+            // look at subtests for an equality test
             Symbol sym = null;
             for (Test subtest : ct.conjunct_list)
             {
@@ -776,7 +776,7 @@ public class ConditionReorderer
                     sym = eq.getReferent();
                 }
             }
-            /* --- if no equality test was found, generate a variable for it --- */
+            // if no equality test was found, generate a variable for it
             if (sym == null)
             {
                 sym = vars.generate_new_variable("dummy-");

@@ -9,8 +9,6 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.util.AsListItem;
-import org.jsoar.util.ListHead;
 
 /**
  * prefmem.cpp
@@ -182,45 +180,7 @@ public class PreferenceMemory
         Slot s = Slot.make_slot(pref.id, pref.attr, context.predefinedSyms.operator_symbol);
         s.addPreference(pref);
 
-        // add preference to the list (in the right place, according to match
-        // goal level of the instantiations) for the slot
-        ListHead<Preference> s_prefs = s.getPreferenceList(pref);
-        if (s_prefs.isEmpty())
-        {
-            // this is the only pref. of its type, just put it at the head
-            pref.next_prev.insertAtHead(s_prefs);
-        }
-        else if (s_prefs.getFirstItem().inst.match_goal_level >= pref.inst.match_goal_level)
-        {
-            // it belongs at the head of the list, so put it there
-            pref.next_prev.insertAtHead(s_prefs);
-        }
-        else
-        {
-            // scan through the pref. list, find the one to insert after
-            AsListItem<Preference> it = s_prefs.first;
-            for (; it.next != null; it = it.next)
-            {
-                Preference p2 = it.item;
-                if (p2.inst.match_goal_level >= pref.inst.match_goal_level)
-                {
-                    break;
-                }
-            }
-
-            // insert pref after it
-            pref.next_prev.insertAfter(s_prefs, it);
-            // pref.next_prev.next = it.next;
-            // pref.next_prev.previous = it;
-            // it.next = pref.next_prev;
-            // if (pref.next_prev.next != null)
-            // {
-            // pref.next_prev.next.previous = pref.next_prev;
-            // }
-        }
-
         // other miscellaneous stuff
-        pref.in_tm = true;
         pref.preference_add_ref();
 
         context.tempMemory.mark_slot_as_changed(s);
@@ -244,7 +204,8 @@ public class PreferenceMemory
         // if acceptable/require pref for context slot, we may need to add a wme
         // later
         if (s.isa_context_slot
-                && (pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE || pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE))
+                && (pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE || 
+                    pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE))
         {
             context.decider.mark_context_slot_as_acceptable_preference_changed (s);
         }
@@ -271,7 +232,6 @@ public class PreferenceMemory
         s.removePreference(pref);
 
         // other miscellaneous stuff
-        pref.in_tm = false;
 
         context.tempMemory.mark_slot_as_changed(s);
 
@@ -317,12 +277,9 @@ public class PreferenceMemory
     {
         for (Preference pref : o_rejects)
         {
-            pref.preference_add_ref(); /*
-                                                 * prevents it from being
-                                                 * deallocated if it's a clone
-                                                 * of some other pref we're
-                                                 * about to remove
-                                                 */
+            // prevents it from being deallocated if it's a clone of some other 
+            // pref we're about to remove
+            pref.preference_add_ref(); 
             // #ifdef DEBUG_PREFS
             // print (thisAgent, "\nO-reject posted at 0x%8x: ",(unsigned
             // long)pref);
@@ -339,7 +296,7 @@ public class PreferenceMemory
                 Preference p = s.getAllPreferences();
                 while (p != null)
                 {
-                    final Preference next_p = p.next_of_slot;
+                    final Preference next_p = p.nextOfSlot;
                     if (p.value == pref.value)
                     {
                         remove_preference_from_tm(p);

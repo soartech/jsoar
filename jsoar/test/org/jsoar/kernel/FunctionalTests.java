@@ -47,7 +47,7 @@ public class FunctionalTests
         sourceTestFile(testName + ".soar");
         
         agent.trace.disableAll();
-        agent.trace.setEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM, true);
+        //agent.trace.setEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM, true);
         //agent.trace.setEnabled(false);
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);
@@ -224,5 +224,30 @@ public class FunctionalTests
     {
         runTest("testJustifications", 2);
     }
-
+    
+    @Test(timeout=10000)
+    public void testBlocksWorld() throws Exception
+    {
+        runTest("testBlocksWorld", -1);
+    }
+    
+    @Test(timeout=10000)
+    public void testBlocksWorldOperatorSubgoaling() throws Exception
+    {
+        runTest("testBlocksWorldOperatorSubgoaling", -1);
+    }
+    
+    @Ignore
+    @Test(/*timeout=10000*/)
+    public void testBlocksWorldLookAhead() throws Exception
+    {
+        runTest("testBlocksWorldLookAhead", -1);
+    }
+    
+    @Test(timeout=20000)
+    public void testArithmetic() throws Exception
+    {
+        runTest("testArithmetic", -1);
+        assertTrue(agent.decisionCycle.d_cycle_count > 40000);
+    }
 }

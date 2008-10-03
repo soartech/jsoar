@@ -70,32 +70,30 @@ public class TestTools
      * @param t
      * @param add_me
      */
-    public static void add_new_test_to_test(ByRef<Test> t, Test add_me)
+    public static Test add_new_test_to_test(Test t, Test add_me)
     {
         if (TestTools.isBlank(add_me))
         {
-            return;
+            return t;
         }
 
-        if (TestTools.isBlank(t.value))
+        if (TestTools.isBlank(t))
         {
-            t.value = add_me;
-            return;
+            return add_me;
         }
 
-        /* --- if *t isn't already a conjunctive test, make it into one --- */
-        boolean already_a_conjunctive_test = t.value.asConjunctiveTest() != null;
-
-        if (!already_a_conjunctive_test)
+        // if *t isn't already a conjunctive test, make it into one
+        ConjunctiveTest ct = t.asConjunctiveTest();
+        if (ct == null)
         {
-            ConjunctiveTest ct = new ConjunctiveTest();
-            ct.conjunct_list.push(t.value);
-            t.value = ct;
+            ct = new ConjunctiveTest();
+            ct.conjunct_list.push(t);
         }
-        /* --- at this point, ct points to the complex test structure for *t --- */
+        // at this point, ct points to the complex test structure for *t
 
-        /* --- now add add_me to the conjunct list --- */
-        t.value.asConjunctiveTest().conjunct_list.push(add_me);
+        // now add add_me to the conjunct list
+        ct.conjunct_list.push(add_me);
+        return ct;
     }
 
     public static boolean test_includes_equality_test_for_symbol(Test test,
@@ -233,23 +231,22 @@ public class TestTools
         ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
-            ByRef<Test> new_t = new ByRef<Test>(null);
+            Test new_t = null;
             for (Test c : ct.conjunct_list)
             {
-                Test temp = copy_test_removing_goal_impasse_tests(c,
-                        removed_goal, removed_impasse);
+                Test temp = copy_test_removing_goal_impasse_tests(c, removed_goal, removed_impasse);
                 if (!TestTools.isBlank(temp))
                 {
-                    add_new_test_to_test(new_t, temp);
+                    new_t = add_new_test_to_test(new_t, temp);
                 }
             }
             // TODO I don't think reverse is correct here.
-            ConjunctiveTest newct = new_t.value.asConjunctiveTest();
+            ConjunctiveTest newct = new_t.asConjunctiveTest();
             if (newct != null)
             {
                 Collections.reverse(newct.conjunct_list);
             }
-            return new_t.value;
+            return new_t;
         }
         return t.copy();
     }
@@ -296,15 +293,14 @@ public class TestTools
      * @param t
      * @param the_test
      */
-    public static void add_new_test_to_test_if_not_already_there(ByRef<Test> t,
-            Test add_me)
+    public static Test add_new_test_to_test_if_not_already_there(Test t, Test add_me)
     {
-        if (tests_are_equal (t.value, add_me)) {
+        if (tests_are_equal (t, add_me)) {
           //deallocate_test (thisAgent, add_me);
-          return;
+          return t;
         }
 
-        ConjunctiveTest ct = t.value.asConjunctiveTest();
+        ConjunctiveTest ct = t.asConjunctiveTest();
         if(ct != null)
         {
             for(Test child : ct.conjunct_list)
@@ -312,13 +308,12 @@ public class TestTools
                 if(tests_are_equal(child, add_me))
                 {
                     // deallocate_test (thisAgent, add_me);
-                    return;
+                    return t;
                 }
             }
         }
 
-        add_new_test_to_test (t, add_me);
-        
+        return add_new_test_to_test (t, add_me);
     }
 
     /**

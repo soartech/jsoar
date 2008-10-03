@@ -12,7 +12,6 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.AsListItem;
-import org.jsoar.util.ListHead;
 
 /**
  * Fields in a slot:
@@ -66,8 +65,6 @@ import org.jsoar.util.ListHead;
  */
 public class Slot
 {
-    private final static ListHead<Preference> defaultPreferenceList = ListHead.newInstance();
-    
     public final AsListItem<Slot> next_prev = new AsListItem<Slot>(this); // dll of slots for this id
     public final Identifier id; 
     public final Symbol attr;
@@ -78,7 +75,7 @@ public class Slot
     private Preference all_preferences; // dll of all pref's in the slot
     
     // TODO: Replace with array of normal pointers, i.e. eliminate ListHead/AsListItem
-    private final EnumMap<PreferenceType, ListHead<Preference>> preferencesByType = new EnumMap<PreferenceType, ListHead<Preference>>(PreferenceType.class);
+    private EnumMap<PreferenceType, Preference> preferencesByType;
 
     public Identifier impasse_id = null;               // null if slot is not impassed
     public final boolean isa_context_slot;            
@@ -179,43 +176,22 @@ public class Slot
         return null;
     }
     
-    public ListHead<Preference> getPreferenceList(Preference pref)
-    {
-        assert defaultPreferenceList.first == null;
-        
-        return getPreferenceList(pref.type);
-    }
-    
-    public ListHead<Preference> getPreferenceList(PreferenceType type)
-    {
-        assert defaultPreferenceList.first == null;
-        
-        ListHead<Preference> list =  preferencesByType.get(type);
-        if(list == null)
-        {
-            list = ListHead.newInstance();
-            preferencesByType.put(type, list);
-        }
-
-        return list;
-    }
-    
     /**
-     * Fast version of {@link #getPreferenceList(PreferenceType)}. This should
-     * only be called when the returned list head will be used in a read-only
-     * manner, i.e. for iteration rather than insertion or removal from the
-     * list.
+     * Returns the head of the list of preferences with the given type. When
+     * iterating over this list, you should use {@link Preference#next}.
      * 
-     * @param type
-     * @return
+     * @param type The type of preference
+     * @return The head of the list
      */
-    public ListHead<Preference> getFastPreferenceList(PreferenceType type)
+    public Preference getPreferencesByType(PreferenceType type)
     {
-        assert defaultPreferenceList.first == null;
-        
-        ListHead<Preference> list =  preferencesByType.get(type);
-        return list != null ? list : defaultPreferenceList;
+        if(preferencesByType == null)
+        {
+            return null;
+        }
+        return preferencesByType.get(type);
     }
+    
     
     public Wme getWmes()
     {
@@ -261,35 +237,146 @@ public class Slot
     {
         pref.slot = this;
         
-        pref.next_of_slot = all_preferences;
-        pref.previous_of_slot = null;
+        pref.nextOfSlot = all_preferences;
+        pref.previousOfSlot = null;
         if(all_preferences != null)
         {
-            all_preferences.previous_of_slot = pref;
+            all_preferences.previousOfSlot = pref;
         }
         all_preferences = pref;
+        
+        addPreferenceToCorrectTypeList(pref);
     }
     
     public void removePreference(Preference pref)
     {
         pref.slot = null; // BUG shouldn't we use pref->slot in place of pref->in_tm?
         
-        pref.next_prev.remove(getPreferenceList(pref));
+        removePreferenceByType(pref);
         
-        if(pref.next_of_slot != null)
+        if(pref.nextOfSlot != null)
         {
-            pref.next_of_slot.previous_of_slot = pref.previous_of_slot;
+            pref.nextOfSlot.previousOfSlot = pref.previousOfSlot;
         }
-        if(pref.previous_of_slot != null)
+        if(pref.previousOfSlot != null)
         {
-            pref.previous_of_slot.next_of_slot = pref.next_of_slot;
+            pref.previousOfSlot.nextOfSlot = pref.nextOfSlot;
         }
         else
         {
-            all_preferences = pref.next_of_slot;
+            all_preferences = pref.nextOfSlot;
         }
-        pref.next_of_slot = null;
-        pref.previous_of_slot = null;
+        pref.nextOfSlot = null;
+        pref.previousOfSlot = null;
 
     }
+    
+    /**
+     * Adds a new preference to the correct type list, in the correct position.
+     * 
+     * <p>This method is extracted from prefmem.cpp:add_preference_to_tm
+     * 
+     * @param pref
+     */
+    private void addPreferenceToCorrectTypeList(Preference pref)
+    {
+        // add preference to the list (in the right place, according to match
+        // goal level of the instantiations) for the slot
+        Preference s_prefs = this.getPreferencesByType(pref.type);
+        if (s_prefs == null)
+        {
+            // this is the only pref. of its type, just put it at the head
+            this.addPreferenceByType(pref, null);
+        }
+        else if (s_prefs.inst.match_goal_level >= pref.inst.match_goal_level)
+        {
+            // it belongs at the head of the list, so put it there
+            this.addPreferenceByType(pref, null);
+        }
+        else
+        {
+            // scan through the pref. list, find the one to insert after
+            Preference it = s_prefs;
+            for (; it.next != null; it = it.next)
+            {
+                if (it.inst.match_goal_level >= pref.inst.match_goal_level)
+                {
+                    break;
+                }
+            }
+
+            // insert pref after it
+            this.addPreferenceByType(pref, it);
+        }        
+    }
+    
+    /**
+     * Add a preference to this slot by type. This adds the preference to the
+     * appropriate list as returned by {@link #getPreferencesByType(PreferenceType)}.
+     * 
+     * @param pref The preference to add
+     * @param after If non-null, the preference is added <b>after</b> this one.
+     */
+    private void addPreferenceByType(Preference pref, Preference after)
+    {
+        if(preferencesByType == null)
+        {
+            preferencesByType = new EnumMap<PreferenceType, Preference>(PreferenceType.class);
+        }
+        
+        if(after == null)
+        {
+            final Preference head = preferencesByType.get(pref.type);
+            pref.next = head;
+            pref.previous = null;
+            if(head != null)
+            {
+                head.previous = pref;
+            }
+            preferencesByType.put(pref.type, pref);
+        }
+        else
+        {
+            assert preferencesByType.get(pref.type) != null;
+            
+            pref.next = after.next;
+            pref.previous = after;
+            after.next = pref;
+            if(pref.next != null)
+            {
+                pref.next.previous = pref;
+            }
+        }
+    }
+    
+    private void removePreferenceByType(Preference pref)
+    {
+        if(preferencesByType == null)
+        {
+            return;
+        }
+        if(pref.next != null)
+        {
+            pref.next.previous = pref.previous;
+        }
+        if(pref.previous != null)
+        {
+            pref.previous.next = pref.next;
+        }
+        else
+        {
+            if(pref.next == null)
+            {
+                preferencesByType.remove(pref.type);
+            }
+            else
+            {
+                preferencesByType.put(pref.type, pref.next);
+            }
+        }
+        pref.next = null;
+        pref.previous = null;
+        
+    }
+
 }

@@ -114,12 +114,11 @@ public class RecognitionMemory
             {
                 if (cond.bt.trace.slot != null)
                 {
-                    Preference pref = cond.bt.trace.slot.getFastPreferenceList(PreferenceType.PROHIBIT_PREFERENCE_TYPE)
-                            .getFirstItem();
+                    Preference pref = cond.bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT_PREFERENCE_TYPE);
                     while (pref != null)
                     {
                         Preference new_pref = null;
-                        if (pref.inst.match_goal_level == inst.match_goal_level && pref.in_tm)
+                        if (pref.inst.match_goal_level == inst.match_goal_level && pref.isInTempMemory())
                         {
                             cond.bt.prohibits.push(pref);
                             pref.preference_add_ref();
@@ -129,14 +128,14 @@ public class RecognitionMemory
                             new_pref = find_clone_for_level(pref, inst.match_goal_level);
                             if (new_pref != null)
                             {
-                                if (new_pref.in_tm)
+                                if (new_pref.isInTempMemory())
                                 {
                                     cond.bt.prohibits.push(new_pref);
                                     new_pref.preference_add_ref();
                                 }
                             }
                         }
-                        pref = pref.next_prev.getNextItem();
+                        pref = pref.next;
                     }
                 }
             }
@@ -474,7 +473,7 @@ public class RecognitionMemory
             final Identifier top_goal)
     {
 
-        // TODO ?? production_add_ref (inst->prod);
+        inst.prod.production_add_ref();
 
         find_match_goal(inst);
 
@@ -870,7 +869,10 @@ public class RecognitionMemory
 
         inst.top_of_instantiated_conditions = null;//  deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
         inst.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
-        // TODO if (inst.prod != null) production_remove_ref (thisAgent, inst->prod);
+        if (inst.prod != null) 
+        {
+            inst.prod.production_remove_ref();
+        }
     }
     
     /**
@@ -908,7 +910,7 @@ public class RecognitionMemory
         {
             AsListItem<Preference> nextItem = prefItem.next;
             Preference pref = prefItem.item;
-            if (pref.in_tm && !pref.o_supported)
+            if (pref.isInTempMemory() && !pref.o_supported)
             {
                 if (trace_it) {
                     if (!retracted_a_preference) 
@@ -933,8 +935,8 @@ public class RecognitionMemory
          * thing supporting this justification is the instantiation, hence it
          * has already been excised, and doing it again is wrong.
          */
-        if (inst.prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE && inst.prod.reference_count > 1)
-            inst.prod.excise_production(false);
+        if (inst.prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE && inst.prod.getReferenceCount() > 1)
+            context.exciseProduction(inst.prod, false);
 
         /* --- mark as no longer in MS, and possibly deallocate  --- */
         inst.in_ms = false;
