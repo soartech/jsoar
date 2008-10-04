@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
@@ -317,5 +318,82 @@ public abstract class Condition
             dest_top.value = null;
         
         dest_bottom.value = prev;
+    }
+    
+
+    /**
+     * <p>explain.cpp:117:copy_cond_list
+     * 
+     * @param top_list
+     * @return
+     */
+    public static Condition copy_cond_list(Condition top_list)
+    {
+        ByRef<Condition> new_top = ByRef.create(null);
+        ByRef<Condition> new_bottom = ByRef.create(null);
+
+        copy_condition_list(top_list, new_top, new_bottom);
+        return new_top.value;
+    }
+
+    /**
+     * <p>explain.cpp:129:copy_conds_from_list
+     * 
+     * @param top_list
+     * @return
+     */
+    public static Condition copy_conds_from_list(List<Condition> top_list)
+    {
+        Condition top = null, prev = null;
+
+        for (Condition cc : top_list)
+        {
+            Condition cond = copy_condition(cc);
+            cond.prev = prev;
+            cond.next = null;
+
+            if (prev == null)
+                top = cond;
+            else
+                prev.next = cond;
+
+            prev = cond;
+        }
+        return (top);
+    }
+    
+    /**
+     * print.cpp:1103:print_list_of_conditions
+     * 
+     * @param printer
+     * @param cond
+     */
+    public static void print_list_of_conditions(Printer printer, Condition cond)
+    {
+        while (cond != null)
+        {
+            if (printer.get_printer_output_column() >= printer.getColumnsPerLine() - 20)
+                printer.print("\n      %s\n", cond);
+            cond = cond.next;
+        }
+    }
+    
+    /**
+     * <p>Moved from explain.cpp since this is fairly generic
+     * 
+     * <p>explain.cpp:353:explain_find_cond
+     * 
+     * @param target
+     * @param cond_list
+     * @return
+     */
+    public static Condition explain_find_cond(Condition target, Condition cond_list)
+    {
+        for (Condition cond = cond_list; cond != null; cond = cond.next)
+        {
+            if (conditions_are_equal(target, cond))
+                return cond;
+        }
+        return null;
     }
 }
