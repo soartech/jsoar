@@ -123,6 +123,8 @@ public class Printer
     }
 
     /**
+     * <p>COLUMNS_PER_LINE
+     * 
      * @return
      */
     public int getColumnsPerLine()
