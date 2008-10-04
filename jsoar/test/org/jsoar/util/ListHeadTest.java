@@ -49,4 +49,20 @@ public class ListHeadTest
         assertNull(head.getFirstItem());
         
     }
+    
+    @Test
+    public void testPop()
+    {
+        List<String> strings = Arrays.asList("a", "b", "c", "d", "e", "f");
+        ListHead<String> head = ListHead.fromCollection(strings);
+        
+        assertEquals("a", head.pop());
+        assertEquals("b", head.pop());
+        assertEquals("c", head.pop());
+        assertEquals("d", head.pop());
+        assertEquals("e", head.pop());
+        assertEquals("f", head.pop());
+        assertNull(head.pop());
+        assertTrue(head.isEmpty());
+    }
 }

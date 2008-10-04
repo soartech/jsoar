@@ -7,7 +7,6 @@ package org.jsoar.kernel.parser;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.ListIterator;
 
 import org.jsoar.kernel.Production;

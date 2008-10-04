@@ -5,17 +5,17 @@
  */
 package org.jsoar.kernel.rete;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.NegativeCondition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.ListHead;
 
 /**
- * rete.cpp:2508
+ * <p>rete.cpp:2508
+ * <p>rete.cpp:2553:deallocate_node_varnames - not needed in Java
  * 
  * @author ray
  */
@@ -49,39 +49,6 @@ public class NodeVarNames
     }
     
     /**
-     * TODO: This method is probably unnecessary
-     * 
-     * rete.cpp:2553:deallocate_node_varnames
-     * 
-     * @param node
-     * @param cutoff
-     * @param nvn
-     */
-    static void deallocate_node_varnames(ReteNode node, ReteNode cutoff, NodeVarNames nvn)
-    {
-
-        while (node != cutoff)
-        {
-            if (node.node_type == ReteNodeType.CN_BNODE)
-            {
-                deallocate_node_varnames(node.b_cn.partner.parent, node.parent, nvn.bottom_of_subconditions);
-            }
-            else
-            {
-                VarNames.deallocate_varnames(nvn.fields.id_varnames);
-                VarNames.deallocate_varnames(nvn.fields.attr_varnames);
-                VarNames.deallocate_varnames(nvn.fields.value_varnames);
-                
-                // TODO: Set fields to null here?
-            }
-            node = node.real_parent_node();
-            //NodeVarNames temp = nvn;
-            nvn = nvn.parent;
-            //free_with_pool (&thisAgent->node_varnames_pool, temp);
-        }
-    }
-    
-    /**
      * rete.cpp:2611:make_nvn_for_posneg_cond
      * 
      * @param cond
@@ -91,7 +58,7 @@ public class NodeVarNames
     static NodeVarNames make_nvn_for_posneg_cond(ThreeFieldCondition cond, NodeVarNames parent_nvn)
     {
         NodeVarNames New = new NodeVarNames(parent_nvn);
-        LinkedList<Variable> vars_bound = new LinkedList<Variable>();
+        ListHead<Variable> vars_bound = ListHead.newInstance();
 
         /* --- fill in varnames for id test --- */
         New.fields.id_varnames = VarNames.add_unbound_varnames_in_test(cond.id_test, null);
@@ -121,7 +88,7 @@ public class NodeVarNames
     static NodeVarNames get_nvn_for_condition_list(Condition cond_list, NodeVarNames parent_nvn)
     {
         NodeVarNames New = null;
-        LinkedList<Variable> vars = new LinkedList<Variable>();
+        ListHead<Variable> vars = ListHead.newInstance();
 
         for (Condition cond = cond_list; cond != null; cond = cond.next)
         {

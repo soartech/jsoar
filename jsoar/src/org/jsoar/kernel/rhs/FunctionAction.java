@@ -5,9 +5,8 @@
  */
 package org.jsoar.kernel.rhs;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -46,7 +45,7 @@ public class FunctionAction extends Action
      * @see org.jsoar.kernel.Action#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
+    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
     {
         call.addAllVariables(tc_number, var_list);
     }

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 
 import com.google.common.base.ReferenceType;

@@ -6,12 +6,12 @@
 package org.jsoar.kernel.symbols;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.DeciderFlag;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -136,7 +136,7 @@ public abstract class Symbol extends EqualityTest
      * @param id_list
      * @param var_list
      */
-    public void add_symbol_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    public void add_symbol_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
     {
         // DO nothing by default
     }

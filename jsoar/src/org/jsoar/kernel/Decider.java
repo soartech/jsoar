@@ -7,11 +7,11 @@ package org.jsoar.kernel;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jsoar.kernel.learning.ReinforcementLearningInfo;
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
@@ -71,9 +71,12 @@ public class Decider
      */
     private final ListHead<Slot> context_slots_with_changed_acceptable_preferences = ListHead.newInstance();
     /**
-     * agent.h:615:promoted_ids
+     * <p>Note: In JSoar, changed to an array list, adding ids to end and traversing
+     * in reverse to maintain same behavior as push-front conses...
+     * 
+     * <p>agent.h:615:promoted_ids
      */
-    private final LinkedList<Identifier> promoted_ids = new LinkedList<Identifier>();
+    private final List<Identifier> promoted_ids = new ArrayList<Identifier>();
 
     /**
      * agent.h:616:link_update_mode
@@ -306,8 +309,7 @@ public class Decider
 
         /* --- otherwise buffer it for later --- */
         to.promotion_level = from.promotion_level;
-        //symbol_add_ref (to);
-        this.promoted_ids.push(to);
+        this.promoted_ids.add(to);
     }
 
     /**
@@ -379,9 +381,8 @@ public class Decider
     {
         while (!promoted_ids.isEmpty())
         {
-            Identifier to = promoted_ids.pop();
+            Identifier to = promoted_ids.remove(promoted_ids.size() - 1); // pop off end (see decl comment)
             promote_id_and_tc(to, to.promotion_level);
-            // symbol_remove_ref (thisAgent, to);
         }
     }
 
@@ -1915,9 +1916,9 @@ public class Decider
         {
             while (!goal.preferences_from_goal.isEmpty())
             {
-                Preference p = goal.preferences_from_goal.getFirstItem();
-                p.all_of_goal.remove(goal.preferences_from_goal);
+                Preference p = goal.preferences_from_goal.pop();
                 p.on_goal_list = false;
+                
                 if (!context.prefMemory.remove_preference_from_clones(p))
                     if (p.isInTempMemory())
                         context.prefMemory.remove_preference_from_tm(p);
@@ -2604,7 +2605,7 @@ public class Decider
     {
         // Set the correct GDS for this wme (wme's point to their gds)
         wme_to_add.gds = gds;
-        wme_to_add.gds_next_prev.insertAtHead(gds.wmes_in_gds);
+        gds.addWme(wme_to_add);
 
         // TODO trace add wme to gds in verbose mode as well
         context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, 
@@ -2680,12 +2681,12 @@ public class Decider
                         {
                             // The goal is NIL: meaning that the goal for the GDS
                             // is no longer around
-                            wme_matching_this_cond.gds_next_prev.remove(wme_matching_this_cond.gds.wmes_in_gds);
+                            wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
                             // We have to check for GDS removal anytime we take a
                             // WME off the GDS wme list, not just when a WME is
                             // removed from memory.
-                            if (wme_matching_this_cond.gds.wmes_in_gds.isEmpty())
+                            if (wme_matching_this_cond.gds.getWmes() == null)
                             {
                                 wme_matching_this_cond.gds = null;
                                 // free_memory(thisAgent, wme_matching_this_cond->gds, MISCELLANEOUS_MEM_USAGE);
@@ -2722,9 +2723,9 @@ public class Decider
                                 context.getPrinter().print("\n\n\n HELLO! HELLO! The inst->match_goal_level is 1");
                             }
 
-                            wme_matching_this_cond.gds_next_prev.remove(wme_matching_this_cond.gds.wmes_in_gds);
+                            wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
-                            if (wme_matching_this_cond.gds.wmes_in_gds.isEmpty())
+                            if (wme_matching_this_cond.gds.getWmes() == null)
                             {
                                 wme_matching_this_cond.gds = null;
                                 // free_memory(thisAgent, wme_matching_this_cond->gds, MISCELLANEOUS_MEM_USAGE);
@@ -2755,12 +2756,14 @@ public class Decider
                         /* JC ADDED: Separate adding wme to GDS as a function */
                         add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
 
-                        if (wme_matching_this_cond.gds.wmes_in_gds.first.previous != null)
+                        /*
+                        if (wme_matching_this_cond.gds.getWmes().gds_prev != null)
                         {
                             // TODO is this necessary??
                             context.getPrinter().print(
                                     "\nDEBUG DEBUG : The new header should never have a prev value.\n");
                         }
+                        */
 
                         if (DEBUG_GDS)
                         {
@@ -2843,12 +2846,12 @@ public class Decider
                                         {
                                             /* The goal is NIL: meaning that the goal for
                                             * the GDS is no longer around */
-                                            fake_inst_wme_cond.gds_next_prev.remove(fake_inst_wme_cond.gds.wmes_in_gds);
+                                            fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
 
                                             /* We have to check for GDS removal anytime we take
                                             * a WME off the GDS wme list, not just when a WME
                                             * is removed from memory. */
-                                            if (fake_inst_wme_cond.gds.wmes_in_gds.isEmpty())
+                                            if (fake_inst_wme_cond.gds.getWmes() == null)
                                             {
                                                 fake_inst_wme_cond.gds = null;
                                                 // free_memory(thisAgent, fake_inst_wme_cond->gds,
@@ -2887,8 +2890,8 @@ public class Decider
                                                         "\n\n\n\n\n HELLO! HELLO! The inst->match_goal_level is 1");
                                             }
 
-                                            fake_inst_wme_cond.gds_next_prev.remove(fake_inst_wme_cond.gds.wmes_in_gds);
-                                            if (fake_inst_wme_cond.gds.wmes_in_gds.isEmpty())
+                                            fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
+                                            if (fake_inst_wme_cond.gds.getWmes() == null)
                                             {
                                                 fake_inst_wme_cond.gds = null;
                                                 // free_memory(thisAgent, fake_inst_wme_cond->gds,
@@ -2919,11 +2922,13 @@ public class Decider
                                         /* JC ADDED: Separate adding wme to GDS as a function */
                                         add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
 
+                                        /*
                                         if (fake_inst_wme_cond.gds.wmes_in_gds.first.previous != null)
                                         {
                                             context.getPrinter().print(
                                                     "\nDEBUG DEBUG : The new header should never have a prev value.\n");
                                         }
+                                        */
                                         if (DEBUG_GDS)
                                         {
                                             context

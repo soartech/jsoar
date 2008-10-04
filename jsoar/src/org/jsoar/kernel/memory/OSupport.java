@@ -6,8 +6,6 @@
 package org.jsoar.kernel.memory;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.ProductionSupport;
@@ -1019,10 +1017,10 @@ public class OSupport
      * @param lhs
      * @return
      */
-    private LinkedList<Variable> find_known_goals(Condition lhs)
+    private ListHead<Variable> find_known_goals(Condition lhs)
     {
         int tc = syms.getSyms().get_new_tc_number();
-        LinkedList<Variable> vars = new LinkedList<Variable>();
+        ListHead<Variable> vars = ListHead.newInstance();
         for (Condition c = lhs; c != null; c = c.next)
         {
             PositiveCondition pc = c.asPositiveCondition();
@@ -1052,20 +1050,20 @@ public class OSupport
      * @param known_goals
      * @return
      */
-    private Variable find_compile_time_match_goal(Condition lhs, List<Variable> known_goals)
+    private Variable find_compile_time_match_goal(Condition lhs, ListHead<Variable> known_goals)
     {
         /* --- find root variables --- */
         int tc = syms.getSyms().get_new_tc_number();
-        List<Variable> roots = ConditionReorderer.collect_root_variables(lhs, tc, false);
+        ListHead<Variable> roots = ConditionReorderer.collect_root_variables(lhs, tc, false);
 
         /* --- intersect roots with known_goals, producing root_goals --- */
-        LinkedList<Variable> root_goals = new LinkedList<Variable>();
+        ListHead<Variable> root_goals = ListHead.newInstance();
         int num_root_goals = 0; // TODO Just use root_goals.size()?
-        for (Variable v : roots)
+        for (AsListItem<Variable> v = roots.first; v != null; v = v.next)
         {
             if (known_goals.contains(v))
             {
-                root_goals.push(v);
+                root_goals.push(v.item);
                 num_root_goals++;
             }
         }
@@ -1104,7 +1102,7 @@ public class OSupport
         // --- if there's only one root goal, that's it!
         if (num_root_goals == 1)
         {
-            return root_goals.getFirst();
+            return root_goals.getFirstItem();
         }
         else
         {
@@ -1140,11 +1138,11 @@ public class OSupport
             if (c.test_for_acceptable_preference) continue;
             
             int tc = syms.getSyms().get_new_tc_number();
-            LinkedList<Variable> vars = new LinkedList<Variable>();
+            ListHead<Variable> vars = ListHead.newInstance();
             pc.value_test.addBoundVariables(tc, vars);
             if (!vars.isEmpty())
             {
-                return vars.getFirst();
+                return vars.getFirstItem();
             }
         }
         return null;
@@ -1236,8 +1234,8 @@ public class OSupport
      * @param id_list
      * @param var_list
      */
-    private void add_tc_through_lhs_and_rhs(Condition lhs, Action rhs, int tc, LinkedList<Identifier> id_list,
-            LinkedList<Variable> var_list)
+    private void add_tc_through_lhs_and_rhs(Condition lhs, Action rhs, int tc, ListHead<Identifier> id_list,
+            ListHead<Variable> var_list)
     {
 
         for (Condition c = lhs; c != null; c = c.next)
@@ -1343,10 +1341,11 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
 
 
   /* --- find known goals; RHS augmentations of goals get no support --- */
-  LinkedList<Variable> known_goals = find_known_goals (lhs);
+  ListHead<Variable> known_goals = find_known_goals (lhs);
  /* SBH: In NNPSCM, the only RHS-goal augmentations that can't get support are
     preferences for the "operator" slot. */
-  for (Variable c : known_goals){
+  for (AsListItem<Variable> cIt = known_goals.first; cIt != null; cIt = cIt.next){
+    final Variable c = cIt.item;
     for (a=rhs; a!=null; a=a.next) {
       MakeAction ma = a.asMakeAction();
       if (ma == null) { continue; }

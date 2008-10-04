@@ -5,8 +5,6 @@
  */
 package org.jsoar.kernel.memory;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.symbols.Identifier;
@@ -14,6 +12,8 @@ import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -24,8 +24,8 @@ public class WorkingMemory
     
     private int num_existing_wmes;
     private int current_wme_timetag = 1;
-    private final LinkedList<Wme> wmes_to_add = new LinkedList<Wme>();
-    private final LinkedList<Wme> wmes_to_remove = new LinkedList<Wme>();
+    private final ListHead<Wme> wmes_to_add = ListHead.newInstance();
+    private final ListHead<Wme> wmes_to_remove = ListHead.newInstance();
     private int wme_addition_count;
     private int wme_removal_count;
     
@@ -125,9 +125,9 @@ public class WorkingMemory
          */
         if (w.gds != null)
         {
-            w.gds_next_prev.remove(w.gds.wmes_in_gds);
+            w.gds.removeWme(w);
 
-            if (w.gds.wmes_in_gds.isEmpty())
+            if (w.gds.getWmes() == null)
             {
                 w.gds = null;
             }
@@ -188,13 +188,13 @@ public class WorkingMemory
         // start_timer (thisAgent, &start_tv);
         // #endif
         // #endif
-        for (Wme w : wmes_to_add)
+        for (AsListItem<Wme> w = wmes_to_add.first; w != null; w = w.next)
         {
-            context.rete.add_wme_to_rete(w);
+            context.rete.add_wme_to_rete(w.item);
         }
-        for (Wme w : wmes_to_remove)
+        for (AsListItem<Wme> w = wmes_to_remove.first; w != null; w = w.next)
         {
-            context.rete.remove_wme_from_rete(w);
+            context.rete.remove_wme_from_rete(w.item);
         }
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS

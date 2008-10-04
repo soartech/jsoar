@@ -5,14 +5,29 @@
  */
 package org.jsoar.kernel;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListHead;
 
 /**
+ * Variable Generator
+ * 
+ * These routines are used for generating new variables. The variables aren't
+ * necessarily "completely" new--they might occur in some existing production.
+ * But we usually need to make sure the new variables don't overlap with those
+ * already used in a *certain* production--for instance, when variablizing a
+ * chunk, we don't want to introduce a new variable that conincides with the
+ * name of a variable already in an NCC in the chunk.
+ * 
+ * To use these routines, first call reset_variable_generator(), giving it lists
+ * of conditions and actions whose variables should not be used. Then call
+ * generate_new_variable() any number of times; each time, you give it a string
+ * to use as the prefix for the new variable's name. The prefix string should
+ * not include the opening "<".
+ * 
  * @author ray
  */
 public class VariableGenerator
@@ -39,32 +54,15 @@ public class VariableGenerator
         return syms;
     }
 
-    /***************************************************************************
-     * 
-     * Variable Generator
-     * 
-     * These routines are used for generating new variables. The variables
-     * aren't necessarily "completely" new--they might occur in some existing
-     * production. But we usually need to make sure the new variables don't
-     * overlap with those already used in a *certain* production--for instance,
-     * when variablizing a chunk, we don't want to introduce a new variable that
-     * conincides with the name of a variable already in an NCC in the chunk.
-     * 
-     * To use these routines, first call reset_variable_generator(), giving it
-     * lists of conditions and actions whose variables should not be used. Then
-     * call generate_new_variable() any number of times; each time, you give it
-     * a string to use as the prefix for the new variable's name. The prefix
-     * string should not include the opening "<".
-     **************************************************************************/
-
     public void reset(Condition conds_with_vars_to_avoid,
             Action actions_with_vars_to_avoid)
     {
-        /* --- reset counts, and increment the gensym number --- */
+        // reset counts, and increment the gensym number
         for (int i = 0; i < 26; i++)
         {
             gensymed_variable_count[i] = 1;
         }
+        
         current_variable_gensym_number++;
         if (current_variable_gensym_number == Integer.MAX_VALUE)
         {
@@ -72,16 +70,16 @@ public class VariableGenerator
             current_variable_gensym_number = 1;
         }
 
-        /* --- mark all variables in the given conds and actions --- */
+        // mark all variables in the given conds and actions
         int tc_number = syms.get_new_tc_number();
-        LinkedList<Variable> var_list = new LinkedList<Variable>();
+        ListHead<Variable> var_list = ListHead.newInstance();
 
         Condition.addAllVariables(conds_with_vars_to_avoid, tc_number, var_list);
         Action.addAllVariables(actions_with_vars_to_avoid, tc_number, var_list);
 
-        for (Variable var : var_list)
+        for (AsListItem<Variable> var = var_list.first; var != null; var = var.next)
         {
-            var.gensym_number = current_variable_gensym_number;
+            var.item.gensym_number = current_variable_gensym_number;
         }
     }
 

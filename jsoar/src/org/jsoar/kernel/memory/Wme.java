@@ -15,8 +15,6 @@ import org.jsoar.kernel.rete.RightMemory;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.util.AsListItem;
-import org.jsoar.util.ListHead;
 
 /**
    Fields in a WME:
@@ -91,8 +89,8 @@ public class Wme implements Formattable
     
     public final int timetag;
     private int reference_count;
-    public final AsListItem<Wme> in_rete = new AsListItem<Wme>(this); // used for dll of wmes in rete
-    public final ListHead<RightMemory> right_mems = ListHead.newInstance(); // used for dll of rm's it's in
+    //public final AsListItem<Wme> in_rete = new AsListItem<Wme>(this); // used for dll of wmes in rete
+    private RightMemory right_mems; // used for dll of rm's it's in
     
     public Token tokens = null; // dll of tokens in rete
     
@@ -116,7 +114,7 @@ public class Wme implements Formattable
     public Preference chunker_bt_pref;
     
     public GoalDependencySet gds;
-    public AsListItem<Wme> gds_next_prev = new AsListItem<Wme>(this); // part of dll of wmes in gds
+    private Wme gds_next, gds_prev; // part of dll of wmes in gds
     
     /**
      * @param id
@@ -141,6 +139,7 @@ public class Wme implements Formattable
     {
         reference_count++;
     }
+    
     public void wme_remove_ref(WorkingMemory wm)
     {
       /* There are occaisionally wme's with zero reference counts 
@@ -191,6 +190,56 @@ public class Wme implements Formattable
         previous = null;
         
         return head;
+    }
+    
+    public Wme addToGds(Wme head)
+    {
+        gds_next = head;
+        gds_prev = null;
+        if(head != null)
+        {
+            head.gds_prev = this;
+        }
+        return this;
+    }
+    
+    public Wme removeFromGds(Wme head)
+    {
+        if(gds_next != null)
+        {
+            gds_next.gds_prev = gds_prev;
+        }
+        if(gds_prev != null)
+        {
+            gds_prev.gds_next = gds_next;
+        }
+        else
+        {
+            head = gds_next;
+        }
+        gds_next = null;
+        gds_prev = null;
+        
+        return head;
+    }    
+    public RightMemory getRightMemories()
+    {
+        return right_mems;
+    }
+    
+    public void clearnRightMemories()
+    {
+        right_mems= null;
+    }
+    
+    public void addRightMemory(RightMemory rm)
+    {
+        right_mems = rm.addToWme(right_mems);
+    }
+    
+    public void removeRightMemory(RightMemory rm)
+    {
+        right_mems = rm.removeFromWme(right_mems);
     }
     
     /* (non-Javadoc)

@@ -132,7 +132,7 @@ public final class AsListItem <T> implements Iterable<T>
         return count(null);
     }
     
-    public AsListItem<T> find(T item)
+    public AsListItem<T> find(Object item)
     {
         for(AsListItem<T> m = this; m != null; m = m.next)
         {
