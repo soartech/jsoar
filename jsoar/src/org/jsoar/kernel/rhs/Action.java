@@ -5,13 +5,12 @@
  */
 package org.jsoar.kernel.rhs;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -23,7 +22,7 @@ public abstract class Action
     public ActionSupport support = ActionSupport.UNKNOWN_SUPPORT;
     public boolean already_in_tc;  /* used only by compile-time o-support calcs */
     
-    public static void addAllVariables(Action head, int tc_number, LinkedList<Variable> var_list)
+    public static void addAllVariables(Action head, int tc_number, ListHead<Variable> var_list)
     {
         for(Action a = head; a != null; a = a.next)
         {
@@ -31,7 +30,7 @@ public abstract class Action
         }
     }
     
-    public abstract void addAllVariables(int tc_number, LinkedList<Variable> var_list);
+    public abstract void addAllVariables(int tc_number, ListHead<Variable> var_list);
 
     public MakeAction asMakeAction()
     {
@@ -125,7 +124,7 @@ public abstract class Action
      * @param id_list
      * @param var_list
      */
-    public void add_action_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    public void add_action_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
     {
         // Do nothing by default
         

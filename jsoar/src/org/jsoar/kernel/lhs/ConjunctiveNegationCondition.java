@@ -5,10 +5,9 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -31,7 +30,7 @@ public class ConjunctiveNegationCondition extends Condition
      * @see org.jsoar.kernel.Condition#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
+    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
     {
         addAllVariables(top, tc_number, var_list);
     }
@@ -40,7 +39,7 @@ public class ConjunctiveNegationCondition extends Condition
      * @see org.jsoar.kernel.Condition#addBoundVariables(int, java.util.List)
      */
     @Override
-    public void addBoundVariables(int tc_number, LinkedList<Variable> var_list)
+    public void addBoundVariables(int tc_number, ListHead<Variable> var_list)
     {
         // Do nothing
     }
@@ -49,7 +48,7 @@ public class ConjunctiveNegationCondition extends Condition
      * @see org.jsoar.kernel.lhs.Condition#add_cond_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
-    public void add_cond_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    public void add_cond_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
     {
         // Do nothing
     }
@@ -61,8 +60,8 @@ public class ConjunctiveNegationCondition extends Condition
     public boolean cond_is_in_tc(int tc)
     {
         // conjunctive negations: keep trying to add stuff to the TC
-        LinkedList<Identifier> new_ids = new LinkedList<Identifier>();
-        LinkedList<Variable> new_vars = new LinkedList<Variable>();
+        ListHead<Identifier> new_ids = ListHead.newInstance();
+        ListHead<Variable> new_vars = ListHead.newInstance();
 
         for (Condition c = top; c != null; c = c.next)
             c.already_in_tc = false;

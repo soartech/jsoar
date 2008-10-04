@@ -97,7 +97,7 @@ public final class ListHead <T> implements Iterable<T>
      * @param value The value to search for
      * @return The containing list item, or null if not found
      */
-    public AsListItem<T> find(T value)
+    public AsListItem<T> find(Object value)
     {
         return first != null ? first.find(value) : null;
     }
@@ -108,9 +108,38 @@ public final class ListHead <T> implements Iterable<T>
      * @param value The value to search for
      * @return true if the list contains an item with the given value
      */
-    public boolean contains(T value)
+    public boolean contains(Object value)
     {
         return find(value) != null;
+    }
+    
+    /**
+     * Push the given value onto the front of this list header.
+     * 
+     * @param value The value to add
+     * @return The resulting list item
+     */
+    public AsListItem<T> push(T value)
+    {
+        AsListItem<T> item = new AsListItem<T>(value);
+        item.insertAtHead(this);
+        return item;
+    }
+    
+    /**
+     * Remove the first item in this list and return it
+     * 
+     * @return The removed item, or <code>null</code> if the list is empty
+     */
+    public T pop()
+    {
+        T result = null;
+        if(first != null)
+        {
+            result = first.item;
+            first.remove(this);
+        }
+        return result;
     }
     
     /**
@@ -191,4 +220,45 @@ public final class ListHead <T> implements Iterable<T>
         // Display like a Java collection
         return toList().toString();
     }    
+    /*
+    public static void main(String args[])
+    {
+        long start = System.currentTimeMillis();
+        int total = 0;
+        for(int i = 0; i < 10000000; ++i)
+        {
+            //ListHead<Integer> list = ListHead.newInstance();
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            //LinkedList<Integer> list = new LinkedList<Integer>();
+            for(int j = 0; j < 20; ++j)
+            {
+                //list.push(Integer.valueOf(j));
+                list.add(Integer.valueOf(j));
+            }
+//            for(Integer j : list)
+//            {
+//                total += j.intValue();
+//            }
+//            for(int j = 0; j < list.size(); ++j)
+//            {
+//                total += list.get(j).intValue();
+//            }
+//            for(AsListItem<Integer> j = list.first; j != null; j = j.next)
+//            {
+//                total += j.item.intValue();
+//            }
+            
+        }
+        long end = System.currentTimeMillis();
+        System.out.println(end - start);
+        System.out.println(total);
+        
+        // LinkedList - 9.922s
+        // LinkedList/Indexes - 10.203s
+        // ArrayList - 15.375s
+        // ArrayList/Indexes - 8.313
+        // ListHead - 5.093s
+        // ListHead/Iterator - 8.656s
+    }
+    */
 }

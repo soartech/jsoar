@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.memory.Preference;
@@ -17,18 +18,16 @@ import org.jsoar.kernel.memory.Wme;
  * 
  * @author ray
  */
-public class BackTraceInfo
+public class BackTraceInfo implements Iterable<Preference>
 {
     public Wme wme_;               /* the actual wme that was matched */
     public int level;   /* level (at firing time) of the id of the wme */
     public Preference trace;        /* preference for BT, or NIL */
 
-    /* mvp 5-17-94 */
-    public final LinkedList<Preference> prohibits;  /* list of prohibit prefs to backtrace through */
+    private LinkedList<Preference> prohibits;  /* list of prohibit prefs to backtrace through */
 
     public BackTraceInfo()
     {
-        prohibits = new LinkedList<Preference>();
     }
     
     public BackTraceInfo(BackTraceInfo other)
@@ -47,4 +46,35 @@ public class BackTraceInfo
         return new BackTraceInfo(this);
     }
 
+    public void addProhibit(Preference pref)
+    {
+        if(prohibits == null)
+        {
+            prohibits = new LinkedList<Preference>();
+        }
+        prohibits.push(pref);
+        pref.preference_add_ref();
+    }
+    
+    public boolean hasProhibits()
+    {
+        return prohibits != null && !prohibits.isEmpty();
+    }
+    
+    public void clearProhibits()
+    {
+        if(prohibits != null)
+        {
+            prohibits.clear();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Iterable#iterator()
+     */
+    @Override
+    public Iterator<Preference> iterator()
+    {
+        return prohibits.iterator();
+    }
 }

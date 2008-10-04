@@ -46,7 +46,8 @@ import org.jsoar.kernel.symbols.Variable;
  *         original bit twiddling methods have been converted to use these types
  *         with the appropriate casts and instanceof calls.
  *         
- * rete.cpp:2453
+ * <p>rete.cpp:2453
+ * <p>rete.cpp:2539:deallocate_varnames - unneeded
  * @author ray
  */
 public class VarNames
@@ -85,33 +86,7 @@ public class VarNames
         list.push(var);
         return var_list_to_varnames(list);
     }
-    
-    /**
-     * TODO: I'm pretty sure we don't need this method.
-     * 
-     * rete.cpp:2539:deallocate_varnames
-     * 
-     * @param vn
-     */
-    public static void deallocate_varnames(Object vn)
-    {
-
-        if (vn == null)
-        {
-            return;
-        }
-        if (varnames_is_one_var(vn))
-        {
-            Variable sym = varnames_to_one_var(vn);
-            // symbol_remove_ref (thisAgent, sym);
-        }
-        else
-        {
-            // LinkedList<Variable> symlist = varnames_to_var_list(vn);
-            //          deallocate_symbol_list_removing_references (symlist);
-        }
-    }
-    
+        
     /**
      * Add_unbound_varnames_in_test() adds to an existing varnames object
      * the names of any currently-unbound variables equality-tested in a given test.

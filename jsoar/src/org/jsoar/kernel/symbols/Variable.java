@@ -5,8 +5,10 @@
  */
 package org.jsoar.kernel.symbols;
 
-import java.util.Collection;
 import java.util.LinkedList;
+
+import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -46,7 +48,7 @@ public class Variable extends Symbol
      * @param tc_number
      * @param var_list
      */
-    public void markIfUnmarked(int tc_number, LinkedList<Variable> var_list)
+    public void markIfUnmarked(int tc_number, ListHead<Variable> var_list)
     {
         if(this.tc_number != tc_number)
         {
@@ -63,11 +65,11 @@ public class Variable extends Symbol
      * 
      * @param vars
      */
-    public static void unmark(Collection<Variable> vars)
+    public static void unmark(ListHead<Variable> vars)
     {
-        for(Variable var : vars)
+        for(AsListItem<Variable> it = vars.first; it != null; it = it.next)
         {
-            var.unmark();
+            it.item.unmark();
         }
     }
     
@@ -172,7 +174,7 @@ public class Variable extends Symbol
      * @see org.jsoar.kernel.symbols.Symbol#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
-    public void add_symbol_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    public void add_symbol_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
     {
         markIfUnmarked(tc, var_list);
     }

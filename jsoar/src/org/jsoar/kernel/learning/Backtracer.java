@@ -16,7 +16,6 @@ import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.NotStruct;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
 
@@ -443,9 +442,9 @@ public class Backtracer
                 backtrace_through_instantiation(bt_pref.inst, grounds_level, cond, 0);
 
                 // check if any prohibit preferences
-                if (!cond.bt.prohibits.isEmpty())
+                if (cond.bt.hasProhibits())
                 {
-                    for (Preference p : cond.bt.prohibits)
+                    for (Preference p : cond.bt)
                     {
                         if (traceBacktracing)
                         {
@@ -599,10 +598,9 @@ public class Backtracer
             Preference bt_pref = RecognitionMemory.find_clone_for_level(potential.bt.trace, grounds_level + 1);
 
             backtrace_through_instantiation(bt_pref.inst, grounds_level, potential, 0);
-            // TODO, if is unnecessary here
-            if (!potential.bt.prohibits.isEmpty())
+            if (potential.bt.hasProhibits())
             {
-                for (Preference p : potential.bt.prohibits)
+                for (Preference p : potential.bt)
                 {
                     if (traceBacktracing)
                     {

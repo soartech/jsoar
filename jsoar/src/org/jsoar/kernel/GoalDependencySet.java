@@ -8,7 +8,6 @@ package org.jsoar.kernel;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.ListHead;
 
 /**
  * The Goal Dependency Set is a data strcuture used in Operand2 to maintain
@@ -53,7 +52,7 @@ public class GoalDependencySet
     /**
      * pointer to the dll of WMEs in GDS of goal
      */
-    public final ListHead<Wme> wmes_in_gds = ListHead.newInstance();
+    private Wme wmes_in_gds;
     
     public GoalDependencySet(Identifier goal)
     {
@@ -76,5 +75,20 @@ public class GoalDependencySet
             throw new IllegalStateException("GDS goal has already been cleared");
         }
         this.goal = null;
+    }
+    
+    public Wme getWmes()
+    {
+        return wmes_in_gds;
+    }
+    
+    public void addWme(Wme w)
+    {
+        wmes_in_gds = w.addToGds(wmes_in_gds);
+    }
+    
+    public void removeWme(Wme w)
+    {
+        wmes_in_gds = w.removeFromGds(wmes_in_gds);
     }
 }

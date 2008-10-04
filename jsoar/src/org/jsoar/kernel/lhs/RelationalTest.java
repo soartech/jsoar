@@ -5,10 +5,9 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -95,7 +94,7 @@ public class RelationalTest extends ComplexTest
      * @see org.jsoar.kernel.Test#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
+    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
     {
         Variable var = referent.asVariable();
         if(var != null)

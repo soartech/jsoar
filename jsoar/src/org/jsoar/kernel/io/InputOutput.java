@@ -6,7 +6,6 @@
 package org.jsoar.kernel.io;
 
 import java.util.LinkedList;
-import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarConstants;
@@ -448,11 +447,12 @@ public class InputOutput
      * @param wmes_being_added
      * @param wmes_being_removed
      */
-    public void inform_output_module_of_wm_changes(List<Wme> wmes_being_added, List<Wme> wmes_being_removed)
+    public void inform_output_module_of_wm_changes(ListHead<Wme> wmes_being_added, ListHead<Wme> wmes_being_removed)
     {
         /* if wmes are added, set flag so can stop when running til output */
-        for (Wme w : wmes_being_added)
+        for (AsListItem<Wme> it = wmes_being_added.first; it != null; it = it.next)
         {
+            final Wme w = it.item;
             if (w.id == io_header)
             {
                 update_for_top_state_wme_addition(w);
@@ -466,8 +466,9 @@ public class InputOutput
                 this.d_cycle_last_output = context.decisionCycle.d_cycle_count; /* KJC 11/17/05 */
             }
         }
-        for (Wme w : wmes_being_removed)
+        for (AsListItem<Wme> it = wmes_being_removed.first; it != null; it = it.next)
         {
+            final Wme w = it.item;
             if (w.id == io_header)
                 update_for_top_state_wme_removal(w);
             if (w.id.associated_output_links != null && !w.id.associated_output_links.isEmpty())
@@ -534,8 +535,8 @@ public class InputOutput
             if (valueAsId != null)
                 add_id_to_output_link_tc(valueAsId);
         }
-        for (Slot s : id.slots)
-            for (Wme w = s.getWmes(); w != null; w = w.next)
+        for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
+            for (Wme w = s.item.getWmes(); w != null; w = w.next)
             {
                 Identifier valueAsId = w.value.asIdentifier();
                 if (valueAsId != null)
@@ -600,8 +601,8 @@ public class InputOutput
         {
             for (Wme w = id.getInputWmes(); w != null; w = w.next)
                 add_wme_to_collected_io_wmes(w);
-            for (Slot s : id.slots)
-                for (Wme w = s.getWmes(); w != null; w = w.next)
+            for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
+                for (Wme w = s.item.getWmes(); w != null; w = w.next)
                     add_wme_to_collected_io_wmes(w);
         }
         return this.collected_io_wmes;

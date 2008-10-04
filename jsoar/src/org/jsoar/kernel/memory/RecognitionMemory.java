@@ -108,7 +108,7 @@ public class RecognitionMemory
     {
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
-            cond.bt.prohibits.clear();
+            cond.bt.clearProhibits();
             PositiveCondition pc = cond.asPositiveCondition();
             if (pc != null && cond.bt.trace != null)
             {
@@ -120,8 +120,7 @@ public class RecognitionMemory
                         Preference new_pref = null;
                         if (pref.inst.match_goal_level == inst.match_goal_level && pref.isInTempMemory())
                         {
-                            cond.bt.prohibits.push(pref);
-                            pref.preference_add_ref();
+                            cond.bt.addProhibit(pref);
                         }
                         else
                         {
@@ -130,8 +129,7 @@ public class RecognitionMemory
                             {
                                 if (new_pref.isInTempMemory())
                                 {
-                                    cond.bt.prohibits.push(new_pref);
-                                    new_pref.preference_add_ref();
+                                    cond.bt.addProhibit(new_pref);
                                 }
                             }
                         }
@@ -820,21 +818,15 @@ public class RecognitionMemory
 
         // #ifdef DEBUG_INSTANTIATIONS
         // if (inst->prod)
-        // print_with_symbols (thisAgent, "\nDeallocate instantiation of
-        // %y",inst->prod->name);
+        // print_with_symbols (thisAgent, "\nDeallocate instantiation of %y",inst->prod->name);
         // #endif
 
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
             if (cond.asPositiveCondition() != null)
             {
-
-                /*
-                 * mvp 6-22-94, modified 94.01.17 by AGR with lotsa help from
-                 * GAP
-                 */
-                if (!cond.bt.prohibits.isEmpty())
+                if (cond.bt.hasProhibits())
                 {
-                    for (Preference pref : cond.bt.prohibits)
+                    for (Preference pref : cond.bt)
                     {
                         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                         {
@@ -846,9 +838,8 @@ public class RecognitionMemory
                                 pref.preference_remove_ref(context.prefMemory);
                         }
                     }
-                    cond.bt.prohibits.clear();
+                    cond.bt.clearProhibits();
                 }
-                /* mvp done */
 
                 if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                 {

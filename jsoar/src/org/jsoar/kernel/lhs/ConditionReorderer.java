@@ -7,7 +7,6 @@ package org.jsoar.kernel.lhs;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.rhs.ReordererException;
@@ -15,7 +14,9 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -73,7 +74,7 @@ public class ConditionReorderer
         int tc = vars.getSyms().get_new_tc_number();
         /* don't mark any variables, since nothing is bound outside the LHS */
 
-        LinkedList<Variable> roots = collect_root_variables(lhs_top.value, tc, true);
+        ListHead<Variable> roots = collect_root_variables(lhs_top.value, tc, true);
 
         /*
          * SBH/MVP 6-24-94 Fix to include only root "STATE" test in the LHS of a
@@ -133,7 +134,7 @@ public class ConditionReorderer
      * @param reorder_nccs
      */
     private void reorder_condition_list(ByRef<Condition> top_of_conds, ByRef<Condition> bottom_of_conds,
-            List<Variable> roots, int tc, boolean reorder_nccs)
+            ListHead<Variable> roots, int tc, boolean reorder_nccs)
     {
         SavedTest saved_tests = simplify_condition_list(top_of_conds.value);
         reorder_simplified_conditions(top_of_conds, bottom_of_conds, roots, tc, reorder_nccs);
@@ -151,7 +152,7 @@ public class ConditionReorderer
      */
     private void restore_and_deallocate_saved_tests(Condition conds_list, int tc, SavedTest tests_to_restore)
     {
-        LinkedList<Variable> new_vars = new LinkedList<Variable>();
+        ListHead<Variable> new_vars = ListHead.newInstance();
         for (Condition cond = conds_list; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();
@@ -316,12 +317,12 @@ public class ConditionReorderer
      * @param reorder_nccs
      */
     private void reorder_simplified_conditions(ByRef<Condition> top_of_conds, ByRef<Condition> bottom_of_conds,
-            List<Variable> roots, int bound_vars_tc_number, boolean reorder_nccs)
+            ListHead<Variable> roots, int bound_vars_tc_number, boolean reorder_nccs)
     {
         Condition remaining_conds = top_of_conds.value; // header of dll
         Condition first_cond = null;
         Condition last_cond = null;
-        LinkedList<Variable> new_vars = new LinkedList<Variable>();
+        ListHead<Variable> new_vars = ListHead.newInstance();
         Condition chosen;
 
         /*
@@ -342,11 +343,11 @@ public class ConditionReorderer
                 {
                     min_cost = cost;
                     min_cost_conds = cond;
-                    cond.reorder.next_min_cost = null;
+                    cond.reorder_next_min_cost = null;
                 }
                 else if (cost == min_cost)
                 {
-                    cond.reorder.next_min_cost = min_cost_conds;
+                    cond.reorder_next_min_cost = min_cost_conds;
                     min_cost_conds = cond;
                 }
                 /*
@@ -375,18 +376,18 @@ public class ConditionReorderer
                 // free_growable_string(thisAgent, gs);
             }
             // if more than one min-cost item, and cost>1, do lookahead
-            if (min_cost > 1 && min_cost_conds.reorder.next_min_cost != null)
+            if (min_cost > 1 && min_cost_conds.reorder_next_min_cost != null)
             {
                 min_cost = MAX_COST + 1;
-                for (Condition cond = min_cost_conds, next_cond = cond.reorder.next_min_cost; cond != null; 
-                     cond = next_cond, next_cond = (cond != null ? cond.reorder.next_min_cost : null))
+                for (Condition cond = min_cost_conds, next_cond = cond.reorder_next_min_cost; cond != null; 
+                     cond = next_cond, next_cond = (cond != null ? cond.reorder_next_min_cost : null))
                 {
                     cost = find_lowest_cost_lookahead(remaining_conds, cond, bound_vars_tc_number, roots);
                     if (cost < min_cost)
                     {
                         min_cost = cost;
                         min_cost_conds = cond;
-                        cond.reorder.next_min_cost = null;
+                        cond.reorder_next_min_cost = null;
                     }
                     else
                     {
@@ -403,16 +404,16 @@ public class ConditionReorderer
                             {
                                 min_cost = cost;
                                 min_cost_conds = cond;
-                                cond.reorder.next_min_cost = null;
+                                cond.reorder_next_min_cost = null;
                             }
                         }
                     }
                 }
             }
             /** **************************************************************** */
-            if (min_cost == 1 && min_cost_conds.reorder.next_min_cost != null)
+            if (min_cost == 1 && min_cost_conds.reorder_next_min_cost != null)
             {
-                for (Condition cond = min_cost_conds; cond != null; cond = cond.reorder.next_min_cost)
+                for (Condition cond = min_cost_conds; cond != null; cond = cond.reorder_next_min_cost)
                 {
                     if (cond.asPositiveCondition() != null && min_cost_conds.asPositiveCondition() != null
                             && canonical_cond_greater(min_cost_conds, cond))
@@ -442,7 +443,7 @@ public class ConditionReorderer
             ConjunctiveNegationCondition ncc = chosen.asConjunctiveNegationCondition();
             if (ncc != null && reorder_nccs)
             {
-                List<Variable> ncc_roots = collect_root_variables(ncc.top, bound_vars_tc_number, true);
+                ListHead<Variable> ncc_roots = collect_root_variables(ncc.top, bound_vars_tc_number, true);
                 ByRef<Condition> top = ByRef.create(ncc.top);
                 ByRef<Condition> bottom = ByRef.create(ncc.bottom);
                 reorder_condition_list(top, bottom, ncc_roots, bound_vars_tc_number, reorder_nccs);
@@ -457,9 +458,9 @@ public class ConditionReorderer
             if (!roots.isEmpty())
             {
                 boolean allBound = true;
-                for (Variable v : roots)
+                for (AsListItem<Variable> v = roots.first; v != null; v = v.next)
                 {
-                    if (v.tc_number != bound_vars_tc_number)
+                    if (v.item.tc_number != bound_vars_tc_number)
                     {
                         allBound = false;
                         break;
@@ -537,7 +538,7 @@ public class ConditionReorderer
      * Return an estimate of the "cost" of the lowest-cost condition that could
      * be added next, IF the given "chosen" condition is added first.
      * 
-     * reorder.cpp:787:find_lowest_cost_lookahead
+     * <p>reorder.cpp:787:find_lowest_cost_lookahead
      * 
      * @param candidates
      * @param chosen
@@ -546,9 +547,9 @@ public class ConditionReorderer
      * @return
      */
     private int find_lowest_cost_lookahead(Condition candidates, Condition chosen, int tc,
-            List<Variable> root_vars_not_bound_yet)
+            ListHead<Variable> root_vars_not_bound_yet)
     {
-        LinkedList<Variable> new_vars = new LinkedList<Variable>();
+        ListHead<Variable> new_vars = ListHead.newInstance();
         chosen.addBoundVariables(tc, new_vars);
 
         int min_cost = MAX_COST + 1;
@@ -584,7 +585,7 @@ public class ConditionReorderer
      * @param roots
      * @return
      */
-    private int cost_of_adding_condition(Condition cond, int tc, List<Variable> root_vars_not_bound_yet)
+    private int cost_of_adding_condition(Condition cond, int tc, ListHead<Variable> root_vars_not_bound_yet)
     {
         int result;
 
@@ -657,7 +658,7 @@ public class ConditionReorderer
          * requiring bindings are actually bound. If so, return 1, else return
          * MAX_COST ---
          */
-        for (Variable v : cond.reorder.vars_requiring_bindings)
+        for (Variable v : cond.reorder_vars_requiring_bindings)
         {
             if (v.tc_number != tc)
             {
@@ -679,7 +680,7 @@ public class ConditionReorderer
      * @param root_vars_not_bound_yet
      * @return
      */
-    private boolean test_covered_by_bound_vars(Test t, int tc, List<Variable> extra_vars)
+    private boolean test_covered_by_bound_vars(Test t, int tc, ListHead<Variable> extra_vars)
     {
         if (TestTools.isBlank(t))
         {
@@ -826,7 +827,7 @@ public class ConditionReorderer
             PositiveCondition pc = c.asPositiveCondition();
             if (pc == null)
             {
-                c.reorder.vars_requiring_bindings.clear();
+                c.reorder_vars_requiring_bindings.clear();
             }
             ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
             if (ncc != null)
@@ -845,7 +846,7 @@ public class ConditionReorderer
      * @param roots
      */
     private void remove_isa_state_tests_for_non_roots(ByRef<Condition> lhs_top, ByRef<Condition> lhs_bottom,
-            List<Variable> roots)
+            ListHead<Variable> roots)
     {
         ByRef<Boolean> a = ByRef.create(false);
         ByRef<Boolean> b = ByRef.create(false);
@@ -880,10 +881,10 @@ public class ConditionReorderer
      * @param allow_printing_warnings
      * @return
      */
-    public static LinkedList<Variable> collect_root_variables(Condition cond_list, int tc, boolean allow_printing_warnings)
+    public static ListHead<Variable> collect_root_variables(Condition cond_list, int tc, boolean allow_printing_warnings)
     {
         // find everthing that's in the value slot of some condition
-        LinkedList<Variable> new_vars_from_value_slot = new LinkedList<Variable>();
+        ListHead<Variable> new_vars_from_value_slot = ListHead.newInstance();
         for (Condition cond = cond_list; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();
@@ -894,7 +895,7 @@ public class ConditionReorderer
         }
 
         /* --- now see what else we can add by throwing in the id slot --- */
-        LinkedList<Variable> new_vars_from_id_slot = new LinkedList<Variable>();
+        ListHead<Variable> new_vars_from_id_slot = ListHead.newInstance();
         for (Condition cond = cond_list; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();
@@ -912,7 +913,7 @@ public class ConditionReorderer
         // make sure each root var has some condition with goal/impasse
         if (allow_printing_warnings /* TODO && thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM] */)
         {
-            for (Variable var : new_vars_from_id_slot)
+            for (AsListItem<Variable> var = new_vars_from_id_slot.first; var != null; var = var.next)
             {
                 boolean found_goal_impasse_test = false;
                 for (Condition cond = cond_list; cond != null; cond = cond.next)
@@ -920,7 +921,7 @@ public class ConditionReorderer
                     PositiveCondition pc = cond.asPositiveCondition();
                     if (pc == null)
                         continue;
-                    if (TestTools.test_includes_equality_test_for_symbol(pc.id_test, var))
+                    if (TestTools.test_includes_equality_test_for_symbol(pc.id_test, var.item))
                     {
                         if (TestTools.test_includes_goal_or_impasse_id_test(pc.id_test, true, true))
                         {
@@ -971,7 +972,7 @@ public class ConditionReorderer
     private void fill_in_vars_requiring_bindings(Condition cond_list, int tc)
     {
         // add anything bound in a positive condition at this level
-        LinkedList<Variable> new_bound_vars = new LinkedList<Variable>();
+        ListHead<Variable> new_bound_vars = ListHead.newInstance();
         for (Condition c = cond_list; c != null; c = c.next)
         {
             PositiveCondition pc = c.asPositiveCondition();
@@ -987,7 +988,7 @@ public class ConditionReorderer
             PositiveCondition pc = c.asPositiveCondition();
             if (pc == null)
             {
-                c.reorder.vars_requiring_bindings = collect_vars_tested_by_cond_that_are_bound(c, tc, new LinkedList<Variable>());
+                c.reorder_vars_requiring_bindings = collect_vars_tested_by_cond_that_are_bound(c, tc, new LinkedList<Variable>());
             }
             ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
             if (ncc != null)

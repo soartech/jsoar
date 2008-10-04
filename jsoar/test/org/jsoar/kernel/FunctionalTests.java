@@ -21,12 +21,10 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionTools;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
-import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -237,10 +235,10 @@ public class FunctionalTests
         runTest("testBlocksWorldOperatorSubgoaling", -1);
     }
     
-    @Ignore
-    @Test(/*timeout=10000*/)
+    @Test(timeout=10000)
     public void testBlocksWorldLookAhead() throws Exception
     {
+        // TODO This only works with learning disabled. Fix it.
         runTest("testBlocksWorldLookAhead", -1);
     }
     

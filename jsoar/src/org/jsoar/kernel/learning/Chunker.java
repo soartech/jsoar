@@ -479,8 +479,9 @@ public class Chunker
 
         while (!negated_set.all.isEmpty())
         {
-            ChunkCondition cc = negated_set.all.getFirstItem();
+            final ChunkCondition cc = negated_set.all.getFirstItem();
             negated_set.remove_from_chunk_cond_set(cc);
+            
             if (cc.cond.cond_is_in_tc(tc_to_use))
             {
                 // negated cond is in the TC, so add it to the grounds
@@ -523,7 +524,7 @@ public class Chunker
                     this.variablize_this_chunk = false;
                 }
 
-                cc = null; // free_with_pool (&thisAgent.chunk_cond_pool, cc);
+                // free_with_pool (&thisAgent.chunk_cond_pool, cc);
             }
         }
 

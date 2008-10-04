@@ -5,10 +5,9 @@
  */
 package org.jsoar.kernel.rhs;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -56,7 +55,7 @@ public class RhsSymbolValue extends RhsValue
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
+    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
     {
         Variable var = getSym().asVariable();
         if(var != null)

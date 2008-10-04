@@ -5,11 +5,12 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.LinkedList;
+import java.util.List;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.ListHead;
 
 public abstract class Condition
 {
@@ -23,10 +24,12 @@ public abstract class Condition
      * <p>TODO Move this down to PositiveCondition
      */
     public BackTraceInfo bt = new BackTraceInfo();
+    
     /**
      * used only during reordering. TODO: PositiveCondition only?
      */
-    public final ReorderInfo reorder = new ReorderInfo();
+    List<Variable> reorder_vars_requiring_bindings = null;
+    Condition reorder_next_min_cost = null;
 
     public static Condition insertAtHead(Condition header, Condition c)
     {
@@ -67,7 +70,7 @@ public abstract class Condition
         return header;
     }
     
-    public static void addAllVariables(Condition header, int tc_number, LinkedList<Variable> var_list)
+    public static void addAllVariables(Condition header, int tc_number, ListHead<Variable> var_list)
     {
         for(Condition c = header; c != null; c = c.next)
         {
@@ -75,7 +78,7 @@ public abstract class Condition
         }
     }
     
-    public static void addBoundVariables(Condition header, int tc_number, LinkedList<Variable> var_list)
+    public static void addBoundVariables(Condition header, int tc_number, ListHead<Variable> var_list)
     {
         for(Condition c = header; c != null; c = c.next)
         {
@@ -83,7 +86,7 @@ public abstract class Condition
         }
     }
     
-    public abstract void addBoundVariables(int tc_number, LinkedList<Variable> var_list);
+    public abstract void addBoundVariables(int tc_number, ListHead<Variable> var_list);
 
     /**
      * production.cpp:1191:add_all_variables_in_condition
@@ -91,7 +94,7 @@ public abstract class Condition
      * @param tc_number
      * @param var_list
      */
-    public abstract void addAllVariables(int tc_number, LinkedList<Variable> var_list);
+    public abstract void addAllVariables(int tc_number, ListHead<Variable> var_list);
 
     public ThreeFieldCondition asThreeFieldCondition()
     {
@@ -128,7 +131,7 @@ public abstract class Condition
      * @param id_list
      * @param var_list
      */
-    public abstract void add_cond_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list);
+    public abstract void add_cond_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list);
 
     /**
      * Returns a hash value for the given condition.

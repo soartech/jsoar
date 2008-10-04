@@ -6,7 +6,8 @@
 package org.jsoar.kernel.rete;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.jsoar.kernel.Production;
@@ -36,8 +37,8 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;
-import org.jsoar.util.ListHead;
 import org.jsoar.util.HashTable;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -59,7 +60,16 @@ public class Rete
     
     private int alpha_mem_id_counter; 
     private List<HashTable<AlphaMemory>> alpha_hash_tables;
-    private ListHead<Wme> all_wmes_in_rete = ListHead.newInstance();
+    /**
+     * TODO: Although this hashset preserves the insertion order of the WMEs, 
+     * the order is the reverse of that in CSoar which inserts at the front.
+     * It doesn't appear to affect correctness, but it may cause firing order
+     * variation from CSoar. See usage in find_or_make_alpha_mem()
+     *  
+     * all_wmes_in_rete
+     */
+    private LinkedHashSet<Wme> all_wmes_in_rete = new LinkedHashSet<Wme>();
+    //private ListHead<Wme> all_wmes_in_rete = ListHead.newInstance();
     public int num_wmes_in_rete= 0;
     private int beta_node_id_counter;
     ReteNode dummy_top_node;
@@ -121,7 +131,7 @@ public class Rete
     /**
      * @return List of all Wmes currently in the rete
      */
-    public ListHead<Wme> getAllWmes()
+    public Collection<Wme> getAllWmes()
     {
         return all_wmes_in_rete;
     }
@@ -176,7 +186,7 @@ public class Rete
         ReteBuilder builder = new ReteBuilder();
         ByRef<ReteNode> bottom_node = ByRef.create(null);
         ByRef<Integer> bottom_depth = ByRef.create(0);
-        ByRef<LinkedList<Variable>> vars_bound = ByRef.create(null);
+        ByRef<ListHead<Variable>> vars_bound = ByRef.create(null);
         // build the network for all the conditions
         builder.build_network_for_condition_list(this, lhs_top, 1, dummy_top_node, bottom_node, bottom_depth,
                 vars_bound);
@@ -356,10 +366,7 @@ public class Rete
         ReteNode parent = p_node.parent;
 
         // deallocate the variable name information
-        if (p_node.b_p.parents_nvn != null)
-        {
-            NodeVarNames.deallocate_node_varnames(parent, dummy_top_node, p_node.b_p.parents_nvn);
-        }
+        p_node.b_p.parents_nvn = null;
 
         // cause all existing instantiations to retract, by removing any
         // tokens at the node
@@ -416,11 +423,12 @@ public class Rete
     public void add_wme_to_rete (Wme w)
     {
         /* --- add w to all_wmes_in_rete --- */
-        w.in_rete.insertAtHead(all_wmes_in_rete);
+        all_wmes_in_rete.add(w);
+        //w.in_rete.insertAtHead(all_wmes_in_rete);
         num_wmes_in_rete++;
 
         /* --- it's not in any right memories or tokens yet --- */
-        w.right_mems.clear();
+        w.clearnRightMemories();
         w.tokens = null;
 
         /* --- add w to the appropriate alpha_mem in each of 8 possible tables --- */
@@ -453,30 +461,23 @@ public class Rete
     /**
      * Remove a WME from the rete.
      * 
-     * rete.cpp:1591:remove_wme_from_rete
+     * <p>rete.cpp:1591:remove_wme_from_rete
      * 
      * @param w The WME to remove
      */
     public void remove_wme_from_rete (Wme w)
     {
         /* --- remove w from all_wmes_in_rete --- */
-        w.in_rete.remove(all_wmes_in_rete);
+        all_wmes_in_rete.remove(w);
+        //w.in_rete.remove(all_wmes_in_rete);
         num_wmes_in_rete--;
         
         /* --- remove w from each alpha_mem it's in --- */
-        while (!w.right_mems.isEmpty()) {
-          RightMemory rm = w.right_mems.first.item;
-          AlphaMemory am = rm.am;
+        while (w.getRightMemories() != null) {
+          final RightMemory rm = w.getRightMemories();
+          final AlphaMemory am = rm.am;
           /* --- found the alpha memory, first remove the wme from it --- */
           remove_wme_from_alpha_mem (rm);
-          
-//      #ifdef DO_ACTIVATION_STATS_ON_REMOVALS
-//          /* --- if doing statistics stuff, then activate each attached node --- */
-//          for (node=am->beta_nodes; node!=NIL; node=next) {
-//            next = node->b.posneg.next_from_alpha_mem;
-//            right_node_activation (node,FALSE);
-//          }
-//      #endif
           
           /* --- for left unlinking, then if the alpha memory just went to
              zero, left unlink any attached Pos or MP nodes --- */
@@ -512,7 +513,6 @@ public class Rete
             if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
               for (ReteNode child=node.first_child; child!=null; child=child.next_sibling) {
                   executeLeftAddition(child, left, null);
-                //left_addition_routines[child.node_type.index()].execute(this, child, left, null);
               }
             }
           } else {
@@ -551,7 +551,7 @@ public class Rete
         ListHead<RightMemory> header = right_ht.right_ht_bucket(hv);
         rm.in_bucket.insertAtHead(header);
         rm.in_am.insertAtHead(am.right_mems);
-        rm.from_wme.insertAtHead(w.right_mems);
+        w.addRightMemory(rm);
     }
     
     /**
@@ -572,11 +572,11 @@ public class Rete
         ListHead<RightMemory> header = right_ht.right_ht_bucket(hv);
         rm.in_bucket.remove(header);
         rm.in_am.remove(am.right_mems);
-        rm.from_wme.remove(w.right_mems);
+        w.removeRightMemory(rm);
     }
 
     /**
-     * rete.cpp:1393:table_for_tests
+     * <p>rete.cpp:1393:table_for_tests
      * 
      * @param id
      * @param attr
@@ -595,7 +595,7 @@ public class Rete
     /**
      * Looks for an existing alpha mem, returns it or NIL if not found
      * 
-     * rete.cpp:1449:find_alpha_mem
+     * <p>rete.cpp:1449:find_alpha_mem
      * 
      * @param id
      * @param attr
@@ -622,7 +622,7 @@ public class Rete
      * Find and share existing alpha memory, or create new one.  Adjusts the 
      * reference count on the alpha memory accordingly.
      * 
-     * rete.cpp:1467:find_or_make_alpha_mem
+     * <p>rete.cpp:1467:find_or_make_alpha_mem
      * 
      * @param id
      * @param attr
@@ -669,12 +669,12 @@ public class Rete
         }
         else
         {
-            /* --- couldn't find such an existing mem, so do it the hard way --- */
-            for (AsListItem<Wme> w = all_wmes_in_rete.first; w != null; w = w.next)
+            // couldn't find such an existing mem, so do it the hard way
+            for(Wme w : all_wmes_in_rete)
             {
-                if (am.wme_matches_alpha_mem(w.item))
+                if (am.wme_matches_alpha_mem(w))
                 {
-                    add_wme_to_alpha_mem(w.item, am);
+                    add_wme_to_alpha_mem(w, am);
                 }
             }
         }
@@ -687,7 +687,7 @@ public class Rete
      * memory in the indicated hash bucket.  If we find one, we add the wme to 
      * it and inform successor nodes.
      * 
-     * rete.cpp:1524:add_wme_to_aht
+     * <p>rete.cpp:1524:add_wme_to_aht
      * 
      * @param ht
      * @param hash_value
@@ -702,18 +702,18 @@ public class Rete
         {
             if (am.wme_matches_alpha_mem(w))
             {
-                /* --- found the right alpha memory, first add the wme --- */
+                // found the right alpha memory, first add the wme
                 add_wme_to_alpha_mem(w, am);
 
-                /* --- now call the beta nodes --- */
+                // now call the beta nodes
                 ReteNode next = null;
                 for (ReteNode node = am.beta_nodes; node != null; node = next)
                 {
                     next = node.b_posneg.next_from_alpha_mem;
                     executeRightAddition(node, w);
-                    //right_addition_routines[node.node_type.index()].execute(this, node, w);
                 }
-                return; /* only one possible alpha memory per table could match */
+                // only one possible alpha memory per table could match
+                return;
             }
             am = (AlphaMemory) am.next_in_hash_table;
         }
@@ -721,13 +721,13 @@ public class Rete
 
 
     /**
-     * rete.cpp:1698:get_next_beta_node_id
+     * <p>rete.cpp:1698:get_next_beta_node_id
      * 
      * @return
      */
     int get_next_beta_node_id()
     {
-      return beta_node_id_counter++;
+        return beta_node_id_counter++;
     }
     
     /**
@@ -735,7 +735,7 @@ public class Rete
      * there so that (real) root nodes in the beta net can be handled the same
      * as non-root nodes.
      * 
-     * rete.cpp:1711:init_dummy_top_node
+     * <p>rete.cpp:1711:init_dummy_top_node
      */
     void init_dummy_top_node()
     {
@@ -752,7 +752,7 @@ public class Rete
      * the node's parent.  DO NOT call this routine on (positive, unmerged)
      * join nodes.
      * 
-     * rete.cpp:1765:update_node_with_matches_from_above
+     * <p>rete.cpp:1765:update_node_with_matches_from_above
      * 
      * @param node
      */
@@ -767,7 +767,6 @@ public class Rete
         /* --- if parent is dummy top node, tell child about dummy top token --- */ 
         if (parent.node_type==ReteNodeType.DUMMY_TOP_BNODE) {
           executeLeftAddition(child, dummy_top_token, null);
-          //left_addition_routines[child.node_type.index()].execute(this, child, dummy_top_token, null);
           return;
         }
 
@@ -776,9 +775,9 @@ public class Rete
                routine with each wme in the parent's alpha mem; then do surgery 
                to restore previous child list of parent. --- */
         if (parent.node_type.bnode_is_positive()) {
-          /* --- If the node is right unlinked, then don't activate it.  This is
-             important because some interpreter routines rely on the node
-             being right linked whenever it gets right activated. */
+          // If the node is right unlinked, then don't activate it.  This is
+          //  important because some interpreter routines rely on the node
+          //  being right linked whenever it gets right activated.
           if (parent.node_is_right_unlinked ()) { return;}
           ReteNode saved_parents_first_child = parent.first_child;
           ReteNode saved_childs_next_sibling = child.next_sibling;
@@ -788,22 +787,19 @@ public class Rete
           for(AsListItem<RightMemory> rm = parent.b_posneg.alpha_mem_.right_mems.first; rm != null; rm = rm.next)
           {
               executeRightAddition(parent, rm.item.w);
-              //right_addition_routines[parent.node_type.index()].execute(this, parent, rm.item.w);
           }
           parent.first_child = saved_parents_first_child;
           child.next_sibling = saved_childs_next_sibling;
           return;
         }
           
-        /* --- if parent is negative or cn: easy, just look at the list of tokens
-               on the parent node. --- */
-        //for (tok=parent->a.np.tokens; tok!=NIL; tok=tok->next_of_node)
+        // if parent is negative or cn: easy, just look at the list of tokens
+        // on the parent node
         for(Token tok = parent.a_np.tokens; tok != null; tok = tok.next_of_node)
         {
             if(tok.negrm_tokens.isEmpty())
             {
                 executeLeftAddition(child, tok, null);
-                //left_addition_routines[child.node_type.index()].execute(this, child, tok.item, null);
             }
         }
     }
@@ -815,14 +811,14 @@ public class Rete
      * in the parameter *result, and the function returns TRUE.  If no
      * binding is found, the function returns FALSE.
      * 
-     * rete.cpp:2373:find_var_location
+     * <p>rete.cpp:2373:find_var_location
      * 
      * @param var
      * @param current_depth
      * @param result
      * @return
      */
-    boolean find_var_location(Variable var, /* rete_node_level */int current_depth, VarLocation result)
+    boolean find_var_location(Variable var, /* rete_node_level */ int current_depth, VarLocation result)
     {
         if (!var.var_is_bound())
         {
@@ -842,7 +838,7 @@ public class Rete
      * boolean "dense" parameter.  Any variables receiving new bindings
      * are also pushed onto the given "varlist".
      * 
-     * rete.cpp:2394:bind_variables_in_test
+     * <p>rete.cpp:2394:bind_variables_in_test
      * 
      * @param t
      * @param depth
@@ -850,7 +846,7 @@ public class Rete
      * @param dense
      * @param varlist
      */
-    static void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, LinkedList<Variable> varlist)
+    static void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, ListHead<Variable> varlist)
     {
 
         if (TestTools.isBlank(t))
@@ -890,15 +886,15 @@ public class Rete
      * This is often used for un-binding a group of variables which got
      * bound in some procedure.
      * 
-     * rete.cpp:2430:pop_bindings_and_deallocate_list_of_variables
+     * <p>rete.cpp:2430:pop_bindings_and_deallocate_list_of_variables
      * 
      * @param vars
      */
-    static void pop_bindings_and_deallocate_list_of_variables(List<Variable> vars)
+    static void pop_bindings_and_deallocate_list_of_variables(ListHead<Variable> vars)
     {
-        for (Variable v : vars)
+        for (AsListItem<Variable> v = vars.first; v != null; v = v.next)
         {
-            v.pop_var_binding();
+            v.item.pop_var_binding();
         }
     } 
     
@@ -910,7 +906,7 @@ public class Rete
      * This procedure checks the number of RHS unbound variables for a new
      * production, and grows the array if necessary.
      * 
-     * rete.cpp:3480:update_max_rhs_unbound_variables
+     * <p>rete.cpp:3480:update_max_rhs_unbound_variables
      * 
      * @param num_for_new_production
      */
@@ -926,7 +922,7 @@ public class Rete
      * This routine destructively modifies a given test, adding to it a test
      * for equality with a new gensym variable.
      * 
-     * rete.cpp:3821:add_gensymmed_equality_test
+     * <p>rete.cpp:3821:add_gensymmed_equality_test
      * 
      * @param t
      * @param first_letter
@@ -946,7 +942,7 @@ public class Rete
      * in the value field 3 levels up.  This function scans up the list
      * of conditions reconstructed so far, and finds the appropriate variable.
      * 
-     * rete.cpp:3845:var_bound_in_reconstructed_conds
+     * <p>rete.cpp:3845:var_bound_in_reconstructed_conds
      * 
      * @param cond
      * @param where_field_num
@@ -1010,7 +1006,7 @@ public class Rete
     /**
      * TODO: Should this go somewhere else?
      * 
-     * rete.cpp:4391:get_symbol_from_rete_loc
+     * <p>rete.cpp:4391:get_symbol_from_rete_loc
      * 
      * @param levels_up
      * @param field_num
@@ -1034,6 +1030,15 @@ public class Rete
     }
     
 
+    /**
+     * <p>This replaces left_addition_routines in CSoar. A simple switch 
+     * statement was easier, faster, and simpler than emulating function
+     * pointers with Java interfaces.
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
     private void executeLeftAddition(ReteNode node, Token tok, Wme w)
     {
         // TODO: These should be polymorphic methods of ReteNode
@@ -1055,6 +1060,15 @@ public class Rete
         }
     }
     
+    /**
+     * <p>This replaces right_addition_routines in CSoar. A simple switch 
+     * statement was easier, faster, and simpler than emulating function
+     * pointers with Java interfaces.
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
     private void executeRightAddition(ReteNode node, Wme w)
     {
         switch(node.node_type)
@@ -1070,9 +1084,8 @@ public class Rete
         }
     }
     
-    
     /**
-     * rete.cpp:4719:beta_memory_node_left_addition
+     * <p>rete.cpp:4719:beta_memory_node_left_addition
      * 
      * @param node
      * @param tok
@@ -1088,7 +1101,8 @@ public class Rete
                 referent = VarLocation.field_from_wme(w, node.left_hash_loc_field_num);
             }
             else
-            { /* --- levels_up > 1 --- */
+            { 
+                // levels_up > 1
                 Token t = tok;
                 for (t = tok, levels_up -= 2; levels_up != 0; levels_up--)
                 {
@@ -1100,7 +1114,7 @@ public class Rete
 
         int hv = node.node_id ^ referent.hash_id;
 
-        /* --- build new left token, add it to the hash table --- */
+        // build new left token, add it to the hash table
         LeftToken New = new LeftToken(node, tok, w, referent);
         left_ht.insert_token_into_left_ht(New, hv);
 
@@ -1115,7 +1129,7 @@ public class Rete
     
 
     /**
-     * rete.cpp:4759:unhashed_beta_memory_node_left_addition
+     * <p>rete.cpp:4759:unhashed_beta_memory_node_left_addition
      * 
      * @param node
      * @param tok
@@ -1402,10 +1416,8 @@ public class Rete
         Symbol referent = w.id;
         int hv = node.parent.node_id ^ referent.hash_id;
 
-        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
+        for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
         {
-            final LeftToken tok = tokIt.item;
-            
             if (tok.node != node.parent)
             {
                 continue;
@@ -1455,9 +1467,8 @@ public class Rete
 
         int hv = node.parent.node_id;
 
-        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
+        for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
         {
-            final LeftToken tok = tokIt.item;
             if (tok.node != node.parent)
             {
                 continue;
@@ -1506,10 +1517,8 @@ public class Rete
         Symbol referent = w.id;
         int hv = node.node_id ^ referent.hash_id;
 
-        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
+        for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
         {
-            final LeftToken tok = tokIt.item;
-            
             if (tok.node != node)
             {
                 continue;
@@ -1561,9 +1570,8 @@ public class Rete
 
         int hv = node.node_id;
 
-        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
+        for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
         {
-            final LeftToken tok = tokIt.item;
             if (tok.node != node)
             {
                 continue;
@@ -1735,10 +1743,8 @@ public class Rete
         Symbol referent = w.id;
         int hv = node.node_id ^ referent.hash_id;
 
-        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
+        for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
         {
-            final LeftToken tok = tokIt.item;
-            
             if (tok.node != node)
             {
                 continue;
@@ -1781,9 +1787,8 @@ public class Rete
     {
         int hv = node.node_id;
 
-        for (AsListItem<LeftToken> tokIt = left_ht.left_ht_bucket(hv).first; tokIt != null; tokIt = tokIt.next)
+        for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
         {
-            LeftToken tok = tokIt.item;
             if (tok.node != node)
             {
                 continue;
@@ -1821,29 +1826,25 @@ public class Rete
     {
         int hv = node.node_id ^ addressOf(tok) ^ addressOf(w);
 
-        /*
-         * --- look for a matching left token (since the partner node might have
-         * heard about this new token already, in which case it would have done
-         * the CN node's work already); if found, exit ---
-         */
-        for (AsListItem<LeftToken> it = left_ht.left_ht_bucket(hv).first; it != null; it = it.next)
+        // look for a matching left token (since the partner node might have
+        // heard about this new token already, in which case it would have done
+        // the CN node's work already); if found, exit ---
+        for (LeftToken t = left_ht.left_ht_bucket(hv); t != null; t = t.next_in_bucket)
         {
-            final LeftToken t = it.item;
             if ((t.node == node) && (t.parent == tok) && (t.w == w))
             {
                 return;
             }
         }
 
-        /* --- build left token, add it to the hash table --- */
+        // build left token, add it to the hash table
         LeftToken New = new LeftToken(node, tok, w, null);
         left_ht.insert_token_into_left_ht(New, hv);
 
-        /* --- pass the new token on to each child node --- */
+        // pass the new token on to each child node
         for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
         {
             executeLeftAddition(child, New, null);
-            //left_addition_routines[child.node_type.index()].execute(this, child, New, null);
         }
     }
 
@@ -1858,13 +1859,13 @@ public class Rete
     {
         ReteNode partner = node.b_cn.partner;
 
-        /* --- build new negrm token --- */
+        // build new negrm token
+        
         // TODO: Can this be created at "negrm_tok.left_token = left;" below so
-        // that
-        // left_toke can be final and list insertion can happen in constructor?
+        // that left_toke can be final and list insertion can happen in constructor?
         RightToken negrm_tok = RightToken.create(node, tok, w, null);
 
-        /* --- advance (tok,w) up to the token from the top of the branch --- */
+        // advance (tok,w) up to the token from the top of the branch
         ReteNode temp = node.parent;
         while (temp != partner.parent)
         {
@@ -1873,12 +1874,11 @@ public class Rete
             tok = tok.parent;
         }
 
-        /* --- look for the matching left token --- */
+        // look for the matching left token
         int hv = partner.node_id ^ addressOf(tok) ^ addressOf(w);
         LeftToken left = null;
-        for (AsListItem<LeftToken> it = left_ht.left_ht_bucket(hv).first; it != null; it = it.next)
+        for (LeftToken tempLeft = left_ht.left_ht_bucket(hv); tempLeft != null; tempLeft = tempLeft.next_in_bucket)
         {
-            final LeftToken tempLeft = it.item;
             if ((tempLeft.node == partner) && (tempLeft.parent == tok) && (tempLeft.w == w))
             {
                 left = tempLeft;
@@ -1886,18 +1886,18 @@ public class Rete
             }
         }
 
-        /* --- if not found, create a new left token --- */
+        // if not found, create a new left token
         if (left == null)
         {
             left = new LeftToken(partner, tok, w, null);
             left_ht.insert_token_into_left_ht(left, hv);
         }
 
-        /* --- add new negrm token to the left token --- */
+        // add new negrm token to the left token
         negrm_tok.left_token = left;
         negrm_tok.negrm.insertAtHead(left.negrm_tokens);
 
-        /* --- remove any descendent tokens of the left token --- */
+        // remove any descendent tokens of the left token
         while (left.first_child != null)
         {
             remove_token_and_subtree(left.first_child);
@@ -1913,7 +1913,8 @@ public class Rete
      */
     private void p_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        /* --- build new left token (used only for tree-based remove) --- */
+        // build new left token (used only for tree-based remove)
+        @SuppressWarnings("unused")
         LeftToken New = new LeftToken(node, tok, w, null);
 
         listener.p_node_left_addition(this, node, tok, w);
@@ -1933,18 +1934,18 @@ public class Rete
         Token tok = root;
         
         while (true) {
-          /* --- move down to the leftmost leaf --- */
+          // move down to the leftmost leaf
           while (tok.first_child != null) { tok = tok.first_child; }
           final Token next_value_for_tok = tok.getNextSiblingOrParent();
 
-          /* --- cleanup stuff common to all types of nodes --- */
+          // cleanup stuff common to all types of nodes
           final ReteNode node = tok.node;
           tok.removeFromNode();
           tok.removeFromParent();
           tok.removeFromWme();
           ReteNodeType node_type = node.node_type;
 
-          /* --- for merged Mem/Pos nodes --- */
+          // for merged Mem/Pos nodes
           if ((node_type==ReteNodeType.MP_BNODE)||(node_type==ReteNodeType.UNHASHED_MP_BNODE)) {
               LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
               int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
@@ -1953,11 +1954,11 @@ public class Rete
               if (node.a_np.tokens == null) { node.unlink_from_right_mem (); }
             }
 
-          /* --- for P nodes --- */
+          // for P nodes
           } else if (node_type==ReteNodeType.P_BNODE) {
             listener.p_node_left_removal(this, node, tok.parent, tok.w);
 
-          /* --- for Negative nodes --- */
+          // for Negative nodes
           } else if ((node_type==ReteNodeType.NEGATIVE_BNODE) ||
                      (node_type==ReteNodeType.UNHASHED_NEGATIVE_BNODE)) {
             LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
@@ -2009,12 +2010,10 @@ public class Rete
             RightToken rt = (RightToken) tok; // TODO: Safe to assume this?
             Token left = rt.left_token;
             rt.negrm.remove(left.negrm_tokens);
-//            fast_remove_from_dll (left->negrm_tokens, tok, token,
-//                                  a.neg.next_negrm, a.neg.prev_negrm);
+            
             if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
               for (ReteNode child=left.node.first_child; child!=null; child=child.next_sibling){
                 executeLeftAddition(child, left, null);
-                //left_addition_routines[child.node_type.index()].execute(this, child, left, null);
               }
             }
 

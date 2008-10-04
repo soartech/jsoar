@@ -25,8 +25,8 @@ public class RightMemory
     final AsListItem<RightMemory> in_am = new AsListItem<RightMemory>(this); // rm's in this amem
     //RightMemory next_in_am, prev_in_am;       /*rm's in this amem*/
     
-    final AsListItem<RightMemory> from_wme = new AsListItem<RightMemory>(this); // tree-based remove
-    //RightMemory next_from_wme, prev_from_wme; /*tree-based remove*/
+    //public final AsListItem<RightMemory> from_wme = new AsListItem<RightMemory>(this); // tree-based remove
+    private RightMemory next_from_wme, prev_from_wme; /*tree-based remove*/
 
     /**
      * @param w
@@ -38,6 +38,38 @@ public class RightMemory
         this.am = am;
     }
 
+    public RightMemory addToWme(RightMemory head)
+    {
+        next_from_wme = head;
+        prev_from_wme = null;
+        if(head != null)
+        {
+            head.prev_from_wme = this;
+        }
+        return this;
+    }
+    
+    public RightMemory removeFromWme(RightMemory head)
+    {
+        if(next_from_wme != null)
+        {
+            next_from_wme.prev_from_wme = prev_from_wme;
+        }
+        if(prev_from_wme != null)
+        {
+            prev_from_wme.next_from_wme = next_from_wme;
+        }
+        else
+        {
+            head = next_from_wme;
+        }
+        next_from_wme = null;
+        prev_from_wme = null;
+        
+        return head;
+        
+    }
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */

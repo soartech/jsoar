@@ -6,7 +6,6 @@
 package org.jsoar.kernel.rete;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.lhs.Condition;
@@ -30,6 +29,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -393,7 +393,7 @@ import org.jsoar.util.ByRef;
         Arguments.check(current_depth >= 0, "current_depth >= 0");
         Arguments.checkNotNull(parent, "parent");
         
-        LinkedList<Variable> vars_bound_here = new LinkedList<Variable>();
+        ListHead<Variable> vars_bound_here = ListHead.newInstance();
 
         // Add sparse variable bindings for this condition
         Rete.bind_variables_in_test(cond.id_test, current_depth, 0, false, vars_bound_here);
@@ -529,7 +529,7 @@ import org.jsoar.util.ByRef;
      */
     private ReteNode make_node_for_negative_cond(Rete rete, NegativeCondition cond, int current_depth, ReteNode parent)
     {
-        LinkedList<Variable> vars_bound_here = new LinkedList<Variable>();
+        ListHead<Variable> vars_bound_here = ListHead.newInstance();
 
         /* --- Add sparse variable bindings for this condition --- */
         Rete.bind_variables_in_test(cond.id_test, current_depth, 0, false, vars_bound_here);
@@ -616,13 +616,13 @@ import org.jsoar.util.ByRef;
      */
     /*package*/ void build_network_for_condition_list(Rete rete, Condition cond_list, int depth_of_first_cond,
             ReteNode parent, ByRef<ReteNode> dest_bottom_node, ByRef<Integer> dest_bottom_depth,
-            ByRef<LinkedList<Variable>> dest_vars_bound)
+            ByRef<ListHead<Variable>> dest_vars_bound)
     {
         ReteNode node = parent;
         ReteNode new_node = null;
         ByRef<ReteNode> subconditions_bottom_node = ByRef.create(null);
         int current_depth = depth_of_first_cond;
-        LinkedList<Variable> vars_bound = new LinkedList<Variable>();
+        ListHead<Variable> vars_bound = ListHead.newInstance();
 
         for (Condition cond = cond_list; cond != null; cond = cond.next)
         {

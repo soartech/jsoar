@@ -5,9 +5,8 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -59,7 +58,7 @@ public abstract class Test
         return null;
     }
 
-    public void addAllVariables(int tc_number, LinkedList<Variable> var_list)
+    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
     {
         // Do nothing by default
     }
@@ -70,7 +69,7 @@ public abstract class Test
      * @param tc_number
      * @param var_list
      */
-    public void addBoundVariables(int tc_number, LinkedList<Variable> var_list)
+    public void addBoundVariables(int tc_number, ListHead<Variable> var_list)
     {
         // Do nothing by default
     }

@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.symbols;
 
-import java.util.Collection;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.GoalDependencySet;
@@ -120,7 +119,7 @@ public class Identifier extends Symbol
      * @param tc
      * @param id_list
      */
-    private void mark_identifier_if_unmarked(int tc, LinkedList<Identifier> id_list)
+    private void mark_identifier_if_unmarked(int tc, ListHead<Identifier> id_list)
     {
         if (tc_number != (tc))
         {
@@ -176,11 +175,11 @@ public class Identifier extends Symbol
      * 
      * @param ids
      */
-    public static void unmark(Collection<Identifier> ids)
+    public static void unmark(ListHead<Identifier> ids)
     {
-        for(Identifier id : ids)
+        for(AsListItem<Identifier> id = ids.first; id != null; id = id.next)
         {
-            id.tc_number = 0;
+            id.item.tc_number = 0;
         }
     }
 
@@ -188,7 +187,7 @@ public class Identifier extends Symbol
      * @see org.jsoar.kernel.symbols.Symbol#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
-    public void add_symbol_to_tc(int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    public void add_symbol_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
     {
         mark_identifier_if_unmarked (tc, id_list);
     }

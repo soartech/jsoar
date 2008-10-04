@@ -17,7 +17,7 @@ public class ReteBuilderTest
     @Test
     public void testConstructReteBuilder()
     {
-        ReteBuilder builder = new ReteBuilder();
+        new ReteBuilder();
     }
     
 }

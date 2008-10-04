@@ -5,11 +5,11 @@
  */
 package org.jsoar.kernel.rhs;
 
-import java.util.LinkedList;
-
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -66,7 +66,7 @@ public class ActionReorderer
      */
     public void reorder_action_list(ByRef<Action> action_list, int lhs_tc) throws ReordererException
     {
-        LinkedList<Variable> new_bound_vars = new LinkedList<Variable>();
+        ListHead<Variable> new_bound_vars = ListHead.newInstance();
         Action remaining_actions = action_list.value;
         Action first_action = null;
         Action last_action = null;
@@ -137,9 +137,9 @@ public class ActionReorderer
         }
 
         /* --- unmark variables that we just marked --- */
-        for (Variable var : new_bound_vars)
+        for (AsListItem<Variable> var = new_bound_vars.first; var != null; var = var.next)
         {
-            var.unmark();
+            var.item.unmark();
         }
 
         /* --- return final result --- */

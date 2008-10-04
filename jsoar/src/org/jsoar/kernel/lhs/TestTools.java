@@ -6,13 +6,13 @@
 package org.jsoar.kernel.lhs;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -159,7 +159,7 @@ public class TestTools
      * @param roots
      * @return
      */
-    public static boolean test_tests_for_root(Test t, List<Variable> roots)
+    public static boolean test_tests_for_root(Test t, ListHead<Variable> roots)
     {
         if (TestTools.isBlank(t))
         {
@@ -382,7 +382,7 @@ public class TestTools
      * @param id_list
      * @param var_list
      */
-    static void add_test_to_tc(Test t, int tc, LinkedList<Identifier> id_list, LinkedList<Variable> var_list)
+    static void add_test_to_tc(Test t, int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
     {
         if (TestTools.isBlank(t))
             return;
