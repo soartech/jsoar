@@ -5,6 +5,9 @@
  */
 package org.jsoar.kernel.exploration;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 
 
 /**
@@ -21,8 +24,29 @@ public class ExplorationParameter
      */
     public static enum ReductionPolicy
     {
-        EXPLORATION_REDUCTION_EXPONENTIAL("expontential"),
-        EXPLORATION_REDUCTION_LINEAR("linear");
+        EXPLORATION_REDUCTION_EXPONENTIAL("expontential") {
+
+            /* (non-Javadoc)
+             * @see org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy#isRateValid(double)
+             */
+            @Override
+            public boolean isRateValid(double rate)
+            {
+                // exploration.cpp:427:exploration_valid_exponential
+                return rate >= 0 && rate <= 1;
+            }},
+            
+        EXPLORATION_REDUCTION_LINEAR("linear") {
+
+            /* (non-Javadoc)
+             * @see org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy#isRateValid(double)
+             */
+            @Override
+            public boolean isRateValid(double rate)
+            {
+                // exploration.cpp:435:exploration_valid_linear
+                return rate >= 0;
+            }};
         
         private final String policyName;
         
@@ -58,20 +82,28 @@ public class ExplorationParameter
             }
             return null;
         }
+        
+        /**
+         * <p>exploration.cpp:403:exploration_valid_reduction_rate
+         * 
+         * @param rate
+         * @return
+         */
+        public abstract boolean isRateValid(double rate);
     }
     
     double value;
     String name;
     ReductionPolicy reduction_policy;
     ExplorationValueFunction val_func;
-    double rates[] = new double[ReductionPolicy.values().length];
+    Map<ReductionPolicy, Double> rates = new EnumMap<ReductionPolicy, Double>(ReductionPolicy.class);
     
     /**
      * exploration.cpp::exploration_update_parameters 
      */
     void update()
     {
-        double reduction_rate = rates[reduction_policy.ordinal()];            
+        double reduction_rate = rates.get(reduction_policy).doubleValue();            
 
         if ( reduction_policy == ReductionPolicy.EXPLORATION_REDUCTION_EXPONENTIAL )
         {
@@ -87,6 +119,15 @@ public class ExplorationParameter
             if ( ( current_value > 0 ) && ( reduction_rate != 0 ) )
                 this.value = ( ( ( current_value - reduction_rate ) > 0 )?( current_value - reduction_rate ):( 0 ) );
         }
-
+    }
+    
+    public boolean setReductionRate(ReductionPolicy policy, double rate)
+    {
+        boolean valid = policy.isRateValid(rate);
+        if(valid)
+        {
+            rates.put(policy, rate);
+        }
+        return valid;
     }
 }

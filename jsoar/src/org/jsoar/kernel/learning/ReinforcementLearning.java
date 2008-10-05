@@ -18,6 +18,45 @@ import org.jsoar.kernel.symbols.Identifier;
  */
 public class ReinforcementLearning
 {
+    public static final double RL_RETURN_LONG = 0.1;
+    public static final String RL_RETURN_STRING = "";
+    
+    public static final int RL_LEARNING_ON = 1;
+    public static final int RL_LEARNING_OFF = 2;
+    
+    public static final int RL_LEARNING_SARSA = 1;
+    public static final int RL_LEARNING_Q = 2;
+    
+    public static final int RL_TE_ON = 1;
+    public static final int RL_TE_OFF = 2;
+    
+    // names of params
+    public static final int RL_PARAM_LEARNING                  = 0;
+    public static final int RL_PARAM_DISCOUNT_RATE             = 1;
+    public static final int RL_PARAM_LEARNING_RATE             = 2;
+    public static final int RL_PARAM_LEARNING_POLICY           = 3;
+    public static final int RL_PARAM_ET_DECAY_RATE             = 4;
+    public static final int RL_PARAM_ET_TOLERANCE              = 5;
+    public static final int RL_PARAM_TEMPORAL_EXTENSION        = 6;
+    public static final int RL_PARAMS                          = 7; // must be 1+ last rl param
+    
+    // names of stats
+    public static final int RL_STAT_UPDATE_ERROR               = 0;
+    public static final int RL_STAT_TOTAL_REWARD               = 1;
+    public static final int RL_STAT_GLOBAL_REWARD              = 2;
+    public static final int RL_STATS                           = 3; // must be 1+ last rl stat
+    
+    // more specific forms of no change impasse types
+    // made negative to never conflict with impasse constants
+    public static final int STATE_NO_CHANGE_IMPASSE_TYPE = -1;
+    public static final int OP_NO_CHANGE_IMPASSE_TYPE = -2;
+
+//////////////////////////////////////////////////////////
+// RL Types
+//////////////////////////////////////////////////////////
+    enum rl_param_type { rl_param_string, rl_param_number, rl_param_invalid };    
+    
+   
     private boolean enabled = false;
     
     /**
