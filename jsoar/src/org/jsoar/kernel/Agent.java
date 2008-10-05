@@ -74,7 +74,7 @@ public class Agent
     public final ReinforcementLearning rl = new ReinforcementLearning();
     
     public final DecisionManipulation decisionManip = new DecisionManipulation(decider);
-    public final Exploration exploration = new Exploration();
+    public final Exploration exploration = new Exploration(this);
     public final InputOutput io = new InputOutput(this);
     
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);

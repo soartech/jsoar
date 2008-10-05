@@ -61,8 +61,8 @@ public class Preference implements Formattable
     public Preference next_candidate;
     public Preference next_result;
 
-    int total_preferences_for_candidate = 0;
-    double numeric_value = 0.0;
+    public int total_preferences_for_candidate = 0;
+    public double numeric_value = 0.0;
     
     boolean deallocated = false;
 
