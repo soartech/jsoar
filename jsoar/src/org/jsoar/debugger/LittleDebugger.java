@@ -8,6 +8,8 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
@@ -33,6 +35,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
@@ -120,12 +123,14 @@ public class LittleDebugger extends JPanel
                 agent.decisionCycle.run_for_n_modifications_of_output(count);
                 break;
             }
-            updateWmes();
+            update();
         }
     }
     
     private DefaultListModel wmeListModel = new DefaultListModel();
     private JList wmeList = new JList(wmeListModel);
+    private DefaultListModel prodListModel = new DefaultListModel();
+    private JList prodList = new JList(prodListModel);
     
     public LittleDebugger()
     {
@@ -137,15 +142,38 @@ public class LittleDebugger extends JPanel
         
         agent.initialize();
         
+        JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                               new JScrollPane(prodList),
+                                               new JScrollPane(wmeList));
+        
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
                                           new JScrollPane(outputWindow), 
-                                          new JScrollPane(wmeList));
+                                          rightSplit);
         split.setDividerLocation(600);
         add(split, BorderLayout.CENTER);
         
         initToolbar();
         
-        updateWmes();
+        update();
+        
+        prodList.addMouseListener(new MouseAdapter() {
+
+            /* (non-Javadoc)
+             * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
+             */
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(e.getClickCount() != 2)
+                {
+                    return;
+                }
+                Production p = (Production) prodList.getSelectedValue();
+                if(p != null)
+                {
+                    p.print_production(agent.rete, agent.getPrinter(), SwingUtilities.isLeftMouseButton(e));
+                }
+            }});
     }
     
     private void initToolbar()
@@ -168,8 +196,7 @@ public class LittleDebugger extends JPanel
         
         add(bar, BorderLayout.NORTH);
     }
-    
-    private void updateWmes()
+    private void update()
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
@@ -180,7 +207,7 @@ public class LittleDebugger extends JPanel
                     @Override
                     public void run()
                     {
-                        updateWmes();
+                        update();
                     }});
             }
             catch (InterruptedException e)
@@ -195,6 +222,12 @@ public class LittleDebugger extends JPanel
             }
             return;
         }
+        
+        updateWmes();
+        updateProds();
+    }
+    private void updateWmes()
+    {
         wmeListModel.clear();
         
         List<String> wmes = new ArrayList<String>();
@@ -206,6 +239,16 @@ public class LittleDebugger extends JPanel
         for(String s : wmes)
         {
             wmeListModel.addElement(s);
+        }
+    }
+    
+    private void updateProds()
+    {
+        prodListModel.clear();
+        List<Production> prods = agent.getProductions(null);
+        for(Production p : prods)
+        {
+            prodListModel.addElement(p);
         }
     }
     

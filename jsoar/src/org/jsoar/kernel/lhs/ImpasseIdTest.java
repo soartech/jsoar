@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.lhs;
 
+import java.util.Formatter;
+
 /**
  * @author ray
  */
@@ -30,4 +32,15 @@ public class ImpasseIdTest extends ComplexTest
     {
         return this;
     }
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        formatter.format("[IMPASSE ID TEST]");
+    }
+    
+    
 }

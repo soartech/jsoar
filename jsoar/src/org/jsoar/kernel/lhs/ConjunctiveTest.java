@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
+import java.util.Formatter;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
@@ -71,6 +72,20 @@ public class ConjunctiveTest extends ComplexTest
         {
             child.addBoundVariables(tc_number, var_list);
         }
+    }
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        formatter.format("{ ");
+        for(Test t : conjunct_list)
+        {
+            formatter.format("%s ", t);
+        }
+        formatter.format("}");
     }
     
     

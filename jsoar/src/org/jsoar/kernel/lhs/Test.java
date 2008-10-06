@@ -5,13 +5,15 @@
  */
 package org.jsoar.kernel.lhs;
 
+import java.util.Formattable;
+
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
 /**
  * @author ray
  */
-public abstract class Test
+public abstract class Test implements Formattable
 {
     /**
      * 

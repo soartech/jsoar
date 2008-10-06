@@ -5,6 +5,11 @@
  */
 package org.jsoar.kernel.lhs;
 
+import java.io.StringWriter;
+import java.util.Formattable;
+import java.util.Formatter;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Identifier;
@@ -13,7 +18,7 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
-public abstract class Condition
+public abstract class Condition implements Formattable
 {
     public boolean already_in_tc;                 /* used only by cond_is_in_tc stuff */
     public boolean test_for_acceptable_preference;   /* for pos, neg cond's only */
@@ -396,4 +401,150 @@ public abstract class Condition
         }
         return null;
     }
+    
+
+    /**
+     * <p>print.cpp:488:print_condition_list
+     * 
+     * @param printer
+     * @param conds
+     * @param indent
+     * @param internal
+     */
+    public static void print_condition_list(Printer printer, Condition conds, int indent, boolean internal)
+    {
+        if (conds == null)
+            return;
+
+        // build dl_list of all the actions
+        LinkedList<Condition> conds_not_yet_printed = new LinkedList<Condition>();
+
+        for (Condition c = conds; c != null; c = c.next)
+        {
+            conds_not_yet_printed.add(c);
+        }
+
+        // main loop: find all conds for first id, print them together
+        boolean did_one_line_already = false;
+        while (!conds_not_yet_printed.isEmpty())
+        {
+            if (did_one_line_already)
+            {
+                printer.print("\n").spaces(indent);
+            }
+            else
+            {
+                did_one_line_already = true;
+            }
+
+            final Condition c = conds_not_yet_printed.pop();
+            final ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
+            if (ncc != null)
+            {
+                printer.print("-{");
+                print_condition_list(printer, ncc.top, indent + 2, internal);
+                printer.print("}");
+                continue;
+            }
+
+            // normal pos/neg conditions
+            ThreeFieldCondition tfc = c.asThreeFieldCondition();
+            ByRef<Boolean> removed_goal_test = ByRef.create(false);
+            ByRef<Boolean> removed_impasse_test = ByRef.create(false);
+
+            Test id_test = TestTools.copy_test_removing_goal_impasse_tests(tfc.id_test, removed_goal_test,
+                    removed_impasse_test);
+            Test id_test_to_match = TestTools.copy_of_equality_test_found_in_test(id_test);
+
+            // collect all cond's whose id test matches this one, removing them
+            // from the conds_not_yet_printed list
+            LinkedList<ThreeFieldCondition> conds_for_this_id = new LinkedList<ThreeFieldCondition>();
+            conds_for_this_id.add(tfc);
+            if (!internal)
+            {
+                Iterator<Condition> it = conds_not_yet_printed.iterator();
+                while (it.hasNext())
+                {
+                    final Condition n = it.next();
+
+                    // pick_conds_with_matching_id_test
+                    ThreeFieldCondition ntfc = n.asThreeFieldCondition();
+                    if (ntfc != null && TestTools.tests_are_equal(id_test_to_match, ntfc.id_test))
+                    {
+                        conds_for_this_id.add(ntfc);
+                        it.remove();
+                    }
+                }
+            }
+
+            // print the collected cond's all together
+            printer.print(" (");
+            if (removed_goal_test.value)
+            {
+                printer.print("state ");
+            }
+
+            if (removed_impasse_test.value)
+            {
+                printer.print("impasse ");
+            }
+
+            printer.print("%s", id_test);
+
+            while (!conds_for_this_id.isEmpty())
+            {
+                final ThreeFieldCondition tc = conds_for_this_id.pop();
+
+                { // build and print attr/value test for condition c
+                    final StringBuilder gs = new StringBuilder();
+                    gs.append(" ");
+                    if (tc.asNegativeCondition() != null)
+                    {
+                        gs.append("-");
+                    }
+
+                    gs.append("^");
+                    gs.append(String.format("%s", tc.attr_test));
+                    if (!TestTools.isBlank(tc.value_test))
+                    {
+                        gs.append(String.format(" %s", tc.value_test));
+                        if (tc.test_for_acceptable_preference)
+                        {
+                            gs.append(" +");
+                        }
+                    }
+                    if (printer.get_printer_output_column() + gs.length() >= printer.getColumnsPerLine())
+                    {
+                        printer.print("\n").spaces(indent + 6);
+                    }
+                    printer.print(gs.toString());
+                }
+            }
+            printer.print(")");
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        // <p>print.cpp:871:print_condition
+        
+        Condition old_next = this.next;
+        Condition old_prev = this.prev;
+        this.next = null;
+        this.prev = null;
+        
+        StringWriter writer = new StringWriter();
+        print_condition_list (new Printer(writer, false), this, 0, true);
+        
+        this.next = old_next;
+        this.prev = old_prev;
+        
+        formatter.format(writer.toString());
+    }
+
+    
 }

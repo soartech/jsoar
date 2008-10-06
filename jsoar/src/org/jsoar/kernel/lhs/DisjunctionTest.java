@@ -6,6 +6,7 @@
 package org.jsoar.kernel.lhs;
 
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Symbol;
@@ -39,5 +40,19 @@ public class DisjunctionTest extends ComplexTest
     {
         return new DisjunctionTest(this);
     }
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        formatter.format("<< ");
+        for(Symbol s : disjunction_list)
+        {
+            formatter.format("%s ", s);
+        }
+        formatter.format(">>");
+    }
 
+    
 }

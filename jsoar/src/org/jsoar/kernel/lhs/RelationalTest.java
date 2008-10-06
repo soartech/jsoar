@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.lhs;
 
+import java.util.Formatter;
+
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
@@ -103,5 +105,25 @@ public class RelationalTest extends ComplexTest
         }
     }
 
-    
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        String op = "???";
+        switch (type)
+        {
+        case RelationalTest.NOT_EQUAL_TEST:        op = "<>"; break;
+        case RelationalTest.LESS_TEST:             op = "<"; break;
+        case RelationalTest.GREATER_TEST:          op = ">"; break;
+        case RelationalTest.LESS_OR_EQUAL_TEST:    op = "<="; break;
+        case RelationalTest.GREATER_OR_EQUAL_TEST: op = ">="; break;
+        case RelationalTest.SAME_TYPE_TEST:        op = "<=>"; break;
+        default:
+            throw new IllegalArgumentException("Unknown RelationalTest type " + type);
+        }
+        formatter.format("%s %s", op, referent);
+    }
 }

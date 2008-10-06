@@ -993,7 +993,7 @@ public class Rete
             for (Test c : ct.conjunct_list)
             {
                 EqualityTest eq2 = c.asEqualityTest();
-                if (TestTools.isBlank(c) && eq2 != null)
+                if (!TestTools.isBlank(c) && eq2 != null)
                 {
                     return eq2.getReferent();
                 }
@@ -2076,7 +2076,7 @@ public class Rete
            result.dest_rhs = Action.copy_action_list_and_substitute_varnames (this, prod.action_list,
                                                                                result.dest_bottom_cond);
            int index = 0;
-           while (index++ <= highest_rhs_unboundvar_index) rhs_variable_bindings = null;
+           while (index <= highest_rhs_unboundvar_index) rhs_variable_bindings[index++] = null;
         }
         
         return result;

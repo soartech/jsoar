@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.Formatter;
+
 import org.jsoar.kernel.Production;
 
 /**
@@ -60,6 +62,16 @@ public class SymConstant extends Symbol
     public String toString()
     {
         return name;
+    }
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        // TODO format SymConstant
+        formatter.format(name);
     }
     
     

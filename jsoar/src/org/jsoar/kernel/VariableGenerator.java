@@ -99,7 +99,7 @@ public class VariableGenerator
         while (true)
         {
             String name = "<" + prefix
-                    + gensymed_variable_count[first_letter - 'a']++;
+                    + gensymed_variable_count[first_letter - 'a']++ + ">";
 
             New = syms.make_variable(name);
             if (New.gensym_number != current_variable_gensym_number)
