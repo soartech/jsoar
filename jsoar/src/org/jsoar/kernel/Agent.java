@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import org.jsoar.kernel.exploration.Exploration;
@@ -55,6 +56,12 @@ public class Agent
     public int MAX_GOAL_DEPTH = 100;
     
     private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
+    
+    /**
+     * The random number generator used throughout the agent
+     */
+    private final Random random = new Random();
+    
     public final Trace trace = new Trace(printer);
     public final TraceFormats traceFormats = new TraceFormats(this);
     
@@ -78,7 +85,7 @@ public class Agent
     public final Backtracer backtrace = new Backtracer(this);
     public final ReinforcementLearning rl = new ReinforcementLearning();
     
-    public final DecisionManipulation decisionManip = new DecisionManipulation(decider);
+    public final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
     public final Exploration exploration = new Exploration(this);
     public final InputOutput io = new InputOutput(this);
     
@@ -156,6 +163,14 @@ public class Agent
         return multiAttrs;
     }
  
+    /**
+     * @return the agent's random number generator. It is safe to call setSeed()
+     *      on the returned generator.
+     */
+    public Random getRandom()
+    {
+        return random;
+    }
     
     /**
      * @return the totalCpuTimer

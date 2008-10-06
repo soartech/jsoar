@@ -7,7 +7,6 @@ package org.jsoar.kernel.exploration;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy;
@@ -111,13 +110,6 @@ public class Exploration
      * agent.h:752:exploration_params
      */
     private Map<String, ExplorationParameter> parameters = new HashMap<String, ExplorationParameter>();
-    
-    /**
-     * Temporary until exploration is fully implemented and I figure out how I want to deal with
-     * random number generation throughout the kernel (DR)
-     */
-    private Random random = new Random(); // TODO centralize random numbers
-    
     
     /**
      * @param context
@@ -469,7 +461,7 @@ public class Exploration
     {
         // select at random 
         int cand_count = Preference.countCandidates(candidates);
-        int chosen_num = random.nextInt(cand_count);
+        int chosen_num = context.getRandom().nextInt(cand_count);
         //chosen_num = SoarRandInt( cand_count - 1 );
         
         return Preference.getCandidate(candidates, chosen_num);
@@ -495,7 +487,7 @@ public class Exploration
             return exploration_randomly_select( candidates );
         
         // choose a random preference within the distribution
-        double rn = random.nextDouble(); // SoarRand();
+        double rn = context.getRandom().nextDouble(); // SoarRand();
         double selected_probability = rn * total_probability;
         double current_sum = 0;
 
@@ -599,7 +591,7 @@ public class Exploration
             }
         }
 
-        double rn = random.nextDouble(); //SoarRand(); // generates a number in [0,1]
+        double rn = context.getRandom().nextDouble(); //SoarRand(); // generates a number in [0,1]
         double selected_probability = rn * total_probability;
 
         double current_sum = 0.0;
@@ -640,7 +632,7 @@ public class Exploration
             }
         }
 
-        if ( random.nextDouble() /*SoarRand()*/ < epsilon ) 
+        if ( context.getRandom().nextDouble() /*SoarRand()*/ < epsilon ) 
             return exploration_randomly_select( candidates );
         else
             return exploration_get_highest_q_value_pref( candidates );
@@ -675,7 +667,7 @@ public class Exploration
         else 
         {
             // if operators tied for highest Q-value, select among tied set at random
-            int chosen_num = random.nextInt(num_max_cand); //  SoarRandInt( num_max_cand - 1 );
+            int chosen_num = context.getRandom().nextInt(num_max_cand); //  SoarRandInt( num_max_cand - 1 );
             
             Preference cand = candidates;
             while ( cand.numeric_value != top_value ) 
