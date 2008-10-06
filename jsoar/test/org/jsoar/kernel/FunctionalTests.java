@@ -257,7 +257,7 @@ public class FunctionalTests
         runTest("testBlocksWorldOperatorSubgoaling", -1);
     }
     
-    @Test(/*timeout=10000*/)
+    @Test(timeout=10000)
     public void testBlocksWorldLookAhead() throws Exception
     {
         // TODO This only works with learning disabled. Fix it.

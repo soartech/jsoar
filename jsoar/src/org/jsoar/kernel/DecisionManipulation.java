@@ -18,19 +18,20 @@ import org.jsoar.kernel.symbols.Identifier;
 public class DecisionManipulation
 {
     private final Decider decider;
-    private Random random = new Random(); // TODO: Centralize random numbers
+    private final Random random;
     
     private boolean select_enabled = false;
     private String select_operator = "";
-    private int predict_seed;
+    private long predict_seed;
     private String prediction;
     
     /**
      * @param decider
      */
-    public DecisionManipulation(Decider decider)
+    public DecisionManipulation(Decider decider, Random random)
     {
         this.decider = decider;
+        this.random = random;
         
         select_init();
         predict_init();
@@ -139,7 +140,7 @@ public class DecisionManipulation
     void predict_srand_restore_snapshot( boolean clear_snapshot )
     {
         if ( predict_seed != 0)
-            random = new Random(predict_seed); //  SoarSeedRNG( my_agent->predict_seed );
+            random.setSeed(predict_seed); //  SoarSeedRNG( my_agent->predict_seed );
 
         if ( clear_snapshot )
             predict_init( );

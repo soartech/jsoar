@@ -106,6 +106,27 @@ public class SoarTclInterface
                 throw new TclException(interp, "Option must be --on or --off");
             }
         }};
+    private Command srandCommand = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            if(args.length > 2)
+            {
+                throw new TclNumArgsException(interp, 2, args, "[seed]");
+            }
+
+            long seed = 0;
+            if(args.length == 1)
+            {
+                seed = System.nanoTime();
+            }
+            else
+            {
+                seed = Long.parseLong(args[1].toString());
+            }
+            agent.getRandom().setSeed(seed);
+        }};
         
     /**
      * @param agent
@@ -118,6 +139,7 @@ public class SoarTclInterface
         interp.createCommand("multi-attributes", multiAttrCommand);
         interp.createCommand("stats", statsCommand);
         interp.createCommand("learn", learnCommand);
+        interp.createCommand("srand", srandCommand);
     }
     
     public void dispose()
