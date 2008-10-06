@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.Formatter;
+
 /**
  * @author ray
  */
@@ -113,6 +115,16 @@ public class IntConstant extends Symbol
     public String toString()
     {
         return Integer.toString(value);
+    }
+
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        formatter.format(Integer.toString(value));
     }
     
     

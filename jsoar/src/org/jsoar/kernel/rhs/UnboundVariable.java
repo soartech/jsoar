@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rhs;
 
+import java.util.Formatter;
+
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
@@ -58,7 +60,13 @@ public class UnboundVariable extends RhsValue
     {
         return "(unbound-var + " + index + ")";
     }
-    
-    
-    
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        throw new IllegalStateException("Internal error: rhs_value_to_string called on unbound variable.");
+    }
 }

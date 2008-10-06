@@ -283,7 +283,7 @@ public class Chunker
         this.results = null;
         this.results_match_goal_level = inst.match_goal_level;
         this.results_tc_number = context.syms.get_new_tc_number();
-        this.extra_result_prefs_from_instantiation = inst.preferences_generated;
+        this.extra_result_prefs_from_instantiation = ListHead.newInstance(inst.preferences_generated);
         for (AsListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
         {
             final Preference pref = it.item;
@@ -443,7 +443,7 @@ public class Chunker
     private void build_chunk_conds_for_grounds_and_add_negateds(ByRef<ChunkCondition> dest_top,
             ByRef<ChunkCondition> dest_bottom, int tc_to_use)
     {
-        AsListItem<ChunkCondition> first_cc = null; /* unnecessary, but gcc -Wall warns without it */
+        AsListItem<ChunkCondition> first_cc = null;
 
         // build instantiated conds for grounds and setup their TC
         AsListItem<ChunkCondition> prev_cc = null;
@@ -921,9 +921,9 @@ public class Chunker
             impass_name = "unknownimpasse";
         }
 
-        chunk_count.value = chunk_count.value + 1;
-        String name = chunk_name_prefix + "-" + chunk_count + "*d" + context.decisionCycle.d_cycle_count + "*"
+        String name = chunk_name_prefix + "-" + chunk_count.value + "*d" + context.decisionCycle.d_cycle_count + "*"
                 + impass_name + "*" + chunks_this_d_cycle;
+        chunk_count.value = chunk_count.value + 1;
 
         /* Any user who named a production like this deserves to be burned, but we'll have mercy: */
         if (context.syms.find_sym_constant(name) != null)
@@ -1216,9 +1216,7 @@ public class Chunker
         // Reorder the production
         try
         {
-            prod.reorder(context.variableGenerator, new ConditionReorderer(context.variableGenerator, context.trace,
-                    context.multiAttrs, prod.name.name), new ActionReorderer(context.getPrinter(), prod.name.name),
-                    false);
+            context.addChunk(prod);
         }
         catch (ReordererException e)
         {
@@ -1233,9 +1231,6 @@ public class Chunker
 
             // e.printStackTrace();
         }
-
-        // TODO do RL stuff
-        // TODO do other stuff originally in make_production
 
         // TODO
         // if (!prod) {

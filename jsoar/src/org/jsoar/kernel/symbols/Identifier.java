@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.Formatter;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.GoalDependencySet;
@@ -209,6 +210,13 @@ public class Identifier extends Symbol
     {
         return name_letter + Integer.toString(name_number);
     }
-    
-    
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        formatter.format(toString());
+    }
 }

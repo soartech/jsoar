@@ -6,6 +6,7 @@
 package org.jsoar.kernel.rhs;
 
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.SymConstant;
@@ -101,7 +102,19 @@ public class RhsFunctionCall extends RhsValue
     {
         return "(name " + arguments + ")";
     }
-    
-    
-    
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        // TODO special handling for  + and -??
+        formatter.format("(%s", getName());
+        for(RhsValue v : arguments)
+        {
+            formatter.format(" %s", v);
+        }
+        formatter.format(")");
+    }
 }

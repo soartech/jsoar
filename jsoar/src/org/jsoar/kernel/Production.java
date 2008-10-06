@@ -9,7 +9,9 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConditionReorderer;
+import org.jsoar.kernel.rete.ConditionsAndNots;
 import org.jsoar.kernel.rete.Instantiation;
+import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.ReteNode;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionReorderer;
@@ -17,6 +19,7 @@ import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
@@ -65,7 +68,7 @@ public class Production
         
         this.type = type;
         this.name = name;
-        name.production = this;
+        this.name.production = this;
         // TODO insert_at_head_of_dll (thisAgent->all_productions_of_type[type], p, next, prev);
         // TODO thisAgent->num_productions_of_type[type]++;
         this.p_node = null;               /* it's not in the Rete yet */
@@ -173,6 +176,68 @@ public class Production
         return name.toString() + " (" + type + ")";
     }
     
- 
+    /**
+     * This prints a production.  The "internal" parameter, if TRUE,
+     * indicates that the LHS and RHS should be printed in internal format.
+     * 
+     * <p>print.cpp:762:print_production
+     * 
+     * @param rete
+     * @param printer
+     * @param internal
+     */
+    public void print_production(Rete rete, Printer printer, boolean internal)
+    {
+        // print "sp" and production name
+        printer.print("sp {%s\n", this.name);
+
+        // print optional documention string
+        if (documentation != null)
+        {
+            // TODO string_to_escaped_string (thisAgent, p->documentation, '"',
+            // temp);
+            printer.print("    %s\n", documentation);
+        }
+
+        // print any flags
+        switch (type)
+        {
+        case DEFAULT_PRODUCTION_TYPE:
+            printer.print("    :default\n");
+            break;
+        case USER_PRODUCTION_TYPE:
+            break;
+        case CHUNK_PRODUCTION_TYPE:
+            printer.print("    :chunk\n");
+            break;
+        case JUSTIFICATION_PRODUCTION_TYPE:
+            printer.print("    :justification ;# not reloadable\n");
+            break;
+        case TEMPLATE_PRODUCTION_TYPE:
+            printer.print("   :template\n");
+            break;
+        }
+
+        if (declared_support == ProductionSupport.DECLARED_O_SUPPORT)
+        {
+            printer.print("    :o-support\n");
+        }
+
+        else if (declared_support == ProductionSupport.DECLARED_I_SUPPORT)
+        {
+            printer.print("    :i-support\n");
+        }
+
+        // print the LHS and RHS
+        ConditionsAndNots cns = rete.p_node_to_conditions_and_nots(p_node, null, null, true);
+        printer.print("   ");
+
+        Condition.print_condition_list(printer, cns.dest_top_cond, 3, internal);
+
+        printer.print("\n    -->\n  ");
+        printer.print("  ");
+        Action.print_action_list(printer, cns.dest_rhs, 4, internal);
+        printer.print("\n}\n");
+    } 
     
 }

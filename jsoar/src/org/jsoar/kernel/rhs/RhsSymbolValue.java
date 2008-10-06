@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rhs;
 
+import java.util.Formatter;
+
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
@@ -72,5 +74,15 @@ public class RhsSymbolValue extends RhsValue
     public String toString()
     {
         return sym.toString();
+    }
+
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        formatter.format("%s", getSym());
     }
 }

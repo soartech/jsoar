@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.Formatter;
 import java.util.LinkedList;
 
 import org.jsoar.util.AsListItem;
@@ -196,4 +197,16 @@ public class Variable extends Symbol
     {
         return name;
     }
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        // TODO format variable
+        formatter.format(name);
+    }
+    
+    
 }

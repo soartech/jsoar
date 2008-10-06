@@ -5,13 +5,20 @@
  */
 package org.jsoar.kernel.rhs;
 
+import java.util.Formattable;
+
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
-public abstract class RhsValue
+/**
+ * <p>rhs_value_to_string is handled by Formattable implementation
+ * 
+ * @author ray
+ */
+public abstract class RhsValue implements Formattable
 {
     public RhsSymbolValue asSymbolValue()
     {

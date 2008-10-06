@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.Formatter;
+
 /**
  * @author ray
  */
@@ -112,6 +114,13 @@ public class FloatConstant extends Symbol
     {
         return Double.toString(value);
     }
-    
-    
+
+    /* (non-Javadoc)
+     * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
+     */
+    @Override
+    public void formatTo(Formatter formatter, int flags, int width, int precision)
+    {
+        formatter.format(Double.toString(value));
+    }
 }

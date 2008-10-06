@@ -9,8 +9,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
@@ -33,6 +37,7 @@ import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
+import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
@@ -100,7 +105,16 @@ public class Agent
      * agent.h:688:attribute_preferences_mode
      */
     public int attribute_preferences_mode = 0;
-
+    
+    private int totalProductions = 0;
+    private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
+    {
+        for(ProductionType type : ProductionType.values())
+        {
+            productionsByType.put(type, new LinkedHashSet<Production>());
+        }
+    }
+    
     public Agent()
     {
         // Set up standard RHS functions
@@ -200,6 +214,71 @@ public class Agent
 //      excise_production (thisAgent, p, false);
 //      p = null;
   //  }
+        totalProductions++;
+        productionsByType.get(p.type).add(p);
+    }
+    
+    /**
+     * Add the given production to the agent.
+     * 
+     * <p>This is part of a refactoring of make_production().
+     * 
+     * @param p
+     * @param reorder_nccs
+     * @throws ReordererException 
+     */
+    public void addChunk(Production p) throws ReordererException
+    {
+        // Reorder the production
+        p.reorder(variableGenerator, 
+                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.name), 
+                  new ActionReorderer(printer, p.name.name), 
+                  false);
+
+        // Tell RL about the new production
+        rl.addProduction(p);
+        
+        // Add it to the rete.
+        //rete.add_production_to_rete(p);
+        // TODO (from parser.cpp)
+    //  if (*rete_addition_result==DUPLICATE_PRODUCTION) {
+//      excise_production (thisAgent, p, false);
+//      p = null;
+  //  }
+        totalProductions++;
+        productionsByType.get(p.type).add(p);
+    }
+    
+    public Production getProduction(String name)
+    {
+        SymConstant sc = syms.find_sym_constant(name);
+        return sc != null ? sc.production : null;
+    }
+    
+    /**
+     * Returns a list of productions of a particular type, or all productions
+     * if type is <code>null</code>
+     * 
+     * @param type Type of production, or <code>null</code> for all productions.
+     * @return List of productions, ordered by type and then by order of addition
+     */
+    public List<Production> getProductions(ProductionType type)
+    {
+        List<Production> result;
+        if(type != null)
+        {
+            Set<Production> ofType = productionsByType.get(type);
+            result = new ArrayList<Production>(ofType);
+        }
+        else
+        {
+            result = new ArrayList<Production>(totalProductions);
+            for(Set<Production> ofType : productionsByType.values())
+            {
+                result.addAll(ofType);
+            }
+        }
+        return result;
     }
     
     /**
@@ -212,11 +291,11 @@ public class Agent
     public void exciseProduction(Production prod, boolean print_sharp_sign)
     {
         // TODO if (prod->trace_firings) remove_pwatch (thisAgent, prod);
-        // TODO remove_from_dll (thisAgent->all_productions_of_type[prod->type], prod, next, prev);
+        totalProductions--;
+        productionsByType.get(prod.type).remove(prod);
 
         rl.exciseProduction(prod);
 
-        // TODO thisAgent->num_productions_of_type[prod->type]--;
         if (print_sharp_sign)
         {
             getPrinter().print("#");
@@ -227,6 +306,7 @@ public class Agent
         }
         prod.name.production = null;
         prod.production_remove_ref();
+        
     }
     
     /**

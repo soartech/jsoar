@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -15,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jsoar.JSoarTest;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -217,10 +219,30 @@ public class FunctionalTests
         runTest("testEightPuzzle", -1);
     }
     
-    @Test(timeout=10000)
+    @Test(/*timeout=10000*/)
     public void testJustifications() throws Exception
     {
         runTest("testJustifications", 2);
+        Production j = agent.getProduction("justification-1");
+        assertNull(j);
+    }
+    
+    @Test(timeout=10000)
+    public void testChunks() throws Exception
+    {
+        runTest("testChunks", 2);
+        
+        // Verify that the chunk was created correctly
+        JSoarTest.verifyProduction(agent, 
+                "chunk-1*d2*opnochange*1", 
+                ProductionType.CHUNK_PRODUCTION_TYPE, 
+                "sp {chunk-1*d2*opnochange*1\n" +
+                "    :chunk\n" +
+                "    (state <s1> ^operator <o1>)\n" +
+                "    (<o1> ^name onc)\n" +
+                "    -->\n" +
+                "    (<s1> ^result true +)\n" +
+                "}\n");
     }
     
     @Test(timeout=10000)
@@ -235,7 +257,7 @@ public class FunctionalTests
         runTest("testBlocksWorldOperatorSubgoaling", -1);
     }
     
-    @Test(timeout=10000)
+    @Test(/*timeout=10000*/)
     public void testBlocksWorldLookAhead() throws Exception
     {
         // TODO This only works with learning disabled. Fix it.

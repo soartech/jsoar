@@ -5,11 +5,16 @@
  */
 package org.jsoar.kernel.rhs;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ListHead;
 
 /**
@@ -205,4 +210,85 @@ public abstract class Action
         return first;
     }
 
+    public static void print_action_list(Printer printer, Action actions, int indent, boolean internal)
+    {
+        if (actions == null)
+            return;
+
+        boolean did_one_line_already = false;
+
+        // build dl_list of all the actions
+        LinkedList<Action> actions_not_yet_printed = new LinkedList<Action>();
+        for (Action a = actions; a != null; a = a.next)
+        {
+            actions_not_yet_printed.add(a);
+        }
+
+        // main loop: find all actions for first id, print them together
+        while (!actions_not_yet_printed.isEmpty())
+        {
+            if (did_one_line_already)
+            {
+                printer.print("\n").spaces(indent);
+            }
+            else
+            {
+                did_one_line_already = true;
+            }
+
+            Action a = actions_not_yet_printed.pop();
+            FunctionAction fa = a.asFunctionAction();
+            if (fa != null)
+            {
+                printer.print("%s", fa.call);
+                continue;
+            }
+
+            // normal make actions
+            // collect all actions whose id matches the first action's id
+            final MakeAction ma = a.asMakeAction();
+            final LinkedList<MakeAction> actions_for_this_id = new LinkedList<MakeAction>();
+            actions_for_this_id.add(a.asMakeAction());
+            Symbol action_id_to_match = ma.id.asSymbolValue().getSym();
+            if (!internal)
+            {
+                Iterator<Action> it = actions_not_yet_printed.iterator();
+                while (it.hasNext())
+                {
+                    final Action n = it.next();
+
+                    // pick_conds_with_matching_id_test
+                    MakeAction nma = n.asMakeAction();
+                    if (nma != null && nma.id.asSymbolValue().getSym() == action_id_to_match)
+                    {
+                        actions_for_this_id.add(nma);
+                        it.remove();
+                    }
+                }
+            }
+
+            // print the collected actions all together
+            printer.print("(%s", action_id_to_match);
+            while (!actions_for_this_id.isEmpty())
+            {
+                MakeAction ma2 = actions_for_this_id.pop();
+
+                { // build and print attr/value test for action a
+                    StringBuilder gs = new StringBuilder();
+                    gs.append(" ^");
+                    gs.append(String.format("%s %s %c", ma2.attr, ma2.value, ma2.preference_type.getIndicator()));
+                    if (ma2.preference_type.isBinary())
+                    {
+                        gs.append(String.format(" %s", ma2.referent));
+                    }
+                    if (printer.get_printer_output_column() + gs.length() >= printer.getColumnsPerLine())
+                    {
+                        printer.print("\n").spaces(indent + 6);
+                    }
+                    printer.print(gs.toString());
+                }
+            }
+            printer.print(")");
+        }
+    }
 }
