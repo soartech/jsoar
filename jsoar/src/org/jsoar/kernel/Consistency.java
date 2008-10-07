@@ -899,23 +899,6 @@ public class Consistency
 
     }    
 
-   /* determine_highest_active_production_level_in_stack_propose()
-
-   This routine is called from the Propose Phase 
-   under the new reordering of the Decision Cycle.
-   In the Waterfall version of Soar, the this routine makes the
-   determination of what goal level is active in the stack.  Activity
-   proceeds from top goal to bottom goal so the active goal is the goal
-   highest in the stack with productions waiting to fire.  This procedure
-   also recognizes quiescence (no productions active anywhere) and
-   mini-quiescence (no more IE_PRODS are waiting to fire in some goal for a
-   goal that fired IE_PRODS in the previous elaboration).  Mini-quiescence is
-   followed by a consistency check. */
-
-   /* This routine could be further pruned, since with 8.6.0 we have a
-      PROPOSE Phase, and don't have to keep toggling IE_PRODS
-      KJC  april 2005 */
-
     /**
      * This routine is called from the Propose Phase under the new reordering of
      * the Decision Cycle. In the Waterfall version of Soar, the this routine

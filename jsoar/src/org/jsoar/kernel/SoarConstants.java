@@ -22,10 +22,6 @@ public final class SoarConstants
      * kernel.h:207:ATTRIBUTE_IMPASSE_LEVEL
      */
     public static final int ATTRIBUTE_IMPASSE_LEVEL = Integer.MAX_VALUE; 
-    /**
-     * kernel.h:208:LOWEST_POSSIBLE_GOAL_LEVEL
-     */
-    public static final int LOWEST_POSSIBLE_GOAL_LEVEL = Integer.MAX_VALUE;
     
     /**
      * UNcomment the following line to have Soar maintain reference counts on

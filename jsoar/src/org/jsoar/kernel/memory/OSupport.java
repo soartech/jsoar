@@ -5,8 +5,6 @@
  */
 package org.jsoar.kernel.memory;
 
-import java.util.Iterator;
-
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.lhs.Condition;
@@ -62,7 +60,7 @@ public class OSupport
     /**
      * agent.h:659:rhs_prefs_from_instantiation
      */
-    private ListHead<Preference> rhs_prefs_from_instantiation = ListHead.newInstance();
+    private final ListHead<Preference> rhs_prefs_from_instantiation = ListHead.newInstance();
     
     
     /**
@@ -110,7 +108,8 @@ public class OSupport
      * Do that by passing a boolean argument, "isa_state" to this routine.
      * If it isa_state, check for the operator slot before the recursive call.
      * 
-     * osupport.cpp:84:add_to_os_tc
+     * <p>osupport.cpp:84:add_to_os_tc
+     * 
      * @param id
      * @param isa_state
      */
@@ -188,7 +187,7 @@ public class OSupport
      * id/value tests inside NCC's) has a test for an id in the TC. In the case
      * of value tests, the id is not allowed to be "sym_excluded_from_value".
      * 
-     * osupport.cpp:140:test_has_id_in_os_tc
+     * <p>osupport.cpp:140:test_has_id_in_os_tc
      * 
      * @param t
      * @param excluded_sym
@@ -233,7 +232,7 @@ public class OSupport
     }
 
     /**
-     * osupport.cpp:163:id_or_value_of_condition_list_is_in_os_tc
+     * <p>osupport.cpp:163:id_or_value_of_condition_list_is_in_os_tc
      * 
      * @param conds
      * @param sym_excluded_from_value
@@ -295,7 +294,7 @@ public class OSupport
      * objects i.e. it is the state somewhere in the context stack. This is used
      * to ensure that O-support is not given to context objects in super-states.
      * 
-     * osupport.cpp:207:is_state_id
+     * <p>osupport.cpp:207:is_state_id
      * 
      * @param top_goal Originally retrieved from agent struct.
      * @param sym
@@ -709,7 +708,7 @@ public class OSupport
                 }
             }
 
-            /* --- look for rhs oc support --- */
+            // look for rhs oc support
             if (oc_support_possible)
             {
                 begin_os_tc(rhs.first);
@@ -753,7 +752,7 @@ public class OSupport
                 }
             }
 
-            /* --- look for rhs om support --- */
+            // look for rhs om support
             if (om_support_possible)
             {
                 begin_os_tc(rhs.first);
@@ -1019,8 +1018,8 @@ public class OSupport
      */
     private ListHead<Variable> find_known_goals(Condition lhs)
     {
-        int tc = syms.getSyms().get_new_tc_number();
-        ListHead<Variable> vars = ListHead.newInstance();
+        final int tc = syms.getSyms().get_new_tc_number();
+        final ListHead<Variable> vars = ListHead.newInstance();
         for (Condition c = lhs; c != null; c = c.next)
         {
             PositiveCondition pc = c.asPositiveCondition();
@@ -1052,23 +1051,23 @@ public class OSupport
      */
     private Variable find_compile_time_match_goal(Condition lhs, ListHead<Variable> known_goals)
     {
-        /* --- find root variables --- */
-        int tc = syms.getSyms().get_new_tc_number();
-        ListHead<Variable> roots = ConditionReorderer.collect_root_variables(lhs, tc, false);
+        // find root variables 
+        final int tc = syms.getSyms().get_new_tc_number();
+        final ListHead<Variable> roots = ConditionReorderer.collect_root_variables(lhs, tc, false);
 
-        /* --- intersect roots with known_goals, producing root_goals --- */
-        ListHead<Variable> root_goals = ListHead.newInstance();
+        // intersect roots with known_goals, producing root_goals
+        final ListHead<Variable> root_goals = ListHead.newInstance();
         int num_root_goals = 0; // TODO Just use root_goals.size()?
         for (AsListItem<Variable> v = roots.first; v != null; v = v.next)
         {
-            if (known_goals.contains(v))
+            if (known_goals.contains(v.item))
             {
                 root_goals.push(v.item);
                 num_root_goals++;
             }
         }
 
-        /* --- if more than one goal, remove any with "^object nil" --- */
+        // if more than one goal, remove any with "^object nil"
         if (num_root_goals > 1)
         {
             for (Condition cond = lhs; cond != null; cond = cond.next)
@@ -1078,20 +1077,22 @@ public class OSupport
                         && (test_is_for_symbol(pc.value_test, syms.nil_symbol) == YesNoMaybe.YES))
                 {
 
-                    Iterator<Variable> it = root_goals.iterator();
-                    while (it.hasNext())
+                    AsListItem<Variable> it = root_goals.first;
+                    while (it != null)
                     {
-                        Variable sym = it.next();
+                        final Variable sym = it.item;
+                        final AsListItem<Variable> next = it.next;
                         if (test_is_for_symbol(pc.id_test, sym) == YesNoMaybe.YES)
                         {
                             // remove sym from the root_goals list
-                            it.remove();
+                            it.remove(root_goals);
                             num_root_goals--;
                             if (num_root_goals == 1)
                             {
                                 break; // be sure not to remove them all 
                             }
                         }
+                        it = next;
                     } /* end of for (c) loop */
                     if (num_root_goals == 1)
                         break; /* be sure not to remove them all */
@@ -1099,7 +1100,7 @@ public class OSupport
             } /* end of for (cond) loop */
         }
 
-        // --- if there's only one root goal, that's it!
+        // if there's only one root goal, that's it!
         if (num_root_goals == 1)
         {
             return root_goals.getFirstItem();
@@ -1118,9 +1119,9 @@ public class OSupport
      * variable exists, one is chosen arbitrarily and returned.) Otherwise the
      * function returns NIL.
      * 
-     * Note: this uses the TC routines and clobbers any existing TC.
+     * <p>Note: this uses the TC routines and clobbers any existing TC.
      * 
-     * osupport.cpp:896:find_thing_off_goal
+     * <p>osupport.cpp:896:find_thing_off_goal
      * 
      * @param lhs
      * @param goal
@@ -1153,7 +1154,7 @@ public class OSupport
      * given symbol in the id field of any condition (at any nesting level
      * within NCC's).
      * 
-     * osupport.cpp:928:condition_list_has_id_test_for_sym
+     * <p>osupport.cpp:928:condition_list_has_id_test_for_sym
      * 
      * @param conds
      * @param sym
@@ -1163,9 +1164,7 @@ public class OSupport
     {
         for (; conds != null; conds = conds.next)
         {
-            ThreeFieldCondition tfc = conds.asThreeFieldCondition(); // Positive
-                                                                        // or
-                                                                        // negative
+            ThreeFieldCondition tfc = conds.asThreeFieldCondition(); // Positive or negative
             if (tfc != null)
             {
                 if (TestTools.test_includes_equality_test_for_symbol(tfc.id_test, sym))
@@ -1226,7 +1225,7 @@ public class OSupport
      * This enlarges a given TC by adding to it any connected conditions in the
      * LHS or actions in the RHS.
      * 
-     * osupport.cpp:986:add_tc_through_lhs_and_rhs
+     * <p>osupport.cpp:986:add_tc_through_lhs_and_rhs
      * 
      * @param lhs
      * @param rhs
@@ -1247,7 +1246,7 @@ public class OSupport
             a.already_in_tc = false;
         }
 
-        /* --- keep trying to add new stuff to the tc --- */
+        // keep trying to add new stuff to the tc
         while (true)
         {
             boolean anything_changed = false;
@@ -1340,8 +1339,8 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
   }
 
 
-  /* --- find known goals; RHS augmentations of goals get no support --- */
-  ListHead<Variable> known_goals = find_known_goals (lhs);
+  // find known goals; RHS augmentations of goals get no support
+  final ListHead<Variable> known_goals = find_known_goals (lhs);
  /* SBH: In NNPSCM, the only RHS-goal augmentations that can't get support are
     preferences for the "operator" slot. */
   for (AsListItem<Variable> cIt = known_goals.first; cIt != null; cIt = cIt.next){
@@ -1358,8 +1357,8 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
     }
   }
 
-  /* --- find match goal, state, and operator --- */
-  Variable match_state = find_compile_time_match_goal (lhs, known_goals);
+  // find match goal, state, and operator 
+  final Variable match_state = find_compile_time_match_goal (lhs, known_goals);
   if (match_state == null) { return; }
   
   match_operator = find_thing_off_goal (lhs, match_state, syms.operator_symbol);
@@ -1404,15 +1403,12 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
     }
   }
   
-  /* --- calculate LHS support predicates --- */
+  // calculate LHS support predicates
   lhs_oa_support = YesNoMaybe.MAYBE;
   if (match_operator != null){
 
-/* SBH 7/1/94 #2 */
     if ((condition_list_has_id_test_for_sym (lhs, match_operator)) &&
     (match_state_tests_non_operator_slot(lhs,match_state))){
-/* end SBH 7/1/94 #2 */
-
       lhs_oa_support = YesNoMaybe.YES;
       }
   }
@@ -1420,13 +1416,10 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
   lhs_oc_support = YesNoMaybe.MAYBE;
   lhs_om_support = YesNoMaybe.MAYBE;
 
-/* SBH 7/1/94 #2 */
   /* For NNPSCM, must test that there is a test of a non-operator slot off 
      of the match_state. */
   if (match_state_tests_non_operator_slot(lhs,match_state)) 
     {
-/* end SBH 7/1/94 #2 */
-
     lhs_oc_support = YesNoMaybe.YES; 
     for (cond=lhs; cond!=null; cond=cond.next) {
       PositiveCondition pc = cond.asPositiveCondition();
@@ -1441,13 +1434,13 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
     }
   }     
 
-  if (lhs_oa_support == YesNoMaybe.YES) {    /* --- look for RHS o-a support --- */
-    /* --- do TC(match_state) --- */
+  if (lhs_oa_support == YesNoMaybe.YES) {    // look for RHS o-a support
+    // do TC(match_state)
     tc = syms.getSyms().get_new_tc_number();
     match_state.add_symbol_to_tc (tc, null, null);
     add_tc_through_lhs_and_rhs (lhs, rhs, tc, null, null);
 
-    /* --- any action with id in the TC gets support --- */
+    // any action with id in the TC gets support
     for (a=rhs; a!=null; a=a.next)  {
 
       if (a.action_is_in_tc (tc)) {
@@ -1458,18 +1451,18 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
        or not. */
         RhsSymbolValue rhsSym = a.asMakeAction().attr.asSymbolValue();
         if (rhsSym != null &&
-            (rhsSym.getSym()==syms.operator_symbol)) {
-      if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.UNKNOWN_SUPPORT; }
-    } else {
-      if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.O_SUPPORT; }
-    }
-        /* end SBH 7/1/94 */
-    }
+            (rhsSym.getSym()==syms.operator_symbol)) 
+        {
+            if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.UNKNOWN_SUPPORT; }
+        } else {
+            if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.O_SUPPORT; }
+        }
+      }
     }
   }
   
-  if (lhs_oc_support == YesNoMaybe.YES) {    /* --- look for RHS o-c support --- */
-    /* --- do TC(rhs operators) --- */
+  if (lhs_oc_support == YesNoMaybe.YES) {    // look for RHS o-c support
+    // do TC(rhs operators)
     tc = syms.getSyms().get_new_tc_number();
     for (a=rhs; a!=null; a=a.next) {
       MakeAction ma = a.asMakeAction();
@@ -1502,10 +1495,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
     */
     if (a.support != ActionSupport.I_SUPPORT) { a.support = ActionSupport.O_SUPPORT; }
 
-       /*
-       in operand, operator proposals are now only i-supported.
-       */
-
+       // in operand, operator proposals are now only i-supported.
        if (operand2_mode) {
            // TODO Verbose
 //           if (thisAgent->soar_verbose_flag == TRUE) {
@@ -1518,8 +1508,8 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
       }
   }
 
-  if (lhs_om_support == YesNoMaybe.YES) {    /* --- look for RHS o-m support --- */
-    /* --- do TC(lhs operators) --- */
+  if (lhs_om_support == YesNoMaybe.YES) {    // look for RHS o-m support
+    // do TC(lhs operators)
     tc = syms.getSyms().get_new_tc_number();
     for (cond=lhs; cond!=null; cond=cond.next) {
       PositiveCondition pc = cond.asPositiveCondition();
