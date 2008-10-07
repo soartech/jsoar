@@ -53,8 +53,6 @@ import org.jsoar.util.timing.ExecutionTimer;
  */
 public class Agent
 {
-    public int MAX_GOAL_DEPTH = 100;
-    
     private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
     
     /**
@@ -109,7 +107,8 @@ public class Agent
     public boolean operand2_mode = true;
     
     /**
-     * agent.h:688:attribute_preferences_mode
+     * <p>agent.h:688:attribute_preferences_mode
+     * <p>Defaults to 0 in agent.cpp
      */
     public int attribute_preferences_mode = 0;
     

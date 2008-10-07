@@ -207,7 +207,6 @@ public final class ListHead <T> implements Iterable<T>
             @Override
             public void remove()
             {
-                throw new UnsupportedOperationException();
             }};
     }
 

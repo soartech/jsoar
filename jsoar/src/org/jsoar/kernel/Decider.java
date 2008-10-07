@@ -45,6 +45,11 @@ public class Decider
         UPDATE_DISCONNECTED_IDS_LIST,
         JUST_UPDATE_COUNT,
     }
+    
+    /**
+     * kernel.h:208:LOWEST_POSSIBLE_GOAL_LEVEL
+     */
+    private static final int LOWEST_POSSIBLE_GOAL_LEVEL = Integer.MAX_VALUE;
 
     /**
      * A dll of instantiations that will be used to determine the gds through a
@@ -65,6 +70,12 @@ public class Decider
     private static final boolean DEBUG_LINKS = false;
     
     private final Agent context;
+    
+    /**
+     * <p>gsysparam.h:164:MAX_GOAL_DEPTH
+     * <p>Defaults to 100 in init_soar()
+     */
+    private int MAX_GOAL_DEPTH = 100;
     
     /**
      * agent.h:603:context_slots_with_changed_acceptable_preferences
@@ -180,7 +191,7 @@ public class Decider
         Wme w = s.getAcceptablePreferenceWmes();
         while (w != null)
         {
-            Wme next_w = w.next;
+            final Wme next_w = w.next;
             if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
             {
                 w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
@@ -261,9 +272,7 @@ public class Decider
     {
         while (!context_slots_with_changed_acceptable_preferences.isEmpty())
         {
-            AsListItem<Slot> dc = context_slots_with_changed_acceptable_preferences.first;
-            context_slots_with_changed_acceptable_preferences.first = dc.next;
-            Slot s = dc.item;
+            Slot s = context_slots_with_changed_acceptable_preferences.pop();
             do_acceptable_preference_wme_changes_for_slot(s);
             s.acceptable_preference_changed = null;
         }
@@ -307,9 +316,9 @@ public class Decider
             return;
         }
 
-        /* --- otherwise buffer it for later --- */
+        // otherwise buffer it for later
         to.promotion_level = from.promotion_level;
-        this.promoted_ids.add(to);
+        this.promoted_ids.add(to); // not push (see decl comment)
     }
 
     /**
@@ -463,10 +472,8 @@ public class Decider
             context.getPrinter().print("\n*** Garbage collecting id: %s",id);
         }
 
-        /*
-         * Note--for goal/impasse id's, this does not remove the impasse wme's.
-         * This is handled by remove_existing_such-and-such...
-         */
+        // Note--for goal/impasse id's, this does not remove the impasse wme's.
+        // This is handled by remove_existing_such-and-such...
 
         // remove any input wmes from the id
         context.workingMemory.remove_wme_list_from_wm(id.getInputWmes(), true);
@@ -544,7 +551,7 @@ public class Decider
         if (id.level > this.lowest_level_anything_could_fall_to)
             this.lowest_level_anything_could_fall_to = id.level;
         if (id.could_be_a_link_from_below)
-            this.lowest_level_anything_could_fall_to = SoarConstants.LOWEST_POSSIBLE_GOAL_LEVEL;
+            this.lowest_level_anything_could_fall_to = LOWEST_POSSIBLE_GOAL_LEVEL;
 
         // add id to the set of ids with unknown level
         if (id.unknown_level == null)
@@ -645,7 +652,7 @@ public class Decider
         for (dc = ids_with_unknown_level.first; dc != null; dc = next_dc)
         {
             next_dc = dc.next;
-            Identifier id = dc.item;
+            final Identifier id = dc.item;
             if (id.link_count == 0)
             {
                 dc.remove(this.ids_with_unknown_level);
@@ -657,9 +664,7 @@ public class Decider
         this.link_update_mode = LinkUpdateType.UPDATE_DISCONNECTED_IDS_LIST;
         while (!this.disconnected_ids.isEmpty())
         {
-            dc = disconnected_ids.first;
-            this.disconnected_ids.first = dc.next;
-            Identifier id = dc.item;
+            final Identifier id = disconnected_ids.pop();
             garbage_collect_id(id);
         }
         this.link_update_mode = LinkUpdateType.UPDATE_LINKS_NORMALLY;
@@ -669,12 +674,12 @@ public class Decider
             return;
 
         // do the mark
-        this.highest_level_anything_could_fall_from = SoarConstants.LOWEST_POSSIBLE_GOAL_LEVEL;
+        this.highest_level_anything_could_fall_from = LOWEST_POSSIBLE_GOAL_LEVEL;
         this.lowest_level_anything_could_fall_to = -1;
         this.mark_tc_number = context.syms.get_new_tc_number();
         for (dc = this.ids_with_unknown_level.first; dc != null; dc = dc.next)
         {
-            Identifier id = dc.item;
+            final Identifier id = dc.item;
             this.level_at_which_marking_started = id.level;
             mark_id_and_tc_as_unknown_level(id);
         }
@@ -700,9 +705,7 @@ public class Decider
         this.link_update_mode = LinkUpdateType.JUST_UPDATE_COUNT;
         while (!ids_with_unknown_level.isEmpty())
         {
-            dc = ids_with_unknown_level.first;
-            this.ids_with_unknown_level.first = dc.next;
-            Identifier id = dc.item;
+            final Identifier id = ids_with_unknown_level.pop();
             id.unknown_level = null; // AGR 640:  GAP set to NIL because symbol may still have pointers to it
             garbage_collect_id(id);
         }
@@ -754,9 +757,10 @@ public class Decider
      */
     private ImpasseType require_preference_semantics(Slot s, ByRef<Preference> result_candidates)
     {
-        // collect set of required items into candidates list --- */
+        // collect set of required items into candidates list
         for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
             p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+        
         Preference candidates = null;
         for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
         {
@@ -793,8 +797,7 @@ public class Decider
     
 
     /**
-     * Run_preference_semantics (slot *s, preference **result_candidates)
-     * examines the preferences for a given slot, and returns an impasse type
+     * Examines the preferences for a given slot, and returns an impasse type
      * for the slot. The argument "result_candidates" is set to a list of
      * candidate values for the slot--if the returned impasse type is
      * NONE_IMPASSE_TYPE, this is the set of winners; otherwise it is the set of
@@ -806,7 +809,7 @@ public class Decider
      * and (second) preferences from higher match goals being preferred over
      * those from lower match goals.
      * 
-     * BUGBUG There is a problem here: since the require/acceptable priority
+     * <p>BUGBUG There is a problem here: since the require/acceptable priority
      * takes precedence over the match goal level priority, it's possible that
      * we could return a require preference from lower in the goal stack than
      * some acceptable preference. If the goal stack gets popped soon afterwards
@@ -816,7 +819,7 @@ public class Decider
      * preference. This case is very obsure and unlikely to come up, but it
      * could easily cause a core dump or worse.
      * 
-     * decide.cpp:840:run_preference_semantics
+     * <p>decide.cpp:840:run_preference_semantics
      * 
      * @param s
      * @param result_candidates
@@ -880,7 +883,7 @@ public class Decider
         for (Preference p = s.getPreferencesByType(PreferenceType.REJECT_PREFERENCE_TYPE); p != null; p = p.next)
             p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
 
-        /* --- now scan through acceptables and build the list of candidates --- */
+        // now scan through acceptables and build the list of candidates
         Preference candidates = null;
         for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); p != null; p = p.next)
         {
@@ -920,8 +923,6 @@ public class Decider
         if (s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE) != null
                 || s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE) != null)
         {
-            Symbol j, k;
-
             /* Algorithm to find conflicted set: 
             conflicted = {}
             for each (j > k):
@@ -961,8 +962,8 @@ public class Decider
             }
             for (Preference p = s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE); p != null; p = p.next)
             {
-                j = p.value;
-                k = p.referent;
+                final Symbol j = p.value;
+                final Symbol k = p.referent;
                 if (j == k)
                     continue;
                 if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
@@ -991,8 +992,8 @@ public class Decider
             }
             for (Preference p = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p != null; p = p.next)
             {
-                j = p.value;
-                k = p.referent;
+                final Symbol j = p.value;
+                final Symbol k = p.referent;
                 if (j == k)
                     continue;
                 if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
@@ -1145,7 +1146,7 @@ public class Decider
             else if (cand.value.decider_flag == DeciderFlag.UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG)
                 continue;
 
-            /* --- check whether cand is binary indifferent to each other one --- */
+            // check whether cand is binary indifferent to each other one
             for (Preference p = candidates; p != null; p = p.next_candidate)
             {
                 if (p == cand)
@@ -1199,10 +1200,10 @@ public class Decider
         boolean not_all_parallel = false;
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
         {
-            /* --- if cand is unary parallel, it's fine --- */
+            // if cand is unary parallel, it's fine
             if (cand.value.decider_flag == DeciderFlag.UNARY_PARALLEL_DECIDER_FLAG)
                 continue;
-            /* --- check whether cand is binary parallel to each other candidate --- */
+            // check whether cand is binary parallel to each other candidate
             for (Preference p = candidates; p != null; p = p.next_candidate)
             {
                 if (p == cand)
@@ -1231,11 +1232,11 @@ public class Decider
 
         if (!not_all_parallel)
         {
-            /* --- items are all parallel, so return them all --- */
+            // items are all parallel, so return them all
             return ImpasseType.NONE_IMPASSE_TYPE;
         }
 
-        /* --- otherwise we have a tie --- */
+        // otherwise we have a tie
         return ImpasseType.TIE_IMPASSE_TYPE;
     }
     
@@ -1346,7 +1347,7 @@ public class Decider
     private void create_new_attribute_impasse_for_slot(Slot s, ImpasseType impasse_type)
     {
         s.impasse_type = impasse_type;
-        Identifier id = create_new_impasse(false, s.id, s.attr, impasse_type, SoarConstants.ATTRIBUTE_IMPASSE_LEVEL);
+        final Identifier id = create_new_impasse(false, s.id, s.attr, impasse_type, SoarConstants.ATTRIBUTE_IMPASSE_LEVEL);
         s.impasse_id = id;
         id.isa_impasse = true;
 
@@ -1367,19 +1368,19 @@ public class Decider
         // TODO callback REMOVE_ATTRIBUTE_IMPASSE_CALLBACK
         // soar_invoke_callbacks(thisAgent, REMOVE_ATTRIBUTE_IMPASSE_CALLBACK, (soar_call_data) s);
 
-        Identifier id = s.impasse_id;
+        final Identifier id = s.impasse_id;
         s.impasse_id = null;
         s.impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
 
         context.workingMemory.remove_wme_list_from_wm(id.getImpasseWmes(), false);
         id.removeAllImpasseWmes();
-        post_link_removal(null, id); /* remove the special link */
+        post_link_removal(null, id); // remove the special link
     }
 
     /**
      * Fake Preferences for Goal ^Item Augmentations
      * 
-     * When we backtrace through a (goal ^item) augmentation, we want to
+     * <p>When we backtrace through a (goal ^item) augmentation, we want to
      * backtrace to the acceptable preference wme in the supercontext
      * corresponding to that ^item. A slick way to do this automagically is to
      * set the backtracing preference pointer on the (goal ^item) wme to be a
@@ -1387,7 +1388,7 @@ public class Decider
      * its LHS a list of one condition, which matched the acceptable preference
      * wme in the supercontext.
      * 
-     * Make_fake_preference_for_goal_item() builds such a fake preference and
+     * <p>Make_fake_preference_for_goal_item() builds such a fake preference and
      * instantiation, given a pointer to the supergoal and the
      * acceptable/require preference for the value, and returns a pointer to the
      * fake preference. *** for Soar 8.3, we changed the fake preference to be
@@ -1398,7 +1399,7 @@ public class Decider
      * higher ACCEPTABLE. See the section above on Preference Semantics. It also
      * allows the GDS to backtrace through ^items properly.
      * 
-     * decide.cpp:1350:make_fake_preference_for_goal_item
+     * <p>decide.cpp:1350:make_fake_preference_for_goal_item
      * 
      * @param goal
      * @param cand
@@ -1406,8 +1407,8 @@ public class Decider
      */
     private Preference make_fake_preference_for_goal_item(Identifier goal, Preference cand)
     {
-        /* --- find the acceptable preference wme we want to backtrace to --- */
-        Slot s = cand.slot;
+        // find the acceptable preference wme we want to backtrace to
+        final Slot s = cand.slot;
         Wme ap_wme;
         for (ap_wme = s.getAcceptablePreferenceWmes(); ap_wme != null; ap_wme = ap_wme.next)
             if (ap_wme.value == cand.value)
@@ -1416,15 +1417,14 @@ public class Decider
         {
             throw new IllegalStateException("Internal error: couldn't find acceptable pref wme");
         }
-        /* --- make the fake preference --- */
-        /* kjc: here's where we changed REQUIRE to ACCEPTABLE */
+        // make the fake preference
         Preference pref = new Preference(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE, goal,
                 context.predefinedSyms.item_symbol, cand.value, null);
         pref.all_of_goal.insertAtHead(goal.preferences_from_goal);
         pref.on_goal_list = true;
         pref.preference_add_ref();
 
-        /* --- make the fake instantiation --- */
+        // make the fake instantiation
         Instantiation inst = new Instantiation(null, null, null);
         pref.setInstantiation(inst);
         inst.match_goal = goal;
@@ -1433,7 +1433,7 @@ public class Decider
         inst.backtrace_number = 0;
         inst.in_ms = false;
 
-        /* --- make the fake condition --- */
+        // make the fake condition
         PositiveCondition cond = new PositiveCondition();
 
         inst.top_of_instantiated_conditions = cond;
@@ -1456,7 +1456,7 @@ public class Decider
         }
         cond.bt.level = ap_wme.id.level;
 
-        /* --- return the fake preference --- */
+        // return the fake preference
         return pref;
     }
 
@@ -1488,7 +1488,15 @@ public class Decider
     {
         final PredefinedSymbols predefined = context.predefinedSyms;
         
-        int item_count = count_candidates(items); // SBW 5/07
+        /*
+        Count up the number of candidates
+        REW: 2003-01-06
+        I'm assuming that all of the candidates have unary or 
+        unary+value (binary) indifferent preferences at this point.
+        So we loop over the candidates list and count the number of
+        elements in the list.
+        */
+        final int item_count = Preference.countCandidates(items);
 
         // reset flags on existing items to "NOTHING"
         for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
@@ -1510,10 +1518,7 @@ public class Decider
                 if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
                 {
                     w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
-                    w.value.decider_wme = w; /*
-                                                 * so we can update the pref
-                                                 * later
-                                                 */
+                    w.value.decider_wme = w; // so we can update the pref later
                 }
                 else
                 {
@@ -1535,7 +1540,7 @@ public class Decider
             w = next_w;
         }
 
-        /* --- for each desired item: if it doesn't ALREADY_EXIST, add it --- */
+        // for each desired item: if it doesn't ALREADY_EXIST, add it
         for (Preference cand = items; cand != null; cand = cand.next_candidate)
         {
             Preference bt_pref;
@@ -1570,15 +1575,15 @@ public class Decider
      * calls run_preference_semantics() on the slot, then updates the wmes
      * and/or impasse for the slot accordingly.
      * 
-     * decide.cpp:1510:decide_non_context_slot
+     * <p>decide.cpp:1510:decide_non_context_slot
      * 
      * @param s
      */
     private void decide_non_context_slot (Slot s) 
     {
-      ByRef<Preference> candidates = ByRef.create(null);
+      final ByRef<Preference> candidates = ByRef.create(null);
       
-      ImpasseType impasse_type = run_preference_semantics (s, candidates, false, false);
+      final ImpasseType impasse_type = run_preference_semantics (s, candidates, false, false);
       
       if (impasse_type==ImpasseType.NONE_IMPASSE_TYPE) 
       {
@@ -1594,7 +1599,7 @@ public class Decider
          for (Preference cand=candidates.value; cand!=null; cand=cand.next_candidate)
             cand.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
          
-            // for each existing wme, if we want it there, mark it as ALREADY_EXISTING; otherwise remove it
+         // for each existing wme, if we want it there, mark it as ALREADY_EXISTING; otherwise remove it
          Wme it = s.getWmes();
          while (it != null) 
          {
@@ -1632,7 +1637,7 @@ public class Decider
     //                       print_wme(thisAgent, w);
     //                       xml_end_tag(thisAgent, kTagVerbose);
     //                    }
-                        gds_invalid_so_remove_goal(w);
+                         gds_invalid_so_remove_goal(w);
                      }
                   }
                }
@@ -1793,7 +1798,7 @@ public class Decider
           s.removeAllWmes();
        }
     
-       /* --- create and/or update impasse structure --- */
+       // create and/or update impasse structure
        if (s.impasse_type != ImpasseType.NONE_IMPASSE_TYPE) 
        {
           if (s.impasse_type != impasse_type) 
@@ -1814,16 +1819,14 @@ public class Decider
      * This routine iterates through all changed non-context slots, and decides
      * each one.
      * 
-     * decide.cpp:1766:decide_non_context_slots
+     * <p>decide.cpp:1766:decide_non_context_slots
      */
     private void decide_non_context_slots()
     {
         final ListHead<Slot> changed_slots = context.tempMemory.changed_slots;
         while (!changed_slots.isEmpty())
         {
-            AsListItem<Slot> dc = changed_slots.first;
-            changed_slots.first = changed_slots.first.next;
-            Slot s = dc.item;
+            Slot s = changed_slots.pop();
             decide_non_context_slot(s);
             s.changed = null;
         }
@@ -1836,7 +1839,7 @@ public class Decider
      *     for that value, or
      *   - it has no installed value but does have changed preferences
      * 
-     * decide.cpp:1791:context_slot_is_decidable
+     * <p>decide.cpp:1791:context_slot_is_decidable
      * 
      * @param s
      * @return
@@ -1860,7 +1863,7 @@ public class Decider
      * This removes the wmes (there can only be 0 or 1 of them) for the given
      * context slot.
      * 
-     * decide.cpp:1816:remove_wmes_for_context_slot
+     * <p>decide.cpp:1816:remove_wmes_for_context_slot
      * 
      * @param s
      */
@@ -1883,7 +1886,7 @@ public class Decider
      * its subgoals. (If the given goal is the top goal, the entire context
      * stack is removed.)
      * 
-     * decide.cpp:1836:remove_existing_context_and_descendents
+     * <p>decide.cpp:1836:remove_existing_context_and_descendents
      * 
      * @param goal
      */
@@ -1895,9 +1898,7 @@ public class Decider
 
         // TODO callback POP_CONTEXT_STACK_CALLBACK
         // invoke callback routine
-        // soar_invoke_callbacks(thisAgent,
-        // POP_CONTEXT_STACK_CALLBACK,
-        // (soar_call_data) goal);
+        // soar_invoke_callbacks(thisAgent, POP_CONTEXT_STACK_CALLBACK, (soar_call_data) goal);
 
         /* --- disconnect this goal from the goal stack --- */
         if (goal == top_goal)
@@ -1932,22 +1933,17 @@ public class Decider
              * DO_TOP_LEVEL_REF_CTS Probably should make this change for all
              * cases, but needs testing.
              */
-            /* Prefs are added to head of dll, so try removing from tail */
+            // Prefs are added to head of dll, so try removing from tail
             if (!goal.preferences_from_goal.isEmpty())
             {
                 AsListItem<Preference> p = goal.preferences_from_goal.first;
                 while (p.next != null)
-                    p = p.next; // TODO Replace with ListHead.getTail() or
-                                // something
+                    p = p.next; // TODO Replace with ListHead.getTail() or something
                 while (p != null)
                 {
-                    AsListItem<Preference> p_next = p.previous; // RPM 10/06 we
-                                                                // need to save
-                                                                // this because
-                                                                // p may be
-                                                                // freed by the
-                                                                // end of the
-                                                                // loop
+                    // RPM 10/06 we need to save this because p may be freed by the
+                    // end of the loop
+                    final AsListItem<Preference> p_next = p.previous; 
                     p.remove(goal.preferences_from_goal);
                     p.item.on_goal_list = false;
                     if (!context.prefMemory.remove_preference_from_clones(p.item))
@@ -1957,12 +1953,9 @@ public class Decider
                 }
             }
         }
-        /* --- remove wmes for this goal, and garbage collect --- */
+        // remove wmes for this goal, and garbage collect
         remove_wmes_for_context_slot(goal.operator_slot);
-        update_impasse_items(goal, null); /*
-                                             * causes items & fake pref's to go
-                                             * away
-                                             */
+        update_impasse_items(goal, null); // causes items & fake pref's to go away
 
         if (context.rl.rl_enabled())
         {
@@ -1998,13 +1991,13 @@ public class Decider
         if (!goal.ms_retractions.isEmpty())
         { /* There's something on the retraction list */
 
-            MatchSetChange head = goal.ms_retractions.getFirstItem();
+            final MatchSetChange head = goal.ms_retractions.getFirstItem();
             MatchSetChange tail = head;
 
-            /* find the tail of this list */
+            // find the tail of this list
             while (tail.in_level.next != null)
             {
-                tail.goal = null; /* force the goal to be NIL */
+                tail.goal = null; // force the goal to be NIL
                 tail = tail.in_level.getNextItem();
             }
             tail.goal = null;
@@ -2016,7 +2009,7 @@ public class Decider
 
                 /* Append this list to front of NIL goal list */
                 // TODO replace this with a splice operation
-                nil_goal_retractions.getFirstItem().in_level.previous = tail.in_level;
+                nil_goal_retractions.first.previous = tail.in_level;
                 tail.in_level.next = nil_goal_retractions.first;
                 nil_goal_retractions.first = head.in_level;
 
@@ -2041,9 +2034,7 @@ public class Decider
          * necessary for the assertions here at some point?
          */
 
-        /* REW: end   08.20.97 */
-
-        post_link_removal(null, goal); /* remove the special link */
+        post_link_removal(null, goal); // remove the special link
     }
 
     /**
@@ -2051,7 +2042,7 @@ public class Decider
      * below the current bottom goal. If there is no current bottom goal, this
      * routine creates a new goal and makes it both the top and bottom goal.
      * 
-     * decide.cpp:1969:create_new_context
+     * <p>decide.cpp:1969:create_new_context
      * 
      * @param attr_of_impasse
      * @param impasse_type
@@ -2062,13 +2053,13 @@ public class Decider
 
         if (bottom_goal != null)
         {
-            /* Creating a sub-goal (or substate) */
+            // Creating a sub-goal (or substate)
             id = create_new_impasse(true, bottom_goal, attr_of_impasse, impasse_type, bottom_goal.level + 1);
             id.higher_goal = bottom_goal;
             bottom_goal.lower_goal = id;
             bottom_goal = id;
             add_impasse_wme(id, context.predefinedSyms.quiescence_symbol, context.predefinedSyms.t_symbol, null);
-            if ((ImpasseType.NO_CHANGE_IMPASSE_TYPE == impasse_type) && (context.MAX_GOAL_DEPTH < bottom_goal.level))
+            if ((ImpasseType.NO_CHANGE_IMPASSE_TYPE == impasse_type) && (MAX_GOAL_DEPTH < bottom_goal.level))
             {
                 // appear to be SNC'ing deep in goalstack, so interrupt and warn user
                 // KJC note: we actually halt, because there is no interrupt function in SoarKernel
@@ -2079,7 +2070,7 @@ public class Decider
                 		"Soar appears to be in an infinite loop.  \n" +
                 		"Continuing to subgoal may cause Soar to \n" +
                 		"exceed the program stack of your system.\n",
-                        context.MAX_GOAL_DEPTH);
+                        MAX_GOAL_DEPTH);
 
                 context.decisionCycle.stop_soar = true;
                 context.decisionCycle.system_halted = true;
@@ -2088,7 +2079,7 @@ public class Decider
         }
         else
         {
-            /* Creating the top state */
+            // Creating the top state
             id = create_new_impasse(true, context.predefinedSyms.nil_symbol, null, ImpasseType.NONE_IMPASSE_TYPE,
                     SoarConstants.TOP_GOAL_LEVEL);
             top_goal = id;
@@ -2118,9 +2109,7 @@ public class Decider
 
         /* --- invoke callback routine --- */
         // TODO callback CREATE_NEW_CONTEXT_CALLBACK
-        //  soar_invoke_callbacks(thisAgent, 
-        //                       CREATE_NEW_CONTEXT_CALLBACK, 
-        //                       (soar_call_data) id);
+        //  soar_invoke_callbacks(thisAgent, CREATE_NEW_CONTEXT_CALLBACK, (soar_call_data) id);
     }
     
     /**
@@ -2194,20 +2183,15 @@ public class Decider
     {
         ImpasseType impasse_type;
         Symbol attribute_of_impasse;
-        ByRef<Preference> candidates = ByRef.create(null);
+        final ByRef<Preference> candidates = ByRef.create(null);
 
         if (!context_slot_is_decidable(s))
         {
-            // the only time we decide a slot that's not "decidable" is when
-            // it's
-            // the last slot in the entire context stack, in which case we have
-            // a
+            // the only time we decide a slot that's not "decidable" is when it's
+            // the last slot in the entire context stack, in which case we have a
             // no-change impasse there
             impasse_type = ImpasseType.NO_CHANGE_IMPASSE_TYPE;
-            candidates.value = null; /*
-                                         * we don't want any impasse ^item's
-                                         * later
-                                         */
+            candidates.value = null; // we don't want any impasse ^item's later
 
             if (predict)
             {
@@ -2217,7 +2201,7 @@ public class Decider
         }
         else
         {
-            /* --- the slot is decidable, so run preference semantics on it --- */
+            // the slot is decidable, so run preference semantics on it
             impasse_type = run_preference_semantics(s, candidates, false, false);
 
             if (predict)
@@ -2256,27 +2240,24 @@ public class Decider
                 return true;
             }
 
-            remove_wmes_for_context_slot(s); // must remove old wme before
-                                                // adding the new one (if any)
+            remove_wmes_for_context_slot(s); // must remove old wme before adding the new one (if any)
+            
             if (impasse_type == ImpasseType.NONE_IMPASSE_TYPE)
             {
                 if (candidates.value == null)
                 {
-                    /*
-                     * --- no winner ==> no-change impasse on the previous slot
-                     * ---
-                     */
+                    // no winner ==> no-change impasse on the previous slot
                     impasse_type = ImpasseType.NO_CHANGE_IMPASSE_TYPE;
                 }
                 else if (candidates.value.next_candidate != null)
                 {
-                    /* --- more than one winner ==> internal error --- */
+                    // more than one winner ==> internal error
                     throw new IllegalStateException("Internal error: more than one winner for context slot");
                 }
             }
-        } /* end if !context_slot_is_decidable */
+        } // end if !context_slot_is_decidable
 
-        /* --- mark the slot as not changed --- */
+        // mark the slot as not changed
         s.changed = null;
 
         // determine the attribute of the impasse (if there is no impasse, this
@@ -2356,7 +2337,6 @@ public class Decider
         if (goal.lower_goal != null)
             remove_existing_context_and_descendents(goal.lower_goal);
 
-        /* REW: begin 10.24.97 */
         if (context.operand2_mode && this.waitsnc && (impasse_type == ImpasseType.NO_CHANGE_IMPASSE_TYPE)
                 && (attribute_of_impasse == context.predefinedSyms.state_symbol))
         {
@@ -2364,7 +2344,6 @@ public class Decider
         }
         else
         {
-            /* REW: end     10.24.97 */
             create_new_context(attribute_of_impasse, impasse_type);
             update_impasse_items(goal.lower_goal, candidates.value);
         }
@@ -2397,10 +2376,10 @@ public class Decider
 
         Slot s = goal.operator_slot;
 
-        /* --- loop down context stack --- */
+        // loop down context stack
         while (true)
         {
-            /* --- find next slot to decide --- */
+            // find next slot to decide
             while (true)
             {
                 if (context_slot_is_decidable(s))
@@ -2489,7 +2468,7 @@ public class Decider
     }
 
     /**
-     * decide.cpp:2409:do_decision_phase
+     * <p>decide.cpp:2409:do_decision_phase
      * 
      * @param predict (defaulted to false in CSoar)
      */
@@ -2520,7 +2499,7 @@ public class Decider
     }
 
     /**
-     * decide.cpp:2435:create_top_goal
+     * <p>decide.cpp:2435:create_top_goal
      */
     public void create_top_goal()
     {
@@ -2530,7 +2509,7 @@ public class Decider
     }
 
     /**
-     * decide.cpp:2442:clear_goal_stack
+     * <p>decide.cpp:2442:clear_goal_stack
      */
     public void clear_goal_stack()
     {
@@ -2543,7 +2522,7 @@ public class Decider
         top_state = null;
         active_goal = null;
 
-        // TODO Do these really have any business benig here?
+        // TODO Do these really have any business being here?
         context.io.do_input_cycle(); // tell input functions that the top state is gone
         context.io.do_output_cycle(); // tell output functions that output commands are gone
     }
@@ -2614,7 +2593,7 @@ public class Decider
     
 
     /**
-     * decide.cpp:2587:elaborate_gds
+     * <p>decide.cpp:2587:elaborate_gds
      */
     private void elaborate_gds()
     {
@@ -2683,6 +2662,7 @@ public class Decider
                             // is no longer around
                             wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
+                            // TODO I don't thinks this is an issue in Java
                             // We have to check for GDS removal anytime we take a
                             // WME off the GDS wme list, not just when a WME is
                             // removed from memory.
@@ -2717,14 +2697,17 @@ public class Decider
                             * 3. Add WME to new GDS list
                             * 4. Update WME pointer to new GDS list
                             */
+                            /*
                             if (inst.match_goal_level == 1)
                             {
                                 // TODO uhhh is this necessary??
                                 context.getPrinter().print("\n\n\n HELLO! HELLO! The inst->match_goal_level is 1");
                             }
+                            */
 
                             wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
+                            // TODO I don't think this is necessary in Java
                             if (wme_matching_this_cond.gds.getWmes() == null)
                             {
                                 wme_matching_this_cond.gds = null;
@@ -2828,9 +2811,8 @@ public class Decider
 
                                 if (DEBUG_GDS)
                                 {
-                                    context.getPrinter().print("here's the wme with no slot:\t");
-                                    // TODO print_wme(thisAgent,
-                                    // pref_for_this_wme->inst->top_of_instantiated_conditions->bt.wme_);
+                                    context.getPrinter().print("here's the wme with no slot:\t %s",
+                                      pref_for_this_wme.inst.top_of_instantiated_conditions.bt.wme_);
                                 }
 
                                 /* this is the same code as above, just using the 
@@ -2848,6 +2830,7 @@ public class Decider
                                             * the GDS is no longer around */
                                             fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
 
+                                            // TODO I don't think this is necessary in Java 
                                             /* We have to check for GDS removal anytime we take
                                             * a WME off the GDS wme list, not just when a WME
                                             * is removed from memory. */
@@ -2883,14 +2866,18 @@ public class Decider
                                             * 3. Add WME to new GDS list
                                             * 4. Update WME pointer to new GDS list
                                             */
+                                            /*
                                             if (inst.match_goal_level == 1)
                                             {
                                                 // TODO necessary???
                                                 context.getPrinter().print(
                                                         "\n\n\n\n\n HELLO! HELLO! The inst->match_goal_level is 1");
                                             }
+                                            */
 
                                             fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
+                                            
+                                            // TODO I don't think this is necessary in Java
                                             if (fake_inst_wme_cond.gds.getWmes() == null)
                                             {
                                                 fake_inst_wme_cond.gds = null;
@@ -3087,7 +3074,7 @@ public class Decider
      * preferences). So, we'll say that this is a "twitchy" version of OPERAND2, 
      * and leave open the possibility that other approaches may be better
      * 
-     * decide.cpp::3040:gds_invalid_so_remove_goal
+     * <p>decide.cpp:3040:gds_invalid_so_remove_goal
      * 
      * @param w
      */
@@ -3169,7 +3156,7 @@ public class Decider
     }
 
     /**
-     * decide.cpp:3119:create_gds_for_goal
+     * <p>decide.cpp:3119:create_gds_for_goal
      * 
      * TODO Make this a GoalDependencySet constructor?
      * 
@@ -3183,31 +3170,6 @@ public class Decider
             context.getPrinter().print("\nCreated GDS for goal [%s].\n", goal);
         }
     }
-
-    /**
-     * decide.cpp:3132:count_candidates
-     * 
-     * @param candidates
-     * @return
-     */
-    private int count_candidates(Preference candidates)
-    {
-        /*
-           Count up the number of candidates
-           REW: 2003-01-06
-           I'm assuming that all of the candidates have unary or 
-           unary+value (binary) indifferent preferences at this point.
-           So we loop over the candidates list and count the number of
-           elements in the list.
-         */
-
-        int numCandidates = 0;
-        for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
-            numCandidates++;
-
-        return numCandidates;
-    }
-    
 
     /**
      * TODO This should probably go somewhere else

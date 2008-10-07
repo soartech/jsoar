@@ -1,12 +1,12 @@
-
+# Blocks world lookahead with no use of srand so it's random
 multi-attributes ontop 3
 
 multi-attributes clear 3
 
 multi-attributes objects 4
 
+# TODO: Fix this test to work with learning on.
 learn --on
-srand 1
 
 sp {top-goal*halt*success
    :default

@@ -1296,7 +1296,6 @@ public class Chunker
         add_production_to_rete() when it throws away chunk variable names. */
         if (context.explain.isEnabled())
         {
-
             ByRef<Condition> new_top = ByRef.create(null);
             ByRef<Condition> new_bottom = ByRef.create(null);
             Condition.copy_condition_list(prod.condition_list, new_top, new_bottom);
@@ -1328,11 +1327,8 @@ public class Chunker
 
         if (print_prod && (rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION))
         {
-            // TODO print chunk production
-            //          print_string (thisAgent, "\n");
-            //          xml_begin_tag(thisAgent, kTagLearning);
-            //          print_production (thisAgent, prod, FALSE);
-            //          xml_end_tag(thisAgent, kTagLearning);
+            context.getPrinter().print("\n");
+            prod.print_production(context.rete, context.getPrinter(), false);
         }
 
         if (rete_addition_result == ProductionAddResult.DUPLICATE_PRODUCTION)
