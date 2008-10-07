@@ -6,8 +6,11 @@
 package org.jsoar.tcl;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.tracing.Printer;
@@ -76,6 +79,15 @@ public class SoarTclInterface
             final Printer p = agent.getPrinter();
             
             p.startNewLine();
+            
+            p.print("jsoar 0.0.0 on %s at %s%n%n", System.getenv("HOSTNAME"), Calendar.getInstance().getTime());
+            p.print("%d productions (%d default, %d user, %d chunks)%n   + %d justifications%n",
+                    agent.getProductions(null).size(),
+                    agent.getProductions(ProductionType.DEFAULT_PRODUCTION_TYPE).size(),
+                    agent.getProductions(ProductionType.USER_PRODUCTION_TYPE).size(),
+                    agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size(),
+                    agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size());
+            p.print("%n");
             p.print("%d decision cycles%n", agent.decisionCycle.d_cycle_count);
             for(ExecutionTimer t : agent.getAllTimers())
             {
