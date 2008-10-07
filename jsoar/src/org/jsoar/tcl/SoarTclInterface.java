@@ -128,6 +128,26 @@ public class SoarTclInterface
             agent.getRandom().setSeed(seed);
         }};
         
+    private Command maxElaborationsCommand = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            if(args.length > 2)
+            {
+                throw new TclNumArgsException(interp, 2, args, "[value]");
+            }
+
+            if(args.length == 1)
+            {
+                agent.getPrinter().print("%d", agent.consistency.getMaxElaborations());
+            }
+            else
+            {
+                agent.consistency.setMaxElaborations(Integer.parseInt(args[1].toString()));
+            }
+        }};
+        
     /**
      * @param agent
      */
@@ -140,6 +160,7 @@ public class SoarTclInterface
         interp.createCommand("stats", statsCommand);
         interp.createCommand("learn", learnCommand);
         interp.createCommand("srand", srandCommand);
+        interp.createCommand("max-elaborations", maxElaborationsCommand);
     }
     
     public void dispose()
