@@ -247,6 +247,19 @@ public class FunctionalTests
     }
     
     @Test(timeout=10000)
+    public void testChunks2() throws Exception
+    {
+        runTest("testChunks2", -1);
+    }
+    
+    @Test(timeout=10000)
+    public void testChunks2WithLearning() throws Exception
+    {
+        ifc.eval("learn --on");
+        runTest("testChunks2", -1);
+    }
+    
+    @Test(timeout=10000)
     public void testBlocksWorld() throws Exception
     {
         runTest("testBlocksWorld", -1);

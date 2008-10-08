@@ -6,7 +6,6 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.util.ListHead;
 
 /**
  * 
@@ -33,9 +32,7 @@ public class Token
     Token next_of_node;
     private Token previous_of_node;// Part of dll of tokens at node
     
-    final ListHead<RightToken> negrm_tokens = ListHead.newInstance(); /* join results: for Neg, CN nodes only */
-    
-    public Token(ReteNode current_node, Token parent_tok, Wme parent_wme)
+    public Token(ReteNode current_node, Token parent_tok, Wme parent_wme, boolean addToNode)
     {
         assert current_node != null;
         
@@ -43,7 +40,10 @@ public class Token
         this.parent = parent_tok;
         this.w = parent_wme;
         
-        addToNode(node.a_np, this);
+        if(addToNode)
+        {
+            addToNode(node.a_np, this);
+        }
         addToParent(parent, this);
         addToWme(w, this);
     }

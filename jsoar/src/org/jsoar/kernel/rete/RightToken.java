@@ -19,9 +19,9 @@ public class RightToken extends Token
 //} neg;
     
     final AsListItem<RightToken> negrm = new AsListItem<RightToken>(this); // part of other local join results dll
-    /*final*/ Token left_token; // token this is a local join result for
+    /*final*/ LeftToken left_token; // token this is a local join result for
     
-    public static RightToken create(ReteNode current_node, Token parent_tok, Wme parent_wme, Token left_token)
+    public static RightToken create(ReteNode current_node, Token parent_tok, Wme parent_wme, LeftToken left_token)
     {
         assert current_node != null;
         assert parent_wme != null;
@@ -42,9 +42,9 @@ public class RightToken extends Token
      * @param parent_tok
      * @param parent_wme
      */
-    private  RightToken(ReteNode current_node, Token parent_tok, Wme parent_wme, Token left_token)
+    private  RightToken(ReteNode current_node, Token parent_tok, Wme parent_wme, LeftToken left_token)
     {
-        super(current_node, parent_tok, parent_wme);
+        super(current_node, parent_tok, parent_wme, false);
         this.left_token = left_token;
         
         if(left_token != null)
