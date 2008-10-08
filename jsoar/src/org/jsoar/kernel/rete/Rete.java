@@ -506,7 +506,7 @@ public class Rete
           if (tok.parent == null) {
             /* Note: parent pointer is NIL only on negative node negrm tokens */
               RightToken rt = (RightToken) tok;
-            Token left = rt.left_token;
+            LeftToken left = rt.left_token;
             tok.removeFromWme();
             rt.negrm.remove(left.negrm_tokens);
 
@@ -797,7 +797,7 @@ public class Rete
         // on the parent node
         for(Token tok = parent.a_np.tokens; tok != null; tok = tok.next_of_node)
         {
-            if(tok.negrm_tokens.isEmpty())
+            if(((LeftToken)tok).negrm_tokens.isEmpty())
             {
                 executeLeftAddition(child, tok, null);
             }
@@ -1965,7 +1965,7 @@ public class Rete
             int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
             left_ht.remove_token_from_left_ht(lt, hv);
             if (node.a_np.tokens == null) { node.unlink_from_right_mem(); }
-            for (AsListItem<RightToken> t = tok.negrm_tokens.first; t != null; t = t.next) {
+            for (AsListItem<RightToken> t = lt.negrm_tokens.first; t != null; t = t.next) {
                 t.item.removeFromWme();
             }
 
@@ -1997,7 +1997,7 @@ public class Rete
               int hv = node.node_id ^ addressOf(tok.parent) ^ addressOf(tok.w);
             //int hv = node.node_id ^ (unsigned long)(tok->parent) ^ (unsigned long)(tok->w)
               left_ht.remove_token_from_left_ht((LeftToken) tok, hv); // TODO: Safe to assume this?  
-            for(AsListItem<RightToken> it = tok.negrm_tokens.first; it != null; it = it.next)
+            for(AsListItem<RightToken> it = ((LeftToken) tok).negrm_tokens.first; it != null; it = it.next)
             {
                 final Token t = it.item;
                 t.removeFromWme();
@@ -2008,7 +2008,7 @@ public class Rete
           /* --- for CN Partner nodes --- */
           } else if (node_type==ReteNodeType.CN_PARTNER_BNODE) {
             RightToken rt = (RightToken) tok; // TODO: Safe to assume this?
-            Token left = rt.left_token;
+            LeftToken left = rt.left_token;
             rt.negrm.remove(left.negrm_tokens);
             
             if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
