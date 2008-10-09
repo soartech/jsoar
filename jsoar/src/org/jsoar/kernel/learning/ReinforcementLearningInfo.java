@@ -8,7 +8,7 @@ package org.jsoar.kernel.learning;
 import org.jsoar.kernel.ImpasseType;
 
 /**
- * reinforcement_learning.h:99:rl_info
+ * reinforcement_learning.h:99:rl_data
  * 
  * @author ray
  */

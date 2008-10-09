@@ -75,7 +75,8 @@ public class Agent
     public final SoarReteListener soarReteListener = new SoarReteListener(this);
     public final RecognitionMemory recMemory = new RecognitionMemory(this);
     
-    public final Decider decider = new Decider(this);
+    public final Exploration exploration = new Exploration(this);
+    public final Decider decider = new Decider(this, exploration);
     public final Consistency consistency = new Consistency(this);
     
     public final Chunker chunker = new Chunker(this);
@@ -84,7 +85,6 @@ public class Agent
     public final ReinforcementLearning rl = new ReinforcementLearning();
     
     public final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
-    public final Exploration exploration = new Exploration(this);
     public final InputOutput io = new InputOutput(this);
     
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);

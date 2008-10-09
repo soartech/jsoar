@@ -10,6 +10,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.learning.ReinforcementLearningInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
@@ -23,6 +24,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
@@ -70,6 +72,7 @@ public class Decider
     private static final boolean DEBUG_LINKS = false;
     
     private final Agent context;
+    private final Exploration exploration;
     
     /**
      * <p>gsysparam.h:164:MAX_GOAL_DEPTH
@@ -127,10 +130,14 @@ public class Decider
     
     /**
      * @param context
+     * @param exploration 
      */
-    public Decider(Agent context)
+    public Decider(Agent context, Exploration exploration)
     {
+        Arguments.checkNotNull(context, "context");
+        Arguments.checkNotNull(exploration, "exploration");
         this.context = context;
+        this.exploration = exploration;
     }
     
     /**
@@ -1176,7 +1183,7 @@ public class Decider
         {
             if (!consistency)
             {
-                result_candidates.value = context.exploration.exploration_choose_according_to_policy(s, candidates);
+                result_candidates.value = exploration.exploration_choose_according_to_policy(s, candidates);
                 result_candidates.value.next_candidate = null;
             }
             else
@@ -2494,7 +2501,7 @@ public class Decider
             decide_non_context_slots();
             do_buffered_wm_and_ownership_changes();
 
-            context.exploration.exploration_update_parameters();
+            exploration.exploration_update_parameters();
         }
     }
 

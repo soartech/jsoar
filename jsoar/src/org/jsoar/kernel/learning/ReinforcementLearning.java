@@ -121,7 +121,7 @@ public class ReinforcementLearning
     /**
      * Function introduced while trying to tease apart production construction
      * 
-     * production.cpp:1507:make_production
+     * <p>production.cpp:1507:make_production
      * 
      * @param p
      */
