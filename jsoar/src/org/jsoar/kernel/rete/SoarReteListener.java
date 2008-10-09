@@ -111,8 +111,6 @@ public class SoarReteListener implements ReteListener
     @Override
     public void p_node_left_addition(Rete rete, ReteNode node, Token tok, Wme w)
     {
-        assert (tok.w == null && w == null) || tok.w != w;
-        
         /*
          * Algorithm:
          * 

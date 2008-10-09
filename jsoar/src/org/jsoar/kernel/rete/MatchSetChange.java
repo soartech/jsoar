@@ -48,7 +48,6 @@ public class MatchSetChange
     private MatchSetChange(ReteNode p_node, Token tok, Wme w)
     {
         assert p_node.node_type == ReteNodeType.P_BNODE && p_node.b_p != null;
-        assert (w == null && (tok == null || tok.w == null)) || (w != tok.w);
         
         this.p_node = p_node;
         this.tok = tok;

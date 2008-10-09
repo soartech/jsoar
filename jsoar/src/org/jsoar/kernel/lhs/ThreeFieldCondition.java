@@ -70,4 +70,15 @@ public abstract class ThreeFieldCondition extends Condition
     {
         return TestTools.test_is_in_tc(id_test, tc);
     }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        // For debugging only
+        return id_test + "^" + attr_test + " " + value_test;
+    }
+
 }

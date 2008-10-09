@@ -59,6 +59,5 @@ public class PositiveCondition extends ThreeFieldCondition
         TestTools.add_test_to_tc(id_test, tc, id_list, var_list);
         TestTools.add_test_to_tc(attr_test, tc, id_list, var_list);
     }
-    
-    
+
 }
