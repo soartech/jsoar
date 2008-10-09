@@ -54,4 +54,17 @@ public class NegativeCondition extends ThreeFieldCondition
     {
         // Do nothing
     }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        // For debugging only
+        return "-(" + super.toString() + ")";
+    }
+    
+    
+
 }

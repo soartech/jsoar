@@ -1035,6 +1035,8 @@ public class Rete
      * statement was easier, faster, and simpler than emulating function
      * pointers with Java interfaces.
      * 
+     * <p>TODO tok parameter should be LeftToken
+     * 
      * @param node
      * @param tok
      * @param w
