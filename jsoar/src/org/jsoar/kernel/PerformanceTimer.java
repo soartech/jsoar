@@ -36,8 +36,8 @@ public class PerformanceTimer
     {
         Agent agent = new Agent();
         agent.trace.setEnabled(false);
-        Writer oldWriter = agent.getPrinter().getWriter();
-        agent.getPrinter().setWriter(new NullWriter(), false);
+        //Writer oldWriter = agent.getPrinter().getWriter();
+        //agent.getPrinter().setWriter(new NullWriter(), false);
         agent.initialize();
         SoarTclInterface ifc = new SoarTclInterface(agent);
         
@@ -48,7 +48,7 @@ public class PerformanceTimer
         
         agent.decisionCycle.runForever();
         
-        agent.getPrinter().setWriter(oldWriter, true);
+        //agent.getPrinter().setWriter(oldWriter, true);
         ifc.eval("stats");
         ifc.dispose();
     }

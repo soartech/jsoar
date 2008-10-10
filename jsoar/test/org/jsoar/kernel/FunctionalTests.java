@@ -285,6 +285,13 @@ public class FunctionalTests
     }
     
     @Ignore
+    @Test(timeout=10000)
+    public void testBlocksWorldLookAheadWithMaxNoChangeBug() throws Exception
+    {
+        runTest("testBlocksWorldLookAheadWithMaxNoChangeBug", 29);
+    }
+    
+    @Ignore
     @Test(/*timeout=10000*/)
     public void testBlocksWorldLookAheadRandom() throws Exception
     {
