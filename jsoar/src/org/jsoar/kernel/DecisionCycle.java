@@ -575,6 +575,7 @@ public class DecisionCycle
                 {
                     writer.append("\n");
                     context.decider.print_lowest_slot_in_context_stack (writer);
+                    writer.flush();
                 }
                 catch (IOException e)
                 {

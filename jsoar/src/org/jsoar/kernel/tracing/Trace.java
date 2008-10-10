@@ -165,7 +165,8 @@ public class Trace
 
     /**
      * Control category tracing. If set to false, no tracing will be performed
-     * for the given category
+     * for the given category. Setting this to true will also change the value
+     * of {@link #isEnabled()} to true.
      * 
      * @param c The category
      * @param enabled True to enable tracing for the given category, false to 
@@ -175,6 +176,7 @@ public class Trace
     {
         if(enabled)
         {
+            setEnabled(true);
             settings.add(c);
         }
         else
