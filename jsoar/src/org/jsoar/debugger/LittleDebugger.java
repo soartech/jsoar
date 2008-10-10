@@ -26,6 +26,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -33,6 +35,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
@@ -45,6 +49,8 @@ import org.jsoar.tcl.SoarTclInterface;
  */
 public class LittleDebugger extends JPanel
 {
+    private static final long serialVersionUID = 7997119112479665988L;
+
     private enum StepType
     {
         phases,
@@ -127,14 +133,17 @@ public class LittleDebugger extends JPanel
         }
     }
     
+    private JFrame frame;
     private DefaultListModel wmeListModel = new DefaultListModel();
     private JList wmeList = new JList(wmeListModel);
     private DefaultListModel prodListModel = new DefaultListModel();
     private JList prodList = new JList(prodListModel);
     
-    public LittleDebugger()
+    public LittleDebugger(JFrame frame)
     {
         super(new BorderLayout());
+        
+        this.frame = frame;
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
         agent.getPrinter().setWriter(outputWriter, true);
@@ -152,6 +161,7 @@ public class LittleDebugger extends JPanel
         split.setDividerLocation(600);
         add(split, BorderLayout.CENTER);
         
+        initMenuBar();
         initToolbar();
         
         update();
@@ -176,6 +186,31 @@ public class LittleDebugger extends JPanel
             }});
     }
     
+    private void exit()
+    {
+        System.exit(0);
+    }
+    
+    private void initMenuBar()
+    {
+        JMenuBar bar = new JMenuBar();
+        
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.add(new AbstractAction("Exit") {
+            private static final long serialVersionUID = -2043372835820538377L;
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                exit();
+            }});
+        
+        bar.add(fileMenu);
+        bar.add(new TraceMenu(agent.trace));
+        
+        frame.setJMenuBar(bar);
+    }
+    
     private void initToolbar()
     {
         JToolBar bar = new JToolBar();
@@ -185,6 +220,8 @@ public class LittleDebugger extends JPanel
         bar.add(countField);
         bar.add(stepTypeCombo);
         bar.add(new JButton(new AbstractAction("GO"){
+
+            private static final long serialVersionUID = -6058718638062761141L;
 
             @Override
             public void actionPerformed(ActionEvent arg0)
@@ -252,12 +289,37 @@ public class LittleDebugger extends JPanel
         }
     }
     
+    private static void initializeLookAndFeel()
+    {
+        try
+        {
+            // Use the look and feel of the system we're running on rather
+            // than Java. If an error occurs, we proceed normally using
+            // whatever L&F we get.
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (UnsupportedLookAndFeelException e)
+        {
+        }
+        catch (ClassNotFoundException e)
+        {
+        }
+        catch (InstantiationException e)
+        {
+        }
+        catch (IllegalAccessException e)
+        {
+        }
+
+    }
     public static void main(String[] args)
     {
+        initializeLookAndFeel();
+        
         JFrame frame = new JFrame("Little JSoar Debugger");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        final LittleDebugger littleDebugger = new LittleDebugger();
+        final LittleDebugger littleDebugger = new LittleDebugger(frame);
         frame.setContentPane(littleDebugger);
         frame.setSize(800, 600);
         frame.setVisible(true);

@@ -7,7 +7,6 @@ package org.jsoar.tcl;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ProductionType;
@@ -88,11 +87,18 @@ public class SoarTclInterface
                     agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size(),
                     agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size());
             p.print("%n");
-            p.print("%d decision cycles%n", agent.decisionCycle.d_cycle_count);
-            for(ExecutionTimer t : agent.getAllTimers())
-            {
-                p.print("%s %f\n", t.getName(), t.getTotalSeconds());
-            }
+            p.print("Values from single timers:%n" +
+            		" Kernel CPU Time: %f sec. %n" +
+            		" Total  CPU Time: %f sec. %n%n",
+            		agent.getTotalKernelTimer().getTotalSeconds(),
+            		agent.getTotalCpuTimer().getTotalSeconds());
+            
+            p.print("%d decisions%n" +
+            		"%d elaboration cycles%n" +
+            		"%d p-elaboration cycles",
+            		agent.decisionCycle.decision_phases_count,
+            		agent.decisionCycle.e_cycle_count,
+            		agent.decisionCycle.pe_cycle_count);
         }};
 
     private Command learnCommand = new Command() {
