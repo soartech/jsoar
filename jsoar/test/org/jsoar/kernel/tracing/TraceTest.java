@@ -42,8 +42,8 @@ public class TraceTest
     @Test
     public void testGlobalEnable()
     {
-        trace.setEnabled(false);
         trace.setEnabled(Category.TRACE_BACKTRACING_SYSPARAM, true);
+        trace.setEnabled(false);
         trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "hello");
         output.flush();
         assertEquals("", output.toString());
