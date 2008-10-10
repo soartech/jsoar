@@ -285,7 +285,7 @@ public class FunctionalTests
     }
     
     @Ignore
-    @Test(timeout=10000)
+    @Test(/*timeout=10000*/)
     public void testBlocksWorldLookAheadRandom() throws Exception
     {
         runTest("testBlocksWorldLookAheadRandom", -1);
@@ -297,4 +297,16 @@ public class FunctionalTests
         runTest("testArithmetic", -1);
         assertTrue(agent.decisionCycle.d_cycle_count > 40000);
     }
+    
+    @Test(timeout=20000)
+    public void testCountTest() throws Exception
+    {
+        runTest("testCountTest", -1);
+        assertEquals(42, agent.getProductions(ProductionType.USER_PRODUCTION_TYPE).size());
+        assertEquals(15014, agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size());
+        assertEquals(45047, agent.decisionCycle.decision_phases_count);
+        assertEquals(115136, agent.decisionCycle.e_cycle_count);
+        assertEquals(40039, agent.decisionCycle.pe_cycle_count);
+    }
+
 }

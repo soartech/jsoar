@@ -56,12 +56,12 @@ public class DecisionCycle
     private int input_period;
     private boolean applyPhase;
     public int e_cycle_count;
-    private int pe_cycle_count;
+    public int pe_cycle_count;
     private int pe_cycles_this_d_cycle;
     private int run_last_output_count;
     private int run_generated_output_count;
     public int d_cycle_count;
-    private int decision_phases_count;
+    public int decision_phases_count;
     
     /**
      * gsysparams.h::MAX_NIL_OUTPUT_CYCLES_SYSPARAM
