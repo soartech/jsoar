@@ -8,6 +8,7 @@ package org.jsoar.kernel.tracing;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Formatter;
 
 import org.apache.commons.io.output.NullWriter;
 import org.jsoar.kernel.memory.Preference;
@@ -63,6 +64,11 @@ public class Printer
     {
         this.wrappedWriter.printf(format, args);
         return this;
+    }
+    
+    public Formatter asFormatter()
+    {
+        return new Formatter(this.wrappedWriter);
     }
     
     public Printer startNewLine()

@@ -7,13 +7,15 @@ package org.jsoar.tcl;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.EnumSet;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.timing.ExecutionTimer;
+import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
+import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -166,6 +168,16 @@ public class SoarTclInterface
             }
         }};
         
+    private Command matchesCommand = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            agent.soarReteListener.print_match_set(agent.getPrinter(), 
+                                                   WmeTraceType.FULL_WME_TRACE, 
+                                                   EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
+        }};     
+        
     /**
      * @param agent
      */
@@ -179,6 +191,7 @@ public class SoarTclInterface
         interp.createCommand("learn", learnCommand);
         interp.createCommand("srand", srandCommand);
         interp.createCommand("max-elaborations", maxElaborationsCommand);
+        interp.createCommand("matches", matchesCommand);
     }
     
     public void dispose()

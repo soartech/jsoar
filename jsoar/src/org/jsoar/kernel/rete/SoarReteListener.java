@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rete;
 
+import java.util.EnumSet;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AssertListType;
 import org.jsoar.kernel.Production;
@@ -19,6 +21,10 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
+import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
@@ -954,5 +960,293 @@ public class SoarReteListener implements ReteListener
         }
         else
             return (!ms_assertions.isEmpty() || !ms_retractions.isEmpty());
+    }
+    
+    private void print_whole_token_wme(Printer printer, Wme w, WmeTraceType wtt)
+    {
+        if (w != null)
+        {
+            if (wtt == WmeTraceType.TIMETAG_WME_TRACE)
+                printer.print("%d", w.timetag);
+            else if (wtt == WmeTraceType.FULL_WME_TRACE)
+                printer.print("%s", w);
+            if (wtt != WmeTraceType.NONE_WME_TRACE)
+                printer.print(" ");
+        }
+    }
+
+    /**
+     * <p>rete.cpp:7728:MS_trace
+     */
+    private static class MS_trace 
+    {
+        Symbol sym;
+        int    count;
+        MS_trace next;
+        Symbol goal;
+    }
+    
+    /**
+     * <p>rete.cpp:7738:in_ms_trace
+     * 
+     * @param sym
+     * @param trace
+     * @return
+     */
+    private static MS_trace in_ms_trace(Symbol sym, MS_trace trace)
+    {
+        for (MS_trace tmp = trace; tmp != null; tmp = tmp.next)
+        {
+            if (tmp.sym == sym)
+                return tmp;
+        }
+        return null;
+    }
+
+    /**
+     * <p>rete.cpp:7747:in_ms_trace_same_goal
+     * 
+     * @param sym
+     * @param trace
+     * @param goal
+     * @return
+     */
+    private static MS_trace in_ms_trace_same_goal(Symbol sym, MS_trace trace, Symbol goal)
+    {
+        for (MS_trace tmp = trace; tmp != null; tmp = tmp.next)
+        {
+            if ((tmp.sym == sym) && (goal == tmp.goal))
+                return tmp;
+        }
+        return null;
+    }
+      
+    private void print_whole_token(Printer printer, MatchSetChange msc, WmeTraceType wtt)
+    {
+        print_whole_token(printer, msc.tok, wtt);
+        print_whole_token_wme(printer, msc.w, wtt);
+    }
+
+    private void print_whole_token(Printer printer, Token t, WmeTraceType wtt)
+    {
+        if (t == context.rete.dummy_top_token)
+            return;
+        print_whole_token(printer, t.parent, wtt);
+        print_whole_token_wme(printer, t.w, wtt);
+    }
+    
+    /**
+     * <p>rete.cpp:7756:print_match_set
+     * 
+     * @param wtt
+     * @param mst
+     */
+    public void print_match_set(Printer printer, WmeTraceType wtt, EnumSet<MatchSetTraceType> mst)
+    {
+        MS_trace ms_trace = null;
+        MS_trace tmp;
+
+        // Print assertions
+        if (context.operand2_mode)
+        {
+
+            if (mst.contains(MatchSetTraceType.MS_ASSERT))
+            {
+                printer.print("O Assertions:\n");
+                for (MatchSetChange msc : ms_o_assertions)
+                {
+
+                    if (wtt != WmeTraceType.NONE_WME_TRACE)
+                    {
+                        printer.print("  %s [%s] ", msc.p_node.b_p.prod.name, msc.goal);
+                        print_whole_token(printer, msc, wtt);
+                        printer.print("\n");
+                    }
+                    else
+                    {
+                        if ((tmp = in_ms_trace_same_goal(msc.p_node.b_p.prod.name, ms_trace, msc.goal)) != null)
+                        {
+                            tmp.count++;
+                        }
+                        else
+                        {
+                            tmp = new MS_trace();
+                            tmp.sym = msc.p_node.b_p.prod.name;
+                            tmp.count = 1;
+                            tmp.next = ms_trace;
+                            // Add match goal to the print of the matching
+                            // production
+                            tmp.goal = msc.goal;
+                            ms_trace = tmp;
+                        }
+                    }
+                }
+
+                if (wtt == WmeTraceType.NONE_WME_TRACE)
+                {
+                    while (ms_trace != null)
+                    {
+                        tmp = ms_trace;
+                        ms_trace = tmp.next;
+                        /*  BUG: for now this will print the goal of the first
+                        assertion inspected, even though there can be multiple
+                        assertions at different levels. 
+                        See 2.110 in the OPERAND-CHANGE-LOG. */
+                        printer.print("  %s [%s] ", tmp.sym, tmp.goal);
+                        if (tmp.count > 1)
+                            printer.print("(%d)\n", tmp.count);
+                        else
+                            printer.print("\n");
+                    }
+                }
+            }
+
+            if (mst.contains(MatchSetTraceType.MS_ASSERT))
+            {
+                printer.print("I Assertions:\n");
+                for (MatchSetChange msc : ms_i_assertions)
+                {
+
+                    if (wtt != WmeTraceType.NONE_WME_TRACE)
+                    {
+                        printer.print("  %s [%s] ", msc.p_node.b_p.prod.name, msc.goal);
+                        print_whole_token(printer, msc, wtt);
+                        printer.print("\n");
+                    }
+                    else
+                    {
+                        if ((tmp = in_ms_trace_same_goal(msc.p_node.b_p.prod.name, ms_trace, msc.goal)) != null)
+                        {
+                            tmp.count++;
+                        }
+                        else
+                        {
+                            tmp = new MS_trace();
+                            tmp.sym = msc.p_node.b_p.prod.name;
+                            tmp.count = 1;
+                            tmp.next = ms_trace;
+                            tmp.goal = msc.goal;
+                            ms_trace = tmp;
+                        }
+                    }
+                }
+
+                if (wtt == WmeTraceType.NONE_WME_TRACE)
+                {
+                    while (ms_trace != null)
+                    {
+                        tmp = ms_trace;
+                        ms_trace = tmp.next;
+                        /*  BUG: for now this will print the goal of the first
+                        assertion inspected, even though there can be multiple
+                        assertions at different levels. 
+                        See 2.110 in the OPERAND-CHANGE-LOG. */
+                        printer.print("  %s [%s] ", tmp.sym, tmp.goal);
+                        if (tmp.count > 1)
+                            printer.print("(%d)\n", tmp.count);
+                        else
+                            printer.print("\n");
+                    }
+                }
+            }
+
+        }
+        else if (mst.contains(MatchSetTraceType.MS_ASSERT))
+        {
+            printer.print("Assertions:\n");
+            for (MatchSetChange msc : ms_assertions)
+            {
+                if (wtt != WmeTraceType.NONE_WME_TRACE)
+                {
+                    printer.print("  %s\n ", msc.p_node.b_p.prod.name);
+                    print_whole_token(printer, msc, wtt);
+                    printer.print("\n");
+                }
+                else
+                {
+                    if ((tmp = in_ms_trace(msc.p_node.b_p.prod.name, ms_trace)) != null)
+                    {
+                        tmp.count++;
+                    }
+                    else
+                    {
+                        tmp = new MS_trace();
+                        tmp.sym = msc.p_node.b_p.prod.name;
+                        tmp.count = 1;
+                        tmp.next = ms_trace;
+                        ms_trace = tmp;
+                    }
+                }
+            }
+            if (wtt == WmeTraceType.NONE_WME_TRACE)
+            {
+                while (ms_trace != null)
+                {
+                    tmp = ms_trace;
+                    ms_trace = tmp.next;
+                    printer.print("  %s ", tmp.sym);
+                    if (tmp.count > 1)
+                        printer.print("(%d)\n", tmp.count);
+                    else
+                        printer.print("\n");
+                }
+            }
+        }
+
+        // Print retractions
+        if (mst.contains(MatchSetTraceType.MS_RETRACT))
+        {
+            printer.print("Retractions:\n");
+            for (MatchSetChange msc : ms_retractions)
+            {
+                if (wtt != WmeTraceType.NONE_WME_TRACE)
+                {
+                    printer.print("  ");
+                    msc.inst.trace(printer.asFormatter(), wtt);
+                    printer.print("\n");
+                }
+                else
+                {
+                    if (msc.inst.prod != null)
+                    {
+                        if ((tmp = in_ms_trace_same_goal(msc.inst.prod.name, ms_trace, msc.goal)) != null)
+                        {
+                            tmp.count++;
+                        }
+                        else
+                        {
+                            tmp = new MS_trace();
+                            tmp.sym = msc.inst.prod.name;
+                            tmp.count = 1;
+                            tmp.next = ms_trace;
+                            tmp.goal = msc.goal;
+                            ms_trace = tmp;
+                        }
+                    }
+                }
+            }
+            if (wtt == WmeTraceType.NONE_WME_TRACE)
+            {
+                while (ms_trace != null)
+                {
+                    tmp = ms_trace;
+                    ms_trace = tmp.next;
+                    printer.print("  %s ", tmp.sym);
+                    /*  BUG: for now this will print the goal of the first assertion
+                        inspected, even though there can be multiple assertions at
+
+                        different levels. 
+                        See 2.110 in the OPERAND-CHANGE-LOG. */
+                    if (tmp.goal != null)
+                        printer.print(" [%s] ", tmp.goal);
+                    else
+                        printer.print(" [NIL] ");
+                    if (tmp.count > 1)
+                        printer.print("(%d)\n", tmp.count);
+                    else
+                        printer.print("\n");
+                }
+            }
+        }
     }
 }
