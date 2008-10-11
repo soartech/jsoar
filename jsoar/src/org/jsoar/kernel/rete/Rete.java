@@ -74,6 +74,8 @@ public class Rete
     private int beta_node_id_counter;
     ReteNode dummy_top_node;
     
+    // TODO: I think this belongs somewhere else. I think it's actually basically
+    // a temp variable used by the firer and sme RHS value stuff.
     public Symbol[] rhs_variable_bindings = {};
     public int highest_rhs_unboundvar_index;
     
@@ -2037,7 +2039,7 @@ public class Rete
      * this routine also returns (in dest_nots) the top-level positive "<>"
      * tests. If tok==NIL, dest_nots is not used.
      * 
-     * rete.cpp:4350:p_node_to_conditions_and_nots
+     * <p>rete.cpp:4350:p_node_to_conditions_and_nots
      * 
      * @param p_node
      * @param tok
@@ -2318,7 +2320,7 @@ public class Rete
      * Note: Original return by ref parameters in CSoar were replaced by a
      * return structure in Java.
      * 
-     * rete.cpp:4113:rete_node_to_conditions
+     * <p>rete.cpp:4113:rete_node_to_conditions
      * 
      * @param node
      * @param nvn
@@ -2356,12 +2358,21 @@ public class Rete
         }
         else
         {
-            ReteNodeToConditionsResult sub = rete_node_to_conditions(node.real_parent_node(), nvn != null ? nvn.parent
-                    : null, cutoff, tok != null ? tok.parent : null, tok != null ? tok.w : null,
+            ReteNodeToConditionsResult sub = rete_node_to_conditions(node.real_parent_node(), 
+                    nvn != null ? nvn.parent : null, 
+                    cutoff, 
+                    tok != null ? tok.parent : null, 
+                    tok != null ? tok.w : null,
                     conds_for_cutoff_and_up);
             result.dest_top_cond = sub.dest_top_cond;
             cond.prev = sub.dest_bottom_cond;
-            result.nots_found_in_production = sub.nots_found_in_production;
+            
+            // Splice in sub nots at front of result list
+            if(sub.nots_found_in_production != null)
+            {
+                sub.nots_found_in_production.next = result.nots_found_in_production;
+                result.nots_found_in_production = sub.nots_found_in_production;
+            }
 
             cond.prev.next = cond;
         }
@@ -2372,10 +2383,17 @@ public class Rete
         {
             ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
             ReteNodeToConditionsResult sub = rete_node_to_conditions(node.b_cn.partner.parent,
-                    nvn != null ? nvn.bottom_of_subconditions : null, node.parent, null, null, cond.prev);
+                    nvn != null ? nvn.bottom_of_subconditions : null, 
+                    node.parent, null, null, cond.prev);
             ncc.top = sub.dest_top_cond;
             ncc.bottom = sub.dest_bottom_cond;
-            result.nots_found_in_production = sub.nots_found_in_production;
+            
+            // Splice in sub nots at front of result list
+            if(sub.nots_found_in_production != null)
+            {
+                sub.nots_found_in_production.next = result.nots_found_in_production;
+                result.nots_found_in_production = sub.nots_found_in_production;
+            }
 
             ncc.top.prev = null;
         }

@@ -106,19 +106,19 @@ public class PreferenceMemory
         Preference clone = pref.next_clone;
         while (clone != null)
         {
-            Preference next = clone.next_clone;
+            final Preference next = clone.next_clone;
             deallocate_preference(clone);
             clone = next;
         }
         clone = pref.prev_clone;
         while (clone != null)
         {
-            Preference next = clone.prev_clone;
+            final Preference next = clone.prev_clone;
             deallocate_preference(clone);
             clone = next;
         }
 
-        /* --- deallocate pref --- */
+        // deallocate pref
         deallocate_preference(pref);
 
         return true;

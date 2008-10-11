@@ -205,7 +205,7 @@ public class WorkingMemory
 
         warnIfSameWmeAddedAndRemoved();
         
-        /* --- do tracing and cleanup stuff --- */
+        // do tracing and cleanup stuff
         for (Wme w : wmes_to_add)
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...

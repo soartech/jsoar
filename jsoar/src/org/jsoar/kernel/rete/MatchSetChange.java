@@ -35,6 +35,13 @@ public class MatchSetChange
         return new MatchSetChange(p_node, tok, w);
     }
     
+    /**
+     * Extracted from rete.cpp:5953
+     * 
+     * @param p_node
+     * @param inst
+     * @return
+     */
     public static MatchSetChange createRetraction(ReteNode p_node, Instantiation inst)
     {
         return new MatchSetChange(p_node, inst);

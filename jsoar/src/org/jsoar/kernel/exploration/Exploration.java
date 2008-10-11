@@ -693,7 +693,7 @@ public class Exploration
      * @param s 
      * @param default_value (Defaults to 0.0 in CSoar)
      */
-    private void exploration_compute_value_of_candidate(Preference cand, Slot s, double default_value )
+    public void exploration_compute_value_of_candidate(Preference cand, Slot s, double default_value )
     {
         if ( cand == null ) return;
 

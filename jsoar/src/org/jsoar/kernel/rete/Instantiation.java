@@ -38,14 +38,25 @@ public class Instantiation implements Traceable
     public final ListHead<Preference>  preferences_generated = ListHead.newInstance();    // header for dll of prefs
     public Identifier match_goal;                   // symbol, or NIL if none
     public int /*goal_stack_level*/ match_goal_level;    // level, or ATTRIBUTE_IMPASSE_LEVEL
+    /**
+     * <p>Initialized to true in recmem.cpp:574:create_instantiation
+     */
     public boolean okay_to_variablize = true;
+    /**
+     * TRUE iff this inst. is still in the match set
+     * 
+     * <p>Initialized to true in recmem.cpp:575:create_instantiation
+     */
     public boolean in_ms= true;  // TRUE iff this inst. is still in the match set
     public int /*tc_number*/ backtrace_number;
+    /**
+     * <p>Initialized to false in recmem.cpp:582:create_instantiation
+     */
     public boolean GDS_evaluated_already = false;
     
     /**
      * 
-     * recmem.cpp:571:create_instantiation
+     * <p>recmem.cpp:571:create_instantiation
      * 
      * @param prod
      * @param rete_token
