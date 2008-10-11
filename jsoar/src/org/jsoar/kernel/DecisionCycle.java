@@ -573,8 +573,9 @@ public class DecisionCycle
                 final Writer writer = context.trace.getPrinter().getWriter();
                 try
                 {
-                    writer.append("\n");
+                    //writer.append("\n");
                     context.decider.print_lowest_slot_in_context_stack (writer);
+                    writer.append("\n");
                     writer.flush();
                 }
                 catch (IOException e)

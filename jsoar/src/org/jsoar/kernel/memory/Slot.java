@@ -74,7 +74,6 @@ public class Slot
     
     private Preference all_preferences; // dll of all pref's in the slot
     
-    // TODO: Replace with array of normal pointers, i.e. eliminate ListHead/AsListItem
     private EnumMap<PreferenceType, Preference> preferencesByType;
 
     public Identifier impasse_id = null;               // null if slot is not impassed
@@ -250,7 +249,7 @@ public class Slot
     
     public void removePreference(Preference pref)
     {
-        pref.slot = null; // BUG shouldn't we use pref->slot in place of pref->in_tm?
+        pref.slot = null;
         
         removePreferenceByType(pref);
         

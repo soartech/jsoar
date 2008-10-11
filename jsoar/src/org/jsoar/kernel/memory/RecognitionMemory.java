@@ -548,7 +548,7 @@ public class RecognitionMemory
             (context.osupport.o_support_calculation_type == 3) || 
             (context.osupport.o_support_calculation_type == 4))
         {
-            /* --- do calc's the normal Soar 6 way --- */
+            // do calc's the normal Soar 6 way
             if (need_to_do_support_calculations)
                 context.osupport.calculate_support_for_instantiation_preferences(inst, top_goal, context.operand2_mode);
         }
@@ -590,7 +590,7 @@ public class RecognitionMemory
         }
         else
         {
-            /* --- do calc's Doug's way --- */
+            // do calc's Doug's way
             if ((inst.prod.declared_support != ProductionSupport.DECLARED_O_SUPPORT)
                     && (inst.prod.declared_support != ProductionSupport.DECLARED_I_SUPPORT))
             {
@@ -604,20 +604,17 @@ public class RecognitionMemory
      * newly_created_instantiations. It also calls chunk_instantiation() to do
      * any necessary chunk or justification building.
      * 
-     * recmem.cpp:548:create_instantiation
+     * <p>recmem.cpp:548:create_instantiation
      * 
      * @param prod
      * @param tok
      * @param w
      * @param top_goal
-     * @param o_support_calculation_type
      */
     public void create_instantiation(Production prod, Token tok, Wme w, Identifier top_goal)
     {
-        // Symbol **cell;
-
         // #ifdef BUG_139_WORKAROUND
-        /* RPM workaround for bug #139: don't fire justifications */
+        // RPM workaround for bug #139: don't fire justifications
         if (prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
         {
             return;
@@ -629,20 +626,11 @@ public class RecognitionMemory
 
         if (context.operand2_mode)
         {
-            // TODO verbose
-            // if (thisAgent->soar_verbose_flag == TRUE) {
-            // print_with_symbols(thisAgent, "\n in create_instantiation: %y",
-            // inst->prod->name);
-            // char buf[256];
-            // SNPRINTF(buf, 254, "in create_instantiation: %s",
-            // symbol_to_string(thisAgent, inst->prod->name, true, 0, 0));
-            // xml_generate_verbose(thisAgent, buf);
-            // }
+            context.trace.print(Category.TRACE_VERBOSE, "\n in create_instantiation: %s", inst.prod.name);
         }
-        /* REW: end 09.15.96 */
 
         this.production_being_fired = inst.prod;
-        prod.firing_count++;
+        prod.firing_count++; // TODO move into Instantiation constructor
         this.production_firing_count++;
 
         // build the instantiated conditions, and bind LHS variables
@@ -677,8 +665,8 @@ public class RecognitionMemory
         }
         this.firer_highest_rhs_unboundvar_index = index - 1;
 
-        /* --- Before executing the RHS actions, tell the user that the -- */
-        /* --- phases has changed to output by printing the arrow --- */
+        // Before executing the RHS actions, tell the user that the
+        // phases has changed to output by printing the arrow
         if(trace_it && context.trace.isEnabled(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM))
         {
             context.trace.print(" -->\n");
@@ -689,7 +677,6 @@ public class RecognitionMemory
         boolean need_to_do_support_calculations = false;
         for (Action a = prod.action_list; a != null; a = a.next)
         {
-
             Preference pref = null;
             if (prod.type != ProductionType.TEMPLATE_PRODUCTION_TYPE)
             {
@@ -717,13 +704,10 @@ public class RecognitionMemory
                 }
                 else
                 {
-
                     if (context.operand2_mode)
                     {
                         pref.o_supported = (this.FIRING_TYPE == SavedFiringType.PE_PRODS) ? true : false;
                     }
-                    /* REW: end 09.15.96 */
-
                     else
                     {
                         if (a.support == ActionSupport.O_SUPPORT)
@@ -765,19 +749,19 @@ public class RecognitionMemory
             }
         }
 
-        /* --- reset rhs_variable_bindings array to all zeros --- */
+        // reset rhs_variable_bindings array to all zeros
         index = 0;
-        for (; index < firer_highest_rhs_unboundvar_index; ++index)
+        for (; index <= firer_highest_rhs_unboundvar_index; ++index)
         {
             context.rete.setRhsVariableBinding(index, null);
         }
 
-        /* --- fill in lots of other stuff --- */
+        // fill in lots of other stuff
         fill_in_new_instantiation_stuff(inst, need_to_do_support_calculations, top_goal);
 
-        /* --- print trace info: printing preferences --- */
-        /* Note: can't move this up, since fill_in_new_instantiation_stuff gives
-           the o-support info for the preferences we're about to print */
+        // print trace info: printing preferences 
+        // Note: can't move this up, since fill_in_new_instantiation_stuff gives
+        // the o-support info for the preferences we're about to print
         if (trace_it && context.trace.isEnabled(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM))
         {
             for (Preference pref : inst.preferences_generated)
@@ -793,7 +777,6 @@ public class RecognitionMemory
         // build chunks/justifications if necessary
         context.chunker.chunk_instantiation(inst, context.chunker.isLearningOn());
 
-        /* MVP 6-8-94 */
         // TODO callback FIRING_CALLBACK
         //   if (!thisAgent->system_halted) {
         //      /* --- invoke callback function --- */
@@ -808,7 +791,7 @@ public class RecognitionMemory
      * This deallocates the given instantiation. This should only be invoked via
      * the possibly_deallocate_instantiation() macro.
      * 
-     * recmem.cpp:757:deallocate_instantiation
+     * <p>recmem.cpp:757:deallocate_instantiation
      * 
      * @param inst
      */
@@ -864,10 +847,11 @@ public class RecognitionMemory
         {
             inst.prod.production_remove_ref();
         }
+        // TODO: Instantiation is deallocated here. Can we help GC?
     }
     
     /**
-     * recmem.h:65:possibly_deallocate_instantiation
+     * <p>recmem.h:65:possibly_deallocate_instantiation
      * 
      * @param inst
      */
@@ -899,8 +883,8 @@ public class RecognitionMemory
 
         while (prefItem != null)
         {
-            AsListItem<Preference> nextItem = prefItem.next;
-            Preference pref = prefItem.item;
+            final AsListItem<Preference> nextItem = prefItem.next;
+            final Preference pref = prefItem.item;
             if (pref.isInTempMemory() && !pref.o_supported)
             {
                 if (trace_it) {
@@ -929,7 +913,7 @@ public class RecognitionMemory
         if (inst.prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE && inst.prod.getReferenceCount() > 1)
             context.exciseProduction(inst.prod, false);
 
-        /* --- mark as no longer in MS, and possibly deallocate  --- */
+        // mark as no longer in MS, and possibly deallocate
         inst.in_ms = false;
         possibly_deallocate_instantiation(inst);
     }
@@ -941,12 +925,12 @@ public class RecognitionMemory
      * list of instantiations for that particular production. O-rejects are
      * bufferred and handled after everything else.
      * 
-     * Note that some instantiations on newly_created_instantiations are not in
+     * <p>Note that some instantiations on newly_created_instantiations are not in
      * the match set--for the initial instantiations of chunks/justifications,
      * if they don't match WM, we have to assert the o-supported preferences and
      * throw away the rest.
      * 
-     * recmem.cpp:891:assert_new_preferences
+     * <p>recmem.cpp:891:assert_new_preferences
      */
     private void assert_new_preferences()
     {
@@ -963,10 +947,8 @@ public class RecognitionMemory
 
         if (SoarConstants.O_REJECTS_FIRST)
         {
-            /*
-             * Do an initial loop to process o-rejects, then re-loop to process
-             * normal preferences.
-             */
+            // Do an initial loop to process o-rejects, then re-loop to process
+            // normal preferences.
             AsListItem<Instantiation> inst, next_inst;
             for (inst = this.newly_created_instantiations.first; inst != null; inst = next_inst)
             {
@@ -1013,38 +995,33 @@ public class RecognitionMemory
                 {
                     if (!SoarConstants.O_REJECTS_FIRST)
                     {
-                        /* --- o-reject: just put it in the buffer for later --- */
+                        // o-reject: just put it in the buffer for later
                         o_rejects.push(pref.item);
                     }
-                    /* No knowledge retrieval necessary in Operand2 */
+                    // No knowledge retrieval necessary in Operand2
 
                 }
                 else if (inst.item.in_ms || pref.item.o_supported)
                 {
-                    /* --- normal case --- */
+                    // normal case
                     context.prefMemory.add_preference_to_tm(pref.item);
 
-                    /* No knowledge retrieval necessary in Operand2 */
+                    // No knowledge retrieval necessary in Operand2
                 }
                 else
                 {
-                    // inst. is refracted chunk, and pref. 
-                    // is not o-supported: remove the preference
+                    // inst. is refracted chunk, and pref. is not o-supported: remove the preference
 
-                    /*
-                     * --- first splice it out of the clones list--otherwise we
-                     * might accidentally deallocate some clone that happens to
-                     * have refcount==0 just because it hasn't been asserted yet
-                     * ---
-                     */
-
+                    // first splice it out of the clones list--otherwise we 
+                    // might accidentally deallocate some clone that happens to
+                    // have refcount==0 just because it hasn't been asserted yet
                     if (pref.item.next_clone != null)
                         pref.item.next_clone.prev_clone = pref.item.prev_clone;
                     if (pref.item.prev_clone != null)
                         pref.item.prev_clone.next_clone = pref.item.next_clone;
                     pref.item.next_clone = pref.item.prev_clone = null;
 
-                    /* --- now add then remove ref--this should result in deallocation */
+                    // now add then remove ref--this should result in deallocation
                     pref.item.preference_add_ref();
                     pref.item.preference_remove_ref(context.prefMemory);
                 }
@@ -1061,7 +1038,7 @@ public class RecognitionMemory
     /**
      * This routine is called from the top level to run the preference phases.
      * 
-     * recmem.cpp:1035:do_preference_phase
+     * <p>recmem.cpp:1035:do_preference_phase
      * 
      * @param top_goal
      * @param o_support_calculation_type
@@ -1085,11 +1062,11 @@ public class RecognitionMemory
                     switch (FIRING_TYPE)
                     {
                     case PE_PRODS:
-                        context.trace.print("\t--- Firing Productions (PE) For State At Depth %d ---\n",
+                        context.trace.print("--- Firing Productions (PE) For State At Depth %d ---\n",
                                 context.decider.active_level);
                         break;
                     case IE_PRODS:
-                        context.trace.print("\t--- Firing Productions (IE) For State At Depth %d ---\n",
+                        context.trace.print("--- Firing Productions (IE) For State At Depth %d ---\n",
                                 context.decider.active_level);
                         break;
                     }
@@ -1102,7 +1079,6 @@ public class RecognitionMemory
 
         this.newly_created_instantiations.clear();
 
-        /* MVP 6-8-94 */
         SoarReteAssertion assertion = null;
         while ((assertion = context.soarReteListener.get_next_assertion()) != null)
         {

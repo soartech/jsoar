@@ -65,9 +65,14 @@ public class Decider
     {
         ParentInstantiation next, prev;
         Instantiation inst;
+        
+        public String toString()
+        {
+            return inst != null ? inst.toString() : "null";
+        }
     }
 
-    private static final boolean DEBUG_GDS = false;
+    private static final boolean DEBUG_GDS = Boolean.valueOf(System.getProperty("jsoar.gds.debug", "false"));
     private static final boolean DEBUG_GDS_HIGH = false;
     private static final boolean DEBUG_LINKS = false;
     
@@ -861,7 +866,7 @@ public class Decider
                     if (!predict && context.rl.rl_enabled())
                     {
                         // TODO reinforcement learning
-                        // exploration_compute_value_of_candidate( thisAgent, force_result, s, 0 );
+                        context.exploration.exploration_compute_value_of_candidate( force_result, s, 0 );
                         // rl_perform_update( thisAgent, force_result->numeric_value, s->id );
                     }
 
@@ -919,7 +924,7 @@ public class Decider
             {
                 // perform update here for just one candidate
                 // TODO reinforcement learning
-                // exploration_compute_value_of_candidate( thisAgent, candidates, s, 0 );
+                context.exploration.exploration_compute_value_of_candidate(candidates, s, 0);
                 // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
             }
 
@@ -1123,7 +1128,7 @@ public class Decider
             {
                 // perform update here for just one candidate
                 // TODO reinforcement learning
-                // exploration_compute_value_of_candidate( thisAgent, candidates, s, 0 );
+                context.exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
                 // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
             }
 
@@ -2447,11 +2452,11 @@ public class Decider
                     switch (context.recMemory.FIRING_TYPE)
                     {
                     case PE_PRODS:
-                        context.getPrinter().print("\t--- Change Working Memory (PE) ---\n");
+                        context.getPrinter().print("--- Change Working Memory (PE) ---\n");
                         // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_PE);
                         break;
                     case IE_PRODS:
-                        context.getPrinter().print("\t--- Change Working Memory (IE) ---\n");
+                        context.getPrinter().print("--- Change Working Memory (IE) ---\n");
                         // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_IE);
                         break;
                     }
@@ -2550,14 +2555,14 @@ public class Decider
             {
                 if (DEBUG_GDS)
                 {
-                    context.getPrinter().print("UNIQUE DLL:            %s is already in parent list\n",
-                            curr_pi.inst.prod.name);
+                    context.getPrinter().print("UNIQUE DLL: %s (%d) is already in parent list\n",
+                            curr_pi.inst.prod.name, System.identityHashCode(curr_pi.inst));
                 }
                 return;
             }
             if (DEBUG_GDS)
             {
-                context.getPrinter().print("UNIQUE DLL:            %s\n", curr_pi.inst.prod.name);
+                context.getPrinter().print("UNIQUE DLL: %s (%d)\n", curr_pi.inst.prod.name, System.identityHashCode(curr_pi.inst));
             }
         } /* end for loop */
 
@@ -2574,7 +2579,7 @@ public class Decider
         parent_list_head = new_pi;
         if (DEBUG_GDS)
         {
-            context.getPrinter().print("UNIQUE DLL:         added: %s\n", inst.prod.name);
+            context.getPrinter().print("UNIQUE DLL: added: %s %d\n", inst.prod.name, System.identityHashCode(inst));
         }
     }
 
@@ -2590,12 +2595,16 @@ public class Decider
     private void add_wme_to_gds(GoalDependencySet gds, Wme wme_to_add)
     {
         // Set the correct GDS for this wme (wme's point to their gds)
+        if(wme_to_add.timetag == 52)
+        {
+            int x = 0;
+        }
         wme_to_add.gds = gds;
         gds.addWme(wme_to_add);
 
         // TODO trace add wme to gds in verbose mode as well
         context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, 
-                "Adding to GDS for %s: WME: %s", wme_to_add.gds.getGoal(), wme_to_add);
+                "Adding to GDS for %s: %s", wme_to_add.gds.getGoal(), wme_to_add);
     }
     
 
@@ -2609,13 +2618,11 @@ public class Decider
         {
 
             Instantiation inst = curr_pi.inst;
-            /*
-            #ifdef DEBUG_GDS
-                  print_with_symbols("\n      EXPLORING INSTANTIATION: %y\n",curr_pi->inst->prod->name);
-                  print("      ");
-                  print_instantiation_with_wmes( thisAgent, curr_pi->inst , TIMETAG_WME_TRACE, -1);
-            #endif
-            */
+            if(DEBUG_GDS)
+            {
+                context.trace.print("\n      EXPLORING INSTANTIATION: %s\n", inst);
+            }
+            
             for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
             {
                 PositiveCondition pc = cond.asPositiveCondition();
@@ -2628,17 +2635,15 @@ public class Decider
                 Wme wme_matching_this_cond = cond.bt.wme_;
                 int wme_goal_level = cond.bt.level;
                 Preference pref_for_this_wme = wme_matching_this_cond.preference;
-                /*
-                #ifdef DEBUG_GDS
-                         context.getPrinter().print("\n       wme_matching_this_cond at goal_level = %d : ", wme_goal_level);
-                         print_wme(thisAgent, wme_matching_this_cond); 
-
-                         if (pref_for_this_wme) {
-                            print(thisAgent, "       pref_for_this_wme                        : ");
-                            print_preference(thisAgent, pref_for_this_wme);
-                         } 
-                #endif
-                */
+                
+                if(DEBUG_GDS)
+                {
+                    context.getPrinter().print("\n wme_matching_this_cond at goal_level = %d : %s", wme_goal_level,  wme_matching_this_cond);
+                    if (pref_for_this_wme != null)
+                    {
+                        context.getPrinter().print("       pref_for_this_wme                        : %s", pref_for_this_wme);
+                    } 
+                }
 
                 // WME is in a supergoal or is arch-supported WME (except for fake instantiations,
                 // which do have prefs, so they get handled under "wme is local and i-supported")
@@ -2649,12 +2654,11 @@ public class Decider
                     {
                         if (pref_for_this_wme == null)
                         {
-                            context.getPrinter().print(
-                                    "         this wme has no preferences (it's an arch-created wme)\n");
+                            context.getPrinter().print(" this wme has no preferences (it's an arch-created wme)\n");
                         }
                         else if (wme_goal_level < inst.match_goal_level)
                         {
-                            context.getPrinter().print("         this wme is in the supergoal\n");
+                            context.getPrinter().print(" this wme is in the supergoal\n");
                         }
                         context.getPrinter().print("inst->match_goal [%s]\n", inst.match_goal);
                     }
@@ -2945,12 +2949,10 @@ public class Decider
                                 for (Preference pref = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); 
                                      pref != null; pref = pref.next)
                                 {
-                                    /*
-                                    #ifdef DEBUG_GDS
-                                                            print(thisAgent, "           looking at pref for the wme: ");
-                                                            print_preference(thisAgent, pref); 
-                                    #endif
-                                    */
+                                    if(DEBUG_GDS)
+                                    {
+                                        context.getPrinter().print("           looking at pref for the wme: %s", pref);
+                                    }
 
                                     /* REW: 2004-05-27: Bug fix
                                        We must check that the value with acceptable pref for the slot
@@ -2990,37 +2992,21 @@ public class Decider
                                                 pref.inst.GDS_evaluated_already = true;
                                                 ////////////////////////////////////////////////////// 
                                             }
-                                            /*
-                                            #ifdef DEBUG_GDS
-                                                                       else 
-                                                                       {
-                                                                          print_with_symbols(thisAgent, "\n           ignoring inst %y because it is at a lower level than the GDS\n",pref->inst->prod->name);
-                                                                          pref->inst->GDS_evaluated_already = TRUE;
-                                                                       }
-                                            #endif
-                                            */
-                                            /* REW: 2003-12-07 */
-
-                                            //////////////////////////////////////////////////////
+                                            else if(DEBUG_GDS) 
+                                            {
+                                                context.getPrinter().print("\n           ignoring inst %s because it is at a lower level than the GDS\n",pref.inst.prod.name);
+                                                pref.inst.GDS_evaluated_already = true;
+                                            }
                                         }
-                                        /*
-                                        #ifdef DEBUG_GDS
-                                                                else 
-                                                                {
-                                                                   print(thisAgent, "           the inst producing this pref was already explored; skipping it\n"); 
-                                                                }
-                                        #endif
-                                        */
-
+                                        else if(DEBUG_GDS) 
+                                        {
+                                            context.getPrinter().print("           the inst producing this pref was already explored; skipping it\n"); 
+                                        }
                                     }
-                                    /*
-                                    #ifdef DEBUG_GDS
-                                                            else
-                                                            {
-                                                               print("        this inst is for a pref with a differnt value than the condition WME; skippint it\n");
-                                                            }
-                                    #endif
-                                    */
+                                    else if(DEBUG_GDS)
+                                    {
+                                        context.getPrinter().print("        this inst is for a pref with a differnt value than the condition WME; skippint it\n");
+                                    }
                                 } /* for pref = s->pref[ACCEPTABLE_PREF ...*/
                             }
                         }

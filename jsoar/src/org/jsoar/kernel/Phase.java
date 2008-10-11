@@ -34,6 +34,10 @@ public enum Phase
     
     public void trace(Trace trace, boolean startOfPhase)
     {
-        trace.print(Category.TRACE_PHASES_SYSPARAM, "\n--- " + getTraceName(startOfPhase) + " phase ---\n");
+        // Only log start of phase. This is what csoar debugger currently does.
+        if(startOfPhase)
+        {
+            trace.print(Category.TRACE_PHASES_SYSPARAM, "--- " + getTraceName(startOfPhase) + " phase ---\n");
+        }
     }
 }
