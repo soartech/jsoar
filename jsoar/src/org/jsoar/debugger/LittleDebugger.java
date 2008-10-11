@@ -8,6 +8,7 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -93,6 +94,7 @@ public class LittleDebugger extends JPanel
             buffer.append(cbuf, off, len);
         }
     };
+    private JTextField commandField = new JTextField();
     
     private class RunCommand implements Runnable
     {
@@ -155,8 +157,25 @@ public class LittleDebugger extends JPanel
                                                new JScrollPane(prodList),
                                                new JScrollPane(wmeList));
         
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
+        leftPanel.add(commandField, BorderLayout.SOUTH);
+        commandField.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+                try
+                {
+                    ifc.eval(commandField.getText());
+                }
+                catch (SoarTclException e)
+                {
+                    e.printStackTrace();
+                }
+            }});
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
-                                          new JScrollPane(outputWindow), 
+                                          leftPanel, 
                                           rightSplit);
         split.setDividerLocation(600);
         add(split, BorderLayout.CENTER);

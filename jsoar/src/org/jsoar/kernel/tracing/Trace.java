@@ -76,6 +76,17 @@ public class Trace
         FULL_WME_TRACE,      /* print whole wme */
     }
     
+    /**
+     * <p>gsysparam.h:60:ms_trace_type
+     * 
+     * @author ray
+     */
+    public static enum MatchSetTraceType
+    {
+        MS_ASSERT, // print just assertions
+        MS_RETRACT // print just retractions
+    }
+    
     public static Trace createStdOutTrace()
     {
         return new Trace(new Printer(new OutputStreamWriter(System.out), true));
