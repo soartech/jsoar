@@ -2184,7 +2184,7 @@ public class Decider
      * returns FALSE if the ONLY change as a result of the decision procedure
      * was a change in the set of ^item's on the impasse below the given slot.
      * 
-     * decide.cpp:2092:decide_context_slot
+     * <p>decide.cpp:2092:decide_context_slot
      * 
      * @param goal
      * @param s
@@ -2587,7 +2587,7 @@ public class Decider
      * Added this function to make one place for wme's being added to the GDS. Callback for wme 
      * added to GDS is made here.
      * 
-     * decide.cpp:2562:add_wme_to_gds
+     * <p>decide.cpp:2562:add_wme_to_gds
      * 
      * @param gds
      * @param wme_to_add
@@ -2595,10 +2595,6 @@ public class Decider
     private void add_wme_to_gds(GoalDependencySet gds, Wme wme_to_add)
     {
         // Set the correct GDS for this wme (wme's point to their gds)
-        if(wme_to_add.timetag == 52)
-        {
-            int x = 0;
-        }
         wme_to_add.gds = gds;
         gds.addWme(wme_to_add);
 

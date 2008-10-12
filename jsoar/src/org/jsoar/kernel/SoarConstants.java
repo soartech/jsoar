@@ -37,6 +37,7 @@ public final class SoarConstants
      * kernel.h:129:DO_TOP_LEVEL_REF_CTS
      */
     public static final boolean DO_TOP_LEVEL_REF_CTS = false;
+    
     /**
      * UnComment the following to enable Soar to deal with certain productions
      * in a more intuitive manner. In particular, productions that modify a wme
@@ -45,7 +46,8 @@ public final class SoarConstants
      * small run time cost, since two loops are made through the preferences
      * list.
      * 
-     * kernel.h:165:O_REJECTS_FIRST
+     * <p>kernel.h:165:O_REJECTS_FIRST
+     * <p>Pre-processor macro defaults to "defined" in csoar
      */
-    public static final boolean O_REJECTS_FIRST = false;
+    public static final boolean O_REJECTS_FIRST = true;
 }

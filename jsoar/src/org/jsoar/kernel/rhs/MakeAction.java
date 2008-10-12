@@ -24,6 +24,11 @@ public class MakeAction extends Action
     public RhsValue value;
     public RhsValue referent;
     
+    public MakeAction()
+    {
+        
+    }
+    
     public MakeAction asMakeAction()
     {
         return this;
