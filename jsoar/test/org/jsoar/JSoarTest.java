@@ -61,13 +61,13 @@ public class JSoarTest
         return parser;
     }
 
-    public static void verifyProduction(Agent agent, String name, ProductionType type, String body)
+    public static void verifyProduction(Agent agent, String name, ProductionType type, String body, boolean internal)
     {
         Production j = agent.getProduction(name);
         assertNotNull(j);
         assertEquals(type, j.type);
         StringWriter writer = new StringWriter();
-        j.print_production(agent.rete, new Printer(writer, false), false);
+        j.print_production(agent.rete, new Printer(writer, false), internal);
         assertEquals(body, writer.toString());
         
     }

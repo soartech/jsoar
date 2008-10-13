@@ -2370,7 +2370,9 @@ public class Rete
             // Splice in sub nots at front of result list
             if(sub.nots_found_in_production != null)
             {
-                sub.nots_found_in_production.next = result.nots_found_in_production;
+                NotStruct tail = sub.nots_found_in_production;
+                for(; tail.next != null; tail = tail.next) {}
+                tail.next = result.nots_found_in_production;
                 result.nots_found_in_production = sub.nots_found_in_production;
             }
 
@@ -2391,7 +2393,9 @@ public class Rete
             // Splice in sub nots at front of result list
             if(sub.nots_found_in_production != null)
             {
-                sub.nots_found_in_production.next = result.nots_found_in_production;
+                NotStruct tail = sub.nots_found_in_production;
+                for(; tail.next != null; tail = tail.next) {}
+                tail.next = result.nots_found_in_production;
                 result.nots_found_in_production = sub.nots_found_in_production;
             }
 
