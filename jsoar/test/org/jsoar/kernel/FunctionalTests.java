@@ -201,6 +201,16 @@ public class FunctionalTests
     {
         runTest("testWaterJug", -1);
     }
+    @Test(timeout=10000)
+    public void testWaterJugLookAhead() throws Exception
+    {
+        runTest("testWaterJugLookAhead", -1);
+    }
+    @Test(timeout=10000)
+    public void testWaterJugHierarchy() throws Exception
+    {
+        runTest("testWaterJugHierarchy", -1);
+    }
     
     @Test(timeout=10000)
     public void testTowersOfHanoi() throws Exception
