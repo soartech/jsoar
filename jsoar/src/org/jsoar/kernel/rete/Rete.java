@@ -33,7 +33,9 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;
@@ -80,6 +82,13 @@ public class Rete
     public int highest_rhs_unboundvar_index;
     
     public final VariableGenerator variableGenerator;
+
+    /**
+     * Receives tokens for dummy matches node.
+     * 
+     * <p>agent.h:159:dummy_matches_node_tokens
+     */
+    private Token dummy_matches_node_tokens;
     
     public Rete(Trace trace, VariableGenerator variableGenerator)
     {
@@ -1015,7 +1024,6 @@ public class Rete
     private void executeLeftAddition(ReteNode node, Token tok, Wme w)
     {
         // TODO: These should be polymorphic methods of ReteNode
-        // TODO: left_addition_routines[DUMMY_MATCHES_BNODE] = dummy_matches_node_left_addition;
         // rete.cpp:8796 
         switch(node.node_type)
         {
@@ -1028,6 +1036,7 @@ public class Rete
         case P_BNODE: p_node_left_addition(node, tok, w); break;
         case NEGATIVE_BNODE: negative_node_left_addition(node, tok, w); break;
         case UNHASHED_NEGATIVE_BNODE: unhashed_negative_node_left_addition(node, tok, w); break;
+        case DUMMY_MATCHES_BNODE: dummy_matches_node_left_addition(node, tok, w); break;
         default:
             throw new IllegalStateException("Unhandled node type " + node.node_type);
         }
@@ -2442,6 +2451,203 @@ public class Rete
             }
         }
         return result;
+    }
+    
+    public static void print_whole_token_wme(Printer printer, Wme w, WmeTraceType wtt)
+    {
+        if (w != null)
+        {
+            if (wtt == WmeTraceType.TIMETAG_WME_TRACE)
+                printer.print("%d", w.timetag);
+            else if (wtt == WmeTraceType.FULL_WME_TRACE)
+                printer.print("%s", w);
+            if (wtt != WmeTraceType.NONE_WME_TRACE)
+                printer.print(" ");
+        }
+    }
+
+    /**
+     * prints out a given token in the format appropriate for the given
+     * wme_trace_type: either a list of timetags, a list of WMEs, or no printout
+     * at all.
+     * 
+     * <p>rete.cpp:7579:print_whole_token
+     * 
+     * @param printer
+     * @param t
+     * @param wtt
+     */
+    void print_whole_token(Printer printer, Token t, WmeTraceType wtt)
+    {
+        if (t == dummy_top_token)
+            return;
+        print_whole_token(printer, t.parent, wtt);
+        print_whole_token_wme(printer, t.w, wtt);
+    }
+    
+    /**
+     * <p>rete.cpp:7541:dummy_matches_node_left_addition
+     * 
+     * @param node
+     * @param tok
+     * @param w
+     */
+    private void dummy_matches_node_left_addition (ReteNode node, Token tok, Wme w) 
+    {
+        assert node.node_type == ReteNodeType.DUMMY_MATCHES_BNODE;
+        // just add a token record to dummy_matches_node_tokens
+        Token New = Token.createMatchesToken(tok, w);
+        New.next_of_node = dummy_matches_node_tokens;
+        this.dummy_matches_node_tokens = New;
+    }
+    
+
+    /**
+     * <p>rete.cpp:7554:get_all_left_tokens_emerging_from_node
+     * 
+     * @param node
+     * @return
+     */
+    private Token get_all_left_tokens_emerging_from_node(ReteNode node)
+    {
+        this.dummy_matches_node_tokens = null;
+        ReteNode dummy = ReteNode.createMatchesNode(node);
+        update_node_with_matches_from_above(dummy);
+        Token result = this.dummy_matches_node_tokens;
+        this.dummy_matches_node_tokens = null;
+        return result;
+    }
+
+    /**
+     * This is for the "matches" command. Print_partial_match_information() is
+     * called from the interface routine; ppmi_aux() is a helper function. We
+     * first call p_node_to_conditions_and_nots() to get the condition list for
+     * the LHS. We then (conceptually) start at the top of the net, with the
+     * first condition; for each condition, we collect the tokens output by the
+     * previous node, to find the number of matches here. We print the # of
+     * matches here; print this condition. If this is the first cond that didn't
+     * have any match, then we also print its matches-for-left and
+     * matches-for-right.
+     * 
+     * <p>Of course, we can't actually start at the top of the net and work our way
+     * down, since we'd have no way to find our way the the correct p-node. So
+     * instead, we use a recursive procedure that basically does the same thing.
+     * 
+     * <p>Print stuff for given node and higher, up to but not including the cutoff
+     * node. Return number of matches at the given node/cond.
+     * 
+     * <p>rete.cpp:7611:ppmi_aux
+     * 
+     * @param printer The printer to print to
+     * @param node  The current node
+     * @param cutoff  Don't print cutoff node or any higher
+     * @param cond  Condition for current node
+     * @param wtt  Wme trace type
+     * @param indent Indention level
+     * @return Number of mathces at this level
+     */
+    private int ppmi_aux(Printer printer, ReteNode node, ReteNode cutoff, Condition cond, WmeTraceType wtt, int indent)
+    {
+
+        // find the number of matches for this condition
+        final Token tokens = get_all_left_tokens_emerging_from_node(node);
+        int matches_at_this_level = 0;
+        for (Token t = tokens; t != null; t = t.next_of_node)
+            matches_at_this_level++;
+
+        // if we're at the cutoff node, we're done
+        if (node == cutoff)
+            return matches_at_this_level;
+
+        // do stuff higher up
+        ReteNode parent = node.real_parent_node();
+        final int matches_one_level_up = ppmi_aux(printer, parent, cutoff, cond.prev, wtt, indent);
+
+        // Form string for current match count: If an earlier cond had no
+        // matches, just leave it blank; if this is the first 0, use ">>>>"
+        String match_count_string = "";
+        if (matches_one_level_up == 0)
+        {
+            match_count_string = "    ";
+        }
+        else if (matches_at_this_level == 0)
+        {
+            match_count_string = ">>>>";
+        }
+        else
+        {
+            match_count_string = String.format("%4d", matches_at_this_level);
+        }
+
+        // print extra indentation spaces
+        printer.spaces(indent);
+
+        ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+        if (ncc != null)
+        {
+            // recursively print match counts for the NCC subconditions
+            printer.print("    -{\n");
+            ppmi_aux(printer, node.b_cn.partner.real_parent_node(), parent, ncc.bottom, wtt, indent + 5);
+            printer.spaces(indent).print("%s }\n", match_count_string);
+        }
+        else
+        {
+            printer.print("%s%s\n", match_count_string, cond);
+            // if this is the first match-failure (0 matches), print info on
+            // matches for left and right
+            if (matches_one_level_up != 0 && matches_at_this_level == 0)
+            {
+                if (wtt != WmeTraceType.NONE_WME_TRACE)
+                {
+                    printer.spaces(indent).print("*** Matches For Left ***\n");
+                    final Token parent_tokens = get_all_left_tokens_emerging_from_node(parent);
+                    for (Token t = parent_tokens; t != null; t = t.next_of_node)
+                    {
+                        printer.spaces(indent);
+                        print_whole_token(printer, t, wtt);
+                        printer.print("\n");
+                    }
+                    printer.spaces(indent).print("*** Matches for Right ***\n").spaces(indent);
+                    for (RightMemory rm : node.b_posneg.alpha_mem_.right_mems)
+                    {
+                        if (wtt == WmeTraceType.TIMETAG_WME_TRACE)
+                            printer.print("%d", rm.w.timetag);
+                        else if (wtt == WmeTraceType.FULL_WME_TRACE)
+                            printer.print("%s", rm.w);
+                        printer.print(" ");
+                    }
+                    printer.print("\n");
+                }
+            }
+        }
+
+        return matches_at_this_level;
+    }
+
+    /**
+     * <p>rete.cpp:7700:print_partial_match_information
+     * 
+     * @param printer
+     * @param p_node
+     * @param wtt
+     */
+    public void print_partial_match_information(Printer printer, ReteNode p_node, WmeTraceType wtt)
+    {
+        ConditionsAndNots cans = p_node_to_conditions_and_nots(p_node, null, null, false);
+        
+        int n = ppmi_aux(printer, p_node.parent, dummy_top_node, cans.dest_bottom_cond, wtt, 0);
+        
+        printer.print("\n%d complete matches.\n", n);
+        if (n != 0 && (wtt != WmeTraceType.NONE_WME_TRACE))
+        {
+            printer.print("*** Complete Matches ***\n");
+            Token tokens = get_all_left_tokens_emerging_from_node(p_node.parent);
+            for (Token t = tokens; t != null; t = t.next_of_node)
+            {
+                print_whole_token(printer, t, wtt);
+                printer.print("\n");
+            }
+        }
     }
 
 }

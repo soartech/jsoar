@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.EnumSet;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
@@ -178,9 +179,29 @@ public class SoarTclInterface
         @Override
         public void cmdProc(Interp interp, TclObject[] args) throws TclException
         {
-            agent.soarReteListener.print_match_set(agent.getPrinter(), 
-                                                   WmeTraceType.FULL_WME_TRACE, 
-                                                   EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
+            if(args.length == 1)
+            {
+                agent.soarReteListener.print_match_set(agent.getPrinter(), 
+                                                       WmeTraceType.FULL_WME_TRACE, 
+                                                       EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
+            }
+            else if(args.length == 2)
+            {
+                Production p = agent.getProduction(args[1].toString());
+                if(p == null)
+                {
+                    throw new TclException(interp, "No production '" + args[1] + "'");
+                }
+                if(p.p_node == null)
+                {
+                    throw new TclException(interp, "Production '" + args[1] + "' is not in rete");
+                }
+                agent.rete.print_partial_match_information(agent.getPrinter(), p.p_node, WmeTraceType.FULL_WME_TRACE);
+            }
+            else
+            {
+                throw new TclNumArgsException(interp, 2, args, "[production]");
+            }
         }};     
         
     /**

@@ -48,6 +48,17 @@ public class Token
         addToWme(w, this);
     }
     
+    public static Token createMatchesToken(Token parent, Wme wme)
+    {
+        return new Token(parent, wme);
+    }
+    
+    private Token(Token parent, Wme wme)
+    {
+        this.parent = parent;
+        this.w = wme;
+    }
+    
     public Token getNextSiblingOrParent()
     {
         return next_sibling != null ? next_sibling : parent;
