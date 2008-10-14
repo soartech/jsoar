@@ -37,23 +37,23 @@ public final class Multiply extends AbstractRhsFunctionHandler
             {
                 if(float_found)
                 {
-                    f *= ic.value;
+                    f *= ic.getValue();
                 }
                 else
                 {
-                    i *= ic.value;
+                    i *= ic.getValue();
                 }
             }
             else
             {
                 if(float_found)
                 {
-                    f *= arg.asFloatConstant().value;
+                    f *= arg.asFloatConstant().getValue();
                 }
                 else
                 {
                     float_found = true;
-                    f = i * arg.asFloatConstant().value;
+                    f = i * arg.asFloatConstant().getValue();
                 }
             }
         }

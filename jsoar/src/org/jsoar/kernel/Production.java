@@ -183,7 +183,7 @@ public class Production
         // print "sp" and production name
         printer.print("sp {%s\n", this.name);
 
-        // print optional documention string
+        // print optional documentation string
         if (documentation != null)
         {
             printer.print("    %s\n", StringTools.string_to_escaped_string(documentation, '"'));
@@ -212,7 +212,6 @@ public class Production
         {
             printer.print("    :o-support\n");
         }
-
         else if (declared_support == ProductionSupport.DECLARED_I_SUPPORT)
         {
             printer.print("    :i-support\n");

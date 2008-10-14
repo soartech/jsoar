@@ -12,7 +12,7 @@ import java.util.Formatter;
  */
 public class FloatConstant extends Symbol
 {
-    public final double value;
+    private final double value;
 
     /**
      * @param hash_id
@@ -24,6 +24,11 @@ public class FloatConstant extends Symbol
         this.value = value;
     }
 
+    public double getValue()
+    {
+        return value;
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Symbol#asFloatConstant()
      */
@@ -55,7 +60,7 @@ public class FloatConstant extends Symbol
         }
         IntConstant i = other.asIntConstant();
         
-        return i != null ? value < i.value : super.numericLess(other);
+        return i != null ? value < i.getValue() : super.numericLess(other);
     }
 
     /* (non-Javadoc)
@@ -71,7 +76,7 @@ public class FloatConstant extends Symbol
         }
         IntConstant i = other.asIntConstant();
         
-        return i != null ? value <= i.value : super.numericLessOrEqual(other);
+        return i != null ? value <= i.getValue() : super.numericLessOrEqual(other);
     }
     
     /* (non-Javadoc)
@@ -87,7 +92,7 @@ public class FloatConstant extends Symbol
         }
         IntConstant i = other.asIntConstant();
         
-        return i != null ? value > i.value : super.numericLess(other);
+        return i != null ? value > i.getValue() : super.numericLess(other);
     }
 
     /* (non-Javadoc)
@@ -103,7 +108,7 @@ public class FloatConstant extends Symbol
         }
         IntConstant i = other.asIntConstant();
         
-        return i != null ? value >= i.value : super.numericLessOrEqual(other);
+        return i != null ? value >= i.getValue() : super.numericLessOrEqual(other);
     }
     
     /* (non-Javadoc)

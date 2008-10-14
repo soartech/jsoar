@@ -35,7 +35,7 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
         {
             IntConstant i = arg.asIntConstant();
             
-            double f =  i != null ? i.value : arg.asFloatConstant().value;
+            double f =  i != null ? i.getValue() : arg.asFloatConstant().getValue();
             if(f == 0.0)
             {
                 throw new RhsFunctionException("Attempt to divide ('/') by zero");

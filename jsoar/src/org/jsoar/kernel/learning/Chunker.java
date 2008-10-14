@@ -1311,7 +1311,7 @@ public class Chunker
             if ((rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION)
                     && ((prod_type != ProductionType.JUSTIFICATION_PRODUCTION_TYPE) || (rete_addition_result != ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH)))
             {
-                temp_explain_chunk.name = prod_name.name;
+                temp_explain_chunk.name = prod_name.getValue();
                 context.explain.explain_add_temp_to_chunk_list(temp_explain_chunk);
             }
             else

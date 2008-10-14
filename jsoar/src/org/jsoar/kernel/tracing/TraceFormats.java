@@ -595,7 +595,7 @@ public class TraceFormats
                     for (Iterator<Symbol> it = tf.data_attribute_path.iterator(); it.hasNext();)
                     {
                         Symbol c = it.next();
-                        writer.append(c.asSymConstant().name);
+                        writer.append(c.asSymConstant().getValue());
                         if (it.hasNext())
                             writer.append(".");
                     }

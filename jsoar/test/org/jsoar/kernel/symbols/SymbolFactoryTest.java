@@ -69,10 +69,10 @@ public class SymbolFactoryTest
     {
         FloatConstant s = syms.make_float_constant(3.14);
         assertNotNull(s);
-        assertEquals(3.14, s.value, 0.0001);
+        assertEquals(3.14, s.getValue(), 0.0001);
         assertFalse(s.hash_id == 0);
-        assertSame(s, syms.find_float_constant(s.value));
-        assertSame(s, syms.make_float_constant(s.value));
+        assertSame(s, syms.find_float_constant(s.getValue()));
+        assertSame(s, syms.make_float_constant(s.getValue()));
     }
 
     @Test
@@ -80,10 +80,10 @@ public class SymbolFactoryTest
     {
         IntConstant s = syms.make_int_constant(99);
         assertNotNull(s);
-        assertEquals(99, s.value);
+        assertEquals(99, s.getValue());
         assertFalse(s.hash_id == 0);
-        assertSame(s, syms.find_int_constant(s.value));
-        assertSame(s, syms.make_int_constant(s.value));
+        assertSame(s, syms.find_int_constant(s.getValue()));
+        assertSame(s, syms.make_int_constant(s.getValue()));
     }
     
     @Test
@@ -91,10 +91,10 @@ public class SymbolFactoryTest
     {
         SymConstant s = syms.make_sym_constant("A sym constant");
         assertNotNull(s);
-        assertEquals("A sym constant", s.name);
+        assertEquals("A sym constant", s.getValue());
         assertFalse(s.hash_id == 0);
-        assertSame(s, syms.find_sym_constant(s.name));
-        assertSame(s, syms.make_sym_constant(s.name));
+        assertSame(s, syms.find_sym_constant(s.getValue()));
+        assertSame(s, syms.make_sym_constant(s.getValue()));
     }
     
     @Test
@@ -108,7 +108,7 @@ public class SymbolFactoryTest
         assertNotNull(a2);
         assertNotSame(a0, a2);
         assertNotSame(a1, a2);
-        assertEquals("A2", a2.name);
+        assertEquals("A2", a2.getValue());
         assertEquals(3, number.value.intValue());
     }
     

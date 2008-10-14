@@ -30,7 +30,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(-33, minus.execute(syms, syms.makeList(33)).asIntConstant().value);
+        assertEquals(-33, minus.execute(syms, syms.makeList(33)).asIntConstant().getValue());
     }
     
     @Test
@@ -38,7 +38,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(-123.4, minus.execute(syms, syms.makeList(123.4)).asFloatConstant().value, 0.0001);
+        assertEquals(-123.4, minus.execute(syms, syms.makeList(123.4)).asFloatConstant().getValue(), 0.0001);
     }
     
     @Test
@@ -46,7 +46,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(2 - 123.4 - -2, minus.execute(syms, syms.makeList(2, 123.4, -2)).asFloatConstant().value, 0.0001);
+        assertEquals(2 - 123.4 - -2, minus.execute(syms, syms.makeList(2, 123.4, -2)).asFloatConstant().getValue(), 0.0001);
     }
     
     @Test
@@ -54,7 +54,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(2 - 3 - 4 - -2, minus.execute(syms, syms.makeList(2, 3, 4, -2)).asIntConstant().value);
+        assertEquals(2 - 3 - 4 - -2, minus.execute(syms, syms.makeList(2, 3, 4, -2)).asIntConstant().getValue());
     }
     
     @Test
@@ -62,7 +62,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(2.0 - 3.0 - 4.0 - -2.0, minus.execute(syms, syms.makeList(2.0, 3.0, 4.0, -2.0)).asFloatConstant().value, 0.0001);
+        assertEquals(2.0 - 3.0 - 4.0 - -2.0, minus.execute(syms, syms.makeList(2.0, 3.0, 4.0, -2.0)).asFloatConstant().getValue(), 0.0001);
     }
 
 }

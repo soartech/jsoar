@@ -48,21 +48,21 @@ public class ParserTest extends JSoarTest
     {
         SymConstant sc = sym.asSymConstant();
         assertNotNull(sc);
-        assertEquals(name, sc.name);
+        assertEquals(name, sc.getValue());
     }
     
     private void verifyIntSymbol(Symbol sym, int value)
     {
         IntConstant ic = sym.asIntConstant();
         assertNotNull(ic);
-        assertEquals(value, ic.value);
+        assertEquals(value, ic.getValue());
     }
     
     private void verifyFloatSymbol(Symbol sym, double value)
     {
         FloatConstant fc = sym.asFloatConstant();
         assertNotNull(fc);
-        assertEquals(value, fc.value, 0.001);
+        assertEquals(value, fc.getValue(), 0.001);
     }
     
     @Test
@@ -299,8 +299,8 @@ public class ParserTest extends JSoarTest
         assertNull(ma.next);
         assertEquals(PreferenceType.REJECT_PREFERENCE_TYPE, ma.preference_type);
         assertSame(id, ma.id.asSymbolValue().getSym());
-        assertEquals("test", ma.attr.asSymbolValue().getSym().asSymConstant().name);
-        assertEquals(99, ma.value.asSymbolValue().getSym().asIntConstant().value);
+        assertEquals("test", ma.attr.asSymbolValue().getSym().asSymConstant().getValue());
+        assertEquals(99, ma.value.asSymbolValue().getSym().asIntConstant().getValue());
     }
     
     @Test

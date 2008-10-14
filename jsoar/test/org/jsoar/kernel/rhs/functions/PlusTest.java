@@ -22,7 +22,7 @@ public class PlusTest extends JSoarTest
     {
         Plus plus = new Plus();
         
-        assertEquals(0, plus.execute(syms, syms.makeList()).asIntConstant().value);
+        assertEquals(0, plus.execute(syms, syms.makeList()).asIntConstant().getValue());
     }
     
     @Test
@@ -30,7 +30,7 @@ public class PlusTest extends JSoarTest
     {
         Plus plus = new Plus();
         
-        assertEquals(33, plus.execute(syms, syms.makeList(33)).asIntConstant().value);
+        assertEquals(33, plus.execute(syms, syms.makeList(33)).asIntConstant().getValue());
     }
     
     @Test
@@ -38,7 +38,7 @@ public class PlusTest extends JSoarTest
     {
         Plus plus = new Plus();
         
-        assertEquals(123.4, plus.execute(syms, syms.makeList(123.4)).asFloatConstant().value, 0.0001);
+        assertEquals(123.4, plus.execute(syms, syms.makeList(123.4)).asFloatConstant().getValue(), 0.0001);
     }
     
     @Test
@@ -46,7 +46,7 @@ public class PlusTest extends JSoarTest
     {
         Plus plus = new Plus();
         
-        assertEquals(123.4, plus.execute(syms, syms.makeList(2, 123.4, -2)).asFloatConstant().value, 0.0001);
+        assertEquals(123.4, plus.execute(syms, syms.makeList(2, 123.4, -2)).asFloatConstant().getValue(), 0.0001);
     }
     
     @Test
@@ -54,7 +54,7 @@ public class PlusTest extends JSoarTest
     {
         Plus plus = new Plus();
         
-        assertEquals(7, plus.execute(syms, syms.makeList(2, 3, 4, -2)).asIntConstant().value);
+        assertEquals(7, plus.execute(syms, syms.makeList(2, 3, 4, -2)).asIntConstant().getValue());
     }
     
     @Test
@@ -62,7 +62,7 @@ public class PlusTest extends JSoarTest
     {
         Plus plus = new Plus();
         
-        assertEquals(7.0, plus.execute(syms, syms.makeList(2.0, 3.0, 4.0, -2.0)).asFloatConstant().value, 0.0001);
+        assertEquals(7.0, plus.execute(syms, syms.makeList(2.0, 3.0, 4.0, -2.0)).asFloatConstant().getValue(), 0.0001);
     }
 
 }

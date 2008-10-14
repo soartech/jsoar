@@ -6,6 +6,8 @@
 package org.jsoar.kernel;
 
 /**
+ * <p>production.h:66:_SUPPORT
+ * 
  * @author ray
  */
 public enum ProductionSupport

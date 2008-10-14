@@ -16,14 +16,15 @@ import org.jsoar.util.Arguments;
  * removed.  The routines for maintaining the GDS and determining if a goal
  * should be retracted are in decide.c
  *
- * Fields in a goal dependency set:
- *
- *    goal:  points to the goal for which this dependency set was created.
+ * <p>Fields in a goal dependency set:
+ * <ul>
+ *    <li><b>goal:</b>  points to the goal for which this dependency set was created.
  *           The goal also has a pointer back to the GDS.
  *
- *    wmes_in_gds:  A DLL of WMEs in the goal dependency set
- *
- * The GDS is created only when necessary; that is, when an o-suppported WME
+ *    <li><b>wmes_in_gds:</b>  A DLL of WMEs in the goal dependency set
+ * </ul>
+ * 
+ * <p>The GDS is created only when necessary; that is, when an o-suppported WME
  * is created in some subgoal and that subgoal has no GDS already.  The
  * instantiations that led to the creation of the o-supported WME are 
  * examined; any supergoal WMEs in these instantiations are added to the 
@@ -31,14 +32,14 @@ import org.jsoar.util.Arguments;
  * if a WME changes that is on a GDS, the goal that the GDS points to is
  * immediately removed.  
  *
- * When a goal is removed, the GDS is not immediately removed.  Instead,
+ * <p>When a goal is removed, the GDS is not immediately removed.  Instead,
  * whenever a WME is removed (or when it is added to another GDS), we check
  * to also make certain that its GDS has other WMEs on the wmes_in_gds DLL.
  * If not, then we remove the GDS then.  This delay avoids having to scan
  * over all the WMEs in the GDS in addition to removing the goal (i.e., the
  * maintenance cost is amortized over a number of WM phases).
  * 
- * gdatastructs.h:71:goal_dependency_set
+ * <p>gdatastructs.h:71:goal_dependency_set
  * 
  * @author ray
  */
@@ -51,8 +52,10 @@ public class GoalDependencySet
     
     /**
      * pointer to the dll of WMEs in GDS of goal
+     * 
+     * <p>gdatastructs.h:71:wmes_in_gds
      */
-    private Wme wmes_in_gds;
+    private Wme wmes;
     
     public GoalDependencySet(Identifier goal)
     {
@@ -61,7 +64,7 @@ public class GoalDependencySet
     }
 
     /**
-     * @return the goal
+     * @return the goal for this GDS
      */
     public Identifier getGoal()
     {
@@ -77,18 +80,32 @@ public class GoalDependencySet
         this.goal = null;
     }
     
+    /**
+     * @see {@link Wme#addToGds(Wme)}
+     * @return Head of the list of WMEs in this GDS.
+     */
     public Wme getWmes()
     {
-        return wmes_in_gds;
+        return wmes;
     }
     
+    /**
+     * Add a WME to the head of this GDS's WME list
+     * 
+     * @param w The wme
+     */
     public void addWme(Wme w)
     {
-        wmes_in_gds = w.addToGds(wmes_in_gds);
+        wmes = w.addToGds(wmes);
     }
     
+    /**
+     * Remove a WME from the list of WMEs in this GDS
+     * 
+     * @param w The wme to remove
+     */
     public void removeWme(Wme w)
     {
-        wmes_in_gds = w.removeFromGds(wmes_in_gds);
+        wmes = w.removeFromGds(wmes);
     }
 }

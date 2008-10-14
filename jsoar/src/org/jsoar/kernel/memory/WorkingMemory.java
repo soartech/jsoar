@@ -160,7 +160,7 @@ public class WorkingMemory
     /**
      * wmem.cpp:186:do_buffered_wm_changes
      */
-    public void do_buffered_wm_changes(InputOutput io)
+    public void do_buffered_wm_changes(int d_cycle_count, InputOutput io)
     {
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
@@ -175,7 +175,7 @@ public class WorkingMemory
         }
 
         // call output module in case any changes are output link changes
-        io.inform_output_module_of_wm_changes (wmes_to_add, wmes_to_remove);
+        io.inform_output_module_of_wm_changes (d_cycle_count, wmes_to_add, wmes_to_remove);
         
         /* --- invoke callback routine. wmes_to_add and wmes_to_remove can --- */
         /* --- be fetched from the agent structure. --- */

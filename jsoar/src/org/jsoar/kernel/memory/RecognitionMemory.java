@@ -336,7 +336,7 @@ public class RecognitionMemory
 
             try
             {
-                return context.getRhsFunctions().execute(fc.getName().name, arguments);
+                return context.getRhsFunctions().execute(fc.getName().getValue(), arguments);
             }
             catch (RhsFunctionException e)
             {
