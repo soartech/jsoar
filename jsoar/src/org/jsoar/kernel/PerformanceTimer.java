@@ -22,6 +22,13 @@ public class PerformanceTimer
      */
     public static void main(String[] args) throws SoarTclException
     {
+        for(String arg : args)
+        {
+            if("--raw".equals(arg))
+            {
+                System.out.println("TotalCPU, TotalKernel");
+            }
+        }
         for(int i = 0; i < 15; ++i)
         {
             doRun(args);
@@ -41,15 +48,32 @@ public class PerformanceTimer
         agent.initialize();
         SoarTclInterface ifc = new SoarTclInterface(agent);
         
+        boolean raw = false;
         for(String arg : args)
         {
-            ifc.sourceFile(arg);
+            if("--raw".equals(arg))
+            {
+                raw = true;
+            }
+            else
+            {
+                ifc.sourceFile(arg);
+            }
         }
         
         agent.decisionCycle.runForever();
         
         agent.getPrinter().setWriter(oldWriter, true);
-        ifc.eval("stats");
+        if(!raw)
+        {
+            ifc.eval("stats");
+        }
+        else
+        {
+            agent.getPrinter().print("%f, %f\n", 
+                                     agent.getTotalCpuTimer().getTotalSeconds(), 
+                                     agent.getTotalKernelTimer().getTotalSeconds());
+        }
         ifc.dispose();
     }
 }

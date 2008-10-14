@@ -962,17 +962,11 @@ public class SoarReteListener implements ReteListener
             return (!ms_assertions.isEmpty() || !ms_retractions.isEmpty());
     }
     
-    private void print_whole_token_wme(Printer printer, Wme w, WmeTraceType wtt)
+    
+    private void print_whole_token(Printer printer, MatchSetChange msc, WmeTraceType wtt)
     {
-        if (w != null)
-        {
-            if (wtt == WmeTraceType.TIMETAG_WME_TRACE)
-                printer.print("%d", w.timetag);
-            else if (wtt == WmeTraceType.FULL_WME_TRACE)
-                printer.print("%s", w);
-            if (wtt != WmeTraceType.NONE_WME_TRACE)
-                printer.print(" ");
-        }
+        context.rete.print_whole_token(printer, msc.tok, wtt);
+        Rete.print_whole_token_wme(printer, msc.w, wtt);
     }
 
     /**
@@ -1021,19 +1015,6 @@ public class SoarReteListener implements ReteListener
         return null;
     }
       
-    private void print_whole_token(Printer printer, MatchSetChange msc, WmeTraceType wtt)
-    {
-        print_whole_token(printer, msc.tok, wtt);
-        print_whole_token_wme(printer, msc.w, wtt);
-    }
-
-    private void print_whole_token(Printer printer, Token t, WmeTraceType wtt)
-    {
-        if (t == context.rete.dummy_top_token)
-            return;
-        print_whole_token(printer, t.parent, wtt);
-        print_whole_token_wme(printer, t.w, wtt);
-    }
     
     /**
      * <p>rete.cpp:7756:print_match_set

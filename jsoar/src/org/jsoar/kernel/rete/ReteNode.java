@@ -734,6 +734,19 @@ public class ReteNode
     }
     
     /**
+     * Create a new dummy matches node with the given parent
+     * 
+     * @param parent The parent node
+     * @return New dummy matches node
+     */
+    public static ReteNode createMatchesNode(ReteNode parent)
+    {
+        ReteNode dummy = new ReteNode(ReteNodeType.DUMMY_MATCHES_BNODE);
+        dummy.parent = parent;
+        return dummy;
+    }
+    
+    /**
      * <p>rete.cpp:2218:deallocate_rete_node
      * 
      * @param rete
@@ -822,5 +835,4 @@ public class ReteNode
         return node_id + ":" + node_type;
     }
 
-    
 }
