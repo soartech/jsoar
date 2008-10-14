@@ -49,7 +49,7 @@ public class SoarTclInterfaceTest
     {
         ifc.sourceResource("/" + SoarTclInterfaceTest.class.getCanonicalName().replace('.', '/') + "_sourceResource.soar");
         
-        assertNotNull(ifc.getAgent().syms.find_sym_constant("top-state*propose*wait").production);
+        assertNotNull(ifc.getAgent().getProduction("top-state*propose*wait"));
     }
 
     @Test

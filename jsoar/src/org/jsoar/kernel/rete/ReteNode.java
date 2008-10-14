@@ -43,7 +43,7 @@ public class ReteNode
     // } b;
 
       
-    public ReteNode(ReteNodeType type)
+    private ReteNode(ReteNodeType type)
     {
         this.node_type = type;
 
@@ -80,6 +80,30 @@ public class ReteNode
                 || (b_p == null && b_cn == null && b_mem != null && b_posneg == null)
                 || (b_p == null && b_cn == null && b_mem == null && b_posneg != null);
     }
+    
+    private ReteNode(ReteNode other)
+    {
+        this.node_type = other.node_type;
+        this.left_hash_loc_levels_up = other.left_hash_loc_levels_up;
+        this.left_hash_loc_field_num = other.left_hash_loc_field_num;
+        this.node_id = other.node_id;
+        this.parent = other.parent;
+        this.first_child = other.first_child;
+        this.next_sibling = other.next_sibling;
+        this.a_pos = other.a_pos != null ? new PosNodeData(other.a_pos) : null;
+        this.a_np = other.a_np != null ? other.a_np.copy() : null;
+        this.b_posneg = other.b_posneg != null ? other.b_posneg.copy() : null;
+        this.b_mem = other.b_mem != null ? other.b_mem.copy() : null;
+        this.b_cn = other.b_cn != null ? other.b_cn.copy() : null;
+        this.b_p = other.b_p != null ? other.b_p.copy() : null;
+        
+        // Enforce a and b "unions"
+        assert (a_pos != null && a_np == null) || (a_pos == null && a_np != null);
+        assert (b_p != null && b_cn == null && b_mem == null && b_posneg == null)
+                || (b_p == null && b_cn != null && b_mem == null && b_posneg == null)
+                || (b_p == null && b_cn == null && b_mem != null && b_posneg == null)
+                || (b_p == null && b_cn == null && b_mem == null && b_posneg != null);
+    }
       
     /**
      * Returns a copy of this node with semantics equivalent to struct
@@ -89,21 +113,7 @@ public class ReteNode
      */
     private ReteNode copy()
     {
-        ReteNode newNode = new ReteNode(this.node_type);
-        newNode.left_hash_loc_levels_up = this.left_hash_loc_levels_up;
-        newNode.left_hash_loc_field_num = this.left_hash_loc_field_num;
-        newNode.node_id = this.node_id;
-        newNode.parent = this.parent;
-        newNode.first_child = this.first_child;
-        newNode.next_sibling = this.next_sibling;
-        newNode.a_pos = this.a_pos != null ? new PosNodeData(this.a_pos) : null;
-        newNode.a_np = this.a_np != null ? this.a_np.copy() : null;
-        newNode.b_posneg = this.b_posneg != null ? this.b_posneg.copy() : null;
-        newNode.b_mem = this.b_mem != null ? this.b_mem.copy() : null;
-        newNode.b_cn = this.b_cn != null ? this.b_cn.copy() : null;
-        newNode.b_p = this.b_p != null ? this.b_p.copy() : null;
-
-        return newNode;
+        return new ReteNode(this);
     }
 
     /**
@@ -283,13 +293,12 @@ public class ReteNode
      * be a lot easier if the children lists were doubly-linked, but that
      * would take up a lot of extra space.
      * 
-     * rete.cpp:1744:remove_node_from_parents_list_of_children
+     * <p>rete.cpp:1744:remove_node_from_parents_list_of_children
      * 
      * @param node
      */
     /*package*/ void remove_node_from_parents_list_of_children()
     {
-
         ReteNode prev_sibling = this.parent.first_child;
         if (prev_sibling == this)
         {
@@ -307,7 +316,7 @@ public class ReteNode
      * Scans up the net and finds the first (i.e., nearest) ancestor node
      * that uses a given alpha_mem.  Returns that node, or NIL if none exists.
      * 
-     * rete.cpp:1824:nearest_ancestor_with_same_am
+     * <p>rete.cpp:1824:nearest_ancestor_with_same_am
      * 
      * @param am
      * @return
@@ -327,10 +336,15 @@ public class ReteNode
         return null;
     }
     
+    static ReteNode createDummy()
+    {
+        return new ReteNode(ReteNodeType.DUMMY_TOP_BNODE);
+    }
+    
     /**
      * Make a new beta memory node, return a pointer to it.
      * 
-     * rete.cpp:1840:make_new_mem_node
+     * <p>rete.cpp:1840:make_new_mem_node
      * 
      * @param rete
      * @param parent
@@ -361,7 +375,7 @@ public class ReteNode
     /**
      * Make a new positive join node, return a pointer to it.
      * 
-     * rete.cpp:1873:make_new_positive_node
+     * <p>rete.cpp:1873:make_new_positive_node
      * 
      * @param rete
      * @param parent_mem
@@ -410,7 +424,7 @@ public class ReteNode
      * Split a given MP node into separate M and P nodes, return a pointer
      * to the new Memory node.
      *  
-     * rete.cpp:1916:split_mp_node
+     * <p>rete.cpp:1916:split_mp_node
      * 
      * @param mp_node
      * @return
@@ -485,7 +499,7 @@ public class ReteNode
      * Merge a given Memory node and its one positive join child into an
      * MP node, returning a pointer to the MP node.
      * 
-     * rete.cpp:1979:merge_into_mp_node
+     * <p>rete.cpp:1979:merge_into_mp_node
      * 
      * @param mem_node
      * @return
@@ -564,7 +578,7 @@ public class ReteNode
     /**
      * Create a new MP node
      * 
-     * rete.cpp:2043:make_new_mp_node
+     * <p>rete.cpp:2043:make_new_mp_node
      * 
      * @param rete
      * @param parent
@@ -599,7 +613,7 @@ public class ReteNode
     /**
      * Make a new negative node and return it
      * 
-     * rete.cpp:2069:make_new_negative_node
+     * <p>rete.cpp:2069:make_new_negative_node
      * 
      * @param rete
      * @param parent
@@ -643,7 +657,7 @@ public class ReteNode
     /**
      * Make new CN and CN_PARTNER nodes, return a pointer to the CN node.
      * 
-     * rete.cpp:2107:make_new_cn_node
+     * <p>rete.cpp:2107:make_new_cn_node
      * 
      * @param rete
      * @param parent
@@ -699,7 +713,7 @@ public class ReteNode
      *   - using update_node_with_matches_from_above (p_node) or handling
      *     an initial refracted instantiation
      *
-     * rete.cpp:2163:make_new_production_node
+     * <p>rete.cpp:2163:make_new_production_node
      * 
      * @param rete
      * @param parent
@@ -720,7 +734,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:2218:deallocate_rete_node
+     * <p>rete.cpp:2218:deallocate_rete_node
      * 
      * @param rete
      * @param node

@@ -17,7 +17,7 @@ public class StringTools
      * 'ab"c' with first/last character '"' yields '"ab\"c"'. This is used for
      * printing quoted strings and for printing symbols using |vbar| notation.
      * 
-     * print.cpp:181:string_to_escaped_string
+     * <p>print.cpp:181:string_to_escaped_string
      * 
      * @param s
      * @param first_and_last_char

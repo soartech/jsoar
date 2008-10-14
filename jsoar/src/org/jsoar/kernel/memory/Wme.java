@@ -86,20 +86,23 @@ public class Wme implements Formattable
     public final Symbol attr;
     public final Symbol value;
     public final boolean acceptable;
-    
     public final int timetag;
-    private int reference_count;
-    //public final AsListItem<Wme> in_rete = new AsListItem<Wme>(this); // used for dll of wmes in rete
-    private RightMemory right_mems; // used for dll of rm's it's in
     
+    private int reference_count;
+    
+    private RightMemory right_mems; // used for dll of rm's it's in
     public Token tokens = null; // dll of tokens in rete
     
     /**
-     * next/previous pointers for lists this WME is a member of. Possible list heads are:
-     * Identifier.impasse_wmes
-     * Identifier.input_wmes
-     * Slot.wmes
-     * Slot.acceptable_preference_wmes
+     * next/previous pointers for lists this WME is a member of. 
+     * 
+     * <p>Possible list heads are:
+     * <ul>
+     * <li>Identifier.impasse_wmes
+     * <li>Identifier.input_wmes
+     * <li>Slot.wmes
+     * <li>Slot.acceptable_preference_wmes
+     * </ul>
      */
     public Wme next;
     private Wme previous;
@@ -147,8 +150,35 @@ public class Wme implements Formattable
          correctly. */
       if (reference_count != 0) { reference_count--; }
       if (reference_count == 0) { wm.deallocate_wme(this); }
+    }
+    
+    /**
+     * Retrieve a field by index, 0 = id, 1 = attr, 2 = value.
+     * 
+     * <p>rete.cpp:273:field_from_wme
+     * 
+     * @param field The field index
+     * @return The field
+     * @throws IllegalArgumentException if index is not 0, 1, or 2
+     */
+    public Symbol getField(int field)
+    {
+        switch(field)
+        {
+        case 0: return id;
+        case 1: return attr;
+        case 2: return value;
+        }
+        throw new IllegalArgumentException("field_num must be 0, 1, or 2, got" + field);
     } 
     
+    /**
+     * Test if this WME is a member of a WME list
+     * 
+     * @param head The head of the list to search using {@link #next}/{@link #previous}
+     *      list pointers.
+     * @return true if this WME is a member of the given list
+     */
     public boolean isMemberOfList(Wme head)
     {
         for(Wme w = head; w != null; w = w.next)
@@ -276,6 +306,4 @@ public class Wme implements Formattable
         // <wme tag="123" id="s1" attr="foo" attrtype="string" val="123" valtype="string"></wme>
         // TODO xml_object( thisAgent, w );
     }
-    
-    
 }

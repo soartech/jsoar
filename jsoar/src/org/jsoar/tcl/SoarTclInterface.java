@@ -11,6 +11,7 @@ import java.util.EnumSet;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.tracing.Printer;
@@ -50,6 +51,10 @@ public class SoarTclInterface
                 throw new TclException(interp, e.getMessage());
             }
             catch (ReordererException e)
+            {
+                throw new TclException(interp, e.getMessage());
+            }
+            catch (ParserException e)
             {
                 throw new TclException(interp, e.getMessage());
             }

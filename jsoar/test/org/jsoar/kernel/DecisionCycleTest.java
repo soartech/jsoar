@@ -67,7 +67,7 @@ public class DecisionCycleTest
         agent.loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^foo 1)");
         agent.loadProduction("test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
         
-        assertTrue(agent.syms.find_sym_constant("test2").production.instantiations.isEmpty());
+        assertTrue(agent.getProduction("test2").instantiations.isEmpty());
         
         assertEquals(Phase.INPUT_PHASE, this.agent.decisionCycle.current_phase);
         this.agent.decisionCycle.do_one_top_level_phase();
@@ -81,7 +81,7 @@ public class DecisionCycleTest
         this.agent.decisionCycle.do_one_top_level_phase();
         
         // verify that (S1 foo 1) is being added to the rete by checking that test2 fired
-        assertFalse(agent.syms.find_sym_constant("test2").production.instantiations.isEmpty());
+        assertFalse(agent.getProduction("test2").instantiations.isEmpty());
         
         // Verify that new states are being generates
         assertEquals("S2", agent.decider.bottom_goal.toString());

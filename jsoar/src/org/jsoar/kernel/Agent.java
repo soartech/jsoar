@@ -12,8 +12,10 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -32,6 +34,8 @@ import org.jsoar.kernel.memory.TemporaryMemory;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.parser.Lexer;
 import org.jsoar.kernel.parser.Parser;
+import org.jsoar.kernel.parser.ParserException;
+import org.jsoar.kernel.rete.ProductionAddResult;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.ActionReorderer;
@@ -120,6 +124,7 @@ public class Agent
             productionsByType.put(type, new LinkedHashSet<Production>());
         }
     }
+    private Map<SymConstant, Production> productionsByName = new HashMap<SymConstant, Production>();
     
     public Agent()
     {
@@ -192,11 +197,11 @@ public class Agent
         return Arrays.asList(totalCpuTimer, totalKernelTimer);
     }
     
-    public void loadProduction(String productionBody) throws IOException, ReordererException
+    public void loadProduction(String productionBody) throws IOException, ReordererException, ParserException
     {
         StringReader reader = new StringReader(productionBody);
-        Lexer lexer = new Lexer(reader);
-        Parser parser = new Parser(variableGenerator, lexer);
+        Lexer lexer = new Lexer(printer, reader);
+        Parser parser = new Parser(variableGenerator, lexer, operand2_mode);
         lexer.getNextLexeme();
         addProduction(parser.parse_production(), true);
     }
@@ -212,6 +217,16 @@ public class Agent
      */
     private void addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
+        // if there's already a prod with this name, excise it
+        // Note, in csoar, this test was done in parse_production as soon as the name
+        // of the production was known. We do this here so we can eliminate the
+        // production field of SymConstant.
+        Production existing = getProduction(p.name.name);
+        if (existing != null) 
+        {
+            exciseProduction(existing, trace.isEnabled(Category.TRACE_LOADING_SYSPARAM));
+        }
+
         // Reorder the production
         p.reorder(variableGenerator, 
                   new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.name), 
@@ -222,14 +237,17 @@ public class Agent
         rl.addProduction(p);
         
         // Add it to the rete.
-        rete.add_production_to_rete(p);
-        // TODO (from parser.cpp)
-    //  if (*rete_addition_result==DUPLICATE_PRODUCTION) {
-//      excise_production (thisAgent, p, false);
-//      p = null;
-  //  }
+        ProductionAddResult result = rete.add_production_to_rete(p);
+        // from parser.cpp
+        if (result==ProductionAddResult.DUPLICATE_PRODUCTION) 
+        {
+            exciseProduction (p, false);
+            return;
+        }
+        
         totalProductions++;
         productionsByType.get(p.type).add(p);
+        productionsByName.put(p.name, p);
     }
     
     /**
@@ -252,21 +270,17 @@ public class Agent
         // Tell RL about the new production
         rl.addProduction(p);
         
-        // Add it to the rete.
-        //rete.add_production_to_rete(p);
-        // TODO (from parser.cpp)
-    //  if (*rete_addition_result==DUPLICATE_PRODUCTION) {
-//      excise_production (thisAgent, p, false);
-//      p = null;
-  //  }
+        // Production is added to the rete by the chunker
+
         totalProductions++;
         productionsByType.get(p.type).add(p);
+        productionsByName.put(p.name, p);
     }
     
     public Production getProduction(String name)
     {
         SymConstant sc = syms.find_sym_constant(name);
-        return sc != null ? sc.production : null;
+        return productionsByName.get(sc);
     }
     
     /**
@@ -305,8 +319,10 @@ public class Agent
     public void exciseProduction(Production prod, boolean print_sharp_sign)
     {
         // TODO if (prod->trace_firings) remove_pwatch (thisAgent, prod);
+        
         totalProductions--;
         productionsByType.get(prod.type).remove(prod);
+        productionsByName.remove(prod.name);
 
         rl.exciseProduction(prod);
 
@@ -318,9 +334,7 @@ public class Agent
         {
             rete.excise_production_from_rete(prod);
         }
-        prod.name.production = null;
         prod.production_remove_ref();
-        
     }
     
     /**

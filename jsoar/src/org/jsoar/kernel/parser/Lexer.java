@@ -8,10 +8,14 @@ package org.jsoar.kernel.parser;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.jsoar.kernel.tracing.Printer;
+
 public class Lexer implements LexemeTypes
 {
     private static final char EOF_AS_CHAR = 0xffff;
 
+    private final Printer printer;
+    
     private Reader input;
 
     private char current_char;
@@ -365,17 +369,14 @@ public class Lexer implements LexemeTypes
                 if ((lexer.current_char == EOF_AS_CHAR))
                 {
 
-                    // TODO
-                    // print (thisAgent, "Error: opening '|' without closing
-                    // '|'\n");
-                    // print_location_of_most_recent_lexeme(thisAgent);
-                    // /* BUGBUG if reading from top level, don't want to signal
-                    // EOF */
-                    // lexer.lexeme.type = EOF_LEXEME;
+                    lexer.printer.print ("Error: opening '|' without closing '|'\n");
+                    lexer.print_location_of_most_recent_lexeme();
+                    /* BUGBUG if reading from top level, don't want to signal EOF */
+                    lexer.lexeme.type = EOF_LEXEME;
                     // thisAgent->lexeme.string[0]=EOF_AS_CHAR;
                     // thisAgent->lexeme.string[1]=0;
                     // thisAgent->lexeme.length = 1;
-                    // return;
+                    return;
                 }
                 if (lexer.current_char == '\\')
                 {
@@ -408,13 +409,10 @@ public class Lexer implements LexemeTypes
                 if ((lexer.current_char == EOF_AS_CHAR))
                 {
 
-                    // TODO
-                    // print (thisAgent, "Error: opening '\"' without closing
-                    // '\"'\n");
-                    // print_location_of_most_recent_lexeme(thisAgent);
-                    // /* BUGBUG if reading from top level, don't want to signal
-                    // EOF */
-                    // thisAgent->lexeme.type = EOF_LEXEME;
+                    lexer.printer.print ("Error: opening '\"' without closing '\"'\n");
+                    lexer.print_location_of_most_recent_lexeme();
+                    // /* BUGBUG if reading from top level, don't want to signal EOF */
+                    lexer.lexeme.type = EOF_LEXEME;
                     // thisAgent->lexeme.string[0]=EOF_AS_CHAR;
                     // thisAgent->lexeme.string[1]=0;
                     // thisAgent->lexeme.length = 1;
@@ -525,15 +523,63 @@ public class Lexer implements LexemeTypes
             lex_unknown, lex_unknown, lex_unknown, lex_unknown, lex_unknown,
             lex_unknown };
 
-    private static final boolean constituent_char[] = new boolean[256];
-
-    private static final boolean number_starters[] = new boolean[256];
-
-    public Lexer(Reader reader) throws IOException
+    static final boolean constituent_char[] = new boolean[256];
+    static 
     {
+        /* --- setup constituent_char array --- */
+        String extra_constituents = "$%&*+-/:<=>?_";
+        for (int i = 0; i < 256; i++)
+        {
+            //
+            // When i == 1, strchr returns true based on the terminating
+            // character. This is not the intent, so we exclude that case
+            // here.
+            //
+            if (i != 0 && extra_constituents.indexOf((char) i) != -1)
+            {
+                constituent_char[i] = true;
+            }
+            else
+            {
+                constituent_char[i] = Character.isLetterOrDigit((char) i);
+            }
+        }
+    }
+
+    static final boolean number_starters[] = new boolean[256];
+    static
+    {
+        /* --- setup number_starters array --- */
+        for (int i = 0; i < 256; i++)
+        {
+            switch (i)
+            {
+            case '+':
+                number_starters[(int) '+'] = true;
+                break;
+            case '-':
+                number_starters[(int) '-'] = true;
+                break;
+            case '.':
+                number_starters[(int) '.'] = true;
+                break;
+            default:
+                number_starters[i] = Character.isDigit((char) i);
+            }
+        }
+    }
+
+    public Lexer(Printer printer, Reader reader) throws IOException
+    {
+        this.printer = printer;
         this.input = reader;
         init_lexer();
         get_next_char();
+    }
+    
+    Printer getPrinter()
+    {
+        return printer;
     }
     
     public Lexeme getCurrentLexeme()
@@ -632,15 +678,9 @@ public class Lexer implements LexemeTypes
         finish();
     }
 
-    private static class PossibleLexemeTypes
-    {
-        boolean possible_id, possible_var, possible_sc, possible_ic,
-                possible_fc;
-    }
-
     private boolean determine_type_of_constituent_string()
     {
-        PossibleLexemeTypes possibleType = determine_possible_symbol_types_for_string(lexeme.string);
+        PossibleLexemeTypes possibleType = PossibleLexemeTypes.determine_possible_symbol_types_for_string(lexeme.string);
 
         /* --- check whether it's a variable --- */
         if (possibleType.possible_var)
@@ -660,11 +700,9 @@ public class Lexer implements LexemeTypes
             catch (NumberFormatException e)
             {
 
-                // TODO
-                // print (thisAgent, "Error: bad integer (probably too
-                // large)\n");
-                // print_location_of_most_recent_lexeme(thisAgent);
-                // lexeme.int_val = 0;
+                printer.print("Error: bad integer (probably too large)\n");
+                print_location_of_most_recent_lexeme();
+                lexeme.int_val = 0;
                 return false;
             }
             return true;
@@ -680,9 +718,8 @@ public class Lexer implements LexemeTypes
             }
             catch (NumberFormatException e)
             {
-                // TODO
-                // print (thisAgent, "Error: bad floating point number\n");
-                // print_location_of_most_recent_lexeme(thisAgent);
+                printer.print("Error: bad floating point number\n");
+                print_location_of_most_recent_lexeme();
                 lexeme.float_val = 0.0f;
                 return false;
             }
@@ -701,10 +738,8 @@ public class Lexer implements LexemeTypes
             }
             catch (NumberFormatException e)
             {
-                // TODO
-                // print (thisAgent, "Error: bad number for identifier (probably
-                // too large)\n");
-                // print_location_of_most_recent_lexeme(thisAgent);
+                printer.print ("Error: bad number for identifier (probably too large)\n");
+                print_location_of_most_recent_lexeme();
                 lexeme.id_number = 0;
                 return false;
             }
@@ -715,18 +750,16 @@ public class Lexer implements LexemeTypes
         if (possibleType.possible_sc)
         {
             lexeme.type = SYM_CONSTANT_LEXEME;
-            if (true /* TODO printWarnings */)
+            if (printer.isPrintWarnings())
             {
                 if (lexeme.string.charAt(0) == '<')
                 {
                     if (lexeme.string.charAt(1) == '<')
                     {
-                        // print (thisAgent, "Warning: Possible disjunctive
-                        // encountered in reading symbolic constant\n");
-                        // print (thisAgent, " If a disjunctive was intended,
-                        // add a space after <<\n");
-                        // print (thisAgent, " If a constant was intended,
-                        // surround constant with vertical bars\n");
+                        printer.print( 
+                           "Warning: Possible disjunctive encountered in reading symbolic constant\n" +
+                           " If a disjunctive was intended, add a space after <<\n" +
+                           " If a constant was intended, surround constant with vertical bars\n");
                         //
                         // xml_generate_warning(thisAgent, "Warning: Possible
                         // disjunctive encountered in reading symbolic
@@ -739,11 +772,11 @@ public class Lexer implements LexemeTypes
                     }
                     else
                     {
-                        // print (thisAgent, "Warning: Possible variable
-                        // encountered in reading symbolic constant\n");
-                        // print (thisAgent, " If a constant was intended,
-                        // surround constant with vertical bars\n");
-                        //
+                        printer.print(
+                           "Warning: Possible variable encountered in reading symbolic constant\n" +
+                           " If a constant was intended, surround constant with vertical bars\n");
+
+                        // TODO
                         // xml_generate_warning(thisAgent, "Warning: Possible
                         // variable encountered in reading symbolic constant.\n
                         // If a constant was intended, surround constant with
@@ -759,13 +792,12 @@ public class Lexer implements LexemeTypes
                     {
                         if (lexeme.string.charAt(lexeme.string.length() - 2) == '>')
                         {
-                            // print (thisAgent, "Warning: Possible disjunctive
-                            // encountered in reading symbolic constant\n");
-                            // print (thisAgent, " If a disjunctive was
-                            // intended, add a space before >>\n");
-                            // print (thisAgent, " If a constant was intended,
-                            // surround constant with vertical bars\n");
-                            //
+                            printer.print(
+                               "Warning: Possible disjunctive encountered in reading symbolic constant\n" +
+                               " If a disjunctive was intended, add a space before >>\n" +
+                               " If a constant was intended, surround constant with vertical bars\n");
+                            
+                            // TODO
                             // xml_generate_warning(thisAgent, "Warning:
                             // Possible disjunctive encountered in reading
                             // symbolic constant.\n If a disjunctive was
@@ -779,18 +811,18 @@ public class Lexer implements LexemeTypes
                         }
                         else
                         {
-                            // print (thisAgent, "Warning: Possible variable
-                            // encountered in reading symbolic constant\n");
-                            // print (thisAgent, " If a constant was intended,
-                            // surround constant with vertical bars\n");
-                            //
+                            printer.print(
+                               "Warning: Possible variable encountered in reading symbolic constant\n" +
+                               " If a constant was intended, surround constant with vertical bars\n");
+                            
+                            // TODO
                             // xml_generate_warning(thisAgent, "Warning:
                             // Possible variable encountered in reading symbolic
                             // constant.\n If a constant was intended, surround
                             // constant with vertical bars.");
                             // //TODO: should this be appended to previous XML
                             // message, or should it be a separate message?
-                            // print_location_of_most_recent_lexeme(thisAgent);
+                            print_location_of_most_recent_lexeme();
 
                             // TODO: generate tagged output in
                             // print_location_of_most_recent_lexeme
@@ -920,49 +952,10 @@ public class Lexer implements LexemeTypes
     //
     private void init_lexer()
     {
-
-        /* --- setup constituent_char array --- */
-        String extra_constituents = "$%&*+-/:<=>?_";
-        for (int i = 0; i < 256; i++)
-        {
-            //
-            // When i == 1, strchr returns true based on the terminating
-            // character. This is not the intent, so we exclude that case
-            // here.
-            //
-            if (i != 0 && extra_constituents.indexOf((char) i) != -1)
-            {
-                constituent_char[i] = true;
-            }
-            else
-            {
-                constituent_char[i] = Character.isLetterOrDigit((char) i);
-            }
-        }
-
         // for (i=0; i<strlen(extra_constituents); i++)
         // {
         // constituent_char[(int)extra_constituents[i]]=TRUE;
         // }
-
-        /* --- setup number_starters array --- */
-        for (int i = 0; i < 256; i++)
-        {
-            switch (i)
-            {
-            case '+':
-                number_starters[(int) '+'] = true;
-                break;
-            case '-':
-                number_starters[(int) '-'] = true;
-                break;
-            case '.':
-                number_starters[(int) '.'] = true;
-                break;
-            default:
-                number_starters[i] = Character.isDigit((char) i);
-            }
-        }
 
         /* --- setup lexer_routines array --- */
         //
@@ -1075,52 +1068,51 @@ public class Lexer implements LexemeTypes
     private void print_location_of_most_recent_lexeme()
     {
         // TODO
-        // int i;
-        //
-        // if (thisAgent->current_file->line_of_start_of_last_lexeme ==
-        // thisAgent->current_file->current_line) {
-        // /* --- error occurred on current line, so print out the line --- */
-        // if (! reading_from_top_level(thisAgent)) {
-        // print (thisAgent, "File %s, line %lu:\n",
-        // thisAgent->current_file->filename,
-        // thisAgent->current_file->current_line);
-        // /* respond_to_load_errors (); AGR 527a */
-        // }
-        // if
-        // (thisAgent->current_file->buffer[strlen(thisAgent->current_file->buffer)-1]=='\n')
-        // print_string (thisAgent, thisAgent->current_file->buffer);
-        // else
-        // print (thisAgent, "%s\n",thisAgent->current_file->buffer);
-        // for (i=0; i<thisAgent->current_file->column_of_start_of_last_lexeme;
-        // i++)
-        // print_string (thisAgent, "-");
-        // print_string (thisAgent, "^\n");
-        //
-        // if (! reading_from_top_level(thisAgent)) {
-        // //respond_to_load_errors (thisAgent); /* AGR 527a */
-        // if (thisAgent->load_errors_quit)
-        // thisAgent->current_char = EOF_AS_CHAR;
-        // }
-        //
-        // /* AGR 527a The respond_to_load_errors call came too early (above),
-        // and the "continue" prompt appeared before the offending line was
-        // printed
-        // out, so the respond_to_load_errors call was moved here.
-        // AGR 26-Apr-94 */
-        //
-        // } else {
-        // /* --- error occurred on a previous line, so just give the position
-        // --- */
-        // print (thisAgent, "File %s, line %lu, column %lu.\n",
-        // thisAgent->current_file->filename,
-        // thisAgent->current_file->line_of_start_of_last_lexeme,
-        // thisAgent->current_file->column_of_start_of_last_lexeme + 1);
-        // if (! reading_from_top_level(thisAgent)) {
-        // //respond_to_load_errors (thisAgent);
-        // if (thisAgent->load_errors_quit)
-        // thisAgent->current_char = EOF_AS_CHAR;
-        // }
-        // }
+//         int i;
+//        
+//         if (line_of_start_of_last_lexeme == current_line) {
+//         // error occurred on current line, so print out the line
+//         if (! reading_from_top_level(thisAgent)) {
+//         print (thisAgent, "File %s, line %lu:\n",
+//         thisAgent->current_file->filename,
+//         thisAgent->current_file->current_line);
+//         /* respond_to_load_errors (); AGR 527a */
+//         }
+//         if(thisAgent->current_file->buffer[strlen(thisAgent->current_file->buffer)-1]=='\n')
+//         print_string (thisAgent, thisAgent->current_file->buffer);
+//         else
+//         print (thisAgent, "%s\n",thisAgent->current_file->buffer);
+//         
+//         for (i=0; i<thisAgent->current_file->column_of_start_of_last_lexeme;
+//         i++)
+//         print_string (thisAgent, "-");
+//         print_string (thisAgent, "^\n");
+//        
+//         if (! reading_from_top_level(thisAgent)) {
+//         //respond_to_load_errors (thisAgent); /* AGR 527a */
+//         if (thisAgent->load_errors_quit)
+//         thisAgent->current_char = EOF_AS_CHAR;
+//         }
+//        
+//         /* AGR 527a The respond_to_load_errors call came too early (above),
+//         and the "continue" prompt appeared before the offending line was
+//         printed
+//         out, so the respond_to_load_errors call was moved here.
+//         AGR 26-Apr-94 */
+//        
+//         } else {
+//         /* --- error occurred on a previous line, so just give the position
+//         --- */
+//         print (thisAgent, "File %s, line %lu, column %lu.\n",
+//         thisAgent->current_file->filename,
+//         thisAgent->current_file->line_of_start_of_last_lexeme,
+//         thisAgent->current_file->column_of_start_of_last_lexeme + 1);
+//         if (! reading_from_top_level(thisAgent)) {
+//         //respond_to_load_errors (thisAgent);
+//         if (thisAgent->load_errors_quit)
+//         thisAgent->current_char = EOF_AS_CHAR;
+//         }
+//         }
     }
 
     /*
@@ -1149,83 +1141,4 @@ public class Lexer implements LexemeTypes
     {
         this.allow_ids = allow_identifiers;
     }
-
-    /*
-     * ======================================================================
-     * Determine possible symbol types for string
-     * 
-     * This is a utility routine which figures out what kind(s) of symbol a
-     * given string could represent. At entry: s, length_of_s represent the
-     * string. At exit: possible_xxx is set to TRUE/FALSE to indicate whether
-     * the given string could represent that kind of symbol; rereadable is set
-     * to TRUE indicating whether the lexer would read the given string as a
-     * symbol with exactly the same name (as opposed to treating it as a special
-     * lexeme like "+", changing upper to lower case, etc.
-     * ======================================================================
-     */
-
-    private PossibleLexemeTypes determine_possible_symbol_types_for_string(
-            String s)
-    {
-
-        PossibleLexemeTypes p = new PossibleLexemeTypes();
-
-        if (s.length() == 0)
-        {
-            return p;
-        }
-
-        /* --- check if it's an integer or floating point number --- */
-        if (number_starters[s.charAt(0)])
-        {
-            try
-            {
-                Integer.parseInt(s);
-                p.possible_ic = true;
-            }
-            catch (NumberFormatException e)
-            {
-            }
-            try
-            {
-                Float.parseFloat(s);
-                p.possible_fc = s.indexOf('.') != -1;
-            }
-            catch (NumberFormatException e)
-            {
-            }
-        }
-
-        /* --- make sure it's entirely constituent characters --- */
-        for (int i = 0; i < s.length(); ++i)
-        {
-            if (!constituent_char[s.charAt(i)])
-            {
-                return p;
-            }
-        }
-
-        /* --- any string of constituents could be a sym constant --- */
-        p.possible_sc = true;
-
-        /* --- check whether it's a variable --- */
-        if ((s.charAt(0) == '<') && (s.charAt(s.length() - 1) == '>'))
-        {
-            p.possible_var = true;
-        }
-
-        /* --- check if it's an identifier --- */
-        if (Character.isLetter(s.charAt(0)))
-        {
-            /* --- is the rest of the string an integer? --- */
-            int i = 1;
-            while (i < s.length() && Character.isDigit(s.charAt(i)))
-            {
-                ++i;
-            }
-            p.possible_id = i == s.length();
-        }
-        return p;
-    }
-
 }

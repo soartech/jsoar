@@ -5,15 +5,14 @@
  */
 package org.jsoar.kernel.symbols;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jsoar.kernel.DeciderFlag;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.util.ListHead;
 
 /**
+ * <p>production.cpp:128:copy_symbol_list_adding_references - not needed
+ * 
  * @author ray
  */
 public abstract class Symbol extends EqualityTest
@@ -114,21 +113,7 @@ public abstract class Symbol extends EqualityTest
     {
         return false;
     }
-    
 
-    /**
-     * 
-     * production.cpp:128:copy_symbol_list_adding_references
-     * 
-     * @param syms
-     * @return
-     */
-    public static List<Symbol> copy_symbol_list_adding_references(List<Symbol> syms)
-    {
-        // TODO: What's the right type of list?
-        return new ArrayList<Symbol>(syms);
-    }  
-    
     /**
      * <p>production.cpp:1299:add_symbol_to_tc
      * 

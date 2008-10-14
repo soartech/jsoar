@@ -163,12 +163,10 @@ public abstract class Action
                 MakeAction oldMake = (MakeAction) old;
                 MakeAction newMake = new MakeAction();
 
-                newMake.id = (RhsSymbolValue) RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.id, cond,
-                        's');
+                newMake.id = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.id, cond, 's');
                 newMake.attr = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.attr, cond, 'a');
                 char first_letter = newMake.attr.getFirstLetter();
-                newMake.value = RhsValue
-                        .copy_rhs_value_and_substitute_varnames(rete, oldMake.value, cond, first_letter);
+                newMake.value = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.value, cond, first_letter);
                 if (old.preference_type.isBinary())
                 {
                     newMake.referent = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.referent, cond,
