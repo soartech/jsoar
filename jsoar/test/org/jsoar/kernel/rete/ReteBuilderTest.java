@@ -13,5 +13,9 @@ import org.junit.Test;
  */
 public class ReteBuilderTest
 {
-
+    @Test
+    public void testDummy()
+    {
+        
+    }
 }
