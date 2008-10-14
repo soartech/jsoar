@@ -18,6 +18,7 @@ public final class SoarConstants
      * kernel.h:206:TOP_GOAL_LEVEL
      */
     public static final int TOP_GOAL_LEVEL = 1;
+    
     /**
      * kernel.h:207:ATTRIBUTE_IMPASSE_LEVEL
      */
@@ -34,7 +35,8 @@ public final class SoarConstants
      * with the top-level-ref-cts turned off. Soar will be much more efficient.
      * See comments in recmem.cpp
      * 
-     * kernel.h:129:DO_TOP_LEVEL_REF_CTS
+     * <p>kernel.h:129:DO_TOP_LEVEL_REF_CTS
+     * <p>Pre-processor macro defaults to <b>not defined</b> in csoar
      */
     public static final boolean DO_TOP_LEVEL_REF_CTS = false;
     
@@ -47,7 +49,7 @@ public final class SoarConstants
      * list.
      * 
      * <p>kernel.h:165:O_REJECTS_FIRST
-     * <p>Pre-processor macro defaults to "defined" in csoar
+     * <p>Pre-processor macro defaults to <b>defined</b> in csoar
      */
     public static final boolean O_REJECTS_FIRST = true;
 }

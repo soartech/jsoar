@@ -2430,7 +2430,7 @@ public class Decider
     {
         do_buffered_acceptable_preference_wme_changes();
         do_buffered_link_changes();
-        context.workingMemory.do_buffered_wm_changes(context.io);
+        context.workingMemory.do_buffered_wm_changes(context.decisionCycle.d_cycle_count, context.io);
         context.tempMemory.remove_garbage_slots();
     }
     

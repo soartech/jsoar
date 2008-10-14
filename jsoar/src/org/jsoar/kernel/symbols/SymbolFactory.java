@@ -23,6 +23,14 @@ import com.google.common.collect.ReferenceMap;
  * time because symbols can't be garbage collected as long as they're in the
  * cache.
  * 
+ * <p>The following symtab.cpp functions have been dropped because they're not
+ * needed in Java:
+ * <ul>
+ * <li>deallocate_symbol
+ * </ul>
+ * 
+ * <p>symtab.cpp
+ * 
  * @author ray
  */
 public class SymbolFactory
@@ -60,7 +68,7 @@ public class SymbolFactory
      * by calling this routine, then proceed to mark various ids or vars
      * by setting the sym->id.tc_num or sym->var.tc_num fields.
      * 
-     * A global tc number counter is maintained and incremented by this
+     * <p>A global tc number counter is maintained and incremented by this
      * routine in order to generate a different tc_number each time.  If
      * the counter ever wraps around back to 0, we bump it up to 1 and
      * reset the the tc_num fields on all existing identifiers and variables
@@ -307,41 +315,6 @@ public class SymbolFactory
             }
         }
         return result;
-    }
-    
-    public void deallocate_symbol(Symbol sym)
-    {
-        Variable var = sym.asVariable();
-        if(var != null)
-        {
-            variables.remove(var.name);
-            return;
-        }
-        Identifier id = sym.asIdentifier();
-        if(id != null)
-        {
-            identifiers.remove(new IdKey(id.name_letter, id.name_number));
-            return;
-        }
-        SymConstant sc = sym.asSymConstant();
-        if(sc != null)
-        {
-            symConstants.remove(sc.name);
-            return;
-        }
-        IntConstant ic = sym.asIntConstant();
-        if(ic != null)
-        {
-            intConstants.remove(ic.value);
-            return;
-        }
-        FloatConstant fc = sym.asFloatConstant();
-        if(fc != null)
-        {
-            floatConstants.remove(fc.value);
-            return;
-        }
-        throw new IllegalArgumentException("Unkonwn symbol type!");
     }
     
     /**

@@ -15,18 +15,18 @@ import org.jsoar.util.ListHead;
 /**
  * Variable Generator
  * 
- * These routines are used for generating new variables. The variables aren't
+ * <p>These routines are used for generating new variables. The variables aren't
  * necessarily "completely" new--they might occur in some existing production.
  * But we usually need to make sure the new variables don't overlap with those
  * already used in a *certain* production--for instance, when variablizing a
  * chunk, we don't want to introduce a new variable that conincides with the
  * name of a variable already in an NCC in the chunk.
  * 
- * To use these routines, first call reset_variable_generator(), giving it lists
+ * <p>To use these routines, first call reset_variable_generator(), giving it lists
  * of conditions and actions whose variables should not be used. Then call
  * generate_new_variable() any number of times; each time, you give it a string
  * to use as the prefix for the new variable's name. The prefix string should
- * not include the opening "<".
+ * not include the opening "&lt;".
  * 
  * @author ray
  */
@@ -107,7 +107,6 @@ public class VariableGenerator
                 break;
 
             }
-            // symbol_remove_ref (thisAgent, New);
         }
 
         New.current_binding_value = null;

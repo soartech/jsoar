@@ -35,8 +35,8 @@ public final class Minus extends AbstractRhsFunctionHandler
         {
             IntConstant i = arg.asIntConstant();
             
-            return i != null ? syms.make_int_constant(-i.value) : 
-                               syms.make_float_constant(-arg.asFloatConstant().value);
+            return i != null ? syms.make_int_constant(-i.getValue()) : 
+                               syms.make_float_constant(-arg.asFloatConstant().getValue());
         }
         
         int i = 0;
@@ -45,12 +45,12 @@ public final class Minus extends AbstractRhsFunctionHandler
         IntConstant ic = arg.asIntConstant();
         if(ic != null)
         {
-            i = ic.value;
+            i = ic.getValue();
         }
         else
         {
             float_found = true;
-            f = arg.asFloatConstant().value;
+            f = arg.asFloatConstant().getValue();
         }
         for(int index = 1; index < arguments.size(); ++index)
         {
@@ -61,23 +61,23 @@ public final class Minus extends AbstractRhsFunctionHandler
             {
                 if(float_found)
                 {
-                    f -= ic.value;
+                    f -= ic.getValue();
                 }
                 else
                 {
-                    i -= ic.value;
+                    i -= ic.getValue();
                 }
             }
             else
             {
                 if(float_found)
                 {
-                    f -= arg.asFloatConstant().value;
+                    f -= arg.asFloatConstant().getValue();
                 }
                 else
                 {
                     float_found = true;
-                    f = i - arg.asFloatConstant().value;
+                    f = i - arg.asFloatConstant().getValue();
                 }
             }
         }

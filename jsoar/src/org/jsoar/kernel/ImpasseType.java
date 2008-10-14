@@ -6,7 +6,7 @@
 package org.jsoar.kernel;
 
 /**
- * gdatastructs.h:234
+ * <p>gdatastructs.h:234
  * 
  * @author ray
  */

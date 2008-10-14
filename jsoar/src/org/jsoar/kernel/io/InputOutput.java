@@ -16,6 +16,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IntConstant;
 import org.jsoar.kernel.symbols.SymConstant;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
@@ -29,37 +30,37 @@ import org.jsoar.util.ListHead;
  * the stuff that calls the input and output functions), plus the text
  * I/O routines.
  *
- * Init_soar_io() does what it says.  Do_input_cycle() and do_output_cycle()
+ * <p>Init_soar_io() does what it says.  Do_input_cycle() and do_output_cycle()
  * perform the entire input and output cycles -- these routines are called 
  * once per elaboration cycle.  (once per Decision cycle in Soar 8).
  * The output module is notified about WM changes via a call to
  * inform_output_module_of_wm_changes().
  * 
- * Output Routines
+ * <h3>Output Routines</h3>
  *
- * Inform_output_module_of_wm_changes() and do_output_cycle() are the
+ * <p>Inform_output_module_of_wm_changes() and do_output_cycle() are the
  * two top-level entry points to the output routines.  The former is
  * called by the working memory manager, and the latter from the top-level
  * phases sequencer.
  *
- * This module maintains information about all the existing output links
+ * <p>This module maintains information about all the existing output links
  * and the identifiers and wmes that are in the transitive closure of them.
  * On each output link wme, we put a pointer to an output_link structure.
  * Whenever inform_output_module_of_wm_changes() is called, we look for
  * new output links and modifications/removals of old ones, and update
  * the output_link structures accordingly.
  *
- * Transitive closure information is kept as follows:  each output_link
+ * <p>Transitive closure information is kept as follows:  each output_link
  * structure has a list of all the ids in the link's TC.  Each id in
  * the system has a list of all the output_link structures that it's
  * in the TC of.
  *
- * After some number of calls to inform_output_module_of_wm_changes(),
+ * <p>After some number of calls to inform_output_module_of_wm_changes(),
  * eventually do_output_cycle() gets called.  It scans through the list
  * of output links and calls the necessary output function for each
  * link that has changed in some way (add/modify/remove).
  * 
- * io.cpp
+ * <p>io.cpp
  * 
  * @author ray
  */
@@ -104,20 +105,16 @@ public class InputOutput
         this.io_header_output = get_new_io_identifier ('I');
 
       /* The following code was taken from the do_input_cycle function of io.cpp */
-      // Creating the io_header and adding the top state io header wme
-      this.io_header_link = add_input_wme (context.decider.top_state,
+        // Creating the io_header and adding the top state io header wme
+        this.io_header_link = add_input_wme (context.decider.top_state,
                                            context.predefinedSyms.io_symbol,
                                            this.io_header);
       // Creating the input and output header symbols and wmes
       // RPM 9/06 changed to use this.input/output_link_symbol
       // Note we don't have to save these wmes for later release since their parent
       //  is already being saved (above), and when we release it they will automatically be released
-      add_input_wme (this.io_header,
-              context.predefinedSyms.input_link_symbol,
-                     this.io_header_input);
-      add_input_wme (this.io_header,
-              context.predefinedSyms.output_link_symbol,
-                     this.io_header_output);
+        add_input_wme (this.io_header, context.predefinedSyms.input_link_symbol, this.io_header_input);
+        add_input_wme (this.io_header, context.predefinedSyms.output_link_symbol, this.io_header_output);
         
     }
 
@@ -254,7 +251,7 @@ public class InputOutput
             throw new IllegalArgumentException("w is not currently in working memory");
         }
 
-        /* Note: for efficiency, it might be better to use a hash table for the
+        /* TODO for efficiency, it might be better to use a hash table for the
         above test, rather than scanning the linked list.  We could have one
         global hash table for all the input wmes in the system. */
         // go ahead and remove the wme
@@ -266,31 +263,18 @@ public class InputOutput
             {
                 if (w.gds.getGoal() != null)
                 {
-                    // TODO verbose trace wm changes
-                    /*
-                    if (thisAgent->soar_verbose_flag || thisAgent->sysparams[TRACE_WM_CHANGES_SYSPARAM]) 
-                    {
-                        char buf[256];
-                        SNPRINTF(buf, 254, "remove_input_wme: Removing state S%d because element in GDS changed.", w->gds->goal->id.level);
-
-                        print(thisAgent, buf );
-                        print(thisAgent, " WME: "); 
-
-                        xml_begin_tag( thisAgent, kTagVerbose );
-                        xml_att_val( thisAgent, kTypeString, buf );
-                        print_wme(thisAgent, w);
-                        xml_end_tag( thisAgent, kTagVerbose );
-                    }
-                    */
+                    // TODO verbose trace wm changes in verbose as well
+                    context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, 
+                            "remove_input_wme: Removing state S%d because element in GDS changed. WME: %s\n", 
+                            w.gds.getGoal().level, w);
 
                     context.decider.gds_invalid_so_remove_goal(w);
-                    /* NOTE: the call to remove_wme_from_wm will take care
-                    of checking if GDS should be removed */
+                    
+                    // NOTE: the call to remove_wme_from_wm will take care
+                    // of checking if GDS should be removed
                 }
             }
         }
-
-        /* REW: end   09.15.96 */
 
         context.workingMemory.remove_wme_from_wm(w);
     }
@@ -305,27 +289,25 @@ public class InputOutput
             // top state was just removed
 
             // TODO callback INPUT_PHASE_CALLBACK/TOP_STATE_JUST_REMOVED
-            // soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK,
-            // (soar_call_data) TOP_STATE_JUST_REMOVED);
+            // soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK, (soar_call_data) TOP_STATE_JUST_REMOVED);
             this.io_header = null; /* RBD added 3/25/95 */
             this.io_header_input = null; /* RBD added 3/25/95 */
             this.io_header_output = null; /* KJC added 3/3/99 */
             this.io_header_link = null; /* KJC added 3/3/99 */
         }
 
-        /* --- if there is a top state, do the normal input cycle --- */
+        // if there is a top state, do the normal input cycle
 
         if (context.decider.top_state != null)
         {
             // TODO callback INPUT_PHASE_CALLBACK/NORMAL_INPUT_CYCLE
-            // soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK,
-            //             (soar_call_data) NORMAL_INPUT_CYCLE);
+            // soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK, (soar_call_data) NORMAL_INPUT_CYCLE);
         }
 
         // do any WM resulting changes
         context.decider.do_buffered_wm_and_ownership_changes();
 
-        /* --- save current top state for next time --- */
+        // save current top state for next time
         context.decider.prev_top_state = context.decider.top_state;
 
         /* --- reset the output-link status flag to FALSE
@@ -341,34 +323,44 @@ public class InputOutput
     /**
      * Output Link Status Updates on WM Changes
      * 
-     * Top-state link changes:
+     * <h3>Top-state link changes:</h3>
      * 
-     * For wme addition: (top-state ^link-attr anything) create new output_link structure; mark it "new" For wme
-     * removal: (top-state ^link-attr anything) mark the output_link "removed"
+     * <pre>
+     * For wme addition: (top-state ^link-attr anything) 
+     *  create new output_link structure; mark it "new" For wme
+     * removal: (top-state ^link-attr anything) 
+     *  mark the output_link "removed"
+     * </pre>
      * 
-     * TC of existing link changes:
+     * <h3>TC of existing link changes:</h3>
      * 
-     * For wme addition or removal: (<id> ^att constant): for each link in associated_output_links(id), mark link
-     * "modified but same tc" (unless it's already marked some other more serious way)
+     * <pre>
+     * For wme addition or removal: (<id> ^att constant): 
+     *  for each link in associated_output_links(id), 
+     *  mark link "modified but same tc" (unless it's already marked some other more serious way)
+     * </pre>
+     * <pre>
+     * For wme addition or removal: (<id> ^att <id2>): 
+     *  for each link in associated_output_links(id), 
+     *  mark link "modified" (unless it's already marked some other more serious way)
+     * </pre>
      * 
-     * For wme addition or removal: (<id> ^att <id2>): for each link in associated_output_links(id), mark link
-     * "modified" (unless it's already marked some other more serious way)
+     * <p>Note that we don't update all the TC information after every WM change. 
+     * The TC info doesn't get updated until do_output_cycle() is called.
      * 
-     * Note that we don't update all the TC information after every WM change. The TC info doesn't get updated until
-     * do_output_cycle() is called.
-     * 
-     * io.cpp:424:update_for_top_state_wme_addition
+     * <p>io.cpp:424:update_for_top_state_wme_addition
      * 
      * @param w
      */
     private void update_for_top_state_wme_addition(Wme w)
     {
-        /* --- check whether the attribute is an output function --- */
+        // check whether the attribute is an output function
         // TODO get output link callback
         // symbol_to_string(thisAgent, w->attr, FALSE, link_name, LINK_NAME_SIZE);
         // cb = soar_exists_callback_id(thisAgent, OUTPUT_PHASE_CALLBACK, link_name);
         // if (!cb) return;
-        /* --- create new output link structure --- */
+        
+        // create new output link structure
         OutputLink ol = new OutputLink(w);
         ol.next_prev.insertAtHead(existing_output_links);
 
@@ -427,14 +419,14 @@ public class InputOutput
         {
             if (w.value.asIdentifier() != null)
             {
-                /* --- mark ol "modified" --- */
+                // mark ol "modified"
                 if ((ol.status == OutputLinkStatus.UNCHANGED_OL_STATUS)
                         || (ol.status == OutputLinkStatus.MODIFIED_BUT_SAME_TC_OL_STATUS))
                     ol.status = OutputLinkStatus.MODIFIED_OL_STATUS;
             }
             else
             {
-                /* --- mark ol "modified but same tc" --- */
+                // mark ol "modified but same tc"
                 if (ol.status == OutputLinkStatus.UNCHANGED_OL_STATUS)
                     ol.status = OutputLinkStatus.MODIFIED_BUT_SAME_TC_OL_STATUS;
             }
@@ -447,23 +439,23 @@ public class InputOutput
      * @param wmes_being_added
      * @param wmes_being_removed
      */
-    public void inform_output_module_of_wm_changes(ListHead<Wme> wmes_being_added, ListHead<Wme> wmes_being_removed)
+    public void inform_output_module_of_wm_changes(int d_cycle_count, ListHead<Wme> wmes_being_added, ListHead<Wme> wmes_being_removed)
     {
-        /* if wmes are added, set flag so can stop when running til output */
+        // if wmes are added, set flag so can stop when running til output
         for (AsListItem<Wme> it = wmes_being_added.first; it != null; it = it.next)
         {
             final Wme w = it.item;
             if (w.id == io_header)
             {
                 update_for_top_state_wme_addition(w);
-                output_link_changed = true; /* KJC 11/23/98 */
-                this.d_cycle_last_output = context.decisionCycle.d_cycle_count; /* KJC 11/17/05 */
+                output_link_changed = true;
+                this.d_cycle_last_output = d_cycle_count;
             }
             if (w.id.associated_output_links != null && !w.id.associated_output_links.isEmpty())
             {
                 update_for_io_wme_change(w);
-                output_link_changed = true; /* KJC 11/23/98 */
-                this.d_cycle_last_output = context.decisionCycle.d_cycle_count; /* KJC 11/17/05 */
+                output_link_changed = true;
+                this.d_cycle_last_output = d_cycle_count;
             }
         }
         for (AsListItem<Wme> it = wmes_being_removed.first; it != null; it = it.next)
@@ -479,13 +471,13 @@ public class InputOutput
     /**
      * Updating Link TC Information
      * 
-     * We make no attempt to do the TC updating intelligently. Whenever the TC changes, we throw away all the old TC
+     * <p>We make no attempt to do the TC updating intelligently. Whenever the TC changes, we throw away all the old TC
      * info and recalculate the new TC from scratch. I figure that this part of the system won't get used very
      * frequently and I hope it won't be a time hog.
      * 
-     * Remove_output_link_tc_info() and calculate_output_link_tc_info() are the main routines here.
+     * <p>Remove_output_link_tc_info() and calculate_output_link_tc_info() are the main routines here.
      * 
-     * io.cpp:548:remove_output_link_tc_info
+     * <p>io.cpp:548:remove_output_link_tc_info
      * 
      * @param ol
      */
@@ -505,7 +497,7 @@ public class InputOutput
 
     /**
      * 
-     * io.cpp:576:add_id_to_output_link_tc
+     * <p>io.cpp:576:add_id_to_output_link_tc
      * 
      * @param id
      */
@@ -542,8 +534,9 @@ public class InputOutput
                 if (valueAsId != null)
                     add_id_to_output_link_tc(valueAsId);
             }
-        /* don't need to check impasse_wmes, because we couldn't have a pointer
-           to a goal or impasse identifier */
+        
+        // don't need to check impasse_wmes, because we couldn't have a pointer
+        // to a goal or impasse identifier
     }
 
     /**
@@ -629,11 +622,11 @@ public class InputOutput
             switch (ol.status)
             {
             case UNCHANGED_OL_STATUS:
-                /* --- output link is unchanged, so do nothing --- */
+                // output link is unchanged, so do nothing
                 break;
 
             case NEW_OL_STATUS:
-                /* --- calculate tc, and call the output function --- */
+                // calculate tc, and call the output function
                 calculate_output_link_tc_info(ol);
                 iw_list = get_io_wmes_for_output_link(ol);
                 // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
@@ -659,7 +652,7 @@ public class InputOutput
                 break;
 
             case MODIFIED_BUT_SAME_TC_OL_STATUS:
-                /* --- don't have to redo the TC, but do call the output function --- */
+                // don't have to redo the TC, but do call the output function
                 iw_list = get_io_wmes_for_output_link(ol);
 
                 // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
@@ -685,7 +678,7 @@ public class InputOutput
                 break;
 
             case MODIFIED_OL_STATUS:
-                /* --- redo the TC, and call the output function */
+                // redo the TC, and call the output function
                 remove_output_link_tc_info(ol);
                 calculate_output_link_tc_info(ol);
                 iw_list = get_io_wmes_for_output_link(ol);
@@ -713,7 +706,7 @@ public class InputOutput
                 break;
 
             case REMOVED_OL_STATUS:
-                /* --- call the output function, and free output_link structure --- */
+                // call the output function, and free output_link structure
                 remove_output_link_tc_info(ol); /* sets ids_in_tc to NIL */
                 iw_list = get_io_wmes_for_output_link(ol); /* gives just the link wme */
 
@@ -740,16 +733,18 @@ public class InputOutput
                 ol.next_prev.remove(existing_output_links);
                 break;
             }
-        } /* end of for ol */
-
+        }
     }
 
     /**
-     * This is a simple utility function for use in users' output functions. It finds things in an io_wme chain. It
-     * takes "outputs" (the io_wme chain), and "id" and "attr" (symbols to match against the wmes), and returns the
-     * value from the first wme in the chain with a matching id and attribute. Either "id" or "attr" (or both) can be
-     * specified as "don't care" by giving NULL (0) pointers for them instead of pointers to symbols. If no matching wme
-     * is found, the function returns a NULL pointer.
+     * This is a simple utility function for use in users' output functions. 
+     * It finds things in an io_wme chain. It takes "outputs" (the io_wme 
+     * chain), and "id" and "attr" (symbols to match against the wmes), and 
+     * returns the value from the first wme in the chain with a matching id 
+     * and attribute. Either "id" or "attr" (or both) can be specified as 
+     * "don't care" by giving NULL (0) pointers for them instead of pointers 
+     * to symbols. If no matching wme is found, the function returns a NULL 
+     * pointer.
      * 
      * @param outputs
      * @param id

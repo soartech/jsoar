@@ -746,12 +746,12 @@ public class Exploration
         FloatConstant f = s.asFloatConstant();
         if(f != null)
         {
-            return f.value;
+            return f.getValue();
         }
         IntConstant i = s.asIntConstant();
         if(i != null)
         {
-            return i.value;
+            return i.getValue();
         }
         return 0.0;
     }

@@ -58,6 +58,6 @@ public final class RhsFunctionTools
     {
         IntConstant ic = sym.asIntConstant();
         
-        return ic != null ? ic.value : sym.asFloatConstant().value;
+        return ic != null ? ic.getValue() : sym.asFloatConstant().getValue();
     }
 }

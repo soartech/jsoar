@@ -221,7 +221,7 @@ public class Agent
         // Note, in csoar, this test was done in parse_production as soon as the name
         // of the production was known. We do this here so we can eliminate the
         // production field of SymConstant.
-        Production existing = getProduction(p.name.name);
+        Production existing = getProduction(p.name.getValue());
         if (existing != null) 
         {
             exciseProduction(existing, trace.isEnabled(Category.TRACE_LOADING_SYSPARAM));
@@ -229,8 +229,8 @@ public class Agent
 
         // Reorder the production
         p.reorder(variableGenerator, 
-                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.name), 
-                  new ActionReorderer(printer, p.name.name), 
+                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.getValue()), 
+                  new ActionReorderer(printer, p.name.getValue()), 
                   reorder_nccs);
 
         // Tell RL about the new production
@@ -263,8 +263,8 @@ public class Agent
     {
         // Reorder the production
         p.reorder(variableGenerator, 
-                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.name), 
-                  new ActionReorderer(printer, p.name.name), 
+                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.getValue()), 
+                  new ActionReorderer(printer, p.name.getValue()), 
                   false);
 
         // Tell RL about the new production

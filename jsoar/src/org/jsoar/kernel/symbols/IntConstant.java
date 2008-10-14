@@ -12,7 +12,7 @@ import java.util.Formatter;
  */
 public class IntConstant extends Symbol
 {
-    public final int value;
+    private final int value;
     
     /**
      * @param hash_id
@@ -24,6 +24,15 @@ public class IntConstant extends Symbol
     }
 
     
+    /**
+     * @return the value
+     */
+    public int getValue()
+    {
+        return value;
+    }
+
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Symbol#asIntConstant()
      */
@@ -53,11 +62,11 @@ public class IntConstant extends Symbol
         IntConstant i = other.asIntConstant();
         if(i != null)
         {
-            return value < i.value;
+            return getValue() < i.getValue();
         }
         FloatConstant f = other.asFloatConstant();
         
-        return f != null ? value < f.value : super.numericLess(other);
+        return f != null ? getValue() < f.getValue() : super.numericLess(other);
     }
 
     /* (non-Javadoc)
@@ -69,11 +78,11 @@ public class IntConstant extends Symbol
         IntConstant i = other.asIntConstant();
         if(i != null)
         {
-            return value <= i.value;
+            return getValue() <= i.getValue();
         }
         FloatConstant f = other.asFloatConstant();
         
-        return f != null ? value <= f.value : super.numericLess(other);
+        return f != null ? getValue() <= f.getValue() : super.numericLess(other);
     }
 
     /* (non-Javadoc)
@@ -85,11 +94,11 @@ public class IntConstant extends Symbol
         IntConstant i = other.asIntConstant();
         if(i != null)
         {
-            return value > i.value;
+            return getValue() > i.getValue();
         }
         FloatConstant f = other.asFloatConstant();
         
-        return f != null ? value > f.value : super.numericLess(other);
+        return f != null ? getValue() > f.getValue() : super.numericLess(other);
     }
 
     /* (non-Javadoc)
@@ -101,11 +110,11 @@ public class IntConstant extends Symbol
         IntConstant i = other.asIntConstant();
         if(i != null)
         {
-            return value >= i.value;
+            return getValue() >= i.getValue();
         }
         FloatConstant f = other.asFloatConstant();
         
-        return f != null ? value >= f.value : super.numericLess(other);
+        return f != null ? getValue() >= f.getValue() : super.numericLess(other);
     }
     
     /* (non-Javadoc)
@@ -114,7 +123,7 @@ public class IntConstant extends Symbol
     @Override
     public String toString()
     {
-        return Integer.toString(value);
+        return Integer.toString(getValue());
     }
 
 
@@ -124,7 +133,7 @@ public class IntConstant extends Symbol
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format(Integer.toString(value));
+        formatter.format(Integer.toString(getValue()));
     }
     
     

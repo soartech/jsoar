@@ -6,22 +6,19 @@
 package org.jsoar.kernel;
 
 /**
-                   Decider Flags
-
-   The decider often needs to mark symbols with
-   certain flags, usually to record that the symbols
-   are in certain sets or have a certain status.
-   The "common.decider_flag" field on symbols is
-   used for this, and is set to one of the following
-   flag values.  (Usually only two or three of these
-   values are used at once, and the meaning should
-   be clear from the code.)
-   
+ * The decider often needs to mark symbols with certain flags, usually to record
+ * that the symbols are in certain sets or have a certain status. The
+ * "common.decider_flag" field on symbols is used for this, and is set to one of
+ * the following flag values. (Usually only two or three of these values are
+ * used at once, and the meaning should be clear from the code.)
+ * 
+ * <p>decide.cpp:120:DECIDER_FLAG
+ * 
  * @author ray
  */
 public enum DeciderFlag
 {
-    NOTHING_DECIDER_FLAG,     /* Warning: code relies in this being 0 */
+    NOTHING_DECIDER_FLAG,
     CANDIDATE_DECIDER_FLAG,
     CONFLICTED_DECIDER_FLAG,
     FORMER_CANDIDATE_DECIDER_FLAG,
