@@ -23,6 +23,7 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.StringTools;
 
 public class Production
 {
@@ -49,7 +50,7 @@ public class Production
     /**
      * Function introduced while trying to tease apart production construction
      * 
-     * production.cpp:1507:make_production
+     * <p>production.cpp:1507:make_production
      * 
      * @param p
      */
@@ -61,18 +62,9 @@ public class Production
         Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
         Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
         
-        if(name.production != null)
-        {
-            throw new IllegalStateException("Internal error: Production with name '" + name + "' already exists");
-        }
-        
         this.type = type;
         this.name = name;
-        this.name.production = this;
-        // TODO insert_at_head_of_dll (thisAgent->all_productions_of_type[type], p, next, prev);
-        // TODO thisAgent->num_productions_of_type[type]++;
-        this.p_node = null;               /* it's not in the Rete yet */
-        
+        this.p_node = null; // it's not in the Rete yet
         this.condition_list = lhs_top_in;
         this.bottomOfConditionList = lhs_bottom_in;
         this.action_list = rhs_top_in;
@@ -85,7 +77,7 @@ public class Production
      * 
      * <p>Function introduced while trying to tease apart production construction
      * 
-     * production.cpp:1507:make_production
+     * <p>production.cpp:1507:make_production
      * 
      * @param varGen A variable generator
      * @param cr A condition reorderer
@@ -194,9 +186,7 @@ public class Production
         // print optional documention string
         if (documentation != null)
         {
-            // TODO string_to_escaped_string (thisAgent, p->documentation, '"',
-            // temp);
-            printer.print("    %s\n", documentation);
+            printer.print("    %s\n", StringTools.string_to_escaped_string(documentation, '"'));
         }
 
         // print any flags

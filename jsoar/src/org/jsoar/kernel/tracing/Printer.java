@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.tracing;
 
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Arrays;
@@ -28,6 +29,11 @@ public class Printer
     private PrintWriter wrappedWriter;
     
     private boolean printWarnings = true;
+    
+    public static Printer createStdOutPrinter()
+    {
+        return new Printer(new OutputStreamWriter(System.out), true);
+    }
     
     /**
      * @param writer The writer to write to. If null, then a NullWriter is used

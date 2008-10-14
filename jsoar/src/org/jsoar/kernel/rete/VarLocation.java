@@ -5,30 +5,57 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.Variable;
 
 /**
- * rete.cpp:255
+ * Variable location. Objects of this class are immutable
+ * 
+ * <p>rete.cpp:255:var_location
  * 
  * @author ray
  */
 public class VarLocation
 {
-    int levels_up; // 0=current node's alphamem, 1=parent's, etc.
-    int field_num; // 0=id, 1=attr, 2=value
-
+    final int levels_up; // 0=current node's alphamem, 1=parent's, etc.
+    final int field_num; // 0=id, 1=attr, 2=value
+    
+    public static final VarLocation DEFAULT = new VarLocation(0, 0);
+    
     /**
-     * Copy another var location into this one
+     * This routine finds the most recent place a variable was bound.
+     * It does this simply by looking at the top of the binding stack
+     * for that variable.  If there is any binding, its location is stored
+     * in the parameter *result, and the function returns TRUE.  If no
+     * binding is found, the function returns FALSE.
      * 
-     * @param other The other var location 
+     * <p>rete.cpp:2373:find_var_location
+     * 
+     * @param var
+     * @param current_depth
+     * @return
      */
-    public void assign(VarLocation other)
+    static VarLocation find(Variable var, /* rete_node_level */ int current_depth)
     {
-        this.levels_up = other.levels_up;
-        this.field_num = other.field_num;
+        if (!var.var_is_bound())
+        {
+            return null;
+        }
+        int dummy = var.rete_binding_locations.peek();
+        
+        return new VarLocation(current_depth - Variable.dummy_to_varloc_depth(dummy),
+                               Variable.dummy_to_varloc_field_num(dummy));
     }
     
+    /**
+     * @param levels_up
+     * @param field_num
+     */
+    private VarLocation(int levels_up, int field_num)
+    {
+        this.levels_up = levels_up;
+        this.field_num = field_num;
+    }
+
     /**
      * rete.cpp:263:var_locations_equal
      * 
@@ -41,24 +68,6 @@ public class VarLocation
       return ( ((v1).levels_up==(v2).levels_up) && ((v1).field_num==(v2).field_num) );
     }
     
-    /**
-     * rete.cpp:273:field_from_wme
-     * 
-     * @param wme
-     * @param field_num
-     * @return
-     */
-    public static Symbol field_from_wme(Wme wme, int field_num)
-    {
-        switch(field_num)
-        {
-        case 0: return wme.id;
-        case 1: return wme.attr;
-        case 2: return wme.value;
-        }
-        throw new IllegalArgumentException("field_num must be 0, 1, or 2, got" + field_num);
-    }
-
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
@@ -67,7 +76,4 @@ public class VarLocation
     {
         return levels_up + ":" + field_num;
     }
-
-    
-
 }

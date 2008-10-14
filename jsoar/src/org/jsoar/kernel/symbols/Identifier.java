@@ -217,6 +217,6 @@ public class Identifier extends Symbol
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format(toString());
+        formatter.format(name_letter + Integer.toString(name_number));
     }
 }

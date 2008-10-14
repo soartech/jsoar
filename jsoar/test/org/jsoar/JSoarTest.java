@@ -54,9 +54,9 @@ public class JSoarTest
     
     protected Parser createParser(String input) throws IOException
     {
-        Lexer lexer = new Lexer(new StringReader(input));
+        Lexer lexer = new Lexer(Printer.createStdOutPrinter(), new StringReader(input));
         
-        Parser parser = new Parser(new VariableGenerator(syms), lexer);
+        Parser parser = new Parser(new VariableGenerator(syms), lexer, true);
         lexer.getNextLexeme();
         return parser;
     }

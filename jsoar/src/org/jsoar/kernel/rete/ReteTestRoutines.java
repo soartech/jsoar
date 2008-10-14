@@ -23,7 +23,7 @@ public class ReteTestRoutines
      */
     private static boolean disjunction_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
     {
-        Symbol sym = VarLocation.field_from_wme(w, rt.right_field_num);
+        Symbol sym = w.getField(rt.right_field_num);
         return rt.disjunction_list.contains(sym);
     }
         
@@ -159,37 +159,37 @@ public class ReteTestRoutines
 
     private static boolean equalTest(ReteTest rt, Wme w, Symbol s2)
     {
-        Symbol s1 = VarLocation.field_from_wme(w, rt.right_field_num);
+        Symbol s1 = w.getField(rt.right_field_num);
 
         return s1 == s2;
     }
     private static boolean lessTest(ReteTest rt, Wme w, Symbol s2)
     {
-        Symbol s1 = VarLocation.field_from_wme(w, rt.right_field_num);
+        Symbol s1 = w.getField(rt.right_field_num);
 
         return s1.numericLess(s2);
     }
     private static boolean lessEqualTest(ReteTest rt, Wme w, Symbol s2)
     {
-        Symbol s1 = VarLocation.field_from_wme(w, rt.right_field_num);
+        Symbol s1 = w.getField(rt.right_field_num);
 
         return s1.numericLessOrEqual(s2);
     }
     private static boolean greaterTest(ReteTest rt, Wme w, Symbol s2)
     {
-        Symbol s1 = VarLocation.field_from_wme(w, rt.right_field_num);
+        Symbol s1 = w.getField(rt.right_field_num);
 
         return s1.numericGreater(s2);
     }
     private static boolean greaterEqualTest(ReteTest rt, Wme w, Symbol s2)
     {
-        Symbol s1 = VarLocation.field_from_wme(w, rt.right_field_num);
+        Symbol s1 = w.getField(rt.right_field_num);
 
         return s1.numericGreaterOrEqual(s2);
     }
     private static boolean sameTypeTest(ReteTest rt, Wme w, Symbol s2)
     {
-        Symbol s1 = VarLocation.field_from_wme(w, rt.right_field_num);
+        Symbol s1 = w.getField(rt.right_field_num);
 
         return s1.isSameTypeAs(s2);
     }
@@ -215,7 +215,7 @@ public class ReteTestRoutines
             }
             w = left.w;
           }
-          return VarLocation.field_from_wme (w, rt.variable_referent.field_num);
+          return w.getField(rt.variable_referent.field_num);
     }
     
     /**

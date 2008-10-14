@@ -204,7 +204,6 @@ public class Variable extends Symbol
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        // TODO format variable
         formatter.format(name);
     }
     

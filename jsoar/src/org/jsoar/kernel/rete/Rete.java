@@ -185,12 +185,11 @@ public class Rete
         Condition lhs_top = p.condition_list;
         ProductionAddResult production_addition_result;
 
-        ReteBuilder builder = new ReteBuilder();
         ByRef<ReteNode> bottom_node = ByRef.create(null);
         ByRef<Integer> bottom_depth = ByRef.create(0);
         ByRef<ListHead<Variable>> vars_bound = ByRef.create(null);
         // build the network for all the conditions
-        builder.build_network_for_condition_list(this, lhs_top, 1, dummy_top_node, bottom_node, bottom_depth,
+        ReteBuilder.build_network_for_condition_list(this, lhs_top, 1, dummy_top_node, bottom_node, bottom_depth,
                 vars_bound);
 
         // change variable names in RHS to Rete location references or
@@ -203,25 +202,25 @@ public class Rete
             MakeAction ma = a.asMakeAction();
             if (ma != null)
             {
-                ma.value = builder.fixup_rhs_value_variable_references(this, ma.value, bottom_depth.value,
+                ma.value = ReteBuilder.fixup_rhs_value_variable_references(this, ma.value, bottom_depth.value,
                         rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
 
-                ma.id = builder.fixup_rhs_value_variable_references(this, ma.id, bottom_depth.value,
+                ma.id = ReteBuilder.fixup_rhs_value_variable_references(this, ma.id, bottom_depth.value,
                         rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
 
-                ma.attr = builder.fixup_rhs_value_variable_references(this, ma.attr, bottom_depth.value,
+                ma.attr = ReteBuilder.fixup_rhs_value_variable_references(this, ma.attr, bottom_depth.value,
                         rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
 
                 if (a.preference_type.isBinary())
                 {
-                    ma.referent = builder.fixup_rhs_value_variable_references(this, ma.referent, bottom_depth.value,
+                    ma.referent = ReteBuilder.fixup_rhs_value_variable_references(this, ma.referent, bottom_depth.value,
                             rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
                 }
             }
             else
             {
                 FunctionAction fa = a.asFunctionAction();
-                RhsValue result = builder.fixup_rhs_value_variable_references(this, fa.call, bottom_depth.value,
+                RhsValue result = ReteBuilder.fixup_rhs_value_variable_references(this, fa.call, bottom_depth.value,
                         rhs_unbound_vars_for_new_prod, rhs_unbound_vars_tc);
                 assert result == fa.call; // sanity check
 
@@ -741,10 +740,7 @@ public class Rete
      */
     void init_dummy_top_node()
     {
-        /* --- create the dummy top node --- */
-        dummy_top_node = new ReteNode(ReteNodeType.DUMMY_TOP_BNODE);
-
-        /* --- create the dummy top token --- */
+        dummy_top_node = ReteNode.createDummy();
         dummy_top_token = RightToken.createDummy(dummy_top_node);
     }
     
@@ -807,32 +803,6 @@ public class Rete
     }
 
     /**
-     * This routine finds the most recent place a variable was bound.
-     * It does this simply by looking at the top of the binding stack
-     * for that variable.  If there is any binding, its location is stored
-     * in the parameter *result, and the function returns TRUE.  If no
-     * binding is found, the function returns FALSE.
-     * 
-     * <p>rete.cpp:2373:find_var_location
-     * 
-     * @param var
-     * @param current_depth
-     * @param result
-     * @return
-     */
-    boolean find_var_location(Variable var, /* rete_node_level */ int current_depth, VarLocation result)
-    {
-        if (!var.var_is_bound())
-        {
-            return false;
-        }
-        int dummy = var.rete_binding_locations.peek();
-        result.levels_up = current_depth - Variable.dummy_to_varloc_depth(dummy);
-        result.field_num = Variable.dummy_to_varloc_field_num(dummy);
-        return true;
-    }    
-
-    /**
      * This routine pushes bindings for variables occurring (i.e., being
      * equality-tested) in a given test.  It can do this in DENSE fashion
      * (push a new binding for ANY variable) or SPARSE fashion (push a new
@@ -850,7 +820,6 @@ public class Rete
      */
     static void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, ListHead<Variable> varlist)
     {
-
         if (TestTools.isBlank(t))
         {
             return;
@@ -951,7 +920,7 @@ public class Rete
      * @param where_levels_up
      * @return
      */
-    public Symbol var_bound_in_reconstructed_conds(Condition cond, int where_field_num, int where_levels_up)
+    public static Symbol var_bound_in_reconstructed_conds(Condition cond, int where_field_num, int where_levels_up)
     {
         while (where_levels_up != 0)
         {
@@ -1102,7 +1071,7 @@ public class Rete
             int levels_up = node.left_hash_loc_levels_up;
             if (levels_up == 1)
             {
-                referent = VarLocation.field_from_wme(w, node.left_hash_loc_field_num);
+                referent = w.getField(node.left_hash_loc_field_num);
             }
             else
             { 
@@ -1112,7 +1081,7 @@ public class Rete
                 {
                     t = t.parent;
                 }
-                referent = VarLocation.field_from_wme(t.w, node.left_hash_loc_field_num);
+                referent = t.w.getField(node.left_hash_loc_field_num);
             }
         }
 
@@ -1270,7 +1239,7 @@ public class Rete
             int levels_up = node.left_hash_loc_levels_up;
             if (levels_up == 1)
             {
-                referent = VarLocation.field_from_wme(w, node.left_hash_loc_field_num);
+                referent = w.getField(node.left_hash_loc_field_num);
             }
             else
             { /* --- levels_up > 1 --- */
@@ -1279,7 +1248,7 @@ public class Rete
                 {
                     t = t.parent;
                 }
-                referent = VarLocation.field_from_wme(t.w, node.left_hash_loc_field_num);
+                referent = t.w.getField(node.left_hash_loc_field_num);
             }
         }
 
@@ -1336,7 +1305,6 @@ public class Rete
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
                 executeLeftAddition(child, New, rm.w);
-                //left_addition_routines[child.node_type.index()].execute(this, child, New, rm.w);
             }
         }
     }   
@@ -1622,7 +1590,7 @@ public class Rete
             int levels_up = node.left_hash_loc_levels_up;
             if (levels_up == 1)
             {
-                referent = VarLocation.field_from_wme(w, node.left_hash_loc_field_num);
+                referent = w.getField(node.left_hash_loc_field_num);
             }
             else
             { /* --- levels_up > 1 --- */
@@ -1631,7 +1599,7 @@ public class Rete
                 {
                     t = t.parent;
                 }
-                referent = VarLocation.field_from_wme(t.w, node.left_hash_loc_field_num);
+                referent = t.w.getField(node.left_hash_loc_field_num);
             }
         }
 
@@ -2145,9 +2113,8 @@ public class Rete
             }
             else if (rt.type == ReteTest.DISJUNCTION_RETE_TEST)
             {
-                DisjunctionTest dt = new DisjunctionTest();
-                New = dt;
-                dt.disjunction_list = Symbol.copy_symbol_list_adding_references(rt.disjunction_list);
+                // disjunction test is immutable so this is safe
+                New = new DisjunctionTest(rt.disjunction_list);
             }
             else if (ReteTest.test_is_constant_relational_test(rt.type))
             {
@@ -2251,7 +2218,7 @@ public class Rete
             if (!ReteTest.test_is_not_equal_test(rt.type))
                 continue;
 
-            Symbol right_sym = VarLocation.field_from_wme(right_wme, rt.right_field_num);
+            Symbol right_sym = right_wme.getField(rt.right_field_num);
 
             if (right_sym.asIdentifier() == null)
                 continue;

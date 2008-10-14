@@ -94,7 +94,7 @@ public abstract class RhsValue implements Formattable
         final ReteLocation rl = rv.asReteLocation();
         if (rl != null)
         {
-            Symbol sym = rete.var_bound_in_reconstructed_conds(cond, rl.getFieldNum(), rl.getLevelsUp());
+            Symbol sym = Rete.var_bound_in_reconstructed_conds(cond, rl.getFieldNum(), rl.getLevelsUp());
             return new RhsSymbolValue(sym);
         }
 

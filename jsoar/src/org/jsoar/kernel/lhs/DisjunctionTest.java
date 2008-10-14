@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.lhs;
 
-import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 
@@ -16,29 +15,30 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class DisjunctionTest extends ComplexTest
 {
-    // TODO Make disjunction test immutable
-    public List<Symbol> disjunction_list = new ArrayList<Symbol>();
+    public final List<Symbol> disjunction_list;
     
-    public DisjunctionTest()
+    /**
+     * Construct a new disjunction test from an <b>unmodifiable</b> list of symbols.
+     * 
+     * @param disjunction An <b>unmodifiable</b> list of symbols
+     */
+    public DisjunctionTest(List<Symbol> disjunction)
     {
-        
-    }
-    private DisjunctionTest(DisjunctionTest other)
-    {
-        this.disjunction_list.addAll(other.disjunction_list);
+        this.disjunction_list = disjunction;
     }
     
     public DisjunctionTest asDisjunctionTest()
     {
         return this;
     }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Test#copy()
      */
     @Override
     public Test copy()
     {
-        return new DisjunctionTest(this);
+        return this;
     }
     /* (non-Javadoc)
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
