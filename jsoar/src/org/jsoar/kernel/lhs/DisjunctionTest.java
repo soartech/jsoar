@@ -8,21 +8,21 @@ package org.jsoar.kernel.lhs;
 import java.util.Formatter;
 import java.util.List;
 
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * @author ray
  */
 public class DisjunctionTest extends ComplexTest
 {
-    public final List<Symbol> disjunction_list;
+    public final List<SymbolImpl> disjunction_list;
     
     /**
      * Construct a new disjunction test from an <b>unmodifiable</b> list of symbols.
      * 
      * @param disjunction An <b>unmodifiable</b> list of symbols
      */
-    public DisjunctionTest(List<Symbol> disjunction)
+    public DisjunctionTest(List<SymbolImpl> disjunction)
     {
         this.disjunction_list = disjunction;
     }
@@ -47,7 +47,7 @@ public class DisjunctionTest extends ComplexTest
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
         formatter.format("<< ");
-        for(Symbol s : disjunction_list)
+        for(SymbolImpl s : disjunction_list)
         {
             formatter.format("%s ", s);
         }

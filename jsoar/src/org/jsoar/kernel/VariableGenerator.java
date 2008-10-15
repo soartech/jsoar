@@ -7,7 +7,7 @@ package org.jsoar.kernel;
 
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rhs.Action;
-import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
@@ -32,7 +32,7 @@ import org.jsoar.util.ListHead;
  */
 public class VariableGenerator
 {
-    private SymbolFactory syms;
+    private SymbolFactoryImpl syms;
 
     private int[] gensymed_variable_count = new int[26];
 
@@ -41,7 +41,7 @@ public class VariableGenerator
     /**
      * @param syms
      */
-    public VariableGenerator(SymbolFactory syms)
+    public VariableGenerator(SymbolFactoryImpl syms)
     {
         this.syms = syms;
     }
@@ -49,7 +49,7 @@ public class VariableGenerator
     /**
      * @return the syms
      */
-    public SymbolFactory getSyms()
+    public SymbolFactoryImpl getSyms()
     {
         return syms;
     }

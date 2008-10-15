@@ -23,7 +23,7 @@ import org.junit.Test;
  */
 public class SymbolFactoryTest
 {
-    private SymbolFactory syms;
+    private SymbolFactoryImpl syms;
     
     /**
      * @throws java.lang.Exception
@@ -31,7 +31,7 @@ public class SymbolFactoryTest
     @Before
     public void setUp() throws Exception
     {
-        syms = new SymbolFactory();
+        syms = new SymbolFactoryImpl();
     }
 
     /**

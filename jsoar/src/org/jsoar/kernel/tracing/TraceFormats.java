@@ -19,7 +19,7 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.StringTools;
 
 
@@ -75,14 +75,14 @@ public class TraceFormats
     private int offset;
     private String format_string_error_message;
     
-    private static Map<TraceFormatRestriction, Map<Symbol, TraceFormat>> createMap()
+    private static Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> createMap()
     {
-        return new EnumMap<TraceFormatRestriction, Map<Symbol,TraceFormat>>(TraceFormatRestriction.class);
+        return new EnumMap<TraceFormatRestriction, Map<SymbolImpl,TraceFormat>>(TraceFormatRestriction.class);
     }
     
     // Converted to Java maps from Soar hashtables
-    private Map<TraceFormatRestriction, Map<Symbol, TraceFormat>> stack_tr_ht = createMap();
-    private Map<TraceFormatRestriction, Map<Symbol, TraceFormat>> object_tr_ht = createMap();
+    private Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> stack_tr_ht = createMap();
+    private Map<TraceFormatRestriction, Map<SymbolImpl, TraceFormat>> object_tr_ht = createMap();
     private Map<TraceFormatRestriction, TraceFormat> stack_tf_for_anything = new EnumMap<TraceFormatRestriction, TraceFormat>(TraceFormatRestriction.class);
     private Map<TraceFormatRestriction, TraceFormat> object_tf_for_anything = new EnumMap<TraceFormatRestriction, TraceFormat>(TraceFormatRestriction.class);
     
@@ -127,8 +127,8 @@ public class TraceFormats
         // trace.cpp:654:init_tracing
         for(TraceFormatRestriction r : TraceFormatRestriction.values())
         {
-            stack_tr_ht.put(r, new HashMap<Symbol, TraceFormat>());
-            object_tr_ht.put(r, new HashMap<Symbol, TraceFormat>());
+            stack_tr_ht.put(r, new HashMap<SymbolImpl, TraceFormat>());
+            object_tr_ht.put(r, new HashMap<SymbolImpl, TraceFormat>());
         }
     }
 
@@ -181,7 +181,7 @@ public class TraceFormats
      * 
      * @return
      */
-    private List<Symbol> parse_attribute_path_in_brackets()
+    private List<SymbolImpl> parse_attribute_path_in_brackets()
     {
         /* --- look for opening bracket --- */
         if (format.charAt(offset) != '[')
@@ -191,7 +191,7 @@ public class TraceFormats
         }
         offset++;
 
-        List<Symbol> path = null;
+        List<SymbolImpl> path = null;
 
         /* --- check for '*' (null path) --- */
         if (format.charAt(offset) == '*')
@@ -202,7 +202,7 @@ public class TraceFormats
         else
         {
             /* --- normal case: read the attribute path --- */
-            path = new ArrayList<Symbol>();
+            path = new ArrayList<SymbolImpl>();
             while (true)
             {
                 String name = "";
@@ -329,7 +329,7 @@ public class TraceFormats
         if (format.startsWith("%v", offset))
         {
             offset += 2;
-            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
+            List<SymbolImpl> attribute_path = parse_attribute_path_in_brackets();
             if (format_string_error_message != null)
                 return null;
             TraceFormat tf = new TraceFormat();
@@ -341,7 +341,7 @@ public class TraceFormats
         if (format.startsWith("%o", offset))
         {
             offset += 2;
-            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
+            List<SymbolImpl> attribute_path = parse_attribute_path_in_brackets();
             if (format_string_error_message != null)
                 return null;
             TraceFormat tf = new TraceFormat();
@@ -353,7 +353,7 @@ public class TraceFormats
         if (format.startsWith("%av", offset))
         {
             offset += 3;
-            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
+            List<SymbolImpl> attribute_path = parse_attribute_path_in_brackets();
             if (format_string_error_message != null)
                 return null;
             TraceFormat tf = new TraceFormat();
@@ -365,7 +365,7 @@ public class TraceFormats
         if (format.startsWith("%ao", offset))
         {
             offset += 3;
-            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
+            List<SymbolImpl> attribute_path = parse_attribute_path_in_brackets();
             if (format_string_error_message != null)
                 return null;
             TraceFormat tf = new TraceFormat();
@@ -592,9 +592,9 @@ public class TraceFormats
                     writer.append("%ao[");
                 if (tf.data_attribute_path != null)
                 {
-                    for (Iterator<Symbol> it = tf.data_attribute_path.iterator(); it.hasNext();)
+                    for (Iterator<SymbolImpl> it = tf.data_attribute_path.iterator(); it.hasNext();)
                     {
-                        Symbol c = it.next();
+                        SymbolImpl c = it.next();
                         writer.append(c.asSymConstant().getValue());
                         if (it.hasNext())
                             writer.append(".");
@@ -672,7 +672,7 @@ public class TraceFormats
      * @return
      */
     private TraceFormat lookup_trace_format(boolean stack_trace, TraceFormatRestriction type_restriction,
-            Symbol name_restriction)
+            SymbolImpl name_restriction)
     {
 
         if (name_restriction != null)
@@ -702,7 +702,7 @@ public class TraceFormats
      * @return
      */
     public boolean remove_trace_format(boolean stack_trace, TraceFormatRestriction type_restriction,
-            Symbol name_restriction)
+            SymbolImpl name_restriction)
     {
         if (name_restriction != null)
         {
@@ -729,7 +729,7 @@ public class TraceFormats
      * @return
      */
     public boolean add_trace_format(boolean stack_trace, TraceFormatRestriction type_restriction,
-            Symbol name_restriction, String format_string)
+            SymbolImpl name_restriction, String format_string)
     {
 
         // parse the format string into a trace_format
@@ -776,7 +776,7 @@ public class TraceFormats
      * @param count
      * @return
      */
-    private int add_values_of_attribute_path(Symbol object, List<Symbol> path, int pathIndex, StringBuilder result,
+    private int add_values_of_attribute_path(SymbolImpl object, List<SymbolImpl> path, int pathIndex, StringBuilder result,
             boolean recursive, int count)
     {
         if (pathIndex >= path.size())
@@ -865,7 +865,7 @@ public class TraceFormats
      * @param print_attributes
      * @param recursive
      */
-    private void add_trace_for_attribute_path(Symbol object, List<Symbol> path, StringBuilder result,
+    private void add_trace_for_attribute_path(SymbolImpl object, List<SymbolImpl> path, StringBuilder result,
             boolean print_attributes, boolean recursive)
     {
         StringBuilder values = new StringBuilder();
@@ -898,9 +898,9 @@ public class TraceFormats
         if (print_attributes)
         {
             result.append("^");
-            for (Iterator<Symbol> it = path.iterator(); it.hasNext();)
+            for (Iterator<SymbolImpl> it = path.iterator(); it.hasNext();)
             {
-                Symbol c = it.next();
+                SymbolImpl c = it.next();
                 result.append(c /*TODO symbol_to_string(c, true, null, 0)*/);
                 if (it.hasNext())
                     result.append(".");
@@ -922,7 +922,7 @@ public class TraceFormats
      * @param object
      * @return
      */
-    public String trace_format_list_to_string(TraceFormat tf, Symbol object)
+    public String trace_format_list_to_string(TraceFormat tf, SymbolImpl object)
     {
         StringBuilder result = new StringBuilder();
 
@@ -1076,7 +1076,7 @@ public class TraceFormats
      * @param name
      * @return
      */
-    private TraceFormat find_appropriate_trace_format(boolean stack_trace, TraceFormatRestriction type, Symbol name)
+    private TraceFormat find_appropriate_trace_format(boolean stack_trace, TraceFormatRestriction type, SymbolImpl name)
     {
         // first try to find the exact one
         TraceFormat tf = lookup_trace_format(stack_trace, type, name);
@@ -1110,7 +1110,7 @@ public class TraceFormats
      * @param object
      * @return
      */
-    private String object_to_trace_string(Symbol object)
+    private String object_to_trace_string(SymbolImpl object)
     {
         // If it's not an identifier, just print it as an atom. Also, if it's
         // already being printed, print it as an atom to avoid getting into an
@@ -1134,7 +1134,7 @@ public class TraceFormats
         else
             type_of_object = TraceFormatRestriction.FOR_ANYTHING_TF;
 
-        Symbol name = WorkingMemory.find_name_of_object(object, context.predefinedSyms.name_symbol);
+        SymbolImpl name = WorkingMemory.find_name_of_object(object, context.predefinedSyms.name_symbol);
 
         // find the trace format to use
         TraceFormat tf = find_appropriate_trace_format(false, type_of_object, name);
@@ -1169,11 +1169,11 @@ public class TraceFormats
      * @param allow_cycle_counts
      * @return
      */
-    private String selection_to_trace_string(Symbol object, Identifier current_state,
+    private String selection_to_trace_string(SymbolImpl object, Identifier current_state,
             TraceFormatRestriction selection_type, boolean allow_cycle_counts)
     {
         // find the problem space name
-        Symbol name = null;
+        SymbolImpl name = null;
 
         // find the trace format to use
         TraceFormat tf = find_appropriate_trace_format(true, selection_type, name);
@@ -1211,7 +1211,7 @@ public class TraceFormats
      * @param object
      * @throws IOException 
      */
-    public void print_object_trace(Writer writer, Symbol object) throws IOException
+    public void print_object_trace(Writer writer, SymbolImpl object) throws IOException
     {
         tf_printing_tc = context.syms.get_new_tc_number();
         String gs = object_to_trace_string(object);
@@ -1234,7 +1234,7 @@ public class TraceFormats
      * @param allow_cycle_counts
      * @throws IOException
      */
-    public void print_stack_trace(Writer writer, Symbol object, Identifier state, TraceFormatRestriction slot_type,
+    public void print_stack_trace(Writer writer, SymbolImpl object, Identifier state, TraceFormatRestriction slot_type,
             boolean allow_cycle_counts) throws IOException
     {
         tf_printing_tc = context.syms.get_new_tc_number();

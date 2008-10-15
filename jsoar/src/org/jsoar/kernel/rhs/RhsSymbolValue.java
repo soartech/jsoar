@@ -7,7 +7,7 @@ package org.jsoar.kernel.rhs;
 
 import java.util.Formatter;
 
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
@@ -16,9 +16,9 @@ import org.jsoar.util.ListHead;
  */
 public class RhsSymbolValue extends RhsValue
 {
-    public Symbol sym;
+    public SymbolImpl sym;
     
-    public RhsSymbolValue(Symbol sym)
+    public RhsSymbolValue(SymbolImpl sym)
     {
         this.sym = sym;
     }
@@ -27,7 +27,7 @@ public class RhsSymbolValue extends RhsValue
     /**
      * @return the sym
      */
-    public Symbol getSym()
+    public SymbolImpl getSym()
     {
         return sym;
     }

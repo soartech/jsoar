@@ -12,7 +12,7 @@ import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ListHead;
@@ -247,7 +247,7 @@ public abstract class Action
             final MakeAction ma = a.asMakeAction();
             final LinkedList<MakeAction> actions_for_this_id = new LinkedList<MakeAction>();
             actions_for_this_id.add(a.asMakeAction());
-            Symbol action_id_to_match = ma.id.asSymbolValue().getSym();
+            SymbolImpl action_id_to_match = ma.id.asSymbolValue().getSym();
             if (!internal)
             {
                 Iterator<Action> it = actions_not_yet_printed.iterator();

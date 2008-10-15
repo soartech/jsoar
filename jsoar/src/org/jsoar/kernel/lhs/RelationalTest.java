@@ -7,7 +7,7 @@ package org.jsoar.kernel.lhs;
 
 import java.util.Formatter;
 
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
@@ -25,7 +25,7 @@ public class RelationalTest extends ComplexTest
     
     // TODO Make these final so the object can be immutable. Eliminate copies, etc
     public int type;
-    public Symbol referent;
+    public SymbolImpl referent;
     
     /**
      * 
@@ -54,7 +54,7 @@ public class RelationalTest extends ComplexTest
      * @param type
      * @param referent
      */
-    public RelationalTest(int type, Symbol referent)
+    public RelationalTest(int type, SymbolImpl referent)
     {
         this.type = type;
         this.referent = referent;
@@ -73,7 +73,7 @@ public class RelationalTest extends ComplexTest
         return this;
     }
 
-    public RelationalTest withNewReferent(Symbol referent)
+    public RelationalTest withNewReferent(SymbolImpl referent)
     {
         if(referent == this.referent)
         {

@@ -15,7 +15,7 @@ import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.symbols.FloatConstant;
 import org.jsoar.kernel.symbols.IntConstant;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
@@ -741,7 +741,7 @@ public class Exploration
      * @param s
      * @return
      */
-    public static double get_number_from_symbol(Symbol s)
+    public static double get_number_from_symbol(SymbolImpl s)
     {
         FloatConstant f = s.asFloatConstant();
         if(f != null)

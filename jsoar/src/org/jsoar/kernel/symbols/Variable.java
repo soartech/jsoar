@@ -14,11 +14,11 @@ import org.jsoar.util.ListHead;
 /**
  * @author ray
  */
-public class Variable extends Symbol
+public class Variable extends SymbolImpl
 {
     public final String name;
     public int tc_number;
-    public Symbol current_binding_value;
+    public SymbolImpl current_binding_value;
     /**
      * In C, this just gets shoved in the current_binding_value pointer. Can't do that in
      * Java, so it's maintained separately.
@@ -154,16 +154,16 @@ public class Variable extends Symbol
     
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#isSameTypeAs(org.jsoar.kernel.symbols.Symbol)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
-    public boolean isSameTypeAs(Symbol other)
+    public boolean isSameTypeAs(SymbolImpl other)
     {
         return other.asVariable() != null;
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#getFirstLetter()
+     * @see org.jsoar.kernel.symbols.SymbolImpl#getFirstLetter()
      */
     @Override
     public char getFirstLetter()
@@ -172,7 +172,7 @@ public class Variable extends Symbol
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
     public void add_symbol_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
@@ -181,7 +181,7 @@ public class Variable extends Symbol
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#symbol_is_in_tc(int)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#symbol_is_in_tc(int)
      */
     @Override
     public boolean symbol_is_in_tc(int tc)

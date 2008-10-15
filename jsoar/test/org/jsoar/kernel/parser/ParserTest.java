@@ -29,7 +29,7 @@ import org.jsoar.kernel.symbols.FloatConstant;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IntConstant;
 import org.jsoar.kernel.symbols.SymConstant;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.junit.Test;
 
@@ -38,27 +38,27 @@ import org.junit.Test;
  */
 public class ParserTest extends JSoarTest
 {
-    private void verifyVariableSymbol(Symbol sym, String name)
+    private void verifyVariableSymbol(SymbolImpl sym, String name)
     {
         Variable sc = sym.asVariable();
         assertNotNull(sc);
         assertEquals(name, sc.name);
     }
-    private void verifyStringSymbol(Symbol sym, String name)
+    private void verifyStringSymbol(SymbolImpl sym, String name)
     {
         SymConstant sc = sym.asSymConstant();
         assertNotNull(sc);
         assertEquals(name, sc.getValue());
     }
     
-    private void verifyIntSymbol(Symbol sym, int value)
+    private void verifyIntSymbol(SymbolImpl sym, int value)
     {
         IntConstant ic = sym.asIntConstant();
         assertNotNull(ic);
         assertEquals(value, ic.getValue());
     }
     
-    private void verifyFloatSymbol(Symbol sym, double value)
+    private void verifyFloatSymbol(SymbolImpl sym, double value)
     {
         FloatConstant fc = sym.asFloatConstant();
         assertNotNull(fc);

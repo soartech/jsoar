@@ -2,9 +2,9 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.IntConstant;
+import org.jsoar.kernel.symbols.ISymbolFactory;
+import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * Takes any number of int_constant or float_constant arguments, and
@@ -23,7 +23,7 @@ public final class Multiply extends AbstractRhsFunctionHandler
     }
 
     @Override
-    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctionTools.checkAllArgumentsAreNumeric(getName(), arguments);
 
@@ -32,7 +32,7 @@ public final class Multiply extends AbstractRhsFunctionHandler
         boolean float_found = false;
         for(Symbol arg : arguments)
         {
-            IntConstant ic = arg.asIntConstant();
+            IntegerSymbol ic = arg.asIntConstant();
             if(ic != null)
             {
                 if(float_found)

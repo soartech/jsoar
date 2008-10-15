@@ -25,7 +25,7 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.AsListItem;
@@ -78,7 +78,7 @@ public class OSupport
      * 
      * @param sym
      */
-    private void add_to_os_tc_if_needed(Symbol sym)
+    private void add_to_os_tc_if_needed(SymbolImpl sym)
     {
         Identifier id = sym.asIdentifier();
         if (id != null)
@@ -93,7 +93,7 @@ public class OSupport
      * @param sym
      * @param flag
      */
-    private void add_to_os_tc_if_id(Symbol sym, boolean flag)
+    private void add_to_os_tc_if_id(SymbolImpl sym, boolean flag)
     {
         Identifier id = sym.asIdentifier();
         if (id != null)
@@ -193,7 +193,7 @@ public class OSupport
      * @param excluded_sym
      * @return
      */
-    private boolean test_has_id_in_os_tc(Test t, Symbol excluded_sym)
+    private boolean test_has_id_in_os_tc(Test t, SymbolImpl excluded_sym)
     {
         if (TestTools.isBlank(t))
         {
@@ -239,8 +239,8 @@ public class OSupport
      * @param match_state_to_exclude_test_of_the_operator_off_of
      * @return
      */
-    private boolean id_or_value_of_condition_list_is_in_os_tc(Condition conds, Symbol sym_excluded_from_value,
-            Symbol match_state_to_exclude_test_of_the_operator_off_of)
+    private boolean id_or_value_of_condition_list_is_in_os_tc(Condition conds, SymbolImpl sym_excluded_from_value,
+            SymbolImpl match_state_to_exclude_test_of_the_operator_off_of)
     {
         /*
          * RBD 8/19/94 Under NNPSCM, when we use this routine to look for
@@ -301,7 +301,7 @@ public class OSupport
      * @param match_state
      * @return
      */
-    private boolean is_state_id(Identifier top_goal, Symbol sym, Symbol match_state)
+    private boolean is_state_id(Identifier top_goal, SymbolImpl sym, SymbolImpl match_state)
     {
         for (Identifier c = top_goal; c != match_state; c = c.lower_goal)
         {
@@ -938,7 +938,7 @@ public class OSupport
      * @param sym
      * @return
      */
-    private YesNoMaybe test_is_for_symbol(Test t, Symbol sym)
+    private YesNoMaybe test_is_for_symbol(Test t, SymbolImpl sym)
     {
         if (TestTools.isBlank(t))
         {
@@ -948,7 +948,7 @@ public class OSupport
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
-            Symbol referent = eq.getReferent();
+            SymbolImpl referent = eq.getReferent();
             if (referent == sym)
             {
                 return YesNoMaybe.YES;
@@ -1128,7 +1128,7 @@ public class OSupport
      * @param attr
      * @return
      */
-    private Symbol find_thing_off_goal(Condition lhs, Variable goal, Symbol attr)
+    private SymbolImpl find_thing_off_goal(Condition lhs, Variable goal, SymbolImpl attr)
     {
         for (Condition c = lhs; c != null; c = c.next)
         {
@@ -1160,7 +1160,7 @@ public class OSupport
      * @param sym
      * @return
      */
-    private boolean condition_list_has_id_test_for_sym(Condition conds, Symbol sym)
+    private boolean condition_list_has_id_test_for_sym(Condition conds, SymbolImpl sym)
     {
         for (; conds != null; conds = conds.next)
         {
@@ -1191,7 +1191,7 @@ public class OSupport
      * @param match_state
      * @return
      */
-    private boolean match_state_tests_non_operator_slot(Condition conds, Symbol match_state)
+    private boolean match_state_tests_non_operator_slot(Condition conds, SymbolImpl match_state)
     {
         YesNoMaybe ynm;
 
@@ -1290,7 +1290,7 @@ public class OSupport
 ----------------------------------------------------------------------- */
 
 public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean operand2_mode) {
-  Symbol  match_operator;
+  SymbolImpl  match_operator;
   YesNoMaybe lhs_oa_support, lhs_oc_support, lhs_om_support;
   Action a;
   Condition cond;
@@ -1320,7 +1320,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
       if (ma == null) { continue; }
       RhsSymbolValue rhsSym = ma.attr.asSymbolValue();
       if (rhsSym != null) { /* RBD 3/29/95 general RHS attr's */
-        Symbol attr = rhsSym.getSym();
+        SymbolImpl attr = rhsSym.getSym();
         if (attr==syms.operator_symbol)
           { operator_found = possible_operator_found = true; break; }
         if (attr.asVariable() != null){
@@ -1387,7 +1387,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
         if (ma.id.asSymbolValue().getSym() == match_state) {  continue; }
         RhsSymbolValue rhsSym = ma.attr.asSymbolValue();
         if (rhsSym != null) { /* RBD 3/29/95 */
-          Symbol attr = rhsSym.getSym();
+          SymbolImpl attr = rhsSym.getSym();
           if (attr.asVariable() != null && attr != match_state)
             { possible_operator_found = true; break; }
         } else { /* RBD 3/29/95 */

@@ -6,7 +6,7 @@
 package org.jsoar.kernel.io;
 
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * io_soar.h:170:io_wme
@@ -17,8 +17,8 @@ public class InputOutputWme
 {
     InputOutputWme next;  /* points to next io_wme in the chain */
     Identifier id;                  /* id, attribute, and value of the wme */
-    Symbol attr;
-    Symbol value;
+    SymbolImpl attr;
+    SymbolImpl value;
     int timetag ;       /* DJP: Added.  Only guaranteed valid for an output wme. */
     
     /**
@@ -27,7 +27,7 @@ public class InputOutputWme
      * @param value
      * @param timetag
      */
-    public InputOutputWme(Identifier id, Symbol attr, Symbol value, int timetag)
+    public InputOutputWme(Identifier id, SymbolImpl attr, SymbolImpl value, int timetag)
     {
         this.id = id;
         this.attr = attr;

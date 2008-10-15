@@ -10,7 +10,7 @@ import java.util.Formatter;
 
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.AsListItem;
 
 /**
@@ -25,9 +25,9 @@ public class Preference implements Formattable
     public boolean on_goal_list = false; /* is this pref on the list for its match goal */
     int reference_count = 0;
     public final Identifier id;
-    public final Symbol attr;
-    public final Symbol value;
-    public final Symbol referent;
+    public final SymbolImpl attr;
+    public final SymbolImpl value;
+    public final SymbolImpl referent;
     
     /**
      * The slot this preference is in. This is also a replacement for in_tm
@@ -80,7 +80,7 @@ public class Preference implements Formattable
      * @param value
      * @param referent
      */
-    public Preference(PreferenceType type, Identifier id, Symbol attr, Symbol value, Symbol referent)
+    public Preference(PreferenceType type, Identifier id, SymbolImpl attr, SymbolImpl value, SymbolImpl referent)
     {
         this.type = type;
         this.id = id;

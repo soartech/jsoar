@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jsoar.kernel.SoarConstants;
 import org.jsoar.util.ByRef;
 
 import com.google.common.base.ReferenceType;
@@ -27,13 +28,14 @@ import com.google.common.collect.ReferenceMap;
  * needed in Java:
  * <ul>
  * <li>deallocate_symbol
+ * <li>production.cpp:128:copy_symbol_list_adding_references - not needed
  * </ul>
  * 
  * <p>symtab.cpp
  * 
  * @author ray
  */
-public class SymbolFactory
+public class SymbolFactoryImpl implements ISymbolFactory
 {
     /**
      * A helper method to make the initializations below a little less ugly.
@@ -57,7 +59,7 @@ public class SymbolFactory
     private int current_tc_number = 0;
     private int current_symbol_hash_id = 0; 
     
-    public SymbolFactory()
+    public SymbolFactoryImpl()
     {
         reset_id_counters();
     }
@@ -159,13 +161,8 @@ public class SymbolFactory
     }
     
     
-    /**
-     * 
-     * symtab.cpp:207:find_identifier
-     * 
-     * @param name_letter
-     * @param name_number
-     * @return
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.ISymbolFactory#find_identifier(char, int)
      */
     public Identifier find_identifier(char name_letter, int name_number)
     {
@@ -194,17 +191,21 @@ public class SymbolFactory
         return id;
     }
     
+    public Identifier make_new_identifier(char name_letter)
+    {
+        return make_new_identifier(name_letter, SoarConstants.TOP_GOAL_LEVEL);
+    }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.ISymbolFactory#find_sym_constant(java.lang.String)
+     */
     public SymConstant find_sym_constant(String name)
     {
         return symConstants.get(name);
     }
     
-    /**
-     * symtab.cpp:328:make_sym_constant
-     * 
-     * @param name
-     * @return
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.ISymbolFactory#make_sym_constant(java.lang.String)
      */
     public SymConstant make_sym_constant(String name)
     {
@@ -240,11 +241,8 @@ public class SymbolFactory
         return make_sym_constant(name);
     }
     
-    /**
-     * symtab.cpp:346:make_int_constant
-     * 
-     * @param value
-     * @return
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.ISymbolFactory#make_int_constant(int)
      */
     public IntConstant make_int_constant(int value)
     {
@@ -257,16 +255,16 @@ public class SymbolFactory
         return sym;
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.ISymbolFactory#find_int_constant(int)
+     */
     public IntConstant find_int_constant(int value)
     {
         return intConstants.get(value);
     }
     
-    /**
-     * symtab.cpp:363:make_float_constant
-     * 
-     * @param value
-     * @return
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.ISymbolFactory#make_float_constant(double)
      */
     public FloatConstant make_float_constant(double value)
     {
@@ -279,6 +277,9 @@ public class SymbolFactory
         return sym;
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.ISymbolFactory#find_float_constant(double)
+     */
     public FloatConstant find_float_constant(double value)
     {
         return floatConstants.get(value);

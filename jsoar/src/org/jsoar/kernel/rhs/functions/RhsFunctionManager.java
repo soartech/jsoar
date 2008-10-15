@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.util.Arguments;
 
 /**
@@ -18,14 +18,14 @@ import org.jsoar.util.Arguments;
  */
 public class RhsFunctionManager
 {
-    private final SymbolFactory syms;
+    private final SymbolFactoryImpl syms;
     private final Map<String, RhsFunctionHandler> handlers = new HashMap<String, RhsFunctionHandler>();
     
     
     /**
      * @param syms
      */
-    public RhsFunctionManager(SymbolFactory syms)
+    public RhsFunctionManager(SymbolFactoryImpl syms)
     {
         this.syms = syms;
     }

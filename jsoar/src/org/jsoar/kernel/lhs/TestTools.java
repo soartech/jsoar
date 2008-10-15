@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
@@ -97,7 +97,7 @@ public class TestTools
     }
 
     public static boolean test_includes_equality_test_for_symbol(Test test,
-            Symbol sym)
+            SymbolImpl sym)
     {
         if(TestTools.isBlank(test)) { return false; }
         EqualityTest eq = test.asEqualityTest();
@@ -459,7 +459,7 @@ public class TestTools
         if (dt != null)
         {
             int result = 7245;
-            for (Symbol c : dt.disjunction_list)
+            for (SymbolImpl c : dt.disjunction_list)
                 result = result + c.hash_id;
             return result;
         }

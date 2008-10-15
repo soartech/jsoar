@@ -6,7 +6,7 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * Implementations of XXX_rete_test_routine functions in rete.cpp. Separated out
@@ -23,7 +23,7 @@ public class ReteTestRoutines
      */
     private static boolean disjunction_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
     {
-        Symbol sym = w.getField(rt.right_field_num);
+        SymbolImpl sym = w.getField(rt.right_field_num);
         return rt.disjunction_list.contains(sym);
     }
         
@@ -157,39 +157,39 @@ public class ReteTestRoutines
     }
     
 
-    private static boolean equalTest(ReteTest rt, Wme w, Symbol s2)
+    private static boolean equalTest(ReteTest rt, Wme w, SymbolImpl s2)
     {
-        Symbol s1 = w.getField(rt.right_field_num);
+        SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1 == s2;
     }
-    private static boolean lessTest(ReteTest rt, Wme w, Symbol s2)
+    private static boolean lessTest(ReteTest rt, Wme w, SymbolImpl s2)
     {
-        Symbol s1 = w.getField(rt.right_field_num);
+        SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1.numericLess(s2);
     }
-    private static boolean lessEqualTest(ReteTest rt, Wme w, Symbol s2)
+    private static boolean lessEqualTest(ReteTest rt, Wme w, SymbolImpl s2)
     {
-        Symbol s1 = w.getField(rt.right_field_num);
+        SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1.numericLessOrEqual(s2);
     }
-    private static boolean greaterTest(ReteTest rt, Wme w, Symbol s2)
+    private static boolean greaterTest(ReteTest rt, Wme w, SymbolImpl s2)
     {
-        Symbol s1 = w.getField(rt.right_field_num);
+        SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1.numericGreater(s2);
     }
-    private static boolean greaterEqualTest(ReteTest rt, Wme w, Symbol s2)
+    private static boolean greaterEqualTest(ReteTest rt, Wme w, SymbolImpl s2)
     {
-        Symbol s1 = w.getField(rt.right_field_num);
+        SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1.numericGreaterOrEqual(s2);
     }
-    private static boolean sameTypeTest(ReteTest rt, Wme w, Symbol s2)
+    private static boolean sameTypeTest(ReteTest rt, Wme w, SymbolImpl s2)
     {
-        Symbol s1 = w.getField(rt.right_field_num);
+        SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1.isSameTypeAs(s2);
     }
@@ -205,7 +205,7 @@ public class ReteTestRoutines
      * @param w The wme
      * @return The symbol for the test's variable_referent
      */
-    private static Symbol getVariableSymbol(ReteTest rt, Token left, Wme w)
+    private static SymbolImpl getVariableSymbol(ReteTest rt, Token left, Wme w)
     {
         if (rt.variable_referent.levels_up!=0) {
             int i = rt.variable_referent.levels_up - 1;

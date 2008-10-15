@@ -43,7 +43,7 @@ import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
 import org.jsoar.kernel.symbols.SymConstant;
-import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
@@ -68,7 +68,7 @@ public class Agent
     public final TraceFormats traceFormats = new TraceFormats(this);
     
     public final PredefinedSymbols predefinedSyms = new PredefinedSymbols();
-    public final SymbolFactory syms = predefinedSyms.getSyms();
+    public final SymbolFactoryImpl syms = predefinedSyms.getSyms();
     public final VariableGenerator variableGenerator = new VariableGenerator(syms);
     public final MultiAttributes multiAttrs = new MultiAttributes();
     public final Rete rete = new Rete(trace, variableGenerator);

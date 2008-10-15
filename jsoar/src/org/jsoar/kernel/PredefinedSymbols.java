@@ -6,7 +6,7 @@
 package org.jsoar.kernel;
 
 import org.jsoar.kernel.symbols.SymConstant;
-import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Variable;
 
 /**
@@ -14,7 +14,7 @@ import org.jsoar.kernel.symbols.Variable;
  */
 public class PredefinedSymbols
 {
-    private final SymbolFactory syms = new SymbolFactory();
+    private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     
     final SymConstant problem_space_symbol = syms.make_sym_constant("problem-space");
     public final SymConstant state_symbol = syms.make_sym_constant("state");
@@ -61,7 +61,7 @@ public class PredefinedSymbols
     /**
      * @return the symbol factory
      */
-    public SymbolFactory getSyms()
+    public SymbolFactoryImpl getSyms()
     {
         return syms;
     }

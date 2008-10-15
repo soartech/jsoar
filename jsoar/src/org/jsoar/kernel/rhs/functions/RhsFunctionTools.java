@@ -7,7 +7,7 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.IntConstant;
+import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
@@ -56,7 +56,7 @@ public final class RhsFunctionTools
     
     public static double asDouble(Symbol sym)
     {
-        IntConstant ic = sym.asIntConstant();
+        IntegerSymbol ic = sym.asIntConstant();
         
         return ic != null ? ic.getValue() : sym.asFloatConstant().getValue();
     }

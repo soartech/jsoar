@@ -19,7 +19,7 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.parser.Lexer;
 import org.jsoar.kernel.parser.Parser;
-import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -30,13 +30,13 @@ import org.junit.BeforeClass;
  */
 public class JSoarTest
 {
-    protected SymbolFactory syms;
+    protected SymbolFactoryImpl syms;
     protected VariableGenerator varGen;
     
     @Before
     public void setUp() throws Exception
     {
-        this.syms = new SymbolFactory();
+        this.syms = new SymbolFactoryImpl();
         this.varGen = new VariableGenerator(this.syms);
     }
     

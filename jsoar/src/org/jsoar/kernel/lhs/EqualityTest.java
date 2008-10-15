@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
@@ -28,7 +28,7 @@ public abstract class EqualityTest extends Test
      * 
      * @return
      */
-    public  abstract Symbol getReferent();
+    public  abstract SymbolImpl getReferent();
     
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Test#asBlankTest()
@@ -45,7 +45,7 @@ public abstract class EqualityTest extends Test
     @Override
     public void addAllVariables(int tc_number, ListHead<Variable> var_list)
     {
-        final Symbol sym = getReferent();
+        final SymbolImpl sym = getReferent();
         Variable var = sym != null ? sym.asVariable() : null;
         if(var != null)
         {
@@ -59,7 +59,7 @@ public abstract class EqualityTest extends Test
     @Override
     public void addBoundVariables(int tc_number, ListHead<Variable> var_list)
     {
-        final Symbol sym = getReferent();
+        final SymbolImpl sym = getReferent();
         Variable var = sym != null ? sym.asVariable() : null;
         if(var != null)
         {

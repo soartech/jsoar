@@ -14,7 +14,7 @@ import org.jsoar.kernel.io.OutputLink;
 import org.jsoar.kernel.rete.RightMemory;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
    Fields in a WME:
@@ -83,8 +83,8 @@ import org.jsoar.kernel.symbols.Symbol;
 public class Wme implements Formattable
 {
     public final Identifier id;
-    public final Symbol attr;
-    public final Symbol value;
+    public final SymbolImpl attr;
+    public final SymbolImpl value;
     public final boolean acceptable;
     public final int timetag;
     
@@ -126,7 +126,7 @@ public class Wme implements Formattable
      * @param acceptable
      * @param timetag
      */
-    public Wme(Identifier id, Symbol attr, Symbol value, boolean acceptable, int timetag)
+    public Wme(Identifier id, SymbolImpl attr, SymbolImpl value, boolean acceptable, int timetag)
     {
         this.id = id;
         this.attr = attr;
@@ -161,7 +161,7 @@ public class Wme implements Formattable
      * @return The field
      * @throws IllegalArgumentException if index is not 0, 1, or 2
      */
-    public Symbol getField(int field)
+    public SymbolImpl getField(int field)
     {
         switch(field)
         {

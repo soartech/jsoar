@@ -9,7 +9,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymConstant;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.AsListItem;
@@ -67,7 +67,7 @@ public class WorkingMemory
      * @param acceptable
      * @return
      */
-    public Wme make_wme(Identifier id, Symbol attr, Symbol value, boolean acceptable)
+    public Wme make_wme(Identifier id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
         Wme w = new Wme(id, attr, value, acceptable, current_wme_timetag++);
 
@@ -255,7 +255,7 @@ public class WorkingMemory
      * @param object
      * @return
      */
-    public static Symbol find_name_of_object(Symbol object, SymConstant name_symbol)
+    public static SymbolImpl find_name_of_object(SymbolImpl object, SymConstant name_symbol)
     {
         Identifier id = object.asIdentifier();
         if (id == null)
