@@ -9,7 +9,7 @@ import java.util.Formattable;
 
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rete.Rete;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
@@ -94,7 +94,7 @@ public abstract class RhsValue implements Formattable
         final ReteLocation rl = rv.asReteLocation();
         if (rl != null)
         {
-            Symbol sym = Rete.var_bound_in_reconstructed_conds(cond, rl.getFieldNum(), rl.getLevelsUp());
+            SymbolImpl sym = Rete.var_bound_in_reconstructed_conds(cond, rl.getFieldNum(), rl.getLevelsUp());
             return new RhsSymbolValue(sym);
         }
 
@@ -102,7 +102,7 @@ public abstract class RhsValue implements Formattable
         if (uv != null)
         {
             final int index = uv.getIndex();
-            Symbol sym = null;
+            SymbolImpl sym = null;
             if (rete.rhs_variable_bindings[index] == null)
             {
                 sym = rete.variableGenerator.generate_new_variable(Character.toString(uv.getFirstLetter()));

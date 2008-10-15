@@ -10,7 +10,7 @@ import java.util.EnumMap;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymConstant;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.AsListItem;
 
 /**
@@ -67,7 +67,7 @@ public class Slot
 {
     public final AsListItem<Slot> next_prev = new AsListItem<Slot>(this); // dll of slots for this id
     public final Identifier id; 
-    public final Symbol attr;
+    public final SymbolImpl attr;
 
     private Wme wmes; // dll of wmes in the slot
     private Wme acceptable_preference_wmes;  // dll of acceptable pref. wmes
@@ -106,7 +106,7 @@ public class Slot
      * @param operator_symbol
      * @return
      */
-    public static Slot make_slot(Identifier id, Symbol attr, SymConstant operator_symbol)
+    public static Slot make_slot(Identifier id, SymbolImpl attr, SymConstant operator_symbol)
     {
         // Search for a slot first.  If it exists for the given symbol, then just return it
         Slot s = find_slot(id, attr);
@@ -126,7 +126,7 @@ public class Slot
      * @param attr
      * @param operator_symbol
      */
-    private Slot(Identifier id, Symbol attr, SymConstant operator_symbol)
+    private Slot(Identifier id, SymbolImpl attr, SymConstant operator_symbol)
     {
         this.next_prev.insertAtHead(id.slots);
 
@@ -159,7 +159,7 @@ public class Slot
      * @param attr
      * @return
      */
-    public static Slot find_slot(Identifier id, Symbol attr)
+    public static Slot find_slot(Identifier id, SymbolImpl attr)
     {
         if (id == null)
         {

@@ -31,7 +31,7 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsValue;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
@@ -78,7 +78,7 @@ public class Rete
     
     // TODO: I think this belongs somewhere else. I think it's actually basically
     // a temp variable used by the firer and sme RHS value stuff.
-    public Symbol[] rhs_variable_bindings = {};
+    public SymbolImpl[] rhs_variable_bindings = {};
     public int highest_rhs_unboundvar_index;
     
     public final VariableGenerator variableGenerator;
@@ -123,7 +123,7 @@ public class Rete
      * @param index Index of binding
      * @return The binding symbol
      */
-    public Symbol getRhsVariableBinding(int index)
+    public SymbolImpl getRhsVariableBinding(int index)
     {
         return rhs_variable_bindings[index];
     }
@@ -134,7 +134,7 @@ public class Rete
      * @param index Index of binding
      * @param sym New symbol value
      */
-    public void setRhsVariableBinding(int index, Symbol sym)
+    public void setRhsVariableBinding(int index, SymbolImpl sym)
     {
         rhs_variable_bindings[index] = sym;
     }
@@ -594,7 +594,7 @@ public class Rete
      * @param acceptable
      * @return
      */
-    /*package*/ HashTable<AlphaMemory> table_for_tests(Symbol id, Symbol attr, Symbol value, boolean acceptable)
+    /*package*/ HashTable<AlphaMemory> table_for_tests(SymbolImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
         int index = ((id != null) ? 1 : 0) + ((attr != null) ? 2 : 0) +
                                               ((value != null) ? 4 : 0) +
@@ -613,7 +613,7 @@ public class Rete
      * @param acceptable
      * @return
      */
-    AlphaMemory find_alpha_mem(Symbol id, Symbol attr, Symbol value, boolean acceptable)
+    AlphaMemory find_alpha_mem(SymbolImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
         HashTable<AlphaMemory> ht = table_for_tests(id, attr, value, acceptable);
         int hash_value = AlphaMemory.alpha_hash_value(id, attr, value, ht.getLog2Size());
@@ -640,7 +640,7 @@ public class Rete
      * @param acceptable
      * @return
      */
-    AlphaMemory find_or_make_alpha_mem(Symbol id, Symbol attr, Symbol value, boolean acceptable)
+    AlphaMemory find_or_make_alpha_mem(SymbolImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
 
         /* --- look for an existing alpha mem --- */
@@ -894,7 +894,7 @@ public class Rete
     {
         if (num_for_new_production > rhs_variable_bindings.length)
         {
-            rhs_variable_bindings = new Symbol[num_for_new_production]; // defaults to null.
+            rhs_variable_bindings = new SymbolImpl[num_for_new_production]; // defaults to null.
         }
     }
 
@@ -910,7 +910,7 @@ public class Rete
     private Test add_gensymmed_equality_test(Test t, char first_letter)
     {
         Variable New = variableGenerator.generate_new_variable(Character.toString(first_letter));
-        Test eq_test = Symbol.makeEqualityTest(New);
+        Test eq_test = SymbolImpl.makeEqualityTest(New);
         return TestTools.add_new_test_to_test(t, eq_test);
     }
 
@@ -929,7 +929,7 @@ public class Rete
      * @param where_levels_up
      * @return
      */
-    public static Symbol var_bound_in_reconstructed_conds(Condition cond, int where_field_num, int where_levels_up)
+    public static SymbolImpl var_bound_in_reconstructed_conds(Condition cond, int where_field_num, int where_levels_up)
     {
         while (where_levels_up != 0)
         {
@@ -994,7 +994,7 @@ public class Rete
      * @param w
      * @return
      */
-    public static Symbol get_symbol_from_rete_loc(int levels_up, int field_num, Token tok, Wme w)
+    public static SymbolImpl get_symbol_from_rete_loc(int levels_up, int field_num, Token tok, Wme w)
     {
         while (levels_up != 0)
         {
@@ -1075,7 +1075,7 @@ public class Rete
      */
     private void beta_memory_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        Symbol referent = null;
+        SymbolImpl referent = null;
         {
             int levels_up = node.left_hash_loc_levels_up;
             if (levels_up == 1)
@@ -1141,7 +1141,7 @@ public class Rete
      * @param New
      * @param hash_referent
      */
-    private void positive_node_left_addition(ReteNode node, LeftToken New, Symbol hash_referent)
+    private void positive_node_left_addition(ReteNode node, LeftToken New, SymbolImpl hash_referent)
     {
         AlphaMemory am = node.b_posneg.alpha_mem_;
 
@@ -1243,7 +1243,7 @@ public class Rete
      */
     private void mp_node_left_addition(ReteNode node, Token tok, Wme w)
     {
-        Symbol referent = null;
+        SymbolImpl referent = null;
         {
             int levels_up = node.left_hash_loc_levels_up;
             if (levels_up == 1)
@@ -1394,7 +1394,7 @@ public class Rete
             }
         }
 
-        Symbol referent = w.id;
+        SymbolImpl referent = w.id;
         int hv = node.parent.node_id ^ referent.hash_id;
 
         for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
@@ -1495,7 +1495,7 @@ public class Rete
             }
         }
 
-        Symbol referent = w.id;
+        SymbolImpl referent = w.id;
         int hv = node.node_id ^ referent.hash_id;
 
         for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
@@ -1594,7 +1594,7 @@ public class Rete
             node.relink_to_right_mem();
         }
 
-        Symbol referent = null;
+        SymbolImpl referent = null;
         {
             int levels_up = node.left_hash_loc_levels_up;
             if (levels_up == 1)
@@ -1721,7 +1721,7 @@ public class Rete
      */
     private void negative_node_right_addition(ReteNode node, Wme w)
     {
-        Symbol referent = w.id;
+        SymbolImpl referent = w.id;
         int hv = node.node_id ^ referent.hash_id;
 
         for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
@@ -2048,7 +2048,7 @@ public class Rete
            if (!prod.rhs_unbound_variables.isEmpty()) 
            {
                int i = 0;
-               for(Symbol c : prod.rhs_unbound_variables)
+               for(SymbolImpl c : prod.rhs_unbound_variables)
                {
                    this.rhs_variable_bindings[i++] = c;
                    this.highest_rhs_unboundvar_index++;
@@ -2081,14 +2081,14 @@ public class Rete
         
         if (VarNames.varnames_is_one_var(vn))
         {
-            Test New = Symbol.makeEqualityTest(VarNames.varnames_to_one_var(vn));
+            Test New = SymbolImpl.makeEqualityTest(VarNames.varnames_to_one_var(vn));
             t = TestTools.add_new_test_to_test(t, New);
         }
         else
         {
             for (Variable c : VarNames.varnames_to_var_list(vn))
             {
-                Test New = Symbol.makeEqualityTest(c);
+                Test New = SymbolImpl.makeEqualityTest(c);
                 t = TestTools.add_new_test_to_test(t, New);
             }
         }
@@ -2128,10 +2128,10 @@ public class Rete
             else if (ReteTest.test_is_constant_relational_test(rt.type))
             {
                 int test_type = ReteBuilder.relational_test_type_to_test_type[ReteTest.kind_of_relational_test(rt.type)];
-                Symbol referent = rt.constant_referent;
+                SymbolImpl referent = rt.constant_referent;
                 if (test_type == ReteBuilder.EQUAL_TEST_TYPE)
                 {
-                    New = Symbol.makeEqualityTest(referent);
+                    New = SymbolImpl.makeEqualityTest(referent);
                 }
                 else
                 {
@@ -2169,12 +2169,12 @@ public class Rete
                         }
                     }
                 }
-                Symbol referent = var_bound_in_reconstructed_conds(cond, rt.variable_referent.field_num,
+                SymbolImpl referent = var_bound_in_reconstructed_conds(cond, rt.variable_referent.field_num,
                         rt.variable_referent.levels_up);
 
                 if (test_type == ReteBuilder.EQUAL_TEST_TYPE)
                 {
-                    New = Symbol.makeEqualityTest(referent);
+                    New = SymbolImpl.makeEqualityTest(referent);
                 }
                 else
                 {
@@ -2227,14 +2227,14 @@ public class Rete
             if (!ReteTest.test_is_not_equal_test(rt.type))
                 continue;
 
-            Symbol right_sym = right_wme.getField(rt.right_field_num);
+            SymbolImpl right_sym = right_wme.getField(rt.right_field_num);
 
             if (right_sym.asIdentifier() == null)
                 continue;
 
             if (rt.type == ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST)
             {
-                Symbol referent = rt.constant_referent;
+                SymbolImpl referent = rt.constant_referent;
                 if (referent.asIdentifier() == null)
                     continue;
 
@@ -2246,7 +2246,7 @@ public class Rete
 
             if (rt.type == ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST)
             {
-                Symbol referent = var_bound_in_reconstructed_conds(cond, rt.variable_referent.field_num,
+                SymbolImpl referent = var_bound_in_reconstructed_conds(cond, rt.variable_referent.field_num,
                         rt.variable_referent.levels_up);
                 if (referent.asIdentifier() == null)
                     continue;
@@ -2274,8 +2274,8 @@ public class Rete
      */
     void add_hash_info_to_id_test(ThreeFieldCondition cond, int field_num, int levels_up)
     {
-        Symbol temp = var_bound_in_reconstructed_conds(cond, field_num, levels_up);
-        Test New = Symbol.makeEqualityTest(temp);
+        SymbolImpl temp = var_bound_in_reconstructed_conds(cond, field_num, levels_up);
+        Test New = SymbolImpl.makeEqualityTest(temp);
 
         cond.id_test = TestTools.add_new_test_to_test(cond.id_test, New);
     }   
@@ -2384,9 +2384,9 @@ public class Rete
             {
                 PositiveCondition pc = cond.asPositiveCondition();
                 // make simple tests and collect nots
-                pc.id_test = Symbol.makeEqualityTest(w.id);
-                pc.attr_test = Symbol.makeEqualityTest(w.attr);
-                pc.value_test = Symbol.makeEqualityTest(w.value);
+                pc.id_test = SymbolImpl.makeEqualityTest(w.id);
+                pc.attr_test = SymbolImpl.makeEqualityTest(w.attr);
+                pc.value_test = SymbolImpl.makeEqualityTest(w.value);
                 pc.test_for_acceptable_preference = w.acceptable;
                 cond.bt.wme_ = w;
                 if (node.b_posneg.other_tests != null)
@@ -2401,9 +2401,9 @@ public class Rete
                 // positive or negative, i.e. just a three-field condition
                 ThreeFieldCondition tfc = cond.asThreeFieldCondition();
                 AlphaMemory am = node.b_posneg.alpha_mem_;
-                tfc.id_test = Symbol.makeEqualityTest(am.id);
-                tfc.attr_test = Symbol.makeEqualityTest(am.attr);
-                tfc.value_test = Symbol.makeEqualityTest(am.value);
+                tfc.id_test = SymbolImpl.makeEqualityTest(am.id);
+                tfc.attr_test = SymbolImpl.makeEqualityTest(am.attr);
+                tfc.value_test = SymbolImpl.makeEqualityTest(am.value);
                 tfc.test_for_acceptable_preference = am.acceptable;
 
                 if (nvn != null)

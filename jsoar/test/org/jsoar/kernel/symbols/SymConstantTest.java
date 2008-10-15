@@ -21,7 +21,7 @@ public class SymConstantTest
     @Test
     public void testFormatTo()
     {
-        SymbolFactory syms = new SymbolFactory();
+        SymbolFactoryImpl syms = new SymbolFactoryImpl();
         
         assertEquals("|S1|", String.format("%s", syms.make_sym_constant("S1")));
         assertEquals("S1", String.format("%#s", syms.make_sym_constant("S1")));

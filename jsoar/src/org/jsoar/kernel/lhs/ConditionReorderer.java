@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.Arguments;
@@ -39,7 +39,7 @@ public class ConditionReorderer
 
     private static class SavedTest
     {
-        public SavedTest(SavedTest old_sts, Symbol var, ComplexTest the_test)
+        public SavedTest(SavedTest old_sts, SymbolImpl var, ComplexTest the_test)
         {
             assert var != null;
             assert the_test != null;
@@ -50,7 +50,7 @@ public class ConditionReorderer
         }
 
         SavedTest next;
-        Symbol var;
+        SymbolImpl var;
         ComplexTest the_test;
     }
 
@@ -247,7 +247,7 @@ public class ConditionReorderer
             RelationalTest rt = st.the_test.asRelationalTest();
             if (rt != null) // relational test other than equality
             {
-                Symbol referent = rt.referent;
+                SymbolImpl referent = rt.referent;
                 if (TestTools.test_includes_equality_test_for_symbol(t.value, st.var))
                 {
                     if (symbol_is_constant_or_marked_variable(referent, bound_vars_tc_number) || (st.var == referent))
@@ -300,7 +300,7 @@ public class ConditionReorderer
      * @param bound_vars_tc_number
      * @return
      */
-    private static boolean symbol_is_constant_or_marked_variable(Symbol referent, int bound_vars_tc_number)
+    private static boolean symbol_is_constant_or_marked_variable(SymbolImpl referent, int bound_vars_tc_number)
     {
         Variable var = referent.asVariable();
         return var == null || var.tc_number == bound_vars_tc_number;
@@ -498,7 +498,7 @@ public class ConditionReorderer
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
-            Symbol sym = eq.getReferent();
+            SymbolImpl sym = eq.getReferent();
             if (sym.asSymConstant() != null || sym.asIntConstant() != null || sym.asFloatConstant() != null)
             {
                 return sym.hash_id;
@@ -690,7 +690,7 @@ public class ConditionReorderer
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
-            Symbol referent = eq.getReferent();
+            SymbolImpl referent = eq.getReferent();
             if (symbol_is_constant_or_marked_variable(referent, tc))
             {
                 return true;
@@ -754,8 +754,8 @@ public class ConditionReorderer
     {
         if (TestTools.isBlank(t.value))
         {
-            Symbol sym = vars.generate_new_variable("dummy-");
-            t.value = Symbol.makeEqualityTest(sym);
+            SymbolImpl sym = vars.generate_new_variable("dummy-");
+            t.value = SymbolImpl.makeEqualityTest(sym);
             return old_sts;
         }
 
@@ -768,7 +768,7 @@ public class ConditionReorderer
         if (ct != null)
         {
             // look at subtests for an equality test
-            Symbol sym = null;
+            SymbolImpl sym = null;
             for (Test subtest : ct.conjunct_list)
             {
                 EqualityTest eq = subtest.asEqualityTest();
@@ -781,7 +781,7 @@ public class ConditionReorderer
             if (sym == null)
             {
                 sym = vars.generate_new_variable("dummy-");
-                EqualityTest newTest = Symbol.makeEqualityTest(sym);
+                EqualityTest newTest = SymbolImpl.makeEqualityTest(sym);
                 ct.conjunct_list.push(newTest);
             }
             // scan through, create saved_test for subtests except equality
@@ -804,7 +804,7 @@ public class ConditionReorderer
         {
             // goal/impasse, disjunction, and non-equality relational tests
             Variable var = vars.generate_new_variable("dummy-");
-            EqualityTest New = Symbol.makeEqualityTest(var);
+            EqualityTest New = SymbolImpl.makeEqualityTest(var);
             SavedTest saved = new SavedTest(old_sts, var, t.value.asComplexTest());
 
             old_sts = saved;
@@ -937,7 +937,7 @@ public class ConditionReorderer
                     // print (thisAgent, "\nWarning: On the LHS of production %s, identifier ",
                     // thisAgent->name_of_production_being_reordered);
                     // print_with_symbols (thisAgent, "%y is not connected to any goal or impasse.\n",
-                    // (Symbol *)(c->first));
+                    // (SymbolImpl *)(c->first));
                     //
                     // // XML geneneration
                     // growable_string gs =
@@ -948,7 +948,7 @@ public class ConditionReorderer
                     // thisAgent->name_of_production_being_reordered);
                     // add_to_growable_string(thisAgent, &gs, ", identifier ");
                     // add_to_growable_string(thisAgent, &gs, symbol_to_string
-                    // (thisAgent, (Symbol *)(c->first), true, 0, 0));
+                    // (thisAgent, (SymbolImpl *)(c->first), true, 0, 0));
                     // add_to_growable_string(thisAgent, &gs, " is not connected
                     // to any goal or impasse.");
                     // xml_generate_warning(thisAgent,

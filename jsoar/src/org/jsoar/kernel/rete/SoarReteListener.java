@@ -21,7 +21,7 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
@@ -974,10 +974,10 @@ public class SoarReteListener implements ReteListener
      */
     private static class MS_trace 
     {
-        Symbol sym;
+        SymbolImpl sym;
         int    count;
         MS_trace next;
-        Symbol goal;
+        SymbolImpl goal;
     }
     
     /**
@@ -987,7 +987,7 @@ public class SoarReteListener implements ReteListener
      * @param trace
      * @return
      */
-    private static MS_trace in_ms_trace(Symbol sym, MS_trace trace)
+    private static MS_trace in_ms_trace(SymbolImpl sym, MS_trace trace)
     {
         for (MS_trace tmp = trace; tmp != null; tmp = tmp.next)
         {
@@ -1005,7 +1005,7 @@ public class SoarReteListener implements ReteListener
      * @param goal
      * @return
      */
-    private static MS_trace in_ms_trace_same_goal(Symbol sym, MS_trace trace, Symbol goal)
+    private static MS_trace in_ms_trace_same_goal(SymbolImpl sym, MS_trace trace, SymbolImpl goal)
     {
         for (MS_trace tmp = trace; tmp != null; tmp = tmp.next)
         {

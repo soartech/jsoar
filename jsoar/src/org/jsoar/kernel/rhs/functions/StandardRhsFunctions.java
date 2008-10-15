@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.symbols.ISymbolFactory;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * @author ray
@@ -27,7 +27,7 @@ public class StandardRhsFunctions
     public final RhsFunctionHandler write = new AbstractRhsFunctionHandler("write") {
 
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
             for(Symbol arg : arguments)
             {
@@ -45,7 +45,7 @@ public class StandardRhsFunctions
     public final RhsFunctionHandler crlf = new AbstractRhsFunctionHandler("crlf") {
 
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
             return syms.make_sym_constant("\n");
         }

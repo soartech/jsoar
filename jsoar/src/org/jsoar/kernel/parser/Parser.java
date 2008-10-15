@@ -36,8 +36,8 @@ import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.symbols.SymConstant;
-import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.Arguments;
@@ -97,7 +97,7 @@ public class Parser implements LexemeTypes
 {
     private final Lexer lexer;
     private final Printer printer;
-    private final SymbolFactory syms;
+    private final SymbolFactoryImpl syms;
     private final VariableGenerator varGen;
     private final boolean operand2_mode;
     private int[] placeholder_counter = new int[26];
@@ -129,7 +129,7 @@ public class Parser implements LexemeTypes
         throw new ParserException(message);
     }
     
-    private Symbol make_symbol_for_current_lexeme () 
+    private SymbolImpl make_symbol_for_current_lexeme () 
     {
         switch (lexer.getCurrentLexeme().type) 
         {
@@ -183,7 +183,7 @@ public class Parser implements LexemeTypes
         new_var.current_binding_value = null;
 
         /* --- return an equality test for that variable --- */
-        return Symbol.makeEqualityTest(new_var);
+        return SymbolImpl.makeEqualityTest(new_var);
     }
 
 /* -----------------------------------------------------------------
@@ -217,7 +217,7 @@ public class Parser implements LexemeTypes
      * @param sym
      * @return
      */
-    private Symbol substitute_for_placeholders_in_symbol(Symbol sym)
+    private SymbolImpl substitute_for_placeholders_in_symbol(SymbolImpl sym)
     {
         /* --- if not a variable, do nothing --- */
         Variable asVar = sym.asVariable();
@@ -253,7 +253,7 @@ public class Parser implements LexemeTypes
         EqualityTest eqTest = t.asEqualityTest();
         if (eqTest != null)
         {
-            return Symbol.makeEqualityTest(substitute_for_placeholders_in_symbol(eqTest.getReferent()));
+            return SymbolImpl.makeEqualityTest(substitute_for_placeholders_in_symbol(eqTest.getReferent()));
         }
 
         Test ct = t.asComplexTest();
@@ -414,9 +414,9 @@ public class Parser implements LexemeTypes
         case FLOAT_CONSTANT_LEXEME:
         case VARIABLE_LEXEME:
         {
-            Symbol referent = make_symbol_for_current_lexeme();
+            SymbolImpl referent = make_symbol_for_current_lexeme();
             lexer.getNextLexeme();
-            return use_equality_test ? Symbol.makeEqualityTest(referent) : new RelationalTest(test_type, referent);
+            return use_equality_test ? SymbolImpl.makeEqualityTest(referent) : new RelationalTest(test_type, referent);
         }
         default:
             error("Expected variable or constant for test");
@@ -447,7 +447,7 @@ public class Parser implements LexemeTypes
         lexer.getNextLexeme();
 
         
-        List<Symbol> disjuncts = new ArrayList<Symbol>();
+        List<SymbolImpl> disjuncts = new ArrayList<SymbolImpl>();
         while (lexer.getCurrentLexeme().type != GREATER_GREATER_LEXEME)
         {
             switch (lexer.getCurrentLexeme().type)
@@ -963,7 +963,7 @@ public class Parser implements LexemeTypes
 
         Test id_test = null; // blank test
         Test check_for_symconstant;
-        Symbol sym;
+        SymbolImpl sym;
         /* --- read optional id test; create dummy one if none given --- */
         if ((lexer.getCurrentLexeme().type != MINUS_LEXEME) && (lexer.getCurrentLexeme().type != UP_ARROW_LEXEME)
                 && (lexer.getCurrentLexeme().type != R_PAREN_LEXEME))
@@ -1474,7 +1474,7 @@ PreferenceType parse_preference_specifier_without_referent () throws IOException
                             | <binary-preference> <rhs_value> [,]
 ----------------------------------------------------------------- */
 
-Action parse_preferences (Symbol id, RhsValue attr, RhsValue value) throws IOException, ParserException {
+Action parse_preferences (SymbolImpl id, RhsValue attr, RhsValue value) throws IOException, ParserException {
   RhsValue referent;
   PreferenceType preference_type;
   boolean saw_plus_sign = false;
@@ -1549,7 +1549,7 @@ Action parse_preferences (Symbol id, RhsValue attr, RhsValue value) throws IOExc
                             | <binary-preference> <rhs_value> [,]
 ----------------------------------------------------------------- */
 
-Action parse_preferences_soar8_non_operator (Symbol id, RhsValue attr, RhsValue value) throws IOException, ParserException 
+Action parse_preferences_soar8_non_operator (SymbolImpl id, RhsValue attr, RhsValue value) throws IOException, ParserException 
 {
   /* --- Note: this routine is set up so if there's not preference type
      indicator at all, we return an acceptable preference make
@@ -1637,7 +1637,7 @@ Action parse_preferences_soar8_non_operator (Symbol id, RhsValue attr, RhsValue 
    <value_make> ::= <rhs_value> <preferences>
 ----------------------------------------------------------------- */
 
-Action parse_attr_value_make (Symbol id) throws IOException, ParserException 
+Action parse_attr_value_make (SymbolImpl id) throws IOException, ParserException 
 {
   RhsValue value;
   Action new_actions, last;

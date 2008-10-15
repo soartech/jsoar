@@ -6,7 +6,7 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.HashFunction;
 import org.jsoar.util.HashTableItem;
 import org.jsoar.util.ListHead;
@@ -20,9 +20,9 @@ import org.jsoar.util.HashTable;
 public class AlphaMemory extends HashTableItem
 {
     final int am_id;            /* id for hashing */
-    final Symbol id;                  /* constants tested by this alpha mem */
-    final Symbol attr;                /* (NIL if this alpha mem ignores that field) */
-    final Symbol value;
+    final SymbolImpl id;                  /* constants tested by this alpha mem */
+    final SymbolImpl attr;                /* (NIL if this alpha mem ignores that field) */
+    final SymbolImpl value;
     final boolean acceptable;             /* does it test for acceptable pref? */
     
     final ListHead<RightMemory> right_mems = ListHead.newInstance(); // dll of right memory structures
@@ -52,7 +52,7 @@ public class AlphaMemory extends HashTableItem
      * @param value
      * @param acceptable
      */
-    public AlphaMemory(int am_id, Symbol id, Symbol attr, Symbol value, boolean acceptable)
+    public AlphaMemory(int am_id, SymbolImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
         this.am_id = am_id;
         this.id = id;
@@ -84,7 +84,7 @@ public class AlphaMemory extends HashTableItem
      * @param num_bits
      * @return
      */
-    static int alpha_hash_value(Symbol i, Symbol a, Symbol v, int num_bits)
+    static int alpha_hash_value(SymbolImpl i, SymbolImpl a, SymbolImpl v, int num_bits)
     {
       return ( ( ((i != null) ? (i).hash_id : 0) ^
         ((a != null) ? (a).hash_id : 0) ^

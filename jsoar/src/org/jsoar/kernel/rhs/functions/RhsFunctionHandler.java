@@ -7,8 +7,8 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
+import org.jsoar.kernel.symbols.ISymbolFactory;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * Interface for the implementation of a RHS function
@@ -28,11 +28,11 @@ public interface RhsFunctionHandler
     /**
      * Execute the function and return a result.
      * 
-     * @param syms Symbol factory to create result symbols with as necessary
+     * @param syms SymbolImpl factory to create result symbols with as necessary
      * @param arguments List of arguments
      * @return Result symbol
      * @throws RhsFunctionException if an error occurs
      */
-    Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException;
+    Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException;
 
 }

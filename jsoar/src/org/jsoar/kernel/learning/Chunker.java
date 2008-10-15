@@ -35,7 +35,7 @@ import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymConstant;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.AsListItem;
@@ -177,7 +177,7 @@ public class Chunker
      * 
      * @param sym
      */
-    private void add_results_if_needed(Symbol sym)
+    private void add_results_if_needed(SymbolImpl sym)
     {
         Identifier id = sym.asIdentifier();
         if (id != null)
@@ -302,7 +302,7 @@ public class Chunker
      * @param sym
      * @return
      */
-    private Symbol variablize_symbol(Symbol sym)
+    private SymbolImpl variablize_symbol(SymbolImpl sym)
     {
         Identifier id = sym.asIdentifier();
         if (id == null)
@@ -337,7 +337,7 @@ public class Chunker
         {
             //eq.sym = variablize_symbol(eq.sym);
             /* Warning: this relies on the representation of tests */
-            return Symbol.makeEqualityTest(variablize_symbol(eq.getReferent()));
+            return SymbolImpl.makeEqualityTest(variablize_symbol(eq.getReferent()));
         }
 
         if (t.asGoalIdTest() != null || t.asImpasseIdTest() != null || t.asDisjunctionTest() != null)
@@ -612,8 +612,8 @@ public class Chunker
 
         for (NotStruct n = nots; n != null; n = n.next)
         {
-            Symbol var1 = n.s1.variablization;
-            Symbol var2 = n.s2.variablization;
+            SymbolImpl var1 = n.s1.variablization;
+            SymbolImpl var2 = n.s2.variablization;
             // find where var1 is bound, and add "<> var2" to that test
             RelationalTest t = new RelationalTest(RelationalTest.NOT_EQUAL_TEST, var2);
             boolean added_it = false;
@@ -805,7 +805,7 @@ public class Chunker
      * @param attr
      * @return
      */
-    private static Symbol find_impasse_wme_value(Identifier id, Symbol attr)
+    private static SymbolImpl find_impasse_wme_value(Identifier id, SymbolImpl attr)
     {
         for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == attr)
@@ -859,7 +859,7 @@ public class Chunker
                 break;
             case NO_CHANGE_IMPASSE_TYPE:
             {
-                Symbol sym = find_impasse_wme_value(goal.lower_goal, context.predefinedSyms.attribute_symbol);
+                SymbolImpl sym = find_impasse_wme_value(goal.lower_goal, context.predefinedSyms.attribute_symbol);
 
                 if (sym == null)
                 {

@@ -22,7 +22,7 @@ import org.jsoar.util.ListHead;
 /**
  * @author ray
  */
-public class Identifier extends Symbol
+public class Identifier extends SymbolImpl implements IdSymbol
 {
     public final int name_number;
     public final char name_letter;
@@ -40,7 +40,7 @@ public class Identifier extends Symbol
     public AsListItem<Identifier> unknown_level;
     public final ListHead<Slot> slots = ListHead.newInstance(); // dll of slots for this identifier
     public int tc_number; /* used for transitive closures, marking, etc. */
-    public Symbol variablization; /* used by the chunker */
+    public SymbolImpl variablization; /* used by the chunker */
 
     // fields used only on goals and impasse identifiers
     private Wme impasse_wmes;
@@ -50,7 +50,7 @@ public class Identifier extends Symbol
     public Slot operator_slot;
     public final ListHead<Preference> preferences_from_goal = ListHead.newInstance();
 
-    public Symbol reward_header;        // pointer to reward_link
+    public SymbolImpl reward_header;        // pointer to reward_link
     public ReinforcementLearningInfo rl_info;           // various Soar-RL information
 
     /* REW: begin 09.15.96 */
@@ -84,6 +84,25 @@ public class Identifier extends Symbol
         this.name_number = name_number;
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.IdSymbol#getNameLetter()
+     */
+    @Override
+    public char getNameLetter()
+    {
+        return name_letter;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.IdSymbol#getNameNumber()
+     */
+    @Override
+    public int getNameNumber()
+    {
+        return name_number;
+    }
+
+
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Symbol#asIdentifier()
@@ -96,17 +115,17 @@ public class Identifier extends Symbol
 
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#isSameTypeAs(org.jsoar.kernel.symbols.Symbol)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
-    public boolean isSameTypeAs(Symbol other)
+    public boolean isSameTypeAs(SymbolImpl other)
     {
         return other.asIdentifier() != null;
     }
 
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#getFirstLetter()
+     * @see org.jsoar.kernel.symbols.SymbolImpl#getFirstLetter()
      */
     @Override
     public char getFirstLetter()
@@ -185,7 +204,7 @@ public class Identifier extends Symbol
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
     public void add_symbol_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
@@ -194,7 +213,7 @@ public class Identifier extends Symbol
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#symbol_is_in_tc(int)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#symbol_is_in_tc(int)
      */
     @Override
     public boolean symbol_is_in_tc(int tc)

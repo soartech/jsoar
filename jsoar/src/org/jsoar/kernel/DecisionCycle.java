@@ -12,9 +12,10 @@ import java.util.List;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
+import org.jsoar.kernel.symbols.ISymbolFactory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
@@ -74,7 +75,7 @@ public class DecisionCycle
     private RhsFunctionHandler haltHandler = new AbstractRhsFunctionHandler("halt") {
 
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public SymbolImpl execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
             system_halted = true;
             

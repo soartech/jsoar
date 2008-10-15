@@ -36,6 +36,7 @@ import org.jsoar.kernel.rhs.UnboundVariable;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.AsListItem;
@@ -260,7 +261,7 @@ public class RecognitionMemory
      * @param w
      * @return
      */
-    public Symbol instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, Wme w)
+    public SymbolImpl instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, Wme w)
     {
         RhsSymbolValue rsv = rv.asSymbolValue();
         if (rsv != null)
@@ -277,7 +278,7 @@ public class RecognitionMemory
             {
                 this.firer_highest_rhs_unboundvar_index = index;
             }
-            Symbol sym = context.rete.getRhsVariableBinding(index);
+            SymbolImpl sym = context.rete.getRhsVariableBinding(index);
 
             if (sym == null)
             {
@@ -316,7 +317,7 @@ public class RecognitionMemory
         boolean nil_arg_found = false;
         for (RhsValue arg : fc.getArguments())
         {
-            Symbol instArg = instantiate_rhs_value(arg, new_id_level, new_id_letter, tok, w);
+            SymbolImpl instArg = instantiate_rhs_value(arg, new_id_level, new_id_letter, tok, w);
             if (instArg == null)
             {
                 nil_arg_found = true;
@@ -336,7 +337,7 @@ public class RecognitionMemory
 
             try
             {
-                return context.getRhsFunctions().execute(fc.getName().getValue(), arguments);
+                return (SymbolImpl) context.getRhsFunctions().execute(fc.getName().getValue(), arguments);
             }
             catch (RhsFunctionException e)
             {
@@ -370,7 +371,7 @@ public class RecognitionMemory
 
         MakeAction ma = a.asMakeAction();
 
-        Symbol idSym = instantiate_rhs_value(ma.id, -1, 's', tok, w);
+        SymbolImpl idSym = instantiate_rhs_value(ma.id, -1, 's', tok, w);
         if (idSym == null)
         {
             return null; // goto abort_execute_action;
@@ -382,7 +383,7 @@ public class RecognitionMemory
             return null; // goto abort_execute_action;
         }
 
-        Symbol attr = instantiate_rhs_value(ma.attr, id.level, 'a', tok, w);
+        SymbolImpl attr = instantiate_rhs_value(ma.attr, id.level, 'a', tok, w);
         if (attr == null)
         {
             return null;
@@ -390,13 +391,13 @@ public class RecognitionMemory
 
         char first_letter = attr.getFirstLetter();
 
-        Symbol value = instantiate_rhs_value(ma.value, id.level, first_letter, tok, w);
+        SymbolImpl value = instantiate_rhs_value(ma.value, id.level, first_letter, tok, w);
         if (value == null)
         {
             return null; // goto abort_execute_action;
         }
 
-        Symbol referent = null;
+        SymbolImpl referent = null;
         if (a.preference_type.isBinary())
         {
             referent = instantiate_rhs_value(ma.referent, id.level, first_letter, tok, w);
@@ -685,7 +686,7 @@ public class RecognitionMemory
             else
             {
                 pref = null;
-                /* Symbol *result = */ReinforcementLearning.rl_build_template_instantiation(inst, tok, w);
+                /* SymbolImpl *result = */ReinforcementLearning.rl_build_template_instantiation(inst, tok, w);
             }
 
             /*

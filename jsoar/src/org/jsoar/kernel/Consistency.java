@@ -9,7 +9,7 @@ import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
@@ -171,7 +171,7 @@ public class Consistency
 
         boolean goal_is_impassed = false;
         ImpasseType current_impasse_type, new_impasse_type;
-        Symbol current_impasse_attribute;
+        SymbolImpl current_impasse_attribute;
         if (goal.lower_goal != null)
         {
             /* the goal is impassed */

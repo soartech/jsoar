@@ -21,7 +21,7 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
@@ -339,7 +339,7 @@ public class Decider
      * @param sym
      * @param new_level
      */
-    private void promote_if_needed(Symbol sym, int new_level)
+    private void promote_if_needed(SymbolImpl sym, int new_level)
     {
         Identifier id = sym.asIdentifier();
         if (id != null)
@@ -526,7 +526,7 @@ public class Decider
      * 
      * @param sym
      */
-    private void mark_unknown_level_if_needed(Symbol sym)
+    private void mark_unknown_level_if_needed(SymbolImpl sym)
     {
         Identifier id = sym.asIdentifier();
         if (id != null)
@@ -596,7 +596,7 @@ public class Decider
      * 
      * @param sym
      */
-    private void update_levels_if_needed(Symbol sym)
+    private void update_levels_if_needed(SymbolImpl sym)
     {
         Identifier id = sym.asIdentifier();
         if (id != null)
@@ -791,7 +791,7 @@ public class Decider
             return ImpasseType.CONSTRAINT_FAILURE_IMPASSE_TYPE;
 
         // just one require, check for require-prohibit impasse
-        Symbol value = candidates.value;
+        SymbolImpl value = candidates.value;
         for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT_PREFERENCE_TYPE); p != null; p = p.next)
             if (p.value == value)
                 return ImpasseType.CONSTRAINT_FAILURE_IMPASSE_TYPE;
@@ -974,8 +974,8 @@ public class Decider
             }
             for (Preference p = s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE); p != null; p = p.next)
             {
-                final Symbol j = p.value;
-                final Symbol k = p.referent;
+                final SymbolImpl j = p.value;
+                final SymbolImpl k = p.referent;
                 if (j == k)
                     continue;
                 if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
@@ -1004,8 +1004,8 @@ public class Decider
             }
             for (Preference p = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p != null; p = p.next)
             {
-                final Symbol j = p.value;
-                final Symbol k = p.referent;
+                final SymbolImpl j = p.value;
+                final SymbolImpl k = p.referent;
                 if (j == k)
                     continue;
                 if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
@@ -1277,7 +1277,7 @@ public class Decider
      * @param value
      * @param p
      */
-    private void add_impasse_wme(Identifier id, Symbol attr, Symbol value, Preference p)
+    private void add_impasse_wme(Identifier id, SymbolImpl attr, SymbolImpl value, Preference p)
     {
         Wme w = context.workingMemory.make_wme(id, attr, value, false);
         id.addImpasseWme(w);
@@ -1300,7 +1300,7 @@ public class Decider
      *            Goal stack level
      * @return
      */
-    private Identifier create_new_impasse(boolean isa_goal, Symbol object, Symbol attr, ImpasseType impasse_type,
+    private Identifier create_new_impasse(boolean isa_goal, SymbolImpl object, SymbolImpl attr, ImpasseType impasse_type,
             int level)
     {
         final PredefinedSymbols predefined = context.predefinedSyms; // reduce typing
@@ -1451,10 +1451,10 @@ public class Decider
         inst.top_of_instantiated_conditions = cond;
         inst.bottom_of_instantiated_conditions = cond;
         inst.nots = null;
-        cond.id_test = Symbol.makeEqualityTest(ap_wme.id); // make_equality_test
+        cond.id_test = SymbolImpl.makeEqualityTest(ap_wme.id); // make_equality_test
                                                             // (ap_wme->id);
-        cond.attr_test = Symbol.makeEqualityTest(ap_wme.attr);
-        cond.value_test = Symbol.makeEqualityTest(ap_wme.value);
+        cond.attr_test = SymbolImpl.makeEqualityTest(ap_wme.attr);
+        cond.value_test = SymbolImpl.makeEqualityTest(ap_wme.value);
         cond.test_for_acceptable_preference = true;
         cond.bt.wme_ = ap_wme;
         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
@@ -1861,7 +1861,7 @@ public class Decider
         if (s.getWmes() == null)
             return s.changed != null;
 
-        Symbol v = s.getWmes().value;
+        SymbolImpl v = s.getWmes().value;
         for (Preference p = s.getPreferencesByType(PreferenceType.RECONSIDER_PREFERENCE_TYPE); p != null; p = p.next)
         {
             if (v == p.value)
@@ -2059,7 +2059,7 @@ public class Decider
      * @param attr_of_impasse
      * @param impasse_type
      */
-    private void create_new_context(Symbol attr_of_impasse, ImpasseType impasse_type)
+    private void create_new_context(SymbolImpl attr_of_impasse, ImpasseType impasse_type)
     {
         Identifier id;
 
@@ -2167,7 +2167,7 @@ public class Decider
      * @param goal
      * @return
      */
-    public Symbol attribute_of_existing_impasse(Identifier goal)
+    public SymbolImpl attribute_of_existing_impasse(Identifier goal)
     {
         if (goal.lower_goal == null)
             return null;
@@ -2194,7 +2194,7 @@ public class Decider
     private boolean decide_context_slot(Identifier goal, Slot s, boolean predict /*= false*/)
     {
         ImpasseType impasse_type;
-        Symbol attribute_of_impasse;
+        SymbolImpl attribute_of_impasse;
         final ByRef<Preference> candidates = ByRef.create(null);
 
         if (!context_slot_is_decidable(s))

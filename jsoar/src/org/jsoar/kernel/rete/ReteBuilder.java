@@ -25,7 +25,7 @@ import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.rhs.UnboundVariable;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
@@ -121,7 +121,7 @@ import org.jsoar.util.ListHead;
      * @param alpha_constant
      */
     static void add_rete_tests_for_test(Rete rete, Test t, int current_depth, int field_num, ByRef<ReteTest> rt,
-            ByRef<Symbol> alpha_constant)
+            ByRef<SymbolImpl> alpha_constant)
     {
         if (TestTools.isBlank(t))
         {
@@ -131,7 +131,7 @@ import org.jsoar.util.ListHead;
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
-            Symbol referent = eq.getReferent();
+            SymbolImpl referent = eq.getReferent();
 
             // if constant test and alpha=NIL, install alpha test
             if (referent.asVariable() == null && alpha_constant.value == null)
@@ -395,9 +395,9 @@ import org.jsoar.util.ListHead;
         Rete.bind_variables_in_test(cond.value_test, current_depth, 2, false, vars_bound_here);
 
         // Get Rete tests, alpha constants, and hash location
-        ByRef<Symbol> alpha_id = ByRef.create(null);
-        ByRef<Symbol> alpha_attr = ByRef.create(null);
-        ByRef<Symbol> alpha_value = ByRef.create(null);
+        ByRef<SymbolImpl> alpha_id = ByRef.create(null);
+        ByRef<SymbolImpl> alpha_attr = ByRef.create(null);
+        ByRef<SymbolImpl> alpha_value = ByRef.create(null);
         ByRef<ReteTest> rt = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.id_test, current_depth, 0, rt, alpha_id);
         ByRef<VarLocation> left_hash_loc = ByRef.create(null);
@@ -531,17 +531,17 @@ import org.jsoar.util.ListHead;
         Rete.bind_variables_in_test(cond.value_test, current_depth, 2, false, vars_bound_here);
 
         /* --- Get Rete tests, alpha constants, and hash location --- */
-        ByRef<Symbol> alpha_id = ByRef.create(null);
+        ByRef<SymbolImpl> alpha_id = ByRef.create(null);
         ByRef<ReteTest> rt = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.id_test, current_depth, 0, rt, alpha_id);
         
         ByRef<VarLocation> left_hash_loc = ByRef.create(null);
         boolean hash_this_node = extract_rete_test_to_hash_with(rt, left_hash_loc);
         
-        ByRef<Symbol> alpha_attr = ByRef.create(null);
+        ByRef<SymbolImpl> alpha_attr = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.attr_test, current_depth, 1, rt, alpha_attr);
         
-        ByRef<Symbol> alpha_value = ByRef.create(null);
+        ByRef<SymbolImpl> alpha_value = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.value_test, current_depth, 2, rt, alpha_value);
 
         /* --- Pop sparse variable bindings for this condition --- */

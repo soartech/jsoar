@@ -7,7 +7,7 @@ package org.jsoar.kernel.rete;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * Implements a simple beta node test. Besides the <code>nex</code> pointer, this
@@ -41,8 +41,8 @@ public class ReteTest
     final int right_field_num;          /* field (0, 1, or 2) from wme */
     // TODO union rete_test_data_union {
       final VarLocation variable_referent;   /* for relational tests to a variable */
-      final Symbol constant_referent;        /* for relational tests to a constant */
-      final List<Symbol> disjunction_list;           // immutable list of symbols in disjunction test
+      final SymbolImpl constant_referent;        /* for relational tests to a constant */
+      final List<SymbolImpl> disjunction_list;           // immutable list of symbols in disjunction test
     // TODO } data;
       
     ReteTest next; /* next in list of tests at the node */
@@ -55,7 +55,7 @@ public class ReteTest
      *  is assumed to be an immutable list provided by the caller
      * @return New disjunction rete test.
      */
-    public static ReteTest createDisjunctionTest(int fieldNum, List<Symbol> disjuncts)
+    public static ReteTest createDisjunctionTest(int fieldNum, List<SymbolImpl> disjuncts)
     {
         return new ReteTest(fieldNum, disjuncts);
     }
@@ -81,7 +81,7 @@ public class ReteTest
      * @param constant The constant
      * @return The new test
      */
-    public static ReteTest createConstantTest(int type, int fieldNum, Symbol constant)
+    public static ReteTest createConstantTest(int type, int fieldNum, SymbolImpl constant)
     {
         return new ReteTest(type, fieldNum, constant);
     }
@@ -125,7 +125,7 @@ public class ReteTest
         this.constant_referent = null;
     }
     
-    private ReteTest(int fieldNum, List<Symbol> disjunction)
+    private ReteTest(int fieldNum, List<SymbolImpl> disjunction)
     {
         this.type = DISJUNCTION_RETE_TEST;
         this.right_field_num = fieldNum;
@@ -144,7 +144,7 @@ public class ReteTest
         this.constant_referent = null;
     }
     
-    private ReteTest(int relation, int fieldNum, Symbol constantReferent)
+    private ReteTest(int relation, int fieldNum, SymbolImpl constantReferent)
     {
         assert isRelationType(relation);
         this.type = CONSTANT_RELATIONAL_RETE_TEST + relation;

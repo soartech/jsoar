@@ -10,7 +10,7 @@ import java.util.Formatter;
 /**
  * @author ray
  */
-public class IntConstant extends Symbol
+public class IntConstant extends SymbolImpl implements IntegerSymbol
 {
     private final int value;
     
@@ -44,20 +44,20 @@ public class IntConstant extends Symbol
 
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#isSameTypeAs(org.jsoar.kernel.symbols.Symbol)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
-    public boolean isSameTypeAs(Symbol other)
+    public boolean isSameTypeAs(SymbolImpl other)
     {
         return other.asIntConstant() != null;
     }
 
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#numericLess(org.jsoar.kernel.symbols.Symbol)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericLess(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
-    public boolean numericLess(Symbol other)
+    public boolean numericLess(SymbolImpl other)
     {
         IntConstant i = other.asIntConstant();
         if(i != null)
@@ -70,10 +70,10 @@ public class IntConstant extends Symbol
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#numericLessOrEqual(org.jsoar.kernel.symbols.Symbol)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericLessOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
-    public boolean numericLessOrEqual(Symbol other)
+    public boolean numericLessOrEqual(SymbolImpl other)
     {
         IntConstant i = other.asIntConstant();
         if(i != null)
@@ -86,10 +86,10 @@ public class IntConstant extends Symbol
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#numericGreater(org.jsoar.kernel.symbols.Symbol)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreater(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
-    public boolean numericGreater(Symbol other)
+    public boolean numericGreater(SymbolImpl other)
     {
         IntConstant i = other.asIntConstant();
         if(i != null)
@@ -102,10 +102,10 @@ public class IntConstant extends Symbol
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#numericGreaterOrEqual(org.jsoar.kernel.symbols.Symbol)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreaterOrEqual(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
-    public boolean numericGreaterOrEqual(Symbol other)
+    public boolean numericGreaterOrEqual(SymbolImpl other)
     {
         IntConstant i = other.asIntConstant();
         if(i != null)

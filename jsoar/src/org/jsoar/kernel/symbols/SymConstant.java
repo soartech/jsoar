@@ -14,7 +14,7 @@ import org.jsoar.util.StringTools;
 /**
  * @author ray
  */
-public class SymConstant extends Symbol
+public class SymConstant extends SymbolImpl implements StringSymbol
 {
     private final String value;
     
@@ -46,16 +46,16 @@ public class SymConstant extends Symbol
     
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#isSameTypeAs(org.jsoar.kernel.symbols.Symbol)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
-    public boolean isSameTypeAs(Symbol other)
+    public boolean isSameTypeAs(SymbolImpl other)
     {
         return other.asSymConstant() != null;
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.Symbol#getFirstLetter()
+     * @see org.jsoar.kernel.symbols.SymbolImpl#getFirstLetter()
      */
     @Override
     public char getFirstLetter()

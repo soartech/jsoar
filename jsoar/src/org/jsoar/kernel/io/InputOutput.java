@@ -15,7 +15,7 @@ import org.jsoar.kernel.symbols.FloatConstant;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IntConstant;
 import org.jsoar.kernel.symbols.SymConstant;
-import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
@@ -189,7 +189,7 @@ public class InputOutput
      * @param value
      * @return
      */
-    public Wme add_input_wme(Identifier id, Symbol attr, Symbol value)
+    public Wme add_input_wme(Identifier id, SymbolImpl attr, SymbolImpl value)
     {
         Arguments.checkNotNull(id, "id");
         Arguments.checkNotNull(attr, "attr");
@@ -751,7 +751,7 @@ public class InputOutput
      * @param attr
      * @return
      */
-    public Symbol get_output_value(InputOutputWme outputs, Identifier id, Symbol attr)
+    public SymbolImpl get_output_value(InputOutputWme outputs, Identifier id, SymbolImpl attr)
     {
         for (InputOutputWme iw = outputs; iw != null; iw = iw.next)
             if (((id == null) || (id == iw.id)) && ((attr == null) || (attr == iw.attr)))

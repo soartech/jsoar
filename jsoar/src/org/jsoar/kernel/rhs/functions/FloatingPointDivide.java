@@ -2,9 +2,9 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.IntConstant;
+import org.jsoar.kernel.symbols.ISymbolFactory;
+import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * Takes one or more int_constant or float_constant arguments.
@@ -24,8 +24,11 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
         super("/");
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.ISymbolFactory, java.util.List)
+     */
     @Override
-    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctionTools.checkAllArgumentsAreNumeric(getName(), arguments);
         RhsFunctionTools.checkArgumentCount(getName(), arguments, 1, Integer.MAX_VALUE);
@@ -33,7 +36,7 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
         Symbol arg = arguments.get(0);
         if(arguments.size() == 1)
         {
-            IntConstant i = arg.asIntConstant();
+            IntegerSymbol i = arg.asIntConstant();
             
             double f =  i != null ? i.getValue() : arg.asFloatConstant().getValue();
             if(f == 0.0)
