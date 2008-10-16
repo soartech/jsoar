@@ -6,7 +6,7 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 
 /**
  * An interface intended to decouple Soar-specific handling of rete matches and unmatches
@@ -53,7 +53,7 @@ public interface ReteListener
      * @param tok
      * @param w
      */
-    void p_node_left_addition(Rete rete, ReteNode node, Token tok, Wme w);
+    void p_node_left_addition(Rete rete, ReteNode node, Token tok, WmeImpl w);
     
     /**
      * This method is called when a production unmatches
@@ -68,7 +68,7 @@ public interface ReteListener
      * @param tok
      * @param w
      */
-    void p_node_left_removal(Rete rete, ReteNode node, Token tok, Wme w);
+    void p_node_left_removal(Rete rete, ReteNode node, Token tok, WmeImpl w);
 
     /**
      * Called when a production is being excised. This is called after the p-node's

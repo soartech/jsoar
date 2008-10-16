@@ -22,7 +22,7 @@ public class MultiplyTest extends JSoarTest
     {
         Multiply multiply = new Multiply();
         
-        assertEquals(1, multiply.execute(syms, syms.makeList()).asIntConstant().getValue());
+        assertEquals(1, multiply.execute(syms, syms.makeList()).asInteger().getValue());
     }
     
     @Test
@@ -30,7 +30,7 @@ public class MultiplyTest extends JSoarTest
     {
         Multiply multiply = new Multiply();
         
-        assertEquals(33, multiply.execute(syms, syms.makeList(33)).asIntConstant().getValue());
+        assertEquals(33, multiply.execute(syms, syms.makeList(33)).asInteger().getValue());
     }
     
     @Test
@@ -38,7 +38,7 @@ public class MultiplyTest extends JSoarTest
     {
         Multiply multiply = new Multiply();
         
-        assertEquals(123.4, multiply.execute(syms, syms.makeList(123.4)).asFloatConstant().getValue(), 0.0001);
+        assertEquals(123.4, multiply.execute(syms, syms.makeList(123.4)).asDouble().getValue(), 0.0001);
     }
     
     @Test
@@ -46,7 +46,7 @@ public class MultiplyTest extends JSoarTest
     {
         Multiply multiply = new Multiply();
         
-        assertEquals(2 * 123.4 * -2, multiply.execute(syms, syms.makeList(2, 123.4, -2)).asFloatConstant().getValue(), 0.0001);
+        assertEquals(2 * 123.4 * -2, multiply.execute(syms, syms.makeList(2, 123.4, -2)).asDouble().getValue(), 0.0001);
     }
     
     @Test
@@ -54,7 +54,7 @@ public class MultiplyTest extends JSoarTest
     {
         Multiply multiply = new Multiply();
         
-        assertEquals(2 * 3 * 4 * -2, multiply.execute(syms, syms.makeList(2, 3, 4, -2)).asIntConstant().getValue());
+        assertEquals(2 * 3 * 4 * -2, multiply.execute(syms, syms.makeList(2, 3, 4, -2)).asInteger().getValue());
     }
     
     @Test
@@ -62,7 +62,7 @@ public class MultiplyTest extends JSoarTest
     {
         Multiply multiply = new Multiply();
         
-        assertEquals(2.0 * 3.0 * 4.0 * -2.0, multiply.execute(syms, syms.makeList(2.0, 3.0, 4.0, -2.0)).asFloatConstant().getValue(), 0.0001);
+        assertEquals(2.0 * 3.0 * 4.0 * -2.0, multiply.execute(syms, syms.makeList(2.0, 3.0, 4.0, -2.0)).asDouble().getValue(), 0.0001);
     }
 
 }

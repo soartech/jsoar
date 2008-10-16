@@ -15,7 +15,7 @@ import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.NotStruct;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
 
@@ -269,12 +269,12 @@ public class Backtracer
             if (pc == null)
                 continue;
 
-            Identifier id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
+            IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
 
             if (id.tc_number == tc)
             {
                 // id is already in the TC, so add in the value
-                Identifier valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
+                IdentifierImpl valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
                 if (valueId != null)
                 {
                     // if we already saw it before, we're going to have to go
@@ -288,7 +288,7 @@ public class Backtracer
             {
                 // id is a higher goal id that was tested: so add id to the TC
                 id.tc_number = tc;
-                Identifier valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
+                IdentifierImpl valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
                 if (valueId != null)
                 {
                     // if we already saw it before, we're going to have to go
@@ -319,7 +319,7 @@ public class Backtracer
                     continue;
                 if (pc.id_test.asEqualityTest().getReferent().asIdentifier().tc_number != tc)
                     continue;
-                Identifier valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
+                IdentifierImpl valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
                 if (valueId != null)
                     if (valueId.tc_number != tc)
                     {

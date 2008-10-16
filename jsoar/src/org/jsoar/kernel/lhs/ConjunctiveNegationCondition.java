@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
@@ -48,7 +48,7 @@ public class ConjunctiveNegationCondition extends Condition
      * @see org.jsoar.kernel.lhs.Condition#add_cond_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
-    public void add_cond_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
+    public void add_cond_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         // Do nothing
     }
@@ -60,7 +60,7 @@ public class ConjunctiveNegationCondition extends Condition
     public boolean cond_is_in_tc(int tc)
     {
         // conjunctive negations: keep trying to add stuff to the TC
-        ListHead<Identifier> new_ids = ListHead.newInstance();
+        ListHead<IdentifierImpl> new_ids = ListHead.newInstance();
         ListHead<Variable> new_vars = ListHead.newInstance();
 
         for (Condition c = top; c != null; c = c.next)
@@ -88,7 +88,7 @@ public class ConjunctiveNegationCondition extends Condition
                 result = false;
 
         // unmark identifiers and variables that we just marked
-        Identifier.unmark(new_ids);
+        IdentifierImpl.unmark(new_ids);
         Variable.unmark(new_vars);
 
         return result;

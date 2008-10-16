@@ -14,7 +14,7 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
@@ -71,7 +71,7 @@ public class SoarTclInterface
                 throw new TclNumArgsException(interp, 2, args, "attr cost");
             }
             
-            SymConstant attr = agent.syms.make_sym_constant(args[1].toString());
+            StringSymbolImpl attr = agent.syms.createString(args[1].toString());
             int cost = Integer.valueOf(args[2].toString());
             agent.getMultiAttributes().setCost(attr, cost);
         }

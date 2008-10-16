@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.AsListItem;
 
 /**
@@ -21,16 +21,16 @@ public class MatchSetChange
     
     public ReteNode p_node; // for retractions, this can be null if the p node has been excised
     public final Token tok; // for assertions only
-    public final Wme w; // for assertions only
+    public final WmeImpl w; // for assertions only
     
     
     public final Instantiation inst;   // for retractions only
 
-    public Identifier goal;
+    public IdentifierImpl goal;
     public int level;              // Level of the match of the assertion or retraction
     public final AsListItem<MatchSetChange> in_level = new AsListItem<MatchSetChange>(this); // dll for goal level
 
-    public static MatchSetChange createAssertion(ReteNode p_node, Token tok, Wme w)
+    public static MatchSetChange createAssertion(ReteNode p_node, Token tok, WmeImpl w)
     {
         return new MatchSetChange(p_node, tok, w);
     }
@@ -52,7 +52,7 @@ public class MatchSetChange
         return new MatchSetChange(p_node, inst);
     }
     
-    private MatchSetChange(ReteNode p_node, Token tok, Wme w)
+    private MatchSetChange(ReteNode p_node, Token tok, WmeImpl w)
     {
         assert p_node.node_type == ReteNodeType.P_BNODE && p_node.b_p != null;
         
@@ -79,13 +79,13 @@ public class MatchSetChange
      * @param msc
      * @return
      */
-    public Identifier find_goal_for_match_set_change_assertion(Token dummy_top_token) {
+    public IdentifierImpl find_goal_for_match_set_change_assertion(Token dummy_top_token) {
 
 //      #ifdef DEBUG_WATERFALL
 //        print_with_symbols(thisAgent, "\nMatch goal for assertion: %y", msc->p_node->b.p.prod->name); 
 //      #endif
 
-        Wme lowest_goal_wme = null;
+        WmeImpl lowest_goal_wme = null;
         //int lowest_level_so_far = -1;
 
         if (this.w != null) {
@@ -127,7 +127,7 @@ public class MatchSetChange
      * @param msc
      * @return
      */
-    public Identifier find_goal_for_match_set_change_retraction()
+    public IdentifierImpl find_goal_for_match_set_change_retraction()
     {
         // #ifdef DEBUG_WATERFALL
         // print_with_symbols(thisAgent, "\nMatch goal level for retraction:

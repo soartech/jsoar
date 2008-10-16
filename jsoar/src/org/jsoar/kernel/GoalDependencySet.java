@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel;
 
-import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.Arguments;
 
 /**
@@ -48,16 +48,16 @@ public class GoalDependencySet
     /**
      * pointer to the goal for the dependency set
      */
-    private Identifier goal;
+    private IdentifierImpl goal;
     
     /**
      * pointer to the dll of WMEs in GDS of goal
      * 
      * <p>gdatastructs.h:71:wmes_in_gds
      */
-    private Wme wmes;
+    private WmeImpl wmes;
     
-    public GoalDependencySet(Identifier goal)
+    public GoalDependencySet(IdentifierImpl goal)
     {
         Arguments.checkNotNull(goal, "goal");
         this.goal = goal;
@@ -66,7 +66,7 @@ public class GoalDependencySet
     /**
      * @return the goal for this GDS
      */
-    public Identifier getGoal()
+    public IdentifierImpl getGoal()
     {
         return goal;
     }
@@ -81,10 +81,10 @@ public class GoalDependencySet
     }
     
     /**
-     * @see {@link Wme#addToGds(Wme)}
+     * @see {@link WmeImpl#addToGds(WmeImpl)}
      * @return Head of the list of WMEs in this GDS.
      */
-    public Wme getWmes()
+    public WmeImpl getWmes()
     {
         return wmes;
     }
@@ -94,7 +94,7 @@ public class GoalDependencySet
      * 
      * @param w The wme
      */
-    public void addWme(Wme w)
+    public void addWme(WmeImpl w)
     {
         wmes = w.addToGds(wmes);
     }
@@ -104,7 +104,7 @@ public class GoalDependencySet
      * 
      * @param w The wme to remove
      */
-    public void removeWme(Wme w)
+    public void removeWme(WmeImpl w)
     {
         wmes = w.removeFromGds(wmes);
     }

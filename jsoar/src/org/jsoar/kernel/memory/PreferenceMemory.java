@@ -8,7 +8,7 @@ package org.jsoar.kernel.memory;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 
 /**
  * prefmem.cpp
@@ -186,7 +186,7 @@ public class PreferenceMemory
         context.tempMemory.mark_slot_as_changed(s);
 
         // update identifier levels
-        Identifier valueId = pref.value.asIdentifier();
+        IdentifierImpl valueId = pref.value.asIdentifier();
         if (valueId != null)
         {
             context.decider.post_link_addition (pref.id, valueId);
@@ -194,7 +194,7 @@ public class PreferenceMemory
 
         if (pref.type.isBinary())
         {
-            Identifier refId = pref.referent.asIdentifier();
+            IdentifierImpl refId = pref.referent.asIdentifier();
             if (refId != null)
             {
                 context.decider.post_link_addition (pref.id, refId);
@@ -243,14 +243,14 @@ public class PreferenceMemory
         }
 
         // update identifier levels
-        Identifier valueId = pref.value.asIdentifier();
+        IdentifierImpl valueId = pref.value.asIdentifier();
         if (valueId != null)
         {
             context.decider.post_link_removal (pref.id, valueId);
         }
         if (pref.type.isBinary())
         {
-            Identifier refId = pref.referent.asIdentifier();
+            IdentifierImpl refId = pref.referent.asIdentifier();
             if (refId != null)
             {
                 context.decider.post_link_removal (pref.id, refId);

@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.memory.Preference;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 
 /**
  * info on conditions used for backtracing (and by the rete)
@@ -20,7 +20,7 @@ import org.jsoar.kernel.memory.Wme;
  */
 public class BackTraceInfo implements Iterable<Preference>
 {
-    public Wme wme_;               /* the actual wme that was matched */
+    public WmeImpl wme_;               /* the actual wme that was matched */
     public int level;   /* level (at firing time) of the id of the wme */
     public Preference trace;        /* preference for BT, or NIL */
 

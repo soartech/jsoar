@@ -35,7 +35,7 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Variable;
@@ -101,7 +101,7 @@ public class Parser implements LexemeTypes
     private final VariableGenerator varGen;
     private final boolean operand2_mode;
     private int[] placeholder_counter = new int[26];
-    private SymConstant currentProduction = null;
+    private StringSymbolImpl currentProduction = null;
     
     public Parser(VariableGenerator varGen, Lexer lexer, boolean operand2_mode)
     {
@@ -133,10 +133,10 @@ public class Parser implements LexemeTypes
     {
         switch (lexer.getCurrentLexeme().type) 
         {
-        case SYM_CONSTANT_LEXEME:  return syms.make_sym_constant (lexer.getCurrentLexeme().string);
+        case SYM_CONSTANT_LEXEME:  return syms.createString (lexer.getCurrentLexeme().string);
         case VARIABLE_LEXEME:  return syms.make_variable (lexer.getCurrentLexeme().string);
-        case INT_CONSTANT_LEXEME:  return syms.make_int_constant (lexer.getCurrentLexeme().int_val);
-        case FLOAT_CONSTANT_LEXEME:  return syms.make_float_constant (lexer.getCurrentLexeme().float_val);
+        case INT_CONSTANT_LEXEME:  return syms.createInteger (lexer.getCurrentLexeme().int_val);
+        case FLOAT_CONSTANT_LEXEME:  return syms.createDouble (lexer.getCurrentLexeme().float_val);
         
         case IDENTIFIER_LEXEME: throw new IllegalStateException("Internal error:  ID found in make_symbol_for_current_lexeme");
         default: throw new IllegalStateException("bad lexeme type in make_symbol_for_current_lexeme: " + lexer.getCurrentLexeme());
@@ -1217,12 +1217,12 @@ public class Parser implements LexemeTypes
 ----------------------------------------------------------------- */
 
 /*package*/ RhsFunctionCall parse_function_call_after_lparen (boolean is_stand_alone_action) throws IOException, ParserException {
-  SymConstant fun_name;
+  StringSymbolImpl fun_name;
 
   /* --- read function name, find the rhs_function structure --- */
-  if (lexer.getCurrentLexeme().type==PLUS_LEXEME) { fun_name = syms.make_sym_constant ("+"); }
-  else if (lexer.getCurrentLexeme().type==MINUS_LEXEME) { fun_name = syms.make_sym_constant ("-"); }
-  else { fun_name = syms.make_sym_constant (lexer.getCurrentLexeme().string); }
+  if (lexer.getCurrentLexeme().type==PLUS_LEXEME) { fun_name = syms.createString ("+"); }
+  else if (lexer.getCurrentLexeme().type==MINUS_LEXEME) { fun_name = syms.createString ("-"); }
+  else { fun_name = syms.createString (lexer.getCurrentLexeme().string); }
 //  if (fun_name == null) {
 //      // TODO
 //      throw new IllegalStateException("No RHS function named " + lexer.getCurrentLexeme().string);
@@ -1831,7 +1831,7 @@ public Production parse_production () throws IOException, ParserException {
       error("Expected symbol for production name\n");
       throw new IllegalStateException("Unreachable code");
   }
-  SymConstant name = syms.make_sym_constant(lexer.getCurrentLexeme().string);
+  StringSymbolImpl name = syms.createString(lexer.getCurrentLexeme().string);
   lexer.getNextLexeme();
 
   currentProduction = name;

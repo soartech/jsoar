@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
@@ -21,7 +21,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4485:disjunction_rete_test_routine
      */
-    private static boolean disjunction_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean disjunction_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         SymbolImpl sym = w.getField(rt.right_field_num);
         return rt.disjunction_list.contains(sym);
@@ -30,7 +30,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4477:id_is_goal_rete_test_routine
      */
-    private static boolean id_is_goal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean id_is_goal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return w.id.isa_goal;
     }
@@ -38,7 +38,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4481:id_is_impasse_rete_test_routine
      */
-    private static boolean id_is_impasse_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean id_is_impasse_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return w.id.isa_impasse;
     }
@@ -46,7 +46,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4495:constant_equal_rete_test_routine
      */
-    private static boolean constant_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean constant_equal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return equalTest(rt, w, rt.constant_referent);
     }
@@ -54,7 +54,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4503:constant_not_equal_rete_test_routine
      */
-    private static boolean constant_not_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean constant_not_equal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return !equalTest(rt, w, rt.constant_referent);
     }
@@ -63,7 +63,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4546:constant_same_type_rete_test_routine
      */
-    private static boolean constant_same_type_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean constant_same_type_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return sameTypeTest(rt, w, rt.constant_referent);
     }
@@ -71,7 +71,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4512:constant_less_rete_test_routine
      */
-    private static boolean constant_less_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean constant_less_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return lessTest(rt, w, rt.constant_referent);
     }
@@ -79,7 +79,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4520:constant_greater_rete_test_routine
      */
-    private static boolean constant_greater_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean constant_greater_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return greaterTest(rt, w, rt.constant_referent);
     }
@@ -87,7 +87,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4528:constant_less_or_equal_rete_test_routine
      */
-    private static boolean constant_less_or_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean constant_less_or_equal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return lessEqualTest(rt, w, rt.constant_referent);
     }
@@ -95,7 +95,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4537:constant_greater_or_equal_rete_test_routine
      */
-    private static boolean constant_greater_or_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean constant_greater_or_equal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return greaterEqualTest(rt, w, rt.constant_referent);
     }
@@ -103,7 +103,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4555:variable_equal_rete_test_routine
      */
-    private static boolean variable_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean variable_equal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return equalTest(rt, w, getVariableSymbol(rt, left, w));
     }
@@ -111,7 +111,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4474:variable_not_equal_rete_test_routine
      */
-    private static boolean variable_not_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean variable_not_equal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return !equalTest(rt, w, getVariableSymbol(rt, left, w));
     }
@@ -119,7 +119,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4594:variable_less_rete_test_routine
      */
-    private static boolean variable_less_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean variable_less_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return lessTest(rt, w, getVariableSymbol(rt, left, w));
     }
@@ -127,7 +127,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4613:variable_greater_rete_test_routine
      */
-    private static boolean variable_greater_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean variable_greater_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return greaterTest(rt, w, getVariableSymbol(rt, left, w));
     }
@@ -135,7 +135,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4632:variable_less_or_equal_rete_test_routine
      */
-    private static boolean variable_less_or_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean variable_less_or_equal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return lessEqualTest(rt, w, getVariableSymbol(rt, left, w));
     }
@@ -143,7 +143,7 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4652:variable_greater_or_equal_rete_test_routine
      */
-    private static boolean variable_greater_or_equal_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean variable_greater_or_equal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return greaterEqualTest(rt, w, getVariableSymbol(rt, left, w));
     }
@@ -151,43 +151,43 @@ public class ReteTestRoutines
     /**
      * rete.cpp:4672:variable_same_type_rete_test_routine
      */
-    private static boolean variable_same_type_rete_test_routine(ReteTest rt, LeftToken left, Wme w)
+    private static boolean variable_same_type_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
         return sameTypeTest(rt, w, getVariableSymbol(rt, left, w));
     }
     
 
-    private static boolean equalTest(ReteTest rt, Wme w, SymbolImpl s2)
+    private static boolean equalTest(ReteTest rt, WmeImpl w, SymbolImpl s2)
     {
         SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1 == s2;
     }
-    private static boolean lessTest(ReteTest rt, Wme w, SymbolImpl s2)
+    private static boolean lessTest(ReteTest rt, WmeImpl w, SymbolImpl s2)
     {
         SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1.numericLess(s2);
     }
-    private static boolean lessEqualTest(ReteTest rt, Wme w, SymbolImpl s2)
+    private static boolean lessEqualTest(ReteTest rt, WmeImpl w, SymbolImpl s2)
     {
         SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1.numericLessOrEqual(s2);
     }
-    private static boolean greaterTest(ReteTest rt, Wme w, SymbolImpl s2)
+    private static boolean greaterTest(ReteTest rt, WmeImpl w, SymbolImpl s2)
     {
         SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1.numericGreater(s2);
     }
-    private static boolean greaterEqualTest(ReteTest rt, Wme w, SymbolImpl s2)
+    private static boolean greaterEqualTest(ReteTest rt, WmeImpl w, SymbolImpl s2)
     {
         SymbolImpl s1 = w.getField(rt.right_field_num);
 
         return s1.numericGreaterOrEqual(s2);
     }
-    private static boolean sameTypeTest(ReteTest rt, Wme w, SymbolImpl s2)
+    private static boolean sameTypeTest(ReteTest rt, WmeImpl w, SymbolImpl s2)
     {
         SymbolImpl s1 = w.getField(rt.right_field_num);
 
@@ -205,7 +205,7 @@ public class ReteTestRoutines
      * @param w The wme
      * @return The symbol for the test's variable_referent
      */
-    private static SymbolImpl getVariableSymbol(ReteTest rt, Token left, Wme w)
+    private static SymbolImpl getVariableSymbol(ReteTest rt, Token left, WmeImpl w)
     {
         if (rt.variable_referent.levels_up!=0) {
             int i = rt.variable_referent.levels_up - 1;
@@ -226,7 +226,7 @@ public class ReteTestRoutines
      * @param w
      * @return
      */
-    static boolean match_left_and_right(ReteTest _rete_test, LeftToken left, Wme w)
+    static boolean match_left_and_right(ReteTest _rete_test, LeftToken left, WmeImpl w)
     {
         // rete.cpp:4417:rete_test_routines
         switch(_rete_test.type)

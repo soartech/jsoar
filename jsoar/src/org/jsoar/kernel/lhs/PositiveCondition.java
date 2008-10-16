@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.lhs;
 
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
@@ -54,7 +54,7 @@ public class PositiveCondition extends ThreeFieldCondition
      * @see org.jsoar.kernel.lhs.Condition#add_cond_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
-    public void add_cond_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
+    public void add_cond_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         TestTools.add_test_to_tc(id_test, tc, id_list, var_list);
         TestTools.add_test_to_tc(value_test, tc, id_list, var_list);

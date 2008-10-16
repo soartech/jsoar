@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.util.AsListItem;
 
 /**
@@ -21,7 +21,7 @@ public class RightToken extends Token
     final AsListItem<RightToken> negrm = new AsListItem<RightToken>(this); // part of other local join results dll
     /*final*/ LeftToken left_token; // token this is a local join result for
     
-    public static RightToken create(ReteNode current_node, Token parent_tok, Wme parent_wme, LeftToken left_token)
+    public static RightToken create(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, LeftToken left_token)
     {
         assert current_node != null;
         assert parent_wme != null;
@@ -42,7 +42,7 @@ public class RightToken extends Token
      * @param parent_tok
      * @param parent_wme
      */
-    private  RightToken(ReteNode current_node, Token parent_tok, Wme parent_wme, LeftToken left_token)
+    private  RightToken(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, LeftToken left_token)
     {
         super(current_node, parent_tok, parent_wme, false);
         this.left_token = left_token;

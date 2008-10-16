@@ -24,7 +24,7 @@ import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
@@ -80,7 +80,7 @@ public class OSupport
      */
     private void add_to_os_tc_if_needed(SymbolImpl sym)
     {
-        Identifier id = sym.asIdentifier();
+        IdentifierImpl id = sym.asIdentifier();
         if (id != null)
         {
             add_to_os_tc(id, false);
@@ -95,7 +95,7 @@ public class OSupport
      */
     private void add_to_os_tc_if_id(SymbolImpl sym, boolean flag)
     {
-        Identifier id = sym.asIdentifier();
+        IdentifierImpl id = sym.asIdentifier();
         if (id != null)
         {
             add_to_os_tc(id, flag);
@@ -113,7 +113,7 @@ public class OSupport
      * @param id
      * @param isa_state
      */
-    private void add_to_os_tc(Identifier id, boolean isa_state)
+    private void add_to_os_tc(IdentifierImpl id, boolean isa_state)
     {
         // if id is already in the TC, exit; else mark it as in the TC
         if (id.tc_number == o_support_tc)
@@ -124,7 +124,7 @@ public class OSupport
         id.tc_number = o_support_tc;
 
         // scan through all preferences and wmes for all slots for this id
-        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
         {
             add_to_os_tc_if_needed(w.value);
         }
@@ -139,7 +139,7 @@ public class OSupport
                     if (pref.type.isBinary())
                         add_to_os_tc_if_needed(pref.referent);
                 }
-                for (Wme w = s.getWmes(); w != null; w = w.next)
+                for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                 {
                     add_to_os_tc_if_needed(w.value);
                 }
@@ -203,7 +203,7 @@ public class OSupport
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
-            Identifier referent = eq.getReferent().asIdentifier();
+            IdentifierImpl referent = eq.getReferent().asIdentifier();
             if (referent != null)
             {
                 if (referent.tc_number == o_support_tc)
@@ -301,9 +301,9 @@ public class OSupport
      * @param match_state
      * @return
      */
-    private boolean is_state_id(Identifier top_goal, SymbolImpl sym, SymbolImpl match_state)
+    private boolean is_state_id(IdentifierImpl top_goal, SymbolImpl sym, SymbolImpl match_state)
     {
-        for (Identifier c = top_goal; c != match_state; c = c.lower_goal)
+        for (IdentifierImpl c = top_goal; c != match_state; c = c.lower_goal)
         {
             if (sym == c)
             {
@@ -362,11 +362,11 @@ public class OSupport
      * @param top_goal
      * @param operand2_mode
      */
-    public void calculate_support_for_instantiation_preferences(Instantiation inst, final Identifier top_goal,
+    public void calculate_support_for_instantiation_preferences(Instantiation inst, final IdentifierImpl top_goal,
             final boolean operand2_mode)
     {
-        Identifier match_goal, match_state, match_operator;
-        Wme match_operator_wme;
+        IdentifierImpl match_goal, match_state, match_operator;
+        WmeImpl match_operator_wme;
         boolean lhs_tests_operator_installed;
         boolean lhs_tests_operator_acceptable_or_installed;
         boolean lhs_is_known_to_test_something_off_match_state;
@@ -375,7 +375,7 @@ public class OSupport
         boolean oc_support_possible;
         boolean om_support_possible;
         boolean oa_support_possible;
-        Wme w;
+        WmeImpl w;
         Condition lhs, c;
 
         /* RCHONG: begin 10.11 */
@@ -384,7 +384,7 @@ public class OSupport
         boolean o_support, op_elab;
         boolean operator_proposal;
         int pass;
-        Wme lowest_goal_wme;
+        WmeImpl lowest_goal_wme;
 
         /* RCHONG: end 10.11 */
 
@@ -828,12 +828,12 @@ public class OSupport
     {
         Condition lhs = inst.top_of_instantiated_conditions;
         ListHead<Preference> rhs = inst.preferences_generated;
-        Identifier match_state = inst.match_goal;
+        IdentifierImpl match_state = inst.match_goal;
 
         /* --- First, check whether rule 2 or 3 applies. --- */
         boolean rule_2_or_3 = false;
         Condition c;
-        Wme w;
+        WmeImpl w;
         for (c = lhs; c != null; c = c.next)
         {
             PositiveCondition pc = c.asPositiveCondition();
@@ -898,12 +898,12 @@ public class OSupport
                     }
                     pref.o_supported = true;
                     anything_added = true;
-                    Identifier idValue = pref.value.asIdentifier();
+                    IdentifierImpl idValue = pref.value.asIdentifier();
                     if (idValue != null)
                     {
                         idValue.tc_number = o_support_tc;
                     }
-                    Identifier referentId = pref.type.isBinary() ? pref.referent.asIdentifier() : null;
+                    IdentifierImpl referentId = pref.type.isBinary() ? pref.referent.asIdentifier() : null;
                     if (referentId != null)
                     {
                         referentId.tc_number = o_support_tc;
@@ -1233,7 +1233,7 @@ public class OSupport
      * @param id_list
      * @param var_list
      */
-    private void add_tc_through_lhs_and_rhs(Condition lhs, Action rhs, int tc, ListHead<Identifier> id_list,
+    private void add_tc_through_lhs_and_rhs(Condition lhs, Action rhs, int tc, ListHead<IdentifierImpl> id_list,
             ListHead<Variable> var_list)
     {
 

@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel;
 
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Variable;
 
@@ -16,31 +16,31 @@ public class PredefinedSymbols
 {
     private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     
-    final SymConstant problem_space_symbol = syms.make_sym_constant("problem-space");
-    public final SymConstant state_symbol = syms.make_sym_constant("state");
-    public final SymConstant operator_symbol = syms.make_sym_constant("operator");
-    public final SymConstant superstate_symbol = syms.make_sym_constant("superstate");
-    public SymConstant io_symbol = syms.make_sym_constant("io");
-    final SymConstant object_symbol = syms.make_sym_constant("object");
-    public final SymConstant attribute_symbol = syms.make_sym_constant("attribute");
-    final SymConstant impasse_symbol = syms.make_sym_constant("impasse");
-    final SymConstant choices_symbol = syms.make_sym_constant("choices");
-    final SymConstant none_symbol = syms.make_sym_constant("none");
-    final SymConstant constraint_failure_symbol = syms.make_sym_constant("constraint-failure");
-    final SymConstant no_change_symbol = syms.make_sym_constant("no-change");
-    final SymConstant multiple_symbol = syms.make_sym_constant("multiple");
+    final StringSymbolImpl problem_space_symbol = syms.createString("problem-space");
+    public final StringSymbolImpl state_symbol = syms.createString("state");
+    public final StringSymbolImpl operator_symbol = syms.createString("operator");
+    public final StringSymbolImpl superstate_symbol = syms.createString("superstate");
+    public StringSymbolImpl io_symbol = syms.createString("io");
+    final StringSymbolImpl object_symbol = syms.createString("object");
+    public final StringSymbolImpl attribute_symbol = syms.createString("attribute");
+    final StringSymbolImpl impasse_symbol = syms.createString("impasse");
+    final StringSymbolImpl choices_symbol = syms.createString("choices");
+    final StringSymbolImpl none_symbol = syms.createString("none");
+    final StringSymbolImpl constraint_failure_symbol = syms.createString("constraint-failure");
+    final StringSymbolImpl no_change_symbol = syms.createString("no-change");
+    final StringSymbolImpl multiple_symbol = syms.createString("multiple");
     
-    final SymConstant item_count_symbol = syms.make_sym_constant("item-count");
+    final StringSymbolImpl item_count_symbol = syms.createString("item-count");
 
-    final SymConstant conflict_symbol = syms.make_sym_constant("conflict");
-    final SymConstant tie_symbol = syms.make_sym_constant("tie");
-    final SymConstant item_symbol = syms.make_sym_constant("item");
-    public final SymConstant quiescence_symbol = syms.make_sym_constant("quiescence");
-    public final SymConstant t_symbol = syms.make_sym_constant("t");
-    public final SymConstant nil_symbol = syms.make_sym_constant("nil");
-    final SymConstant type_symbol = syms.make_sym_constant("type");
-    final SymConstant goal_symbol = syms.make_sym_constant("goal");
-    public final SymConstant name_symbol = syms.make_sym_constant("name");
+    final StringSymbolImpl conflict_symbol = syms.createString("conflict");
+    final StringSymbolImpl tie_symbol = syms.createString("tie");
+    final StringSymbolImpl item_symbol = syms.createString("item");
+    public final StringSymbolImpl quiescence_symbol = syms.createString("quiescence");
+    public final StringSymbolImpl t_symbol = syms.createString("t");
+    public final StringSymbolImpl nil_symbol = syms.createString("nil");
+    final StringSymbolImpl type_symbol = syms.createString("type");
+    final StringSymbolImpl goal_symbol = syms.createString("goal");
+    public final StringSymbolImpl name_symbol = syms.createString("name");
 
     final Variable ts_context_variable = syms.make_variable ("<ts>");
     final Variable to_context_variable = syms.make_variable ("<to>");
@@ -53,10 +53,10 @@ public class PredefinedSymbols
 
     final Variable wait_symbol = syms.make_variable ("wait");
 
-    public final SymConstant input_link_symbol = syms.make_sym_constant("input-link");
-    public final SymConstant output_link_symbol = syms.make_sym_constant("output-link");
+    public final StringSymbolImpl input_link_symbol = syms.createString("input-link");
+    public final StringSymbolImpl output_link_symbol = syms.createString("output-link");
 
-    final SymConstant reward_link_symbol = syms.make_sym_constant("reward-link" );
+    final StringSymbolImpl reward_link_symbol = syms.createString("reward-link" );
 
     /**
      * @return the symbol factory

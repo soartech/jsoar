@@ -17,10 +17,10 @@ import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.MatchSetChange;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -95,7 +95,7 @@ public class Decider
      * 
      * <p>agent.h:615:promoted_ids
      */
-    private final List<Identifier> promoted_ids = new ArrayList<Identifier>();
+    private final List<IdentifierImpl> promoted_ids = new ArrayList<IdentifierImpl>();
 
     /**
      * agent.h:616:link_update_mode
@@ -104,11 +104,11 @@ public class Decider
     /**
      * agent.h:609:ids_with_unknown_level
      */
-    private final ListHead<Identifier> ids_with_unknown_level = ListHead.newInstance();
+    private final ListHead<IdentifierImpl> ids_with_unknown_level = ListHead.newInstance();
     /**
      * agent.h:607:disconnected_ids
      */
-    private final ListHead<Identifier> disconnected_ids = ListHead.newInstance();
+    private final ListHead<IdentifierImpl> disconnected_ids = ListHead.newInstance();
     
     private int mark_tc_number;
     private int level_at_which_marking_started;
@@ -117,12 +117,12 @@ public class Decider
     private int walk_tc_number;
     private int walk_level;
     
-    public Identifier top_goal;
-    public Identifier bottom_goal;
-    public Identifier top_state;
-    public Identifier prev_top_state;
-    public Identifier active_goal;
-    Identifier previous_active_goal;
+    public IdentifierImpl top_goal;
+    public IdentifierImpl bottom_goal;
+    public IdentifierImpl top_state;
+    public IdentifierImpl prev_top_state;
+    public IdentifierImpl active_goal;
+    IdentifierImpl previous_active_goal;
     public int active_level;
     int previous_active_level;
     private boolean waitsnc;
@@ -152,9 +152,9 @@ public class Decider
      * @param level
      * @return
      */
-    public Identifier find_goal_at_goal_stack_level(int level)
+    public IdentifierImpl find_goal_at_goal_stack_level(int level)
     {
-        for (Identifier g = top_goal; g != null; g = g.lower_goal)
+        for (IdentifierImpl g = top_goal; g != null; g = g.lower_goal)
             if (g.level == level)
                 return (g);
         return null;
@@ -188,7 +188,7 @@ public class Decider
     private void do_acceptable_preference_wme_changes_for_slot(Slot s)
     {
         // first, reset marks to "NOTHING"
-        for (Wme w = s.getAcceptablePreferenceWmes(); w != null; w = w.next)
+        for (WmeImpl w = s.getAcceptablePreferenceWmes(); w != null; w = w.next)
             w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
 
         // now mark values for which we WANT a wme as "CANDIDATE" values
@@ -200,10 +200,10 @@ public class Decider
         // remove any existing wme's that aren't CANDIDATEs; mark the rest as
         // ALREADY_EXISTING
 
-        Wme w = s.getAcceptablePreferenceWmes();
+        WmeImpl w = s.getAcceptablePreferenceWmes();
         while (w != null)
         {
-            final Wme next_w = w.next;
+            final WmeImpl next_w = w.next;
             if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
             {
                 w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
@@ -236,13 +236,13 @@ public class Decider
             if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
             {
                 // found existing wme, so just update its trace
-                Wme wme = p.value.decider_wme;
+                WmeImpl wme = p.value.decider_wme;
                 if (wme.preference == null)
                     wme.preference = p;
             }
             else
             {
-                Wme wme = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
+                WmeImpl wme = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
                 s.addAcceptablePreferenceWme(wme);
                 wme.preference = p;
                 context.workingMemory.add_wme_to_wm(wme);
@@ -256,13 +256,13 @@ public class Decider
             if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
             {
                 // found existing wme, so just update its trace
-                Wme wme = p.value.decider_wme;
+                WmeImpl wme = p.value.decider_wme;
                 if (wme.preference == null)
                     wme.preference = p;
             }
             else
             {
-                Wme wme = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
+                WmeImpl wme = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
                 s.addAcceptablePreferenceWme(wme);
                 wme.preference = p;
                 context.workingMemory.add_wme_to_wm(wme);
@@ -298,7 +298,7 @@ public class Decider
      * @param from
      * @param to
      */
-    public void post_link_addition(Identifier from, Identifier to)
+    public void post_link_addition(IdentifierImpl from, IdentifierImpl to)
     {
         // don't add links to goals/impasses, except the special one (NIL,goal)
         if ((to.isa_goal || to.isa_impasse) && from != null)
@@ -341,7 +341,7 @@ public class Decider
      */
     private void promote_if_needed(SymbolImpl sym, int new_level)
     {
-        Identifier id = sym.asIdentifier();
+        IdentifierImpl id = sym.asIdentifier();
         if (id != null)
             promote_id_and_tc(id, new_level);
     }
@@ -354,7 +354,7 @@ public class Decider
      * @param id
      * @param new_level
      */
-    private void promote_id_and_tc(Identifier id, /* goal_stack_level */int new_level)
+    private void promote_id_and_tc(IdentifierImpl id, /* goal_stack_level */int new_level)
     {
 
         // if it's already that high, or is going to be soon, don't bother
@@ -379,7 +379,7 @@ public class Decider
         }
 
         // scan through all preferences and wmes for all slots for this id
-        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             promote_if_needed(w.value, new_level);
         
         for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
@@ -390,7 +390,7 @@ public class Decider
                 if (pref.type.isBinary())
                     promote_if_needed(pref.referent, new_level);
             }
-            for (Wme w = s.item.getWmes(); w != null; w = w.next)
+            for (WmeImpl w = s.item.getWmes(); w != null; w = w.next)
                 promote_if_needed(w.value, new_level);
         }
     }
@@ -402,7 +402,7 @@ public class Decider
     {
         while (!promoted_ids.isEmpty())
         {
-            Identifier to = promoted_ids.remove(promoted_ids.size() - 1); // pop off end (see decl comment)
+            IdentifierImpl to = promoted_ids.remove(promoted_ids.size() - 1); // pop off end (see decl comment)
             promote_id_and_tc(to, to.promotion_level);
         }
     }
@@ -415,7 +415,7 @@ public class Decider
      * @param from
      * @param to
      */
-    public void post_link_removal(Identifier from, Identifier to)
+    public void post_link_removal(IdentifierImpl from, IdentifierImpl to)
     {
         // don't remove links to goals/impasses, except the special one
         // (NIL,goal)
@@ -445,13 +445,13 @@ public class Decider
         {
             if (to.unknown_level != null)
             {
-                AsListItem<Identifier> dc = to.unknown_level;
+                AsListItem<IdentifierImpl> dc = to.unknown_level;
                 dc.remove(this.ids_with_unknown_level);
                 dc.insertAtHead(this.disconnected_ids);
             }
             else
             {
-                to.unknown_level = new AsListItem<Identifier>(to);
+                to.unknown_level = new AsListItem<IdentifierImpl>(to);
                 to.unknown_level.insertAtHead(this.disconnected_ids);
             }
             return;
@@ -464,7 +464,7 @@ public class Decider
 
         if (to.unknown_level == null)
         {
-            to.unknown_level = new AsListItem<Identifier>(to);
+            to.unknown_level = new AsListItem<IdentifierImpl>(to);
             to.unknown_level.insertAtHead(this.ids_with_unknown_level);
         }
     }
@@ -477,7 +477,7 @@ public class Decider
      * 
      * @param id
      */
-    private void garbage_collect_id(Identifier id)
+    private void garbage_collect_id(IdentifierImpl id)
     {
         if(DEBUG_LINKS)
         {
@@ -528,7 +528,7 @@ public class Decider
      */
     private void mark_unknown_level_if_needed(SymbolImpl sym)
     {
-        Identifier id = sym.asIdentifier();
+        IdentifierImpl id = sym.asIdentifier();
         if (id != null)
             mark_id_and_tc_as_unknown_level(id);
     }
@@ -543,7 +543,7 @@ public class Decider
      * 
      * @param id
      */
-    private void mark_id_and_tc_as_unknown_level(Identifier id)
+    private void mark_id_and_tc_as_unknown_level(IdentifierImpl id)
     {
         // if id is already marked, do nothing
         if (id.tc_number == this.mark_tc_number)
@@ -568,12 +568,12 @@ public class Decider
         // add id to the set of ids with unknown level
         if (id.unknown_level == null)
         {
-            id.unknown_level = new AsListItem<Identifier>(id);
+            id.unknown_level = new AsListItem<IdentifierImpl>(id);
             id.unknown_level.insertAtHead(ids_with_unknown_level);
         }
 
         // scan through all preferences and wmes for all slots for this id
-        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             mark_unknown_level_if_needed(w.value);
         for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
@@ -586,7 +586,7 @@ public class Decider
             }
             if (s.impasse_id != null)
                 mark_unknown_level_if_needed(s.impasse_id);
-            for (Wme w = s.getWmes(); w != null; w = w.next)
+            for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                 mark_unknown_level_if_needed(w.value);
         }
     }
@@ -598,7 +598,7 @@ public class Decider
      */
     private void update_levels_if_needed(SymbolImpl sym)
     {
-        Identifier id = sym.asIdentifier();
+        IdentifierImpl id = sym.asIdentifier();
         if (id != null)
             if (id.tc_number != this.walk_tc_number)
                 walk_and_update_levels(id);
@@ -614,7 +614,7 @@ public class Decider
      * 
      * @param id
      */
-    private void walk_and_update_levels(Identifier id)
+    private void walk_and_update_levels(IdentifierImpl id)
     {
         // mark id so we don't walk it twice
         id.tc_number = this.walk_tc_number;
@@ -633,7 +633,7 @@ public class Decider
         }
 
         // scan through all preferences and wmes for all slots for this id
-        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             update_levels_if_needed(w.value);
         for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
@@ -646,7 +646,7 @@ public class Decider
             }
             if (s.impasse_id != null)
                 update_levels_if_needed(s.impasse_id);
-            for (Wme w = s.getWmes(); w != null; w = w.next)
+            for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                 update_levels_if_needed(w.value);
         }
     }
@@ -660,11 +660,11 @@ public class Decider
     {
         // scan through ids_with_unknown_level, move the ones with link_count==0
         // over to disconnected_ids
-        AsListItem<Identifier> dc, next_dc;
+        AsListItem<IdentifierImpl> dc, next_dc;
         for (dc = ids_with_unknown_level.first; dc != null; dc = next_dc)
         {
             next_dc = dc.next;
-            final Identifier id = dc.item;
+            final IdentifierImpl id = dc.item;
             if (id.link_count == 0)
             {
                 dc.remove(this.ids_with_unknown_level);
@@ -676,7 +676,7 @@ public class Decider
         this.link_update_mode = LinkUpdateType.UPDATE_DISCONNECTED_IDS_LIST;
         while (!this.disconnected_ids.isEmpty())
         {
-            final Identifier id = disconnected_ids.pop();
+            final IdentifierImpl id = disconnected_ids.pop();
             garbage_collect_id(id);
         }
         this.link_update_mode = LinkUpdateType.UPDATE_LINKS_NORMALLY;
@@ -691,13 +691,13 @@ public class Decider
         this.mark_tc_number = context.syms.get_new_tc_number();
         for (dc = this.ids_with_unknown_level.first; dc != null; dc = dc.next)
         {
-            final Identifier id = dc.item;
+            final IdentifierImpl id = dc.item;
             this.level_at_which_marking_started = id.level;
             mark_id_and_tc_as_unknown_level(id);
         }
 
         // do the walk
-        Identifier g = this.top_goal;
+        IdentifierImpl g = this.top_goal;
         while (true)
         {
             if (g == null)
@@ -717,7 +717,7 @@ public class Decider
         this.link_update_mode = LinkUpdateType.JUST_UPDATE_COUNT;
         while (!ids_with_unknown_level.isEmpty())
         {
-            final Identifier id = ids_with_unknown_level.pop();
+            final IdentifierImpl id = ids_with_unknown_level.pop();
             id.unknown_level = null; // AGR 640:  GAP set to NIL because symbol may still have pointers to it
             garbage_collect_id(id);
         }
@@ -1146,7 +1146,7 @@ public class Decider
 
         for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE); p != null; p = p.next)
         {
-            if ((p.referent.asIntConstant() != null) || (p.referent.asFloatConstant() != null))
+            if ((p.referent.asInteger() != null) || (p.referent.asDouble() != null))
                 p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG;
         }
 
@@ -1277,9 +1277,9 @@ public class Decider
      * @param value
      * @param p
      */
-    private void add_impasse_wme(Identifier id, SymbolImpl attr, SymbolImpl value, Preference p)
+    private void add_impasse_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, Preference p)
     {
-        Wme w = context.workingMemory.make_wme(id, attr, value, false);
+        WmeImpl w = context.workingMemory.make_wme(id, attr, value, false);
         id.addImpasseWme(w);
         w.preference = p;
         context.workingMemory.add_wme_to_wm(w);
@@ -1300,12 +1300,12 @@ public class Decider
      *            Goal stack level
      * @return
      */
-    private Identifier create_new_impasse(boolean isa_goal, SymbolImpl object, SymbolImpl attr, ImpasseType impasse_type,
+    private IdentifierImpl create_new_impasse(boolean isa_goal, SymbolImpl object, SymbolImpl attr, ImpasseType impasse_type,
             int level)
     {
         final PredefinedSymbols predefined = context.predefinedSyms; // reduce typing
         
-        Identifier id = context.syms.make_new_identifier(isa_goal ? 'S' : 'I', level);
+        IdentifierImpl id = context.syms.make_new_identifier(isa_goal ? 'S' : 'I', level);
         post_link_addition(null, id); // add the special link
 
         add_impasse_wme(id, predefined.type_symbol, 
@@ -1316,7 +1316,7 @@ public class Decider
             add_impasse_wme(id, predefined.superstate_symbol, object, null);
 
             id.reward_header = context.syms.make_new_identifier('R', level);
-            context.io.add_input_wme(id, predefined.reward_link_symbol, id.reward_header);
+            context.io.addInputWme(id, predefined.reward_link_symbol, id.reward_header);
         }
         else
             add_impasse_wme(id, predefined.object_symbol, object, null);
@@ -1359,7 +1359,7 @@ public class Decider
     private void create_new_attribute_impasse_for_slot(Slot s, ImpasseType impasse_type)
     {
         s.impasse_type = impasse_type;
-        final Identifier id = create_new_impasse(false, s.id, s.attr, impasse_type, SoarConstants.ATTRIBUTE_IMPASSE_LEVEL);
+        final IdentifierImpl id = create_new_impasse(false, s.id, s.attr, impasse_type, SoarConstants.ATTRIBUTE_IMPASSE_LEVEL);
         s.impasse_id = id;
         id.isa_impasse = true;
 
@@ -1380,7 +1380,7 @@ public class Decider
         // TODO callback REMOVE_ATTRIBUTE_IMPASSE_CALLBACK
         // soar_invoke_callbacks(thisAgent, REMOVE_ATTRIBUTE_IMPASSE_CALLBACK, (soar_call_data) s);
 
-        final Identifier id = s.impasse_id;
+        final IdentifierImpl id = s.impasse_id;
         s.impasse_id = null;
         s.impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
 
@@ -1417,11 +1417,11 @@ public class Decider
      * @param cand
      * @return
      */
-    private Preference make_fake_preference_for_goal_item(Identifier goal, Preference cand)
+    private Preference make_fake_preference_for_goal_item(IdentifierImpl goal, Preference cand)
     {
         // find the acceptable preference wme we want to backtrace to
         final Slot s = cand.slot;
-        Wme ap_wme;
+        WmeImpl ap_wme;
         for (ap_wme = s.getAcceptablePreferenceWmes(); ap_wme != null; ap_wme = ap_wme.next)
             if (ap_wme.value == cand.value)
                 break;
@@ -1496,7 +1496,7 @@ public class Decider
      * @param id
      * @param items
      */
-    private void update_impasse_items(Identifier id, Preference items)
+    private void update_impasse_items(IdentifierImpl id, Preference items)
     {
         final PredefinedSymbols predefined = context.predefinedSyms;
         
@@ -1511,7 +1511,7 @@ public class Decider
         final int item_count = Preference.countCandidates(items);
 
         // reset flags on existing items to "NOTHING"
-        for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == predefined.item_symbol)
                 w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
 
@@ -1521,10 +1521,10 @@ public class Decider
 
         // for each existing item: if it's supposed to be there still, then
         // mark it "ALREADY_EXISTING"; otherwise remove it
-        Wme w = id.getImpasseWmes();
+        WmeImpl w = id.getImpasseWmes();
         while (w != null)
         {
-            final Wme next_w = w.next;
+            final WmeImpl next_w = w.next;
             if (w.attr == predefined.item_symbol)
             {
                 if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
@@ -1577,7 +1577,7 @@ public class Decider
         // detect relevant impasses by having more than one item
         if (item_count > 0)
         {
-            add_impasse_wme(id, predefined.item_count_symbol, context.syms.make_int_constant(item_count), null);
+            add_impasse_wme(id, predefined.item_count_symbol, context.syms.createInteger(item_count), null);
         }
     }
 
@@ -1604,7 +1604,7 @@ public class Decider
             remove_existing_attribute_impasse_for_slot (s);
          
          // reset marks on existing wme values to "NOTHING"
-         for (Wme w = s.getWmes(); w != null; w = w.next)
+         for (WmeImpl w = s.getWmes(); w != null; w = w.next)
             w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
          
          // set marks on desired values to "CANDIDATES"
@@ -1612,10 +1612,10 @@ public class Decider
             cand.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
          
          // for each existing wme, if we want it there, mark it as ALREADY_EXISTING; otherwise remove it
-         Wme it = s.getWmes();
+         WmeImpl it = s.getWmes();
          while (it != null) 
          {
-            final Wme w = it;
+            final WmeImpl w = it;
             it = w.next;
             
             if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG) 
@@ -1667,7 +1667,7 @@ public class Decider
             } 
             else 
             {
-               Wme w = context.workingMemory.make_wme(cand.id, cand.attr, cand.value, false);
+               WmeImpl w = context.workingMemory.make_wme(cand.id, cand.attr, cand.value, false);
                s.addWme(w);
                w.preference = cand;
                
@@ -1740,9 +1740,7 @@ public class Decider
                      
                      for (Preference pref=w.preference; pref!=null; pref=pref.next) {
     if(DEBUG_GDS_HIGH){
-                        context.getPrinter().print("\n\n   ");
-                        context.getPrinter().print_preference(pref);
-                        context.getPrinter().print("   Goal level of preference: %d\n", pref.id.level);
+                        context.getPrinter().print("\n\n   %s   Goal level of preference: %d\n", pref, pref.id.level);
     }
                         
                         if (pref.inst.GDS_evaluated_already == false) {
@@ -1887,7 +1885,7 @@ public class Decider
          * Note that we only need to handle one wme--context slots never have
          * more than one wme in them
          */
-        final Wme w = s.getWmes();
+        final WmeImpl w = s.getWmes();
         w.preference.preference_remove_ref(context.prefMemory);
         context.workingMemory.remove_wme_from_wm(w);
         s.removeAllWmes();
@@ -1902,7 +1900,7 @@ public class Decider
      * 
      * @param goal
      */
-    void remove_existing_context_and_descendents(Identifier goal)
+    void remove_existing_context_and_descendents(IdentifierImpl goal)
     {
         // remove descendents of this goal
         if (goal.lower_goal != null)
@@ -2061,7 +2059,7 @@ public class Decider
      */
     private void create_new_context(SymbolImpl attr_of_impasse, ImpasseType impasse_type)
     {
-        Identifier id;
+        IdentifierImpl id;
 
         if (bottom_goal != null)
         {
@@ -2134,13 +2132,13 @@ public class Decider
      * @param goal
      * @return
      */
-    public ImpasseType type_of_existing_impasse(Identifier goal)
+    public ImpasseType type_of_existing_impasse(IdentifierImpl goal)
     {
         if (goal.lower_goal == null)
             return ImpasseType.NONE_IMPASSE_TYPE;
 
         final PredefinedSymbols predefined = context.predefinedSyms;
-        for (Wme w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
         {
             if (w.attr == predefined.impasse_symbol)
             {
@@ -2167,12 +2165,12 @@ public class Decider
      * @param goal
      * @return
      */
-    public SymbolImpl attribute_of_existing_impasse(Identifier goal)
+    public SymbolImpl attribute_of_existing_impasse(IdentifierImpl goal)
     {
         if (goal.lower_goal == null)
             return null;
         
-        for (Wme w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == context.predefinedSyms.attribute_symbol)
                 return w.value;
 
@@ -2191,7 +2189,7 @@ public class Decider
      * @param predict (defaulted to false in CSoar)
      * @return
      */
-    private boolean decide_context_slot(Identifier goal, Slot s, boolean predict /*= false*/)
+    private boolean decide_context_slot(IdentifierImpl goal, Slot s, boolean predict /*= false*/)
     {
         ImpasseType impasse_type;
         SymbolImpl attribute_of_impasse;
@@ -2241,7 +2239,7 @@ public class Decider
                         context.decisionManip.predict_set("none");
                     else
                     {
-                        Identifier tempId = candidates.value.value.asIdentifier();
+                        IdentifierImpl tempId = candidates.value.value.asIdentifier();
                         // TODO can this be null?
                         String temp = "" + tempId.name_letter + tempId.name_number;
                         context.decisionManip.predict_set(temp);
@@ -2307,7 +2305,7 @@ public class Decider
             if (goal.lower_goal != null)
                 remove_existing_context_and_descendents(goal.lower_goal);
 
-            Wme w = context.workingMemory.make_wme(s.id, s.attr, candidates.value.value, false);
+            WmeImpl w = context.workingMemory.make_wme(s.id, s.attr, candidates.value.value, false);
             s.addWme(w);
             w.preference = candidates.value;
             w.preference.preference_add_ref();
@@ -2376,7 +2374,7 @@ public class Decider
      */
     private void decide_context_slots(boolean predict /* = false */)
     {
-        Identifier goal;
+        IdentifierImpl goal;
 
         if (context.tempMemory.highest_goal_whose_context_changed != null)
         {
@@ -2430,7 +2428,7 @@ public class Decider
     {
         do_buffered_acceptable_preference_wme_changes();
         do_buffered_link_changes();
-        context.workingMemory.do_buffered_wm_changes(context.decisionCycle.d_cycle_count, context.io);
+        context.workingMemory.do_buffered_wm_changes(context.io);
         context.tempMemory.remove_garbage_slots();
     }
     
@@ -2592,7 +2590,7 @@ public class Decider
      * @param gds
      * @param wme_to_add
      */
-    private void add_wme_to_gds(GoalDependencySet gds, Wme wme_to_add)
+    private void add_wme_to_gds(GoalDependencySet gds, WmeImpl wme_to_add)
     {
         // Set the correct GDS for this wme (wme's point to their gds)
         wme_to_add.gds = gds;
@@ -2628,7 +2626,7 @@ public class Decider
                 // We'll deal with negative instantiations after we get the
                 // positive ones figured out
 
-                Wme wme_matching_this_cond = cond.bt.wme_;
+                WmeImpl wme_matching_this_cond = cond.bt.wme_;
                 int wme_goal_level = cond.bt.level;
                 Preference pref_for_this_wme = wme_matching_this_cond.preference;
                 
@@ -2826,7 +2824,7 @@ public class Decider
                                 * differently-named pointer.  it probably should
                                 * be a subroutine */
                                 {
-                                    Wme fake_inst_wme_cond = pref_for_this_wme.inst.top_of_instantiated_conditions.bt.wme_;
+                                    WmeImpl fake_inst_wme_cond = pref_for_this_wme.inst.top_of_instantiated_conditions.bt.wme_;
                                     if (fake_inst_wme_cond.gds != null)
                                     {
                                         /* Then we want to check and see if the old GDS
@@ -3067,7 +3065,7 @@ public class Decider
      * 
      * @param w
      */
-    public void gds_invalid_so_remove_goal(Wme w)
+    public void gds_invalid_so_remove_goal(WmeImpl w)
     {
         /* REW: begin 11.25.96 */
         // #ifndef NO_TIMING_STUFF
@@ -3151,7 +3149,7 @@ public class Decider
      * 
      * @param goal
      */
-    private void create_gds_for_goal(Identifier goal)
+    private void create_gds_for_goal(IdentifierImpl goal)
     {
         goal.gds = new GoalDependencySet(goal);
         if (DEBUG_GDS)

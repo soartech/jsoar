@@ -2,7 +2,7 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.ISymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 
@@ -23,7 +23,7 @@ public final class Multiply extends AbstractRhsFunctionHandler
     }
 
     @Override
-    public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctionTools.checkAllArgumentsAreNumeric(getName(), arguments);
 
@@ -32,7 +32,7 @@ public final class Multiply extends AbstractRhsFunctionHandler
         boolean float_found = false;
         for(Symbol arg : arguments)
         {
-            IntegerSymbol ic = arg.asIntConstant();
+            IntegerSymbol ic = arg.asInteger();
             if(ic != null)
             {
                 if(float_found)
@@ -48,16 +48,16 @@ public final class Multiply extends AbstractRhsFunctionHandler
             {
                 if(float_found)
                 {
-                    f *= arg.asFloatConstant().getValue();
+                    f *= arg.asDouble().getValue();
                 }
                 else
                 {
                     float_found = true;
-                    f = i * arg.asFloatConstant().getValue();
+                    f = i * arg.asDouble().getValue();
                 }
             }
         }
         
-        return float_found ? syms.make_float_constant(f) : syms.make_int_constant(i);
+        return float_found ? syms.createDouble(f) : syms.createInteger(i);
     }
 }

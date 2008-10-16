@@ -19,8 +19,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.jsoar.kernel.events.SoarEventManager;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Backtracer;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.Explain;
@@ -42,7 +44,7 @@ import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
@@ -89,10 +91,11 @@ public class Agent
     public final ReinforcementLearning rl = new ReinforcementLearning();
     
     public final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
-    public final InputOutput io = new InputOutput(this);
+    public final InputOutputImpl io = new InputOutputImpl(this);
     
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);
     public final DecisionCycle decisionCycle = new DecisionCycle(this);
+    private final SoarEventManager eventManager = new SoarEventManager();
     
     /**
      * agent.h:480:total_cpu_time
@@ -124,7 +127,7 @@ public class Agent
             productionsByType.put(type, new LinkedHashSet<Production>());
         }
     }
-    private Map<SymConstant, Production> productionsByName = new HashMap<SymConstant, Production>();
+    private Map<StringSymbolImpl, Production> productionsByName = new HashMap<StringSymbolImpl, Production>();
     
     public Agent()
     {
@@ -167,6 +170,16 @@ public class Agent
         return multiAttrs;
     }
  
+    public SoarEventManager getEventManager()
+    {
+        return eventManager;
+    }
+    
+    public InputOutput getInputOutput()
+    {
+        return io;
+    }
+    
     /**
      * @return the agent's random number generator. It is safe to call setSeed()
      *      on the returned generator.
@@ -220,7 +233,7 @@ public class Agent
         // if there's already a prod with this name, excise it
         // Note, in csoar, this test was done in parse_production as soon as the name
         // of the production was known. We do this here so we can eliminate the
-        // production field of SymConstant.
+        // production field of StringSymbolImpl.
         Production existing = getProduction(p.name.getValue());
         if (existing != null) 
         {
@@ -279,7 +292,7 @@ public class Agent
     
     public Production getProduction(String name)
     {
-        SymConstant sc = syms.find_sym_constant(name);
+        StringSymbolImpl sc = syms.findString(name);
         return productionsByName.get(sc);
     }
     
@@ -450,7 +463,7 @@ public class Agent
         traceFormats.add_trace_format (false, TraceFormatRestriction.FOR_STATES_TF, null,
                                        "%id %ifdef[(%v[attribute] %v[impasse])]");
         traceFormats.add_trace_format (false, TraceFormatRestriction.FOR_OPERATORS_TF, 
-                                       syms.make_sym_constant ("evaluate-object"),
+                                       syms.createString ("evaluate-object"),
                                        "%id (evaluate-object %o[object])");
         
         // add default stack trace formats

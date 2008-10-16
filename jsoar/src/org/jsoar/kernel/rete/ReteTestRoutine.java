@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 
 /**
  * Interface to emulate XXX_rete_test_routine function pointers in rete.cpp
@@ -14,5 +14,5 @@ import org.jsoar.kernel.memory.Wme;
  */
 public interface ReteTestRoutine
 {
-    boolean execute(Rete rete, ReteTest rt, LeftToken left, Wme w);
+    boolean execute(Rete rete, ReteTest rt, LeftToken left, WmeImpl w);
 }

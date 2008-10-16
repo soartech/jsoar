@@ -25,10 +25,10 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsValue;
-import org.jsoar.kernel.symbols.FloatConstant;
-import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.IntConstant;
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.DoubleSymbolImpl;
+import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.IntegerSymbolImpl;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.junit.Test;
@@ -46,21 +46,21 @@ public class ParserTest extends JSoarTest
     }
     private void verifyStringSymbol(SymbolImpl sym, String name)
     {
-        SymConstant sc = sym.asSymConstant();
+        StringSymbolImpl sc = sym.asString();
         assertNotNull(sc);
         assertEquals(name, sc.getValue());
     }
     
     private void verifyIntSymbol(SymbolImpl sym, int value)
     {
-        IntConstant ic = sym.asIntConstant();
+        IntegerSymbolImpl ic = sym.asInteger();
         assertNotNull(ic);
         assertEquals(value, ic.getValue());
     }
     
     private void verifyFloatSymbol(SymbolImpl sym, double value)
     {
-        FloatConstant fc = sym.asFloatConstant();
+        DoubleSymbolImpl fc = sym.asDouble();
         assertNotNull(fc);
         assertEquals(value, fc.getValue(), 0.001);
     }
@@ -291,7 +291,7 @@ public class ParserTest extends JSoarTest
     public void testParseAttributeValueMake() throws Exception
     {
         Parser parser = createParser(" ^test 99 - )");
-        Identifier id = syms.make_new_identifier('s', (short) 0);
+        IdentifierImpl id = syms.make_new_identifier('s', (short) 0);
         Action a = parser.parse_attr_value_make(id);
         assertNotNull(a);
         MakeAction ma = a.asMakeAction();
@@ -299,8 +299,8 @@ public class ParserTest extends JSoarTest
         assertNull(ma.next);
         assertEquals(PreferenceType.REJECT_PREFERENCE_TYPE, ma.preference_type);
         assertSame(id, ma.id.asSymbolValue().getSym());
-        assertEquals("test", ma.attr.asSymbolValue().getSym().asSymConstant().getValue());
-        assertEquals(99, ma.value.asSymbolValue().getSym().asIntConstant().getValue());
+        assertEquals("test", ma.attr.asSymbolValue().getSym().asString().getValue());
+        assertEquals(99, ma.value.asSymbolValue().getSym().asInteger().getValue());
     }
     
     @Test

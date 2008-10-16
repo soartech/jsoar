@@ -47,7 +47,7 @@ public final class RhsFunctionTools
     {
         for (Symbol arg : arguments) 
         {
-            if(arg.asIntConstant() == null && arg.asFloatConstant() == null)
+            if(arg.asInteger() == null && arg.asDouble() == null)
             {
                 throw new RhsFunctionException("non-number (" + arg + ") passed to '" + name + "' function");
             }
@@ -56,8 +56,8 @@ public final class RhsFunctionTools
     
     public static double asDouble(Symbol sym)
     {
-        IntegerSymbol ic = sym.asIntConstant();
+        IntegerSymbol ic = sym.asInteger();
         
-        return ic != null ? ic.getValue() : sym.asFloatConstant().getValue();
+        return ic != null ? ic.getValue() : sym.asDouble().getValue();
     }
 }

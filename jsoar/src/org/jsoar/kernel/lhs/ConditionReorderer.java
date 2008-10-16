@@ -499,7 +499,7 @@ public class ConditionReorderer
         if (eq != null)
         {
             SymbolImpl sym = eq.getReferent();
-            if (sym.asSymConstant() != null || sym.asIntConstant() != null || sym.asFloatConstant() != null)
+            if (sym.asString() != null || sym.asInteger() != null || sym.asDouble() != null)
             {
                 return sym.hash_id;
             }

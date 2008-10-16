@@ -16,9 +16,9 @@ import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.memory.Slot;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.StringTools;
 
@@ -98,8 +98,8 @@ public class TraceFormats
      */
     private static class TracingParameters
     {
-        Identifier current_s = null;            // current state, etc. -- for use in %cs, etc.
-        Identifier current_o = null;
+        IdentifierImpl current_s = null;            // current state, etc. -- for use in %cs, etc.
+        IdentifierImpl current_o = null;
         boolean allow_cycle_counts = false; // TRUE means allow %dc and %ec
         
         public TracingParameters() {}
@@ -221,7 +221,7 @@ public class TraceFormats
                     format_string_error_message = "null attribute found in attribute path";
                     return null;
                 }
-                path.add(context.syms.make_sym_constant(name));
+                path.add(context.syms.createString(name));
                 if (format.charAt(offset) == ']')
                     break;
                 offset++; /* skip past '.' */
@@ -595,7 +595,7 @@ public class TraceFormats
                     for (Iterator<SymbolImpl> it = tf.data_attribute_path.iterator(); it.hasNext();)
                     {
                         SymbolImpl c = it.next();
-                        writer.append(c.asSymConstant().getValue());
+                        writer.append(c.asString().getValue());
                         if (it.hasNext())
                             writer.append(".");
                     }
@@ -796,22 +796,22 @@ public class TraceFormats
 
         /* --- not at end of path yet --- */
         /* --- can't follow any more path segments off of a non-identifier --- */
-        Identifier id = object.asIdentifier();
+        IdentifierImpl id = object.asIdentifier();
         if (id == null)
             return count;
 
         // call this routine recursively on any wme matching the first segment
         //   of the attribute path
-        for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == path.get(pathIndex))
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
-        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             if (w.attr == path.get(pathIndex))
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
         Slot s = Slot.find_slot(id, path.get(pathIndex));
         if (s != null)
         {
-            for (Wme w = s.getWmes(); w != null; w = w.next)
+            for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
         }
         return count;
@@ -830,7 +830,7 @@ public class TraceFormats
      * @param print_attribute
      * @param recursive
      */
-    void add_trace_for_wme(StringBuilder result, Wme w, boolean print_attribute, boolean recursive)
+    void add_trace_for_wme(StringBuilder result, WmeImpl w, boolean print_attribute, boolean recursive)
     {
         result.append(" ");
         if (print_attribute)
@@ -872,15 +872,15 @@ public class TraceFormats
 
         if (path.isEmpty())
         {
-            Identifier id = object.asIdentifier();
+            IdentifierImpl id = object.asIdentifier();
             if (id == null)
                 return;
             for (Slot s : id.slots)
-                for (Wme w = s.getWmes(); w != null; w = w.next)
+                for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                     add_trace_for_wme(values, w, print_attributes, recursive);
-            for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
+            for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
                 add_trace_for_wme(values, w, print_attributes, recursive);
-            for (Wme w = id.getInputWmes(); w != null; w = w.next)
+            for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
                 add_trace_for_wme(values, w, print_attributes, recursive);
             if (values.length() > 0)
                 result.append(values.substring(1));
@@ -1115,7 +1115,7 @@ public class TraceFormats
         // If it's not an identifier, just print it as an atom. Also, if it's
         // already being printed, print it as an atom to avoid getting into an
         // infinite loop.
-        Identifier id = object.asIdentifier();
+        IdentifierImpl id = object.asIdentifier();
         if (id == null || id.tc_number == tf_printing_tc)
         {
             return object.toString(); // TODO symbol_to_string (thisAgent,
@@ -1169,7 +1169,7 @@ public class TraceFormats
      * @param allow_cycle_counts
      * @return
      */
-    private String selection_to_trace_string(SymbolImpl object, Identifier current_state,
+    private String selection_to_trace_string(SymbolImpl object, IdentifierImpl current_state,
             TraceFormatRestriction selection_type, boolean allow_cycle_counts)
     {
         // find the problem space name
@@ -1190,7 +1190,7 @@ public class TraceFormats
             tparams.current_s = current_state;
             if (current_state.operator_slot.getWmes() != null)
             {
-                // TODO Is it safe to assume this is an Identifier?
+                // TODO Is it safe to assume this is an IdentifierImpl?
                 tparams.current_o = current_state.operator_slot.getWmes().value.asIdentifier(); 
             }
         }
@@ -1234,7 +1234,7 @@ public class TraceFormats
      * @param allow_cycle_counts
      * @throws IOException
      */
-    public void print_stack_trace(Writer writer, SymbolImpl object, Identifier state, TraceFormatRestriction slot_type,
+    public void print_stack_trace(Writer writer, SymbolImpl object, IdentifierImpl state, TraceFormatRestriction slot_type,
             boolean allow_cycle_counts) throws IOException
     {
         tf_printing_tc = context.syms.get_new_tc_number();

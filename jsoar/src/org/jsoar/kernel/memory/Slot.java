@@ -6,10 +6,11 @@
 package org.jsoar.kernel.memory;
 
 import java.util.EnumMap;
+import java.util.Iterator;
 
 import org.jsoar.kernel.ImpasseType;
-import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.AsListItem;
 
@@ -66,17 +67,17 @@ import org.jsoar.util.AsListItem;
 public class Slot
 {
     public final AsListItem<Slot> next_prev = new AsListItem<Slot>(this); // dll of slots for this id
-    public final Identifier id; 
+    public final IdentifierImpl id; 
     public final SymbolImpl attr;
 
-    private Wme wmes; // dll of wmes in the slot
-    private Wme acceptable_preference_wmes;  // dll of acceptable pref. wmes
+    private WmeImpl wmes; // dll of wmes in the slot
+    private WmeImpl acceptable_preference_wmes;  // dll of acceptable pref. wmes
     
     private Preference all_preferences; // dll of all pref's in the slot
     
     private EnumMap<PreferenceType, Preference> preferencesByType;
 
-    public Identifier impasse_id = null;               // null if slot is not impassed
+    public IdentifierImpl impasse_id = null;               // null if slot is not impassed
     public final boolean isa_context_slot;            
     public ImpasseType impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
     boolean marked_for_possible_removal = false;
@@ -106,7 +107,7 @@ public class Slot
      * @param operator_symbol
      * @return
      */
-    public static Slot make_slot(Identifier id, SymbolImpl attr, SymConstant operator_symbol)
+    public static Slot make_slot(IdentifierImpl id, SymbolImpl attr, StringSymbolImpl operator_symbol)
     {
         // Search for a slot first.  If it exists for the given symbol, then just return it
         Slot s = find_slot(id, attr);
@@ -126,7 +127,7 @@ public class Slot
      * @param attr
      * @param operator_symbol
      */
-    private Slot(Identifier id, SymbolImpl attr, SymConstant operator_symbol)
+    private Slot(IdentifierImpl id, SymbolImpl attr, StringSymbolImpl operator_symbol)
     {
         this.next_prev.insertAtHead(id.slots);
 
@@ -159,7 +160,7 @@ public class Slot
      * @param attr
      * @return
      */
-    public static Slot find_slot(Identifier id, SymbolImpl attr)
+    public static Slot find_slot(IdentifierImpl id, SymbolImpl attr)
     {
         if (id == null)
         {
@@ -192,17 +193,17 @@ public class Slot
     }
     
     
-    public Wme getWmes()
+    public WmeImpl getWmes()
     {
         return this.wmes;
     }
     
-    public void addWme(Wme w)
+    public void addWme(WmeImpl w)
     {
         this.wmes = w.addToList(this.wmes);
     }
     
-    public void removeWme(Wme w)
+    public void removeWme(WmeImpl w)
     {
         this.wmes = w.removeFromList(this.wmes);
     }
@@ -212,17 +213,25 @@ public class Slot
         this.wmes = null;
     }
     
-    public Wme getAcceptablePreferenceWmes()
+    /**
+     * @return An iterator over the wmes in this slot
+     */
+    public Iterator<Wme> getWmeIterator()
+    {
+        return new WmeIterator(this.wmes);
+    }
+    
+    public WmeImpl getAcceptablePreferenceWmes()
     {
         return acceptable_preference_wmes;
     }
     
-    public void addAcceptablePreferenceWme(Wme wme)
+    public void addAcceptablePreferenceWme(WmeImpl wme)
     {
         this.acceptable_preference_wmes = wme.addToList(this.acceptable_preference_wmes);
     }
     
-    public void removeAcceptablePreferenceWme(Wme w)
+    public void removeAcceptablePreferenceWme(WmeImpl w)
     {
         this.acceptable_preference_wmes = w.removeFromList(this.acceptable_preference_wmes);
     }

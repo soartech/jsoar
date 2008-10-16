@@ -6,7 +6,7 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 
 /**
  * @author ray
@@ -15,14 +15,14 @@ public class SoarReteAssertion
 {
     public final Production production;
     public final Token token;
-    public final Wme wme;
+    public final WmeImpl wme;
     
     /**
      * @param production
      * @param token
      * @param wme
      */
-    public SoarReteAssertion(Production production, Token token, Wme wme)
+    public SoarReteAssertion(Production production, Token token, WmeImpl wme)
     {
         this.production = production;
         this.token = token;

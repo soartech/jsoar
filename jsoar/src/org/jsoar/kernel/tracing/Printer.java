@@ -66,6 +66,12 @@ public class Printer
         this.wrappedWriter = new PrintWriter(internalWriter, autoFlush);
     }
     
+    public Printer print(String output)
+    {
+        this.wrappedWriter.print(output);
+        return this;
+    }
+    
     public Printer print(String format, Object ... args)
     {
         this.wrappedWriter.printf(format, args);
@@ -89,15 +95,6 @@ public class Printer
         return this;
     }
 
-    /**
-     * @param pref
-     */
-    public void print_preference(Preference pref)
-    {
-        // TODO implement print_preference
-        
-    }
-    
     public Printer warn(String format, Object ... args)
     {
         if(printWarnings)

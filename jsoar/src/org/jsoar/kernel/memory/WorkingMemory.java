@@ -6,9 +6,9 @@
 package org.jsoar.kernel.memory;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.io.InputOutputImpl;
+import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -24,8 +24,8 @@ public class WorkingMemory
     
     private int num_existing_wmes;
     private int current_wme_timetag = 1;
-    private final ListHead<Wme> wmes_to_add = ListHead.newInstance();
-    private final ListHead<Wme> wmes_to_remove = ListHead.newInstance();
+    private final ListHead<WmeImpl> wmes_to_add = ListHead.newInstance();
+    private final ListHead<WmeImpl> wmes_to_remove = ListHead.newInstance();
     private int wme_addition_count;
     private int wme_removal_count;
     
@@ -67,9 +67,9 @@ public class WorkingMemory
      * @param acceptable
      * @return
      */
-    public Wme make_wme(Identifier id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
+    public WmeImpl make_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
-        Wme w = new Wme(id, attr, value, acceptable, current_wme_timetag++);
+        WmeImpl w = new WmeImpl(id, attr, value, acceptable, current_wme_timetag++);
 
         return w;
     }
@@ -80,10 +80,10 @@ public class WorkingMemory
      * 
      * @param w
      */
-    public void add_wme_to_wm(Wme w)
+    public void add_wme_to_wm(WmeImpl w)
     {
         wmes_to_add.push(w);
-        Identifier valueId = w.value.asIdentifier();
+        IdentifierImpl valueId = w.value.asIdentifier();
         if (valueId != null)
         {
             context.decider.post_link_addition(w.id, valueId);
@@ -99,11 +99,11 @@ public class WorkingMemory
      * 
      * @param w
      */
-    public void remove_wme_from_wm(Wme w)
+    public void remove_wme_from_wm(WmeImpl w)
     {
         wmes_to_remove.push(w);
 
-        Identifier valueId = w.value.asIdentifier();
+        IdentifierImpl valueId = w.value.asIdentifier();
 
         if (valueId != null)
         {
@@ -140,18 +140,19 @@ public class WorkingMemory
      * @param w
      * @param updateWmeMap (defaults to false in CSoar)
      */
-    public void remove_wme_list_from_wm(Wme w, boolean updateWmeMap /*=false*/)
+    public void remove_wme_list_from_wm(WmeImpl w, boolean updateWmeMap /*=false*/)
     {
+        if(updateWmeMap)
+        {
+            // Note: For jsoar, moved this out of the loop below into a single callback
+            // soar_invoke_callbacks( thisAgent, INPUT_WME_GARBAGE_COLLECTED_CALLBACK, reinterpret_cast<soar_call_data >( w ) );
+            context.getEventManager().fireEvent(new InputWmeGarbageCollectedEvent(w));
+        }
+        
         while (w != null)
         {
-            final Wme next_w = w.next;
-
-            if (updateWmeMap)
-            {
-                // TODO soar_invoke_callbacks( thisAgent, INPUT_WME_GARBAGE_COLLECTED_CALLBACK, reinterpret_cast<soar_call_data >( w ) );
-            }
+            final WmeImpl next_w = w.next;
             remove_wme_from_wm(w);
-
             w = next_w;
         }
     }
@@ -160,7 +161,7 @@ public class WorkingMemory
     /**
      * wmem.cpp:186:do_buffered_wm_changes
      */
-    public void do_buffered_wm_changes(int d_cycle_count, InputOutput io)
+    public void do_buffered_wm_changes(InputOutputImpl io)
     {
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
@@ -175,12 +176,9 @@ public class WorkingMemory
         }
 
         // call output module in case any changes are output link changes
-        io.inform_output_module_of_wm_changes (d_cycle_count, wmes_to_add, wmes_to_remove);
+        io.inform_output_module_of_wm_changes (wmes_to_add, wmes_to_remove);
         
-        /* --- invoke callback routine. wmes_to_add and wmes_to_remove can --- */
-        /* --- be fetched from the agent structure. --- */
-        // TODO WM_CHANGES_CALLBACK
-        // soar_invoke_callbacks(thisAgent, WM_CHANGES_CALLBACK, (soar_call_data) NULL);
+        context.getEventManager().fireEvent(new WorkingMemoryChangedEvent(wmes_to_add, wmes_to_remove));
         
         /* --- stuff wme changes through the rete net --- */
         // #ifndef NO_TIMING_STUFF
@@ -188,39 +186,40 @@ public class WorkingMemory
         // start_timer (thisAgent, &start_tv);
         // #endif
         // #endif
-        for (AsListItem<Wme> w = wmes_to_add.first; w != null; w = w.next)
+        for (AsListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             context.rete.add_wme_to_rete(w.item);
         }
-        for (AsListItem<Wme> w = wmes_to_remove.first; w != null; w = w.next)
+        for (AsListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             context.rete.remove_wme_from_rete(w.item);
         }
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
-        // stop_timer (thisAgent, &start_tv,
-        // &thisAgent->match_cpu_time[thisAgent->current_phase]);
+        // stop_timer (thisAgent, &start_tv, &thisAgent->match_cpu_time[thisAgent->current_phase]);
         // #endif
         // #endif
 
         warnIfSameWmeAddedAndRemoved();
         
         // do tracing and cleanup stuff
-        for (Wme w : wmes_to_add)
+        for (AsListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...
-            context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, "=>WM: %s", w);
-            w.wme_add_ref();
+            context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, "=>WM: %s", w.item);
+            w.item.wme_add_ref();
             wme_addition_count++;
         }
-        for (Wme w : wmes_to_remove)
+        
+        for (AsListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_remove", but filtering seems disabled in CSoar...
-            context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, "<=WM: %s", w);
+            context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, "<=WM: %s", w.item);
 
-            w.wme_remove_ref(this);
+            w.item.wme_remove_ref(this);
             wme_removal_count++;
         }
+        
         wmes_to_add.clear();
         wmes_to_remove.clear();
     }
@@ -230,16 +229,12 @@ public class WorkingMemory
      * 
      * @param w
      */
-    public void deallocate_wme(Wme w)
+    public void deallocate_wme(WmeImpl w)
     {
         //#ifdef DEBUG_WMES  
         //  print_with_symbols (thisAgent, "\nDeallocate wme: ");
         //  print_wme (thisAgent, w);
         //#endif
-        //  symbol_remove_ref (thisAgent, w->id);
-        //  symbol_remove_ref (thisAgent, w->attr);
-        //  symbol_remove_ref (thisAgent, w->value);
-        //  free_with_pool (&thisAgent->wme_pool, w);
         num_existing_wmes--;
     }
     
@@ -255,9 +250,9 @@ public class WorkingMemory
      * @param object
      * @return
      */
-    public static SymbolImpl find_name_of_object(SymbolImpl object, SymConstant name_symbol)
+    public static SymbolImpl find_name_of_object(SymbolImpl object, StringSymbolImpl name_symbol)
     {
-        Identifier id = object.asIdentifier();
+        IdentifierImpl id = object.asIdentifier();
         if (id == null)
         {
             return null;

@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.ListHead;
 
@@ -22,7 +22,7 @@ public class LeftToken extends Token
     final ListHead<RightToken> negrm_tokens = ListHead.newInstance(); /* join results: for Neg, CN nodes only */
     
     
-    public LeftToken(ReteNode current_node, Token parent_tok, Wme parent_wme, SymbolImpl referent)
+    public LeftToken(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, SymbolImpl referent)
     {
         super(current_node, parent_tok, parent_wme, true);
         this.referent = referent;

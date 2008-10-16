@@ -2,7 +2,7 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.ISymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 
@@ -25,7 +25,7 @@ public final class Minus extends AbstractRhsFunctionHandler
     }
 
     @Override
-    public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctionTools.checkAllArgumentsAreNumeric(getName(), arguments);
         RhsFunctionTools.checkArgumentCount(getName(), arguments, 1, Integer.MAX_VALUE);
@@ -33,16 +33,16 @@ public final class Minus extends AbstractRhsFunctionHandler
         Symbol arg = arguments.get(0);
         if(arguments.size() == 1)
         {
-            IntegerSymbol i = arg.asIntConstant();
+            IntegerSymbol i = arg.asInteger();
             
-            return i != null ? syms.make_int_constant(-i.getValue()) : 
-                               syms.make_float_constant(-arg.asFloatConstant().getValue());
+            return i != null ? syms.createInteger(-i.getValue()) : 
+                               syms.createDouble(-arg.asDouble().getValue());
         }
         
         int i = 0;
         double f = 0;
         boolean float_found = false;
-        IntegerSymbol ic = arg.asIntConstant();
+        IntegerSymbol ic = arg.asInteger();
         if(ic != null)
         {
             i = ic.getValue();
@@ -50,13 +50,13 @@ public final class Minus extends AbstractRhsFunctionHandler
         else
         {
             float_found = true;
-            f = arg.asFloatConstant().getValue();
+            f = arg.asDouble().getValue();
         }
         for(int index = 1; index < arguments.size(); ++index)
         {
             arg = arguments.get(index);
             
-            ic = arg.asIntConstant();
+            ic = arg.asInteger();
             if(ic != null)
             {
                 if(float_found)
@@ -72,16 +72,16 @@ public final class Minus extends AbstractRhsFunctionHandler
             {
                 if(float_found)
                 {
-                    f -= arg.asFloatConstant().getValue();
+                    f -= arg.asDouble().getValue();
                 }
                 else
                 {
                     float_found = true;
-                    f = i - arg.asFloatConstant().getValue();
+                    f = i - arg.asDouble().getValue();
                 }
             }
         }
         
-        return float_found ? syms.make_float_constant(f) : syms.make_int_constant(i);
+        return float_found ? syms.createDouble(f) : syms.createInteger(i);
     }
 }

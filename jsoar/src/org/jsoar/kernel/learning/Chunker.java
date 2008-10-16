@@ -25,7 +25,7 @@ import org.jsoar.kernel.lhs.TestTools;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.NotStruct;
 import org.jsoar.kernel.rete.ProductionAddResult;
@@ -33,8 +33,8 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
-import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -131,14 +131,14 @@ public class Chunker
      * lists of symbols (PS names) declared chunk-free
      * <p>agent.h:312:chunk_free_problem_spaces
      */
-    private final LinkedList<Identifier> chunk_free_problem_spaces = new LinkedList<Identifier>();
+    private final LinkedList<IdentifierImpl> chunk_free_problem_spaces = new LinkedList<IdentifierImpl>();
     
     /**
      * lists of symbols (PS names) declared chunky
      * 
      * <p>agent.h:313:chunky_problem_spaces
      */
-    private final LinkedList<Identifier> chunky_problem_spaces = new LinkedList<Identifier>();
+    private final LinkedList<IdentifierImpl> chunky_problem_spaces = new LinkedList<IdentifierImpl>();
     
     /**
      * <p>agent.h:522:instantiations_with_nots
@@ -179,7 +179,7 @@ public class Chunker
      */
     private void add_results_if_needed(SymbolImpl sym)
     {
-        Identifier id = sym.asIdentifier();
+        IdentifierImpl id = sym.asIdentifier();
         if (id != null)
             if ((id.level >= results_match_goal_level) && (id.tc_number != results_tc_number))
                 add_results_for_id(id);
@@ -241,12 +241,12 @@ public class Chunker
      * 
      * @param id
      */
-    private void add_results_for_id(Identifier id)
+    private void add_results_for_id(IdentifierImpl id)
     {
         id.tc_number = this.results_tc_number;
 
         // scan through all preferences and wmes for all slots for this id
-        for (Wme w = id.getInputWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             add_results_if_needed(w.value);
         
         for (AsListItem<Slot> it = id.slots.first; it != null; it = it.next)
@@ -256,7 +256,7 @@ public class Chunker
             for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
                 add_pref_to_results(pref);
             
-            for (Wme w = s.getWmes(); w != null; w = w.next)
+            for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                 add_results_if_needed(w.value);
         }
 
@@ -304,7 +304,7 @@ public class Chunker
      */
     private SymbolImpl variablize_symbol(SymbolImpl sym)
     {
-        Identifier id = sym.asIdentifier();
+        IdentifierImpl id = sym.asIdentifier();
         if (id == null)
             return sym;
         if (!this.variablize_this_chunk)
@@ -675,7 +675,7 @@ public class Chunker
                 continue;
 
             // TODO Assumes id_test is equality test of identifier
-            Identifier id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
+            IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
 
             if ((id.isa_goal || id.isa_impasse) && (id.tc_number != tc))
             {
@@ -805,9 +805,9 @@ public class Chunker
      * @param attr
      * @return
      */
-    private static SymbolImpl find_impasse_wme_value(Identifier id, SymbolImpl attr)
+    private static SymbolImpl find_impasse_wme_value(IdentifierImpl id, SymbolImpl attr)
     {
-        for (Wme w = id.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == attr)
                 return w.value;
         return null;
@@ -820,7 +820,7 @@ public class Chunker
      * @param inst
      * @return
      */
-    private SymConstant generate_chunk_name_sym_constant(Instantiation inst)
+    private StringSymbolImpl generate_chunk_name_sym_constant(Instantiation inst)
     {
         if (!this.useLongChunkNames)
             return (context.syms.generate_new_sym_constant(this.chunk_name_prefix, this.chunk_count));
@@ -830,7 +830,7 @@ public class Chunker
             if (p.item.id.level > lowest_result_level)
                 lowest_result_level = p.item.id.level;
 
-        Identifier goal = context.decider.find_goal_at_goal_stack_level(lowest_result_level);
+        IdentifierImpl goal = context.decider.find_goal_at_goal_stack_level(lowest_result_level);
 
         String impass_name = null;
         if (goal != null)
@@ -924,7 +924,7 @@ public class Chunker
         chunk_count.value = chunk_count.value + 1;
 
         /* Any user who named a production like this deserves to be burned, but we'll have mercy: */
-        if (context.syms.find_sym_constant(name) != null)
+        if (context.syms.findString(name) != null)
         {
             int collision_count = 1;
 
@@ -935,10 +935,10 @@ public class Chunker
                 name = chunk_name_prefix + "-" + chunk_count + "*d" + context.decisionCycle.d_cycle_count + "*"
                         + impass_name + "*" + chunks_this_d_cycle + "*" + collision_count++;
 
-            } while (context.syms.find_sym_constant(name) != null);
+            } while (context.syms.findString(name) != null);
         }
 
-        return context.syms.make_sym_constant(name);
+        return context.syms.createString(name);
     }
     
     /**
@@ -1049,7 +1049,7 @@ public class Chunker
         }
 
         // update flags on goal stack for bottom-up chunking
-        for (Identifier g = inst.match_goal.higher_goal; g != null && g.allow_bottom_up_chunks; g = g.higher_goal)
+        for (IdentifierImpl g = inst.match_goal.higher_goal; g != null && g.allow_bottom_up_chunks; g = g.higher_goal)
             g.allow_bottom_up_chunks = false;
 
         int grounds_level = inst.match_goal_level - 1;
@@ -1152,7 +1152,7 @@ public class Chunker
         }
 
         // get symbol for name of new chunk or justification
-        SymConstant prod_name = null;
+        StringSymbolImpl prod_name = null;
         ProductionType prod_type = null;
         boolean print_name = false;
         boolean print_prod = false;

@@ -9,7 +9,7 @@ import java.util.Formattable;
 import java.util.Formatter;
 
 import org.jsoar.kernel.rete.Instantiation;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.AsListItem;
 
@@ -24,7 +24,7 @@ public class Preference implements Formattable
     public boolean o_supported = false;  /* is the preference o-supported? */
     public boolean on_goal_list = false; /* is this pref on the list for its match goal */
     int reference_count = 0;
-    public final Identifier id;
+    public final IdentifierImpl id;
     public final SymbolImpl attr;
     public final SymbolImpl value;
     public final SymbolImpl referent;
@@ -80,7 +80,7 @@ public class Preference implements Formattable
      * @param value
      * @param referent
      */
-    public Preference(PreferenceType type, Identifier id, SymbolImpl attr, SymbolImpl value, SymbolImpl referent)
+    public Preference(PreferenceType type, IdentifierImpl id, SymbolImpl attr, SymbolImpl value, SymbolImpl referent)
     {
         this.type = type;
         this.id = id;

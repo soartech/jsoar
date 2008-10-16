@@ -8,7 +8,7 @@ package org.jsoar.kernel;
 import java.util.Random;
 
 import org.jsoar.kernel.memory.Preference;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 
 /**
  * decision_manipulation.cpp
@@ -89,7 +89,7 @@ public class DecisionManipulation
             // go through the list till we find a match or done
             while ( cand  != null && return_val == null)
             {
-                Identifier valueAsId = cand.value.asIdentifier();
+                IdentifierImpl valueAsId = cand.value.asIdentifier();
                 if ( valueAsId != null )
                 {
                     // clear comparison string

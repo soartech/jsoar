@@ -175,7 +175,7 @@ public class Variable extends SymbolImpl
      * @see org.jsoar.kernel.symbols.SymbolImpl#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
-    public void add_symbol_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
+    public void add_symbol_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         markIfUnmarked(tc, var_list);
     }

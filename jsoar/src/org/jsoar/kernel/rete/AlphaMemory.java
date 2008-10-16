@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.HashFunction;
 import org.jsoar.util.HashTableItem;
@@ -67,7 +67,7 @@ public class AlphaMemory extends HashTableItem
      * @param w
      * @return
      */
-    boolean wme_matches_alpha_mem(Wme w)
+    boolean wme_matches_alpha_mem(WmeImpl w)
     {
       return (this.id==null || this.id==w.id) &&
         (this.attr==null || this.attr==w.attr) &&

@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 
 /**
  * 
@@ -21,7 +21,7 @@ public class Token
     are fast (saves doing an extra integer addition in the inner loop) --- */
     public final Token parent;
     ReteNode node;
-    public final Wme w;
+    public final WmeImpl w;
     
     Token first_child;// head of dll of childen
     Token next_sibling;
@@ -32,7 +32,7 @@ public class Token
     Token next_of_node;
     private Token previous_of_node;// Part of dll of tokens at node
     
-    public Token(ReteNode current_node, Token parent_tok, Wme parent_wme, boolean addToNode)
+    public Token(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, boolean addToNode)
     {
         assert current_node != null;
         
@@ -48,12 +48,12 @@ public class Token
         addToWme(w, this);
     }
     
-    public static Token createMatchesToken(Token parent, Wme wme)
+    public static Token createMatchesToken(Token parent, WmeImpl wme)
     {
         return new Token(parent, wme);
     }
     
-    private Token(Token parent, Wme wme)
+    private Token(Token parent, WmeImpl wme)
     {
         this.parent = parent;
         this.w = wme;
@@ -149,7 +149,7 @@ public class Token
     }
     
     
-    private static void addToWme(Wme wme, Token tok)
+    private static void addToWme(WmeImpl wme, Token tok)
     {
         if (wme != null)
         {

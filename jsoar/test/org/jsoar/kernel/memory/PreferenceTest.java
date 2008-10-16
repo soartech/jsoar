@@ -24,9 +24,9 @@ public class PreferenceTest extends JSoarTest
     {
         Preference p = new Preference(PreferenceType.BINARY_PARALLEL_PREFERENCE_TYPE, 
                                       syms.make_new_identifier('S', 0),
-                                      syms.make_sym_constant("superstate"),
-                                      syms.make_sym_constant("nil"),
-                                      syms.make_float_constant(3.14));
+                                      syms.createString("superstate"),
+                                      syms.createString("nil"),
+                                      syms.createDouble(3.14));
         
         assertEquals("(S1 ^superstate nil & 3.14)\n", String.format("%s", p));
         

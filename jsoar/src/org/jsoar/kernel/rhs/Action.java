@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.rete.Rete;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
@@ -129,7 +129,7 @@ public abstract class Action
      * @param id_list
      * @param var_list
      */
-    public void add_action_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
+    public void add_action_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         // Do nothing by default
         

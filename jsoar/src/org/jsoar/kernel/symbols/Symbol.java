@@ -12,11 +12,11 @@ package org.jsoar.kernel.symbols;
  */
 public interface Symbol
 {
-    public DoubleSymbol asFloatConstant();
+    public DoubleSymbol asDouble();
     
-    public IntegerSymbol asIntConstant();
+    public IntegerSymbol asInteger();
     
-    public StringSymbol asSymConstant();
+    public StringSymbol asString();
     
-    public IdSymbol asIdentifier();
+    public Identifier asIdentifier();
 }
