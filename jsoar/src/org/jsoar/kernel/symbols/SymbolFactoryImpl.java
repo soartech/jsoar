@@ -35,7 +35,7 @@ import com.google.common.collect.ReferenceMap;
  * 
  * @author ray
  */
-public class SymbolFactoryImpl implements ISymbolFactory
+public class SymbolFactoryImpl implements SymbolFactory
 {
     /**
      * A helper method to make the initializations below a little less ugly.
@@ -50,10 +50,10 @@ public class SymbolFactoryImpl implements ISymbolFactory
     }
     
     private int id_counter[] = new int[26];
-    private Map<String, SymConstant> symConstants = newReferenceMap();
-    private Map<Integer, IntConstant> intConstants = newReferenceMap();
-    private Map<Double, FloatConstant> floatConstants = newReferenceMap();
-    private Map<IdKey, Identifier> identifiers = newReferenceMap();
+    private Map<String, StringSymbolImpl> symConstants = newReferenceMap();
+    private Map<Integer, IntegerSymbolImpl> intConstants = newReferenceMap();
+    private Map<Double, DoubleSymbolImpl> floatConstants = newReferenceMap();
+    private Map<IdKey, IdentifierImpl> identifiers = newReferenceMap();
     private Map<String, Variable> variables = newReferenceMap();
 
     private int current_tc_number = 0;
@@ -117,7 +117,7 @@ public class SymbolFactoryImpl implements ISymbolFactory
      */
     public void reset_id_and_variable_tc_numbers()
     {
-        for(Identifier id : identifiers.values())
+        for(IdentifierImpl id : identifiers.values())
         {
             id.tc_number = 0;
         }
@@ -162,9 +162,9 @@ public class SymbolFactoryImpl implements ISymbolFactory
     
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.ISymbolFactory#find_identifier(char, int)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#find_identifier(char, int)
      */
-    public Identifier find_identifier(char name_letter, int name_number)
+    public IdentifierImpl findIdentifier(char name_letter, int name_number)
     {
         return identifiers.get(new IdKey(name_letter, name_number));
     }
@@ -177,12 +177,12 @@ public class SymbolFactoryImpl implements ISymbolFactory
      * @param level
      * @return
      */
-    public Identifier make_new_identifier(char name_letter, int /*goal_stack_level*/ level)
+    public IdentifierImpl make_new_identifier(char name_letter, int /*goal_stack_level*/ level)
     {
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
         int name_number = id_counter[name_letter - 'A']++;
         
-        Identifier id = new Identifier(get_next_hash_id(), name_letter, name_number);
+        IdentifierImpl id = new IdentifierImpl(get_next_hash_id(), name_letter, name_number);
         
         id.level = level;
         id.promotion_level = level;
@@ -191,28 +191,28 @@ public class SymbolFactoryImpl implements ISymbolFactory
         return id;
     }
     
-    public Identifier make_new_identifier(char name_letter)
+    public IdentifierImpl createIdentifier(char name_letter)
     {
         return make_new_identifier(name_letter, SoarConstants.TOP_GOAL_LEVEL);
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.ISymbolFactory#find_sym_constant(java.lang.String)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#find_sym_constant(java.lang.String)
      */
-    public SymConstant find_sym_constant(String name)
+    public StringSymbolImpl findString(String name)
     {
         return symConstants.get(name);
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.ISymbolFactory#make_sym_constant(java.lang.String)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#make_sym_constant(java.lang.String)
      */
-    public SymConstant make_sym_constant(String name)
+    public StringSymbolImpl createString(String name)
     {
-        SymConstant sym = find_sym_constant(name);
+        StringSymbolImpl sym = findString(name);
         if(sym == null)
         {
-            sym = new SymConstant(get_next_hash_id(), name);
+            sym = new StringSymbolImpl(get_next_hash_id(), name);
             symConstants.put(name, sym);
         }
         return sym;
@@ -224,63 +224,63 @@ public class SymbolFactoryImpl implements ISymbolFactory
      * @param prefix Prefix for the constant
      * @param number Starting index for search. Receives one more than final value 
      *               of postfix index.
-     * @return New SymConstant
+     * @return New StringSymbolImpl
      */
-    public SymConstant generate_new_sym_constant(String prefix, ByRef<Integer> number)
+    public StringSymbolImpl generate_new_sym_constant(String prefix, ByRef<Integer> number)
     {
 //        Arguments.checkNotNull(prefix, "prefix");
 //        Arguments.checkNotNull(number, "number");
         
         String name = prefix + number.value++;
-        SymConstant sym = find_sym_constant(name);
+        StringSymbolImpl sym = findString(name);
         while(sym != null)
         {
             name = prefix + number.value++;
-            sym = find_sym_constant(name);
+            sym = findString(name);
         }
-        return make_sym_constant(name);
+        return createString(name);
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.ISymbolFactory#make_int_constant(int)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#make_int_constant(int)
      */
-    public IntConstant make_int_constant(int value)
+    public IntegerSymbolImpl createInteger(int value)
     {
-        IntConstant sym = find_int_constant(value);
+        IntegerSymbolImpl sym = findInteger(value);
         if(sym == null)
         {
-            sym = new IntConstant(get_next_hash_id(), value);
+            sym = new IntegerSymbolImpl(get_next_hash_id(), value);
             intConstants.put(value, sym);
         }
         return sym;
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.ISymbolFactory#find_int_constant(int)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#find_int_constant(int)
      */
-    public IntConstant find_int_constant(int value)
+    public IntegerSymbolImpl findInteger(int value)
     {
         return intConstants.get(value);
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.ISymbolFactory#make_float_constant(double)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#make_float_constant(double)
      */
-    public FloatConstant make_float_constant(double value)
+    public DoubleSymbolImpl createDouble(double value)
     {
-        FloatConstant sym = find_float_constant(value);
+        DoubleSymbolImpl sym = findDouble(value);
         if(sym == null)
         {
-            sym = new FloatConstant(get_next_hash_id(), value);
+            sym = new DoubleSymbolImpl(get_next_hash_id(), value);
             floatConstants.put(value, sym);
         }
         return sym;
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.ISymbolFactory#find_float_constant(double)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#find_float_constant(double)
      */
-    public FloatConstant find_float_constant(double value)
+    public DoubleSymbolImpl findDouble(double value)
     {
         return floatConstants.get(value);
     }
@@ -300,19 +300,19 @@ public class SymbolFactoryImpl implements ISymbolFactory
         {
             if(arg instanceof Double)
             {
-                result.add(make_float_constant(((Double) arg).doubleValue()));
+                result.add(createDouble(((Double) arg).doubleValue()));
             }
             else if(arg instanceof Float)
             {
-                result.add(make_float_constant(((Float) arg).doubleValue()));
+                result.add(createDouble(((Float) arg).doubleValue()));
             }
             else if(arg instanceof Integer)
             {
-                result.add(make_int_constant(((Integer) arg).intValue()));
+                result.add(createInteger(((Integer) arg).intValue()));
             }
             else
             {
-                result.add(make_sym_constant(arg.toString()));
+                result.add(createString(arg.toString()));
             }
         }
         return result;

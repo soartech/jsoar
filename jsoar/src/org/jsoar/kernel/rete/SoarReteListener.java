@@ -15,12 +15,12 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.PreferenceType;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
@@ -115,7 +115,7 @@ public class SoarReteListener implements ReteListener
      * @see org.jsoar.kernel.rete.ReteListener#p_node_left_addition(org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
      */
     @Override
-    public void p_node_left_addition(Rete rete, ReteNode node, Token tok, Wme w)
+    public void p_node_left_addition(Rete rete, ReteNode node, Token tok, WmeImpl w)
     {
         /*
          * Algorithm:
@@ -137,7 +137,7 @@ public class SoarReteListener implements ReteListener
             match_found = true;
             Condition cond = msc.inst.bottom_of_instantiated_conditions;
             Token current_token = tok;
-            Wme current_wme = w;
+            WmeImpl current_wme = w;
             ReteNode current_node = node.parent;
             while (current_node.node_type != ReteNodeType.DUMMY_TOP_BNODE)
             {
@@ -306,7 +306,7 @@ public class SoarReteListener implements ReteListener
                          * will be o-supported.
                          */
                         boolean op_elab = false;
-                        Wme lowest_goal_wme = null;
+                        WmeImpl lowest_goal_wme = null;
 
                         for (int pass = 0; pass != 2; pass++)
                         {
@@ -507,7 +507,7 @@ public class SoarReteListener implements ReteListener
      * @see org.jsoar.kernel.rete.ReteListener#p_node_left_removal(org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
      */
     @Override
-    public void p_node_left_removal(Rete rete, ReteNode node, Token tok, Wme w)
+    public void p_node_left_removal(Rete rete, ReteNode node, Token tok, WmeImpl w)
     {
         // rete.cpp:5893:p_node_left_removal
         
@@ -942,7 +942,7 @@ public class SoarReteListener implements ReteListener
             // Loop from bottom to top because we expect activity at
             // the bottom usually
 
-            for (Identifier goal = context.decider.bottom_goal; goal != null; goal = goal.higher_goal)
+            for (IdentifierImpl goal = context.decider.bottom_goal; goal != null; goal = goal.higher_goal)
             {
                 // if there are any assertions or retrctions for this goal,
                 // return TRUE

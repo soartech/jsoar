@@ -11,8 +11,8 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Preference;
-import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Traceable;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
@@ -30,13 +30,13 @@ public class Instantiation implements Traceable
     public final Production prod; 
     public final AsListItem<Instantiation> inProdList = new AsListItem<Instantiation>(this); // next/prev, dll of inst's from same prod
     public Token rete_token; // used by rete for retractions (TODO make final?)
-    public Wme rete_wme;     // used by rete for retractions (TODO make final?)
+    public WmeImpl rete_wme;     // used by rete for retractions (TODO make final?)
     public Condition top_of_instantiated_conditions;
     public Condition bottom_of_instantiated_conditions;
 
     public NotStruct nots = null;
     public final ListHead<Preference>  preferences_generated = ListHead.newInstance();    // header for dll of prefs
-    public Identifier match_goal;                   // symbol, or NIL if none
+    public IdentifierImpl match_goal;                   // symbol, or NIL if none
     public int /*goal_stack_level*/ match_goal_level;    // level, or ATTRIBUTE_IMPASSE_LEVEL
     /**
      * <p>Initialized to true in recmem.cpp:574:create_instantiation
@@ -62,7 +62,7 @@ public class Instantiation implements Traceable
      * @param rete_token
      * @param rete_wme
      */
-    public Instantiation(Production prod, Token rete_token, Wme rete_wme)
+    public Instantiation(Production prod, Token rete_token, WmeImpl rete_wme)
     {
         this.prod = prod;
         this.rete_token = rete_token;

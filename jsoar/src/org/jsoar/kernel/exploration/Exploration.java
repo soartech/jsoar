@@ -13,8 +13,8 @@ import org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
-import org.jsoar.kernel.symbols.FloatConstant;
-import org.jsoar.kernel.symbols.IntConstant;
+import org.jsoar.kernel.symbols.DoubleSymbolImpl;
+import org.jsoar.kernel.symbols.IntegerSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 
@@ -743,12 +743,12 @@ public class Exploration
      */
     public static double get_number_from_symbol(SymbolImpl s)
     {
-        FloatConstant f = s.asFloatConstant();
+        DoubleSymbolImpl f = s.asDouble();
         if(f != null)
         {
             return f.getValue();
         }
-        IntConstant i = s.asIntConstant();
+        IntegerSymbolImpl i = s.asInteger();
         if(i != null)
         {
             return i.getValue();

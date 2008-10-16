@@ -8,7 +8,7 @@ package org.jsoar.kernel.lhs;
 import java.util.Collections;
 import java.util.List;
 
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ByRef;
@@ -382,7 +382,7 @@ public class TestTools
      * @param id_list
      * @param var_list
      */
-    static void add_test_to_tc(Test t, int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
+    static void add_test_to_tc(Test t, int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         if (TestTools.isBlank(t))
             return;

@@ -7,7 +7,7 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.ISymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
@@ -33,6 +33,6 @@ public interface RhsFunctionHandler
      * @return Result symbol
      * @throws RhsFunctionException if an error occurs
      */
-    Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException;
+    Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException;
 
 }

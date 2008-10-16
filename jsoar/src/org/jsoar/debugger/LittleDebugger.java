@@ -41,7 +41,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 
@@ -287,7 +287,7 @@ public class LittleDebugger extends JPanel
         wmeListModel.clear();
         
         List<String> wmes = new ArrayList<String>();
-        for(Wme wme : agent.rete.getAllWmes())
+        for(WmeImpl wme : agent.rete.getAllWmes())
         {
             wmes.add(String.format("%s", wme));
         }

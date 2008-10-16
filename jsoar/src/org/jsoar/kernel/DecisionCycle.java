@@ -12,8 +12,8 @@ import java.util.List;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
-import org.jsoar.kernel.symbols.ISymbolFactory;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
@@ -75,7 +75,7 @@ public class DecisionCycle
     private RhsFunctionHandler haltHandler = new AbstractRhsFunctionHandler("halt") {
 
         @Override
-        public SymbolImpl execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public SymbolImpl execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
             system_halted = true;
             
@@ -478,7 +478,7 @@ public class DecisionCycle
             context.io.do_output_cycle();
 
             // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)
-            if (context.io.output_link_changed || ((++(run_last_output_count)) >= maxNilOutputCycles))
+            if (context.io.isOutputLinkChanged() || ((++(run_last_output_count)) >= maxNilOutputCycles))
             {
                 this.run_last_output_count = 0;
                 this.run_generated_output_count++;
@@ -691,7 +691,7 @@ public class DecisionCycle
             if (context.rl.rl_enabled())
             {
                 // TODO how about a method?
-                for (Identifier g = context.decider.bottom_goal; g != null; g = g.higher_goal)
+                for (IdentifierImpl g = context.decider.bottom_goal; g != null; g = g.higher_goal)
                 {
                     context.rl.rl_tabulate_reward_value_for_goal(g);
                     context.rl.rl_perform_update(0, g);
@@ -810,7 +810,7 @@ public class DecisionCycle
             do_one_top_level_phase();
             if (was_output_phase)
             {
-                if (context.io.output_link_changed)
+                if (context.io.isOutputLinkChanged())
                 {
                     n--;
                 }

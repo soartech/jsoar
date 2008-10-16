@@ -7,7 +7,7 @@ package org.jsoar.kernel.symbols;
 
 import org.jsoar.kernel.DeciderFlag;
 import org.jsoar.kernel.lhs.EqualityTest;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.util.ListHead;
 
 /**
@@ -19,7 +19,7 @@ import org.jsoar.util.ListHead;
 public abstract class SymbolImpl extends EqualityTest implements Symbol
 {
     public DeciderFlag decider_flag;
-    public Wme decider_wme;
+    public WmeImpl decider_wme;
     public int retesave_symindex;
     public final int hash_id;
     
@@ -31,7 +31,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.Symbol#asFloatConstant()
      */
-    public FloatConstant asFloatConstant()
+    public DoubleSymbolImpl asDouble()
     {
         return null;
     }
@@ -39,7 +39,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.Symbol#asIntConstant()
      */
-    public IntConstant asIntConstant()
+    public IntegerSymbolImpl asInteger()
     {
         return null;
     }
@@ -47,7 +47,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.Symbol#asSymConstant()
      */
-    public SymConstant asSymConstant()
+    public StringSymbolImpl asString()
     {
         return null;
     }
@@ -63,7 +63,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.Symbol#asIdentifier()
      */
-    public Identifier asIdentifier()
+    public IdentifierImpl asIdentifier()
     {
         return null;
     }
@@ -140,7 +140,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
      * @param id_list
      * @param var_list
      */
-    public void add_symbol_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list)
+    public void add_symbol_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         // DO nothing by default
     }

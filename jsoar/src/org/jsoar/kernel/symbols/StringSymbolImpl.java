@@ -14,14 +14,14 @@ import org.jsoar.util.StringTools;
 /**
  * @author ray
  */
-public class SymConstant extends SymbolImpl implements StringSymbol
+public class StringSymbolImpl extends SymbolImpl implements StringSymbol
 {
     private final String value;
     
     /**
      * @param hash_id
      */
-    /*package*/ SymConstant(int hash_id, String value)
+    StringSymbolImpl(int hash_id, String value)
     {
         super(hash_id);
         this.value = value;
@@ -39,7 +39,7 @@ public class SymConstant extends SymbolImpl implements StringSymbol
      * @see org.jsoar.kernel.Symbol#asSymConstant()
      */
     @Override
-    public SymConstant asSymConstant()
+    public StringSymbolImpl asString()
     {
         return this;
     }
@@ -51,7 +51,7 @@ public class SymConstant extends SymbolImpl implements StringSymbol
     @Override
     public boolean isSameTypeAs(SymbolImpl other)
     {
-        return other.asSymConstant() != null;
+        return other.asString() != null;
     }
 
     /* (non-Javadoc)

@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.util.AsListItem;
 
 /**
@@ -15,7 +15,7 @@ import org.jsoar.util.AsListItem;
  */
 public class RightMemory
 {
-    final Wme w;                      /* the wme */
+    final WmeImpl w;                      /* the wme */
     final AlphaMemory am;               /* the alpha memory */
     
     
@@ -32,7 +32,7 @@ public class RightMemory
      * @param w
      * @param am
      */
-    public RightMemory(Wme w, AlphaMemory am)
+    public RightMemory(WmeImpl w, AlphaMemory am)
     {
         this.w = w;
         this.am = am;

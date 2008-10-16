@@ -10,33 +10,38 @@ import java.util.Formatter;
 /**
  * @author ray
  */
-public class FloatConstant extends SymbolImpl implements DoubleSymbol
+public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
 {
-    private final double value;
-
+    private final int value;
+    
     /**
      * @param hash_id
      */
-    /*package*/ FloatConstant(int hash_id, double value)
+    IntegerSymbolImpl(int hash_id, int value)
     {
         super(hash_id);
-        
         this.value = value;
     }
 
-    public double getValue()
+    
+    /**
+     * @return the value
+     */
+    public int getValue()
     {
         return value;
     }
-    
+
+
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.Symbol#asFloatConstant()
+     * @see org.jsoar.kernel.Symbol#asIntConstant()
      */
     @Override
-    public FloatConstant asFloatConstant()
+    public IntegerSymbolImpl asInteger()
     {
         return this;
     }
+
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
@@ -44,23 +49,24 @@ public class FloatConstant extends SymbolImpl implements DoubleSymbol
     @Override
     public boolean isSameTypeAs(SymbolImpl other)
     {
-        return other.asFloatConstant() != null;
+        return other.asInteger() != null;
     }
-    
+
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericLess(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
     public boolean numericLess(SymbolImpl other)
     {
-        FloatConstant f = other.asFloatConstant();
-        if(f != null)
+        IntegerSymbolImpl i = other.asInteger();
+        if(i != null)
         {
-            return value < f.value;
+            return getValue() < i.getValue();
         }
-        IntConstant i = other.asIntConstant();
+        DoubleSymbolImpl f = other.asDouble();
         
-        return i != null ? value < i.getValue() : super.numericLess(other);
+        return f != null ? getValue() < f.getValue() : super.numericLess(other);
     }
 
     /* (non-Javadoc)
@@ -69,30 +75,30 @@ public class FloatConstant extends SymbolImpl implements DoubleSymbol
     @Override
     public boolean numericLessOrEqual(SymbolImpl other)
     {
-        FloatConstant f = other.asFloatConstant();
-        if(f != null)
+        IntegerSymbolImpl i = other.asInteger();
+        if(i != null)
         {
-            return value <= f.value;
+            return getValue() <= i.getValue();
         }
-        IntConstant i = other.asIntConstant();
+        DoubleSymbolImpl f = other.asDouble();
         
-        return i != null ? value <= i.getValue() : super.numericLessOrEqual(other);
+        return f != null ? getValue() <= f.getValue() : super.numericLess(other);
     }
-    
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolImpl#numericGreater(org.jsoar.kernel.symbols.SymbolImpl)
      */
     @Override
     public boolean numericGreater(SymbolImpl other)
     {
-        FloatConstant f = other.asFloatConstant();
-        if(f != null)
+        IntegerSymbolImpl i = other.asInteger();
+        if(i != null)
         {
-            return value > f.value;
+            return getValue() > i.getValue();
         }
-        IntConstant i = other.asIntConstant();
+        DoubleSymbolImpl f = other.asDouble();
         
-        return i != null ? value > i.getValue() : super.numericLess(other);
+        return f != null ? getValue() > f.getValue() : super.numericLess(other);
     }
 
     /* (non-Javadoc)
@@ -101,14 +107,14 @@ public class FloatConstant extends SymbolImpl implements DoubleSymbol
     @Override
     public boolean numericGreaterOrEqual(SymbolImpl other)
     {
-        FloatConstant f = other.asFloatConstant();
-        if(f != null)
+        IntegerSymbolImpl i = other.asInteger();
+        if(i != null)
         {
-            return value >= f.value;
+            return getValue() >= i.getValue();
         }
-        IntConstant i = other.asIntConstant();
+        DoubleSymbolImpl f = other.asDouble();
         
-        return i != null ? value >= i.getValue() : super.numericLessOrEqual(other);
+        return f != null ? getValue() >= f.getValue() : super.numericLess(other);
     }
     
     /* (non-Javadoc)
@@ -117,8 +123,9 @@ public class FloatConstant extends SymbolImpl implements DoubleSymbol
     @Override
     public String toString()
     {
-        return Double.toString(value);
+        return Integer.toString(getValue());
     }
+
 
     /* (non-Javadoc)
      * @see java.util.Formattable#formatTo(java.util.Formatter, int, int, int)
@@ -126,6 +133,8 @@ public class FloatConstant extends SymbolImpl implements DoubleSymbol
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format(Double.toString(value));
+        formatter.format(Integer.toString(getValue()));
     }
+    
+    
 }

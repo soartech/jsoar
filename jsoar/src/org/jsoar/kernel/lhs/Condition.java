@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ByRef;
@@ -137,7 +137,7 @@ public abstract class Condition implements Formattable
      * @param id_list
      * @param var_list
      */
-    public abstract void add_cond_to_tc(int tc, ListHead<Identifier> id_list, ListHead<Variable> var_list);
+    public abstract void add_cond_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list);
 
     /**
      * Returns a hash value for the given condition.

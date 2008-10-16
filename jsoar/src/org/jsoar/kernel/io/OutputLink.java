@@ -7,9 +7,8 @@ package org.jsoar.kernel.io;
 
 import java.util.LinkedList;
 
-import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.util.AsListItem;
+import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 
 /**
  * io.h:184:output_link
@@ -18,14 +17,13 @@ import org.jsoar.util.AsListItem;
  */
 public class OutputLink
 {
-    final AsListItem<OutputLink> next_prev = new AsListItem<OutputLink>(this); /* dll of all existing links */
     OutputLinkStatus status = OutputLinkStatus.NEW_OL_STATUS;                             /* current xxx_OL_STATUS */
-    Wme link_wme;                           /* points to the output link wme */
-    LinkedList<Identifier> ids_in_tc = new LinkedList<Identifier>(); /* ids in TC(link) */
+    WmeImpl link_wme;                           /* points to the output link wme */
+    LinkedList<IdentifierImpl> ids_in_tc = new LinkedList<IdentifierImpl>(); /* ids in TC(link) */
     
     // TODO soar_callback *cb;                       /* corresponding output function */
 
-    public OutputLink(Wme link_wme)
+    public OutputLink(WmeImpl link_wme)
     {
         this.link_wme = link_wme;
         this.link_wme.wme_add_ref();

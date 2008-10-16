@@ -8,10 +8,10 @@ package org.jsoar.kernel.learning;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.memory.Preference;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.Token;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 
 /**
  * @author ray
@@ -74,7 +74,7 @@ public class ReinforcementLearning
      * @param tok
      * @param w
      */
-    public static void rl_build_template_instantiation(Instantiation inst, Token tok, Wme w)
+    public static void rl_build_template_instantiation(Instantiation inst, Token tok, WmeImpl w)
     {
         // TODO Implement rl_build_template_instantiation
         throw new UnsupportedOperationException("rl_build_template_instantiation is not implemented");
@@ -84,7 +84,7 @@ public class ReinforcementLearning
      * @param goal
      * @param value
      */
-    public void rl_store_data(Identifier goal, Preference value)
+    public void rl_store_data(IdentifierImpl goal, Preference value)
     {
         // TODO Implement rl_store_data
         throw new UnsupportedOperationException("rl_store_data is not implemented");
@@ -102,7 +102,7 @@ public class ReinforcementLearning
     /**
      * @param g
      */
-    public void rl_tabulate_reward_value_for_goal(Identifier g)
+    public void rl_tabulate_reward_value_for_goal(IdentifierImpl g)
     {
         // TODO Implement rl_tabulate_reward_value_for_goal
         throw new UnsupportedOperationException("rl_tabulate_reward_value_for_goal is not implemented");
@@ -112,7 +112,7 @@ public class ReinforcementLearning
      * @param i
      * @param g
      */
-    public void rl_perform_update(int i, Identifier g)
+    public void rl_perform_update(int i, IdentifierImpl g)
     {
         // TODO Implement rl_perform_update
         throw new UnsupportedOperationException("rl_perform_update is not implemented");

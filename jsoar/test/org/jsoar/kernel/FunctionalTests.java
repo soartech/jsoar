@@ -21,7 +21,7 @@ import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionTools;
-import org.jsoar.kernel.symbols.ISymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.tcl.SoarTclException;
@@ -59,7 +59,7 @@ public class FunctionalTests
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
             @Override
-            public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted[0] = true;
                 return oldHalt.execute(syms, arguments);
@@ -67,7 +67,7 @@ public class FunctionalTests
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed") {
 
             @Override
-            public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted[0] = true;
                 failed[0] = true;
@@ -76,7 +76,7 @@ public class FunctionalTests
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded") {
 
             @Override
-            public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted[0] = true;
                 failed[0] = false;
@@ -124,7 +124,7 @@ public class FunctionalTests
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("matched") {
 
             @Override
-            public SymbolImpl execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public SymbolImpl execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
             {
                 RhsFunctionTools.checkArgumentCount(getName(), arguments, 2, 2);
                 
@@ -149,7 +149,7 @@ public class FunctionalTests
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("matched") {
 
             @Override
-            public SymbolImpl execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public SymbolImpl execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
             {
                 RhsFunctionTools.checkArgumentCount(getName(), arguments, 1, 1);
                 

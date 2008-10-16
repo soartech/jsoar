@@ -16,23 +16,23 @@ public class SymConstantTest
 {
 
     /**
-     * Test method for {@link org.jsoar.kernel.symbols.SymConstant#formatTo(java.util.Formatter, int, int, int)}.
+     * Test method for {@link org.jsoar.kernel.symbols.StringSymbolImpl#formatTo(java.util.Formatter, int, int, int)}.
      */
     @Test
     public void testFormatTo()
     {
         SymbolFactoryImpl syms = new SymbolFactoryImpl();
         
-        assertEquals("|S1|", String.format("%s", syms.make_sym_constant("S1")));
-        assertEquals("S1", String.format("%#s", syms.make_sym_constant("S1")));
-        assertEquals("s1", String.format("%s", syms.make_sym_constant("s1")));
-        assertEquals("s1", String.format("%#s", syms.make_sym_constant("s1")));
-        assertEquals("|this has spaces in it|", String.format("%s", syms.make_sym_constant("this has spaces in it")));
-        assertEquals("|thisHasCapsInIt|", String.format("%s", syms.make_sym_constant("thisHasCapsInIt")));
-        assertEquals("thisHasCapsInIt", String.format("%#s", syms.make_sym_constant("thisHasCapsInIt")));
-        assertEquals("thisisalllowercase", String.format("%s", syms.make_sym_constant("thisisalllowercase")));
-        assertEquals("|<v>|", String.format("%s", syms.make_sym_constant("<v>")));
-        assertEquals("<v>", String.format("%#s", syms.make_sym_constant("<v>")));
+        assertEquals("|S1|", String.format("%s", syms.createString("S1")));
+        assertEquals("S1", String.format("%#s", syms.createString("S1")));
+        assertEquals("s1", String.format("%s", syms.createString("s1")));
+        assertEquals("s1", String.format("%#s", syms.createString("s1")));
+        assertEquals("|this has spaces in it|", String.format("%s", syms.createString("this has spaces in it")));
+        assertEquals("|thisHasCapsInIt|", String.format("%s", syms.createString("thisHasCapsInIt")));
+        assertEquals("thisHasCapsInIt", String.format("%#s", syms.createString("thisHasCapsInIt")));
+        assertEquals("thisisalllowercase", String.format("%s", syms.createString("thisisalllowercase")));
+        assertEquals("|<v>|", String.format("%s", syms.createString("<v>")));
+        assertEquals("<v>", String.format("%#s", syms.createString("<v>")));
     }
 
 }

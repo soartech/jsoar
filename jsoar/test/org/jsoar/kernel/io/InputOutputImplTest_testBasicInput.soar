@@ -1,0 +1,12 @@
+
+sp {testBasicInput
+    (state <s> ^io.input-link <il>)
+    (<il> ^location <l1> ^location <l2>)
+    (<l1> ^x 3 ^y 4 ^name hello)
+    (<l2> ^x 5 ^y 6 ^name goodbye ^|a link| <l1>)
+    (<il> ^99 |integer attribute|
+          ^3.0 |double attribute|
+          ^flag <f>)
+-->
+	(match)
+}

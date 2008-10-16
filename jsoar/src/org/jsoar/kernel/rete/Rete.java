@@ -26,7 +26,7 @@ import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.TestTools;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
@@ -70,8 +70,8 @@ public class Rete
      *  
      * all_wmes_in_rete
      */
-    private LinkedHashSet<Wme> all_wmes_in_rete = new LinkedHashSet<Wme>();
-    //private ListHead<Wme> all_wmes_in_rete = ListHead.newInstance();
+    private LinkedHashSet<WmeImpl> all_wmes_in_rete = new LinkedHashSet<WmeImpl>();
+    //private ListHead<WmeImpl> all_wmes_in_rete = ListHead.newInstance();
     public int num_wmes_in_rete= 0;
     private int beta_node_id_counter;
     ReteNode dummy_top_node;
@@ -142,7 +142,7 @@ public class Rete
     /**
      * @return List of all Wmes currently in the rete
      */
-    public Collection<Wme> getAllWmes()
+    public Collection<WmeImpl> getAllWmes()
     {
         return all_wmes_in_rete;
     }
@@ -430,7 +430,7 @@ public class Rete
      * 
      * @param w The WME to add
      */
-    public void add_wme_to_rete (Wme w)
+    public void add_wme_to_rete (WmeImpl w)
     {
         /* --- add w to all_wmes_in_rete --- */
         all_wmes_in_rete.add(w);
@@ -475,7 +475,7 @@ public class Rete
      * 
      * @param w The WME to remove
      */
-    public void remove_wme_from_rete (Wme w)
+    public void remove_wme_from_rete (WmeImpl w)
     {
         /* --- remove w from all_wmes_in_rete --- */
         all_wmes_in_rete.remove(w);
@@ -551,7 +551,7 @@ public class Rete
      * @param w
      * @param am
      */
-    void add_wme_to_alpha_mem(Wme w, AlphaMemory am)
+    void add_wme_to_alpha_mem(WmeImpl w, AlphaMemory am)
     {
         /* --- allocate new right_mem, fill it fields --- */
         RightMemory rm = new RightMemory(w, am);
@@ -574,7 +574,7 @@ public class Rete
      */
     void remove_wme_from_alpha_mem(RightMemory rm)
     {
-        Wme w = rm.w;
+        WmeImpl w = rm.w;
         AlphaMemory am = rm.am;
 
         /* --- remove it from dll's for the hash bucket, alpha mem, and wme --- */
@@ -680,7 +680,7 @@ public class Rete
         else
         {
             // couldn't find such an existing mem, so do it the hard way
-            for(Wme w : all_wmes_in_rete)
+            for(WmeImpl w : all_wmes_in_rete)
             {
                 if (am.wme_matches_alpha_mem(w))
                 {
@@ -703,7 +703,7 @@ public class Rete
      * @param hash_value
      * @param w
      */
-    void add_wme_to_aht(HashTable<AlphaMemory> ht, int hash_value, Wme w)
+    void add_wme_to_aht(HashTable<AlphaMemory> ht, int hash_value, WmeImpl w)
     {
         // TODO: Move this op into getBucket()
         hash_value = hash_value & HashTable.masks_for_n_low_order_bits[ht.getLog2Size()];
@@ -994,7 +994,7 @@ public class Rete
      * @param w
      * @return
      */
-    public static SymbolImpl get_symbol_from_rete_loc(int levels_up, int field_num, Token tok, Wme w)
+    public static SymbolImpl get_symbol_from_rete_loc(int levels_up, int field_num, Token tok, WmeImpl w)
     {
         while (levels_up != 0)
         {
@@ -1021,7 +1021,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void executeLeftAddition(ReteNode node, Token tok, Wme w)
+    private void executeLeftAddition(ReteNode node, Token tok, WmeImpl w)
     {
         // TODO: These should be polymorphic methods of ReteNode
         // rete.cpp:8796 
@@ -1051,7 +1051,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void executeRightAddition(ReteNode node, Wme w)
+    private void executeRightAddition(ReteNode node, WmeImpl w)
     {
         switch(node.node_type)
         {
@@ -1073,7 +1073,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void beta_memory_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void beta_memory_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
         SymbolImpl referent = null;
         {
@@ -1117,7 +1117,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void unhashed_beta_memory_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void unhashed_beta_memory_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
         int hv = node.node_id;
 
@@ -1241,7 +1241,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void mp_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void mp_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
         SymbolImpl referent = null;
         {
@@ -1325,7 +1325,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void unhashed_mp_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void unhashed_mp_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
         int hv = node.node_id;
 
@@ -1382,7 +1382,7 @@ public class Rete
      * @param node
      * @param w
      */
-    private void positive_node_right_addition(ReteNode node, Wme w)
+    private void positive_node_right_addition(ReteNode node, WmeImpl w)
     {
         if (node.node_is_left_unlinked())
         {
@@ -1434,7 +1434,7 @@ public class Rete
      * @param node
      * @param w
      */
-    private void unhashed_positive_node_right_addition(ReteNode node, Wme w)
+    private void unhashed_positive_node_right_addition(ReteNode node, WmeImpl w)
     {
         if (node.node_is_left_unlinked())
         {
@@ -1483,7 +1483,7 @@ public class Rete
      * @param node
      * @param w
      */
-    private void mp_node_right_addition(ReteNode node, Wme w)
+    private void mp_node_right_addition(ReteNode node, WmeImpl w)
     {
         if (node.mp_bnode_is_left_unlinked())
         {
@@ -1537,7 +1537,7 @@ public class Rete
      * @param node
      * @param w
      */
-    private void unhashed_mp_node_right_addition(ReteNode node, Wme w)
+    private void unhashed_mp_node_right_addition(ReteNode node, WmeImpl w)
     {
         if (node.mp_bnode_is_left_unlinked())
         {
@@ -1587,7 +1587,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void negative_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void negative_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
         if (node.node_is_right_unlinked())
         {
@@ -1667,7 +1667,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void unhashed_negative_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void unhashed_negative_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
         if (node.node_is_right_unlinked())
         {
@@ -1719,7 +1719,7 @@ public class Rete
      * @param node
      * @param w
      */
-    private void negative_node_right_addition(ReteNode node, Wme w)
+    private void negative_node_right_addition(ReteNode node, WmeImpl w)
     {
         SymbolImpl referent = w.id;
         int hv = node.node_id ^ referent.hash_id;
@@ -1764,7 +1764,7 @@ public class Rete
      * @param node
      * @param w
      */
-    private void unhashed_negative_node_right_addition(ReteNode node, Wme w)
+    private void unhashed_negative_node_right_addition(ReteNode node, WmeImpl w)
     {
         int hv = node.node_id;
 
@@ -1803,7 +1803,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void cn_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void cn_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
         int hv = node.node_id ^ addressOf(tok) ^ addressOf(w);
 
@@ -1836,7 +1836,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void cn_partner_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void cn_partner_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
         ReteNode partner = node.b_cn.partner;
 
@@ -1892,7 +1892,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void p_node_left_addition(ReteNode node, Token tok, Wme w)
+    private void p_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
         // build new left token (used only for tree-based remove)
         @SuppressWarnings("unused")
@@ -2024,7 +2024,7 @@ public class Rete
      * @param doRhs If true, RHS will be filled in too
      * @return
      */
-    public ConditionsAndNots p_node_to_conditions_and_nots(ReteNode p_node, Token tok, Wme w, boolean doRhs)
+    public ConditionsAndNots p_node_to_conditions_and_nots(ReteNode p_node, Token tok, WmeImpl w, boolean doRhs)
     {
         ConditionsAndNots result = new ConditionsAndNots();
         
@@ -2219,7 +2219,7 @@ public class Rete
      * @param nots_found_in_production
      * @return
      */
-    NotStruct collect_nots(ReteTest rt, Wme right_wme, Condition cond, NotStruct nots_found_in_production)
+    NotStruct collect_nots(ReteTest rt, WmeImpl right_wme, Condition cond, NotStruct nots_found_in_production)
     {
         for (; rt != null; rt = rt.next)
         {
@@ -2307,7 +2307,7 @@ public class Rete
      * @return
      */
     ReteNodeToConditionsResult rete_node_to_conditions(ReteNode node, NodeVarNames nvn, ReteNode cutoff, Token tok,
-            Wme w, Condition conds_for_cutoff_and_up)
+            WmeImpl w, Condition conds_for_cutoff_and_up)
     {
         ReteNodeToConditionsResult result = new ReteNodeToConditionsResult();
         // Can't change Condition type on the fly, so this is a little differnt
@@ -2453,7 +2453,7 @@ public class Rete
         return result;
     }
     
-    public static void print_whole_token_wme(Printer printer, Wme w, WmeTraceType wtt)
+    public static void print_whole_token_wme(Printer printer, WmeImpl w, WmeTraceType wtt)
     {
         if (w != null)
         {
@@ -2492,7 +2492,7 @@ public class Rete
      * @param tok
      * @param w
      */
-    private void dummy_matches_node_left_addition (ReteNode node, Token tok, Wme w) 
+    private void dummy_matches_node_left_addition (ReteNode node, Token tok, WmeImpl w) 
     {
         assert node.node_type == ReteNodeType.DUMMY_MATCHES_BNODE;
         // just add a token record to dummy_matches_node_tokens
@@ -2542,7 +2542,7 @@ public class Rete
      * @param node  The current node
      * @param cutoff  Don't print cutoff node or any higher
      * @param cond  Condition for current node
-     * @param wtt  Wme trace type
+     * @param wtt  WmeImpl trace type
      * @param indent Indention level
      * @return Number of mathces at this level
      */

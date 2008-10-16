@@ -232,6 +232,15 @@ public class Trace
         
     }
     
+    public Trace print(String output)
+    {
+        if(enabled)
+        {
+            printer.print(output);
+        }
+        return this;
+    }
+    
     /**
      * Trace a string in a particular category.
      * 
@@ -244,6 +253,15 @@ public class Trace
         if(enabled && isEnabled(c))
         {
             print(format, args);
+        }
+        return this;
+    }
+    
+    public Trace print(Category c, String output)
+    {
+        if(enabled && isEnabled(c))
+        {
+            print(output);
         }
         return this;
     }

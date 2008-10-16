@@ -7,8 +7,8 @@ package org.jsoar.kernel;
 
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
-import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
@@ -94,7 +94,7 @@ public class Consistency
      * @param s
      * @param w
      */
-    public void remove_operator_if_necessary(Slot s, Wme w)
+    public void remove_operator_if_necessary(Slot s, WmeImpl w)
     {
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
@@ -136,7 +136,7 @@ public class Consistency
      * @param s
      * @return
      */
-    private boolean decision_consistent_with_current_preferences(Identifier goal, Slot s)
+    private boolean decision_consistent_with_current_preferences(IdentifierImpl goal, Slot s)
     {
 
         if (DEBUG_CONSISTENCY_CHECK)
@@ -144,7 +144,7 @@ public class Consistency
             if (s.isa_context_slot)
             {
                 context.getPrinter().print(
-                        "    slot (s)  isa context slot: " + "    Slot Identifier [%s] and attribute [%s]\n", s.id,
+                        "    slot (s)  isa context slot: " + "    Slot IdentifierImpl [%s] and attribute [%s]\n", s.id,
                         s.attr);
             }
             /* printf("    Address of s: %x\n", s); */
@@ -154,7 +154,7 @@ public class Consistency
         }
 
         /* Determine the current operator/impasse in the slot*/
-        Wme current_operator;
+        WmeImpl current_operator;
         boolean operator_in_slot;
         if (goal.operator_slot.getWmes() != null)
         {
@@ -348,7 +348,7 @@ public class Consistency
     {
         if (s.getWmes() == null)
             context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM,
-                    "\n       REMOVING CONTEXT SLOT: Slot Identifier [%s] and attribute [%s]\n", s.id, s.attr);
+                    "\n       REMOVING CONTEXT SLOT: Slot IdentifierImpl [%s] and attribute [%s]\n", s.id, s.attr);
 
         if (s.id != null)
             context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM,
@@ -385,7 +385,7 @@ public class Consistency
 
         /* Check only those goals where preferences have changes that are at or above the level 
            of the consistency check */
-        for (Identifier goal = context.tempMemory.highest_goal_whose_context_changed; goal != null
+        for (IdentifierImpl goal = context.tempMemory.highest_goal_whose_context_changed; goal != null
                 && goal.level <= level; goal = goal.lower_goal)
         {
             if (DEBUG_CONSISTENCY_CHECK)
@@ -440,7 +440,7 @@ public class Consistency
      * @param goal
      * @return
      */
-    private boolean i_activity_at_goal(Identifier goal)
+    private boolean i_activity_at_goal(IdentifierImpl goal)
     {
         /* print_with_symbols("\nLooking for I-activity at goal: %y\n", goal); */
 
@@ -464,7 +464,7 @@ public class Consistency
      * @param goal
      * @return
      */
-    private boolean minor_quiescence_at_goal(Identifier goal)
+    private boolean minor_quiescence_at_goal(IdentifierImpl goal)
     {
         if ((context.recMemory.FIRING_TYPE == SavedFiringType.IE_PRODS) && (!i_activity_at_goal(goal)))
             /* firing IEs but no more to fire == minor quiescence */
@@ -486,9 +486,9 @@ public class Consistency
      * 
      * @return
      */
-    private Identifier highest_active_goal_propose()
+    private IdentifierImpl highest_active_goal_propose()
     {
-        for (Identifier goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
+        for (IdentifierImpl goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
         {
 
             /*
@@ -525,9 +525,9 @@ public class Consistency
      * 
      * @return
      */
-    private Identifier highest_active_goal_apply()
+    private IdentifierImpl highest_active_goal_apply()
     {
-        for (Identifier goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
+        for (IdentifierImpl goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
         {
             /*
             #if 0 //DEBUG_DETERMINE_LEVEL_PHASE      
@@ -573,7 +573,7 @@ public class Consistency
      * @param goal
      * @return
      */
-    private SavedFiringType active_production_type_at_goal(Identifier goal)
+    private SavedFiringType active_production_type_at_goal(IdentifierImpl goal)
     {
         if (i_activity_at_goal(goal))
             return SavedFiringType.IE_PRODS;
@@ -589,7 +589,7 @@ public class Consistency
      * @param goal
      * @return
      */
-    private boolean goal_stack_consistent_through_goal(Identifier goal)
+    private boolean goal_stack_consistent_through_goal(IdentifierImpl goal)
     {
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
@@ -646,7 +646,7 @@ public class Consistency
         context.decider.active_goal = null;
 
         /* Clear any interruption flags on the goals....*/
-        for (Identifier goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
+        for (IdentifierImpl goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
             goal.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
     }
 
@@ -791,7 +791,7 @@ public class Consistency
 
             /* else: check if return to interrupted level */
 
-            Identifier goal = context.decider.active_goal;
+            IdentifierImpl goal = context.decider.active_goal;
 
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE
@@ -1058,7 +1058,7 @@ public class Consistency
             #endif
             */
 
-            Identifier goal = context.decider.previous_active_goal;
+            IdentifierImpl goal = context.decider.previous_active_goal;
             goal.saved_firing_type = context.recMemory.FIRING_TYPE;
 
             /*

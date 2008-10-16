@@ -7,7 +7,7 @@ package org.jsoar.kernel.memory;
 
 import java.util.LinkedList;
 
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
@@ -35,7 +35,7 @@ public class TemporaryMemory
      * 
      * TODO Move to Decider?
      */
-    public Identifier highest_goal_whose_context_changed;
+    public IdentifierImpl highest_goal_whose_context_changed;
     /**
      * agent.h:602:changed_slots
      */

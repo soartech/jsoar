@@ -13,9 +13,9 @@ import java.util.Set;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.parser.Parser;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class ReteUnitTest extends JSoarTest
          * @see org.jsoar.kernel.rete.ReteListener#p_node_left_addition(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
          */
         @Override
-        public void p_node_left_addition(Rete rete, ReteNode node, Token tok, Wme w)
+        public void p_node_left_addition(Rete rete, ReteNode node, Token tok, WmeImpl w)
         {
             matching.add(node.b_p.prod);
         }
@@ -54,7 +54,7 @@ public class ReteUnitTest extends JSoarTest
          * @see org.jsoar.kernel.rete.ReteListener#p_node_left_removal(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.rete.ReteNode, org.jsoar.kernel.rete.Token, org.jsoar.kernel.Wme)
          */
         @Override
-        public void p_node_left_removal(Rete rete, ReteNode node, Token tok, Wme w)
+        public void p_node_left_removal(Rete rete, ReteNode node, Token tok, WmeImpl w)
         {
             matching.remove(node.b_p.prod);
         }
@@ -141,20 +141,20 @@ public class ReteUnitTest extends JSoarTest
         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
         
         // Add WMEs one at a time and make sure there isn't a match until the last WME is added
-        Identifier root = syms.make_new_identifier('R', (short) 0);
-        Wme intWme = new Wme(root, syms.make_sym_constant("integer"), syms.make_int_constant(1), false, 0);
+        IdentifierImpl root = syms.make_new_identifier('R', (short) 0);
+        WmeImpl intWme = new WmeImpl(root, syms.createString("integer"), syms.createInteger(1), false, 0);
         rete.add_wme_to_rete(intWme);
         assertFalse(listener.matching.contains(p));
         
-        Wme floatWme = new Wme(root, syms.make_sym_constant("float"), syms.make_float_constant(3.14), false, 0);
+        WmeImpl floatWme = new WmeImpl(root, syms.createString("float"), syms.createDouble(3.14), false, 0);
         rete.add_wme_to_rete(floatWme);
         assertFalse(listener.matching.contains(p));
         
-        Wme stringWme = new Wme(root, syms.make_sym_constant("string"), syms.make_sym_constant("S"), false, 0);
+        WmeImpl stringWme = new WmeImpl(root, syms.createString("string"), syms.createString("S"), false, 0);
         rete.add_wme_to_rete(stringWme);
         assertFalse(listener.matching.contains(p));
        
-        Wme idWme = new Wme(root, syms.make_sym_constant("id"), syms.make_new_identifier('i', (short) 0), false, 0);
+        WmeImpl idWme = new WmeImpl(root, syms.createString("id"), syms.make_new_identifier('i', (short) 0), false, 0);
         rete.add_wme_to_rete(idWme);
         assertTrue(listener.matching.contains(p));
         
@@ -196,24 +196,24 @@ public class ReteUnitTest extends JSoarTest
         assertNotNull(result);
         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
         
-        Identifier root = syms.make_new_identifier('R', (short) 0);
-        Wme intWme = new Wme(root, syms.make_sym_constant("integer"), syms.make_int_constant(1), false, 0);
+        IdentifierImpl root = syms.make_new_identifier('R', (short) 0);
+        WmeImpl intWme = new WmeImpl(root, syms.createString("integer"), syms.createInteger(1), false, 0);
         rete.add_wme_to_rete(intWme);
         assertFalse(listener.matching.contains(p));
         
-        Wme floatWme = new Wme(root, syms.make_sym_constant("float"), syms.make_float_constant(3.14), false, 0);
+        WmeImpl floatWme = new WmeImpl(root, syms.createString("float"), syms.createDouble(3.14), false, 0);
         rete.add_wme_to_rete(floatWme);
         
         // At this point, the production should match because the negated condition is false
         assertTrue(listener.matching.contains(p));
         
-        Wme stringWme = new Wme(root, syms.make_sym_constant("string"), syms.make_sym_constant("S"), false, 0);
+        WmeImpl stringWme = new WmeImpl(root, syms.createString("string"), syms.createString("S"), false, 0);
         rete.add_wme_to_rete(stringWme);
         
         // NCC stays false when the string is added
         assertTrue(listener.matching.contains(p));
        
-        Wme idWme = new Wme(root, syms.make_sym_constant("id"), syms.make_new_identifier('i', (short) 0), false, 0);
+        WmeImpl idWme = new WmeImpl(root, syms.createString("id"), syms.make_new_identifier('i', (short) 0), false, 0);
         rete.add_wme_to_rete(idWme);
         
         // Addint this WME makes the NCC true, so the production unmatches
@@ -245,20 +245,20 @@ public class ReteUnitTest extends JSoarTest
         assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
         
         // Add WMEs one at a time and make sure there isn't a match until the last WME is added
-        Identifier root = syms.make_new_identifier('R', (short) 0);
-        Wme intWme = new Wme(root, syms.make_sym_constant("integer"), syms.make_int_constant(1), false, 0);
+        IdentifierImpl root = syms.make_new_identifier('R', (short) 0);
+        WmeImpl intWme = new WmeImpl(root, syms.createString("integer"), syms.createInteger(1), false, 0);
         rete.add_wme_to_rete(intWme);
         assertFalse(listener.matching.contains(p));
         
-        Wme floatWme = new Wme(root, syms.make_sym_constant("float"), syms.make_float_constant(3.14), false, 0);
+        WmeImpl floatWme = new WmeImpl(root, syms.createString("float"), syms.createDouble(3.14), false, 0);
         rete.add_wme_to_rete(floatWme);
         assertFalse(listener.matching.contains(p));
         
-        Wme stringWme = new Wme(root, syms.make_sym_constant("string"), syms.make_sym_constant("S"), false, 0);
+        WmeImpl stringWme = new WmeImpl(root, syms.createString("string"), syms.createString("S"), false, 0);
         rete.add_wme_to_rete(stringWme);
         assertFalse(listener.matching.contains(p));
        
-        Wme idWme = new Wme(root, syms.make_sym_constant("id"), syms.make_new_identifier('i', (short) 0), false, 0);
+        WmeImpl idWme = new WmeImpl(root, syms.createString("id"), syms.make_new_identifier('i', (short) 0), false, 0);
         rete.add_wme_to_rete(idWme);
         assertTrue(listener.matching.contains(p));
         

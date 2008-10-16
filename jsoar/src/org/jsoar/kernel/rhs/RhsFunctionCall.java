@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 
-import org.jsoar.kernel.symbols.SymConstant;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
@@ -18,14 +18,14 @@ import org.jsoar.util.ListHead;
  */
 public class RhsFunctionCall extends RhsValue
 {
-    private SymConstant name;
+    private StringSymbolImpl name;
     private boolean standalone;
     private List<RhsValue> arguments = new ArrayList<RhsValue>();
     
     /**
      * @param name
      */
-    public RhsFunctionCall(SymConstant name, boolean standalone)
+    public RhsFunctionCall(StringSymbolImpl name, boolean standalone)
     {
         this.name = name;
     }
@@ -40,7 +40,7 @@ public class RhsFunctionCall extends RhsValue
         }
     }
 
-    public SymConstant getName()
+    public StringSymbolImpl getName()
     {
         return name;
     }

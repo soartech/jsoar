@@ -8,7 +8,7 @@ package org.jsoar.kernel;
 
 import static org.junit.Assert.*;
 
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,11 +122,11 @@ public class DecisionCycleTest
     
     private void validateLastOperator(int number)
     {
-        Identifier last = agent.syms.find_identifier('O', number);
+        IdentifierImpl last = agent.syms.findIdentifier('O', number);
         assertNotNull(last);
         assertTrue(last.isa_operator > 0);
         
-        Identifier next = agent.syms.find_identifier('O', number + 1);
+        IdentifierImpl next = agent.syms.findIdentifier('O', number + 1);
         assertNull(next);
     }
 }

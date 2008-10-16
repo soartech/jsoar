@@ -2,7 +2,7 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.ISymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 
@@ -25,10 +25,10 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.ISymbolFactory, java.util.List)
+     * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
-    public Symbol execute(ISymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctionTools.checkAllArgumentsAreNumeric(getName(), arguments);
         RhsFunctionTools.checkArgumentCount(getName(), arguments, 1, Integer.MAX_VALUE);
@@ -36,14 +36,14 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
         Symbol arg = arguments.get(0);
         if(arguments.size() == 1)
         {
-            IntegerSymbol i = arg.asIntConstant();
+            IntegerSymbol i = arg.asInteger();
             
-            double f =  i != null ? i.getValue() : arg.asFloatConstant().getValue();
+            double f =  i != null ? i.getValue() : arg.asDouble().getValue();
             if(f == 0.0)
             {
                 throw new RhsFunctionException("Attempt to divide ('/') by zero");
             }
-            return syms.make_float_constant(1.0 / f);
+            return syms.createDouble(1.0 / f);
         }
         
         double f = RhsFunctionTools.asDouble(arg);
@@ -59,6 +59,6 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
             
             f /= nextf;
         }
-        return syms.make_float_constant(f);
+        return syms.createDouble(f);
     }
 }

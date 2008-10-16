@@ -34,7 +34,7 @@ import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.rhs.UnboundVariable;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
@@ -206,14 +206,14 @@ public class RecognitionMemory
      */
     private static void find_match_goal(Instantiation inst)
     {
-        Identifier lowest_goal_so_far = null;
+        IdentifierImpl lowest_goal_so_far = null;
         int lowest_level_so_far = -1;
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();
             if (pc != null)
             {
-                Identifier id = cond.bt.wme_.id;
+                IdentifierImpl id = cond.bt.wme_.id;
                 if (id.isa_goal)
                 {
                     if (cond.bt.level > lowest_level_so_far)
@@ -261,7 +261,7 @@ public class RecognitionMemory
      * @param w
      * @return
      */
-    public SymbolImpl instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, Wme w)
+    public SymbolImpl instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, WmeImpl w)
     {
         RhsSymbolValue rsv = rv.asSymbolValue();
         if (rsv != null)
@@ -360,7 +360,7 @@ public class RecognitionMemory
      * @param w
      * @return
      */
-    private Preference execute_action(Action a, Token tok, Wme w)
+    private Preference execute_action(Action a, Token tok, WmeImpl w)
     {
         FunctionAction fa = a.asFunctionAction();
         if (fa != null)
@@ -376,7 +376,7 @@ public class RecognitionMemory
         {
             return null; // goto abort_execute_action;
         }
-        Identifier id = idSym.asIdentifier();
+        IdentifierImpl id = idSym.asIdentifier();
         if (id == null)
         {
             context.getPrinter().error("RHS makes a preference for %s (not an identifier)\n", id);
@@ -469,7 +469,7 @@ public class RecognitionMemory
      * @param o_support_calculation_type
      */
     public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations,
-            final Identifier top_goal)
+            final IdentifierImpl top_goal)
     {
 
         inst.prod.production_add_ref();
@@ -612,7 +612,7 @@ public class RecognitionMemory
      * @param w
      * @param top_goal
      */
-    public void create_instantiation(Production prod, Token tok, Wme w, Identifier top_goal)
+    public void create_instantiation(Production prod, Token tok, WmeImpl w, IdentifierImpl top_goal)
     {
         // #ifdef BUG_139_WORKAROUND
         // RPM workaround for bug #139: don't fire justifications
@@ -1044,7 +1044,7 @@ public class RecognitionMemory
      * @param top_goal
      * @param o_support_calculation_type
      */
-    public void do_preference_phase(Identifier top_goal, int o_support_calculation_type)
+    public void do_preference_phase(IdentifierImpl top_goal, int o_support_calculation_type)
     {
         /*
          * AGR 617/634: These are 2 bug reports that report the same problem,

@@ -20,10 +20,10 @@ public class SymbolTest extends JSoarTest
     @Test
     public void testNumericComparisons()
     {
-        SymbolImpl i5 = syms.make_int_constant(5);
-        SymbolImpl im99 = syms.make_int_constant(-99);
-        SymbolImpl f33_3 = syms.make_float_constant(33.3);
-        SymbolImpl string = syms.make_sym_constant("S");
+        SymbolImpl i5 = syms.createInteger(5);
+        SymbolImpl im99 = syms.createInteger(-99);
+        SymbolImpl f33_3 = syms.createDouble(33.3);
+        SymbolImpl string = syms.createString("S");
         
         assertFalse(i5.numericLess(im99));
         assertFalse(i5.numericLessOrEqual(im99));
