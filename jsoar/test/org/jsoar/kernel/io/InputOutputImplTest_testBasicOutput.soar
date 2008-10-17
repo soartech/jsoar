@@ -1,0 +1,9 @@
+
+sp {doOutputCommand
+    (state <s> ^superstate nil ^io.input-link <il> ^io.output-link <ol>)
+    (<il> -^retract-output)
+-->
+	(<ol> ^a 1 ^b 2 ^struct <l>)
+	(<l> ^name hello)
+	(write (crlf) |Fired doOutputCommand|)
+}

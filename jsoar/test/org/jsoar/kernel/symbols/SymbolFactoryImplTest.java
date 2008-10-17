@@ -21,7 +21,7 @@ import org.junit.Test;
 /**
  * @author ray
  */
-public class SymbolFactoryTest
+public class SymbolFactoryImplTest
 {
     private SymbolFactoryImpl syms;
     

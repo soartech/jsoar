@@ -1,0 +1,14 @@
+
+sp {testAdded
+    (state <s> ^io.input-link <il>)
+    (<il> ^location |ann arbor|)
+-->
+	(match added)
+}
+
+sp {testRemoved
+    (state <s> ^io.input-link <il>)
+    (<il> -^location)
+-->
+    (match removed)
+}
