@@ -125,6 +125,9 @@ public class Decider
     IdentifierImpl previous_active_goal;
     public int active_level;
     int previous_active_level;
+    /**
+     * agent.h:740:waitsnc
+     */
     private boolean waitsnc;
     private boolean waitsnc_detect;
     
@@ -145,6 +148,25 @@ public class Decider
         this.exploration = exploration;
     }
     
+    
+    /**
+     * @return the waitsnc
+     */
+    public boolean isWaitsnc()
+    {
+        return waitsnc;
+    }
+
+
+    /**
+     * @param waitsnc the waitsnc to set
+     */
+    public void setWaitsnc(boolean waitsnc)
+    {
+        this.waitsnc = waitsnc;
+    }
+
+
     /**
      * 
      * <p>chunk.cpp:753:find_goal_at_goal_stack_level
