@@ -45,6 +45,7 @@ import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
@@ -178,6 +179,11 @@ public class Agent
     public InputOutput getInputOutput()
     {
         return io;
+    }
+    
+    public SymbolFactory getSymbols()
+    {
+        return syms;
     }
     
     /**

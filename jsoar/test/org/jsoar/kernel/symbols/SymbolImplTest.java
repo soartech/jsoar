@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  * @author ray
  */
-public class SymbolTest extends JSoarTest
+public class SymbolImplTest extends JSoarTest
 {
 
     @Test

@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  * @author ray
  */
-public class SymConstantTest
+public class StringSymbolImplTest
 {
 
     /**

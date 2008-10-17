@@ -459,10 +459,7 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
      */
     private void update_for_io_wme_change(WmeImpl w)
     {
-        if(!associated_output_links.containsKey(w.id))
-        {
-            return;
-        }
+        assert associated_output_links.containsKey(w.id);
         
         for (OutputLink ol : associated_output_links.get(w.id))
         {
