@@ -31,6 +31,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.Iterators;
+
 /**
  * @author ray
  */
@@ -217,5 +219,35 @@ public class InputOutputImplTest extends JSoarTest
         // wme
         final Set<Wme> d2 = outputs.get(1);
         assertEquals(1, d2.size());
+    }
+    
+    @Test
+    public void testGetPendingCommands() throws Exception
+    {
+        final InputOutput io = agent.getInputOutput();
+        new CycleCountInput(io, agent.getEventManager());
+        sourceTestFile("testGetPendingCommands.soar");
+        
+        // Run one decision to get cycle count going
+        agent.decisionCycle.run_for_n_decision_cycles(1);
+        
+        agent.decisionCycle.run_for_n_decision_cycles(1);
+        assertEquals(1, io.getPendingCommands().size());
+        assertEquals(1, Iterators.size(io.getOutputLink().getWmes()));
+        assertNotNull(Wmes.find(io.getPendingCommands().iterator(), Wmes.newMatcher(agent.getSymbols(), io.getOutputLink(), "first")));
+        
+        agent.decisionCycle.run_for_n_decision_cycles(1);
+        assertEquals(1, io.getPendingCommands().size());
+        assertEquals(2, Iterators.size(io.getOutputLink().getWmes()));
+        assertNotNull(Wmes.find(io.getPendingCommands().iterator(), Wmes.newMatcher(agent.getSymbols(), io.getOutputLink(), "second")));
+        
+        agent.decisionCycle.run_for_n_decision_cycles(1);
+        assertEquals(1, io.getPendingCommands().size());
+        assertEquals(3, Iterators.size(io.getOutputLink().getWmes()));
+        assertNotNull(Wmes.find(io.getPendingCommands().iterator(), Wmes.newMatcher(agent.getSymbols(), io.getOutputLink(), "third")));
+        
+        agent.decisionCycle.run_for_n_decision_cycles(1);
+        assertEquals(0, io.getPendingCommands().size());
+        assertEquals(3, Iterators.size(io.getOutputLink().getWmes()));
     }
 }

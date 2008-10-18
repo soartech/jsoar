@@ -5,8 +5,11 @@
  */
 package org.jsoar.kernel.io;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.io.OutputEvent.OutputMode;
@@ -28,9 +31,6 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
-
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
 
 /**
  * User-defined Soar I/O routines should be added at system startup time
@@ -83,12 +83,24 @@ import com.google.common.collect.Multimaps;
  */
 public class InputOutputImpl implements InputOutput, SymbolFactory
 {
-    private final Agent context;
-    
-    private boolean output_link_changed = false;
+    /**
+     * io.cpp:387
+     */
+    private static enum OutputLinkStatus
+    {
+        UNINITIALIZED_OL_STATUS,
+        NEW_OL_STATUS,                     /* just created it */
+        UNCHANGED_OL_STATUS,             /* normal status */
+        MODIFIED_BUT_SAME_TC_OL_STATUS, /* some value in its TC has been
+                                                      modified, but the ids in its TC
+                                                      are the same */
+        MODIFIED_OL_STATUS,               /* the set of ids in its TC has
+                                                      changed */
+        REMOVED_OL_STATUS,                /* link has just been removed */
 
-    private final LinkedList<OutputLink> existing_output_links = new LinkedList<OutputLink>();
-    private final ListMultimap<IdentifierImpl, OutputLink> associated_output_links = Multimaps.newArrayListMultimap();
+    }
+    
+    private final Agent context;
     
     private IdentifierImpl io_header;
 
@@ -97,14 +109,18 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
     private IdentifierImpl io_header_output;
 
     private WmeImpl io_header_link;
-    private WmeImpl outputLinkWme;
     
-    private OutputLink output_link_for_tc;
+    private WmeImpl outputLinkWme;
+    private OutputLinkStatus outputLinkStatus = OutputLinkStatus.UNINITIALIZED_OL_STATUS;  /* current xxx_OL_STATUS */
+    private LinkedList<IdentifierImpl> ids_in_tc = new LinkedList<IdentifierImpl>(); /* ids in TC(link) */
+    private boolean output_link_changed = false;
+    private final Set<Wme> pendingCommands = new HashSet<Wme>();
     private int output_link_tc_num;
 
     private final TopStateRemovedEvent topStateRemovedEvent = new TopStateRemovedEvent(this);
 
     private final InputCycleEvent inputCycleEvent = new InputCycleEvent(this);
+    
     
     /**
      * @param context
@@ -321,11 +337,22 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
         context.workingMemory.remove_wme_from_wm(w);
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.InputOutput#getPendingCommands()
+     */
+    @Override
+    public List<Wme> getPendingCommands()
+    {
+        return new ArrayList<Wme>(pendingCommands);
+    }
+
     /**
      * io.cpp::do_input_cycle
      */
     public void do_input_cycle()
     {
+        this.pendingCommands.clear();
+        
         if (context.decider.prev_top_state != null && context.decider.top_state == null)
         {
             // top state was just removed
@@ -352,12 +379,10 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
         // save current top state for next time
         context.decider.prev_top_state = context.decider.top_state;
 
-        /* --- reset the output-link status flag to FALSE
-         * --- when running til output, only want to stop if agent
-         * --- does add-wme to output.  don't stop if add-wme done
-         * --- during input cycle (eg simulator updates sensor status)
-         *     KJC 11/23/98
-         */
+        // reset the output-link status flag to FALSE when running til output, 
+        // only want to stop if agent does add-wme to output.  don't stop if 
+        // add-wme done during input cycle (eg simulator updates sensor status)
+        // KJC 11/23/98
         this.setOutputLinkChanged(false);
 
     }
@@ -402,42 +427,11 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
         // cb = soar_exists_callback_id(thisAgent, OUTPUT_PHASE_CALLBACK, link_name);
         // if (!cb) return;
         
-        if(w != outputLinkWme)
+        if(w == outputLinkWme)
         {
-            return;
+            // create new output link structure
+            this.outputLinkStatus = OutputLinkStatus.NEW_OL_STATUS;
         }
-        
-        // create new output link structure
-        OutputLink ol = new OutputLink(w);
-        existing_output_links.push(ol);
-
-        // TODO ol->cb = cb;
-
-        /* SW 07 10 2003
-           previously, this wouldn't be done until the first OUTPUT phases.
-           However, if we add an output command in the 1st decision cycle,
-           Soar seems to ignore it.
-
-           There may be two things going on, the first having to do with the tc 
-           calculation, which may get done too late, in such a way that the
-           initial calculation includes the command.  The other thing appears
-           to be that some data structures are not initialized until the first 
-           output phases.  Namely, id->associated_output_links does not seem
-           reflect the current output links until the first output-phases.
-
-           To get past these issues, we fake a transitive closure calculation
-           with the knowledge that the only thing on the output link at this
-           point is the output-link identifier itself.  This way, we capture
-           a snapshot of the empty output link, so Soar can detect any changes
-           that might occur before the first output_phase. */
-
-        /* KJC & RPM 10/06 commenting out SW's change.
-           See near end of init_agent_memory for details  */
-        // thisAgent->output_link_tc_num = get_new_tc_number(thisAgent);
-        // ol->link_wme->value->id.tc_num = thisAgent->output_link_tc_num;
-        // thisAgent->output_link_for_tc = ol;
-        // /* --- add output_link to id's list --- */
-        // push(thisAgent, thisAgent->output_link_for_tc, ol->link_wme->value->id.associated_output_links);
     }
 
     /**
@@ -447,35 +441,45 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
      */
     private void update_for_top_state_wme_removal(WmeImpl w)
     {
-        if (w.output_link == null)
-            return;
-        w.output_link.status = OutputLinkStatus.REMOVED_OL_STATUS;
+        if (w == outputLinkWme)
+        {
+            outputLinkStatus = OutputLinkStatus.REMOVED_OL_STATUS;
+        }
     }
 
     /**
      * io.cpp:478:update_for_io_wme_change
      * 
      * @param w
+     * @param added 
      */
-    private void update_for_io_wme_change(WmeImpl w)
+    private void update_for_io_wme_change(WmeImpl w, boolean added)
     {
-        assert associated_output_links.containsKey(w.id);
-        
-        for (OutputLink ol : associated_output_links.get(w.id))
+        if(outputLinkStatus != OutputLinkStatus.UNINITIALIZED_OL_STATUS && outputLinkWme.value == w.id)
         {
             if (w.value.asIdentifier() != null)
             {
                 // mark ol "modified"
-                if ((ol.status == OutputLinkStatus.UNCHANGED_OL_STATUS)
-                        || (ol.status == OutputLinkStatus.MODIFIED_BUT_SAME_TC_OL_STATUS))
-                    ol.status = OutputLinkStatus.MODIFIED_OL_STATUS;
+                if ((outputLinkStatus == OutputLinkStatus.UNCHANGED_OL_STATUS)
+                        || (outputLinkStatus == OutputLinkStatus.MODIFIED_BUT_SAME_TC_OL_STATUS))
+                    outputLinkStatus = OutputLinkStatus.MODIFIED_OL_STATUS;
+                
+                if(added)
+                {
+                    pendingCommands.add(w);
+                }
+                else
+                {
+                    pendingCommands.remove(w);
+                }
             }
             else
             {
                 // mark ol "modified but same tc"
-                if (ol.status == OutputLinkStatus.UNCHANGED_OL_STATUS)
-                    ol.status = OutputLinkStatus.MODIFIED_BUT_SAME_TC_OL_STATUS;
+                if (outputLinkStatus == OutputLinkStatus.UNCHANGED_OL_STATUS)
+                    outputLinkStatus = OutputLinkStatus.MODIFIED_BUT_SAME_TC_OL_STATUS;
             }
+            setOutputLinkChanged(true);
         }
     }
 
@@ -499,19 +503,14 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
                 update_for_top_state_wme_addition(w);
                 setOutputLinkChanged(true);
             }
-            if (associated_output_links.containsKey(w.id))
-            {
-                update_for_io_wme_change(w);
-                setOutputLinkChanged(true);
-            }
+            update_for_io_wme_change(w, true);
         }
         for (AsListItem<WmeImpl> it = wmes_being_removed.first; it != null; it = it.next)
         {
             final WmeImpl w = it.item;
             if (w.id == io_header)
                 update_for_top_state_wme_removal(w);
-            if (associated_output_links.containsKey(w.id))
-                update_for_io_wme_change(w);
+            update_for_io_wme_change(w, false);
         }
     }
 
@@ -528,18 +527,9 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
      * 
      * @param ol
      */
-    private void remove_output_link_tc_info(OutputLink ol)
+    private void remove_output_link_tc_info()
     {
-        while (!ol.ids_in_tc.isEmpty())
-        { /* for each id in the old TC... */
-            final IdentifierImpl id = ol.ids_in_tc.pop();
-
-            // remove "ol" from the list of associated_output_links(id)
-            if (null == associated_output_links.removeAll(id))
-            {
-                throw new IllegalStateException("Internal error: can't find output link in id's list");
-            }
-        }
+        ids_in_tc.clear();
     }
 
     /**
@@ -556,11 +546,11 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
         id.tc_number = output_link_tc_num;
 
         // add id to output_link's list
-        output_link_for_tc.ids_in_tc.push(id);
+        ids_in_tc.push(id);
 
         // add output_link to id's list
         // TODO: Make this a method on IdentifierImpl?
-        associated_output_links.put(id, output_link_for_tc);
+        //associated_output_links.put(id, output_link_for_tc);
 
         // do TC through working memory
         // scan through all wmes for all slots for this id
@@ -588,15 +578,14 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
      * 
      * @param ol
      */
-    private void calculate_output_link_tc_info(OutputLink ol)
+    private void calculate_output_link_tc_info()
     {
         // if link doesn't have any substructure, there's no TC
-        IdentifierImpl valueAsId = ol.link_wme.value.asIdentifier();
+        IdentifierImpl valueAsId = outputLinkWme.value.asIdentifier();
         if (valueAsId == null)
             return;
 
         // do TC starting with the link wme's value
-        output_link_for_tc = ol;
         output_link_tc_num = context.syms.get_new_tc_number();
         add_id_to_output_link_tc(valueAsId);
     }
@@ -617,11 +606,11 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
      * @param ol
      * @return
      */
-    private LinkedList<Wme> get_io_wmes_for_output_link(OutputLink ol)
+    private LinkedList<Wme> get_io_wmes_for_output_link()
     {
         LinkedList<Wme> io_wmes = new LinkedList<Wme>();
-        io_wmes.push(ol.link_wme);
-        for (IdentifierImpl id : ol.ids_in_tc)
+        io_wmes.push(outputLinkWme);
+        for (IdentifierImpl id : ids_in_tc)
         {
             for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
                 io_wmes.push(w);
@@ -641,106 +630,98 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
      */
     public void do_output_cycle()
     {
-        // output_call_info output_call_data;
+        LinkedList<Wme> iw_list = null;
 
-        Iterator<OutputLink> it = existing_output_links.iterator();
-        while(it.hasNext())
+        switch (outputLinkStatus)
         {
-            final OutputLink ol = it.next();
+        case UNCHANGED_OL_STATUS:
+            // output link is unchanged, so do nothing
+            break;
 
-            LinkedList<Wme> iw_list = null;
+        case NEW_OL_STATUS:
+            // calculate tc, and call the output function
+            calculate_output_link_tc_info();
+            iw_list = get_io_wmes_for_output_link();
+            // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
+            // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[thisAgent->current_phase]);
+            // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
+            // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+            // #endif
 
-            switch (ol.status)
-            {
-            case UNCHANGED_OL_STATUS:
-                // output link is unchanged, so do nothing
-                break;
+            context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.ADDED_OUTPUT_COMMAND, iw_list));
 
-            case NEW_OL_STATUS:
-                // calculate tc, and call the output function
-                calculate_output_link_tc_info(ol);
-                iw_list = get_io_wmes_for_output_link(ol);
-                // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
-                // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[thisAgent->current_phase]);
-                // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
-                // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-                // #endif
+            // #ifndef NO_TIMING_STUFF
+            // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
+            // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+            // start_timer (thisAgent, &thisAgent->start_phase_tv);
+            // #endif
+            outputLinkStatus = OutputLinkStatus.UNCHANGED_OL_STATUS;
+            break;
 
-                context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.ADDED_OUTPUT_COMMAND, iw_list));
+        case MODIFIED_BUT_SAME_TC_OL_STATUS:
+            // don't have to redo the TC, but do call the output function
+            iw_list = get_io_wmes_for_output_link();
 
-                // #ifndef NO_TIMING_STUFF
-                // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
-                // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-                // start_timer (thisAgent, &thisAgent->start_phase_tv);
-                // #endif
-                ol.status = OutputLinkStatus.UNCHANGED_OL_STATUS;
-                break;
+            // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
+            // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[thisAgent->current_phase]);
+            // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
+            // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+            // #endif
 
-            case MODIFIED_BUT_SAME_TC_OL_STATUS:
-                // don't have to redo the TC, but do call the output function
-                iw_list = get_io_wmes_for_output_link(ol);
+            context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
 
-                // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
-                // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[thisAgent->current_phase]);
-                // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
-                // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-                // #endif
+            // #ifndef NO_TIMING_STUFF
+            // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
+            // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+            // start_timer (thisAgent, &thisAgent->start_phase_tv);
+            // #endif
+            outputLinkStatus = OutputLinkStatus.UNCHANGED_OL_STATUS;
+            break;
 
-                context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
+        case MODIFIED_OL_STATUS:
+            // redo the TC, and call the output function
+            remove_output_link_tc_info();
+            calculate_output_link_tc_info();
+            iw_list = get_io_wmes_for_output_link();
 
-                // #ifndef NO_TIMING_STUFF
-                // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
-                // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-                // start_timer (thisAgent, &thisAgent->start_phase_tv);
-                // #endif
-                ol.status = OutputLinkStatus.UNCHANGED_OL_STATUS;
-                break;
+            // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
+            // stop_timer (thisAgent, &thisAgent->start_phase_tv,
+            // &thisAgent->decision_cycle_phase_timers[thisAgent->current_phase]);
+            // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
+            // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+            // #endif
 
-            case MODIFIED_OL_STATUS:
-                // redo the TC, and call the output function
-                remove_output_link_tc_info(ol);
-                calculate_output_link_tc_info(ol);
-                iw_list = get_io_wmes_for_output_link(ol);
+            context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
 
-                // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
-                // stop_timer (thisAgent, &thisAgent->start_phase_tv,
-                // &thisAgent->decision_cycle_phase_timers[thisAgent->current_phase]);
-                // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
-                // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-                // #endif
+            // #ifndef NO_TIMING_STUFF
+            // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
+            // start_timer (thisAgent, &thisAgent->start_kernel_tv);
+            // start_timer (thisAgent, &thisAgent->start_phase_tv);
+            // #endif
+            outputLinkStatus = OutputLinkStatus.UNCHANGED_OL_STATUS;
+            break;
 
-                context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
+        case REMOVED_OL_STATUS:
+            // call the output function, and free output_link structure
+            remove_output_link_tc_info(); /* sets ids_in_tc to NIL */
+            iw_list = get_io_wmes_for_output_link(); /* gives just the link wme */
 
-                // #ifndef NO_TIMING_STUFF
-                // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
-                // start_timer (thisAgent, &thisAgent->start_kernel_tv);
-                // start_timer (thisAgent, &thisAgent->start_phase_tv);
-                // #endif
-                ol.status = OutputLinkStatus.UNCHANGED_OL_STATUS;
-                break;
+            // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
+            //      stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[thisAgent->current_phase]);
+            //      stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
+            //      start_timer (thisAgent, &thisAgent->start_kernel_tv);
+            //      #endif
 
-            case REMOVED_OL_STATUS:
-                // call the output function, and free output_link structure
-                remove_output_link_tc_info(ol); /* sets ids_in_tc to NIL */
-                iw_list = get_io_wmes_for_output_link(ol); /* gives just the link wme */
+            context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.REMOVED_OUTPUT_COMMAND, iw_list));
 
-                // #ifndef NO_TIMING_STUFF /* moved here from do_one_top_level_phase June 05. KJC */
-                //      stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[thisAgent->current_phase]);
-                //      stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->total_kernel_time);
-                //      start_timer (thisAgent, &thisAgent->start_kernel_tv);
-                //      #endif
-
-                context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.REMOVED_OUTPUT_COMMAND, iw_list));
-
-                //      #ifndef NO_TIMING_STUFF      
-                //      stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
-                //      start_timer (thisAgent, &thisAgent->start_kernel_tv);
-                //      start_timer (thisAgent, &thisAgent->start_phase_tv);
-                //      #endif
-                ol.link_wme.wme_remove_ref(context.workingMemory);
-                it.remove();
-                break;
-            }
+            //      #ifndef NO_TIMING_STUFF      
+            //      stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
+            //      start_timer (thisAgent, &thisAgent->start_kernel_tv);
+            //      start_timer (thisAgent, &thisAgent->start_phase_tv);
+            //      #endif
+            outputLinkWme.wme_remove_ref(context.workingMemory);
+            outputLinkStatus = OutputLinkStatus.UNINITIALIZED_OL_STATUS;
+            break;
         }
     }
 
