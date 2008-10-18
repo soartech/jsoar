@@ -202,8 +202,31 @@ public class SoarTclInterface
             {
                 throw new TclNumArgsException(interp, 2, args, "[production]");
             }
-        }};     
+        }};    
         
+        private Command waitsncCommand = new Command() {
+
+            @Override
+            public void cmdProc(Interp interp, TclObject[] args) throws TclException
+            {
+                if(args.length != 2)
+                {
+                    throw new TclNumArgsException(interp, 2, args, "[--on|--off]");
+                }
+                
+                if("--on".equals(args[1].toString()))
+                {
+                    agent.decider.setWaitsnc(true);
+                }
+                else if("--off".equals(args[1].toString()))
+                {
+                    agent.decider.setWaitsnc(false);
+                }
+                else
+                {
+                    throw new TclException(interp, "Option must be --on or --off");
+                }
+            }};        
     /**
      * @param agent
      */
@@ -218,6 +241,7 @@ public class SoarTclInterface
         interp.createCommand("srand", srandCommand);
         interp.createCommand("max-elaborations", maxElaborationsCommand);
         interp.createCommand("matches", matchesCommand);
+        interp.createCommand("waitsnc", waitsncCommand);
     }
     
     public void dispose()

@@ -1,0 +1,34 @@
+waitsnc --on
+
+sp {first
+    :o-support
+    (state <s> ^superstate nil 
+               ^io.input-link.cycle-count 1  
+               ^io.output-link <ol>)
+-->
+	(<ol> ^first <f>)
+	(<f> ^value 1)
+	(write (crlf) |Fired first|)
+}
+
+sp {second
+    :o-support
+    (state <s> ^superstate nil 
+               ^io.input-link.cycle-count 2  
+               ^io.output-link <ol>)
+-->
+    (<ol> ^second <f>)
+    (<f> ^value 2)
+    (write (crlf) |Fired second|)
+}
+
+sp {third
+    :o-support
+    (state <s> ^superstate nil 
+               ^io.input-link.cycle-count 3  
+               ^io.output-link <ol>)
+-->
+    (<ol> ^third <f>)
+    (<f> ^value 3)
+    (write (crlf) |Fired third|)
+}

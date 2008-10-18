@@ -11,7 +11,6 @@ import java.util.Formatter;
 import java.util.Iterator;
 
 import org.jsoar.kernel.GoalDependencySet;
-import org.jsoar.kernel.io.OutputLink;
 import org.jsoar.kernel.rete.RightMemory;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.Identifier;
@@ -119,7 +118,6 @@ public class WmeImpl implements Wme, Formattable
     private WmeImpl previous;
     
     public Preference preference;     // pref. supporting it, or null
-    public OutputLink output_link;   /* for top-state output commands */
     
     public int grounds_tc;                     /* for chunker use only */
     public int potentials_tc;
