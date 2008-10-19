@@ -93,23 +93,20 @@ public class SymbolFactoryImpl implements SymbolFactory
      * 
      * @return
      */
-    public boolean reset_id_counters()
+    public void reset_id_counters()
     {
-        if(!identifiers.isEmpty())
-        {
-            // TODO: caller should print this warning on false return
-//            print (thisAgent, "Internal warning:  wanted to reset identifier generator numbers, but\n");
-//            print (thisAgent, "there are still some identifiers allocated.  (Probably a memory leak.)\n");
-//            print (thisAgent, "(Leaving identifier numbers alone.)\n");
-//            xml_generate_warning(thisAgent, "Internal warning:  wanted to reset identifier generator numbers, but\nthere are still some identifiers allocated.  (Probably a memory leak.)\n(Leaving identifier numbers alone.)");
-            return false;
-        }
-        
+        // Note: In csoar, a warning was printed if any identifiers remained in
+        // the cache. This was an indication of a memory leak since ids should
+        // have been cleaned up during re-initialization. In Java, the garbage
+        // collectors picks up symbols when it gets a chance. So, if we're 
+        // reinitializing, it should be fine to throw out all the existing ids
+        // and start over.
+        identifiers.clear();
+                
         for(int i = 0; i < id_counter.length; ++i)
         {
             id_counter[i] = 1;
         }
-        return true;
     }
     
     /**

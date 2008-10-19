@@ -14,6 +14,11 @@ import org.jsoar.util.ListHead;
  */
 public class PositiveCondition extends ThreeFieldCondition
 {
+    /**
+     * for top-level positive cond's: used for BT and by the rete
+     */
+    public BackTraceInfo bt = new BackTraceInfo();
+    
     
     public PositiveCondition()
     {
@@ -56,8 +61,8 @@ public class PositiveCondition extends ThreeFieldCondition
     @Override
     public void add_cond_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
-        TestTools.add_test_to_tc(id_test, tc, id_list, var_list);
-        TestTools.add_test_to_tc(value_test, tc, id_list, var_list);
+        Tests.add_test_to_tc(id_test, tc, id_list, var_list);
+        Tests.add_test_to_tc(value_test, tc, id_list, var_list);
     }
 
 }

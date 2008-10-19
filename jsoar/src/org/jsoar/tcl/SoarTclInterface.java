@@ -94,7 +94,7 @@ public class SoarTclInterface
                     agent.getProductions(ProductionType.USER_PRODUCTION_TYPE).size(),
                     agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size(),
                     agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size());
-            p.print("%n");
+            p.print("\n");
             p.print("Values from single timers:%n" +
             		" Kernel CPU Time: %f sec. %n" +
             		" Total  CPU Time: %f sec. %n%n",
@@ -184,6 +184,7 @@ public class SoarTclInterface
                 agent.soarReteListener.print_match_set(agent.getPrinter(), 
                                                        WmeTraceType.FULL_WME_TRACE, 
                                                        EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
+                agent.getPrinter().flush();
             }
             else if(args.length == 2)
             {
@@ -204,29 +205,43 @@ public class SoarTclInterface
             }
         }};    
         
-        private Command waitsncCommand = new Command() {
+    private Command waitsncCommand = new Command() {
 
-            @Override
-            public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            if(args.length != 2)
             {
-                if(args.length != 2)
-                {
-                    throw new TclNumArgsException(interp, 2, args, "[--on|--off]");
-                }
-                
-                if("--on".equals(args[1].toString()))
-                {
-                    agent.decider.setWaitsnc(true);
-                }
-                else if("--off".equals(args[1].toString()))
-                {
-                    agent.decider.setWaitsnc(false);
-                }
-                else
-                {
-                    throw new TclException(interp, "Option must be --on or --off");
-                }
-            }};        
+                throw new TclNumArgsException(interp, 2, args, "[--on|--off]");
+            }
+            
+            if("--on".equals(args[1].toString()))
+            {
+                agent.decider.setWaitsnc(true);
+            }
+            else if("--off".equals(args[1].toString()))
+            {
+                agent.decider.setWaitsnc(false);
+            }
+            else
+            {
+                throw new TclException(interp, "Option must be --on or --off");
+            }
+        }};  
+            
+    private Command initSoarCommand = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            if(args.length != 1)
+            {
+                throw new TclNumArgsException(interp, 1, args, "");
+            }
+            
+            agent.initialize();
+        }}; 
+        
     /**
      * @param agent
      */
@@ -242,6 +257,7 @@ public class SoarTclInterface
         interp.createCommand("max-elaborations", maxElaborationsCommand);
         interp.createCommand("matches", matchesCommand);
         interp.createCommand("waitsnc", waitsncCommand);
+        interp.createCommand("init-soar", initSoarCommand);
     }
     
     public void dispose()

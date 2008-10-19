@@ -48,10 +48,10 @@ public class DecisionCycle
      * agent.h:349:go_type
      * agent.cpp:146 (init)
      */
-    private GoType go_type = GoType.GO_DECISION;
+    GoType go_type = GoType.GO_DECISION;
     
     int e_cycles_this_d_cycle;
-    private boolean input_cycle_flag;
+    boolean input_cycle_flag;
     private int run_phase_count;
     private int run_elaboration_count;
     private int input_period;
@@ -93,6 +93,23 @@ public class DecisionCycle
     }
     
 
+    /**
+     * init_soar.cpp:297:reset_statistics
+     */
+    public void reset_statistics()
+    {
+        d_cycle_count = 0;
+        decision_phases_count = 0;
+        e_cycle_count = 0;
+        e_cycles_this_d_cycle = 0;
+        pe_cycle_count = 0;
+        pe_cycles_this_d_cycle = 0;
+        run_phase_count = 0 ;
+        run_elaboration_count = 0 ;
+        run_last_output_count = 0 ;
+        run_generated_output_count = 0 ;
+    }
+    
     /**
      * runs Soar one top-level phases. Note that this does not start/stop the 
      * total_cpu_time timer--the caller must do this. 

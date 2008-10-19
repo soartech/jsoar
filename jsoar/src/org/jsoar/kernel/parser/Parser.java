@@ -26,7 +26,7 @@ import org.jsoar.kernel.lhs.NegativeCondition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.lhs.Test;
-import org.jsoar.kernel.lhs.TestTools;
+import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.rhs.Action;
@@ -248,7 +248,7 @@ public class Parser implements LexemeTypes
      */
     private Test substitute_for_placeholders_in_test(Test t)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
             return t;
         EqualityTest eqTest = t.asEqualityTest();
         if (eqTest != null)
@@ -316,17 +316,17 @@ public class Parser implements LexemeTypes
                 RhsSymbolValue id = ma.id.asSymbolValue();
                 if (id != null)
                 {
-                    id.sym = substitute_for_placeholders_in_symbol(id.sym);
+                    ma.id = id.setSymbol(substitute_for_placeholders_in_symbol(id.sym));
                 }
                 RhsSymbolValue attr = ma.attr.asSymbolValue();
                 if (attr != null)
                 {
-                    attr.sym = substitute_for_placeholders_in_symbol(attr.sym);
+                    ma.attr = attr.setSymbol(substitute_for_placeholders_in_symbol(attr.sym));
                 }
                 RhsSymbolValue value = ma.value.asSymbolValue();
                 if (value != null)
                 {
-                    value.sym = substitute_for_placeholders_in_symbol(value.sym);
+                    ma.value = value.setSymbol(substitute_for_placeholders_in_symbol(value.sym));
                 }
             }
         }
@@ -513,7 +513,7 @@ public class Parser implements LexemeTypes
         do
         {
             Test temp = parse_simple_test();
-            t = TestTools.add_new_test_to_test(t, temp);
+            t = Tests.add_new_test_to_test(t, temp);
         } while (lexer.getCurrentLexeme().type != R_BRACE_LEXEME);
         lexer.getNextLexeme(); /* consume the "}" */
 
@@ -566,7 +566,7 @@ public class Parser implements LexemeTypes
         if (positive_c != null)
         { /* --- there is at least one positive condition --- */
             /* --- add just the equality test to most of the conditions --- */
-            EqualityTest equality_test_from_t = TestTools.copy_of_equality_test_found_in_test(t);
+            EqualityTest equality_test_from_t = Tests.copy_of_equality_test_found_in_test(t);
             for (Condition c = conds; c != null; c = c.next)
             {
                 ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
@@ -626,7 +626,7 @@ public class Parser implements LexemeTypes
         if (positive_c != null)
         { /* --- there is at least one positive condition --- */
             /* --- add just the equality test to most of the conditions --- */
-            EqualityTest equality_test_from_t = TestTools.copy_of_equality_test_found_in_test(t);
+            EqualityTest equality_test_from_t = Tests.copy_of_equality_test_found_in_test(t);
             for (Condition c = conds; c != null; c = c.next)
             {
                 ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
@@ -756,9 +756,9 @@ public class Parser implements LexemeTypes
                 /* --- read <value_test> --- */
                 new_conds = null;
                 value_test.value = parse_test();
-                if (!TestTools.test_includes_equality_test_for_symbol(value_test.value, null))
+                if (!Tests.test_includes_equality_test_for_symbol(value_test.value, null))
                 {
-                    value_test.value = TestTools.add_new_test_to_test(value_test.value,
+                    value_test.value = Tests.add_new_test_to_test(value_test.value,
                             make_placeholder_test(first_letter));
                 }
             }
@@ -837,9 +837,9 @@ public class Parser implements LexemeTypes
 
         /* --- read first <attr_test> --- */
         Test attr_test = parse_test();
-        if (!TestTools.test_includes_equality_test_for_symbol(attr_test, null))
+        if (!Tests.test_includes_equality_test_for_symbol(attr_test, null))
         {
-            attr_test = TestTools.add_new_test_to_test(attr_test, make_placeholder_test('a'));
+            attr_test = Tests.add_new_test_to_test(attr_test, make_placeholder_test('a'));
         }
 
         /* --- read optional attribute path --- */
@@ -873,20 +873,20 @@ public class Parser implements LexemeTypes
             }
             c.attr_test = attr_test;
 
-            id_test_to_use = make_placeholder_test(TestTools.first_letter_from_test(attr_test));
+            id_test_to_use = make_placeholder_test(Tests.first_letter_from_test(attr_test));
             c.value_test = id_test_to_use;
             c.test_for_acceptable_preference = false;
 
             /* --- update id and attr tests for the next path element --- */
             attr_test = parse_test();
-            if (!TestTools.test_includes_equality_test_for_symbol(attr_test, null))
+            if (!Tests.test_includes_equality_test_for_symbol(attr_test, null))
             {
-                attr_test = TestTools.add_new_test_to_test(attr_test, make_placeholder_test('a'));
+                attr_test = Tests.add_new_test_to_test(attr_test, make_placeholder_test('a'));
             }
         } /* end of while (lexer.getCurrentLexeme().type==PERIOD_LEXEME) */
 
         /* --- finally, do the <value_test>* part --- */
-        Condition new_conds = parse_value_test_star(TestTools.first_letter_from_test(attr_test));
+        Condition new_conds = parse_value_test_star(Tests.first_letter_from_test(attr_test));
         fill_in_attr_tests(new_conds, attr_test);
         if (id_test_to_use != null)
         {
@@ -969,14 +969,14 @@ public class Parser implements LexemeTypes
                 && (lexer.getCurrentLexeme().type != R_PAREN_LEXEME))
         {
             id_test = parse_test();
-            if (!TestTools.test_includes_equality_test_for_symbol(id_test, null))
+            if (!Tests.test_includes_equality_test_for_symbol(id_test, null))
             {
-                id_test = TestTools.add_new_test_to_test(id_test,
+                id_test = Tests.add_new_test_to_test(id_test,
                         make_placeholder_test(first_letter_if_no_id_given));
             }
             else
             {
-                check_for_symconstant = TestTools.copy_of_equality_test_found_in_test(id_test);
+                check_for_symconstant = Tests.copy_of_equality_test_found_in_test(id_test);
                 sym = check_for_symconstant.asEqualityTest().getReferent();
                 if (sym.asVariable() == null)
                 {
@@ -990,7 +990,7 @@ public class Parser implements LexemeTypes
         }
 
         /* --- add the goal/impasse test to the id test --- */
-        id_test = TestTools.add_new_test_to_test(id_test, id_goal_impasse_test);
+        id_test = Tests.add_new_test_to_test(id_test, id_goal_impasse_test);
 
         /* --- return the resulting id test --- */
         return id_test;
@@ -1086,7 +1086,7 @@ public class Parser implements LexemeTypes
         if (dest_id_test != null)
         {
             dest_id_test.value = id_test;
-            Test equality_test_from_id_test = TestTools.copy_of_equality_test_found_in_test(id_test);
+            Test equality_test_from_id_test = Tests.copy_of_equality_test_found_in_test(id_test);
             fill_in_id_tests(conds, equality_test_from_id_test);
         }
         else

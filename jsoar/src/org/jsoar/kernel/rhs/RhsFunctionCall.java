@@ -18,9 +18,9 @@ import org.jsoar.util.ListHead;
  */
 public class RhsFunctionCall extends RhsValue
 {
-    private StringSymbolImpl name;
-    private boolean standalone;
-    private List<RhsValue> arguments = new ArrayList<RhsValue>();
+    private final StringSymbolImpl name;
+    private final boolean standalone;
+    private final List<RhsValue> arguments = new ArrayList<RhsValue>();
     
     /**
      * @param name
@@ -28,6 +28,7 @@ public class RhsFunctionCall extends RhsValue
     public RhsFunctionCall(StringSymbolImpl name, boolean standalone)
     {
         this.name = name;
+        this.standalone = standalone;
     }
     
     private RhsFunctionCall(RhsFunctionCall other)

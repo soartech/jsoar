@@ -173,6 +173,19 @@ public class Trace
     {
         return settings.contains(c);
     }
+    
+    public boolean isEnabled(EnumSet<Category> anyOf)
+    {
+        for(Category c : anyOf)
+        {
+            if(isEnabled(c))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
 
     /**
      * Control category tracing. If set to false, no tracing will be performed
@@ -256,6 +269,16 @@ public class Trace
         }
         return this;
     }
+    
+    public Trace print(EnumSet<Category> anyOf, String format, Object... args)
+    {
+        if(enabled && isEnabled(anyOf))
+        {
+            print(format, args);
+        }
+        return this;
+    }
+    
     
     public Trace print(Category c, String output)
     {

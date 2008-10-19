@@ -68,7 +68,7 @@ public abstract class ThreeFieldCondition extends Condition
     @Override
     public boolean cond_is_in_tc(int tc)
     {
-        return TestTools.test_is_in_tc(id_test, tc);
+        return Tests.test_is_in_tc(id_test, tc);
     }
     
     /* (non-Javadoc)

@@ -7,6 +7,9 @@ package org.jsoar.kernel.rhs;
 
 import java.util.Formatter;
 
+import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.rete.Token;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
@@ -15,8 +18,8 @@ import org.jsoar.util.ListHead;
  */
 public class ReteLocation extends RhsValue
 {
-    private int fieldNum;
-    private int levelsUp;
+    private final int fieldNum;
+    private final int levelsUp;
     
     /**
      * @param fieldNum
@@ -27,6 +30,7 @@ public class ReteLocation extends RhsValue
         this.fieldNum = fieldNum;
         this.levelsUp = levelsUp;
     }
+    
     /**
      * @return The rete field number
      */
@@ -34,6 +38,7 @@ public class ReteLocation extends RhsValue
     {
         return fieldNum;
     }
+    
     /**
      * @return Number of rete levels up
      */
@@ -42,6 +47,42 @@ public class ReteLocation extends RhsValue
         return levelsUp;
     }
     
+    /**
+     * <p>rete.cpp:4391:get_symbol_from_rete_loc
+     * 
+     * @param levels_up
+     * @param field_num
+     * @param tok
+     * @param w
+     * @return
+     */
+    public SymbolImpl lookupSymbol(Token tok, WmeImpl w)
+    {
+        int levels_up = levelsUp;
+        while (levels_up != 0)
+        {
+            levels_up--;
+            w = tok.w;
+            tok = tok.parent;
+        }
+        if (fieldNum == 0)
+            return w.id;
+        if (fieldNum == 1)
+            return w.attr;
+        
+        return w.value;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rhs.RhsValue#copy()
+     */
+    @Override
+    public RhsValue copy()
+    {
+        return this;
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.RhsValue#asReteLocation()
      */
@@ -79,6 +120,5 @@ public class ReteLocation extends RhsValue
     {
         throw new IllegalStateException("Internal error: rhs_value_to_string called on reteloc.");
     }
-    
     
 }

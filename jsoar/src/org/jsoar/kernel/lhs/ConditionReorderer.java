@@ -12,6 +12,7 @@ import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.AsListItem;
@@ -35,7 +36,7 @@ public class ConditionReorderer
     private final Trace trace;
     private final MultiAttributes multiAttrs;
 
-    private Object prodName;
+    private String prodName;
 
     private static class SavedTest
     {
@@ -59,6 +60,7 @@ public class ConditionReorderer
         this.vars = vars;
         this.trace = trace;
         this.multiAttrs = multiAttrs;
+        this.prodName = prodName;
     }
     
     /**
@@ -74,7 +76,7 @@ public class ConditionReorderer
         int tc = vars.getSyms().get_new_tc_number();
         /* don't mark any variables, since nothing is bound outside the LHS */
 
-        ListHead<Variable> roots = collect_root_variables(lhs_top.value, tc, true);
+        ListHead<Variable> roots = Conditions.collect_root_variables(lhs_top.value, tc, trace.getPrinter(), prodName);
 
         /*
          * SBH/MVP 6-24-94 Fix to include only root "STATE" test in the LHS of a
@@ -92,7 +94,7 @@ public class ConditionReorderer
             for (Condition cond = lhs_top.value; cond != null; cond = cond.next)
             {
                 PositiveCondition pc = cond.asPositiveCondition();
-                if (pc != null && (TestTools.test_includes_goal_or_impasse_id_test(pc.id_test, true, false)))
+                if (pc != null && (Tests.test_includes_goal_or_impasse_id_test(pc.id_test, true, false)))
                 {
                     pc.id_test.addBoundVariables(tc, roots);
                     if (!roots.isEmpty())
@@ -125,7 +127,7 @@ public class ConditionReorderer
      * subconditions of NCC's. (For newly built chunks, this is never
      * necessary.)
      * 
-     * reorder.cpp:979:reorder_condition_list
+     * <p>reorder.cpp:979:reorder_condition_list
      * 
      * @param top_of_conds
      * @param bottom_of_conds
@@ -180,37 +182,12 @@ public class ConditionReorderer
         }
         if (tests_to_restore != null)
         {
-            if (true /* TODO thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM] */)
+            final Printer p = trace.getPrinter();
+            if (p.isPrintWarnings())
             {
-                // TODO: Warning
-                // print (thisAgent, "\nWarning: in production %s,\n",
-                // thisAgent->name_of_production_being_reordered);
-                // print (thisAgent, " ignoring test(s) whose referent is unbound:\n");
-                // print_saved_test_list (thisAgent, tests_to_restore);
-                // // TODO: XML tagged output -- how to create this string?
-                // // KJC TODO: need a tagged output version of print_saved_test_list
-                //
-                // // XML generation
-                // growable_string gs = make_blank_growable_string(thisAgent);
-                // add_to_growable_string(thisAgent, &gs, "Warning: in
-                // production ");
-                // add_to_growable_string(thisAgent, &gs,
-                // thisAgent->name_of_production_being_reordered);
-                // add_to_growable_string(thisAgent, &gs, "\n ignoring test(s)
-                // whose referent is unbound:");
-                // //TODO: fill in XML print_saved_test_list. Possibile methods
-                // include:
-                // // 1) write a version which adds to a growable string
-                // // 2) write a version which generates XML tags/attributes, so
-                // we get "typed" output for this warning
-                // // i.e. "<warning><string value="beginning of
-                // message"></string><test att="val"></test><string value="rest
-                // of message"></string></warning>
-                // xml_generate_warning(thisAgent, text_of_growable_string(gs));
-                //
-                // free_growable_string(thisAgent, gs);
+                p.warn ("\nWarning: in production %s,\n ignoring test(s) whose referent is unbound:\n", prodName);
+                // TODO print_saved_test_list (thisAgent, tests_to_restore);
             }
-            /* ought to deallocate the saved tests, but who cares */
         }
         Variable.unmark(new_vars);
     }
@@ -238,9 +215,9 @@ public class ConditionReorderer
             if ((is_id_field && (st.the_test.asGoalIdTest() != null || st.the_test.asImpasseIdTest() != null))
                     || st.the_test.asDisjunctionTest() != null)
             {
-                if (TestTools.test_includes_equality_test_for_symbol(t.value, st.var))
+                if (Tests.test_includes_equality_test_for_symbol(t.value, st.var))
                 {
-                    t.value =  TestTools.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
+                    t.value =  Tests.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
                     added_it = true;
                 }
             }
@@ -248,15 +225,15 @@ public class ConditionReorderer
             if (rt != null) // relational test other than equality
             {
                 SymbolImpl referent = rt.referent;
-                if (TestTools.test_includes_equality_test_for_symbol(t.value, st.var))
+                if (Tests.test_includes_equality_test_for_symbol(t.value, st.var))
                 {
                     if (symbol_is_constant_or_marked_variable(referent, bound_vars_tc_number) || (st.var == referent))
                     {
-                        t.value = TestTools.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
+                        t.value = Tests.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
                         added_it = true;
                     }
                 }
-                else if (TestTools.test_includes_equality_test_for_symbol(t.value, referent))
+                else if (Tests.test_includes_equality_test_for_symbol(t.value, referent))
                 {
                     if (symbol_is_constant_or_marked_variable(st.var, bound_vars_tc_number) || (st.var == referent))
                     {
@@ -264,7 +241,7 @@ public class ConditionReorderer
                         rt.type = RelationalTest.reverse_direction_of_relational_test(rt.type);
                         rt.referent = st.var;
                         st.var = referent;
-                        t.value = TestTools.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
+                        t.value = Tests.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
                         added_it = true;
                     }
                 }
@@ -443,7 +420,7 @@ public class ConditionReorderer
             ConjunctiveNegationCondition ncc = chosen.asConjunctiveNegationCondition();
             if (ncc != null && reorder_nccs)
             {
-                ListHead<Variable> ncc_roots = collect_root_variables(ncc.top, bound_vars_tc_number, true);
+                ListHead<Variable> ncc_roots = Conditions.collect_root_variables(ncc.top, bound_vars_tc_number, trace.getPrinter(), prodName);
                 ByRef<Condition> top = ByRef.create(ncc.top);
                 ByRef<Condition> bottom = ByRef.create(ncc.bottom);
                 reorder_condition_list(top, bottom, ncc_roots, bound_vars_tc_number, reorder_nccs);
@@ -490,7 +467,7 @@ public class ConditionReorderer
     {
         final int NON_EQUAL_TEST_RETURN_VAL = 0; /* some unusual number */
 
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             return NON_EQUAL_TEST_RETURN_VAL;
         }
@@ -511,7 +488,7 @@ public class ConditionReorderer
     /**
      * Extensive discussion in reorder.cpp
      * 
-     * reorder.cpp:536
+     * <p>reorder.cpp:536
      * 
      * @param c1
      * @param c2
@@ -578,7 +555,7 @@ public class ConditionReorderer
      * should be the set of previously bound variables;
      * "root_vars_not_bound_yet" should be the set of other root variables.
      * 
-     * reorder.cpp:716:cost_of_adding_condition
+     * <p>reorder.cpp:716:cost_of_adding_condition
      * 
      * @param cond
      * @param bound_vars_tc_number
@@ -592,7 +569,7 @@ public class ConditionReorderer
         /* --- handle the common simple case quickly up front --- */
         PositiveCondition pc = cond.asPositiveCondition();
         if (root_vars_not_bound_yet.isEmpty() && pc != null && 
-                !TestTools.isBlank(pc.id_test) && !TestTools.isBlank(pc.attr_test) && !TestTools.isBlank(pc.value_test) &&
+                !Tests.isBlank(pc.id_test) && !Tests.isBlank(pc.attr_test) && !Tests.isBlank(pc.value_test) &&
                 pc.id_test.asEqualityTest() != null && 
                 pc.attr_test.asEqualityTest() != null && 
                 pc.value_test.asEqualityTest() != null)
@@ -673,7 +650,7 @@ public class ConditionReorderer
      * variables. The set of previously bound variables is given by the current
      * TC, PLUS any variables in the list "extra_vars."
      * 
-     * reorder.cpp:669:test_covered_by_bound_vars
+     * <p>reorder.cpp:669:test_covered_by_bound_vars
      * 
      * @param id_test
      * @param tc
@@ -682,7 +659,7 @@ public class ConditionReorderer
      */
     private boolean test_covered_by_bound_vars(Test t, int tc, ListHead<Variable> extra_vars)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             return false;
         }
@@ -752,7 +729,7 @@ public class ConditionReorderer
      */
     private SavedTest simplify_test(ByRef<Test> t, SavedTest old_sts)
     {
-        if (TestTools.isBlank(t.value))
+        if (Tests.isBlank(t.value))
         {
             SymbolImpl sym = vars.generate_new_variable("dummy-");
             t.value = SymbolImpl.makeEqualityTest(sym);
@@ -855,111 +832,12 @@ public class ConditionReorderer
         {
             PositiveCondition pc = cond.asPositiveCondition();
             if (pc != null && pc.id_test.asComplexTest() != null
-                    && TestTools.test_includes_goal_or_impasse_id_test(pc.id_test, true, false)
-                    && !TestTools.test_tests_for_root(pc.id_test, roots))
+                    && Tests.test_includes_goal_or_impasse_id_test(pc.id_test, true, false)
+                    && !Tests.test_tests_for_root(pc.id_test, roots))
             {
-                pc.id_test = TestTools.copy_test_removing_goal_impasse_tests(pc.id_test, a, b);
+                pc.id_test = Tests.copy_test_removing_goal_impasse_tests(pc.id_test, a, b);
             }
         }
-    }
-
-    /**
-     * This routine finds the root variables in a given condition list. The
-     * caller should setup the current tc to be the set of variables bound
-     * outside the given condition list. (This should normally be an empty TC,
-     * except when the condition list is the subconditions of an NCC.) If the
-     * "allow_printing_warnings" flag is TRUE, then this routine makes sure each
-     * root variable is accompanied by a goal or impasse id test, and prints a
-     * warning message if it isn't.
-     * 
-     * TODO: This belongs somewhere else
-     * 
-     * reorder.cpp:580:collect_root_variables
-     * 
-     * @param cond_list
-     * @param tc
-     * @param allow_printing_warnings
-     * @return
-     */
-    public static ListHead<Variable> collect_root_variables(Condition cond_list, int tc, boolean allow_printing_warnings)
-    {
-        // find everthing that's in the value slot of some condition
-        ListHead<Variable> new_vars_from_value_slot = ListHead.newInstance();
-        for (Condition cond = cond_list; cond != null; cond = cond.next)
-        {
-            PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null)
-            {
-                pc.value_test.addBoundVariables(tc, new_vars_from_value_slot);
-            }
-        }
-
-        /* --- now see what else we can add by throwing in the id slot --- */
-        ListHead<Variable> new_vars_from_id_slot = ListHead.newInstance();
-        for (Condition cond = cond_list; cond != null; cond = cond.next)
-        {
-            PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null)
-            {
-                pc.id_test.addBoundVariables(tc, new_vars_from_id_slot);
-            }
-        }
-
-        // unmark everything we just marked
-        Variable.unmark(new_vars_from_value_slot);
-        new_vars_from_value_slot = null; // unmark and deallocate list
-        Variable.unmark(new_vars_from_id_slot);
-
-        // make sure each root var has some condition with goal/impasse
-        if (allow_printing_warnings /* TODO && thisAgent->sysparams[PRINT_WARNINGS_SYSPARAM] */)
-        {
-            for (AsListItem<Variable> var = new_vars_from_id_slot.first; var != null; var = var.next)
-            {
-                boolean found_goal_impasse_test = false;
-                for (Condition cond = cond_list; cond != null; cond = cond.next)
-                {
-                    PositiveCondition pc = cond.asPositiveCondition();
-                    if (pc == null)
-                        continue;
-                    if (TestTools.test_includes_equality_test_for_symbol(pc.id_test, var.item))
-                    {
-                        if (TestTools.test_includes_goal_or_impasse_id_test(pc.id_test, true, true))
-                        {
-                            found_goal_impasse_test = true;
-                            break;
-                        }
-                    }
-                }
-                if (!found_goal_impasse_test)
-                {
-                    // TODO: WARNING
-
-                    // print (thisAgent, "\nWarning: On the LHS of production %s, identifier ",
-                    // thisAgent->name_of_production_being_reordered);
-                    // print_with_symbols (thisAgent, "%y is not connected to any goal or impasse.\n",
-                    // (SymbolImpl *)(c->first));
-                    //
-                    // // XML geneneration
-                    // growable_string gs =
-                    // make_blank_growable_string(thisAgent);
-                    // add_to_growable_string(thisAgent, &gs, "Warning: On the
-                    // LHS of production ");
-                    // add_to_growable_string(thisAgent, &gs,
-                    // thisAgent->name_of_production_being_reordered);
-                    // add_to_growable_string(thisAgent, &gs, ", identifier ");
-                    // add_to_growable_string(thisAgent, &gs, symbol_to_string
-                    // (thisAgent, (SymbolImpl *)(c->first), true, 0, 0));
-                    // add_to_growable_string(thisAgent, &gs, " is not connected
-                    // to any goal or impasse.");
-                    // xml_generate_warning(thisAgent,
-                    // text_of_growable_string(gs));
-                    // free_growable_string(thisAgent, gs);
-
-                }
-            }
-        }
-
-        return new_vars_from_id_slot;
     }
 
     /**
@@ -1044,7 +922,7 @@ public class ConditionReorderer
     {
         Arguments.checkNotNull(starting_list, "starting_list");
         
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             return;
         }

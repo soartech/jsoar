@@ -19,6 +19,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.jsoar.kernel.DecisionCycle.GoType;
+import org.jsoar.kernel.events.AfterInitSoarEvent;
+import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.SoarEventManager;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
@@ -120,6 +123,7 @@ public class Agent
      */
     public int attribute_preferences_mode = 0;
     
+    private boolean initialized = false;
     private int totalProductions = 0;
     private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
     {
@@ -145,12 +149,22 @@ public class Agent
      * modify the trace level or printer, etc before the agent is initialized,
      * which may initiate these actions.
      *  
+     * <p>If called again, this function is equivalent to the "init-soar" 
+     * command.
      */
     public void initialize()
     {
-        // TODO reinitialize if called again
-        // TODO Call automatically if any function that requires it is called?
-        init_agent_memory();
+        if(!initialized)
+        {
+            // TODO Call automatically if any function that requires it is called?
+            init_agent_memory();
+            initialized = true;
+        }
+        else
+        {
+            reinitialize_soar();
+            init_agent_memory();
+        }
     }
     
     /**
@@ -361,10 +375,7 @@ public class Agent
      */
     private void init_agent_memory()
     {
-        /* The following code was taken from the do_one_top_level_phase function
-           near the top of this file */
-        // If there is already a top goal this function should probably not be
-        // called
+        // If there is already a top goal this function should probably not be called
         if (decider.top_goal != null)
         {
             throw new IllegalStateException("There should be no top goal when init_agent_memory is called!");
@@ -479,4 +490,80 @@ public class Agent
                                        "%right[6,%dc]: %rsd[   ]   O: %co");
     }
 
+    private void reinitialize_soar()
+    {
+        getEventManager().fireEvent(new BeforeInitSoarEvent(this));
+
+        // Temporarily disable tracing
+        boolean traceState = trace.isEnabled();
+        trace.setEnabled(false);
+
+        // TODO rl_reset_data( thisAgent );
+        decider.clear_goal_stack();
+        io.do_input_cycle(); // tell input functions that the top state is gone
+        io.do_output_cycle(); // tell output functions that output commands are gone
+        // TODO rl_reset_stats( thisAgent );
+
+        if (operand2_mode)
+        {
+            decider.active_level = 0; // Signal that everything should be
+                                        // retracted
+            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
+            // allow all i-instantiations to retract
+            recMemory.do_preference_phase(decider.top_goal, osupport.o_support_calculation_type); 
+        }
+        else
+        {
+            // allow all instantiations to retract
+            recMemory.do_preference_phase(decider.top_goal, osupport.o_support_calculation_type);
+        }
+
+        explain.reset_explain();
+        syms.reset_id_counters();
+        workingMemory.reset_wme_timetags();
+
+        reset_statistics();
+
+        // Reinitialize the various halt and stop flags
+        decisionCycle.system_halted = false;
+        decisionCycle.stop_soar = false;
+        decisionCycle.reason_for_stopping = null;
+        decisionCycle.go_type = GoType.GO_DECISION;
+
+        // Restore trace state
+        trace.setEnabled(traceState);
+
+        getEventManager().fireEvent(new AfterInitSoarEvent(this));
+
+        decisionCycle.input_cycle_flag = true; /* reinitialize flag  AGR REW1 */
+        decisionCycle.current_phase = Phase.INPUT_PHASE; /* moved here June 05 from loop below.  KJC */
+
+        if (operand2_mode)
+        {
+            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS; /* KJC 10.05.98 was PE */
+        }
+    }
+
+    /**
+     * <p>init_soar.cpp:297:reset_statistics
+     */
+    private void reset_statistics()
+    {
+
+        decisionCycle.reset_statistics();
+        chunker.chunks_this_d_cycle = 0;
+        recMemory.reset_statistics();
+        workingMemory.reset_statistics();
+
+        // reset_production_firing_counts(thisAgent);
+        for (Production p : this.productionsByName.values())
+        {
+            p.firing_count = 0;
+        }
+
+        for (ExecutionTimer timer : getAllTimers())
+        {
+            timer.reset();
+        }
+    }
 }

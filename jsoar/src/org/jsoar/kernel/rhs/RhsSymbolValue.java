@@ -12,17 +12,32 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
 /**
+ * A rhs value that is just a symbol. Objects of this type are immutable.
+ * 
  * @author ray
  */
 public class RhsSymbolValue extends RhsValue
 {
-    public SymbolImpl sym;
+    public final SymbolImpl sym;
     
     public RhsSymbolValue(SymbolImpl sym)
     {
         this.sym = sym;
     }
 
+    /**
+     * "Change" the symbol this value refers to, this method creates and 
+     * returns a new value, or returns <code>this</code> if the symbol
+     * is the same as the one it already holds. This takes advantage of the
+     * fact that these objects are immutable to avoid unnecessary allocations.
+     * 
+     * @param newSym The new symbol for the value
+     * @return New RhsSymbolValue with the given symbol value
+     */
+    public RhsSymbolValue setSymbol(SymbolImpl newSym)
+    {
+        return sym == newSym ? this : new RhsSymbolValue(newSym);
+    }
     
     /**
      * @return the sym
@@ -42,6 +57,15 @@ public class RhsSymbolValue extends RhsValue
         return this;
     }
 
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rhs.RhsValue#copy()
+     */
+    @Override
+    public RhsValue copy()
+    {
+        return this;
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.RhsValue#getFirstLetter()

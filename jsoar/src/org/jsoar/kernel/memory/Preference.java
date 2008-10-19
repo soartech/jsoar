@@ -208,6 +208,54 @@ public class Preference implements Formattable
         return String.format("%s", this);
     }
 
+    /**
+     * This routines take a given preference and finds the clone of it whose
+     * match goal is at the given goal_stack_level. (This is used to find the
+     * proper preference to backtrace through.) If the given preference itself
+     * is at the right level, it is returned. If there is no clone at the right
+     * level, NIL is returned.
+     * 
+     * <p>recmem.cpp:110:find_clone_for_level
+     * 
+     * @param p
+     * @param level
+     * @return
+     */
+    public static Preference find_clone_for_level(Preference p, int level)
+    {
+        if (p == null)
+        {
+            // if the wme doesn't even have a preference on it, we can't backtrace
+            // at all (this happens with I/O and some architecture-created wmes
+            return null;
+        }
+    
+        // look at pref and all of its clones, find one at the right level
+        if (p.inst.match_goal_level == level)
+        {
+            return p;
+        }
+    
+        for (Preference clone = p.next_clone; clone != null; clone = clone.next_clone)
+        {
+            if (clone.inst.match_goal_level == level)
+            {
+                return clone;
+            }
+        }
+    
+        for (Preference clone = p.prev_clone; clone != null; clone = clone.prev_clone)
+        {
+            if (clone.inst.match_goal_level == level)
+            {
+                return clone;
+            }
+        }
+    
+        // if none was at the right level, we can't backtrace at all
+        return null;
+    }
+
     
 
 }

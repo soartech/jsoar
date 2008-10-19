@@ -15,7 +15,7 @@ import org.jsoar.util.ListHead;
  */
 public class UnboundVariable extends RhsValue
 {
-    private int index;
+    private final int index;
 
     /**
      * @param index
@@ -38,6 +38,15 @@ public class UnboundVariable extends RhsValue
      */
     @Override
     public UnboundVariable asUnboundVariable()
+    {
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rhs.RhsValue#copy()
+     */
+    @Override
+    public RhsValue copy()
     {
         return this;
     }

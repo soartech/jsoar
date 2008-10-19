@@ -13,6 +13,7 @@ import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.lhs.Condition;
+import org.jsoar.kernel.lhs.Conditions;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.EqualityTest;
@@ -21,7 +22,7 @@ import org.jsoar.kernel.lhs.ImpasseIdTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.lhs.Test;
-import org.jsoar.kernel.lhs.TestTools;
+import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
@@ -37,6 +38,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ByRef;
@@ -154,7 +156,7 @@ public class Chunker
     }
 
     /**
-     * @return the learningOn
+     * @return true if learning (chunking) is currently enabled. False otherwise.
      */
     public boolean isLearningOn()
     {
@@ -162,14 +164,14 @@ public class Chunker
     }
 
     /**
-     * @param learningOn the learningOn to set
+     * Enable learning (chunking). Equivalent to "learn --on"
+     * 
+     * @param learningOn True to enable learning, false to disable.
      */
     public void setLearningOn(boolean learningOn)
     {
-        // TODO: Probably more to this (learningOn)
         this.learningOn = learningOn;
     }
-
 
 
     /**
@@ -329,7 +331,7 @@ public class Chunker
      */
     private Test variablize_test(Test t)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
             return t;
         
         EqualityTest eq = t.asEqualityTest();
@@ -484,7 +486,6 @@ public class Chunker
             {
                 // negated cond is in the TC, so add it to the grounds
 
-                // TODO implement print_condition as formattable
                 context.trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "\n-.Moving to grounds: %s", cc.cond);
 
                 cc.instantiated_cond = Condition.copy_condition(cc.cond);
@@ -506,8 +507,7 @@ public class Chunker
             }
             else
             {
-                /* --- not in TC, so discard the condition --- */
-
+                // not in TC, so discard the condition
                 if (!chunkThroughLocalNegations)
                 {
                     // this chunk will be overgeneral! don't create it
@@ -516,7 +516,6 @@ public class Chunker
                     // report what local negations are preventing the chunk,
                     // and set flags like we saw a ^quiescence t so it won't be
                     // created
-                    // TODO Implement report_local_negation()
                     context.backtrace.report_local_negation ( cc.cond );
                     this.quiescence_t_flag = true;
                     this.variablize_this_chunk = false;
@@ -623,21 +622,21 @@ public class Chunker
                 if (pc == null)
                     continue;
 
-                if (TestTools.test_includes_equality_test_for_symbol(pc.id_test, var1))
+                if (Tests.test_includes_equality_test_for_symbol(pc.id_test, var1))
                 {
-                    pc.id_test = TestTools.add_new_test_to_test(pc.id_test, t);
+                    pc.id_test = Tests.add_new_test_to_test(pc.id_test, t);
                     added_it = true;
                     break;
                 }
-                if (TestTools.test_includes_equality_test_for_symbol(pc.attr_test, var1))
+                if (Tests.test_includes_equality_test_for_symbol(pc.attr_test, var1))
                 {
-                    pc.attr_test = TestTools.add_new_test_to_test(pc.attr_test, t);
+                    pc.attr_test = Tests.add_new_test_to_test(pc.attr_test, t);
                     added_it = true;
                     break;
                 }
-                if (TestTools.test_includes_equality_test_for_symbol(pc.value_test, var1))
+                if (Tests.test_includes_equality_test_for_symbol(pc.value_test, var1))
                 {
-                    pc.value_test = TestTools.add_new_test_to_test(pc.value_test, t);
+                    pc.value_test = Tests.add_new_test_to_test(pc.value_test, t);
                     added_it = true;
                     break;
                 }
@@ -683,7 +682,7 @@ public class Chunker
                 
                 // TODO Assumes variablized_cond is three-field (put this assumption in class?)
                 ThreeFieldCondition tfc = cc.variablized_cond.asThreeFieldCondition();
-                tfc.id_test = TestTools.add_new_test_to_test(tfc.id_test, t);
+                tfc.id_test = Tests.add_new_test_to_test(tfc.id_test, t);
 
                 id.tc_number = tc;
             }
@@ -1045,7 +1044,7 @@ public class Chunker
         Preference results = get_results_for_instantiation(inst);
         if (results == null)
         {
-            return; // TODO goto chunking_done;
+            return;
         }
 
         // update flags on goal stack for bottom-up chunking
@@ -1186,14 +1185,14 @@ public class Chunker
         if (top_cc.value == null)
         {
             context.getPrinter().print("Warning: chunk has no grounds, ignoring it.");
-            return; // TODO goto chunking_done;
+            return;
         }
 
         if (this.chunks_this_d_cycle > maxChunks)
         {
             context.getPrinter().warn("\nWarning: reached max-chunks! Halting system.");
             this.maxChunksReached = true;
-            return; // TODO goto chunking_done;
+            return;
         }
 
         // variablize it
@@ -1218,28 +1217,14 @@ public class Chunker
         }
         catch (ReordererException e)
         {
-            // TODO print error
-            // print (thisAgent, "\nUnable to reorder this chunk:\n ");
-            // print_condition_list (thisAgent, lhs_top, 2, FALSE);
-            // print (thisAgent, "\n -->\n ");
-            // print_action_list (thisAgent, rhs, 3, FALSE);
-            // print (thisAgent, "\n\n(Ignoring this chunk. Weird things could
-            // happen from now on...)\n");
-            return; // TODO chunking_done; /* this leaks memory but who cares */
-
-            // e.printStackTrace();
+            final Printer p = context.getPrinter();
+            p.print("\nUnable to reorder this chunk:\n ");
+            Conditions.print_condition_list(p, lhs_top, 2, false);
+            p.print("\n -->\n ");
+            Action.print_action_list(p, rhs, 3, false);
+            p.print ("\n\n(Ignoring this chunk. Weird things could happen from now on...)\n");
+            return;
         }
-
-        // TODO
-        // if (!prod) {
-        // print (thisAgent, "\nUnable to reorder this chunk:\n ");
-        // print_condition_list (thisAgent, lhs_top, 2, FALSE);
-        // print (thisAgent, "\n -->\n ");
-        // print_action_list (thisAgent, rhs, 3, FALSE);
-        // print (thisAgent, "\n\n(Ignoring this chunk. Weird things could
-        // happen from now on...)\n");
-        // goto chunking_done; /* this leaks memory but who cares */
-        // }
 
         Instantiation chunk_inst = null;
 
@@ -1352,7 +1337,6 @@ public class Chunker
         if (!maxChunksReached)
             chunk_instantiation(chunk_inst, variablize_this_chunk);
 
-        // TODO chunking_done:
         //#ifndef NO_TIMING_STUFF
         //#ifdef DETAILED_TIMING_STATS
         //               stop_timer (thisAgent, &saved_start_tv, &thisAgent->chunking_cpu_time[thisAgent->current_phase]);

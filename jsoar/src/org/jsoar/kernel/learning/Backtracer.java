@@ -12,7 +12,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Preference;
-import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.NotStruct;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -91,7 +90,7 @@ public class Backtracer
     /**
      * <p>agent.h:525:positive_potentials
      */
-    final LinkedList<Condition> positive_potentials = new LinkedList<Condition>();
+    final LinkedList<PositiveCondition> positive_potentials = new LinkedList<PositiveCondition>();
     /**
      * <p>agent.h:526:potentials_tc
      */
@@ -110,7 +109,7 @@ public class Backtracer
      * <p>backtrace.cpp:106:add_to_grounds
      * @param cond
      */
-    private void add_to_grounds(Condition cond)
+    private void add_to_grounds(PositiveCondition cond)
     {
         if ((cond).bt.wme_.grounds_tc != this.grounds_tc)
         {
@@ -123,7 +122,7 @@ public class Backtracer
      * <p>backtrace.cpp:113:add_to_potentials
      * @param cond
      */
-    private void add_to_potentials(Condition cond)
+    private void add_to_potentials(PositiveCondition cond)
     {
         if ((cond).bt.wme_.potentials_tc != this.potentials_tc)
         {
@@ -186,7 +185,8 @@ public class Backtracer
             if (p.get_printer_output_column() >= p.getColumnsPerLine() - 20)
                 p.print("\n      ");
 
-            p.spaces(indent).print("     %s", c.bt.wme_);
+            final PositiveCondition pc = c.asPositiveCondition();
+            p.spaces(indent).print("     %s", pc != null ? pc.bt.wme_ : null);
         }
     }
     
@@ -349,13 +349,13 @@ public class Backtracer
                 // positive cond's are grounds, potentials, or locals
                 if (pc.id_test.asEqualityTest().getReferent().asIdentifier().tc_number == tc)
                 {
-                    add_to_grounds(c);
+                    add_to_grounds(pc);
                     if (traceBacktracingOrExplain)
                         grounds_to_print.push(c);
                 }
                 else if (pc.bt.level <= grounds_level)
                 {
-                    add_to_potentials(c);
+                    add_to_potentials(pc);
                     if (traceBacktracingOrExplain)
                         pots_to_print.push(c);
                 }
@@ -434,7 +434,7 @@ public class Backtracer
                 printer.print("\nFor local %s ", cond.bt.wme_);
             }
 
-            Preference bt_pref = RecognitionMemory.find_clone_for_level(cond.bt.trace, grounds_level + 1);
+            Preference bt_pref = Preference.find_clone_for_level(cond.bt.trace, grounds_level + 1);
             // if it has a trace at this level, backtrace through it
             if (bt_pref != null)
             {
@@ -512,10 +512,10 @@ public class Backtracer
         {
             need_another_pass = false;
             // look for any potentials that are in the tc now
-            Iterator<Condition> it = positive_potentials.iterator();
+            Iterator<PositiveCondition> it = positive_potentials.iterator();
             while (it.hasNext())
             {
-                Condition pot = it.next();
+                PositiveCondition pot = it.next();
                 if (pot.cond_is_in_tc(tc))
                 {
                     // pot is a grounded potential, move it over to ground set
@@ -566,12 +566,12 @@ public class Backtracer
 
         // scan through positive potentials, pick out the ones that have
         // a preference we can backtrace through
-        final LinkedList<Condition> pots_to_bt = new LinkedList<Condition>();
-        final Iterator<Condition> it = positive_potentials.iterator();
+        final LinkedList<PositiveCondition> pots_to_bt = new LinkedList<PositiveCondition>();
+        final Iterator<PositiveCondition> it = positive_potentials.iterator();
         while (it.hasNext())
         {
-            Condition potential = it.next();
-            Preference bt_pref = RecognitionMemory.find_clone_for_level(potential.bt.trace, grounds_level + 1);
+            PositiveCondition potential = it.next();
+            Preference bt_pref = Preference.find_clone_for_level(potential.bt.trace, grounds_level + 1);
             if (bt_pref != null)
             {
                 // Remove potential from positive_potentials and add to
@@ -590,12 +590,12 @@ public class Backtracer
         // backtrace through each one
         while (!pots_to_bt.isEmpty())
         {
-            Condition potential = pots_to_bt.pop();
+            PositiveCondition potential = pots_to_bt.pop();
             if (traceBacktracing)
             {
                 printer.print("\nFor ungrounded potential %s ", potential.bt.wme_);
             }
-            Preference bt_pref = RecognitionMemory.find_clone_for_level(potential.bt.trace, grounds_level + 1);
+            Preference bt_pref = Preference.find_clone_for_level(potential.bt.trace, grounds_level + 1);
 
             backtrace_through_instantiation(bt_pref.inst, grounds_level, potential, 0);
             if (potential.bt.hasProhibits())
