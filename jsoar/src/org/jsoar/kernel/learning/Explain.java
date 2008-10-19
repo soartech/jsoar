@@ -9,6 +9,8 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.lhs.Condition;
+import org.jsoar.kernel.lhs.Conditions;
+import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.tracing.Printer;
 
 /**
@@ -302,9 +304,9 @@ public class Explain
         // First print out the production in "normal" form
         final Printer printer = context.getPrinter();
         printer.print("(sp %s\n  ", chunk.name);
-        // TODO print_condition_list (printer, chunk.conds, 2, false);
+        Conditions.print_condition_list (printer, chunk.conds, 2, false);
         printer.print("\n-->\n   ");
-        // TODO print_action_list (thisAgent, chunk->actions, 3, FALSE);
+        Action.print_action_list (printer, chunk.actions, 3, false);
         printer.print(")\n\n");
 
         /* Then list each condition and the associated "ground" WME */

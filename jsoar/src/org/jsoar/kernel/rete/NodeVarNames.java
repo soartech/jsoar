@@ -19,7 +19,7 @@ import org.jsoar.util.ListHead;
  * 
  * @author ray
  */
-public class NodeVarNames
+class NodeVarNames
 {
     public static class ThreeFieldVarNames
     {
@@ -39,13 +39,22 @@ public class NodeVarNames
     
     final NodeVarNames parent;
     //union varname_data_union {
-    final ThreeFieldVarNames fields = new ThreeFieldVarNames(); // TODO: Only allocate for non-CN_BNODE
-    NodeVarNames bottom_of_subconditions;
+    final ThreeFieldVarNames fields;
+    final NodeVarNames bottom_of_subconditions;
     //} data;
     
-    public NodeVarNames(NodeVarNames parent)
+    private NodeVarNames(NodeVarNames parent)
     {
         this.parent = parent;
+        this.fields = new ThreeFieldVarNames();
+        this.bottom_of_subconditions = null;
+    }
+    
+    private NodeVarNames(NodeVarNames parent, NodeVarNames bottom_of_subconditions)
+    {
+        this.parent = parent;
+        this.fields = null;
+        this.bottom_of_subconditions = bottom_of_subconditions;
     }
     
     /**
@@ -112,8 +121,7 @@ public class NodeVarNames
             ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
             if (ncc != null)
             {
-                New = new NodeVarNames(parent_nvn);
-                New.bottom_of_subconditions = get_nvn_for_condition_list(ncc.top, parent_nvn);
+                New = new NodeVarNames(parent_nvn, get_nvn_for_condition_list(ncc.top, parent_nvn));
             }
 
             parent_nvn = New;

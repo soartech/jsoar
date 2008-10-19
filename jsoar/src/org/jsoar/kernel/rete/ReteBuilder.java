@@ -19,7 +19,7 @@ import org.jsoar.kernel.lhs.NegativeCondition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.lhs.Test;
-import org.jsoar.kernel.lhs.TestTools;
+import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
@@ -123,7 +123,7 @@ import org.jsoar.util.ListHead;
     static void add_rete_tests_for_test(Rete rete, Test t, int current_depth, int field_num, ByRef<ReteTest> rt,
             ByRef<SymbolImpl> alpha_constant)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             return;
         }

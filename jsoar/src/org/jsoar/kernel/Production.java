@@ -9,6 +9,7 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConditionReorderer;
+import org.jsoar.kernel.lhs.Conditions;
 import org.jsoar.kernel.rete.ConditionsAndNots;
 import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.Rete;
@@ -221,7 +222,7 @@ public class Production
         ConditionsAndNots cns = rete.p_node_to_conditions_and_nots(p_node, null, null, true);
         printer.print("   ");
 
-        Condition.print_condition_list(printer, cns.dest_top_cond, 3, internal);
+        Conditions.print_condition_list(printer, cns.dest_top_cond, 3, internal);
 
         printer.print("\n    -->\n  ");
         printer.print("  ");

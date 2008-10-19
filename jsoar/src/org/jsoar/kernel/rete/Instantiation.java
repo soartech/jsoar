@@ -102,18 +102,14 @@ public class Instantiation implements Traceable
                 switch (wtt)
                 {
                 case TIMETAG_WME_TRACE:
-                    formatter.format(" %d", cond.bt.wme_.timetag);
+                    formatter.format(" %d", pc.bt.wme_.timetag);
                     break;
                 case FULL_WME_TRACE:
-                    // TODO: In CSoar, at this point in
-                    // print_instantiation_with_wmes() there's
-                    // some stuff about DO_TOP_LEVEL_REF_CTS and avoiding
-                    // printing WMEs because
-                    // they may have been deleted already during a retraction. I
-                    // don't think
-                    // this should be a problem in jsoar, so I'm just printing
-                    // the WME.
-                    formatter.format(" %s", cond.bt.wme_);
+                    // TODO: In CSoar, at this point in/ print_instantiation_with_wmes() there's
+                    // some stuff about DO_TOP_LEVEL_REF_CTS and avoiding/ printing WMEs because
+                    // they may have been deleted already during a retraction. I don't think
+                    // this should be a problem in jsoar, so I'm just printing the WME. Yay.
+                    formatter.format(" %s", pc.bt.wme_);
                     break;
                 }
             }

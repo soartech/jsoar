@@ -40,10 +40,13 @@ public abstract class RhsValue implements Formattable
         return null;
     }
 
-    public RhsValue copy()
-    {
-        return this;
-    }
+    /**
+     * Returns a copy of this rhs value. If a value is immutable it may return 
+     * <code>this</code>.
+     * 
+     * @return A copy of this rhs value
+     */
+    public abstract RhsValue copy();
     
     public char getFirstLetter()
     {
@@ -61,7 +64,7 @@ public abstract class RhsValue implements Formattable
      * non-reteloc, etc. format. They don't handle reteloc's or RHS unbound
      * variables.
      * 
-     * production.cpp:1223:add_all_variables_in_rhs_value
+     * <p>production.cpp:1223:add_all_variables_in_rhs_value
      * 
      * @param tc_number
      * @param var_list
@@ -77,10 +80,10 @@ public abstract class RhsValue implements Formattable
      * substitute variable names for such references. For RHS unbound variables,
      * we gensym new variable names.
      * 
-     * rete.cpp:4234:copy_rhs_value_and_substitute_varnames
+     * <p>rete.cpp:4234:copy_rhs_value_and_substitute_varnames
      * 
-     * TODO This function doesn't belong here. It creates a circular dependency with the rete package
-     * TODO This function should be polymorphic on RhsValue
+     * <p>TODO This function doesn't belong here. It creates a circular dependency with the rete package
+     * <p>TODO This function should be polymorphic on RhsValue
      * 
      * @param rete
      * @param rv
@@ -102,20 +105,11 @@ public abstract class RhsValue implements Formattable
         if (uv != null)
         {
             final int index = uv.getIndex();
-            SymbolImpl sym = null;
-            if (rete.rhs_variable_bindings[index] == null)
+            SymbolImpl sym = rete.getRhsVariableBinding(index);
+            if (sym == null)
             {
                 sym = rete.variableGenerator.generate_new_variable(Character.toString(uv.getFirstLetter()));
-                rete.rhs_variable_bindings[index] = sym;
-
-                if (rete.highest_rhs_unboundvar_index < index)
-                {
-                    rete.highest_rhs_unboundvar_index = index;
-                }
-            }
-            else
-            {
-                sym = rete.rhs_variable_bindings[index];
+                rete.setRhsVariableBinding(index, sym);
             }
             return new RhsSymbolValue(sym);
         }

@@ -17,8 +17,8 @@ import java.util.Map;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.StringTools;
 
@@ -788,7 +788,7 @@ public class TraceFormats
             }
             else
             {
-                result.append(object /*TODO symbol_to_string(object, true, null, 0)*/);
+                result.append(String.format("%s", object));
             }
             count++;
             return count;
@@ -836,7 +836,7 @@ public class TraceFormats
         if (print_attribute)
         {
             result.append("^");
-            result.append(w.attr /*TODO symbol_to_string(w.attr, true, null, 0)*/);
+            result.append(String.format("%s", w.attr));
             result.append(" ");
         }
         if (recursive)
@@ -845,7 +845,7 @@ public class TraceFormats
         }
         else
         {
-            result.append(w.value /*TODO symbol_to_string(w.value, true, null, 0)*/);
+            result.append(String.format("%s", w.value));
         }
     }
 
@@ -901,7 +901,7 @@ public class TraceFormats
             for (Iterator<SymbolImpl> it = path.iterator(); it.hasNext();)
             {
                 SymbolImpl c = it.next();
-                result.append(c /*TODO symbol_to_string(c, true, null, 0)*/);
+                result.append(String.format("%s", c));
                 if (it.hasNext())
                     result.append(".");
             }
@@ -1001,7 +1001,7 @@ public class TraceFormats
                 break;
 
             case IDENTIFIER_TFT:
-                result.append(object /*TODO symbol_to_string (thisAgent, object, true, NULL, 0)*/);
+                result.append(String.format("%s", object));
                 break;
 
             case IF_ALL_DEFINED_TFT:
@@ -1118,8 +1118,7 @@ public class TraceFormats
         IdentifierImpl id = object.asIdentifier();
         if (id == null || id.tc_number == tf_printing_tc)
         {
-            return object.toString(); // TODO symbol_to_string (thisAgent,
-                                        // object, TRUE, NIL, 0));
+            return String.format("%s", object);
         }
 
         // mark it as being printed
@@ -1134,7 +1133,7 @@ public class TraceFormats
         else
             type_of_object = TraceFormatRestriction.FOR_ANYTHING_TF;
 
-        SymbolImpl name = WorkingMemory.find_name_of_object(object, context.predefinedSyms.name_symbol);
+        SymbolImpl name = find_name_of_object(object, context.predefinedSyms.name_symbol);
 
         // find the trace format to use
         TraceFormat tf = find_appropriate_trace_format(false, type_of_object, name);
@@ -1152,7 +1151,7 @@ public class TraceFormats
         else
         {
             // no applicable trace format, so just print the object itself
-            gs = object.toString(); // TODO symbol_to_string (thisAgent, object, TRUE, NIL, 0));
+            gs = String.format("%s", object);
         }
 
         id.tc_number = 0; // unmark it now that we're done 
@@ -1244,4 +1243,31 @@ public class TraceFormats
         // RPM 5/05
         // print_stack_trace_xml(thisAgent, object, state, slot_type, allow_cycle_counts);
     }
+    
+    /**
+     * a utility function for finding the value of the ^name attribute on a 
+     * given object (symbol).  It returns the name, or NIL if the object has 
+     * no name.
+     * 
+     * <p>wmem.cpp:295:find_name_of_object
+     * 
+     * @param object
+     * @return
+     */
+    private static SymbolImpl find_name_of_object(SymbolImpl object, StringSymbolImpl name_symbol)
+    {
+        IdentifierImpl id = object.asIdentifier();
+        if (id == null)
+        {
+            return null;
+        }
+        Slot s = Slot.find_slot(id, name_symbol);
+        if (s == null)
+        {
+            return null;
+        }
+        return s.getWmes() != null ? s.getWmes().value : null;
+    } 
+    
+
 }

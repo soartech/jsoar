@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Formatter;
 
 import org.apache.commons.io.output.NullWriter;
-import org.jsoar.kernel.memory.Preference;
 
 /**
  * @author ray
@@ -105,6 +104,8 @@ public class Printer
     }
 
     /**
+     * <p>gsysparam.h:132:PRINT_WARNINGS_SYSPARAM
+     * 
      * @return the printWarnings
      */
     public boolean isPrintWarnings()
@@ -113,6 +114,8 @@ public class Printer
     }
 
     /**
+     * <p>gsysparam.h:132:PRINT_WARNINGS_SYSPARAM
+     * 
      * @param printWarnings the printWarnings to set
      */
     public Printer setPrintWarnings(boolean printWarnings)

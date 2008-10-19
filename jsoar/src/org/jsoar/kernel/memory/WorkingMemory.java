@@ -22,7 +22,7 @@ public class WorkingMemory
 {
     private final Agent context;
     
-    private int num_existing_wmes;
+    private int num_existing_wmes = 0;
     private int current_wme_timetag = 1;
     private final ListHead<WmeImpl> wmes_to_add = ListHead.newInstance();
     private final ListHead<WmeImpl> wmes_to_remove = ListHead.newInstance();
@@ -43,6 +43,18 @@ public class WorkingMemory
     }
 
     /**
+     * init_soar.cpp:297:reset_statistics 
+     */
+    public void reset_statistics()
+    {
+        wme_addition_count = 0;
+        wme_removal_count = 0;
+        max_wm_size = 0;
+        cumulative_wm_size = 0;
+        num_wm_sizes_accumulated = 0;
+    }
+    
+    /**
      * wmem.cpp:71:reset_wme_timetags
      */
     public void reset_wme_timetags()
@@ -51,8 +63,8 @@ public class WorkingMemory
         {
             final Printer printer = context.trace.getPrinter();
             printer.warn("Internal warning: wanted to reset wme timetag generator, but\n" +
-            		"there are still some wmes allocated. (Probably a memory leak.)\n" +
-            		"(Leaving timetag numbers alone.)\n");
+            		"there are still %d wmes allocated. (Probably a memory leak.)\n" +
+            		"(Leaving timetag numbers alone.)\n", num_existing_wmes);
             return;
         }
         current_wme_timetag = 1;
@@ -70,7 +82,7 @@ public class WorkingMemory
     public WmeImpl make_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
         WmeImpl w = new WmeImpl(id, attr, value, acceptable, current_wme_timetag++);
-
+        ++num_existing_wmes;
         return w;
     }
     
@@ -110,10 +122,7 @@ public class WorkingMemory
             context.decider.post_link_removal(w.id, valueId);
             if (w.attr == context.predefinedSyms.operator_symbol)
             {
-                /*
-                 * Do this afterward so that gSKI can know that this is an
-                 * operator
-                 */
+                // Do this afterward so that gSKI can know that this is an operator
                 valueId.isa_operator--;
             }
         }
@@ -236,34 +245,8 @@ public class WorkingMemory
         //  print_wme (thisAgent, w);
         //#endif
         num_existing_wmes--;
+        assert num_existing_wmes >= 0;
     }
-    
-    /**
-     * a utility function for finding the value of the ^name attribute on a 
-     * given object (symbol).  It returns the name, or NIL if the object has 
-     * no name.
-     * 
-     * TODO: This seems kind of out of place here.
-     * 
-     * wmem.cpp:295:find_name_of_object
-     * 
-     * @param object
-     * @return
-     */
-    public static SymbolImpl find_name_of_object(SymbolImpl object, StringSymbolImpl name_symbol)
-    {
-        IdentifierImpl id = object.asIdentifier();
-        if (id == null)
-        {
-            return null;
-        }
-        Slot s = Slot.find_slot(id, name_symbol);
-        if (s == null)
-        {
-            return null;
-        }
-        return s.getWmes() != null ? s.getWmes().value : null;
-    } 
     
     /**
      * Extracted from do_buffered_wm_changes

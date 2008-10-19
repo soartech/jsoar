@@ -24,7 +24,7 @@ import org.jsoar.kernel.lhs.NegativeCondition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.lhs.Test;
-import org.jsoar.kernel.lhs.TestTools;
+import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.Action;
@@ -78,8 +78,8 @@ public class Rete
     
     // TODO: I think this belongs somewhere else. I think it's actually basically
     // a temp variable used by the firer and sme RHS value stuff.
-    public SymbolImpl[] rhs_variable_bindings = {};
-    public int highest_rhs_unboundvar_index;
+    private SymbolImpl[] rhs_variable_bindings = {};
+    private int highest_rhs_unboundvar_index;
     
     public final VariableGenerator variableGenerator;
 
@@ -137,6 +137,15 @@ public class Rete
     public void setRhsVariableBinding(int index, SymbolImpl sym)
     {
         rhs_variable_bindings[index] = sym;
+        if(highest_rhs_unboundvar_index < index)
+        {
+            highest_rhs_unboundvar_index = index;
+        }
+    }
+    
+    public int getHighestRhsUnboundVariableIndex()
+    {
+        return highest_rhs_unboundvar_index;
     }
     
     /**
@@ -829,7 +838,7 @@ public class Rete
      */
     static void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, ListHead<Variable> varlist)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             return;
         }
@@ -911,7 +920,7 @@ public class Rete
     {
         Variable New = variableGenerator.generate_new_variable(Character.toString(first_letter));
         Test eq_test = SymbolImpl.makeEqualityTest(New);
-        return TestTools.add_new_test_to_test(t, eq_test);
+        return Tests.add_new_test_to_test(t, eq_test);
     }
 
     /**
@@ -956,7 +965,7 @@ public class Rete
             t = tfc.value_test;
         }
 
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             // goto abort_var_bound_in_reconstructed_conds;
             throw new IllegalStateException("Internal error in var_bound_in_reconstructed_conds");
@@ -973,7 +982,7 @@ public class Rete
             for (Test c : ct.conjunct_list)
             {
                 EqualityTest eq2 = c.asEqualityTest();
-                if (!TestTools.isBlank(c) && eq2 != null)
+                if (!Tests.isBlank(c) && eq2 != null)
                 {
                     return eq2.getReferent();
                 }
@@ -982,33 +991,6 @@ public class Rete
 
         throw new IllegalStateException("Internal error in var_bound_in_reconstructed_conds");
     }
-
-    /**
-     * TODO: Should this go somewhere else?
-     * 
-     * <p>rete.cpp:4391:get_symbol_from_rete_loc
-     * 
-     * @param levels_up
-     * @param field_num
-     * @param tok
-     * @param w
-     * @return
-     */
-    public static SymbolImpl get_symbol_from_rete_loc(int levels_up, int field_num, Token tok, WmeImpl w)
-    {
-        while (levels_up != 0)
-        {
-            levels_up--;
-            w = tok.w;
-            tok = tok.parent;
-        }
-        if (field_num == 0)
-            return w.id;
-        if (field_num == 1)
-            return w.attr;
-        return w.value;
-    }
-    
 
     /**
      * <p>This replaces left_addition_routines in CSoar. A simple switch 
@@ -2082,14 +2064,14 @@ public class Rete
         if (VarNames.varnames_is_one_var(vn))
         {
             Test New = SymbolImpl.makeEqualityTest(VarNames.varnames_to_one_var(vn));
-            t = TestTools.add_new_test_to_test(t, New);
+            t = Tests.add_new_test_to_test(t, New);
         }
         else
         {
             for (Variable c : VarNames.varnames_to_var_list(vn))
             {
                 Test New = SymbolImpl.makeEqualityTest(c);
-                t = TestTools.add_new_test_to_test(t, New);
+                t = Tests.add_new_test_to_test(t, New);
             }
         }
         return t;
@@ -2149,23 +2131,23 @@ public class Rete
                        there to test against --- */
                     if (rt.variable_referent.field_num == 0)
                     {
-                        if (!TestTools.test_includes_equality_test_for_symbol(cond.id_test, null))
+                        if (!Tests.test_includes_equality_test_for_symbol(cond.id_test, null))
                         {
                             cond.id_test = add_gensymmed_equality_test(cond.id_test, 's');
                         }
                     }
                     else if (rt.variable_referent.field_num == 1)
                     {
-                        if (!TestTools.test_includes_equality_test_for_symbol(cond.attr_test, null))
+                        if (!Tests.test_includes_equality_test_for_symbol(cond.attr_test, null))
                         {
                             cond.attr_test = add_gensymmed_equality_test(cond.attr_test, 'a');
                         }
                     }
                     else
                     {
-                        if (!TestTools.test_includes_equality_test_for_symbol(cond.value_test, null))
+                        if (!Tests.test_includes_equality_test_for_symbol(cond.value_test, null))
                         {
-                            cond.value_test = add_gensymmed_equality_test(cond.value_test, TestTools.first_letter_from_test(cond.attr_test));
+                            cond.value_test = add_gensymmed_equality_test(cond.value_test, Tests.first_letter_from_test(cond.attr_test));
                         }
                     }
                 }
@@ -2189,15 +2171,15 @@ public class Rete
 
             if (rt.right_field_num == 0)
             {
-                cond.id_test = TestTools.add_new_test_to_test(cond.id_test, New);
+                cond.id_test = Tests.add_new_test_to_test(cond.id_test, New);
             }
             else if (rt.right_field_num == 2)
             {
-                cond.value_test = TestTools.add_new_test_to_test(cond.value_test, New);
+                cond.value_test = Tests.add_new_test_to_test(cond.value_test, New);
             }
             else
             {
-                cond.attr_test = TestTools.add_new_test_to_test(cond.attr_test, New);
+                cond.attr_test = Tests.add_new_test_to_test(cond.attr_test, New);
             }
         }
     }
@@ -2277,7 +2259,7 @@ public class Rete
         SymbolImpl temp = var_bound_in_reconstructed_conds(cond, field_num, levels_up);
         Test New = SymbolImpl.makeEqualityTest(temp);
 
-        cond.id_test = TestTools.add_new_test_to_test(cond.id_test, New);
+        cond.id_test = Tests.add_new_test_to_test(cond.id_test, New);
     }   
     
     /**
@@ -2379,16 +2361,15 @@ public class Rete
         }
         else
         {
-
             if (w != null && cond.asPositiveCondition() != null)
             {
-                PositiveCondition pc = cond.asPositiveCondition();
+                final PositiveCondition pc = cond.asPositiveCondition();
                 // make simple tests and collect nots
                 pc.id_test = SymbolImpl.makeEqualityTest(w.id);
                 pc.attr_test = SymbolImpl.makeEqualityTest(w.attr);
                 pc.value_test = SymbolImpl.makeEqualityTest(w.value);
                 pc.test_for_acceptable_preference = w.acceptable;
-                cond.bt.wme_ = w;
+                pc.bt.wme_ = w;
                 if (node.b_posneg.other_tests != null)
                 { /* don't bother if there are no tests*/
                     result.nots_found_in_production = collect_nots(node.b_posneg.other_tests, w, cond,
@@ -2435,17 +2416,17 @@ public class Rete
                 //   equality test in each of the three fields
                 if (nvn == null)
                 {
-                    if (!TestTools.test_includes_equality_test_for_symbol(tfc.id_test, null))
+                    if (!Tests.test_includes_equality_test_for_symbol(tfc.id_test, null))
                     {
                         tfc.id_test = add_gensymmed_equality_test(tfc.id_test, 's');
                     }
-                    if (!TestTools.test_includes_equality_test_for_symbol(tfc.attr_test, null))
+                    if (!Tests.test_includes_equality_test_for_symbol(tfc.attr_test, null))
                     {
                         tfc.attr_test = add_gensymmed_equality_test(tfc.attr_test, 'a');
                     }
-                    if (!TestTools.test_includes_equality_test_for_symbol(tfc.value_test, null))
+                    if (!Tests.test_includes_equality_test_for_symbol(tfc.value_test, null))
                     {
-                        tfc.value_test = add_gensymmed_equality_test(tfc.value_test, TestTools.first_letter_from_test(tfc.attr_test));
+                        tfc.value_test = add_gensymmed_equality_test(tfc.value_test, Tests.first_letter_from_test(tfc.attr_test));
                     }
                 }
             }

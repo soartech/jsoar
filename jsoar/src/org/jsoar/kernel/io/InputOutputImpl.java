@@ -422,15 +422,11 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
     private void update_for_top_state_wme_addition(WmeImpl w)
     {
         // check whether the attribute is an output function
-        // TODO get output link callback
-        // symbol_to_string(thisAgent, w->attr, FALSE, link_name, LINK_NAME_SIZE);
-        // cb = soar_exists_callback_id(thisAgent, OUTPUT_PHASE_CALLBACK, link_name);
-        // if (!cb) return;
-        
         if(w == outputLinkWme)
         {
             // create new output link structure
             this.outputLinkStatus = OutputLinkStatus.NEW_OL_STATUS;
+            outputLinkWme.wme_add_ref();
         }
     }
 
@@ -548,12 +544,7 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
         // add id to output_link's list
         ids_in_tc.push(id);
 
-        // add output_link to id's list
-        // TODO: Make this a method on IdentifierImpl?
-        //associated_output_links.put(id, output_link_for_tc);
-
-        // do TC through working memory
-        // scan through all wmes for all slots for this id
+        // do TC through working memory scan through all wmes for all slots for this id
         for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
         {
             IdentifierImpl valueAsId = w.value.asIdentifier();
@@ -561,13 +552,14 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
                 add_id_to_output_link_tc(valueAsId);
         }
         for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
+        {
             for (WmeImpl w = s.item.getWmes(); w != null; w = w.next)
             {
                 IdentifierImpl valueAsId = w.value.asIdentifier();
                 if (valueAsId != null)
                     add_id_to_output_link_tc(valueAsId);
             }
-        
+        }
         // don't need to check impasse_wmes, because we couldn't have a pointer
         // to a goal or impasse identifier
     }

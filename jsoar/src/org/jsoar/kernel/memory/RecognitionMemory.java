@@ -21,7 +21,6 @@ import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
 import org.jsoar.kernel.rete.Instantiation;
-import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteAssertion;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
@@ -99,6 +98,14 @@ public class RecognitionMemory
     }
 
     /**
+     * init_soar.cpp:297:reset_statistics
+     */
+    public void reset_statistics()
+    {
+        this.production_firing_count = 0;
+    }
+    
+    /**
      * Build Prohibit Preference List for Backtracing
      * 
      * recmem.cpp:70:build_prohibits_list
@@ -109,28 +116,31 @@ public class RecognitionMemory
     {
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
-            cond.bt.clearProhibits();
             PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null && cond.bt.trace != null)
+            if(pc != null)
             {
-                if (cond.bt.trace.slot != null)
+                pc.bt.clearProhibits();
+            }
+            if (pc != null && pc.bt.trace != null)
+            {
+                if (pc.bt.trace.slot != null)
                 {
-                    Preference pref = cond.bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT_PREFERENCE_TYPE);
+                    Preference pref = pc.bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT_PREFERENCE_TYPE);
                     while (pref != null)
                     {
                         Preference new_pref = null;
                         if (pref.inst.match_goal_level == inst.match_goal_level && pref.isInTempMemory())
                         {
-                            cond.bt.addProhibit(pref);
+                            pc.bt.addProhibit(pref);
                         }
                         else
                         {
-                            new_pref = find_clone_for_level(pref, inst.match_goal_level);
+                            new_pref = Preference.find_clone_for_level(pref, inst.match_goal_level);
                             if (new_pref != null)
                             {
                                 if (new_pref.isInTempMemory())
                                 {
-                                    cond.bt.addProhibit(new_pref);
+                                    pc.bt.addProhibit(new_pref);
                                 }
                             }
                         }
@@ -141,56 +151,6 @@ public class RecognitionMemory
         }
     }
 
-    /**
-     * This routines take a given preference and finds the clone of it whose
-     * match goal is at the given goal_stack_level. (This is used to find the
-     * proper preference to backtrace through.) If the given preference itself
-     * is at the right level, it is returned. If there is no clone at the right
-     * level, NIL is returned.
-     * 
-     * TODO: Make a method of Preference
-     * 
-     * recmem.cpp:110:find_clone_for_level
-     * 
-     * @param p
-     * @param level
-     * @return
-     */
-    public static Preference find_clone_for_level(Preference p, int level)
-    {
-        if (p == null)
-        {
-            // if the wme doesn't even have a preference on it, we can't backtrace
-            // at all (this happens with I/O and some architecture-created wmes
-            return null;
-        }
-
-        // look at pref and all of its clones, find one at the right level
-        if (p.inst.match_goal_level == level)
-        {
-            return p;
-        }
-
-        for (Preference clone = p.next_clone; clone != null; clone = clone.next_clone)
-        {
-            if (clone.inst.match_goal_level == level)
-            {
-                return clone;
-            }
-        }
-
-        for (Preference clone = p.prev_clone; clone != null; clone = clone.prev_clone)
-        {
-            if (clone.inst.match_goal_level == level)
-            {
-                return clone;
-            }
-        }
-
-        // if none was at the right level, we can't backtrace at all
-        return null;
-    }
-    
     /**
      * Given an instantiation, this routines looks at the instantiated
      * conditions to find its match goal. It fills in inst->match_goal and
@@ -213,13 +173,13 @@ public class RecognitionMemory
             PositiveCondition pc = cond.asPositiveCondition();
             if (pc != null)
             {
-                IdentifierImpl id = cond.bt.wme_.id;
+                IdentifierImpl id = pc.bt.wme_.id;
                 if (id.isa_goal)
                 {
-                    if (cond.bt.level > lowest_level_so_far)
+                    if (pc.bt.level > lowest_level_so_far)
                     {
                         lowest_goal_so_far = id;
-                        lowest_level_so_far = cond.bt.level;
+                        lowest_level_so_far = pc.bt.level;
                     }
                 }
             }
@@ -303,7 +263,7 @@ public class RecognitionMemory
         ReteLocation rl = rv.asReteLocation();
         if (rl != null)
         {
-            return Rete.get_symbol_from_rete_loc(rl.getLevelsUp(), rl.getFieldNum(), tok, w);
+            return rl.lookupSymbol(tok, w);
         }
 
         RhsFunctionCall fc = rv.asFunctionCall();
@@ -507,29 +467,29 @@ public class RecognitionMemory
             {
                 if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                 {
-                    cond.bt.wme_.wme_add_ref();
+                    pc.bt.wme_.wme_add_ref();
                 }
                 else
                 {
                     if (level > SoarConstants.TOP_GOAL_LEVEL)
-                        cond.bt.wme_.wme_add_ref();
+                        pc.bt.wme_.wme_add_ref();
                 }
                 // if trace is for a lower level, find one for this level
                 if (pc.bt.trace != null)
                 {
-                    if (cond.bt.trace.inst.match_goal_level > level)
+                    if (pc.bt.trace.inst.match_goal_level > level)
                     {
-                        cond.bt.trace = find_clone_for_level(cond.bt.trace, level);
+                        pc.bt.trace = Preference.find_clone_for_level(pc.bt.trace, level);
                     }
                     if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                     {
-                        if (cond.bt.trace != null)
-                            cond.bt.trace.preference_add_ref();
+                        if (pc.bt.trace != null)
+                            pc.bt.trace.preference_add_ref();
                     }
                     else
                     {
-                        if ((cond.bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
-                            cond.bt.trace.preference_add_ref();
+                        if ((pc.bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
+                            pc.bt.trace.preference_add_ref();
                     }
                 }
             }
@@ -643,10 +603,11 @@ public class RecognitionMemory
         // record the level of each of the wmes that was positively tested
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
-            if (cond.asPositiveCondition() != null)
+            final PositiveCondition pc = cond.asPositiveCondition();
+            if (pc != null)
             {
-                cond.bt.level = cond.bt.wme_.id.level;
-                cond.bt.trace = cond.bt.wme_.preference;
+                pc.bt.level = pc.bt.wme_.id.level;
+                pc.bt.trace = pc.bt.wme_.preference;
             }
         }
 
@@ -806,11 +767,13 @@ public class RecognitionMemory
         // #endif
 
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
-            if (cond.asPositiveCondition() != null)
+        {
+            final PositiveCondition pc = cond.asPositiveCondition();
+            if (pc != null)
             {
-                if (cond.bt.hasProhibits())
+                if (pc.bt.hasProhibits())
                 {
-                    for (Preference pref : cond.bt)
+                    for (Preference pref : pc.bt)
                     {
                         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                         {
@@ -822,25 +785,26 @@ public class RecognitionMemory
                                 pref.preference_remove_ref(context.prefMemory);
                         }
                     }
-                    cond.bt.clearProhibits();
+                    pc.bt.clearProhibits();
                 }
 
                 if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                 {
-                    cond.bt.wme_.wme_remove_ref(context.workingMemory);
-                    if (cond.bt.trace != null)
-                        cond.bt.trace.preference_remove_ref(context.prefMemory);
+                    pc.bt.wme_.wme_remove_ref(context.workingMemory);
+                    if (pc.bt.trace != null)
+                        pc.bt.trace.preference_remove_ref(context.prefMemory);
                 }
                 else
                 {
                     if (level > SoarConstants.TOP_GOAL_LEVEL)
                     {
-                        cond.bt.wme_.wme_remove_ref(context.workingMemory);
-                        if (cond.bt.trace != null)
-                            cond.bt.trace.preference_remove_ref(context.prefMemory);
+                        pc.bt.wme_.wme_remove_ref(context.workingMemory);
+                        if (pc.bt.trace != null)
+                            pc.bt.trace.preference_remove_ref(context.prefMemory);
                     }
                 }
             }
+        }
 
         inst.top_of_instantiated_conditions = null;//  deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
         inst.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);

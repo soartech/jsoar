@@ -385,11 +385,6 @@ public class Exploration
      */
     public Preference exploration_choose_according_to_policy(Slot s, Preference candidates)
     {
-        // TODO This is just a temporary implementation...
-//        int count = Preference.countCandidates(candidates);
-//        int selection = random.nextInt(count);
-//        return Preference.getCandidate(candidates, selection);
-        
         double top_value = candidates.numeric_value;
         Policy exploration_policy = exploration_get_policy();
 

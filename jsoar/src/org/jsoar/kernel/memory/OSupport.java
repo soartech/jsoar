@@ -8,17 +8,16 @@ package org.jsoar.kernel.memory;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.kernel.lhs.ConditionReorderer;
+import org.jsoar.kernel.lhs.Conditions;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.DisjunctionTest;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.Test;
-import org.jsoar.kernel.lhs.TestTools;
+import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.rete.Instantiation;
-import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.MakeAction;
@@ -195,7 +194,7 @@ public class OSupport
      */
     private boolean test_has_id_in_os_tc(Test t, SymbolImpl excluded_sym)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             return false;
         }
@@ -256,9 +255,9 @@ public class OSupport
             ThreeFieldCondition tfc = conds.asThreeFieldCondition();
             if (tfc != null)
             {
-                if (TestTools.test_includes_equality_test_for_symbol(tfc.id_test,
+                if (Tests.test_includes_equality_test_for_symbol(tfc.id_test,
                         match_state_to_exclude_test_of_the_operator_off_of)
-                        && TestTools.test_includes_equality_test_for_symbol(tfc.attr_test, syms.operator_symbol))
+                        && Tests.test_includes_equality_test_for_symbol(tfc.attr_test, syms.operator_symbol))
                 {
                     // This is a break in the original switch, which should mean break out
                     // of the switch and start the loop again...
@@ -422,9 +421,8 @@ public class OSupport
                     MakeAction ma = act.asMakeAction();
                     if (ma != null && ma.attr.asSymbolValue() != null)
                     {
-                        // TODO: Is toString() correct here?
-                        if (ma.attr.asSymbolValue().sym.toString().equals("operator")
-                                && (act.preference_type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE))
+                        if (syms.operator_symbol == ma.attr.asSymbolValue().sym && 
+                            act.preference_type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE)
                         {
                             operator_proposal = true;
                             o_support = false;
@@ -513,9 +511,7 @@ public class OSupport
                                                     }
                                                     else if (o_support_calculation_type == 4
                                                             && reteLoc != null
-                                                            && w.value == Rete.get_symbol_from_rete_loc(reteLoc
-                                                                    .getLevelsUp(), reteLoc.getFieldNum(),
-                                                                    inst.rete_token, w))
+                                                            && w.value == reteLoc.lookupSymbol(inst.rete_token, w))
                                                     {
                                                         op_elab = true;
                                                     }
@@ -841,7 +837,7 @@ public class OSupport
             {
                 continue;
             }
-            w = c.bt.wme_;
+            w = pc.bt.wme_;
             if ((w.id == match_state) && (w.attr == syms.operator_symbol))
             {
                 rule_2_or_3 = true;
@@ -940,7 +936,7 @@ public class OSupport
      */
     private YesNoMaybe test_is_for_symbol(Test t, SymbolImpl sym)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             return YesNoMaybe.MAYBE;
         }
@@ -1027,7 +1023,7 @@ public class OSupport
             {
                 continue;
             }
-            if (TestTools.test_includes_goal_or_impasse_id_test(pc.id_test, true, false))
+            if (Tests.test_includes_goal_or_impasse_id_test(pc.id_test, true, false))
             {
                 pc.id_test.addBoundVariables(tc, vars);
             }
@@ -1053,11 +1049,11 @@ public class OSupport
     {
         // find root variables 
         final int tc = syms.getSyms().get_new_tc_number();
-        final ListHead<Variable> roots = ConditionReorderer.collect_root_variables(lhs, tc, false);
+        final ListHead<Variable> roots = Conditions.collect_root_variables(lhs, tc, null, null);
 
         // intersect roots with known_goals, producing root_goals
         final ListHead<Variable> root_goals = ListHead.newInstance();
-        int num_root_goals = 0; // TODO Just use root_goals.size()?
+        int num_root_goals = 0; // ListHead.size() is slow.
         for (AsListItem<Variable> v = roots.first; v != null; v = v.next)
         {
             if (known_goals.contains(v.item))
@@ -1167,7 +1163,7 @@ public class OSupport
             ThreeFieldCondition tfc = conds.asThreeFieldCondition(); // Positive or negative
             if (tfc != null)
             {
-                if (TestTools.test_includes_equality_test_for_symbol(tfc.id_test, sym))
+                if (Tests.test_includes_equality_test_for_symbol(tfc.id_test, sym))
                 {
                     return true;
                 }
@@ -1200,7 +1196,7 @@ public class OSupport
             ThreeFieldCondition tfc = conds.asThreeFieldCondition();
             if (tfc != null)
             {
-                if (TestTools.test_includes_equality_test_for_symbol(tfc.id_test, match_state))
+                if (Tests.test_includes_equality_test_for_symbol(tfc.id_test, match_state))
                 {
                     ynm = test_is_for_symbol(tfc.attr_test, syms.operator_symbol);
                     if (ynm == YesNoMaybe.NO)

@@ -812,9 +812,6 @@ public class ReteNode
             }
         }
 
-        // TODO: update_stats_for_destroying_node (thisAgent, node); /* clean up
-        // rete stats stuff */
-
         // if parent has no other children, deallocate it, and recurse
         /*
          * Added check to make sure that parent wasn't deallocated in previous

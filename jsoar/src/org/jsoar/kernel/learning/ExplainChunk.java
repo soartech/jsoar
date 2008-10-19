@@ -6,6 +6,7 @@
 package org.jsoar.kernel.learning;
 
 import org.jsoar.kernel.lhs.Condition;
+import org.jsoar.kernel.lhs.Conditions;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.tracing.Printer;
 
@@ -62,7 +63,6 @@ public class ExplainChunk
      */
     void explain_trace_chunk(final Printer printer)
     {
-        // TODO implement print_condition as formattable
         printer.print("Chunk : %s\n", name);
         Backtrace prod = backtrace;
         while (prod != null)
@@ -76,13 +76,13 @@ public class ExplainChunk
             else
                 printer.print("The result preference is not stored, sorry.\n");
             printer.print("\nGrounds:\n");
-            Condition.print_list_of_conditions(printer, prod.grounds);
+            Conditions.print_list_of_conditions(printer, prod.grounds);
             printer.print("\nPotentials:\n");
-            Condition.print_list_of_conditions(printer, prod.potentials);
+            Conditions.print_list_of_conditions(printer, prod.potentials);
             printer.print("\nLocals:\n");
-            Condition.print_list_of_conditions(printer, prod.locals);
+            Conditions.print_list_of_conditions(printer, prod.locals);
             printer.print("\nNegateds:\n");
-            Condition.print_list_of_conditions(printer, prod.negated);
+            Conditions.print_list_of_conditions(printer, prod.negated);
             prod = prod.next_backtrace;
             printer.print("\n\n");
         }

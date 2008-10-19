@@ -23,6 +23,7 @@ import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.AsListItem;
@@ -143,7 +144,7 @@ public class SoarReteListener implements ReteListener
             {
                 if (current_node.node_type.bnode_is_positive())
                 {
-                    if (current_wme != cond.bt.wme_)
+                    if (current_wme != cond.asPositiveCondition().bt.wme_)
                     {
                         match_found = false;
                         break;
@@ -262,12 +263,11 @@ public class SoarReteListener implements ReteListener
                     MakeAction ma = act.asMakeAction();
                     if (ma != null && (ma.attr.asSymbolValue() != null))
                     {
-                        // TODO Why not compare to built-in symbol?
-                        if ("operator".equals(ma.attr.asSymbolValue().toString())
-                                && (act.preference_type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE))
+                        if (context.predefinedSyms.operator_symbol == ma.attr.asSymbolValue().getSym()
+                                && act.preference_type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE)
                         {
                             operator_proposal = true;
-                            prod_type = SavedFiringType.IE_PRODS; // TODO !PE_PRODS; ???
+                            prod_type = SavedFiringType.IE_PRODS;
                             break;
                         }
                     }
@@ -391,8 +391,7 @@ public class SoarReteListener implements ReteListener
                                                     }
                                                     else if ((context.osupport.o_support_calculation_type == 4)
                                                             && (rl != null)
-                                                            && (temp_tok.w.value == Rete.get_symbol_from_rete_loc(rl
-                                                                    .getLevelsUp(), rl.getFieldNum(), tok, w)))
+                                                            && (temp_tok.w.value == rl.lookupSymbol(tok, w)))
                                                     {
                                                         op_elab = true;
                                                     }
@@ -466,30 +465,19 @@ public class SoarReteListener implements ReteListener
                 msc.in_level.insertAtHead(msc.goal.ms_o_assertions);
                 node.b_p.prod.OPERAND_which_assert_list = AssertListType.O_LIST;
 
-                // TODO: verbose
-                //        if (thisAgent->soar_verbose_flag == TRUE) {
-                //           print_with_symbols(thisAgent, "\n   RETE: putting [%y] into ms_o_assertions",
-                //                              node->b.p.prod->name);
-                //           char buf[256];
-                //           SNPRINTF(buf, 254, "RETE: putting [%s] into ms_o_assertions", symbol_to_string(thisAgent, node->b.p.prod->name, true, 0, 0));
-                //           xml_generate_verbose(thisAgent, buf);
-                //        }
+                context.trace.print(Category.TRACE_VERBOSE, 
+                                    "\n   RETE: putting [%s] into ms_o_assertions",
+                                    node.b_p.prod.name);
             }
-
             else
             {
                 msc.next_prev.insertAtHead(ms_i_assertions);
                 msc.in_level.insertAtHead(msc.goal.ms_i_assertions);
                 node.b_p.prod.OPERAND_which_assert_list = AssertListType.I_LIST;
 
-                // TODO: Verbose
-                //        if (thisAgent->soar_verbose_flag == TRUE) {
-                //           print_with_symbols(thisAgent, "\n   RETE: putting [%y] into ms_i_assertions",
-                //                              node->b.p.prod->name);
-                //           char buf[256];
-                //           SNPRINTF(buf, 254, "RETE: putting [%s] into ms_i_assertions", symbol_to_string(thisAgent, node->b.p.prod->name, true, 0, 0));
-                //           xml_generate_verbose(thisAgent, buf);
-                //        }
+                context.trace.print(Category.TRACE_VERBOSE, 
+                                    "\n   RETE: putting [%s] into ms_i_assertions",
+                                    node.b_p.prod.name);
             }
         }
 
@@ -663,14 +651,10 @@ public class SoarReteListener implements ReteListener
             return;
         }
 
-        // TODO: verbose
-        //  if (context.operand2_mode &&
-        //      (thisAgent->soar_verbose_flag == TRUE)) {
-        //          print_with_symbols (thisAgent, "\n%y: ",node->b.p.prod->name);
-        //          char buf[256];
-        //          SNPRINTF(buf, 254, "%s: ", symbol_to_string(thisAgent, node->b.p.prod->name, true, 0, 0));
-        //          xml_generate_verbose(thisAgent, buf);
-        //      }
+        if (context.operand2_mode)
+        {
+            context.trace.print(Category.TRACE_VERBOSE, "\n%s: ", node.b_p.prod.name);
+        }
         
         //#ifdef BUG_139_WORKAROUND
         if (node.b_p.prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
@@ -775,10 +759,8 @@ public class SoarReteListener implements ReteListener
                     if (context.decider.active_goal.ms_o_assertions.isEmpty())
                         return null;
 
-                    // TODO pop()
-                    msc = context.decider.active_goal.ms_o_assertions.getFirstItem();
+                    msc = context.decider.active_goal.ms_o_assertions.pop();
                     msc.next_prev.remove(ms_o_assertions);
-                    msc.in_level.remove(context.decider.active_goal.ms_o_assertions);
                 }
                 else
                 {
@@ -786,10 +768,8 @@ public class SoarReteListener implements ReteListener
                     if (context.decider.active_goal.ms_i_assertions.isEmpty())
                         return null;
 
-                    // TODO pop()
-                    msc = context.decider.active_goal.ms_i_assertions.getFirstItem();
+                    msc = context.decider.active_goal.ms_i_assertions.pop();
                     msc.next_prev.remove(ms_i_assertions);
-                    msc.in_level.remove(context.decider.active_goal.ms_i_assertions);
                 }
 
             }
@@ -802,8 +782,7 @@ public class SoarReteListener implements ReteListener
                 if ((!ms_i_assertions.isEmpty()) || (!ms_o_assertions.isEmpty()))
                 {
                     // Commented out 11/2007
-                    // laird: I would like us to remove that error message that
-                    // happens
+                    // laird: I would like us to remove that error message that happens
                     // in Obscurebot. It just freaks people out and we have yet
                     // to see an error in Soar because of it.
 
@@ -824,9 +803,7 @@ public class SoarReteListener implements ReteListener
             if (ms_assertions.isEmpty())
                 return null;
             
-            // TODO pop()
-            msc = ms_assertions.getFirstItem();
-            msc.next_prev.remove(ms_assertions);
+            msc = ms_assertions.pop();
         }
 
         msc.of_node.remove(msc.p_node.b_p.tentative_assertions);
@@ -847,9 +824,7 @@ public class SoarReteListener implements ReteListener
             if (ms_retractions.isEmpty())
                 return null;
 
-            // TODO pop()
-            MatchSetChange msc = ms_retractions.getFirstItem();
-            msc.next_prev.remove(ms_retractions);
+            MatchSetChange msc = ms_retractions.pop();
             if (msc.p_node != null)
             {
                 msc.of_node.remove(msc.p_node.b_p.tentative_retractions);
@@ -867,13 +842,10 @@ public class SoarReteListener implements ReteListener
             if (context.decider.active_goal.ms_retractions.isEmpty())
                 return null;
 
-            // TODO pop()
-            MatchSetChange msc = context.decider.active_goal.ms_retractions.getFirstItem();
-
-            /* remove from the complete retraction list */
+            // remove from the Waterfall-specific list */
+            MatchSetChange msc = context.decider.active_goal.ms_retractions.pop();
+            // and remove from the complete retraction list
             msc.next_prev.remove(ms_retractions);
-            /* and remove from the Waterfall-specific list */
-            msc.in_level.remove(context.decider.active_goal.ms_retractions);
 
             if (msc.p_node != null)
             {
@@ -903,11 +875,8 @@ public class SoarReteListener implements ReteListener
     {
         if (nil_goal_retractions.isEmpty()) return null;
         
-        // TODO pop()
-        MatchSetChange msc = nil_goal_retractions.getFirstItem();
-
         // Remove this retraction from the NIL goal list
-        msc.in_level.remove(nil_goal_retractions);
+        MatchSetChange msc = nil_goal_retractions.pop();
 
         // next and prev set and used in Operand2 exactly as used in Soar 7 --
         // so we have to make sure and delete this retraction from the regular

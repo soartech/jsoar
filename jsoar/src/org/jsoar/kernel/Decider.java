@@ -8,6 +8,7 @@ package org.jsoar.kernel;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.jsoar.kernel.exploration.Exploration;
@@ -1654,23 +1655,9 @@ public class Decider
                   {
                      if (w.gds.getGoal() != null)
                      {
-                         /* If the goal pointer is non-NIL, then goal is in the stack */
-                         // TODO or soar_verbose_flag
-                         context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, 
+                         // If the goal pointer is non-NIL, then goal is in the stack
+                         context.trace.print(EnumSet.of(Category.TRACE_WM_CHANGES_SYSPARAM, Category.TRACE_VERBOSE), 
                                  "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.getGoal().level, w);
-                         // TODO xml
-    //                    if (thisAgent.soar_verbose_flag || thisAgent.sysparams[TRACE_WM_CHANGES_SYSPARAM]) 
-    //                    {
-    //                       print(thisAgent, "\nRemoving state S%d because element in GDS changed.", w.gds.goal.id.level);
-    //                       print(thisAgent, " WME: "); 
-    //
-    //                       char buf[256];
-    //                       SNPRINTF(buf, 254, "Removing state S%d because element in GDS changed.", w.gds.goal.id.level);
-    //                       xml_begin_tag(thisAgent, kTagVerbose);
-    //                       xml_att_val(thisAgent, kTypeString, buf);
-    //                       print_wme(thisAgent, w);
-    //                       xml_end_tag(thisAgent, kTagVerbose);
-    //                    }
                          gds_invalid_so_remove_goal(w);
                      }
                   }
@@ -2554,9 +2541,7 @@ public class Decider
         top_state = null;
         active_goal = null;
 
-        // TODO Do these really have any business being here?
-        context.io.do_input_cycle(); // tell input functions that the top state is gone
-        context.io.do_output_cycle(); // tell output functions that output commands are gone
+        // jsoar: Moved do_input_cycle() and do_output_cycle() calls to reinitialize
     }
     
 
@@ -2618,8 +2603,7 @@ public class Decider
         wme_to_add.gds = gds;
         gds.addWme(wme_to_add);
 
-        // TODO trace add wme to gds in verbose mode as well
-        context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, 
+        context.trace.print(EnumSet.of(Category.TRACE_WM_CHANGES_SYSPARAM, Category.TRACE_VERBOSE), 
                 "Adding to GDS for %s: %s", wme_to_add.gds.getGoal(), wme_to_add);
     }
     
@@ -2648,8 +2632,8 @@ public class Decider
                 // We'll deal with negative instantiations after we get the
                 // positive ones figured out
 
-                WmeImpl wme_matching_this_cond = cond.bt.wme_;
-                int wme_goal_level = cond.bt.level;
+                WmeImpl wme_matching_this_cond = pc.bt.wme_;
+                int wme_goal_level = pc.bt.level;
                 Preference pref_for_this_wme = wme_matching_this_cond.preference;
                 
                 if(DEBUG_GDS)
@@ -2766,15 +2750,6 @@ public class Decider
                         /* JC ADDED: Separate adding wme to GDS as a function */
                         add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
 
-                        /*
-                        if (wme_matching_this_cond.gds.getWmes().gds_prev != null)
-                        {
-                            // TODO is this necessary??
-                            context.getPrinter().print(
-                                    "\nDEBUG DEBUG : The new header should never have a prev value.\n");
-                        }
-                        */
-
                         if (DEBUG_GDS)
                         {
                             context.getPrinter().print(
@@ -2839,14 +2814,14 @@ public class Decider
                                 if (DEBUG_GDS)
                                 {
                                     context.getPrinter().print("here's the wme with no slot:\t %s",
-                                      pref_for_this_wme.inst.top_of_instantiated_conditions.bt.wme_);
+                                      pref_for_this_wme.inst.top_of_instantiated_conditions.asPositiveCondition().bt.wme_);
                                 }
 
                                 /* this is the same code as above, just using the 
                                 * differently-named pointer.  it probably should
                                 * be a subroutine */
                                 {
-                                    WmeImpl fake_inst_wme_cond = pref_for_this_wme.inst.top_of_instantiated_conditions.bt.wme_;
+                                    WmeImpl fake_inst_wme_cond = pref_for_this_wme.inst.top_of_instantiated_conditions.asPositiveCondition().bt.wme_;
                                     if (fake_inst_wme_cond.gds != null)
                                     {
                                         /* Then we want to check and see if the old GDS

@@ -15,9 +15,11 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
 /**
+ * Various utility methods for working with Test objects.
+ * 
  * @author ray
  */
-public class TestTools
+public class Tests
 {
     /**
      * Looks through a test, and returns a new copy of the first equality test
@@ -32,7 +34,7 @@ public class TestTools
      */
     public static EqualityTest copy_of_equality_test_found_in_test(Test t)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             throw new IllegalStateException("Internal error: can't find equality test in blank test");
         }
@@ -48,7 +50,7 @@ public class TestTools
         {
             for (Test child : ct.conjunct_list)
             {
-                if (!TestTools.isBlank(child) && child.asEqualityTest() != null)
+                if (!Tests.isBlank(child) && child.asEqualityTest() != null)
                 {
                     return (EqualityTest) child.copy();
                 }
@@ -63,21 +65,20 @@ public class TestTools
      * (add_me) to it (usually as a new conjunct). The first test need not be a
      * conjunctive test.
      * 
-     * TODO Rather than the dumb ByRef, just return the new test. Functional!
-     * 
-     * production.cpp:338:add_new_test_to_test
+     * <p>production.cpp:338:add_new_test_to_test
      * 
      * @param t
      * @param add_me
+     * @return the new resulting test
      */
     public static Test add_new_test_to_test(Test t, Test add_me)
     {
-        if (TestTools.isBlank(add_me))
+        if (Tests.isBlank(add_me))
         {
             return t;
         }
 
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             return add_me;
         }
@@ -99,7 +100,7 @@ public class TestTools
     public static boolean test_includes_equality_test_for_symbol(Test test,
             SymbolImpl sym)
     {
-        if(TestTools.isBlank(test)) { return false; }
+        if(Tests.isBlank(test)) { return false; }
         EqualityTest eq = test.asEqualityTest();
         if(eq != null)
         {
@@ -161,7 +162,7 @@ public class TestTools
      */
     public static boolean test_tests_for_root(Test t, ListHead<Variable> roots)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
         {
             return false;
         }
@@ -213,7 +214,7 @@ public class TestTools
             ByRef<Boolean> removed_goal, ByRef<Boolean> removed_impasse)
     {
 
-        if (TestTools.isBlank(t) || t.asEqualityTest() != null)
+        if (Tests.isBlank(t) || t.asEqualityTest() != null)
         {
             return t.copy();
         }
@@ -235,7 +236,7 @@ public class TestTools
             for (Test c : ct.conjunct_list)
             {
                 Test temp = copy_test_removing_goal_impasse_tests(c, removed_goal, removed_impasse);
-                if (!TestTools.isBlank(temp))
+                if (!Tests.isBlank(temp))
                 {
                     new_t = add_new_test_to_test(new_t, temp);
                 }
@@ -254,7 +255,7 @@ public class TestTools
 
     public static char first_letter_from_test (Test t) {
         
-        if(TestTools.isBlank(t)) { return '*'; }
+        if(Tests.isBlank(t)) { return '*'; }
         EqualityTest eq = t.asEqualityTest();
         if (eq != null) {
           return eq.getReferent().getFirstLetter();
@@ -384,7 +385,7 @@ public class TestTools
      */
     static void add_test_to_tc(Test t, int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
             return;
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
@@ -410,7 +411,7 @@ public class TestTools
      */
     static boolean test_is_in_tc(Test t, int tc)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
             return false;
         EqualityTest eq = t.asEqualityTest();
         if (eq != null)
@@ -440,7 +441,7 @@ public class TestTools
      */
     public static int hash_test(Test t)
     {
-        if (TestTools.isBlank(t))
+        if (Tests.isBlank(t))
             return 0;
     
         EqualityTest eq = t.asEqualityTest();
