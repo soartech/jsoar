@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
@@ -54,7 +56,8 @@ public class StandardRhsFunctions
     /**
      * List of all standard RHS function handlers
      */
-    public final List<RhsFunctionHandler> all = Arrays.asList(write, crlf, new Plus(), new Multiply(), new Minus(), new FloatingPointDivide());
+    private final List<RhsFunctionHandler> allInternal = new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf, new Plus(), new Multiply(), new Minus(), new FloatingPointDivide()));
+    public final List<RhsFunctionHandler> all = Collections.unmodifiableList(allInternal);
 
     /**
      * @param context
@@ -62,6 +65,8 @@ public class StandardRhsFunctions
     public StandardRhsFunctions(Agent context)
     {
         this.context = context;
+        
+        allInternal.add(new Interrupt(context.recMemory, context.decisionCycle));
         
         for(RhsFunctionHandler handler : all)
         {
