@@ -111,8 +111,8 @@ public class InputBuilder
      */
     public InputBuilder add(Object attr, Object value)
     {
-        Symbol attrSym = Symbols.create(io.getSymbolFactory(), attr);
-        Symbol valueSym = Symbols.create(io.getSymbolFactory(), value);
+        Symbol attrSym = Symbols.create(io.getSymbols(), attr);
+        Symbol valueSym = Symbols.create(io.getSymbols(), value);
         wmeMap.put(null, io.addInputWme(id, attrSym, valueSym));
         return this;
     }
@@ -131,8 +131,8 @@ public class InputBuilder
      */
     public InputBuilder push(Object attr)
     {
-        final Identifier newId = io.getSymbolFactory().createIdentifier(Symbols.getFirstLetter(attr));
-        Symbol attrSym = Symbols.create(io.getSymbolFactory(), attr);
+        final Identifier newId = io.getSymbols().createIdentifier(Symbols.getFirstLetter(attr));
+        Symbol attrSym = Symbols.create(io.getSymbols(), attr);
         wmeMap.put(null, io.addInputWme(id, attrSym, newId));
         return new InputBuilder(io, this, newId, idMap, wmeMap);
     }
@@ -153,7 +153,7 @@ public class InputBuilder
         {
             throw new IllegalArgumentException("Unknown target '" + target + "'");
         }
-        Symbol attrSym = Symbols.create(io.getSymbolFactory(), attr);
+        Symbol attrSym = Symbols.create(io.getSymbols(), attr);
         wmeMap.put(null, io.addInputWme(id, attrSym, targetId));
         return this;
     }

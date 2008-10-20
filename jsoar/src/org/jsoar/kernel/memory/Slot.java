@@ -80,7 +80,7 @@ public class Slot
     public IdentifierImpl impasse_id = null;               // null if slot is not impassed
     public final boolean isa_context_slot;            
     public ImpasseType impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
-    boolean marked_for_possible_removal = false;
+    public boolean marked_for_possible_removal = false;
     
     /**
      * for non-context slots: points to the corresponding

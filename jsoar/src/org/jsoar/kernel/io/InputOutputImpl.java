@@ -19,14 +19,8 @@ import org.jsoar.kernel.events.OutputEvent.OutputMode;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.symbols.DoubleSymbol;
-import org.jsoar.kernel.symbols.DoubleSymbolImpl;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.IntegerSymbol;
-import org.jsoar.kernel.symbols.IntegerSymbolImpl;
-import org.jsoar.kernel.symbols.StringSymbol;
-import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -84,7 +78,7 @@ import org.jsoar.util.ListHead;
  * 
  * @author ray
  */
-public class InputOutputImpl implements InputOutput, SymbolFactory
+public class InputOutputImpl implements InputOutput
 {
     /**
      * io.cpp:387
@@ -104,6 +98,11 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
     }
     
     private final Agent context;
+    
+    /**
+     * agent.h:679:prev_top_state
+     */
+    private IdentifierImpl prev_top_state = null;
     
     private IdentifierImpl io_header;
 
@@ -138,9 +137,9 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
      * @see org.jsoar.kernel.io.InputOutput#getSymbolFactory()
      */
     @Override
-    public SymbolFactory getSymbolFactory()
+    public SymbolFactory getSymbols()
     {
-        return this;
+        return context.syms;
     }
 
     /**
@@ -148,19 +147,18 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
      */
     public void init_agent_memory()
     {
-        this.io_header = createIdentifier('I');
-        this.io_header_input = createIdentifier ('I');
-        this.io_header_output = createIdentifier ('I');
+        this.io_header = context.syms.createIdentifier('I');
+        this.io_header_input = context.syms.createIdentifier ('I');
+        this.io_header_output = context.syms.createIdentifier ('I');
 
-      /* The following code was taken from the do_input_cycle function of io.cpp */
+        /* The following code was taken from the do_input_cycle function of io.cpp */
         // Creating the io_header and adding the top state io header wme
-        this.io_header_link = addInputWme(context.decider.top_state,
-                                           context.predefinedSyms.io_symbol,
-                                           this.io_header);
-      // Creating the input and output header symbols and wmes
-      // RPM 9/06 changed to use this.input/output_link_symbol
-      // Note we don't have to save these wmes for later release since their parent
-      //  is already being saved (above), and when we release it they will automatically be released
+        this.io_header_link = addInputWme(context.decider.top_state, context.predefinedSyms.io_symbol, this.io_header);
+        
+        // Creating the input and output header symbols and wmes
+        // RPM 9/06 changed to use this.input/output_link_symbol
+        // Note we don't have to save these wmes for later release since their parent
+        //  is already being saved (above), and when we release it they will automatically be released
         addInputWme(this.io_header, context.predefinedSyms.input_link_symbol, this.io_header_input);
         outputLinkWme = addInputWme(this.io_header, context.predefinedSyms.output_link_symbol, this.io_header_output);
     }
@@ -183,104 +181,10 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
         return io_header_output;
     }
 
-    /**
-     * io.cpp::get_new_io_identifier
-     * 
-     * @param first_letter
-     * @return
-     */
-    public IdentifierImpl createIdentifier(char first_letter)
-    {
-        return context.syms.createIdentifier(first_letter);
-    }
-
-    /**
-     * io.cpp::get_io_identifier
-     * 
-     * @param first_letter
-     * @param number
-     * @return
-     */
-    public IdentifierImpl findIdentifier(char first_letter, int number)
-    {
-        IdentifierImpl id = context.syms.findIdentifier(first_letter, number);
-
-        if (id == null)
-        {
-            id = context.syms.createIdentifier(first_letter);
-        }
-
-        return id;
-    }
-
-    /**
-     * io.cpp::get_io_sym_constant
-     * 
-     * @param name
-     * @return
-     */
-    public StringSymbolImpl createString(String name)
-    {
-        return context.syms.createString(name);
-    }
-
-    /**
-     * io.cpp::get_io_int_constant
-     * 
-     * @param value
-     * @return
-     */
-    public IntegerSymbolImpl createInteger(int value)
-    {
-        return context.syms.createInteger(value);
-    }
-
-    /**
-     * io.cpp::get_io_float_constant
-     * 
-     * @param value
-     * @return
-     */
-    public DoubleSymbolImpl createDouble(double value)
-    {
-        return context.syms.createDouble(value);
-    }
-
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.SymbolFactory#findDouble(double)
+     * @see org.jsoar.kernel.io.InputOutput#addInputWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
      */
     @Override
-    public DoubleSymbol findDouble(double value)
-    {
-        return context.syms.findDouble(value);
-    }
-
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.SymbolFactory#findInteger(int)
-     */
-    @Override
-    public IntegerSymbol findInteger(int value)
-    {
-        return context.syms.findInteger(value);
-    }
-
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.SymbolFactory#findString(java.lang.String)
-     */
-    @Override
-    public StringSymbol findString(String value)
-    {
-        return context.syms.findString(value);
-    }
-
-    /**
-     * io.cpp::add_input_wme
-     * 
-     * @param id
-     * @param attr
-     * @param value
-     * @return
-     */
     public WmeImpl addInputWme(Identifier id, Symbol attr, Symbol value)
     {
         Arguments.checkNotNull(id, "id");
@@ -295,11 +199,10 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
         return w;
     }
 
-    /**
-     * io.cpp:243:remove_input_wme
-     * 
-     * @param w
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.InputOutput#removeInputWme(org.jsoar.kernel.memory.Wme)
      */
+    @Override
     public void removeInputWme(Wme wIn)
     {
         Arguments.checkNotNull(wIn, "w");
@@ -356,7 +259,7 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
     {
         this.pendingCommands.clear();
         
-        if (context.decider.prev_top_state != null && context.decider.top_state == null)
+        if (prev_top_state != null && context.decider.top_state == null)
         {
             // top state was just removed
 
@@ -380,7 +283,7 @@ public class InputOutputImpl implements InputOutput, SymbolFactory
         context.decider.do_buffered_wm_and_ownership_changes();
 
         // save current top state for next time
-        context.decider.prev_top_state = context.decider.top_state;
+        prev_top_state = context.decider.top_state;
 
         // reset the output-link status flag to FALSE when running til output, 
         // only want to stop if agent does add-wme to output.  don't stop if 

@@ -28,11 +28,25 @@ public interface SymbolFactory
      * Create a new identifier
      * 
      * <p>symbol.cpp::make_new_identifier
+     * <p>io.cpp::get_new_io_identifier
      * 
      * @param nameLetter The letter of the id
      * @return A new identifier
      */
     public Identifier createIdentifier(char nameLetter);
+    
+    /**
+     * Find an identifier by letter and number, and create a new one
+     * with the given letter if none was found. This is simply a compound
+     * of {@link #findIdentifier(char, int)} and {@link #createIdentifier(char)}
+     * 
+     * <p>io.cpp::get_io_identifier
+     * 
+     * @param nameLetter The name letter of the id
+     * @param nameNumber The name number of the id
+     * @return The identifier
+     */
+    public Identifier findOrcreateIdentifier(char nameLetter, int nameNumber);
 
     /**
      * Find an existing string symbol
@@ -48,6 +62,7 @@ public interface SymbolFactory
      * Create a new string symbol.
      * 
      * <p>symtab.cpp:328:make_sym_constant
+     * <p>io.cpp::get_io_sym_constant
      * 
      * @param value The string value of the symbol
      * @return A symbol. Subsequent calls with the same value will return the
@@ -59,6 +74,7 @@ public interface SymbolFactory
      * Create a new integer symbol
      * 
      * <p>symtab.cpp:346:make_int_constant
+     * <p>io.cpp::get_io_int_constant
      * 
      * @param value The integer value of the symbol
      * @return A symbol. Subsequent calls with the same value will return the
@@ -80,6 +96,7 @@ public interface SymbolFactory
      * Create a new double symbol
      * 
      * <p>symtab.cpp:363:make_float_constant
+     * <p>io.cpp::get_io_float_constant
      * 
      * @param value The double value of the symbol
      * @return The symbol, or <code>null</code> if not found

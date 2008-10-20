@@ -436,7 +436,6 @@ public class Agent
         // initialization (including triggering SW's changes).
         io.do_input_cycle();
         io.do_output_cycle();
-        // do_buffered_wm_and_ownership_changes(thisAgent);
 
         /* executing the IO cycles above, increments the timers, so reset */
         /* Initializing all the timer structures */
@@ -460,11 +459,6 @@ public class Agent
            reset_timer (&thisAgent->gds_cpu_time[ii]);
         }
         */
-
-        // This is an important part of the state of the agent for io purposes
-        // (see io.cpp for details)
-        decider.prev_top_state = decider.top_state;
-
     }
     
     /**

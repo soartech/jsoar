@@ -188,11 +188,30 @@ public class SymbolFactoryImpl implements SymbolFactory
         return id;
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#createIdentifier(char)
+     */
     public IdentifierImpl createIdentifier(char name_letter)
     {
         return make_new_identifier(name_letter, SoarConstants.TOP_GOAL_LEVEL);
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#findOrcreateIdentifier(char, int)
+     */
+    @Override
+    public Identifier findOrcreateIdentifier(char nameLetter, int nameNumber)
+    {
+        IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
+
+        if (id == null)
+        {
+            id = createIdentifier(nameLetter);
+        }
+
+        return id;
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolFactory#find_sym_constant(java.lang.String)
      */

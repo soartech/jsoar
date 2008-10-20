@@ -64,7 +64,7 @@ public class CycleCountInput
         {
             io.removeInputWme(wme);
         }
-        final SymbolFactory syms = io.getSymbolFactory();
+        final SymbolFactory syms = io.getSymbols();
         
         // TODO on init-soar, the count should go back to 0. It would be better to the
         // the cycle count from the agent (or I/O?) rather than maintaining it
