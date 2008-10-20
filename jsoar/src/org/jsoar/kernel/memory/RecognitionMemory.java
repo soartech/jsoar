@@ -98,6 +98,14 @@ public class RecognitionMemory
     }
 
     /**
+     * @return The production currently being fired
+     */
+    public Production getProductionBeingFired()
+    {
+        return production_being_fired;
+    }
+    
+    /**
      * init_soar.cpp:297:reset_statistics
      */
     public void reset_statistics()

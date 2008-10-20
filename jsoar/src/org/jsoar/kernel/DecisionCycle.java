@@ -896,4 +896,17 @@ public class DecisionCycle
         ExecutionTimers.pause(context.getTotalKernelTimer());
     }
 
+    /**
+     * Interrupt this agent.
+     * 
+     * <p>rhsfun.cpp:231
+     * 
+     * @param production The name of the production causing the interrupt, or 
+     *  <code>null</code> if unknown.
+     */
+    public void interrupt(String production)
+    {
+        this.stop_soar = true;
+        this.reason_for_stopping = "*** Interrupt from production " + production + " ***";
+    }
 }
