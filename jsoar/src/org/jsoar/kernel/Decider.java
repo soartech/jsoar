@@ -2250,7 +2250,7 @@ public class Decider
                     {
                         IdentifierImpl tempId = candidates.value.value.asIdentifier();
                         // TODO can this be null?
-                        String temp = "" + tempId.name_letter + tempId.name_number;
+                        String temp = String.format("%s", tempId);
                         context.decisionManip.predict_set(temp);
                     }
                     break;
