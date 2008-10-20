@@ -3,19 +3,21 @@
  *
  * Created on Oct 14, 2008
  */
-package org.jsoar.kernel.io;
+package org.jsoar.kernel.events;
+
+import org.jsoar.kernel.io.InputOutput;
 
 
 /**
  * @author ray
  */
-public class TopStateRemovedEvent extends AbstractInputOutputEvent
+public class InputCycleEvent extends AbstractInputOutputEvent
 {
 
     /**
      * @param io
      */
-    public TopStateRemovedEvent(InputOutput io)
+    public InputCycleEvent(InputOutput io)
     {
         super(io);
     }

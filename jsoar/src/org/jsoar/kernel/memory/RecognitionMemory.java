@@ -20,7 +20,6 @@ import org.jsoar.kernel.learning.ReinforcementLearning;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
-import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.SoarReteAssertion;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
@@ -46,17 +45,17 @@ import org.jsoar.util.timing.ExecutionTimers;
  * Recognition Memory (Firer and Chunker) Routines (Does not include the Rete
  * net)
  * 
- * Init_firer() and init_chunker() should be called at startup time, to do
+ * <p>Init_firer() and init_chunker() should be called at startup time, to do
  * initialization.
  * 
- * Do_preference_phase() runs the entire preference phases. This is called from
+ * <p>Do_preference_phase() runs the entire preference phases. This is called from
  * the top-level control in main.c.
  * 
- * Possibly_deallocate_instantiation() checks whether an instantiation can be
+ * <p>Possibly_deallocate_instantiation() checks whether an instantiation can be
  * deallocated yet, and does so if possible. This is used whenever the
  * (implicit) reference count on the instantiation decreases.
  * 
- * recmem.cpp
+ * <p>recmem.cpp (also some prefmem.cpp)
  * 
  * @author ray
  */
@@ -68,6 +67,7 @@ public class RecognitionMemory
      * agent.h:174:firer_highest_rhs_unboundvar_index
      */
     private int firer_highest_rhs_unboundvar_index;
+    
     /**
      * agent.h:571:newly_created_instantiations
      */
@@ -221,7 +221,7 @@ public class RecognitionMemory
      * @param w
      * @return
      */
-    public SymbolImpl instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, WmeImpl w)
+    private SymbolImpl instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, WmeImpl w)
     {
         RhsSymbolValue rsv = rv.asSymbolValue();
         if (rsv != null)
@@ -402,26 +402,34 @@ public class RecognitionMemory
 
     /**
      * This routine fills in a newly created instantiation structure with
-     * various information.    * At input, the instantiation should have:
-     *   - preferences_generated filled in; 
-     *   - instantiated conditions filled in;
-     *   - top-level positive conditions should have bt.wme_, bt.level, and
+     * various information.
+     *     
+     * <p>At input, the instantiation should have:
+     * <ul>
+     *   <li>preferences_generated filled in; 
+     *   <li>instantiated conditions filled in;
+     *   <li>top-level positive conditions should have bt.wme_, bt.level, and
      *      bt.trace filled in, but bt.wme_ and bt.trace shouldn't have their
      *      reference counts incremented yet.
-     *
+     * </ul>
+     * 
      * This routine does the following:
-     *   - increments reference count on production;
-     *   - fills in match_goal and match_goal_level;
-     *   - for each top-level positive cond:
-     *        replaces bt.trace with the preference for the correct level,
-     *        updates reference counts on bt.pref and bt.wmetraces and wmes
-     *   - for each preference_generated, adds that pref to the list of all
+     * <ul>
+     *   <li>increments reference count on production;
+     *   <li>fills in match_goal and match_goal_level;
+     *   <li>for each top-level positive cond:
+     *   <ul>
+     *        <li>replaces bt.trace with the preference for the correct level,
+     *        <li>updates reference counts on bt.pref and bt.wmetraces and wmes
+     *   </ul>
+     *   <li>for each preference_generated, adds that pref to the list of all
      *       pref's for the match goal
-     *   - fills in backtrace_number;
-     *   - if "need_to_do_support_calculations" is TRUE, calculates o-support
+     *   <li>fills in backtrace_number;
+     *   <li>if "need_to_do_support_calculations" is TRUE, calculates o-support
      *       for preferences_generated;
-     *       
-     * recmem.cpp:385:fill_in_new_instantiation_stuff
+     * </ul>
+     *   
+     * <p>recmem.cpp:385:fill_in_new_instantiation_stuff
      * 
      * @param inst
      * @param need_to_do_support_calculations
@@ -465,6 +473,7 @@ public class RecognitionMemory
             final PositiveCondition pc = cond.asPositiveCondition();
             if (pc != null)
             {
+                // TODO This should all be a method on pc.bt. What should it be called?
                 if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                 {
                     pc.bt.wme_.wme_add_ref();
@@ -572,7 +581,7 @@ public class RecognitionMemory
      * @param w
      * @param top_goal
      */
-    public void create_instantiation(Production prod, Token tok, WmeImpl w, IdentifierImpl top_goal)
+    private void create_instantiation(Production prod, Token tok, WmeImpl w, IdentifierImpl top_goal)
     {
         // #ifdef BUG_139_WORKAROUND
         // RPM workaround for bug #139: don't fire justifications
@@ -698,11 +707,7 @@ public class RecognitionMemory
                 // TODO deep-copy
                 // if ( glbDeepCopyWMEs != 0 ) {
                 // wme* tempwme = glbDeepCopyWMEs;
-                // pref = make_preference(thisAgent,
-                // a->preference_type,
-                // tempwme->id,
-                // tempwme->attr,
-                // tempwme->value, 0);
+                // pref = make_preference(thisAgent, a->preference_type, tempwme->id, tempwme->attr, tempwme->value, 0);
                 // glbDeepCopyWMEs = tempwme->next;
                 // deallocate_wme(thisAgent, tempwme);
                 // } else {
@@ -741,11 +746,7 @@ public class RecognitionMemory
 
         // TODO callback FIRING_CALLBACK
         //   if (!thisAgent->system_halted) {
-        //      /* --- invoke callback function --- */
-        //      soar_invoke_callbacks(thisAgent, 
-        //            FIRING_CALLBACK,
-        //            (soar_call_data) inst);
-        //
+        //      soar_invoke_callbacks(thisAgent, FIRING_CALLBACK, (soar_call_data) inst);
         //   }
     }
     
@@ -777,12 +778,12 @@ public class RecognitionMemory
                     {
                         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                         {
-                            pref.preference_remove_ref(context.prefMemory);
+                            pref.preference_remove_ref(this);
                         }
                         else
                         {
                             if (level > SoarConstants.TOP_GOAL_LEVEL)
-                                pref.preference_remove_ref(context.prefMemory);
+                                pref.preference_remove_ref(this);
                         }
                     }
                     pc.bt.clearProhibits();
@@ -792,7 +793,7 @@ public class RecognitionMemory
                 {
                     pc.bt.wme_.wme_remove_ref(context.workingMemory);
                     if (pc.bt.trace != null)
-                        pc.bt.trace.preference_remove_ref(context.prefMemory);
+                        pc.bt.trace.preference_remove_ref(this);
                 }
                 else
                 {
@@ -800,7 +801,7 @@ public class RecognitionMemory
                     {
                         pc.bt.wme_.wme_remove_ref(context.workingMemory);
                         if (pc.bt.trace != null)
-                            pc.bt.trace.preference_remove_ref(context.prefMemory);
+                            pc.bt.trace.preference_remove_ref(this);
                     }
                 }
             }
@@ -834,7 +835,7 @@ public class RecognitionMemory
      * 
      * @param inst
      */
-    public void retract_instantiation(Instantiation inst)
+    private void retract_instantiation(Instantiation inst)
     {
         // TODO callback RETRACTION_CALLBACK
         // soar_invoke_callbacks(thisAgent, RETRACTION_CALLBACK, (soar_call_data) inst);
@@ -860,7 +861,7 @@ public class RecognitionMemory
                     }
                     context.trace.print(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM, " %s", pref);
                 }
-                context.prefMemory.remove_preference_from_tm(pref);
+                remove_preference_from_tm(pref);
                 retracted_a_preference = true;
             }
             prefItem = nextItem;
@@ -932,7 +933,7 @@ public class RecognitionMemory
             }
 
             if (!o_rejects.isEmpty())
-                context.prefMemory.process_o_rejects_and_deallocate_them(o_rejects);
+                process_o_rejects_and_deallocate_them(o_rejects);
             
             // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
         }
@@ -969,7 +970,7 @@ public class RecognitionMemory
                 else if (inst.item.in_ms || pref.item.o_supported)
                 {
                     // normal case
-                    context.prefMemory.add_preference_to_tm(pref.item);
+                    add_preference_to_tm(pref.item);
 
                     // No knowledge retrieval necessary in Operand2
                 }
@@ -988,7 +989,7 @@ public class RecognitionMemory
 
                     // now add then remove ref--this should result in deallocation
                     pref.item.preference_add_ref();
-                    pref.item.preference_remove_ref(context.prefMemory);
+                    pref.item.preference_remove_ref(this);
                 }
             }
         }
@@ -996,8 +997,155 @@ public class RecognitionMemory
         if (!SoarConstants.O_REJECTS_FIRST)
         {
             if (!o_rejects.isEmpty())
-                context.prefMemory.process_o_rejects_and_deallocate_them(o_rejects);
+                process_o_rejects_and_deallocate_them(o_rejects);
         }
+    }
+    
+    /**
+     * Process_o_rejects_and_deallocate_them() handles the processing of
+     * o-supported reject preferences. This routine is called from the firer and
+     * passed a list of all the o-rejects generated in the current preference
+     * phases (the list is linked via the "next" fields on the preference
+     * structures). This routine removes all preferences for matching values
+     * from TM, and deallocates the o-reject preferences when done.
+     * 
+     * prefmem.cpp:330:process_o_rejects_and_deallocate_them
+     * 
+     * @param o_rejects
+     */
+    private void process_o_rejects_and_deallocate_them(List<Preference> o_rejects)
+    {
+        for (Preference pref : o_rejects)
+        {
+            // prevents it from being deallocated if it's a clone of some other 
+            // pref we're about to remove
+            pref.preference_add_ref(); 
+            // #ifdef DEBUG_PREFS
+            // print (thisAgent, "\nO-reject posted at 0x%8x: ",(unsigned
+            // long)pref);
+            // print_preference (thisAgent, pref);
+            // #endif
+        }
+
+        for(Preference pref : o_rejects)
+        {
+            Slot s = Slot.find_slot(pref.id, pref.attr);
+            if (s != null)
+            {
+                // remove all pref's in the slot that have the same value
+                Preference p = s.getAllPreferences();
+                while (p != null)
+                {
+                    final Preference next_p = p.nextOfSlot;
+                    if (p.value == pref.value)
+                    {
+                        remove_preference_from_tm(p);
+                    }
+                    p = next_p;
+                }
+            }
+            pref.preference_remove_ref(this);
+        }
+    }
+    
+    /**
+     * Add_preference_to_tm() adds a given preference to preference memory (and
+     * hence temporary memory). 
+     * 
+     * prefmem.cpp:203:add_preference_to_tm
+     * 
+     * @param pref
+     */
+    private void add_preference_to_tm(Preference pref)
+    {
+        // #ifdef DEBUG_PREFS
+        // print (thisAgent, "\nAdd preference at 0x%8x: ",(unsigned long)pref);
+        // print_preference (thisAgent, pref);
+        // #endif
+
+        // JC: This will retrieve the slot for pref->id if it already exists
+        Slot s = Slot.make_slot(pref.id, pref.attr, context.predefinedSyms.operator_symbol);
+        s.addPreference(pref);
+
+        // other miscellaneous stuff
+        pref.preference_add_ref();
+
+        context.tempMemory.mark_slot_as_changed(s);
+
+        // update identifier levels
+        IdentifierImpl valueId = pref.value.asIdentifier();
+        if (valueId != null)
+        {
+            context.decider.post_link_addition (pref.id, valueId);
+        }
+
+        if (pref.type.isBinary())
+        {
+            IdentifierImpl refId = pref.referent.asIdentifier();
+            if (refId != null)
+            {
+                context.decider.post_link_addition (pref.id, refId);
+            }
+        }
+
+        // if acceptable/require pref for context slot, we may need to add a wme
+        // later
+        if (s.isa_context_slot
+                && (pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE || 
+                    pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE))
+        {
+            context.decider.mark_context_slot_as_acceptable_preference_changed (s);
+        }
+    }
+
+    /**
+     * removes a given preference from PM and TM.
+     * 
+     * prefmem.cpp:282:remove_preference_from_tm
+     * 
+     * @param pref
+     */
+    public void remove_preference_from_tm(Preference pref)
+    {
+        Slot s = pref.slot;
+
+        // #ifdef DEBUG_PREFS
+        // print (thisAgent, "\nRemove preference at 0x%8x: ",(unsigned
+        // long)pref);
+        // print_preference (thisAgent, pref);
+        // #endif
+
+        // remove preference from the list for the slot
+        s.removePreference(pref);
+
+        // other miscellaneous stuff
+
+        context.tempMemory.mark_slot_as_changed(s);
+
+        /// if acceptable/require pref for context slot, we may need to remove a wme later
+        if ((s.isa_context_slot)
+                && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE)))
+        {
+            context.decider.mark_context_slot_as_acceptable_preference_changed(s);
+        }
+
+        // update identifier levels
+        IdentifierImpl valueId = pref.value.asIdentifier();
+        if (valueId != null)
+        {
+            context.decider.post_link_removal (pref.id, valueId);
+        }
+        if (pref.type.isBinary())
+        {
+            IdentifierImpl refId = pref.referent.asIdentifier();
+            if (refId != null)
+            {
+                context.decider.post_link_removal (pref.id, refId);
+            }
+        }
+
+        // deallocate it and clones if possible
+        pref.preference_remove_ref(this);
     }
 
     /**

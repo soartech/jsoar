@@ -3,9 +3,10 @@
  *
  * Created on Oct 14, 2008
  */
-package org.jsoar.kernel.io;
+package org.jsoar.kernel.events;
 
-import org.jsoar.kernel.events.SoarEvent;
+import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.util.events.SoarEvent;
 
 /**
  * @author ray

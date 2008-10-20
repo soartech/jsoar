@@ -6,6 +6,7 @@
 package org.jsoar.kernel.events;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.util.events.SoarEvent;
 
 /**
  * @author ray

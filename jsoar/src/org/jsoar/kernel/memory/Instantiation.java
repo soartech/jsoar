@@ -3,15 +3,15 @@
  *
  * Created on Aug 22, 2008
  */
-package org.jsoar.kernel.rete;
+package org.jsoar.kernel.memory;
 
 import java.util.Formatter;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
-import org.jsoar.kernel.memory.Preference;
-import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.rete.NotStruct;
+import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Traceable;
@@ -47,7 +47,7 @@ public class Instantiation implements Traceable
      * 
      * <p>Initialized to true in recmem.cpp:575:create_instantiation
      */
-    public boolean in_ms= true;  // TRUE iff this inst. is still in the match set
+    public boolean in_ms = true;
     public int /*tc_number*/ backtrace_number;
     /**
      * <p>Initialized to false in recmem.cpp:582:create_instantiation

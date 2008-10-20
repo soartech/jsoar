@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.symbols.IdentifierImpl;

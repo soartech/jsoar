@@ -6,6 +6,7 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
 
 /**

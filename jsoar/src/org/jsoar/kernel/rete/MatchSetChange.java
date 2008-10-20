@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
+import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.AsListItem;

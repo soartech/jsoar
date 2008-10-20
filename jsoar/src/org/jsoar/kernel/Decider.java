@@ -15,11 +15,11 @@ import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.learning.ReinforcementLearningInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
+import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -531,7 +531,7 @@ public class Decider
             while (pref != null)
             {
                 final Preference next_pref = pref.nextOfSlot;
-                context.prefMemory.remove_preference_from_tm(pref);
+                context.recMemory.remove_preference_from_tm(pref);
 
                 /*
                  * Note: the call to remove_preference_from_slot handles the
@@ -1505,7 +1505,7 @@ public class Decider
      */
     private void remove_fake_preference_for_goal_item(Preference pref)
     {
-        pref.preference_remove_ref(context.prefMemory); /* everything else happens automatically */
+        pref.preference_remove_ref(context.recMemory); /* everything else happens automatically */
     }
     
     /**
@@ -1895,7 +1895,7 @@ public class Decider
          * more than one wme in them
          */
         final WmeImpl w = s.getWmes();
-        w.preference.preference_remove_ref(context.prefMemory);
+        w.preference.preference_remove_ref(context.recMemory);
         context.workingMemory.remove_wme_from_wm(w);
         s.removeAllWmes();
     }    
@@ -1939,9 +1939,9 @@ public class Decider
                 Preference p = goal.preferences_from_goal.pop();
                 p.on_goal_list = false;
                 
-                if (!context.prefMemory.remove_preference_from_clones(p))
+                if (!p.remove_preference_from_clones(context.recMemory))
                     if (p.isInTempMemory())
-                        context.prefMemory.remove_preference_from_tm(p);
+                        context.recMemory.remove_preference_from_tm(p);
             }
         }
         else
@@ -1965,9 +1965,9 @@ public class Decider
                     final AsListItem<Preference> p_next = p.previous; 
                     p.remove(goal.preferences_from_goal);
                     p.item.on_goal_list = false;
-                    if (!context.prefMemory.remove_preference_from_clones(p.item))
+                    if (!p.item.remove_preference_from_clones(context.recMemory))
                         if (p.item.isInTempMemory())
-                            context.prefMemory.remove_preference_from_tm(p.item);
+                            context.recMemory.remove_preference_from_tm(p.item);
                     p = p_next;
                 }
             }
@@ -1980,8 +1980,7 @@ public class Decider
         {
             // TODO reinforcement learning
             // rl_tabulate_reward_value_for_goal( thisAgent, goal );
-            // rl_perform_update( thisAgent, 0, goal ); // this update only sees
-            // reward - there is no next state
+            // rl_perform_update( thisAgent, 0, goal ); // this update only sees reward - there is no next state
         }
 
         context.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
@@ -2323,7 +2322,7 @@ public class Decider
             context.workingMemory.add_wme_to_wm(w);
 
             for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
-                temp.preference_remove_ref(context.prefMemory);
+                temp.preference_remove_ref(context.recMemory);
 
             if (context.rl.rl_enabled())
                 context.rl.rl_store_data(goal, candidates.value);
@@ -2368,7 +2367,7 @@ public class Decider
         }
 
         for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
-            temp.preference_remove_ref(context.prefMemory);
+            temp.preference_remove_ref(context.recMemory);
 
         return true;
     }

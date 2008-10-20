@@ -3,11 +3,14 @@
  *
  * Created on Oct 15, 2008
  */
-package org.jsoar.kernel.memory;
+package org.jsoar.kernel.events;
 
 import java.util.Iterator;
 
-import org.jsoar.kernel.events.SoarEvent;
+import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.memory.WmeIterator;
+import org.jsoar.util.events.SoarEvent;
 
 /**
  * callback.h:96:INPUT_WME_GARBAGE_COLLECTED_CALLBACK
@@ -21,7 +24,7 @@ public class InputWmeGarbageCollectedEvent implements SoarEvent
     /**
      * @param headOfList
      */
-    InputWmeGarbageCollectedEvent(WmeImpl headOfList)
+    public InputWmeGarbageCollectedEvent(WmeImpl headOfList)
     {
         this.headOfList = headOfList;
     }

@@ -12,7 +12,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.io.OutputEvent.OutputMode;
+import org.jsoar.kernel.events.InputCycleEvent;
+import org.jsoar.kernel.events.OutputEvent;
+import org.jsoar.kernel.events.TopStateRemovedEvent;
+import org.jsoar.kernel.events.OutputEvent.OutputMode;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;

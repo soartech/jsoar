@@ -17,7 +17,6 @@ import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
-import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.MakeAction;

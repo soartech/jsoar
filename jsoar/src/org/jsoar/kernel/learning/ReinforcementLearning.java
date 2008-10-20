@@ -7,9 +7,9 @@ package org.jsoar.kernel.learning;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 
