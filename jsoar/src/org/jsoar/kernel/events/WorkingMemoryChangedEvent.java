@@ -3,14 +3,16 @@
  *
  * Created on Oct 15, 2008
  */
-package org.jsoar.kernel.memory;
+package org.jsoar.kernel.events;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.jsoar.kernel.events.SoarEvent;
+import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.events.SoarEvent;
 
 /**
  * callback.h:76:WM_CHANGES_CALLBACK
@@ -26,7 +28,7 @@ public class WorkingMemoryChangedEvent implements SoarEvent
      * @param added
      * @param removed
      */
-    WorkingMemoryChangedEvent(ListHead<WmeImpl> added, ListHead<WmeImpl> removed)
+    public WorkingMemoryChangedEvent(ListHead<WmeImpl> added, ListHead<WmeImpl> removed)
     {
         this.added = added;
         this.removed = removed;

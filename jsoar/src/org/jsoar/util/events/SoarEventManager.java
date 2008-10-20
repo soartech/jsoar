@@ -3,7 +3,7 @@
  *
  * Created on Sep 26, 2008
  */
-package org.jsoar.kernel.events;
+package org.jsoar.util.events;
 
 import java.util.List;
 import java.util.Map;

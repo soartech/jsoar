@@ -8,7 +8,6 @@ package org.jsoar.kernel.memory;
 import java.util.Formattable;
 import java.util.Formatter;
 
-import org.jsoar.kernel.rete.Instantiation;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.AsListItem;
@@ -151,14 +150,14 @@ public class Preference implements Formattable
         reference_count++;
     }
     
-    public void preference_remove_ref(PreferenceMemory prefMem)
+    public void preference_remove_ref(RecognitionMemory recMemory)
     {
         assert this.reference_count > 0;
         
         this.reference_count--;
         if (reference_count == 0)
         {
-            prefMem.possibly_deallocate_preference_and_clones(this);
+            possibly_deallocate_preference_and_clones(this, recMemory);
         }
     }
 
@@ -255,7 +254,126 @@ public class Preference implements Formattable
         // if none was at the right level, we can't backtrace at all
         return null;
     }
+    /**
+     * prefmem.cpp:100:deallocate_preference
+     * 
+     * @param pref
+     */
+    private void deallocate_preference (Preference pref, RecognitionMemory recMemory) 
+    {
+        assert !pref.deallocated;
+        assert pref.reference_count == 0;
+        
+        // remove it from the list of pref's for its match goal
+        if (pref.on_goal_list)
+        {
+            pref.all_of_goal.remove(pref.inst.match_goal.preferences_from_goal);
+        }
 
+        // remove it from the list of pref's from that instantiation
+        pref.inst_next_prev.remove(pref.inst.preferences_generated);
+
+        recMemory.possibly_deallocate_instantiation(pref.inst);
+
+        if (pref.type.isBinary())
+        {
+            //symbol_remove_ref (thisAgent, pref->referent);
+        }
+        
+        pref.deallocated = true;
+    } 
+    
+    /**
+     * Possibly_deallocate_preference_and_clones() checks whether a given
+     * preference and all its clones have reference_count 0, and deallocates
+     * them all if they do. It returns TRUE if they were actually deallocated,
+     * FALSE otherwise.
+     * 
+     * prefmem.cpp:141:possibly_deallocate_preference_and_clones
+     * 
+     * @param pref
+     * @return
+     */
+    boolean possibly_deallocate_preference_and_clones(Preference pref, RecognitionMemory recMemory)
+    {
+        if (pref.reference_count > 0)
+        {
+            return false;
+        }
+        for (Preference clone = pref.next_clone; clone != null; clone = clone.next_clone)
+        {
+            if (clone.reference_count > 0)
+            {
+                return false;
+            }
+        }
+        for (Preference clone = pref.prev_clone; clone != null; clone = clone.prev_clone)
+        {
+            if (clone.reference_count > 0)
+            {
+                return false;
+            }
+        }
+
+        // deallocate all the clones
+        Preference clone = pref.next_clone;
+        while (clone != null)
+        {
+            final Preference next = clone.next_clone;
+            deallocate_preference(clone, recMemory);
+            clone = next;
+        }
+        clone = pref.prev_clone;
+        while (clone != null)
+        {
+            final Preference next = clone.prev_clone;
+            deallocate_preference(clone, recMemory);
+            clone = next;
+        }
+
+        // deallocate pref
+        deallocate_preference(pref, recMemory);
+
+        return true;
+    } 
+    
+    /**
+     * Remove_preference_from_clones() splices a given preference out of the
+     * list of clones. If the preference's reference_count is 0, it also
+     * deallocates it and returns TRUE. Otherwise it returns FALSE.
+     * 
+     * prefmem.cpp:176:remove_preference_from_clones
+     * 
+     * @param pref
+     * @return
+     */
+    public boolean remove_preference_from_clones(RecognitionMemory recMemory)
+    {
+        final Preference pref = this;
+        Preference any_clone = null;
+        if (this.next_clone != null)
+        {
+            any_clone = pref.next_clone;
+            pref.next_clone.prev_clone = pref.prev_clone;
+        }
+        if (pref.prev_clone != null)
+        {
+            any_clone = pref.prev_clone;
+            pref.prev_clone.next_clone = pref.next_clone;
+        }
+        pref.next_clone = pref.prev_clone = null;
+        if (any_clone != null)
+            possibly_deallocate_preference_and_clones(any_clone, recMemory);
+        if (pref.reference_count == 0)
+        {
+            deallocate_preference(pref, recMemory);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     
 
 }

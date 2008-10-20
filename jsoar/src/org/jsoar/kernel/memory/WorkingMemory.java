@@ -6,9 +6,10 @@
 package org.jsoar.kernel.memory;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.events.InputWmeGarbageCollectedEvent;
+import org.jsoar.kernel.events.WorkingMemoryChangedEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;

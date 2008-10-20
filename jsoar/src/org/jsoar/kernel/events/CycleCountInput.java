@@ -3,14 +3,15 @@
  *
  * Created on Oct 16, 2008
  */
-package org.jsoar.kernel.io;
+package org.jsoar.kernel.events;
 
-import org.jsoar.kernel.events.SoarEvent;
-import org.jsoar.kernel.events.SoarEventListener;
-import org.jsoar.kernel.events.SoarEventManager;
+import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.events.SoarEvent;
+import org.jsoar.util.events.SoarEventListener;
+import org.jsoar.util.events.SoarEventManager;
 
 /**
  * Adds an augmentation to the input-link with the current cycle count. The

@@ -3,11 +3,12 @@
  *
  * Created on Oct 14, 2008
  */
-package org.jsoar.kernel.io;
+package org.jsoar.kernel.events;
 
 import java.util.Collections;
 import java.util.List;
 
+import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;

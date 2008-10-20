@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 /**
  * @author ray
  */
-class WmeIterator implements Iterator<Wme>
+public class WmeIterator implements Iterator<Wme>
 {
     private WmeImpl next;
     
