@@ -74,7 +74,7 @@ public class CycleCountInputTest
         int expected = 1;
         for(Integer i : matches)
         {
-            assertEquals(expected++, i);
+            assertEquals(expected++, i.intValue());
         }
     }
 }

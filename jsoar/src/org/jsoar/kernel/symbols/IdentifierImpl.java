@@ -31,8 +31,8 @@ import com.google.common.collect.Iterators;
  */
 public class IdentifierImpl extends SymbolImpl implements Identifier
 {
-    public final int name_number;
-    public final char name_letter;
+    private final int name_number;
+    private final char name_letter;
     
     public boolean isa_goal;
     public boolean isa_impasse;
@@ -51,8 +51,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
 
     // fields used only on goals and impasse identifiers
     private WmeImpl impasse_wmes;
-    
-    /* --- fields used only on goals --- */
     public IdentifierImpl higher_goal, lower_goal;
     public Slot operator_slot;
     public final ListHead<Preference> preferences_from_goal = ListHead.newInstance();

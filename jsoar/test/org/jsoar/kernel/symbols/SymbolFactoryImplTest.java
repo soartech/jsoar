@@ -48,20 +48,20 @@ public class SymbolFactoryImplTest
     {
         IdentifierImpl s = syms.make_new_identifier('s', (short) 1);
         assertNotNull(s);
-        assertEquals('S', s.name_letter);
-        assertEquals(1, s.name_number);
+        assertEquals('S', s.getNameLetter());
+        assertEquals(1, s.getNameNumber());
         assertEquals(1, s.level);
         assertFalse(s.hash_id == 0);
-        assertSame(s, syms.findIdentifier(s.name_letter, s.name_number));
+        assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
         
         // Make another id and make sure the id increments
         s = syms.make_new_identifier('s', (short) 4);
         assertNotNull(s);
-        assertEquals('S', s.name_letter);
-        assertEquals(2, s.name_number);
+        assertEquals('S', s.getNameLetter());
+        assertEquals(2, s.getNameNumber());
         assertEquals(4, s.level);
         assertFalse(s.hash_id == 0);
-        assertSame(s, syms.findIdentifier(s.name_letter, s.name_number));
+        assertSame(s, syms.findIdentifier(s.getNameLetter(), s.getNameNumber()));
     }
 
     @Test

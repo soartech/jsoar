@@ -184,7 +184,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         id.level = level;
         id.promotion_level = level;
         
-        identifiers.put(new IdKey(id.name_letter, id.name_number), id);
+        identifiers.put(new IdKey(id.getNameLetter(), id.getNameNumber()), id);
         return id;
     }
     

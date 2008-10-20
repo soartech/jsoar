@@ -93,7 +93,7 @@ public class DecisionManipulation
                 if ( valueAsId != null )
                 {
                     // clear comparison string
-                    String temp = Character.toString(valueAsId.name_letter) + valueAsId.name_number;
+                    String temp = String.format("%s", valueAsId);
 
                     if ( this.select_operator.equals( temp ) )
                         return_val = cand;

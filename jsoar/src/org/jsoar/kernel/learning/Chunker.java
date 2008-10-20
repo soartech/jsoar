@@ -320,7 +320,7 @@ public class Chunker
 
         // need to create a new variable
         id.tc_number = this.variablization_tc;
-        Variable var = context.variableGenerator.generate_new_variable(Character.toString(id.name_letter));
+        Variable var = context.variableGenerator.generate_new_variable(Character.toString(id.getNameLetter()));
         id.variablization = var;
         return var;
     }
