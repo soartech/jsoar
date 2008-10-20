@@ -121,7 +121,6 @@ public class Decider
     public IdentifierImpl top_goal;
     public IdentifierImpl bottom_goal;
     public IdentifierImpl top_state;
-    public IdentifierImpl prev_top_state;
     public IdentifierImpl active_goal;
     IdentifierImpl previous_active_goal;
     public int active_level;
@@ -1895,6 +1894,7 @@ public class Decider
          * more than one wme in them
          */
         final WmeImpl w = s.getWmes();
+        assert w.next == null;
         w.preference.preference_remove_ref(context.recMemory);
         context.workingMemory.remove_wme_from_wm(w);
         s.removeAllWmes();
@@ -2224,6 +2224,7 @@ public class Decider
 
             if (predict)
             {
+                // TODO make this a method on DecisionManip
                 switch (impasse_type)
                 {
                 case CONSTRAINT_FAILURE_IMPASSE_TYPE:

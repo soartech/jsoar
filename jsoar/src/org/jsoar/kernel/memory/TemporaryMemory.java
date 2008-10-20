@@ -14,17 +14,17 @@ import org.jsoar.util.ListHead;
 /**
  * Slot Garbage Collection
  * 
- * Old slots are garbage collected as follows: whenever we notice that the last
+ * <p>Old slots are garbage collected as follows: whenever we notice that the last
  * preference has been removed from a slot, we call
  * mark_slot_for_possible_removal(). We don't deallocate the slot right away,
  * because there might still be wmes in it, or we might be about to add a new
  * preference to it (through some later action of the same production firing,
  * for example).
  * 
- * At the end of the phases, we call remove_garbage_slots(), which scans through
+ * <p>At the end of the phases, we call remove_garbage_slots(), which scans through
  * each marked slot and garbage collects it if it has no wmes or preferences.
  * 
- * tempmem.cpp
+ * <p>tempmem.cpp
  * 
  * @author ray
  */
@@ -36,6 +36,7 @@ public class TemporaryMemory
      * TODO Move to Decider?
      */
     public IdentifierImpl highest_goal_whose_context_changed;
+    
     /**
      * agent.h:602:changed_slots
      */

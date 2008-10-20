@@ -21,12 +21,14 @@ public interface InputOutput
     /**
      * @return The symbol factory used by this I/O component
      */
-    SymbolFactory getSymbolFactory();
+    SymbolFactory getSymbols();
     
     /**
      * Create a new input WME. The symbols used must have been created with
-     * the symbol factory returned by {@link #getSymbolFactory()}. Use of
+     * the symbol factory returned by {@link #getSymbols()}. Use of
      * the utility functions in {@link Symbols} is encouraged.
+     * 
+     * <p>io.cpp::add_input_wme
      * 
      * @param id The id of the new WME.
      * @param attr The attribute of the new WME
@@ -38,6 +40,8 @@ public interface InputOutput
     
     /**
      * Remove an input WME previously created with {@link #addInputWme(Identifier, Symbol, Symbol)}.
+     * 
+     * <p>io.cpp:243:remove_input_wme
      * 
      * @param w The WME to remove
      * @throws IllegalArgumentException if the WME is <code>null</code>
