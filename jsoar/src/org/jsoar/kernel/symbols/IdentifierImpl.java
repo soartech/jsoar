@@ -27,6 +27,10 @@ import com.google.common.collect.Iterators;
  * only be used in the kernel. External code (I/O and RHS functions) should use
  * {@link IdSymbol}
  * 
+ * <p>Field omitted because they were unused or unnecessary:
+ * <ul>
+ * <li>did_PE
+ * </ul>
  * @author ray
  */
 public class IdentifierImpl extends SymbolImpl implements Identifier
@@ -36,7 +40,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     
     public boolean isa_goal;
     public boolean isa_impasse;
-    public boolean did_PE;
     public short isa_operator;
     public boolean allow_bottom_up_chunks;
     
@@ -49,7 +52,14 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public int tc_number; /* used for transitive closures, marking, etc. */
     public SymbolImpl variablization; /* used by the chunker */
 
-    // fields used only on goals and impasse identifiers
+    // TODO I think, in the long run, all of these fields should be pushed into a Goal object.
+    // If anything, they're sitting around taking up memory on all non-goal identifiers. Also,
+    // it will probably make some of the code clearer to have an actual Goal class in the 
+    // system.  I experimented with this (only about 30 minutes of refactoring), but I didn't
+    // note any significant speedup or memory usage improvement, so I'll leave it out until we
+    // get really serious about refactoring the kernel.
+    
+    // Fields used only on goals and impasse identifiers
     private WmeImpl impasse_wmes;
     public IdentifierImpl higher_goal, lower_goal;
     public Slot operator_slot;
@@ -60,9 +70,12 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
 
     public GoalDependencySet gds; // pointer to a goal's dependency set
 
-    public SavedFiringType saved_firing_type = SavedFiringType.NO_SAVED_PRODS;     /* FIRING_TYPE that must be restored if Waterfall
-                  processing returns to this level.
-                  See consistency.cpp */
+    /**
+     * FIRING_TYPE that must be restored if Waterfall processing returns to this
+     * level. See consistency.cpp
+     */
+    public SavedFiringType saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
+    
     public final ListHead<MatchSetChange> ms_o_assertions = ListHead.newInstance(); /* dll of o assertions at this level */
     public final ListHead<MatchSetChange> ms_i_assertions = ListHead.newInstance(); /* dll of i assertions at this level */
     public final ListHead<MatchSetChange> ms_retractions = ListHead.newInstance();  /* dll of retractions at this level */
