@@ -72,6 +72,14 @@ public class Production
     }
     
     /**
+     * @return the type of this production
+     */
+    public ProductionType getType()
+    {
+        return type;
+    }
+    
+    /**
      * Performs reordering of the LHS and RHS of the production using the given
      * reorderer objects. This will modify the conditions and actions of the
      * production. 
@@ -222,11 +230,11 @@ public class Production
         ConditionsAndNots cns = rete.p_node_to_conditions_and_nots(p_node, null, null, true);
         printer.print("   ");
 
-        Conditions.print_condition_list(printer, cns.dest_top_cond, 3, internal);
+        Conditions.print_condition_list(printer, cns.top, 3, internal);
 
         printer.print("\n    -->\n  ");
         printer.print("  ");
-        Action.print_action_list(printer, cns.dest_rhs, 4, internal);
+        Action.print_action_list(printer, cns.actions, 4, internal);
         printer.print("\n}\n");
     } 
     

@@ -106,11 +106,17 @@ public class RecognitionMemory
     }
     
     /**
-     * init_soar.cpp:297:reset_statistics
+     * <p>init_soar.cpp:297:reset_statistics
+     * <p>init_soar.cpp:436:reinitialize_soar
      */
-    public void reset_statistics()
+    public void reset()
     {
         this.production_firing_count = 0;
+        
+        if (context.operand2_mode)
+        {
+            this.FIRING_TYPE = SavedFiringType.IE_PRODS; /* KJC 10.05.98 was PE */
+        }
     }
     
     /**
@@ -593,7 +599,7 @@ public class RecognitionMemory
     {
         // #ifdef BUG_139_WORKAROUND
         // RPM workaround for bug #139: don't fire justifications
-        if (prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        if (prod.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
         {
             return;
         }
@@ -613,9 +619,9 @@ public class RecognitionMemory
 
         // build the instantiated conditions, and bind LHS variables
         ConditionsAndNots cans = context.rete.p_node_to_conditions_and_nots(prod.p_node, tok, w, false);
-        inst.top_of_instantiated_conditions = cans.dest_top_cond;
-        inst.bottom_of_instantiated_conditions = cans.dest_bottom_cond;
-        inst.nots = cans.dest_nots;
+        inst.top_of_instantiated_conditions = cans.top;
+        inst.bottom_of_instantiated_conditions = cans.bottom;
+        inst.nots = cans.nots;
 
         // record the level of each of the wmes that was positively tested
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
@@ -628,7 +634,7 @@ public class RecognitionMemory
             }
         }
 
-        boolean trace_it = context.trace.isEnabled(inst.prod.type.getTraceCategory());
+        boolean trace_it = context.trace.isEnabled(inst.prod.getType().getTraceCategory());
         if(trace_it)
         {
             context.trace.startNewLine().print("Firing %s", inst);
@@ -657,7 +663,7 @@ public class RecognitionMemory
         for (Action a = prod.action_list; a != null; a = a.next)
         {
             Preference pref = null;
-            if (prod.type != ProductionType.TEMPLATE_PRODUCTION_TYPE)
+            if (prod.getType() != ProductionType.TEMPLATE_PRODUCTION_TYPE)
             {
                 pref = execute_action(a, tok, w);
             }
@@ -850,7 +856,7 @@ public class RecognitionMemory
 
         boolean retracted_a_preference = false;
 
-        final boolean trace_it = context.trace.isEnabled(inst.prod.type.getTraceCategory());
+        final boolean trace_it = context.trace.isEnabled(inst.prod.getType().getTraceCategory());
 
         // retract any preferences that are in TM and aren't o-supported
         AsListItem<Preference> prefItem = inst.preferences_generated.first;
@@ -864,7 +870,7 @@ public class RecognitionMemory
                 if (trace_it) {
                     if (!retracted_a_preference) 
                     {
-                        context.trace.startNewLine().print(inst.prod.type.getTraceCategory(), "Retracting %s", inst);
+                        context.trace.startNewLine().print(inst.prod.getType().getTraceCategory(), "Retracting %s", inst);
                         context.trace.print(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM, " -->\n");
                     }
                     context.trace.print(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM, " %s", pref);
@@ -884,7 +890,7 @@ public class RecognitionMemory
          * thing supporting this justification is the instantiation, hence it
          * has already been excised, and doing it again is wrong.
          */
-        if (inst.prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE && inst.prod.getReferenceCount() > 1)
+        if (inst.prod.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE && inst.prod.getReferenceCount() > 1)
             context.exciseProduction(inst.prod, false);
 
         // mark as no longer in MS, and possibly deallocate

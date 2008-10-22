@@ -7,6 +7,7 @@ package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -19,8 +20,7 @@ public class LeftToken extends Token
     LeftToken next_in_bucket;
     private LeftToken prev_in_bucket; // part of hash bucket dll
     final SymbolImpl referent; // referent of the hash test (thing we hashed on)
-    final ListHead<RightToken> negrm_tokens = ListHead.newInstance(); /* join results: for Neg, CN nodes only */
-    
+    private ListHead<RightToken> negrm_tokens = null; /* join results: for Neg, CN nodes only */
     
     public LeftToken(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, SymbolImpl referent)
     {
@@ -57,8 +57,37 @@ public class LeftToken extends Token
         prev_in_bucket = null;
         
         return head;
-    }    
+    }
+    
+    boolean hasNegRightTokens()
+    {
+        return negrm_tokens != null && !negrm_tokens.isEmpty();
+    }
+    
+    private ListHead<RightToken> getNegRightTokens()
+    {
+        if(negrm_tokens == null)
+        {
+            negrm_tokens = ListHead.newInstance();
+        }
+        return negrm_tokens;
+    }
 
+    AsListItem<RightToken> getFirstNegRightToken()
+    {
+        return negrm_tokens != null ? negrm_tokens.first : null;
+    }
+    
+    void addNegRightToken(RightToken rt)
+    {
+        rt.negrm.insertAtHead(getNegRightTokens());
+    }
+    
+    void removeNegRightToken(RightToken rt)
+    {
+        rt.negrm.remove(getNegRightTokens());
+    }
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */

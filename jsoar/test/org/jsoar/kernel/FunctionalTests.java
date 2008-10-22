@@ -132,7 +132,7 @@ public class FunctionalTests
                 return null;
             }});
         
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         
         assertTrue(matches.contains("J1_0"));
         assertTrue(matches.contains("J2_1"));
@@ -157,7 +157,7 @@ public class FunctionalTests
                 return null;
             }});
         
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         
         assertTrue(matches.contains("monitor*contents"));
         assertTrue(matches.contains("elaborate*free"));
@@ -191,7 +191,7 @@ public class FunctionalTests
         "   (<o> ^name initialize-toh)");
         
         agent.consistency.setMaxElaborations(5);
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         assertFalse(agent.consistency.isHitMaxElaborations()); //  TODO replace with callback?
         
     }    

@@ -61,7 +61,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     
     public SymbolFactoryImpl()
     {
-        reset_id_counters();
+        reset();
     }
     
     /**
@@ -93,7 +93,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      * 
      * @return
      */
-    public void reset_id_counters()
+    public void reset()
     {
         // Note: In csoar, a warning was printed if any identifiers remained in
         // the cache. This was an indication of a memory leak since ids should

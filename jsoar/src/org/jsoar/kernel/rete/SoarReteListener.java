@@ -169,7 +169,7 @@ public class SoarReteListener implements ReteListener
          * is first created, so we let it match the first time, but not after
          * that
          */
-        if (match_found && node.b_p.prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        if (match_found && node.b_p.prod.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
         {
             if (node.b_p.prod.already_fired)
             {
@@ -658,7 +658,7 @@ public class SoarReteListener implements ReteListener
         }
         
         //#ifdef BUG_139_WORKAROUND
-        if (node.b_p.prod.type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        if (node.b_p.prod.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
         {
             // TODO Warning
             //#ifdef BUG_139_WORKAROUND_WARNING

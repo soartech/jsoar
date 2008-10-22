@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
 import org.junit.After;
@@ -61,7 +62,7 @@ public class IdentifierImplTest extends JSoarTest
         		"(<s> ^test <w>)" +
         		"(<w> ^a 1 ^b 2 ^c 3 ^d 4)");
         
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         
         Identifier id = agent.getSymbols().findIdentifier('S', 1);
         assertNotNull(id);

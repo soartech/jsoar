@@ -20,11 +20,8 @@ public class RightMemoryHashTable
 
     private static final int RIGHT_HT_MASK = RIGHT_HT_SIZE - 1;
     
-    private List<ListHead<RightMemory>> buckets;
-    
-    public RightMemoryHashTable()
+    private final List<ListHead<RightMemory>> buckets = new ArrayList<ListHead<RightMemory>>(RIGHT_HT_SIZE);
     {
-        this.buckets = new ArrayList<ListHead<RightMemory>>(RIGHT_HT_SIZE);
         for(int i = 0; i < RIGHT_HT_SIZE; ++i)
         {
             this.buckets.add(ListHead.<RightMemory>newInstance());

@@ -343,7 +343,7 @@ public class Rete
         }
 
         /* --- if not a chunk, store variable name information --- */
-        if ((p.type == ProductionType.CHUNK_PRODUCTION_TYPE) && discard_chunk_varnames)
+        if ((p.getType() == ProductionType.CHUNK_PRODUCTION_TYPE) && discard_chunk_varnames)
         {
             p.p_node.b_p.parents_nvn = null;
             p.rhs_unbound_variables.clear();
@@ -526,11 +526,11 @@ public class Rete
           if (tok.parent == null) {
             /* Note: parent pointer is NIL only on negative node negrm tokens */
               RightToken rt = (RightToken) tok;
-            LeftToken left = rt.left_token;
+            LeftToken left = rt.getLeftToken();
             tok.removeFromWme();
-            rt.negrm.remove(left.negrm_tokens);
+            left.removeNegRightToken(rt);
 
-            if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
+            if (!left.hasNegRightTokens()) { /* just went to 0, so call children */
               for (ReteNode child=node.first_child; child!=null; child=child.next_sibling) {
                   executeLeftAddition(child, left, null);
               }
@@ -814,7 +814,7 @@ public class Rete
         // on the parent node
         for(Token tok = parent.a_np.tokens; tok != null; tok = tok.next_of_node)
         {
-            if(((LeftToken)tok).negrm_tokens.isEmpty())
+            if(!((LeftToken)tok).hasNegRightTokens())
             {
                 executeLeftAddition(child, tok, null);
             }
@@ -1632,8 +1632,8 @@ public class Rete
             RightToken.create(node, null, rm.w, New);
         }
 
-        /* --- if no matches were found, call each child node --- */
-        if (New.negrm_tokens.isEmpty())
+        // if no matches were found, call each child node
+        if (!New.hasNegRightTokens())
         {
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
@@ -1684,8 +1684,8 @@ public class Rete
             RightToken.create(node, null, rm.w, New);
         }
 
-        /* --- if no matches were found, call each child node --- */
-        if (New.negrm_tokens.isEmpty())
+        // if no matches were found, call each child node
+        if (!New.hasNegRightTokens())
         {
             for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
             {
@@ -1821,13 +1821,14 @@ public class Rete
      */
     private void cn_partner_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
-        ReteNode partner = node.b_cn.partner;
+        final ReteNode partner = node.b_cn.partner;
 
         // build new negrm token
         
-        // TODO: Can this be created at "negrm_tok.left_token = left;" below so
-        // that left_toke can be final and list insertion can happen in constructor?
-        RightToken negrm_tok = RightToken.create(node, tok, w, null);
+        // Can this be created at "negrm_tok.left_token = left;" below so
+        // that left_token can be final and list insertion can happen in constructor?
+        // Answer: No. I tried this and things didn't work.
+        final RightToken negrm_tok = RightToken.create(node, tok, w, null);
 
         // advance (tok,w) up to the token from the top of the branch
         ReteNode temp = node.parent;
@@ -1858,8 +1859,7 @@ public class Rete
         }
 
         // add new negrm token to the left token
-        negrm_tok.left_token = left;
-        negrm_tok.negrm.insertAtHead(left.negrm_tokens);
+        negrm_tok.setLeftToken(left);
 
         // remove any descendent tokens of the left token
         while (left.first_child != null)
@@ -1929,7 +1929,7 @@ public class Rete
             int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
             left_ht.remove_token_from_left_ht(lt, hv);
             if (node.a_np.tokens == null) { node.unlink_from_right_mem(); }
-            for (AsListItem<RightToken> t = lt.negrm_tokens.first; t != null; t = t.next) {
+            for (AsListItem<RightToken> t = lt.getFirstNegRightToken(); t != null; t = t.next) {
                 t.item.removeFromWme();
             }
 
@@ -1961,7 +1961,7 @@ public class Rete
               int hv = node.node_id ^ addressOf(tok.parent) ^ addressOf(tok.w);
             //int hv = node.node_id ^ (unsigned long)(tok->parent) ^ (unsigned long)(tok->w)
               left_ht.remove_token_from_left_ht((LeftToken) tok, hv); // TODO: Safe to assume this?  
-            for(AsListItem<RightToken> it = ((LeftToken) tok).negrm_tokens.first; it != null; it = it.next)
+            for(AsListItem<RightToken> it = ((LeftToken) tok).getFirstNegRightToken(); it != null; it = it.next)
             {
                 final Token t = it.item;
                 t.removeFromWme();
@@ -1972,10 +1972,10 @@ public class Rete
           /* --- for CN Partner nodes --- */
           } else if (node_type==ReteNodeType.CN_PARTNER_BNODE) {
             RightToken rt = (RightToken) tok; // TODO: Safe to assume this?
-            LeftToken left = rt.left_token;
-            rt.negrm.remove(left.negrm_tokens);
+            LeftToken left = rt.getLeftToken();
+            left.removeNegRightToken(rt);
             
-            if (left.negrm_tokens.isEmpty()) { /* just went to 0, so call children */
+            if (!left.hasNegRightTokens()) { /* just went to 0, so call children */
               for (ReteNode child=left.node.first_child; child!=null; child=child.next_sibling){
                 executeLeftAddition(child, left, null);
               }
@@ -1994,10 +1994,10 @@ public class Rete
     /**
      * P_node_to_conditions_and_nots() takes a p_node and (optionally) a
      * token/wme pair, and reconstructs the (optionally instantiated) LHS for
-     * the production. If "dest_rhs" is non-NIL, it also reconstructs the RHS
-     * actions, and fills in dest_rhs with the action list. Note: if tok!=NIL,
-     * this routine also returns (in dest_nots) the top-level positive "<>"
-     * tests. If tok==NIL, dest_nots is not used.
+     * the production. If "actions" is non-NIL, it also reconstructs the RHS
+     * actions, and fills in actions with the action list. Note: if tok!=NIL,
+     * this routine also returns (in nots) the top-level positive {@code "<>"}
+     * tests. If tok==NIL, nots is not used.
      * 
      * <p>rete.cpp:4350:p_node_to_conditions_and_nots
      * 
@@ -2020,10 +2020,10 @@ public class Rete
                                  p_node.b_p.parents_nvn,
                                  dummy_top_node,
                                  tok, w, null);
-        result.dest_top_cond = rntc.dest_top_cond;
-        result.dest_bottom_cond = rntc.dest_bottom_cond;
+        result.top = rntc.dest_top_cond;
+        result.bottom = rntc.dest_bottom_cond;
         
-        if (tok != null) result.dest_nots = rntc.nots_found_in_production;
+        if (tok != null) result.nots = rntc.nots_found_in_production;
         rntc.nots_found_in_production = null; /* just for safety */
         if (doRhs) 
         {
@@ -2037,8 +2037,8 @@ public class Rete
                    this.highest_rhs_unboundvar_index++;
                }
            }
-           result.dest_rhs = Action.copy_action_list_and_substitute_varnames (this, prod.action_list,
-                                                                               result.dest_bottom_cond);
+           result.actions = Action.copy_action_list_and_substitute_varnames (this, prod.action_list,
+                                                                               result.bottom);
            int index = 0;
            while (index <= highest_rhs_unboundvar_index) rhs_variable_bindings[index++] = null;
         }
@@ -2273,7 +2273,7 @@ public class Rete
      * emerged from "node" -- these are used only when firing, not when
      * reconstructing. "conds_for_cutoff_and_up" should be the lowermost cond in
      * the already-constructed chain of conditions for the "cutoff" node and
-     * higher. "Dest_top_cond" and "dest_bottom_cond" get filled in with the
+     * higher. "Dest_top_cond" and "bottom" get filled in with the
      * highest and lowest conditions built by this procedure.
      * 
      * Note: Original return by ref parameters in CSoar were replaced by a
@@ -2617,7 +2617,7 @@ public class Rete
     {
         ConditionsAndNots cans = p_node_to_conditions_and_nots(p_node, null, null, false);
         
-        int n = ppmi_aux(printer, p_node.parent, dummy_top_node, cans.dest_bottom_cond, wtt, 0);
+        int n = ppmi_aux(printer, p_node.parent, dummy_top_node, cans.bottom, wtt, 0);
         
         printer.print("\n%d complete matches.\n", n);
         if (n != 0 && (wtt != WmeTraceType.NONE_WME_TRACE))

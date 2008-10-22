@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.events.CycleCountInput;
 import org.jsoar.kernel.events.InputCycleEvent;
 import org.jsoar.kernel.events.OutputEvent;
@@ -122,7 +123,7 @@ public class InputOutputImplTest extends JSoarTest
             }});
         
         sourceTestFile("testBasicInput.soar");
-        agent.decisionCycle.run_for_n_decision_cycles(3);
+        agent.runFor(3, RunType.DECISIONS);
         assertEquals(2, listenerCallCount[0]);
         if(!match.called)
         {
@@ -155,17 +156,17 @@ public class InputOutputImplTest extends JSoarTest
         sourceTestFile("testAddAndRemoveInputWme.soar");
         
         // First the "removed" production will fire because the WME isn't present yet
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, match.calls.size());
         assertEquals("removed", match.calls.get(0).get(0).toString());
         
         // Next the "added" production will fire because the WME has been added
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         assertEquals(2, match.calls.size());
         assertEquals("added", match.calls.get(1).get(0).toString());
         
         // Finally, "removed" fires again after the WME has been removed
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         assertEquals(3, match.calls.size());
         assertEquals("removed", match.calls.get(2).get(0).toString());
         
@@ -202,7 +203,7 @@ public class InputOutputImplTest extends JSoarTest
             }});
         
         sourceTestFile("testBasicOutput.soar");
-        agent.decisionCycle.run_for_n_decision_cycles(3);
+        agent.runFor(3, RunType.DECISIONS);
         
         assertEquals(2, outputs.size());
         
@@ -232,24 +233,24 @@ public class InputOutputImplTest extends JSoarTest
         sourceTestFile("testGetPendingCommands.soar");
         
         // Run one decision to get cycle count going
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
         assertEquals(1, Iterators.size(io.getOutputLink().getWmes()));
         assertNotNull(Wmes.find(io.getPendingCommands().iterator(), Wmes.newMatcher(agent.getSymbols(), io.getOutputLink(), "first")));
         
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
         assertEquals(2, Iterators.size(io.getOutputLink().getWmes()));
         assertNotNull(Wmes.find(io.getPendingCommands().iterator(), Wmes.newMatcher(agent.getSymbols(), io.getOutputLink(), "second")));
         
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
         assertEquals(3, Iterators.size(io.getOutputLink().getWmes()));
         assertNotNull(Wmes.find(io.getPendingCommands().iterator(), Wmes.newMatcher(agent.getSymbols(), io.getOutputLink(), "third")));
         
-        agent.decisionCycle.run_for_n_decision_cycles(1);
+        agent.runFor(1, RunType.DECISIONS);
         assertEquals(0, io.getPendingCommands().size());
         assertEquals(3, Iterators.size(io.getOutputLink().getWmes()));
     }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.events.CycleCountInput;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
@@ -67,7 +68,7 @@ public class CycleCountInputTest
         		"(match <cc>)");
         
         final int n = 50;
-        agent.decisionCycle.run_for_n_decision_cycles(n);
+        agent.runFor(n, RunType.DECISIONS);
         
         assertEquals(n - 1, matches.size());
         

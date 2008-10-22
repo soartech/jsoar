@@ -8,6 +8,8 @@ package org.jsoar.kernel.events;
 import org.jsoar.kernel.Agent;
 
 /**
+ * callback.h:53:BEFORE_INIT_SOAR_CALLBACK
+ * 
  * @author ray
  */
 public class BeforeInitSoarEvent extends AbstractAgentEvent

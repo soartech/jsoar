@@ -106,7 +106,7 @@ class NodeVarNames
             {
                 New = make_nvn_for_posneg_cond(pc, parent_nvn);
 
-                /* --- Add sparse variable bindings for this condition --- */
+                // Add sparse variable bindings for this condition
                 Rete.bind_variables_in_test(pc.id_test, 0, 0, false, vars);
                 Rete.bind_variables_in_test(pc.attr_test, 0, 0, false, vars);
                 Rete.bind_variables_in_test(pc.value_test, 0, 0, false, vars);
@@ -127,7 +127,7 @@ class NodeVarNames
             parent_nvn = New;
         }
 
-        /* --- Pop the variable bindings for these conditions --- */
+        // Pop the variable bindings for these conditions
         Rete.pop_bindings_and_deallocate_list_of_variables(vars);
 
         return parent_nvn;
