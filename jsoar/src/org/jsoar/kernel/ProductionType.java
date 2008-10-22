@@ -28,6 +28,9 @@ public enum ProductionType
         this.category = category;
     }
     
+    /**
+     * @return The trace category of this type of production
+     */
     public Category getTraceCategory()
     {
         return category;

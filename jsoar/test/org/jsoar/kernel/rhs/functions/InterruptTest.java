@@ -48,7 +48,7 @@ public class InterruptTest
         
         this.agent.decisionCycle.runForever();
         
-        assertEquals("*** Interrupt from production testInterrupt ***", this.agent.decisionCycle.reason_for_stopping);
+        assertEquals("*** Interrupt from production testInterrupt ***", this.agent.decisionCycle.getReasonForStop());
         assertEquals(46, this.agent.decisionCycle.d_cycle_count);
     }
 }

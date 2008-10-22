@@ -13,13 +13,8 @@ import org.jsoar.util.AsListItem;
  */
 public class RightToken extends Token
 {
-//  struct token_from_right_memory_of_negative_or_cn_node_struct {
-//  struct token_struct *next_negrm, *prev_negrm;/*other local join results*/
-//  struct token_struct *left_token; /* token this is local join result for*/
-//} neg;
-    
     final AsListItem<RightToken> negrm = new AsListItem<RightToken>(this); // part of other local join results dll
-    /*final*/ LeftToken left_token; // token this is a local join result for
+    private LeftToken left_token; // token this is a local join result for
     
     public static RightToken create(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, LeftToken left_token)
     {
@@ -49,7 +44,23 @@ public class RightToken extends Token
         
         if(left_token != null)
         {
-            negrm.insertAtHead(left_token.negrm_tokens);
+            left_token.addNegRightToken(this);
+        }
+    }
+    
+    public LeftToken getLeftToken()
+    {
+        return left_token;
+    }
+    
+    public void setLeftToken(LeftToken leftToken)
+    {
+        assert this.left_token != null;
+        
+        this.left_token = leftToken;
+        if(leftToken != null)
+        {
+            leftToken.addNegRightToken(this);
         }
     }
 

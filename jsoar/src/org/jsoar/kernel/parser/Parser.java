@@ -1781,7 +1781,7 @@ Action parse_attr_value_make (SymbolImpl id) throws IOException, ParserException
 ----------------------------------------------------------------- */
 
     /**
-     * Parses the {@code <rhs>} and sets *dest_rhs to the resulting action list. Returns
+     * Parses the {@code <rhs>} and sets *actions to the resulting action list. Returns
      * true if successful, false if any error occurred.
      * 
      * <p>{@code <rhs> ::= <rhs_action>*}

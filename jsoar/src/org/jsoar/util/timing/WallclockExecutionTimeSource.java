@@ -7,7 +7,7 @@ package org.jsoar.util.timing;
 
 /**
  * Default implementation of {@link ExecutionTimeSource} that returns timestamps
- * based on wall clock time, i.e. System.currentTimeMillis(). Timers that use
+ * based on wall clock time, i.e. System.nanoTime(). Timers that use
  * this source will not accurately measure the actual CPU time used, but only
  * the total wall clock time used.
  * 
@@ -15,7 +15,7 @@ package org.jsoar.util.timing;
  */
 public class WallclockExecutionTimeSource implements ExecutionTimeSource
 {
-    private long startMillis = System.currentTimeMillis();
+    private long startNanos = System.nanoTime();
     
     /* (non-Javadoc)
      * @see org.jsoar.util.timing.ExecutionTimeSource#getMicroseconds()
@@ -23,6 +23,6 @@ public class WallclockExecutionTimeSource implements ExecutionTimeSource
     @Override
     public long getMicroseconds()
     {
-        return (System.currentTimeMillis() - startMillis) * 1000;
+        return (System.nanoTime() - startNanos) / 1000;
     }
 }

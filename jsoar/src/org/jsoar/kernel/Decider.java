@@ -2090,9 +2090,7 @@ public class Decider
                 		"exceed the program stack of your system.\n",
                         MAX_GOAL_DEPTH);
 
-                context.decisionCycle.stop_soar = true;
-                context.decisionCycle.system_halted = true;
-                context.decisionCycle.reason_for_stopping = "Max Goal Depth exceeded.";
+                context.decisionCycle.halt("Max Goal Depth (" + MAX_GOAL_DEPTH + ") exceeded");
             }
         }
         else

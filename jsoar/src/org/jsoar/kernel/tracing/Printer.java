@@ -10,6 +10,8 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.io.output.NullWriter;
 
@@ -28,6 +30,8 @@ public class Printer
     private PrintWriter wrappedWriter;
     
     private boolean printWarnings = true;
+    
+    private final LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
     
     public static Printer createStdOutPrinter()
     {
@@ -53,16 +57,41 @@ public class Printer
     }
     
     /**
-     * Set the current writer to print to.
+     * Push a new writer to print to. The current writer is flushed and then
+     * pushed onto a stack. It can be restored with {@link #popWriter()}
      * 
      * @param writer The new writer to write to. If null, the a NullWriter is
      *      used and all output will be dropped.
      * @param autoFlush If true, writer will autoflush on prints
      */
-    public void setWriter(Writer writer, boolean autoFlush)
+    public void pushWriter(Writer writer, boolean autoFlush)
     {
+        wrappedWriter.flush();
+        stack.push(new StackEntry(internalWriter, wrappedWriter));
+        
         this.internalWriter = writer != null ? writer : new NullWriter();
         this.wrappedWriter = new PrintWriter(internalWriter, autoFlush);
+    }
+    
+    /**
+     * Pop the current writer from the writer stack. The current writer is
+     * flushed and returned. The writer currently on the top of the stack
+     * becomes the new writer.
+     * 
+     * @return The old writer
+     * @throws NoSuchElementException if the writer stack is empty
+     */
+    public Writer popWriter()
+    {
+        wrappedWriter.flush();
+        
+        final Writer oldInternal = this.internalWriter;
+        
+        StackEntry e = stack.pop();
+        this.internalWriter = e.internal;
+        this.wrappedWriter = e.wrapped;
+        
+        return oldInternal;
     }
     
     public Printer print(String output)
@@ -172,4 +201,19 @@ public class Printer
     }
     
     
+    private static class StackEntry
+    {
+        final Writer internal;
+        final PrintWriter wrapped;
+        
+        /**
+         * @param internal
+         * @param wrapped
+         */
+        public StackEntry(Writer internal, PrintWriter wrapped)
+        {
+            this.internal = internal;
+            this.wrapped = wrapped;
+        }
+    }
 }

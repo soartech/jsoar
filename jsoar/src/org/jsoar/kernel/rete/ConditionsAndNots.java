@@ -9,12 +9,15 @@ import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rhs.Action;
 
 /**
+ * "struct" that receives the result of {@link Rete#p_node_to_conditions_and_nots(ReteNode, Token, org.jsoar.kernel.memory.WmeImpl, boolean)}.
+ * Replacement for return by reference used in csoar.
+ * 
  * @author ray
  */
 public class ConditionsAndNots
 {
-    public Condition dest_top_cond;
-    public Condition dest_bottom_cond;
-    public NotStruct dest_nots;
-    public Action dest_rhs;
+    public Condition top;
+    public Condition bottom;
+    public NotStruct nots;
+    public Action actions;
 }

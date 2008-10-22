@@ -41,6 +41,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
@@ -52,20 +53,12 @@ public class LittleDebugger extends JPanel
 {
     private static final long serialVersionUID = 7997119112479665988L;
 
-    private enum StepType
-    {
-        phases,
-        elaborations,
-        decisions,
-        output_mods
-    }
-    
     private Agent agent = new Agent();
     private SoarTclInterface ifc = new SoarTclInterface(agent);
     private ExecutorService pool = Executors.newSingleThreadExecutor();
     
     private JTextField countField = new JTextField("    1");
-    private JComboBox stepTypeCombo = new JComboBox(StepType.values());
+    private JComboBox stepTypeCombo = new JComboBox(RunType.values());
     {
         stepTypeCombo.setSelectedIndex(0);
     }
@@ -98,13 +91,13 @@ public class LittleDebugger extends JPanel
     
     private class RunCommand implements Runnable
     {
-        private StepType type;
+        private RunType type;
         private int count;
         /**
          * @param type
          * @param count
          */
-        public RunCommand(StepType type, int count)
+        public RunCommand(RunType type, int count)
         {
             this.type = type;
             this.count = count;
@@ -116,21 +109,7 @@ public class LittleDebugger extends JPanel
         @Override
         public void run()
         {
-            switch(type)
-            {
-            case phases:
-                agent.decisionCycle.run_for_n_phases(count);
-                break;
-            case elaborations:
-                agent.decisionCycle.run_for_n_elaboration_cycles(count);
-                break;
-            case decisions:
-                agent.decisionCycle.run_for_n_decision_cycles(count);
-                break;
-            case output_mods:
-                agent.decisionCycle.run_for_n_modifications_of_output(count);
-                break;
-            }
+            agent.runFor(count, type);
             update();
         }
     }
@@ -148,7 +127,7 @@ public class LittleDebugger extends JPanel
         this.frame = frame;
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        agent.getPrinter().setWriter(outputWriter, true);
+        agent.getPrinter().pushWriter(outputWriter, true);
         agent.trace.enableAll();
         
         agent.initialize();
@@ -246,7 +225,7 @@ public class LittleDebugger extends JPanel
             public void actionPerformed(ActionEvent arg0)
             {
                 int count = Integer.valueOf(countField.getText().trim());
-                StepType type = (StepType) stepTypeCombo.getSelectedItem();
+                RunType type = (RunType) stepTypeCombo.getSelectedItem();
                 pool.execute(new RunCommand(type, count));
             }}));
         

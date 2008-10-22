@@ -12,6 +12,7 @@ import java.util.EnumSet;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
@@ -316,6 +317,6 @@ public class SoarTclInterface
         ifc.sourceFile("single.soar");
         
         agent.trace.setEnabled(false);
-        agent.decisionCycle.run_for_n_decision_cycles(3000);
+        agent.runFor(3000, RunType.DECISIONS);
     }
 }

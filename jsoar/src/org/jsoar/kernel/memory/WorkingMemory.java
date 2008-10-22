@@ -44,22 +44,19 @@ public class WorkingMemory
     }
 
     /**
-     * init_soar.cpp:297:reset_statistics 
+     * <p>wmem.cpp:71:reset_wme_timetags
+     * <p>init_soar.cpp:297:reset_statistics 
      */
-    public void reset_statistics()
+    public void reset()
     {
+        // reset_statistics
         wme_addition_count = 0;
         wme_removal_count = 0;
         max_wm_size = 0;
         cumulative_wm_size = 0;
         num_wm_sizes_accumulated = 0;
-    }
-    
-    /**
-     * wmem.cpp:71:reset_wme_timetags
-     */
-    public void reset_wme_timetags()
-    {
+        
+        // reset_wme_timetags
         if (num_existing_wmes != 0)
         {
             final Printer printer = context.trace.getPrinter();
@@ -69,6 +66,21 @@ public class WorkingMemory
             return;
         }
         current_wme_timetag = 1;
+    }
+    
+    /**
+     * Updates WM size stats. Extracted from do_one_top_level_phase().
+     * 
+     * <p>init_soar.cpp:1060:do_one_top_level_phase
+     * 
+     * @param num_wmes_in_rete
+     */
+    public void updateStats(int num_wmes_in_rete)
+    {
+        if (num_wmes_in_rete > max_wm_size)
+            max_wm_size = num_wmes_in_rete;
+        cumulative_wm_size += num_wmes_in_rete;
+        num_wm_sizes_accumulated++;
     }
     
     /**

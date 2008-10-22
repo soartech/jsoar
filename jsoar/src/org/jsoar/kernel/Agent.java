@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.jsoar.kernel.DecisionCycle.GoType;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.exploration.Exploration;
@@ -238,17 +237,24 @@ public class Agent
     }
     
     /**
-     * Add the given production to the agent.
+     * Add the given production to the agent. If a production with the same name
+     * is already loaded, it is excised and replaced.
      * 
      * <p>This is part of a refactoring of make_production().
      * 
-     * @param p
-     * @param reorder_nccs
-     * @throws ReordererException 
+     * @param p The production to add
+     * @param reorder_nccs if true, NCC conditions on the LHS are reordered
+     * @throws ReordererException if there is an error during reordering
+     * @throws IllegalArgumentException if p is a chunk or justification
      */
     private void addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
-        // if there's already a prod with this name, excise it
+        if(p.getType() == ProductionType.CHUNK_PRODUCTION_TYPE || p.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        {
+            throw new IllegalArgumentException("Chunk or justification passed to addProduction: " + p);
+        }
+        
+        // If there's already a prod with this name, excise it
         // Note, in csoar, this test was done in parse_production as soon as the name
         // of the production was known. We do this here so we can eliminate the
         // production field of StringSymbolImpl.
@@ -269,6 +275,7 @@ public class Agent
         
         // Add it to the rete.
         ProductionAddResult result = rete.add_production_to_rete(p);
+        
         // from parser.cpp
         if (result==ProductionAddResult.DUPLICATE_PRODUCTION) 
         {
@@ -277,21 +284,29 @@ public class Agent
         }
         
         totalProductions++;
-        productionsByType.get(p.type).add(p);
+        productionsByType.get(p.getType()).add(p);
         productionsByName.put(p.name, p);
     }
     
     /**
-     * Add the given production to the agent.
+     * Add the given chunk or justification production to the agent. The chunk 
+     * is reordered and registered, but it is <b>not</b> added to the rete 
+     * network.
      * 
      * <p>This is part of a refactoring of make_production().
      * 
-     * @param p
-     * @param reorder_nccs
-     * @throws ReordererException 
+     * @param p The chunk to add
+     * @throws ReordererException if there is an error while reordering the chunk
+     * @throws IllegalArgumentException if the production is not a chunk or justification
      */
     public void addChunk(Production p) throws ReordererException
     {
+        if(p.getType() != ProductionType.CHUNK_PRODUCTION_TYPE &&
+           p.getType() != ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        {
+            throw new IllegalArgumentException("Production '" + p + "' is not a chunk or justification");
+        }
+        
         // Reorder the production
         p.reorder(variableGenerator, 
                   new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.getValue()), 
@@ -308,6 +323,12 @@ public class Agent
         productionsByName.put(p.name, p);
     }
     
+    /**
+     * Look up a production by name
+     * 
+     * @param name The name of the production
+     * @return The production or <code>null</code> if not found
+     */
     public Production getProduction(String name)
     {
         StringSymbolImpl sc = syms.findString(name);
@@ -352,7 +373,7 @@ public class Agent
         // TODO if (prod->trace_firings) remove_pwatch (thisAgent, prod);
         
         totalProductions--;
-        productionsByType.get(prod.type).remove(prod);
+        productionsByType.get(prod.getType()).remove(prod);
         productionsByName.remove(prod.name);
 
         rl.exciseProduction(prod);
@@ -366,6 +387,11 @@ public class Agent
             rete.excise_production_from_rete(prod);
         }
         prod.production_remove_ref();
+    }
+    
+    public void runFor(int n, RunType runType)
+    {
+        this.decisionCycle.runFor(n, runType);
     }
     
     /**
@@ -403,62 +429,39 @@ public class Agent
 
         // KJC & RPM 10/06
         // A lot of stuff isn't initialized properly until the input and output
-        // cycles are run the first time.
-        // Because of this, SW had to put in a hack to work around changes made
-        // to the output-link in the first
-        // dc not being visible. (see comment near end of
-        // update_for_top_state_wme_addition). This change added
-        // an item to the associated_output_links list.
-        // But the ol->ids_in_tc is still not initialized until the first output
-        // phases, so if we exit before that,
-        // remove_output_link_tc_info doesn't see it and doesn't clean up the
-        // associated_output_links list.
+        // cycles are run the first time. Because of this, SW had to put in a 
+        // hack to work around changes made to the output-link in the first
+        // dc not being visible. (see comment near end of update_for_top_state_wme_addition). 
+        // This change added an item to the associated_output_links list. But the 
+        // ol->ids_in_tc is still not initialized until the first output phases, 
+        // so if we exit before that, remove_output_link_tc_info doesn't see it 
+        // and doesn't clean up the associated_output_links list.
         // If we do run an output phases, though, the same item is added to the
         // associated_output_links list twice.
         // ol->ids_in_tc gets initialized, so remove_output_link_tc_info -- but
-        // it only cleans up the first copy
-        // of the item.
+        // it only cleans up the first copy of the item.
         // All of these problems come back to things not being initialized
-        // properly, so we run the input and output
-        // phases here to force proper initialization (and have commented out
-        // SW's changes to
+        // properly, so we run the input and output phases here to force proper 
+        // initialization (and have commented out SW's changes to
         // update_for_top_state_wme_addition). This will cause somecallbacks to
-        // be triggered, but we don't think
-        // this is a problem for two reasons:
+        // be triggered, but we don't think this is a problem for two reasons:
         // 1) these events are currently not exposed through SML, so no clients
         // will see them
         // 2) even if these events were exposed, they are being fired during
-        // agent creation. Since the agent
-        // hasn't been created yet, no client could have registered for the
-        // events anyway.
-        // Note that this change replaces the
-        // do_buffered_wm_and_ownership_changes call which attempted to do some
-        // initialization (including triggering SW's changes).
+        // agent creation. Since the agent hasn't been created yet, no client 
+        // could have registered for the events anyway.
+        // Note that this change replaces the do_buffered_wm_and_ownership_changes 
+        // call which attempted to do some initialization (including triggering 
+        // SW's changes).
         io.do_input_cycle();
         io.do_output_cycle();
 
-        /* executing the IO cycles above, increments the timers, so reset */
-        /* Initializing all the timer structures */
-        totalCpuTimer.reset();
-        totalKernelTimer.reset();
-        /* TODO reset timers
-        reset_timer (&thisAgent->start_phase_tv);
-
-        reset_timer (&thisAgent->input_function_cpu_time);
-        reset_timer (&thisAgent->output_function_cpu_time);
-
-        reset_timer (&thisAgent->start_gds_tv);
-        reset_timer (&thisAgent->total_gds_time);
-
-        for (int ii=0;ii < NUM_PHASE_TYPES; ii++) {
-           reset_timer (&thisAgent->decision_cycle_phase_timers[ii]);
-           reset_timer (&thisAgent->monitors_cpu_time[ii]);
-           reset_timer (&thisAgent->ownership_cpu_time[ii]);
-           reset_timer (&thisAgent->chunking_cpu_time[ii]);
-           reset_timer (&thisAgent->match_cpu_time[ii]);
-           reset_timer (&thisAgent->gds_cpu_time[ii]);
+        // executing the IO cycles above, increments the timers, so reset
+        // Initializing all the timer structures */
+        for (ExecutionTimer timer : getAllTimers())
+        {
+            timer.reset();
         }
-        */
     }
     
     /**
@@ -482,6 +485,9 @@ public class Agent
                                        "%right[6,%dc]: %rsd[   ]   O: %co");
     }
 
+    /**
+     * init_soar.cpp:350:reinitialize_soar
+     */
     private void reinitialize_soar()
     {
         getEventManager().fireEvent(new BeforeInitSoarEvent(this));
@@ -511,29 +517,18 @@ public class Agent
         }
 
         explain.reset_explain();
-        syms.reset_id_counters();
-        workingMemory.reset_wme_timetags();
+        syms.reset();
+        workingMemory.reset();
+        decisionCycle.reset();
+        recMemory.reset();
 
         reset_statistics();
 
-        // Reinitialize the various halt and stop flags
-        decisionCycle.system_halted = false;
-        decisionCycle.stop_soar = false;
-        decisionCycle.reason_for_stopping = null;
-        decisionCycle.go_type = GoType.GO_DECISION;
-
+        
         // Restore trace state
         trace.setEnabled(traceState);
-
+        
         getEventManager().fireEvent(new AfterInitSoarEvent(this));
-
-        decisionCycle.input_cycle_flag = true; /* reinitialize flag  AGR REW1 */
-        decisionCycle.current_phase = Phase.INPUT_PHASE; /* moved here June 05 from loop below.  KJC */
-
-        if (operand2_mode)
-        {
-            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS; /* KJC 10.05.98 was PE */
-        }
     }
 
     /**
@@ -541,11 +536,7 @@ public class Agent
      */
     private void reset_statistics()
     {
-
-        decisionCycle.reset_statistics();
         chunker.chunks_this_d_cycle = 0;
-        recMemory.reset_statistics();
-        workingMemory.reset_statistics();
 
         // reset_production_firing_counts(thisAgent);
         for (Production p : this.productionsByName.values())
