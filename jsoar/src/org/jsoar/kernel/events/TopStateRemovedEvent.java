@@ -9,17 +9,19 @@ import org.jsoar.kernel.io.InputOutput;
 
 
 /**
+ * Event fired when the top-state is removed
+ * 
  * @author ray
  */
 public class TopStateRemovedEvent extends AbstractInputOutputEvent
 {
-
     /**
-     * @param io
+     * Construct a new event
+     * 
+     * @param io The I/O interface
      */
     public TopStateRemovedEvent(InputOutput io)
     {
         super(io);
     }
-    
 }

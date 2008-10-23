@@ -8,7 +8,15 @@ package org.jsoar.kernel;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Map;
 
+import org.jsoar.kernel.events.AbstractPhaseEvent;
+import org.jsoar.kernel.events.AfterDecisionCycleEvent;
+import org.jsoar.kernel.events.AfterElaborationEvent;
+import org.jsoar.kernel.events.AfterHaltEvent;
+import org.jsoar.kernel.events.BeforeDecisionCycleEvent;
+import org.jsoar.kernel.events.BeforeElaborationEvent;
+import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -72,22 +80,35 @@ public class DecisionCycle
     /**
      * rhsfun.cpp:199:halt_rhs_function_code
      */
-    private RhsFunctionHandler haltHandler = new AbstractRhsFunctionHandler("halt") {
+    private final RhsFunctionHandler haltHandler = new AbstractRhsFunctionHandler("halt") {
 
         @Override
         public SymbolImpl execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
             system_halted = true;
             
-            // TODO callback AFTER_HALT_SOAR_CALLBACK
-            //soar_invoke_callbacks(thisAgent, AFTER_HALT_SOAR_CALLBACK, (soar_call_data) NULL);
+            // callback AFTER_HALT_SOAR_CALLBACK is fired from decision cycle
             
             return null;
         }};
     
+    private final AfterHaltEvent afterHaltEvent;
+    private final BeforeElaborationEvent beforeElaborationEvent;
+    private final AfterElaborationEvent afterElaborationEvent;
+    private final BeforeDecisionCycleEvent beforeDecisionCycleEvent;
+    private final Map<Phase, AbstractPhaseEvent> beforePhaseEvents;
+    private final Map<Phase, AbstractPhaseEvent> afterPhaseEvents;
+    
     public DecisionCycle(Agent context)
     {
         this.context = context;
+
+        this.afterHaltEvent = new AfterHaltEvent(context);
+        this.beforeElaborationEvent = new BeforeElaborationEvent(context);
+        this.afterElaborationEvent = new AfterElaborationEvent(context);
+        this.beforeDecisionCycleEvent = new BeforeDecisionCycleEvent(context, Phase.INPUT_PHASE);
+        this.beforePhaseEvents = PhaseEvents.createBeforeEvents(context);
+        this.afterPhaseEvents = PhaseEvents.createAfterEvents(context);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -133,12 +154,10 @@ public class DecisionCycle
      * 
      * <p>init_soar.cpp:474:do_one_top_level_phase
      */
-    public void do_one_top_level_phase()
+    private void do_one_top_level_phase()
     {
-        if(checkForSystemHaltedAtStartOfTopLevel())
-        {
-            return;
-        }
+        assert !system_halted;
+        assert !stop_soar;
         
         switch (current_phase)
         {
@@ -166,6 +185,48 @@ public class DecisionCycle
         }
     }
     
+    private void beforePhase(Phase phase)
+    {
+        context.getEventManager().fireEvent(beforePhaseEvents.get(phase));    
+    }
+    
+    private void afterPhase(Phase phase)
+    {
+        this.run_phase_count++;
+        
+        context.getEventManager().fireEvent(afterPhaseEvents.get(phase));
+    }
+    
+    private void beforeElaboration()
+    {
+        // FIXME return the correct enum top_level_phase constant in soar_call_data?
+        context.getEventManager().fireEvent(beforeElaborationEvent);
+    }
+    
+    private void afterElaboration()
+    {
+        // FIXME return the correct enum top_level_phase constant in soar_call_data?
+        context.getEventManager().fireEvent(afterElaborationEvent);
+    }
+    
+    /**
+     * 
+     */
+    private void pauseTopLevelTimers()
+    {
+        ExecutionTimers.pause(context.getTotalCpuTimer());
+        ExecutionTimers.pause(context.getTotalKernelTimer());
+    }
+
+    /**
+     * 
+     */
+    private void startTopLevelTimers()
+    {
+        ExecutionTimers.start(context.getTotalCpuTimer());
+        ExecutionTimers.start(context.getTotalKernelTimer());
+    }
+    
     /**
      * extracted from run_one_top_level_phase(), switch case DECISION_PHASE
      */
@@ -184,22 +245,20 @@ public class DecisionCycle
         /* d_cycle_count moved to input phases for Soar 8 new decision cycle */
         if (context.operand2_mode == false)
             this.d_cycle_count++;
-        this.decision_phases_count++; /* counts decisions, not cycles, for more accurate stats */
+        this.decision_phases_count++; // counts decisions, not cycles, for more accurate stats
 
         if (input_period == 0)
             this.input_cycle_flag = true;
         else if ((this.d_cycle_count % this.input_period) == 0)
             this.input_cycle_flag = true;
 
-        // TODO callback BEFORE_DECISION_PHASE_CALLBACK/DECISION_PHASE
-        // soar_invoke_callbacks(thisAgent, BEFORE_DECISION_PHASE_CALLBACK, (soar_call_data) DECISION_PHASE);
+        beforePhase(Phase.DECISION_PHASE);
+        
         context.decider.do_decision_phase(false);
 
-        this.run_phase_count++;
         this.run_elaboration_count++; // All phases count as a run elaboration
 
-        // TODO callback AFTER_DECISION_PHASE_CALLBACK/DECISION_PHASE
-        // soar_invoke_callbacks(thisAgent, AFTER_DECISION_PHASE_CALLBACK, (soar_call_data) DECISION_PHASE);
+        afterPhase(Phase.DECISION_PHASE);
 
         if (context.trace.isEnabled() && context.trace.isEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM)) {
             final Writer writer = context.trace.getPrinter().getWriter();
@@ -223,9 +282,8 @@ public class DecisionCycle
             // JRV: Get rid of the cached XML after every decision but before the after-decision-phases callback
             // xml_invoke_callback( thisAgent ); // invokes XML_GENERATION_CALLBACK, clears XML state
 
-            // TODO callback AFTER_DECISION_CYCLE_CALLBACK/DECISION_PHASE
-            /* KJC June 05: Soar8 - moved AFTER_DECISION_CYCLE_CALLBACK to proper spot in OUTPUT */
-            // soar_invoke_callbacks(thisAgent, AFTER_DECISION_CYCLE_CALLBACK, (soar_call_data) DECISION_PHASE);
+            context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.DECISION_PHASE));
+
             context.chunker.chunks_this_d_cycle = 0;
 
             Phase.DECISION_PHASE.trace(context.trace, false);
@@ -266,9 +324,7 @@ public class DecisionCycle
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
 
-        // TODO callback BEFORE_OUTPUT_PHASE_CALLBACK/OUTPUT_PHASE
-        // soar_invoke_callbacks(thisAgent, BEFORE_OUTPUT_PHASE_CALLBACK, (soar_call_data) OUTPUT_PHASE);
-
+        beforePhase(Phase.OUTPUT_PHASE);
         context.io.do_output_cycle();
 
         // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)
@@ -278,23 +334,19 @@ public class DecisionCycle
             this.run_generated_output_count++;
         }
 
-        this.run_phase_count++;
         this.run_elaboration_count++; // All phases count as a run elaboration
-        // TODO callback AFTER_OUTPUT_PHASE_CALLBACK
-        // soar_invoke_callbacks(thisAgent, AFTER_OUTPUT_PHASE_CALLBACK, (soar_call_data) OUTPUT_PHASE);
+        
+        afterPhase(Phase.OUTPUT_PHASE);
 
         if (context.operand2_mode == true)
         {
-            // TODO xml
-            // JRV: Get rid of the cached XML after every decision but before the after-decision-phases callback
-            // xml_invoke_callback( thisAgent ); // invokes XML_GENERATION_CALLBACK, clears XML state
+            context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.OUTPUT_PHASE));
 
-            // TODO callback AFTER_DECISION_CYCLE_CALLBACK/OUTPUT_PHASE
-            // soar_invoke_callbacks(thisAgent, AFTER_DECISION_CYCLE_CALLBACK, (soar_call_data) OUTPUT_PHASE);
             // #ifndef NO_TIMING_STUFF
             // stop_timer (thisAgent, &thisAgent->start_phase_tv,
             // &thisAgent->decision_cycle_phase_timers[OUTPUT_PHASE]);
             // #endif
+            
             Phase.OUTPUT_PHASE.trace(context.trace, false);
             current_phase = Phase.INPUT_PHASE;
             this.d_cycle_count++;
@@ -347,14 +399,10 @@ public class DecisionCycle
         {
             Phase.APPLY_PHASE.trace(context.trace, true);
 
-            // TODO callback BEFORE_APPLY_PHASE_CALLBACK/APPLY_PHASE
-            // soar_invoke_callbacks(thisAgent, BEFORE_APPLY_PHASE_CALLBACK, (soar_call_data) APPLY_PHASE);
+            beforePhase(Phase.APPLY_PHASE);
 
-            // TODO callback BEFORE_ELABORATION_CALLBACK
             // We need to generate this event here in case no elaborations fire...
-            // FIXME return the correct enum top_level_phase constant in soar_call_data?
-            // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-            // soar_invoke_callbacks(thisAgent, BEFORE_ELABORATION_CALLBACK, NULL ) ;
+            beforeElaboration();
 
             // 'prime' the cycle for a new round of production firings in the APPLY (pref/wm) phases
             context.consistency.initialize_consistency_calculations_for_new_decision();
@@ -367,10 +415,7 @@ public class DecisionCycle
                 // no elaborations will fire this phase
                 this.run_elaboration_count++; // All phases count as a run elaboration
 
-                // TODO callback AFTER_ELABORATION_CALLBACK
-                // FIXME return the correct enum top_level_phase constant in soar_call_data?
-                // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-                // soar_invoke_callbacks(thisAgent, AFTER_ELABORATION_CALLBACK, NULL ) ;
+                afterElaboration();
             }
         }
         
@@ -381,11 +426,8 @@ public class DecisionCycle
         {
             if (this.e_cycles_this_d_cycle != 0)
             {
-                // TODO callback BEFORE_ELABORATION_CALLBACK
                 // only for 2nd cycle or higher. 1st cycle fired above
-                // FIXME return the correct enum top_level_phase constant in soar_call_data?
-                // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-                // soar_invoke_callbacks(thisAgent, BEFORE_ELABORATION_CALLBACK, NULL ) ;
+                beforeElaboration();
             }
             context.recMemory.do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
             context.decider.do_working_memory_phase();
@@ -402,10 +444,7 @@ public class DecisionCycle
             }
             context.consistency.determine_highest_active_production_level_in_stack_apply();
 
-            // TODO callback AFTER_ELABORATION_CALLBACK
-            // FIXME return the correct enum top_level_phase constant in soar_call_data?
-            // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-            // soar_invoke_callbacks(thisAgent, AFTER_ELABORATION_CALLBACK, NULL ) ;
+            afterElaboration();
 
             if (this.go_type == GoType.GO_ELABORATION)
                 break;
@@ -422,10 +461,8 @@ public class DecisionCycle
              */
             current_phase = Phase.APPLY_PHASE;
             Phase.APPLY_PHASE.trace(context.trace, false);
-
-            this.run_phase_count++;
-            // TODO callback AFTER_APPLY_PHASE_CALLBACK/APPLY_PHASE
-            // soar_invoke_callbacks(thisAgent, AFTER_APPLY_PHASE_CALLBACK, (soar_call_data) APPLY_PHASE);
+            
+            afterPhase(Phase.APPLY_PHASE);
 
             current_phase = Phase.OUTPUT_PHASE;
         }
@@ -452,14 +489,12 @@ public class DecisionCycle
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
-        // TODO callback BEFORE_WM_PHASE_CALLBACK/WM_PHASE
-        // soar_invoke_callbacks(thisAgent, BEFORE_WM_PHASE_CALLBACK, (soar_call_data) WM_PHASE);
+        beforePhase(Phase.WM_PHASE);
         context.decider.do_working_memory_phase();
 
-        this.run_phase_count++;
         this.run_elaboration_count++; // All phases count as a run elaboration
-        // TODO callback AFTER_WM_PHASE_CALLBACK/WM_PHASE
-        // soar_invoke_callbacks(thisAgent, AFTER_WM_PHASE_CALLBACK, (soar_call_data) WM_PHASE);
+        
+        afterPhase(Phase.WM_PHASE);
 
         current_phase = Phase.OUTPUT_PHASE;
 
@@ -468,11 +503,9 @@ public class DecisionCycle
         // &thisAgent->decision_cycle_phase_timers[WM_PHASE]);
         // #endif
 
-        // TODO callback AFTER_ELABORATION_CALLBACK
-        // FIXME return the correct enum top_level_phase constant in soar_call_data?
-        // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-        // soar_invoke_callbacks(thisAgent, AFTER_ELABORATION_CALLBACK, NULL ) ;
-        /* END of Soar7 WM PHASE */    
+        afterElaboration();
+        
+        // END of Soar7 WM PHASE    
     }
 
     /**
@@ -497,14 +530,11 @@ public class DecisionCycle
         {
             Phase.PROPOSE_PHASE.trace(context.trace, true);
 
-            // TODO callback BEFORE_PROPOSE_PHASE_CALLBACK/PROPOSE_PHASE
-            // soar_invoke_callbacks(thisAgent, BEFORE_PROPOSE_PHASE_CALLBACK, (soar_call_data) PROPOSE_PHASE);
+            beforePhase(Phase.PROPOSE_PHASE);
 
-            // TODO callback BEFORE_ELABORATION_CALLBACK
             // We need to generate this event here in case no elaborations fire...
-            // FIXME return the correct enum top_level_phase constant in soar_call_data?
-            /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-            // soar_invoke_callbacks(thisAgent, BEFORE_ELABORATION_CALLBACK, NULL ) ;
+            beforeElaboration();
+
             // 'Prime the decision for a new round of production firings at the end of
             context.consistency.initialize_consistency_calculations_for_new_decision();
 
@@ -516,10 +546,7 @@ public class DecisionCycle
                 // no elaborations will fire this phases
                 this.run_elaboration_count++; // All phases count as a run elaboration
 
-                // TODO callback AFTER_ELABORATION_CALLBACK
-                // FIXME return the correct enum top_level_phase constant in soar_call_data?
-                /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-                // soar_invoke_callbacks(thisAgent, AFTER_ELABORATION_CALLBACK, NULL ) ;
+                afterElaboration();
             }
         }
 
@@ -530,10 +557,7 @@ public class DecisionCycle
         {
             if (e_cycles_this_d_cycle != 0)
             {
-                // TODO callback BEFORE_ELABORATION_CALLBACK only for 2nd cycle or higher. 1st cycle fired above
-                // FIXME return the correct enum top_level_phase constant in soar_call_data?
-                // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-                // soar_invoke_callbacks(thisAgent, BEFORE_ELABORATION_CALLBACK, NULL ) ;
+                beforeElaboration();
             }
             context.recMemory.do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
             context.decider.do_working_memory_phase();
@@ -545,10 +569,7 @@ public class DecisionCycle
             
             context.consistency.determine_highest_active_production_level_in_stack_propose();
             
-            // TODO callback AFTER_ELABORATION_CALLBACK
-            // FIXME return the correct enum top_level_phase constant in soar_call_data?
-            // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-            // soar_invoke_callbacks(thisAgent, AFTER_ELABORATION_CALLBACK, NULL ) ;
+            afterElaboration();
             
             if (this.go_type == GoType.GO_ELABORATION)
                 break;
@@ -568,9 +589,7 @@ public class DecisionCycle
             this.current_phase = Phase.PROPOSE_PHASE;
             Phase.PROPOSE_PHASE.trace(context.trace, false);
 
-            this.run_phase_count++;
-            // TODO callback AFTER_PROPOSE_PHASE_CALLBACK/PROPOSE_PHASE
-            // soar_invoke_callbacks(thisAgent, AFTER_PROPOSE_PHASE_CALLBACK, (soar_call_data) PROPOSE_PHASE);
+            afterPhase(Phase.PROPOSE_PHASE);
             this.current_phase = Phase.DECISION_PHASE;
         }
 
@@ -607,8 +626,7 @@ public class DecisionCycle
         // always true for Soar 8
         if (e_cycles_this_d_cycle == 0)
         {
-            // TODO callback BEFORE_DECISION_CYCLE_CALLBACK/INPUT_PHASE
-            // soar_invoke_callbacks(thisAgent, BEFORE_DECISION_CYCLE_CALLBACK, (soar_call_data) INPUT_PHASE);
+            context.getEventManager().fireEvent(beforeDecisionCycleEvent);
         }
 
         // #ifdef REAL_TIME_BEHAVIOR /* RM Jones */
@@ -621,16 +639,13 @@ public class DecisionCycle
         if (input_cycle_flag == true)
         { 
             // Soar 7 flag, but always true for Soar8
-            // TODO callback BEFORE_INPUT_PHASE_CALLBACK/INPUT_PHASE
-            // soar_invoke_callbacks(thisAgent, BEFORE_INPUT_PHASE_CALLBACK, (soar_call_data) INPUT_PHASE);
+            beforePhase(Phase.INPUT_PHASE);
 
             context.io.do_input_cycle();
 
-            run_phase_count++;
             run_elaboration_count++; // All phases count as a run elaboration
             
-            // TODO callback AFTER_INPUT_PHASE_CALLBACK/INPUT_PHASE
-            // soar_invoke_callbacks(thisAgent, AFTER_INPUT_PHASE_CALLBACK, (soar_call_data) INPUT_PHASE);
+            afterPhase(Phase.INPUT_PHASE);
 
             if (input_period != 0)
                 input_cycle_flag = false;
@@ -667,21 +682,18 @@ public class DecisionCycle
         // starting with 8.6.0, PREFERENCE_PHASE is only Soar 7 mode -- applyPhase not valid here
         // needs to be updated for gSKI interface, and gSKI needs to accommodate Soar 7
 
-        // TODO callback BEFORE_ELABORATION_CALLBACK
-        // FIXME return the correct enum top_level_phase constant in soar_call_data?
-        // /*(soar_call_data)((thisAgent->applyPhase == TRUE)? gSKI_K_APPLY_PHASE: gSKI_K_PROPOSAL_PHASE)*/
-        // soar_invoke_callbacks(thisAgent, BEFORE_ELABORATION_CALLBACK, NULL ) ;
+        beforeElaboration();
+
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
-        // TODO callback BEFORE_PREFERENCE_PHASE_CALLBACK/PREFERENCE_PHASE
-        // soar_invoke_callbacks(thisAgent, BEFORE_PREFERENCE_PHASE_CALLBACK, (soar_call_data) PREFERENCE_PHASE);
+        beforePhase(Phase.PREFERENCE_PHASE);
         context.recMemory.do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
 
-        this.run_phase_count++;
         this.run_elaboration_count++; // All phases count as a run elaboration
-        // TODO callback AFTER_PREFERENCE_PHASE_CALLBACK/PREFERENCE_PHASE
-        // soar_invoke_callbacks(thisAgent, AFTER_PREFERENCE_PHASE_CALLBACK, (soar_call_data) PREFERENCE_PHASE);
+        
+        afterPhase(Phase.PREFERENCE_PHASE);
+
         current_phase = Phase.WM_PHASE;
 
         // #ifndef NO_TIMING_STUFF
@@ -705,13 +717,13 @@ public class DecisionCycle
         if (system_halted)
         {
             printer.print("\nSystem halted.  Use (init-soar) before running Soar again.");
+            printer.flush();
             stop_soar = true;
             reason_for_stopping = "System halted.";
             return true;
         }
         return false;
     }
-    
 
     /**
      * At the end of a top level phase, we check whether the system has been
@@ -723,13 +735,13 @@ public class DecisionCycle
         {
             stop_soar = true;
             reason_for_stopping = "System halted.";
-            // TODO callback AFTER_HALT_SOAR_CALLBACK/current_phase
-            //soar_invoke_callbacks(thisAgent, AFTER_HALT_SOAR_CALLBACK, (soar_call_data) thisAgent->current_phase);
+            
+            context.getEventManager().fireEvent(afterHaltEvent);
 
             // To model episodic task, after halt, perform RL update with next-state value 0
             if (context.rl.rl_enabled())
             {
-                // TODO how about a method?
+                // TODO reinforcement learning: how about a method?
                 for (IdentifierImpl g = context.decider.bottom_goal; g != null; g = g.higher_goal)
                 {
                     context.rl.rl_tabulate_reward_value_for_goal(g);
@@ -749,8 +761,7 @@ public class DecisionCycle
     {
         Arguments.check(n >= 0, "n must be non-negative");
         
-        ExecutionTimers.start(context.getTotalCpuTimer());
-        ExecutionTimers.start(context.getTotalKernelTimer());
+        startTopLevelTimers();
         
         stop_soar = false;
         reason_for_stopping = null;
@@ -761,10 +772,8 @@ public class DecisionCycle
             n--;
         }
         
-        ExecutionTimers.pause(context.getTotalCpuTimer());
-        ExecutionTimers.pause(context.getTotalKernelTimer());
+        pauseTopLevelTimers();
     }
-    
 
     /**
      * Run for n elaboration cycles
@@ -778,8 +787,7 @@ public class DecisionCycle
     {
         Arguments.check(n >= 0, "n must be non-negative");
 
-        ExecutionTimers.start(context.getTotalCpuTimer());
-        ExecutionTimers.start(context.getTotalKernelTimer());
+        startTopLevelTimers();
 
         stop_soar = false;
         reason_for_stopping = null;
@@ -815,8 +823,7 @@ public class DecisionCycle
             go_type = save_go_type;
         }
 
-        ExecutionTimers.pause(context.getTotalCpuTimer());
-        ExecutionTimers.pause(context.getTotalKernelTimer());
+        pauseTopLevelTimers();
     }
 
     /**
@@ -829,8 +836,7 @@ public class DecisionCycle
     {
         Arguments.check(n >= 0, "n must be non-negative");
 
-        ExecutionTimers.start(context.getTotalCpuTimer());
-        ExecutionTimers.start(context.getTotalKernelTimer());
+        startTopLevelTimers();
 
         stop_soar = false;
         reason_for_stopping = null;
@@ -857,8 +863,7 @@ public class DecisionCycle
             }
         }
         
-        ExecutionTimers.pause(context.getTotalCpuTimer());
-        ExecutionTimers.pause(context.getTotalKernelTimer());
+        pauseTopLevelTimers();
     }
 
     /**
@@ -871,8 +876,7 @@ public class DecisionCycle
     {
         Arguments.check(n >= 0, "n must be non-negative");
 
-        ExecutionTimers.start(context.getTotalCpuTimer());
-        ExecutionTimers.start(context.getTotalKernelTimer());
+        startTopLevelTimers();
 
         stop_soar = false;
         reason_for_stopping = null;
@@ -887,12 +891,15 @@ public class DecisionCycle
             do_one_top_level_phase();
         }
         
-        ExecutionTimers.pause(context.getTotalCpuTimer());
-        ExecutionTimers.pause(context.getTotalKernelTimer());
+        pauseTopLevelTimers();
     }
     
     public void runFor(int n, RunType runType)
     {
+        if(checkForSystemHaltedAtStartOfTopLevel())
+        {
+            return;
+        }
         switch(runType)
         {
         case ELABORATIONS: run_for_n_elaboration_cycles(n); break;
@@ -910,8 +917,11 @@ public class DecisionCycle
      */
     public void runForever()
     {
-        ExecutionTimers.start(context.getTotalCpuTimer());
-        ExecutionTimers.start(context.getTotalKernelTimer());
+        if(checkForSystemHaltedAtStartOfTopLevel())
+        {
+            return;
+        }
+        startTopLevelTimers();
         
         stop_soar = false;
         reason_for_stopping = null;
@@ -920,8 +930,7 @@ public class DecisionCycle
             do_one_top_level_phase();
         }
         
-        ExecutionTimers.pause(context.getTotalCpuTimer());
-        ExecutionTimers.pause(context.getTotalKernelTimer());
+        pauseTopLevelTimers();
     }
     
         

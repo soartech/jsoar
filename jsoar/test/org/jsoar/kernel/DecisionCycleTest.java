@@ -46,15 +46,15 @@ public class DecisionCycleTest
         for(int i = 1; i < 10; ++i)
         {
             assertEquals(Phase.INPUT_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             assertEquals(Phase.PROPOSE_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             assertEquals(Phase.DECISION_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             assertEquals(Phase.APPLY_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             assertEquals(Phase.OUTPUT_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             
             // Verify that new states are being generates
             assertEquals("S" + (i + 1), agent.decider.bottom_goal.toString());
@@ -70,15 +70,15 @@ public class DecisionCycleTest
         assertTrue(agent.getProduction("test2").instantiations.isEmpty());
         
         assertEquals(Phase.INPUT_PHASE, this.agent.decisionCycle.current_phase);
-        this.agent.decisionCycle.do_one_top_level_phase();
+        this.agent.decisionCycle.runFor(1, RunType.PHASES);
         assertEquals(Phase.PROPOSE_PHASE, this.agent.decisionCycle.current_phase);
-        this.agent.decisionCycle.do_one_top_level_phase();
+        this.agent.decisionCycle.runFor(1, RunType.PHASES);
         assertEquals(Phase.DECISION_PHASE, this.agent.decisionCycle.current_phase);
-        this.agent.decisionCycle.do_one_top_level_phase();
+        this.agent.decisionCycle.runFor(1, RunType.PHASES);
         assertEquals(Phase.APPLY_PHASE, this.agent.decisionCycle.current_phase);
-        this.agent.decisionCycle.do_one_top_level_phase();
+        this.agent.decisionCycle.runFor(1, RunType.PHASES);
         assertEquals(Phase.OUTPUT_PHASE, this.agent.decisionCycle.current_phase);
-        this.agent.decisionCycle.do_one_top_level_phase();
+        this.agent.decisionCycle.runFor(1, RunType.PHASES);
         
         // verify that (S1 foo 1) is being added to the rete by checking that test2 fired
         assertFalse(agent.getProduction("test2").instantiations.isEmpty());
@@ -103,15 +103,15 @@ public class DecisionCycleTest
         for(int i = 1; i < 10; ++i)
         {
             assertEquals(Phase.INPUT_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             assertEquals(Phase.PROPOSE_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             assertEquals(Phase.DECISION_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             assertEquals(Phase.APPLY_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             assertEquals(Phase.OUTPUT_PHASE, this.agent.decisionCycle.current_phase);
-            this.agent.decisionCycle.do_one_top_level_phase();
+            this.agent.decisionCycle.runFor(1, RunType.PHASES);
             
             // Verify that one state-no-change occurs, producting S2, but no further
             // states are generated. Also verify that the current operator.

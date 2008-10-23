@@ -9,13 +9,17 @@ import org.jsoar.kernel.io.InputOutput;
 
 
 /**
+ * Event fired during the input cycle. This event is the best/safest time to
+ * add input WMEs to an agent.
+ * 
  * @author ray
  */
 public class InputCycleEvent extends AbstractInputOutputEvent
 {
-
     /**
-     * @param io
+     * Construct a new event
+     * 
+     * @param io the I/O interface
      */
     public InputCycleEvent(InputOutput io)
     {

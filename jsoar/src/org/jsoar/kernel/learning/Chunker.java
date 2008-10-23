@@ -12,6 +12,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.Conditions;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
@@ -173,6 +174,14 @@ public class Chunker
         this.learningOn = learningOn;
     }
 
+
+    /**
+     * @return the maxChunksReached
+     */
+    public boolean isMaxChunksReached()
+    {
+        return maxChunksReached;
+    }
 
     /**
      * <p>chunk.cpp:77:add_results_if_needed
@@ -1329,6 +1338,11 @@ public class Chunker
             // it didn't match, or it was a duplicate production
             // tell the firer it didn't match, so it'll only assert the o-supported preferences
             chunk_inst.in_ms = false;
+        }
+        
+        if(rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION)
+        {
+            context.getEventManager().fireEvent(new ProductionAddedEvent(context, prod));
         }
 
         // assert the preferences

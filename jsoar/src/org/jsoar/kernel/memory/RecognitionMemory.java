@@ -174,7 +174,7 @@ public class RecognitionMemory
      * 
      * TODO Make a method of Instantiation?
      * 
-     * recmem.cpp:149:find_match_goal
+     * <p>recmem.cpp:149:find_match_goal
      * 
      * @param inst
      */
@@ -389,7 +389,7 @@ public class RecognitionMemory
             {
                 context.getPrinter().error("attribute preference" +
                 		" other than +/- for %s ^%s -- ignoring it.", id, attr);
-                return null; // goto abort_execute_action;
+                return null;
             }
             else if (context.attribute_preferences_mode == 1)
             {
@@ -1209,14 +1209,12 @@ public class RecognitionMemory
         SoarReteAssertion assertion = null;
         while ((assertion = context.soarReteListener.get_next_assertion()) != null)
         {
-            // TODO check max_chunks_reached
-            // if (thisAgent->max_chunks_reached) {
-            // thisAgent->system_halted = TRUE;
-            // soar_invoke_callbacks(thisAgent,
-            // AFTER_HALT_SOAR_CALLBACK,
-            // (soar_call_data) NULL);
-            // return;
-            // }
+            if(context.chunker.isMaxChunksReached()) 
+            {
+                context.decisionCycle.halt("Max chunks reached");
+                return;
+            }
+            
             create_instantiation(assertion.production, assertion.token, assertion.wme, top_goal);
         }
 

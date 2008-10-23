@@ -356,10 +356,6 @@ public class Rete
             p.rhs_unbound_variables.addAll(rhs_unbound_vars_for_new_prod);
         }
 
-        /* --- invoke callback functions --- */
-        // TODO: Callback
-        //  soar_invoke_callbacks (thisAgent, PRODUCTION_JUST_ADDED_CALLBACK,
-        //                         (soar_call_data) p);
         return production_addition_result;
     }
 
@@ -374,9 +370,6 @@ public class Rete
      */
     public void excise_production_from_rete(Production p)
     {
-        // TODO: Callback
-        // soar_invoke_callbacks (thisAgent, PRODUCTION_JUST_ABOUT_TO_BE_EXCISED_CALLBACK, (soar_call_data) p);
-
         // #ifdef _WINDOWS
         // remove_production_from_stat_lists(prod_to_be_excised);
         // #endif

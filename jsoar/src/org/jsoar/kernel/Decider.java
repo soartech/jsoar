@@ -31,8 +31,8 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
 /**
- * 
  * decide.cpp
+ * 
  * @author ray
  */
 public class Decider
@@ -129,7 +129,6 @@ public class Decider
      * agent.h:740:waitsnc
      */
     private boolean waitsnc;
-    private boolean waitsnc_detect;
     
     /**
      * agent.h:384:parent_list_head
@@ -2357,7 +2356,8 @@ public class Decider
         if (context.operand2_mode && this.waitsnc && (impasse_type == ImpasseType.NO_CHANGE_IMPASSE_TYPE)
                 && (attribute_of_impasse == context.predefinedSyms.state_symbol))
         {
-            this.waitsnc_detect = true;
+            // Note: In csoar, waitsnc_detect was set to true here, but it was 
+            // never used in any actual code, so I (DR) removed it.
         }
         else
         {
@@ -2698,21 +2698,11 @@ public class Decider
                         }
                         else if (wme_matching_this_cond.gds.getGoal().level > inst.match_goal_level)
                         {
-                            /* if the WME currently belongs to the GDS of a goal below
-                            * the current one */
-                            /* 1. Take WME off old (current) GDS list 
-                            * 2. Check to see if old GDS WME list is empty.  If so,
-                            *         remove(free) it.
-                            * 3. Add WME to new GDS list
-                            * 4. Update WME pointer to new GDS list
-                            */
-                            /*
-                            if (inst.match_goal_level == 1)
-                            {
-                                // TODO uhhh is this necessary??
-                                context.getPrinter().print("\n\n\n HELLO! HELLO! The inst->match_goal_level is 1");
-                            }
-                            */
+                            // if the WME currently belongs to the GDS of a goal below the current one
+                            // 1. Take WME off old (current) GDS list 
+                            // 2. Check to see if old GDS WME list is empty.  If so, remove(free) it.
+                            // 3. Add WME to new GDS list
+                            // 4. Update WME pointer to new GDS list
 
                             wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
@@ -2728,7 +2718,7 @@ public class Decider
                                 }
 
                             }
-                            /* JC ADDED: Separate adding wme to GDS as a function */
+
                             add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
 
                             if (DEBUG_GDS)
@@ -2741,11 +2731,9 @@ public class Decider
                     }
                     else
                     {
-                        /* We know that the WME should be in the GDS of the current
-                        * goal if the WME's GDS does not already exist.
-                        * (i.e., if NIL GDS) */
+                        // We know that the WME should be in the GDS of the current
+                        // goal if the WME's GDS does not already exist. (i.e., if NIL GDS)
 
-                        /* JC ADDED: Separate adding wme to GDS as a function */
                         add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
 
                         if (DEBUG_GDS)
@@ -2765,10 +2753,10 @@ public class Decider
                 } /* end "wme in supergoal or arch-supported" */
                 else
                 {
-                    /* wme must be local */
+                    // wme must be local
 
-                    /* if wme's pref is o-supported, then just ignore it and
-                    * move to next condition */
+                    // if wme's pref is o-supported, then just ignore it and
+                    // move to next condition
                     if (pref_for_this_wme.o_supported == true)
                     {
                         if (DEBUG_GDS)
@@ -2780,10 +2768,10 @@ public class Decider
 
                     else
                     {
-                        /* wme's pref is i-supported, so remember it's instantiation
-                        * for later examination */
+                        // wme's pref is i-supported, so remember it's instantiation
+                        // for later examination
 
-                        /* this test avoids "backtracing" through the top state */
+                        // this test avoids "backtracing" through the top state
                         if (inst.match_goal_level == 1)
                         {
                             if (DEBUG_GDS)
@@ -2807,7 +2795,7 @@ public class Decider
                             Slot s = Slot.find_slot(pref_for_this_wme.id, pref_for_this_wme.attr);
                             if (s == null)
                             {
-                                /* this must be an arch-wme from a fake instantiation */
+                                // this must be an arch-wme from a fake instantiation
 
                                 if (DEBUG_GDS)
                                 {
@@ -2815,9 +2803,9 @@ public class Decider
                                       pref_for_this_wme.inst.top_of_instantiated_conditions.asPositiveCondition().bt.wme_);
                                 }
 
-                                /* this is the same code as above, just using the 
-                                * differently-named pointer.  it probably should
-                                * be a subroutine */
+                                // this is the same code as above, just using the 
+                                // differently-named pointer.  it probably should
+                                // be a subroutine
                                 {
                                     WmeImpl fake_inst_wme_cond = pref_for_this_wme.inst.top_of_instantiated_conditions.asPositiveCondition().bt.wme_;
                                     if (fake_inst_wme_cond.gds != null)
@@ -2858,22 +2846,11 @@ public class Decider
                                         }
                                         else if (fake_inst_wme_cond.gds.getGoal().level > inst.match_goal_level)
                                         {
-                                            /* if the WME currently belongs to the GDS of a
-                                            *goal below the current one */
-                                            /* 1. Take WME off old (current) GDS list 
-                                            * 2. Check to see if old GDS WME list is empty.
-                                            *    If so, remove(free) it.
-                                            * 3. Add WME to new GDS list
-                                            * 4. Update WME pointer to new GDS list
-                                            */
-                                            /*
-                                            if (inst.match_goal_level == 1)
-                                            {
-                                                // TODO necessary???
-                                                context.getPrinter().print(
-                                                        "\n\n\n\n\n HELLO! HELLO! The inst->match_goal_level is 1");
-                                            }
-                                            */
+                                            // if the WME currently belongs to the GDS of a goal below the current one
+                                            // 1. Take WME off old (current) GDS list 
+                                            // 2. Check to see if old GDS WME list is empty. If so, remove(free) it.
+                                            // 3. Add WME to new GDS list
+                                            // 4. Update WME pointer to new GDS list
 
                                             fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
                                             
@@ -2889,7 +2866,6 @@ public class Decider
                                                 }
                                             }
 
-                                            /* JC ADDED: Separate adding wme to GDS as a function */
                                             add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
 
                                             if (DEBUG_GDS)
@@ -2902,20 +2878,12 @@ public class Decider
                                     }
                                     else
                                     {
-                                        /* We know that the WME should be in the GDS of
-                                        * the current goal if the WME's GDS does not
-                                        * already exist. (i.e., if NIL GDS) */
+                                        // We know that the WME should be in the GDS of
+                                        // the current goal if the WME's GDS does not
+                                        // already exist. (i.e., if NIL GDS)
 
-                                        /* JC ADDED: Separate adding wme to GDS as a function */
                                         add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
 
-                                        /*
-                                        if (fake_inst_wme_cond.gds.wmes_in_gds.first.previous != null)
-                                        {
-                                            context.getPrinter().print(
-                                                    "\nDEBUG DEBUG : The new header should never have a prev value.\n");
-                                        }
-                                        */
                                         if (DEBUG_GDS)
                                         {
                                             context
@@ -2934,7 +2902,7 @@ public class Decider
                             }
                             else
                             {
-                                /* this was the original "local & i-supported" action */
+                                // this was the original "local & i-supported" action
                                 for (Preference pref = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); 
                                      pref != null; pref = pref.next)
                                 {
@@ -2965,21 +2933,15 @@ public class Decider
                                                         "\n           adding inst that produced the pref to GDS: %s\n",
                                                         pref.inst.prod.name);
                                             }
-                                            ////////////////////////////////////////////////////// 
-                                            /* REW: 2003-12-07 */
-                                            /* If the preference comes from a lower level inst, then 
-                                            ignore it. */
-                                            /* Preferences from lower levels must come from result 
-                                            instantiations;
-                                            we just want to use the justification/chunk 
-                                            instantiations at the match goal level*/
+
+                                            // If the preference comes from a lower level inst, then ignore it.
+                                            // Preferences from lower levels must come from result instantiations;
+                                            // we just want to use the justification/chunk 
+                                            // instantiations at the match goal level
                                             if (pref.inst.match_goal_level <= inst.match_goal_level)
                                             {
-
-                                                ////////////////////////////////////////////////////// 
                                                 uniquely_add_to_head_of_dll(pref.inst);
                                                 pref.inst.GDS_evaluated_already = true;
-                                                ////////////////////////////////////////////////////// 
                                             }
                                             else if(DEBUG_GDS) 
                                             {
@@ -3003,7 +2965,7 @@ public class Decider
                 }
             } /* for (cond = inst->top_of_instantiated_cond ...  *;*/
 
-            /* remove just used instantiation from list */
+            // remove just used instantiation from list
 
             if (DEBUG_GDS)
             {
@@ -3020,8 +2982,6 @@ public class Decider
                 parent_list_head = curr_pi.next;
 
             temp_pi = curr_pi.next;
-            //free(curr_pi);
-
         } /* end of "for (curr_pi = thisAgent->parent_list_head ... */
 
         if (parent_list_head != null)
@@ -3036,11 +2996,11 @@ public class Decider
                 }
             }
 
-            /* recursively explore the parents of all the instantiations */
+            // recursively explore the parents of all the instantiations
             elaborate_gds();
 
-            /* free the parent instantiation list.  technically, the list
-            * should be empty at this point ??? */
+            // free the parent instantiation list.  technically, the list
+            //  should be empty at this point ???
             free_parent_list();
         }
 
@@ -3062,13 +3022,11 @@ public class Decider
      */
     public void gds_invalid_so_remove_goal(WmeImpl w)
     {
-        /* REW: begin 11.25.96 */
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
         // start_timer(thisAgent, &thisAgent->start_gds_tv);
         // #endif
         // #endif
-        /* REW: end   11.25.96 */
 
         /* REW: BUG.  I have no idea right now if this is a terrible hack or
          * actually what we want to do.  The idea here is that the context of
@@ -3163,20 +3121,9 @@ public class Decider
      */
     public void print_lowest_slot_in_context_stack(Writer writer) throws IOException
     {
-
-        /* REW: begin 10.24.97 */
-        /* This doesn't work yet so for now just print the last selection */
-        /*  if (thisAgent->operand2_mode && 
-         *   thisAgent->waitsnc &&
-         *   thisAgent->waitsnc_detect) {
-         * thisAgent->waitsnc_detect = FALSE;
-         * print_stack_trace (thisAgent->wait_symbol,
-         *                    thisAgent->bottom_goal, FOR_OPERATORS_TF, TRUE);
-         * print(thisAgent, "\n waiting"); 
-         * return;
-         *  }
-         */
-        /* REW: end   10.24.97 */
+        // Note: There was commented out code from Bob Wray in 1997 here in csoar about
+        // "this doesn't work yet so for now just print the last selection".
+        // Presumably, whatever it was supposed to do has been lost to the ages.
 
         if (bottom_goal.operator_slot.getWmes() != null)
         {
@@ -3193,7 +3140,6 @@ public class Decider
 
         else
         {
-
             if (context.operand2_mode)
             {
                 context.traceFormats.print_stack_trace(writer, bottom_goal, bottom_goal,

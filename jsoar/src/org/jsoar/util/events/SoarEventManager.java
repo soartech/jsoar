@@ -90,12 +90,27 @@ public class SoarEventManager
      */
     public <T extends SoarEvent> void fireEvent(T event)
     {
+        fireEvent(event, event.getClass());
+    }
+    
+    /**
+     * Fire the given event to all listeners registered for the given event 
+     * type. This extended version of {@link #fireEvent(SoarEvent)} allows a
+     * particular event class to be specified so that sub-classes of an existing
+     * event class can be properly routed to listeners of that parent class.
+     * 
+     * @param <T> Event type
+     * @param event The event object. Must be non-null.
+     * @param eventType Event type used to route to listeners
+     */
+    public <T extends SoarEvent> void fireEvent(T event, Class<? extends T> eventType)
+    {
         if(event == null)
         {
             throw new NullPointerException("event");
         }
         
-        for(SoarEventListener l : getListenersForEventType(event.getClass()))
+        for(SoarEventListener l : getListenersForEventType(eventType))
         {
             l.onEvent(event);
         }

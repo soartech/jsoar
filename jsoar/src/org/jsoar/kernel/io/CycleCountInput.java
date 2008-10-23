@@ -3,9 +3,9 @@
  *
  * Created on Oct 16, 2008
  */
-package org.jsoar.kernel.events;
+package org.jsoar.kernel.io;
 
-import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.events.InputCycleEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.util.Arguments;

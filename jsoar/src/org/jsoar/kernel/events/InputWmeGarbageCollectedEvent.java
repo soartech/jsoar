@@ -13,7 +13,7 @@ import org.jsoar.kernel.memory.WmeIterator;
 import org.jsoar.util.events.SoarEvent;
 
 /**
- * callback.h:96:INPUT_WME_GARBAGE_COLLECTED_CALLBACK
+ * <p>callback.h:96:INPUT_WME_GARBAGE_COLLECTED_CALLBACK
  * 
  * @author ray
  */
@@ -22,7 +22,7 @@ public class InputWmeGarbageCollectedEvent implements SoarEvent
     private final WmeImpl headOfList;
 
     /**
-     * @param headOfList
+     * @param headOfList Head of list of removed WMEs
      */
     public InputWmeGarbageCollectedEvent(WmeImpl headOfList)
     {

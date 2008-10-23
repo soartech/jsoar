@@ -16,7 +16,6 @@ import java.util.Set;
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
-import org.jsoar.kernel.events.CycleCountInput;
 import org.jsoar.kernel.events.InputCycleEvent;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.OutputEvent.OutputMode;
