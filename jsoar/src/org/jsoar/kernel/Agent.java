@@ -21,6 +21,8 @@ import java.util.Set;
 
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
+import org.jsoar.kernel.events.ProductionAddedEvent;
+import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputOutputImpl;
@@ -96,7 +98,7 @@ public class Agent
     
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);
     public final DecisionCycle decisionCycle = new DecisionCycle(this);
-    private final SoarEventManager eventManager = new SoarEventManager();
+    private SoarEventManager eventManager = new SoarEventManager();
     
     /**
      * agent.h:480:total_cpu_time
@@ -110,7 +112,7 @@ public class Agent
     /**
      * false is Soar 7 mode
      * 
-     * agent.h:728
+     * <p>agent.h:728
      */
     public boolean operand2_mode = true;
     
@@ -185,6 +187,11 @@ public class Agent
     public SoarEventManager getEventManager()
     {
         return eventManager;
+    }
+    
+    public void setEventManager(SoarEventManager eventManager)
+    {
+        this.eventManager = eventManager;
     }
     
     public InputOutput getInputOutput()
@@ -286,6 +293,8 @@ public class Agent
         totalProductions++;
         productionsByType.get(p.getType()).add(p);
         productionsByName.put(p.name, p);
+        
+        eventManager.fireEvent(new ProductionAddedEvent(this, p));
     }
     
     /**
@@ -371,6 +380,11 @@ public class Agent
     public void exciseProduction(Production prod, boolean print_sharp_sign)
     {
         // TODO if (prod->trace_firings) remove_pwatch (thisAgent, prod);
+        
+        if(print_sharp_sign)
+        {
+            eventManager.fireEvent(new ProductionExcisedEvent(this, prod));
+        }
         
         totalProductions--;
         productionsByType.get(prod.getType()).remove(prod);

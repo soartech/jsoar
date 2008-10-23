@@ -15,7 +15,9 @@ import org.jsoar.util.ListHead;
 import org.jsoar.util.events.SoarEvent;
 
 /**
- * callback.h:76:WM_CHANGES_CALLBACK
+ * Event fired after working memory changes
+ * 
+ * <p>callback.h:76:WM_CHANGES_CALLBACK
  * 
  * @author ray
  */
@@ -25,8 +27,10 @@ public class WorkingMemoryChangedEvent implements SoarEvent
     private final ListHead<WmeImpl> removed;
     
     /**
-     * @param added
-     * @param removed
+     * Construct a new event
+     * 
+     * @param added the head of the list of added WMEs
+     * @param removed the head of the list of removed WMEs
      */
     public WorkingMemoryChangedEvent(ListHead<WmeImpl> added, ListHead<WmeImpl> removed)
     {
@@ -34,11 +38,23 @@ public class WorkingMemoryChangedEvent implements SoarEvent
         this.removed = removed;
     }
     
+    /**
+     * Returns an iterator over the WMEs that were added. {@link Iterator#remove()} is
+     * <b>not</b> supported by the returned iterator.
+     * 
+     * @return iterator over WMEs that were added
+     */
     public Iterator<Wme> getAddedWmes()
     {
         return new WmeIterator(added.first);
     }
     
+    /**
+     * Returns an iterator over the WMEs that were removed. {@link Iterator#remove()} is
+     * <b>not</b> supported by the returned iterator.
+     * 
+     * @return iterator over the WMEs that were removed
+     */
     public Iterator<Wme> getRemovedWmes()
     {
         return new WmeIterator(removed.first);

@@ -8,8 +8,6 @@ package org.jsoar.kernel;
 /**
  * General Soar constants that don't have an obvious home
  * 
- * TODO Eliminate this class
- * 
  * @author ray
  */
 public final class SoarConstants
@@ -35,8 +33,8 @@ public final class SoarConstants
      * with the top-level-ref-cts turned off. Soar will be much more efficient.
      * See comments in recmem.cpp
      * 
-     * <p>kernel.h:129:DO_TOP_LEVEL_REF_CTS
-     * <p>Pre-processor macro defaults to <b>not defined</b> in csoar
+     * <p>kernel.h:129:DO_TOP_LEVEL_REF_CTS (pre-processor macro defaults to <b>not defined</b> in csoar)
+     * <p>Defaults to <code>false</code>
      */
     public static final boolean DO_TOP_LEVEL_REF_CTS = false;
     
@@ -48,8 +46,8 @@ public final class SoarConstants
      * small run time cost, since two loops are made through the preferences
      * list.
      * 
-     * <p>kernel.h:165:O_REJECTS_FIRST
-     * <p>Pre-processor macro defaults to <b>defined</b> in csoar
+     * <p>kernel.h:165:O_REJECTS_FIRST (pre-processor macro defaults to <b>defined</b> in csoar)
+     * <p>Defaults to <code>true</code>
      */
     public static final boolean O_REJECTS_FIRST = true;
 }

@@ -10,11 +10,15 @@ import java.util.List;
 
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
+ * Event fired during when new output is available on the input link. The
+ * WMEs on the output link may be handled directly through the iterator
+ * returned by {@link #getWmes()}, or may process commands through
+ * {@link InputOutput#getPendingCommands()}.
+ * 
  * @author ray
  */
 public class OutputEvent extends AbstractInputOutputEvent
@@ -30,7 +34,11 @@ public class OutputEvent extends AbstractInputOutputEvent
     private final List<Wme> wmes;
     
     /**
-     * @param io
+     * Construct a new event
+     * 
+     * @param io The I/O interface
+     * @param mode The output mode
+     * @param wmes List of output WMEs
      */
     public OutputEvent(InputOutput io, OutputMode mode, List<Wme> wmes)
     {
@@ -68,12 +76,11 @@ public class OutputEvent extends AbstractInputOutputEvent
      * 
      * <p>io.cpp::get_output_value
      * 
-     * @param outputs
      * @param id
      * @param attr
      * @return
      */
-    public Symbol getOutputValue(IdentifierImpl id, SymbolImpl attr)
+    public Symbol getOutputValue(Identifier id, Symbol attr)
     {
         for (Wme iw : wmes)
             if (((id == null) || (id == iw.getIdentifier())) && ((attr == null) || (attr == iw.getAttribute())))

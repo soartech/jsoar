@@ -352,9 +352,7 @@ public class OSupport
      *       I'm not sure whether this is right or not.  (It's a pretty
      *       obscure case, though.)
      * 
-     * TODO Re-check braces in this method :(
-     * 
-     * osupport.cpp:267:calculate_support_for_instantiation_preferences
+     * <p>osupport.cpp:267:calculate_support_for_instantiation_preferences
      * 
      * @param inst
      * @param top_goal

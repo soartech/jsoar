@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
-import org.jsoar.kernel.events.CycleCountInput;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.symbols.Symbol;

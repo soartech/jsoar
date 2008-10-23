@@ -1,23 +1,23 @@
 /*
  * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
  *
- * Created on Oct 18, 2008
+ * Created on Oct 22, 2008
  */
 package org.jsoar.kernel.events;
 
 import org.jsoar.kernel.Agent;
 
 /**
- * <p>callback.h:53:BEFORE_INIT_SOAR_CALLBACK
+ * <p>callback.h::AFTER_HALT_SOAR_CALLBACK
  * 
  * @author ray
  */
-public class BeforeInitSoarEvent extends AbstractAgentEvent
+public class AfterHaltEvent extends AbstractAgentEvent
 {
     /**
      * @param agent the agent
      */
-    public BeforeInitSoarEvent(Agent agent)
+    public AfterHaltEvent(Agent agent)
     {
         super(agent);
     }

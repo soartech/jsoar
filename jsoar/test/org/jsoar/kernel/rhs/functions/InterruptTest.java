@@ -9,7 +9,7 @@ package org.jsoar.kernel.rhs.functions;
 import static org.junit.Assert.*;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.events.CycleCountInput;
+import org.jsoar.kernel.io.CycleCountInput;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
