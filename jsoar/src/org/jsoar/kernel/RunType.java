@@ -10,9 +10,9 @@ package org.jsoar.kernel;
  */
 public enum RunType
 {
-    ELABORATIONS,
     DECISIONS,
-    MODIFICATIONS_OF_OUTPUT,
+    ELABORATIONS,
+    FOREVER,
     PHASES,
-    FOREVER
+    MODIFICATIONS_OF_OUTPUT,
 }

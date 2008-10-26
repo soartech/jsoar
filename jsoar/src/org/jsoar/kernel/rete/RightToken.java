@@ -55,7 +55,7 @@ public class RightToken extends Token
     
     public void setLeftToken(LeftToken leftToken)
     {
-        assert this.left_token != null;
+        // Note: this method can be called multiple times with different left tokens
         
         this.left_token = leftToken;
         if(leftToken != null)

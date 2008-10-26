@@ -34,8 +34,8 @@ public class WorkingMemoryChangedEvent implements SoarEvent
      */
     public WorkingMemoryChangedEvent(ListHead<WmeImpl> added, ListHead<WmeImpl> removed)
     {
-        this.added = added;
-        this.removed = removed;
+        this.added = ListHead.newInstance(added);
+        this.removed = ListHead.newInstance(removed);
     }
     
     /**
