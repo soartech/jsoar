@@ -18,6 +18,7 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.ReordererException;
+import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
@@ -79,6 +80,15 @@ public class Production
         return type;
     }
     
+    
+    /**
+     * @return the name
+     */
+    public StringSymbol getName()
+    {
+        return name;
+    }
+
     /**
      * Performs reordering of the LHS and RHS of the production using the given
      * reorderer objects. This will modify the conditions and actions of the
@@ -174,7 +184,7 @@ public class Production
     @Override
     public String toString()
     {
-        return name.toString() + " (" + type + ")";
+        return name.toString() + " (" + type + ") " + firing_count;
     }
     
     /**
@@ -235,7 +245,7 @@ public class Production
         printer.print("\n    -->\n  ");
         printer.print("  ");
         Action.print_action_list(printer, cns.actions, 4, internal);
-        printer.print("\n}\n");
+        printer.print("\n}\n").flush();
     } 
     
 }

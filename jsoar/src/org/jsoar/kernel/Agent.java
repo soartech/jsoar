@@ -408,6 +408,16 @@ public class Agent
         this.decisionCycle.runFor(n, runType);
     }
     
+    public void runForever()
+    {
+        this.decisionCycle.runForever();
+    }
+    
+    public void stop()
+    {
+        this.decisionCycle.stop();
+    }
+    
     /**
      * <p>init_soar.cpp:1374:init_agent_memory()
      */

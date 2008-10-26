@@ -6,45 +6,49 @@
 package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
 
-import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.flexdock.docking.Dockable;
+import org.flexdock.docking.DockingConstants;
+import org.flexdock.docking.DockingManager;
+import org.flexdock.docking.activation.ActiveDockableTracker;
+import org.flexdock.util.SwingUtility;
+import org.flexdock.view.View;
+import org.flexdock.view.Viewport;
+import org.jsoar.debugger.actions.ActionManager;
+import org.jsoar.debugger.actions.ExitAction;
+import org.jsoar.debugger.actions.InitSoarAction;
+import org.jsoar.debugger.actions.RunAction;
+import org.jsoar.debugger.actions.SourceFileAction;
+import org.jsoar.debugger.actions.StopAction;
+import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.Production;
-import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.runtime.ThreadedAgentProxy;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.events.SoarEvent;
+import org.jsoar.util.events.SoarEventListener;
 
 /**
  * @author ray
@@ -53,72 +57,25 @@ public class LittleDebugger extends JPanel
 {
     private static final long serialVersionUID = 7997119112479665988L;
 
+    private final SelectionManager selectionManager = new SelectionManager();
+    private final ActionManager actionManager = new ActionManager(this);
+    private final RunControlModel runControlModel = new RunControlModel();
+        
     private Agent agent = new Agent();
     private SoarTclInterface ifc = new SoarTclInterface(agent);
-    private ExecutorService pool = Executors.newSingleThreadExecutor();
-    
-    private JTextField countField = new JTextField("    1");
-    private JComboBox stepTypeCombo = new JComboBox(RunType.values());
-    {
-        stepTypeCombo.setSelectedIndex(0);
-    }
-    
-    private JTextArea outputWindow = new JTextArea();
-    private Writer outputWriter = new Writer()
-    {
-        private StringBuilder buffer = new StringBuilder();
-        
-        @Override
-        public void close() throws IOException
-        {
-        }
-
-        @Override
-        synchronized public void flush() throws IOException
-        {
-            outputWindow.append(buffer.toString());
-            outputWindow.setCaretPosition(outputWindow.getText().length());
-            buffer = new StringBuilder();
-        }
-
-        @Override
-        synchronized public void write(char[] cbuf, int off, int len) throws IOException
-        {
-            buffer.append(cbuf, off, len);
-        }
-    };
-    private JTextField commandField = new JTextField();
-    
-    private class RunCommand implements Runnable
-    {
-        private RunType type;
-        private int count;
-        /**
-         * @param type
-         * @param count
-         */
-        public RunCommand(RunType type, int count)
-        {
-            this.type = type;
-            this.count = count;
-        }
-        
-        /* (non-Javadoc)
-         * @see java.lang.Runnable#run()
-         */
-        @Override
-        public void run()
-        {
-            agent.runFor(count, type);
-            update();
-        }
-    }
+    private ThreadedAgentProxy proxy = new ThreadedAgentProxy(agent);
     
     private JFrame frame;
+    private Viewport viewport = new Viewport();
+    private final TraceView traceView;
+    private final ProductionListView prodListView;
+    private final SelectionInfoView textView;
+    private final WorkingMemoryGraphView wmGraphView;
+    private final MatchesView matchesView;
+    
     private DefaultListModel wmeListModel = new DefaultListModel();
     private JList wmeList = new JList(wmeListModel);
-    private DefaultListModel prodListModel = new DefaultListModel();
-    private JList prodList = new JList(prodListModel);
+
     
     public LittleDebugger(JFrame frame)
     {
@@ -126,67 +83,106 @@ public class LittleDebugger extends JPanel
         
         this.frame = frame;
         
-        outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        agent.getPrinter().pushWriter(outputWriter, true);
-        agent.trace.enableAll();
+        this.add(viewport, BorderLayout.CENTER);
         
-        agent.initialize();
+        initActions();
         
-        JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                               new JScrollPane(prodList),
-                                               new JScrollPane(wmeList));
+        traceView = new TraceView(this);
+        proxy.initialize();
         
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
-        leftPanel.add(commandField, BorderLayout.SOUTH);
-        commandField.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0)
-            {
-                try
-                {
-                    ifc.eval(commandField.getText());
-                }
-                catch (SoarTclException e)
-                {
-                    e.printStackTrace();
-                }
-            }});
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
-                                          leftPanel, 
-                                          rightSplit);
-        split.setDividerLocation(600);
-        add(split, BorderLayout.CENTER);
+        viewport.dock(traceView);
+        prodListView = new ProductionListView(this);
+        traceView.dock(prodListView, DockingConstants.EAST_REGION, 0.75f);
+        //prodListView.dock(createWorkingMemoryView(), DockingConstants.SOUTH_REGION);
+        
+        matchesView = new MatchesView(this);
+        prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
+        
+        textView = new SelectionInfoView(this);
+        matchesView.dock(textView, DockingConstants.SOUTH_REGION);
+        
+        wmGraphView = new WorkingMemoryGraphView(this);
+        traceView.dock(wmGraphView, DockingConstants.SOUTH_REGION);
+        
         
         initMenuBar();
         initToolbar();
         
-        update();
-        
-        prodList.addMouseListener(new MouseAdapter() {
+        ActiveDockableTracker.getTracker(frame).addPropertyChangeListener(new PropertyChangeListener() {
 
-            /* (non-Javadoc)
-             * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
-             */
             @Override
-            public void mouseClicked(MouseEvent e)
+            public void propertyChange(PropertyChangeEvent evt)
             {
-                if(e.getClickCount() != 2)
+                Dockable newDockable = (Dockable) evt.getNewValue();
+                SelectionProvider provider = Adaptables.adapt(newDockable, SelectionProvider.class);
+                if(provider != null)
                 {
-                    return;
-                }
-                Production p = (Production) prodList.getSelectedValue();
-                if(p != null)
-                {
-                    p.print_production(agent.rete, agent.getPrinter(), SwingUtilities.isLeftMouseButton(e));
+                    selectionManager.setSelectionProvider(provider);
                 }
             }});
+        
+        agent.getEventManager().addListener(AfterInitSoarEvent.class, new SoarEventListener() {
+
+            @Override
+            public void onEvent(SoarEvent event)
+            {
+                update(true);
+            }});
+        update(false);
+    }
+
+    
+    private View createWorkingMemoryView()
+    {
+        View view = new View("wm", "Working Memory");
+        view.addAction(DockingConstants.PIN_ACTION);
+        
+        JPanel p = new JPanel(new BorderLayout());
+        p.add(new JScrollPane(wmeList), BorderLayout.CENTER);
+        
+        view.setContentPane(p);
+        
+        return view;
     }
     
-    private void exit()
+    public ThreadedAgentProxy getAgentProxy()
     {
+        return proxy;
+    }
+    
+    public SoarTclInterface getTcl()
+    {
+        return ifc;
+    }
+    
+    public SelectionManager getSelectionManager()
+    {
+        return selectionManager;
+    }
+    
+    public RunControlModel getRunControlModel()
+    {
+        return runControlModel;
+    }
+    
+    public ActionManager getActionManager()
+    {
+        return actionManager;
+    }
+    
+    public void exit()
+    {
+        proxy.shutdown();
         System.exit(0);
+    }
+    
+    private void initActions()
+    {
+        new ExitAction(actionManager);
+        new RunAction(actionManager);
+        new StopAction(actionManager);
+        new InitSoarAction(actionManager);
+        new SourceFileAction(actionManager);
     }
     
     private void initMenuBar()
@@ -194,17 +190,19 @@ public class LittleDebugger extends JPanel
         JMenuBar bar = new JMenuBar();
         
         JMenu fileMenu = new JMenu("File");
-        fileMenu.add(new AbstractAction("Exit") {
-            private static final long serialVersionUID = -2043372835820538377L;
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                exit();
-            }});
+        fileMenu.add(actionManager.getAction(SourceFileAction.class));
+        fileMenu.addSeparator();
+        fileMenu.add(actionManager.getAction(ExitAction.class));
         
         bar.add(fileMenu);
         bar.add(new TraceMenu(agent.trace));
+        
+        JMenu runMenu = new JMenu("Run");
+        runMenu.add(actionManager.getAction(RunAction.class));
+        runMenu.add(actionManager.getAction(StopAction.class));
+        runMenu.addSeparator();
+        runMenu.add(actionManager.getAction(InitSoarAction.class));
+        bar.add(runMenu);
         
         frame.setJMenuBar(bar);
     }
@@ -214,79 +212,56 @@ public class LittleDebugger extends JPanel
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         
-        bar.add(new JLabel("Step "));
-        bar.add(countField);
-        bar.add(stepTypeCombo);
-        bar.add(new JButton(new AbstractAction("GO"){
-
-            private static final long serialVersionUID = -6058718638062761141L;
-
-            @Override
-            public void actionPerformed(ActionEvent arg0)
-            {
-                int count = Integer.valueOf(countField.getText().trim());
-                RunType type = (RunType) stepTypeCombo.getSelectedItem();
-                pool.execute(new RunCommand(type, count));
-            }}));
         
         add(bar, BorderLayout.NORTH);
     }
-    private void update()
+    
+    public void update(final boolean afterInitSoar)
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            try
-            {
-                SwingUtilities.invokeAndWait(new Runnable() {
+            SwingUtilities.invokeLater(new Runnable() {
 
-                    @Override
-                    public void run()
-                    {
-                        update();
-                    }});
-            }
-            catch (InterruptedException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (InvocationTargetException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+                @Override
+                public void run()
+                {
+                    update(afterInitSoar);
+                }});
             return;
         }
         
+        actionManager.updateActions();
+        
         updateWmes();
-        updateProds();
+        prodListView.refresh();
+        wmGraphView.refresh(afterInitSoar);
     }
+    
     private void updateWmes()
     {
         wmeListModel.clear();
         
-        List<String> wmes = new ArrayList<String>();
-        for(WmeImpl wme : agent.rete.getAllWmes())
-        {
-            wmes.add(String.format("%s", wme));
-        }
+        Callable<List<String>> callable = new Callable<List<String>>() {
+
+            @Override
+            public List<String> call() throws Exception
+            {
+                final List<String> wmes = new ArrayList<String>();
+                for(WmeImpl wme : agent.rete.getAllWmes())
+                {
+                    wmes.add(String.format("%s", wme));
+                }
+                return wmes;
+            }};
+        
+        List<String> wmes = proxy.execute(callable);
         Collections.sort(wmes);
         for(String s : wmes)
         {
             wmeListModel.addElement(s);
         }
     }
-    
-    private void updateProds()
-    {
-        prodListModel.clear();
-        List<Production> prods = agent.getProductions(null);
-        for(Production p : prods)
-        {
-            prodListModel.addElement(p);
-        }
-    }
-    
+        
     private static void initializeLookAndFeel()
     {
         try
@@ -296,44 +271,55 @@ public class LittleDebugger extends JPanel
             // whatever L&F we get.
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
-        catch (UnsupportedLookAndFeelException e)
-        {
-        }
-        catch (ClassNotFoundException e)
-        {
-        }
-        catch (InstantiationException e)
-        {
-        }
-        catch (IllegalAccessException e)
-        {
-        }
-
+        catch (UnsupportedLookAndFeelException e) { }
+        catch (ClassNotFoundException e) { }
+        catch (InstantiationException e) { }
+        catch (IllegalAccessException e) { }
     }
-    public static void main(String[] args)
+    
+    public static void main(final String[] args)
     {
         initializeLookAndFeel();
+        
+        SwingUtilities.invokeLater(new Runnable() {
+            
+            public void run() { initialize(args); }
+        });
+    }
+
+    /**
+     * @param args
+     */
+    private static void initialize(final String[] args)
+    {
+        DockingManager.setFloatingEnabled(true);
         
         JFrame frame = new JFrame("Little JSoar Debugger");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         final LittleDebugger littleDebugger = new LittleDebugger(frame);
         frame.setContentPane(littleDebugger);
-        frame.setSize(800, 600);
+        frame.setSize(1200, 1024);
+        SwingUtility.centerOnScreen(frame);
         frame.setVisible(true);
         
-        for(String arg : args)
-        {
-            try
+        littleDebugger.proxy.execute(new Runnable() {
+            public void run() 
             {
-                littleDebugger.ifc.sourceFile(arg);
-            }
-            catch (SoarTclException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+                for(String arg : args)
+                {
+                    try
+                    {
+                        littleDebugger.ifc.sourceFile(arg);
+                    }
+                    catch (SoarTclException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+                littleDebugger.update(false);
+            } } );
     }
     
 }

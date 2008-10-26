@@ -17,6 +17,7 @@ import org.jsoar.kernel.events.AfterHaltEvent;
 import org.jsoar.kernel.events.BeforeDecisionCycleEvent;
 import org.jsoar.kernel.events.BeforeElaborationEvent;
 import org.jsoar.kernel.events.PhaseEvents;
+import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -96,6 +97,7 @@ public class DecisionCycle
     private final BeforeElaborationEvent beforeElaborationEvent;
     private final AfterElaborationEvent afterElaborationEvent;
     private final BeforeDecisionCycleEvent beforeDecisionCycleEvent;
+    private final RunLoopEvent pollEvent;
     private final Map<Phase, AbstractPhaseEvent> beforePhaseEvents;
     private final Map<Phase, AbstractPhaseEvent> afterPhaseEvents;
     
@@ -107,6 +109,7 @@ public class DecisionCycle
         this.beforeElaborationEvent = new BeforeElaborationEvent(context);
         this.afterElaborationEvent = new AfterElaborationEvent(context);
         this.beforeDecisionCycleEvent = new BeforeDecisionCycleEvent(context, Phase.INPUT_PHASE);
+        this.pollEvent = new RunLoopEvent(context);
         this.beforePhaseEvents = PhaseEvents.createBeforeEvents(context);
         this.afterPhaseEvents = PhaseEvents.createAfterEvents(context);
         
@@ -158,6 +161,10 @@ public class DecisionCycle
     {
         assert !system_halted;
         assert !stop_soar;
+        
+        ExecutionTimers.pause(context.getTotalKernelTimer());
+        context.getEventManager().fireEvent(pollEvent);
+        ExecutionTimers.start(context.getTotalKernelTimer());
         
         switch (current_phase)
         {
@@ -214,8 +221,8 @@ public class DecisionCycle
      */
     private void pauseTopLevelTimers()
     {
-        ExecutionTimers.pause(context.getTotalCpuTimer());
         ExecutionTimers.pause(context.getTotalKernelTimer());
+        ExecutionTimers.pause(context.getTotalCpuTimer());
     }
 
     /**
