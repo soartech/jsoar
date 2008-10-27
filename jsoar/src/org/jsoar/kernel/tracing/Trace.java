@@ -19,35 +19,70 @@ import java.util.Formatter;
 public class Trace
 {
     /**
-     * gsysparam.h:92
+     * gsysparam.h:92:TRACE_*_SYSPARAM
      * 
      * @author ray
      */
     public static enum Category
     {
-        TRACE_VERBOSE,
-        TRACE_CONTEXT_DECISIONS_SYSPARAM(true),
-        TRACE_PHASES_SYSPARAM,
+        /** gsysparam.h:92:TRACE_VERBOSE */
+        VERBOSE,
+        
+        /** gsysparam.h:92:TRACE_CONTEXT_DECISIONS_SYSPARAM */
+        CONTEXT_DECISIONS(true),
+        
+        /** gsysparam.h:93:TRACE_PHASES_SYSPARAM */
+        PHASES,
 
-        /* --- Warning: these next five MUST be consecutive and in the order of the
-           production types defined above --- */
-        TRACE_FIRINGS_OF_USER_PRODS_SYSPARAM,
-        TRACE_FIRINGS_OF_DEFAULT_PRODS_SYSPARAM,
-        TRACE_FIRINGS_OF_CHUNKS_SYSPARAM,
-        TRACE_FIRINGS_OF_JUSTIFICATIONS_SYSPARAM,
-        TRACE_FIRINGS_OF_TEMPLATES_SYSPARAM,
+        
+        /** gsysparam.h:97:TRACE_FIRINGS_OF_USER_PRODS_SYSPARAM */
+        FIRINGS_OF_USER_PRODS,
+        
+        /** gsysparam.h:98:TRACE_FIRINGS_OF_DEFAULT_PRODS_SYSPARAM */
+        FIRINGS_OF_DEFAULT_PRODS,
+        
+        /** gsysparam.h:99:TRACE_FIRINGS_OF_CHUNKS_SYSPARAM */
+        FIRINGS_OF_CHUNKS,
+        
+        /** gsysparam.h:100:TRACE_FIRINGS_OF_JUSTIFICATIONS_SYSPARAM */
+        FIRINGS_OF_JUSTIFICATIONS,
+        
+        /** gsysparam.h:101:TRACE_FIRINGS_OF_TEMPLATES_SYSPARAM */
+        FIRINGS_OF_TEMPLATES,
 
-        TRACE_FIRINGS_PREFERENCES_SYSPARAM,
-        TRACE_WM_CHANGES_SYSPARAM,
-        TRACE_CHUNK_NAMES_SYSPARAM,
-        TRACE_JUSTIFICATION_NAMES_SYSPARAM,
-        TRACE_CHUNKS_SYSPARAM,
-        TRACE_JUSTIFICATIONS_SYSPARAM,
-        TRACE_BACKTRACING_SYSPARAM,
-        TRACE_LOADING_SYSPARAM(true),
-        TRACE_OPERAND2_REMOVALS_SYSPARAM ,
-        TRACE_INDIFFERENT_SYSPARAM,
-        TRACE_RL_SYSPARAM;
+        
+        /** gsysparam.h:103:TRACE_FIRINGS_PREFERENCES_SYSPARAM */
+        FIRINGS_PREFERENCES,
+        
+        /** gsysparam.h:104:TRACE_WM_CHANGES_SYSPARAM */
+        WM_CHANGES,
+        
+        /** gsysparam.h:105:TRACE_CHUNK_NAMES_SYSPARAM */
+        CHUNK_NAMES,
+        
+        /** gsysparam.h:106:TRACE_JUSTIFICATION_NAMES_SYSPARAM */
+        JUSTIFICATION_NAMES,
+        
+        /** gsysparam.h:107:TRACE_CHUNKS_SYSPARAM */
+        CHUNKS,
+        
+        /** gsysparam.h:108:TRACE_JUSTIFICATIONS_SYSPARAM */
+        JUSTIFICATIONS,
+        
+        /** gsysparam.h:109:TRACE_BACKTRACING_SYSPARAM */
+        BACKTRACING,
+        
+        /** gsysparam.h:112:TRACE_LOADING_SYSPARAM */
+        LOADING(true),
+        
+        /** gsysparam.h:146:TRACE_OPERAND2_REMOVALS_SYSPARAM */
+        OPERAND2_REMOVALS ,
+        
+        /** gsysparam.h:159:TRACE_INDIFFERENT_SYSPARAM */
+        INDIFFERENT,
+        
+        /** gsysparam.h:176:TRACE_RL_SYSPARAM */
+        RL;
         
         public final boolean defaultSetting;
         
@@ -63,17 +98,35 @@ public class Trace
     }
     
     /**
-     * How much information to print about the wmes matching an instantiation
+     * How much information to print about the wmes matching an instantiation. 
+     * These values can typically be or'd together in an EnumSet.
      * 
-     * gsysparam.h:72:wme_trace_type
+     * <p>gsysparam.h:72:wme_trace_type
      * 
      * @author ray
      */
     public static enum WmeTraceType
     {
-        NONE_WME_TRACE,      /* don't print anything */
-        TIMETAG_WME_TRACE,   /* print just timetag */
-        FULL_WME_TRACE,      /* print whole wme */
+        /**
+         * don't print anything
+         * 
+         * <p>gsysparam.h:67:NONE_WME_TRACE
+         */
+        NONE,
+        
+        /**
+         * print just timetag
+         * 
+         * <p>gsysparam.h:68:TIMETAG_WME_TRACE
+         */
+        TIMETAG,
+        
+        /**
+         * print whole wme
+         * 
+         * <p>gsysparam.h:69:FULL_WME_TRACE
+         */
+        FULL,
     }
     
     /**
@@ -87,6 +140,9 @@ public class Trace
         MS_RETRACT // print just retractions
     }
     
+    /**
+     * @return a new trace object that prints to stdout
+     */
     public static Trace createStdOutTrace()
     {
         return new Trace(new Printer(new OutputStreamWriter(System.out), true));
@@ -95,7 +151,7 @@ public class Trace
     private final Printer printer;
     private EnumSet<Category> settings = EnumSet.noneOf(Category.class);
     private boolean enabled = true;
-    private WmeTraceType wmeTraceType = WmeTraceType.NONE_WME_TRACE;
+    private WmeTraceType wmeTraceType = WmeTraceType.NONE;
     
     /**
      * @param printer
@@ -150,7 +206,7 @@ public class Trace
     {
         setEnabled(true);
         settings = EnumSet.allOf(Category.class);
-        this.setWmeTraceType(WmeTraceType.FULL_WME_TRACE);
+        this.setWmeTraceType(WmeTraceType.FULL);
         return this;
     }
     

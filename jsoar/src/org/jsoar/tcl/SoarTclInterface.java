@@ -91,10 +91,10 @@ public class SoarTclInterface
             p.print("jsoar 0.0.0 on %s at %s%n%n", System.getenv("HOSTNAME"), Calendar.getInstance().getTime());
             p.print("%d productions (%d default, %d user, %d chunks)%n   + %d justifications%n",
                     agent.getProductions(null).size(),
-                    agent.getProductions(ProductionType.DEFAULT_PRODUCTION_TYPE).size(),
-                    agent.getProductions(ProductionType.USER_PRODUCTION_TYPE).size(),
-                    agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size(),
-                    agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size());
+                    agent.getProductions(ProductionType.DEFAULT).size(),
+                    agent.getProductions(ProductionType.USER).size(),
+                    agent.getProductions(ProductionType.CHUNK).size(),
+                    agent.getProductions(ProductionType.CHUNK).size());
             p.print("\n");
             p.print("Values from single timers:%n" +
             		" Kernel CPU Time: %f sec. %n" +
@@ -183,7 +183,7 @@ public class SoarTclInterface
             if(args.length == 1)
             {
                 agent.soarReteListener.print_match_set(agent.getPrinter(), 
-                                                       WmeTraceType.FULL_WME_TRACE, 
+                                                       WmeTraceType.FULL, 
                                                        EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
                 agent.getPrinter().flush();
             }
@@ -198,7 +198,7 @@ public class SoarTclInterface
                 {
                     throw new TclException(interp, "Production '" + args[1] + "' is not in rete");
                 }
-                agent.rete.print_partial_match_information(agent.getPrinter(), p.p_node, WmeTraceType.FULL_WME_TRACE);
+                agent.rete.print_partial_match_information(agent.getPrinter(), p.p_node, WmeTraceType.FULL);
             }
             else
             {

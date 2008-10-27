@@ -26,13 +26,40 @@ import org.jsoar.kernel.tracing.Trace.Category;
  */
 public enum Phase
 {
-    INPUT_PHASE ("input", BeforeInput.class, AfterInput.class), 
-    PROPOSE_PHASE ("propose", BeforePropose.class, AfterPropose.class),
-    DECISION_PHASE ("decision", BeforeDecision.class, AfterDecision.class),
-    APPLY_PHASE ("apply", BeforeApply.class, AfterApply.class),
-    OUTPUT_PHASE ("output", BeforeOutput.class, AfterOutput.class),
-    PREFERENCE_PHASE ("preference", BeforePreference.class, AfterPreference.class), 
-    WM_PHASE ("working memory", BeforeWorkingMemory.class, AfterWorkingMemory.class);
+    /**
+     * init_soar.h:127:INPUT_PHASE
+     */
+    INPUT ("input", BeforeInput.class, AfterInput.class), 
+    
+    /**
+     * init_soar.h:127:PROPOSE_PHASE
+     */
+    PROPOSE ("propose", BeforePropose.class, AfterPropose.class),
+    
+    /**
+     * init_soar.h:127:DECISION_PHASE
+     */
+    DECISION ("decision", BeforeDecision.class, AfterDecision.class),
+    
+    /**
+     * init_soar.h:127:APPLY_PHASE
+     */
+    APPLY ("apply", BeforeApply.class, AfterApply.class),
+    
+    /**
+     * init_soar.h:127:OUTPUT_PHASE
+     */
+    OUTPUT ("output", BeforeOutput.class, AfterOutput.class),
+    
+    /**
+     * init_soar.h:127:PREFERENCE_PHASE
+     */
+    PREFERENCE ("preference", BeforePreference.class, AfterPreference.class), 
+    
+    /**
+     * init_soar.h:127:WM_PHASE
+     */
+    WM ("working memory", BeforeWorkingMemory.class, AfterWorkingMemory.class);
         
     private final String traceName;
     private final String traceEndName;
@@ -64,7 +91,7 @@ public enum Phase
         // Only log start of phase. This is what csoar debugger currently does.
         if(startOfPhase)
         {
-            trace.print(Category.TRACE_PHASES_SYSPARAM, "--- " + getTraceName(startOfPhase) + " phase ---\n");
+            trace.print(Category.PHASES, "--- " + getTraceName(startOfPhase) + " phase ---\n");
         }
     }
 

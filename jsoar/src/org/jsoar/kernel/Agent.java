@@ -46,6 +46,7 @@ import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
+import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -131,7 +132,7 @@ public class Agent
             productionsByType.put(type, new LinkedHashSet<Production>());
         }
     }
-    private Map<StringSymbolImpl, Production> productionsByName = new HashMap<StringSymbolImpl, Production>();
+    private Map<StringSymbol, Production> productionsByName = new HashMap<StringSymbol, Production>();
     
     public Agent()
     {
@@ -172,6 +173,14 @@ public class Agent
     public Printer getPrinter()
     {
         return printer;
+    }
+    
+    /**
+     * @return
+     */
+    public Trace getTrace()
+    {
+        return trace;
     }
     
     public RhsFunctionManager getRhsFunctions()
@@ -256,7 +265,7 @@ public class Agent
      */
     private void addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
-        if(p.getType() == ProductionType.CHUNK_PRODUCTION_TYPE || p.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        if(p.getType() == ProductionType.CHUNK || p.getType() == ProductionType.JUSTIFICATION)
         {
             throw new IllegalArgumentException("Chunk or justification passed to addProduction: " + p);
         }
@@ -265,16 +274,16 @@ public class Agent
         // Note, in csoar, this test was done in parse_production as soon as the name
         // of the production was known. We do this here so we can eliminate the
         // production field of StringSymbolImpl.
-        Production existing = getProduction(p.name.getValue());
+        Production existing = getProduction(p.getName().getValue());
         if (existing != null) 
         {
-            exciseProduction(existing, trace.isEnabled(Category.TRACE_LOADING_SYSPARAM));
+            exciseProduction(existing, trace.isEnabled(Category.LOADING));
         }
 
         // Reorder the production
         p.reorder(variableGenerator, 
-                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.getValue()), 
-                  new ActionReorderer(printer, p.name.getValue()), 
+                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.getName().getValue()), 
+                  new ActionReorderer(printer, p.getName().getValue()), 
                   reorder_nccs);
 
         // Tell RL about the new production
@@ -292,7 +301,7 @@ public class Agent
         
         totalProductions++;
         productionsByType.get(p.getType()).add(p);
-        productionsByName.put(p.name, p);
+        productionsByName.put(p.getName(), p);
         
         eventManager.fireEvent(new ProductionAddedEvent(this, p));
     }
@@ -310,16 +319,16 @@ public class Agent
      */
     public void addChunk(Production p) throws ReordererException
     {
-        if(p.getType() != ProductionType.CHUNK_PRODUCTION_TYPE &&
-           p.getType() != ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        if(p.getType() != ProductionType.CHUNK &&
+           p.getType() != ProductionType.JUSTIFICATION)
         {
             throw new IllegalArgumentException("Production '" + p + "' is not a chunk or justification");
         }
         
         // Reorder the production
         p.reorder(variableGenerator, 
-                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.name.getValue()), 
-                  new ActionReorderer(printer, p.name.getValue()), 
+                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.getName().getValue()), 
+                  new ActionReorderer(printer, p.getName().getValue()), 
                   false);
 
         // Tell RL about the new production
@@ -328,8 +337,8 @@ public class Agent
         // Production is added to the rete by the chunker
 
         totalProductions++;
-        productionsByType.get(p.type).add(p);
-        productionsByName.put(p.name, p);
+        productionsByType.get(p.getType()).add(p);
+        productionsByName.put(p.getName(), p);
     }
     
     /**
@@ -388,7 +397,7 @@ public class Agent
         
         totalProductions--;
         productionsByType.get(prod.getType()).remove(prod);
-        productionsByName.remove(prod.name);
+        productionsByName.remove(prod.getName());
 
         rl.exciseProduction(prod);
 
@@ -431,7 +440,7 @@ public class Agent
 
         decider.create_top_goal();
 
-        if (trace.isEnabled() && trace.isEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM))
+        if (trace.isEnabled() && trace.isEnabled(Category.CONTEXT_DECISIONS))
         {
             final Writer writer = trace.getPrinter().getWriter();
             try
@@ -445,7 +454,7 @@ public class Agent
                 e.printStackTrace();
             }
         }
-        decisionCycle.current_phase = Phase.INPUT_PHASE;
+        decisionCycle.current_phase = Phase.INPUT;
         if (operand2_mode)
             decisionCycle.d_cycle_count++;
 
@@ -573,4 +582,5 @@ public class Agent
             timer.reset();
         }
     }
+
 }

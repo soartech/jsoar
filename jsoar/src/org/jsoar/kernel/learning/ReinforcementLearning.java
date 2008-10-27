@@ -130,7 +130,7 @@ public class ReinforcementLearning
         // Soar-RL stuff
         // TODO p->rl_update_count = 0;
         // TODO p->rl_rule = false;
-        if ( ( p.getType() != ProductionType.JUSTIFICATION_PRODUCTION_TYPE ) && ( p.getType() != ProductionType.TEMPLATE_PRODUCTION_TYPE ) ) 
+        if ( ( p.getType() != ProductionType.JUSTIFICATION ) && ( p.getType() != ProductionType.TEMPLATE ) ) 
         {
             // TODO p->rl_rule = rl_valid_rule( p );  
         }

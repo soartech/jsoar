@@ -484,7 +484,7 @@ public class Chunker
 
         // scan through negated conditions and check which ones are connected
         // to the grounds
-        context.trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "\n\n*** Adding Grounded Negated Conditions ***\n");
+        context.trace.print(Category.BACKTRACING, "\n\n*** Adding Grounded Negated Conditions ***\n");
 
         while (!negated_set.all.isEmpty())
         {
@@ -495,7 +495,7 @@ public class Chunker
             {
                 // negated cond is in the TC, so add it to the grounds
 
-                context.trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "\n-.Moving to grounds: %s", cc.cond);
+                context.trace.print(Category.BACKTRACING, "\n-.Moving to grounds: %s", cc.cond);
 
                 cc.instantiated_cond = Condition.copy_condition(cc.cond);
                 cc.variablized_cond = Condition.copy_condition(cc.cond);
@@ -847,7 +847,7 @@ public class Chunker
             // TODO: make this a method of ImpasseType
             switch (impasse_type)
             {
-            case NONE_IMPASSE_TYPE:
+            case NONE:
                 // #ifdef DEBUG_CHUNK_NAMES
                 // print ("Warning: impasse_type is NONE_IMPASSE_TYPE during
                 // chunk creation.\n");
@@ -856,16 +856,16 @@ public class Chunker
                 // #endif
                 impass_name = "unknownimpasse";
                 break;
-            case CONSTRAINT_FAILURE_IMPASSE_TYPE:
+            case CONSTRAINT_FAILURE:
                 impass_name = "cfailure";
                 break;
-            case CONFLICT_IMPASSE_TYPE:
+            case CONFLICT:
                 impass_name = "conflict";
                 break;
-            case TIE_IMPASSE_TYPE:
+            case TIE:
                 impass_name = "tie";
                 break;
-            case NO_CHANGE_IMPASSE_TYPE:
+            case NO_CHANGE:
             {
                 SymbolImpl sym = find_impasse_wme_value(goal.lower_goal, context.predefinedSyms.attribute_symbol);
 
@@ -1031,7 +1031,7 @@ public class Chunker
                     allow_variablization = false;
                     inst.okay_to_variablize = false;
 
-                    context.trace.print(Category.TRACE_VERBOSE,
+                    context.trace.print(Category.VERBOSE,
                             "\n   in chunk_instantiation: making justification only");
                 }
                 else
@@ -1040,7 +1040,7 @@ public class Chunker
                     allow_variablization = isLearningOn();
                     inst.okay_to_variablize = isLearningOn();
 
-                    context.trace.print(Category.TRACE_VERBOSE,
+                    context.trace.print(Category.VERBOSE,
                             "\n   in chunk_instantiation: resetting allow_variablization to %s", allow_variablization);
                 }
             }
@@ -1133,7 +1133,7 @@ public class Chunker
         /* --- backtrace through the instantiation that produced each result --- */
         for (pref = results; pref != null; pref = pref.next_result)
         {
-            context.trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "\nFor result preference %s ", pref);
+            context.trace.print(Category.BACKTRACING, "\nFor result preference %s ", pref);
             context.backtrace.backtrace_through_instantiation(pref.inst, grounds_level, null, 0);
         }
 
@@ -1174,20 +1174,20 @@ public class Chunker
             thisAgent->chunks_this_d_cycle)++;
             */
 
-            prod_type = ProductionType.CHUNK_PRODUCTION_TYPE;
+            prod_type = ProductionType.CHUNK;
             // TODO startNewLine()?
-            print_name = context.trace.isEnabled(Category.TRACE_CHUNK_NAMES_SYSPARAM);
-            context.trace.print(Category.TRACE_CHUNK_NAMES_SYSPARAM, "Building %s", prod_name);
-            print_prod = context.trace.isEnabled(Category.TRACE_CHUNKS_SYSPARAM);
+            print_name = context.trace.isEnabled(Category.CHUNK_NAMES);
+            context.trace.print(Category.CHUNK_NAMES, "Building %s", prod_name);
+            print_prod = context.trace.isEnabled(Category.CHUNKS);
         }
         else
         {
             prod_name = context.syms.generate_new_sym_constant("justification-", justification_count);
-            prod_type = ProductionType.JUSTIFICATION_PRODUCTION_TYPE;
+            prod_type = ProductionType.JUSTIFICATION;
             // TODO startNewLine()?
-            print_name = context.trace.isEnabled(Category.TRACE_JUSTIFICATION_NAMES_SYSPARAM);
-            context.trace.print(Category.TRACE_JUSTIFICATION_NAMES_SYSPARAM, "Building %s", prod_name);
-            print_prod = context.trace.isEnabled(Category.TRACE_JUSTIFICATIONS_SYSPARAM);
+            print_name = context.trace.isEnabled(Category.JUSTIFICATION_NAMES);
+            context.trace.print(Category.JUSTIFICATION_NAMES, "Building %s", prod_name);
+            print_prod = context.trace.isEnabled(Category.JUSTIFICATIONS);
         }
 
         // if there aren't any grounds, exit
@@ -1303,7 +1303,7 @@ public class Chunker
 
         if (context.explain.isEnabled())
             if ((rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION)
-                    && ((prod_type != ProductionType.JUSTIFICATION_PRODUCTION_TYPE) || (rete_addition_result != ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH)))
+                    && ((prod_type != ProductionType.JUSTIFICATION) || (rete_addition_result != ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH)))
             {
                 temp_explain_chunk.name = prod_name.getValue();
                 context.explain.explain_add_temp_to_chunk_list(temp_explain_chunk);
@@ -1327,7 +1327,7 @@ public class Chunker
         {
             context.exciseProduction(prod, false);
         }
-        else if ((prod_type == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        else if ((prod_type == ProductionType.JUSTIFICATION)
                 && (rete_addition_result == ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH))
         {
             context.exciseProduction(prod, false);

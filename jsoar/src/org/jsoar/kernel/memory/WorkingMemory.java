@@ -228,7 +228,7 @@ public class WorkingMemory
         for (AsListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...
-            context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, "=>WM: %s", w.item);
+            context.trace.print(Category.WM_CHANGES, "=>WM: %s", w.item);
             w.item.wme_add_ref();
             wme_addition_count++;
         }
@@ -236,7 +236,7 @@ public class WorkingMemory
         for (AsListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_remove", but filtering seems disabled in CSoar...
-            context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, "<=WM: %s", w.item);
+            context.trace.print(Category.WM_CHANGES, "<=WM: %s", w.item);
 
             w.item.wme_remove_ref(this);
             wme_removal_count++;

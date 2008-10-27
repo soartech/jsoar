@@ -210,13 +210,13 @@ public class Decider
     {
         // first, reset marks to "NOTHING"
         for (WmeImpl w = s.getAcceptablePreferenceWmes(); w != null; w = w.next)
-            w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+            w.value.decider_flag = DeciderFlag.NOTHING;
 
         // now mark values for which we WANT a wme as "CANDIDATE" values
-        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
-        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.CANDIDATE;
+        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.CANDIDATE;
 
         // remove any existing wme's that aren't CANDIDATEs; mark the rest as
         // ALREADY_EXISTING
@@ -225,9 +225,9 @@ public class Decider
         while (w != null)
         {
             final WmeImpl next_w = w.next;
-            if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
+            if (w.value.decider_flag == DeciderFlag.CANDIDATE)
             {
-                w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
+                w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME;
                 w.value.decider_wme = w;
                 w.preference = null; /* we'll update this later */
             }
@@ -252,9 +252,9 @@ public class Decider
 
         // add the necessary wme's that don't ALREADY_EXIST
 
-        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next)
         {
-            if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
+            if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME)
             {
                 // found existing wme, so just update its trace
                 WmeImpl wme = p.value.decider_wme;
@@ -267,14 +267,14 @@ public class Decider
                 s.addAcceptablePreferenceWme(wme);
                 wme.preference = p;
                 context.workingMemory.add_wme_to_wm(wme);
-                p.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
+                p.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME;
                 p.value.decider_wme = wme;
             }
         }
 
-        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); p != null; p = p.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next)
         {
-            if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
+            if (p.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME)
             {
                 // found existing wme, so just update its trace
                 WmeImpl wme = p.value.decider_wme;
@@ -287,7 +287,7 @@ public class Decider
                 s.addAcceptablePreferenceWme(wme);
                 wme.preference = p;
                 context.workingMemory.add_wme_to_wm(wme);
-                p.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
+                p.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME;
                 p.value.decider_wme = wme;
             }
         }
@@ -517,7 +517,7 @@ public class Decider
             final Slot s = sit.item;
             
             // remove any existing attribute impasse for the slot
-            if (s.impasse_type != ImpasseType.NONE_IMPASSE_TYPE)
+            if (s.impasse_type != ImpasseType.NONE)
                 remove_existing_attribute_impasse_for_slot(s);
 
             // remove all wme's from the slot
@@ -791,31 +791,31 @@ public class Decider
     private ImpasseType require_preference_semantics(Slot s, ByRef<Preference> result_candidates)
     {
         // collect set of required items into candidates list
-        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.NOTHING;
         
         Preference candidates = null;
-        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE); p != null; p = p.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next)
         {
-            if (p.value.decider_flag == DeciderFlag.NOTHING_DECIDER_FLAG)
+            if (p.value.decider_flag == DeciderFlag.NOTHING)
             {
                 p.next_candidate = candidates;
                 candidates = p;
                 // unmark it, in order to prevent it from being added twice
-                p.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
+                p.value.decider_flag = DeciderFlag.CANDIDATE;
             }
         }
         result_candidates.value = candidates;
 
         // if more than one required item, we have a constraint failure
         if (candidates.next_candidate != null)
-            return ImpasseType.CONSTRAINT_FAILURE_IMPASSE_TYPE;
+            return ImpasseType.CONSTRAINT_FAILURE;
 
         // just one require, check for require-prohibit impasse
         SymbolImpl value = candidates.value;
-        for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT_PREFERENCE_TYPE); p != null; p = p.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next)
             if (p.value == value)
-                return ImpasseType.CONSTRAINT_FAILURE_IMPASSE_TYPE;
+                return ImpasseType.CONSTRAINT_FAILURE;
 
         // the lone require is the winner
         if (candidates != null && context.rl.rl_enabled())
@@ -825,7 +825,7 @@ public class Decider
             // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
         }
 
-        return ImpasseType.NONE_IMPASSE_TYPE;
+        return ImpasseType.NONE;
     }
     
 
@@ -869,7 +869,7 @@ public class Decider
             if (!s.isa_context_slot)
                 context.tempMemory.mark_slot_for_possible_removal(s);
             result_candidates.value = null;
-            return ImpasseType.NONE_IMPASSE_TYPE;
+            return ImpasseType.NONE;
         }
 
         // if this is the true decision slot and selection has been made,
@@ -891,7 +891,7 @@ public class Decider
                         // rl_perform_update( thisAgent, force_result->numeric_value, s->id );
                     }
 
-                    return ImpasseType.NONE_IMPASSE_TYPE;
+                    return ImpasseType.NONE;
                 }
                 else
                 {
@@ -901,7 +901,7 @@ public class Decider
         }
 
         /* === Requires === */
-        if (s.getPreferencesByType(PreferenceType.REQUIRE_PREFERENCE_TYPE) != null)
+        if (s.getPreferencesByType(PreferenceType.REQUIRE) != null)
         {
             return require_preference_semantics(s, result_candidates);
         }
@@ -909,23 +909,23 @@ public class Decider
         /* === Acceptables, Prohibits, Rejects === */
 
         // mark everything that's acceptable, then unmark the prohibited and rejected items
-        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
-        for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT_PREFERENCE_TYPE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-        for (Preference p = s.getPreferencesByType(PreferenceType.REJECT_PREFERENCE_TYPE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.CANDIDATE;
+        for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.NOTHING;
+        for (Preference p = s.getPreferencesByType(PreferenceType.REJECT); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.NOTHING;
 
         // now scan through acceptables and build the list of candidates
         Preference candidates = null;
-        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); p != null; p = p.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next)
         {
-            if (p.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
+            if (p.value.decider_flag == DeciderFlag.CANDIDATE)
             {
                 p.next_candidate = candidates;
                 candidates = p;
                 // unmark it, in order to prevent it from being added twice
-                p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+                p.value.decider_flag = DeciderFlag.NOTHING;
             }
         }
 
@@ -933,7 +933,7 @@ public class Decider
         if (((context.attribute_preferences_mode == 2) || (context.operand2_mode == true)) && (!s.isa_context_slot))
         {
             result_candidates.value = candidates;
-            return ImpasseType.NONE_IMPASSE_TYPE;
+            return ImpasseType.NONE;
         }
 
         /* === If there are only 0 or 1 candidates, we're done === */
@@ -949,12 +949,12 @@ public class Decider
                 // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
             }
 
-            return ImpasseType.NONE_IMPASSE_TYPE;
+            return ImpasseType.NONE;
         }
 
         /* === Better/Worse === */
-        if (s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE) != null
-                || s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE) != null)
+        if (s.getPreferencesByType(PreferenceType.BETTER) != null
+                || s.getPreferencesByType(PreferenceType.WORSE) != null)
         {
             /* Algorithm to find conflicted set: 
             conflicted = {}
@@ -979,21 +979,21 @@ public class Decider
                       candidate -= k, if not already true
             ----------------------- */
 
-            for (Preference p = s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE); p != null; p = p.next)
+            for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
             {
-                p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-                p.referent.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+                p.value.decider_flag = DeciderFlag.NOTHING;
+                p.referent.decider_flag = DeciderFlag.NOTHING;
             }
-            for (Preference p = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p != null; p = p.next)
+            for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
             {
-                p.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-                p.referent.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+                p.value.decider_flag = DeciderFlag.NOTHING;
+                p.referent.decider_flag = DeciderFlag.NOTHING;
             }
             for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
             {
-                cand.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
+                cand.value.decider_flag = DeciderFlag.CANDIDATE;
             }
-            for (Preference p = s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE); p != null; p = p.next)
+            for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
             {
                 final SymbolImpl j = p.value;
                 final SymbolImpl k = p.referent;
@@ -1001,29 +1001,29 @@ public class Decider
                     continue;
                 if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
                 {
-                    if (k.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG)
-                        k.decider_flag = DeciderFlag.FORMER_CANDIDATE_DECIDER_FLAG;
-                    if ((j.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG)
-                            || (k.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG))
+                    if (k.decider_flag != DeciderFlag.CONFLICTED)
+                        k.decider_flag = DeciderFlag.FORMER_CANDIDATE;
+                    if ((j.decider_flag != DeciderFlag.CONFLICTED)
+                            || (k.decider_flag != DeciderFlag.CONFLICTED))
                     {
-                        for (Preference p2 = s.getPreferencesByType(PreferenceType.BETTER_PREFERENCE_TYPE); p2 != null; p2 = p2.next)
+                        for (Preference p2 = s.getPreferencesByType(PreferenceType.BETTER); p2 != null; p2 = p2.next)
                             if ((p2.value == k) && (p2.referent == j))
                             {
-                                j.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
-                                k.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
+                                j.decider_flag = DeciderFlag.CONFLICTED;
+                                k.decider_flag = DeciderFlag.CONFLICTED;
                                 break;
                             }
-                        for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p2 != null; p2 = p2.next)
+                        for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE); p2 != null; p2 = p2.next)
                             if ((p2.value == j) && (p2.referent == k))
                             {
-                                j.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
-                                k.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
+                                j.decider_flag = DeciderFlag.CONFLICTED;
+                                k.decider_flag = DeciderFlag.CONFLICTED;
                                 break;
                             }
                     }
                 }
             }
-            for (Preference p = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p != null; p = p.next)
+            for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
             {
                 final SymbolImpl j = p.value;
                 final SymbolImpl k = p.referent;
@@ -1031,16 +1031,16 @@ public class Decider
                     continue;
                 if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
                 {
-                    if (j.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG)
-                        j.decider_flag = DeciderFlag.FORMER_CANDIDATE_DECIDER_FLAG;
-                    if ((j.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG)
-                            || (k.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG))
+                    if (j.decider_flag != DeciderFlag.CONFLICTED)
+                        j.decider_flag = DeciderFlag.FORMER_CANDIDATE;
+                    if ((j.decider_flag != DeciderFlag.CONFLICTED)
+                            || (k.decider_flag != DeciderFlag.CONFLICTED))
                     {
-                        for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE_PREFERENCE_TYPE); p2 != null; p2 = p2.next)
+                        for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE); p2 != null; p2 = p2.next)
                             if ((p2.value == k) && (p2.referent == j))
                             {
-                                j.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
-                                k.decider_flag = DeciderFlag.CONFLICTED_DECIDER_FLAG;
+                                j.decider_flag = DeciderFlag.CONFLICTED;
+                                k.decider_flag = DeciderFlag.CONFLICTED;
                                 break;
                             }
                     }
@@ -1050,7 +1050,7 @@ public class Decider
             // now scan through candidates list, look for conflicted stuff
             Preference cand = null, prev_cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
-                if (cand.value.decider_flag == DeciderFlag.CONFLICTED_DECIDER_FLAG)
+                if (cand.value.decider_flag == DeciderFlag.CONFLICTED)
                     break;
             if (cand != null)
             {
@@ -1059,7 +1059,7 @@ public class Decider
                 cand = candidates;
                 while (cand != null)
                 {
-                    if (cand.value.decider_flag != DeciderFlag.CONFLICTED_DECIDER_FLAG)
+                    if (cand.value.decider_flag != DeciderFlag.CONFLICTED)
                     {
                         if (prev_cand != null)
                             prev_cand.next_candidate = cand.next_candidate;
@@ -1073,7 +1073,7 @@ public class Decider
                     cand = cand.next_candidate;
                 }
                 result_candidates.value = candidates;
-                return ImpasseType.CONFLICT_IMPASSE_TYPE;
+                return ImpasseType.CONFLICT;
             }
 
             // no conflicts found, remove former_candidates from candidates
@@ -1081,7 +1081,7 @@ public class Decider
             cand = candidates;
             while (cand != null)
             {
-                if (cand.value.decider_flag == DeciderFlag.FORMER_CANDIDATE_DECIDER_FLAG)
+                if (cand.value.decider_flag == DeciderFlag.FORMER_CANDIDATE)
                 {
                     if (prev_cand != null)
                         prev_cand.next_candidate = cand.next_candidate;
@@ -1097,16 +1097,16 @@ public class Decider
         }
 
         /* === Bests === */
-        if (s.getPreferencesByType(PreferenceType.BEST_PREFERENCE_TYPE) != null)
+        if (s.getPreferencesByType(PreferenceType.BEST) != null)
         {
             Preference cand, prev_cand;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
-                cand.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-            for (Preference p = s.getPreferencesByType(PreferenceType.BEST_PREFERENCE_TYPE); p != null; p = p.next)
-                p.value.decider_flag = DeciderFlag.BEST_DECIDER_FLAG;
+                cand.value.decider_flag = DeciderFlag.NOTHING;
+            for (Preference p = s.getPreferencesByType(PreferenceType.BEST); p != null; p = p.next)
+                p.value.decider_flag = DeciderFlag.BEST;
             prev_cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
-                if (cand.value.decider_flag == DeciderFlag.BEST_DECIDER_FLAG)
+                if (cand.value.decider_flag == DeciderFlag.BEST)
                 {
                     if (prev_cand != null)
                         prev_cand.next_candidate = cand;
@@ -1119,16 +1119,16 @@ public class Decider
         }
 
         /* === Worsts === */
-        if (s.getPreferencesByType(PreferenceType.WORST_PREFERENCE_TYPE) != null)
+        if (s.getPreferencesByType(PreferenceType.WORST) != null)
         {
             Preference cand, prev_cand;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
-                cand.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-            for (Preference p = s.getPreferencesByType(PreferenceType.WORST_PREFERENCE_TYPE); p != null; p = p.next)
-                p.value.decider_flag = DeciderFlag.WORST_DECIDER_FLAG;
+                cand.value.decider_flag = DeciderFlag.NOTHING;
+            for (Preference p = s.getPreferencesByType(PreferenceType.WORST); p != null; p = p.next)
+                p.value.decider_flag = DeciderFlag.WORST;
             prev_cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
-                if (cand.value.decider_flag != DeciderFlag.WORST_DECIDER_FLAG)
+                if (cand.value.decider_flag != DeciderFlag.WORST)
                 {
                     if (prev_cand != null)
                         prev_cand.next_candidate = cand;
@@ -1153,30 +1153,30 @@ public class Decider
                 // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
             }
 
-            return ImpasseType.NONE_IMPASSE_TYPE;
+            return ImpasseType.NONE;
         }
 
         /* === Indifferents === */
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
-            cand.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-        for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT_PREFERENCE_TYPE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_DECIDER_FLAG;
+            cand.value.decider_flag = DeciderFlag.NOTHING;
+        for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT;
 
-        for (Preference p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT_PREFERENCE_TYPE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG;
+        for (Preference p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT;
 
-        for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE); p != null; p = p.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT); p != null; p = p.next)
         {
             if ((p.referent.asInteger() != null) || (p.referent.asDouble() != null))
-                p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG;
+                p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT;
         }
 
         boolean not_all_indifferent = false;
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
         {
-            if (cand.value.decider_flag == DeciderFlag.UNARY_INDIFFERENT_DECIDER_FLAG)
+            if (cand.value.decider_flag == DeciderFlag.UNARY_INDIFFERENT)
                 continue;
-            else if (cand.value.decider_flag == DeciderFlag.UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG)
+            else if (cand.value.decider_flag == DeciderFlag.UNARY_INDIFFERENT_CONSTANT)
                 continue;
 
             // check whether cand is binary indifferent to each other one
@@ -1185,7 +1185,7 @@ public class Decider
                 if (p == cand)
                     continue;
                 boolean match_found = false;
-                for (Preference p2 = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE);
+                for (Preference p2 = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT);
                          p2 != null; p2 = p2.next)
                 {
                     if (((p2.value == cand.value) && (p2.referent == p.value))
@@ -1215,26 +1215,26 @@ public class Decider
             else
                 result_candidates.value = candidates;
 
-            return ImpasseType.NONE_IMPASSE_TYPE;
+            return ImpasseType.NONE;
         }
 
         // items not all indifferent; for context slots this gives a tie
         if (s.isa_context_slot)
         {
             result_candidates.value = candidates;
-            return ImpasseType.TIE_IMPASSE_TYPE;
+            return ImpasseType.TIE;
         }
 
         /* === Parallels === */
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
-            cand.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
-        for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_PARALLEL_PREFERENCE_TYPE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.UNARY_PARALLEL_DECIDER_FLAG;
+            cand.value.decider_flag = DeciderFlag.NOTHING;
+        for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_PARALLEL); p != null; p = p.next)
+            p.value.decider_flag = DeciderFlag.UNARY_PARALLEL;
         boolean not_all_parallel = false;
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
         {
             // if cand is unary parallel, it's fine
-            if (cand.value.decider_flag == DeciderFlag.UNARY_PARALLEL_DECIDER_FLAG)
+            if (cand.value.decider_flag == DeciderFlag.UNARY_PARALLEL)
                 continue;
             // check whether cand is binary parallel to each other candidate
             for (Preference p = candidates; p != null; p = p.next_candidate)
@@ -1242,7 +1242,7 @@ public class Decider
                 if (p == cand)
                     continue;
                 boolean match_found = false;
-                for (Preference p2 = s.getPreferencesByType(PreferenceType.BINARY_PARALLEL_PREFERENCE_TYPE); p2 != null; p2 = p2.next)
+                for (Preference p2 = s.getPreferencesByType(PreferenceType.BINARY_PARALLEL); p2 != null; p2 = p2.next)
                 {
                     if (((p2.value == cand.value) && (p2.referent == p.value))
                             || ((p2.value == p.value) && (p2.referent == cand.value)))
@@ -1266,11 +1266,11 @@ public class Decider
         if (!not_all_parallel)
         {
             // items are all parallel, so return them all
-            return ImpasseType.NONE_IMPASSE_TYPE;
+            return ImpasseType.NONE;
         }
 
         // otherwise we have a tie
-        return ImpasseType.TIE_IMPASSE_TYPE;
+        return ImpasseType.TIE;
     }
     
     /**
@@ -1347,21 +1347,21 @@ public class Decider
 
         switch (impasse_type)
         {
-        case NONE_IMPASSE_TYPE:
+        case NONE:
             break; /* this happens only when creating the top goal */
-        case CONSTRAINT_FAILURE_IMPASSE_TYPE:
+        case CONSTRAINT_FAILURE:
             add_impasse_wme(id, predefined.impasse_symbol, predefined.constraint_failure_symbol, null);
             add_impasse_wme(id, predefined.choices_symbol, predefined.none_symbol, null);
             break;
-        case CONFLICT_IMPASSE_TYPE:
+        case CONFLICT:
             add_impasse_wme(id, predefined.impasse_symbol, predefined.conflict_symbol, null);
             add_impasse_wme(id, predefined.choices_symbol, predefined.multiple_symbol, null);
             break;
-        case TIE_IMPASSE_TYPE:
+        case TIE:
             add_impasse_wme(id, predefined.impasse_symbol, predefined.tie_symbol, null);
             add_impasse_wme(id, predefined.choices_symbol, predefined.multiple_symbol, null);
             break;
-        case NO_CHANGE_IMPASSE_TYPE:
+        case NO_CHANGE:
             add_impasse_wme(id, predefined.impasse_symbol, predefined.no_change_symbol, null);
             add_impasse_wme(id, predefined.choices_symbol, predefined.none_symbol, null);
             break;
@@ -1403,7 +1403,7 @@ public class Decider
 
         final IdentifierImpl id = s.impasse_id;
         s.impasse_id = null;
-        s.impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
+        s.impasse_type = ImpasseType.NONE;
 
         context.workingMemory.remove_wme_list_from_wm(id.getImpasseWmes(), false);
         id.removeAllImpasseWmes();
@@ -1451,7 +1451,7 @@ public class Decider
             throw new IllegalStateException("Internal error: couldn't find acceptable pref wme");
         }
         // make the fake preference
-        Preference pref = new Preference(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE, goal,
+        Preference pref = new Preference(PreferenceType.ACCEPTABLE, goal,
                 context.predefinedSyms.item_symbol, cand.value, null);
         pref.all_of_goal.insertAtHead(goal.preferences_from_goal);
         pref.on_goal_list = true;
@@ -1534,11 +1534,11 @@ public class Decider
         // reset flags on existing items to "NOTHING"
         for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == predefined.item_symbol)
-                w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+                w.value.decider_flag = DeciderFlag.NOTHING;
 
         // mark set of desired items as "CANDIDATEs"
         for (Preference cand = items; cand != null; cand = cand.next_candidate)
-            cand.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
+            cand.value.decider_flag = DeciderFlag.CANDIDATE;
 
         // for each existing item: if it's supposed to be there still, then
         // mark it "ALREADY_EXISTING"; otherwise remove it
@@ -1548,9 +1548,9 @@ public class Decider
             final WmeImpl next_w = w.next;
             if (w.attr == predefined.item_symbol)
             {
-                if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG)
+                if (w.value.decider_flag == DeciderFlag.CANDIDATE)
                 {
-                    w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
+                    w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME;
                     w.value.decider_wme = w; // so we can update the pref later
                 }
                 else
@@ -1581,7 +1581,7 @@ public class Decider
                 bt_pref = make_fake_preference_for_goal_item(id, cand);
             else
                 bt_pref = cand;
-            if (cand.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
+            if (cand.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME)
             {
                 if (id.isa_goal)
                     remove_fake_preference_for_goal_item(cand.value.decider_wme.preference);
@@ -1618,19 +1618,19 @@ public class Decider
       
       final ImpasseType impasse_type = run_preference_semantics (s, candidates, false, false);
       
-      if (impasse_type==ImpasseType.NONE_IMPASSE_TYPE) 
+      if (impasse_type==ImpasseType.NONE) 
       {
          // no impasse, so remove any existing one and update the wmes
-         if (s.impasse_type != ImpasseType.NONE_IMPASSE_TYPE)
+         if (s.impasse_type != ImpasseType.NONE)
             remove_existing_attribute_impasse_for_slot (s);
          
          // reset marks on existing wme values to "NOTHING"
          for (WmeImpl w = s.getWmes(); w != null; w = w.next)
-            w.value.decider_flag = DeciderFlag.NOTHING_DECIDER_FLAG;
+            w.value.decider_flag = DeciderFlag.NOTHING;
          
          // set marks on desired values to "CANDIDATES"
          for (Preference cand=candidates.value; cand!=null; cand=cand.next_candidate)
-            cand.value.decider_flag = DeciderFlag.CANDIDATE_DECIDER_FLAG;
+            cand.value.decider_flag = DeciderFlag.CANDIDATE;
          
          // for each existing wme, if we want it there, mark it as ALREADY_EXISTING; otherwise remove it
          WmeImpl it = s.getWmes();
@@ -1639,9 +1639,9 @@ public class Decider
             final WmeImpl w = it;
             it = w.next;
             
-            if (w.value.decider_flag == DeciderFlag.CANDIDATE_DECIDER_FLAG) 
+            if (w.value.decider_flag == DeciderFlag.CANDIDATE) 
             {
-               w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG;
+               w.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME;
                w.value.decider_wme = w; /* so we can set the pref later */
             } 
             else 
@@ -1654,7 +1654,7 @@ public class Decider
                      if (w.gds.getGoal() != null)
                      {
                          // If the goal pointer is non-NIL, then goal is in the stack
-                         context.trace.print(EnumSet.of(Category.TRACE_WM_CHANGES_SYSPARAM, Category.TRACE_VERBOSE), 
+                         context.trace.print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
                                  "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.getGoal().level, w);
                          gds_invalid_so_remove_goal(w);
                      }
@@ -1667,7 +1667,7 @@ public class Decider
          // for each desired value, if it's not already there, add it
          for (Preference cand=candidates.value; cand!=null; cand=cand.next_candidate) 
          {
-            if (cand.value.decider_flag==DeciderFlag.ALREADY_EXISTING_WME_DECIDER_FLAG)
+            if (cand.value.decider_flag==DeciderFlag.ALREADY_EXISTING_WME)
             {
                /* print(thisAgent, "\n This WME was marked as already existing...."); print_wme(cand->value->common.a.decider_wme); */
                cand.value.decider_wme.preference = cand;
@@ -1752,23 +1752,23 @@ public class Decider
                         
                         if (pref.inst.GDS_evaluated_already == false) {
     if(DEBUG_GDS_HIGH){
-        context.getPrinter().print("   Match goal lev of instantiation %s is %d\n", pref.inst.prod.name, pref.inst.match_goal_level);
+        context.getPrinter().print("   Match goal lev of instantiation %s is %d\n", pref.inst.prod.getName(), pref.inst.match_goal_level);
     }
                            if (pref.inst.match_goal_level > pref.id.level) {
     if(DEBUG_GDS_HIGH){
-        context.getPrinter().print("        %s  is simply the instantiation that led to a chunk.\n        Not adding it the current instantiations.\n", pref.inst.prod.name);
+        context.getPrinter().print("        %s  is simply the instantiation that led to a chunk.\n        Not adding it the current instantiations.\n", pref.inst.prod.getName());
     }
                               
                            } else {
     if(DEBUG_GDS_HIGH){
-        context.getPrinter().print("\n   Adding %s to list of parent instantiations\n", pref.inst.prod.name); 
+        context.getPrinter().print("\n   Adding %s to list of parent instantiations\n", pref.inst.prod.getName()); 
     }
                               uniquely_add_to_head_of_dll(pref.inst);
                               pref.inst.GDS_evaluated_already = true;
                            }
                         }  /* end if GDS_evaluated_already is FALSE */
                         else if(DEBUG_GDS_HIGH) {
-                            context.getPrinter().print("\n    Instantiation %s was already explored; skipping it\n", pref.inst.prod.name);
+                            context.getPrinter().print("\n    Instantiation %s was already explored; skipping it\n", pref.inst.prod.getName());
                         }
                         
                      }  /* end of forloop over preferences for this wme */
@@ -1816,7 +1816,7 @@ public class Decider
        }
     
        // create and/or update impasse structure
-       if (s.impasse_type != ImpasseType.NONE_IMPASSE_TYPE) 
+       if (s.impasse_type != ImpasseType.NONE) 
        {
           if (s.impasse_type != impasse_type) 
           {
@@ -1867,7 +1867,7 @@ public class Decider
             return s.changed != null;
 
         SymbolImpl v = s.getWmes().value;
-        for (Preference p = s.getPreferencesByType(PreferenceType.RECONSIDER_PREFERENCE_TYPE); p != null; p = p.next)
+        for (Preference p = s.getPreferencesByType(PreferenceType.RECONSIDER); p != null; p = p.next)
         {
             if (v == p.value)
                 return true;
@@ -2076,7 +2076,7 @@ public class Decider
             bottom_goal.lower_goal = id;
             bottom_goal = id;
             add_impasse_wme(id, context.predefinedSyms.quiescence_symbol, context.predefinedSyms.t_symbol, null);
-            if ((ImpasseType.NO_CHANGE_IMPASSE_TYPE == impasse_type) && (MAX_GOAL_DEPTH < bottom_goal.level))
+            if ((ImpasseType.NO_CHANGE == impasse_type) && (MAX_GOAL_DEPTH < bottom_goal.level))
             {
                 // appear to be SNC'ing deep in goalstack, so interrupt and warn user
                 // KJC note: we actually halt, because there is no interrupt function in SoarKernel
@@ -2095,7 +2095,7 @@ public class Decider
         else
         {
             // Creating the top state
-            id = create_new_impasse(true, context.predefinedSyms.nil_symbol, null, ImpasseType.NONE_IMPASSE_TYPE,
+            id = create_new_impasse(true, context.predefinedSyms.nil_symbol, null, ImpasseType.NONE,
                     SoarConstants.TOP_GOAL_LEVEL);
             top_goal = id;
             bottom_goal = id;
@@ -2140,7 +2140,7 @@ public class Decider
     public ImpasseType type_of_existing_impasse(IdentifierImpl goal)
     {
         if (goal.lower_goal == null)
-            return ImpasseType.NONE_IMPASSE_TYPE;
+            return ImpasseType.NONE;
 
         final PredefinedSymbols predefined = context.predefinedSyms;
         for (WmeImpl w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
@@ -2148,15 +2148,15 @@ public class Decider
             if (w.attr == predefined.impasse_symbol)
             {
                 if (w.value == predefined.no_change_symbol)
-                    return ImpasseType.NO_CHANGE_IMPASSE_TYPE;
+                    return ImpasseType.NO_CHANGE;
                 if (w.value == predefined.tie_symbol)
-                    return ImpasseType.TIE_IMPASSE_TYPE;
+                    return ImpasseType.TIE;
                 if (w.value == predefined.constraint_failure_symbol)
-                    return ImpasseType.CONSTRAINT_FAILURE_IMPASSE_TYPE;
+                    return ImpasseType.CONSTRAINT_FAILURE;
                 if (w.value == predefined.conflict_symbol)
-                    return ImpasseType.CONFLICT_IMPASSE_TYPE;
+                    return ImpasseType.CONFLICT;
                 if (w.value == predefined.none_symbol)
-                    return ImpasseType.NONE_IMPASSE_TYPE;
+                    return ImpasseType.NONE;
 
                 throw new IllegalStateException("Internal error: bad type of existing impasse.");
             }
@@ -2205,7 +2205,7 @@ public class Decider
             // the only time we decide a slot that's not "decidable" is when it's
             // the last slot in the entire context stack, in which case we have a
             // no-change impasse there
-            impasse_type = ImpasseType.NO_CHANGE_IMPASSE_TYPE;
+            impasse_type = ImpasseType.NO_CHANGE;
             candidates.value = null; // we don't want any impasse ^item's later
 
             if (predict)
@@ -2224,19 +2224,19 @@ public class Decider
                 // TODO make this a method on DecisionManip
                 switch (impasse_type)
                 {
-                case CONSTRAINT_FAILURE_IMPASSE_TYPE:
+                case CONSTRAINT_FAILURE:
                     context.decisionManip.predict_set("constraint");
                     break;
 
-                case CONFLICT_IMPASSE_TYPE:
+                case CONFLICT:
                     context.decisionManip.predict_set("conflict");
                     break;
 
-                case TIE_IMPASSE_TYPE:
+                case TIE:
                     context.decisionManip.predict_set("tie");
                     break;
 
-                case NO_CHANGE_IMPASSE_TYPE:
+                case NO_CHANGE:
                     context.decisionManip.predict_set("none");
                     break;
 
@@ -2258,12 +2258,12 @@ public class Decider
 
             remove_wmes_for_context_slot(s); // must remove old wme before adding the new one (if any)
             
-            if (impasse_type == ImpasseType.NONE_IMPASSE_TYPE)
+            if (impasse_type == ImpasseType.NONE)
             {
                 if (candidates.value == null)
                 {
                     // no winner ==> no-change impasse on the previous slot
-                    impasse_type = ImpasseType.NO_CHANGE_IMPASSE_TYPE;
+                    impasse_type = ImpasseType.NO_CHANGE;
                 }
                 else if (candidates.value.next_candidate != null)
                 {
@@ -2278,7 +2278,7 @@ public class Decider
 
         // determine the attribute of the impasse (if there is no impasse, this
         // doesn't matter)
-        if (impasse_type == ImpasseType.NO_CHANGE_IMPASSE_TYPE)
+        if (impasse_type == ImpasseType.NO_CHANGE)
         {
             if (s.getWmes() != null)
             {
@@ -2303,7 +2303,7 @@ public class Decider
 
         // if we have a winner, remove any existing impasse and install the
         // new value for the current slot
-        if (impasse_type == ImpasseType.NONE_IMPASSE_TYPE)
+        if (impasse_type == ImpasseType.NONE)
         {
             for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
                 temp.preference_add_ref();
@@ -2329,12 +2329,12 @@ public class Decider
         }
 
         // TODO move to rl_info
-        if (impasse_type != ImpasseType.NO_CHANGE_IMPASSE_TYPE)
+        if (impasse_type != ImpasseType.NO_CHANGE)
             goal.rl_info.impasse_type = impasse_type;
         else if (s.getWmes() != null)
-            goal.rl_info.impasse_type = ImpasseType.OP_NO_CHANGE_IMPASSE_TYPE;
+            goal.rl_info.impasse_type = ImpasseType.OP_NO_CHANGE;
         else
-            goal.rl_info.impasse_type = ImpasseType.STATE_NO_CHANGE_IMPASSE_TYPE;
+            goal.rl_info.impasse_type = ImpasseType.STATE_NO_CHANGE;
 
         // no winner; if an impasse of the right type already existed, just
         // update the ^item set on it
@@ -2353,7 +2353,7 @@ public class Decider
         if (goal.lower_goal != null)
             remove_existing_context_and_descendents(goal.lower_goal);
 
-        if (context.operand2_mode && this.waitsnc && (impasse_type == ImpasseType.NO_CHANGE_IMPASSE_TYPE)
+        if (context.operand2_mode && this.waitsnc && (impasse_type == ImpasseType.NO_CHANGE)
                 && (attribute_of_impasse == context.predefinedSyms.state_symbol))
         {
             // Note: In csoar, waitsnc_detect was set to true here, but it was 
@@ -2445,11 +2445,11 @@ public class Decider
      */
     public void do_working_memory_phase()
     {
-        if (context.trace.isEnabled() && context.trace.isEnabled(Category.TRACE_PHASES_SYSPARAM))
+        if (context.trace.isEnabled() && context.trace.isEnabled(Category.PHASES))
         {
             if (context.operand2_mode == true)
             {
-                if (context.decisionCycle.current_phase == Phase.APPLY_PHASE)
+                if (context.decisionCycle.current_phase == Phase.APPLY)
                 { // it's always IE for PROPOSE
                     // TODO xml
                     // xml_begin_tag(thisAgent, kTagSubphase);
@@ -2471,7 +2471,7 @@ public class Decider
             else
             {
                 // TODO the XML for this is generated in this function
-                Phase.WM_PHASE.trace(context.trace, true);
+                Phase.WM.trace(context.trace, true);
             }
         }
 
@@ -2480,7 +2480,7 @@ public class Decider
 
         if(!context.operand2_mode)
         {
-            Phase.WM_PHASE.trace(context.trace, false);
+            Phase.WM.trace(context.trace, false);
         }
     }
 
@@ -2520,7 +2520,7 @@ public class Decider
      */
     public void create_top_goal()
     {
-        create_new_context(null, ImpasseType.NONE_IMPASSE_TYPE);
+        create_new_context(null, ImpasseType.NONE);
         context.tempMemory.highest_goal_whose_context_changed = null; // nothing changed yet
         do_buffered_wm_and_ownership_changes();
     }
@@ -2559,13 +2559,13 @@ public class Decider
                 if (DEBUG_GDS)
                 {
                     context.getPrinter().print("UNIQUE DLL: %s (%d) is already in parent list\n",
-                            curr_pi.inst.prod.name, System.identityHashCode(curr_pi.inst));
+                            curr_pi.inst.prod.getName(), System.identityHashCode(curr_pi.inst));
                 }
                 return;
             }
             if (DEBUG_GDS)
             {
-                context.getPrinter().print("UNIQUE DLL: %s (%d)\n", curr_pi.inst.prod.name, System.identityHashCode(curr_pi.inst));
+                context.getPrinter().print("UNIQUE DLL: %s (%d)\n", curr_pi.inst.prod.getName(), System.identityHashCode(curr_pi.inst));
             }
         } /* end for loop */
 
@@ -2582,7 +2582,7 @@ public class Decider
         parent_list_head = new_pi;
         if (DEBUG_GDS)
         {
-            context.getPrinter().print("UNIQUE DLL: added: %s %d\n", inst.prod.name, System.identityHashCode(inst));
+            context.getPrinter().print("UNIQUE DLL: added: %s %d\n", inst.prod.getName(), System.identityHashCode(inst));
         }
     }
 
@@ -2601,7 +2601,7 @@ public class Decider
         wme_to_add.gds = gds;
         gds.addWme(wme_to_add);
 
-        context.trace.print(EnumSet.of(Category.TRACE_WM_CHANGES_SYSPARAM, Category.TRACE_VERBOSE), 
+        context.trace.print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
                 "Adding to GDS for %s: %s", wme_to_add.gds.getGoal(), wme_to_add);
     }
     
@@ -2778,10 +2778,10 @@ public class Decider
                             {
                                 context.getPrinter().print("         don't back up through top state\n");
                                 if (inst.prod != null)
-                                    if (inst.prod.name != null)
+                                    if (inst.prod.getName() != null)
                                         context.getPrinter().print(
                                                 "         don't back up through top state for instantiation %s\n",
-                                                inst.prod.name);
+                                                inst.prod.getName());
                             }
                             continue;
                         }
@@ -2903,7 +2903,7 @@ public class Decider
                             else
                             {
                                 // this was the original "local & i-supported" action
-                                for (Preference pref = s.getPreferencesByType(PreferenceType.ACCEPTABLE_PREFERENCE_TYPE); 
+                                for (Preference pref = s.getPreferencesByType(PreferenceType.ACCEPTABLE); 
                                      pref != null; pref = pref.next)
                                 {
                                     if(DEBUG_GDS)
@@ -2931,7 +2931,7 @@ public class Decider
                                             {
                                                 context.getPrinter().print(
                                                         "\n           adding inst that produced the pref to GDS: %s\n",
-                                                        pref.inst.prod.name);
+                                                        pref.inst.prod.getName());
                                             }
 
                                             // If the preference comes from a lower level inst, then ignore it.
@@ -2945,7 +2945,7 @@ public class Decider
                                             }
                                             else if(DEBUG_GDS) 
                                             {
-                                                context.getPrinter().print("\n           ignoring inst %s because it is at a lower level than the GDS\n",pref.inst.prod.name);
+                                                context.getPrinter().print("\n           ignoring inst %s because it is at a lower level than the GDS\n",pref.inst.prod.getName());
                                                 pref.inst.GDS_evaluated_already = true;
                                             }
                                         }
@@ -2969,7 +2969,7 @@ public class Decider
 
             if (DEBUG_GDS)
             {
-                context.getPrinter().print("\n      removing instantiation: %s\n", curr_pi.inst.prod.name);
+                context.getPrinter().print("\n      removing instantiation: %s\n", curr_pi.inst.prod.getName());
             }
 
             if (curr_pi.next != null)
@@ -2992,7 +2992,7 @@ public class Decider
                 context.getPrinter().print("\n    RECURSING using these parents:\n");
                 for (ParentInstantiation curr_pi = parent_list_head; curr_pi != null; curr_pi = curr_pi.next)
                 {
-                    context.getPrinter().print("      %s\n", curr_pi.inst.prod.name);
+                    context.getPrinter().print("      %s\n", curr_pi.inst.prod.getName());
                 }
             }
 
@@ -3058,7 +3058,7 @@ public class Decider
             context.tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
         }
         
-        context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM, 
+        context.trace.print(Category.OPERAND2_REMOVALS, 
                             "\n    REMOVING GOAL [%s] due to change in GDS WME %s",
                             w.gds.getGoal(), w);
         

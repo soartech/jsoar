@@ -119,7 +119,7 @@ public class MatchSetChange
 //      #endif
              return lowest_goal_wme.id;
         }
-            throw new IllegalStateException("\nError: Did not find goal for ms_change assertion: " + this.p_node.b_p.prod.name);
+            throw new IllegalStateException("\nError: Did not find goal for ms_change assertion: " + this.p_node.b_p.prod.getName());
       }
     
     /**

@@ -18,28 +18,44 @@ package org.jsoar.kernel;
  */
 public enum DeciderFlag
 {
-    NOTHING_DECIDER_FLAG,
-    CANDIDATE_DECIDER_FLAG,
-    CONFLICTED_DECIDER_FLAG,
-    FORMER_CANDIDATE_DECIDER_FLAG,
-    BEST_DECIDER_FLAG,
-    WORST_DECIDER_FLAG,
-    UNARY_INDIFFERENT_DECIDER_FLAG,
-    ALREADY_EXISTING_WME_DECIDER_FLAG,
-    UNARY_PARALLEL_DECIDER_FLAG,
-    /* REW: 2003-01-02 Behavior Variability Kernel Experiments 
-       A new preference type: unary indifferent + constant (probability) value
-    */
-    UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG;
+    /** decide.cpp:120:NOTHING_DECIDER_FLAG  */
+    NOTHING,
+    
+    /** decide.cpp:121:CANDIDATE_DECIDER_FLAG  */
+    CANDIDATE,
+    
+    /** decide.cpp:122:CONFLICTED_DECIDER_FLAG  */
+    CONFLICTED,
+    
+    /** decide.cpp:123:FORMER_CANDIDATE_DECIDER_FLAG  */
+    FORMER_CANDIDATE,
+    
+    /** decide.cpp:124:BEST_DECIDER_FLAG  */
+    BEST,
+    
+    /** decide.cpp:125:WORST_DECIDER_FLAG  */
+    WORST,
+    
+    /** decide.cpp:126:UNARY_INDIFFERENT_DECIDER_FLAG  */
+    UNARY_INDIFFERENT,
+    
+    /** decide.cpp:127:ALREADY_EXISTING_WME_DECIDER_FLAG  */
+    ALREADY_EXISTING_WME,
+    
+    /** decide.cpp:128:UNARY_PARALLEL_DECIDER_FLAG  */
+    UNARY_PARALLEL,
+    
+    /** decide.cpp:132:UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG  */
+    UNARY_INDIFFERENT_CONSTANT;
 
     /**
      * Helper to handle code that relies on NOTHING_DECIDER_FLAG being 0 in
      * boolean contexts in C (see above)
      * 
-     * @return true if this flag is not NOTHING_DECIDER_FLAG
+     * @return true if this flag is not NOTHING
      */
     public boolean isSomething()
     {
-        return this != NOTHING_DECIDER_FLAG;
+        return this != NOTHING;
     }
 }

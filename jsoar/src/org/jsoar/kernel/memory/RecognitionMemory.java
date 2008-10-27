@@ -139,7 +139,7 @@ public class RecognitionMemory
             {
                 if (pc.bt.trace.slot != null)
                 {
-                    Preference pref = pc.bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT_PREFERENCE_TYPE);
+                    Preference pref = pc.bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
                     while (pref != null)
                     {
                         Preference new_pref = null;
@@ -382,7 +382,7 @@ public class RecognitionMemory
         }
 
         /* --- RBD 4/17/95 added stuff to handle attribute_preferences_mode --- */
-        if (((a.preference_type != PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) && (a.preference_type != PreferenceType.REJECT_PREFERENCE_TYPE))
+        if (((a.preference_type != PreferenceType.ACCEPTABLE) && (a.preference_type != PreferenceType.REJECT))
                 && (!(id.isa_goal && (attr == context.predefinedSyms.operator_symbol))))
         {
             if ((context.attribute_preferences_mode == 2) || (context.operand2_mode == true))
@@ -568,7 +568,7 @@ public class RecognitionMemory
                 }
                 if (difference_found)
                 {
-                    context.getPrinter().warn("\n*** O-support difference found in production %s", inst.prod.name);
+                    context.getPrinter().warn("\n*** O-support difference found in production %s", inst.prod.getName());
                 }
             }
         }
@@ -599,7 +599,7 @@ public class RecognitionMemory
     {
         // #ifdef BUG_139_WORKAROUND
         // RPM workaround for bug #139: don't fire justifications
-        if (prod.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        if (prod.getType() == ProductionType.JUSTIFICATION)
         {
             return;
         }
@@ -610,7 +610,7 @@ public class RecognitionMemory
 
         if (context.operand2_mode)
         {
-            context.trace.print(Category.TRACE_VERBOSE, "\n in create_instantiation: %s", inst.prod.name);
+            context.trace.print(Category.VERBOSE, "\n in create_instantiation: %s", inst.prod.getName());
         }
 
         this.production_being_fired = inst.prod;
@@ -652,7 +652,7 @@ public class RecognitionMemory
 
         // Before executing the RHS actions, tell the user that the
         // phases has changed to output by printing the arrow
-        if(trace_it && context.trace.isEnabled(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM))
+        if(trace_it && context.trace.isEnabled(Category.FIRINGS_PREFERENCES))
         {
             context.trace.print(" -->\n");
         }
@@ -663,7 +663,7 @@ public class RecognitionMemory
         for (Action a = prod.action_list; a != null; a = a.next)
         {
             Preference pref = null;
-            if (prod.getType() != ProductionType.TEMPLATE_PRODUCTION_TYPE)
+            if (prod.getType() != ProductionType.TEMPLATE)
             {
                 pref = execute_action(a, tok, w);
             }
@@ -702,7 +702,7 @@ public class RecognitionMemory
                         else
                         {
                             need_to_do_support_calculations = true;
-                            context.trace.print(Category.TRACE_VERBOSE, "\n\nin create_instantiation(): need_to_do_support_calculations == TRUE!!!\n\n");
+                            context.trace.print(Category.VERBOSE, "\n\nin create_instantiation(): need_to_do_support_calculations == TRUE!!!\n\n");
                         }
 
                     }
@@ -743,7 +743,7 @@ public class RecognitionMemory
         // print trace info: printing preferences 
         // Note: can't move this up, since fill_in_new_instantiation_stuff gives
         // the o-support info for the preferences we're about to print
-        if (trace_it && context.trace.isEnabled(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM))
+        if (trace_it && context.trace.isEnabled(Category.FIRINGS_PREFERENCES))
         {
             for (Preference pref : inst.preferences_generated)
             {
@@ -871,9 +871,9 @@ public class RecognitionMemory
                     if (!retracted_a_preference) 
                     {
                         context.trace.startNewLine().print(inst.prod.getType().getTraceCategory(), "Retracting %s", inst);
-                        context.trace.print(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM, " -->\n");
+                        context.trace.print(Category.FIRINGS_PREFERENCES, " -->\n");
                     }
-                    context.trace.print(Category.TRACE_FIRINGS_PREFERENCES_SYSPARAM, " %s", pref);
+                    context.trace.print(Category.FIRINGS_PREFERENCES, " %s", pref);
                 }
                 remove_preference_from_tm(pref);
                 retracted_a_preference = true;
@@ -890,7 +890,7 @@ public class RecognitionMemory
          * thing supporting this justification is the instantiation, hence it
          * has already been excised, and doing it again is wrong.
          */
-        if (inst.prod.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE && inst.prod.getReferenceCount() > 1)
+        if (inst.prod.getType() == ProductionType.JUSTIFICATION && inst.prod.getReferenceCount() > 1)
             context.exciseProduction(inst.prod, false);
 
         // mark as no longer in MS, and possibly deallocate
@@ -922,7 +922,7 @@ public class RecognitionMemory
 
         if (context.operand2_mode)
         {
-            context.trace.print(Category.TRACE_VERBOSE, "\n in assert_new_preferences:");
+            context.trace.print(Category.VERBOSE, "\n in assert_new_preferences:");
         }
 
         if (SoarConstants.O_REJECTS_FIRST)
@@ -938,7 +938,7 @@ public class RecognitionMemory
                 for (pref = inst.item.preferences_generated.first; pref != null; pref = next_pref)
                 {
                     next_pref = pref.next;
-                    if ((pref.item.type == PreferenceType.REJECT_PREFERENCE_TYPE) && (pref.item.o_supported))
+                    if ((pref.item.type == PreferenceType.REJECT) && (pref.item.o_supported))
                     {
                         // o-reject: just put it in the buffer for later
                         o_rejects.push(pref.item);
@@ -963,7 +963,7 @@ public class RecognitionMemory
 
              if (context.operand2_mode)
              {
-                 context.trace.print(Category.TRACE_VERBOSE, "\n asserting instantiation: %s\n", inst.item.prod.name);
+                 context.trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.item.prod.getName());
              }
 
             AsListItem<Preference> pref, next_pref;
@@ -971,7 +971,7 @@ public class RecognitionMemory
             {
                 // TODO all the pref.items in here are pretty ugly
                 next_pref = pref.next;
-                if ((pref.item.type == PreferenceType.REJECT_PREFERENCE_TYPE) && (pref.item.o_supported))
+                if ((pref.item.type == PreferenceType.REJECT) && (pref.item.o_supported))
                 {
                     if (!SoarConstants.O_REJECTS_FIRST)
                     {
@@ -1105,8 +1105,8 @@ public class RecognitionMemory
         // if acceptable/require pref for context slot, we may need to add a wme
         // later
         if (s.isa_context_slot
-                && (pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE || 
-                    pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE))
+                && (pref.type == PreferenceType.ACCEPTABLE || 
+                    pref.type == PreferenceType.REQUIRE))
         {
             context.decider.mark_context_slot_as_acceptable_preference_changed (s);
         }
@@ -1138,7 +1138,7 @@ public class RecognitionMemory
 
         /// if acceptable/require pref for context slot, we may need to remove a wme later
         if ((s.isa_context_slot)
-                && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE)))
+                && ((pref.type == PreferenceType.ACCEPTABLE) || (pref.type == PreferenceType.REQUIRE)))
         {
             context.decider.mark_context_slot_as_acceptable_preference_changed(s);
         }
@@ -1180,11 +1180,11 @@ public class RecognitionMemory
          * or not when we're ready to print a newline. 94.11.14
          */
 
-        if (context.trace.isEnabled(Category.TRACE_PHASES_SYSPARAM))
+        if (context.trace.isEnabled(Category.PHASES))
         {
             if (context.operand2_mode)
             {
-                if (context.decisionCycle.current_phase == Phase.APPLY_PHASE)
+                if (context.decisionCycle.current_phase == Phase.APPLY)
                 { /* it's always IE for PROPOSE */
                     switch (FIRING_TYPE)
                     {
@@ -1247,7 +1247,7 @@ public class RecognitionMemory
 
         if(!context.operand2_mode)
         {
-            Phase.PREFERENCE_PHASE.trace(context.trace, false);
+            Phase.PREFERENCE.trace(context.trace, false);
         }
     }
 

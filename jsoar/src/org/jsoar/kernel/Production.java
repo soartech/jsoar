@@ -29,13 +29,13 @@ import org.jsoar.util.StringTools;
 
 public class Production
 {
-    public final ProductionType type;
-    public final StringSymbolImpl name;
+    private final ProductionType type;
+    private final StringSymbolImpl name;
     public String documentation;
     public Condition condition_list;
     private Condition bottomOfConditionList;
     public Action action_list;
-    public ProductionSupport declared_support = ProductionSupport.UNDECLARED_SUPPORT;
+    public ProductionSupport declared_support = ProductionSupport.UNDECLARED;
     public boolean interrupt = false;
     public int firing_count = 0;
     public boolean trace_firings = false;
@@ -111,7 +111,7 @@ public class Production
         {
             throw new IllegalStateException("Production '" + name + "' already reordered");
         }
-        if (type != ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        if (type != ProductionType.JUSTIFICATION)
         {
             ByRef<Condition> lhs_top = ByRef.create(condition_list);
             ByRef<Condition> lhs_bottom = ByRef.create(bottomOfConditionList);
@@ -211,18 +211,18 @@ public class Production
         // print any flags
         switch (type)
         {
-        case DEFAULT_PRODUCTION_TYPE:
+        case DEFAULT:
             printer.print("    :default\n");
             break;
-        case USER_PRODUCTION_TYPE:
+        case USER:
             break;
-        case CHUNK_PRODUCTION_TYPE:
+        case CHUNK:
             printer.print("    :chunk\n");
             break;
-        case JUSTIFICATION_PRODUCTION_TYPE:
+        case JUSTIFICATION:
             printer.print("    :justification ;# not reloadable\n");
             break;
-        case TEMPLATE_PRODUCTION_TYPE:
+        case TEMPLATE:
             printer.print("   :template\n");
             break;
         }

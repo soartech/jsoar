@@ -1367,27 +1367,27 @@ PreferenceType parse_preference_specifier_without_referent () throws IOException
   case PLUS_LEXEME:
     lexer.getNextLexeme();
     if (lexer.getCurrentLexeme().type==COMMA_LEXEME) lexer.getNextLexeme();
-    return PreferenceType.ACCEPTABLE_PREFERENCE_TYPE;
+    return PreferenceType.ACCEPTABLE;
     
   case MINUS_LEXEME:
     lexer.getNextLexeme();
     if (lexer.getCurrentLexeme().type==COMMA_LEXEME) lexer.getNextLexeme();
-    return PreferenceType.REJECT_PREFERENCE_TYPE;
+    return PreferenceType.REJECT;
     
   case EXCLAMATION_POINT_LEXEME:
     lexer.getNextLexeme();
     if (lexer.getCurrentLexeme().type==COMMA_LEXEME) lexer.getNextLexeme();
-    return PreferenceType.REQUIRE_PREFERENCE_TYPE;
+    return PreferenceType.REQUIRE;
     
   case TILDE_LEXEME:
     lexer.getNextLexeme();
     if (lexer.getCurrentLexeme().type==COMMA_LEXEME) lexer.getNextLexeme();
-    return PreferenceType.PROHIBIT_PREFERENCE_TYPE;
+    return PreferenceType.PROHIBIT;
     
   case AT_LEXEME:
     lexer.getNextLexeme();
     if (lexer.getCurrentLexeme().type==COMMA_LEXEME) lexer.getNextLexeme();
-    return PreferenceType.RECONSIDER_PREFERENCE_TYPE;
+    return PreferenceType.RECONSIDER;
     
 /****************************************************************************
  * [Soar-Bugs #55] <forced-unary-preference> ::= <binary-preference> 
@@ -1404,10 +1404,10 @@ PreferenceType parse_preference_specifier_without_referent () throws IOException
         (lexer.getCurrentLexeme().type!=R_PAREN_LEXEME) &&
         (lexer.getCurrentLexeme().type!=UP_ARROW_LEXEME) &&
         (!is_preference_lexeme(lexer.getCurrentLexeme().type)))
-      return PreferenceType.BETTER_PREFERENCE_TYPE;
+      return PreferenceType.BETTER;
     /* --- forced unary preference --- */
     if (lexer.getCurrentLexeme().type==COMMA_LEXEME) lexer.getNextLexeme();
-    return PreferenceType.BEST_PREFERENCE_TYPE;
+    return PreferenceType.BEST;
     
   case EQUAL_LEXEME:
     lexer.getNextLexeme();
@@ -1420,14 +1420,14 @@ PreferenceType parse_preference_specifier_without_referent () throws IOException
     	
 		if ((lexer.getCurrentLexeme().type == INT_CONSTANT_LEXEME) ||
 			  (lexer.getCurrentLexeme().type == FLOAT_CONSTANT_LEXEME))
-			return PreferenceType.NUMERIC_INDIFFERENT_PREFERENCE_TYPE;
+			return PreferenceType.NUMERIC_INDIFFERENT;
 		      else
-		    return PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE;
+		    return PreferenceType.BINARY_INDIFFERENT;
     }
     
     /* --- forced unary preference --- */
     if (lexer.getCurrentLexeme().type==COMMA_LEXEME) lexer.getNextLexeme();
-    return PreferenceType.UNARY_INDIFFERENT_PREFERENCE_TYPE;
+    return PreferenceType.UNARY_INDIFFERENT;
     
   case LESS_LEXEME:
     lexer.getNextLexeme();
@@ -1436,10 +1436,10 @@ PreferenceType parse_preference_specifier_without_referent () throws IOException
         (lexer.getCurrentLexeme().type!=R_PAREN_LEXEME) &&
         (lexer.getCurrentLexeme().type!=UP_ARROW_LEXEME) &&
         (!is_preference_lexeme(lexer.getCurrentLexeme().type)))
-      return PreferenceType.WORSE_PREFERENCE_TYPE;
+      return PreferenceType.WORSE;
     /* --- forced unary preference --- */
     if (lexer.getCurrentLexeme().type==COMMA_LEXEME) lexer.getNextLexeme();
-    return PreferenceType.WORST_PREFERENCE_TYPE;
+    return PreferenceType.WORST;
     
   case AMPERSAND_LEXEME:
     lexer.getNextLexeme();
@@ -1448,14 +1448,14 @@ PreferenceType parse_preference_specifier_without_referent () throws IOException
         (lexer.getCurrentLexeme().type!=R_PAREN_LEXEME) &&
         (lexer.getCurrentLexeme().type!=UP_ARROW_LEXEME) &&
         (!is_preference_lexeme(lexer.getCurrentLexeme().type)))
-      return PreferenceType.BINARY_PARALLEL_PREFERENCE_TYPE;
+      return PreferenceType.BINARY_PARALLEL;
     /* --- forced unary preference --- */
     if (lexer.getCurrentLexeme().type==COMMA_LEXEME) lexer.getNextLexeme();
-    return PreferenceType.UNARY_PARALLEL_PREFERENCE_TYPE;
+    return PreferenceType.UNARY_PARALLEL;
     
   default:
     /* --- if no preference given, make it an acceptable preference --- */
-    return PreferenceType.ACCEPTABLE_PREFERENCE_TYPE;
+    return PreferenceType.ACCEPTABLE;
   } /* end of switch statement */
 }
 
@@ -1485,7 +1485,7 @@ Action parse_preferences (SymbolImpl id, RhsValue attr, RhsValue value) throws I
   
   saw_plus_sign = (lexer.getCurrentLexeme().type==PLUS_LEXEME);
   preference_type = parse_preference_specifier_without_referent();
-  if ((preference_type==PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) && (! saw_plus_sign)) {
+  if ((preference_type==PreferenceType.ACCEPTABLE) && (! saw_plus_sign)) {
     /* If the routine gave us a + pref without seeing a + sign, then it's
        just giving us the default acceptable preference.  Look for optional
        comma. */
@@ -1516,7 +1516,7 @@ Action parse_preferences (SymbolImpl id, RhsValue attr, RhsValue value) throws I
     preference_type = parse_preference_specifier_without_referent ();
     
     /* --- exit loop when done reading preferences --- */
-    if ((preference_type==PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) && (! saw_plus_sign))
+    if ((preference_type==PreferenceType.ACCEPTABLE) && (! saw_plus_sign))
       /* If the routine gave us a + pref without seeing a + sign, then it's
          just giving us the default acceptable preference, it didn't see any
          more preferences specified. */
@@ -1560,7 +1560,7 @@ Action parse_preferences_soar8_non_operator (SymbolImpl id, RhsValue attr, RhsVa
   
   boolean saw_plus_sign = (lexer.getCurrentLexeme().type==PLUS_LEXEME);
   PreferenceType preference_type = parse_preference_specifier_without_referent ();
-  if ((preference_type==PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) && (! saw_plus_sign)) {
+  if ((preference_type==PreferenceType.ACCEPTABLE) && (! saw_plus_sign)) {
     /* If the routine gave us a + pref without seeing a + sign, then it's
        just giving us the default acceptable preference.  Look for optional
        comma. */
@@ -1580,15 +1580,15 @@ Action parse_preferences_soar8_non_operator (SymbolImpl id, RhsValue attr, RhsVa
                 		"(id = %s\t attr = %s\t value = %s)\n", id, attr, value));
     }
 
-    if ( (preference_type != PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) &&
-			(preference_type != PreferenceType.REJECT_PREFERENCE_TYPE) ) {
+    if ( (preference_type != PreferenceType.ACCEPTABLE) &&
+			(preference_type != PreferenceType.REJECT) ) {
         printer.warn("\nWARNING: in Soar8, the only allowable non-operator preference \n" +
         		"is REJECT - .\nIgnoring specified preferences.\n" +
         		"id = %s\t attr = %s\t value = %s\n", id, attr, value);
 //      print_location_of_most_recent_lexeme(thisAgent);
     }
 
-    if (preference_type == PreferenceType.REJECT_PREFERENCE_TYPE) {
+    if (preference_type == PreferenceType.REJECT) {
       /* --- create the appropriate action --- */
       MakeAction a = new MakeAction();
       a.next = prev_a;
@@ -1604,7 +1604,7 @@ Action parse_preferences_soar8_non_operator (SymbolImpl id, RhsValue attr, RhsVa
     preference_type = parse_preference_specifier_without_referent ();
     
     /* --- exit loop when done reading preferences --- */
-    if ((preference_type==PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) && (! saw_plus_sign)) {
+    if ((preference_type==PreferenceType.ACCEPTABLE) && (! saw_plus_sign)) {
       /* If the routine gave us a + pref without seeing a + sign, then it's
          just giving us the default acceptable preference, it didn't see any
          more preferences specified. */
@@ -1616,7 +1616,7 @@ Action parse_preferences_soar8_non_operator (SymbolImpl id, RhsValue attr, RhsVa
 		  MakeAction a = new MakeAction();
 		  a.next = prev_a;
 		  prev_a = a;
-		  a.preference_type = PreferenceType.ACCEPTABLE_PREFERENCE_TYPE;
+		  a.preference_type = PreferenceType.ACCEPTABLE;
 		  a.id = new RhsSymbolValue(id);
 		  a.attr = attr.copy(); 
 		  a.value = value.copy();
@@ -1844,8 +1844,8 @@ public Production parse_production () throws IOException, ParserException {
   }
 
   /* --- read optional flags --- */
-  ProductionSupport declared_support = ProductionSupport.UNDECLARED_SUPPORT;
-  ProductionType prod_type = ProductionType.USER_PRODUCTION_TYPE;
+  ProductionSupport declared_support = ProductionSupport.UNDECLARED;
+  ProductionType prod_type = ProductionType.USER;
   boolean interrupt_on_match = false;
   while (lexer.getCurrentLexeme().type==SYM_CONSTANT_LEXEME) {
     if (":o-support".equals(lexer.getCurrentLexeme().string)) {
@@ -1855,13 +1855,13 @@ public Production parse_production () throws IOException, ParserException {
       declared_support = ProductionSupport.DECLARED_I_SUPPORT;
     }
     else if (":chunk".equals(lexer.getCurrentLexeme().string)) {
-      prod_type = ProductionType.CHUNK_PRODUCTION_TYPE;
+      prod_type = ProductionType.CHUNK;
     }
     else if (":default".equals(lexer.getCurrentLexeme().string)) {
-      prod_type = ProductionType.DEFAULT_PRODUCTION_TYPE;
+      prod_type = ProductionType.DEFAULT;
     }
     else if (":template".equals(lexer.getCurrentLexeme().string)) {
-      prod_type = ProductionType.TEMPLATE_PRODUCTION_TYPE;
+      prod_type = ProductionType.TEMPLATE;
     }
     else if (":interrupt".equals(lexer.getCurrentLexeme().string)) {
 	  printer.warn("WARNING :interrupt is not supported with the current build options...");

@@ -228,7 +228,7 @@ public class InputOutputImpl implements InputOutput
                 if (w.gds.getGoal() != null)
                 {
                     // TODO verbose trace wm changes in verbose as well
-                    context.trace.print(Category.TRACE_WM_CHANGES_SYSPARAM, 
+                    context.trace.print(Category.WM_CHANGES, 
                             "remove_input_wme: Removing state S%d because element in GDS changed. WME: %s\n", 
                             w.gds.getGoal().level, w);
 

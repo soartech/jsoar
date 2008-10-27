@@ -212,12 +212,12 @@ public class Backtracer
     void backtrace_through_instantiation(Instantiation inst, int grounds_level, Condition trace_cond, int indent)
     {
         final Printer p = context.trace.getPrinter();
-        final boolean traceBacktracing = context.trace.isEnabled(Category.TRACE_BACKTRACING_SYSPARAM);
+        final boolean traceBacktracing = context.trace.isEnabled(Category.BACKTRACING);
         if (traceBacktracing)
         {
 
             p.spaces(indent).print("... BT through instantiation of %s\n",
-                    (inst.prod != null ? inst.prod.name : "[dummy production]"));
+                    (inst.prod != null ? inst.prod.getName() : "[dummy production]"));
 
         }
 
@@ -249,7 +249,7 @@ public class Backtracer
             temp_explain_backtrace.locals = null;
             temp_explain_backtrace.negated = null;
 
-            temp_explain_backtrace.prod_name = inst.prod != null ? inst.prod.name.getValue() : "Dummy production";
+            temp_explain_backtrace.prod_name = inst.prod != null ? inst.prod.getName().getValue() : "Dummy production";
             temp_explain_backtrace.next_backtrace = null;
         }
 
@@ -419,7 +419,7 @@ public class Backtracer
     void trace_locals(int grounds_level)
     {
         final Printer printer = context.trace.getPrinter();
-        final boolean traceBacktracing = context.trace.isEnabled(Category.TRACE_BACKTRACING_SYSPARAM);
+        final boolean traceBacktracing = context.trace.isEnabled(Category.BACKTRACING);
         if (traceBacktracing)
         {
             printer.print("\n\n*** Tracing Locals ***\n");
@@ -494,7 +494,7 @@ public class Backtracer
     void trace_grounded_potentials()
     {
         final Printer printer = context.trace.getPrinter();
-        final boolean traceBacktracing = context.trace.isEnabled(Category.TRACE_BACKTRACING_SYSPARAM);
+        final boolean traceBacktracing = context.trace.isEnabled(Category.BACKTRACING);
         if (traceBacktracing)
         {
             printer.print("\n\n*** Tracing Grounded Potentials ***\n");
@@ -557,7 +557,7 @@ public class Backtracer
     boolean trace_ungrounded_potentials(int grounds_level)
     {
         final Printer printer = context.trace.getPrinter();
-        final boolean traceBacktracing = context.trace.isEnabled(Category.TRACE_BACKTRACING_SYSPARAM);
+        final boolean traceBacktracing = context.trace.isEnabled(Category.BACKTRACING);
 
         if (traceBacktracing)
         {
@@ -621,7 +621,7 @@ public class Backtracer
      */
     void report_local_negation(Condition c)
     {
-        if (context.trace.isEnabled(Category.TRACE_BACKTRACING_SYSPARAM))
+        if (context.trace.isEnabled(Category.BACKTRACING))
         {
             // use the same code as the backtracing above
             LinkedList<Condition> negated_to_print = new LinkedList<Condition>();

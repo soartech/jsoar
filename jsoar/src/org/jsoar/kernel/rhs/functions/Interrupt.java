@@ -43,7 +43,7 @@ public class Interrupt extends AbstractRhsFunctionHandler
     @Override
     public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
-        decisionCycle.interrupt(recMemory.getProductionBeingFired().name.getValue());
+        decisionCycle.interrupt(recMemory.getProductionBeingFired().getName().getValue());
         return null;
     }
 

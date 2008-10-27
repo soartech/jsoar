@@ -65,7 +65,7 @@ public class JSoarTest
     {
         Production j = agent.getProduction(name);
         assertNotNull(j);
-        assertEquals(type, j.type);
+        assertEquals(type, j.getType());
         StringWriter writer = new StringWriter();
         j.print_production(agent.rete, new Printer(writer, false), internal);
         assertEquals(body, writer.toString());

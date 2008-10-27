@@ -12,16 +12,37 @@ package org.jsoar.kernel;
  */
 public enum ImpasseType
 {
-    NONE_IMPASSE_TYPE,                   /* no impasse */
-    CONSTRAINT_FAILURE_IMPASSE_TYPE,
-    CONFLICT_IMPASSE_TYPE,
-    TIE_IMPASSE_TYPE,
-    NO_CHANGE_IMPASSE_TYPE,
+    /**
+     * gdatastructs.h:234:NONE_IMPASSE_TYPE
+     */
+    NONE,                   /* no impasse */
+    /**
+     * gdatastructs.h:234:CONSTRAINT_FAILURE_IMPASSE_TYPE
+     */
+    CONSTRAINT_FAILURE,
+    /**
+     * gdatastructs.h:234:CONFLICT_IMPASSE_TYPE
+     */
+    CONFLICT,
+    /**
+     * gdatastructs.h:234:TIE_IMPASSE_TYPE
+     */
+    TIE,
+    /**
+     * gdatastructs.h:234:NO_CHANGE_IMPASSE_TYPE
+     */
+    NO_CHANGE,
     
     // more specific forms of no change impasse types
     // made negative to never conflict with impasse constants
     // reinforcement_learning.h:53
-    STATE_NO_CHANGE_IMPASSE_TYPE, // -1
-    OP_NO_CHANGE_IMPASSE_TYPE,    // -2
+    /**
+     * gdatastructs.h:234:STATE_NO_CHANGE_IMPASSE_TYPE
+     */
+    STATE_NO_CHANGE, // -1
+    /**
+     * gdatastructs.h:234:OP_NO_CHANGE_IMPASSE_TYPE
+     */
+    OP_NO_CHANGE,    // -2
 
 }

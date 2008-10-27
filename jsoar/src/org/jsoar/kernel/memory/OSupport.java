@@ -405,7 +405,7 @@ public class OSupport
             {
                 o_support = false;
             }
-            else if (inst.prod.declared_support == ProductionSupport.UNDECLARED_SUPPORT)
+            else if (inst.prod.declared_support == ProductionSupport.UNDECLARED)
             {
                 /*
                  * check if the instantiation is proposing an operator. if it
@@ -419,7 +419,7 @@ public class OSupport
                     if (ma != null && ma.attr.asSymbolValue() != null)
                     {
                         if (syms.operator_symbol == ma.attr.asSymbolValue().sym && 
-                            act.preference_type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE)
+                            act.preference_type == PreferenceType.ACCEPTABLE)
                         {
                             operator_proposal = true;
                             o_support = false;
@@ -546,14 +546,14 @@ public class OSupport
                     if (o_support_calculation_type == 3)
                     {
                         printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
-                        		     "get o_support in prod %s", inst.prod.name);
+                        		     "get o_support in prod %s", inst.prod.getName());
 
                         o_support = true;
                     }
                     else if (o_support_calculation_type == 4)
                     {
                         printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
-                        		"get i_support in prod %s", inst.prod.name);
+                        		"get i_support in prod %s", inst.prod.getName());
 
                         o_support = false;
                     }
@@ -605,7 +605,7 @@ public class OSupport
             Preference pref = pit.item;
             if ((pref.id == match_goal)
                     && (pref.attr == syms.operator_symbol)
-                    && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE)))
+                    && ((pref.type == PreferenceType.ACCEPTABLE) || (pref.type == PreferenceType.REQUIRE)))
             {
                 rhs_does_an_operator_creation = true;
             }
@@ -710,7 +710,7 @@ public class OSupport
                    final Preference pref = pit.item;
                    if ((pref.id == match_goal)
                             && (pref.attr == syms.operator_symbol)
-                            && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE)))
+                            && ((pref.type == PreferenceType.ACCEPTABLE) || (pref.type == PreferenceType.REQUIRE)))
                     {
                         add_to_os_tc_if_id(pref.value, false);
                     }
@@ -867,7 +867,7 @@ public class OSupport
                 final Preference pref = pit.item;
                 if ((pref.id == match_state)
                         && (pref.attr == syms.operator_symbol)
-                        && ((pref.type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) || (pref.type == PreferenceType.REQUIRE_PREFERENCE_TYPE))
+                        && ((pref.type == PreferenceType.ACCEPTABLE) || (pref.type == PreferenceType.REQUIRE))
                         && (pref.value.asIdentifier() != null))
                 {
                     pref.value.asIdentifier().tc_number = o_support_tc;
@@ -1464,8 +1464,8 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
       if ((ma.id.asSymbolValue().getSym()==match_state) &&
           rhsAttrSym != null &&
           (rhsAttrSym.getSym()==syms.operator_symbol) &&
-          ((a.preference_type==PreferenceType.ACCEPTABLE_PREFERENCE_TYPE) ||
-           (a.preference_type==PreferenceType.REQUIRE_PREFERENCE_TYPE)) ) {
+          ((a.preference_type==PreferenceType.ACCEPTABLE) ||
+           (a.preference_type==PreferenceType.REQUIRE)) ) {
         RhsSymbolValue rhsValueSym = ma.value.asSymbolValue();
         if (rhsValueSym != null) {
             rhsValueSym.getSym().add_symbol_to_tc (tc, null, null);

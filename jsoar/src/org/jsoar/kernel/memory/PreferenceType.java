@@ -6,25 +6,87 @@
 package org.jsoar.kernel.memory;
 
 /**
+ * gdatastructs.h:146:_PREFERENCE_TYPE
+ * 
  * @author ray
  */
 public enum PreferenceType
 {
-    ACCEPTABLE_PREFERENCE_TYPE('+', false), 
-    REQUIRE_PREFERENCE_TYPE('!', false), 
-    REJECT_PREFERENCE_TYPE('-', false), 
-    PROHIBIT_PREFERENCE_TYPE('~', false), 
-    RECONSIDER_PREFERENCE_TYPE('@', false), 
-    UNARY_INDIFFERENT_PREFERENCE_TYPE('=', false), 
-    UNARY_PARALLEL_PREFERENCE_TYPE('&', false), 
-    BEST_PREFERENCE_TYPE('>', false), 
-    WORST_PREFERENCE_TYPE('<', false), 
-    BINARY_INDIFFERENT_PREFERENCE_TYPE('=', true), 
-    BINARY_PARALLEL_PREFERENCE_TYPE('&', true), 
-    BETTER_PREFERENCE_TYPE('>', true), 
-    WORSE_PREFERENCE_TYPE('<', true), 
-    NUMERIC_INDIFFERENT_PREFERENCE_TYPE('=', true);
+    /**
+     * gdatastructs.h:146:ACCEPTABLE_PREFERENCE_TYPE
+     */
+    ACCEPTABLE('+', false), 
+    
+    /**
+     * gdatastructs.h:147:REQUIRE_PREFERENCE_TYPE
+     */
+    REQUIRE('!', false), 
+    
+    /**
+     * gdatastructs.h:148:REJECT_PREFERENCE_TYPE
+     */
+    REJECT('-', false), 
+    
+    /**
+     * gdatastructs.h:149:PROHIBIT_PREFERENCE_TYPE
+     */
+    PROHIBIT('~', false), 
+    
+    /**
+     * gdatastructs.h:150:RECONSIDER_PREFERENCE_TYPE
+     */
+    RECONSIDER('@', false), 
+    
+    /**
+     * gdatastructs.h:151:UNARY_INDIFFERENT_PREFERENCE_TYPE
+     */
+    UNARY_INDIFFERENT('=', false), 
+    
+    /**
+     * gdatastructs.h:152:UNARY_PARALLEL_PREFERENCE_TYPE
+     */
+    UNARY_PARALLEL('&', false), 
+    
+    /**
+     * gdatastructs.h:153:BEST_PREFERENCE_TYPE
+     */
+    BEST('>', false), 
+    
+    /**
+     * gdatastructs.h:154:WORST_PREFERENCE_TYPE
+     */
+    WORST('<', false), 
+    
+    /**
+     * gdatastructs.h:155:BINARY_INDIFFERENT_PREFERENCE_TYPE
+     */
+    BINARY_INDIFFERENT('=', true), 
+    
+    /**
+     * gdatastructs.h:156:BINARY_PARALLEL_PREFERENCE_TYPE
+     */
+    BINARY_PARALLEL('&', true), 
+    
+    /**
+     * gdatastructs.h:157:BETTER_PREFERENCE_TYPE
+     */
+    BETTER('>', true), 
+    
+    /**
+     * gdatastructs.h:158:WORSE_PREFERENCE_TYPE
+     */
+    WORSE('<', true), 
+    
+    /**
+     * gdatastructs.h:159:NUMERIC_INDIFFERENT_PREFERENCE_TYPE
+     */
+    NUMERIC_INDIFFERENT('=', true);
 
+    /**
+     * sml_KernelHelpers.cpp:889:pref_names
+     */
+    private final String displayName;
+    
     /**
      * print.cpp:892:preference_type_indicator
      */
@@ -33,6 +95,7 @@ public enum PreferenceType
     
     private PreferenceType(char indicator, boolean binary)
     {
+        this.displayName = name().replace('_', ' ').toLowerCase();
         this.indicator = indicator;
         this.binary = binary;
     }
@@ -58,7 +121,19 @@ public enum PreferenceType
     }
     
     /**
+     * sml_KernelHelpers.cpp:889:pref_names
+     * 
+     * @return Human-friendly name of this preference type
+     */
+    public String getDisplayName()
+    {
+        return displayName;
+    }
+    
+    /**
      * print.cpp:892:preference_type_indicator
+     * 
+     * @return Preference type indicator character
      */
     public char getIndicator()
     {

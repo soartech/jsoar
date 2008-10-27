@@ -195,7 +195,6 @@ public class LittleDebugger extends JPanel
         fileMenu.add(actionManager.getAction(ExitAction.class));
         
         bar.add(fileMenu);
-        bar.add(new TraceMenu(agent.trace));
         
         JMenu runMenu = new JMenu("Run");
         runMenu.add(actionManager.getAction(RunAction.class));

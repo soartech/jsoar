@@ -271,20 +271,20 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParsePreferenceSpecifierWithoutReferent() throws Exception
     {
-        verifyParsePreference(" + " , PreferenceType.ACCEPTABLE_PREFERENCE_TYPE);
-        verifyParsePreference(" - " , PreferenceType.REJECT_PREFERENCE_TYPE);
-        verifyParsePreference(" ! " , PreferenceType.REQUIRE_PREFERENCE_TYPE);
-        verifyParsePreference(" ~ " , PreferenceType.PROHIBIT_PREFERENCE_TYPE);
-        verifyParsePreference(" @ " , PreferenceType.RECONSIDER_PREFERENCE_TYPE);
-        verifyParsePreference(" > 5 " , PreferenceType.BETTER_PREFERENCE_TYPE);
-        verifyParsePreference(" > " , PreferenceType.BEST_PREFERENCE_TYPE);
-        verifyParsePreference(" = 5 " , PreferenceType.NUMERIC_INDIFFERENT_PREFERENCE_TYPE);
-        verifyParsePreference(" = <x> " , PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE);
-        verifyParsePreference(" =  " , PreferenceType.UNARY_INDIFFERENT_PREFERENCE_TYPE);
-        verifyParsePreference(" < 5 " , PreferenceType.WORSE_PREFERENCE_TYPE);
-        verifyParsePreference(" < " , PreferenceType.WORST_PREFERENCE_TYPE);
-        verifyParsePreference(" & 5 " , PreferenceType.BINARY_PARALLEL_PREFERENCE_TYPE);
-        verifyParsePreference(" & " , PreferenceType.UNARY_PARALLEL_PREFERENCE_TYPE);
+        verifyParsePreference(" + " , PreferenceType.ACCEPTABLE);
+        verifyParsePreference(" - " , PreferenceType.REJECT);
+        verifyParsePreference(" ! " , PreferenceType.REQUIRE);
+        verifyParsePreference(" ~ " , PreferenceType.PROHIBIT);
+        verifyParsePreference(" @ " , PreferenceType.RECONSIDER);
+        verifyParsePreference(" > 5 " , PreferenceType.BETTER);
+        verifyParsePreference(" > " , PreferenceType.BEST);
+        verifyParsePreference(" = 5 " , PreferenceType.NUMERIC_INDIFFERENT);
+        verifyParsePreference(" = <x> " , PreferenceType.BINARY_INDIFFERENT);
+        verifyParsePreference(" =  " , PreferenceType.UNARY_INDIFFERENT);
+        verifyParsePreference(" < 5 " , PreferenceType.WORSE);
+        verifyParsePreference(" < " , PreferenceType.WORST);
+        verifyParsePreference(" & 5 " , PreferenceType.BINARY_PARALLEL);
+        verifyParsePreference(" & " , PreferenceType.UNARY_PARALLEL);
     }
     
     @Test
@@ -297,7 +297,7 @@ public class ParserTest extends JSoarTest
         MakeAction ma = a.asMakeAction();
         assertNotNull(ma);
         assertNull(ma.next);
-        assertEquals(PreferenceType.REJECT_PREFERENCE_TYPE, ma.preference_type);
+        assertEquals(PreferenceType.REJECT, ma.preference_type);
         assertSame(id, ma.id.asSymbolValue().getSym());
         assertEquals("test", ma.attr.asSymbolValue().getSym().asString().getValue());
         assertEquals(99, ma.value.asSymbolValue().getSym().asInteger().getValue());
