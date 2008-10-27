@@ -108,7 +108,7 @@ public class Consistency
         { /* If there is something in the context slot */
             if (s.getWmes().value == w.value)
             { /* The WME in the context slot is WME whose pref changed */
-                context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM,
+                context.trace.print(Category.OPERAND2_REMOVALS,
                         "\n        REMOVING: Operator from context slot (proposal no longer matches): %s", w);
                 context.decider.remove_wmes_for_context_slot(s);
                 if (s.id.lower_goal != null)
@@ -184,7 +184,7 @@ public class Consistency
                         current_impasse_type, current_impasse_attribute);
             }
             /* Special case for an operator no-change */
-            if ((operator_in_slot) && (current_impasse_type == ImpasseType.NO_CHANGE_IMPASSE_TYPE))
+            if ((operator_in_slot) && (current_impasse_type == ImpasseType.NO_CHANGE))
             {
                 /* Operator no-change impasse: run_preference_semantics will return 0
                    and we only want to blow away this operator if another is better
@@ -197,13 +197,13 @@ public class Consistency
                 {
                     context.getPrinter().print("    This is an operator no-change  impasse.\n");
                 }
-                current_impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
+                current_impasse_type = ImpasseType.NONE;
             }
         }
         else
         {
             goal_is_impassed = false;
-            current_impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
+            current_impasse_type = ImpasseType.NONE;
             current_impasse_attribute = null;
             if (DEBUG_CONSISTENCY_CHECK)
             {
@@ -248,7 +248,7 @@ public class Consistency
         switch (new_impasse_type)
         {
 
-        case NONE_IMPASSE_TYPE:
+        case NONE:
             /* There are four cases to consider when NONE_IMPASSE_TYPE is returned: */
             /* 1.  Previous operator and operator returned by run_pref_sem are the same.
                    In this case, return TRUE (decision remains consistent) */
@@ -312,22 +312,22 @@ public class Consistency
             context.getPrinter().warn("\n\n   *************This should never be executed*******************\n\n");
             return true;
 
-        case CONSTRAINT_FAILURE_IMPASSE_TYPE:
+        case CONSTRAINT_FAILURE:
             if (DEBUG_CONSISTENCY_CHECK)
                 context.getPrinter().print("    Constraint Failure Impasse: Returning TRUE\n");
             return true;
 
-        case CONFLICT_IMPASSE_TYPE:
+        case CONFLICT:
             if (DEBUG_CONSISTENCY_CHECK)
                 context.getPrinter().print("    Conflict Impasse: Returning TRUE\n");
             return true;
 
-        case TIE_IMPASSE_TYPE:
+        case TIE:
             if (DEBUG_CONSISTENCY_CHECK)
                 context.getPrinter().print("    Tie Impasse: Returning TRUE\n");
             return true;
 
-        case NO_CHANGE_IMPASSE_TYPE:
+        case NO_CHANGE:
             if (DEBUG_CONSISTENCY_CHECK)
                 context.getPrinter().print("    No change Impasse: Returning TRUE\n");
             return true;
@@ -347,11 +347,11 @@ public class Consistency
     private void remove_current_decision(Slot s)
     {
         if (s.getWmes() == null)
-            context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM,
+            context.trace.print(Category.OPERAND2_REMOVALS,
                     "\n       REMOVING CONTEXT SLOT: Slot IdentifierImpl [%s] and attribute [%s]\n", s.id, s.attr);
 
         if (s.id != null)
-            context.trace.print(Category.TRACE_OPERAND2_REMOVALS_SYSPARAM,
+            context.trace.print(Category.OPERAND2_REMOVALS,
                     "\n          Decision for goal [%s] is inconsistent.  Replacing it with....\n", s.id);
 
         /* If there is an operator in the slot, remove it */
@@ -694,7 +694,7 @@ public class Consistency
 
             // TODO why is this here?
             /* regardless of the outcome, we go to the output phases */
-            context.decisionCycle.current_phase = Phase.OUTPUT_PHASE;
+            context.decisionCycle.current_phase = Phase.OUTPUT;
             return;
         }
 
@@ -706,7 +706,7 @@ public class Consistency
         {
             setHitMaxElaborations(true);
             context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to output phases.", maxElaborations);
-            context.decisionCycle.current_phase = Phase.OUTPUT_PHASE;
+            context.decisionCycle.current_phase = Phase.OUTPUT;
             return;
         }
 
@@ -784,7 +784,7 @@ public class Consistency
                 */
                 if (!goal_stack_consistent_through_goal(context.decider.previous_active_goal))
                 {
-                    context.decisionCycle.current_phase = Phase.OUTPUT_PHASE;
+                    context.decisionCycle.current_phase = Phase.OUTPUT;
                     break;
                 }
             }
@@ -847,7 +847,7 @@ public class Consistency
                 */
                 if (!goal_stack_consistent_through_goal(context.decider.active_goal))
                 {
-                    context.decisionCycle.current_phase = Phase.OUTPUT_PHASE;
+                    context.decisionCycle.current_phase = Phase.OUTPUT;
                     break;
                 }
             }
@@ -887,7 +887,7 @@ public class Consistency
 
             if (!goal_stack_consistent_through_goal(context.decider.active_goal))
             {
-                context.decisionCycle.current_phase = Phase.OUTPUT_PHASE;
+                context.decisionCycle.current_phase = Phase.OUTPUT;
                 break;
             }
 
@@ -947,7 +947,7 @@ public class Consistency
 
                 /* Decision phases is always next */
 
-                context.decisionCycle.current_phase = Phase.DECISION_PHASE;
+                context.decisionCycle.current_phase = Phase.DECISION;
                 return;
             }
         }
@@ -960,7 +960,7 @@ public class Consistency
         {
             setHitMaxElaborations(true);
             context.getPrinter().warn("Warning: reached max-elaborations(%d); proceeding to decision phases.", maxElaborations);
-            context.decisionCycle.current_phase = Phase.DECISION_PHASE;
+            context.decisionCycle.current_phase = Phase.DECISION;
             return;
         }
 
@@ -1033,7 +1033,7 @@ public class Consistency
                in the propose phases, so check for consistency. */
             if (!goal_stack_consistent_through_goal(context.decider.previous_active_goal))
             {
-                context.decisionCycle.current_phase = Phase.DECISION_PHASE;
+                context.decisionCycle.current_phase = Phase.DECISION;
                 break;
             }
             /* else: just do a preference phases */
@@ -1084,7 +1084,7 @@ public class Consistency
             */
             if (!goal_stack_consistent_through_goal(context.decider.active_goal))
             {
-                context.decisionCycle.current_phase = Phase.DECISION_PHASE;
+                context.decisionCycle.current_phase = Phase.DECISION;
                 break;
             }
 

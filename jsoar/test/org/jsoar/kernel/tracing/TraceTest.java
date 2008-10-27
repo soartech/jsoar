@@ -42,14 +42,14 @@ public class TraceTest
     @Test
     public void testGlobalEnable()
     {
-        trace.setEnabled(Category.TRACE_BACKTRACING_SYSPARAM, true);
+        trace.setEnabled(Category.BACKTRACING, true);
         trace.setEnabled(false);
-        trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "hello");
+        trace.print(Category.BACKTRACING, "hello");
         output.flush();
         assertEquals("", output.toString());
         
         trace.setEnabled(true);
-        trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "hello");
+        trace.print(Category.BACKTRACING, "hello");
         output.flush();
         assertEquals("hello", output.toString());
     }
@@ -57,18 +57,18 @@ public class TraceTest
     @Test
     public void testPerCategoryEnable()
     {
-        trace.setEnabled(Category.TRACE_BACKTRACING_SYSPARAM, true);
-        trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "hello");
+        trace.setEnabled(Category.BACKTRACING, true);
+        trace.print(Category.BACKTRACING, "hello");
         output.flush();
         assertEquals("hello", output.toString());
         
-        trace.setEnabled(Category.TRACE_BACKTRACING_SYSPARAM, false);
-        trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "more");
+        trace.setEnabled(Category.BACKTRACING, false);
+        trace.print(Category.BACKTRACING, "more");
         output.flush();
         assertEquals("hello", output.toString());
         
-        trace.setEnabled(Category.TRACE_BACKTRACING_SYSPARAM, true);
-        trace.print(Category.TRACE_BACKTRACING_SYSPARAM, "-even-more");
+        trace.setEnabled(Category.BACKTRACING, true);
+        trace.print(Category.BACKTRACING, "-even-more");
         output.flush();
         assertEquals("hello-even-more", output.toString());
     }

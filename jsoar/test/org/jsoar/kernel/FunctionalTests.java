@@ -246,7 +246,7 @@ public class FunctionalTests
         // Verify that the chunk was created correctly
         JSoarTest.verifyProduction(agent, 
                 "chunk-1*d2*opnochange*1", 
-                ProductionType.CHUNK_PRODUCTION_TYPE, 
+                ProductionType.CHUNK, 
                 "sp {chunk-1*d2*opnochange*1\n" +
                 "    :chunk\n" +
                 "    (state <s1> ^operator <o1>)\n" +
@@ -300,14 +300,14 @@ public class FunctionalTests
         // where the id and attr test for positive conditions were added to the tc
         // rather than id and *value*. The first chunk constructed was incorrect
         runTest("testBlocksWorldLookAheadWithMaxNoChangeBug", 15);
-        assertEquals(72, agent.getProductions(ProductionType.DEFAULT_PRODUCTION_TYPE).size());
-        assertEquals(15, agent.getProductions(ProductionType.USER_PRODUCTION_TYPE).size());
-        assertEquals(4, agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size());
+        assertEquals(72, agent.getProductions(ProductionType.DEFAULT).size());
+        assertEquals(15, agent.getProductions(ProductionType.USER).size());
+        assertEquals(4, agent.getProductions(ProductionType.CHUNK).size());
         
         // Make sure the chunk was built correctly.
         JSoarTest.verifyProduction(agent, 
                 "chunk-1*d10*opnochange*1", 
-                ProductionType.CHUNK_PRODUCTION_TYPE,
+                ProductionType.CHUNK,
                 "sp {chunk-1*d10*opnochange*1\n" +
                 "    :chunk\n" +
                 "    (state <s1> ^operator <o1>)\n" +
@@ -367,8 +367,8 @@ public class FunctionalTests
     public void testCountTest() throws Exception
     {
         runTest("testCountTest", -1);
-        assertEquals(42, agent.getProductions(ProductionType.USER_PRODUCTION_TYPE).size());
-        assertEquals(15014, agent.getProductions(ProductionType.CHUNK_PRODUCTION_TYPE).size());
+        assertEquals(42, agent.getProductions(ProductionType.USER).size());
+        assertEquals(15014, agent.getProductions(ProductionType.CHUNK).size());
         assertEquals(45047, agent.decisionCycle.decision_phases_count);
         assertEquals(115136, agent.decisionCycle.e_cycle_count);
         assertEquals(40039, agent.decisionCycle.pe_cycle_count);

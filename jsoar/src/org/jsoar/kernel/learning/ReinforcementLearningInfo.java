@@ -22,6 +22,6 @@ public class ReinforcementLearningInfo
     int reward_age = 0;    // the number of steps since a cycle containing rl rules
     int num_prev_op_rl_rules = 0;
     int step = 0;          // the number of steps the current operator has been installed at the goal
-    public ImpasseType impasse_type = ImpasseType.NONE_IMPASSE_TYPE;    // if this goal is an impasse, what type
+    public ImpasseType impasse_type = ImpasseType.NONE;    // if this goal is an impasse, what type
 
 }

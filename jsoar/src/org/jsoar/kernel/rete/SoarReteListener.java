@@ -22,7 +22,7 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
@@ -169,7 +169,7 @@ public class SoarReteListener implements ReteListener
          * is first created, so we let it match the first time, but not after
          * that
          */
-        if (match_found && node.b_p.prod.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        if (match_found && node.b_p.prod.getType() == ProductionType.JUSTIFICATION)
         {
             if (node.b_p.prod.already_fired)
             {
@@ -253,7 +253,7 @@ public class SoarReteListener implements ReteListener
             {
                 prod_type = SavedFiringType.IE_PRODS;
             }
-            else if (node.b_p.prod.declared_support == ProductionSupport.UNDECLARED_SUPPORT)
+            else if (node.b_p.prod.declared_support == ProductionSupport.UNDECLARED)
             {
                 // check if the instantiation is proposing an operator. if it
                 // is, then this instantiation is i-supported.
@@ -265,7 +265,7 @@ public class SoarReteListener implements ReteListener
                     if (ma != null && (ma.attr.asSymbolValue() != null))
                     {
                         if (context.predefinedSyms.operator_symbol == ma.attr.asSymbolValue().getSym()
-                                && act.preference_type == PreferenceType.ACCEPTABLE_PREFERENCE_TYPE)
+                                && act.preference_type == PreferenceType.ACCEPTABLE)
                         {
                             operator_proposal = true;
                             prod_type = SavedFiringType.IE_PRODS;
@@ -427,7 +427,7 @@ public class SoarReteListener implements ReteListener
                                     {
                                         context.getPrinter().warn(
                                         "\nWARNING: operator elaborations mixed with operator applications\n" +
-                                        "get o_support in prod %s", node.b_p.prod.name);
+                                        "get o_support in prod %s", node.b_p.prod.getName());
 
                                         prod_type = SavedFiringType.PE_PRODS;
                                         break;
@@ -436,7 +436,7 @@ public class SoarReteListener implements ReteListener
                                     {
                                         context.getPrinter().warn(
                                         "\nWARNING: operator elaborations mixed with operator applications\n" +
-                                        "get i_support in prod %s", node.b_p.prod.name);
+                                        "get i_support in prod %s", node.b_p.prod.getName());
 
                                         prod_type = SavedFiringType.IE_PRODS;
                                         break;
@@ -466,9 +466,9 @@ public class SoarReteListener implements ReteListener
                 msc.in_level.insertAtHead(msc.goal.ms_o_assertions);
                 node.b_p.prod.OPERAND_which_assert_list = AssertListType.O_LIST;
 
-                context.trace.print(Category.TRACE_VERBOSE, 
+                context.trace.print(Category.VERBOSE, 
                                     "\n   RETE: putting [%s] into ms_o_assertions",
-                                    node.b_p.prod.name);
+                                    node.b_p.prod.getName());
             }
             else
             {
@@ -476,9 +476,9 @@ public class SoarReteListener implements ReteListener
                 msc.in_level.insertAtHead(msc.goal.ms_i_assertions);
                 node.b_p.prod.OPERAND_which_assert_list = AssertListType.I_LIST;
 
-                context.trace.print(Category.TRACE_VERBOSE, 
+                context.trace.print(Category.VERBOSE, 
                                     "\n   RETE: putting [%s] into ms_i_assertions",
-                                    node.b_p.prod.name);
+                                    node.b_p.prod.getName());
             }
         }
 
@@ -654,11 +654,11 @@ public class SoarReteListener implements ReteListener
 
         if (context.operand2_mode)
         {
-            context.trace.print(Category.TRACE_VERBOSE, "\n%s: ", node.b_p.prod.name);
+            context.trace.print(Category.VERBOSE, "\n%s: ", node.b_p.prod.getName());
         }
         
         //#ifdef BUG_139_WORKAROUND
-        if (node.b_p.prod.getType() == ProductionType.JUSTIFICATION_PRODUCTION_TYPE)
+        if (node.b_p.prod.getType() == ProductionType.JUSTIFICATION)
         {
             // TODO Warning
             //#ifdef BUG_139_WORKAROUND_WARNING
@@ -944,10 +944,10 @@ public class SoarReteListener implements ReteListener
      */
     private static class MS_trace 
     {
-        SymbolImpl sym;
+        Symbol sym;
         int    count;
         MS_trace next;
-        SymbolImpl goal;
+        Symbol goal;
     }
     
     /**
@@ -957,7 +957,7 @@ public class SoarReteListener implements ReteListener
      * @param trace
      * @return
      */
-    private static MS_trace in_ms_trace(SymbolImpl sym, MS_trace trace)
+    private static MS_trace in_ms_trace(Symbol sym, MS_trace trace)
     {
         for (MS_trace tmp = trace; tmp != null; tmp = tmp.next)
         {
@@ -975,7 +975,7 @@ public class SoarReteListener implements ReteListener
      * @param goal
      * @return
      */
-    private static MS_trace in_ms_trace_same_goal(SymbolImpl sym, MS_trace trace, SymbolImpl goal)
+    private static MS_trace in_ms_trace_same_goal(Symbol sym, MS_trace trace, Symbol goal)
     {
         for (MS_trace tmp = trace; tmp != null; tmp = tmp.next)
         {
@@ -1007,22 +1007,22 @@ public class SoarReteListener implements ReteListener
                 for (MatchSetChange msc : ms_o_assertions)
                 {
 
-                    if (wtt != WmeTraceType.NONE_WME_TRACE)
+                    if (wtt != WmeTraceType.NONE)
                     {
-                        printer.print("  %s [%s] ", msc.p_node.b_p.prod.name, msc.goal);
+                        printer.print("  %s [%s] ", msc.p_node.b_p.prod.getName(), msc.goal);
                         print_whole_token(printer, msc, wtt);
                         printer.print("\n");
                     }
                     else
                     {
-                        if ((tmp = in_ms_trace_same_goal(msc.p_node.b_p.prod.name, ms_trace, msc.goal)) != null)
+                        if ((tmp = in_ms_trace_same_goal(msc.p_node.b_p.prod.getName(), ms_trace, msc.goal)) != null)
                         {
                             tmp.count++;
                         }
                         else
                         {
                             tmp = new MS_trace();
-                            tmp.sym = msc.p_node.b_p.prod.name;
+                            tmp.sym = msc.p_node.b_p.prod.getName();
                             tmp.count = 1;
                             tmp.next = ms_trace;
                             // Add match goal to the print of the matching
@@ -1033,7 +1033,7 @@ public class SoarReteListener implements ReteListener
                     }
                 }
 
-                if (wtt == WmeTraceType.NONE_WME_TRACE)
+                if (wtt == WmeTraceType.NONE)
                 {
                     while (ms_trace != null)
                     {
@@ -1058,22 +1058,22 @@ public class SoarReteListener implements ReteListener
                 for (MatchSetChange msc : ms_i_assertions)
                 {
 
-                    if (wtt != WmeTraceType.NONE_WME_TRACE)
+                    if (wtt != WmeTraceType.NONE)
                     {
-                        printer.print("  %s [%s] ", msc.p_node.b_p.prod.name, msc.goal);
+                        printer.print("  %s [%s] ", msc.p_node.b_p.prod.getName(), msc.goal);
                         print_whole_token(printer, msc, wtt);
                         printer.print("\n");
                     }
                     else
                     {
-                        if ((tmp = in_ms_trace_same_goal(msc.p_node.b_p.prod.name, ms_trace, msc.goal)) != null)
+                        if ((tmp = in_ms_trace_same_goal(msc.p_node.b_p.prod.getName(), ms_trace, msc.goal)) != null)
                         {
                             tmp.count++;
                         }
                         else
                         {
                             tmp = new MS_trace();
-                            tmp.sym = msc.p_node.b_p.prod.name;
+                            tmp.sym = msc.p_node.b_p.prod.getName();
                             tmp.count = 1;
                             tmp.next = ms_trace;
                             tmp.goal = msc.goal;
@@ -1082,7 +1082,7 @@ public class SoarReteListener implements ReteListener
                     }
                 }
 
-                if (wtt == WmeTraceType.NONE_WME_TRACE)
+                if (wtt == WmeTraceType.NONE)
                 {
                     while (ms_trace != null)
                     {
@@ -1107,29 +1107,29 @@ public class SoarReteListener implements ReteListener
             printer.print("Assertions:\n");
             for (MatchSetChange msc : ms_assertions)
             {
-                if (wtt != WmeTraceType.NONE_WME_TRACE)
+                if (wtt != WmeTraceType.NONE)
                 {
-                    printer.print("  %s\n ", msc.p_node.b_p.prod.name);
+                    printer.print("  %s\n ", msc.p_node.b_p.prod.getName());
                     print_whole_token(printer, msc, wtt);
                     printer.print("\n");
                 }
                 else
                 {
-                    if ((tmp = in_ms_trace(msc.p_node.b_p.prod.name, ms_trace)) != null)
+                    if ((tmp = in_ms_trace(msc.p_node.b_p.prod.getName(), ms_trace)) != null)
                     {
                         tmp.count++;
                     }
                     else
                     {
                         tmp = new MS_trace();
-                        tmp.sym = msc.p_node.b_p.prod.name;
+                        tmp.sym = msc.p_node.b_p.prod.getName();
                         tmp.count = 1;
                         tmp.next = ms_trace;
                         ms_trace = tmp;
                     }
                 }
             }
-            if (wtt == WmeTraceType.NONE_WME_TRACE)
+            if (wtt == WmeTraceType.NONE)
             {
                 while (ms_trace != null)
                 {
@@ -1150,7 +1150,7 @@ public class SoarReteListener implements ReteListener
             printer.print("Retractions:\n");
             for (MatchSetChange msc : ms_retractions)
             {
-                if (wtt != WmeTraceType.NONE_WME_TRACE)
+                if (wtt != WmeTraceType.NONE)
                 {
                     printer.print("  ");
                     msc.inst.trace(printer.asFormatter(), wtt);
@@ -1160,14 +1160,14 @@ public class SoarReteListener implements ReteListener
                 {
                     if (msc.inst.prod != null)
                     {
-                        if ((tmp = in_ms_trace_same_goal(msc.inst.prod.name, ms_trace, msc.goal)) != null)
+                        if ((tmp = in_ms_trace_same_goal(msc.inst.prod.getName(), ms_trace, msc.goal)) != null)
                         {
                             tmp.count++;
                         }
                         else
                         {
                             tmp = new MS_trace();
-                            tmp.sym = msc.inst.prod.name;
+                            tmp.sym = msc.inst.prod.getName();
                             tmp.count = 1;
                             tmp.next = ms_trace;
                             tmp.goal = msc.goal;
@@ -1176,7 +1176,7 @@ public class SoarReteListener implements ReteListener
                     }
                 }
             }
-            if (wtt == WmeTraceType.NONE_WME_TRACE)
+            if (wtt == WmeTraceType.NONE)
             {
                 while (ms_trace != null)
                 {

@@ -268,7 +268,7 @@ public class Rete
             {
                 // TODO: Test
                 trace.getPrinter().warn("\nIgnoring %s because it is a duplicate of %s ",
-                                        p.name, p_node.b_p.prod.name);
+                                        p.getName(), p_node.b_p.prod.getName());
                 
                 // TODO: XML Warn
                 // std::stringstream output;
@@ -343,7 +343,7 @@ public class Rete
         }
 
         /* --- if not a chunk, store variable name information --- */
-        if ((p.getType() == ProductionType.CHUNK_PRODUCTION_TYPE) && discard_chunk_varnames)
+        if ((p.getType() == ProductionType.CHUNK) && discard_chunk_varnames)
         {
             p.p_node.b_p.parents_nvn = null;
             p.rhs_unbound_variables.clear();
@@ -2432,11 +2432,11 @@ public class Rete
     {
         if (w != null)
         {
-            if (wtt == WmeTraceType.TIMETAG_WME_TRACE)
+            if (wtt == WmeTraceType.TIMETAG)
                 printer.print("%d", w.timetag);
-            else if (wtt == WmeTraceType.FULL_WME_TRACE)
+            else if (wtt == WmeTraceType.FULL)
                 printer.print("%s", w);
-            if (wtt != WmeTraceType.NONE_WME_TRACE)
+            if (wtt != WmeTraceType.NONE)
                 printer.print(" ");
         }
     }
@@ -2572,7 +2572,7 @@ public class Rete
             // matches for left and right
             if (matches_one_level_up != 0 && matches_at_this_level == 0)
             {
-                if (wtt != WmeTraceType.NONE_WME_TRACE)
+                if (wtt != WmeTraceType.NONE)
                 {
                     printer.spaces(indent).print("*** Matches For Left ***\n");
                     final Token parent_tokens = get_all_left_tokens_emerging_from_node(parent);
@@ -2585,9 +2585,9 @@ public class Rete
                     printer.spaces(indent).print("*** Matches for Right ***\n").spaces(indent);
                     for (RightMemory rm : node.b_posneg.alpha_mem_.right_mems)
                     {
-                        if (wtt == WmeTraceType.TIMETAG_WME_TRACE)
+                        if (wtt == WmeTraceType.TIMETAG)
                             printer.print("%d", rm.w.timetag);
-                        else if (wtt == WmeTraceType.FULL_WME_TRACE)
+                        else if (wtt == WmeTraceType.FULL)
                             printer.print("%s", rm.w);
                         printer.print(" ");
                     }
@@ -2613,7 +2613,7 @@ public class Rete
         int n = ppmi_aux(printer, p_node.parent, dummy_top_node, cans.bottom, wtt, 0);
         
         printer.print("\n%d complete matches.\n", n);
-        if (n != 0 && (wtt != WmeTraceType.NONE_WME_TRACE))
+        if (n != 0 && (wtt != WmeTraceType.NONE))
         {
             printer.print("*** Complete Matches ***\n");
             Token tokens = get_all_left_tokens_emerging_from_node(p_node.parent);

@@ -512,7 +512,7 @@ public class Exploration
         double temp =  exploration_get_parameter_value("temperature" /* (const long) EXPLORATION_PARAM_TEMPERATURE */);
         
         // output trace information
-        if ( context.trace.isEnabled(Category.TRACE_INDIFFERENT_SYSPARAM))
+        if ( context.trace.isEnabled(Category.INDIFFERENT))
         {
             for (Preference cand = candidates; cand != null; cand = cand.next_candidate )
             {
@@ -612,7 +612,7 @@ public class Exploration
         // TODO this seems weird
         double epsilon = exploration_get_parameter_value( "epsilon" /* (const long) EXPLORATION_PARAM_EPSILON */);
 
-        if ( context.trace.isEnabled(Category.TRACE_INDIFFERENT_SYSPARAM))
+        if ( context.trace.isEnabled(Category.INDIFFERENT))
         {
             for (Preference cand = candidates; cand != null; cand = cand.next_candidate )
             {
@@ -697,7 +697,7 @@ public class Exploration
         cand.numeric_value = 0;
         
         // all numeric indifferents
-        for (Preference pref = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT_PREFERENCE_TYPE); 
+        for (Preference pref = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); 
              pref != null; pref = pref.next) 
         {
             if ( cand.value == pref.value )
@@ -708,7 +708,7 @@ public class Exploration
         }
 
         // all binary indifferents
-        for (Preference pref = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT_PREFERENCE_TYPE); 
+        for (Preference pref = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT); 
              pref != null; pref = pref.next ) 
         {
             if (cand.value == pref.value)

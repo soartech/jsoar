@@ -9,6 +9,8 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
 
@@ -60,6 +62,20 @@ public class TraceView extends AbstractAdaptableView
         this.debugger = debuggerIn;
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        
+        outputWindow.addMouseListener(new MouseAdapter() {
+
+            public void mousePressed(MouseEvent e) { mouseReleased(e); }
+
+            public void mouseReleased(MouseEvent e)
+            {
+                if(e.isPopupTrigger())
+                {
+                    TraceMenu menu = new TraceMenu(debugger.getAgentProxy().getAgent().getTrace());
+                    menu.populateMenu();
+                    menu.getPopupMenu().show(TraceView.this, e.getX(), e.getY());
+                }
+            }});
         debugger.getAgentProxy().getAgent().getPrinter().pushWriter(outputWriter, true);
         debugger.getAgentProxy().getAgent().trace.enableAll();
         

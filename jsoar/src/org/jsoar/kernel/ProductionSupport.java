@@ -12,7 +12,18 @@ package org.jsoar.kernel;
  */
 public enum ProductionSupport
 {
-    UNDECLARED_SUPPORT,
+    /**
+     * production.h:66:UNDECLARED_SUPPORT
+     */
+    UNDECLARED,
+    
+    /**
+     * production.h:66:DECLARED_O_SUPPORT
+     */
     DECLARED_O_SUPPORT,
+    
+    /**
+     * production.h:66:DECLARED_I_SUPPORT
+     */
     DECLARED_I_SUPPORT
 }

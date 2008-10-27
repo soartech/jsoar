@@ -49,34 +49,19 @@ public class TraceMenu extends JMenu
             @Override
             public void menuSelected(MenuEvent arg0)
             {
+                removeAll();
                 populateMenu();
             }});
     
     }
     
-    private void populateMenu()
+    public void populateMenu()
     {
         removeAll();
         
-        add(new AbstractAction("Trace everything") {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent arg0)
-            {
-                trace.enableAll();
-            }});
+        add(new TraceEverything("Trace everything"));
         
-        add(new AbstractAction("Trace nothing") {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                trace.disableAll();
-            }});
+        add(new TraceNothingAction("Trace nothing"));
         
         addSeparator();
         
@@ -89,6 +74,50 @@ public class TraceMenu extends JMenu
         }
     }
     
+    /**
+     * @author ray
+     */
+    private final class TraceEverything extends AbstractAction
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * @param name
+         */
+        private TraceEverything(String name)
+        {
+            super(name);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent arg0)
+        {
+            trace.enableAll();
+        }
+    }
+
+    /**
+     * @author ray
+     */
+    private final class TraceNothingAction extends AbstractAction
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * @param name
+         */
+        private TraceNothingAction(String name)
+        {
+            super(name);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            trace.disableAll();
+        }
+    }
+
     private class Listener implements ActionListener
     {
         /* (non-Javadoc)

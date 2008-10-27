@@ -53,7 +53,7 @@ public class DecisionCycle
      * agent.h:324:current_phase
      * agent.cpp:153 (init)
      */
-    public Phase current_phase = Phase.INPUT_PHASE;
+    public Phase current_phase = Phase.INPUT;
     /**
      * agent.h:349:go_type
      * agent.cpp:146 (init)
@@ -108,7 +108,7 @@ public class DecisionCycle
         this.afterHaltEvent = new AfterHaltEvent(context);
         this.beforeElaborationEvent = new BeforeElaborationEvent(context);
         this.afterElaborationEvent = new AfterElaborationEvent(context);
-        this.beforeDecisionCycleEvent = new BeforeDecisionCycleEvent(context, Phase.INPUT_PHASE);
+        this.beforeDecisionCycleEvent = new BeforeDecisionCycleEvent(context, Phase.INPUT);
         this.pollEvent = new RunLoopEvent(context);
         this.beforePhaseEvents = PhaseEvents.createBeforeEvents(context);
         this.afterPhaseEvents = PhaseEvents.createAfterEvents(context);
@@ -129,7 +129,7 @@ public class DecisionCycle
         reason_for_stopping = null;
         go_type = GoType.GO_DECISION;
         input_cycle_flag = true;
-        current_phase = Phase.INPUT_PHASE;
+        current_phase = Phase.INPUT;
         
         resetStatistics();
     }
@@ -168,13 +168,13 @@ public class DecisionCycle
         
         switch (current_phase)
         {
-        case INPUT_PHASE:       doInputPhase();         break;
-        case PROPOSE_PHASE:     doProposePhase();       break;
-        case PREFERENCE_PHASE:  doPreferencePhase();    break;
-        case WM_PHASE:          doWorkingMemoryPhase(); break;
-        case APPLY_PHASE:       doApplyPhase();         break; 
-        case OUTPUT_PHASE:      doOutputPhase();        break;
-        case DECISION_PHASE:    doDecisionPhase();      break;
+        case INPUT:       doInputPhase();         break;
+        case PROPOSE:     doProposePhase();       break;
+        case PREFERENCE:  doPreferencePhase();    break;
+        case WM:          doWorkingMemoryPhase(); break;
+        case APPLY:       doApplyPhase();         break; 
+        case OUTPUT:      doOutputPhase();        break;
+        case DECISION:    doDecisionPhase();      break;
         default: throw new IllegalStateException("Invalid phase enumeration value " + current_phase);
         }
 
@@ -239,11 +239,11 @@ public class DecisionCycle
      */
     private void doDecisionPhase()
     {
-        assert current_phase == Phase.DECISION_PHASE;
+        assert current_phase == Phase.DECISION;
         
         /* not yet cleaned up for 8.6.0 release */
 
-        Phase.DECISION_PHASE.trace(context.trace, true);
+        Phase.DECISION.trace(context.trace, true);
 
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
@@ -259,15 +259,15 @@ public class DecisionCycle
         else if ((this.d_cycle_count % this.input_period) == 0)
             this.input_cycle_flag = true;
 
-        beforePhase(Phase.DECISION_PHASE);
+        beforePhase(Phase.DECISION);
         
         context.decider.do_decision_phase(false);
 
         this.run_elaboration_count++; // All phases count as a run elaboration
 
-        afterPhase(Phase.DECISION_PHASE);
+        afterPhase(Phase.DECISION);
 
-        if (context.trace.isEnabled() && context.trace.isEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM)) {
+        if (context.trace.isEnabled() && context.trace.isEnabled(Category.CONTEXT_DECISIONS)) {
             final Writer writer = context.trace.getPrinter().getWriter();
             try
             {
@@ -289,13 +289,13 @@ public class DecisionCycle
             // JRV: Get rid of the cached XML after every decision but before the after-decision-phases callback
             // xml_invoke_callback( thisAgent ); // invokes XML_GENERATION_CALLBACK, clears XML state
 
-            context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.DECISION_PHASE));
+            context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.DECISION));
 
             context.chunker.chunks_this_d_cycle = 0;
 
-            Phase.DECISION_PHASE.trace(context.trace, false);
+            Phase.DECISION.trace(context.trace, false);
 
-            current_phase = Phase.INPUT_PHASE;
+            current_phase = Phase.INPUT;
         }
         
         // reset elaboration counter
@@ -306,10 +306,10 @@ public class DecisionCycle
         {
             // Note: AGGRESSIVE_ONC used to be here. Dropped from jsoar because 
             // it didn't look like it had been used in years.
-            Phase.DECISION_PHASE.trace(context.trace, false);
+            Phase.DECISION.trace(context.trace, false);
 
             context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS;
-            current_phase = Phase.APPLY_PHASE;
+            current_phase = Phase.APPLY;
         }
 
         //      #ifndef NO_TIMING_STUFF
@@ -323,15 +323,15 @@ public class DecisionCycle
      */
     private void doOutputPhase()
     {
-        assert current_phase == Phase.OUTPUT_PHASE;
+        assert current_phase == Phase.OUTPUT;
         
-        Phase.OUTPUT_PHASE.trace(context.trace, true);
+        Phase.OUTPUT.trace(context.trace, true);
 
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
 
-        beforePhase(Phase.OUTPUT_PHASE);
+        beforePhase(Phase.OUTPUT);
         context.io.do_output_cycle();
 
         // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)
@@ -343,19 +343,19 @@ public class DecisionCycle
 
         this.run_elaboration_count++; // All phases count as a run elaboration
         
-        afterPhase(Phase.OUTPUT_PHASE);
+        afterPhase(Phase.OUTPUT);
 
         if (context.operand2_mode == true)
         {
-            context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.OUTPUT_PHASE));
+            context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.OUTPUT));
 
             // #ifndef NO_TIMING_STUFF
             // stop_timer (thisAgent, &thisAgent->start_phase_tv,
             // &thisAgent->decision_cycle_phase_timers[OUTPUT_PHASE]);
             // #endif
             
-            Phase.OUTPUT_PHASE.trace(context.trace, false);
-            current_phase = Phase.INPUT_PHASE;
+            Phase.OUTPUT.trace(context.trace, false);
+            current_phase = Phase.INPUT;
             this.d_cycle_count++;
             return;
         }
@@ -366,17 +366,17 @@ public class DecisionCycle
         this.e_cycles_this_d_cycle++;
         this.run_elaboration_count++; // All phases count as a run elaboration
 
-        Phase.OUTPUT_PHASE.trace(context.trace, false);
+        Phase.OUTPUT.trace(context.trace, false);
 
         if (e_cycles_this_d_cycle >= context.consistency.getMaxElaborations())
         {
             context.getPrinter().warn("Warning: reached max-elaborations; proceeding to decision phases.");
             // xml_generate_warning(thisAgent, "Warning: reached max-elaborations; proceeding to decision phases.");
-            current_phase = Phase.DECISION_PHASE;
+            current_phase = Phase.DECISION;
         }
         else
         {
-            current_phase = Phase.INPUT_PHASE;
+            current_phase = Phase.INPUT;
         }
 
         // #ifndef NO_TIMING_STUFF
@@ -389,7 +389,7 @@ public class DecisionCycle
      */
     private void doApplyPhase()
     {
-        assert current_phase == Phase.APPLY_PHASE;
+        assert current_phase == Phase.APPLY;
         
         // added in 8.6 to clarify Soar8 decision cycle
 
@@ -404,9 +404,9 @@ public class DecisionCycle
          */
         if (this.e_cycles_this_d_cycle < 1)
         {
-            Phase.APPLY_PHASE.trace(context.trace, true);
+            Phase.APPLY.trace(context.trace, true);
 
-            beforePhase(Phase.APPLY_PHASE);
+            beforePhase(Phase.APPLY);
 
             // We need to generate this event here in case no elaborations fire...
             beforeElaboration();
@@ -417,7 +417,7 @@ public class DecisionCycle
             context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS; /* might get reset in det_high_active_prod_level... */
             context.consistency.determine_highest_active_production_level_in_stack_apply();
             
-            if (current_phase == Phase.OUTPUT_PHASE)
+            if (current_phase == Phase.OUTPUT)
             { 
                 // no elaborations will fire this phase
                 this.run_elaboration_count++; // All phases count as a run elaboration
@@ -429,7 +429,7 @@ public class DecisionCycle
         // max-elaborations are checked in determine_highest_active... and if they
         // are reached, the current phases is set to OUTPUT.  phases is also set
         // to OUTPUT when APPLY is done.
-        while (current_phase != Phase.OUTPUT_PHASE)
+        while (current_phase != Phase.OUTPUT)
         {
             if (this.e_cycles_this_d_cycle != 0)
             {
@@ -460,18 +460,18 @@ public class DecisionCycle
         //  If we've finished APPLY, then current_phase will be equal to OUTPUT
         //  otherwise, we're only stopping because we're running by ELABORATIONS, so
         //  don't do the end-of-phases updating in that case.
-        if (current_phase == Phase.OUTPUT_PHASE)
+        if (current_phase == Phase.OUTPUT)
         {
             /* This is a HACK for Soar 8.6.0 beta release... KCoulter April 05
              * We got here, because we should move to OUTPUT, so APPLY is done
              * Set phases back to APPLY, do print_phase, callbacks and reset phases to OUTPUT
              */
-            current_phase = Phase.APPLY_PHASE;
-            Phase.APPLY_PHASE.trace(context.trace, false);
+            current_phase = Phase.APPLY;
+            Phase.APPLY.trace(context.trace, false);
             
-            afterPhase(Phase.APPLY_PHASE);
+            afterPhase(Phase.APPLY);
 
-            current_phase = Phase.OUTPUT_PHASE;
+            current_phase = Phase.OUTPUT;
         }
 
         // #ifndef NO_TIMING_STUFF
@@ -486,7 +486,7 @@ public class DecisionCycle
      */
     private void doWorkingMemoryPhase()
     {
-        assert current_phase == Phase.WM_PHASE;
+        assert current_phase == Phase.WM;
         
         // starting with 8.6.0, WM_PHASE is only Soar 7 mode; see PROPOSE and APPLY
         // needs to be updated for gSKI interface, and gSKI needs to accommodate Soar 7
@@ -496,14 +496,14 @@ public class DecisionCycle
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
-        beforePhase(Phase.WM_PHASE);
+        beforePhase(Phase.WM);
         context.decider.do_working_memory_phase();
 
         this.run_elaboration_count++; // All phases count as a run elaboration
         
-        afterPhase(Phase.WM_PHASE);
+        afterPhase(Phase.WM);
 
-        current_phase = Phase.OUTPUT_PHASE;
+        current_phase = Phase.OUTPUT;
 
         // #ifndef NO_TIMING_STUFF
         // stop_timer (thisAgent, &thisAgent->start_phase_tv,
@@ -520,7 +520,7 @@ public class DecisionCycle
      */
     private void doProposePhase()
     {
-        assert current_phase == Phase.PROPOSE_PHASE;
+        assert current_phase == Phase.PROPOSE;
         
         /* added in 8.6 to clarify Soar8 decision cycle */
 
@@ -535,9 +535,9 @@ public class DecisionCycle
          */
         if (this.e_cycles_this_d_cycle < 1)
         {
-            Phase.PROPOSE_PHASE.trace(context.trace, true);
+            Phase.PROPOSE.trace(context.trace, true);
 
-            beforePhase(Phase.PROPOSE_PHASE);
+            beforePhase(Phase.PROPOSE);
 
             // We need to generate this event here in case no elaborations fire...
             beforeElaboration();
@@ -548,7 +548,7 @@ public class DecisionCycle
             context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             context.consistency.determine_highest_active_production_level_in_stack_propose();
 
-            if (current_phase == Phase.DECISION_PHASE)
+            if (current_phase == Phase.DECISION)
             { 
                 // no elaborations will fire this phases
                 this.run_elaboration_count++; // All phases count as a run elaboration
@@ -560,7 +560,7 @@ public class DecisionCycle
         // max-elaborations are checked in determine_highest_active... and if they
         // are reached, the current phases is set to DECISION.  phases is also set
         // to DECISION when PROPOSE is done.
-        while (current_phase != Phase.DECISION_PHASE)
+        while (current_phase != Phase.DECISION)
         {
             if (e_cycles_this_d_cycle != 0)
             {
@@ -586,18 +586,18 @@ public class DecisionCycle
          *  otherwise, we're only stopping because we're running by ELABORATIONS, so
          *  don't do the end-of-phases updating in that case.
          */
-        if (current_phase == Phase.DECISION_PHASE)
+        if (current_phase == Phase.DECISION)
         {
             /* This is a HACK for Soar 8.6.0 beta release... KCoulter April 05
              * We got here, because we should move to DECISION, so PROPOSE is done
              * Set phases back to PROPOSE, do print_phase, callbacks, and then
              * reset phases to DECISION
              */
-            this.current_phase = Phase.PROPOSE_PHASE;
-            Phase.PROPOSE_PHASE.trace(context.trace, false);
+            this.current_phase = Phase.PROPOSE;
+            Phase.PROPOSE.trace(context.trace, false);
 
-            afterPhase(Phase.PROPOSE_PHASE);
-            this.current_phase = Phase.DECISION_PHASE;
+            afterPhase(Phase.PROPOSE);
+            this.current_phase = Phase.DECISION;
         }
 
         // #ifndef NO_TIMING_STUFF
@@ -612,9 +612,9 @@ public class DecisionCycle
      */
     private void doInputPhase()
     {
-        assert current_phase == Phase.INPUT_PHASE;
+        assert current_phase == Phase.INPUT;
         
-        Phase.INPUT_PHASE.trace(context.trace, true);
+        Phase.INPUT.trace(context.trace, true);
 
         // for Operand2 mode using the new decision cycle ordering,
         // we need to do some initialization in the INPUT PHASE, which
@@ -646,19 +646,19 @@ public class DecisionCycle
         if (input_cycle_flag == true)
         { 
             // Soar 7 flag, but always true for Soar8
-            beforePhase(Phase.INPUT_PHASE);
+            beforePhase(Phase.INPUT);
 
             context.io.do_input_cycle();
 
             run_elaboration_count++; // All phases count as a run elaboration
             
-            afterPhase(Phase.INPUT_PHASE);
+            afterPhase(Phase.INPUT);
 
             if (input_period != 0)
                 input_cycle_flag = false;
         }
 
-        Phase.INPUT_PHASE.trace(context.trace, false);
+        Phase.INPUT.trace(context.trace, false);
 
         // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */
         // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[INPUT_PHASE]);
@@ -666,15 +666,15 @@ public class DecisionCycle
 
         if (context.operand2_mode == true)
         {
-            current_phase = Phase.PROPOSE_PHASE;
+            current_phase = Phase.PROPOSE;
         }
         else
         { 
             // we're running in Soar7 mode
             if (context.soarReteListener.any_assertions_or_retractions_ready())
-                current_phase = Phase.PREFERENCE_PHASE;
+                current_phase = Phase.PREFERENCE;
             else
-                current_phase = Phase.DECISION_PHASE;
+                current_phase = Phase.DECISION;
         }
 
     }
@@ -684,7 +684,7 @@ public class DecisionCycle
      */
     private void doPreferencePhase()
     {
-        assert current_phase == Phase.PREFERENCE_PHASE;
+        assert current_phase == Phase.PREFERENCE;
         
         // starting with 8.6.0, PREFERENCE_PHASE is only Soar 7 mode -- applyPhase not valid here
         // needs to be updated for gSKI interface, and gSKI needs to accommodate Soar 7
@@ -694,14 +694,14 @@ public class DecisionCycle
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
-        beforePhase(Phase.PREFERENCE_PHASE);
+        beforePhase(Phase.PREFERENCE);
         context.recMemory.do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
 
         this.run_elaboration_count++; // All phases count as a run elaboration
         
-        afterPhase(Phase.PREFERENCE_PHASE);
+        afterPhase(Phase.PREFERENCE);
 
-        current_phase = Phase.WM_PHASE;
+        current_phase = Phase.WM;
 
         // #ifndef NO_TIMING_STUFF
         // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[PREFERENCE_PHASE]);
@@ -850,7 +850,7 @@ public class DecisionCycle
         int count = 0;
         while (!stop_soar && n != 0)
         {
-            boolean was_output_phase = current_phase == Phase.OUTPUT_PHASE;
+            boolean was_output_phase = current_phase == Phase.OUTPUT;
             do_one_top_level_phase();
             if (was_output_phase)
             {

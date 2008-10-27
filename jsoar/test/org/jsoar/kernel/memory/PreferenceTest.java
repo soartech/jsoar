@@ -22,7 +22,7 @@ public class PreferenceTest extends JSoarTest
     @Test
     public void testFormatTo()
     {
-        Preference p = new Preference(PreferenceType.BINARY_PARALLEL_PREFERENCE_TYPE, 
+        Preference p = new Preference(PreferenceType.BINARY_PARALLEL, 
                                       syms.make_new_identifier('S', 0),
                                       syms.createString("superstate"),
                                       syms.createString("nil"),

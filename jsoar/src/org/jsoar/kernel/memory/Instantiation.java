@@ -76,7 +76,7 @@ public class Instantiation implements Traceable
     public String toString()
     {
         // For debugging only
-        return prod.name.toString();
+        return prod.getName().toString();
     }
 
     /**
@@ -87,9 +87,9 @@ public class Instantiation implements Traceable
      */
     public void trace(Formatter formatter, WmeTraceType wtt)
     {
-        formatter.format("%s\n", prod != null ? prod.name : "[dummy production]");
+        formatter.format("%s\n", prod != null ? prod.getName() : "[dummy production]");
 
-        if (wtt == WmeTraceType.NONE_WME_TRACE)
+        if (wtt == WmeTraceType.NONE)
         {
             return;
         }
@@ -101,10 +101,10 @@ public class Instantiation implements Traceable
             {
                 switch (wtt)
                 {
-                case TIMETAG_WME_TRACE:
+                case TIMETAG:
                     formatter.format(" %d", pc.bt.wme_.timetag);
                     break;
-                case FULL_WME_TRACE:
+                case FULL:
                     // TODO: In CSoar, at this point in/ print_instantiation_with_wmes() there's
                     // some stuff about DO_TOP_LEVEL_REF_CTS and avoiding/ printing WMEs because
                     // they may have been deleted already during a retraction. I don't think
