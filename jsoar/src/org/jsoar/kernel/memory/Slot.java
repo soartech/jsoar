@@ -11,6 +11,7 @@ import java.util.Iterator;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.AsListItem;
 
@@ -160,7 +161,7 @@ public class Slot
      * @param attr
      * @return
      */
-    public static Slot find_slot(IdentifierImpl id, SymbolImpl attr)
+    public static Slot find_slot(IdentifierImpl id, Symbol attr)
     {
         if (id == null)
         {

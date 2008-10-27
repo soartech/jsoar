@@ -72,6 +72,7 @@ public class LittleDebugger extends JPanel
     private final SelectionInfoView textView;
     private final WorkingMemoryGraphView wmGraphView;
     private final MatchesView matchesView;
+    private final PreferencesView preferencesView;
     
     private DefaultListModel wmeListModel = new DefaultListModel();
     private JList wmeList = new JList(wmeListModel);
@@ -98,12 +99,15 @@ public class LittleDebugger extends JPanel
         matchesView = new MatchesView(this);
         prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
         
+        
         textView = new SelectionInfoView(this);
         matchesView.dock(textView, DockingConstants.SOUTH_REGION);
         
         wmGraphView = new WorkingMemoryGraphView(this);
         traceView.dock(wmGraphView, DockingConstants.SOUTH_REGION);
         
+        preferencesView = new PreferencesView(this);
+        wmGraphView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
         
         initMenuBar();
         initToolbar();
