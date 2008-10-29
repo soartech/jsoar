@@ -424,24 +424,29 @@ public class WorkingMemoryGraphView extends AbstractAdaptableView
         return super.getAdapter(klass);
     }
 
-    /**
-     * @author ray
-     */
     private final class FocusSetListener implements TupleSetListener, SelectionProvider
     {
         private SelectionManager manager;
         public void tupleSetChanged(TupleSet ts, Tuple[] add, Tuple[] rem)
         {
-            for ( int i=0; i<rem.length; ++i )
-                ((VisualItem)rem[i]).setFixed(false);
-            for ( int i=0; i<add.length; ++i ) {
-                ((VisualItem)add[i]).setFixed(false);
-                ((VisualItem)add[i]).setFixed(true);
+            try
+            {
+                for ( int i=0; i<rem.length; ++i )
+                    ((VisualItem)rem[i]).setFixed(false);
+                for ( int i=0; i<add.length; ++i ) {
+                    ((VisualItem)add[i]).setFixed(false);
+                    ((VisualItem)add[i]).setFixed(true);
+                }
+                if ( ts.getTupleCount() == 0 ) {
+                    ts.addTuple(rem[0]);
+                    ((VisualItem)rem[0]).setFixed(false);
+                }
             }
-            if ( ts.getTupleCount() == 0 ) {
-                ts.addTuple(rem[0]);
-                ((VisualItem)rem[0]).setFixed(false);
+            catch(IllegalArgumentException e) 
+            {
+                // Stupid.
             }
+            
             m_vis.run("draw");
             
             if(manager != null)
@@ -490,6 +495,10 @@ public class WorkingMemoryGraphView extends AbstractAdaptableView
             while(it.hasNext())
             {
                 VisualItem vi = (VisualItem) it.next();
+                if(!vi.isValid())
+                {
+                    continue;
+                }
                 Object value = vi.get("value");
                 result.add(value);
             }

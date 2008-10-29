@@ -44,7 +44,7 @@ public class InterruptTest
     {
         new CycleCountInput(agent.getInputOutput(), agent.getEventManager());
         this.agent.decider.setWaitsnc(true);
-        this.agent.loadProduction("testInterrupt (state <s> ^superstate nil ^io.input-link.cycle-count 45) --> (interrupt)");
+        this.agent.getProductions().loadProduction("testInterrupt (state <s> ^superstate nil ^io.input-link.cycle-count 45) --> (interrupt)");
         
         this.agent.decisionCycle.runForever();
         

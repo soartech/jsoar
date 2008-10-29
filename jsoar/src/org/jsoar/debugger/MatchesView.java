@@ -83,7 +83,7 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
             return p;
         }
         
-        return agent.getProduction(o.toString());
+        return agent.getProductions().getProduction(o.toString());
     }
     
     private String safeGetMatchOutput(List<Object> selection)

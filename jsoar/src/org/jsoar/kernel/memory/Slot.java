@@ -15,6 +15,8 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.AsListItem;
 
+import com.google.common.collect.Iterators;
+
 /**
  * Fields in a slot:
  *
@@ -219,7 +221,7 @@ public class Slot
      */
     public Iterator<Wme> getWmeIterator()
     {
-        return new WmeIterator(this.wmes);
+        return Iterators.concat(new WmeIterator(this.acceptable_preference_wmes), new WmeIterator(this.wmes));
     }
     
     public WmeImpl getAcceptablePreferenceWmes()

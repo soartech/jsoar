@@ -82,10 +82,10 @@ public class TraceView extends AbstractAdaptableView
         this.addAction(DockingConstants.PIN_ACTION);
 
         JPanel p = new JPanel(new BorderLayout());
+        //p.add(new RunControlPanel(debugger), BorderLayout.NORTH);
         p.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
         
         JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(new RunControlPanel(debugger), BorderLayout.NORTH);
         bottom.add(commandField, BorderLayout.SOUTH);
         commandField.addActionListener(new ActionListener() {
 

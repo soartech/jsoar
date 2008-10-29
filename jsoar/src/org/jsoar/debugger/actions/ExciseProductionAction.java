@@ -1,0 +1,67 @@
+/*
+ * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
+ *
+ * Created on Oct 25, 2008
+ */
+package org.jsoar.debugger.actions;
+
+import java.awt.event.ActionEvent;
+import java.util.concurrent.Callable;
+
+import org.jsoar.debugger.Images;
+import org.jsoar.kernel.Production;
+import org.jsoar.runtime.ThreadedAgentProxy;
+import org.jsoar.util.adaptables.Adaptables;
+
+/**
+ * @author ray
+ */
+public class ExciseProductionAction extends AbstractDebuggerAction
+{
+    private static final long serialVersionUID = -1460902354871319429L;
+
+    /**
+     * @param label
+     */
+    public ExciseProductionAction(ActionManager manager)
+    {
+        super(manager, "Excise", Images.DELETE, Production.class, true);
+        
+        setToolTip("Excise production");
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.actions.AbstractDebuggerAction#update()
+     */
+    @Override
+    public void update()
+    {
+        Production p = Adaptables.adapt(getApplication().getSelectionManager().getSelectedObject(), Production.class);
+        setEnabled(p != null);
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    @Override
+    public void actionPerformed(ActionEvent arg0)
+    {
+        final Production p = Adaptables.adapt(getApplication().getSelectionManager().getSelectedObject(), Production.class);
+        if(p == null)
+        {
+            return;
+        }
+        final ThreadedAgentProxy proxy = getApplication().getAgentProxy();
+        proxy.execute(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception
+            {
+                proxy.getAgent().getProductions().exciseProduction(p, true);
+                proxy.getAgent().getTrace().flush();
+                return null;
+            }});
+        getActions().updateActions();
+    }
+
+}

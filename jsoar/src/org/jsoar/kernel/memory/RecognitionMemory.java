@@ -891,7 +891,7 @@ public class RecognitionMemory
          * has already been excised, and doing it again is wrong.
          */
         if (inst.prod.getType() == ProductionType.JUSTIFICATION && inst.prod.getReferenceCount() > 1)
-            context.exciseProduction(inst.prod, false);
+            context.getProductions().exciseProduction(inst.prod, false);
 
         // mark as no longer in MS, and possibly deallocate
         inst.in_ms = false;
