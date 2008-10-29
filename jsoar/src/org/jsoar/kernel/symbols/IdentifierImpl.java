@@ -264,6 +264,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     private static class WmeIteratorSet implements Iterator<Iterator<Wme>>
     {
         private final IdentifierImpl id;
+        private boolean didImpasseWmes = false;
         private boolean didInputs = false;
         private AsListItem<Slot> slot;
         
@@ -279,7 +280,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         @Override
         public boolean hasNext()
         {
-            return (!didInputs && id.getInputWmes() != null) || slot != null;
+            return (!didImpasseWmes &&  id.getImpasseWmes() != null) || (!didInputs && id.getInputWmes() != null) || slot != null;
         }
 
         /* (non-Javadoc)
@@ -288,8 +289,16 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         @Override
         public Iterator<Wme> next()
         {
-            // First try to return an iterator over the input wmes if we haven't
-            // done so already
+            // First try to return an iterator over the impasse wmes
+            if(!didImpasseWmes)
+            {
+                didImpasseWmes = true;
+                if(id.getImpasseWmes() != null)
+                {
+                    return id.getImpasseWmes().iterator();
+                }
+            }
+            // Next try to return an iterator over the input wmes
             if(!didInputs)
             {
                 didInputs = true;

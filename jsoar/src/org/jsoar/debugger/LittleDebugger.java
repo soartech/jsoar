@@ -33,6 +33,7 @@ import org.flexdock.util.SwingUtility;
 import org.flexdock.view.View;
 import org.flexdock.view.Viewport;
 import org.jsoar.debugger.actions.ActionManager;
+import org.jsoar.debugger.actions.ExciseProductionAction;
 import org.jsoar.debugger.actions.ExitAction;
 import org.jsoar.debugger.actions.InitSoarAction;
 import org.jsoar.debugger.actions.RunAction;
@@ -71,6 +72,7 @@ public class LittleDebugger extends JPanel
     private final ProductionListView prodListView;
     private final SelectionInfoView textView;
     private final WorkingMemoryGraphView wmGraphView;
+    private final WorkingMemoryTreeView wmTreeView;
     private final MatchesView matchesView;
     private final PreferencesView preferencesView;
     
@@ -105,6 +107,9 @@ public class LittleDebugger extends JPanel
         
         wmGraphView = new WorkingMemoryGraphView(this);
         traceView.dock(wmGraphView, DockingConstants.SOUTH_REGION);
+        
+        wmTreeView = new WorkingMemoryTreeView(this);
+        wmGraphView.dock(wmTreeView);
         
         preferencesView = new PreferencesView(this);
         wmGraphView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
@@ -187,6 +192,7 @@ public class LittleDebugger extends JPanel
         new StopAction(actionManager);
         new InitSoarAction(actionManager);
         new SourceFileAction(actionManager);
+        new ExciseProductionAction(actionManager);
     }
     
     private void initMenuBar()
@@ -215,6 +221,7 @@ public class LittleDebugger extends JPanel
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         
+        bar.add(new RunControlPanel(this));
         
         add(bar, BorderLayout.NORTH);
     }
@@ -238,6 +245,7 @@ public class LittleDebugger extends JPanel
         updateWmes();
         prodListView.refresh();
         wmGraphView.refresh(afterInitSoar);
+        wmTreeView.refresh();
     }
     
     private void updateWmes()

@@ -63,7 +63,7 @@ public class JSoarTest
 
     public static void verifyProduction(Agent agent, String name, ProductionType type, String body, boolean internal)
     {
-        Production j = agent.getProduction(name);
+        Production j = agent.getProductions().getProduction(name);
         assertNotNull(j);
         assertEquals(type, j.getType());
         StringWriter writer = new StringWriter();

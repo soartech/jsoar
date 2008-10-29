@@ -39,15 +39,15 @@ public class RunControlPanel extends JPanel
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         
-        bar.add(new JLabel("Run "));
+        bar.add(new JLabel("  Run "));
         countField = debugger.getRunControlModel().createCountField();
         countField.setHorizontalAlignment(JTextField.RIGHT);
-        countField.setMaximumSize(new Dimension(50, 25));
+        countField.setMaximumSize(new Dimension(50, 20));
         bar.add(countField);
         
         stepTypeCombo = debugger.getRunControlModel().createTypeCombo();
         stepTypeCombo.setSelectedIndex(0);
-        stepTypeCombo.setMaximumSize(new Dimension(150, 25));
+        stepTypeCombo.setMaximumSize(new Dimension(150, 20));
         bar.add(stepTypeCombo);
         
         bar.add(debugger.getActionManager().getAction(RunAction.class));

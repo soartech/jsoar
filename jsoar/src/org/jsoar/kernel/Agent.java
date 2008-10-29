@@ -7,22 +7,13 @@ package org.jsoar.kernel;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
-import org.jsoar.kernel.events.ProductionAddedEvent;
-import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputOutputImpl;
@@ -30,24 +21,16 @@ import org.jsoar.kernel.learning.Backtracer;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.Explain;
 import org.jsoar.kernel.learning.ReinforcementLearning;
-import org.jsoar.kernel.lhs.ConditionReorderer;
 import org.jsoar.kernel.lhs.MultiAttributes;
+import org.jsoar.kernel.memory.ContextVariableInfo;
 import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.TemporaryMemory;
 import org.jsoar.kernel.memory.WorkingMemory;
-import org.jsoar.kernel.parser.Lexer;
-import org.jsoar.kernel.parser.Parser;
-import org.jsoar.kernel.parser.ParserException;
-import org.jsoar.kernel.rete.ProductionAddResult;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
-import org.jsoar.kernel.rhs.ActionReorderer;
-import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
-import org.jsoar.kernel.symbols.StringSymbol;
-import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
@@ -100,6 +83,7 @@ public class Agent
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);
     public final DecisionCycle decisionCycle = new DecisionCycle(this);
     private SoarEventManager eventManager = new SoarEventManager();
+    private DefaultProductionManager productions = new DefaultProductionManager(this);
     
     /**
      * agent.h:480:total_cpu_time
@@ -124,15 +108,6 @@ public class Agent
     public int attribute_preferences_mode = 0;
     
     private boolean initialized = false;
-    private int totalProductions = 0;
-    private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
-    {
-        for(ProductionType type : ProductionType.values())
-        {
-            productionsByType.put(type, new LinkedHashSet<Production>());
-        }
-    }
-    private Map<StringSymbol, Production> productionsByName = new HashMap<StringSymbol, Production>();
     
     public Agent()
     {
@@ -203,6 +178,11 @@ public class Agent
         this.eventManager = eventManager;
     }
     
+    public ProductionManager getProductions()
+    {
+        return productions;
+    }
+    
     public InputOutput getInputOutput()
     {
         return io;
@@ -211,6 +191,19 @@ public class Agent
     public SymbolFactory getSymbols()
     {
         return syms;
+    }
+    
+    
+    /**
+     *
+     * <p>utilities.cpp:132:get_context_var_info
+     * 
+     * @param variable A variable, e.g. {@code <s>}, {@code <ts>}, etc
+     * @return info about that variable
+     */
+    public ContextVariableInfo getContextVariableInfo(String variable)
+    {
+        return ContextVariableInfo.get(predefinedSyms, decider.top_goal, decider.bottom_goal, variable);
     }
     
     /**
@@ -242,184 +235,17 @@ public class Agent
     {
         return Arrays.asList(totalCpuTimer, totalKernelTimer);
     }
-    
-    public void loadProduction(String productionBody) throws IOException, ReordererException, ParserException
-    {
-        StringReader reader = new StringReader(productionBody);
-        Lexer lexer = new Lexer(printer, reader);
-        Parser parser = new Parser(variableGenerator, lexer, operand2_mode);
-        lexer.getNextLexeme();
-        addProduction(parser.parse_production(), true);
-    }
-    
-    /**
-     * Add the given production to the agent. If a production with the same name
-     * is already loaded, it is excised and replaced.
-     * 
-     * <p>This is part of a refactoring of make_production().
-     * 
-     * @param p The production to add
-     * @param reorder_nccs if true, NCC conditions on the LHS are reordered
-     * @throws ReordererException if there is an error during reordering
-     * @throws IllegalArgumentException if p is a chunk or justification
-     */
-    private void addProduction(Production p, boolean reorder_nccs) throws ReordererException
-    {
-        if(p.getType() == ProductionType.CHUNK || p.getType() == ProductionType.JUSTIFICATION)
-        {
-            throw new IllegalArgumentException("Chunk or justification passed to addProduction: " + p);
-        }
         
-        // If there's already a prod with this name, excise it
-        // Note, in csoar, this test was done in parse_production as soon as the name
-        // of the production was known. We do this here so we can eliminate the
-        // production field of StringSymbolImpl.
-        Production existing = getProduction(p.getName().getValue());
-        if (existing != null) 
-        {
-            exciseProduction(existing, trace.isEnabled(Category.LOADING));
-        }
-
-        // Reorder the production
-        p.reorder(variableGenerator, 
-                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.getName().getValue()), 
-                  new ActionReorderer(printer, p.getName().getValue()), 
-                  reorder_nccs);
-
-        // Tell RL about the new production
-        rl.addProduction(p);
-        
-        // Add it to the rete.
-        ProductionAddResult result = rete.add_production_to_rete(p);
-        
-        // from parser.cpp
-        if (result==ProductionAddResult.DUPLICATE_PRODUCTION) 
-        {
-            exciseProduction (p, false);
-            return;
-        }
-        
-        totalProductions++;
-        productionsByType.get(p.getType()).add(p);
-        productionsByName.put(p.getName(), p);
-        
-        eventManager.fireEvent(new ProductionAddedEvent(this, p));
-    }
-    
-    /**
-     * Add the given chunk or justification production to the agent. The chunk 
-     * is reordered and registered, but it is <b>not</b> added to the rete 
-     * network.
-     * 
-     * <p>This is part of a refactoring of make_production().
-     * 
-     * @param p The chunk to add
-     * @throws ReordererException if there is an error while reordering the chunk
-     * @throws IllegalArgumentException if the production is not a chunk or justification
-     */
-    public void addChunk(Production p) throws ReordererException
-    {
-        if(p.getType() != ProductionType.CHUNK &&
-           p.getType() != ProductionType.JUSTIFICATION)
-        {
-            throw new IllegalArgumentException("Production '" + p + "' is not a chunk or justification");
-        }
-        
-        // Reorder the production
-        p.reorder(variableGenerator, 
-                  new ConditionReorderer(variableGenerator, trace, multiAttrs, p.getName().getValue()), 
-                  new ActionReorderer(printer, p.getName().getValue()), 
-                  false);
-
-        // Tell RL about the new production
-        rl.addProduction(p);
-        
-        // Production is added to the rete by the chunker
-
-        totalProductions++;
-        productionsByType.get(p.getType()).add(p);
-        productionsByName.put(p.getName(), p);
-    }
-    
-    /**
-     * Look up a production by name
-     * 
-     * @param name The name of the production
-     * @return The production or <code>null</code> if not found
-     */
-    public Production getProduction(String name)
-    {
-        StringSymbolImpl sc = syms.findString(name);
-        return productionsByName.get(sc);
-    }
-    
-    /**
-     * Returns a list of productions of a particular type, or all productions
-     * if type is <code>null</code>
-     * 
-     * @param type Type of production, or <code>null</code> for all productions.
-     * @return List of productions, ordered by type and then by order of addition
-     */
-    public List<Production> getProductions(ProductionType type)
-    {
-        List<Production> result;
-        if(type != null)
-        {
-            Set<Production> ofType = productionsByType.get(type);
-            result = new ArrayList<Production>(ofType);
-        }
-        else
-        {
-            result = new ArrayList<Production>(totalProductions);
-            for(Set<Production> ofType : productionsByType.values())
-            {
-                result.addAll(ofType);
-            }
-        }
-        return result;
-    }
-    
-    /**
-     * 
-     * <p>production.cpp:1595:excise_production
-     * 
-     * @param prod
-     * @param print_sharp_sign
-     */
-    public void exciseProduction(Production prod, boolean print_sharp_sign)
-    {
-        // TODO if (prod->trace_firings) remove_pwatch (thisAgent, prod);
-        
-        if(print_sharp_sign)
-        {
-            eventManager.fireEvent(new ProductionExcisedEvent(this, prod));
-        }
-        
-        totalProductions--;
-        productionsByType.get(prod.getType()).remove(prod);
-        productionsByName.remove(prod.getName());
-
-        rl.exciseProduction(prod);
-
-        if (print_sharp_sign)
-        {
-            getPrinter().print("#");
-        }
-        if (prod.p_node != null)
-        {
-            rete.excise_production_from_rete(prod);
-        }
-        prod.production_remove_ref();
-    }
-    
     public void runFor(int n, RunType runType)
     {
         this.decisionCycle.runFor(n, runType);
+        getTrace().flush();
     }
     
     public void runForever()
     {
         this.decisionCycle.runForever();
+        getTrace().flush();
     }
     
     public void stop()
@@ -571,11 +397,7 @@ public class Agent
     {
         chunker.chunks_this_d_cycle = 0;
 
-        // reset_production_firing_counts(thisAgent);
-        for (Production p : this.productionsByName.values())
-        {
-            p.firing_count = 0;
-        }
+        productions.resetStatistics();
 
         for (ExecutionTimer timer : getAllTimers())
         {

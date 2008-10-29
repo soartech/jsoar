@@ -56,7 +56,7 @@ public class IdentifierImplTest extends JSoarTest
     {
         // Load a production that creates some WMEs off of S1, then
         // test iterating over them.
-        agent.loadProduction("testGetWmes " +
+        agent.getProductions().loadProduction("testGetWmes " +
         		"(state <s> ^superstate nil)" +
         		"-->" +
         		"(<s> ^test <w>)" +

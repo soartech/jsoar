@@ -345,6 +345,14 @@ public class Trace
         return this;
     }
     
+    /**
+     * Flush the underlying printer 
+     */
+    public void flush()
+    {
+        printer.flush();
+    }
+    
     public Trace startNewLine()
     {
         if(enabled)

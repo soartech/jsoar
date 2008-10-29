@@ -42,14 +42,14 @@ public class PredefinedSymbols
     final StringSymbolImpl goal_symbol = syms.createString("goal");
     public final StringSymbolImpl name_symbol = syms.createString("name");
 
-    final Variable ts_context_variable = syms.make_variable ("<ts>");
-    final Variable to_context_variable = syms.make_variable ("<to>");
-    final Variable sss_context_variable = syms.make_variable ("<sss>");
-    final Variable sso_context_variable = syms.make_variable ("<sso>");
-    final Variable ss_context_variable = syms.make_variable ("<ss>");
-    final Variable so_context_variable = syms.make_variable ("<so>");
-    final Variable s_context_variable = syms.make_variable ("<s>");
-    final Variable o_context_variable = syms.make_variable ("<o>");
+    public final Variable ts_context_variable = syms.make_variable ("<ts>");
+    public final Variable to_context_variable = syms.make_variable ("<to>");
+    public final Variable sss_context_variable = syms.make_variable ("<sss>");
+    public final Variable sso_context_variable = syms.make_variable ("<sso>");
+    public final Variable ss_context_variable = syms.make_variable ("<ss>");
+    public final Variable so_context_variable = syms.make_variable ("<so>");
+    public final Variable s_context_variable = syms.make_variable ("<s>");
+    public final Variable o_context_variable = syms.make_variable ("<o>");
 
     final Variable wait_symbol = syms.make_variable ("wait");
 

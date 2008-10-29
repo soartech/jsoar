@@ -64,10 +64,10 @@ public class DecisionCycleTest
     @Test
     public void testDoOneTopLevelPhaseWithSimpleProduction() throws Exception
     {
-        agent.loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^foo 1)");
-        agent.loadProduction("test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
+        agent.getProductions().loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^foo 1)");
+        agent.getProductions().loadProduction("test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
         
-        assertTrue(agent.getProduction("test2").instantiations.isEmpty());
+        assertTrue(agent.getProductions().getProduction("test2").instantiations.isEmpty());
         
         assertEquals(Phase.INPUT, this.agent.decisionCycle.current_phase);
         this.agent.decisionCycle.runFor(1, RunType.PHASES);
@@ -81,7 +81,7 @@ public class DecisionCycleTest
         this.agent.decisionCycle.runFor(1, RunType.PHASES);
         
         // verify that (S1 foo 1) is being added to the rete by checking that test2 fired
-        assertFalse(agent.getProduction("test2").instantiations.isEmpty());
+        assertFalse(agent.getProductions().getProduction("test2").instantiations.isEmpty());
         
         // Verify that new states are being generates
         assertEquals("S2", agent.decider.bottom_goal.toString());
@@ -91,7 +91,7 @@ public class DecisionCycleTest
     public void testWaitOperatorOnStateNoChange() throws Exception
     {
         // A production that just proposes a wait operator every cycle
-        agent.loadProduction(
+        agent.getProductions().loadProduction(
                 "top-state*propose*wait\n" +
                 "   (state <s> ^attribute state\n" +
                 "              ^choices none\n" +

@@ -170,7 +170,7 @@ public class FunctionalTests
     {
         // 9/24/2008 - This production caused a crash in the initial match of the
         // production. Nothing to test other than that no exceptions are thrown.
-        agent.loadProduction("towers-of-hanoi*propose*initialize\n" +
+        agent.getProductions().loadProduction("towers-of-hanoi*propose*initialize\n" +
         "   (state <s> ^superstate nil\n" +
         "             -^name)\n" +
         "-->\n" +
@@ -183,7 +183,7 @@ public class FunctionalTests
     {
         // 9/24/2008 - This production caused a crash in the initial match of the
         // production. Nothing to test other than that no exceptions are thrown.
-        agent.loadProduction("towers-of-hanoi*propose*initialize\n" +
+        agent.getProductions().loadProduction("towers-of-hanoi*propose*initialize\n" +
         "   (state <s> ^superstate nil\n" +
         "             -^name)\n" +
         "-->\n" +
@@ -234,7 +234,7 @@ public class FunctionalTests
     public void testJustifications() throws Exception
     {
         runTest("testJustifications", 2);
-        Production j = agent.getProduction("justification-1");
+        Production j = agent.getProductions().getProduction("justification-1");
         assertNull(j);
     }
     
@@ -300,9 +300,9 @@ public class FunctionalTests
         // where the id and attr test for positive conditions were added to the tc
         // rather than id and *value*. The first chunk constructed was incorrect
         runTest("testBlocksWorldLookAheadWithMaxNoChangeBug", 15);
-        assertEquals(72, agent.getProductions(ProductionType.DEFAULT).size());
-        assertEquals(15, agent.getProductions(ProductionType.USER).size());
-        assertEquals(4, agent.getProductions(ProductionType.CHUNK).size());
+        assertEquals(72, agent.getProductions().getProductions(ProductionType.DEFAULT).size());
+        assertEquals(15, agent.getProductions().getProductions(ProductionType.USER).size());
+        assertEquals(4, agent.getProductions().getProductions(ProductionType.CHUNK).size());
         
         // Make sure the chunk was built correctly.
         JSoarTest.verifyProduction(agent, 
@@ -367,8 +367,8 @@ public class FunctionalTests
     public void testCountTest() throws Exception
     {
         runTest("testCountTest", -1);
-        assertEquals(42, agent.getProductions(ProductionType.USER).size());
-        assertEquals(15014, agent.getProductions(ProductionType.CHUNK).size());
+        assertEquals(42, agent.getProductions().getProductions(ProductionType.USER).size());
+        assertEquals(15014, agent.getProductions().getProductions(ProductionType.CHUNK).size());
         assertEquals(45047, agent.decisionCycle.decision_phases_count);
         assertEquals(115136, agent.decisionCycle.e_cycle_count);
         assertEquals(40039, agent.decisionCycle.pe_cycle_count);

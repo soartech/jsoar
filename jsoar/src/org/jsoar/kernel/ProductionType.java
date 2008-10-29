@@ -42,10 +42,13 @@ public enum ProductionType
     // Soar-RL assumes that the production types start at 0 and go to (NUM_PRODUCTION_TYPES-1) sequentially
 
     private final Category category;
+    private final String displayString;
     
     private ProductionType(Category category)
     {
         this.category = category;
+        
+        this.displayString = name().charAt(0) + name().substring(1).toLowerCase();
     }
     
     /**
@@ -55,5 +58,12 @@ public enum ProductionType
     {
         return category;
     }
-    
+
+    /**
+     * @return A display string in title case
+     */
+    public String getDisplayString()
+    {
+        return displayString;
+    }
 }

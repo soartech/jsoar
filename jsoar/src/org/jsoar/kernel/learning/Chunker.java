@@ -1222,7 +1222,7 @@ public class Chunker
         // Reorder the production
         try
         {
-            context.addChunk(prod);
+            context.getProductions().addChunk(prod);
         }
         catch (ReordererException e)
         {
@@ -1325,12 +1325,12 @@ public class Chunker
 
         if (rete_addition_result == ProductionAddResult.DUPLICATE_PRODUCTION)
         {
-            context.exciseProduction(prod, false);
+            context.getProductions().exciseProduction(prod, false);
         }
         else if ((prod_type == ProductionType.JUSTIFICATION)
                 && (rete_addition_result == ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH))
         {
-            context.exciseProduction(prod, false);
+            context.getProductions().exciseProduction(prod, false);
         }
 
         if (rete_addition_result != ProductionAddResult.REFRACTED_INST_MATCHED)

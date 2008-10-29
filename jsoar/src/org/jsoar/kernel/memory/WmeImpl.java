@@ -342,7 +342,7 @@ public class WmeImpl implements Wme, Formattable
     @Override
     public String toString()
     {
-        return "<" + id + ", " + attr + ", " + value + ">:" + timetag;
+        return "(" + timetag + ": " + id + " ^" + attr + " " + value + ")";
     }
 
     /* (non-Javadoc)

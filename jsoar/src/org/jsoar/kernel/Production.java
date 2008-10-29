@@ -82,13 +82,21 @@ public class Production
     
     
     /**
-     * @return the name
+     * @return the name of this production
      */
     public StringSymbol getName()
     {
         return name;
     }
 
+    /**
+     * @return the documentation string of this production
+     */
+    public String getDocumentation()
+    {
+        return documentation != null ? documentation : "";
+    }
+    
     /**
      * Performs reordering of the LHS and RHS of the production using the given
      * reorderer objects. This will modify the conditions and actions of the

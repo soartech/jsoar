@@ -19,6 +19,13 @@ public class Images
     public static final ImageIcon STOP = loadImage("/org/jsoar/debugger/stop.gif");
     public static final ImageIcon REFRESH = loadImage("/org/jsoar/debugger/refresh.gif");
     public static final ImageIcon UNDO = loadImage("/org/jsoar/debugger/undo.gif");
+    public static final ImageIcon WME = loadImage("/org/jsoar/debugger/wme.gif");
+    public static final ImageIcon ID = loadImage("/org/jsoar/debugger/id.gif");
+    public static final ImageIcon PRODUCTION = loadImage("/org/jsoar/debugger/production.gif");
+    public static final ImageIcon SYNCH = loadImage("/org/jsoar/debugger/synch.gif");
+    public static final ImageIcon DELETE = loadImage("/org/jsoar/debugger/delete.gif");
+    public static final ImageIcon NEXT = loadImage("/org/jsoar/debugger/next.gif");
+    public static final ImageIcon PREVIOUS = loadImage("/org/jsoar/debugger/previous.gif");
 
     /**
      * @param string

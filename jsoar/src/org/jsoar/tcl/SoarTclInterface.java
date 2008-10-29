@@ -46,7 +46,7 @@ public class SoarTclInterface
             
             try
             {
-                agent.loadProduction(args[1].toString());
+                agent.getProductions().loadProduction(args[1].toString());
             }
             catch (IOException e)
             {
@@ -90,11 +90,11 @@ public class SoarTclInterface
             
             p.print("jsoar 0.0.0 on %s at %s%n%n", System.getenv("HOSTNAME"), Calendar.getInstance().getTime());
             p.print("%d productions (%d default, %d user, %d chunks)%n   + %d justifications%n",
-                    agent.getProductions(null).size(),
-                    agent.getProductions(ProductionType.DEFAULT).size(),
-                    agent.getProductions(ProductionType.USER).size(),
-                    agent.getProductions(ProductionType.CHUNK).size(),
-                    agent.getProductions(ProductionType.CHUNK).size());
+                    agent.getProductions().getProductions(null).size(),
+                    agent.getProductions().getProductions(ProductionType.DEFAULT).size(),
+                    agent.getProductions().getProductions(ProductionType.USER).size(),
+                    agent.getProductions().getProductions(ProductionType.CHUNK).size(),
+                    agent.getProductions().getProductions(ProductionType.CHUNK).size());
             p.print("\n");
             p.print("Values from single timers:%n" +
             		" Kernel CPU Time: %f sec. %n" +
@@ -189,7 +189,7 @@ public class SoarTclInterface
             }
             else if(args.length == 2)
             {
-                Production p = agent.getProduction(args[1].toString());
+                Production p = agent.getProductions().getProduction(args[1].toString());
                 if(p == null)
                 {
                     throw new TclException(interp, "No production '" + args[1] + "'");

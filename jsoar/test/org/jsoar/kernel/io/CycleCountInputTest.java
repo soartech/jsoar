@@ -61,7 +61,7 @@ public class CycleCountInputTest
         CycleCountInput input = new CycleCountInput(agent.getInputOutput(), agent.getEventManager());
         
         agent.decider.setWaitsnc(true);
-        agent.loadProduction("testCycleCountInput " +
+        agent.getProductions().loadProduction("testCycleCountInput " +
         		"(state <s> ^superstate nil ^io.input-link.cycle-count <cc>)" +
         		"-->" +
         		"(match <cc>)");

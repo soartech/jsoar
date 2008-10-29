@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="lib/flexdock-0.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/prefuse-beta-20071021.jar"/>
+	<classpathentry kind="lib" path="lib/swingx-0.9.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
