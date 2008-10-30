@@ -98,7 +98,7 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
             {
                 printer.print("*************************************************\n");
                 printer.print("*** matches %s\n", p.getName());
-                agent.rete.print_partial_match_information(printer, p.p_node, WmeTraceType.FULL);
+                p.printPartialMatches(printer, WmeTraceType.FULL);
                 printer.print("\n\n");
             }
         }

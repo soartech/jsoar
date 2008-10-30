@@ -49,7 +49,7 @@ public class SourceFileAction extends AbstractDebuggerAction
             @Override
             public boolean accept(File f)
             {
-                return f.isFile() && "soar".equals(FilenameUtils.getExtension(f.getName()));
+                return f.isDirectory() || (f.isFile() && "soar".equals(FilenameUtils.getExtension(f.getName())));
             }
 
             @Override

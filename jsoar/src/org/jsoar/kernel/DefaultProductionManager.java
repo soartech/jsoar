@@ -113,7 +113,7 @@ public class DefaultProductionManager implements ProductionManager
         {
             context.getPrinter().print("#");
         }
-        if (prod.p_node != null)
+        if (prod.getReteNode() != null)
         {
             context.rete.excise_production_from_rete(prod);
         }

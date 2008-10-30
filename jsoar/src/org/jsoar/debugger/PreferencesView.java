@@ -19,7 +19,7 @@ import org.flexdock.docking.DockingConstants;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.commands.PreferencesCommand;
+import org.jsoar.kernel.commands.PrintPreferencesCommand;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.tracing.Printer;
@@ -87,7 +87,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         {
             Wme w = Adaptables.adapt(o, Wme.class);
             Identifier id = Adaptables.adapt(o, Identifier.class);
-            PreferencesCommand command = new PreferencesCommand();
+            PrintPreferencesCommand command = new PrintPreferencesCommand();
             command.setPrintProduction(true);
             command.setWmeTraceType(WmeTraceType.FULL);
             if(w != null)

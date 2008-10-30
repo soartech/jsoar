@@ -5,18 +5,11 @@
  */
 package org.jsoar.tcl;
 
-import java.io.IOException;
-import java.util.Calendar;
 import java.util.EnumSet;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.RunType;
-import org.jsoar.kernel.parser.ParserException;
-import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.kernel.symbols.StringSymbolImpl;
-import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 
@@ -31,160 +24,18 @@ import tcl.lang.TclObject;
  */
 public class SoarTclInterface
 {
-    private final Agent agent;
-    private Interp interp = new Interp();
-    
-    private Command spCommand = new Command() {
-
-        @Override
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
-        {
-            if(args.length != 2)
-            {
-                throw new TclNumArgsException(interp, 1, args, "body");
-            }
-            
-            try
-            {
-                agent.getProductions().loadProduction(args[1].toString());
-            }
-            catch (IOException e)
-            {
-                throw new TclException(interp, e.getMessage());
-            }
-            catch (ReordererException e)
-            {
-                throw new TclException(interp, e.getMessage());
-            }
-            catch (ParserException e)
-            {
-                throw new TclException(interp, e.getMessage());
-            }
-        }};
-        
-    private Command multiAttrCommand = new Command() {
-
-        @Override
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
-        {
-            if(args.length != 3)
-            {
-                throw new TclNumArgsException(interp, 2, args, "attr cost");
-            }
-            
-            StringSymbolImpl attr = agent.syms.createString(args[1].toString());
-            int cost = Integer.valueOf(args[2].toString());
-            agent.getMultiAttributes().setCost(attr, cost);
-        }
-        
-    };
-    
-    private Command statsCommand = new Command() {
-
-        @Override
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
-        {
-            final Printer p = agent.getPrinter();
-            
-            p.startNewLine();
-            
-            p.print("jsoar 0.0.0 on %s at %s%n%n", System.getenv("HOSTNAME"), Calendar.getInstance().getTime());
-            p.print("%d productions (%d default, %d user, %d chunks)%n   + %d justifications%n",
-                    agent.getProductions().getProductions(null).size(),
-                    agent.getProductions().getProductions(ProductionType.DEFAULT).size(),
-                    agent.getProductions().getProductions(ProductionType.USER).size(),
-                    agent.getProductions().getProductions(ProductionType.CHUNK).size(),
-                    agent.getProductions().getProductions(ProductionType.CHUNK).size());
-            p.print("\n");
-            p.print("Values from single timers:%n" +
-            		" Kernel CPU Time: %f sec. %n" +
-            		" Total  CPU Time: %f sec. %n%n",
-            		agent.getTotalKernelTimer().getTotalSeconds(),
-            		agent.getTotalCpuTimer().getTotalSeconds());
-            
-            p.print("%d decisions%n" +
-            		"%d elaboration cycles%n" +
-            		"%d p-elaboration cycles",
-            		agent.decisionCycle.decision_phases_count,
-            		agent.decisionCycle.e_cycle_count,
-            		agent.decisionCycle.pe_cycle_count);
-        }};
-
-    private Command learnCommand = new Command() {
-
-        @Override
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
-        {
-            if(args.length != 2)
-            {
-                throw new TclNumArgsException(interp, 2, args, "[--on|--off]");
-            }
-            
-            if("--on".equals(args[1].toString()))
-            {
-                agent.chunker.setLearningOn(true);
-            }
-            else if("--off".equals(args[1].toString()))
-            {
-                agent.chunker.setLearningOn(false);
-            }
-            else
-            {
-                throw new TclException(interp, "Option must be --on or --off");
-            }
-        }};
-    private Command srandCommand = new Command() {
-
-        @Override
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
-        {
-            if(args.length > 2)
-            {
-                throw new TclNumArgsException(interp, 2, args, "[seed]");
-            }
-
-            long seed = 0;
-            if(args.length == 1)
-            {
-                seed = System.nanoTime();
-            }
-            else
-            {
-                seed = Long.parseLong(args[1].toString());
-            }
-            agent.getRandom().setSeed(seed);
-        }};
-        
-    private Command maxElaborationsCommand = new Command() {
-
-        @Override
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
-        {
-            if(args.length > 2)
-            {
-                throw new TclNumArgsException(interp, 2, args, "[value]");
-            }
-
-            if(args.length == 1)
-            {
-                agent.getPrinter().print("%d", agent.consistency.getMaxElaborations());
-            }
-            else
-            {
-                agent.consistency.setMaxElaborations(Integer.parseInt(args[1].toString()));
-            }
-        }};
-        
-    private Command matchesCommand = new Command() {
-
+    /**
+     * @author ray
+     */
+    private final class MatchesCommand implements Command
+    {
         @Override
         public void cmdProc(Interp interp, TclObject[] args) throws TclException
         {
             if(args.length == 1)
             {
-                agent.soarReteListener.print_match_set(agent.getPrinter(), 
-                                                       WmeTraceType.FULL, 
-                                                       EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
+                agent.printMatchSet(agent.getPrinter(), WmeTraceType.FULL, 
+                                    EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
                 agent.getPrinter().flush();
             }
             else if(args.length == 2)
@@ -194,17 +45,38 @@ public class SoarTclInterface
                 {
                     throw new TclException(interp, "No production '" + args[1] + "'");
                 }
-                if(p.p_node == null)
+                if(p.getReteNode() == null)
                 {
                     throw new TclException(interp, "Production '" + args[1] + "' is not in rete");
                 }
-                agent.rete.print_partial_match_information(agent.getPrinter(), p.p_node, WmeTraceType.FULL);
+                p.printPartialMatches(agent.getPrinter(), WmeTraceType.FULL);
             }
             else
             {
                 throw new TclNumArgsException(interp, 2, args, "[production]");
             }
-        }};    
+        }
+    }
+
+    final Agent agent;
+    private Interp interp = new Interp();
+    
+    private final SourceCommand sourceCommand;
+    private final PushdCommand pushdCommand;
+    private final PopdCommand popdCommand;
+    
+    private Command spCommand = new SpCommand(this);
+        
+    private Command multiAttrCommand = new MultiAttrCommand(this);
+    
+    private Command statsCommand = new StatsCommand(this);
+
+    private Command learnCommand = new LearnCommand(this);
+    private Command srandCommand = new SrandCommand(this);
+        
+    private Command maxElaborationsCommand = new MaxElaborationsCommand(this);
+        
+    private Command matchesCommand = new MatchesCommand();    
         
     private Command waitsncCommand = new Command() {
 
@@ -250,6 +122,15 @@ public class SoarTclInterface
     {
         this.agent = agent;
         
+        this.sourceCommand = new SourceCommand();
+        interp.createCommand("source", sourceCommand);
+
+        this.pushdCommand = new PushdCommand(sourceCommand);
+        interp.createCommand("pushd", pushdCommand);
+        this.popdCommand = new PopdCommand(sourceCommand);
+        interp.createCommand("popd", this.popdCommand);
+        interp.createCommand("pwd", new PwdCommand(sourceCommand));
+        
         interp.createCommand("sp", spCommand);
         interp.createCommand("multi-attributes", multiAttrCommand);
         interp.createCommand("stats", statsCommand);
@@ -259,6 +140,11 @@ public class SoarTclInterface
         interp.createCommand("matches", matchesCommand);
         interp.createCommand("waitsnc", waitsncCommand);
         interp.createCommand("init-soar", initSoarCommand);
+    }
+    
+    public Interp getInterpreter()
+    {
+        return interp;
     }
     
     public void dispose()
@@ -275,7 +161,7 @@ public class SoarTclInterface
     {
         try
         {
-            interp.evalFile(file);
+            sourceCommand.source(interp, file);
         }
         catch (TclException e)
         {

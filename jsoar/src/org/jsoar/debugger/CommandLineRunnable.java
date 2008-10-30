@@ -37,7 +37,11 @@ public class CommandLineRunnable implements Runnable
     {
         try
         {
-            ifc.eval(command);
+            String result = ifc.eval(command);
+            if(result != null && result.length() != 0)
+            {
+                ifc.getAgent().getPrinter().startNewLine().print(result).flush();
+            }
         }
         catch (SoarTclException e)
         {

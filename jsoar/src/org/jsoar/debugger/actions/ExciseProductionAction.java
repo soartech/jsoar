@@ -6,6 +6,7 @@
 package org.jsoar.debugger.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.jsoar.debugger.Images;
@@ -36,8 +37,8 @@ public class ExciseProductionAction extends AbstractDebuggerAction
     @Override
     public void update()
     {
-        Production p = Adaptables.adapt(getApplication().getSelectionManager().getSelectedObject(), Production.class);
-        setEnabled(p != null);
+        final List<Production> prods = Adaptables.adaptCollection(getApplication().getSelectionManager().getSelection(), Production.class);
+        setEnabled(!prods.isEmpty());
     }
 
     /* (non-Javadoc)
@@ -46,8 +47,8 @@ public class ExciseProductionAction extends AbstractDebuggerAction
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
-        final Production p = Adaptables.adapt(getApplication().getSelectionManager().getSelectedObject(), Production.class);
-        if(p == null)
+        final List<Production> prods = Adaptables.adaptCollection(getApplication().getSelectionManager().getSelection(), Production.class);
+        if(prods.isEmpty())
         {
             return;
         }
@@ -57,7 +58,10 @@ public class ExciseProductionAction extends AbstractDebuggerAction
             @Override
             public Void call() throws Exception
             {
-                proxy.getAgent().getProductions().exciseProduction(p, true);
+                for(Production p : prods)
+                {
+                    proxy.getAgent().getProductions().exciseProduction(p, true);
+                }
                 proxy.getAgent().getTrace().flush();
                 return null;
             }});

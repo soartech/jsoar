@@ -345,13 +345,13 @@ public class Rete
         /* --- if not a chunk, store variable name information --- */
         if ((p.getType() == ProductionType.CHUNK) && discard_chunk_varnames)
         {
-            p.p_node.b_p.parents_nvn = null;
+            p.getReteNode().b_p.parents_nvn = null;
             p.rhs_unbound_variables.clear();
             //deallocate_symbol_list_removing_references (thisAgent, rhs_unbound_vars_for_new_prod);
         }
         else
         {
-            p.p_node.b_p.parents_nvn = NodeVarNames.get_nvn_for_condition_list(lhs_top, null);
+            p.getReteNode().b_p.parents_nvn = NodeVarNames.get_nvn_for_condition_list(lhs_top, null);
             p.rhs_unbound_variables.clear();
             p.rhs_unbound_variables.addAll(rhs_unbound_vars_for_new_prod);
         }
@@ -374,8 +374,8 @@ public class Rete
         // remove_production_from_stat_lists(prod_to_be_excised);
         // #endif
 
-        ReteNode p_node = p.p_node;
-        p.p_node = null; // mark production as not being in the rete anymore
+        ReteNode p_node = p.getReteNode();
+        p.setReteNode(null, null); // mark production as not being in the rete anymore
         ReteNode parent = p_node.parent;
 
         // deallocate the variable name information
@@ -2600,6 +2600,9 @@ public class Rete
     }
 
     /**
+     * Print partial matches for the given p-node. Client code should call
+     * {@link Production#printPartialMatches(Printer, WmeTraceType)}
+     * 
      * <p>rete.cpp:7700:print_partial_match_information
      * 
      * @param printer
@@ -2625,4 +2628,40 @@ public class Rete
         }
     }
 
+    /**
+     * Returns a count of the number of tokens currently in use for the given
+     * production. The count does not include:
+     * <ul>
+     * <li> tokens in the p_node (i.e., tokens representing complete matches) 
+     * <li>local join result tokens on (real) tokens in negative/NCC nodes
+     * </ul>
+     * 
+     * <p>Client code should call {@link Production#getReteTokenCount()}
+     * 
+     * <p>rete.cpp:7346:count_rete_tokens_for_production
+     * 
+     * @param p_node the production p-node
+     * @return token count, or 0 if p_node is <code>null</code>
+     */
+    public int count_rete_tokens_for_production(ReteNode p_node)
+    {
+        if (p_node == null)
+            return 0;
+        ReteNode node = p_node.parent;
+        int count = 0;
+        while (node != dummy_top_node)
+        {
+            if ((node.node_type != ReteNodeType.POSITIVE_BNODE)
+                    && (node.node_type != ReteNodeType.UNHASHED_POSITIVE_BNODE))
+            {
+                for (Token tok = node.a_np.tokens; tok != null; tok = tok.next_of_node)
+                    count++;
+            }
+            if (node.node_type == ReteNodeType.CN_BNODE)
+                node = node.b_cn.partner.parent;
+            else
+                node = node.parent;
+        }
+        return count;
+    }
 }

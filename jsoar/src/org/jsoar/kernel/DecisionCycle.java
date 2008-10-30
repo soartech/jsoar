@@ -901,6 +901,12 @@ public class DecisionCycle
         pauseTopLevelTimers();
     }
     
+    /**
+     * Client code should use {@link Agent#runFor(int, RunType)}
+     * 
+     * @param n
+     * @param runType
+     */
     public void runFor(int n, RunType runType)
     {
         if(checkForSystemHaltedAtStartOfTopLevel())
@@ -920,7 +926,9 @@ public class DecisionCycle
     }
     
     /**
-     * init_soar.cpp:1105:run_forever
+     * Client code should use {@link Agent#runForever()}
+     * 
+     * <p>init_soar.cpp:1105:run_forever
      */
     public void runForever()
     {
