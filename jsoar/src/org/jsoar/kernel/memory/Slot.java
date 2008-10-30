@@ -239,6 +239,9 @@ public class Slot
         this.acceptable_preference_wmes = w.removeFromList(this.acceptable_preference_wmes);
     }
     
+    /**
+     * @return Head of list of all preferences. Iterate with {@link Preference#nextOfSlot}.
+     */
     public Preference getAllPreferences()
     {
         return all_preferences;

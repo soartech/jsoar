@@ -22,6 +22,7 @@ import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
@@ -39,7 +40,8 @@ public class Production
     public boolean interrupt = false;
     public int firing_count = 0;
     public boolean trace_firings = false;
-    public ReteNode p_node;
+    private Rete rete;
+    private ReteNode p_node;
     public final ListHead<Instantiation> instantiations = ListHead.newInstance();
     public final LinkedList<Variable> rhs_unbound_variables = new LinkedList<Variable>();
     public boolean already_fired = false; /* RPM test workaround for bug #139 */
@@ -95,6 +97,39 @@ public class Production
     public String getDocumentation()
     {
         return documentation != null ? documentation : "";
+    }
+        
+    /**
+     * Print partial match information for this production to the given printer
+     * 
+     * @param printer The printer to print to
+     * @param wtt The WME trace level
+     */
+    public void printPartialMatches(Printer printer, WmeTraceType wtt)
+    {
+        if(rete == null)
+        {
+            return;
+        }
+        
+        rete.print_partial_match_information(printer, p_node, wtt);
+    }
+    
+    /**
+     * Returns a count of the number of tokens currently in use for this
+     * production. The count does not include:
+     * <ul>
+     * <li> tokens in the p_node (i.e., tokens representing complete matches) 
+     * <li>local join result tokens on (real) tokens in negative/NCC nodes
+     * </ul>
+     * 
+     * <p>Note that this method is not fast for large match sets
+     * 
+     * @return token count, or 0 if not in rete
+     */
+    public int getReteTokenCount()
+    {
+        return rete != null ? rete.count_rete_tokens_for_production(p_node) : 0;
     }
     
     /**
@@ -186,6 +221,33 @@ public class Production
         }
     }
     
+    /**
+     * Set this productions rete node. This should only be called by the rete.
+     * 
+     * @param rete
+     * @param p_node
+     */
+    public void setReteNode(Rete rete, ReteNode p_node)
+    {
+        if((this.rete != null || this.p_node != null) && (rete != null || p_node != null))
+        {
+            throw new IllegalStateException("Production " + this + " is already in rete");
+        }
+        
+        this.rete = rete;
+        this.p_node = p_node;
+    }
+    
+    /**
+     * Get this production's rete node. This is not a public API.
+     * 
+     * @return This production's rete node.
+     */
+    public ReteNode getReteNode()
+    {
+        return p_node;
+    }
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
@@ -205,8 +267,14 @@ public class Production
      * @param printer
      * @param internal
      */
-    public void print_production(Rete rete, Printer printer, boolean internal)
+    public void print_production(Printer printer, boolean internal)
     {
+        if(rete == null || p_node == null)
+        {
+            printer.print("%s has been excised", this.name);
+            return;
+        }
+        
         // print "sp" and production name
         printer.print("sp {%s\n", this.name);
 

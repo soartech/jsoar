@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.List;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.lhs.Condition;
@@ -114,6 +116,26 @@ public class Instantiation implements Traceable
                 }
             }
         }
+    }
+    
+    /**
+     * Same as {@link #trace(Formatter, WmeTraceType)} except that it returns the
+     * backtrace WMEs
+     * 
+     * @return List of backtrace WMEs in this instantiation
+     */
+    public List<Wme> getBacktraceWmes()
+    {
+        List<Wme> result = new ArrayList<Wme>();
+        for (Condition cond = top_of_instantiated_conditions; cond != null; cond = cond.next)
+        {
+            PositiveCondition pc = cond.asPositiveCondition();
+            if (pc != null)
+            {
+                result.add(pc.bt.wme_);
+            }
+        }
+        return result;
     }
 
     /* (non-Javadoc)

@@ -724,7 +724,7 @@ public class ReteNode
     {
         ReteNode p_node = new ReteNode(ReteNodeType.P_BNODE);
 
-        new_prod.p_node = p_node;
+        new_prod.setReteNode(rete, p_node);
         p_node.parent = parent;
         p_node.next_sibling = parent.first_child;
         parent.first_child = p_node;

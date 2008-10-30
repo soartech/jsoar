@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 
@@ -38,6 +39,8 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
+import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.timing.DefaultExecutionTimer;
 import org.jsoar.util.timing.ExecutionTimer;
@@ -236,21 +239,53 @@ public class Agent
         return Arrays.asList(totalCpuTimer, totalKernelTimer);
     }
         
+    /**
+     * Run this agent for the given number of steps with the given step type. 
+     * The agent is run in the current thread.
+     * 
+     * @param n Number of steps. Ignored if runType is {@link RunType#FOREVER}.
+     * @param runType The run type
+     */
     public void runFor(int n, RunType runType)
     {
         this.decisionCycle.runFor(n, runType);
         getTrace().flush();
     }
     
+    /**
+     * Run this agent forever, i.e. until an interrupt or halt. The agent is
+     * run in the current thread.
+     */
     public void runForever()
     {
         this.decisionCycle.runForever();
         getTrace().flush();
     }
     
+    /**
+     * Request that the agent stop, i.e. exit the active call to {@link #runFor(int, RunType)}
+     * of {@link #runForever()}. 
+     * 
+     * <p>This method is not thread safe. It must be called from the same thread that the
+     * agent is running in. 
+     */
     public void stop()
     {
         this.decisionCycle.stop();
+    }
+    
+    /**
+     * Print the current match set for the agent
+     * 
+     * <p>rete.cpp:7756:print_match_set
+     * 
+     * @param printer The printer to print to
+     * @param wtt The WME trace level
+     * @param mst The match set trace settings
+     */
+    public void printMatchSet(Printer printer, WmeTraceType wtt, EnumSet<MatchSetTraceType> mst)
+    {
+        this.soarReteListener.print_match_set(printer, wtt, mst);
     }
     
     /**

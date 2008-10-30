@@ -24,7 +24,7 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
  * 
  * @author ray
  */
-public class PreferencesCommand
+public class PrintPreferencesCommand
 {
     private IdentifierImpl id;
     private Symbol attr;

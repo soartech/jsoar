@@ -82,7 +82,7 @@ public class SelectionInfoView extends AbstractAdaptableView implements Selectio
                 public String call() throws Exception
                 {
                     StringWriter s = new StringWriter();
-                    p.print_production(agent.rete, new Printer(s, true), true);
+                    p.print_production(new Printer(s, true), true);
                     return s.toString();
                 }});
         }

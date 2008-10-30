@@ -618,7 +618,7 @@ public class RecognitionMemory
         this.production_firing_count++;
 
         // build the instantiated conditions, and bind LHS variables
-        ConditionsAndNots cans = context.rete.p_node_to_conditions_and_nots(prod.p_node, tok, w, false);
+        ConditionsAndNots cans = context.rete.p_node_to_conditions_and_nots(prod.getReteNode(), tok, w, false);
         inst.top_of_instantiated_conditions = cans.top;
         inst.bottom_of_instantiated_conditions = cans.bottom;
         inst.nots = cans.nots;

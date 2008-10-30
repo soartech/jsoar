@@ -31,6 +31,7 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.util.adaptables.Adaptables;
 
 
 /**
@@ -44,6 +45,7 @@ public class ProductionListView extends AbstractAdaptableView
     private final ProductionTableModel model;
     private final JXTable table;
     private final JLabel stats = new JLabel();
+    private final JLabel info = new JLabel();
     private final Provider selectionProvider = new Provider();
     
     /**
@@ -90,12 +92,14 @@ public class ProductionListView extends AbstractAdaptableView
         
         p.add(new JScrollPane(table), BorderLayout.CENTER);
         
-        stats.setBorder(BorderFactory.createTitledBorder("Production Statistics"));
+        stats.setBorder(BorderFactory.createTitledBorder("All Production Statistics"));
+        info.setBorder(BorderFactory.createTitledBorder("Info"));
         
         JPanel bottom = new JPanel(new BorderLayout());
         
         bottom.add(new TableFilterPanel(table, 0), BorderLayout.NORTH);
-        bottom.add(stats, BorderLayout.CENTER);
+        bottom.add(info, BorderLayout.CENTER);
+        bottom.add(stats, BorderLayout.SOUTH);
         
         p.add(bottom, BorderLayout.SOUTH);
         
@@ -107,6 +111,39 @@ public class ProductionListView extends AbstractAdaptableView
         this.table.repaint();
         this.table.packAll();
         
+        updateInfo();
+        updateStats();
+        
+    }
+
+    private void updateInfo()
+    {
+        final Production p =  Adaptables.adapt(selectionProvider.getSelectedObject(), Production.class);
+        
+        final StringBuilder b = new StringBuilder("<html>");
+        if(p != null)
+        {
+            int count = debugger.getAgentProxy().execute(new Callable<Integer>() {
+
+                public Integer call() throws Exception
+                {
+                    return p.getReteTokenCount();
+                }});
+            b.append("<b>Name:</b>&nbsp;" + p.getName() + "<br>");
+            b.append("<b>Comment:</b>&nbsp;" + p.getDocumentation() + "<br>");
+            b.append("<b>Memories:</b>&nbsp;" + count);
+        }
+        else
+        {
+            b.append("No selection");
+        }
+        b.append("</html>");
+        
+        info.setText(b.toString());
+    }
+
+    private void updateStats()
+    {
         Map<ProductionType, Integer> counts = 
         debugger.getAgentProxy().execute(new Callable<Map<ProductionType, Integer>>() {
 
@@ -126,7 +163,6 @@ public class ProductionListView extends AbstractAdaptableView
         b.append("</html>");
             
         this.stats.setText(b.toString());
-        
     }
 
     /* (non-Javadoc)
@@ -218,6 +254,7 @@ public class ProductionListView extends AbstractAdaptableView
             {
                 manager.fireSelectionChanged();
             }
+            updateInfo();
         }
         
     }

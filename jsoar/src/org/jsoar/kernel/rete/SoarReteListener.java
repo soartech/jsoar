@@ -987,6 +987,8 @@ public class SoarReteListener implements ReteListener
       
     
     /**
+     * Print the current match set. Client code should use the method {@link Agent#printMatchSet(Printer, WmeTraceType, EnumSet)}.
+     * 
      * <p>rete.cpp:7756:print_match_set
      * 
      * @param wtt
