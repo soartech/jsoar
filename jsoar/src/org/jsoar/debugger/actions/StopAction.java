@@ -41,7 +41,6 @@ public class StopAction extends AbstractDebuggerAction
     public void actionPerformed(ActionEvent arg0)
     {
         getApplication().getAgentProxy().stop();
-        getActions().updateActions();
     }
 
 }

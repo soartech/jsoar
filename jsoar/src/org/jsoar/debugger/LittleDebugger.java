@@ -8,18 +8,11 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Callable;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -30,7 +23,6 @@ import org.flexdock.docking.DockingConstants;
 import org.flexdock.docking.DockingManager;
 import org.flexdock.docking.activation.ActiveDockableTracker;
 import org.flexdock.util.SwingUtility;
-import org.flexdock.view.View;
 import org.flexdock.view.Viewport;
 import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.ExciseProductionAction;
@@ -43,7 +35,6 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
-import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.runtime.ThreadedAgentProxy;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
@@ -68,6 +59,7 @@ public class LittleDebugger extends JPanel
     
     private JFrame frame;
     private Viewport viewport = new Viewport();
+    private final StatusBar status;
     private final TraceView traceView;
     private final ProductionListView prodListView;
     private final SelectionInfoView textView;
@@ -75,10 +67,6 @@ public class LittleDebugger extends JPanel
     private final WorkingMemoryTreeView wmTreeView;
     private final MatchesView matchesView;
     private final PreferencesView preferencesView;
-    
-    private DefaultListModel wmeListModel = new DefaultListModel();
-    private JList wmeList = new JList(wmeListModel);
-
     
     public LittleDebugger(JFrame frame)
     {
@@ -89,6 +77,10 @@ public class LittleDebugger extends JPanel
         this.add(viewport, BorderLayout.CENTER);
         
         initActions();
+        
+        
+        status = new StatusBar(this);
+        this.add(status, BorderLayout.SOUTH);
         
         traceView = new TraceView(this);
         proxy.initialize();
@@ -139,20 +131,6 @@ public class LittleDebugger extends JPanel
             }});
         update(false);
     }
-
-    
-    private View createWorkingMemoryView()
-    {
-        View view = new View("wm", "Working Memory");
-        view.addAction(DockingConstants.PIN_ACTION);
-        
-        JPanel p = new JPanel(new BorderLayout());
-        p.add(new JScrollPane(wmeList), BorderLayout.CENTER);
-        
-        view.setContentPane(p);
-        
-        return view;
-    }
     
     public ThreadedAgentProxy getAgentProxy()
     {
@@ -177,6 +155,12 @@ public class LittleDebugger extends JPanel
     public ActionManager getActionManager()
     {
         return actionManager;
+    }
+
+    public void updateActionsAndStatus()
+    {
+        actionManager.updateActions();
+        status.refresh();
     }
     
     public void exit()
@@ -240,39 +224,12 @@ public class LittleDebugger extends JPanel
             return;
         }
         
-        actionManager.updateActions();
-        
-        updateWmes();
+        updateActionsAndStatus();
         prodListView.refresh();
         wmGraphView.refresh(afterInitSoar);
         wmTreeView.refresh();
     }
-    
-    private void updateWmes()
-    {
-        wmeListModel.clear();
-        
-        Callable<List<String>> callable = new Callable<List<String>>() {
-
-            @Override
-            public List<String> call() throws Exception
-            {
-                final List<String> wmes = new ArrayList<String>();
-                for(WmeImpl wme : agent.rete.getAllWmes())
-                {
-                    wmes.add(String.format("%s", wme));
-                }
-                return wmes;
-            }};
-        
-        List<String> wmes = proxy.execute(callable);
-        Collections.sort(wmes);
-        for(String s : wmes)
-        {
-            wmeListModel.addElement(s);
-        }
-    }
-        
+            
     private static void initializeLookAndFeel()
     {
         try

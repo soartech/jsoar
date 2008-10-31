@@ -6,14 +6,13 @@
 package org.jsoar.debugger;
 
 import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
 
 /**
  * @author ray
  */
 public class CommandLineRunnable implements Runnable
 {
-    private final SoarTclInterface ifc;
+    private final LittleDebugger ifc;
     private final String command;
     
     /**
@@ -21,7 +20,7 @@ public class CommandLineRunnable implements Runnable
      * @param ifc
      * @param command
      */
-    public CommandLineRunnable(SoarTclInterface ifc, String command)
+    public CommandLineRunnable(LittleDebugger ifc, String command)
     {
         this.ifc = ifc;
         this.command = command;
@@ -37,16 +36,17 @@ public class CommandLineRunnable implements Runnable
     {
         try
         {
-            String result = ifc.eval(command);
+            String result = ifc.getTcl().eval(command);
             if(result != null && result.length() != 0)
             {
-                ifc.getAgent().getPrinter().startNewLine().print(result).flush();
+                ifc.getTcl().getAgent().getPrinter().startNewLine().print(result).flush();
             }
         }
         catch (SoarTclException e)
         {
-            ifc.getAgent().getPrinter().error(e.getMessage() + "\n");
+            ifc.getTcl().getAgent().getPrinter().error(e.getMessage() + "\n");
         }
+        ifc.updateActionsAndStatus();
     }
 
 }

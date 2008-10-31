@@ -11,13 +11,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * @author ray
  */
-public class StandardRhsFunctions
+public class StandardFunctions
 {
     private final Agent context;
     
@@ -53,16 +53,26 @@ public class StandardRhsFunctions
         }
     };
     
+    
+    private final List<RhsFunctionHandler> allInternal = 
+        new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf,
+                new Concat(), new IfEq(), new MakeConstantSymbol(), new StrLen()));
+    {
+        allInternal.addAll(MathFunctions.all);
+    }
+    
     /**
-     * List of all standard RHS function handlers
+     * Unmodifiable list of all standard RHS function handlers, including those 
+     * defined in {@link MathFunctions}
      */
-    private final List<RhsFunctionHandler> allInternal = new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf, new Plus(), new Multiply(), new Minus(), new FloatingPointDivide()));
     public final List<RhsFunctionHandler> all = Collections.unmodifiableList(allInternal);
 
     /**
-     * @param context
+     * Construct an instance of this class and install standard RHS functions
+     * 
+     * @param context The agent
      */
-    public StandardRhsFunctions(Agent context)
+    public StandardFunctions(Agent context)
     {
         this.context = context;
         

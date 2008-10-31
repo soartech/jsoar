@@ -42,7 +42,6 @@ public class InitSoarAction extends AbstractDebuggerAction
     public void actionPerformed(ActionEvent arg0)
     {
         getApplication().getAgentProxy().initialize();
-        getActions().updateActions();
     }
 
 }

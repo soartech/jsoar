@@ -48,7 +48,7 @@ public class RunAction extends AbstractDebuggerAction
         int count = model.getCount();
         RunType type = model.getType();
         getApplication().getAgentProxy().runFor(count, type, new Runnable() { public void run() { getApplication().update(false); }});
-        getActions().updateActions();
+        getApplication().updateActionsAndStatus();
     }
 
 }

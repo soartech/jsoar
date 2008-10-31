@@ -36,7 +36,7 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.StringSymbolImpl;
+import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
@@ -828,10 +828,10 @@ public class Chunker
      * @param inst
      * @return
      */
-    private StringSymbolImpl generate_chunk_name_sym_constant(Instantiation inst)
+    private StringSymbol generate_chunk_name_sym_constant(Instantiation inst)
     {
         if (!this.useLongChunkNames)
-            return (context.syms.generate_new_sym_constant(this.chunk_name_prefix, this.chunk_count));
+            return (context.syms.generateUniqueString(this.chunk_name_prefix, this.chunk_count));
 
         int lowest_result_level = context.decider.top_goal.level;
         for (AsListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
@@ -1160,7 +1160,7 @@ public class Chunker
         }
 
         // get symbol for name of new chunk or justification
-        StringSymbolImpl prod_name = null;
+        StringSymbol prod_name = null;
         ProductionType prod_type = null;
         boolean print_name = false;
         boolean print_prod = false;
@@ -1182,7 +1182,7 @@ public class Chunker
         }
         else
         {
-            prod_name = context.syms.generate_new_sym_constant("justification-", justification_count);
+            prod_name = context.syms.generateUniqueString("justification-", justification_count);
             prod_type = ProductionType.JUSTIFICATION;
             // TODO startNewLine()?
             print_name = context.trace.isEnabled(Category.JUSTIFICATION_NAMES);

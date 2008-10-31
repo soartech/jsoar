@@ -30,8 +30,8 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
     @Override
     public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
-        RhsFunctionTools.checkAllArgumentsAreNumeric(getName(), arguments);
-        RhsFunctionTools.checkArgumentCount(getName(), arguments, 1, Integer.MAX_VALUE);
+        RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
+        RhsFunctions.checkArgumentCount(getName(), arguments, 1, Integer.MAX_VALUE);
         
         Symbol arg = arguments.get(0);
         if(arguments.size() == 1)
@@ -46,12 +46,12 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
             return syms.createDouble(1.0 / f);
         }
         
-        double f = RhsFunctionTools.asDouble(arg);
+        double f = RhsFunctions.asDouble(arg);
         for(int index = 1; index < arguments.size(); ++index)
         {
             arg = arguments.get(index);
             
-            double nextf = RhsFunctionTools.asDouble(arg);
+            double nextf = RhsFunctions.asDouble(arg);
             if(nextf == 0.0)
             {
                 throw new RhsFunctionException("Attempt to divide ('/') by zero");

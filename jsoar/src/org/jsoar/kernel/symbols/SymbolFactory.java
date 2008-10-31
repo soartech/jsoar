@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.symbols;
 
+import org.jsoar.util.ByRef;
+
 /**
  * Interface for an object that constructs and manages symbols in a Soar
  * agent.
@@ -46,7 +48,7 @@ public interface SymbolFactory
      * @param nameNumber The name number of the id
      * @return The identifier
      */
-    public Identifier findOrcreateIdentifier(char nameLetter, int nameNumber);
+    public Identifier findOrCreateIdentifier(char nameLetter, int nameNumber);
 
     /**
      * Find an existing string symbol
@@ -70,6 +72,16 @@ public interface SymbolFactory
      */
     public StringSymbol createString(String value);
 
+    /**
+     * <p>symtab.cpp:546:generate_new_sym_constant
+     * 
+     * @param prefix Prefix for the constant
+     * @param number Starting index for search. Receives one more than final value 
+     *               of postfix index.
+     * @return New string
+     */
+    public StringSymbol generateUniqueString(String prefix, ByRef<Integer> number);
+    
     /**
      * Create a new integer symbol
      * 

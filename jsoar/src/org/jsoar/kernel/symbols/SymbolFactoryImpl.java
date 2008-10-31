@@ -200,7 +200,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      * @see org.jsoar.kernel.symbols.SymbolFactory#findOrcreateIdentifier(char, int)
      */
     @Override
-    public Identifier findOrcreateIdentifier(char nameLetter, int nameNumber)
+    public Identifier findOrCreateIdentifier(char nameLetter, int nameNumber)
     {
         IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
 
@@ -242,11 +242,8 @@ public class SymbolFactoryImpl implements SymbolFactory
      *               of postfix index.
      * @return New StringSymbolImpl
      */
-    public StringSymbolImpl generate_new_sym_constant(String prefix, ByRef<Integer> number)
+    public StringSymbol generateUniqueString(String prefix, ByRef<Integer> number)
     {
-//        Arguments.checkNotNull(prefix, "prefix");
-//        Arguments.checkNotNull(number, "number");
-        
         String name = prefix + number.value++;
         StringSymbolImpl sym = findString(name);
         while(sym != null)
@@ -300,40 +297,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     {
         return floatConstants.get(value);
     }
-    
-    /**
-     * Converts a list of arguments into a list of symbols of the appropriate type.
-     * First tries basic numeric types. If those fail, just creates string symbols
-     * using toString().
-     * 
-     * @param args List of objects
-     * @return List of symbols
-     */
-    public List<Symbol> makeList(Object... args)
-    {
-        List<Symbol> result = new ArrayList<Symbol>(args.length);
-        for(Object arg : args)
-        {
-            if(arg instanceof Double)
-            {
-                result.add(createDouble(((Double) arg).doubleValue()));
-            }
-            else if(arg instanceof Float)
-            {
-                result.add(createDouble(((Float) arg).doubleValue()));
-            }
-            else if(arg instanceof Integer)
-            {
-                result.add(createInteger(((Integer) arg).intValue()));
-            }
-            else
-            {
-                result.add(createString(arg.toString()));
-            }
-        }
-        return result;
-    }
-    
+        
     /**
      * symtab.cpp:153:get_next_hash_id
      * 

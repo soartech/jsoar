@@ -20,7 +20,7 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
-import org.jsoar.kernel.rhs.functions.RhsFunctionTools;
+import org.jsoar.kernel.rhs.functions.RhsFunctions;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -126,7 +126,7 @@ public class FunctionalTests
             @Override
             public SymbolImpl execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
             {
-                RhsFunctionTools.checkArgumentCount(getName(), arguments, 2, 2);
+                RhsFunctions.checkArgumentCount(getName(), arguments, 2, 2);
                 
                 matches.add(arguments.get(0).toString() + "_" + arguments.get(1).toString());
                 return null;
@@ -151,7 +151,7 @@ public class FunctionalTests
             @Override
             public SymbolImpl execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
             {
-                RhsFunctionTools.checkArgumentCount(getName(), arguments, 1, 1);
+                RhsFunctions.checkArgumentCount(getName(), arguments, 1, 1);
                 
                 matches.add(arguments.get(0).toString());
                 return null;

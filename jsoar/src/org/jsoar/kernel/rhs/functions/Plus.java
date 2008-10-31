@@ -25,7 +25,7 @@ public final class Plus extends AbstractRhsFunctionHandler
     @Override
     public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
-        RhsFunctionTools.checkAllArgumentsAreNumeric(getName(), arguments);
+        RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
 
         int i = 0;
         double f = 0;
