@@ -104,7 +104,7 @@ public class SymbolFactoryImplTest
         StringSymbolImpl a1 = syms.createString("A1");
         
         ByRef<Integer> number = ByRef.create(0);
-        StringSymbolImpl a2 = syms.generate_new_sym_constant("A", number);
+        StringSymbol a2 = syms.generateUniqueString("A", number);
         assertNotNull(a2);
         assertNotSame(a0, a2);
         assertNotSame(a1, a2);

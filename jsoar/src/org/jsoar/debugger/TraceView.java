@@ -92,7 +92,7 @@ public class TraceView extends AbstractAdaptableView
             @Override
             public void actionPerformed(ActionEvent arg0)
             {
-                debugger.getAgentProxy().execute(new CommandLineRunnable(debugger.getTcl(), commandField.getText()));
+                debugger.getAgentProxy().execute(new CommandLineRunnable(debugger, commandField.getText()));
             }});
         p.add(bottom, BorderLayout.SOUTH);
         this.setContentPane(p);

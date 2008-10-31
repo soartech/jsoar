@@ -11,14 +11,15 @@ import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
+ * Various utility methods for working with RHS functions
+ * 
  * @author ray
  */
-public final class RhsFunctionTools
+public final class RhsFunctions
 {
 
-    private RhsFunctionTools()
+    private RhsFunctions()
     {
-        
     }
 
     public static void checkArgumentCount(String name, List<Symbol> arguments, int min, int max) throws RhsFunctionException

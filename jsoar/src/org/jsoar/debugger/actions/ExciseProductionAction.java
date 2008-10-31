@@ -65,7 +65,7 @@ public class ExciseProductionAction extends AbstractDebuggerAction
                 proxy.getAgent().getTrace().flush();
                 return null;
             }});
-        getActions().updateActions();
+        getApplication().updateActionsAndStatus();
     }
 
 }

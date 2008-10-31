@@ -31,7 +31,7 @@ import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
-import org.jsoar.kernel.rhs.functions.StandardRhsFunctions;
+import org.jsoar.kernel.rhs.functions.StandardFunctions;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
@@ -115,7 +115,7 @@ public class Agent
     public Agent()
     {
         // Set up standard RHS functions
-        new StandardRhsFunctions(this);
+        new StandardFunctions(this);
         installDefaultTraceFormats();
         
         rete.setReteListener(soarReteListener);

@@ -27,8 +27,8 @@ public final class Minus extends AbstractRhsFunctionHandler
     @Override
     public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
-        RhsFunctionTools.checkAllArgumentsAreNumeric(getName(), arguments);
-        RhsFunctionTools.checkArgumentCount(getName(), arguments, 1, Integer.MAX_VALUE);
+        RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
+        RhsFunctions.checkArgumentCount(getName(), arguments, 1, Integer.MAX_VALUE);
         
         Symbol arg = arguments.get(0);
         if(arguments.size() == 1)

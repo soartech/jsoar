@@ -5,13 +5,9 @@
  */
 package org.jsoar.tcl;
 
-import java.util.EnumSet;
-
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.Production;
 import org.jsoar.kernel.RunType;
-import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
-import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.kernel.tracing.Trace.Category;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -24,40 +20,6 @@ import tcl.lang.TclObject;
  */
 public class SoarTclInterface
 {
-    /**
-     * @author ray
-     */
-    private final class MatchesCommand implements Command
-    {
-        @Override
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
-        {
-            if(args.length == 1)
-            {
-                agent.printMatchSet(agent.getPrinter(), WmeTraceType.FULL, 
-                                    EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
-                agent.getPrinter().flush();
-            }
-            else if(args.length == 2)
-            {
-                Production p = agent.getProductions().getProduction(args[1].toString());
-                if(p == null)
-                {
-                    throw new TclException(interp, "No production '" + args[1] + "'");
-                }
-                if(p.getReteNode() == null)
-                {
-                    throw new TclException(interp, "Production '" + args[1] + "' is not in rete");
-                }
-                p.printPartialMatches(agent.getPrinter(), WmeTraceType.FULL);
-            }
-            else
-            {
-                throw new TclNumArgsException(interp, 2, args, "[production]");
-            }
-        }
-    }
-
     final Agent agent;
     private Interp interp = new Interp();
     
@@ -65,42 +27,57 @@ public class SoarTclInterface
     private final PushdCommand pushdCommand;
     private final PopdCommand popdCommand;
     
-    private Command spCommand = new SpCommand(this);
+    private final Command spCommand = new SpCommand(this);
         
-    private Command multiAttrCommand = new MultiAttrCommand(this);
+    private final Command multiAttrCommand = new MultiAttrCommand(this);
     
-    private Command statsCommand = new StatsCommand(this);
+    private final Command statsCommand = new StatsCommand(this);
 
-    private Command learnCommand = new LearnCommand(this);
-    private Command srandCommand = new SrandCommand(this);
-        
-    private Command maxElaborationsCommand = new MaxElaborationsCommand(this);
-        
-    private Command matchesCommand = new MatchesCommand();    
-        
-    private Command waitsncCommand = new Command() {
-
+    private final Command learnCommand = new AbstractToggleCommand(this) {
         @Override
-        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        protected void execute(Agent agent, boolean enable) throws TclException
         {
-            if(args.length != 2)
-            {
-                throw new TclNumArgsException(interp, 2, args, "[--on|--off]");
-            }
-            
-            if("--on".equals(args[1].toString()))
-            {
-                agent.decider.setWaitsnc(true);
-            }
-            else if("--off".equals(args[1].toString()))
-            {
-                agent.decider.setWaitsnc(false);
-            }
-            else
-            {
-                throw new TclException(interp, "Option must be --on or --off");
-            }
-        }};  
+            agent.chunker.setLearningOn(enable);
+        }
+    }; 
+    
+    private final Command srandCommand = new SrandCommand(this);
+        
+    private final Command maxElaborationsCommand = new MaxElaborationsCommand(this);
+        
+    private final Command matchesCommand = new MatchesCommand(this);    
+        
+    private Command waitsncCommand = new AbstractToggleCommand(this) {
+        @Override
+        protected void execute(Agent agent, boolean enable) throws TclException
+        {
+            agent.decider.setWaitsnc(enable);
+        }
+    };
+    
+    private Command warningsCommand = new AbstractToggleCommand(this) {
+        @Override
+        protected void execute(Agent agent, boolean enable) throws TclException
+        {
+            agent.getPrinter().setPrintWarnings(enable);
+        }
+    }; 
+    
+    private Command verboseCommand = new AbstractToggleCommand(this) {
+        @Override
+        protected void execute(Agent agent, boolean enable) throws TclException
+        {
+            agent.getTrace().setEnabled(Category.VERBOSE, enable);
+        }
+    }; 
+    
+    private Command saveBacktracesCommand = new AbstractToggleCommand(this) {
+        @Override
+        protected void execute(Agent agent, boolean enable) throws TclException
+        {
+            agent.explain.setEnabled(enable);
+        }
+    };  
             
     private Command initSoarCommand = new Command() {
 
@@ -113,6 +90,31 @@ public class SoarTclInterface
             }
             
             agent.initialize();
+        }}; 
+        
+    private Command echoCommand = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            boolean noNewLine = false;
+            for(int i = 1; i < args.length; ++i)
+            {
+                final String argString = args[i].toString();
+                if("--nonewline".equals(argString))
+                {
+                    noNewLine = true;
+                }
+                else
+                {
+                    agent.getPrinter().print(argString);
+                }
+            }
+            if(!noNewLine)
+            {
+                agent.getPrinter().print("\n");
+            }
+            agent.getPrinter().flush();
         }}; 
         
     /**
@@ -140,6 +142,10 @@ public class SoarTclInterface
         interp.createCommand("matches", matchesCommand);
         interp.createCommand("waitsnc", waitsncCommand);
         interp.createCommand("init-soar", initSoarCommand);
+        interp.createCommand("warnings", warningsCommand);
+        interp.createCommand("verbose", verboseCommand);
+        interp.createCommand("save-backtraces", saveBacktracesCommand);
+        interp.createCommand("echo", echoCommand);
     }
     
     public Interp getInterpreter()
