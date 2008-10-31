@@ -17,7 +17,7 @@ import tcl.lang.TclObject;
 abstract class AbstractToggleCommand implements Command
 {
     private static final List<String> enableOpts = Arrays.asList("--on", "-e", "--enable");
-    private static final List<String> disableOpts = Arrays.asList("--of", "-d", "--disable");
+    private static final List<String> disableOpts = Arrays.asList("--off", "-d", "--disable");
     
     private final SoarTclInterface ifc;
 
