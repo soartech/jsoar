@@ -16,7 +16,6 @@ import javax.swing.JTextArea;
 import org.flexdock.docking.DockingConstants;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.adaptables.Adaptables;
@@ -76,7 +75,6 @@ public class SelectionInfoView extends AbstractAdaptableView implements Selectio
         final Production p = Adaptables.adapt(o, Production.class);
         if(p != null)
         {
-            final Agent agent = debugger.getAgentProxy().getAgent();
             return debugger.getAgentProxy().execute(new Callable<String>() {
 
                 public String call() throws Exception

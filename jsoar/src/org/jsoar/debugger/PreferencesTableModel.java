@@ -21,7 +21,7 @@ public class PreferencesTableModel extends AbstractTableModel
     private static final long serialVersionUID = 1244490544555893063L;
     
     private static final String[] columns = {"Type", "Support", "Id", "Attr", "Value", "Referent" };
-    private static final Class<?>[] classes = { PreferenceType.class, String.class, Identifier.class, Symbol.class, Symbol.class, Symbol.class };
+    private static final Class<?>[] classes = { PreferenceType.class, String.class, Identifier.class, Symbol.class, String.class, Symbol.class };
 
     private final Result result;
     
@@ -37,6 +37,14 @@ public class PreferencesTableModel extends AbstractTableModel
         this.result = result;
     }
     
+    /**
+     * @return the result
+     */
+    public Result getResult()
+    {
+        return result;
+    }
+
     public ResultEntry getResultEntry(int r)
     {
         return result.getEntries().get(r);
@@ -91,7 +99,7 @@ public class PreferencesTableModel extends AbstractTableModel
         case 1: return e.isOSupported() ? ":O" : ":I";
         case 2: return e.getIdentifier();
         case 3: return e.getAttribute();
-        case 4: return e.getValue();
+        case 4: return e.getValueTrace();
         case 5: return e.getReferent();
         }
         return null;
