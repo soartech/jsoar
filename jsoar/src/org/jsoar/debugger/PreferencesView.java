@@ -29,8 +29,10 @@ import javax.swing.table.TableModel;
 import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand.Result;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand.ResultEntry;
@@ -56,8 +58,6 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     
     private final JLabel source = new JLabel("");
     private final JXTable sourceWmeTable = new JXTable();
-    
-    //private JTextArea textArea = new JTextArea();
     
     public PreferencesView(LittleDebugger debuggerIn)
     {
@@ -95,23 +95,12 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         
         JPanel barPanel = new JPanel(new BorderLayout());
         barPanel.add(info, BorderLayout.WEST);
-        JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
-        bar.add(objectToggle);
-        objectToggle.setToolTipText("Treat Identifier as object");
-        objectToggle.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                selectionChanged(debugger.getSelectionManager());
-            }});
+        JToolBar bar = createToolbar();
         
         barPanel.add(bar, BorderLayout.EAST);
         
         JPanel p = new JPanel(new BorderLayout());
         p.add(barPanel, BorderLayout.NORTH);
-        //p.add(new JScrollPane(textArea), BorderLayout.SOUTH);
         
         this.sourceWmeTable.setShowGrid(false);
         this.sourceWmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
@@ -136,15 +125,52 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         updateSource();
     }
 
+    /**
+     * @return
+     */
+    private JToolBar createToolbar()
+    {
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.add(objectToggle);
+        objectToggle.setToolTipText("Treat Identifier as object");
+        objectToggle.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                selectionChanged(debugger.getSelectionManager());
+            }});
+        
+        bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY) {
+            private static final long serialVersionUID = -3614573079885324027L;
+
+            {
+                setToolTip("Print preferences to trace");
+            }
+            @Override
+            public void update()
+            {
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+                Result r = getLastResult();
+                if(r != null)
+                {
+                    debugger.getAgentProxy().getAgent().getPrinter().startNewLine().print(r.getPrintResult()).flush();
+                }
+            }});
+        return bar;
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.debugger.selection.SelectionListener#selectionChanged(org.jsoar.debugger.selection.SelectionManager)
      */
     @Override
     public void selectionChanged(SelectionManager manager)
     {
-        //textArea.setText(getPreferencesOutput(manager.getSelection()));
-        //textArea.setCaretPosition(0);
-        
         final Object selection = manager.getSelectedObject();
         Wme w = Adaptables.adapt(selection, Wme.class);
         Identifier id = Adaptables.adapt(selection, Identifier.class);
@@ -196,6 +222,17 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         }
     }
     
+    private Result getLastResult()
+    {
+        final TableModel prefModel = table.getModel();
+        if(!(prefModel instanceof PreferencesTableModel))
+        {
+            return null;
+        }
+        
+        return ((PreferencesTableModel) prefModel).getResult();
+    }
+    
     private void updateSource()
     {
         final int r = table.getSelectedRow();
@@ -226,86 +263,26 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     
     private Result safeGetPreferences(final Wme w, final Identifier id, boolean object)
     {
-        
+        final Agent agent = debugger.getAgentProxy().getAgent();
         StructuredPreferencesCommand c = new StructuredPreferencesCommand();
         if(w != null)
         {
             // Do (id ^attr *)
-            return c.getPreferences(w.getIdentifier(), w.getAttribute());
+            return c.getPreferences(agent, w.getIdentifier(), w.getAttribute());
         }
         else if(id != null && object)
         {
             // Do (id ^* *)
-            return c.getPreferences(id, null);
+            return c.getPreferences(agent, id, null);
         }
         else if(id != null && !object)
         {
             // Do (* ^* id)
-            return c.getPreferencesForValue(debugger.getAgentProxy().getAgent(), id);
+            return c.getPreferencesForValue(agent, id);
         }
         else
         {
             throw new IllegalStateException("Unreachable code");
         }
     }
-    
-//    private String getPreferencesOutput(final List<Object> selection)
-//    {
-//        Callable<String> matchCall = new Callable<String>() {
-//
-//            @Override
-//            public String call() throws Exception
-//            {
-//                return safeGetPreferencesOutput(selection);
-//            }};
-//        return debugger.getAgentProxy().execute(matchCall);
-//    }
-//        
-//    private String safeGetPreferencesOutput(List<Object> selection)
-//    {
-//        final Agent agent = debugger.getAgentProxy().getAgent();
-//        final StringWriter writer = new StringWriter();
-//        final Printer printer = new Printer(writer, true);
-//        for(Object o : selection)
-//        {
-//            Wme w = Adaptables.adapt(o, Wme.class);
-//            Identifier id = Adaptables.adapt(o, Identifier.class);
-//            PrintPreferencesCommand command = new PrintPreferencesCommand();
-//            command.setPrintProduction(true);
-//            command.setWmeTraceType(WmeTraceType.FULL);
-//            if(w != null)
-//            {
-//                command.setId(w.getIdentifier());
-//                command.setAttr(w.getAttribute());
-//            }
-//            else if(id != null)
-//            {
-//                command.setId(id);
-//                command.setObject(true);
-//            }
-//            else
-//            {
-//                continue;
-//            }
-//            
-//            try
-//            {
-//                command.print(agent, printer);
-//            }
-//            catch (IOException e)
-//            {
-//                printer.error(e.getMessage());
-//                e.printStackTrace();
-//            }
-//            printer.print("\n");
-//            break;
-//        }
-//        
-////        printer.print("*** preferences\n");
-////        agent.soarReteListener.print_match_set(printer, 
-////                WmeTraceType.FULL, 
-////                EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
-//        
-//        return writer.toString();
-//    }
 }
