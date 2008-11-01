@@ -327,6 +327,15 @@ public class WmeImpl implements Wme, Formattable
     }
 
     /* (non-Javadoc)
+     * @see org.jsoar.kernel.memory.Wme#isAcceptable()
+     */
+    @Override
+    public boolean isAcceptable()
+    {
+        return acceptable;
+    }
+
+    /* (non-Javadoc)
      * @see org.jsoar.kernel.memory.Wme#getChildren()
      */
     @Override

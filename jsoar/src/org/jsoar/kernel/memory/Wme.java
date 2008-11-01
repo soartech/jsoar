@@ -38,6 +38,8 @@ public interface Wme extends Formattable
      */
     int getTimetag();
     
+    boolean isAcceptable();
+    
     /**
      * @return An iterator over all the children of this WME, if any. If the 
      *  value of the WME is not an identifier, returns an empty iterator.
