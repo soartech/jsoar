@@ -9,41 +9,42 @@
 package sml;
 
 public class StringElement extends WMElement {
-  private long swigCPtr;
 
-  protected StringElement(long cPtr, boolean cMemoryOwn) {
-    super(smlJNI.SWIGStringElementUpcast(cPtr), cMemoryOwn);
-    swigCPtr = cPtr;
-  }
 
-  protected static long getCPtr(StringElement obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      throw new UnsupportedOperationException("C++ destructor does not have public access");
+    private String m_Value;
+    
+    StringElement(Agent agent, IdentifierSymbol parentSymbol, String pid, String attributeName, String value, int timeTag)
+    {
+        super(agent, parentSymbol, pid, attributeName, timeTag);
+        this.m_Value = value;
     }
-    swigCPtr = 0;
-    super.delete();
+    StringElement(Agent agent, Identifier parent, String pid, String attributeName, String value, int timeTag)
+    {
+        super(agent, parent.GetSymbol(), pid, attributeName, timeTag);
+        this.m_Value = value;
+    }
+  public synchronized void delete() {
   }
 
   public String GetValueType() {
-    return smlJNI.StringElement_GetValueType(swigCPtr, this);
+      return sml_Names.getKTypeString();
   }
 
   public String GetValueAsString() {
-    return smlJNI.StringElement_GetValueAsString(swigCPtr, this);
+      return m_Value;
   }
 
   public String GetValue() {
-    return smlJNI.StringElement_GetValue(swigCPtr, this);
+      return m_Value;
   }
 
   public StringElement ConvertToStringElement() {
-    long cPtr = smlJNI.StringElement_ConvertToStringElement(swigCPtr, this);
-    return (cPtr == 0) ? null : new StringElement(cPtr, false);
+      return this;
+  }
+  
+  void SetValue(String pValue)
+  {
+      m_Value = pValue ;
   }
 
 }

@@ -9,41 +9,46 @@
 package sml;
 
 public class IntElement extends WMElement {
-  private long swigCPtr;
 
-  protected IntElement(long cPtr, boolean cMemoryOwn) {
-    super(smlJNI.SWIGIntElementUpcast(cPtr), cMemoryOwn);
-    swigCPtr = cPtr;
-  }
-
-  protected static long getCPtr(IntElement obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      throw new UnsupportedOperationException("C++ destructor does not have public access");
+    private int value;
+    private String stringForm;
+    IntElement(Agent agent, IdentifierSymbol parentSymbol, String pid, String attributeName, int value, int timeTag)
+    {
+        super(agent, parentSymbol, pid, attributeName, timeTag);
+        this.value = value;
+        this.stringForm = Integer.toString(value);
     }
-    swigCPtr = 0;
+    
+    IntElement(Agent agent, Identifier parent, String pid, String attributeName, int value, int timeTag)
+    {
+        super(agent, parent.GetSymbol(), pid, attributeName, timeTag);
+        this.value = value;
+        this.stringForm = Integer.toString(value);
+    }
+
+public synchronized void delete() {
     super.delete();
   }
 
   public String GetValueType() {
-    return smlJNI.IntElement_GetValueType(swigCPtr, this);
+      return sml_Names.getKTypeInt();
   }
 
   public String GetValueAsString() {
-    return smlJNI.IntElement_GetValueAsString(swigCPtr, this);
+      return stringForm;
   }
 
   public int GetValue() {
-    return smlJNI.IntElement_GetValue(swigCPtr, this);
+      return value;
   }
 
   public IntElement ConvertToIntElement() {
-    long cPtr = smlJNI.IntElement_ConvertToIntElement(swigCPtr, this);
-    return (cPtr == 0) ? null : new IntElement(cPtr, false);
+      return this;
+  }
+  
+  void SetValue(int value)
+  {
+      this.value = value ;
   }
 
 }

@@ -9,41 +9,46 @@
 package sml;
 
 public class FloatElement extends WMElement {
-  private long swigCPtr;
 
-  protected FloatElement(long cPtr, boolean cMemoryOwn) {
-    super(smlJNI.SWIGFloatElementUpcast(cPtr), cMemoryOwn);
-    swigCPtr = cPtr;
-  }
+    private double value;
+    private String stringForm;
 
-  protected static long getCPtr(FloatElement obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      throw new UnsupportedOperationException("C++ destructor does not have public access");
+    FloatElement(Agent agent, IdentifierSymbol parentSymbol, String pid, String attributeName, double value, int timeTag)
+    {
+        super(agent, parentSymbol, pid, attributeName, timeTag);
+        this.value = value;
+        this.stringForm = Double.toString(value);
     }
-    swigCPtr = 0;
+    FloatElement(Agent agent, Identifier parent, String pid, String attributeName, double value, int timeTag)
+    {
+        super(agent, parent.GetSymbol(), pid, attributeName, timeTag);
+        this.value = value;
+        this.stringForm = Double.toString(value);
+    }
+
+public synchronized void delete() {
     super.delete();
   }
 
   public String GetValueType() {
-    return smlJNI.FloatElement_GetValueType(swigCPtr, this);
+      return sml_Names.getKTypeDouble();
   }
 
   public String GetValueAsString() {
-    return smlJNI.FloatElement_GetValueAsString(swigCPtr, this);
+      return stringForm;
   }
 
   public double GetValue() {
-    return smlJNI.FloatElement_GetValue(swigCPtr, this);
+      return value;
   }
 
   public FloatElement ConvertToFloatElement() {
-    long cPtr = smlJNI.FloatElement_ConvertToFloatElement(swigCPtr, this);
-    return (cPtr == 0) ? null : new FloatElement(cPtr, false);
+      return this;
+  }
+  
+  void SetValue(double value)
+  {
+      this.value = value ;
   }
 
 }

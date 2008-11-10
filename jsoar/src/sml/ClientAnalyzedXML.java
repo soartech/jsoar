@@ -9,103 +9,82 @@
 package sml;
 
 public class ClientAnalyzedXML {
-  private long swigCPtr;
-  protected boolean swigCMemOwn;
 
-  protected ClientAnalyzedXML(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
-  }
-
-  protected static long getCPtr(ClientAnalyzedXML obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  protected void finalize() {
-    delete();
-  }
-
+    private AnalyzeXML m_pAnalyzeXML = new AnalyzeXML();
+    
   public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      smlJNI.delete_ClientAnalyzedXML(swigCPtr);
-    }
-    swigCPtr = 0;
   }
 
   public ClientAnalyzedXML() {
-    this(smlJNI.new_ClientAnalyzedXML(), true);
   }
+  
+  public AnalyzeXML GetAnalyzeXML() { return m_pAnalyzeXML ; }
 
   public void Attach(AnalyzeXML pAnalyzeXML) {
-    smlJNI.ClientAnalyzedXML_Attach(swigCPtr, this, AnalyzeXML.getCPtr(pAnalyzeXML), pAnalyzeXML);
+      m_pAnalyzeXML = pAnalyzeXML;
   }
 
   public ElementXML GetCommandTag() {
-    long cPtr = smlJNI.ClientAnalyzedXML_GetCommandTag(swigCPtr, this);
-    return (cPtr == 0) ? null : new ElementXML(cPtr, false);
+      return m_pAnalyzeXML.GetCommandTag();
   }
 
   public ElementXML GetResultTag() {
-    long cPtr = smlJNI.ClientAnalyzedXML_GetResultTag(swigCPtr, this);
-    return (cPtr == 0) ? null : new ElementXML(cPtr, false);
+      return m_pAnalyzeXML.GetResultTag();
   }
 
   public ElementXML GetErrorTag() {
-    long cPtr = smlJNI.ClientAnalyzedXML_GetErrorTag(swigCPtr, this);
-    return (cPtr == 0) ? null : new ElementXML(cPtr, false);
+      return m_pAnalyzeXML.GetErrorTag();
   }
 
   public boolean IsSML() {
-    return smlJNI.ClientAnalyzedXML_IsSML(swigCPtr, this);
+      return m_pAnalyzeXML.IsSML();
   }
 
   public String GetCommandName() {
-    return smlJNI.ClientAnalyzedXML_GetCommandName(swigCPtr, this);
+      return m_pAnalyzeXML.GetCommandName();
   }
 
   public String GetResultString() {
-    return smlJNI.ClientAnalyzedXML_GetResultString(swigCPtr, this);
+      return m_pAnalyzeXML.GetResultString();
   }
 
   public int GetResultInt(int defaultValue) {
-    return smlJNI.ClientAnalyzedXML_GetResultInt(swigCPtr, this, defaultValue);
+      return m_pAnalyzeXML.GetResultInt(defaultValue);
   }
 
   public boolean GetResultBool(boolean defaultValue) {
-    return smlJNI.ClientAnalyzedXML_GetResultBool(swigCPtr, this, defaultValue);
+      return m_pAnalyzeXML.GetResultBool(defaultValue);
   }
 
   public double GetResultFloat(double defaultValue) {
-    return smlJNI.ClientAnalyzedXML_GetResultFloat(swigCPtr, this, defaultValue);
+      return m_pAnalyzeXML.GetResultFloat(defaultValue);
   }
 
   public String GenerateXMLString(boolean includeChildren, boolean insertNewLines) {
-    return smlJNI.ClientAnalyzedXML_GenerateXMLString__SWIG_0(swigCPtr, this, includeChildren, insertNewLines);
+      return m_pAnalyzeXML.GenerateXMLString(includeChildren, insertNewLines);
   }
 
   public String GenerateXMLString(boolean includeChildren) {
-    return smlJNI.ClientAnalyzedXML_GenerateXMLString__SWIG_1(swigCPtr, this, includeChildren);
+      return m_pAnalyzeXML.GenerateXMLString(includeChildren);
   }
 
   public static void DeleteString(String pString) {
-    smlJNI.ClientAnalyzedXML_DeleteString(pString);
   }
 
   public String GetArgString(String pArgName) {
-    return smlJNI.ClientAnalyzedXML_GetArgString(swigCPtr, this, pArgName);
+      return m_pAnalyzeXML.GetArgString(pArgName);
   }
 
   public boolean GetArgBool(String pArgName, boolean defaultValue) {
-    return smlJNI.ClientAnalyzedXML_GetArgBool(swigCPtr, this, pArgName, defaultValue);
+      return m_pAnalyzeXML.GetArgBool(pArgName, defaultValue);
   }
 
   public int GetArgInt(String pArgName, int defaultValue) {
-    return smlJNI.ClientAnalyzedXML_GetArgInt(swigCPtr, this, pArgName, defaultValue);
+      return m_pAnalyzeXML.GetArgInt(pArgName, defaultValue);
   }
 
   public double GetArgFloat(String pArgName, double defaultValue) {
-    return smlJNI.ClientAnalyzedXML_GetArgFloat(swigCPtr, this, pArgName, defaultValue);
+      return m_pAnalyzeXML.GetArgFloat(pArgName, defaultValue);
   }
 
 }

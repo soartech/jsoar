@@ -34,16 +34,17 @@ public class WMEFinder {
   }
 
   public WMEFinder(WMElement wme) {
-    this(smlJNI.new_WMEFinder(WMElement.getCPtr(wme), wme), true);
+    //this(smlJNI.new_WMEFinder(WMElement.getCPtr(wme), wme), true);
   }
 
   public void setWme(WMElement value) {
-    smlJNI.WMEFinder_wme_set(swigCPtr, this, WMElement.getCPtr(value), value);
+    //smlJNI.WMEFinder_wme_set(swigCPtr, this, WMElement.getCPtr(value), value);
   }
 
   public WMElement getWme() {
-    long cPtr = smlJNI.WMEFinder_wme_get(swigCPtr, this);
-    return (cPtr == 0) ? null : new WMElement(cPtr, false);
+      return null;
+//    long cPtr = smlJNI.WMEFinder_wme_get(swigCPtr, this);
+//    return (cPtr == 0) ? null : new WMElement(cPtr, false);
   }
 
 }

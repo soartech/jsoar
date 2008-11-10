@@ -8,88 +8,125 @@
 
 package sml;
 
+import java.util.Collection;
+
 public class WMElement {
-  private long swigCPtr;
-  protected boolean swigCMemOwn;
+    // The agent which owns this WME.
+    Agent  m_Agent ;
+    
+    // The time tag (a unique id for this WME)
+    // We used negative values so it's clear that this time tag is a client side tag.
+    int    m_TimeTag ;
 
-  protected WMElement(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
-  }
+    // The identifier symbol as a string.  This can be necessary when connecting up
+    // disconnected segments of a graph.
+    String         m_IDName ;
 
-  protected static long getCPtr(WMElement obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
+    // The id for this wme (can be NULL if we're at the top of the tree)
+    IdentifierSymbol   m_ID ;
 
-  public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      throw new UnsupportedOperationException("C++ destructor does not have public access");
+    // The attribute name for this wme (the value is owned by the derived class)
+    String m_AttributeName ;
+
+    // This is true if the wme was just added.  The client chooses when to clear these flags.
+    boolean    m_JustAdded ;
+
+    public static <T extends WMElement> T findByTimeTag(Collection<T> wmes, int timetag)
+    {
+        for(T w : wmes)
+        {
+            if(timetag == w.GetTimeTag())
+            {
+                return w;
+            }
+        }
+        return null;
     }
-    swigCPtr = 0;
+  public synchronized void delete() {
   }
 
   public boolean IsJustAdded() {
-    return smlJNI.WMElement_IsJustAdded(swigCPtr, this);
+      return m_JustAdded;
   }
 
   public IdentifierSymbol GetParent() {
-    long cPtr = smlJNI.WMElement_GetParent(swigCPtr, this);
-    return (cPtr == 0) ? null : new IdentifierSymbol(cPtr, false);
+      return m_ID;
   }
 
   public IdentifierSymbol GetIdentifier() {
-    long cPtr = smlJNI.WMElement_GetIdentifier(swigCPtr, this);
-    return (cPtr == 0) ? null : new IdentifierSymbol(cPtr, false);
+      return m_ID;
   }
 
   public String GetIdentifierName() {
-    return smlJNI.WMElement_GetIdentifierName(swigCPtr, this);
+      return m_IDName;
   }
 
   public String GetAttribute() {
-    return smlJNI.WMElement_GetAttribute(swigCPtr, this);
+      return m_AttributeName;
   }
 
-  public String GetValueType() {
-    return smlJNI.WMElement_GetValueType(swigCPtr, this);
-  }
+  public String GetValueType() { throw new UnsupportedOperationException(""); }
 
-  public String GetValueAsString() {
-    return smlJNI.WMElement_GetValueAsString(swigCPtr, this);
-  }
+  public String GetValueAsString() { throw new UnsupportedOperationException(""); }
 
   public int GetTimeTag() {
-    return smlJNI.WMElement_GetTimeTag(swigCPtr, this);
+      return m_TimeTag;
   }
 
   public boolean IsIdentifier() {
-    return smlJNI.WMElement_IsIdentifier(swigCPtr, this);
+      return false;
   }
 
   public Identifier ConvertToIdentifier() {
-    long cPtr = smlJNI.WMElement_ConvertToIdentifier(swigCPtr, this);
-    return (cPtr == 0) ? null : new Identifier(cPtr, false);
+      return null;
   }
 
   public IntElement ConvertToIntElement() {
-    long cPtr = smlJNI.WMElement_ConvertToIntElement(swigCPtr, this);
-    return (cPtr == 0) ? null : new IntElement(cPtr, false);
+      return null;
   }
 
   public FloatElement ConvertToFloatElement() {
-    long cPtr = smlJNI.WMElement_ConvertToFloatElement(swigCPtr, this);
-    return (cPtr == 0) ? null : new FloatElement(cPtr, false);
+      return null;
   }
 
   public StringElement ConvertToStringElement() {
-    long cPtr = smlJNI.WMElement_ConvertToStringElement(swigCPtr, this);
-    return (cPtr == 0) ? null : new StringElement(cPtr, false);
+      return null;
   }
 
   public Agent GetAgent() {
-    long cPtr = smlJNI.WMElement_GetAgent(swigCPtr, this);
-    return (cPtr == 0) ? null : new Agent(cPtr, false);
+      return m_Agent;
+  }
+
+  // the methods exposed in the agent class.  This makes it clear that the
+  // agent owns all objects.
+  WMElement(Agent pAgent, IdentifierSymbol pParentSymbol, String pID, String pAttributeName, int timeTag)
+  {
+      this.m_Agent = pAgent;
+      this.m_ID = pParentSymbol;
+      this.m_IDName = pID != null ? pID : "";
+      this.m_AttributeName = pAttributeName != null ? pAttributeName : "";
+  }
+  // virtual ~WMElement(void);
+
+  void    SetJustAdded(boolean state) { m_JustAdded = state ; }
+
+  void SetParent(Identifier pParent)
+  {
+      m_ID = pParent.GetSymbol();
+  }
+
+  // If we update the value we need to assign a new time tag to this WME.
+  // That's because we're really doing a delete followed by an add
+  // and the add would create a new time tag.
+  void GenerateNewTimeTag()
+  {
+      m_TimeTag = GetAgent().GetWM().GenerateTimeTag();
+  }
+
+  // Send over to the kernel again
+  void Refresh()
+  {
+      GetAgent().GetWM().GetInputDeltaList().AddWME(this) ;      
   }
 
 }
