@@ -9,364 +9,346 @@
 package sml;
 
 public class ClientTraceXML extends ClientXML {
-  private long swigCPtr;
-
-  protected ClientTraceXML(long cPtr, boolean cMemoryOwn) {
-    super(smlJNI.SWIGClientTraceXMLUpcast(cPtr), cMemoryOwn);
-    swigCPtr = cPtr;
-  }
-
-  protected static long getCPtr(ClientTraceXML obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  protected void finalize() {
-    delete();
-  }
 
   public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      smlJNI.delete_ClientTraceXML(swigCPtr);
-    }
-    swigCPtr = 0;
     super.delete();
   }
 
   public boolean IsTagTrace() {
-    return smlJNI.ClientTraceXML_IsTagTrace(swigCPtr, this);
+      return IsTag(sml_Names.getKTagTrace());
   }
 
   public boolean IsTagRhsWrite() {
-    return smlJNI.ClientTraceXML_IsTagRhsWrite(swigCPtr, this);
+      return IsTag(sml_Names.getKTagRHS_write());
   }
 
   public String GetString() {
-    return smlJNI.ClientTraceXML_GetString(swigCPtr, this);
+      return GetAttribute(sml_Names.getKRHS_String());
   }
 
   public boolean IsTagState() {
-    return smlJNI.ClientTraceXML_IsTagState(swigCPtr, this);
+      return IsTag(sml_Names.getKTagState());
   }
 
   public String GetDecisionCycleCount() {
-    return smlJNI.ClientTraceXML_GetDecisionCycleCount(swigCPtr, this);
+      return GetAttribute(sml_Names.getKState_DecisionCycleCt());
   }
 
   public String GetStateID() {
-    return smlJNI.ClientTraceXML_GetStateID(swigCPtr, this);
+      return GetAttribute(sml_Names.getKState_ID());
   }
 
   public String GetImpasseObject() {
-    return smlJNI.ClientTraceXML_GetImpasseObject(swigCPtr, this);
+      return GetAttribute(sml_Names.getKState_ImpasseObject());
   }
 
   public String GetImpasseType() {
-    return smlJNI.ClientTraceXML_GetImpasseType(swigCPtr, this);
+      return GetAttribute(sml_Names.getKState_ImpasseType());
   }
 
   public String GetStackLevel() {
-    return smlJNI.ClientTraceXML_GetStackLevel(swigCPtr, this);
+      return GetAttribute(sml_Names.getKState_StackLevel());
   }
 
   public boolean IsTagOperator() {
-    return smlJNI.ClientTraceXML_IsTagOperator(swigCPtr, this);
+      return IsTag(sml_Names.getKTagOperator());
   }
 
   public String GetOperatorID() {
-    return smlJNI.ClientTraceXML_GetOperatorID(swigCPtr, this);
+      return GetAttribute(sml_Names.getKOperator_ID());
   }
 
   public String GetOperatorName() {
-    return smlJNI.ClientTraceXML_GetOperatorName(swigCPtr, this);
+      return GetAttribute(sml_Names.getKOperator_Name());
   }
 
   public boolean IsTagPhase() {
-    return smlJNI.ClientTraceXML_IsTagPhase(swigCPtr, this);
+      return IsTag(sml_Names.getKTagPhase());
   }
 
   public String GetPhaseName() {
-    return smlJNI.ClientTraceXML_GetPhaseName(swigCPtr, this);
+      return GetAttribute(sml_Names.getKPhase_Name());
   }
 
   public String GetPhaseStatus() {
-    return smlJNI.ClientTraceXML_GetPhaseStatus(swigCPtr, this);
+      return GetAttribute(sml_Names.getKPhase_Status());
   }
 
   public String GetFiringType() {
-    return smlJNI.ClientTraceXML_GetFiringType(swigCPtr, this);
+      return GetAttribute(sml_Names.getKPhase_FiringType());
   }
 
   public String GetLevelNum() {
-    return smlJNI.ClientTraceXML_GetLevelNum(swigCPtr, this);
+      return GetAttribute(sml_Names.getKPhase_LevelNum());
   }
 
   public boolean IsTagSubphase() {
-    return smlJNI.ClientTraceXML_IsTagSubphase(swigCPtr, this);
+      return IsTag(sml_Names.getKTagSubphase());
   }
 
   public boolean IsSubphaseNameFiringProductions() {
-    return smlJNI.ClientTraceXML_IsSubphaseNameFiringProductions(swigCPtr, this);
+      String phase = GetPhaseName();
+      return phase != null && phase.equals(sml_Names.getKSubphaseName_FiringProductions());
   }
 
   public boolean IsSubphaseNameChangingWorkingMemory() {
-    return smlJNI.ClientTraceXML_IsSubphaseNameChangingWorkingMemory(swigCPtr, this);
+      String phase = GetPhaseName();
+      return phase != null && phase.equals(sml_Names.getKSubphaseName_ChangingWorkingMemory());
   }
 
   public boolean IsTagFiringProduction() {
-    return smlJNI.ClientTraceXML_IsTagFiringProduction(swigCPtr, this);
+      return IsTag(sml_Names.getKTagProduction_Firing());
   }
 
   public boolean IsTagRetractingProduction() {
-    return smlJNI.ClientTraceXML_IsTagRetractingProduction(swigCPtr, this);
+      return IsTag(sml_Names.getKTagProduction_Retracting());
   }
 
   public boolean IsTagLearning() {
-    return smlJNI.ClientTraceXML_IsTagLearning(swigCPtr, this);
+      return IsTag(sml_Names.getKTagLearning());
   }
 
   public boolean IsTagProduction() {
-    return smlJNI.ClientTraceXML_IsTagProduction(swigCPtr, this);
+      return IsTag(sml_Names.getKTagProduction());
   }
 
   public String GetProductionName() {
-    return smlJNI.ClientTraceXML_GetProductionName(swigCPtr, this);
+      return GetAttribute(sml_Names.getKProduction_Name());
   }
 
   public String GetProductionDoc() {
-    return smlJNI.ClientTraceXML_GetProductionDoc(swigCPtr, this);
+      return GetAttribute(sml_Names.getKProductionDocumentation());
   }
 
   public String GetProductionType() {
-    return smlJNI.ClientTraceXML_GetProductionType(swigCPtr, this);
+      return GetAttribute(sml_Names.getKProductionType());
   }
 
   public String GetProductionDeclaredSupport() {
-    return smlJNI.ClientTraceXML_GetProductionDeclaredSupport(swigCPtr, this);
+      return GetAttribute(sml_Names.getKProductionDeclaredISupport());
   }
 
   public boolean IsTagConditions() {
-    return smlJNI.ClientTraceXML_IsTagConditions(swigCPtr, this);
+      return IsTag(sml_Names.getKTagConditions());
   }
 
   public boolean IsTagCondition() {
-    return smlJNI.ClientTraceXML_IsTagCondition(swigCPtr, this);
+      return IsTag(sml_Names.getKTagCondition());
   }
 
   public boolean IsTagConjunctiveNegationCondition() {
-    return smlJNI.ClientTraceXML_IsTagConjunctiveNegationCondition(swigCPtr, this);
+      return IsTag(sml_Names.getKTagConjunctive_Negation_Condition());
   }
 
   public boolean IsTagActions() {
-    return smlJNI.ClientTraceXML_IsTagActions(swigCPtr, this);
+      return IsTag(sml_Names.getKTagActions());
   }
 
   public boolean IsTagAction() {
-    return smlJNI.ClientTraceXML_IsTagAction(swigCPtr, this);
+      return IsTag(sml_Names.getKTagAction());
   }
 
   public String GetConditionTest() {
-    return smlJNI.ClientTraceXML_GetConditionTest(swigCPtr, this);
+      return GetAttribute(sml_Names.getKConditionTest());
   }
 
   public String GetConditionId() {
-    return smlJNI.ClientTraceXML_GetConditionId(swigCPtr, this);
+      return GetAttribute(sml_Names.getKConditionId());
   }
 
   public String GetCondition() {
-    return smlJNI.ClientTraceXML_GetCondition(swigCPtr, this);
+      return GetAttribute(sml_Names.getKCondition());
   }
 
   public String GetActionId() {
-    return smlJNI.ClientTraceXML_GetActionId(swigCPtr, this);
+      return GetAttribute(sml_Names.getKActionId());
   }
 
   public String GetAction() {
-    return smlJNI.ClientTraceXML_GetAction(swigCPtr, this);
+      return GetAttribute(sml_Names.getKAction());
   }
 
   public String GetFunction() {
-    return smlJNI.ClientTraceXML_GetFunction(swigCPtr, this);
+      return GetAttribute(sml_Names.getKActionFunction());
   }
 
   public boolean IsTagAddWme() {
-    return smlJNI.ClientTraceXML_IsTagAddWme(swigCPtr, this);
+      return IsTag(sml_Names.getKTagWMEAdd());
   }
 
   public boolean IsTagRemoveWme() {
-    return smlJNI.ClientTraceXML_IsTagRemoveWme(swigCPtr, this);
+      return IsTag(sml_Names.getKTagWMERemove());
   }
 
   public boolean IsTagWme() {
-    return smlJNI.ClientTraceXML_IsTagWme(swigCPtr, this);
+      return IsTag(sml_Names.getKTagWME());
   }
 
   public String GetWmeID() {
-    return smlJNI.ClientTraceXML_GetWmeID(swigCPtr, this);
+      return GetAttribute(sml_Names.getKWME_Id());
   }
 
   public String GetWmeAttribute() {
-    return smlJNI.ClientTraceXML_GetWmeAttribute(swigCPtr, this);
+      return GetAttribute(sml_Names.getKWME_Attribute());
   }
 
   public String GetWmeValue() {
-    return smlJNI.ClientTraceXML_GetWmeValue(swigCPtr, this);
+      return GetAttribute(sml_Names.getKWME_Value());
   }
 
   public String GetWmeTimeTag() {
-    return smlJNI.ClientTraceXML_GetWmeTimeTag(swigCPtr, this);
+      return GetAttribute(sml_Names.getKWME_TimeTag());
   }
 
   public String GetWmePreference() {
-    return smlJNI.ClientTraceXML_GetWmePreference(swigCPtr, this);
+      return GetAttribute(sml_Names.getKWME_Preference());
   }
 
   public boolean IsTagPreference() {
-    return smlJNI.ClientTraceXML_IsTagPreference(swigCPtr, this);
+      return IsTag(sml_Names.getKTagPreference());
   }
 
   public String GetPreferenceID() {
-    return smlJNI.ClientTraceXML_GetPreferenceID(swigCPtr, this);
+      return GetAttribute(sml_Names.getKWME_Id());
   }
 
   public String GetPreferenceAttribute() {
-    return smlJNI.ClientTraceXML_GetPreferenceAttribute(swigCPtr, this);
+      return GetAttribute(sml_Names.getKWME_Attribute());
   }
 
   public String GetPreferenceValue() {
-    return smlJNI.ClientTraceXML_GetPreferenceValue(swigCPtr, this);
+      return GetAttribute(sml_Names.getKWME_Value());
   }
 
   public String GetPreferenceType() {
-    return smlJNI.ClientTraceXML_GetPreferenceType(swigCPtr, this);
+      return GetAttribute(sml_Names.getKPreference_Type());
   }
 
   public String GetPreferenceTimeTag() {
-    return smlJNI.ClientTraceXML_GetPreferenceTimeTag(swigCPtr, this);
+      return GetAttribute(sml_Names.getKWME_TimeTag());
   }
 
   public String GetPreferenceOSupported() {
-    return smlJNI.ClientTraceXML_GetPreferenceOSupported(swigCPtr, this);
+      return GetAttribute(sml_Names.getKOSupported());
   }
 
   public String GetPreferenceReferent() {
-    return smlJNI.ClientTraceXML_GetPreferenceReferent(swigCPtr, this);
+      return GetAttribute(sml_Names.getKReferent());
   }
 
   public boolean IsTagActionSideMarker() {
-    return smlJNI.ClientTraceXML_IsTagActionSideMarker(swigCPtr, this);
+      return IsTag(sml_Names.getKTagActionSideMarker());
   }
 
   public boolean IsTagLocal() {
-    return smlJNI.ClientTraceXML_IsTagLocal(swigCPtr, this);
+      return IsTag(sml_Names.getKTagLocal());
   }
 
   public boolean IsTagLocals() {
-    return smlJNI.ClientTraceXML_IsTagLocals(swigCPtr, this);
+      return IsTag(sml_Names.getKTagLocals());
   }
 
   public boolean IsTagGrounds() {
-    return smlJNI.ClientTraceXML_IsTagGrounds(swigCPtr, this);
+      return IsTag(sml_Names.getKTagGrounds());
   }
 
   public boolean IsTagNegated() {
-    return smlJNI.ClientTraceXML_IsTagNegated(swigCPtr, this);
+      return IsTag(sml_Names.getKTagNegated());
   }
 
   public boolean IsTagNot() {
-    return smlJNI.ClientTraceXML_IsTagNot(swigCPtr, this);
+      return IsTag(sml_Names.getKTagNot());
   }
 
   public boolean IsTagNots() {
-    return smlJNI.ClientTraceXML_IsTagNots(swigCPtr, this);
+      return IsTag(sml_Names.getKTagNots());
   }
 
   public boolean IsTagPotentials() {
-    return smlJNI.ClientTraceXML_IsTagPotentials(swigCPtr, this);
+      return IsTag(sml_Names.getKTagPotentials());
   }
 
   public boolean IsTagGroundedPotentials() {
-    return smlJNI.ClientTraceXML_IsTagGroundedPotentials(swigCPtr, this);
+      return IsTag(sml_Names.getKTagGroundedPotentials());
   }
 
   public boolean IsTagUngroundedPotentials() {
-    return smlJNI.ClientTraceXML_IsTagUngroundedPotentials(swigCPtr, this);
+      return IsTag(sml_Names.getKTagUngroundedPotentials());
   }
 
   public boolean IsTagUngroundedPotential() {
-    return smlJNI.ClientTraceXML_IsTagUngroundedPotential(swigCPtr, this);
+      return IsTag(sml_Names.getKTagUngroundedPotential());
   }
 
   public boolean IsTagBacktrace() {
-    return smlJNI.ClientTraceXML_IsTagBacktrace(swigCPtr, this);
+      return IsTag(sml_Names.getKTagBacktrace());
   }
 
   public boolean IsTagAddToPotentials() {
-    return smlJNI.ClientTraceXML_IsTagAddToPotentials(swigCPtr, this);
+      return IsTag(sml_Names.getKTagAddToPotentials());
   }
 
   public boolean IsTagProhibitPreference() {
-    return smlJNI.ClientTraceXML_IsTagProhibitPreference(swigCPtr, this);
+      return IsTag(sml_Names.getKTagProhibitPreference());
   }
 
   public boolean IsTagBacktraceResult() {
-    return smlJNI.ClientTraceXML_IsTagBacktraceResult(swigCPtr, this);
+      return IsTag(sml_Names.getKTagBacktraceResult());
   }
 
   public boolean IsTagLocalNegation() {
-    return smlJNI.ClientTraceXML_IsTagLocalNegation(swigCPtr, this);
+      return IsTag(sml_Names.getKTagLocalNegation());
   }
 
   public String GetBacktraceAlreadyBacktraced() {
-    return smlJNI.ClientTraceXML_GetBacktraceAlreadyBacktraced(swigCPtr, this);
+      return GetAttribute(sml_Names.getKBacktracedAlready());
   }
 
   public String GetBacktraceSymbol1() {
-    return smlJNI.ClientTraceXML_GetBacktraceSymbol1(swigCPtr, this);
+      return GetAttribute(sml_Names.getKBacktraceSymbol1());
   }
 
   public String GetBacktraceSymbol2() {
-    return smlJNI.ClientTraceXML_GetBacktraceSymbol2(swigCPtr, this);
+      return GetAttribute(sml_Names.getKBacktraceSymbol2());
   }
 
   public boolean IsTagCandidate() {
-    return smlJNI.ClientTraceXML_IsTagCandidate(swigCPtr, this);
+      return IsTag(sml_Names.getKTagCandidate());
   }
 
   public String GetCandidateName() {
-    return smlJNI.ClientTraceXML_GetCandidateName(swigCPtr, this);
+      return GetAttribute(sml_Names.getKCandidateName());
   }
 
   public String GetCandidateType() {
-    return smlJNI.ClientTraceXML_GetCandidateType(swigCPtr, this);
+      return GetAttribute(sml_Names.getKCandidateType());
   }
 
   public String GetCandidateValue() {
-    return smlJNI.ClientTraceXML_GetCandidateValue(swigCPtr, this);
+      return GetAttribute(sml_Names.getKCandidateValue());
   }
 
   public String GetCandidateExpValue() {
-    return smlJNI.ClientTraceXML_GetCandidateExpValue(swigCPtr, this);
+      return GetAttribute(sml_Names.getKCandidateExpValue());
   }
 
   public boolean IsTagError() {
-    return smlJNI.ClientTraceXML_IsTagError(swigCPtr, this);
+      return IsTag(sml_Names.getKTagError());
   }
 
   public boolean IsTagWarning() {
-    return smlJNI.ClientTraceXML_IsTagWarning(swigCPtr, this);
+      return IsTag(sml_Names.getKTagWarning());
   }
 
   public boolean IsTagMessage() {
-    return smlJNI.ClientTraceXML_IsTagMessage(swigCPtr, this);
+      return IsTag(sml_Names.getKTagMessage());
   }
 
   public boolean IsTagVerbose() {
-    return smlJNI.ClientTraceXML_IsTagVerbose(swigCPtr, this);
+      return IsTag(sml_Names.getKTagVerbose());
   }
 
   public ClientTraceXML() {
-    this(smlJNI.new_ClientTraceXML(), true);
   }
 
 }

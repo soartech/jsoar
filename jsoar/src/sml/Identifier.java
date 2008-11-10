@@ -8,93 +8,200 @@
 
 package sml;
 
+
 public class Identifier extends WMElement {
-  private long swigCPtr;
 
-  protected Identifier(long cPtr, boolean cMemoryOwn) {
-    super(smlJNI.SWIGIdentifierUpcast(cPtr), cMemoryOwn);
-    swigCPtr = cPtr;
-  }
+    // Two identifiers (i.e. two wmes) can share the same identifier value
+    // So each identifier has a pointer to a symbol object, but two could share the same object.
+    IdentifierSymbol m_pSymbol ;
 
-  protected static long getCPtr(Identifier obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      throw new UnsupportedOperationException("C++ destructor does not have public access");
+    // This version is only needed at the top of the tree (e.g. the input link)
+    Identifier(Agent pAgent, String pIdentifier, int timeTag)
+    {
+        super(pAgent, null, pIdentifier, null, timeTag);
+        
+        m_pSymbol = new IdentifierSymbol(this);
+        m_pSymbol.SetIdentifierSymbol(pIdentifier);
+        RecordSymbolInMap();
     }
-    swigCPtr = 0;
+
+    // The normal case (where there is a parent id)
+    Identifier(Agent pAgent, Identifier pParent, String pID, String pAttributeName, String pIdentifier, int timeTag)
+    {
+        super(pAgent, pParent.GetSymbol(), pID, pAttributeName, timeTag);
+        
+        m_pSymbol = new IdentifierSymbol(this);
+        m_pSymbol.SetIdentifierSymbol(pIdentifier);
+        RecordSymbolInMap();
+    }
+    Identifier(Agent pAgent, IdentifierSymbol pParentSymbol, String pID, String pAttributeName, String pIdentifier, int timeTag)
+    {
+        super(pAgent, pParentSymbol, pID, pAttributeName, timeTag);
+        
+        m_pSymbol = new IdentifierSymbol(this);
+        m_pSymbol.SetIdentifierSymbol(pIdentifier);
+        RecordSymbolInMap();
+    }
+
+    // The shared id case (where there is a parent id and value is an identifier that already exists)
+    Identifier(Agent pAgent, Identifier pParent, String pID, String pAttributeName, Identifier pLinkedIdentifier, int timeTag) 
+    {
+        super(pAgent, pParent.GetSymbol(), pID, pAttributeName, timeTag);
+        
+        m_pSymbol = pLinkedIdentifier.m_pSymbol;
+        m_pSymbol.UsedBy(this);
+        RecordSymbolInMap();
+    }
+    Identifier(Agent pAgent, IdentifierSymbol pParentSymbol, String pID, String pAttributeName, IdentifierSymbol pLinkedIdentifierSymbol, int timeTag)
+    {
+        super(pAgent, pParentSymbol, pID, pAttributeName, timeTag);
+        
+        m_pSymbol = pLinkedIdentifierSymbol;
+        m_pSymbol.UsedBy(this);
+        RecordSymbolInMap();
+    }
+    
+
+
+    void AddChild(WMElement pWME) { m_pSymbol.AddChild(pWME) ; }
+
+    void RemoveChild(WMElement pWME) { m_pSymbol.RemoveChild(pWME) ; }
+
+//#ifdef SML_DIRECT
+//    virtual void DirectAdd(Direct_AgentSML_Handle pAgentSML, long timeTag) ;
+//#endif
+
+    // Send over to the kernel again
+    void Refresh()
+    {
+        if(GetAgent().GetInputLink() != this)
+        {
+            super.Refresh();
+        }
+        
+        if(m_pSymbol.IsFirstUser(this))
+        {
+            for(WMElement pWME : m_pSymbol.m_Children)
+            {
+                pWME.Refresh();
+            }
+        }
+    }
+    
+    
+    
+    IdentifierSymbol GetSymbol() { return m_pSymbol ; }
+
+    void SetParent(Identifier pParent)
+    {
+        super.SetParent(pParent);
+    }
+
+    void RecordSymbolInMap()
+    {
+        GetAgent().GetWM().RecordSymbolInMap(m_pSymbol);
+    }
+
+
+    //virtual ~Identifier(void);
+  public synchronized void delete() {
+      m_pSymbol.NoLongerUsedBy(this);
+      if(m_pSymbol.GetNumberUsing() == 0)
+      {
+          GetAgent().GetWM().RemoveSymbolFromMap(m_pSymbol);
+          m_pSymbol.delete();
+      }
+      m_pSymbol = null;
     super.delete();
   }
 
-  public SWIGTYPE_p_std__listT_sml__WMElement_p_t__iterator GetChildrenBegin() {
-    return new SWIGTYPE_p_std__listT_sml__WMElement_p_t__iterator(smlJNI.Identifier_GetChildrenBegin(swigCPtr, this), true);
-  }
-
-  public SWIGTYPE_p_std__listT_sml__WMElement_p_t__iterator GetChildrenEnd() {
-    return new SWIGTYPE_p_std__listT_sml__WMElement_p_t__iterator(smlJNI.Identifier_GetChildrenEnd(swigCPtr, this), true);
-  }
-
   public String GetValueType() {
-    return smlJNI.Identifier_GetValueType(swigCPtr, this);
+      return sml_Names.getKTypeID();
   }
 
   public String GetValueAsString() {
-    return smlJNI.Identifier_GetValueAsString(swigCPtr, this);
+      return m_pSymbol.GetIdentifierSymbol();
   }
 
   public boolean IsIdentifier() {
-    return smlJNI.Identifier_IsIdentifier(swigCPtr, this);
+      return true;
   }
 
   public Identifier ConvertToIdentifier() {
-    long cPtr = smlJNI.Identifier_ConvertToIdentifier(swigCPtr, this);
-    return (cPtr == 0) ? null : new Identifier(cPtr, false);
+      return this;
   }
 
   public WMElement FindFromTimeTag(int timeTag) {
-    long cPtr = smlJNI.Identifier_FindFromTimeTag(swigCPtr, this, timeTag);
-    return (cPtr == 0) ? null : new WMElement(cPtr, false);
+      if(GetTimeTag() == timeTag)
+      {
+          return this;
+      }
+      
+      for(WMElement pWME : m_pSymbol.m_Children)
+      {
+          if(pWME.GetTimeTag() == timeTag)
+          {
+              return pWME;
+          }
+          if(pWME.IsIdentifier())
+          {
+              WMElement pResult = ((Identifier) pWME).FindFromTimeTag(timeTag);
+              
+              if(pResult != null)
+              {
+                  return pResult;
+              }
+          }
+      }
+      return null;
   }
 
   public WMElement FindByAttribute(String pAttribute, int index) {
-    long cPtr = smlJNI.Identifier_FindByAttribute(swigCPtr, this, pAttribute, index);
-    return (cPtr == 0) ? null : new WMElement(cPtr, false);
+      for(WMElement pWME : m_pSymbol.m_Children)
+      {
+          if(pAttribute.equalsIgnoreCase(pWME.GetAttribute()))
+          {
+              if(index == 0)
+              {
+                  return pWME;
+              }
+              index--;
+          }
+      }
+      return null;
   }
 
   public String GetParameterValue(String pAttribute) {
-    return smlJNI.Identifier_GetParameterValue(swigCPtr, this, pAttribute);
+    WMElement pWME = FindByAttribute(pAttribute, 0); 
+    return pWME != null ? pWME.GetValueAsString() : null ;
   }
 
   public String GetCommandName() {
-    return smlJNI.Identifier_GetCommandName(swigCPtr, this);
+      return GetAttribute();
   }
 
   public void AddStatusComplete() {
-    smlJNI.Identifier_AddStatusComplete(swigCPtr, this);
+      GetAgent().CreateStringWME(this, "status", "complete");
   }
 
   public void AddStatusError() {
-    smlJNI.Identifier_AddStatusError(swigCPtr, this);
+      GetAgent().CreateStringWME(this, "status", "error");
   }
 
   public void AddErrorCode(int errorCode) {
-    smlJNI.Identifier_AddErrorCode(swigCPtr, this, errorCode);
+      GetAgent().CreateIntWME(this, "error-code", errorCode);
   }
 
   public int GetNumberChildren() {
-    return smlJNI.Identifier_GetNumberChildren(swigCPtr, this);
+      return m_pSymbol.m_Children.size();
   }
 
   public WMElement GetChild(int index) {
-    long cPtr = smlJNI.Identifier_GetChild(swigCPtr, this, index);
-    return (cPtr == 0) ? null : new WMElement(cPtr, false);
+      return m_pSymbol.m_Children.get(index);
   }
 
   public boolean AreChildrenModified() {
-    return smlJNI.Identifier_AreChildrenModified(swigCPtr, this);
+      return m_pSymbol.AreChildrenModified();
   }
 
 }

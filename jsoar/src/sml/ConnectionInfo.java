@@ -9,48 +9,37 @@
 package sml;
 
 public class ConnectionInfo {
-  private long swigCPtr;
-  protected boolean swigCMemOwn;
-
-  protected ConnectionInfo(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
-  }
-
-  protected static long getCPtr(ConnectionInfo obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  protected void finalize() {
-    delete();
-  }
+    private final String m_ID ;
+    private final String m_Name ;
+    private final String m_Status ;
+    private final String m_AgentStatus ;
+    
+    public ConnectionInfo(String pID, String pName, String pStatus, String pAgentStatus)
+    {
+        m_ID     = pID ;
+        m_Name   = (pName != null ? pName : "unknown-name") ;
+        m_Status = (pStatus != null ? pStatus : "unknown-status") ;
+        m_AgentStatus = (pAgentStatus != null ? pAgentStatus : "unknown-status") ;
+    }
 
   public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      smlJNI.delete_ConnectionInfo(swigCPtr);
-    }
-    swigCPtr = 0;
   }
 
-  public ConnectionInfo(String pID, String pName, String pStatus, String pAgentStatus) {
-    this(smlJNI.new_ConnectionInfo(pID, pName, pStatus, pAgentStatus), true);
-  }
 
   public String GetID() {
-    return smlJNI.ConnectionInfo_GetID(swigCPtr, this);
+      return m_ID;
   }
 
   public String GetName() {
-    return smlJNI.ConnectionInfo_GetName(swigCPtr, this);
+      return m_Name;
   }
 
   public String GetConnectionStatus() {
-    return smlJNI.ConnectionInfo_GetConnectionStatus(swigCPtr, this);
+      return m_Status;
   }
 
   public String GetAgentStatus() {
-    return smlJNI.ConnectionInfo_GetAgentStatus(swigCPtr, this);
+      return m_AgentStatus;
   }
 
 }

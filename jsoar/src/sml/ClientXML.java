@@ -9,121 +9,120 @@
 package sml;
 
 public class ClientXML {
-  private long swigCPtr;
-  protected boolean swigCMemOwn;
-
-  protected ClientXML(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
-  }
-
-  protected static long getCPtr(ClientXML obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  protected void finalize() {
-    delete();
-  }
+    protected ElementXML m_pElementXML;
 
   public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      smlJNI.delete_ClientXML(swigCPtr);
-    }
-    swigCPtr = 0;
   }
 
   public ClientXML() {
-    this(smlJNI.new_ClientXML__SWIG_1(), true);
   }
 
   public ClientXML(ClientXML pXML) {
-    this(smlJNI.new_ClientXML__SWIG_2(ClientXML.getCPtr(pXML), pXML), true);
+      this.m_pElementXML = pXML.m_pElementXML;
   }
+  
 
   public ClientTraceXML ConvertToTraceXML() {
-    long cPtr = smlJNI.ClientXML_ConvertToTraceXML(swigCPtr, this);
-    return (cPtr == 0) ? null : new ClientTraceXML(cPtr, false);
+      return (ClientTraceXML) this;
   }
 
   public String GetTagName() {
-    return smlJNI.ClientXML_GetTagName(swigCPtr, this);
+      return m_pElementXML.GetTagName();
   }
 
   public boolean IsTag(String pTagName) {
-    return smlJNI.ClientXML_IsTag(swigCPtr, this, pTagName);
+      return m_pElementXML.IsTag(pTagName);
   }
 
   public int GetNumberChildren() {
-    return smlJNI.ClientXML_GetNumberChildren(swigCPtr, this);
+      return m_pElementXML.GetNumberChildren();
   }
 
   public boolean GetChild(ClientXML pChild, int index) {
-    return smlJNI.ClientXML_GetChild(swigCPtr, this, ClientXML.getCPtr(pChild), pChild, index);
+      // If we're reusing a child object delete what it used to contain
+      if (pChild.m_pElementXML != null)
+      {
+          pChild.m_pElementXML = null ;
+      }
+
+      // Retrieve the child and attach it to the pChild object we were passed.
+      ElementXML pXML = new ElementXML() ;
+      boolean ok = m_pElementXML.GetChild(pXML, index) ;
+
+      if (ok)
+      {
+          pChild.m_pElementXML = pXML ;
+      }
+      else
+      {
+          // delete pXML ;
+      }
+
+      return ok ;
   }
 
   public int GetNumberAttributes() {
-    return smlJNI.ClientXML_GetNumberAttributes(swigCPtr, this);
+      return m_pElementXML.GetNumberAttributes();
   }
 
   public String GetAttributeName(int index) {
-    return smlJNI.ClientXML_GetAttributeName(swigCPtr, this, index);
+      return m_pElementXML.GetAttributeName(index);
   }
 
   public String GetAttributeValue(int index) {
-    return smlJNI.ClientXML_GetAttributeValue(swigCPtr, this, index);
+      return m_pElementXML.GetAttributeValue(index);
   }
 
   public String GetAttribute(String attName) {
-    return smlJNI.ClientXML_GetAttribute(swigCPtr, this, attName);
+      return m_pElementXML.GetAttribute(attName);
   }
 
   public String GetCharacterData() {
-    return smlJNI.ClientXML_GetCharacterData(swigCPtr, this);
+      return m_pElementXML.GetCharacterData();
   }
 
   public boolean IsCharacterDataBinary() {
-    return smlJNI.ClientXML_IsCharacterDataBinary(swigCPtr, this);
+      return m_pElementXML.IsCharacterDataBinary();
   }
 
   public boolean ConvertCharacterDataToBinary() {
-    return smlJNI.ClientXML_ConvertCharacterDataToBinary(swigCPtr, this);
+      return m_pElementXML.ConvertCharacterDataToBinary();
   }
 
   public int GetCharacterDataLength() {
-    return smlJNI.ClientXML_GetCharacterDataLength(swigCPtr, this);
+      return m_pElementXML.GetCharacterDataLength();
   }
 
   public String GenerateXMLString(boolean includeChildren, boolean insertNewLines) {
-    return smlJNI.ClientXML_GenerateXMLString__SWIG_0(swigCPtr, this, includeChildren, insertNewLines);
+      return m_pElementXML.GenerateXMLString(includeChildren, insertNewLines);
   }
 
   public String GenerateXMLString(boolean includeChildren) {
-    return smlJNI.ClientXML_GenerateXMLString__SWIG_1(swigCPtr, this, includeChildren);
+      return m_pElementXML.GenerateXMLString(includeChildren);
   }
 
   public int DetermineXMLStringLength(boolean includeChildren, boolean insertNewLines) {
-    return smlJNI.ClientXML_DetermineXMLStringLength__SWIG_0(swigCPtr, this, includeChildren, insertNewLines);
+      return m_pElementXML.DetermineXMLStringLength(includeChildren, insertNewLines);
   }
 
   public int DetermineXMLStringLength(boolean includeChildren) {
-    return smlJNI.ClientXML_DetermineXMLStringLength__SWIG_1(swigCPtr, this, includeChildren);
+      return m_pElementXML.DetermineXMLStringLength(includeChildren);
   }
 
   public static String AllocateString(int length) {
-    return smlJNI.ClientXML_AllocateString(length);
+      return ElementXML.AllocateString(length);
   }
 
   public static void DeleteString(String pString) {
-    smlJNI.ClientXML_DeleteString(pString);
+      ElementXML.DeleteString(pString);
   }
 
   public static String CopyString(String original) {
-    return smlJNI.ClientXML_CopyString(original);
+      return ElementXML.CopyString(original);
   }
 
   public static String CopyBuffer(String original, int length) {
-    return smlJNI.ClientXML_CopyBuffer(original, length);
+      return ElementXML.CopyBuffer(original, length);
   }
 
 }

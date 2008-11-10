@@ -9,108 +9,257 @@
 package sml;
 
 public class AnalyzeXML {
-  private long swigCPtr;
-  protected boolean swigCMemOwn;
+    ElementXML m_hRootObject ;// The message being analyzed
+    ElementXML m_pCommand ;       // The Command tag (for calls)
+    ElementXML m_pResult ;            // The Result tag (for responses)
+    ElementXML m_pError ;         // The Error tag
 
-  protected AnalyzeXML(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
-  }
+    boolean        m_IsSML ;           // True if this is an <sml> XML object
 
-  protected static long getCPtr(AnalyzeXML obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  protected void finalize() {
-    delete();
-  }
+    ArgMap      m_ArgMap = new ArgMap() ;          // Map from name to <arg> elements.
 
   public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      smlJNI.delete_AnalyzeXML(swigCPtr);
-    }
-    swigCPtr = 0;
   }
 
   public AnalyzeXML() {
-    this(smlJNI.new_AnalyzeXML(), true);
   }
 
   public void Analyze(ElementXML pRootXML) {
-    smlJNI.AnalyzeXML_Analyze(swigCPtr, this, ElementXML.getCPtr(pRootXML), pRootXML);
+      // If we've already used this object to run an analysis before
+      // we need to delete any existing references and start over
+      // (this is not really recommended as creating an AnalyzeXML object is pretty quick and painless)
+      if (m_hRootObject != null)
+      {
+          m_pCommand = null ;
+          m_pResult = null ;
+          m_pError = null ;
+          m_IsSML     = false ;
+      }
+
+      // We need to keep this handle around for the life
+      // of the AnalyzeXML object.
+      m_hRootObject = pRootXML;
+
+      ElementXML child = new ElementXML() ;
+      ElementXML pChild = child ;
+
+      ElementXML pXML = pRootXML ;
+
+      // Find the SML tag first
+      if (pXML.IsTag(sml_Names.getKTagSML()))
+      {
+          m_IsSML = true ;
+
+          // Examine the children of the SML tag
+          int nChildren = pXML.GetNumberChildren() ;
+          for (int i = 0 ; i < nChildren ; i++)
+          {
+              // Get each child in turn
+              pXML.GetChild(pChild, i) ;
+
+              if (pChild.IsTag(sml_Names.getKTagCommand()))
+              {
+                  // Record the command and then find its arguments
+                  this.m_pCommand = pChild; // new ElementXML(pChild->Detach()) ;
+
+                  AnalyzeArgs(m_pCommand) ;
+              }
+              else if (pChild.IsTag(sml_Names.getKTagError()))
+              {
+                  // Record the error tag
+                  this.m_pError = pChild; // new ElementXML(pChild->Detach()) ;
+              }
+              else if (pChild.IsTag(sml_Names.getKTagResult()))
+              {
+                  // Record the result tag
+                  this.m_pResult = pChild; // new ElementXML(pChild->Detach()) ;
+
+                  // Also find any arguments for the results (just like the command)
+                  AnalyzeArgs(m_pResult) ;
+              }
+          }
+      }
   }
 
   public SWIGTYPE_p_ElementXML_InterfaceStruct GetElementXMLHandle() {
-    long cPtr = smlJNI.AnalyzeXML_GetElementXMLHandle(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_ElementXML_InterfaceStruct(cPtr, false);
+    throw new UnsupportedOperationException("GetElementXMLHandle");
   }
 
   public ElementXML GetCommandTag() {
-    long cPtr = smlJNI.AnalyzeXML_GetCommandTag(swigCPtr, this);
-    return (cPtr == 0) ? null : new ElementXML(cPtr, false);
+      return m_pCommand;
   }
 
   public ElementXML GetResultTag() {
-    long cPtr = smlJNI.AnalyzeXML_GetResultTag(swigCPtr, this);
-    return (cPtr == 0) ? null : new ElementXML(cPtr, false);
+      return m_pResult;
   }
 
   public ElementXML GetErrorTag() {
-    long cPtr = smlJNI.AnalyzeXML_GetErrorTag(swigCPtr, this);
-    return (cPtr == 0) ? null : new ElementXML(cPtr, false);
+      return m_pError;
   }
 
   public boolean IsSML() {
-    return smlJNI.AnalyzeXML_IsSML(swigCPtr, this);
+    return m_IsSML;
   }
 
   public String GetCommandName() {
-    return smlJNI.AnalyzeXML_GetCommandName(swigCPtr, this);
+      if (m_pCommand != null) return m_pCommand.GetAttribute(sml_Names.getKCommandName()) ;
+      return null ;
   }
 
   public String GetResultString() {
-    return smlJNI.AnalyzeXML_GetResultString(swigCPtr, this);
+      if (m_pResult != null) return m_pResult.GetCharacterData() ;
+      return null ; // this should never happen, since GetCharacterData will return a zero-length string if there is no character data
   }
 
   public int GetResultInt(int defaultValue) {
-    return smlJNI.AnalyzeXML_GetResultInt(swigCPtr, this, defaultValue);
+      if (m_pResult == null || m_pResult.GetCharacterData() == null)
+          return defaultValue ;
+
+      // BADBAD: If char data is not valid, we'll get back "0" from atoi, when
+      // we should really return defaultValue.  Perhaps we should use sscanf instead?
+      int value = Integer.valueOf(m_pResult.GetCharacterData()) ;
+
+      return value ;
   }
 
   public boolean GetResultBool(boolean defaultValue) {
-    return smlJNI.AnalyzeXML_GetResultBool(swigCPtr, this, defaultValue);
+      String pResult = GetResultString() ;
+
+      if (pResult == null)
+          return defaultValue ;
+
+      // If the default is true, we only need to test for false explicitly.
+      // Anything else is true and vice versa if the default is false.
+      // (This just saves an unnecessary string comparison).
+      if (defaultValue)
+          return !pResult.equalsIgnoreCase(sml_Names.getKFalse());
+      else
+          return pResult.equalsIgnoreCase(sml_Names.getKTrue());
   }
 
   public double GetResultFloat(double defaultValue) {
-    return smlJNI.AnalyzeXML_GetResultFloat(swigCPtr, this, defaultValue);
+      if (m_pResult == null || m_pResult.GetCharacterData() == null)
+          return defaultValue ;
+
+      double value = Double.valueOf(m_pResult.GetCharacterData()) ;
+
+      return value ;
   }
 
   public String GenerateXMLString(boolean includeChildren, boolean insertNewLines) {
-    return smlJNI.AnalyzeXML_GenerateXMLString__SWIG_0(swigCPtr, this, includeChildren, insertNewLines);
+      return m_hRootObject.GenerateXMLString(includeChildren, insertNewLines);
   }
 
   public String GenerateXMLString(boolean includeChildren) {
-    return smlJNI.AnalyzeXML_GenerateXMLString__SWIG_1(swigCPtr, this, includeChildren);
+      return m_hRootObject.GenerateXMLString(includeChildren);
   }
 
   public static void DeleteString(String pString) {
-    smlJNI.AnalyzeXML_DeleteString(pString);
   }
 
   public String GetArgString(String pArgName) {
-    return smlJNI.AnalyzeXML_GetArgString(swigCPtr, this, pArgName);
+      return m_ArgMap.GetArgValue(pArgName, -1);
   }
 
   public boolean GetArgBool(String pArgName, boolean defaultValue) {
-    return smlJNI.AnalyzeXML_GetArgBool(swigCPtr, this, pArgName, defaultValue);
+    return GetArgBool(pArgName, -1, defaultValue);
   }
 
   public int GetArgInt(String pArgName, int defaultValue) {
-    return smlJNI.AnalyzeXML_GetArgInt(swigCPtr, this, pArgName, defaultValue);
+      return GetArgInt(pArgName, -1, defaultValue);
   }
 
   public double GetArgFloat(String pArgName, double defaultValue) {
-    return smlJNI.AnalyzeXML_GetArgFloat(swigCPtr, this, pArgName, defaultValue);
+      return GetArgFloat(pArgName, -1, defaultValue);
   }
+  
+  /*************************************************************
+   * @brief Arguments for commands are either named (e.g. print "-wme s2") or can be looked up based on order
+   * (e.g. print s2).  Either all arguments are named or none are (in a valid SML doc).
+   * This lookup supports both.  You pass in the name of the argument and its position
+   * in the argument order.  We look for it by name and if that fails, look for it by position.
+   * You either get back the right arg or NULL if this document doesn't contain that argument.
+   * If you wish to look up a value by name only pass -1 for the position.
+   *************************************************************/
+   String GetArgString(String pArgName, int argPos)
+   {
+       return m_ArgMap.GetArgValue(pArgName, argPos) ;
+   }
+
+   /*************************************************************
+   * @brief As "GetArgString" but parsed as a boolean.
+   *************************************************************/
+   boolean GetArgBool(String pArgName, int argPos, boolean defaultValue)
+   {
+       String pValue = m_ArgMap.GetArgValue(pArgName, argPos) ;
+
+       if (pValue == null)
+           return defaultValue ;
+
+       // If the default is true, we only need to test for false explicitly.
+       // Anything else is true and vice versa if the default is false.
+       // (This just saves an unnecessary string comparison).
+       if (defaultValue)
+           return !pValue.equalsIgnoreCase(sml_Names.getKFalse());
+       else
+           return pValue.equalsIgnoreCase(sml_Names.getKTrue());
+   }
+
+   /*************************************************************
+   * @brief As "GetArgString" but parsed as an int.
+   *************************************************************/
+   int GetArgInt(String pArgName, int argPos, int defaultValue)
+   {
+       String pValue = m_ArgMap.GetArgValue(pArgName, argPos) ;
+
+       if (pValue == null)
+           return defaultValue ;
+
+       // BADBAD: If pValue is not valid, we'll get back "0" from atoi, when
+       // we should really return defaultValue.  Perhaps we should use sscanf instead?
+       int value = Integer.valueOf(pValue) ;
+
+       return value ;
+       
+   }
+
+   /*************************************************************
+   * @brief As "GetArgString" but parsed as a double.
+   *************************************************************/
+   double GetArgFloat(String pArgName, int argPos, double defaultValue)
+   {
+       String pValue = m_ArgMap.GetArgValue(pArgName, argPos) ;
+
+       if (pValue == null)
+           return defaultValue ;
+
+       double value = Double.valueOf(pValue) ;
+
+       return value ;
+   }
+
+   void AnalyzeArgs(ElementXML pParent)
+   {
+       ElementXML child = new ElementXML();
+       ElementXML pChild = child ;
+
+       // Examine the children of the Command tag
+       int nChildren = pParent.GetNumberChildren() ;
+       for (int i = 0 ; i < nChildren ; i++)
+       {
+           // Get each child in turn
+           pParent.GetChild(pChild, i) ;
+
+           if (pChild.IsTag(sml_Names.getKTagArg()))
+           {
+               // This child is an argument tag so record it
+               // based on argument name and position.
+               // We have to record the args in the order they exist in the
+               // document for this to work.
+               this.m_ArgMap.RecordArg(pChild) ;
+           }
+       }
+       
+   }
 
 }

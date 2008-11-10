@@ -8,6 +8,8 @@
 
 package sml;
 
+import sml.connection.Connection;
+
 public class Agent extends ClientErrors {
   private long swigCPtr;
 
@@ -114,55 +116,47 @@ public class Agent extends ClientErrors {
   }
 
   public Identifier GetInputLink() {
-    long cPtr = smlJNI.Agent_GetInputLink(swigCPtr, this);
-    return (cPtr == 0) ? null : new Identifier(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public Identifier GetILink() {
-    long cPtr = smlJNI.Agent_GetILink(swigCPtr, this);
-    return (cPtr == 0) ? null : new Identifier(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public Identifier GetOutputLink() {
-    long cPtr = smlJNI.Agent_GetOutputLink(swigCPtr, this);
-    return (cPtr == 0) ? null : new Identifier(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public StringElement CreateStringWME(Identifier parent, String pAttribute, String pValue) {
-    long cPtr = smlJNI.Agent_CreateStringWME(swigCPtr, this, Identifier.getCPtr(parent), parent, pAttribute, pValue);
-    return (cPtr == 0) ? null : new StringElement(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public IntElement CreateIntWME(Identifier parent, String pAttribute, int value) {
-    long cPtr = smlJNI.Agent_CreateIntWME(swigCPtr, this, Identifier.getCPtr(parent), parent, pAttribute, value);
-    return (cPtr == 0) ? null : new IntElement(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public FloatElement CreateFloatWME(Identifier parent, String pAttribute, double value) {
-    long cPtr = smlJNI.Agent_CreateFloatWME(swigCPtr, this, Identifier.getCPtr(parent), parent, pAttribute, value);
-    return (cPtr == 0) ? null : new FloatElement(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public Identifier CreateIdWME(Identifier parent, String pAttribute) {
-    long cPtr = smlJNI.Agent_CreateIdWME(swigCPtr, this, Identifier.getCPtr(parent), parent, pAttribute);
-    return (cPtr == 0) ? null : new Identifier(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public Identifier CreateSharedIdWME(Identifier parent, String pAttribute, Identifier pSharedValue) {
-    long cPtr = smlJNI.Agent_CreateSharedIdWME(swigCPtr, this, Identifier.getCPtr(parent), parent, pAttribute, Identifier.getCPtr(pSharedValue), pSharedValue);
-    return (cPtr == 0) ? null : new Identifier(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public void Update(StringElement pWME, String pValue) {
-    smlJNI.Agent_Update__SWIG_0(swigCPtr, this, StringElement.getCPtr(pWME), pWME, pValue);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public void Update(IntElement pWME, int value) {
-    smlJNI.Agent_Update__SWIG_1(swigCPtr, this, IntElement.getCPtr(pWME), pWME, value);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public void Update(FloatElement pWME, double value) {
-    smlJNI.Agent_Update__SWIG_2(swigCPtr, this, FloatElement.getCPtr(pWME), pWME, value);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public void SetBlinkIfNoChange(boolean state) {
@@ -174,7 +168,7 @@ public class Agent extends ClientErrors {
   }
 
   public boolean DestroyWME(WMElement pWME) {
-    return smlJNI.Agent_DestroyWME(swigCPtr, this, WMElement.getCPtr(pWME), pWME);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public String InitSoar() {
@@ -186,8 +180,7 @@ public class Agent extends ClientErrors {
   }
 
   public WMElement GetOutputLinkChange(int index) {
-    long cPtr = smlJNI.Agent_GetOutputLinkChange(swigCPtr, this, index);
-    return (cPtr == 0) ? null : new WMElement(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public boolean IsOutputLinkChangeAdd(int index) {
@@ -207,8 +200,7 @@ public class Agent extends ClientErrors {
   }
 
   public Identifier GetCommand(int index) {
-    long cPtr = smlJNI.Agent_GetCommand(swigCPtr, this, index);
-    return (cPtr == 0) ? null : new Identifier(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public boolean Commit() {
@@ -276,7 +268,7 @@ public class Agent extends ClientErrors {
   }
 
   public boolean ExecuteCommandLineXML(String pCommandLine, ClientAnalyzedXML pResponse) {
-    return smlJNI.Agent_ExecuteCommandLineXML(swigCPtr, this, pCommandLine, ClientAnalyzedXML.getCPtr(pResponse), pResponse);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public boolean GetLastCommandLineResult() {
@@ -294,5 +286,55 @@ public class Agent extends ClientErrors {
   public boolean SynchronizeOutputLink() {
     return smlJNI.Agent_SynchronizeOutputLink(swigCPtr, this);
   }
+
+    /**
+     * @return
+     */
+    WorkingMemory GetWM()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * 
+     */
+    void FireOutputNotification()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * @return
+     */
+    boolean IsRegisteredForOutputEvent()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * @param wme
+     */
+    void ReceivedOutputEvent(WMElement wme)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * @return
+     */
+    Connection GetConnection()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    boolean IsAutoCommitEnabled()
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

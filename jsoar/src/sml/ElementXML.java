@@ -8,29 +8,25 @@
 
 package sml;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 public class ElementXML {
-  private long swigCPtr;
-  protected boolean swigCMemOwn;
-
-  protected ElementXML(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
-  }
-
-  protected static long getCPtr(ElementXML obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  protected void finalize() {
-    delete();
-  }
+    ElementXML other;
+    int             m_ErrorCode ;       // Used to report any errors.
+    boolean            m_UseCData ;        // If true, should store character data in a CDATA section when encoding as XML.
+    String  m_TagName ;         // The tag name (e.g. in <name>...</name> the tag name is "name")
+    String       m_CharacterData ;   // The character data (e.g. in <name>Albert Einstein</name> the char data is "Albert Einstein")
+    Map<String, String> m_AttributeMap = new TreeMap<String, String>();    // Mapping from attribute-name to attribute-value (e.g. in <name first="Albert"> first is an attribute with value "Albert")
+    List<ElementXML>  m_Children = new ArrayList<ElementXML>();        // List of children of this element
+    String       m_Comment ;         // Used to attach a comment to this object.  It will appear ahead of the element when stored/retrieved.
+    boolean            m_DataIsBinary ;    // If true, then the character data is treated as a binary buffer (can contain embedded nulls) and the binary length is needed
+    int             m_BinaryDataLength ;// Gives the length of the character data buffer, when it's being treated as a binary buffer.  (only valid if m_IsDataBinary is true).
+    ElementXML m_pParent ;         // The parent of this object (can be NULL)
 
   public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      smlJNI.delete_ElementXML(swigCPtr);
-    }
-    swigCPtr = 0;
   }
 
    public static final String kClassAttribute   = "Class" ;
@@ -53,232 +49,274 @@ public class ElementXML {
 		return intVal ;
 	}
 	
-	private long GetCPtrAndDisown(ElementXML pChild) {
-		pChild.swigCMemOwn = false;
-		return ElementXML.getCPtr(pChild);
-	}
-
   public static boolean IsValidID(String str) {
-    return smlJNI.ElementXML_IsValidID(str);
+       throw new UnsupportedOperationException("IsValidID not implemented");
   }
 
   public ElementXML() {
-    this(smlJNI.new_ElementXML__SWIG_0(), true);
   }
 
-  public ElementXML(SWIGTYPE_p_ElementXML_InterfaceStruct hXML) {
-    this(smlJNI.new_ElementXML__SWIG_1(SWIGTYPE_p_ElementXML_InterfaceStruct.getCPtr(hXML)), true);
-  }
-
-  public int ReleaseRefOnHandle() {
-    return smlJNI.ElementXML_ReleaseRefOnHandle(swigCPtr, this);
-  }
-
-  public int AddRefOnHandle() {
-    return smlJNI.ElementXML_AddRefOnHandle(swigCPtr, this);
-  }
-
-  public int GetRefCount() {
-    return smlJNI.ElementXML_GetRefCount(swigCPtr, this);
-  }
-
-  public void Attach(SWIGTYPE_p_ElementXML_InterfaceStruct hXML) {
-    smlJNI.ElementXML_Attach(swigCPtr, this, SWIGTYPE_p_ElementXML_InterfaceStruct.getCPtr(hXML));
-  }
-
-  public SWIGTYPE_p_ElementXML_InterfaceStruct Detach() {
-    long cPtr = smlJNI.ElementXML_Detach(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_ElementXML_InterfaceStruct(cPtr, false);
-  }
-
-  public SWIGTYPE_p_ElementXML_InterfaceStruct GetXMLHandle() {
-    long cPtr = smlJNI.ElementXML_GetXMLHandle(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_ElementXML_InterfaceStruct(cPtr, false);
+  public ElementXML(ElementXML other) {
+      this.other = other;
   }
 
   public boolean SetTagName(String tagName, boolean copyName) {
-    return smlJNI.ElementXML_SetTagName__SWIG_0(swigCPtr, this, tagName, copyName);
+      return SetTagName(tagName);
   }
 
   public boolean SetTagName(String tagName) {
-    return smlJNI.ElementXML_SetTagName__SWIG_1(swigCPtr, this, tagName);
+      if(other != null)
+      {
+          return other.SetTagName(tagName);
+      }
+      m_TagName = tagName;
+      return true; // TODO
   }
 
   public boolean SetTagNameConst(String tagName) {
-    return smlJNI.ElementXML_SetTagNameConst(swigCPtr, this, tagName);
+      return SetTagName(tagName);
   }
 
   public String GetTagName() {
-    return smlJNI.ElementXML_GetTagName(swigCPtr, this);
+      return other != null ? other.GetTagName() : m_TagName;
   }
 
   public boolean IsTag(String pTagName) {
-    return smlJNI.ElementXML_IsTag(swigCPtr, this, pTagName);
+      if(other != null)
+      {
+          return other.IsTag(pTagName);
+      }
+      return (pTagName == null && m_TagName == null) || pTagName.equals(m_TagName);
   }
 
   public boolean SetComment(String pComment) {
-    return smlJNI.ElementXML_SetComment(swigCPtr, this, pComment);
+      if(other != null)
+      {
+          return other.SetComment(pComment);
+      }
+
+      m_Comment = pComment;
+      return true;
   }
 
   public String GetComment() {
-    return smlJNI.ElementXML_GetComment(swigCPtr, this);
+      return other != null ? other.GetComment() : m_Comment;
   }
 
-  public SWIGTYPE_p_ElementXML_InterfaceStruct AddChild(ElementXML pChild) {
-    long cPtr = smlJNI.ElementXML_AddChild(swigCPtr, this, GetCPtrAndDisown(pChild), pChild);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_ElementXML_InterfaceStruct(cPtr, false);
+  public ElementXML AddChild(ElementXML pChild) {
+      if(other != null)
+      {
+          return other.AddChild(pChild);
+      }
+
+      pChild.m_pParent = this;
+      m_Children.add(pChild);
+      return pChild;
   }
 
   public int GetNumberChildren() {
-    return smlJNI.ElementXML_GetNumberChildren(swigCPtr, this);
+    return m_Children.size();
   }
 
   public boolean GetChild(ElementXML pChild, int index) {
-    return smlJNI.ElementXML_GetChild(swigCPtr, this, GetCPtrAndDisown(pChild), pChild, index);
+      if(other != null)
+      {
+          return other.GetChild(pChild, index);
+      }
+
+      if(index >= m_Children.size())
+      {
+          return false;
+      }
+    pChild.other = m_Children.get(index);
+    return true;
   }
 
   public boolean GetParent(ElementXML pParent) {
-    return smlJNI.ElementXML_GetParent(swigCPtr, this, ElementXML.getCPtr(pParent), pParent);
+      if(other != null)
+      {
+          return other.GetParent(pParent);
+      }
+
+      pParent.other = m_pParent;
+      return m_pParent != null;
   }
 
   public ElementXML MakeCopy() {
-    long cPtr = smlJNI.ElementXML_MakeCopy(swigCPtr, this);
-    return (cPtr == 0) ? null : new ElementXML(cPtr, false);
+      throw new UnsupportedOperationException("MakeCopy");
   }
 
   public boolean AddAttribute(String attributeName, String attributeValue, boolean copyName, boolean copyValue) {
-    return smlJNI.ElementXML_AddAttribute__SWIG_0(swigCPtr, this, attributeName, attributeValue, copyName, copyValue);
+      return AddAttribute(attributeName, attributeValue);
   }
 
   public boolean AddAttribute(String attributeName, String attributeValue, boolean copyName) {
-    return smlJNI.ElementXML_AddAttribute__SWIG_1(swigCPtr, this, attributeName, attributeValue, copyName);
+      return AddAttribute(attributeName, attributeValue);
   }
 
   public boolean AddAttribute(String attributeName, String attributeValue) {
-    return smlJNI.ElementXML_AddAttribute__SWIG_2(swigCPtr, this, attributeName, attributeValue);
+      if(other != null)
+      {
+          return other.AddAttribute(attributeName, attributeValue);
+      }
+      m_AttributeMap.put(attributeName, attributeValue);
+      return true;
   }
 
   public boolean AddAttributeConst(String attributeName, String attributeValue) {
-    return smlJNI.ElementXML_AddAttributeConst(swigCPtr, this, attributeName, attributeValue);
+      return AddAttribute(attributeName, attributeValue);
   }
 
   public boolean AddAttributeConstConst(String attributeName, String attributeValue) {
-    return smlJNI.ElementXML_AddAttributeConstConst(swigCPtr, this, attributeName, attributeValue);
+      return AddAttribute(attributeName, attributeValue);
   }
 
   public int GetNumberAttributes() {
-    return smlJNI.ElementXML_GetNumberAttributes(swigCPtr, this);
+      return other != null ? other.GetNumberAttributes() : m_AttributeMap.size();
   }
 
+  private Map.Entry<String, String> getAttribute(int index)
+  {
+      if(other != null)
+      {
+          return other.getAttribute(index);
+      }
+      int i = 0;
+      for(Map.Entry<String, String> e : m_AttributeMap.entrySet())
+      {
+          if(i == index)
+          {
+              return e;
+          }
+          ++i;
+      }
+      return null;
+  }
+  
   public String GetAttributeName(int index) {
-    return smlJNI.ElementXML_GetAttributeName(swigCPtr, this, index);
+      return getAttribute(index).getKey();
   }
 
   public String GetAttributeValue(int index) {
-    return smlJNI.ElementXML_GetAttributeValue(swigCPtr, this, index);
+      return getAttribute(index).getValue();
   }
 
   public String GetAttribute(String attName) {
-    return smlJNI.ElementXML_GetAttribute(swigCPtr, this, attName);
+      return other != null ? other.GetAttribute(attName) : m_AttributeMap.get(attName);
   }
 
   public void SetCharacterData(String characterData, boolean copyData) {
-    smlJNI.ElementXML_SetCharacterData__SWIG_0(swigCPtr, this, characterData, copyData);
+      SetCharacterData(characterData);
   }
 
   public void SetCharacterData(String characterData) {
-    smlJNI.ElementXML_SetCharacterData__SWIG_1(swigCPtr, this, characterData);
+      if(other != null)
+      {
+          other.SetCharacterData(characterData);
+          return;
+      }
+
+      m_CharacterData = characterData;
   }
 
   public void SetCharacterDataConst(String characterData) {
-    smlJNI.ElementXML_SetCharacterDataConst(swigCPtr, this, characterData);
+      SetCharacterData(characterData);
   }
 
   public void SetBinaryCharacterData(String characterData, int length, boolean copyData) {
-    smlJNI.ElementXML_SetBinaryCharacterData__SWIG_0(swigCPtr, this, characterData, length, copyData);
+      SetBinaryCharacterData(characterData, length);
   }
 
   public void SetBinaryCharacterData(String characterData, int length) {
-    smlJNI.ElementXML_SetBinaryCharacterData__SWIG_1(swigCPtr, this, characterData, length);
+      if(other != null)
+      {
+          other.SetBinaryCharacterData(characterData, length);
+          return;
+      }
+      m_CharacterData = characterData;
+      m_BinaryDataLength = length;
+      m_DataIsBinary = true;
   }
 
   public void SetBinaryCharacterDataConst(String characterData, int length) {
-    smlJNI.ElementXML_SetBinaryCharacterDataConst(swigCPtr, this, characterData, length);
+      SetBinaryCharacterData(characterData, length);
   }
 
   public String GetCharacterData() {
-    return smlJNI.ElementXML_GetCharacterData(swigCPtr, this);
+      return other != null ? other.GetCharacterData() : m_CharacterData;
   }
 
   public boolean IsCharacterDataBinary() {
-    return smlJNI.ElementXML_IsCharacterDataBinary(swigCPtr, this);
+      return other != null ? other.IsCharacterDataBinary() : m_DataIsBinary;
   }
 
   public boolean ConvertCharacterDataToBinary() {
-    return smlJNI.ElementXML_ConvertCharacterDataToBinary(swigCPtr, this);
+      throw new UnsupportedOperationException("ConvertCharacterDataToBinary");
   }
 
   public int GetCharacterDataLength() {
-    return smlJNI.ElementXML_GetCharacterDataLength(swigCPtr, this);
+      return other != null ? other.GetCharacterDataLength() : m_CharacterData.length();
   }
 
   public void SetUseCData(boolean useCData) {
-    smlJNI.ElementXML_SetUseCData(swigCPtr, this, useCData);
+      if(other != null)
+      {
+          other.SetUseCData(useCData);
+          return;
+      }
+      m_UseCData = useCData;
   }
 
   public boolean GetUseCData() {
-    return smlJNI.ElementXML_GetUseCData(swigCPtr, this);
+      return other != null ? other.GetUseCData() : m_UseCData;
   }
 
   public String GenerateXMLString(boolean includeChildren, boolean insertNewLines) {
-    return smlJNI.ElementXML_GenerateXMLString__SWIG_0(swigCPtr, this, includeChildren, insertNewLines);
+      throw new UnsupportedOperationException("GenerateXMLString");
   }
 
   public String GenerateXMLString(boolean includeChildren) {
-    return smlJNI.ElementXML_GenerateXMLString__SWIG_1(swigCPtr, this, includeChildren);
+      throw new UnsupportedOperationException("GenerateXMLString");
   }
 
   public int DetermineXMLStringLength(boolean includeChildren, boolean insertNewLines) {
-    return smlJNI.ElementXML_DetermineXMLStringLength__SWIG_0(swigCPtr, this, includeChildren, insertNewLines);
+      throw new UnsupportedOperationException("DetermineXMLStringLength");
   }
 
   public int DetermineXMLStringLength(boolean includeChildren) {
-    return smlJNI.ElementXML_DetermineXMLStringLength__SWIG_1(swigCPtr, this, includeChildren);
+      throw new UnsupportedOperationException("DetermineXMLStringLength");
   }
 
   public static String AllocateString(int length) {
-    return smlJNI.ElementXML_AllocateString(length);
+      throw new UnsupportedOperationException("AllocateString");
   }
 
   public static void DeleteString(String pString) {
-    smlJNI.ElementXML_DeleteString(pString);
+      throw new UnsupportedOperationException("AllocateString");
   }
 
   public static String CopyString(String original) {
-    return smlJNI.ElementXML_CopyString(original);
+      return original;
   }
 
   public static String CopyBuffer(String original, int length) {
-    return smlJNI.ElementXML_CopyBuffer(original, length);
+      return new String(original.toCharArray(), 0, length);
   }
 
   public static ElementXML ParseXMLFromString(String pString) {
-    long cPtr = smlJNI.ElementXML_ParseXMLFromString(pString);
-    return (cPtr == 0) ? null : new ElementXML(cPtr, true);
+      throw new UnsupportedOperationException("AllocateString");
   }
 
   public static ElementXML ParseXMLFromStringSequence(String pString, long startPos, SWIGTYPE_p_size_t endPos) {
-    long cPtr = smlJNI.ElementXML_ParseXMLFromStringSequence(pString, startPos, SWIGTYPE_p_size_t.getCPtr(endPos));
-    return (cPtr == 0) ? null : new ElementXML(cPtr, false);
+      throw new UnsupportedOperationException("AllocateString");
   }
 
   public static ElementXML ParseXMLFromFile(String pFilename) {
-    long cPtr = smlJNI.ElementXML_ParseXMLFromFile(pFilename);
-    return (cPtr == 0) ? null : new ElementXML(cPtr, true);
+      throw new UnsupportedOperationException("AllocateString");
   }
 
   public static String GetLastParseErrorDescription() {
-    return smlJNI.ElementXML_GetLastParseErrorDescription();
+      throw new UnsupportedOperationException("AllocateString");
   }
 
 }

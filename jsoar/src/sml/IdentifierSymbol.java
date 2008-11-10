@@ -8,82 +8,105 @@
 
 package sml;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 public class IdentifierSymbol {
-  private long swigCPtr;
-  protected boolean swigCMemOwn;
+    // The value for this id, which is a string identifier (e.g. I3)
+    // We'll use upper case for Soar IDs and lower case for client IDs
+    // (sometimes the client has to generate these before they are assigned by the kernel)
+    String m_Symbol ;
 
-  protected IdentifierSymbol(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
-  }
+    // The list of WMEs owned by this identifier.
+    // (When we delete this identifier we'll delete all these automatically)
+    final List<WMElement>       m_Children = new LinkedList<WMElement>();
 
-  protected static long getCPtr(IdentifierSymbol obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
+    // The list of WMEs that are using this symbol as their identifier
+    // (Usually just one value in this list)
+    final LinkedList<Identifier>      m_UsedBy = new LinkedList<Identifier>();
 
-  protected void finalize() {
-    delete();
-  }
+    // This is true if the list of children of this identifier was changed.  The client chooses when to clear these flags.
+    boolean m_AreChildrenModified ;
 
   public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      smlJNI.delete_IdentifierSymbol(swigCPtr);
-    }
-    swigCPtr = 0;
+      assert GetNumberUsing() == 0;
+      
+      DeleteAllChildren();
   }
 
   public IdentifierSymbol(Identifier pIdentifier) {
-    this(smlJNI.new_IdentifierSymbol(Identifier.getCPtr(pIdentifier), pIdentifier), true);
+      m_UsedBy.add(pIdentifier);
   }
 
   public String GetIdentifierSymbol() {
-    return smlJNI.IdentifierSymbol_GetIdentifierSymbol(swigCPtr, this);
+      return m_Symbol;
   }
 
   public void SetIdentifierSymbol(String pID) {
-    smlJNI.IdentifierSymbol_SetIdentifierSymbol(swigCPtr, this, pID);
+      m_Symbol = pID;
   }
 
   public boolean AreChildrenModified() {
-    return smlJNI.IdentifierSymbol_AreChildrenModified(swigCPtr, this);
+      return m_AreChildrenModified;
   }
 
   public void SetAreChildrenModified(boolean state) {
-    smlJNI.IdentifierSymbol_SetAreChildrenModified(swigCPtr, this, state);
+      m_AreChildrenModified = state;
   }
 
   public void NoLongerUsedBy(Identifier pIdentifier) {
-    smlJNI.IdentifierSymbol_NoLongerUsedBy(swigCPtr, this, Identifier.getCPtr(pIdentifier), pIdentifier);
+      m_UsedBy.remove(pIdentifier);
   }
 
   public void UsedBy(Identifier pIdentifier) {
-    smlJNI.IdentifierSymbol_UsedBy(swigCPtr, this, Identifier.getCPtr(pIdentifier), pIdentifier);
+      m_UsedBy.add(pIdentifier);
   }
 
   public boolean IsFirstUser(Identifier pIdentifier) {
-    return smlJNI.IdentifierSymbol_IsFirstUser(swigCPtr, this, Identifier.getCPtr(pIdentifier), pIdentifier);
+      if(m_UsedBy.isEmpty())
+      {
+          return false;
+      }
+      return pIdentifier == m_UsedBy.getFirst();
   }
 
   public Identifier GetFirstUser() {
-    long cPtr = smlJNI.IdentifierSymbol_GetFirstUser(swigCPtr, this);
-    return (cPtr == 0) ? null : new Identifier(cPtr, false);
+      return m_UsedBy.getFirst();
   }
 
   public int GetNumberUsing() {
-    return smlJNI.IdentifierSymbol_GetNumberUsing(swigCPtr, this);
+      return m_UsedBy.size();
   }
 
   public void AddChild(WMElement pWME) {
-    smlJNI.IdentifierSymbol_AddChild(swigCPtr, this, WMElement.getCPtr(pWME), pWME);
+      SetAreChildrenModified(true);
+      
+      WMElement it = WMElement.findByTimeTag(m_Children, pWME.GetTimeTag());
+      if(it == null)
+      {
+          m_Children.add(pWME);
+      }
   }
 
   public void DeleteAllChildren() {
-    smlJNI.IdentifierSymbol_DeleteAllChildren(swigCPtr, this);
+      for(WMElement pWME : m_Children)
+      {
+          pWME.delete();
+      }
+      m_Children.clear();
   }
 
   public void RemoveChild(WMElement pWME) {
-    smlJNI.IdentifierSymbol_RemoveChild(swigCPtr, this, WMElement.getCPtr(pWME), pWME);
+      Iterator<WMElement> it = m_Children.iterator();
+      while(it.hasNext())
+      {
+          if(pWME.GetTimeTag() == it.next().GetTimeTag())
+          {
+              it.remove();
+              return;
+          }
+      }
   }
 
 }
