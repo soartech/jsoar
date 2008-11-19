@@ -26,6 +26,7 @@ public class SoarTclInterface
     private final SourceCommand sourceCommand;
     private final PushdCommand pushdCommand;
     private final PopdCommand popdCommand;
+    private final CLogCommand clogCommand = new CLogCommand(this);
     
     private final Command spCommand = new SpCommand(this);
         
@@ -146,6 +147,7 @@ public class SoarTclInterface
         interp.createCommand("verbose", verboseCommand);
         interp.createCommand("save-backtraces", saveBacktracesCommand);
         interp.createCommand("echo", echoCommand);
+        interp.createCommand("clog", clogCommand);
     }
     
     public Interp getInterpreter()
