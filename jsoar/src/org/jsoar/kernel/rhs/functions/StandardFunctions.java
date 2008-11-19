@@ -53,9 +53,37 @@ public class StandardFunctions
         }
     };
     
+    /**
+     * RHS function that prints a failure message and halts the agent.
+     */
+    public final RhsFunctionHandler failed = new AbstractRhsFunctionHandler("failed") {
+
+        @Override
+        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        {
+            context.getPrinter().error("Failure %s", arguments);
+            return context.getRhsFunctions().getHandler("halt").execute(syms, arguments);
+        }
+        
+    };
+    
+    /**
+     * RHS function that prints a success message and halts the agent.
+     */
+    public final RhsFunctionHandler succeeded = new AbstractRhsFunctionHandler("succeeded") {
+
+        @Override
+        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        {
+            context.getPrinter().error("Succeeded %s", arguments);
+            return context.getRhsFunctions().getHandler("halt").execute(syms, arguments);
+        }
+        
+    };
+    
     
     private final List<RhsFunctionHandler> allInternal = 
-        new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf,
+        new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf, failed, succeeded,
                 new Concat(), new IfEq(), new MakeConstantSymbol(), new StrLen()));
     {
         allInternal.addAll(MathFunctions.all);
