@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import org.flexdock.docking.DockingConstants;
 
@@ -43,9 +44,18 @@ public class TraceView extends AbstractAdaptableView
         @Override
         synchronized public void flush() throws IOException
         {
-            outputWindow.append(buffer.toString());
-            outputWindow.setCaretPosition(outputWindow.getText().length());
+            final String output = buffer.toString();
             buffer = new StringBuilder();
+
+            if(output.length() > 0)
+            {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        outputWindow.append(output);
+                        outputWindow.setCaretPosition(outputWindow.getText().length());
+                    }
+                });
+            }
         }
 
         @Override
