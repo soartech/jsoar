@@ -363,7 +363,7 @@ public class FunctionalTests
         assertTrue(agent.decisionCycle.d_cycle_count > 40000);
     }
     
-    @Test(timeout=20000)
+    @Test(timeout=60000)
     public void testCountTest() throws Exception
     {
         runTest("testCountTest", -1);
