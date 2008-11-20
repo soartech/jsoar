@@ -8,40 +8,471 @@
 
 package sml;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.jsoar.util.ByRef;
+
+import sml.connection.Connection;
+import sml.connection.ErrorCode;
+import sml.connection.ReceivedCall;
+
 public class Kernel extends ClientErrors
 {
     private long swigCPtr;
     
-    private boolean m_bAutoCommit = true;
-    long        m_TimeTagCounter ;  // Used to generate time tags (we do them in the kernel not the agent, so ids are unique for all agents)
-    long        m_IdCounter ;       // Used to generate unique id names
+    int        m_TimeTagCounter ;  // Used to generate time tags (we do them in the kernel not the agent, so ids are unique for all agents)
+    int        m_IdCounter ;       // Used to generate unique id names
     int         m_CallbackIDCounter ;   // Used to generate unique callback IDs
 
-    protected Kernel(long cPtr, boolean cMemoryOwn)
+    Connection         m_Connection ;
+    final ObjectMap<Agent>   m_AgentMap = new ObjectMap<Agent>();
+    String         m_CommandLineResult;
+    boolean                m_CommandLineSucceeded ;
+    // TODO sock::SocketLib*    m_SocketLibrary ;
+
+    // Info about all connections (have to explicitly request this)
+    LinkedList<ConnectionInfo> m_ConnectionInfoList ;
+    boolean                m_ConnectionInfoChanged ;
+
+    // When true, commands are sent to external filters (if they are registered) for filtering before execution.
+    boolean                m_FilteringEnabled ;
+
+    // The mapping from event number to a list of handlers to call when that event fires
+    // Which handler functions to call when an event comes in
+    final ListMap<smlSystemEventId, SystemEventHandlerPlusData>      m_SystemEventMap = new ListMap<smlSystemEventId, SystemEventHandlerPlusData>();
+    final ListMap<smlAgentEventId, AgentEventHandlerPlusData> m_AgentEventMap = new ListMap<smlAgentEventId, AgentEventHandlerPlusData>();
+    final ListMap<String, RhsEventHandlerPlusData> m_RhsEventMap = new ListMap<String, RhsEventHandlerPlusData>();
+    final ListMap<smlUpdateEventId, UpdateEventHandlerPlusData> m_UpdateEventMap = new ListMap<smlUpdateEventId, UpdateEventHandlerPlusData>();
+    final ListMap<smlStringEventId, StringEventHandlerPlusData> m_StringEventMap = new ListMap<smlStringEventId, StringEventHandlerPlusData>();
+
+    // Class used to map events ids to and from strings
+    Events             m_pEventMap ;
+    
+    // Keep a local copy of this flag so we can report
+    // information directly about what the client is sending/receiving
+    boolean m_bTracingCommunications ;
+    boolean m_bShutdown ;
+
+    // If true, don't register to get output link events
+    boolean m_bIgnoreOutput ;
+
+    // If true, commit all changes to working memory immediately after they occur
+    // (that is send them over to kernelSML immediately, rather than collecting them up for a single commit)
+    boolean m_bAutoCommit = true;
+
+    // This thread is used to check for incoming events when the client goes to sleep
+    // It ensures the client stays "alive" and is optional (there are other ways for clients to keep themselves
+    // responsive).
+    // TODO EventThread*        m_pEventThread ;
+    
+    protected Kernel(Connection pConnection)
     {
-        super(smlJNI.SWIGKernelUpcast(cPtr), cMemoryOwn);
-        swigCPtr = cPtr;
+        m_Connection     = pConnection ;
+        m_TimeTagCounter = 0 ;
+        m_IdCounter      = 0 ;
+        // TODO m_SocketLibrary  = null ;
+        m_LastError      = ErrorCode.kNoError ;
+        m_CallbackIDCounter = 0 ;
+        // TODO m_pEventThread  = 0 ;
+        m_pEventMap     = new Events() ;
+        m_bTracingCommunications = false ;
+        m_bShutdown     = false ;
+        m_ConnectionInfoChanged = false ;
+        m_bIgnoreOutput = false ;
+        m_FilteringEnabled = true ;
+
+        // We're turning on auto commit by default, so clients are a bit slower but easier to write.
+        // Power users are free to turn it off and use explicit commit calls.
+        m_bAutoCommit   = true ;
+
+        ClearError() ;
+
+        if (pConnection != null)
+        {
+            // TODO m_pEventThread = new EventThread(pConnection) ;
+
+            // We start the event thread for asynch connections (remote and embedded on a new thread).
+            // Synchronous ones don't need it as the kernel can simply call right over to the client directly
+            // for those.
+            if (pConnection.IsAsynchronous())
+            {
+                // TODO m_pEventThread->Start() ;
+            }
+        }   
+    }
+    void InitEvents()
+    {
+        // TODO InitEvents
+        throw new UnsupportedOperationException();
     }
 
-    protected static long getCPtr(Kernel obj)
+    /*************************************************************
+    * @brief Register for a particular event with the kernel.
+    *        (This is a primitive function, should call one of the
+    *         higher level methods which will call here if needed)
+    *************************************************************/
+    void    RegisterForEventWithKernel(int id, String pAgentName)
     {
-        return (obj == null) ? 0 : obj.swigCPtr;
+        // TODO RegisterForEventWithKernel
+        throw new UnsupportedOperationException();
     }
 
-    protected void finalize()
+    /*************************************************************
+    * @brief Unregister for a particular event with the kernel.
+    *        (This is a primitive function, should call one of the
+    *         higher level methods which will call here if needed)
+    *************************************************************/
+    void    UnregisterForEventWithKernel(int id, String pAgentName)
     {
-        delete();
+        // TODO UnregisterForEventWithKernel
+        throw new UnsupportedOperationException();
+    }
+
+    /*************************************************************
+    * @brief Creates a new Agent* object (not to be confused
+    *        with actually creating a Soar agent -- see CreateAgent for that)
+    *************************************************************/
+    protected Agent MakeAgent(String pAgentName)
+    {
+        if (pAgentName == null)
+            return null;
+
+        // If we already have an agent structure for this name just
+        // return it.
+        Agent agent = GetAgent(pAgentName) ;
+
+        if (agent != null)
+            return agent ;
+
+        // Make a new client side agent object
+        agent = new Agent(this, pAgentName) ;
+
+        // Record this in our list of agents
+        m_AgentMap.add(agent.GetAgentName(), agent) ;
+
+        // Register to get output link events.  These won't come back as standard events.
+        // Instead we'll get "output" messages which are handled in a special manner.
+        if (!m_bIgnoreOutput)
+            RegisterForEventWithKernel(smlWorkingMemoryEventId.smlEVENT_OUTPUT_PHASE_CALLBACK.ordinal(), agent.GetAgentName()) ;
+
+        return agent ;
+        
+    }
+
+    // TODO void SetSocketLib(sock::SocketLib* pLibrary) { m_SocketLibrary = pLibrary ; }
+
+    int    GenerateNextID()        { return ++m_IdCounter ; }
+    int    GenerateNextTimeTag()   { return --m_TimeTagCounter ; } // Count down so different from Soar kernel
+
+    /***
+    ***   RHS functions and message event handlers use the same internal logic, although they look rather different to the user
+    ***/
+    int InternalAddRhsFunction(smlRhsEventId id, String pRhsFunctionName, RhsFunctionInterface handler, Object pUserData, boolean addToBack)
+    {
+        // implement InternalAddRhsFunction
+        throw new UnsupportedOperationException();
+    }
+    boolean InternalRemoveRhsFunction(smlRhsEventId id, int callbackID)
+    {
+        // implement InternalRemoveRhsFunction
+        throw new UnsupportedOperationException();
+    }
+
+    /*************************************************************
+    * @brief This function is called when an event is received
+    *        from the Soar kernel.
+    *
+    * @param pIncoming  The event command
+    * @param pResponse  The reply (no real need to fill anything in here currently)
+    *************************************************************/
+    void ReceivedEvent(AnalyzeXML pIncoming, ElementXML pResponse)
+    {
+        String pEventName = pIncoming.GetArgString(sml_Names.getKParamEventID()) ;
+
+        // This event had no event id field
+        if (pEventName == null)
+        {
+            return ;
+        }
+
+        // Convert from the string to an event ID
+        int id = m_pEventMap.ConvertToEvent(pEventName) ;
+
+        if (sml.IsSystemEventID(id))
+        {
+            ReceivedSystemEvent(smlSystemEventId.values()[id], pIncoming, pResponse) ;
+        } else if (sml.IsAgentEventID(id))
+        {
+            ReceivedAgentEvent(smlAgentEventId.values()[id], pIncoming, pResponse) ;
+        } else if (sml.IsRhsEventID(id))
+        {
+            ReceivedRhsEvent(smlRhsEventId.values()[id], pIncoming, pResponse) ;
+        } else if (sml.IsUpdateEventID(id))
+        {
+            ReceivedUpdateEvent(smlUpdateEventId.values()[id], pIncoming, pResponse) ;
+        } else if (sml.IsStringEventID(id))
+        {
+            ReceivedStringEvent(smlStringEventId.values()[id], pIncoming, pResponse) ;
+        }
+    } 
+    
+    void ReceivedSystemEvent(smlSystemEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
+    {
+        // Look up the handler(s) from the map
+        List<SystemEventHandlerPlusData> pHandlers = m_SystemEventMap.getList(id) ;
+
+        if (pHandlers == null)
+            return ;
+
+        // Go through the list of event handlers calling each in turn
+        for (SystemEventHandlerPlusData handlerWithData : pHandlers)
+        {
+            SystemEventInterface handler = handlerWithData.m_Handler ;
+            Object pUserData = handlerWithData.m_UserData; //.getUserData() ;
+
+            // Call the handler
+            handler.systemEventHandler(id.ordinal(), pUserData, this) ;
+        }
+    }
+
+    void ReceivedAgentEvent(smlAgentEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
+    {
+        // Get the name of the agent this event refers to.
+        String pAgentName = pIncoming.GetArgString(sml_Names.getKParamName()) ;
+
+        // Look up the handler(s) from the map
+        List<AgentEventHandlerPlusData> pHandlers = m_AgentEventMap.getList(id) ;
+
+        if (pHandlers == null)
+            return ;
+
+        // See if we already have an Agent* for this agent.
+        // We may not, because "agent created" events are included in the list that come here.
+        Agent pAgent = GetAgent(pAgentName) ;
+
+        // Agent name can be null for some agent manager events
+        if (pAgent == null && pAgentName != null)
+        {
+            // Create a new client side agent object
+            // We have to do this now because we'll be passing it back to the caller in a minute
+            pAgent = MakeAgent(pAgentName) ;
+        }
+
+        // Go through the list of event handlers calling each in turn
+        for (AgentEventHandlerPlusData handlerPlus : pHandlers)
+        {
+            AgentEventInterface handler = handlerPlus.m_Handler ;
+            Object pUserData = handlerPlus.m_UserData; //getUserData() ;
+
+            // Call the handler
+            handler.agentEventHandler(id.ordinal(), pUserData, pAgentName) ;
+        }
+        
+    }
+    void ReceivedRhsEvent(smlRhsEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
+    {
+        // Get the function name and the argument to the function
+        // (We pass a single string but it could be parsed further to other values by the client)
+        String pFunctionName = pIncoming.GetArgString(sml_Names.getKParamFunction()) ;
+        String pArgument     = pIncoming.GetArgString(sml_Names.getKParamValue()) ;
+        String pAgentName    = pIncoming.GetArgString(sml_Names.getKParamName()) ;
+
+        if (pFunctionName == null)
+        {
+            // Should always include a function name
+            SetError(ErrorCode.kInvalidArgument) ;
+            return ;
+        }
+
+        // Look up the handler(s) from the map
+        List<RhsEventHandlerPlusData> pHandlers = m_RhsEventMap.getList(pFunctionName) ;
+
+        if (pHandlers == null)
+            return ;
+
+        // Look up the agent
+        Agent pAgent = pAgentName != null ? GetAgent(pAgentName) : null;
+
+        // Go through the list of event handlers calling each in turn...except
+        // we only execute the first handler (registering multipler handlers for the same RHS function is not supported
+        // because these functions return a value -- it wouldn't be clear which to use.  We could change this to call all
+        // registered handlers and only use the first or last value returned.)
+        if (pHandlers.isEmpty())
+            return ;
+
+        RhsEventHandlerPlusData handlerWithData = pHandlers.get(0);
+
+        RhsFunctionInterface handler = handlerWithData.m_Handler ;
+        Object pUserData = handlerWithData.getUserData() ;
+
+        // Call the handler
+        String result = handler.rhsFunctionHandler(id.ordinal(), pUserData, pAgentName, pFunctionName, pArgument) ;
+
+        // If we got back a result then fill in the value in the response message.
+        m_Connection.AddSimpleResultToSMLResponse(pResponse, result) ;
+        
+    }
+    void ReceivedUpdateEvent(smlUpdateEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
+    {
+        //unused(pResponse) ;
+
+        // Retrieve the event arguments
+        /*smlRunFlags*/ int runFlags = pIncoming.GetArgInt(sml_Names.getKParamValue(), 0);
+
+        // Look up the handler(s) from the map
+        List<UpdateEventHandlerPlusData> pHandlers = m_UpdateEventMap.getList(id) ;
+
+        if (pHandlers == null)
+            return ;
+
+        // Go through the list of event handlers calling each in turn
+        for (UpdateEventHandlerPlusData handlerWithData : pHandlers)
+        {
+            UpdateEventInterface handler = handlerWithData.m_Handler ;
+            Object pUserData = handlerWithData.m_UserData; // getUserData() ;
+
+            // Call the handler
+            handler.updateEventHandler(id.ordinal(), pUserData, this, runFlags) ;
+        }
+
+    }
+    void ReceivedStringEvent(smlStringEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
+    {
+        String pValue = pIncoming.GetArgString(sml_Names.getKParamValue()) ;
+
+        // Look up the handler(s) from the map
+        List<StringEventHandlerPlusData> pHandlers = m_StringEventMap.getList(id) ;
+
+        if (pHandlers == null)
+            return ;
+
+        // Go through the list of event handlers calling each in turn
+        for (StringEventHandlerPlusData handlerWithData : pHandlers)
+        {
+            StringEventInterface handler = handlerWithData.m_Handler ;
+            Object pUserData = handlerWithData.m_UserData; //getUserData() ;
+
+            // Call the handler
+            String result = handler.stringEventHandler(id.ordinal(), pUserData, this, pValue) ;
+
+            // If we got back a result then fill in the value in the response message.
+            m_Connection.AddSimpleResultToSMLResponse(pResponse, result) ;
+        }
+        
+    }
+
+    /*************************************************************
+    * @brief If this message is an XML trace message returns
+    *        the agent pointer this message is for.
+    *        Otherwise returns NULL.
+    *        This function is just to boost performance on trace messages
+    *        which are really performance critical.
+    *************************************************************/
+    Agent IsXMLTraceEvent(ElementXML pIncomingMsg)
+    {
+        //  The message we're looking for has this structure:
+        //  <sml><command></command><trace></trace></sml>
+        // This is deliberately unusual so this simple test screens out
+        // almost all messages in one go.  It does make us more brittle (for detecting
+        // xml trace messages) but I think that's a fair trade-off.
+        if (pIncomingMsg.GetNumberChildren() != 2)
+            return null ;
+
+        ElementXML command = new ElementXML(null) ;
+        ElementXML trace = new ElementXML(null) ;
+        pIncomingMsg.GetChild(command, 0) ;
+        pIncomingMsg.GetChild(trace, 1) ;
+
+        if (trace.IsTag(sml_Names.getKTagTrace()) && command.IsTag(sml_Names.getKTagCommand()) && command.GetNumberChildren() > 0)
+        {
+            ElementXML agentArg = new ElementXML(null) ;
+            command.GetChild(agentArg, 0) ;
+/*
+    #ifdef _DEBUG
+            char const* pParam = agentArg.GetAttribute(sml_Names::kArgParam) ;
+            assert (pParam && strcmp(pParam, sml_Names::kParamAgent) == 0) ;
+    #endif
+*/            // Get the agent's name
+            String pAgentName = agentArg.GetCharacterData() ;
+
+            if (pAgentName == null || pAgentName.length() == 0)
+                return null ;
+
+            // Look up the agent
+            Agent pAgent = GetAgent(pAgentName) ;
+
+            // If this fails, we got a trace event for a now deleted agent
+            // (must have been flushed after the agent was destroyed).
+            // Returning null is probably as good as we do here so
+            // always return pAgent (even if it's null).
+            return pAgent ;
+        }
+
+        return null ;
+    }
+
+    protected void InitializeTimeTagCounter()
+    {
+        AnalyzeXML response = new AnalyzeXML();
+        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_GetInitialTimeTag()))
+        {
+            int initialTimeTag = response.GetResultInt(0) ;
+
+            // Client side time tags are negative (to distinguish them from kernel side ones)
+            assert(initialTimeTag <= 0) ;
+
+            // Start time tags from this value
+            m_TimeTagCounter = initialTimeTag ;
+
+            // Start IDs from this value too, so they don't collide
+            m_IdCounter = -initialTimeTag ;     
+        }
+        
     }
 
     public synchronized void delete()
     {
-        if (swigCPtr != 0 && swigCMemOwn)
+        // If the user didn't call shutdown, we'll do it now.
+        // It's better for the user to call it so we have a more stable state
+        // for handling messages.
+        if (!m_bShutdown)
+            Shutdown() ;
+
+        // When the agent map is deleted, it will delete its contents (the Agent objects)
+        // Do this before we delete the connection, in case we need to send things to the kernel
+        // during clean up.
+        m_AgentMap.clear() ;
+
+        // We also need to close the connection
+        if (m_Connection != null)
+            m_Connection.CloseConnection() ;
+
+        // Must stop the event thread before deleting the connection
+        // as it has a pointer to the connection.
+// TODO       if (m_pEventThread)
+//            m_pEventThread->Stop(true) ;
+
+        // Clean up any connection info we have stored
+        for (ConnectionInfo pInfo : m_ConnectionInfoList)
         {
-            swigCMemOwn = false;
-            smlJNI.delete_Kernel(swigCPtr);
+            pInfo.delete();
         }
-        swigCPtr = 0;
-        super.delete();
+        m_ConnectionInfoList.clear() ;
+
+        // TODO delete m_pEventThread ;
+
+        if(m_Connection != null)
+        {
+            m_Connection.delete();
+        }
+
+        // Deleting this shuts down the socket library if we were using it.
+        // TOD delete m_SocketLibrary ;
+
+        m_pEventMap.delete();
     }
 
     public interface SystemEventInterface
@@ -145,7 +576,21 @@ public class Kernel extends ClientErrors
     // delete their kernel pointer but not in Java.
     public void Shutdown()
     {
-        smlJNI.Kernel_ShutdownInternal(swigCPtr, this);
+        m_bShutdown = true ;
+
+        // Currently we have no work to do on the kernel side before
+        // disconnecting a remote connection.
+        if (m_Connection == null || m_Connection.IsRemoteConnection())
+        {
+            if (m_Connection != null)
+                m_Connection.CloseConnection() ;
+
+            return ;
+        }
+
+        AnalyzeXML response = new AnalyzeXML() ;
+        m_Connection.SendAgentCommand(response, sml_Names.getKCommand_Shutdown()) ;
+        m_Connection.CloseConnection() ;
         delete();
     }
 
@@ -163,75 +608,68 @@ public class Kernel extends ClientErrors
 
     public static Kernel CreateKernelInCurrentThread(String pLibraryName, boolean optimized, int portToListenOn)
     {
-        long cPtr = smlJNI.Kernel_CreateKernelInCurrentThread__SWIG_0(pLibraryName, optimized, portToListenOn);
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        return CreateEmbeddedConnection(pLibraryName, true, optimized, portToListenOn);
     }
 
     public static Kernel CreateKernelInCurrentThread(String pLibraryName, boolean optimized)
     {
-        long cPtr = smlJNI.Kernel_CreateKernelInCurrentThread__SWIG_1(pLibraryName, optimized);
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        return CreateKernelInCurrentThread(pLibraryName, optimized, kDefaultSMLPort);
     }
 
     public static Kernel CreateKernelInCurrentThread(String pLibraryName)
     {
-        long cPtr = smlJNI.Kernel_CreateKernelInCurrentThread__SWIG_2(pLibraryName);
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        return CreateKernelInCurrentThread(pLibraryName, false);
     }
 
     public static Kernel CreateKernelInCurrentThread()
     {
-        long cPtr = smlJNI.Kernel_CreateKernelInCurrentThread__SWIG_3();
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        return CreateKernelInCurrentThread(kDefaultLibraryName);
     }
 
     public static Kernel CreateKernelInNewThread(String pLibraryName, int portToListenOn)
     {
-        long cPtr = smlJNI.Kernel_CreateKernelInNewThread__SWIG_0(pLibraryName, portToListenOn);
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        return CreateEmbeddedConnection(pLibraryName, false, false, portToListenOn) ;
     }
 
     public static Kernel CreateKernelInNewThread(String pLibraryName)
     {
-        long cPtr = smlJNI.Kernel_CreateKernelInNewThread__SWIG_1(pLibraryName);
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        return CreateKernelInNewThread(pLibraryName, kDefaultSMLPort);
     }
 
     public static Kernel CreateKernelInNewThread()
     {
-        long cPtr = smlJNI.Kernel_CreateKernelInNewThread__SWIG_2();
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        return CreateKernelInNewThread(kDefaultLibraryName);
     }
 
     public static Kernel CreateRemoteConnection(boolean sharedFileSystem, String pIPaddress, int port,
             boolean ignoreOutput)
     {
-        long cPtr = smlJNI.Kernel_CreateRemoteConnection__SWIG_0(sharedFileSystem, pIPaddress, port, ignoreOutput);
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        // TODO implement CreateRemoteConnection
+        throw new UnsupportedOperationException();
     }
 
     public static Kernel CreateRemoteConnection(boolean sharedFileSystem, String pIPaddress, int port)
     {
-        long cPtr = smlJNI.Kernel_CreateRemoteConnection__SWIG_1(sharedFileSystem, pIPaddress, port);
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        // TODO implement CreateRemoteConnection
+        throw new UnsupportedOperationException();
     }
 
     public static Kernel CreateRemoteConnection(boolean sharedFileSystem, String pIPaddress)
     {
-        long cPtr = smlJNI.Kernel_CreateRemoteConnection__SWIG_2(sharedFileSystem, pIPaddress);
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        // TODO implement CreateRemoteConnection
+        throw new UnsupportedOperationException();
     }
 
     public static Kernel CreateRemoteConnection(boolean sharedFileSystem)
     {
-        long cPtr = smlJNI.Kernel_CreateRemoteConnection__SWIG_3(sharedFileSystem);
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        // TODO implement CreateRemoteConnection
+        throw new UnsupportedOperationException();
     }
 
     public static Kernel CreateRemoteConnection()
     {
-        long cPtr = smlJNI.Kernel_CreateRemoteConnection__SWIG_4();
-        return (cPtr == 0) ? null : new Kernel(cPtr, true);
+        // TODO implement CreateRemoteConnection
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -262,309 +700,635 @@ public class Kernel extends ClientErrors
 
     public boolean IsConnectionClosed()
     {
-        return smlJNI.Kernel_IsConnectionClosed(swigCPtr, this);
+        return m_Connection == null || m_Connection.IsClosed();
     }
 
     public boolean IsRemoteConnection()
     {
-        return smlJNI.Kernel_IsRemoteConnection(swigCPtr, this);
+        return m_Connection != null && m_Connection.IsRemoteConnection() ;
     }
 
     public boolean IsDirectConnection()
     {
-        return smlJNI.Kernel_IsDirectConnection(swigCPtr, this);
+        return m_Connection != null && m_Connection.IsDirectConnection() ;
     }
 
     public void ShutdownInternal()
     {
-        smlJNI.Kernel_ShutdownInternal(swigCPtr, this);
+        // TODO implement ShutdownInternal
+        throw new UnsupportedOperationException();
     }
 
     public void SetTraceCommunications(boolean state)
     {
-        smlJNI.Kernel_SetTraceCommunications(swigCPtr, this, state);
+        if (m_Connection != null)
+            m_Connection.SetTraceCommunications(state) ;
+
+        // We keep a local copy of this value so we can check it without
+        // calling anywhere.
+        m_bTracingCommunications = state ;
     }
 
     public boolean IsTracingCommunications()
     {
-        return smlJNI.Kernel_IsTracingCommunications(swigCPtr, this);
+        return m_bTracingCommunications ;
     }
 
     public Agent CreateAgent(String pAgentName)
     {
-        long cPtr = smlJNI.Kernel_CreateAgent(swigCPtr, this, pAgentName);
-        return (cPtr == 0) ? null : new Agent(cPtr, false);
+        AnalyzeXML response = new AnalyzeXML();
+        Agent agent = null;
+        
+        // See if this agent already exists
+        agent = GetAgent(pAgentName) ;
+
+        // If so, trying to create it fails.
+        // (We could pass back agent, but that would hide this error from the client).
+        if (agent != null)
+        {
+            SetError(ErrorCode.kAgentExists) ;
+            return null ;
+        }
+
+        assert(m_Connection != null);
+        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_CreateAgent(), 
+                                            null, sml_Names.getKParamName(), pAgentName))
+        {
+            agent = MakeAgent(pAgentName) ;
+        }
+
+        // Set our error state based on what happened during this call.
+        SetError(m_Connection.GetLastError()) ;
+
+        return agent ;
     }
 
     public void UpdateAgentList()
     {
-        smlJNI.Kernel_UpdateAgentList(swigCPtr, this);
+        AnalyzeXML response = new AnalyzeXML();
+        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_GetAgentList()))
+        {
+            ElementXML pResult = response.GetResultTag() ;
+            ElementXML child = new ElementXML(null) ;
+            
+            // Keep a record of the agents we find, so we can delete any that have been removed.
+            List<Agent>   inUse = new ArrayList<Agent>();
+
+            for (int i = 0 ; i < pResult.GetNumberChildren() ; i++)
+            {
+                pResult.GetChild(child, i) ;
+
+                // Look for the <name> tags
+                if (child.IsTag(sml_Names.getKTagName()))
+                {
+                    // Get the agent's name
+                    final String pAgentName = child.GetCharacterData() ;
+
+                    // If we don't know about this agent already, then add it to our list.
+                    Agent pAgent = m_AgentMap.find(pAgentName) ;
+
+                    if (pAgent == null)
+                    {
+                        pAgent = MakeAgent(pAgentName) ;
+                    }
+
+                    inUse.add(pAgent) ;
+                }
+            }
+
+            // Any agents that are in our map but not in the "inuse" list we should delete
+            // as they no longer exist.
+            m_AgentMap.keep(inUse) ;
+        }
     }
 
     public int GetNumberAgents()
     {
-        return smlJNI.Kernel_GetNumberAgents(swigCPtr, this);
+        return m_AgentMap.size();
     }
 
     public boolean DestroyAgent(Agent pAgent)
     {
-        return smlJNI.Kernel_DestroyAgent(swigCPtr, this, Agent.getCPtr(pAgent), pAgent);
+        AnalyzeXML response = new AnalyzeXML();
+
+        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_DestroyAgent(), pAgent.GetAgentName()))
+        {
+            // Remove the object from our map and delete it.
+            m_AgentMap.remove(pAgent.GetAgentName(), true) ;
+            return true ;
+        }
+
+        return false ;
     }
 
     public Agent GetAgent(String pAgentName)
     {
-        long cPtr = smlJNI.Kernel_GetAgent(swigCPtr, this, pAgentName);
-        return (cPtr == 0) ? null : new Agent(cPtr, false);
+        if (pAgentName == null)
+            return null;
+
+        return m_AgentMap.find(pAgentName) ;
     }
 
     public Agent GetAgentByIndex(int index)
     {
-        long cPtr = smlJNI.Kernel_GetAgentByIndex(swigCPtr, this, index);
-        return (cPtr == 0) ? null : new Agent(cPtr, false);
+        return m_AgentMap.getIndex(index) ;
     }
 
     public boolean IsAgentValid(Agent pAgent)
     {
-        return smlJNI.Kernel_IsAgentValid(swigCPtr, this, Agent.getCPtr(pAgent), pAgent);
+        // We check the current list of agent pointers and see if this value is in that list
+        // to determine if it is still valid.
+        return m_AgentMap.contains(pAgent) ;
     }
 
     public void EnableFiltering(boolean state)
     {
-        smlJNI.Kernel_EnableFiltering(swigCPtr, this, state);
+        m_FilteringEnabled = state ;
     }
 
     public String ExecuteCommandLine(String pCommandLine, String pAgentName, boolean echoResults, boolean noFilter)
     {
-        return smlJNI
-                .Kernel_ExecuteCommandLine__SWIG_0(swigCPtr, this, pCommandLine, pAgentName, echoResults, noFilter);
+        AnalyzeXML response = new AnalyzeXML();
+        boolean wantRawOutput = true ;
+
+        // Send the command line to the kernel
+        m_CommandLineSucceeded = m_Connection.SendAgentCommand(response,
+            sml_Names.getKCommand_CommandLine(), pAgentName,
+            sml_Names.getKParamLine(), pCommandLine,
+            sml_Names.getKParamEcho(), echoResults ? sml_Names.getKTrue() : sml_Names.getKFalse(),
+            sml_Names.getKParamNoFiltering(), 
+            !m_FilteringEnabled || noFilter ? sml_Names.getKTrue() : sml_Names.getKFalse(),
+            wantRawOutput);
+
+        if (m_CommandLineSucceeded)
+        {
+            // Get the result as a string
+            final String pResult = response.GetResultString();
+            m_CommandLineResult = (pResult == null)? "" : pResult ;
+        }
+        else
+        {
+            // Get the error message
+            m_CommandLineResult = "\nError: ";
+            if (response.GetErrorTag() != null) {
+                m_CommandLineResult += response.GetErrorTag().GetCharacterData();
+            } else {
+                m_CommandLineResult += "<No error message returned by command>";
+            }
+        }
+
+        return m_CommandLineResult;
     }
 
     public String ExecuteCommandLine(String pCommandLine, String pAgentName, boolean echoResults)
     {
-        return smlJNI.Kernel_ExecuteCommandLine__SWIG_1(swigCPtr, this, pCommandLine, pAgentName, echoResults);
+        return ExecuteCommandLine(pCommandLine, pAgentName, echoResults, false);
     }
 
     public String ExecuteCommandLine(String pCommandLine, String pAgentName)
     {
-        return smlJNI.Kernel_ExecuteCommandLine__SWIG_2(swigCPtr, this, pCommandLine, pAgentName);
+        return ExecuteCommandLine(pCommandLine, pAgentName, false);
     }
 
     public boolean ExecuteCommandLineXML(String pCommandLine, String pAgentName, ClientAnalyzedXML pResponse)
     {
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (pCommandLine == null || pResponse == null)
+            return false ;
+
+        m_CommandLineSucceeded = m_Connection.SendAgentCommand(pResponse.GetAnalyzeXML(), 
+                                sml_Names.getKCommand_CommandLine(), 
+                                pAgentName,
+                                sml_Names.getKParamLine(), 
+                                pCommandLine, 
+                                sml_Names.getKParamNoFiltering(), 
+                                sml_Names.getKTrue());
+
+        return m_CommandLineSucceeded ;
     }
 
     public String RunAllAgents(long numberSteps, smlRunStepSize stepSize, smlRunStepSize interleaveStepSize)
     {
-        return smlJNI.Kernel_RunAllAgents__SWIG_0(swigCPtr, this, numberSteps, stepSize.swigValue(), interleaveStepSize
-                .swigValue());
+        // TODO implement RunAllAgents
+        throw new UnsupportedOperationException();
     }
 
     public String RunAllAgents(long numberSteps, smlRunStepSize stepSize)
     {
-        return smlJNI.Kernel_RunAllAgents__SWIG_1(swigCPtr, this, numberSteps, stepSize.swigValue());
+        // TODO implement RunAllAgents
+        throw new UnsupportedOperationException();
     }
 
     public String RunAllAgents(long numberSteps)
     {
-        return smlJNI.Kernel_RunAllAgents__SWIG_2(swigCPtr, this, numberSteps);
+        // TODO implement RunAllAgents
+        throw new UnsupportedOperationException();
     }
 
     public String RunAllAgentsForever(smlRunStepSize interleaveStepSize)
     {
-        return smlJNI.Kernel_RunAllAgentsForever__SWIG_0(swigCPtr, this, interleaveStepSize.swigValue());
+        // TODO implement RunAllAgentsForever
+        throw new UnsupportedOperationException();
     }
 
     public String RunAllAgentsForever()
     {
-        return smlJNI.Kernel_RunAllAgentsForever__SWIG_1(swigCPtr, this);
+        // TODO implement RunAllAgentsForever
+        throw new UnsupportedOperationException();
     }
 
     public String RunAllTilOutput(smlRunStepSize interleaveStepSize)
     {
-        return smlJNI.Kernel_RunAllTilOutput__SWIG_0(swigCPtr, this, interleaveStepSize.swigValue());
+        // TODO implement RunAllTilOutput
+        throw new UnsupportedOperationException();
     }
 
     public String RunAllTilOutput()
     {
-        return smlJNI.Kernel_RunAllTilOutput__SWIG_1(swigCPtr, this);
+        // TODO implement RunAllTilOutput
+        throw new UnsupportedOperationException();
     }
 
     public String StopAllAgents()
     {
-        return smlJNI.Kernel_StopAllAgents(swigCPtr, this);
+        // TODO implement StopAllAgents
+        throw new UnsupportedOperationException();
     }
 
     public boolean IsSoarRunning()
     {
-        return smlJNI.Kernel_IsSoarRunning(swigCPtr, this);
+        // TODO implement IsSoarRunning
+        throw new UnsupportedOperationException();
     }
 
     public boolean GetAllConnectionInfo()
     {
-        return smlJNI.Kernel_GetAllConnectionInfo(swigCPtr, this);
+        LinkedList<ConnectionInfo> previousList = new LinkedList<ConnectionInfo>(m_ConnectionInfoList);
+
+        m_ConnectionInfoList.clear() ;
+
+        int previousConnectionCount = previousList.size() ;
+
+        AnalyzeXML response = new AnalyzeXML();
+        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_GetConnections()))
+        {
+            final ElementXML pResult = response.GetResultTag() ;
+            ElementXML child = new ElementXML(null) ;
+            
+            for (int i = 0 ; i < pResult.GetNumberChildren() ; i++)
+            {
+                pResult.GetChild(child, i) ;
+
+                // Look for the <connection> tags
+                if (child.IsTag(sml_Names.getKTagConnection()))
+                {
+                    // Get the connection's id, name and status
+                    final String pID     = child.GetAttribute(sml_Names.getKConnectionId()) ;
+                    final String pName   = child.GetAttribute(sml_Names.getKConnectionName()) ;
+                    final String pStatus = child.GetAttribute(sml_Names.getKConnectionStatus()) ;
+                    final String pAgentStatus = child.GetAttribute(sml_Names.getKAgentStatus()) ;
+
+                    // If this info is on the previous list move it back to the current list
+                    boolean foundMatch = false ;
+                    Iterator<ConnectionInfo> it = previousList.iterator();
+                    while(it.hasNext())
+                    {
+                        final ConnectionInfo pPrevInfo = it.next();
+                        if (pID.equals(pPrevInfo.GetID()) &&
+                            pName.equals(pPrevInfo.GetName())&&
+                            pStatus.equals(pPrevInfo.GetConnectionStatus()) &&
+                            pAgentStatus.equals(pPrevInfo.GetAgentStatus()))
+                        {
+                            m_ConnectionInfoList.add(pPrevInfo) ;
+                            it.remove();
+                            foundMatch = true ;
+                            break ;
+                        }
+                    }
+
+                    if (!foundMatch)
+                    {
+                        ConnectionInfo info = new ConnectionInfo(pID, pName, pStatus, pAgentStatus) ;
+                        m_ConnectionInfoList.add(info) ;
+                    }
+                }
+            }
+        }
+
+        // If we deleted all of the items from the previous list, then each connection we found matched
+        // an existing one.
+        if (previousList.size() == 0 && previousConnectionCount == m_ConnectionInfoList.size())
+            m_ConnectionInfoChanged = false ;
+        else
+            m_ConnectionInfoChanged = true ;
+
+        // Clean up any left over information
+//        for (ConnectionListIter iter = previousList.begin() ; iter != previousList.end() ; iter++)
+//        {
+//            ConnectionInfo* pInfo = *iter ;
+//            delete pInfo ;
+//        }
+
+        return m_ConnectionInfoChanged ;
     }
 
     public int GetNumberConnections()
     {
-        return smlJNI.Kernel_GetNumberConnections(swigCPtr, this);
+        return m_ConnectionInfoList.size();
     }
 
     public boolean HasConnectionInfoChanged()
     {
-        return smlJNI.Kernel_HasConnectionInfoChanged(swigCPtr, this);
+        return m_ConnectionInfoChanged ;
     }
 
     public ConnectionInfo GetConnectionInfo(int i)
     {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return m_ConnectionInfoList.get(i);
     }
 
     public String GetConnectionStatus(String pConnectionName)
     {
-        return smlJNI.Kernel_GetConnectionStatus(swigCPtr, this, pConnectionName);
+        for(ConnectionInfo info : m_ConnectionInfoList)
+        {
+            if(info.GetName() != null && info.GetName().equals(pConnectionName))
+            {
+                return info.GetConnectionStatus();
+            }
+        }
+        return null;
     }
 
     public String GetAgentStatus(String pConnectionName)
     {
-        return smlJNI.Kernel_GetAgentStatus(swigCPtr, this, pConnectionName);
+        for(ConnectionInfo info : m_ConnectionInfoList)
+        {
+            if(info.GetName() != null && info.GetName().equals(pConnectionName))
+            {
+                return info.GetAgentStatus();
+            }
+        }
+        return null;
     }
 
     public boolean SetConnectionInfo(String pName, String pConnectionStatus, String pAgentStatus)
     {
-        return smlJNI.Kernel_SetConnectionInfo(swigCPtr, this, pName, pConnectionStatus, pAgentStatus);
+        AnalyzeXML response = new AnalyzeXML();
+        boolean ok = m_Connection.SendAgentCommand(response, sml_Names.getKCommand_SetConnectionInfo(), null, 
+                sml_Names.getKConnectionName(), pName, 
+                sml_Names.getKConnectionStatus(), 
+                pConnectionStatus, sml_Names.getKAgentStatus(), pAgentStatus) ;
+        return ok ;
     }
 
     public boolean FireStartSystemEvent()
     {
-        return smlJNI.Kernel_FireStartSystemEvent(swigCPtr, this);
+        // TODO implement FireStartSystemEvent
+        throw new UnsupportedOperationException();
     }
 
     public boolean FireStopSystemEvent()
     {
-        return smlJNI.Kernel_FireStopSystemEvent(swigCPtr, this);
+        // TODO implement FireStopSystemEvent
+        throw new UnsupportedOperationException();
     }
 
     public boolean SuppressSystemStop(boolean state)
     {
-        return smlJNI.Kernel_SuppressSystemStop(swigCPtr, this, state);
+        // TODO implement SuppressSystemStop
+        throw new UnsupportedOperationException();
     }
 
     public String ExpandCommandLine(String pCommandLine)
     {
-        return smlJNI.Kernel_ExpandCommandLine(swigCPtr, this, pCommandLine);
+        // TODO implement ExpandCommandLine
+        throw new UnsupportedOperationException();
     }
 
     public boolean GetLastCommandLineResult()
     {
-        return smlJNI.Kernel_GetLastCommandLineResult(swigCPtr, this);
+        // TODO implement GetLastCommandLineResult
+        throw new UnsupportedOperationException();
     }
 
     public boolean IsRunCommand(String pCommandLine)
     {
-        return smlJNI.Kernel_IsRunCommand(swigCPtr, this, pCommandLine);
+        // TODO implement IsRunCommand
+        throw new UnsupportedOperationException();
     }
 
     public boolean IsStopCommand(String pCommandLine)
     {
-        return smlJNI.Kernel_IsStopCommand(swigCPtr, this, pCommandLine);
+        // TODO implement IsStopCommand
+        throw new UnsupportedOperationException();
     }
 
     public boolean CheckForIncomingCommands()
     {
-        return smlJNI.Kernel_CheckForIncomingCommands(swigCPtr, this);
+        // TODO implement CheckForIncomingCommands
+        throw new UnsupportedOperationException();
     }
 
     public boolean CheckForIncomingEvents()
     {
-        return smlJNI.Kernel_CheckForIncomingEvents(swigCPtr, this);
+        // TODO implement CheckForIncomingEvents
+        throw new UnsupportedOperationException();
     }
 
     public boolean StartEventThread()
     {
-        return smlJNI.Kernel_StartEventThread(swigCPtr, this);
+        // This thread is used to listen for events from the kernel
+        // when the client is sleeping
+// TODO       if (m_pEventThread == null)
+//            return false ;
+//
+//        m_pEventThread.Start() ;
+
+        return true ;
     }
 
     public boolean StopEventThread()
     {
-        return smlJNI.Kernel_StopEventThread(swigCPtr, this);
+        // Shut down the event thread
+// TODO       if (m_pEventThread == null)
+//            return false ;
+//
+//        m_pEventThread.Stop(true) ;
+
+        return true ;
     }
 
     public boolean SetInterruptCheckRate(int newRate)
     {
-        return smlJNI.Kernel_SetInterruptCheckRate(swigCPtr, this, newRate);
+        // TODO implement SetInterruptCheckRate
+        throw new UnsupportedOperationException();
     }
 
     public int RegisterForClientMessageEvent(String pClientName,
             SWIGTYPE_p_f_sml__smlRhsEventId_p_void_p_sml__Agent_p_q_const__char_p_q_const__char__std__string handler,
             SWIGTYPE_p_void pUserData, boolean addToBack)
     {
-        return smlJNI.Kernel_RegisterForClientMessageEvent__SWIG_0(swigCPtr, this, pClientName,
-                SWIGTYPE_p_f_sml__smlRhsEventId_p_void_p_sml__Agent_p_q_const__char_p_q_const__char__std__string
-                        .getCPtr(handler), SWIGTYPE_p_void.getCPtr(pUserData), addToBack);
+        // TODO implement RegisterForClientMessageEvent
+        throw new UnsupportedOperationException();
     }
 
     public int RegisterForClientMessageEvent(String pClientName,
             SWIGTYPE_p_f_sml__smlRhsEventId_p_void_p_sml__Agent_p_q_const__char_p_q_const__char__std__string handler,
             SWIGTYPE_p_void pUserData)
     {
-        return smlJNI.Kernel_RegisterForClientMessageEvent__SWIG_1(swigCPtr, this, pClientName,
-                SWIGTYPE_p_f_sml__smlRhsEventId_p_void_p_sml__Agent_p_q_const__char_p_q_const__char__std__string
-                        .getCPtr(handler), SWIGTYPE_p_void.getCPtr(pUserData));
+        // TODO implement RegisterForClientMessageEvent
+        throw new UnsupportedOperationException();
     }
 
     public String SendClientMessage(Agent pAgent, String pClientName, String pMessage)
     {
-        return smlJNI.Kernel_SendClientMessage(swigCPtr, this, Agent.getCPtr(pAgent), pAgent, pClientName, pMessage);
+        // TODO implement SendClientMessage
+        throw new UnsupportedOperationException();
     }
 
     public String GetLibraryLocation()
     {
-        return smlJNI.Kernel_GetLibraryLocation(swigCPtr, this);
+        // TODO implement GetLibraryLocation
+        throw new UnsupportedOperationException();
     }
 
     public String GetSoarKernelVersion()
     {
-        return smlJNI.Kernel_GetSoarKernelVersion(swigCPtr, this);
+        // TODO implement GetSoarKernelVersion
+        throw new UnsupportedOperationException();
     }
 
     public void CommitAll()
     {
-        smlJNI.Kernel_CommitAll(swigCPtr, this);
+        final int numberAgents = GetNumberAgents() ;
+
+        for (int i = 0 ; i < numberAgents ; i++)
+        {
+            Agent pAgent = GetAgentByIndex(i) ;
+            pAgent.Commit() ;
+        }
     }
 
     public boolean IsCommitRequired()
     {
-        return smlJNI.Kernel_IsCommitRequired(swigCPtr, this);
+        final int numberAgents = GetNumberAgents() ;
+
+        for (int i = 0 ; i < numberAgents ; i++)
+        {
+            Agent pAgent = GetAgentByIndex(i) ;
+            if (pAgent.GetWM().IsCommitRequired())
+                return true ;
+        }
+
+        return false ;
     }
 
     public String LoadExternalLibrary(String pLibraryCommand)
     {
-        return smlJNI.Kernel_LoadExternalLibrary(swigCPtr, this, pLibraryCommand);
+        // TODO implement LoadExternalLibrary
+        throw new UnsupportedOperationException();
     }
 
     public SWIGTYPE_p_sml__Connection GetConnection()
     {
-        long cPtr = smlJNI.Kernel_GetConnection(swigCPtr, this);
-        return (cPtr == 0) ? null : new SWIGTYPE_p_sml__Connection(cPtr, false);
+        // TODO implement GetConnection
+        throw new UnsupportedOperationException();
     }
 
     public final static int kDefaultSMLPort = 12121;
-
-    /**
-     * @return
-     */
-    int GenerateNextTimeTag()
+    private final static String kDefaultLibraryName = "SoarKernelSML";
+    
+    /*************************************************************
+    * @brief This function is called (indirectly) when we receive a "call" SML
+    *        message from the kernel.
+    *************************************************************/
+    protected ElementXML ProcessIncomingSML(Connection pConnection, ElementXML pIncomingMsg)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        // Create a reply
+        ElementXML pResponse = pConnection.CreateSMLResponse(pIncomingMsg) ;
+
+        // Make sure the connection hasn't been closed along the way
+        if (pConnection.IsClosed())
+            return pResponse ;
+
+        // Special case.  We want to intercept XML trace messages and pass them directly to the handler
+        // without analyzing them.  This is just to boost performance for these messages as speed is critical here
+        // as they're used for trace output.
+        Agent pAgent = IsXMLTraceEvent(pIncomingMsg) ;
+        if (pAgent != null)
+        {
+            pAgent.ReceivedXMLTraceEvent(smlXMLEventId.smlEVENT_XML_TRACE_OUTPUT, pIncomingMsg, pResponse) ;
+            return pResponse ;
+        }
+
+        // Analyze the message and find important tags
+        AnalyzeXML msg = new AnalyzeXML() ;
+        msg.Analyze(pIncomingMsg) ;
+
+        // Get the "name" attribute from the <command> tag
+        String pCommandName = msg.GetCommandName() ;
+
+        // Look up the agent name parameter (most commands have this)
+        String pAgentName = msg.GetArgString(sml_Names.getKParamAgent()) ;
+
+        // Find the client agent structure that matches this agent
+        if (pAgentName != null && pCommandName != null)
+        {
+            pAgent = GetAgent(pAgentName) ;
+
+            // If this is a command for a known agent and it's an "output" command
+            // then we're interested in it.
+            if (pAgent != null && pCommandName.equals(sml_Names.getKCommand_Output()))
+            {
+                // Pass the incoming message over to the agent
+                pAgent.ReceivedOutput(msg, pResponse) ;
+            }
+
+            if (pAgent != null && pCommandName.equals(sml_Names.getKCommand_Event()))
+            {
+                // This is an event specific to an agent, so handle it there.
+                pAgent.ReceivedEvent(msg, pResponse) ;
+            }
+        }
+        else
+        {
+            // If this is a mesage for the kernel itself process it here
+            if (pAgentName == null)
+            {
+                if (pCommandName.equals(sml_Names.getKCommand_Event()))
+                {
+                    // This is an event that is not agent specific
+                    this.ReceivedEvent(msg, pResponse) ;
+                }
+            }
+        }
+
+        return pResponse ;
     }
-
-    /**
-     * @return
-     */
-    int GenerateNextID()
+    
+    protected static Kernel CreateEmbeddedConnection(String pLibraryName, boolean clientThread, boolean optimized, int portToListenOn)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        ByRef<ErrorCode> errorCode = ByRef.create(null);
+        Connection pConnection = Connection.CreateEmbeddedConnection(pLibraryName, clientThread, optimized, portToListenOn, errorCode) ;
+
+        // Even if pConnection is NULL, we still build a kernel object, so we have
+        // a clean way to pass the error code back to the caller.
+        Kernel pKernel = new Kernel(pConnection) ;
+
+        // Transfer any errors over to the kernel object, so the caller can retrieve them.
+        pKernel.SetError(errorCode.value) ;
+
+        // Register for "calls" from the kernel.
+        if (pConnection != null)
+        {
+            pConnection.RegisterCallback(new ReceivedCall(), pKernel, sml_Names.getKDocType_Call(), true) ;
+
+            pKernel.InitializeTimeTagCounter() ;
+
+            pKernel.InitEvents() ;
+        }
+
+        return pKernel ;
+        
     }
 
 }

@@ -9,6 +9,7 @@
 package sml;
 
 public class PrintEventHandlerPlusData extends EventHandlerPlusData {
+    /*
   private long swigCPtr;
 
   protected PrintEventHandlerPlusData(long cPtr, boolean cMemoryOwn) {
@@ -23,39 +24,40 @@ public class PrintEventHandlerPlusData extends EventHandlerPlusData {
   protected void finalize() {
     delete();
   }
-
+*/
   public synchronized void delete() {
+      /*
     if(swigCPtr != 0 && swigCMemOwn) {
       swigCMemOwn = false;
       smlJNI.delete_PrintEventHandlerPlusData(swigCPtr);
     }
     swigCPtr = 0;
+    */
     super.delete();
   }
 
   public void setM_Handler(SWIGTYPE_p_f_enum_sml__smlPrintEventId_p_void_p_sml__Agent_p_q_const__char__void value) {
-    smlJNI.PrintEventHandlerPlusData_m_Handler_set(swigCPtr, this, SWIGTYPE_p_f_enum_sml__smlPrintEventId_p_void_p_sml__Agent_p_q_const__char__void.getCPtr(value));
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public SWIGTYPE_p_f_enum_sml__smlPrintEventId_p_void_p_sml__Agent_p_q_const__char__void getM_Handler() {
-    long cPtr = smlJNI.PrintEventHandlerPlusData_m_Handler_get(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_f_enum_sml__smlPrintEventId_p_void_p_sml__Agent_p_q_const__char__void(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public void setM_IgnoreOwnEchos(boolean value) {
-    smlJNI.PrintEventHandlerPlusData_m_IgnoreOwnEchos_set(swigCPtr, this, value);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public boolean getM_IgnoreOwnEchos() {
-    return smlJNI.PrintEventHandlerPlusData_m_IgnoreOwnEchos_get(swigCPtr, this);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public PrintEventHandlerPlusData() {
-    this(smlJNI.new_PrintEventHandlerPlusData__SWIG_0(), true);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public PrintEventHandlerPlusData(int eventID, SWIGTYPE_p_f_enum_sml__smlPrintEventId_p_void_p_sml__Agent_p_q_const__char__void handler, SWIGTYPE_p_void userData, boolean ignoreOwnEchos, int callbackID) {
-    this(smlJNI.new_PrintEventHandlerPlusData__SWIG_1(eventID, SWIGTYPE_p_f_enum_sml__smlPrintEventId_p_void_p_sml__Agent_p_q_const__char__void.getCPtr(handler), SWIGTYPE_p_void.getCPtr(userData), ignoreOwnEchos, callbackID), true);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
 }

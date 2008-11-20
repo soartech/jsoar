@@ -36,7 +36,7 @@ public enum ErrorCode
     kOutputError;
     
     /** Returns a description of the error which can be shown to a user */
-    static String GetErrorDescription(ErrorCode code)
+    public static String GetErrorDescription(ErrorCode code)
     {
         switch (code)
         {

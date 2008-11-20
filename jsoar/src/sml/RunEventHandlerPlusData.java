@@ -9,6 +9,7 @@
 package sml;
 
 public class RunEventHandlerPlusData extends EventHandlerPlusData {
+    /*
   private long swigCPtr;
 
   protected RunEventHandlerPlusData(long cPtr, boolean cMemoryOwn) {
@@ -23,31 +24,32 @@ public class RunEventHandlerPlusData extends EventHandlerPlusData {
   protected void finalize() {
     delete();
   }
-
+*/
   public synchronized void delete() {
+      /*
     if(swigCPtr != 0 && swigCMemOwn) {
       swigCMemOwn = false;
       smlJNI.delete_RunEventHandlerPlusData(swigCPtr);
     }
     swigCPtr = 0;
+    */
     super.delete();
   }
 
   public void setM_Handler(SWIGTYPE_p_f_enum_sml__smlRunEventId_p_void_p_sml__Agent_enum_sml__smlPhase__void value) {
-    smlJNI.RunEventHandlerPlusData_m_Handler_set(swigCPtr, this, SWIGTYPE_p_f_enum_sml__smlRunEventId_p_void_p_sml__Agent_enum_sml__smlPhase__void.getCPtr(value));
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public SWIGTYPE_p_f_enum_sml__smlRunEventId_p_void_p_sml__Agent_enum_sml__smlPhase__void getM_Handler() {
-    long cPtr = smlJNI.RunEventHandlerPlusData_m_Handler_get(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_f_enum_sml__smlRunEventId_p_void_p_sml__Agent_enum_sml__smlPhase__void(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public RunEventHandlerPlusData() {
-    this(smlJNI.new_RunEventHandlerPlusData__SWIG_0(), true);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public RunEventHandlerPlusData(int eventID, SWIGTYPE_p_f_enum_sml__smlRunEventId_p_void_p_sml__Agent_enum_sml__smlPhase__void handler, SWIGTYPE_p_void userData, int callbackID) {
-    this(smlJNI.new_RunEventHandlerPlusData__SWIG_1(eventID, SWIGTYPE_p_f_enum_sml__smlRunEventId_p_void_p_sml__Agent_enum_sml__smlPhase__void.getCPtr(handler), SWIGTYPE_p_void.getCPtr(userData), callbackID), true);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
 }

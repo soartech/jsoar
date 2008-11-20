@@ -9,6 +9,7 @@
 package sml;
 
 public class OutputEventHandlerPlusData extends EventHandlerPlusData {
+    /*
   private long swigCPtr;
 
   protected OutputEventHandlerPlusData(long cPtr, boolean cMemoryOwn) {
@@ -23,39 +24,41 @@ public class OutputEventHandlerPlusData extends EventHandlerPlusData {
   protected void finalize() {
     delete();
   }
+  */
 
   public synchronized void delete() {
+      /*
     if(swigCPtr != 0 && swigCMemOwn) {
       swigCMemOwn = false;
       smlJNI.delete_OutputEventHandlerPlusData(swigCPtr);
     }
     swigCPtr = 0;
+    */
     super.delete();
   }
 
   public void setM_Handler(SWIGTYPE_p_f_p_void_p_sml__Agent_p_q_const__char_p_sml__WMElement__void value) {
-    smlJNI.OutputEventHandlerPlusData_m_Handler_set(swigCPtr, this, SWIGTYPE_p_f_p_void_p_sml__Agent_p_q_const__char_p_sml__WMElement__void.getCPtr(value));
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public SWIGTYPE_p_f_p_void_p_sml__Agent_p_q_const__char_p_sml__WMElement__void getM_Handler() {
-    long cPtr = smlJNI.OutputEventHandlerPlusData_m_Handler_get(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_f_p_void_p_sml__Agent_p_q_const__char_p_sml__WMElement__void(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public void setM_AttributeName(String value) {
-    smlJNI.OutputEventHandlerPlusData_m_AttributeName_set(swigCPtr, this, value);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public String getM_AttributeName() {
-    return smlJNI.OutputEventHandlerPlusData_m_AttributeName_get(swigCPtr, this);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public OutputEventHandlerPlusData() {
-    this(smlJNI.new_OutputEventHandlerPlusData__SWIG_0(), true);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public OutputEventHandlerPlusData(int eventID, String pAttributeName, SWIGTYPE_p_f_p_void_p_sml__Agent_p_q_const__char_p_sml__WMElement__void handler, SWIGTYPE_p_void userData, int callbackID) {
-    this(smlJNI.new_OutputEventHandlerPlusData__SWIG_1(eventID, pAttributeName, SWIGTYPE_p_f_p_void_p_sml__Agent_p_q_const__char_p_sml__WMElement__void.getCPtr(handler), SWIGTYPE_p_void.getCPtr(userData), callbackID), true);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
 }

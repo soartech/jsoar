@@ -8,7 +8,16 @@
 
 package sml;
 
+import sml.connection.ErrorCode;
+
 public class ClientErrors {
+    protected ErrorCode           m_LastError ;
+
+    // Usually this will be empty, indicating that the error code is sufficient.
+    // If we do set this string, it should be displayed instead of the default message
+    // based on just the error code.
+    protected String m_LastErrorDetail = "";
+    /*
   private long swigCPtr;
   protected boolean swigCMemOwn;
 
@@ -24,25 +33,52 @@ public class ClientErrors {
   protected void finalize() {
     delete();
   }
-
+*/
   public synchronized void delete() {
+      /*
     if(swigCPtr != 0 && swigCMemOwn) {
       swigCMemOwn = false;
       smlJNI.delete_ClientErrors(swigCPtr);
     }
     swigCPtr = 0;
+    */
   }
 
   public boolean HadError() {
-    return smlJNI.ClientErrors_HadError(swigCPtr, this);
+      return m_LastError != ErrorCode.kNoError;
   }
 
   public String GetLastErrorDescription() {
-    return smlJNI.ClientErrors_GetLastErrorDescription(swigCPtr, this);
+      return m_LastErrorDetail.length() == 0 ? ErrorCode.GetErrorDescription(m_LastError) : m_LastErrorDetail;
   }
 
   public ClientErrors() {
-    this(smlJNI.new_ClientErrors(), true);
+    //this(smlJNI.new_ClientErrors(), true);
   }
+  
+  protected void ClearError()
+  {
+      m_LastError = ErrorCode.kNoError;
+      m_LastErrorDetail = "";
+  }
+
+  /*************************************************************
+  * @brief Records that an error has occurred
+  *************************************************************/
+  protected void SetError(ErrorCode error)
+  {
+      m_LastError = error;
+  }
+
+  /*************************************************************
+  * @brief Records that an error has occurred and we are overriding
+  *        the default message to go with it.
+  *************************************************************/
+  protected void SetDetailedError(ErrorCode error, String pDetailedError)
+  {
+      m_LastError = error;
+      m_LastErrorDetail = pDetailedError;
+  }
+  
 
 }
