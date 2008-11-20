@@ -661,6 +661,11 @@ public abstract class Connection
     *                       If false, sendds back a structured XML object that the caller can analyze and do more with.
     * @returns  True if command was sent and received back without any errors (either in sending or in executing the command).
     *************************************************************/
+    public boolean SendAgentCommand(AnalyzeXML pResponse, String pCommandName)
+    {
+        return SendAgentCommand(pResponse, pCommandName, false);
+    }
+    
     public boolean SendAgentCommand(AnalyzeXML pResponse, String pCommandName, boolean rawOutput /*= false*/)
     {
         ElementXML pMsg = CreateSMLCommand(pCommandName, rawOutput) ;
@@ -693,6 +698,12 @@ public abstract class Connection
     }
 
     public boolean SendAgentCommand(AnalyzeXML pResponse, String pCommandName, String pAgentName,
+            String pParamName1, String pParamVal1)
+    {
+        return SendAgentCommand(pResponse, pCommandName, pAgentName, pParamName1, pParamVal1, false);
+    }
+    
+    public boolean SendAgentCommand(AnalyzeXML pResponse, String pCommandName, String pAgentName,
                      String pParamName1, String pParamVal1, boolean rawOutput /*= false*/)
     {
         ElementXML pMsg = CreateSMLCommand(pCommandName, rawOutput) ;
@@ -710,6 +721,12 @@ public abstract class Connection
         
         return result ;
         
+    }
+    public boolean SendAgentCommand(AnalyzeXML pResponse, String pCommandName, String pAgentName,
+            String pParamName1, String pParamVal1,
+            String pParamName2, String pParamVal2)
+    {
+        return SendAgentCommand(pResponse, pCommandName, pAgentName, pParamName1, pParamVal1, pParamName2, pParamVal2, false);
     }
 
     public boolean SendAgentCommand(AnalyzeXML pResponse, String pCommandName, String pAgentName,
@@ -732,6 +749,13 @@ public abstract class Connection
         
         return result ;
         
+    }
+    public boolean SendAgentCommand(AnalyzeXML pResponse, String pCommandName, String pAgentName,
+            String pParamName1, String pParamVal1,
+            String pParamName2, String pParamVal2,
+            String pParamName3, String pParamVal3)
+    {
+        return SendAgentCommand(pResponse, pCommandName, pAgentName, pParamName1, pParamVal1, pParamName2, pParamVal2, false);
     }
 
     public boolean SendAgentCommand(AnalyzeXML pResponse, String pCommandName, String pAgentName,
@@ -865,7 +889,8 @@ public abstract class Connection
     * @brief Returns the error status from the last function called.
     *        0 if successful, otherwise an error code to indicate what went wrong.
     *************************************************************/
-    ErrorCode GetLastError() { return m_ErrorCode ; }
+    // TODO : Changed this to public. Is that bad?
+    public ErrorCode GetLastError() { return m_ErrorCode ; }
 
     public boolean      HadError()     { return m_ErrorCode != ErrorCode.kNoError ; } 
 

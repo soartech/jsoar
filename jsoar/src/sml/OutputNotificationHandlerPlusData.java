@@ -9,6 +9,7 @@
 package sml;
 
 public class OutputNotificationHandlerPlusData extends EventHandlerPlusData {
+    /*
   private long swigCPtr;
 
   protected OutputNotificationHandlerPlusData(long cPtr, boolean cMemoryOwn) {
@@ -24,30 +25,32 @@ public class OutputNotificationHandlerPlusData extends EventHandlerPlusData {
     delete();
   }
 
+*/
   public synchronized void delete() {
+      /*
     if(swigCPtr != 0 && swigCMemOwn) {
       swigCMemOwn = false;
       smlJNI.delete_OutputNotificationHandlerPlusData(swigCPtr);
     }
     swigCPtr = 0;
+    */
     super.delete();
   }
 
   public void setM_Handler(SWIGTYPE_p_f_p_void_p_sml__Agent__void value) {
-    smlJNI.OutputNotificationHandlerPlusData_m_Handler_set(swigCPtr, this, SWIGTYPE_p_f_p_void_p_sml__Agent__void.getCPtr(value));
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public SWIGTYPE_p_f_p_void_p_sml__Agent__void getM_Handler() {
-    long cPtr = smlJNI.OutputNotificationHandlerPlusData_m_Handler_get(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_f_p_void_p_sml__Agent__void(cPtr, false);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public OutputNotificationHandlerPlusData() {
-    this(smlJNI.new_OutputNotificationHandlerPlusData__SWIG_0(), true);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
   public OutputNotificationHandlerPlusData(int eventID, SWIGTYPE_p_f_p_void_p_sml__Agent__void handler, SWIGTYPE_p_void userData, int callbackID) {
-    this(smlJNI.new_OutputNotificationHandlerPlusData__SWIG_1(eventID, SWIGTYPE_p_f_p_void_p_sml__Agent__void.getCPtr(handler), SWIGTYPE_p_void.getCPtr(userData), callbackID), true);
+      throw new UnsupportedOperationException("Not implemented");
   }
 
 }

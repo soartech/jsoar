@@ -10,282 +10,379 @@ package sml;
 
 import sml.connection.Connection;
 
-public class Agent extends ClientErrors {
-  private long swigCPtr;
+public class Agent extends ClientErrors
+{
+    /*
+    private long swigCPtr;
 
-  protected Agent(long cPtr, boolean cMemoryOwn) {
+    protected Agent(long cPtr, boolean cMemoryOwn) {
     super(smlJNI.SWIGAgentUpcast(cPtr), cMemoryOwn);
     swigCPtr = cPtr;
-  }
-
-  protected static long getCPtr(Agent obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  public synchronized void delete() {
-    if(swigCPtr != 0 && swigCMemOwn) {
-      swigCMemOwn = false;
-      throw new UnsupportedOperationException("C++ destructor does not have public access");
     }
-    swigCPtr = 0;
-    super.delete();
-  }
 
-  public interface RunEventInterface {
-	public void runEventHandler(int eventID, Object data, Agent agent, int phase) ;
-  }
 
-  public interface ProductionEventInterface {
-     public void productionEventHandler(int eventID, Object data, Agent agent, String prodName, String instantiation) ;
-  }
-  
-  public interface PrintEventInterface { 
-  		public void printEventHandler(int eventID, Object data, Agent agent, String message) ;
-  }
-  
-  public interface xmlEventInterface {
-  		public void xmlEventHandler(int eventID, Object data, Agent agent, ClientXML xml) ;
-  }
+    protected static long getCPtr(Agent obj) {
+    return (obj == null) ? 0 : obj.swigCPtr;
+    }
+    */
+    public synchronized void delete()
+    {
+        /*
+        if(swigCPtr != 0 && swigCMemOwn) {
+        swigCMemOwn = false;
+        throw new UnsupportedOperationException("C++ destructor does not have public access");
+        }
+        swigCPtr = 0;
+        */
+        super.delete();
+    }
 
-  public interface OutputEventInterface {  
-  		public void outputEventHandler(Object data, String agentName, String attributeName, WMElement pWmeAdded) ;
-  }
-  
-  public interface OutputNotificationInterface {
-  		public void outputNotificationHandler(Object data, Agent agent) ;
-  }
+    /**
+     * @param kernel
+     * @param agentName
+     */
+    Agent(Kernel kernel, String agentName)
+    {
+        // TODO implement Agent()
+        throw new UnsupportedOperationException();
+    }
 
-  public int RegisterForRunEvent(smlRunEventId id, RunEventInterface handlerObject, Object callbackData)
-  { return smlJNI.Agent_RegisterForRunEvent(swigCPtr, id.swigValue(), this, handlerObject, callbackData) ;}
-  
-  public int RegisterForProductionEvent(smlProductionEventId id, ProductionEventInterface handlerObject, Object callbackData)
-  { return smlJNI.Agent_RegisterForProductionEvent(swigCPtr, id.swigValue(), this, handlerObject, callbackData) ; }
+    public interface RunEventInterface
+    {
+        public void runEventHandler(int eventID, Object data, Agent agent, int phase);
+    }
 
-  public int RegisterForPrintEvent(smlPrintEventId id, PrintEventInterface handlerObject, Object callbackData)
-  { return smlJNI.Agent_RegisterForPrintEvent(swigCPtr, id.swigValue(), this, handlerObject, callbackData, true) ; }
+    public interface ProductionEventInterface
+    {
+        public void productionEventHandler(int eventID, Object data, Agent agent, String prodName, String instantiation);
+    }
 
-  public int RegisterForPrintEvent(smlPrintEventId id, PrintEventInterface handlerObject, Object callbackData, boolean ignoreOwnEchos)
-  { return smlJNI.Agent_RegisterForPrintEvent(swigCPtr, id.swigValue(), this, handlerObject, callbackData, ignoreOwnEchos) ; }
+    public interface PrintEventInterface
+    {
+        public void printEventHandler(int eventID, Object data, Agent agent, String message);
+    }
 
-  public int RegisterForXMLEvent(smlXMLEventId id, xmlEventInterface handlerObject, Object callbackData)
-  { return smlJNI.Agent_RegisterForXMLEvent(swigCPtr, id.swigValue(), this, handlerObject, callbackData) ; }
-  
-  public int RegisterForOutputNotification(OutputNotificationInterface handlerObject, Object callbackData)
-  { return smlJNI.Agent_RegisterForOutputNotification(swigCPtr, this, handlerObject, callbackData) ;}
+    public interface xmlEventInterface
+    {
+        public void xmlEventHandler(int eventID, Object data, Agent agent, ClientXML xml);
+    }
 
-  public boolean UnregisterForOutputNotification(int callbackReturnValue)
-  { return smlJNI.Agent_UnregisterForOutputNotification(swigCPtr, callbackReturnValue) ;}
+    public interface OutputEventInterface
+    {
+        public void outputEventHandler(Object data, String agentName, String attributeName, WMElement pWmeAdded);
+    }
 
-  public boolean UnregisterForRunEvent(int callbackReturnValue)
-  { return smlJNI.Agent_UnregisterForRunEvent(swigCPtr, callbackReturnValue) ;}
+    public interface OutputNotificationInterface
+    {
+        public void outputNotificationHandler(Object data, Agent agent);
+    }
 
-  public boolean UnregisterForProductionEvent(int callbackReturnValue)
-  { return smlJNI.Agent_UnregisterForProductionEvent(swigCPtr, callbackReturnValue) ;}
+    public int RegisterForRunEvent(smlRunEventId id, RunEventInterface handlerObject, Object callbackData)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean UnregisterForPrintEvent(int callbackReturnValue)
-  { return smlJNI.Agent_UnregisterForPrintEvent(swigCPtr, callbackReturnValue) ;}
+    public int RegisterForProductionEvent(smlProductionEventId id, ProductionEventInterface handlerObject,
+            Object callbackData)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean UnregisterForXMLEvent(int callbackReturnValue)
-  { return smlJNI.Agent_UnregisterForXMLEvent(swigCPtr, callbackReturnValue) ;}
+    public int RegisterForPrintEvent(smlPrintEventId id, PrintEventInterface handlerObject, Object callbackData)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public int AddOutputHandler(String attributeName, OutputEventInterface handlerObject, Object callbackData)
-  { return smlJNI.Agent_AddOutputHandler(swigCPtr, attributeName, this, handlerObject, callbackData) ; }
+    public int RegisterForPrintEvent(smlPrintEventId id, PrintEventInterface handlerObject, Object callbackData,
+            boolean ignoreOwnEchos)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean RemoveOutputHandler(int callbackReturnValue)
-  { return smlJNI.Agent_RemoveOutputHandler(swigCPtr, callbackReturnValue) ;}
+    public int RegisterForXMLEvent(smlXMLEventId id, xmlEventInterface handlerObject, Object callbackData)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String GetAgentName() {
-    return smlJNI.Agent_GetAgentName(swigCPtr, this);
-  }
+    public int RegisterForOutputNotification(OutputNotificationInterface handlerObject, Object callbackData)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public Kernel GetKernel() {
-    long cPtr = smlJNI.Agent_GetKernel(swigCPtr, this);
-    return (cPtr == 0) ? null : new Kernel(cPtr, false);
-  }
+    public boolean UnregisterForOutputNotification(int callbackReturnValue)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public int GenerateNewVisitedCounter() {
-    return smlJNI.Agent_GenerateNewVisitedCounter(swigCPtr, this);
-  }
+    public boolean UnregisterForRunEvent(int callbackReturnValue)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean LoadProductions(String pFilename, boolean echoResults) {
-    return smlJNI.Agent_LoadProductions__SWIG_0(swigCPtr, this, pFilename, echoResults);
-  }
+    public boolean UnregisterForProductionEvent(int callbackReturnValue)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean LoadProductions(String pFilename) {
-    return smlJNI.Agent_LoadProductions__SWIG_1(swigCPtr, this, pFilename);
-  }
+    public boolean UnregisterForPrintEvent(int callbackReturnValue)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public Identifier GetInputLink() {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public boolean UnregisterForXMLEvent(int callbackReturnValue)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public Identifier GetILink() {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public int AddOutputHandler(String attributeName, OutputEventInterface handlerObject, Object callbackData)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public Identifier GetOutputLink() {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public boolean RemoveOutputHandler(int callbackReturnValue)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public StringElement CreateStringWME(Identifier parent, String pAttribute, String pValue) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public String GetAgentName()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public IntElement CreateIntWME(Identifier parent, String pAttribute, int value) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public Kernel GetKernel()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public FloatElement CreateFloatWME(Identifier parent, String pAttribute, double value) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public int GenerateNewVisitedCounter()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public Identifier CreateIdWME(Identifier parent, String pAttribute) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public boolean LoadProductions(String pFilename, boolean echoResults)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public Identifier CreateSharedIdWME(Identifier parent, String pAttribute, Identifier pSharedValue) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public boolean LoadProductions(String pFilename)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public void Update(StringElement pWME, String pValue) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public Identifier GetInputLink()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public void Update(IntElement pWME, int value) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public Identifier GetILink()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public void Update(FloatElement pWME, double value) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public Identifier GetOutputLink()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public void SetBlinkIfNoChange(boolean state) {
-    smlJNI.Agent_SetBlinkIfNoChange(swigCPtr, this, state);
-  }
+    public StringElement CreateStringWME(Identifier parent, String pAttribute, String pValue)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean IsBlinkIfNoChange() {
-    return smlJNI.Agent_IsBlinkIfNoChange(swigCPtr, this);
-  }
+    public IntElement CreateIntWME(Identifier parent, String pAttribute, int value)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean DestroyWME(WMElement pWME) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public FloatElement CreateFloatWME(Identifier parent, String pAttribute, double value)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String InitSoar() {
-    return smlJNI.Agent_InitSoar(swigCPtr, this);
-  }
+    public Identifier CreateIdWME(Identifier parent, String pAttribute)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public int GetNumberOutputLinkChanges() {
-    return smlJNI.Agent_GetNumberOutputLinkChanges(swigCPtr, this);
-  }
+    public Identifier CreateSharedIdWME(Identifier parent, String pAttribute, Identifier pSharedValue)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public WMElement GetOutputLinkChange(int index) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public void Update(StringElement pWME, String pValue)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean IsOutputLinkChangeAdd(int index) {
-    return smlJNI.Agent_IsOutputLinkChangeAdd(swigCPtr, this, index);
-  }
+    public void Update(IntElement pWME, int value)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public void ClearOutputLinkChanges() {
-    smlJNI.Agent_ClearOutputLinkChanges(swigCPtr, this);
-  }
+    public void Update(FloatElement pWME, double value)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public int GetNumberCommands() {
-    return smlJNI.Agent_GetNumberCommands(swigCPtr, this);
-  }
+    public void SetBlinkIfNoChange(boolean state)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean Commands() {
-    return smlJNI.Agent_Commands(swigCPtr, this);
-  }
+    public boolean IsBlinkIfNoChange()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public Identifier GetCommand(int index) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public boolean DestroyWME(WMElement pWME)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean Commit() {
-    return smlJNI.Agent_Commit(swigCPtr, this);
-  }
+    public String InitSoar()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean IsCommitRequired() {
-    return smlJNI.Agent_IsCommitRequired(swigCPtr, this);
-  }
+    public int GetNumberOutputLinkChanges()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String RunSelf(long numberSteps, smlRunStepSize stepSize) {
-    return smlJNI.Agent_RunSelf__SWIG_0(swigCPtr, this, numberSteps, stepSize.swigValue());
-  }
+    public WMElement GetOutputLinkChange(int index)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String RunSelf(long numberSteps) {
-    return smlJNI.Agent_RunSelf__SWIG_1(swigCPtr, this, numberSteps);
-  }
+    public boolean IsOutputLinkChangeAdd(int index)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String RunSelfForever() {
-    return smlJNI.Agent_RunSelfForever(swigCPtr, this);
-  }
+    public void ClearOutputLinkChanges()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String RunSelfTilOutput() {
-    return smlJNI.Agent_RunSelfTilOutput(swigCPtr, this);
-  }
+    public int GetNumberCommands()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean WasAgentOnRunList() {
-    return smlJNI.Agent_WasAgentOnRunList(swigCPtr, this);
-  }
+    public boolean Commands()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public smlRunResult GetResultOfLastRun() {
-    return smlRunResult.swigToEnum(smlJNI.Agent_GetResultOfLastRun(swigCPtr, this));
-  }
+    public Identifier GetCommand(int index)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String StopSelf() {
-    return smlJNI.Agent_StopSelf(swigCPtr, this);
-  }
+    public boolean Commit()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public void Refresh() {
-    smlJNI.Agent_Refresh(swigCPtr, this);
-  }
+    public boolean IsCommitRequired()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public smlPhase GetCurrentPhase() {
-    return smlPhase.swigToEnum(smlJNI.Agent_GetCurrentPhase(swigCPtr, this));
-  }
+    public String RunSelf(long numberSteps, smlRunStepSize stepSize)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public int GetDecisionCycleCounter() {
-    return smlJNI.Agent_GetDecisionCycleCounter(swigCPtr, this);
-  }
+    public String RunSelf(long numberSteps)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public smlRunState GetRunState() {
-    return smlRunState.swigToEnum(smlJNI.Agent_GetRunState(swigCPtr, this));
-  }
+    public String RunSelfForever()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String ExecuteCommandLine(String pCommandLine, boolean echoResults, boolean noFilter) {
-    return smlJNI.Agent_ExecuteCommandLine__SWIG_0(swigCPtr, this, pCommandLine, echoResults, noFilter);
-  }
+    public String RunSelfTilOutput()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String ExecuteCommandLine(String pCommandLine, boolean echoResults) {
-    return smlJNI.Agent_ExecuteCommandLine__SWIG_1(swigCPtr, this, pCommandLine, echoResults);
-  }
+    public boolean WasAgentOnRunList()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public String ExecuteCommandLine(String pCommandLine) {
-    return smlJNI.Agent_ExecuteCommandLine__SWIG_2(swigCPtr, this, pCommandLine);
-  }
+    public smlRunResult GetResultOfLastRun()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean ExecuteCommandLineXML(String pCommandLine, ClientAnalyzedXML pResponse) {
-      throw new UnsupportedOperationException("Not implemented");
-  }
+    public String StopSelf()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean GetLastCommandLineResult() {
-    return smlJNI.Agent_GetLastCommandLineResult(swigCPtr, this);
-  }
+    public void Refresh()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean IsProductionLoaded(String pProductionName) {
-    return smlJNI.Agent_IsProductionLoaded(swigCPtr, this, pProductionName);
-  }
+    public smlPhase GetCurrentPhase()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean SynchronizeInputLink() {
-    return smlJNI.Agent_SynchronizeInputLink(swigCPtr, this);
-  }
+    public int GetDecisionCycleCounter()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
-  public boolean SynchronizeOutputLink() {
-    return smlJNI.Agent_SynchronizeOutputLink(swigCPtr, this);
-  }
+    public smlRunState GetRunState()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public String ExecuteCommandLine(String pCommandLine, boolean echoResults, boolean noFilter)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public String ExecuteCommandLine(String pCommandLine, boolean echoResults)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public String ExecuteCommandLine(String pCommandLine)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public boolean ExecuteCommandLineXML(String pCommandLine, ClientAnalyzedXML pResponse)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public boolean GetLastCommandLineResult()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public boolean IsProductionLoaded(String pProductionName)
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public boolean SynchronizeInputLink()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public boolean SynchronizeOutputLink()
+    {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
     /**
      * @return
@@ -335,6 +432,38 @@ public class Agent extends ClientErrors {
     {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    /**
+     * @param msg
+     * @param response
+     */
+    public void ReceivedOutput(AnalyzeXML msg, ElementXML response)
+    {
+        // TODO Implement ReceivedOutput
+        throw new UnsupportedOperationException("Not implemented");
+
+    }
+
+    /**
+     * @param msg
+     * @param response
+     */
+    public void ReceivedEvent(AnalyzeXML msg, ElementXML response)
+    {
+        // TODO Implement ReceivedEvent
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * @param smlEVENT_XML_TRACE_OUTPUT
+     * @param incomingMsg
+     * @param response
+     */
+    void ReceivedXMLTraceEvent(smlXMLEventId smlEVENT_XML_TRACE_OUTPUT, ElementXML incomingMsg, ElementXML response)
+    {
+        // TODO implement ReceivedXMLTraceEvent
+        throw new UnsupportedOperationException();
     }
 
 }

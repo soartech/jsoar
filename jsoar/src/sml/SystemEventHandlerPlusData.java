@@ -9,6 +9,10 @@
 package sml;
 
 public class SystemEventHandlerPlusData extends EventHandlerPlusData {
+    
+    Kernel.SystemEventInterface m_Handler;
+    
+    /*
   private long swigCPtr;
 
   protected SystemEventHandlerPlusData(long cPtr, boolean cMemoryOwn) {
@@ -32,22 +36,27 @@ public class SystemEventHandlerPlusData extends EventHandlerPlusData {
     swigCPtr = 0;
     super.delete();
   }
-
+*/
   public void setM_Handler(SWIGTYPE_p_f_enum_sml__smlSystemEventId_p_void_p_sml__Kernel__void value) {
+      /*
     smlJNI.SystemEventHandlerPlusData_m_Handler_set(swigCPtr, this, SWIGTYPE_p_f_enum_sml__smlSystemEventId_p_void_p_sml__Kernel__void.getCPtr(value));
+    */
   }
 
   public SWIGTYPE_p_f_enum_sml__smlSystemEventId_p_void_p_sml__Kernel__void getM_Handler() {
+      /*
     long cPtr = smlJNI.SystemEventHandlerPlusData_m_Handler_get(swigCPtr, this);
     return (cPtr == 0) ? null : new SWIGTYPE_p_f_enum_sml__smlSystemEventId_p_void_p_sml__Kernel__void(cPtr, false);
+    */
+      return null;
   }
 
   public SystemEventHandlerPlusData() {
-    this(smlJNI.new_SystemEventHandlerPlusData__SWIG_0(), true);
+    //this(smlJNI.new_SystemEventHandlerPlusData__SWIG_0(), true);
   }
 
   public SystemEventHandlerPlusData(int eventID, SWIGTYPE_p_f_enum_sml__smlSystemEventId_p_void_p_sml__Kernel__void handler, SWIGTYPE_p_void userData, int callbackID) {
-    this(smlJNI.new_SystemEventHandlerPlusData__SWIG_1(eventID, SWIGTYPE_p_f_enum_sml__smlSystemEventId_p_void_p_sml__Kernel__void.getCPtr(handler), SWIGTYPE_p_void.getCPtr(userData), callbackID), true);
+    //this(smlJNI.new_SystemEventHandlerPlusData__SWIG_1(eventID, SWIGTYPE_p_f_enum_sml__smlSystemEventId_p_void_p_sml__Kernel__void.getCPtr(handler), SWIGTYPE_p_void.getCPtr(userData), callbackID), true);
   }
 
 }
