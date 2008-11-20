@@ -244,6 +244,20 @@ public class InputOutputImpl implements InputOutput
     }
 
     /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.InputOutput#updateInputWme(org.jsoar.kernel.memory.Wme, org.jsoar.kernel.symbols.Symbol)
+     */
+    @Override
+    public Wme updateInputWme(Wme w, Symbol newValue)
+    {
+        Arguments.checkNotNull(w, "w");
+        Arguments.check(w instanceof WmeImpl, "Incompatible WME type");
+
+        removeInputWme(w);
+        return addInputWme(w.getIdentifier(), w.getAttribute(), newValue);
+    }
+
+
+    /* (non-Javadoc)
      * @see org.jsoar.kernel.io.InputOutput#getPendingCommands()
      */
     @Override

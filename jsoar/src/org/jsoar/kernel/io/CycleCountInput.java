@@ -7,6 +7,7 @@ package org.jsoar.kernel.io;
 
 import org.jsoar.kernel.events.InputCycleEvent;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
@@ -60,16 +61,20 @@ public class CycleCountInput
      */
     public void update()
     {
-        if(wme != null)
-        {
-            io.removeInputWme(wme);
-        }
-        final SymbolFactory syms = io.getSymbols();
-        
         // TODO on init-soar, the count should go back to 0. It would be better to the
         // the cycle count from the agent (or I/O?) rather than maintaining it
         // manually like this.
-        wme = io.addInputWme(io.getInputLink(), syms.createString("cycle-count"), syms.createInteger(count++));
+        
+        final SymbolFactory syms = io.getSymbols();
+        final IntegerSymbol newCount = syms.createInteger(count++);
+        if(wme == null)
+        {
+            wme = io.addInputWme(io.getInputLink(), syms.createString("cycle-count"), newCount);
+        }
+        else
+        {
+            wme = io.updateInputWme(wme, newCount);
+        }
     }
     
     /**
