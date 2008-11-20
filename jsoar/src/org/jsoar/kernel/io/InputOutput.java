@@ -49,6 +49,17 @@ public interface InputOutput
     void removeInputWme(Wme w);
     
     /**
+     * Update the value of a WME, returning the new WME.  Since WMEs are 
+     * immutable, a new WME must be created.
+     *  
+     * @param w The WME to update
+     * @param newValue New value for the WME
+     * @return The new WME with id and attr same as input WME and new value
+     * @throws IllegalArgumentException if the WME is <code>null</code>
+     */
+    Wme updateInputWme(Wme w, Symbol newValue);
+    
+    /**
      * @return The identifier of the input-link, typically <code>I2</code>
      */
     Identifier getInputLink();
