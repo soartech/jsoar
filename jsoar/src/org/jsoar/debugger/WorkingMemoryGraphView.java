@@ -81,7 +81,7 @@ public class WorkingMemoryGraphView extends AbstractAdaptableView
 
     private Display display;
     
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     private FocusSetListener focusSetListener = new FocusSetListener();;
 
