@@ -24,6 +24,8 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 
 /**
+ * TODO: This should be stripped down to only support what's needed by PreferencesView
+ * 
  * @author ray
  */
 public class StructuredPreferencesCommand

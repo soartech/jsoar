@@ -154,6 +154,17 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         return name_letter;
     }
+    
+    
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Identifier#isGoal()
+     */
+    @Override
+    public boolean isGoal()
+    {
+        return isa_goal;
+    }
 
     /**
      * <p>production.cpp:1043:mark_identifier_if_unmarked

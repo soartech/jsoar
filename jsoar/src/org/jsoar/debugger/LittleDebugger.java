@@ -8,6 +8,8 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -38,6 +40,7 @@ import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.runtime.ThreadedAgentProxy;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
@@ -45,7 +48,7 @@ import org.jsoar.util.events.SoarEventListener;
 /**
  * @author ray
  */
-public class LittleDebugger extends JPanel
+public class LittleDebugger extends JPanel implements Adaptable
 {
     private static final long serialVersionUID = 7997119112479665988L;
 
@@ -67,6 +70,9 @@ public class LittleDebugger extends JPanel
     private final WorkingMemoryTreeView wmTreeView;
     private final MatchesView matchesView;
     private final PreferencesView preferencesView;
+    private final WmeSupportView wmeSupportView;
+    
+    private final List<AbstractAdaptableView> views = new ArrayList<AbstractAdaptableView>();
     
     public LittleDebugger(JFrame frame)
     {
@@ -82,29 +88,32 @@ public class LittleDebugger extends JPanel
         status = new StatusBar(this);
         this.add(status, BorderLayout.SOUTH);
         
-        traceView = new TraceView(this);
+        views.add(traceView = new TraceView(this));
         proxy.initialize();
         
         viewport.dock(traceView);
-        prodListView = new ProductionListView(this);
+        views.add(prodListView = new ProductionListView(this));
         traceView.dock(prodListView, DockingConstants.EAST_REGION, 0.75f);
-        //prodListView.dock(createWorkingMemoryView(), DockingConstants.SOUTH_REGION);
         
-        matchesView = new MatchesView(this);
+        views.add(matchesView = new MatchesView(this));
         prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
         
         
-        textView = new SelectionInfoView(this);
+        views.add(textView = new SelectionInfoView(this));
         matchesView.dock(textView, DockingConstants.SOUTH_REGION);
         
-        wmGraphView = new WorkingMemoryGraphView(this);
+        views.add(wmGraphView = new WorkingMemoryGraphView(this));
         traceView.dock(wmGraphView, DockingConstants.SOUTH_REGION);
         
-        wmTreeView = new WorkingMemoryTreeView(this);
+        views.add(wmTreeView = new WorkingMemoryTreeView(this));
         wmGraphView.dock(wmTreeView);
         
-        preferencesView = new PreferencesView(this);
+        views.add(preferencesView = new PreferencesView(this));
         wmGraphView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
+        
+        views.add(wmeSupportView = new WmeSupportView(this));
+        preferencesView.dock(wmeSupportView, DockingConstants.SOUTH_REGION);
+        
         
         initMenuBar();
         initToolbar();
@@ -288,6 +297,15 @@ public class LittleDebugger extends JPanel
                 }
                 littleDebugger.update(false);
             } } );
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.util.adaptables.Adaptable#getAdapter(java.lang.Class)
+     */
+    @Override
+    public Object getAdapter(Class<?> klass)
+    {
+        return Adaptables.findAdapter(views, klass);
     }
     
 }

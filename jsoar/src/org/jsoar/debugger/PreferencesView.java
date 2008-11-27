@@ -8,20 +8,14 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.concurrent.Callable;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -35,7 +29,6 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand.Result;
-import org.jsoar.kernel.commands.StructuredPreferencesCommand.ResultEntry;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
@@ -52,12 +45,8 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
 
     private final LittleDebugger debugger;
     private final SelectionManager selectionManager;
-    private final JLabel info = new JLabel("No id or wme selected");
+    private final JLabel info = new JLabel("No state selected");
     private final JXTable table = new JXTable();
-    private final JToggleButton objectToggle = new JToggleButton(Images.ID, false);
-    
-    private final JLabel source = new JLabel("");
-    private final JXTable sourceWmeTable = new JXTable();
     
     public PreferencesView(LittleDebugger debuggerIn)
     {
@@ -81,16 +70,8 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
                     boolean hasFocus, int row, int column)
             {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                setText(((PreferenceType) value).getDisplayName());
+                setText(Character.toString(((PreferenceType) value).getIndicator()));
                 return c;
-            }});
-        
-        this.table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-            @Override
-            public void valueChanged(ListSelectionEvent e)
-            {
-                updateSource();
             }});
         
         JPanel barPanel = new JPanel(new BorderLayout());
@@ -101,28 +82,11 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         
         JPanel p = new JPanel(new BorderLayout());
         p.add(barPanel, BorderLayout.NORTH);
-        
-        this.sourceWmeTable.setShowGrid(false);
-        this.sourceWmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
-        this.sourceWmeTable.setColumnControlVisible(true);
-        
-        JPanel sourcePanel = new JPanel(new BorderLayout());
-        sourcePanel.setBorder(BorderFactory.createTitledBorder("Preference Source"));
-        sourcePanel.add(source, BorderLayout.NORTH);
-        sourcePanel.add(new JScrollPane(sourceWmeTable));
-        
-        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, 
-                                          new JScrollPane(table), sourcePanel);
-        split.setDividerSize(5);
-        split.setResizeWeight(0.5);
-        
-        p.add(split, BorderLayout.CENTER);
+        p.add(new JScrollPane(table), BorderLayout.CENTER);
         
         setContentPane(p);
 
         this.selectionManager.addListener(this);
-        
-        updateSource();
     }
 
     /**
@@ -132,15 +96,6 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     {
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
-        bar.add(objectToggle);
-        objectToggle.setToolTipText("Treat Identifier as object");
-        objectToggle.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                selectionChanged(debugger.getSelectionManager());
-            }});
         
         bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY) {
             private static final long serialVersionUID = -3614573079885324027L;
@@ -174,13 +129,16 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         final Object selection = manager.getSelectedObject();
         Wme w = Adaptables.adapt(selection, Wme.class);
         Identifier id = Adaptables.adapt(selection, Identifier.class);
-        if(w != null || id != null)
+        if(w != null && id == null)
         {
-            objectToggle.setEnabled(id != null);
-            final boolean object = objectToggle.isSelected();
-            updateInfo(w, id, object);
+            id = w.getIdentifier();
+        }
+        
+        if(id != null && id.isGoal())
+        {
+            info.setText(String.format("<html><b>Operator preferences for <code>%s</code></b></html>", id));
             
-            final Result result = getPreferences(w, id, object);
+            final Result result = getPreferences(id);
             if(result.getError() == null)
             {
                 table.setModel(new PreferencesTableModel(result));
@@ -190,36 +148,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
                 table.setModel(new DefaultTableModel(new Object[][] { new Object[] {result.getError()} }, new Object[] { "" }));
             }
         }
-        else
-        {
-            objectToggle.setEnabled(false);
-            info.setText("No wme or id selected");
-            table.setModel(new DefaultTableModel());
-        }
         table.packAll();
-    }
-    
-    private void updateInfo(final Wme w, final Identifier id, final boolean object)
-    {
-        if(w != null)
-        {
-            info.setText(String.format("<html><b>Preferences for <code>(%s  ^%s  *)</code></b></html>",
-                    w.getIdentifier(), w.getAttribute()));
-        }
-        else if(id != null && object)
-        {
-            // Do (id ^* *)
-            info.setText(String.format("<html><b>Preferences for <code>(%s  ^*  *)</code></b></html>", id));
-        }
-        else if(id != null && !object)
-        {
-            // Do (* ^* id)
-            info.setText(String.format("<html><b>Preferences for <code>(*  ^*  %s)</code></b></html>", id));
-        }
-        else
-        {
-            throw new IllegalStateException("Unreachable code");
-        }
     }
     
     private Result getLastResult()
@@ -233,56 +162,23 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         return ((PreferencesTableModel) prefModel).getResult();
     }
     
-    private void updateSource()
-    {
-        final int r = table.getSelectedRow();
-        final TableModel prefModel = table.getModel();
-        if(r == -1 || !(prefModel instanceof PreferencesTableModel))
-        {
-            source.setText("No preference selected");
-            sourceWmeTable.setModel(new DefaultTableModel());
-            return;
-        }
-        ResultEntry e = ((PreferencesTableModel) prefModel).getResultEntry(r);
-        source.setText("<html><b>Production:&nbsp;&nbsp;" + e.getSource() + "</b></html>");
-        sourceWmeTable.setModel(new DefaultWmeTableModel(e.getSourceWmes()));
-        sourceWmeTable.packAll();
-    }
-    
-    private Result getPreferences(final Wme w, final Identifier id, final boolean object)
+    private Result getPreferences(final Identifier id)
     {
         Callable<Result> callable = new Callable<Result>() {
 
             @Override
             public Result call() throws Exception
             {
-                return safeGetPreferences(w, id, object);
+                return safeGetPreferences(id);
             }};
         return debugger.getAgentProxy().execute(callable);
     }
     
-    private Result safeGetPreferences(final Wme w, final Identifier id, boolean object)
+    private Result safeGetPreferences(final Identifier id)
     {
         final Agent agent = debugger.getAgentProxy().getAgent();
         StructuredPreferencesCommand c = new StructuredPreferencesCommand();
-        if(w != null)
-        {
-            // Do (id ^attr *)
-            return c.getPreferences(agent, w.getIdentifier(), w.getAttribute());
-        }
-        else if(id != null && object)
-        {
-            // Do (id ^* *)
-            return c.getPreferences(agent, id, null);
-        }
-        else if(id != null && !object)
-        {
-            // Do (* ^* id)
-            return c.getPreferencesForValue(agent, id);
-        }
-        else
-        {
-            throw new IllegalStateException("Unreachable code");
-        }
+        // Do (id ^operator *)
+        return c.getPreferences(agent, id, agent.predefinedSyms.operator_symbol);
     }
 }

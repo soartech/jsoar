@@ -45,4 +45,9 @@ public interface Wme extends Formattable
      *  value of the WME is not an identifier, returns an empty iterator.
      */
     Iterator<Wme> getChildren();
+    
+    /**
+     * @return The preference supporting this WME, or <code>null</code> if none.
+     */
+    Preference getPreference();
 }
