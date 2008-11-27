@@ -346,6 +346,15 @@ public class WmeImpl implements Wme, Formattable
     }
 
     /* (non-Javadoc)
+     * @see org.jsoar.kernel.memory.Wme#getPreference()
+     */
+    @Override
+    public Preference getPreference()
+    {
+        return preference;
+    }
+
+    /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override

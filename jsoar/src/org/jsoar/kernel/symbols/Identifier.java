@@ -30,4 +30,9 @@ public interface Identifier extends Symbol
      * @return Iterator over all WMEs with this id.
      */
     Iterator<Wme> getWmes();
+    
+    /**
+     * @return true if this identifier is a goal/state
+     */
+    boolean isGoal();
 }

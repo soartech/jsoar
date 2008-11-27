@@ -116,6 +116,16 @@ public class ProductionListView extends AbstractAdaptableView
         
     }
 
+    public void selectProduction(Production production)
+    {
+        this.setActive(true);
+        int index = model.getProductions().indexOf(production);
+        if(index != -1)
+        {
+            table.getSelectionModel().setSelectionInterval(index, index);
+        }
+    }
+    
     private void updateInfo()
     {
         final Production p =  Adaptables.adapt(selectionProvider.getSelectedObject(), Production.class);
