@@ -26,6 +26,7 @@ import org.flexdock.docking.DockingManager;
 import org.flexdock.docking.activation.ActiveDockableTracker;
 import org.flexdock.util.SwingUtility;
 import org.flexdock.view.Viewport;
+import org.jsoar.debugger.actions.AboutAction;
 import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.ExciseProductionAction;
 import org.jsoar.debugger.actions.ExitAction;
@@ -186,6 +187,7 @@ public class LittleDebugger extends JPanel implements Adaptable
         new InitSoarAction(actionManager);
         new SourceFileAction(actionManager);
         new ExciseProductionAction(actionManager);
+        new AboutAction(actionManager);
     }
     
     private void initMenuBar()
@@ -205,6 +207,10 @@ public class LittleDebugger extends JPanel implements Adaptable
         runMenu.addSeparator();
         runMenu.add(actionManager.getAction(InitSoarAction.class));
         bar.add(runMenu);
+        
+        JMenu helpMenu = new JMenu("Help");
+        helpMenu.add(actionManager.getAction(AboutAction.class));
+        bar.add(helpMenu);
         
         frame.setJMenuBar(bar);
     }

@@ -748,7 +748,7 @@ public class DecisionCycle
             // To model episodic task, after halt, perform RL update with next-state value 0
             if (context.rl.rl_enabled())
             {
-                // TODO reinforcement learning: how about a method?
+                // TODO how about a method?
                 for (IdentifierImpl g = context.decider.bottom_goal; g != null; g = g.higher_goal)
                 {
                     context.rl.rl_tabulate_reward_value_for_goal(g);

@@ -26,7 +26,7 @@ public class Preference implements Formattable
     public final IdentifierImpl id;
     public final SymbolImpl attr;
     public final SymbolImpl value;
-    public final SymbolImpl referent;
+    public SymbolImpl referent; // TODO: I'd like this to be final, but RL changes it.
     
     /**
      * The slot this preference is in. This is also a replacement for in_tm

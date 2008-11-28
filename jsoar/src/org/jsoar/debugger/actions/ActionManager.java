@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
+ *
+ * Created on Oct 25, 2008
+ */
 package org.jsoar.debugger.actions;
 
 import java.util.ArrayList;

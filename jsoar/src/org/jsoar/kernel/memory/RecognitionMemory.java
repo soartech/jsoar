@@ -16,7 +16,7 @@ import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
-import org.jsoar.kernel.learning.ReinforcementLearning;
+import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
@@ -235,7 +235,7 @@ public class RecognitionMemory
      * @param w
      * @return
      */
-    private SymbolImpl instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, WmeImpl w)
+    public SymbolImpl instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, WmeImpl w)
     {
         RhsSymbolValue rsv = rv.asSymbolValue();
         if (rsv != null)
@@ -670,7 +670,7 @@ public class RecognitionMemory
             else
             {
                 pref = null;
-                /* SymbolImpl *result = */ReinforcementLearning.rl_build_template_instantiation(inst, tok, w);
+                /* SymbolImpl *result = */context.rl.rl_build_template_instantiation(inst, tok, w);
             }
 
             /*
