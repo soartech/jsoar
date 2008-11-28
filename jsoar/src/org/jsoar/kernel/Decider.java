@@ -12,7 +12,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.jsoar.kernel.exploration.Exploration;
-import org.jsoar.kernel.learning.ReinforcementLearningInfo;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Instantiation;
@@ -820,9 +820,8 @@ public class Decider
         // the lone require is the winner
         if (candidates != null && context.rl.rl_enabled())
         {
-            // TODO reinforcement learning
-            // exploration_compute_value_of_candidate( thisAgent, candidates, s, 0 );
-            // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
+            context.exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
+            context.rl.rl_perform_update( candidates.numeric_value, s.id );
         }
 
         return ImpasseType.NONE;
@@ -886,9 +885,8 @@ public class Decider
 
                     if (!predict && context.rl.rl_enabled())
                     {
-                        // TODO reinforcement learning
                         context.exploration.exploration_compute_value_of_candidate( force_result, s, 0 );
-                        // rl_perform_update( thisAgent, force_result->numeric_value, s->id );
+                        context.rl.rl_perform_update( force_result.numeric_value, s.id );
                     }
 
                     return ImpasseType.NONE;
@@ -944,9 +942,8 @@ public class Decider
             if (!consistency && context.rl.rl_enabled() && candidates != null)
             {
                 // perform update here for just one candidate
-                // TODO reinforcement learning
                 context.exploration.exploration_compute_value_of_candidate(candidates, s, 0);
-                // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
+                context.rl.rl_perform_update( candidates.numeric_value, s.id );
             }
 
             return ImpasseType.NONE;
@@ -1148,9 +1145,8 @@ public class Decider
             if (!consistency && context.rl.rl_enabled() && candidates != null)
             {
                 // perform update here for just one candidate
-                // TODO reinforcement learning
                 context.exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
-                // rl_perform_update( thisAgent, candidates->numeric_value, s->id );
+                context.rl.rl_perform_update( candidates.numeric_value, s.id );
             }
 
             return ImpasseType.NONE;
@@ -1977,9 +1973,8 @@ public class Decider
 
         if (context.rl.rl_enabled())
         {
-            // TODO reinforcement learning
-            // rl_tabulate_reward_value_for_goal( thisAgent, goal );
-            // rl_perform_update( thisAgent, 0, goal ); // this update only sees reward - there is no next state
+            context.rl.rl_tabulate_reward_value_for_goal( goal );
+            context.rl.rl_perform_update( 0, goal ); // this update only sees reward - there is no next state
         }
 
         context.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
@@ -2037,11 +2032,10 @@ public class Decider
             }
         }
 
-        // TODO reinforcement learning
         //  delete goal->id.rl_info->eligibility_traces;
+        goal.rl_info.eligibility_traces.clear();
         //  free_list( thisAgent, goal->id.rl_info->prev_op_rl_rules );
-        //  symbol_remove_ref( thisAgent, goal->id.reward_header );
-        //  free_memory( thisAgent, goal->id.rl_info, MISCELLANEOUS_MEM_USAGE );
+        goal.rl_info.prev_op_rl_rules.clear();
 
         /* REW: BUG
          * Tentative assertions can exist for removed goals.  However, it looks
@@ -2109,18 +2103,7 @@ public class Decider
                 context.predefinedSyms.operator_symbol);
         id.allow_bottom_up_chunks = true;
 
-        // TODO reinforcement learning
         id.rl_info = new ReinforcementLearningInfo();
-        // id->id.rl_info->eligibility_traces = new rl_et_map(
-        // std::less<production *>(), SoarMemoryAllocator<std::pair<production*
-        // const, double> >( thisAgent, MISCELLANEOUS_MEM_USAGE ) );
-        // id->id.rl_info->prev_op_rl_rules = NIL;
-        // id->id.rl_info->previous_q = 0;
-        // id->id.rl_info->reward = 0;
-        //  id->id.rl_info->reward_age = 0;
-        //  id->id.rl_info->num_prev_op_rl_rules = 0;
-        //  id->id.rl_info->step = 0;  
-        // id.rl_info.impasse_type = ImpasseType.NONE_IMPASSE_TYPE;
 
         /* --- invoke callback routine --- */
         // TODO callback CREATE_NEW_CONTEXT_CALLBACK

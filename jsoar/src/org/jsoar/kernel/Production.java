@@ -49,6 +49,9 @@ public class Production
     
     private boolean reordered = false;
     
+    public boolean rl_rule = false;                 /* if true, is a Soar-RL rule */
+    public double rl_update_count;       /* number of (potentially fractional) updates to this rule */
+    
 
     /**
      * Function introduced while trying to tease apart production construction

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy;
+import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
@@ -117,6 +118,12 @@ public class Exploration
     public Exploration(Agent context)
     {
         this.context = context;
+        
+        // exploration initialization
+        // agent.cpp:307:create_agent
+        exploration_add_parameter( 0.1, new ExplorationValidateEpsilon(), "epsilon" );
+        exploration_add_parameter( 25, new ExplorationValidateTemperature(), "temperature" );
+
     }
 
     /**
@@ -430,18 +437,15 @@ public class Exploration
         }
 
         // should perform update here for chosen candidate in sarsa
-        /*
-         * TODO RL Update
-        if ( context.rl.rl_enabled() && ( rl_get_parameter( my_agent, RL_PARAM_LEARNING_POLICY, RL_RETURN_LONG ) == RL_LEARNING_SARSA ) )
-            rl_perform_update( my_agent, return_val.numeric_value, s.id );
-        else if ( context.rl.rl_enabled() && ( rl_get_parameter( my_agent, RL_PARAM_LEARNING_POLICY, RL_RETURN_LONG ) == RL_LEARNING_Q ) )
+        if ( context.rl.rl_enabled() && ( context.rl.rl_get_parameter( ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_SARSA ) )
+            context.rl.rl_perform_update( return_val.numeric_value, s.id );
+        else if ( context.rl.rl_enabled() && ( context.rl.rl_get_parameter( ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_Q ) )
         {
             if ( return_val.numeric_value != top_value )
-                rl_watkins_clear( my_agent, s.id );
+                context.rl.rl_watkins_clear( s.id );
 
-            rl_perform_update( my_agent, top_value, s.id );
+            context.rl.rl_perform_update( top_value, s.id );
         }
-        */
         
         return return_val;    
     }

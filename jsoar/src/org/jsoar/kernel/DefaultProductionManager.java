@@ -177,7 +177,7 @@ public class DefaultProductionManager implements ProductionManager
      * @throws ReordererException if there is an error during reordering
      * @throws IllegalArgumentException if p is a chunk or justification
      */
-    private void addProduction(Production p, boolean reorder_nccs) throws ReordererException
+    public void addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
         if(p.getType() == ProductionType.CHUNK || p.getType() == ProductionType.JUSTIFICATION)
         {

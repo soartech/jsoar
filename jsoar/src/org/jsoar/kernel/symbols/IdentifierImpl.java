@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.SavedFiringType;
-import org.jsoar.kernel.learning.ReinforcementLearningInfo;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;

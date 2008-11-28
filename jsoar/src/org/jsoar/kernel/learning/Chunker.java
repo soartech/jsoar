@@ -68,8 +68,8 @@ public class Chunker
     private int results_tc_number;
     private Preference results;
     private ListHead<Preference> extra_result_prefs_from_instantiation;
-    boolean variablize_this_chunk;
-    private int variablization_tc;
+    public boolean variablize_this_chunk;
+    public int variablization_tc;
     final ChunkConditionSet negated_set = new ChunkConditionSet();
     
     /**
@@ -313,7 +313,7 @@ public class Chunker
      * @param sym
      * @return
      */
-    private SymbolImpl variablize_symbol(SymbolImpl sym)
+    public SymbolImpl variablize_symbol(SymbolImpl sym)
     {
         IdentifierImpl id = sym.asIdentifier();
         if (id == null)
@@ -376,7 +376,7 @@ public class Chunker
      * 
      * @param cond
      */
-    private void variablize_condition_list(Condition cond)
+    public void variablize_condition_list(Condition cond)
     {
         for (; cond != null; cond = cond.next)
         {
@@ -612,7 +612,7 @@ public class Chunker
      * @param nots
      * @param conds
      */
-    private void variablize_nots_and_insert_into_conditions(NotStruct nots, Condition conds)
+    public void variablize_nots_and_insert_into_conditions(NotStruct nots, Condition conds)
     {
         // don't bother Not-ifying justifications
         if (!variablize_this_chunk)

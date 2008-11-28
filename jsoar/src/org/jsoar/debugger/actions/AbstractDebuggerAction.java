@@ -1,7 +1,7 @@
 /*
- * (c) 2007  Soar Technology, Inc.
+ * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
  *
- * Created on Apr 6, 2007
+ * Created on Oct 25, 2008
  */
 package org.jsoar.debugger.actions;
 

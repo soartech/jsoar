@@ -21,7 +21,7 @@ import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Backtracer;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.Explain;
-import org.jsoar.kernel.learning.ReinforcementLearning;
+import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.lhs.MultiAttributes;
 import org.jsoar.kernel.memory.ContextVariableInfo;
 import org.jsoar.kernel.memory.OSupport;
@@ -78,7 +78,7 @@ public class Agent
     public final Chunker chunker = new Chunker(this);
     public final Explain explain = new Explain(this);
     public final Backtracer backtrace = new Backtracer(this);
-    public final ReinforcementLearning rl = new ReinforcementLearning();
+    public final ReinforcementLearning rl = new ReinforcementLearning(this);
     
     public final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
     public final InputOutputImpl io = new InputOutputImpl(this);
@@ -390,11 +390,11 @@ public class Agent
         boolean traceState = trace.isEnabled();
         trace.setEnabled(false);
 
-        // TODO rl_reset_data( thisAgent );
+        rl.rl_reset_data();
         decider.clear_goal_stack();
         io.do_input_cycle(); // tell input functions that the top state is gone
         io.do_output_cycle(); // tell output functions that output commands are gone
-        // TODO rl_reset_stats( thisAgent );
+        rl.rl_reset_stats();
 
         if (operand2_mode)
         {

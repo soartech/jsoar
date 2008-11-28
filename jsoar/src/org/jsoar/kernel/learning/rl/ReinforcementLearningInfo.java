@@ -3,9 +3,14 @@
  *
  * Created on Sep 14, 2008
  */
-package org.jsoar.kernel.learning;
+package org.jsoar.kernel.learning.rl;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 import org.jsoar.kernel.ImpasseType;
+import org.jsoar.kernel.Production;
 
 /**
  * reinforcement_learning.h:99:rl_data
@@ -15,8 +20,8 @@ import org.jsoar.kernel.ImpasseType;
 public class ReinforcementLearningInfo
 {
     // Initial values from decide.cpp:2092:decide_context_slot
-//  TODO  rl_et_map *eligibility_traces;
-//  TODO  ::list *prev_op_rl_rules;
+    public final Map<Production, Double> eligibility_traces = new HashMap<Production, Double>();
+    public final LinkedList<Production> prev_op_rl_rules = new LinkedList<Production>();
     double previous_q = 0.0;
     double reward = 0.0;
     int reward_age = 0;    // the number of steps since a cycle containing rl rules
