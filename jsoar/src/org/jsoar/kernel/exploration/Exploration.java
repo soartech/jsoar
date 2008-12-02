@@ -620,7 +620,7 @@ public class Exploration
         {
             for (Preference cand = candidates; cand != null; cand = cand.next_candidate )
             {
-                context.trace.print("\n Candidate %y:  Value (Sum) = %f", cand.value , cand.numeric_value );
+                context.trace.print("\n Candidate %s:  Value (Sum) = %f", cand.value , cand.numeric_value );
                 /*
                 xml_begin_tag( my_agent, kTagCandidate );
                 xml_att_val( my_agent, kCandidateName, cand->value );

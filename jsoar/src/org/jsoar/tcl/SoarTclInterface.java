@@ -42,6 +42,8 @@ public class SoarTclInterface
         }
     }; 
     
+    private final Command rlCommand = new ReinforcementLearningCommand(this);
+    
     private final Command srandCommand = new SrandCommand(this);
         
     private final Command maxElaborationsCommand = new MaxElaborationsCommand(this);
@@ -138,6 +140,7 @@ public class SoarTclInterface
         interp.createCommand("multi-attributes", multiAttrCommand);
         interp.createCommand("stats", statsCommand);
         interp.createCommand("learn", learnCommand);
+        interp.createCommand("rl", rlCommand);
         interp.createCommand("srand", srandCommand);
         interp.createCommand("max-elaborations", maxElaborationsCommand);
         interp.createCommand("matches", matchesCommand);
