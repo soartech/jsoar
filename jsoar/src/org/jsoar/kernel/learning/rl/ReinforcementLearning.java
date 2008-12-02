@@ -592,7 +592,7 @@ public class ReinforcementLearning
         return true;
     }
 
-    boolean rl_set_parameter(int param, int new_val )
+    public boolean rl_set_parameter(int param, int new_val )
     {   
         if ( !rl_valid_parameter_value(param, new_val ) )
             return false;

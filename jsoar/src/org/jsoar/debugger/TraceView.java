@@ -83,7 +83,7 @@ public class TraceView extends AbstractAdaptableView
                 {
                     TraceMenu menu = new TraceMenu(debugger.getAgentProxy().getAgent().getTrace());
                     menu.populateMenu();
-                    menu.getPopupMenu().show(TraceView.this, e.getX(), e.getY());
+                    menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
                 }
             }});
         debugger.getAgentProxy().getAgent().getPrinter().pushWriter(outputWriter, true);

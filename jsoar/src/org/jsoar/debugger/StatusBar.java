@@ -26,6 +26,7 @@ public class StatusBar extends JPanel
     private final LittleDebugger debugger;
     private final JLabel runState = new JLabel("run state");
     private final JLabel phase = new JLabel("phase");
+    private final JLabel decisions = new JLabel("decisions");
     private final JLabel settings = new JLabel("Status");
     
     public StatusBar(LittleDebugger debugger)
@@ -39,11 +40,16 @@ public class StatusBar extends JPanel
         phase.setBorder(BorderFactory.createEtchedBorder());
         phase.setPreferredSize(new Dimension(100, 25));
         phase.setMaximumSize(new Dimension(100, 25));
+        decisions.setBorder(BorderFactory.createEtchedBorder());
+        decisions.setPreferredSize(new Dimension(100, 25));
+        decisions.setMaximumSize(new Dimension(100, 25));
+        
         settings.setBorder(BorderFactory.createEtchedBorder());
         
         JPanel left = new JPanel(new BorderLayout());
         left.add(runState, BorderLayout.WEST);
         left.add(phase, BorderLayout.CENTER);
+        left.add(decisions, BorderLayout.EAST);
         
         add(left, BorderLayout.WEST);
         add(settings, BorderLayout.CENTER);
@@ -53,6 +59,7 @@ public class StatusBar extends JPanel
     {
         final ByRef<String> runStateString = ByRef.create(null);
         final ByRef<String> phaseString = ByRef.create(null);
+        final ByRef<String> decisionsString = ByRef.create(null);
         final ByRef<String> settingsString = ByRef.create(null);
         final Agent a = debugger.getAgentProxy().getAgent();
         
@@ -62,11 +69,14 @@ public class StatusBar extends JPanel
             {
                 runStateString.value = debugger.getAgentProxy().isRunning() ? "Running" : "Idle";
                 phaseString.value = a.decisionCycle.current_phase.toString().toLowerCase();
+                decisionsString.value = Integer.toString(a.decisionCycle.decision_phases_count) + " decisions";
                 settingsString.value = getSettings(a);
                 return null;
             }});
+        
         runState.setText("<html><b>" + runStateString.value + "</b></html>");
-        phase.setText("<html><b>" + phaseString.value + "</b></html>");
+        phase.setText("<html><b>before " + phaseString.value + "</b></html>");
+        decisions.setText("<html><b>" + decisionsString.value + "</b></html>");
         settings.setText(settingsString.value);
     }
     
@@ -76,6 +86,7 @@ public class StatusBar extends JPanel
         b.append(status("warnings", a.getPrinter().isPrintWarnings()) + ", ");
         b.append(status("waitsnc", a.decider.isWaitsnc()) + ", ");
         b.append(status("learn", a.chunker.isLearningOn()) + ", ");
+        b.append(status("rl", a.rl.rl_enabled()) + ", ");
         b.append(status("save-backtraces", a.explain.isEnabled()));
         b.append("</html>");
         
