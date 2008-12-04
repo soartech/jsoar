@@ -19,25 +19,29 @@ import org.jsoar.kernel.symbols.Symbol;
 public interface Wme extends Formattable
 {
     /**
-     * @return The identifier field of the WME
+     * @return The identifier field of the WME. This value will never change.
      */
     Identifier getIdentifier();
     
     /**
-     * @return The attribute field of the WME
+     * @return The attribute field of the WME. This value will never change.
      */
     Symbol getAttribute();
     
     /**
-     * @return The value field of the WME
+     * @return The value field of the WME. This value will never change.
      */
     Symbol getValue();
     
     /**
-     * @return the WME's time tag
+     * @return the WME's time tag. This value will never change.
      */
     int getTimetag();
     
+    /**
+     * @return true iff this WME is an acceptable preference WME. This value
+     *      will never change.
+     */
     boolean isAcceptable();
     
     /**
@@ -47,7 +51,8 @@ public interface Wme extends Formattable
     Iterator<Wme> getChildren();
     
     /**
-     * @return The preference supporting this WME, or <code>null</code> if none.
+     * @return The preferences supporting this WME. Returns an empty iterator 
+     *      for architecture or I/O WMEs.
      */
-    Preference getPreference();
+    Iterator<Preference> getPreferences();
 }

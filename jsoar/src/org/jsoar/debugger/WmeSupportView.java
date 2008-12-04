@@ -43,7 +43,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
     private final SelectionManager selectionManager;
     private final JEditorPane source = new JEditorPane("text/html", "");
     private final JXTable sourceWmeTable = new JXTable();
-    private WmeSupportInfo sourceInfo;
+    private WmeSupportInfo.Support sourceInfo;
     
     public WmeSupportView(LittleDebugger debuggerIn)
     {
@@ -159,15 +159,16 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         }
     }
     
-    private WmeSupportInfo getSourceInfo(final Wme w)
+    private WmeSupportInfo.Support getSourceInfo(final Wme w)
     {
-        Callable<WmeSupportInfo> callable = new Callable<WmeSupportInfo>() {
+        Callable<WmeSupportInfo.Support> callable = new Callable<WmeSupportInfo.Support>() {
 
             @Override
-            public WmeSupportInfo call() throws Exception
+            public WmeSupportInfo.Support call() throws Exception
             {
                 final Agent agent = debugger.getAgentProxy().getAgent();
-                return WmeSupportInfo.get(agent, w);
+                WmeSupportInfo info = WmeSupportInfo.get(agent, w);
+                return info.getSupports().isEmpty() ? null : info.getSupports().get(0);
             }};
         return debugger.getAgentProxy().execute(callable);
     }

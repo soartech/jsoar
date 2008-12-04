@@ -7,7 +7,9 @@ package org.jsoar.kernel.memory;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
@@ -27,11 +29,40 @@ import org.jsoar.util.Arguments;
 public class WmeSupportInfo
 {
     private final Wme wme;
-    private final Preference pref;
-    private final boolean osupported;
-    private final String valueTrace;
-    private final Production source;
-    private final List<Wme> sourceWmes;
+    private final List<Support> supports;
+    
+    /**
+     * Represents support for the WME from a single preference. Includes info
+     * about the preference as well as the source production that created the
+     * preference and the LHS WMEs involved.
+     * 
+     * @author ray
+     */
+    public static class Support
+    {
+        private final Preference pref;
+        private final boolean osupported;
+        private final String valueTrace;
+        private final List<Wme> wmes;
+        
+        private Support(Preference pref, boolean osupported, String valueTrace, List<Wme> wmes)
+        {
+            this.pref = pref;
+            this.osupported = osupported;
+            this.valueTrace = valueTrace;
+            this.wmes = wmes;
+        }
+        
+        public PreferenceType getType() { return pref.type; }
+        public Identifier getIdentifier() { return pref.id; }
+        public Symbol getAttribute() { return pref.attr; }
+        public Symbol getValue() { return pref.value; }
+        public String getValueTrace() { return valueTrace; }
+        public Symbol getReferent() { return pref.referent; }
+        public boolean isOSupported() { return osupported; }
+        public Production getSource() { return pref.inst.prod; }
+        public List<Wme> getSourceWmes() { return wmes; }
+    }
     
     /**
      * Get support info for the given WME.
@@ -47,12 +78,37 @@ public class WmeSupportInfo
         Arguments.checkNotNull(agent, "agent");
         Arguments.checkNotNull(wme, "wme");
         
-        final Preference pref = wme.getPreference();
-        if(pref == null)
+        final List<Support> sources = new ArrayList<Support>();
+        final Iterator<Preference> prefIt = wme.getPreferences();
+        while(prefIt.hasNext())
         {
-            return null;
+            sources.add(createSupport(agent, prefIt.next()));
         }
-        
+        return new WmeSupportInfo(wme, sources);
+    }
+    
+    /**
+     * @return the wme this support info refers to
+     */
+    public Wme getWme()
+    {
+        return wme;
+    }
+
+
+
+    /**
+     * @return the list of supports (one per preference) for the WME.
+     */
+    public List<Support> getSupports()
+    {
+        return supports;
+    }
+
+
+
+    private static Support createSupport(Agent agent, Preference pref)
+    {
         List<Wme> sourceWmes = pref.inst.getBacktraceWmes();
         
         final String valueTrace;
@@ -73,35 +129,16 @@ public class WmeSupportInfo
         {
             valueTrace = String.format("%s", pref.value);
         }
-        return new WmeSupportInfo(wme, valueTrace, pref.o_supported, pref.inst.prod, sourceWmes);
         
+        return new Support(pref, pref.o_supported, valueTrace, sourceWmes);
     }
     
-    /**
-     * @param pref
-     * @param osupported
-     * @param source
-     * @param sourceWmes
-     */
-    private WmeSupportInfo(Wme wme, String valueTrace, boolean osupported, Production source, List<Wme> sourceWmes)
+    private WmeSupportInfo(Wme wme, List<Support> supports)
     {
         this.wme = wme;
-        this.pref = wme.getPreference();
-        this.valueTrace = valueTrace;
-        this.osupported = osupported;
-        this.source = source;
-        this.sourceWmes = Collections.unmodifiableList(sourceWmes);
+        this.supports = Collections.unmodifiableList(supports);
     }
     
-    public PreferenceType getType() { return pref.type; }
-    public Identifier getIdentifier() { return pref.id; }
-    public Symbol getAttribute() { return pref.attr; }
-    public Symbol getValue() { return pref.value; }
-    public String getValueTrace() { return valueTrace; }
-    public Symbol getReferent() { return pref.referent; }
-    public boolean isOSupported() { return osupported; }
-    public Production getSource() { return source; }
-    public List<Wme> getSourceWmes() { return sourceWmes; }
 
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
@@ -110,10 +147,14 @@ public class WmeSupportInfo
     public String toString()
     {
         StringBuilder b = new StringBuilder();
-        b.append(String.format("%s is supported by %s:\n", wme, source));
-        for(Wme w : getSourceWmes())
+        b.append(String.format("%s is supported by:\n", wme));
+        for(Support s : supports)
         {
-            b.append(String.format("   %s", w));
+            b.append(String.format("   %s\n", s.getSource()));
+            for(Wme w : s.getSourceWmes())
+            {
+                b.append(String.format("      %s\n", w));
+            }
         }
         return b.toString(); 
     }
