@@ -82,7 +82,10 @@ public class Trace
         INDIFFERENT,
         
         /** gsysparam.h:176:TRACE_RL_SYSPARAM */
-        RL;
+        RL,
+        
+        /** New in jsoar for debugging waterfall */
+        WATERFALL;
         
         public final boolean defaultSetting;
         

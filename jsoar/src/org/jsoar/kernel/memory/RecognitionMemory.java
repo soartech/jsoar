@@ -285,7 +285,7 @@ public class RecognitionMemory
         {
             throw new IllegalStateException("Unknow RhsValue type: " + rv);
         }
-
+        
         // build up list of argument values
         List<Symbol> arguments = new ArrayList<Symbol>(fc.getArguments().size());
         boolean nil_arg_found = false;
@@ -339,7 +339,7 @@ public class RecognitionMemory
         FunctionAction fa = a.asFunctionAction();
         if (fa != null)
         {
-            instantiate_rhs_value(fa.getCall(), -1, 'v', tok, w);
+    		instantiate_rhs_value(fa.getCall(), -1, 'v', tok, w);
             return null;
         }
 
@@ -362,7 +362,7 @@ public class RecognitionMemory
         {
             return null;
         }
-
+        
         char first_letter = attr.getFirstLetter();
 
         SymbolImpl value = instantiate_rhs_value(ma.value, id.level, first_letter, tok, w);
@@ -597,13 +597,9 @@ public class RecognitionMemory
      */
     private void create_instantiation(Production prod, Token tok, WmeImpl w, IdentifierImpl top_goal)
     {
-        // #ifdef BUG_139_WORKAROUND
         // RPM workaround for bug #139: don't fire justifications
-        if (prod.getType() == ProductionType.JUSTIFICATION)
-        {
-            return;
-        }
-        // #endif
+    	// code moved to do_preference_phase
+    	assert prod.getType() != ProductionType.JUSTIFICATION;
 
         Instantiation inst = new Instantiation(prod, tok, w);
         inst.inProdList.insertAtHead(this.newly_created_instantiations);
@@ -762,6 +758,84 @@ public class RecognitionMemory
         //   if (!thisAgent->system_halted) {
         //      soar_invoke_callbacks(thisAgent, FIRING_CALLBACK, (soar_call_data) inst);
         //   }
+    }
+    
+    /**
+     * Returns true if the function create_instantiation should run for this production.
+     * Used to delay firing of matches in the inner preference loop.
+     * 
+     * @param prod
+     * @param tok
+     * @param w
+     * @return false to abort firing
+     */
+    private boolean shouldCreateInstantiation(Production prod, Token tok, WmeImpl w)
+    {
+        if (context.decider.active_level == context.decider.highest_active_level)
+        {
+        	return true;
+        }
+        
+        if (prod.getType() == ProductionType.TEMPLATE)
+        {
+        	return true;
+        }
+
+        // Scan RHS identifiers for their levels, don't fire those at or higher than the change level
+        for (Action a = prod.action_list; a != null; a = a.next)
+        {
+        	// These next three calls get the identifier which has the level,
+        	// skipping anything that isn't an identifier.
+        	MakeAction ma = a.asMakeAction();
+            if (ma == null)
+            {
+            	continue;
+            }
+            
+            // Skip unbound variables
+            if (ma.id.asUnboundVariable() != null)
+            {
+            	continue;
+            }
+            
+            // Get the symbol or determine that it is a function call
+            SymbolImpl idSym = null;
+            RhsSymbolValue rsv = ma.id.asSymbolValue();
+            if (rsv != null)
+            {
+            	idSym = rsv.getSym();
+            } 
+            else
+            {
+                ReteLocation rl = ma.id.asReteLocation();
+                if (rl != null)
+                {
+                	idSym = rl.lookupSymbol(tok, w);
+                }
+                else
+                {
+                	// It's a function call, skip it.
+                	continue;
+                }
+            }
+            assert idSym != null;
+
+            IdentifierImpl id = idSym.asIdentifier();
+            if (id == null)
+            {
+            	continue;
+            }
+            
+            if (id.level <= context.decider.change_level)
+            {
+            	context.trace.print(Category.WATERFALL, "*** Waterfall: aborting firing because (%s * *)" +
+            			" level %d is on or higher (lower int) than change level %d\n", 
+            			id, id.level, context.decider.change_level);
+            	return false;
+            }
+        }
+
+        return true;
     }
     
     /**
@@ -1203,23 +1277,120 @@ public class RecognitionMemory
                 // the XML for this is generated in this function
                 context.trace.print("\n--- Preference Phase ---\n");
         }
+        
+        // Save previous active level for usage on next elaboration cycle.
+        context.decider.highest_active_level = context.decider.active_level;
+        context.decider.highest_active_goal = context.decider.active_goal;
 
-        this.newly_created_instantiations.clear();
-
-        SoarReteAssertion assertion = null;
-        while ((assertion = context.soarReteListener.get_next_assertion()) != null)
+        context.decider.change_level = context.decider.highest_active_level;
+        context.decider.next_change_level = context.decider.highest_active_level;
+        
+        // FIXME: should not do this inner elaboration loop for soar 7 mode.
+        for (;;)
         {
-            if(context.chunker.isMaxChunksReached()) 
-            {
-                context.decisionCycle.halt("Max chunks reached");
-                return;
-            }
+        	// Inner elaboration loop
+        	context.decider.change_level = context.decider.next_change_level;
+        	
+	        if (context.trace.isEnabled(Category.WATERFALL))
+	        {
+	        	context.trace.print("--- Inner Elaboration Phase, active level: %d",
+	        			context.decider.active_level);
+	        	if (context.decider.active_goal != null)
+	        	{
+		        	context.trace.print(" (%s)", context.decider.active_goal);
+	        	}
+	        	context.trace.print(" ---\n");
+	        }
+	        
+	        this.newly_created_instantiations.clear();
+	    	
+	        SoarReteAssertion assertion = null;
+	        boolean assertionsExist = false;
+	        while ((assertion = context.soarReteListener.postpone_assertion()) != null)
+	        {
+	        	assertionsExist = true;
+	        	
+	            if(context.chunker.isMaxChunksReached()) 
+	            {
+	            	context.soarReteListener.consume_last_postponed_assertion();
+	                context.decisionCycle.halt("Max chunks reached");
+	                return;
+	            }
+	            
+	            if (assertion.production.getType() == ProductionType.JUSTIFICATION)
+	            {
+	            	context.soarReteListener.consume_last_postponed_assertion();
+
+	            	// don't fire justifications
+	            	continue;
+	            }
+	            
+	            if (shouldCreateInstantiation(assertion.production, assertion.token, assertion.wme))
+	            {
+	            	context.soarReteListener.consume_last_postponed_assertion();
+	            	create_instantiation(assertion.production, assertion.token, assertion.wme, top_goal);
+	            }
+	        }
+	        
+	        // New waterfall model: something fired or is pending to fire at this level, 
+	        // so this active level becomes the next change level.
+	        if (assertionsExist)
+	        {
+	            if (context.decider.active_level > context.decider.next_change_level) 
+	            {
+	            	context.decider.next_change_level = context.decider.active_level;
+	            }
+	        }
+	        
+	        // New waterfall model: push unfired matches back on to the assertion lists
+	        context.soarReteListener.restore_postponed_assertions();
+	        
+	        assert_new_preferences();
+	
+	        // update accounting
+	        context.decisionCycle.inner_e_cycle_count++;
+	        
+	        if (context.decider.active_goal == null)
+	        {
+	        	context.trace.print(Category.WATERFALL, " inner preference loop doesn't have active goal.\n");
+	        	break;
+	        }
+	        
+	        if (context.decider.active_goal.lower_goal == null)
+	        {
+	        	context.trace.print(Category.WATERFALL, " inner preference loop at bottom goal.\n");
+	        	break;
+	        }
+	        
+	        try
+	        {
+	            if (context.decisionCycle.current_phase == Phase.APPLY)
+	            {
+	    	        context.decider.active_goal = context.consistency.highest_active_goal_apply(context.decider.active_goal.lower_goal);
+	            }
+	            else if (context.decisionCycle.current_phase == Phase.PROPOSE)
+	            {
+	            	// PROPOSE
+	            	context.decider.active_goal = context.consistency.highest_active_goal_propose(context.decider.active_goal.lower_goal);
+	            } 
+	        } 
+	        catch (IllegalStateException e)
+	        {
+	        	// FIXME: highest_active_goal_x functions are intended to be used only when it is
+	        	// guaranteed that the agent is not at quiescence.
+	        	context.decider.active_goal = null;
+	        	context.trace.print(Category.WATERFALL, " inner preference loop finished but not at quiescence.\n");
+	        	break;
+	        }
             
-            create_instantiation(assertion.production, assertion.token, assertion.wme, top_goal);
-        }
+	        assert context.decider.active_goal != null;
+        	context.decider.active_level = context.decider.active_goal.level;
+        } // inner elaboration loop/cycle end
 
-        assert_new_preferences();
-
+        // Restore previous active level.
+        context.decider.active_level = context.decider.highest_active_level;
+        context.decider.active_goal = context.decider.highest_active_goal;
+        
         Instantiation inst = null;
         while ((inst = context.soarReteListener.get_next_retraction()) != null)
         {
@@ -1244,7 +1415,7 @@ public class RecognitionMemory
                 retract_instantiation(inst);
             }
         }
-
+        
         if(!context.operand2_mode)
         {
             Phase.PREFERENCE.trace(context.trace, false);

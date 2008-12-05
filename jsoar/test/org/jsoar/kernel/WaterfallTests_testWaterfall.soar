@@ -1,0 +1,38 @@
+# Test case for revised waterfall model
+#
+# In Soar8/9.0.0 waterfall model, the change*substate rule will never fire. This is because the 
+# change*top-state rule will fire first, which will cause the proposal to unmatch and thus the
+# substate will retract
+#
+# In the revised waterfall model, change*substate will fire in parallel with change*top-state, since
+# the effects cannot possibly conflict.
+
+learn --off
+
+sp {propose*test
+(state <s> ^superstate nil
+          -^result true)
+-->
+(<s> ^operator <o> +)
+(<o> ^name test)
+(<s> ^foo <f>)
+(<f> ^bar <b>)
+}
+
+sp {change*top-state
+(state <s> ^superstate <ss>)
+(<ss> ^operator.name test)
+-->
+(<ss> ^result true)
+(write (crlf) |Changed top-state|)
+}
+
+sp {change*substate
+(state <s> ^superstate <ss>)
+(<ss> ^operator.name test
+      ^result true)
+-->
+(<s> ^substate changed)
+(write (crlf) |Changed substate|)
+(succeeded)
+}
