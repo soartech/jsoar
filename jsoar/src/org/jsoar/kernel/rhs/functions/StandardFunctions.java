@@ -35,6 +35,7 @@ public class StandardFunctions
             {
                 context.getPrinter().print(arg.toString());
             }
+            context.getPrinter().flush();
             return null;
         }
     };

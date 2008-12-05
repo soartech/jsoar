@@ -11,6 +11,7 @@ import java.util.Map;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 
 /**
@@ -62,6 +63,22 @@ public class InputBuilder
     private final InputBuilder parent;
     private final Map<String, Identifier> idMap;
     private final Map<String, Wme> wmeMap;
+    
+    public static Wme add(InputOutput io, Identifier id, Object attr, Object value)
+    {
+        final SymbolFactory syms = io.getSymbols();
+        return io.addInputWme(id, Symbols.create(syms, attr), Symbols.create(syms, value));
+    }
+    
+    public static void remove(InputOutput io, Wme wme)
+    {
+        io.removeInputWme(wme);
+    }
+    
+    public static Wme update(InputOutput io, Wme wme, Object newValue)
+    {
+        return io.updateInputWme(wme, Symbols.create(io.getSymbols(), newValue));
+    }
     
     /**
      * Construct a new builder object that starts building WMEs at the given
