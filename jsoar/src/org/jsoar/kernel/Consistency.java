@@ -486,11 +486,10 @@ public class Consistency
      * 
      * @return
      */
-    private IdentifierImpl highest_active_goal_propose()
+    public IdentifierImpl highest_active_goal_propose(IdentifierImpl start_goal)
     {
-        for (IdentifierImpl goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
+        for (IdentifierImpl goal = start_goal; goal != null; goal = goal.lower_goal)
         {
-
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE      
             print(thisAgent, "In highest_active_goal_propose:\n");
@@ -517,17 +516,20 @@ public class Consistency
         if (!context.soarReteListener.nil_goal_retractions.isEmpty())
             return null;
 
+        context.trace.flush();
         throw new IllegalStateException("Unable to find an active goal when not at quiescence.");
     }
 
     /**
      * consistency.cpp:457:highest_active_goal_apply
      * 
+     * Preconditions: start_goal cannot be null, agent not at quiescence
+     * 
      * @return
      */
-    private IdentifierImpl highest_active_goal_apply()
+    public IdentifierImpl highest_active_goal_apply(IdentifierImpl start_goal)
     {
-        for (IdentifierImpl goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
+        for (IdentifierImpl goal = start_goal; goal != null; goal = goal.lower_goal)
         {
             /*
             #if 0 //DEBUG_DETERMINE_LEVEL_PHASE      
@@ -644,7 +646,7 @@ public class Consistency
         /* No current activity level */
         context.decider.active_level = 0;
         context.decider.active_goal = null;
-
+        
         /* Clear any interruption flags on the goals....*/
         for (IdentifierImpl goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
             goal.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
@@ -715,7 +717,7 @@ public class Consistency
         context.decider.previous_active_level = context.decider.active_level;
 
         /* Determine the new highest level of activity */
-        context.decider.active_goal = highest_active_goal_apply();
+        context.decider.active_goal = highest_active_goal_apply(context.decider.top_goal);
         if (context.decider.active_goal != null)
             context.decider.active_level = context.decider.active_goal.level;
         else
@@ -972,7 +974,7 @@ public class Consistency
         context.decider.previous_active_level = context.decider.active_level;
 
         /* Determine the new highest level of activity */
-        context.decider.active_goal = highest_active_goal_propose();
+        context.decider.active_goal = highest_active_goal_propose(context.decider.top_goal);
         if (context.decider.active_goal != null)
             context.decider.active_level = context.decider.active_goal.level;
         else

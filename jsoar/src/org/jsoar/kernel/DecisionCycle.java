@@ -72,6 +72,7 @@ public class DecisionCycle
     private int run_generated_output_count;
     public int d_cycle_count;
     public int decision_phases_count;
+    public int inner_e_cycle_count;
     
     /**
      * gsysparams.h::MAX_NIL_OUTPUT_CYCLES_SYSPARAM
@@ -149,6 +150,7 @@ public class DecisionCycle
         run_elaboration_count = 0 ;
         run_last_output_count = 0 ;
         run_generated_output_count = 0 ;
+        inner_e_cycle_count = 0;
     }
     
     /**
@@ -386,6 +388,9 @@ public class DecisionCycle
 
     /**
      * extracted from run_one_top_level_phase(), switch case APPLY_PHASE
+     * 
+     * Modified at umich for new waterfall model, see:
+     * https://winter.eecs.umich.edu/soarumwiki/index.php/Soar/Waterfall
      */
     private void doApplyPhase()
     {
@@ -436,6 +441,7 @@ public class DecisionCycle
                 // only for 2nd cycle or higher. 1st cycle fired above
                 beforeElaboration();
             }
+            
             context.recMemory.do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
             context.decider.do_working_memory_phase();
 
@@ -566,6 +572,7 @@ public class DecisionCycle
             {
                 beforeElaboration();
             }
+            
             context.recMemory.do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
             context.decider.do_working_memory_phase();
             

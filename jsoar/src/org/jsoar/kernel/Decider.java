@@ -125,6 +125,30 @@ public class Decider
     IdentifierImpl previous_active_goal;
     public int active_level;
     int previous_active_level;
+
+    // Used in new waterfall model inner preference loop
+    /**
+     * State for new waterfall model
+     * Represents the original active level of the elaboration cycle, saved so that we can modify the active
+     * level during the inner preference loop and restore it before working memory changes.
+     */
+	public int highest_active_level;
+    /**
+     * State for new waterfall model
+     * Same as highest_active_level, just the goal that the level represents.
+     */
+	public IdentifierImpl highest_active_goal;
+    /**
+     * State for new waterfall model
+     * Can't fire rules at this level or higher (lower int)
+     */
+	public int change_level;
+    /**
+     * State for new waterfall model
+     * Next change_level, in next iteration of inner preference loop.
+     */
+	public int next_change_level;
+    
     /**
      * agent.h:740:waitsnc
      */

@@ -101,7 +101,7 @@ public class RhsFunctionCall extends RhsValue
     @Override
     public String toString()
     {
-        return "(name " + arguments + ")";
+        return "(" + name + " " + arguments + ")";
     }
 
     /* (non-Javadoc)

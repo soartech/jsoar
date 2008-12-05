@@ -356,14 +356,14 @@ public class FunctionalTests
         runTest("testBlocksWorldLookAheadRandom", -1);
     }
     
-    @Test(timeout=20000)
+    @Test(timeout=30000)
     public void testArithmetic() throws Exception
     {
         runTest("testArithmetic", -1);
         assertTrue(agent.decisionCycle.d_cycle_count > 40000);
     }
     
-    @Test(timeout=60000)
+    @Test(timeout=80000)
     public void testCountTest() throws Exception
     {
         runTest("testCountTest", -1);
@@ -372,6 +372,7 @@ public class FunctionalTests
         assertEquals(45047, agent.decisionCycle.decision_phases_count);
         assertEquals(115136, agent.decisionCycle.e_cycle_count);
         assertEquals(40039, agent.decisionCycle.pe_cycle_count);
+        assertEquals(120146, agent.decisionCycle.inner_e_cycle_count);
     }
 
 }

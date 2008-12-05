@@ -65,7 +65,12 @@ public class SoarReteListener implements ReteListener
      */
     private final ListHead<MatchSetChange> ms_o_assertions = ListHead.newInstance();
     public final ListHead<MatchSetChange> ms_i_assertions = ListHead.newInstance();
-    
+
+    /**
+     * New waterfall model: postponed assertions that can be restored if they don't fire
+     */
+    public final ListHead<MatchSetChange> postponed_assertions = ListHead.newInstance();
+
     /**
      * @param operator_symbol
      */
@@ -736,15 +741,19 @@ public class SoarReteListener implements ReteListener
         }
     }
 
-    /**
-     * Get_next_assertion() retrieves a pending assertion (returning TRUE) or
-     * returns FALSE is no more are available.
+    /* New waterfall model: 
      * 
-     * <p>rete.cpp:1157:get_next_assertion
-     * 
-     * @return
+     * postpone_assertion: formerly get_next_assertion. Removes the first 
+     * assertion from the assertion lists and adds it to the postponed 
+     * assertions list. Returns false if there are no assertions.
+     *
+     * consume_last_postponed_assertion: removes the first assertion from the
+     * postponed assertions list, making it go away permanently.
+     *
+     * restore_postponed_assertions: replaces the postponed assertions back on
+     * the assertion lists.
      */
-    public SoarReteAssertion get_next_assertion()
+    public SoarReteAssertion postpone_assertion()
     {
         MatchSetChange msc = null;
 
@@ -809,9 +818,50 @@ public class SoarReteListener implements ReteListener
 
         msc.of_node.remove(msc.p_node.b_p.tentative_assertions);
 
+        // save the assertion on the postponed list
+        postponed_assertions.push(msc);
+        
         return new SoarReteAssertion(msc.p_node.b_p.prod, msc.tok, msc.w);
     }
+    
+    public void consume_last_postponed_assertion()
+    {
+    	MatchSetChange msc = postponed_assertions.pop();
+    	assert msc != null;
+    }
+    
+    public void restore_postponed_assertions()
+    {
+    	while (!postponed_assertions.isEmpty())
+    	{
+    		MatchSetChange msc = postponed_assertions.pop();
+        	assert msc != null;
+        	
+            msc.of_node.insertAtHead(msc.p_node.b_p.tentative_assertions);
+        	
+            if (context.operand2_mode)
+            {
+            	assert context.decider.active_goal != null;
 
+            	if (context.recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
+                {
+                    msc.next_prev.insertAtHead(ms_o_assertions);
+                    context.decider.active_goal.ms_o_assertions.push(msc);
+                }
+                else
+                {
+                    /* IE PRODS */
+                    msc.next_prev.insertAtHead(ms_i_assertions);
+                    context.decider.active_goal.ms_i_assertions.push(msc);
+                }
+            }
+            else
+            {
+                ms_assertions.push(msc);
+            }
+    	}
+    }
+    
     /**
      * <p>rete.cpp:1238:get_next_retraction
      * 

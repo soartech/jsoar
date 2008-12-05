@@ -53,9 +53,11 @@ final class StatsCommand implements Command
         
         p.print("%d decisions%n" +
         		"%d elaboration cycles%n" +
+        		"%d inner elaboration cycles%n" +
         		"%d p-elaboration cycles",
         		agent.decisionCycle.decision_phases_count,
         		agent.decisionCycle.e_cycle_count,
+        		agent.decisionCycle.inner_e_cycle_count,
         		agent.decisionCycle.pe_cycle_count);
     }
 }
