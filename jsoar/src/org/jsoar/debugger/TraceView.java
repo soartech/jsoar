@@ -52,7 +52,7 @@ public class TraceView extends AbstractAdaptableView
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         outputWindow.append(output);
-                        outputWindow.setCaretPosition(outputWindow.getText().length());
+                        outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
                     }
                 });
             }
