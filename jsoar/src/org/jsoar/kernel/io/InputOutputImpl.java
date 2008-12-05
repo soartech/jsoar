@@ -252,6 +252,11 @@ public class InputOutputImpl implements InputOutput
         Arguments.checkNotNull(w, "w");
         Arguments.check(w instanceof WmeImpl, "Incompatible WME type");
 
+        if(newValue == w.getValue())
+        {
+            return w;
+        }
+        
         removeInputWme(w);
         return addInputWme(w.getIdentifier(), w.getAttribute(), newValue);
     }

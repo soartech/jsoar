@@ -262,8 +262,6 @@ public class LittleDebugger extends JPanel implements Adaptable
     
     public static void main(final String[] args)
     {
-        initializeLookAndFeel();
-        
         SwingUtilities.invokeLater(new Runnable() {
             
             public void run() { initialize(args); }
@@ -273,8 +271,10 @@ public class LittleDebugger extends JPanel implements Adaptable
     /**
      * @param args
      */
-    private static void initialize(final String[] args)
+    public static LittleDebugger initialize(final String[] args)
     {
+        initializeLookAndFeel();
+        
         DockingManager.setFloatingEnabled(true);
         
         JFrame frame = new JFrame("Little JSoar Debugger");
@@ -303,6 +303,7 @@ public class LittleDebugger extends JPanel implements Adaptable
                 }
                 littleDebugger.update(false);
             } } );
+        return littleDebugger;
     }
 
     /* (non-Javadoc)

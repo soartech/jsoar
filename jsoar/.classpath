@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/jacl.jar"/>
 	<classpathentry kind="lib" path="lib/tcljava.jar"/>
-	<classpathentry kind="lib" path="lib/google-collect-snapshot-20080820.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/google-collect-snapshot-20080820.jar"/>
 	<classpathentry kind="lib" path="lib/flexdock-0.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/prefuse-beta-20071021.jar"/>
