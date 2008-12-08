@@ -351,7 +351,7 @@ public class InputOutputImpl implements InputOutput
         {
             // create new output link structure
             this.outputLinkStatus = OutputLinkStatus.NEW_OL_STATUS;
-            outputLinkWme.wme_add_ref();
+            // (removed in jsoar) outputLinkWme.wme_add_ref();
         }
     }
 
@@ -636,7 +636,7 @@ public class InputOutputImpl implements InputOutput
             //      start_timer (thisAgent, &thisAgent->start_kernel_tv);
             //      start_timer (thisAgent, &thisAgent->start_phase_tv);
             //      #endif
-            outputLinkWme.wme_remove_ref(context.workingMemory);
+            // (removed in jsoar) outputLinkWme.wme_remove_ref(context.workingMemory);
             outputLinkStatus = OutputLinkStatus.UNINITIALIZED_OL_STATUS;
             break;
         }

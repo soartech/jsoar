@@ -86,6 +86,9 @@ import com.google.common.collect.Iterators;
  * <p>The following fields or functions were removed because they were unused or
  * unnecessary in Java:
  * <ul>
+ * <li>reference_count
+ * <li>wmem.h:160:wme_add_ref
+ * <li>wme_remove_ref
  * </ul>
  * 
  * @author ray
@@ -97,8 +100,6 @@ public class WmeImpl implements Wme, Formattable
     public final SymbolImpl value;
     public final boolean acceptable;
     public final int timetag;
-    
-    private int reference_count;
     
     private RightMemory right_mems; // used for dll of rm's it's in
     public Token tokens = null; // dll of tokens in rete
@@ -144,23 +145,6 @@ public class WmeImpl implements Wme, Formattable
         this.timetag = timetag;
     }
 
-    /**
-     * <p>wmem.h:160:wme_add_ref
-     */
-    public void wme_add_ref()
-    {
-        reference_count++;
-    }
-    
-    public void wme_remove_ref(WorkingMemory wm)
-    {
-      /* There are occaisionally wme's with zero reference counts 
-         created in the system. Make sure this function handles them 
-         correctly. */
-      if (reference_count != 0) { reference_count--; }
-      if (reference_count == 0) { wm.deallocate_wme(this); }
-    }
-    
     /**
      * Retrieve a field by index, 0 = id, 1 = attr, 2 = value.
      * 

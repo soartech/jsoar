@@ -16,7 +16,6 @@ import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
-import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
@@ -490,12 +489,14 @@ public class RecognitionMemory
                 // TODO This should all be a method on pc.bt. What should it be called?
                 if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                 {
-                    pc.bt.wme_.wme_add_ref();
+                    // (removed in jsoar) pc.bt.wme_.wme_add_ref();
                 }
                 else
                 {
                     if (level > SoarConstants.TOP_GOAL_LEVEL)
-                        pc.bt.wme_.wme_add_ref();
+                    {
+                        // (removed in jsoar) pc.bt.wme_.wme_add_ref();
+                    }
                 }
                 // if trace is for a lower level, find one for this level
                 if (pc.bt.trace != null)
@@ -879,7 +880,7 @@ public class RecognitionMemory
 
                 if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                 {
-                    pc.bt.wme_.wme_remove_ref(context.workingMemory);
+                    // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
                     if (pc.bt.trace != null)
                         pc.bt.trace.preference_remove_ref(this);
                 }
@@ -887,7 +888,7 @@ public class RecognitionMemory
                 {
                     if (level > SoarConstants.TOP_GOAL_LEVEL)
                     {
-                        pc.bt.wme_.wme_remove_ref(context.workingMemory);
+                        // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
                         if (pc.bt.trace != null)
                             pc.bt.trace.preference_remove_ref(this);
                     }
