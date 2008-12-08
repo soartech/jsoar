@@ -23,13 +23,13 @@ public class StatusBar extends JPanel
 {
     private static final long serialVersionUID = 1501760828755152573L;
 
-    private final LittleDebugger debugger;
+    private final JSoarDebugger debugger;
     private final JLabel runState = new JLabel("run state");
     private final JLabel phase = new JLabel("phase");
     private final JLabel decisions = new JLabel("decisions");
     private final JLabel settings = new JLabel("Status");
     
-    public StatusBar(LittleDebugger debugger)
+    public StatusBar(JSoarDebugger debugger)
     {
         super(new BorderLayout());
         

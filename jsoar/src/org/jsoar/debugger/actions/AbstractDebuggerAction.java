@@ -9,7 +9,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.KeyStroke;
 
-import org.jsoar.debugger.LittleDebugger;
+import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.selection.SelectionManager;
 
 /**
@@ -86,7 +86,7 @@ public abstract class AbstractDebuggerAction extends AbstractAction
         return manager;
     }
     
-    public LittleDebugger getApplication()
+    public JSoarDebugger getApplication()
     {
         return manager != null ? manager.getApplication() : null;
     }

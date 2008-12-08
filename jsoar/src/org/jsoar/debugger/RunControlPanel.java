@@ -25,12 +25,12 @@ public class RunControlPanel extends JPanel
 {
     private static final long serialVersionUID = 4339204720269679671L;
 
-    private final LittleDebugger debugger;
+    private final JSoarDebugger debugger;
     
     private JTextField countField;
     private JComboBox stepTypeCombo;
     
-    public RunControlPanel(LittleDebugger debuggerIn)
+    public RunControlPanel(JSoarDebugger debuggerIn)
     {
         super(new BorderLayout());
         
