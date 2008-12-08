@@ -11,19 +11,25 @@ import org.jsoar.kernel.events.WorkingMemoryChangedEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.AsListItem;
 import org.jsoar.util.ListHead;
 
 /**
+ * <p>wmem.cpp
+ * <p>The following fields or functions were removed because they were unused or
+ * unnecessary in Java:
+ * <ul>
+ * <li>wmem.cpp:283:deallocate_wme
+ * <li>num_existing_wmes
+ * </ul>
+ * 
  * @author ray
  */
 public class WorkingMemory
 {
     private final Agent context;
     
-    private int num_existing_wmes = 0;
     private int current_wme_timetag = 1;
     private final ListHead<WmeImpl> wmes_to_add = ListHead.newInstance();
     private final ListHead<WmeImpl> wmes_to_remove = ListHead.newInstance();
@@ -56,15 +62,9 @@ public class WorkingMemory
         cumulative_wm_size = 0;
         num_wm_sizes_accumulated = 0;
         
-        // reset_wme_timetags
-        if (num_existing_wmes != 0)
-        {
-            final Printer printer = context.trace.getPrinter();
-            printer.warn("Internal warning: wanted to reset wme timetag generator, but\n" +
-            		"there are still %d wmes allocated. (Probably a memory leak.)\n" +
-            		"(Leaving timetag numbers alone.)\n", num_existing_wmes);
-            return;
-        }
+        // Note: Originally num_existing_wmes was checked here and a warning was printed
+        // to catch memory leaks. Removed in jsoar.
+
         current_wme_timetag = 1;
     }
     
@@ -95,7 +95,6 @@ public class WorkingMemory
     public WmeImpl make_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
         WmeImpl w = new WmeImpl(id, attr, value, acceptable, current_wme_timetag++);
-        ++num_existing_wmes;
         return w;
     }
     
@@ -202,7 +201,7 @@ public class WorkingMemory
         
         context.getEventManager().fireEvent(new WorkingMemoryChangedEvent(wmes_to_add, wmes_to_remove));
         
-        /* --- stuff wme changes through the rete net --- */
+        // stuff wme changes through the rete net
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
         // start_timer (thisAgent, &start_tv);
@@ -229,7 +228,6 @@ public class WorkingMemory
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...
             context.trace.print(Category.WM_CHANGES, "=>WM: %s", w.item);
-            w.item.wme_add_ref();
             wme_addition_count++;
         }
         
@@ -237,8 +235,6 @@ public class WorkingMemory
         {
             // TODO Originally "filtered_print_wme_remove", but filtering seems disabled in CSoar...
             context.trace.print(Category.WM_CHANGES, "<=WM: %s", w.item);
-
-            w.item.wme_remove_ref(this);
             wme_removal_count++;
         }
         
@@ -246,21 +242,6 @@ public class WorkingMemory
         wmes_to_remove.clear();
     }
 
-    /**
-     * wmem.cpp:283:deallocate_wme
-     * 
-     * @param w
-     */
-    public void deallocate_wme(WmeImpl w)
-    {
-        //#ifdef DEBUG_WMES  
-        //  print_with_symbols (thisAgent, "\nDeallocate wme: ");
-        //  print_wme (thisAgent, w);
-        //#endif
-        num_existing_wmes--;
-        assert num_existing_wmes >= 0;
-    }
-    
     /**
      * Extracted from do_buffered_wm_changes
      */

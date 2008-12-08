@@ -1500,12 +1500,14 @@ public class Decider
         cond.bt.wme_ = ap_wme;
         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
         {
-            ap_wme.wme_add_ref();
+            // (removed in jsoar) ap_wme.wme_add_ref();
         }
         else
         {
             if (inst.match_goal_level > SoarConstants.TOP_GOAL_LEVEL)
-                ap_wme.wme_add_ref();
+            {
+             // (removed in jsoar) ap_wme.wme_add_ref();
+            }
         }
         cond.bt.level = ap_wme.id.level;
 
