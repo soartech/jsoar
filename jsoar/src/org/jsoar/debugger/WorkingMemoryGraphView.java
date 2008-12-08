@@ -72,7 +72,7 @@ public class WorkingMemoryGraphView extends AbstractAdaptableView
     private static final String nodes = "graph.nodes";
     private static final String edges = "graph.edges";
 
-    private final LittleDebugger debugger;
+    private final JSoarDebugger debugger;
     private Visualization m_vis;
     private Set<Wme> wmes = new HashSet<Wme>();
     private final Map<Identifier, Node> nodeMap = new HashMap<Identifier, Node>();
@@ -90,7 +90,7 @@ public class WorkingMemoryGraphView extends AbstractAdaptableView
      * @param persistentId
      * @param title
      */
-    public WorkingMemoryGraphView(LittleDebugger debugger)
+    public WorkingMemoryGraphView(JSoarDebugger debugger)
     {
         super("workingMemory.graph", "Working Memory Graph");
         

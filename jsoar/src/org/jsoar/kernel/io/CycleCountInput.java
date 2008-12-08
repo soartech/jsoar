@@ -24,7 +24,7 @@ public class CycleCountInput
 {
     private final InputOutput io;
     private final SoarEventManager events;
-    private final Listener listener;
+    private final InputListener listener;
     private int count = 1;
     private Wme wme;
     
@@ -32,34 +32,41 @@ public class CycleCountInput
      * Construct a new cycle count input object.
      * 
      * @param io The I/O interface
-     * @param events The event manager. If not <code>null</code> then this object
+     * @param events The event manager. This object
      *     will automatically register for input events and update the input-link.
-     *     Otherwise, is it up to calling code to call {@link #update()} manually
-     *     during the input cycle.
      */
     public CycleCountInput(InputOutput io, SoarEventManager events)
     {
         Arguments.checkNotNull(io, "io");
+        Arguments.checkNotNull(events, "events");
         
         this.io = io;
         this.events = events;
-        if(this.events != null)
+        this.listener = new InputListener();
+        this.events.addListener(InputCycleEvent.class, listener);
+    }
+    
+    /**
+     * Dispose this object, removing the cycle count from the input link and 
+     * unregistering from the event manager if necessary 
+     */
+    public void dispose()
+    {
+        this.events.removeListener(InputCycleEvent.class, listener);
+        
+        // Schedule removal of wme at next input cycle.
+        // TODO: I think this should be handled by InputOutput
+        if(wme != null)
         {
-            this.listener = new Listener();
-            this.events.addListener(InputCycleEvent.class, listener);
-        }
-        else
-        {
-            this.listener = null;
+            this.events.addListener(InputCycleEvent.class, new CleanupListener(this.events, wme));
+            this.wme = null;
         }
     }
     
     /**
-     * Updates the input-link. This should only be called during the input cycle
-     * and then only if this object was constructed without a reference to the
-     * event manager.
+     * Updates the input-link. This should only be called during the input cycle.
      */
-    public void update()
+    private void update()
     {
         // TODO on init-soar, the count should go back to 0. It would be better to the
         // the cycle count from the agent (or I/O?) rather than maintaining it
@@ -77,21 +84,7 @@ public class CycleCountInput
         }
     }
     
-    /**
-     * Dispose this object, removing the cycle count from the input link and 
-     * unregistering from the event manager if necessary 
-     */
-    public void dispose()
-    {
-        if(this.events != null)
-        {
-            this.events.removeListener(InputCycleEvent.class, listener);
-        }
-        
-        // TODO remove cycle count WME
-    }
-    
-    private class Listener implements SoarEventListener
+    private class InputListener implements SoarEventListener
     {
         /* (non-Javadoc)
          * @see org.jsoar.kernel.events.SoarEventListener#onEvent(org.jsoar.kernel.events.SoarEvent)
@@ -101,5 +94,35 @@ public class CycleCountInput
         {
             update();
         }
+    }
+    
+    private static class CleanupListener implements SoarEventListener
+    {
+        private final SoarEventManager manager;
+        private final Wme wme;
+
+        /**
+         * @param wme
+         */
+        public CleanupListener(SoarEventManager manager, Wme wme)
+        {
+            this.manager = manager;
+            this.wme = wme;
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
+         */
+        @Override
+        public void onEvent(SoarEvent event)
+        {
+            InputCycleEvent ie = (InputCycleEvent) event;
+            
+            ie.getInputOutput().removeInputWme(wme);
+            
+            this.manager.removeListener(null, this);
+            
+        }
+        
     }
 }

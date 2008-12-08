@@ -32,11 +32,11 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
-    private final LittleDebugger debugger;
+    private final JSoarDebugger debugger;
     private final SelectionManager selectionManager;
     private JTextArea textArea = new JTextArea();
     
-    public MatchesView(LittleDebugger debugger)
+    public MatchesView(JSoarDebugger debugger)
     {
         super("matches", "Matches");
         

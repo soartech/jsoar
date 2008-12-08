@@ -20,7 +20,7 @@
 	
 	<property name="java.source.level" value="1.6"/>
 	
-    <property name="jar.main.class" value="org.jsoar.debugger.LittleDebugger"/>
+    <property name="jar.main.class" value="org.jsoar.debugger.JSoarDebugger"/>
 	<property name="jar.min.name" value="${ant.project.name}.jar"/>
 	<property name="jar.complete.name" value="${ant.project.name}-complete-${version}.jar"/>
 	

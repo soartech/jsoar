@@ -43,12 +43,12 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
-    private final LittleDebugger debugger;
+    private final JSoarDebugger debugger;
     private final SelectionManager selectionManager;
     private final JLabel info = new JLabel("No state selected");
     private final JXTable table = new JXTable();
     
-    public PreferencesView(LittleDebugger debuggerIn)
+    public PreferencesView(JSoarDebugger debuggerIn)
     {
         super("preferences", "Preferences");
         

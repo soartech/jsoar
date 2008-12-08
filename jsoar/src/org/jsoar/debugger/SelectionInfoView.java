@@ -27,11 +27,11 @@ public class SelectionInfoView extends AbstractAdaptableView implements Selectio
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
-    private final LittleDebugger debugger;
+    private final JSoarDebugger debugger;
     private final SelectionManager selectionManager;
     private JTextArea textArea = new JTextArea();
     
-    public SelectionInfoView(LittleDebugger debugger)
+    public SelectionInfoView(JSoarDebugger debugger)
     {
         super("info", "Selection Info");
         

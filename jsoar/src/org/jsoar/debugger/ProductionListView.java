@@ -41,7 +41,7 @@ public class ProductionListView extends AbstractAdaptableView
 {
     private static final long serialVersionUID = -5724361674833156058L;
     
-    private final LittleDebugger debugger;
+    private final JSoarDebugger debugger;
     private final ProductionTableModel model;
     private final JXTable table;
     private final JLabel stats = new JLabel();
@@ -53,7 +53,7 @@ public class ProductionListView extends AbstractAdaptableView
      * @param title
      * @param tabText
      */
-    public ProductionListView(LittleDebugger debuggerIn)
+    public ProductionListView(JSoarDebugger debuggerIn)
     {
         super("productionList", "Productions");
         

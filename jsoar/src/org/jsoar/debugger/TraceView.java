@@ -29,7 +29,7 @@ public class TraceView extends AbstractAdaptableView
 {
     private static final long serialVersionUID = -358416409712991384L;
 
-    private final LittleDebugger debugger;
+    private final JSoarDebugger debugger;
     
     private JTextArea outputWindow = new JTextArea();
     private Writer outputWriter = new Writer()
@@ -66,7 +66,7 @@ public class TraceView extends AbstractAdaptableView
     };
     private JTextField commandField = new JTextField();
 
-    public TraceView(LittleDebugger debuggerIn)
+    public TraceView(JSoarDebugger debuggerIn)
     {
         super("trace", "Trace");
         this.debugger = debuggerIn;

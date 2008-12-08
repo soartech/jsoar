@@ -49,7 +49,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView
 {
     private static final long serialVersionUID = -6587008765716839376L;
     
-    private final LittleDebugger debugger;
+    private final JSoarDebugger debugger;
     private WorkingMemoryTreeModel model;
     private JXTreeTable table;
     private Provider selectionProvider = new Provider();
@@ -85,7 +85,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView
      * @param title
      * @param tabText
      */
-    public WorkingMemoryTreeView(LittleDebugger debugger)
+    public WorkingMemoryTreeView(JSoarDebugger debugger)
     {
         super("workingMemory.tree", "Working Memory Tree");
         

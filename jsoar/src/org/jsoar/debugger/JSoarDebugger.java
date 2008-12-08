@@ -49,7 +49,7 @@ import org.jsoar.util.events.SoarEventListener;
 /**
  * @author ray
  */
-public class LittleDebugger extends JPanel implements Adaptable
+public class JSoarDebugger extends JPanel implements Adaptable
 {
     private static final long serialVersionUID = 7997119112479665988L;
 
@@ -60,6 +60,7 @@ public class LittleDebugger extends JPanel implements Adaptable
     private Agent agent = new Agent();
     private SoarTclInterface ifc = new SoarTclInterface(agent);
     private ThreadedAgentProxy proxy = new ThreadedAgentProxy(agent);
+    private LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
     
     private JFrame frame;
     private Viewport viewport = new Viewport();
@@ -75,16 +76,17 @@ public class LittleDebugger extends JPanel implements Adaptable
     
     private final List<AbstractAdaptableView> views = new ArrayList<AbstractAdaptableView>();
     
-    public LittleDebugger(JFrame frame)
+    public JSoarDebugger(JFrame frame)
     {
         super(new BorderLayout());
         
         this.frame = frame;
         
+        this.ifc.getInterpreter().createCommand("load-plugin", loadPluginCommand);
+        
         this.add(viewport, BorderLayout.CENTER);
         
         initActions();
-        
         
         status = new StatusBar(this);
         this.add(status, BorderLayout.SOUTH);
@@ -245,7 +247,7 @@ public class LittleDebugger extends JPanel implements Adaptable
         wmTreeView.refresh();
     }
             
-    private static void initializeLookAndFeel()
+    public static void initializeLookAndFeel()
     {
         try
         {
@@ -262,6 +264,8 @@ public class LittleDebugger extends JPanel implements Adaptable
     
     public static void main(final String[] args)
     {
+        initializeLookAndFeel();
+        
         SwingUtilities.invokeLater(new Runnable() {
             
             public void run() { initialize(args); }
@@ -271,16 +275,15 @@ public class LittleDebugger extends JPanel implements Adaptable
     /**
      * @param args
      */
-    public static LittleDebugger initialize(final String[] args)
+    public static JSoarDebugger initialize(final String[] args)
     {
-        initializeLookAndFeel();
         
         DockingManager.setFloatingEnabled(true);
         
         JFrame frame = new JFrame("Little JSoar Debugger");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        final LittleDebugger littleDebugger = new LittleDebugger(frame);
+        final JSoarDebugger littleDebugger = new JSoarDebugger(frame);
         frame.setContentPane(littleDebugger);
         frame.setSize(1200, 1024);
         SwingUtility.centerOnScreen(frame);

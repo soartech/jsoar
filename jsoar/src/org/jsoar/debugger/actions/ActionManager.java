@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.jsoar.debugger.LittleDebugger;
+import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.util.adaptables.Adaptables;
@@ -23,7 +23,7 @@ public class ActionManager
 {
     private static final Logger logger = Logger.getLogger(ActionManager.class);
     
-    private LittleDebugger app;
+    private JSoarDebugger app;
     private List<AbstractDebuggerAction> actions = new ArrayList<AbstractDebuggerAction>();
     private Map<String, AbstractDebuggerAction> actionCache = new HashMap<String, AbstractDebuggerAction>();
     
@@ -39,7 +39,7 @@ public class ActionManager
     /**
      * @param app The owning application
      */
-    public ActionManager(LittleDebugger app)
+    public ActionManager(JSoarDebugger app)
     {
         this.app = app;
         
@@ -55,7 +55,7 @@ public class ActionManager
     /**
      * @return The owning application
      */
-    public LittleDebugger getApplication()
+    public JSoarDebugger getApplication()
     {
         return app;
     }

@@ -12,7 +12,7 @@ import org.jsoar.tcl.SoarTclException;
  */
 public class CommandLineRunnable implements Runnable
 {
-    private final LittleDebugger ifc;
+    private final JSoarDebugger ifc;
     private final String command;
     
     /**
@@ -20,7 +20,7 @@ public class CommandLineRunnable implements Runnable
      * @param ifc
      * @param command
      */
-    public CommandLineRunnable(LittleDebugger ifc, String command)
+    public CommandLineRunnable(JSoarDebugger ifc, String command)
     {
         this.ifc = ifc;
         this.command = command;
