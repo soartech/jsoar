@@ -9,13 +9,13 @@ import java.util.Iterator;
 /**
  * @author ray
  */
-public final class AsListItem <T> implements Iterable<T>
+public final class ListItem <T> implements Iterable<T>
 {
     public final T item;
-    public AsListItem<T> next;
-    public AsListItem<T> previous;
+    public ListItem<T> next;
+    public ListItem<T> previous;
     
-    public AsListItem(T item)
+    public ListItem(T item)
     {
 //        Arguments.checkNotNull(item, "item");
         this.item = item;
@@ -64,7 +64,7 @@ public final class AsListItem <T> implements Iterable<T>
 //        next = other;
 //    }
 //    
-    public void insertAfter(ListHead<T> head, AsListItem<T> other)
+    public void insertAfter(ListHead<T> head, ListItem<T> other)
     {
         assert head != null;
         assert other != this;
@@ -115,10 +115,10 @@ public final class AsListItem <T> implements Iterable<T>
      * @param end The item to stop counting at
      * @return Number of items in list
      */
-    public int count(AsListItem<T> end)
+    public int count(ListItem<T> end)
     {
         int n = 0;
-        for(AsListItem<T> start = this; start != end; start = start.next, ++n)
+        for(ListItem<T> start = this; start != end; start = start.next, ++n)
         {
         }
         return n;
@@ -132,9 +132,9 @@ public final class AsListItem <T> implements Iterable<T>
         return count(null);
     }
     
-    public AsListItem<T> find(Object item)
+    public ListItem<T> find(Object item)
     {
-        for(AsListItem<T> m = this; m != null; m = m.next)
+        for(ListItem<T> m = this; m != null; m = m.next)
         {
             if((item != null && item.equals(m.item)) || item == m.item)
             {
@@ -144,9 +144,9 @@ public final class AsListItem <T> implements Iterable<T>
         return null;
     }
     
-    /*package*/ boolean containsAsListItem(AsListItem<T> item)
+    /*package*/ boolean containsAsListItem(ListItem<T> item)
     {
-        for(AsListItem<T> m = this; m != null; m = m.next)
+        for(ListItem<T> m = this; m != null; m = m.next)
         {
             if(item == m)
             {
@@ -224,12 +224,12 @@ public final class AsListItem <T> implements Iterable<T>
 
     private static class ItemIterator <T> implements Iterator<T>
     {
-        private AsListItem<T> current;
+        private ListItem<T> current;
         
         /**
          * @param current
          */
-        public ItemIterator(AsListItem<T> current)
+        public ItemIterator(ListItem<T> current)
         {
             this.current = current;
         }

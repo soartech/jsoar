@@ -8,7 +8,7 @@ package org.jsoar.kernel.symbols;
 import java.util.Formatter;
 import java.util.LinkedList;
 
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -68,7 +68,7 @@ public class Variable extends SymbolImpl
      */
     public static void unmark(ListHead<Variable> vars)
     {
-        for(AsListItem<Variable> it = vars.first; it != null; it = it.next)
+        for(ListItem<Variable> it = vars.first; it != null; it = it.next)
         {
             it.item.unmark();
         }

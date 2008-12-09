@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
 
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.events.SoarEvent;
 
@@ -62,12 +62,12 @@ public class WorkingMemoryChangedEvent implements SoarEvent
     
     private static class WmeIterator implements Iterator<Wme>
     {
-        private AsListItem<WmeImpl> next;
+        private ListItem<WmeImpl> next;
 
         /**
          * @param next
          */
-        WmeIterator(AsListItem<WmeImpl> next)
+        WmeIterator(ListItem<WmeImpl> next)
         {
             this.next = next;
         }

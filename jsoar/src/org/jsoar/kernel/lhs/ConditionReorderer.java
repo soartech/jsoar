@@ -15,7 +15,7 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
@@ -435,7 +435,7 @@ public class ConditionReorderer
             if (!roots.isEmpty())
             {
                 boolean allBound = true;
-                for (AsListItem<Variable> v = roots.first; v != null; v = v.next)
+                for (ListItem<Variable> v = roots.first; v != null; v = v.next)
                 {
                     if (v.item.tc_number != bound_vars_tc_number)
                     {

@@ -41,7 +41,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
@@ -260,7 +260,7 @@ public class Chunker
         for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             add_results_if_needed(w.value);
         
-        for (AsListItem<Slot> it = id.slots.first; it != null; it = it.next)
+        for (ListItem<Slot> it = id.slots.first; it != null; it = it.next)
         {
             final Slot s = it.item;
             
@@ -272,7 +272,7 @@ public class Chunker
         }
 
         // now scan through extra prefs and look for any with this id
-        for (AsListItem<Preference> pref = this.extra_result_prefs_from_instantiation.first; pref != null; pref = pref.next)
+        for (ListItem<Preference> pref = this.extra_result_prefs_from_instantiation.first; pref != null; pref = pref.next)
         {
             if (pref.item.id == id)
                 add_pref_to_results(pref.item);
@@ -293,7 +293,7 @@ public class Chunker
         this.results_match_goal_level = inst.match_goal_level;
         this.results_tc_number = context.syms.get_new_tc_number();
         this.extra_result_prefs_from_instantiation = ListHead.newInstance(inst.preferences_generated);
-        for (AsListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
+        for (ListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
         {
             final Preference pref = it.item;
             if ((pref.id.level < this.results_match_goal_level) && (pref.id.tc_number != this.results_tc_number))
@@ -452,10 +452,10 @@ public class Chunker
     private void build_chunk_conds_for_grounds_and_add_negateds(ByRef<ChunkCondition> dest_top,
             ByRef<ChunkCondition> dest_bottom, int tc_to_use)
     {
-        AsListItem<ChunkCondition> first_cc = null;
+        ListItem<ChunkCondition> first_cc = null;
 
         // build instantiated conds for grounds and setup their TC
-        AsListItem<ChunkCondition> prev_cc = null;
+        ListItem<ChunkCondition> prev_cc = null;
         while (!context.backtrace.grounds.isEmpty())
         {
             Condition ground = context.backtrace.grounds.pop();
@@ -672,10 +672,10 @@ public class Chunker
      * 
      * @param all_ccs
      */
-    private void add_goal_or_impasse_tests(AsListItem<ChunkCondition> all_ccs)
+    private void add_goal_or_impasse_tests(ListItem<ChunkCondition> all_ccs)
     {
         int tc = context.syms.get_new_tc_number();
-        for (AsListItem<ChunkCondition> ccIter = all_ccs; ccIter != null; ccIter = ccIter.next)
+        for (ListItem<ChunkCondition> ccIter = all_ccs; ccIter != null; ccIter = ccIter.next)
         {
             ChunkCondition cc = ccIter.item;
             PositiveCondition pc = cc.instantiated_cond.asPositiveCondition();
@@ -734,7 +734,7 @@ public class Chunker
         // Step 1: swap prev pointers out of variablized conds into chunk_conds,
         // and swap pointer to the corresponding instantiated conds into the
         // variablized conds' prev pointers
-        for (AsListItem<ChunkCondition> it = top_cc.first; it != null; it = it.next)
+        for (ListItem<ChunkCondition> it = top_cc.first; it != null; it = it.next)
         {
             final ChunkCondition cc = it.item;
             cc.saved_prev_pointer_of_variablized_cond = cc.variablized_cond.prev;
@@ -742,7 +742,7 @@ public class Chunker
         }
 
         // Step 2: do the reordering of the instantiated conds
-        for (AsListItem<ChunkCondition> it = top_cc.first; it != null; it = it.next)
+        for (ListItem<ChunkCondition> it = top_cc.first; it != null; it = it.next)
         {
             final ChunkCondition cc = it.item;
             if (cc.variablized_cond.next != null)
@@ -767,7 +767,7 @@ public class Chunker
         }
 
         // Step 3:  restore the prev pointers on variablized conds
-        for (AsListItem<ChunkCondition> it = top_cc.first; it != null; it = it.next)
+        for (ListItem<ChunkCondition> it = top_cc.first; it != null; it = it.next)
         {
             final ChunkCondition cc = it.item;
             cc.variablized_cond.prev = cc.saved_prev_pointer_of_variablized_cond;
@@ -834,7 +834,7 @@ public class Chunker
             return (context.syms.generateUniqueString(this.chunk_name_prefix, this.chunk_count));
 
         int lowest_result_level = context.decider.top_goal.level;
-        for (AsListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
+        for (ListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
             if (p.item.id.level > lowest_result_level)
                 lowest_result_level = p.item.id.level;
 
@@ -974,7 +974,7 @@ public class Chunker
 
         // if no preference is above the match goal level, exit
         Preference pref = null;
-        for (AsListItem<Preference> i = inst.preferences_generated.first; i != null; i = i.next)
+        for (ListItem<Preference> i = inst.preferences_generated.first; i != null; i = i.next)
         {
             final Preference temp = i.item;
             if (temp.id.level < inst.match_goal_level)

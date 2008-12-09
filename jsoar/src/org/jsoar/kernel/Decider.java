@@ -26,7 +26,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
@@ -218,7 +218,7 @@ public class Decider
         if (s.acceptable_preference_changed != null)
             return;
 
-        AsListItem<Slot> dc = new AsListItem<Slot>(s);
+        ListItem<Slot> dc = new ListItem<Slot>(s);
         s.acceptable_preference_changed = dc;
         dc.insertAtHead(this.context_slots_with_changed_acceptable_preferences);
     } 
@@ -427,7 +427,7 @@ public class Decider
         for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             promote_if_needed(w.value, new_level);
         
-        for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
+        for (ListItem<Slot> s = id.slots.first; s != null; s = s.next)
         {
             for (Preference pref = s.item.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
             {
@@ -490,13 +490,13 @@ public class Decider
         {
             if (to.unknown_level != null)
             {
-                AsListItem<IdentifierImpl> dc = to.unknown_level;
+                ListItem<IdentifierImpl> dc = to.unknown_level;
                 dc.remove(this.ids_with_unknown_level);
                 dc.insertAtHead(this.disconnected_ids);
             }
             else
             {
-                to.unknown_level = new AsListItem<IdentifierImpl>(to);
+                to.unknown_level = new ListItem<IdentifierImpl>(to);
                 to.unknown_level.insertAtHead(this.disconnected_ids);
             }
             return;
@@ -509,7 +509,7 @@ public class Decider
 
         if (to.unknown_level == null)
         {
-            to.unknown_level = new AsListItem<IdentifierImpl>(to);
+            to.unknown_level = new ListItem<IdentifierImpl>(to);
             to.unknown_level.insertAtHead(this.ids_with_unknown_level);
         }
     }
@@ -536,7 +536,7 @@ public class Decider
         context.workingMemory.remove_wme_list_from_wm(id.getInputWmes(), true);
         id.removeAllInputWmes();
 
-        for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+        for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
             final Slot s = sit.item;
             
@@ -613,14 +613,14 @@ public class Decider
         // add id to the set of ids with unknown level
         if (id.unknown_level == null)
         {
-            id.unknown_level = new AsListItem<IdentifierImpl>(id);
+            id.unknown_level = new ListItem<IdentifierImpl>(id);
             id.unknown_level.insertAtHead(ids_with_unknown_level);
         }
 
         // scan through all preferences and wmes for all slots for this id
         for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             mark_unknown_level_if_needed(w.value);
-        for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+        for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
             final Slot s = sit.item;
             for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
@@ -680,7 +680,7 @@ public class Decider
         // scan through all preferences and wmes for all slots for this id
         for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             update_levels_if_needed(w.value);
-        for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+        for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
             final Slot s = sit.item;
             for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
@@ -705,7 +705,7 @@ public class Decider
     {
         // scan through ids_with_unknown_level, move the ones with link_count==0
         // over to disconnected_ids
-        AsListItem<IdentifierImpl> dc, next_dc;
+        ListItem<IdentifierImpl> dc, next_dc;
         for (dc = ids_with_unknown_level.first; dc != null; dc = next_dc)
         {
             next_dc = dc.next;
@@ -1976,14 +1976,14 @@ public class Decider
             // Prefs are added to head of dll, so try removing from tail
             if (!goal.preferences_from_goal.isEmpty())
             {
-                AsListItem<Preference> p = goal.preferences_from_goal.first;
+                ListItem<Preference> p = goal.preferences_from_goal.first;
                 while (p.next != null)
                     p = p.next; // TODO Replace with ListHead.getTail() or something
                 while (p != null)
                 {
                     // RPM 10/06 we need to save this because p may be freed by the
                     // end of the loop
-                    final AsListItem<Preference> p_next = p.previous; 
+                    final ListItem<Preference> p_next = p.previous; 
                     p.remove(goal.preferences_from_goal);
                     p.item.on_goal_list = false;
                     if (!p.item.remove_preference_from_clones(context.recMemory))

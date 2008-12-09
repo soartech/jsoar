@@ -9,7 +9,7 @@ import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Variable;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -77,7 +77,7 @@ public class VariableGenerator
         Condition.addAllVariables(conds_with_vars_to_avoid, tc_number, var_list);
         Action.addAllVariables(actions_with_vars_to_avoid, tc_number, var_list);
 
-        for (AsListItem<Variable> var = var_list.first; var != null; var = var.next)
+        for (ListItem<Variable> var = var_list.first; var != null; var = var.next)
         {
             var.item.gensym_number = current_variable_gensym_number;
         }

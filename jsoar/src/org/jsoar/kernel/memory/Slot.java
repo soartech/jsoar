@@ -13,7 +13,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 
 import com.google.common.collect.Iterators;
 
@@ -69,7 +69,7 @@ import com.google.common.collect.Iterators;
  */
 public class Slot
 {
-    public final AsListItem<Slot> next_prev = new AsListItem<Slot>(this); // dll of slots for this id
+    public final ListItem<Slot> next_prev = new ListItem<Slot>(this); // dll of slots for this id
     public final IdentifierImpl id; 
     public final SymbolImpl attr;
 
@@ -169,7 +169,7 @@ public class Slot
         {
             return null; // fixes bug #135 kjh
         } 
-        for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
+        for (ListItem<Slot> s = id.slots.first; s != null; s = s.next)
         {
             if (s.item.attr == attr)
             {

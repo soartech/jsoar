@@ -8,7 +8,7 @@ package org.jsoar.kernel.memory;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -77,7 +77,7 @@ public class TemporaryMemory
         {
             if (s.changed == null)
             {
-                AsListItem<Slot> dc = new AsListItem<Slot>(s);
+                ListItem<Slot> dc = new ListItem<Slot>(s);
                 s.changed = dc;
                 dc.insertAtHead(changed_slots);
             }
@@ -123,7 +123,7 @@ public class TemporaryMemory
             // #endif
             if (s.changed != null && !s.isa_context_slot)
             {
-                AsListItem<Slot> changed = (AsListItem<Slot>) s.changed;
+                ListItem<Slot> changed = (ListItem<Slot>) s.changed;
                 changed.remove(changed_slots);
             }
             s.next_prev.remove(s.id.slots);

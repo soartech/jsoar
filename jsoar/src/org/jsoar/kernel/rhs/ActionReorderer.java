@@ -7,7 +7,7 @@ package org.jsoar.kernel.rhs;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
@@ -137,7 +137,7 @@ public class ActionReorderer
         }
 
         /* --- unmark variables that we just marked --- */
-        for (AsListItem<Variable> var = new_bound_vars.first; var != null; var = var.next)
+        for (ListItem<Variable> var = new_bound_vars.first; var != null; var = var.next)
         {
             var.item.unmark();
         }

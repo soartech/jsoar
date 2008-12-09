@@ -10,7 +10,7 @@ import java.util.Formatter;
 
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 
 /**
  * gdatastructs.h:191:preference_struct
@@ -20,13 +20,14 @@ import org.jsoar.util.AsListItem;
 public class Preference implements Formattable
 {
     public final PreferenceType type;         /* acceptable, better, etc. */
-    public boolean o_supported = false;  /* is the preference o-supported? */
-    public boolean on_goal_list = false; /* is this pref on the list for its match goal */
-    int reference_count = 0;
     public final IdentifierImpl id;
     public final SymbolImpl attr;
     public final SymbolImpl value;
+    
     public SymbolImpl referent; // TODO: I'd like this to be final, but RL changes it.
+    public boolean o_supported = false;  /* is the preference o-supported? */
+    public boolean on_goal_list = false; /* is this pref on the list for its match goal */
+    private int reference_count = 0;
     
     /**
      * The slot this preference is in. This is also a replacement for in_tm
@@ -49,14 +50,14 @@ public class Preference implements Formattable
     public Preference nextOfSlot;
     Preference previousOfSlot;
 
-    public final AsListItem<Preference> all_of_goal = new AsListItem<Preference>(this); // dll of all pref's from the same match goal
+    public final ListItem<Preference> all_of_goal = new ListItem<Preference>(this); // dll of all pref's from the same match goal
     
-    /* dll (without header) of cloned preferences (created when chunking) */
+    // dll (without header) of cloned preferences (created when chunking)
     public Preference next_clone;
     public Preference prev_clone;
       
     public Instantiation inst;
-    public final AsListItem<Preference> inst_next_prev = new AsListItem<Preference>(this);
+    public final ListItem<Preference> inst_next_prev = new ListItem<Preference>(this);
     public Preference next_candidate;
     public Preference next_result;
 
@@ -254,6 +255,7 @@ public class Preference implements Formattable
         // if none was at the right level, we can't backtrace at all
         return null;
     }
+    
     /**
      * prefmem.cpp:100:deallocate_preference
      * 
@@ -374,6 +376,4 @@ public class Preference implements Formattable
             return false;
         }
     }
-    
-
 }

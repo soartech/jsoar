@@ -18,7 +18,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Traceable;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -30,7 +30,7 @@ import org.jsoar.util.ListHead;
 public class Instantiation implements Traceable
 {
     public final Production prod; 
-    public final AsListItem<Instantiation> inProdList = new AsListItem<Instantiation>(this); // next/prev, dll of inst's from same prod
+    public final ListItem<Instantiation> inProdList = new ListItem<Instantiation>(this); // next/prev, dll of inst's from same prod
     public Token rete_token; // used by rete for retractions (TODO make final?)
     public WmeImpl rete_wme;     // used by rete for retractions (TODO make final?)
     public Condition top_of_instantiated_conditions;

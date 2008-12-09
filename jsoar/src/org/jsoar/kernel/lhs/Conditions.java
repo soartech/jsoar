@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
@@ -72,7 +72,7 @@ public class Conditions
         // make sure each root var has some condition with goal/impasse
         if (printer != null && printer.isPrintWarnings())
         {
-            for (AsListItem<Variable> var = new_vars_from_id_slot.first; var != null; var = var.next)
+            for (ListItem<Variable> var = new_vars_from_id_slot.first; var != null; var = var.next)
             {
                 boolean found_goal_impasse_test = false;
                 for (Condition cond = cond_list; cond != null; cond = cond.next)

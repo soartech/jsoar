@@ -12,7 +12,7 @@ import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -207,11 +207,11 @@ public class WorkingMemory
         // start_timer (thisAgent, &start_tv);
         // #endif
         // #endif
-        for (AsListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
+        for (ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             context.rete.add_wme_to_rete(w.item);
         }
-        for (AsListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
+        for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             context.rete.remove_wme_from_rete(w.item);
         }
@@ -224,14 +224,14 @@ public class WorkingMemory
         warnIfSameWmeAddedAndRemoved();
         
         // do tracing and cleanup stuff
-        for (AsListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
+        for (ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...
             context.trace.print(Category.WM_CHANGES, "=>WM: %s", w.item);
             wme_addition_count++;
         }
         
-        for (AsListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
+        for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_remove", but filtering seems disabled in CSoar...
             context.trace.print(Category.WM_CHANGES, "<=WM: %s", w.item);
