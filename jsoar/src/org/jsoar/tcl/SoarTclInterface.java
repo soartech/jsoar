@@ -120,6 +120,8 @@ public class SoarTclInterface
             agent.getPrinter().flush();
         }}; 
         
+    private final WatchCommand watchCommand = new WatchCommand(this);
+        
     /**
      * @param agent
      */
@@ -151,6 +153,7 @@ public class SoarTclInterface
         interp.createCommand("save-backtraces", saveBacktracesCommand);
         interp.createCommand("echo", echoCommand);
         interp.createCommand("clog", clogCommand);
+        interp.createCommand("watch", watchCommand);
     }
     
     public Interp getInterpreter()

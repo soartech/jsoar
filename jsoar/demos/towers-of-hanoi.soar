@@ -10,7 +10,7 @@ multi-attributes upper-disk 2
 multi-attributes clear 2
 
 learn --off
-#watch 0
+watch 0
 
 sp {towers-of-hanoi*object*disk*elaborate*state*upper-disk
    "If not(above(x,disk)), then upper-disk(disk)."

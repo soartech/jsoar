@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.flexdock.docking.DockingConstants;
+import org.jsoar.kernel.tracing.Trace;
 
 /**
  * @author ray
@@ -87,7 +88,10 @@ public class TraceView extends AbstractAdaptableView
                 }
             }});
         debugger.getAgentProxy().getAgent().getPrinter().pushWriter(outputWriter, true);
-        debugger.getAgentProxy().getAgent().trace.enableAll();
+        
+        final Trace trace = debugger.getAgentProxy().getAgent().getTrace();
+        trace.disableAll();
+        trace.setWatchLevel(1);
         
         this.addAction(DockingConstants.PIN_ACTION);
 
