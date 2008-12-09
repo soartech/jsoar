@@ -10,6 +10,8 @@ import java.util.EnumSet;
 import java.util.Formattable;
 import java.util.Formatter;
 
+import org.jsoar.util.Arguments;
+
 /**
  * This class encapsulates the tracing mechanism used throughout the kernel
  * into a single location.
@@ -26,77 +28,100 @@ public class Trace
     public static enum Category
     {
         /** gsysparam.h:92:TRACE_VERBOSE */
-        VERBOSE,
+        VERBOSE(-1),
         
         /** gsysparam.h:92:TRACE_CONTEXT_DECISIONS_SYSPARAM */
-        CONTEXT_DECISIONS(true),
+        CONTEXT_DECISIONS(true, 1),
         
         /** gsysparam.h:93:TRACE_PHASES_SYSPARAM */
-        PHASES,
+        PHASES(2),
 
         
         /** gsysparam.h:97:TRACE_FIRINGS_OF_USER_PRODS_SYSPARAM */
-        FIRINGS_OF_USER_PRODS,
+        FIRINGS_OF_USER_PRODS(3),
         
         /** gsysparam.h:98:TRACE_FIRINGS_OF_DEFAULT_PRODS_SYSPARAM */
-        FIRINGS_OF_DEFAULT_PRODS,
+        FIRINGS_OF_DEFAULT_PRODS(3),
         
         /** gsysparam.h:99:TRACE_FIRINGS_OF_CHUNKS_SYSPARAM */
-        FIRINGS_OF_CHUNKS,
+        FIRINGS_OF_CHUNKS(3),
         
         /** gsysparam.h:100:TRACE_FIRINGS_OF_JUSTIFICATIONS_SYSPARAM */
-        FIRINGS_OF_JUSTIFICATIONS,
+        FIRINGS_OF_JUSTIFICATIONS(3),
         
         /** gsysparam.h:101:TRACE_FIRINGS_OF_TEMPLATES_SYSPARAM */
-        FIRINGS_OF_TEMPLATES,
+        FIRINGS_OF_TEMPLATES(3),
 
         
         /** gsysparam.h:103:TRACE_FIRINGS_PREFERENCES_SYSPARAM */
-        FIRINGS_PREFERENCES,
+        FIRINGS_PREFERENCES(5),
         
         /** gsysparam.h:104:TRACE_WM_CHANGES_SYSPARAM */
-        WM_CHANGES,
+        WM_CHANGES(4),
         
         /** gsysparam.h:105:TRACE_CHUNK_NAMES_SYSPARAM */
-        CHUNK_NAMES,
+        CHUNK_NAMES(-1),
         
         /** gsysparam.h:106:TRACE_JUSTIFICATION_NAMES_SYSPARAM */
-        JUSTIFICATION_NAMES,
+        JUSTIFICATION_NAMES(-1),
         
         /** gsysparam.h:107:TRACE_CHUNKS_SYSPARAM */
-        CHUNKS,
+        CHUNKS(-1),
         
         /** gsysparam.h:108:TRACE_JUSTIFICATIONS_SYSPARAM */
-        JUSTIFICATIONS,
+        JUSTIFICATIONS(-1),
         
         /** gsysparam.h:109:TRACE_BACKTRACING_SYSPARAM */
-        BACKTRACING,
+        BACKTRACING(-1),
         
         /** gsysparam.h:112:TRACE_LOADING_SYSPARAM */
-        LOADING(true),
+        LOADING(true, -1),
         
         /** gsysparam.h:146:TRACE_OPERAND2_REMOVALS_SYSPARAM */
-        OPERAND2_REMOVALS ,
+        OPERAND2_REMOVALS(-1),
         
         /** gsysparam.h:159:TRACE_INDIFFERENT_SYSPARAM */
-        INDIFFERENT,
+        INDIFFERENT(-1),
         
         /** gsysparam.h:176:TRACE_RL_SYSPARAM */
-        RL,
+        RL(-1),
         
         /** New in jsoar for debugging waterfall */
-        WATERFALL;
+        WATERFALL(-1);
         
-        public final boolean defaultSetting;
+        private final boolean defaultSetting;
+        private final int watchLevel;
         
-        Category()
+        Category(int watchLevel)
         {
-            this.defaultSetting = false;
+            this(false, watchLevel);
         }
         
-        Category(boolean defaultSetting)
+        Category(boolean defaultSetting, int watchLevel)
         {
             this.defaultSetting = defaultSetting;
+            this.watchLevel = watchLevel;
+        }
+        
+        /**
+         * @return the default enablement for this category
+         */
+        public boolean getDefault() { return defaultSetting; }
+        
+        /**
+         * Test whether this category is active in the given watch level
+         * 
+         * @param watchLevel Watch level to test against. Integer in range [0, 5].
+         * @return true if this category is active in the given watch level
+         */
+        public boolean isActiveInWatchLevel(int watchLevel)
+        {
+            return this.watchLevel != -1 && watchLevel >= this.watchLevel;
+        }
+        
+        public boolean isWatchable()
+        {
+            return this.watchLevel != -1;
         }
     }
     
@@ -265,6 +290,37 @@ public class Trace
         else
         {
             settings.remove(c);
+        }
+        return this;
+    }
+    
+    /**
+     * Set the trace to the given watch level, an integer in [0, 5] inclusive.
+     * All trace categories that are watchable and active at the given watch
+     * level will be enabled. All trace categories that are inactive at the given
+     * watch will be disabled.
+     * 
+     * @param watchLevel The desired watch level
+     * @return this
+     * @throws IllegalArgumentException if watchLeve is not in the range [0, 5]
+     */
+    public Trace setWatchLevel(int watchLevel)
+    {
+        Arguments.check(0 <= watchLevel && watchLevel <= 5, "watch level must be in 0, 1, 2, 3, 4, or 5");
+        this.enabled = true;
+        for(Category c : Category.values())
+        {
+            if(c.isWatchable())
+            {
+                if(c.isActiveInWatchLevel(watchLevel))
+                {
+                    settings.add(c);
+                }
+                else
+                {
+                    settings.remove(c);
+                }
+            }
         }
         return this;
     }
