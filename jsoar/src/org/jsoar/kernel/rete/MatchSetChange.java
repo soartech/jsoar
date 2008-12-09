@@ -8,7 +8,7 @@ package org.jsoar.kernel.rete;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 
 /**
  * explain.h:81
@@ -17,8 +17,8 @@ import org.jsoar.util.AsListItem;
  */
 public class MatchSetChange
 {
-    public final  AsListItem<MatchSetChange> next_prev = new AsListItem<MatchSetChange>(this); // dll for all p nodes
-    public final AsListItem<MatchSetChange> of_node = new AsListItem<MatchSetChange>(this); // dll for just this p node
+    public final  ListItem<MatchSetChange> next_prev = new ListItem<MatchSetChange>(this); // dll for all p nodes
+    public final ListItem<MatchSetChange> of_node = new ListItem<MatchSetChange>(this); // dll for just this p node
     
     public ReteNode p_node; // for retractions, this can be null if the p node has been excised
     public final Token tok; // for assertions only
@@ -29,7 +29,7 @@ public class MatchSetChange
 
     public IdentifierImpl goal;
     public int level;              // Level of the match of the assertion or retraction
-    public final AsListItem<MatchSetChange> in_level = new AsListItem<MatchSetChange>(this); // dll for goal level
+    public final ListItem<MatchSetChange> in_level = new ListItem<MatchSetChange>(this); // dll for goal level
 
     public static MatchSetChange createAssertion(ReteNode p_node, Token tok, WmeImpl w)
     {

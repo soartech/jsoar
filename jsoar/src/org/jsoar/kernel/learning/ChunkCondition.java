@@ -6,7 +6,7 @@
 package org.jsoar.kernel.learning;
 
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.HashTable;
 
 /**
@@ -23,10 +23,10 @@ public class ChunkCondition
     Condition saved_prev_pointer_of_variablized_cond; /* don't ask */
 
     /* dll of all cond's in a set (i.e., a chunk_cond_set, or the grounds) */
-    final AsListItem<ChunkCondition> next_prev = new AsListItem<ChunkCondition>(this);
+    final ListItem<ChunkCondition> next_prev = new ListItem<ChunkCondition>(this);
 
     /* dll of cond's in this particular hash bucket for this set */
-    final AsListItem<ChunkCondition> in_bucket = new AsListItem<ChunkCondition>(this);
+    final ListItem<ChunkCondition> in_bucket = new ListItem<ChunkCondition>(this);
 
     int hash_value;             /* equals hash_condition(cond) */
     int compressed_hash_value;  /* above, compressed to a few bits */

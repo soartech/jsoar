@@ -17,7 +17,7 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.MatchSetChange;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 import com.google.common.collect.Iterators;
@@ -47,7 +47,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public int level;
     public int promotion_level;
     public int link_count;
-    public AsListItem<IdentifierImpl> unknown_level;
+    public ListItem<IdentifierImpl> unknown_level;
     public final ListHead<Slot> slots = ListHead.newInstance(); // dll of slots for this identifier
     public int tc_number; /* used for transitive closures, marking, etc. */
     public SymbolImpl variablization; /* used by the chunker */
@@ -230,7 +230,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
      */
     public static void unmark(ListHead<IdentifierImpl> ids)
     {
-        for(AsListItem<IdentifierImpl> id = ids.first; id != null; id = id.next)
+        for(ListItem<IdentifierImpl> id = ids.first; id != null; id = id.next)
         {
             id.item.tc_number = 0;
         }
@@ -277,7 +277,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         private final IdentifierImpl id;
         private boolean didImpasseWmes = false;
         private boolean didInputs = false;
-        private AsListItem<Slot> slot;
+        private ListItem<Slot> slot;
         
         public WmeIteratorSet(IdentifierImpl id)
         {

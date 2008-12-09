@@ -27,7 +27,7 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -138,7 +138,7 @@ public class SoarReteListener implements ReteListener
         // check for match in tentative_retractions
         boolean match_found = false;
         MatchSetChange msc = null;
-        for (AsListItem<MatchSetChange> it = node.b_p.tentative_retractions.first; it != null; it = it.next)
+        for (ListItem<MatchSetChange> it = node.b_p.tentative_retractions.first; it != null; it = it.next)
         {
             msc = it.item;
             match_found = true;

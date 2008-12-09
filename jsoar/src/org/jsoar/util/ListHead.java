@@ -20,7 +20,7 @@ public final class ListHead <T> implements Iterable<T>
     /**
      * The first item in the list
      */
-    public AsListItem<T> first;
+    public ListItem<T> first;
 
     /**
      * Construct a new, empty instance. This function is provided rather than
@@ -97,7 +97,7 @@ public final class ListHead <T> implements Iterable<T>
      * @param value The value to search for
      * @return The containing list item, or null if not found
      */
-    public AsListItem<T> find(Object value)
+    public ListItem<T> find(Object value)
     {
         return first != null ? first.find(value) : null;
     }
@@ -119,9 +119,9 @@ public final class ListHead <T> implements Iterable<T>
      * @param value The value to add
      * @return The resulting list item
      */
-    public AsListItem<T> push(T value)
+    public ListItem<T> push(T value)
     {
-        AsListItem<T> item = new AsListItem<T>(value);
+        ListItem<T> item = new ListItem<T>(value);
         item.insertAtHead(this);
         return item;
     }
@@ -169,17 +169,17 @@ public final class ListHead <T> implements Iterable<T>
     {
         ListHead<T> head = new ListHead<T>();
         
-        AsListItem<T> previous = null;
+        ListItem<T> previous = null;
         for(T item : collection)
         {
-            AsListItem<T> member = new AsListItem<T>(item);
+            ListItem<T> member = new ListItem<T>(item);
             member.insertAfter(head, previous);
             previous = member;
         }
         return head;
     }
 
-    /*package*/ boolean containsAsListItem(AsListItem<T> item)
+    /*package*/ boolean containsAsListItem(ListItem<T> item)
     {
         return first != null ? first.containsAsListItem(item) : false;
     }

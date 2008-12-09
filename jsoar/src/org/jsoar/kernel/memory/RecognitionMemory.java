@@ -36,7 +36,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.timing.ExecutionTimers;
 
@@ -521,7 +521,7 @@ public class RecognitionMemory
 
         if (inst.match_goal != null)
         {
-            for (AsListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
+            for (ListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
             {
                 p.item.all_of_goal.insertAtHead(inst.match_goal.preferences_from_goal);
                 p.item.on_goal_list = true;
@@ -549,7 +549,7 @@ public class RecognitionMemory
                 // for differences, save o-support flags on a list, then do
                 // Doug's calculations, then compare and restore saved flags.
                 List<Preference> saved_flags = new ArrayList<Preference>();
-                for (AsListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
+                for (ListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
                 {
                     saved_flags.add(pref.item.o_supported ? pref.item : null);
                 }
@@ -558,7 +558,7 @@ public class RecognitionMemory
                 context.osupport.dougs_calculate_support_for_instantiation_preferences(inst);
                 boolean difference_found = false;
                 int savedFlagsIndex = 0;
-                for (AsListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
+                for (ListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
                 {
                     final Preference pref = it.item;
                     final Preference saved = saved_flags.get(savedFlagsIndex++);
@@ -934,11 +934,11 @@ public class RecognitionMemory
         final boolean trace_it = context.trace.isEnabled(inst.prod.getType().getTraceCategory());
 
         // retract any preferences that are in TM and aren't o-supported
-        AsListItem<Preference> prefItem = inst.preferences_generated.first;
+        ListItem<Preference> prefItem = inst.preferences_generated.first;
 
         while (prefItem != null)
         {
-            final AsListItem<Preference> nextItem = prefItem.next;
+            final ListItem<Preference> nextItem = prefItem.next;
             final Preference pref = prefItem.item;
             if (pref.isInTempMemory() && !pref.o_supported)
             {
@@ -1004,12 +1004,12 @@ public class RecognitionMemory
         {
             // Do an initial loop to process o-rejects, then re-loop to process
             // normal preferences.
-            AsListItem<Instantiation> inst, next_inst;
+            ListItem<Instantiation> inst, next_inst;
             for (inst = this.newly_created_instantiations.first; inst != null; inst = next_inst)
             {
                 next_inst = inst.next;
 
-                AsListItem<Preference> pref, next_pref;
+                ListItem<Preference> pref, next_pref;
                 for (pref = inst.item.preferences_generated.first; pref != null; pref = next_pref)
                 {
                     next_pref = pref.next;
@@ -1027,7 +1027,7 @@ public class RecognitionMemory
             // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
         }
 
-        AsListItem<Instantiation> inst, next_inst;
+        ListItem<Instantiation> inst, next_inst;
         for (inst = this.newly_created_instantiations.first; inst != null; inst = next_inst)
         {
             next_inst = inst.next;
@@ -1041,7 +1041,7 @@ public class RecognitionMemory
                  context.trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.item.prod.getName());
              }
 
-            AsListItem<Preference> pref, next_pref;
+            ListItem<Preference> pref, next_pref;
             for (pref = inst.item.preferences_generated.first; pref != null; pref = next_pref)
             {
                 // TODO all the pref.items in here are pretty ugly

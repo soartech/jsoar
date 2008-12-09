@@ -26,7 +26,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -126,7 +126,7 @@ public class OSupport
         {
             add_to_os_tc_if_needed(w.value);
         }
-        for (AsListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+        for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
         {
             final Slot s = sit.item;
             if ((!isa_state) || (s.attr != syms.operator_symbol))
@@ -144,7 +144,7 @@ public class OSupport
             }
         } /* end of for slots loop */
         // now scan through RHS prefs and look for any with this id
-        for (AsListItem<Preference> pit = rhs_prefs_from_instantiation.first; pit != null; pit = pit.next)
+        for (ListItem<Preference> pit = rhs_prefs_from_instantiation.first; pit != null; pit = pit.next)
         {
             final Preference pref = pit.item;
             if (pref.id == id)
@@ -169,7 +169,7 @@ public class OSupport
      * 
      * @param rhs_prefs_or_nil
      */
-    private void begin_os_tc(AsListItem<Preference> rhs_prefs_or_nil)
+    private void begin_os_tc(ListItem<Preference> rhs_prefs_or_nil)
     {
         o_support_tc = syms.getSyms().get_new_tc_number();
         rhs_prefs_from_instantiation.first = rhs_prefs_or_nil;
@@ -561,7 +561,7 @@ public class OSupport
             }
 
             // assign every preference the correct support
-            for (AsListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
+            for (ListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
             {
                 pref.item.o_supported = o_support;
             }
@@ -570,7 +570,7 @@ public class OSupport
         }
 
         // initialize by giving everything NO o_support
-        for (AsListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
+        for (ListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
         {
             pref.item.o_supported = false;
         }
@@ -600,7 +600,7 @@ public class OSupport
         // scan through rhs to look for various things
         rhs_does_an_operator_creation = false;
 
-        for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
+        for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
         {
             Preference pref = pit.item;
             if ((pref.id == match_goal)
@@ -682,7 +682,7 @@ public class OSupport
         {
             begin_os_tc(rhs.first);
             add_to_os_tc_if_id(match_state, true);
-            for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
+            for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
             {
                 final Preference pref = pit.item;
                 if (pref.id.tc_number == o_support_tc)
@@ -705,7 +705,7 @@ public class OSupport
             if (oc_support_possible)
             {
                 begin_os_tc(rhs.first);
-                for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
+                for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
                 {
                    final Preference pref = pit.item;
                    if ((pref.id == match_goal)
@@ -715,7 +715,7 @@ public class OSupport
                         add_to_os_tc_if_id(pref.value, false);
                     }
                 }
-                for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
+                for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
                 {
                     final Preference pref = pit.item;
                     if ((pref.id.tc_number == o_support_tc) && pref.id != match_state)
@@ -761,7 +761,7 @@ public class OSupport
                         }
                     }
                 }
-                for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
+                for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
                 {
                     final Preference pref = pit.item;
                     if (pref.id.tc_number == o_support_tc)
@@ -843,7 +843,7 @@ public class OSupport
         }
 
         /* --- Initialize all pref's according to rules 2 and 3 --- */
-        for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
+        for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
         {
             final Preference pref = pit.item;
             pref.o_supported = rule_2_or_3;
@@ -862,7 +862,7 @@ public class OSupport
              * --- look for RHS operators, add 'em (starting points) to the TC
              * ---
              */
-            for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
+            for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
             {
                 final Preference pref = pit.item;
                 if ((pref.id == match_state)
@@ -878,7 +878,7 @@ public class OSupport
             while (anything_added)
             {
                 anything_added = false;
-                for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
+                for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
                 {
                     final Preference pref = pit.item;
                     if (pref.id.tc_number != o_support_tc)
@@ -906,7 +906,7 @@ public class OSupport
         }
 
         /* --- Finally, use rule 1, which overrides all the other rules. --- */
-        for (AsListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
+        for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
         {
             final Preference pref = pit.item;
             if ((pref.id == match_state) && (pref.attr == syms.operator_symbol))
@@ -1051,7 +1051,7 @@ public class OSupport
         // intersect roots with known_goals, producing root_goals
         final ListHead<Variable> root_goals = ListHead.newInstance();
         int num_root_goals = 0; // ListHead.size() is slow.
-        for (AsListItem<Variable> v = roots.first; v != null; v = v.next)
+        for (ListItem<Variable> v = roots.first; v != null; v = v.next)
         {
             if (known_goals.contains(v.item))
             {
@@ -1070,11 +1070,11 @@ public class OSupport
                         && (test_is_for_symbol(pc.value_test, syms.nil_symbol) == YesNoMaybe.YES))
                 {
 
-                    AsListItem<Variable> it = root_goals.first;
+                    ListItem<Variable> it = root_goals.first;
                     while (it != null)
                     {
                         final Variable sym = it.item;
-                        final AsListItem<Variable> next = it.next;
+                        final ListItem<Variable> next = it.next;
                         if (test_is_for_symbol(pc.id_test, sym) == YesNoMaybe.YES)
                         {
                             // remove sym from the root_goals list
@@ -1336,7 +1336,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
   final ListHead<Variable> known_goals = find_known_goals (lhs);
  /* SBH: In NNPSCM, the only RHS-goal augmentations that can't get support are
     preferences for the "operator" slot. */
-  for (AsListItem<Variable> cIt = known_goals.first; cIt != null; cIt = cIt.next){
+  for (ListItem<Variable> cIt = known_goals.first; cIt != null; cIt = cIt.next){
     final Variable c = cIt.item;
     for (a=rhs; a!=null; a=a.next) {
       MakeAction ma = a.asMakeAction();

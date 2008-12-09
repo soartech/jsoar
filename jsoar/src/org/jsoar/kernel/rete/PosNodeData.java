@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 
 /**
  * 
@@ -18,17 +18,17 @@ import org.jsoar.util.AsListItem;
 public class PosNodeData extends ReteNodeData
 {
     /* --- dll of left-linked pos nodes from the parent beta memory --- */
-    final AsListItem<ReteNode> from_beta_mem;
+    final ListItem<ReteNode> from_beta_mem;
     boolean node_is_left_unlinked;
     
     public PosNodeData(ReteNode node)
     {
-        this.from_beta_mem = new AsListItem<ReteNode>(node);
+        this.from_beta_mem = new ListItem<ReteNode>(node);
     }
     
     public PosNodeData(PosNodeData other)
     {
-        this.from_beta_mem = new AsListItem<ReteNode>(other.from_beta_mem.item);
+        this.from_beta_mem = new ListItem<ReteNode>(other.from_beta_mem.item);
         this.node_is_left_unlinked = other.node_is_left_unlinked;
     }
     

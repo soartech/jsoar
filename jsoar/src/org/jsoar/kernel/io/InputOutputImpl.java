@@ -26,7 +26,7 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -416,7 +416,7 @@ public class InputOutputImpl implements InputOutput
     public void inform_output_module_of_wm_changes(ListHead<WmeImpl> wmes_being_added, ListHead<WmeImpl> wmes_being_removed)
     {
         // if wmes are added, set flag so can stop when running til output
-        for (AsListItem<WmeImpl> it = wmes_being_added.first; it != null; it = it.next)
+        for (ListItem<WmeImpl> it = wmes_being_added.first; it != null; it = it.next)
         {
             final WmeImpl w = it.item;
             if (w.id == io_header)
@@ -426,7 +426,7 @@ public class InputOutputImpl implements InputOutput
             }
             update_for_io_wme_change(w, true);
         }
-        for (AsListItem<WmeImpl> it = wmes_being_removed.first; it != null; it = it.next)
+        for (ListItem<WmeImpl> it = wmes_being_removed.first; it != null; it = it.next)
         {
             final WmeImpl w = it.item;
             if (w.id == io_header)
@@ -476,7 +476,7 @@ public class InputOutputImpl implements InputOutput
             if (valueAsId != null)
                 add_id_to_output_link_tc(valueAsId);
         }
-        for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
+        for (ListItem<Slot> s = id.slots.first; s != null; s = s.next)
         {
             for (WmeImpl w = s.item.getWmes(); w != null; w = w.next)
             {
@@ -531,7 +531,7 @@ public class InputOutputImpl implements InputOutput
         {
             for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
                 io_wmes.push(w);
-            for (AsListItem<Slot> s = id.slots.first; s != null; s = s.next)
+            for (ListItem<Slot> s = id.slots.first; s != null; s = s.next)
                 for (WmeImpl w = s.item.getWmes(); w != null; w = w.next)
                     io_wmes.push(w);
         }

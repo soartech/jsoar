@@ -7,7 +7,7 @@ package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -73,7 +73,7 @@ public class LeftToken extends Token
         return negrm_tokens;
     }
 
-    AsListItem<RightToken> getFirstNegRightToken()
+    ListItem<RightToken> getFirstNegRightToken()
     {
         return negrm_tokens != null ? negrm_tokens.first : null;
     }

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.util.AsListItem;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
@@ -46,7 +46,7 @@ public class ChunkConditionSet
      */
     boolean add_to_chunk_cond_set(ChunkCondition new_cc)
     {
-        AsListItem<ChunkCondition> old;
+        ListItem<ChunkCondition> old;
         final ListHead<ChunkCondition> bucket = this.table.get(new_cc.compressed_hash_value);
         for (old = bucket.first; old != null; old = old.next)
             if (old.item.hash_value == new_cc.hash_value)

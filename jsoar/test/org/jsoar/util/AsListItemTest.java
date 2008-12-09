@@ -20,13 +20,13 @@ public class AsListItemTest
         ListHead<String> head = ListHead.newInstance();
         assertTrue(head.isEmpty());
         
-        AsListItem<String> a = new AsListItem<String>("a");
+        ListItem<String> a = new ListItem<String>("a");
         a.insertAtHead(head);
         assertSame(head.first, a);
         assertNull(a.previous);
         assertNull(a.next);
         
-        AsListItem<String> b = new AsListItem<String>("b");
+        ListItem<String> b = new ListItem<String>("b");
         b.insertAtHead(head);
         assertSame(head.first, b);
         assertNull(b.previous);
@@ -39,9 +39,9 @@ public class AsListItemTest
     public void testRemove()
     {
         ListHead<String> head = ListHead.fromCollection(Arrays.asList("a", "b", "c"));
-        AsListItem<String> a = head.first;
-        AsListItem<String> b = a.next;
-        AsListItem<String> c = b.next;
+        ListItem<String> a = head.first;
+        ListItem<String> b = a.next;
+        ListItem<String> c = b.next;
         assertNotNull(c);
         assertNull(c.next);
         assertEquals("a", a.item);
