@@ -76,9 +76,9 @@ public class OutputEvent extends AbstractInputOutputEvent
      * 
      * <p>io.cpp::get_output_value
      * 
-     * @param id
-     * @param attr
-     * @return
+     * @param id Desired id, or <code>null</code> for don't care
+     * @param attr Desired attribute, or <code>null</code> for don't care
+     * @return value of wme with given id and attribute
      */
     public Symbol getOutputValue(Identifier id, Symbol attr)
     {

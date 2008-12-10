@@ -25,7 +25,10 @@ public class WorkingMemoryTreeModel extends DefaultTreeTableModel
     private final ThreadedAgentProxy proxy;
 
     /**
-     * @param proxy
+     * Construct a new tree model
+     * 
+     * @param proxy agenr proxy object
+     * @param roots list of roots for the tree
      */
     public WorkingMemoryTreeModel(ThreadedAgentProxy proxy, List<Identifier> roots)
     {
@@ -43,8 +46,11 @@ public class WorkingMemoryTreeModel extends DefaultTreeTableModel
     }
 
     /**
-     * @param valueId
-     * @return
+     * Get the child wmes for a particular identifier as a list of tree nodes
+     * 
+     * @param parent Parent tree node
+     * @param valueId parent identifier
+     * @return list of tree nodes, one for each child wme of the identifier
      */
     public List<WorkingMemoryTreeNode> getChildWmes(WorkingMemoryTreeNode parent, final Identifier valueId)
     {

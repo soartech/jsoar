@@ -13,6 +13,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
+ * Generic selection provider implementation for a JList
+ * 
  * @author ray
  */
 public class ListSelectionProvider implements SelectionProvider, ListSelectionListener
@@ -21,7 +23,8 @@ public class ListSelectionProvider implements SelectionProvider, ListSelectionLi
     private SelectionManager manager;
     
     /**
-     * @param model
+     * Construct a selection provider for a particular list
+     * @param list the list to connect to
      */
     public ListSelectionProvider(JList list)
     {

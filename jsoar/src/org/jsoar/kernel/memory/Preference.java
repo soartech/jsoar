@@ -219,7 +219,7 @@ public class Preference implements Formattable
      * 
      * @param p
      * @param level
-     * @return
+     * @return the clone for the given leve, or null if not found
      */
     public static Preference find_clone_for_level(Preference p, int level)
     {
@@ -346,8 +346,8 @@ public class Preference implements Formattable
      * 
      * prefmem.cpp:176:remove_preference_from_clones
      * 
-     * @param pref
-     * @return
+     * @param recMemory
+     * @return true if the preference is deallocated, false otherwise
      */
     public boolean remove_preference_from_clones(RecognitionMemory recMemory)
     {

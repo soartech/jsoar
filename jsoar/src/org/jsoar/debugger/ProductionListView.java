@@ -49,9 +49,7 @@ public class ProductionListView extends AbstractAdaptableView
     private final Provider selectionProvider = new Provider();
     
     /**
-     * @param persistentId
-     * @param title
-     * @param tabText
+     * @param debuggerIn The owning debugger
      */
     public ProductionListView(JSoarDebugger debuggerIn)
     {

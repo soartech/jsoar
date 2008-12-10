@@ -55,7 +55,7 @@ public class RhsFunctionManager
     }
     
     /**
-     * Remove a RHS function previously registered with {@link #registerHandler(String, RhsFunctionHandler)}
+     * Remove a RHS function previously registered with {@link #registerHandler(RhsFunctionHandler)}
      * 
      * @param name Name of handler to remove
      */

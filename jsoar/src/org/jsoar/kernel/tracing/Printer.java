@@ -16,6 +16,8 @@ import java.util.NoSuchElementException;
 import org.apache.commons.io.output.NullWriter;
 
 /**
+ * Soar agent print interface
+ * 
  * @author ray
  */
 public class Printer
@@ -33,14 +35,20 @@ public class Printer
     
     private final LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
     
+    /**
+     * @return a default printer that prints to standard output
+     */
     public static Printer createStdOutPrinter()
     {
         return new Printer(new OutputStreamWriter(System.out), true);
     }
     
     /**
+     * Construct a new printer that prints to the given writer
+     * 
      * @param writer The writer to write to. If null, then a NullWriter is used
      *          and all output will be dropped.
+     * @param autoFlush
      */
     public Printer(Writer writer, boolean autoFlush)
     {
@@ -146,6 +154,7 @@ public class Printer
      * <p>gsysparam.h:132:PRINT_WARNINGS_SYSPARAM
      * 
      * @param printWarnings the printWarnings to set
+     * @return this
      */
     public Printer setPrintWarnings(boolean printWarnings)
     {
@@ -154,8 +163,11 @@ public class Printer
     }
 
     /**
-     * @param string
-     * @param id
+     * Print an error
+     * 
+     * @param format format string
+     * @param args arguments
+     * @return this
      */
     public Printer error(String format, Object ... args)
     {
@@ -166,20 +178,19 @@ public class Printer
     /**
      * <p>COLUMNS_PER_LINE
      * 
-     * @return
+     * @return columns per line in this printer
      */
     public int getColumnsPerLine()
     {
-        // TODO Auto-generated method stub
         return 80;
     }
 
     /**
-     * @return
+     * @return the current output column of the printer
      */
-    public int get_printer_output_column()
+    public int getOutputColumn()
     {
-        // TODO implemente get_printer_output_column
+        // TODO implement get_printer_output_column
         return 0;
     }
     
@@ -199,7 +210,6 @@ public class Printer
         }
         return this;
     }
-    
     
     private static class StackEntry
     {

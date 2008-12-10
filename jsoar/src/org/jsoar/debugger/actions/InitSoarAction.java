@@ -17,7 +17,7 @@ public class InitSoarAction extends AbstractDebuggerAction
     private static final long serialVersionUID = -1460902354871319429L;
 
     /**
-     * @param label
+     * @param manager the owning action manager
      */
     public InitSoarAction(ActionManager manager)
     {

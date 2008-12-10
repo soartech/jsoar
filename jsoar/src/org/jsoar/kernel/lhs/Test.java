@@ -21,7 +21,7 @@ public abstract class Test implements Formattable
      * 
      * <p>production.cpp:187:copy_test
      * 
-     * @return
+     * @return A copy of this test object.
      */
     public abstract Test copy();
     

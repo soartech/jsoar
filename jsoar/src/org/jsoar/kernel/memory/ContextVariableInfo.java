@@ -30,9 +30,11 @@ public class ContextVariableInfo
      * 
      * <p>utilities.cpp:132:get_context_var_info
      * 
-     * @param agent
+     * @param predefinedSyms
+     * @param top_goal
+     * @param bottom_goal
      * @param variable
-     * @return
+     * @return information about the given context variable
      * @see Agent#getContextVariableInfo(String)
      */
     public static ContextVariableInfo get(PredefinedSymbols predefinedSyms, IdentifierImpl top_goal, IdentifierImpl bottom_goal, String variable)

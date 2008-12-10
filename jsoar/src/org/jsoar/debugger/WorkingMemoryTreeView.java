@@ -81,13 +81,13 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView
         }};
     
     /**
-     * @param persistentId
-     * @param title
-     * @param tabText
+     * @param debugger the owning debugger
      */
     public WorkingMemoryTreeView(JSoarDebugger debugger)
     {
         super("workingMemory.tree", "Working Memory Tree");
+
+        addAction(DockingConstants.PIN_ACTION);
         
         this.debugger = debugger;
         this.model = new WorkingMemoryTreeModel(debugger.getAgentProxy(), new ArrayList<Identifier>());

@@ -11,6 +11,9 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.util.ListHead;
 
 /**
+ * This is the internal implementation class for symbols. It should
+ * only be used in the kernel. External code (I/O and RHS functions) should use
+ * {@link Symbol}
  * 
  * <p>symtab.h:251:SymbolImpl
  * 

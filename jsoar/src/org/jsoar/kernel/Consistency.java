@@ -477,14 +477,15 @@ public class Consistency
      * Find the highest goal of activity among the current assertions and
      * retractions
      * 
-     * We have to start at the top of the goal stack and go down because *any*
+     * <p>We have to start at the top of the goal stack and go down because *any*
      * goal in the goal stack could be active (and we want to highest one).
      * However, we terminate as soon as a goal with assertions or retractions is
      * found. Propose cares only about ms_i_assertions & retractions *
      * 
      * consistency.cpp:420:highest_active_goal_propose
      * 
-     * @return
+     * @param start_goal The goal to start at
+     * @return highest active goal in goal stack.
      */
     public IdentifierImpl highest_active_goal_propose(IdentifierImpl start_goal)
     {
@@ -523,9 +524,10 @@ public class Consistency
     /**
      * consistency.cpp:457:highest_active_goal_apply
      * 
-     * Preconditions: start_goal cannot be null, agent not at quiescence
+     * <p>Preconditions: start_goal cannot be null, agent not at quiescence
      * 
-     * @return
+     * @param start_goal the goal to start at
+     * @return highest active goal
      */
     public IdentifierImpl highest_active_goal_apply(IdentifierImpl start_goal)
     {

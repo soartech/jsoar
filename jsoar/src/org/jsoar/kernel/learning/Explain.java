@@ -318,7 +318,7 @@ public class Explain
         {
             i++;
             printer.print(" %2d : %s", i, cond);
-            while (printer.get_printer_output_column() < printer.getColumnsPerLine() - 40)
+            while (printer.getOutputColumn() < printer.getColumnsPerLine() - 40)
                 printer.print(" ");
 
             printer.print(" Ground :%s\n", ground);

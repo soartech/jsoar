@@ -81,8 +81,10 @@ public class GoalDependencySet
     }
     
     /**
-     * @see {@link WmeImpl#addToGds(WmeImpl)}
+     * Return the head of the list of WMEs in this GDS
+     * 
      * @return Head of the list of WMEs in this GDS.
+     * @see WmeImpl#addToGds(WmeImpl)
      */
     public WmeImpl getWmes()
     {
