@@ -14,7 +14,11 @@ import com.google.common.base.ReferenceType;
 import com.google.common.collect.ReferenceMap;
 
 /**
- * Primary symbol management class. This class maintains the symbol "cache"
+ * This is the internal implementation class for the symbol factory. It should
+ * only be used in the kernel. External code (I/O and RHS functions) should use
+ * {@link SymbolFactory}
+
+ * <p>Primary symbol management class. This class maintains the symbol "cache"
  * for an agent. When a symbol is created, it is cached for reuse the next
  * time a symbol with the same value is requested. We use 
  * <a href="http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/ReferenceMap.html">Google Collections ReferenceMap</a>

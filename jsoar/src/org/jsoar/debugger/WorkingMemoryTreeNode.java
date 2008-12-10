@@ -30,9 +30,11 @@ public class WorkingMemoryTreeNode implements TreeTableNode
     private List<WorkingMemoryTreeNode> kids;
     
     /**
-     * @param model
-     * @param parent
-     * @param wme
+     * Construct a node for a WME
+     * 
+     * @param model The owning model
+     * @param parent The parent node
+     * @param wme The wme held by this node
      */
     public WorkingMemoryTreeNode(WorkingMemoryTreeModel model, WorkingMemoryTreeNode parent, Wme wme)
     {
@@ -43,9 +45,11 @@ public class WorkingMemoryTreeNode implements TreeTableNode
     }
 
     /**
-     * @param model
-     * @param parent
-     * @param valueId
+     * Construct a node for a root identifier
+     * 
+     * @param model The owning model
+     * @param parent The parent node
+     * @param valueId The root identifier
      */
     public WorkingMemoryTreeNode(WorkingMemoryTreeModel model, WorkingMemoryTreeNode parent, Identifier valueId)
     {
@@ -55,8 +59,9 @@ public class WorkingMemoryTreeNode implements TreeTableNode
     }
     
     /**
-     * @param model
-     * @param kids
+     * Construct the root node for the tree
+     * 
+     * @param model the owning model
      */
     public WorkingMemoryTreeNode(WorkingMemoryTreeModel model)
     {
@@ -65,7 +70,7 @@ public class WorkingMemoryTreeNode implements TreeTableNode
     }
     
     /**
-     * @return the wme
+     * @return the wme, or <code>null</code> if not a WME node
      */
     public Wme getWme()
     {
@@ -73,7 +78,7 @@ public class WorkingMemoryTreeNode implements TreeTableNode
     }
 
     /**
-     * @return the valueId
+     * @return the root identifier, or value of WME in this node.
      */
     public Identifier getValueId()
     {

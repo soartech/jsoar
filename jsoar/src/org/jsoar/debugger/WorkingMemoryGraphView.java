@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
+import org.flexdock.docking.DockingConstants;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
@@ -85,10 +86,8 @@ public class WorkingMemoryGraphView extends AbstractAdaptableView
 
     private FocusSetListener focusSetListener = new FocusSetListener();;
 
-    
     /**
-     * @param persistentId
-     * @param title
+     * @param debugger the owning debugger
      */
     public WorkingMemoryGraphView(JSoarDebugger debugger)
     {
@@ -96,6 +95,8 @@ public class WorkingMemoryGraphView extends AbstractAdaptableView
         
         this.debugger = debugger;
         
+        addAction(DockingConstants.PIN_ACTION);
+
         JPanel p = new JPanel(new BorderLayout());
         
         JToolBar bar = initToolbar();

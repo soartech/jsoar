@@ -29,7 +29,7 @@ public class Tests
      * production.cpp:686:copy_of_equality_test_found_in_test
      * 
      * @param t
-     * @return
+     * @return Copy of the first equality test found in the given test
      * @throws IllegalStateException If there is no equality test found.
      */
     public static EqualityTest copy_of_equality_test_found_in_test(Test t)
@@ -203,12 +203,12 @@ public class Tests
      * before calling this routine; it sets them to TRUE if it finds a goal
      * or impasse test.
      * 
-     * production.cpp: 231
+     * <p>production.cpp:231:copy_test_removing_goal_impasse_tests
      * 
-     * @param t
-     * @param removed_goal
-     * @param removed_impasse
-     * @return
+     * @param t Test to search
+     * @param removed_goal set to true if a goal test is removed
+     * @param removed_impasse set to true if an impasse test is removed
+     * @return Copy of the test
      */
     public static Test copy_test_removing_goal_impasse_tests(Test t,
             ByRef<Boolean> removed_goal, ByRef<Boolean> removed_impasse)
@@ -289,10 +289,11 @@ public class Tests
      * Same as add_new_test_to_test(), only has no effect if the second
      * test is already included in the first one.
      * 
-     * production.cpp:384
+     * <p>production.cpp:384:add_new_test_to_test_if_not_already_there
      * 
-     * @param t
-     * @param the_test
+     * @param t test to add new test to
+     * @param add_me the test to add
+     * @return resulting test, possibly t, but not necessarily.
      */
     public static Test add_new_test_to_test_if_not_already_there(Test t, Test add_me)
     {
@@ -318,11 +319,11 @@ public class Tests
     }
 
     /**
-     * production.cpp: 412
+     * production.cpp:412:tests_are_equal
      * 
-     * @param value
-     * @param add_me
-     * @return
+     * @param t1 first test to compare
+     * @param t2 second test to compare
+     * @return true if the two tests are equal
      */
     static boolean tests_are_equal(Test t1, Test t2)
     {
@@ -485,9 +486,9 @@ public class Tests
      * 
      * <p>production.cpp:187:copy_test
      * 
-     * @see {@link #copy()}
      * @param t A test, possibly <code>null</code>
      * @return Copy of t
+     * @see #copy()
      */
     public static Test copy(Test t)
     {

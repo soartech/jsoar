@@ -33,6 +33,8 @@ public class TowersOfHanoi extends AbstractAdaptableView implements JSoarDebugge
     public TowersOfHanoi()
     {
         super("toh", "Towers of Hanoi");
+        
+        addAction(DockingConstants.PIN_ACTION);
     }
     
     /* (non-Javadoc)

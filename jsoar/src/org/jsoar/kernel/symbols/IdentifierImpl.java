@@ -25,7 +25,7 @@ import com.google.common.collect.Iterators;
 /**
  * This is the internal implementation class for identifier symbols. It should
  * only be used in the kernel. External code (I/O and RHS functions) should use
- * {@link IdSymbol}
+ * {@link Identifier}
  * 
  * <p>Field omitted because they were unused or unnecessary:
  * <ul>

@@ -16,9 +16,8 @@ public class CommandLineRunnable implements Runnable
     private final String command;
     
     /**
-     * @param proxy
-     * @param ifc
-     * @param command
+     * @param ifc The debugger object
+     * @param command The command string to evaluate
      */
     public CommandLineRunnable(JSoarDebugger ifc, String command)
     {

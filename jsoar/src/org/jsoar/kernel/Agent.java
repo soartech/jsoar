@@ -146,7 +146,7 @@ public class Agent
     }
     
     /**
-     * @return the printer
+     * @return the agent's printer object
      */
     public Printer getPrinter()
     {
@@ -154,7 +154,7 @@ public class Agent
     }
     
     /**
-     * @return
+     * @return the agent's trace object
      */
     public Trace getTrace()
     {

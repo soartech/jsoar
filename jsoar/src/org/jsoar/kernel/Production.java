@@ -58,7 +58,11 @@ public class Production
      * 
      * <p>production.cpp:1507:make_production
      * 
-     * @param p
+     * @param type The type of production
+     * @param name The name of the production
+     * @param lhs_top_in Top of LHS conditions
+     * @param lhs_bottom_in Bottom of LHS conditions
+     * @param rhs_top_in Top of RHS actions
      */
     public Production(ProductionType type, StringSymbol name,
                       Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in)
@@ -265,9 +269,8 @@ public class Production
      * 
      * <p>print.cpp:762:print_production
      * 
-     * @param rete
-     * @param printer
-     * @param internal
+     * @param printer The printer to print to
+     * @param internal true for internal representation, false otherwise
      */
     public void print_production(Printer printer, boolean internal)
     {

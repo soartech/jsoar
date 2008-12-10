@@ -63,7 +63,7 @@ public class OSupport
     
     /**
      * @param syms
-     * @param operator_symbol
+     * @param printer
      */
     public OSupport(PredefinedSymbols syms, Printer printer)
     {

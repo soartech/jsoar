@@ -2175,9 +2175,10 @@ public class Decider
     
     /**
      * 
-     * decide.cpp:2069:attribute_of_existing_impasse
+     * <p>decide.cpp:2069:attribute_of_existing_impasse
+     * 
      * @param goal
-     * @return
+     * @return the attribute of the existing impasse
      */
     public SymbolImpl attribute_of_existing_impasse(IdentifierImpl goal)
     {

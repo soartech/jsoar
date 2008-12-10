@@ -119,8 +119,7 @@ public class Instantiation implements Traceable
     }
     
     /**
-     * Same as {@link #trace(Formatter, WmeTraceType)} except that it returns the
-     * backtrace WMEs
+     * Get list of backtrace wmes in this instantiation
      * 
      * @return List of backtrace WMEs in this instantiation
      */
