@@ -115,7 +115,7 @@ public class ReteUnitTest extends JSoarTest
            "--> \n" +
            "(write <root>)");
         
-        Production p = parser.parse_production();
+        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);
@@ -134,7 +134,7 @@ public class ReteUnitTest extends JSoarTest
            "--> \n" +
            "(write <root>)");
         
-        Production p = parser.parse_production();
+        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);
@@ -190,7 +190,7 @@ public class ReteUnitTest extends JSoarTest
            "--> \n" +
            "(write <root>)");
         
-        Production p = parser.parse_production();
+        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);
@@ -238,7 +238,7 @@ public class ReteUnitTest extends JSoarTest
            "--> \n" +
            "(write <root>)");
         
-        Production p = parser.parse_production();
+        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);
@@ -292,7 +292,7 @@ public class ReteUnitTest extends JSoarTest
                 "--> \n" +
                 "(<s> ^value 1)");
              
-         Production p = parser.parse_production();
+         Production p = parser.parserProduction();
          assertNotNull(p);
          
          ProductionAddResult result = rete.add_production_to_rete(p);
@@ -309,7 +309,7 @@ public class ReteUnitTest extends JSoarTest
                 "--> \n" +
                 "(<s> ^value 1)");
              
-         Production p = parser.parse_production();
+         Production p = parser.parserProduction();
          assertNotNull(p);
          
          ProductionAddResult result = rete.add_production_to_rete(p);
@@ -322,7 +322,7 @@ public class ReteUnitTest extends JSoarTest
                  "--> \n" +
                  "(<s> ^value 2)");
               
-          Production p2 = parser.parse_production();
+          Production p2 = parser.parserProduction();
           assertNotNull(p2);
           
           result = rete.add_production_to_rete(p2);
@@ -340,7 +340,7 @@ public class ReteUnitTest extends JSoarTest
                 "   (<s> ^operator <o> +)\n" +
                 "   (<o> ^name initialize-toh)");
         
-        Production p = parser.parse_production();
+        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);

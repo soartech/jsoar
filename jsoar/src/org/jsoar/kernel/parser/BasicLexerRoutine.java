@@ -10,15 +10,15 @@ import java.io.IOException;
 /**
  * @author ray
  */
-public class BasicLexerRoutine implements LexerRoutine
+class BasicLexerRoutine implements LexerRoutine
 {
-    private int type;
+    private LexemeType type;
 
     
     /**
      * @param type
      */
-    public BasicLexerRoutine(int type)
+    public BasicLexerRoutine(LexemeType type)
     {
         this.type = type;
     }

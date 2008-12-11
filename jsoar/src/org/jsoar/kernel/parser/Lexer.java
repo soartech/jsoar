@@ -10,7 +10,7 @@ import java.io.Reader;
 
 import org.jsoar.kernel.tracing.Printer;
 
-public class Lexer implements LexemeTypes
+public class Lexer
 {
     private static final char EOF_AS_CHAR = 0xffff;
 
@@ -76,7 +76,7 @@ public class Lexer implements LexemeTypes
             }
             lexer.store_and_advance();
             lexer.finish();
-            lexer.setLexemeType(EOF_LEXEME);
+            lexer.setLexemeType(LexemeType.EOF);
         }
     };
 
@@ -89,7 +89,7 @@ public class Lexer implements LexemeTypes
             lexer.read_constituent_string();
             if (lexer.lexeme.string.length() == 1)
             {
-                lexer.lexeme.type = EQUAL_LEXEME;
+                lexer.lexeme.type = LexemeType.EQUAL;
                 return;
             }
             lexer.determine_type_of_constituent_string();
@@ -105,7 +105,7 @@ public class Lexer implements LexemeTypes
             lexer.read_constituent_string();
             if (lexer.lexeme.string.length() == 1)
             {
-                lexer.lexeme.type = AMPERSAND_LEXEME;
+                lexer.lexeme.type = LexemeType.AMPERSAND;
                 return;
             }
             lexer.determine_type_of_constituent_string();
@@ -113,7 +113,7 @@ public class Lexer implements LexemeTypes
     };
 
     private static LexerRoutine lex_lparen = new BasicLexerRoutine(
-            L_PAREN_LEXEME)
+            LexemeType.L_PAREN)
     {
         public void lex(Lexer lexer) throws IOException
         {
@@ -123,7 +123,7 @@ public class Lexer implements LexemeTypes
     };
 
     private static LexerRoutine lex_rparen = new BasicLexerRoutine(
-            R_PAREN_LEXEME)
+            LexemeType.R_PAREN)
     {
         public void lex(Lexer lexer) throws IOException
         {
@@ -144,19 +144,19 @@ public class Lexer implements LexemeTypes
             lexer.read_constituent_string();
             if (lexer.lexeme.string.length() == 1)
             {
-                lexer.lexeme.type = GREATER_LEXEME;
+                lexer.lexeme.type = LexemeType.GREATER;
                 return;
             }
             if (lexer.lexeme.string.length() == 2)
             {
                 if (lexer.lexeme.string.charAt(1) == '>')
                 {
-                    lexer.lexeme.type = GREATER_GREATER_LEXEME;
+                    lexer.lexeme.type = LexemeType.GREATER_GREATER;
                     return;
                 }
                 if (lexer.lexeme.string.charAt(1) == '=')
                 {
-                    lexer.lexeme.type = GREATER_EQUAL_LEXEME;
+                    lexer.lexeme.type = LexemeType.GREATER_EQUAL;
                     return;
                 }
             }
@@ -173,24 +173,24 @@ public class Lexer implements LexemeTypes
             lexer.read_constituent_string();
             if (lexer.lexeme.string.length() == 1)
             {
-                lexer.lexeme.type = LESS_LEXEME;
+                lexer.lexeme.type = LexemeType.LESS;
                 return;
             }
             if (lexer.lexeme.string.length() == 2)
             {
                 if (lexer.lexeme.string.charAt(1) == '>')
                 {
-                    lexer.lexeme.type = NOT_EQUAL_LEXEME;
+                    lexer.lexeme.type = LexemeType.NOT_EQUAL;
                     return;
                 }
                 if (lexer.lexeme.string.charAt(1) == '=')
                 {
-                    lexer.lexeme.type = LESS_EQUAL_LEXEME;
+                    lexer.lexeme.type = LexemeType.LESS_EQUAL;
                     return;
                 }
                 if (lexer.lexeme.string.charAt(1) == '<')
                 {
-                    lexer.lexeme.type = LESS_LESS_LEXEME;
+                    lexer.lexeme.type = LexemeType.LESS_LESS;
                     return;
                 }
             }
@@ -199,7 +199,7 @@ public class Lexer implements LexemeTypes
                 if (lexer.lexeme.string.charAt(1) == '='
                         && lexer.lexeme.string.charAt(2) == '>')
                 {
-                    lexer.lexeme.type = LESS_EQUAL_GREATER_LEXEME;
+                    lexer.lexeme.type = LexemeType.LESS_EQUAL_GREATER;
                     return;
                 }
             }
@@ -223,7 +223,7 @@ public class Lexer implements LexemeTypes
             }
             if (lexer.lexeme.string.length() == 1)
             {
-                lexer.lexeme.type = PERIOD_LEXEME;
+                lexer.lexeme.type = LexemeType.PERIOD;
                 return;
             }
             lexer.determine_type_of_constituent_string();
@@ -263,7 +263,7 @@ public class Lexer implements LexemeTypes
             }
             if (lexer.lexeme.string.length() == 1)
             {
-                lexer.lexeme.type = PLUS_LEXEME;
+                lexer.lexeme.type = LexemeType.PLUS;
                 return;
             }
             lexer.determine_type_of_constituent_string();
@@ -303,7 +303,7 @@ public class Lexer implements LexemeTypes
             }
             if (lexer.lexeme.string.length() == 1)
             {
-                lexer.lexeme.type = MINUS_LEXEME;
+                lexer.lexeme.type = LexemeType.MINUS;
                 return;
             }
             if (lexer.lexeme.string.length() == 3)
@@ -311,7 +311,7 @@ public class Lexer implements LexemeTypes
                 if ((lexer.lexeme.string.charAt(1) == '-')
                         && (lexer.lexeme.string.charAt(2) == '>'))
                 {
-                    lexer.lexeme.type = RIGHT_ARROW_LEXEME;
+                    lexer.lexeme.type = LexemeType.RIGHT_ARROW;
                     return;
                 }
             }
@@ -362,7 +362,7 @@ public class Lexer implements LexemeTypes
     {
         public void lex(Lexer lexer) throws IOException
         {
-            lexer.lexeme.type = SYM_CONSTANT_LEXEME;
+            lexer.lexeme.type = LexemeType.SYM_CONSTANT;
             lexer.get_next_char();
             do
             {
@@ -372,7 +372,7 @@ public class Lexer implements LexemeTypes
                     lexer.printer.print ("Error: opening '|' without closing '|'\n");
                     lexer.print_location_of_most_recent_lexeme();
                     /* BUGBUG if reading from top level, don't want to signal EOF */
-                    lexer.lexeme.type = EOF_LEXEME;
+                    lexer.lexeme.type = LexemeType.EOF;
                     // thisAgent->lexeme.string[0]=EOF_AS_CHAR;
                     // thisAgent->lexeme.string[1]=0;
                     // thisAgent->lexeme.length = 1;
@@ -402,7 +402,7 @@ public class Lexer implements LexemeTypes
     {
         public void lex(Lexer lexer) throws IOException
         {
-            lexer.lexeme.type = QUOTED_STRING_LEXEME;
+            lexer.lexeme.type = LexemeType.QUOTED_STRING;
             lexer.get_next_char();
             do
             {
@@ -412,7 +412,7 @@ public class Lexer implements LexemeTypes
                     lexer.printer.print ("Error: opening '\"' without closing '\"'\n");
                     lexer.print_location_of_most_recent_lexeme();
                     // /* BUGBUG if reading from top level, don't want to signal EOF */
-                    lexer.lexeme.type = EOF_LEXEME;
+                    lexer.lexeme.type = LexemeType.EOF;
                     // thisAgent->lexeme.string[0]=EOF_AS_CHAR;
                     // thisAgent->lexeme.string[1]=0;
                     // thisAgent->lexeme.length = 1;
@@ -457,7 +457,7 @@ public class Lexer implements LexemeTypes
     {
         public void lex(Lexer lexer) throws IOException
         {
-            lexer.lexeme.type = DOLLAR_STRING_LEXEME;
+            lexer.lexeme.type = LexemeType.DOLLAR_STRING;
             lexer.lexeme.string = "$";
             lexer.get_next_char(); /* consume the '$' */
             while ((lexer.current_char != '\n')
@@ -589,7 +589,7 @@ public class Lexer implements LexemeTypes
 
     public boolean isEof()
     {
-        return lexeme.type == LexemeTypes.EOF_LEXEME;
+        return lexeme.type == LexemeType.EOF;
     }
     
     /*
@@ -626,7 +626,7 @@ public class Lexer implements LexemeTypes
         line_of_start_of_last_lexeme = current_line;
     }
 
-    public void setLexemeType(int type)
+    public void setLexemeType(LexemeType type)
     {
         lexeme.type = type;
     }
@@ -685,7 +685,7 @@ public class Lexer implements LexemeTypes
         /* --- check whether it's a variable --- */
         if (possibleType.possible_var)
         {
-            lexeme.type = VARIABLE_LEXEME;
+            lexeme.type = LexemeType.VARIABLE;
             return true;
         }
 
@@ -694,7 +694,7 @@ public class Lexer implements LexemeTypes
         {
             try
             {
-                lexeme.type = INT_CONSTANT_LEXEME;
+                lexeme.type = LexemeType.INTEGER;
                 lexeme.int_val = Integer.valueOf(lexeme.string);
             }
             catch (NumberFormatException e)
@@ -713,7 +713,7 @@ public class Lexer implements LexemeTypes
         {
             try
             {
-                lexeme.type = FLOAT_CONSTANT_LEXEME;
+                lexeme.type = LexemeType.FLOAT;
                 lexeme.float_val = Double.valueOf(lexeme.string);
             }
             catch (NumberFormatException e)
@@ -733,7 +733,7 @@ public class Lexer implements LexemeTypes
             {
                 lexeme.id_letter = Character.toUpperCase(lexeme.string
                         .charAt(0));
-                lexeme.type = IDENTIFIER_LEXEME;
+                lexeme.type = LexemeType.IDENTIFIER;
                 lexeme.id_number = Integer.valueOf(lexeme.string.substring(1));
             }
             catch (NumberFormatException e)
@@ -749,7 +749,7 @@ public class Lexer implements LexemeTypes
         /* --- otherwise it must be a symbolic constant --- */
         if (possibleType.possible_sc)
         {
-            lexeme.type = SYM_CONSTANT_LEXEME;
+            lexeme.type = LexemeType.SYM_CONSTANT;
             if (printer.isPrintWarnings())
             {
                 if (lexeme.string.charAt(0) == '<')
@@ -833,14 +833,14 @@ public class Lexer implements LexemeTypes
             return true;
         }
 
-        lexeme.type = QUOTED_STRING_LEXEME;
+        lexeme.type = LexemeType.QUOTED_STRING;
         return true;
     }
 
     private void do_fake_rparen()
     {
         record_position_of_start_of_lexeme();
-        lexeme.type = R_PAREN_LEXEME;
+        lexeme.type = LexemeType.R_PAREN;
         lexeme.string = ")";
         if (parentheses_level > 0)
         {
@@ -971,7 +971,7 @@ public class Lexer implements LexemeTypes
             switch (i)
             {
             case '@':
-                lexer_routines[(int) '@'] = new BasicLexerRoutine(AT_LEXEME);
+                lexer_routines[(int) '@'] = new BasicLexerRoutine(LexemeType.AT);
                 break;
             case '(':
                 lexer_routines[(int) '('] = lex_lparen;
@@ -986,23 +986,19 @@ public class Lexer implements LexemeTypes
                 lexer_routines[(int) '-'] = lex_minus;
                 break;
             case '~':
-                lexer_routines[(int) '~'] = new BasicLexerRoutine(TILDE_LEXEME);
+                lexer_routines[(int) '~'] = new BasicLexerRoutine(LexemeType.TILDE);
                 break;
             case '^':
-                lexer_routines[(int) '^'] = new BasicLexerRoutine(
-                        UP_ARROW_LEXEME);
+                lexer_routines[(int) '^'] = new BasicLexerRoutine(LexemeType.UP_ARROW);
                 break;
             case '{':
-                lexer_routines[(int) '{'] = new BasicLexerRoutine(
-                        L_BRACE_LEXEME);
+                lexer_routines[(int) '{'] = new BasicLexerRoutine(LexemeType.L_BRACE);
                 break;
             case '}':
-                lexer_routines[(int) '}'] = new BasicLexerRoutine(
-                        R_BRACE_LEXEME);
+                lexer_routines[(int) '}'] = new BasicLexerRoutine(LexemeType.R_BRACE);
                 break;
             case '!':
-                lexer_routines[(int) '!'] = new BasicLexerRoutine(
-                        EXCLAMATION_POINT_LEXEME);
+                lexer_routines[(int) '!'] = new BasicLexerRoutine(LexemeType.EXCLAMATION_POINT);
                 break;
             case '>':
                 lexer_routines[(int) '>'] = lex_greater;
@@ -1020,7 +1016,7 @@ public class Lexer implements LexemeTypes
                 lexer_routines[(int) '|'] = lex_vbar;
                 break;
             case ',':
-                lexer_routines[(int) ','] = new BasicLexerRoutine(COMMA_LEXEME);
+                lexer_routines[(int) ','] = new BasicLexerRoutine(LexemeType.COMMA);
                 break;
             case '.':
                 lexer_routines[(int) '.'] = lex_period;
