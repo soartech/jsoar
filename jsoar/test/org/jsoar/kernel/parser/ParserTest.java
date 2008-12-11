@@ -307,7 +307,7 @@ public class ParserTest extends JSoarTest
     public void testParseProduction() throws Exception
     {
         Parser parser = createParser("testParseProduction (state <s> ^superstate nil) --> (<s> ^value 99) ");
-        Production p = parser.parse_production();
+        Production p = parser.parserProduction();
         assertNotNull(p);
     }
     
@@ -343,7 +343,7 @@ public class ParserTest extends JSoarTest
         "    (<ontop3> ^top-block <blockC> \n" +
         "              ^bottom-block <table>)\n" +
         "    (write (crlf) |The goal is to get A on B on C on the table.|)\n");
-        Production p = parser.parse_production();
+        Production p = parser.parserProduction();
         assertNotNull(p);
     }
     
@@ -351,7 +351,7 @@ public class ParserTest extends JSoarTest
     public void testParseProductionWithNoActions() throws Exception
     {
         Parser parser = createParser("test (state <s> ^superstate nil) -->");
-        Production p = parser.parse_production();
+        Production p = parser.parserProduction();
         assertNotNull(p);
     }
     
@@ -365,7 +365,7 @@ public class ParserTest extends JSoarTest
 "-->\n" +
 "   (<s> ^operator <o> +)\n" +
 "   (<o> ^name initialize-toh)");
-        Production p = parser.parse_production();
+        Production p = parser.parserProduction();
         assertNotNull(p);
     }
 

@@ -11,7 +11,7 @@ package org.jsoar.kernel.parser;
 public class Lexeme
 {
     public String string = "";
-    public int type = 0;
+    public LexemeType type = null;
     public int int_val;
     public double float_val;
     public char id_letter;

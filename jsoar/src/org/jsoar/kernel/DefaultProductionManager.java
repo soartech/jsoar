@@ -163,7 +163,7 @@ public class DefaultProductionManager implements ProductionManager
         Lexer lexer = new Lexer(context.getPrinter(), reader);
         Parser parser = new Parser(context.variableGenerator, lexer, context.operand2_mode);
         lexer.getNextLexeme();
-        addProduction(parser.parse_production(), true);
+        addProduction(parser.parserProduction(), true);
     }
     
     /**

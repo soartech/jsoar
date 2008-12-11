@@ -100,21 +100,17 @@ public class ThreadedAgentProxy
     }
     
     /**
-     * @return the lock object that is held while the agent is running or any commands
-     *      are being execute.
+     * Test whether the current thread is the agent thread
+     * 
+     * @return true if the current thread is the agent thread
      */
-    public Lock getLock()
-    {
-        return lock;
-    }
-    
     public boolean isAgentThread()
     {
         return Thread.currentThread().equals(agentThread);
     }
     
     /**
-     * @return the agent
+     * @return the agent owned by this proxy
      */
     public Agent getAgent()
     {
@@ -130,7 +126,7 @@ public class ThreadedAgentProxy
     }
 
     /**
-     * Run the agent in a separate thread. This method returned immediately.
+     * Run the agent in a separate thread. This method returns immediately.
      * If the agent is already running, the command is ignored.
      * 
      * @param n number of steps

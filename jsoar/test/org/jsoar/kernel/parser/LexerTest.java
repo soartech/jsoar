@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.jsoar.kernel.parser.Lexeme;
-import org.jsoar.kernel.parser.LexemeTypes;
+import org.jsoar.kernel.parser.LexemeType;
 import org.jsoar.kernel.parser.Lexer;
 import org.jsoar.kernel.tracing.Printer;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class LexerTest
         Lexeme lexeme = lexer.getCurrentLexeme();
         assertNotNull(lexeme);
         
-        assertEquals(LexemeTypes.INT_CONSTANT_LEXEME, lexeme.type);
+        assertEquals(LexemeType.INTEGER, lexeme.type);
         assertEquals(123456, lexeme.int_val);
         
     }
@@ -47,7 +47,7 @@ public class LexerTest
         Lexeme lexeme = lexer.getCurrentLexeme();
         assertNotNull(lexeme);
         
-        assertEquals(LexemeTypes.FLOAT_CONSTANT_LEXEME, lexeme.type);
+        assertEquals(LexemeType.FLOAT, lexeme.type);
         assertEquals(123.456f, lexeme.float_val, 0.001);
         
     }
@@ -61,7 +61,7 @@ public class LexerTest
         Lexeme lexeme = lexer.getCurrentLexeme();
         assertNotNull(lexeme);
         
-        assertEquals(LexemeTypes.SYM_CONSTANT_LEXEME, lexeme.type);
+        assertEquals(LexemeType.SYM_CONSTANT, lexeme.type);
         assertEquals("This is a string", lexeme.string);
         
     }
@@ -76,7 +76,7 @@ public class LexerTest
         Lexeme lexeme = lexer.getCurrentLexeme();
         assertNotNull(lexeme);
         
-        assertEquals(LexemeTypes.IDENTIFIER_LEXEME, lexeme.type);
+        assertEquals(LexemeType.IDENTIFIER, lexeme.type);
         assertEquals("S123", lexeme.string);
         assertEquals('S', lexeme.id_letter);
         assertEquals(123, lexeme.id_number);
