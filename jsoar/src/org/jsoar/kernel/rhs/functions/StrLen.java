@@ -23,7 +23,7 @@ public class StrLen extends AbstractRhsFunctionHandler
 {
     public StrLen()
     {
-        super("strlen");
+        super("strlen", 1, 1);
     }
 
     /* (non-Javadoc)
@@ -32,7 +32,7 @@ public class StrLen extends AbstractRhsFunctionHandler
     @Override
     public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
-        RhsFunctions.checkArgumentCount(getName(), arguments, 1, 1);
+        RhsFunctions.checkArgumentCount(this, arguments);
         
         return syms.createInteger(String.format("%#s", arguments.get(0)).length());
     }

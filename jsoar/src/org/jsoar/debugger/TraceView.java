@@ -22,6 +22,7 @@ import javax.swing.SwingUtilities;
 
 import org.flexdock.docking.DockingConstants;
 import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
  * @author ray
@@ -91,6 +92,7 @@ public class TraceView extends AbstractAdaptableView
         
         final Trace trace = debugger.getAgentProxy().getAgent().getTrace();
         trace.disableAll();
+        trace.setEnabled(Category.LOADING, true);
         trace.setWatchLevel(1);
         
         this.addAction(DockingConstants.PIN_ACTION);

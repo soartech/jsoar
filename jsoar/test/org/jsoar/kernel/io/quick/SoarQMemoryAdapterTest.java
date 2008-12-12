@@ -15,8 +15,8 @@ import java.util.List;
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
-import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
+import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.tcl.SoarTclException;
@@ -35,7 +35,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     private Agent agent;
     private SoarTclInterface ifc;
     
-    private static class MatchFunction extends AbstractRhsFunctionHandler
+    private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
         boolean called = false;
         List<List<Symbol>> calls = new ArrayList<List<Symbol>>();

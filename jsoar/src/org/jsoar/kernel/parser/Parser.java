@@ -36,9 +36,11 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
+import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
+import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
-import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.Arguments;
@@ -103,6 +105,7 @@ public class Parser
     private final boolean operand2_mode;
     private int[] placeholder_counter = new int[26];
     private StringSymbolImpl currentProduction = null;
+    private RhsFunctionManager funcs = null;
     
     public Parser(VariableGenerator varGen, Lexer lexer, boolean operand2_mode)
     {
@@ -114,6 +117,17 @@ public class Parser
         this.syms = varGen.getSyms();
         this.lexer = lexer;
         this.operand2_mode = operand2_mode;
+        this.funcs = new RhsFunctionManager(syms);
+    }
+    
+    /**
+     * Set the RHS function manager used by this parser to look up functions
+     * 
+     * @param funcs RHS function manager
+     */
+    public void setRhsFunctions(RhsFunctionManager funcs)
+    {
+        this.funcs = funcs != null ? funcs : new RhsFunctionManager(syms);
     }
     
     public Lexer getLexer()
@@ -1222,39 +1236,15 @@ public class Parser
         {
             fun_name = syms.createString(current().string);
         }
-        // if (fun_name == null) {
-        // // TODO
-        // throw new IllegalStateException("No RHS function named " +
-        // current().string);
-        // // print (thisAgent, "No RHS function named %s\n",current().string);
-        // // print_location_of_most_recent_lexeme(thisAgent);
-        // // return null;
-        // }
-        // rf = lookup_rhs_function (thisAgent, fun_name);
-        // if (!rf) {
-        // print (thisAgent, "No RHS function named %s\n",current().string);
-        // print_location_of_most_recent_lexeme(thisAgent);
-        // return null;
-        // }
-
-        // make sure stand-alone/rhs_value is appropriate
-        // if (is_stand_alone_action && (! rf->can_be_stand_alone_action)) {
-        // print (thisAgent, "Function %s cannot be used as a stand-alone
-        // action\n",
-        // current().string);
-        // print_location_of_most_recent_lexeme(thisAgent);
-        // return null;
-        // }
-        // if ((! is_stand_alone_action) && (! rf->can_be_rhs_value)) {
-        // print (thisAgent, "Function %s can only be used as a stand-alone
-        // action\n",
-        // current().string);
-        // print_location_of_most_recent_lexeme(thisAgent);
-        // return null;
-        // }
         
+        RhsFunctionHandler handler = funcs.getHandler(fun_name.getValue());
+        if (handler == null)
+        {
+            printer.warn("No RHS function named '%s'\n", fun_name);
+        }
+
         // build list of rhs_function and arguments
-        RhsFunctionCall rfc = new RhsFunctionCall(fun_name, is_stand_alone_action);
+        final RhsFunctionCall rfc = new RhsFunctionCall(fun_name, is_stand_alone_action);
         lexer.getNextLexeme(); // consume function name, advance to argument list
         while (currentType() != LexemeType.R_PAREN)
         {
@@ -1262,15 +1252,37 @@ public class Parser
             rfc.addArgument(arg_rv);
         }
 
-        // check number of arguments
-        // if ((rf->num_args_expected != -1) && (rf->num_args_expected !=
-        // num_args)) {
-        //    print (thisAgent, "Wrong number of arguments to function %s (expected %d)\n",
-        //           rf->name->sc.name, rf->num_args_expected);
-        //    print_location_of_most_recent_lexeme(thisAgent);
-        //    deallocate_rhs_value (thisAgent, funcall_list_to_rhs_value(fl));
-        //    return null;
-        //  }
+        if(handler != null)
+        {
+            // make sure stand-alone/rhs_value is appropriate
+            if (is_stand_alone_action && (!handler.mayBeStandalone()))
+            {
+                printer.error("Function %s cannot be used as a stand-alone action\n", fun_name);
+                // TODO print_location_of_most_recent_lexeme(thisAgent);
+            }
+            if ((!is_stand_alone_action) && (!handler.mayBeValue()))
+            {
+                printer.error("Function %s can only be used as a stand-alone action\n", fun_name);
+                // print_location_of_most_recent_lexeme(thisAgent);
+            }
+            
+            final int count = rfc.getArguments().size();
+            final int min = handler.getMinArguments();
+            final int max = handler.getMaxArguments();
+            if(min == max && count != min)
+            {
+                printer.error("'" + fun_name + "' function called with " + count + " arguments. Expected " + min + ".\n");
+            }
+            else if(count < min)
+            {
+                printer.error("'" + fun_name + "' function called with " + count + " arguments. Expected at least " + min + ".\n");
+            }
+            else if(count > max)
+            {
+                printer.error("'" + fun_name + "' function called with " + count + " arguments. Expected at most " + max + ".\n");
+            }
+        }
+        
         lexer.getNextLexeme(); // consume the right parenthesis
         return rfc;
     }

@@ -28,7 +28,7 @@ public class Interrupt extends AbstractRhsFunctionHandler
      */
     public Interrupt(RecognitionMemory recMemory, DecisionCycle decisionCycle)
     {
-        super("interrupt");
+        super("interrupt", 0, 0);
         
         Arguments.checkNotNull(recMemory, "recMemory");
         Arguments.checkNotNull(decisionCycle, "decisionCycle");
@@ -43,8 +43,27 @@ public class Interrupt extends AbstractRhsFunctionHandler
     @Override
     public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
+        RhsFunctions.checkArgumentCount(this, arguments);
         decisionCycle.interrupt(recMemory.getProductionBeingFired().getName().getValue());
         return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeStandalone()
+     */
+    @Override
+    public boolean mayBeStandalone()
+    {
+        return true;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeValue()
+     */
+    @Override
+    public boolean mayBeValue()
+    {
+        return false;
     }
 
 }

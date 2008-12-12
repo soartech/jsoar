@@ -21,7 +21,14 @@ public final class RhsFunctions
     private RhsFunctions()
     {
     }
-
+    
+    public static void checkArgumentCount(RhsFunctionHandler handler, 
+                                          List<Symbol> arguments) throws RhsFunctionException
+    {
+        checkArgumentCount(handler.getName(), arguments, 
+                           handler.getMinArguments(), handler.getMaxArguments());
+    }
+    
     public static void checkArgumentCount(String name, List<Symbol> arguments, int min, int max) throws RhsFunctionException
     {
         int count = arguments.size();

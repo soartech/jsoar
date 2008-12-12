@@ -21,14 +21,14 @@ public final class Minus extends AbstractRhsFunctionHandler
      */
     public Minus()
     {
-        super("-");
+        super("-", 1, Integer.MAX_VALUE);
     }
 
     @Override
     public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
-        RhsFunctions.checkArgumentCount(getName(), arguments, 1, Integer.MAX_VALUE);
+        RhsFunctions.checkArgumentCount(this, arguments);
         
         Symbol arg = arguments.get(0);
         if(arguments.size() == 1)

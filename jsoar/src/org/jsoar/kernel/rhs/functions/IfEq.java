@@ -24,7 +24,7 @@ public class IfEq extends AbstractRhsFunctionHandler
 {
     public IfEq()
     {
-        super("ifeq");
+        super("ifeq", 4, 4);
     }
 
     /* (non-Javadoc)
@@ -33,7 +33,7 @@ public class IfEq extends AbstractRhsFunctionHandler
     @Override
     public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
     {
-        RhsFunctions.checkArgumentCount(getName(), arguments, 4, 4);
+        RhsFunctions.checkArgumentCount(this, arguments);
         
         return arguments.get(0) == arguments.get(1) ? arguments.get(2) : arguments.get(3);
     }

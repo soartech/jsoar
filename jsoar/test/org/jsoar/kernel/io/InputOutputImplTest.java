@@ -6,7 +6,9 @@
 package org.jsoar.kernel.io;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,8 +23,8 @@ import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.OutputEvent.OutputMode;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
-import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
+import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -44,7 +46,7 @@ public class InputOutputImplTest extends JSoarTest
     private Agent agent;
     private SoarTclInterface ifc;
     
-    private static class MatchFunction extends AbstractRhsFunctionHandler
+    private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
         boolean called = false;
         List<List<Symbol>> calls = new ArrayList<List<Symbol>>();
