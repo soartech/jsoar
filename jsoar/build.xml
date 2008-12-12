@@ -22,7 +22,8 @@
     <property name="soarVersion" value="9.0.1" />
 	<property name="copyright" value="(c) Dave Ray, 2008"/>
 	
-	<property name="java.source.level" value="1.6"/>
+    <property name="java.source.level" value="1.6"/>
+    <property name="java.target.level" value="1.6"/>
 	
     <property name="jar.main.class" value="org.jsoar.debugger.JSoarDebugger"/>
 	<property name="jar.min.name" value="${ant.project.name}.jar"/>
@@ -113,12 +114,12 @@
     
     <target name="build" depends="init" description="compile the source ">
 
-        <javac destdir="${build.classes}" debug="on" optimize="on" target="${java.source.level}" source="${java.source.level}">
+        <javac destdir="${build.classes}" debug="on" optimize="on" target="${java.target.level}" source="${java.source.level}">
             <src path="${src}" />
             <classpath refid="build.classpath"/>
         </javac>
     	
-        <javac destdir="${test.classes}" debug="on" optimize="on" target="${java.source.level}" source="${java.source.level}">
+        <javac destdir="${test.classes}" debug="on" optimize="on" target="${java.target.level}" source="${java.source.level}">
             <src path="${test.src}" />
             <classpath>
             	<path refid="build.classpath"/>
