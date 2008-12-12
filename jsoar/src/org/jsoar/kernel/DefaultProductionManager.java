@@ -98,10 +98,7 @@ public class DefaultProductionManager implements ProductionManager
     {
         // TODO if (prod->trace_firings) remove_pwatch (thisAgent, prod);
         
-        if(print_sharp_sign)
-        {
-            context.getEventManager().fireEvent(new ProductionExcisedEvent(context, prod));
-        }
+        context.getEventManager().fireEvent(new ProductionExcisedEvent(context, prod));
         
         totalProductions--;
         productionsByType.get(prod.getType()).remove(prod);
@@ -111,7 +108,7 @@ public class DefaultProductionManager implements ProductionManager
 
         if (print_sharp_sign)
         {
-            context.getPrinter().print("#");
+            context.getPrinter().print("#").flush();
         }
         if (prod.getReteNode() != null)
         {
@@ -162,6 +159,7 @@ public class DefaultProductionManager implements ProductionManager
         StringReader reader = new StringReader(productionBody);
         Lexer lexer = new Lexer(context.getPrinter(), reader);
         Parser parser = new Parser(context.variableGenerator, lexer, context.operand2_mode);
+        parser.setRhsFunctions(context.getRhsFunctions());
         lexer.getNextLexeme();
         addProduction(parser.parserProduction(), true);
     }

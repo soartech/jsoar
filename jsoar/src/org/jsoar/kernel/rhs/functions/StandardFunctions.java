@@ -26,7 +26,7 @@ public class StandardFunctions
      *  
      * rhsfun.cpp:162:write_rhs_function_code
      */
-    public final RhsFunctionHandler write = new AbstractRhsFunctionHandler("write") {
+    public final RhsFunctionHandler write = new StandaloneRhsFunctionHandler("write") {
 
         @Override
         public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
@@ -45,11 +45,12 @@ public class StandardFunctions
      *  
      * rhsfun.cpp:189:crlf_rhs_function_code
      */
-    public final RhsFunctionHandler crlf = new AbstractRhsFunctionHandler("crlf") {
+    public final RhsFunctionHandler crlf = new AbstractRhsFunctionHandler("crlf", 0, 0) {
 
         @Override
         public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
+            RhsFunctions.checkArgumentCount(this, arguments);
             return syms.createString("\n");
         }
     };
@@ -57,7 +58,7 @@ public class StandardFunctions
     /**
      * RHS function that prints a failure message and halts the agent.
      */
-    public final RhsFunctionHandler failed = new AbstractRhsFunctionHandler("failed") {
+    public final RhsFunctionHandler failed = new StandaloneRhsFunctionHandler("failed") {
 
         @Override
         public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
@@ -71,7 +72,7 @@ public class StandardFunctions
     /**
      * RHS function that prints a success message and halts the agent.
      */
-    public final RhsFunctionHandler succeeded = new AbstractRhsFunctionHandler("succeeded") {
+    public final RhsFunctionHandler succeeded = new StandaloneRhsFunctionHandler("succeeded") {
 
         @Override
         public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException

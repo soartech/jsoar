@@ -6,7 +6,8 @@
 package org.jsoar.kernel.io;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +15,8 @@ import java.util.List;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wmes;
-import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
+import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.junit.After;
@@ -51,7 +52,7 @@ public class CycleCountInputTest
     public void testCycleCountInput() throws Exception
     {
         final List<Integer> matches = new ArrayList<Integer>();
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("match") {
+        agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match") {
 
             @Override
             public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException

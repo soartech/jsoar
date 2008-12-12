@@ -35,13 +35,14 @@ public class MathFunctions
          */
         public Constant(String name, double value)
         {
-            super(name);
+            super(name, 0, 0);
             this.value = value;
         }
 
         @Override
         public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
+            RhsFunctions.checkArgumentCount(this, arguments);
             return syms.createDouble(value);
         }
     };
@@ -62,7 +63,7 @@ public class MathFunctions
     /**
      * rhsfun_math.cpp:443:abs_rhs_function_code
      */
-    public static final RhsFunctionHandler abs = new AbstractRhsFunctionHandler("abs") {
+    public static final RhsFunctionHandler abs = new AbstractRhsFunctionHandler("abs", 1, 1) {
 
         /* (non-Javadoc)
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
@@ -70,7 +71,7 @@ public class MathFunctions
         @Override
         public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
-            RhsFunctions.checkArgumentCount(getName(), arguments, 1, 1);
+            RhsFunctions.checkArgumentCount(this, arguments);
             IntegerSymbol i = arguments.get(0).asInteger();
             if(i != null)
             {
@@ -88,7 +89,7 @@ public class MathFunctions
     /**
      * rhsfun_math.cpp:390:atan2_rhs_function_code
      */
-    public static final RhsFunctionHandler atan2 = new AbstractRhsFunctionHandler("atan2") {
+    public static final RhsFunctionHandler atan2 = new AbstractRhsFunctionHandler("atan2", 2, 2) {
 
         /* (non-Javadoc)
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
@@ -96,7 +97,7 @@ public class MathFunctions
         @Override
         public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
-            RhsFunctions.checkArgumentCount(getName(), arguments, 2, 2);
+            RhsFunctions.checkArgumentCount(this, arguments);
             RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
             
             Double y = RhsFunctions.asDouble(arguments.get(0));
@@ -110,7 +111,7 @@ public class MathFunctions
     {
         public OneArgMathFunction(String name)
         {
-            super(name);
+            super(name, 1, 1);
         }
         
         /* (non-Javadoc)
@@ -119,7 +120,7 @@ public class MathFunctions
         @Override
         public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
         {
-            RhsFunctions.checkArgumentCount(getName(), arguments, 1, 1);
+            RhsFunctions.checkArgumentCount(this, arguments);
             RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
             
             Double v = RhsFunctions.asDouble(arguments.get(0));

@@ -26,6 +26,20 @@ public interface RhsFunctionHandler
     String getName();
     
     /**
+     * @return Minimum number of arguments required by this function
+     */
+    int getMinArguments();
+    
+    /**
+     * @return Maximum number of argument required by this function
+     */
+    int getMaxArguments();
+    
+    boolean mayBeStandalone();
+    
+    boolean mayBeValue();
+    
+    /**
      * Execute the function and return a result.
      * 
      * @param syms SymbolImpl factory to create result symbols with as necessary
