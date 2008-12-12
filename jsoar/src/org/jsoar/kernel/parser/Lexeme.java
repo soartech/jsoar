@@ -22,6 +22,16 @@ public class Lexeme
         string += c;
     }
     
+    public char at(int index)
+    {
+        return string.charAt(index);
+    }
+    
+    public int length()
+    {
+        return string.length();
+    }
+    
     
     public String toString()
     {

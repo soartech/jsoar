@@ -160,7 +160,6 @@ public enum LexemeType
         }
     },
     RIGHT_ARROW("-->"),
-    DOLLAR_STRING("DOLLAR_STRING"),
     AMPERSAND("&") {
         
         @Override
