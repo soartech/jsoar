@@ -31,7 +31,6 @@ class BasicLexerRoutine implements LexerRoutine
     public void lex(Lexer lexer) throws IOException
     {
         lexer.store_and_advance();
-        lexer.finish();
         lexer.setLexemeType(type);
     }
 
