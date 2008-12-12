@@ -27,7 +27,8 @@
 	
     <property name="jar.main.class" value="org.jsoar.debugger.JSoarDebugger"/>
 	<property name="jar.min.name" value="${ant.project.name}.jar"/>
-	<property name="jar.complete.name" value="${ant.project.name}-complete-${version}.jar"/>
+    <property name="jar.complete.name" value="${ant.project.name}-complete-${version}.jar"/>
+    <property name="jar.source.name" value="${ant.project.name}-${version}.src.jar"/>
 	
     <condition property="os.is.windows">
        <os family="windows"/>
@@ -194,6 +195,13 @@
                 <attribute name="Main-Class" value="${jar.main.class}" />
             </manifest>
         </jar>
+		
+		<!-- Create source jar -->
+		<jar destfile="${dist.complete}/${jar.source.name}">
+            <fileset dir="${src}">
+                <exclude name="**/.svn"/>
+            </fileset>
+		</jar>
 		
 	</target>
 
