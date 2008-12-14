@@ -71,6 +71,15 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return null;
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Symbol#asJava()
+     */
+    @Override
+    public JavaSymbol asJava()
+    {
+        return null;
+    }
+
     /**
      * @return
      */

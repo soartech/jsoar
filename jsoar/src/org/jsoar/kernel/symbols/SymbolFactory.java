@@ -12,6 +12,7 @@ import org.jsoar.util.ByRef;
  * agent.
  * 
  * @author ray
+ * @see Symbols
  */
 public interface SymbolFactory
 {
@@ -111,7 +112,7 @@ public interface SymbolFactory
      * <p>io.cpp::get_io_float_constant
      * 
      * @param value The double value of the symbol
-     * @return The symbol, or <code>null</code> if not found
+     * @return The symbol
      */
     public DoubleSymbol createDouble(double value);
 
@@ -125,5 +126,21 @@ public interface SymbolFactory
      *      same object.
      */
     public DoubleSymbol findDouble(double value);
+    
+    /**
+     * Create a Java symbol for the given value.
+     * 
+     * @param value The Java object value
+     * @return The symbol
+     */
+    public JavaSymbol createJavaSymbol(Object value);
+    
+    /**
+     * Look up a Java symbol for the given value.
+     * 
+     * @param value The Java object value
+     * @return The symbol, or <code>null</code> if not found
+     */
+    public JavaSymbol findJavaSymbol(Object value);
 
 }

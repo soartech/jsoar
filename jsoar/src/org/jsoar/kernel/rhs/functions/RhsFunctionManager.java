@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,17 @@ public class RhsFunctionManager
         this.syms = syms;
     }
 
+    /**
+     * Returns a list of all regsitered RHS function handlers. The list is
+     * a copy and may be modified by the caller.
+     * 
+     * @return Copy of list of all regsitered RHS function handlers 
+     */
+    public List<RhsFunctionHandler> getHandlers()
+    {
+        return new ArrayList<RhsFunctionHandler>(handlers.values());
+    }
+    
     /**
      * Register a RHS function
      * 

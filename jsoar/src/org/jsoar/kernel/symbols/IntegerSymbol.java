@@ -6,9 +6,15 @@
 package org.jsoar.kernel.symbols;
 
 /**
+ * A symbol whose value is an integer
+ * 
  * @author ray
  */
 public interface IntegerSymbol extends Symbol
 {
+    /**
+     * @return The value of the symbol
+     * @see Symbols#valueOf(Symbol)
+     */
     int getValue();
 }

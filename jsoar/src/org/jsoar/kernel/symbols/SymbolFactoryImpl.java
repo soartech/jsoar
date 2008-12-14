@@ -57,12 +57,14 @@ public class SymbolFactoryImpl implements SymbolFactory
     private Map<Double, DoubleSymbolImpl> floatConstants = newReferenceMap();
     private Map<IdKey, IdentifierImpl> identifiers = newReferenceMap();
     private Map<String, Variable> variables = newReferenceMap();
-
+    private Map<Object, JavaSymbolImpl> javaSyms = newReferenceMap();
+    private final JavaSymbolImpl nullJavaSym;
     private int current_tc_number = 0;
     private int current_symbol_hash_id = 0; 
     
     public SymbolFactoryImpl()
     {
+        nullJavaSym = new JavaSymbolImpl(get_next_hash_id(), null);
         reset();
     }
     
@@ -300,6 +302,30 @@ public class SymbolFactoryImpl implements SymbolFactory
         return floatConstants.get(value);
     }
         
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#createJavaSymbol(java.lang.Object)
+     */
+    @Override
+    public JavaSymbolImpl createJavaSymbol(Object value)
+    {
+        JavaSymbolImpl sym = findJavaSymbol(value);
+        if(sym == null)
+        {
+            sym = new JavaSymbolImpl(get_next_hash_id(), value);
+            javaSyms.put(value, sym);
+        }
+        return sym;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#findJavaSymbol(java.lang.Object)
+     */
+    @Override
+    public JavaSymbolImpl findJavaSymbol(Object value)
+    {
+        return value != null ? javaSyms.get(value) : nullJavaSym;
+    }
+
     /**
      * symtab.cpp:153:get_next_hash_id
      * 

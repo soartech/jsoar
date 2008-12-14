@@ -122,6 +122,7 @@ public class SoarTclInterface
         
     private final WatchCommand watchCommand = new WatchCommand(this);
         
+    private final RhsFunctionsCommand rhsFuncsCommand = new RhsFunctionsCommand(this);
     /**
      * @param agent
      */
@@ -154,6 +155,7 @@ public class SoarTclInterface
         interp.createCommand("echo", echoCommand);
         interp.createCommand("clog", clogCommand);
         interp.createCommand("watch", watchCommand);
+        interp.createCommand("rhs-functions", rhsFuncsCommand);
     }
     
     public Interp getInterpreter()
