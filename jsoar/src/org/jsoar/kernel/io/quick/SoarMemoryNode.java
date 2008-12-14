@@ -64,7 +64,7 @@ class SoarMemoryNode
         Identifier parentWME = (Identifier) parentNode.getIdValue();
         setWME(io.addInputWme(parentWME, 
                              Symbols.create(io.getSymbols(), name), 
-                             Symbols.create(io.getSymbols(), node.getValue())));
+                             Symbols.create(io.getSymbols(), node.getValue() != null ? node.getValue() : Symbols.NEW_ID)));
         
         if (node.isString())
         {
@@ -99,7 +99,7 @@ class SoarMemoryNode
         if(!memoryNode.valueIsEqual(node))
         {
             setWME(io.updateInputWme(wme, 
-                    Symbols.create(io.getSymbols(), node.getValue())));
+                    Symbols.create(io.getSymbols(), node.getValue() != null ? node.getValue() : Symbols.NEW_ID)));
             memoryNode.setValue(node);
         }
     }

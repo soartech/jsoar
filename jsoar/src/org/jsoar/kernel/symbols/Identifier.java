@@ -10,6 +10,8 @@ import java.util.Iterator;
 import org.jsoar.kernel.memory.Wme;
 
 /**
+ * A Soar identifier symbol
+ * 
  * @author ray
  */
 public interface Identifier extends Symbol

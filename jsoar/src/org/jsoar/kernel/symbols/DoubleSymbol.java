@@ -6,9 +6,15 @@
 package org.jsoar.kernel.symbols;
 
 /**
+ * A symbol whose value is a double.
+ * 
  * @author ray
  */
 public interface DoubleSymbol extends Symbol
 {
+    /**
+     * @return The value of the symbol
+     * @see Symbols#valueOf(Symbol)
+     */
     double getValue();
 }

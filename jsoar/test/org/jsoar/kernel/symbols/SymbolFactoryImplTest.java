@@ -13,6 +13,8 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
+import java.io.File;
+
 import org.jsoar.util.ByRef;
 import org.junit.After;
 import org.junit.Before;
@@ -110,6 +112,25 @@ public class SymbolFactoryImplTest
         assertNotSame(a1, a2);
         assertEquals("A2", a2.getValue());
         assertEquals(3, number.value.intValue());
+    }
+    
+    @Test
+    public void testCreateJavaSymbol()
+    {
+        File f = new File(System.getProperty("user.dir"));
+        JavaSymbol js = syms.findJavaSymbol(f);
+        assertNull(js);
+        js = syms.createJavaSymbol(f);
+        assertNotNull(js);
+        assertEquals(f, js.getValue());
+    }
+    
+    @Test
+    public void testNullJavaSymbol()
+    {
+        JavaSymbol js = syms.findJavaSymbol(null);
+        assertNotNull(js);
+        assertNull(js.getValue());
     }
     
     @Test

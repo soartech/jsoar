@@ -28,6 +28,7 @@ import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.events.SoarEvent;
@@ -120,7 +121,7 @@ public class InputOutputImplTest extends JSoarTest
                             pop().
                         add(99, "integer attribute").
                         add(3.0, "double attribute").
-                        add("flag", null);
+                        add("flag", Symbols.NEW_ID);
             }});
         
         sourceTestFile("testBasicInput.soar");
