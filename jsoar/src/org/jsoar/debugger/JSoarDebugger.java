@@ -28,6 +28,7 @@ import org.flexdock.util.SwingUtility;
 import org.flexdock.view.Viewport;
 import org.jsoar.debugger.actions.AboutAction;
 import org.jsoar.debugger.actions.ActionManager;
+import org.jsoar.debugger.actions.EditProductionAction;
 import org.jsoar.debugger.actions.ExciseProductionAction;
 import org.jsoar.debugger.actions.ExitAction;
 import org.jsoar.debugger.actions.InitSoarAction;
@@ -67,6 +68,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final StatusBar status;
     private final TraceView traceView;
     private final ProductionListView prodListView;
+    private final ProductionEditView prodEditView;
     private final SelectionInfoView textView;
     private final WorkingMemoryGraphView wmGraphView;
     private final WorkingMemoryTreeView wmTreeView;
@@ -101,9 +103,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
         views.add(matchesView = new MatchesView(this));
         prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
         
-        
         views.add(textView = new SelectionInfoView(this));
         matchesView.dock(textView, DockingConstants.SOUTH_REGION);
+        
+        views.add(prodEditView = new ProductionEditView(this));
+        traceView.dock(prodEditView);
         
         views.add(wmGraphView = new WorkingMemoryGraphView(this));
         traceView.dock(wmGraphView, DockingConstants.SOUTH_REGION);
@@ -141,6 +145,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
             {
                 update(true);
             }});
+        
+        traceView.setVisible(true);
         update(false);
     }
     
@@ -190,6 +196,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         new SourceFileAction(actionManager);
         new ExciseProductionAction(actionManager);
         new AboutAction(actionManager);
+        new EditProductionAction(actionManager);
     }
     
     private void initMenuBar()

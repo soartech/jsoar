@@ -60,7 +60,7 @@ public class ProductionTableModel extends AbstractTableModel
     }
     
     /**
-     * @return the productions
+     * @return The list of productions in the model.
      */
     public List<Production> getProductions()
     {
