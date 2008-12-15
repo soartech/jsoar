@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * @author ray
@@ -29,7 +28,7 @@ public class StandardFunctions
     public final RhsFunctionHandler write = new StandaloneRhsFunctionHandler("write") {
 
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
             for(Symbol arg : arguments)
             {
@@ -48,10 +47,10 @@ public class StandardFunctions
     public final RhsFunctionHandler crlf = new AbstractRhsFunctionHandler("crlf", 0, 0) {
 
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
             RhsFunctions.checkArgumentCount(this, arguments);
-            return syms.createString("\n");
+            return rhsContext.getSymbols().createString("\n");
         }
     };
     
@@ -61,10 +60,10 @@ public class StandardFunctions
     public final RhsFunctionHandler failed = new StandaloneRhsFunctionHandler("failed") {
 
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
             context.getPrinter().error("Failure %s", arguments);
-            return context.getRhsFunctions().getHandler("halt").execute(syms, arguments);
+            return context.getRhsFunctions().getHandler("halt").execute(rhsContext, arguments);
         }
         
     };
@@ -75,10 +74,10 @@ public class StandardFunctions
     public final RhsFunctionHandler succeeded = new StandaloneRhsFunctionHandler("succeeded") {
 
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
             context.getPrinter().error("Succeeded %s", arguments);
-            return context.getRhsFunctions().getHandler("halt").execute(syms, arguments);
+            return context.getRhsFunctions().getHandler("halt").execute(rhsContext, arguments);
         }
         
     };

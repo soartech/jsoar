@@ -117,7 +117,7 @@ public class Parser
         this.syms = varGen.getSyms();
         this.lexer = lexer;
         this.operand2_mode = operand2_mode;
-        this.funcs = new RhsFunctionManager(syms);
+        this.funcs = new RhsFunctionManager(null);
     }
     
     /**
@@ -127,7 +127,7 @@ public class Parser
      */
     public void setRhsFunctions(RhsFunctionManager funcs)
     {
-        this.funcs = funcs != null ? funcs : new RhsFunctionManager(syms);
+        this.funcs = funcs != null ? funcs : new RhsFunctionManager(null);
     }
     
     public Lexer getLexer()

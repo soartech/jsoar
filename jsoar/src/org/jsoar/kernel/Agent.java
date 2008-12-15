@@ -83,7 +83,7 @@ public class Agent
     public final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
     public final InputOutputImpl io = new InputOutputImpl(this);
     
-    private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(syms);
+    private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(recMemory.getRhsFunctionContext());
     public final DecisionCycle decisionCycle = new DecisionCycle(this);
     private SoarEventManager eventManager = new SoarEventManager();
     private DefaultProductionManager productions = new DefaultProductionManager(this);

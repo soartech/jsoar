@@ -26,7 +26,7 @@ public class StrLenTest extends JSoarTest
         for(int i = 1; i < 100; ++i)
         {
             s += "B";
-            assertEquals(i, strlen.execute(syms, Symbols.asList(syms, s)).asInteger().getValue());
+            assertEquals(i, strlen.execute(rhsFuncContext, Symbols.asList(syms, s)).asInteger().getValue());
         }
     }
 

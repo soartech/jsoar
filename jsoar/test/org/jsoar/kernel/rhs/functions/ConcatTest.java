@@ -24,7 +24,7 @@ public class ConcatTest extends JSoarTest
     public void testExecute() throws Exception
     {
         Concat c = new Concat();
-        assertEquals("abc  D  e><>123", c.execute(syms, Symbols.asList(syms, "a", "b", "c  D  e>", "<>", 1, 2, 3)).asString().getValue());
+        assertEquals("abc  D  e><>123", c.execute(rhsFuncContext, Symbols.asList(syms, "a", "b", "c  D  e>", "<>", 1, 2, 3)).asString().getValue());
     }
 
 }

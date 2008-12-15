@@ -30,9 +30,11 @@ import org.jsoar.kernel.rhs.RhsFunctionCall;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.rhs.UnboundVariable;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -88,6 +90,8 @@ public class RecognitionMemory
      */
     public SavedFiringType FIRING_TYPE;
     
+    private final RhsFunctionContext rhsFuncContext = new RhsFunctionContextImpl();
+    
     /**
      * @param context
      */
@@ -102,6 +106,17 @@ public class RecognitionMemory
     public Production getProductionBeingFired()
     {
         return production_being_fired;
+    }
+    
+    /**
+     * As the "firer", this object is in charge of implementing the {@link RhsFunctionContext}
+     * that is passed to RHS functions when they are executed.
+     * 
+     * @return The RHS function context used when RHS functions are executed.
+     */
+    public RhsFunctionContext getRhsFunctionContext()
+    {
+        return rhsFuncContext;
     }
     
     /**
@@ -1423,4 +1438,16 @@ public class RecognitionMemory
         }
     }
 
+    
+    private class RhsFunctionContextImpl implements RhsFunctionContext
+    {
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getSymbols()
+         */
+        @Override
+        public SymbolFactory getSymbols()
+        {
+            return context.syms;
+        }
+    }
 }

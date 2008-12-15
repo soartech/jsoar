@@ -23,7 +23,7 @@ public final class Plus extends AbstractRhsFunctionHandler
     }
 
     @Override
-    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
 
@@ -58,6 +58,7 @@ public final class Plus extends AbstractRhsFunctionHandler
             }
         }
         
+        final SymbolFactory syms = context.getSymbols();
         return float_found ? syms.createDouble(f) : syms.createInteger(i);
     }
 }

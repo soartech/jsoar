@@ -8,7 +8,6 @@ package org.jsoar.kernel.rhs.functions;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * checks if the first argument is "eq" to the second argument if it is then it
@@ -31,7 +30,7 @@ public class IfEq extends AbstractRhsFunctionHandler
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
-    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
         

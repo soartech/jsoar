@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.util.Arguments;
 
 /**
@@ -19,16 +18,16 @@ import org.jsoar.util.Arguments;
  */
 public class RhsFunctionManager
 {
-    private final SymbolFactoryImpl syms;
+    private final RhsFunctionContext rhsContext;
     private final Map<String, RhsFunctionHandler> handlers = new HashMap<String, RhsFunctionHandler>();
     
     
     /**
      * @param syms
      */
-    public RhsFunctionManager(SymbolFactoryImpl syms)
+    public RhsFunctionManager(RhsFunctionContext rhsContext)
     {
-        this.syms = syms;
+        this.rhsContext = rhsContext;
     }
 
     /**
@@ -84,7 +83,7 @@ public class RhsFunctionManager
         
         if(handler != null)
         {
-            return handler.execute(syms, arguments);
+            return handler.execute(rhsContext, arguments);
         }
         
         throw new RhsFunctionException("No function '" + name + "' registered");
