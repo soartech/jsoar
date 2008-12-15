@@ -23,7 +23,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        minus.execute(syms, Symbols.asList(syms));
+        minus.execute(rhsFuncContext, Symbols.asList(syms));
     }
     
     @Test
@@ -31,7 +31,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(-33, minus.execute(syms, Symbols.asList(syms, 33)).asInteger().getValue());
+        assertEquals(-33, minus.execute(rhsFuncContext, Symbols.asList(syms, 33)).asInteger().getValue());
     }
     
     @Test
@@ -39,7 +39,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(-123.4, minus.execute(syms, Symbols.asList(syms, 123.4)).asDouble().getValue(), 0.0001);
+        assertEquals(-123.4, minus.execute(rhsFuncContext, Symbols.asList(syms, 123.4)).asDouble().getValue(), 0.0001);
     }
     
     @Test
@@ -47,7 +47,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(2 - 123.4 - -2, minus.execute(syms, Symbols.asList(syms, 2, 123.4, -2)).asDouble().getValue(), 0.0001);
+        assertEquals(2 - 123.4 - -2, minus.execute(rhsFuncContext, Symbols.asList(syms, 2, 123.4, -2)).asDouble().getValue(), 0.0001);
     }
     
     @Test
@@ -55,7 +55,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(2 - 3 - 4 - -2, minus.execute(syms, Symbols.asList(syms, 2, 3, 4, -2)).asInteger().getValue());
+        assertEquals(2 - 3 - 4 - -2, minus.execute(rhsFuncContext, Symbols.asList(syms, 2, 3, 4, -2)).asInteger().getValue());
     }
     
     @Test
@@ -63,7 +63,7 @@ public class MinusTest extends JSoarTest
     {
         Minus minus = new Minus();
         
-        assertEquals(2.0 - 3.0 - 4.0 - -2.0, minus.execute(syms, Symbols.asList(syms, 2.0, 3.0, 4.0, -2.0)).asDouble().getValue(), 0.0001);
+        assertEquals(2.0 - 3.0 - 4.0 - -2.0, minus.execute(rhsFuncContext, Symbols.asList(syms, 2.0, 3.0, 4.0, -2.0)).asDouble().getValue(), 0.0001);
     }
 
 }

@@ -7,7 +7,6 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
@@ -35,18 +34,24 @@ public interface RhsFunctionHandler
      */
     int getMaxArguments();
     
+    /**
+     * @return true if this function can be called standalone on the RHS
+     */
     boolean mayBeStandalone();
     
+    /**
+     * @return true if this function can be called as part of a value on the RHS.
+     */
     boolean mayBeValue();
     
     /**
      * Execute the function and return a result.
      * 
-     * @param syms SymbolImpl factory to create result symbols with as necessary
+     * @param context Context info for the function including symbol factory
      * @param arguments List of arguments
      * @return Result symbol
      * @throws RhsFunctionException if an error occurs
      */
-    Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException;
+    Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException;
 
 }

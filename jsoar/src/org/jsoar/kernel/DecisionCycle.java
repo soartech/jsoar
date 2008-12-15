@@ -19,6 +19,7 @@ import org.jsoar.kernel.events.BeforeElaborationEvent;
 import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -85,7 +86,7 @@ public class DecisionCycle
     private final RhsFunctionHandler haltHandler = new AbstractRhsFunctionHandler("halt") {
 
         @Override
-        public SymbolImpl execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public SymbolImpl execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
         {
             system_halted = true;
             

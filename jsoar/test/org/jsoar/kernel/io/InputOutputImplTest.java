@@ -23,11 +23,11 @@ import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.OutputEvent.OutputMode;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
@@ -58,7 +58,7 @@ public class InputOutputImplTest extends JSoarTest
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
          */
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
             called = true;
             calls.add(new ArrayList<Symbol>(arguments));

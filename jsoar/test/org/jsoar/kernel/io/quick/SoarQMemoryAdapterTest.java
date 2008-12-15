@@ -15,6 +15,7 @@ import java.util.List;
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
@@ -46,7 +47,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
          */
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
         {
             called = true;
             calls.add(new ArrayList<Symbol>(arguments));

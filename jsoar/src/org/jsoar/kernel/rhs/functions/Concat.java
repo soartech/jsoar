@@ -8,7 +8,6 @@ package org.jsoar.kernel.rhs.functions;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * Concatenates arguments into a single string
@@ -48,8 +47,8 @@ public class Concat extends AbstractRhsFunctionHandler
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
-    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
-        return syms.createString(concat(arguments));
+        return context.getSymbols().createString(concat(arguments));
     }
 }

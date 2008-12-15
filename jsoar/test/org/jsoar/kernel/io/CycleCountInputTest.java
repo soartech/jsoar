@@ -15,6 +15,7 @@ import java.util.List;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wmes;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
@@ -55,7 +56,7 @@ public class CycleCountInputTest
         agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match") {
 
             @Override
-            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
             {
                 matches.add(arguments.get(0).asInteger().getValue());
                 return null;

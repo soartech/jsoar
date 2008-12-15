@@ -11,7 +11,6 @@ import java.util.List;
 import org.jsoar.kernel.symbols.DoubleSymbol;
 import org.jsoar.kernel.symbols.IntegerSymbol;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * Simple math RHS functions. This includes most of the functions from java.lang.Math.
@@ -40,10 +39,10 @@ public class MathFunctions
         }
 
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
         {
             RhsFunctions.checkArgumentCount(this, arguments);
-            return syms.createDouble(value);
+            return context.getSymbols().createDouble(value);
         }
     };
     
@@ -69,18 +68,18 @@ public class MathFunctions
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
          */
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
         {
             RhsFunctions.checkArgumentCount(this, arguments);
             IntegerSymbol i = arguments.get(0).asInteger();
             if(i != null)
             {
-                return syms.createInteger(Math.abs(i.getValue()));
+                return context.getSymbols().createInteger(Math.abs(i.getValue()));
             }
             DoubleSymbol d = arguments.get(0).asDouble();
             if(d != null)
             {
-                return syms.createDouble(Math.abs(d.getValue()));
+                return context.getSymbols().createDouble(Math.abs(d.getValue()));
             }
             throw new RhsFunctionException(getName() + " expected numeric argument, got " + arguments.get(0));
         }
@@ -95,7 +94,7 @@ public class MathFunctions
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
          */
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
         {
             RhsFunctions.checkArgumentCount(this, arguments);
             RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
@@ -103,7 +102,7 @@ public class MathFunctions
             Double y = RhsFunctions.asDouble(arguments.get(0));
             Double x = RhsFunctions.asDouble(arguments.get(1));
             
-            return syms.createDouble(Math.atan2(y, x));
+            return context.getSymbols().createDouble(Math.atan2(y, x));
         }
     };
     
@@ -118,13 +117,13 @@ public class MathFunctions
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
          */
         @Override
-        public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+        public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
         {
             RhsFunctions.checkArgumentCount(this, arguments);
             RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
             
             Double v = RhsFunctions.asDouble(arguments.get(0));
-            return syms.createDouble(call(v.doubleValue()));
+            return context.getSymbols().createDouble(call(v.doubleValue()));
         }
 
         protected abstract double call(double arg) throws RhsFunctionException;

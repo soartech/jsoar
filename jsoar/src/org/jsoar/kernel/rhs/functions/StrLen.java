@@ -30,11 +30,11 @@ public class StrLen extends AbstractRhsFunctionHandler
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
-    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
         
-        return syms.createInteger(String.format("%#s", arguments.get(0)).length());
+        return context.getSymbols().createInteger(String.format("%#s", arguments.get(0)).length());
     }
 
 }

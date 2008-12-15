@@ -39,8 +39,9 @@ public class MakeConstantSymbol extends AbstractRhsFunctionHandler
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
-    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
+        final SymbolFactory syms = context.getSymbols();
         final String prefix = arguments.isEmpty() ? "constant" : Concat.concat(arguments);
         
         final StringSymbol result = syms.findString(prefix);

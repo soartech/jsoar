@@ -10,7 +10,6 @@ import java.util.List;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.util.Arguments;
 
 /**
@@ -41,7 +40,7 @@ public class Interrupt extends AbstractRhsFunctionHandler
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
-    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
         decisionCycle.interrupt(recMemory.getProductionBeingFired().getName().getValue());

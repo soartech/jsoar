@@ -28,11 +28,12 @@ public final class FloatingPointDivide extends AbstractRhsFunctionHandler
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.symbols.SymbolFactory, java.util.List)
      */
     @Override
-    public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
         RhsFunctions.checkArgumentCount(this, arguments);
-        
+
+        final SymbolFactory syms = context.getSymbols();
         Symbol arg = arguments.get(0);
         if(arguments.size() == 1)
         {

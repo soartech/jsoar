@@ -18,10 +18,10 @@ import java.util.Set;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctions;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.tcl.SoarTclException;
@@ -59,28 +59,28 @@ public class FunctionalTests
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
 
             @Override
-            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted[0] = true;
-                return oldHalt.execute(syms, arguments);
+                return oldHalt.execute(rhsContext, arguments);
             }});
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed") {
 
             @Override
-            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted[0] = true;
                 failed[0] = true;
-                return oldHalt.execute(syms, arguments);
+                return oldHalt.execute(rhsContext, arguments);
             }});
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded") {
 
             @Override
-            public Symbol execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 halted[0] = true;
                 failed[0] = false;
-                return oldHalt.execute(syms, arguments);
+                return oldHalt.execute(rhsContext, arguments);
             }});
         
         agent.decisionCycle.runForever();
@@ -124,7 +124,7 @@ public class FunctionalTests
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("matched") {
 
             @Override
-            public SymbolImpl execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public SymbolImpl execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 RhsFunctions.checkArgumentCount(getName(), arguments, 2, 2);
                 
@@ -149,7 +149,7 @@ public class FunctionalTests
         agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("matched") {
 
             @Override
-            public SymbolImpl execute(SymbolFactory syms, List<Symbol> arguments) throws RhsFunctionException
+            public SymbolImpl execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
             {
                 RhsFunctions.checkArgumentCount(getName(), arguments, 1, 1);
                 
