@@ -8,7 +8,6 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.Callable;
 
@@ -18,17 +17,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
 
 import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jdesktop.swingx.search.TableSearchable;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionListener;

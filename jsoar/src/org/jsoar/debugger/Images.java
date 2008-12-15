@@ -28,6 +28,7 @@ public class Images
     public static final ImageIcon PREVIOUS = loadImage("/org/jsoar/debugger/previous.gif");
     public static final ImageIcon COPY = loadImage("/org/jsoar/debugger/copy.gif");
     public static final ImageIcon CLEAR = loadImage("/org/jsoar/debugger/clear.gif");
+    public static final ImageIcon EDIT = loadImage("/org/jsoar/debugger/edit.gif");
 
     /**
      * @param string

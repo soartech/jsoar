@@ -19,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -26,6 +27,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jsoar.debugger.actions.EditProductionAction;
 import org.jsoar.debugger.actions.ObjectPopupMenu;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
@@ -77,15 +79,24 @@ public class ProductionListView extends AbstractAdaptableView
         this.table.addMouseListener(new MouseAdapter() {
 
             @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)
+                {
+                    handleDoubleClick();
+                }
+            }
+
+            @Override
             public void mousePressed(MouseEvent e)
             {
-                ObjectPopupMenu.show(e, debugger.getActionManager());
+                ObjectPopupMenu.show(e, debugger.getActionManager(), true);
             }
 
             @Override
             public void mouseReleased(MouseEvent e)
             {
-                ObjectPopupMenu.show(e, debugger.getActionManager());
+                ObjectPopupMenu.show(e, debugger.getActionManager(), true);
             }});
         
         p.add(new JScrollPane(table), BorderLayout.CENTER);
@@ -122,6 +133,11 @@ public class ProductionListView extends AbstractAdaptableView
         {
             table.getSelectionModel().setSelectionInterval(index, index);
         }
+    }
+    
+    private void handleDoubleClick()
+    {
+        debugger.getActionManager().executeAction(EditProductionAction.class.getCanonicalName());
     }
     
     private void updateInfo()
@@ -182,6 +198,10 @@ public class ProductionListView extends AbstractAdaptableView
         if(SelectionProvider.class.equals(klass))
         {
             return selectionProvider;
+        }
+        else if(ProductionTableModel.class.equals(klass))
+        {
+            return model;
         }
         return super.getAdapter(klass);
     }
