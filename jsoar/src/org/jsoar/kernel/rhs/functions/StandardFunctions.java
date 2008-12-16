@@ -11,10 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.symbols.DoubleSymbol;
-import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.IntegerSymbol;
-import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
