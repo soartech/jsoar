@@ -19,7 +19,7 @@ public class RightToken extends Token
     public static RightToken create(ReteNode current_node, Token parent_tok, WmeImpl parent_wme, LeftToken left_token)
     {
         assert current_node != null;
-        assert parent_wme != null;
+        //assert parent_wme != null;
 
         return new RightToken(current_node, parent_tok, parent_wme, left_token);
     }
