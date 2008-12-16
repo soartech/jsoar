@@ -18,13 +18,12 @@ import org.jsoar.kernel.events.BeforeDecisionCycleEvent;
 import org.jsoar.kernel.events.BeforeElaborationEvent;
 import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.RunLoopEvent;
-import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
+import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -83,7 +82,7 @@ public class DecisionCycle
     /**
      * rhsfun.cpp:199:halt_rhs_function_code
      */
-    private final RhsFunctionHandler haltHandler = new AbstractRhsFunctionHandler("halt") {
+    private final RhsFunctionHandler haltHandler = new StandaloneRhsFunctionHandler("halt") {
 
         @Override
         public SymbolImpl execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
