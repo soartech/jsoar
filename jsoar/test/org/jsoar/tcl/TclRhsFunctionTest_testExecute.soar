@@ -1,0 +1,8 @@
+
+set value "initial"
+
+sp {testExecute
+(state <s> ^superstate nil)
+-->
+(<s> ^result (tcl |set value "this is a \\\\ test"|))
+}
