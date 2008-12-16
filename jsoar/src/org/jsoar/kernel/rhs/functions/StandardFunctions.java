@@ -11,6 +11,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.symbols.DoubleSymbol;
+import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IntegerSymbol;
+import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
@@ -87,7 +91,8 @@ public class StandardFunctions
         new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf, failed, succeeded,
                 new Concat(), new IfEq(), new MakeConstantSymbol(), new StrLen(),
                 new JavaRhsFunction(),
-                new DeepCopy()));
+                new DeepCopy(),
+                new IntRhsFunction(), new FloatRhsFunction()));
     {
         allInternal.addAll(MathFunctions.all);
     }
