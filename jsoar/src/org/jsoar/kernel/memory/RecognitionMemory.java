@@ -32,12 +32,14 @@ import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.rhs.UnboundVariable;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.Arguments;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.timing.ExecutionTimers;
@@ -91,6 +93,17 @@ public class RecognitionMemory
     public SavedFiringType FIRING_TYPE;
     
     private final RhsFunctionContext rhsFuncContext = new RhsFunctionContextImpl();
+    
+    /**
+     * List of preferences created by currently executing RHS function
+     */
+    private final LinkedList<Preference> rhsFunctionPreferences = new LinkedList<Preference>();
+    
+    /**
+     * Preference type of currently executing action, used when instantiating preferences from
+     * RHS functions
+     */
+    private PreferenceType rhsFunctionPreferenceType;
     
     /**
      * @param context
@@ -350,6 +363,8 @@ public class RecognitionMemory
      */
     private Preference execute_action(Action a, Token tok, WmeImpl w)
     {
+        rhsFunctionPreferenceType = a.preference_type;
+        
         FunctionAction fa = a.asFunctionAction();
         if (fa != null)
         {
@@ -737,8 +752,9 @@ public class RecognitionMemory
                 // glbDeepCopyWMEs = tempwme->next;
                 // deallocate_wme(thisAgent, tempwme);
                 // } else {
-                pref = null;
+                //pref = null;
                 // }
+                pref = !rhsFunctionPreferences.isEmpty() ? rhsFunctionPreferences.pop() : null;
             }
         }
 
@@ -1438,7 +1454,6 @@ public class RecognitionMemory
         }
     }
 
-    
     private class RhsFunctionContextImpl implements RhsFunctionContext
     {
         /* (non-Javadoc)
@@ -1449,5 +1464,22 @@ public class RecognitionMemory
         {
             return context.syms;
         }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
+         */
+        @Override
+        public void addWme(Identifier id, Symbol attr, Symbol value)
+        {
+            Arguments.checkNotNull(id, "id");
+            Arguments.checkNotNull(attr, "attr");
+            Arguments.checkNotNull(value, "value");
+            
+            Preference p = new Preference(rhsFunctionPreferenceType, 
+                                          (IdentifierImpl) id, (SymbolImpl) attr, (SymbolImpl) value, 
+                                          null);
+            rhsFunctionPreferences.add(p);
+        }
+        
     }
 }

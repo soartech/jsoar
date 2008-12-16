@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
@@ -23,4 +25,15 @@ public interface RhsFunctionContext
      * @return the agent's symbol factory.
      */
     SymbolFactory getSymbols();
+    
+    /**
+     * Add a WME from the RHS function. The WME is given whatever support and
+     * preference type is given to the action containing the RHS function call.
+     * 
+     * @param id The identifier of the new WME
+     * @param attr The attribute of the new WME
+     * @param value The value of the new WME
+     * @throws IllegalArgumentException if any of the parameters are <code>null</code>.
+     */
+    void addWme(Identifier id, Symbol attr, Symbol value);
 }

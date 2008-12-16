@@ -20,6 +20,8 @@ import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.parser.Lexer;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
+import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
@@ -39,6 +41,15 @@ public class JSoarTest
         public SymbolFactory getSymbols()
         {
             return syms;
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
+         */
+        @Override
+        public void addWme(Identifier id, Symbol attr, Symbol value)
+        {
+            throw new UnsupportedOperationException("This test implementation of RhsFunctionContext doesn't support addWme");
         }
         
     };

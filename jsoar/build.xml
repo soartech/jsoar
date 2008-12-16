@@ -274,8 +274,8 @@
             </fileset>
         </copy>
     	
-    	<zip destfile="${dist}/jsoar-${version}.zip">
-    	    <zipfileset dir="${dist.complete}" prefix="jsoar-${version}"/>
+    	<zip destfile="${dist}/${ant.project.name}-${version}.zip">
+    	    <zipfileset dir="${dist.complete}" prefix="${ant.project.name}-${version}"/>
     	</zip>
     	
     </target>

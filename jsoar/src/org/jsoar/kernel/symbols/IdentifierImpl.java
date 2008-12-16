@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.EnumSet;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -16,6 +17,7 @@ import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.memory.WmeType;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
@@ -124,6 +126,17 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         // Return an iterator that is a concatenation of iterators over input WMEs
         // and the WME in each slot
         return Iterators.concat(new WmeIteratorSet(this));
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Identifier#getWmes(java.util.EnumSet)
+     */
+    @Override
+    public Iterator<Wme> getWmes(EnumSet<WmeType> desired)
+    {
+        // Return an iterator that is a concatenation of iterators over input WMEs
+        // and the WME in each slot
+        return Iterators.concat(new WmeIteratorSet(this, desired));
     }
 
     /* (non-Javadoc)
@@ -279,6 +292,13 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         private boolean didInputs = false;
         private ListItem<Slot> slot;
         
+        public WmeIteratorSet(IdentifierImpl id, EnumSet<WmeType> desired)
+        {
+            this.id = id;
+            this.didImpasseWmes = !desired.contains(WmeType.IMPASSE);
+            this.didInputs = !desired.contains(WmeType.INPUT);
+            this.slot = desired.contains(WmeType.NORMAL) ? id.slots.first : null;
+        }
         public WmeIteratorSet(IdentifierImpl id)
         {
             this.id = id;

@@ -5,9 +5,11 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.EnumSet;
 import java.util.Iterator;
 
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeType;
 
 /**
  * A Soar identifier symbol
@@ -32,6 +34,8 @@ public interface Identifier extends Symbol
      * @return Iterator over all WMEs with this id.
      */
     Iterator<Wme> getWmes();
+    
+    Iterator<Wme> getWmes(EnumSet<WmeType> desired);
     
     /**
      * @return true if this identifier is a goal/state
