@@ -123,12 +123,17 @@ public class SoarTclInterface
     private final WatchCommand watchCommand = new WatchCommand(this);
         
     private final RhsFunctionsCommand rhsFuncsCommand = new RhsFunctionsCommand(this);
+    
+    private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
+    
     /**
      * @param agent
      */
     public SoarTclInterface(Agent agent)
     {
         this.agent = agent;
+        
+        this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
         
         this.sourceCommand = new SourceCommand();
         interp.createCommand("source", sourceCommand);
