@@ -37,8 +37,8 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.memory.ContextVariableInfo;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 
 
@@ -215,34 +215,14 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView
                 {
                     t = t.trim();
                     
-                    ContextVariableInfo info = agent.getContextVariableInfo(t);
-                    if(info.getValue() != null)
+                    Symbol s = agent.readIdentifierOrContextVariable(t);
+                    if(s != null)
                     {
-                        final Identifier value = info.getValue().asIdentifier();
-                        if(!result.contains(value))
+                        Identifier id = s.asIdentifier();
+                        if(id != null && !result.contains(id))
                         {
-                            result.add(value);
+                            result.add(id);
                         }
-                        continue;
-                    }
-                    
-                    if(t.length() < 2 || !Character.isLetter(t.charAt(0))) continue;
-                    
-                    final char letter = Character.toUpperCase(t.charAt(0));
-                    int number = 1;
-                    try
-                    {
-                        number = Integer.parseInt(t.substring(1));
-                    }
-                    catch(NumberFormatException e)
-                    {
-                        continue;
-                    }
-                    
-                    Identifier id = syms.findIdentifier(letter, number);
-                    if(id != null && !result.contains(id))
-                    {
-                        result.add(id);
                     }
                 }
                 return result;

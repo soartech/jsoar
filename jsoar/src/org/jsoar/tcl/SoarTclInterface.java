@@ -121,6 +121,8 @@ public class SoarTclInterface
         }}; 
         
     private final WatchCommand watchCommand = new WatchCommand(this);
+    
+    private final PrintCommand printCommand = new PrintCommand(this);
         
     private final RhsFunctionsCommand rhsFuncsCommand = new RhsFunctionsCommand(this);
     
@@ -161,6 +163,8 @@ public class SoarTclInterface
         interp.createCommand("clog", clogCommand);
         interp.createCommand("watch", watchCommand);
         interp.createCommand("rhs-functions", rhsFuncsCommand);
+        interp.createCommand("print", printCommand);
+        interp.createCommand("p", printCommand); // TODO do aliases
     }
     
     public Interp getInterpreter()

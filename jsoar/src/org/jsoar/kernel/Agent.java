@@ -32,6 +32,7 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardFunctions;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
@@ -207,6 +208,29 @@ public class Agent
     public ContextVariableInfo getContextVariableInfo(String variable)
     {
         return ContextVariableInfo.get(predefinedSyms, decider.top_goal, decider.bottom_goal, variable);
+    }
+    
+    public Symbol readIdentifierOrContextVariable(String t)
+    {
+        ContextVariableInfo info = ContextVariableInfo.get(predefinedSyms, decider.top_goal, decider.bottom_goal, t);
+        if(info.getValue() != null)
+        {
+            return info.getValue();
+        }
+        if(t.length() < 2 || !Character.isLetter(t.charAt(0))) return null;
+        
+        final char letter = Character.toUpperCase(t.charAt(0));
+        int number = 1;
+        try
+        {
+            number = Integer.parseInt(t.substring(1));
+        }
+        catch(NumberFormatException e)
+        {
+            return null;
+        }
+        
+        return syms.findIdentifier(letter, number);
     }
     
     /**
