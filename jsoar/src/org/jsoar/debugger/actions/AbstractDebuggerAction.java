@@ -93,6 +93,6 @@ public abstract class AbstractDebuggerAction extends AbstractAction
     
     public SelectionManager getSelectionManager()
     {
-        return manager != null ? manager.getApplication().getSelectionManager() : null;
+        return manager != null ? manager.getSelectionManager() : null;
     }
 }

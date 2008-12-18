@@ -37,7 +37,7 @@ public class ExciseProductionAction extends AbstractDebuggerAction
     @Override
     public void update()
     {
-        final List<Production> prods = Adaptables.adaptCollection(getApplication().getSelectionManager().getSelection(), Production.class);
+        final List<Production> prods = Adaptables.adaptCollection(getSelectionManager().getSelection(), Production.class);
         setEnabled(!prods.isEmpty());
     }
 
@@ -47,7 +47,7 @@ public class ExciseProductionAction extends AbstractDebuggerAction
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
-        final List<Production> prods = Adaptables.adaptCollection(getApplication().getSelectionManager().getSelection(), Production.class);
+        final List<Production> prods = Adaptables.adaptCollection(getSelectionManager().getSelection(), Production.class);
         if(prods.isEmpty())
         {
             return;

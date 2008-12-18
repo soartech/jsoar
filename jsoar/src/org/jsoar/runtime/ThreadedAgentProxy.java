@@ -54,15 +54,15 @@ public class ThreadedAgentProxy
             }});
     }
     
-    public void initialize()
+    public ThreadedAgentProxy initialize()
     {
-        initialize(null);
+        return initialize(null);
     }
     
     /**
      * Initialize this proxy and the agent
      */
-    public void initialize(final Runnable done)
+    public ThreadedAgentProxy initialize(final Runnable done)
     {
         // Only start the agent thread once
         if(!initialized.getAndSet(true))
@@ -81,6 +81,7 @@ public class ThreadedAgentProxy
                 }
             }
         });
+        return this;
     }
     
     /**
