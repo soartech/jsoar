@@ -35,7 +35,7 @@ final class WatchCommand implements Command
         try
         {
             int level = Integer.valueOf(args[1].toString());
-            ifc.agent.getTrace().setWatchLevel(level);
+            ifc.getAgent().getTrace().setWatchLevel(level);
         }
         catch(NumberFormatException e)
         {

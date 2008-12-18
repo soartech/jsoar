@@ -8,7 +8,7 @@ package org.jsoar.kernel.lhs;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.Arguments;
 
 /**
@@ -16,9 +16,9 @@ import org.jsoar.util.Arguments;
  */
 public class MultiAttributes
 {
-    private Map<SymbolImpl, Integer> costMap = new HashMap<SymbolImpl, Integer>();
+    private Map<Symbol, Integer> costMap = new HashMap<Symbol, Integer>();
     
-    public void setCost(SymbolImpl referent, int value)
+    public void setCost(Symbol referent, int value)
     {
         Arguments.check(value > 0, "multi-attribute cost must be greater than zero");
         
@@ -34,7 +34,7 @@ public class MultiAttributes
      * @param referent
      * @return
      */
-    public int getCost(SymbolImpl referent, int defValue)
+    public int getCost(Symbol referent, int defValue)
     {
         Integer cost = costMap.get(referent);
         return cost != null ? cost.intValue() : defValue;

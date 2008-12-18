@@ -15,13 +15,51 @@ import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
+import com.google.common.base.ReferenceType;
+import com.google.common.collect.ReferenceMap;
+
 /**
  * @author ray
  */
 public class SoarTclInterface
 {
-    final Agent agent;
-    private Interp interp = new Interp();
+    private final static ReferenceMap<Agent, SoarTclInterface> interfaces = 
+        new ReferenceMap<Agent, SoarTclInterface>(ReferenceType.WEAK, ReferenceType.STRONG);
+    
+    public static SoarTclInterface find(Agent agent)
+    {
+        synchronized (interfaces)
+        {
+            return interfaces.get(agent);
+        }
+    }
+    
+    public static SoarTclInterface findOrCreate(Agent agent)
+    {
+        synchronized (interfaces)
+        {
+            SoarTclInterface ifc = interfaces.get(agent);
+            if(ifc == null)
+            {
+                ifc = new SoarTclInterface(agent);
+                interfaces.put(agent, ifc);
+            }
+            return ifc;
+        }
+    }
+    
+    public static void dispose(SoarTclInterface ifc)
+    {
+        synchronized(interfaces)
+        {
+            interfaces.remove(ifc.agent);
+            ifc.dispose();
+        }
+    }
+    
+    
+    private Agent agent;
+    private final Interp interp = new Interp();
     
     private final SourceCommand sourceCommand;
     private final PushdCommand pushdCommand;
@@ -128,10 +166,7 @@ public class SoarTclInterface
     
     private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
     
-    /**
-     * @param agent
-     */
-    public SoarTclInterface(Agent agent)
+    private SoarTclInterface(Agent agent)
     {
         this.agent = agent;
         
@@ -172,9 +207,11 @@ public class SoarTclInterface
         return interp;
     }
     
-    public void dispose()
+    private void dispose()
     {
         interp.dispose();
+        agent.getRhsFunctions().unregisterHandler(tclRhsFunction.getName());
+        agent = null;
     }
     
     public Agent getAgent()

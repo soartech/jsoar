@@ -34,11 +34,11 @@ final class MaxElaborationsCommand implements Command
 
         if(args.length == 1)
         {
-            ifc.agent.getPrinter().print("%d", ifc.agent.consistency.getMaxElaborations());
+            ifc.getAgent().getPrinter().print("%d", ifc.getAgent().consistency.getMaxElaborations());
         }
         else
         {
-            ifc.agent.consistency.setMaxElaborations(Integer.parseInt(args[1].toString()));
+            ifc.getAgent().consistency.setMaxElaborations(Integer.parseInt(args[1].toString()));
         }
     }
 }

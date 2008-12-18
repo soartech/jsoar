@@ -52,6 +52,15 @@ public class TowersOfHanoi extends AbstractAdaptableView implements JSoarDebugge
         initialize(em, args);
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.JSoarDebuggerPlugin#shutdown()
+     */
+    @Override
+    public void shutdown()
+    {
+        // nothing to do
+    }
+
     /**
      * @param em
      * @param args

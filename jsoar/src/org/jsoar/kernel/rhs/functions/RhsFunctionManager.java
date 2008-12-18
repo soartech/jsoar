@@ -6,24 +6,28 @@
 package org.jsoar.kernel.rhs.functions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.Arguments;
 
 /**
+ * Manages registered RHS functions for an agent
+ * 
  * @author ray
  */
 public class RhsFunctionManager
 {
     private final RhsFunctionContext rhsContext;
-    private final Map<String, RhsFunctionHandler> handlers = new HashMap<String, RhsFunctionHandler>();
+    private final Map<String, RhsFunctionHandler> handlers = new ConcurrentHashMap<String, RhsFunctionHandler>();
     
     
     /**
-     * @param syms
+     * Construct a new RHS function manager with the given execution context
+     * 
+     * @param rhsContext The context in which functions will be executed
      */
     public RhsFunctionManager(RhsFunctionContext rhsContext)
     {
@@ -33,6 +37,8 @@ public class RhsFunctionManager
     /**
      * Returns a list of all regsitered RHS function handlers. The list is
      * a copy and may be modified by the caller.
+     * 
+     * <p>This method may be called from any thread
      * 
      * @return Copy of list of all regsitered RHS function handlers 
      */
@@ -44,8 +50,10 @@ public class RhsFunctionManager
     /**
      * Register a RHS function
      * 
+     * <p>This method may be called from any thread
+     * 
      * @param handler The handler to call for the function
-     * @return The previosly registered handler
+     * @return The previously registered handler
      */
     public RhsFunctionHandler registerHandler(RhsFunctionHandler handler)
     {
@@ -56,6 +64,8 @@ public class RhsFunctionManager
     
     /**
      * Lookup a registered handler by name
+     * 
+     * <p>This method may be called from any thread
      * 
      * @param name The name of the handler
      * @return The handler or null if none is registered
@@ -68,6 +78,8 @@ public class RhsFunctionManager
     /**
      * Remove a RHS function previously registered with {@link #registerHandler(RhsFunctionHandler)}
      * 
+     * <p>This method may be called from any thread
+     * 
      * @param name Name of handler to remove
      */
     public void unregisterHandler(String name)
@@ -77,6 +89,15 @@ public class RhsFunctionManager
         handlers.remove(name);
     }
     
+    /**
+     * Execute the named RHS function with the given arguments.
+     *  
+     * @param name The name of the RHS function to execute
+     * @param arguments The arguments
+     * @return The result
+     * @throws RhsFunctionException if an error occurs or there is no such
+     *      RHS function.
+     */
     public Symbol execute(String name, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctionHandler handler = handlers.get(name);

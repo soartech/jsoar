@@ -33,7 +33,7 @@ public class TclRhsFunctionTest
     public void setUp() throws Exception
     {
         this.agent = new Agent();
-        this.ifc = new SoarTclInterface(agent);
+        this.ifc = SoarTclInterface.findOrCreate(agent);
         this.agent.initialize();
     }
 
@@ -43,7 +43,7 @@ public class TclRhsFunctionTest
     @After
     public void tearDown() throws Exception
     {
-        this.ifc.dispose();
+        SoarTclInterface.dispose(ifc);
     }
 
     @Test

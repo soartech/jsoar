@@ -1,6 +1,6 @@
 package org.jsoar.tcl;
 
-import org.jsoar.kernel.symbols.StringSymbolImpl;
+import org.jsoar.kernel.symbols.StringSymbol;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -34,8 +34,8 @@ final class MultiAttrCommand implements Command
             throw new TclNumArgsException(interp, 0, args, "attr cost");
         }
         
-        StringSymbolImpl attr = ifc.agent.syms.createString(args[1].toString());
+        StringSymbol attr = ifc.getAgent().getSymbols().createString(args[1].toString());
         int cost = Integer.valueOf(args[2].toString());
-        ifc.agent.getMultiAttributes().setCost(attr, cost);
+        ifc.getAgent().getMultiAttributes().setCost(attr, cost);
     }
 }
