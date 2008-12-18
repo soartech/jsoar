@@ -35,7 +35,7 @@ public class PwdCommand implements Command
     {
         if(args.length != 1)
         {
-            throw new TclNumArgsException(interp, 1, args, "");
+            throw new TclNumArgsException(interp, 0, args, "");
         }
         
         interp.setResult(sourceCommand.getWorkingDirectory().getAbsolutePath().replace('\\', '/'));

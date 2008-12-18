@@ -31,7 +31,7 @@ final class MultiAttrCommand implements Command
     {
         if(args.length != 3)
         {
-            throw new TclNumArgsException(interp, 2, args, "attr cost");
+            throw new TclNumArgsException(interp, 0, args, "attr cost");
         }
         
         StringSymbolImpl attr = ifc.agent.syms.createString(args[1].toString());

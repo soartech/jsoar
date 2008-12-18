@@ -34,7 +34,7 @@ abstract class AbstractToggleCommand implements Command
     {
         if(args.length != 2)
         {
-            throw new TclNumArgsException(interp, 2, args, "[--on|--off|-e|-d|--enable|--disable]");
+            throw new TclNumArgsException(interp, 0, args, "[--on|--off|-e|-d|--enable|--disable]");
         }
         
         final String a = args[1].toString();

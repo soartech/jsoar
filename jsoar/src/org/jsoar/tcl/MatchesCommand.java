@@ -59,7 +59,7 @@ public class MatchesCommand implements Command
         }
         else
         {
-            throw new TclNumArgsException(interp, 2, args, "[production]");
+            throw new TclNumArgsException(interp, 0, args, "[production]");
         }
     }
 }

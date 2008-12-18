@@ -39,7 +39,7 @@ import org.jsoar.util.adaptables.Adaptables;
 /**
  * @author ray
  */
-public class ProductionListView extends AbstractAdaptableView
+public class ProductionListView extends AbstractAdaptableView implements Refreshable
 {
     private static final long serialVersionUID = -5724361674833156058L;
     
@@ -115,7 +115,7 @@ public class ProductionListView extends AbstractAdaptableView
         this.setContentPane(p);
     }
     
-    public void refresh()
+    public void refresh(boolean afterInitSoar)
     {
         this.table.repaint();
         this.table.packAll();

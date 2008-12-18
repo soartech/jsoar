@@ -272,7 +272,7 @@ public class Production
      * @param printer The printer to print to
      * @param internal true for internal representation, false otherwise
      */
-    public void print_production(Printer printer, boolean internal)
+    public void print(Printer printer, boolean internal)
     {
         if(rete == null || p_node == null)
         {

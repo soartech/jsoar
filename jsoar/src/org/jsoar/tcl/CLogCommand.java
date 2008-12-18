@@ -101,6 +101,6 @@ final class CLogCommand implements Command
         }
         // TODO: Implement -a, --add, -A, --append, -e, --existing
         
-        throw new TclNumArgsException(interp, 2, args, "");
+        throw new TclNumArgsException(interp, 0, args, "");
     }
 }

@@ -31,7 +31,7 @@ final class ReinforcementLearningCommand implements Command
     {
         if(args.length != 4)
         {
-            throw new TclNumArgsException(interp, 2, args, "--set learning [on|off]");
+            throw new TclNumArgsException(interp, 0, args, "--set learning [on|off]");
         }
         
         // TODO reinforcement learning: Obviously, this implementation is insufficient

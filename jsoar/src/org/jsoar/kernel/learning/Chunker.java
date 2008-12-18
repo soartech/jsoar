@@ -1320,7 +1320,7 @@ public class Chunker
         if (print_prod && (rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION))
         {
             context.getPrinter().print("\n");
-            prod.print_production(context.getPrinter(), false);
+            prod.print(context.getPrinter(), false);
         }
 
         if (rete_addition_result == ProductionAddResult.DUPLICATE_PRODUCTION)

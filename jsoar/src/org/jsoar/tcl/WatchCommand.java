@@ -29,7 +29,7 @@ final class WatchCommand implements Command
     {
         if(args.length != 2)
         {
-            throw new TclNumArgsException(interp, 2, args, "level");
+            throw new TclNumArgsException(interp, 0, args, "level");
         }
         
         try

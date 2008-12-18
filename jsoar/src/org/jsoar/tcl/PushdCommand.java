@@ -35,7 +35,7 @@ public class PushdCommand implements Command
     {
         if(args.length != 2)
         {
-            throw new TclNumArgsException(interp, 1, args, "fileName");
+            throw new TclNumArgsException(interp, 0, args, "fileName");
         }
         
         sourceCommand.pushd(interp, args[1].toString());

@@ -65,7 +65,7 @@ public class SourceCommand implements Command
     {
         if(args.length != 2)
         {
-            throw new TclNumArgsException(interp, 1, args, "fileName");
+            throw new TclNumArgsException(interp, 0, args, "fileName");
         }
         
         String fileName = args[1].toString();

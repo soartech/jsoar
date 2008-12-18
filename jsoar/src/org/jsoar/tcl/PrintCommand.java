@@ -5,8 +5,14 @@
  */
 package org.jsoar.tcl;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionManager;
+import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.memory.WorkingMemoryPrinter;
 import org.jsoar.kernel.symbols.Symbol;
 
@@ -20,8 +26,17 @@ import tcl.lang.TclObject;
  */
 public class PrintCommand implements Command
 {
+    private static enum Options
+    {
+        ALL, CHUNKS, DEFAULTS, INTERNAL, JUSTIFICATIONS, STACK, TREE, TEMPLATE, USER,
+        STATES, OPERATORS, FULL;
+        // TODO full, filename, rl, states, varprint
+    }
     private final SoarTclInterface ifc;
     private final WorkingMemoryPrinter wmp = new WorkingMemoryPrinter();
+    
+    private final EnumSet<Options> options = EnumSet.noneOf(Options.class);
+    private int depth = 1;
     
     /**
      * @param agent
@@ -31,13 +46,39 @@ public class PrintCommand implements Command
         this.ifc = ifc;
     }
     
+    private static boolean has(String arg, String little, String big)
+    {
+        return arg.equals(little) || arg.equals(big);
+    }
+    
+    private List<Production> collectProductions()
+    {
+        final ProductionManager pm = ifc.getAgent().getProductions();
+        final List<Production> result = new ArrayList<Production>();
+        
+        if(options.contains(Options.ALL))
+        {
+            result.addAll(pm.getProductions(null));
+        }
+        else
+        {
+            if(options.contains(Options.CHUNKS)) result.addAll(pm.getProductions(ProductionType.CHUNK));
+            if(options.contains(Options.USER)) result.addAll(pm.getProductions(ProductionType.USER));
+            if(options.contains(Options.DEFAULTS)) result.addAll(pm.getProductions(ProductionType.DEFAULT));
+            if(options.contains(Options.TEMPLATE)) result.addAll(pm.getProductions(ProductionType.TEMPLATE));
+            if(options.contains(Options.JUSTIFICATIONS)) result.addAll(pm.getProductions(ProductionType.JUSTIFICATION));
+        }
+        
+        return result;
+    }
+    
     private int processArgs(Interp interp, TclObject[] args) throws TclException
     {
         int i = 1;
         for(; i < args.length; ++i)
         {
             String arg = args[i].toString();
-            if("-d".equals(arg) || "--depth".equals(arg))
+            if(has(arg, "-d", "--depth"))
             {
                 if(i + 1 == args.length)
                 {
@@ -45,25 +86,64 @@ public class PrintCommand implements Command
                 }
                 try
                 {
-                    int depth = Integer.parseInt(args[++i].toString());
+                    depth = Integer.parseInt(args[++i].toString());
                     if(depth < 0)
                     {
                         throw new TclException(interp, "--depth must be positive");
                     }
-                    wmp.setDepth(depth);
                 }
                 catch(NumberFormatException e)
                 {
                     throw new TclException(interp, "Invalid --depth value");
                 }
             }
-            else if("-t".equals(arg) || "--tree".equals(arg))
+            else if(has(arg, "-t", "--tree"))
             {
-                wmp.setTree(true);
+                options.add(Options.TREE);
             }
-            else if("-i".equals(arg) || "--internal".equals(arg))
+            else if(has(arg, "-i", "--internal"))
             {
-                wmp.setInternal(true);
+                options.add(Options.INTERNAL);
+            }
+            else if(has(arg, "-a", "--all"))
+            {
+                options.add(Options.ALL);
+            }
+            else if(has(arg, "-u", "--user"))
+            {
+                options.add(Options.USER);
+            }
+            else if(has(arg, "-c", "--chunks"))
+            {
+                options.add(Options.CHUNKS);
+            }
+            else if(has(arg, "-d", "--defaults"))
+            {
+                options.add(Options.DEFAULTS);
+            }
+            else if(has(arg, "-j", "--justifications"))
+            {
+                options.add(Options.JUSTIFICATIONS);
+            }
+            else if(has(arg, "-s", "--stack"))
+            {
+                options.add(Options.STACK);
+            }
+            else if(has(arg, "-S", "--states"))
+            {
+                options.add(Options.STATES);
+            }
+            else if(has(arg, "-o", "--operators"))
+            {
+                options.add(Options.OPERATORS);
+            }
+            else if(has(arg, "-f", "--full"))
+            {
+                options.add(Options.FULL);
+            }
+            else if(has(arg, "-T", "--template"))
+            {
+                options.add(Options.TEMPLATE);
             }
             else if(arg.startsWith("-"))
             {
@@ -80,20 +160,55 @@ public class PrintCommand implements Command
     @Override
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
-        wmp.setDefaults();
+        final Agent agent = ifc.getAgent();
+        agent.getPrinter().startNewLine();
+        
+        options.clear();
         
         int firstNonOption = processArgs(interp, args);
+        if(options.contains(Options.STACK))
+        {
+            agent.printStackTrace(options.contains(Options.STATES), options.contains(Options.OPERATORS));
+            agent.getPrinter().print("\n").flush();
+            return;
+        }
+        else if(options.contains(Options.ALL) || options.contains(Options.CHUNKS) ||
+                options.contains(Options.USER) || options.contains(Options.TEMPLATE) ||
+                options.contains(Options.DEFAULTS))
+        {
+            for(Production p : collectProductions())
+            {
+                if(options.contains(Options.FULL))
+                {
+                    p.print(agent.getPrinter(), options.contains(Options.INTERNAL));
+                }
+                else
+                {
+                    agent.getPrinter().print("%s   ", p.getName());
+                    if(p.rl_rule)
+                    {
+                        agent.getPrinter().print("%d   %s", p.rl_update_count, p.action_list.asMakeAction().referent);
+                    }
+                }
+                agent.getPrinter().print("\n");
+            }
+            agent.getPrinter().flush();
+            return;
+        }
+                
         if(firstNonOption == args.length)
         {
-            throw new TclException(interp, "Expected id argument");
+            throw new TclException(interp, "Expected id or production name argument");
         }
-        final Agent agent = ifc.getAgent();
         
         String argString = args[firstNonOption].toString();
         Symbol arg = agent.readIdentifierOrContextVariable(argString);
         if(arg != null)
         {
             agent.getPrinter().startNewLine();
+            wmp.setDepth(depth);
+            wmp.setInternal(options.contains(Options.INTERNAL));
+            wmp.setTree(options.contains(Options.TREE));
             wmp.print(agent.syms, agent.getPrinter(), arg);
             agent.getPrinter().flush();
         }
@@ -103,12 +218,13 @@ public class PrintCommand implements Command
             Production p = agent.getProductions().getProduction(argString);
             if(p != null)
             {
-                p.print_production(agent.getPrinter(), wmp.isInternal());
+                p.print(agent.getPrinter(), options.contains(Options.INTERNAL));
             }
             else
             {
                 agent.getPrinter().print("No production '" + argString + "'");
             }
+            agent.getPrinter().flush();
         }
     }
 }

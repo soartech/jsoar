@@ -65,7 +65,7 @@ import prefuse.visual.VisualItem;
 /**
  * @author ray
  */
-public class WorkingMemoryGraphView extends AbstractAdaptableView
+public class WorkingMemoryGraphView extends AbstractAdaptableView implements Refreshable
 {
     private static final long serialVersionUID = 3769825340223029388L;
     
