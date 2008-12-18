@@ -10,6 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -59,21 +60,26 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final RunControlModel runControlModel = new RunControlModel();
         
     private Agent agent = new Agent();
-    private SoarTclInterface ifc = new SoarTclInterface(agent);
+    private SoarTclInterface ifc = SoarTclInterface.findOrCreate(agent);
     private ThreadedAgentProxy proxy = new ThreadedAgentProxy(agent);
     private LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
+    private List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
     
     private JFrame frame;
     private Viewport viewport = new Viewport();
-    private final StatusBar status;
+    private StatusBar status = new StatusBar(this);
     
     private final List<AbstractAdaptableView> views = new ArrayList<AbstractAdaptableView>();
     
-    public JSoarDebugger(JFrame frame)
+    public JSoarDebugger()
     {
         super(new BorderLayout());
         
-        this.frame = frame;
+    }
+    
+    public void initialize(JFrame parentFrame)
+    {
+        this.frame = parentFrame;
         
         this.ifc.getInterpreter().createCommand("load-plugin", loadPluginCommand);
         
@@ -81,7 +87,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         initActions();
         
-        status = new StatusBar(this);
         this.add(status, BorderLayout.SOUTH);
         
         proxy.initialize();
@@ -114,6 +119,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         Adaptables.adapt(this, TraceView.class).setVisible(true);
         
         update(false);
+        
     }
 
     private void initViews()
@@ -181,7 +187,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         if(SwingUtilities.isEventDispatchThread())
         {
             actionManager.updateActions();
-            status.refresh();
+            status.refresh(false);
         }
         else
         {
@@ -191,9 +197,21 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
     }
     
+    void addPlugin(JSoarDebuggerPlugin plugin)
+    {
+        plugins.add(plugin);
+    }
+    
     public void exit()
     {
+        for(JSoarDebuggerPlugin plugin : plugins)
+        {
+            plugin.shutdown();
+        }
+        plugins.clear();
+        
         proxy.shutdown();
+        
         System.exit(0);
     }
     
@@ -293,7 +311,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
     }
 
     /**
-     * @param args
+     * This is identical to {@link #main(String[])}, but it must be called from
+     * the Swing event thread. Also the look and feel must be initialized prior
+     * to calling this.
+     * 
+     * @param args command-line arguments
      */
     public static JSoarDebugger initialize(final String[] args)
     {
@@ -303,9 +325,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
         JFrame frame = new JFrame("Little JSoar Debugger");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        final JSoarDebugger littleDebugger = new JSoarDebugger(frame);
+        final JSoarDebugger littleDebugger = new JSoarDebugger();
         frame.setContentPane(littleDebugger);
         frame.setSize(1200, 1024);
+        
+        littleDebugger.initialize(frame);
+
         SwingUtility.centerOnScreen(frame);
         frame.setVisible(true);
         

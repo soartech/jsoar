@@ -35,7 +35,7 @@ final class ReinforcementLearningCommand implements Command
         }
         
         // TODO reinforcement learning: Obviously, this implementation is insufficient
-        ifc.agent.rl.rl_set_parameter(ReinforcementLearning.RL_PARAM_LEARNING, 
+        ifc.getAgent().rl.rl_set_parameter(ReinforcementLearning.RL_PARAM_LEARNING, 
                 "on".equals(args[3].toString()) ? ReinforcementLearning.RL_LEARNING_ON :
                     ReinforcementLearning.RL_LEARNING_ON );
     }

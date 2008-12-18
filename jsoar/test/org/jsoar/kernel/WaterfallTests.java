@@ -92,7 +92,7 @@ public class WaterfallTests
     {
         agent = new Agent();
         agent.trace.enableAll();
-        ifc = new SoarTclInterface(agent);
+        ifc = SoarTclInterface.findOrCreate(agent);
         agent.initialize();
     }
 
@@ -103,7 +103,7 @@ public class WaterfallTests
     public void tearDown() throws Exception
     {
         agent.getPrinter().flush();
-        ifc.dispose();
+        SoarTclInterface.dispose(ifc);
     }
 
     @Test(timeout=1000)

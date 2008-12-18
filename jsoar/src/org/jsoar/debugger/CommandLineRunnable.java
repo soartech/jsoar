@@ -46,6 +46,7 @@ public class CommandLineRunnable implements Runnable
         {
             printer.error(e.getMessage() + "\n");
         }
+        printer.flush();
         ifc.updateActionsAndStatus();
     }
 

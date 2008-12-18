@@ -82,7 +82,7 @@ public class InputOutputImplTest extends JSoarTest
         super.setUp();
         
         agent = new Agent();
-        ifc = new SoarTclInterface(agent);
+        ifc = SoarTclInterface.findOrCreate(agent);
         agent.getRhsFunctions().registerHandler(match = new MatchFunction());
         agent.initialize();
     }
@@ -93,7 +93,7 @@ public class InputOutputImplTest extends JSoarTest
     @After
     public void tearDown() throws Exception
     {
-        ifc.dispose();
+        SoarTclInterface.dispose(ifc);
     }
 
     @Test

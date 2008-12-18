@@ -33,7 +33,7 @@ final class RhsFunctionsCommand implements Command
     @Override
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
-        final Agent agent = ifc.agent;
+        final Agent agent = ifc.getAgent();
         final Printer p = agent.getPrinter();
         
         p.startNewLine();

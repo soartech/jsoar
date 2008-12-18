@@ -8,7 +8,6 @@ package org.jsoar.kernel.rhs.functions;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * returns the string length of the output string so that one can get the output

@@ -30,7 +30,7 @@ public class SoarTclInterfaceTest
     public void setUp() throws Exception
     {
         final Agent agent = new Agent();
-        ifc = new SoarTclInterface(agent);
+        ifc = SoarTclInterface.findOrCreate(agent);
         agent.initialize();
     }
 
@@ -40,7 +40,7 @@ public class SoarTclInterfaceTest
     @After
     public void tearDown() throws Exception
     {
-        ifc.dispose();
+        SoarTclInterface.dispose(ifc);
         ifc = null;
     }
     

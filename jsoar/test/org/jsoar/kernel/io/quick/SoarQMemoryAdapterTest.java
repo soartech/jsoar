@@ -19,7 +19,6 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.junit.After;
@@ -70,7 +69,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         super.setUp();
         
         agent = new Agent();
-        ifc = new SoarTclInterface(agent);
+        ifc = SoarTclInterface.findOrCreate(agent);
         agent.getRhsFunctions().registerHandler(match = new MatchFunction());
         agent.initialize();
     }
@@ -81,7 +80,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     @After
     public void tearDown() throws Exception
     {
-        ifc.dispose();
+        SoarTclInterface.dispose(ifc);
     }
     
     @Test public void testBasicInput() throws Exception

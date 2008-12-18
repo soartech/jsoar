@@ -57,7 +57,7 @@ public class PerformanceTimer
         agent.trace.setEnabled(false);
         agent.getPrinter().pushWriter(new NullWriter(), false);
         agent.initialize();
-        SoarTclInterface ifc = new SoarTclInterface(agent);
+        SoarTclInterface ifc = SoarTclInterface.findOrCreate(agent);
         
         boolean raw = false;
         for(String arg : args)
@@ -90,6 +90,6 @@ public class PerformanceTimer
         {
             agent.getPrinter().print("%f, %f\n", cpuTime, kernelTime);
         }
-        ifc.dispose();
+        SoarTclInterface.dispose(ifc);
     }
 }

@@ -101,7 +101,7 @@ public class FunctionalTests
     {
         agent = new Agent();
         agent.trace.enableAll();
-        ifc = new SoarTclInterface(agent);
+        ifc = SoarTclInterface.findOrCreate(agent);
         agent.initialize();
     }
 
@@ -112,7 +112,7 @@ public class FunctionalTests
     public void tearDown() throws Exception
     {
         agent.getPrinter().flush();
-        ifc.dispose();
+        SoarTclInterface.dispose(ifc);
     }
 
     @Test

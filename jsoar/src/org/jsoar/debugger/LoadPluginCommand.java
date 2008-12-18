@@ -48,6 +48,7 @@ public class LoadPluginCommand implements Command
             }
             
             plugin.initialize(debugger, initArgs);
+            debugger.addPlugin(plugin);
         }
         catch (ClassNotFoundException e)
         {

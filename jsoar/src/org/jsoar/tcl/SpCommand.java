@@ -39,7 +39,7 @@ final class SpCommand implements Command
         
         try
         {
-            ifc.agent.getProductions().loadProduction(args[1].toString());
+            ifc.getAgent().getProductions().loadProduction(args[1].toString());
         }
         catch (IOException e)
         {

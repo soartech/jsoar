@@ -19,7 +19,7 @@ import org.jsoar.util.ByRef;
 /**
  * @author ray
  */
-public class StatusBar extends JPanel
+public class StatusBar extends JPanel implements Refreshable
 {
     private static final long serialVersionUID = 1501760828755152573L;
 
@@ -55,7 +55,7 @@ public class StatusBar extends JPanel
         add(settings, BorderLayout.CENTER);
     }
     
-    public void refresh()
+    public void refresh(boolean afterInitSoar)
     {
         final ByRef<String> runStateString = ByRef.create(null);
         final ByRef<String> phaseString = ByRef.create(null);

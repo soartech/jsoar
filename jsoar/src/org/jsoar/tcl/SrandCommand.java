@@ -41,6 +41,6 @@ final class SrandCommand implements Command
         {
             seed = Long.parseLong(args[1].toString());
         }
-        ifc.agent.getRandom().setSeed(seed);
+        ifc.getAgent().getRandom().setSeed(seed);
     }
 }
