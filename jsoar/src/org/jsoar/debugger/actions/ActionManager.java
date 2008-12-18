@@ -59,6 +59,14 @@ public class ActionManager
     {
         return app;
     }
+    
+    /**
+     * @return the selection manager
+     */
+    public SelectionManager getSelectionManager()
+    {
+        return app.getSelectionManager();
+    }
 
     public AbstractDebuggerAction getAction(String id)
     {

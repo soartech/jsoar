@@ -59,9 +59,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final ActionManager actionManager = new ActionManager(this);
     private final RunControlModel runControlModel = new RunControlModel();
         
-    private Agent agent = new Agent();
-    private SoarTclInterface ifc = SoarTclInterface.findOrCreate(agent);
-    private ThreadedAgentProxy proxy = new ThreadedAgentProxy(agent);
+    private Agent agent;
+    private SoarTclInterface ifc;
+    private ThreadedAgentProxy proxy;
     private LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
     private List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
     
@@ -71,15 +71,27 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private final List<AbstractAdaptableView> views = new ArrayList<AbstractAdaptableView>();
     
+    /**
+     * Construct a new debugger. Add to a JFrame and call initialize().
+     */
     public JSoarDebugger()
     {
         super(new BorderLayout());
         
     }
     
-    public void initialize(JFrame parentFrame)
+    /**
+     * Initialize the debugger
+     * 
+     * @param parentFrame The parent frame of the debugger
+     * @param proxy A non-null, <b>initialized</b> agent proxy
+     */
+    public void initialize(JFrame parentFrame, ThreadedAgentProxy proxy)
     {
         this.frame = parentFrame;
+        this.agent = proxy.getAgent();
+        this.proxy = proxy;
+        this.ifc = SoarTclInterface.findOrCreate(agent);
         
         this.ifc.getInterpreter().createCommand("load-plugin", loadPluginCommand);
         
@@ -88,8 +100,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         initActions();
         
         this.add(status, BorderLayout.SOUTH);
-        
-        proxy.initialize();
         
         initViews();
         initMenuBar();
@@ -285,6 +295,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
     }
             
+    /**
+     * Initialize the UI look and feel to the system look and feel. 
+     */
     public static void initializeLookAndFeel()
     {
         try
@@ -329,7 +342,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         frame.setContentPane(littleDebugger);
         frame.setSize(1200, 1024);
         
-        littleDebugger.initialize(frame);
+        littleDebugger.initialize(frame, new ThreadedAgentProxy(new Agent()).initialize());
 
         SwingUtility.centerOnScreen(frame);
         frame.setVisible(true);
@@ -360,6 +373,22 @@ public class JSoarDebugger extends JPanel implements Adaptable
     @Override
     public Object getAdapter(Class<?> klass)
     {
+        if(klass.equals(SoarTclInterface.class))
+        {
+            return ifc;
+        }
+        if(klass.equals(Agent.class))
+        {
+            return agent;
+        }
+        if(klass.equals(ThreadedAgentProxy.class))
+        {
+            return proxy;
+        }
+        if(klass.equals(SelectionManager.class))
+        {
+            return selectionManager;
+        }
         return Adaptables.findAdapter(views, klass);
     }
     
