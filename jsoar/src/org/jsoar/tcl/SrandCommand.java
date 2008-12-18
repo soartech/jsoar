@@ -29,7 +29,7 @@ final class SrandCommand implements Command
     {
         if(args.length > 2)
         {
-            throw new TclNumArgsException(interp, 2, args, "[seed]");
+            throw new TclNumArgsException(interp, 0, args, "[seed]");
         }
 
         long seed = 0;

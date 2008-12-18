@@ -29,7 +29,7 @@ final class MaxElaborationsCommand implements Command
     {
         if(args.length > 2)
         {
-            throw new TclNumArgsException(interp, 2, args, "[value]");
+            throw new TclNumArgsException(interp, 0, args, "[value]");
         }
 
         if(args.length == 1)

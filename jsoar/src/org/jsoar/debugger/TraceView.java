@@ -7,8 +7,6 @@ package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -17,7 +15,6 @@ import java.io.Writer;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.flexdock.docking.DockingConstants;
@@ -66,7 +63,6 @@ public class TraceView extends AbstractAdaptableView
             buffer.append(cbuf, off, len);
         }
     };
-    private JTextField commandField = new JTextField();
 
     public TraceView(JSoarDebugger debuggerIn)
     {
@@ -101,16 +97,7 @@ public class TraceView extends AbstractAdaptableView
         //p.add(new RunControlPanel(debugger), BorderLayout.NORTH);
         p.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
         
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(commandField, BorderLayout.SOUTH);
-        commandField.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0)
-            {
-                debugger.getAgentProxy().execute(new CommandLineRunnable(debugger, commandField.getText()));
-            }});
-        p.add(bottom, BorderLayout.SOUTH);
+        p.add(new CommandEntryPanel(debugger), BorderLayout.SOUTH);
         this.setContentPane(p);
     }
 }

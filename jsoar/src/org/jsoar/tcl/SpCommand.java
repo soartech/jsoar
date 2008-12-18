@@ -34,7 +34,7 @@ final class SpCommand implements Command
     {
         if(args.length != 2)
         {
-            throw new TclNumArgsException(interp, 1, args, "body");
+            throw new TclNumArgsException(interp, 0, args, "body");
         }
         
         try

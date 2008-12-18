@@ -39,13 +39,12 @@ import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 
 /**
  * @author ray
  */
-public class WorkingMemoryTreeView extends AbstractAdaptableView
+public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refreshable
 {
     private static final long serialVersionUID = -6587008765716839376L;
     
@@ -156,7 +155,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView
         jump(idField.getText(), true);
     }
 
-    public void refresh()
+    public void refresh(boolean afterInitSoar)
     {
         if(synch.isSelected())
         {
@@ -209,7 +208,6 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView
 
             public List<Identifier> call() throws Exception
             {
-                SymbolFactory syms = agent.getSymbols();
                 List<Identifier> result = new ArrayList<Identifier>();
                 for(String t : tokens)
                 {

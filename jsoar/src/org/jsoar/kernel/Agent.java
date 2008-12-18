@@ -32,6 +32,7 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardFunctions;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -231,6 +232,57 @@ public class Agent
         }
         
         return syms.findIdentifier(letter, number);
+    }
+    
+    /**
+     * <p>sml_KernelHelpers.cpp:83:PrintStackTrace
+     * 
+     * @param states
+     * @param operators
+     */
+    public void printStackTrace(boolean states, boolean operators)
+    {
+        if(!states && !operators)
+        {
+            states = operators = true;
+        }
+        // We don't want to keep printing forever (in case we're in a state no change cascade).
+        final int maxStates = 500 ;
+        int stateCount = 0 ;
+
+        final Writer writer = printer.getWriter();
+        
+        for (IdentifierImpl g = decider.top_goal; g != null; g = g.lower_goal) 
+        {
+            stateCount++ ;
+
+            if (stateCount > maxStates)
+                continue ;
+
+            try
+            {
+                if (states)
+                {
+                    traceFormats.print_stack_trace (writer,g, g, TraceFormatRestriction.FOR_STATES_TF, false);
+                    writer.append('\n');
+                }
+                if (operators && g.operator_slot.getWmes() != null) 
+                {
+                    traceFormats.print_stack_trace (writer, g.operator_slot.getWmes().value,
+                        g, TraceFormatRestriction.FOR_OPERATORS_TF, false);
+                    writer.append('\n');
+                }
+            }
+            catch (IOException e)
+            {
+            }
+        }
+
+        if (stateCount > maxStates)
+        {
+            printer.print ("...Stack goes on for another %d states\n", stateCount - maxStates);
+        }
+        printer.flush();
     }
     
     /**

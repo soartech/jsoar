@@ -101,6 +101,8 @@ public class ProductionEditView extends AbstractAdaptableView
         north.add(productionField, BorderLayout.CENTER);
         
         // Set up auto completion...
+        // TODO: get new swingx with fix for exception on double-click:
+        // https://swingx.dev.java.net/issues/show_bug.cgi?id=943
         AutoCompleteDecorator.decorate(productionField, productions, true, new ObjectToStringConverter() {
 
             @Override
@@ -183,7 +185,7 @@ public class ProductionEditView extends AbstractAdaptableView
                 if(p != null)
                 {
                     StringWriter s = new StringWriter();
-                    p.print_production(new Printer(s, true), false);
+                    p.print(new Printer(s, true), false);
                     return s.toString();
                 }
                 return "";

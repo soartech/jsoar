@@ -38,7 +38,7 @@ public class LoadPluginCommand implements Command
         }
         try
         {
-            Class<?> klass = LoadPluginCommand.class.forName(args[1].toString());
+            Class<?> klass = Class.forName(args[1].toString());
             JSoarDebuggerPlugin plugin = (JSoarDebuggerPlugin) klass.newInstance();
             
             String[] initArgs = new String[args.length - 2];

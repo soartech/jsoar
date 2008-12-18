@@ -66,15 +66,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private JFrame frame;
     private Viewport viewport = new Viewport();
     private final StatusBar status;
-    private final TraceView traceView;
-    private final ProductionListView prodListView;
-    private final ProductionEditView prodEditView;
-    private final SelectionInfoView textView;
-    private final WorkingMemoryGraphView wmGraphView;
-    private final WorkingMemoryTreeView wmTreeView;
-    private final MatchesView matchesView;
-    private final PreferencesView preferencesView;
-    private final WmeSupportView wmeSupportView;
     
     private final List<AbstractAdaptableView> views = new ArrayList<AbstractAdaptableView>();
     
@@ -93,35 +84,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
         status = new StatusBar(this);
         this.add(status, BorderLayout.SOUTH);
         
-        views.add(traceView = new TraceView(this));
         proxy.initialize();
         
-        viewport.dock(traceView);
-        views.add(prodListView = new ProductionListView(this));
-        traceView.dock(prodListView, DockingConstants.EAST_REGION, 0.75f);
-        
-        views.add(matchesView = new MatchesView(this));
-        prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
-        
-        views.add(textView = new SelectionInfoView(this));
-        matchesView.dock(textView, DockingConstants.SOUTH_REGION);
-        
-        views.add(prodEditView = new ProductionEditView(this));
-        traceView.dock(prodEditView);
-        
-        views.add(wmGraphView = new WorkingMemoryGraphView(this));
-        traceView.dock(wmGraphView, DockingConstants.SOUTH_REGION);
-        
-        views.add(wmTreeView = new WorkingMemoryTreeView(this));
-        wmGraphView.dock(wmTreeView);
-        
-        views.add(preferencesView = new PreferencesView(this));
-        wmGraphView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
-        
-        views.add(wmeSupportView = new WmeSupportView(this));
-        preferencesView.dock(wmeSupportView, DockingConstants.SOUTH_REGION);
-        
-        
+        initViews();
         initMenuBar();
         initToolbar();
         
@@ -146,8 +111,44 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 update(true);
             }});
         
-        traceView.setVisible(true);
+        Adaptables.adapt(this, TraceView.class).setVisible(true);
+        
         update(false);
+    }
+
+    private void initViews()
+    {
+        final TraceView traceView = new TraceView(this); 
+        views.add(traceView);
+        viewport.dock(traceView);
+        
+        final ProductionListView prodListView = new ProductionListView(this);
+        views.add(prodListView);
+        traceView.dock(prodListView, DockingConstants.EAST_REGION, 0.75f);
+        
+        final MatchesView matchesView = new MatchesView(this);
+        views.add(matchesView);
+        prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
+        
+        final ProductionEditView prodEditView = new ProductionEditView(this);
+        views.add(prodEditView);
+        traceView.dock(prodEditView);
+        
+        final WorkingMemoryGraphView wmGraphView = new WorkingMemoryGraphView(this);
+        views.add(wmGraphView);
+        traceView.dock(wmGraphView, DockingConstants.SOUTH_REGION);
+        
+        final WorkingMemoryTreeView wmTreeView = new WorkingMemoryTreeView(this);
+        views.add(wmTreeView);
+        wmGraphView.dock(wmTreeView);
+        
+        final PreferencesView preferencesView = new PreferencesView(this);
+        views.add(preferencesView);
+        wmGraphView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
+        
+        final WmeSupportView wmeSupportView = new WmeSupportView(this);
+        views.add(wmeSupportView);
+        preferencesView.dock(wmeSupportView, DockingConstants.SOUTH_REGION);
     }
     
     public ThreadedAgentProxy getAgentProxy()
@@ -177,8 +178,17 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
     public void updateActionsAndStatus()
     {
-        actionManager.updateActions();
-        status.refresh();
+        if(SwingUtilities.isEventDispatchThread())
+        {
+            actionManager.updateActions();
+            status.refresh();
+        }
+        else
+        {
+            SwingUtilities.invokeLater(new Runnable() { public void run() {
+                updateActionsAndStatus();
+            } });
+        }
     }
     
     public void exit()
@@ -249,9 +259,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         
         updateActionsAndStatus();
-        prodListView.refresh();
-        wmGraphView.refresh(afterInitSoar);
-        wmTreeView.refresh();
+        
+        List<Refreshable> refreshables = Adaptables.adaptCollection(views, Refreshable.class);
+        for(Refreshable r : refreshables)
+        {
+            r.refresh(afterInitSoar);
+        }
     }
             
     public static void initializeLookAndFeel()
