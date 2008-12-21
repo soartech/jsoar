@@ -45,6 +45,14 @@ public class ThreadedAgentProxy
             @Override
             public void onEvent(SoarEvent event)
             {
+                // If the thread has been interrupted (due to shutdown), throw
+                // an exception to break us out of the agent run loop.
+                // TODO: It may be nice to have a more official way of doing this
+                // from the RunLoopEvent.
+                if(Thread.interrupted()) 
+                {
+                    throw new InterruptAgentException();
+                }
                 Runnable runnable = commands.poll();
                 while(runnable != null)
                 {
@@ -257,11 +265,19 @@ public class ThreadedAgentProxy
                 {
                     executeRunnableInAgentThread(commands.take());
                 }
+                catch (InterruptAgentException e)
+                {
+                    this.interrupt();
+                }
                 catch (InterruptedException e)
                 {
                     this.interrupt();
                 }
             }
         }
+    }
+    
+    private static class InterruptAgentException extends RuntimeException
+    {
     }
 }
