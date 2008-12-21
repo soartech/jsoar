@@ -1297,7 +1297,7 @@ public class ReinforcementLearning
         {
             if ( data.reward_age != 0 )
             {
-                my_agent.trace.print(Category.RL, "WARNING: gap ended (%s)", goal);
+                my_agent.trace.print(Category.RL, "gap ended (%s)", goal);
                 
                 //xml_generate_warning(buf );
             }
@@ -1309,7 +1309,7 @@ public class ReinforcementLearning
         {
             if ( data.reward_age == 0 )
             {
-                my_agent.trace.print(Category.RL, "WARNING: gap started (%s)", goal);
+                my_agent.trace.print(Category.RL, "gap started (%s)", goal);
                 
                 //xml_generate_warning(buf );
             }
@@ -1413,7 +1413,10 @@ public class ReinforcementLearning
             // update is applied depending upon type of accumulation mode
             // sum: add the update to the existing value
             // avg: average the update with the existing value
-            temp += ( update * alpha * iter.getValue() );      
+            double delta = update * alpha * iter.getValue();
+            my_agent.getTrace().print(Category.RL, "updating RL rule %s from %f to %f",
+                                        prod.getName().getValue(), temp, temp + delta);
+            temp += delta;
 
             // Change value of rule
             prod.action_list.asMakeAction().referent = new RhsSymbolValue(my_agent.syms.createDouble(temp));
