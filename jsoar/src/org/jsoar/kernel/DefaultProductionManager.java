@@ -35,6 +35,8 @@ import org.jsoar.kernel.tracing.Trace.Category;
 public class DefaultProductionManager implements ProductionManager
 {
     private final Agent context;
+    private final VariableGenerator variableGenerator;
+    
     private int totalProductions = 0;
     private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
     {
@@ -48,6 +50,7 @@ public class DefaultProductionManager implements ProductionManager
     DefaultProductionManager(Agent context)
     {
         this.context = context;
+        this.variableGenerator = new VariableGenerator(this.context.syms);
     }
     
     /**
@@ -75,8 +78,8 @@ public class DefaultProductionManager implements ProductionManager
              }
              
              // Reorder the production
-             p.reorder(context.variableGenerator, 
-                       new ConditionReorderer(context.variableGenerator, context.trace, context.multiAttrs, p.getName().getValue()), 
+             p.reorder(this.variableGenerator, 
+                       new ConditionReorderer(this.variableGenerator, context.getTrace(), context.getMultiAttributes(), p.getName().getValue()), 
                        new ActionReorderer(context.getPrinter(), p.getName().getValue()), 
                        false);
 
@@ -158,7 +161,7 @@ public class DefaultProductionManager implements ProductionManager
     {
         StringReader reader = new StringReader(productionBody);
         Lexer lexer = new Lexer(context.getPrinter(), reader);
-        Parser parser = new Parser(context.variableGenerator, lexer, context.operand2_mode);
+        Parser parser = new Parser(this.variableGenerator, lexer, context.operand2_mode);
         parser.setRhsFunctions(context.getRhsFunctions());
         lexer.getNextLexeme();
         addProduction(parser.parserProduction(), true);
@@ -189,12 +192,12 @@ public class DefaultProductionManager implements ProductionManager
         Production existing = getProduction(p.getName().getValue());
         if (existing != null) 
         {
-            exciseProduction(existing, context.trace.isEnabled(Category.LOADING));
+            exciseProduction(existing, context.getTrace().isEnabled(Category.LOADING));
         }
 
         // Reorder the production
-        p.reorder(context.variableGenerator, 
-                  new ConditionReorderer(context.variableGenerator, context.trace, context.multiAttrs, p.getName().getValue()), 
+        p.reorder(this.variableGenerator, 
+                  new ConditionReorderer(this.variableGenerator, context.getTrace(), context.getMultiAttributes(), p.getName().getValue()), 
                   new ActionReorderer(context.getPrinter(), p.getName().getValue()), 
                   reorder_nccs);
 

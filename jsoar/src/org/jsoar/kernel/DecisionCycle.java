@@ -18,6 +18,7 @@ import org.jsoar.kernel.events.BeforeDecisionCycleEvent;
 import org.jsoar.kernel.events.BeforeElaborationEvent;
 import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.RunLoopEvent;
+import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -26,8 +27,10 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.timing.ExecutionTimers;
 
 /**
@@ -38,6 +41,8 @@ import org.jsoar.util.timing.ExecutionTimers;
 public class DecisionCycle
 {
     private final Agent context;
+    
+    private InputOutputImpl io;
     
     private static enum GoType
     {
@@ -113,6 +118,11 @@ public class DecisionCycle
         this.pollEvent = new RunLoopEvent(context);
         this.beforePhaseEvents = PhaseEvents.createBeforeEvents(context);
         this.afterPhaseEvents = PhaseEvents.createAfterEvents(context);
+    }
+    
+    public void initialize()
+    {
+        this.io = Adaptables.adapt(context, InputOutputImpl.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -245,7 +255,8 @@ public class DecisionCycle
         
         /* not yet cleaned up for 8.6.0 release */
 
-        Phase.DECISION.trace(context.trace, true);
+        final Trace trace = context.getTrace();
+        Phase.DECISION.trace(trace, true);
 
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
@@ -269,8 +280,8 @@ public class DecisionCycle
 
         afterPhase(Phase.DECISION);
 
-        if (context.trace.isEnabled() && context.trace.isEnabled(Category.CONTEXT_DECISIONS)) {
-            final Writer writer = context.trace.getPrinter().getWriter();
+        if (trace.isEnabled() && trace.isEnabled(Category.CONTEXT_DECISIONS)) {
+            final Writer writer = trace.getPrinter().getWriter();
             try
             {
                 //writer.append("\n");
@@ -295,7 +306,7 @@ public class DecisionCycle
 
             context.chunker.chunks_this_d_cycle = 0;
 
-            Phase.DECISION.trace(context.trace, false);
+            Phase.DECISION.trace(trace, false);
 
             current_phase = Phase.INPUT;
         }
@@ -308,7 +319,7 @@ public class DecisionCycle
         {
             // Note: AGGRESSIVE_ONC used to be here. Dropped from jsoar because 
             // it didn't look like it had been used in years.
-            Phase.DECISION.trace(context.trace, false);
+            Phase.DECISION.trace(trace, false);
 
             context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS;
             current_phase = Phase.APPLY;
@@ -327,17 +338,18 @@ public class DecisionCycle
     {
         assert current_phase == Phase.OUTPUT;
         
-        Phase.OUTPUT.trace(context.trace, true);
+        final Trace trace = context.getTrace();
+        Phase.OUTPUT.trace(trace, true);
 
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
 
         beforePhase(Phase.OUTPUT);
-        context.io.do_output_cycle();
+        io.do_output_cycle();
 
         // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)
-        if (context.io.isOutputLinkChanged() || ((++(run_last_output_count)) >= maxNilOutputCycles))
+        if (io.isOutputLinkChanged() || ((++(run_last_output_count)) >= maxNilOutputCycles))
         {
             this.run_last_output_count = 0;
             this.run_generated_output_count++;
@@ -356,7 +368,7 @@ public class DecisionCycle
             // &thisAgent->decision_cycle_phase_timers[OUTPUT_PHASE]);
             // #endif
             
-            Phase.OUTPUT.trace(context.trace, false);
+            Phase.OUTPUT.trace(trace, false);
             current_phase = Phase.INPUT;
             this.d_cycle_count++;
             return;
@@ -368,7 +380,7 @@ public class DecisionCycle
         this.e_cycles_this_d_cycle++;
         this.run_elaboration_count++; // All phases count as a run elaboration
 
-        Phase.OUTPUT.trace(context.trace, false);
+        Phase.OUTPUT.trace(trace, false);
 
         if (e_cycles_this_d_cycle >= context.consistency.getMaxElaborations())
         {
@@ -396,6 +408,8 @@ public class DecisionCycle
     {
         assert current_phase == Phase.APPLY;
         
+        final Trace trace = context.getTrace();
+        
         // added in 8.6 to clarify Soar8 decision cycle
 
         // #ifndef NO_TIMING_STUFF
@@ -409,7 +423,7 @@ public class DecisionCycle
          */
         if (this.e_cycles_this_d_cycle < 1)
         {
-            Phase.APPLY.trace(context.trace, true);
+            Phase.APPLY.trace(trace, true);
 
             beforePhase(Phase.APPLY);
 
@@ -473,7 +487,7 @@ public class DecisionCycle
              * Set phases back to APPLY, do print_phase, callbacks and reset phases to OUTPUT
              */
             current_phase = Phase.APPLY;
-            Phase.APPLY.trace(context.trace, false);
+            Phase.APPLY.trace(trace, false);
             
             afterPhase(Phase.APPLY);
 
@@ -528,6 +542,8 @@ public class DecisionCycle
     {
         assert current_phase == Phase.PROPOSE;
         
+        final Trace trace = context.getTrace();
+        
         /* added in 8.6 to clarify Soar8 decision cycle */
 
         // #ifndef NO_TIMING_STUFF
@@ -541,7 +557,7 @@ public class DecisionCycle
          */
         if (this.e_cycles_this_d_cycle < 1)
         {
-            Phase.PROPOSE.trace(context.trace, true);
+            Phase.PROPOSE.trace(trace, true);
 
             beforePhase(Phase.PROPOSE);
 
@@ -601,7 +617,7 @@ public class DecisionCycle
              * reset phases to DECISION
              */
             this.current_phase = Phase.PROPOSE;
-            Phase.PROPOSE.trace(context.trace, false);
+            Phase.PROPOSE.trace(trace, false);
 
             afterPhase(Phase.PROPOSE);
             this.current_phase = Phase.DECISION;
@@ -621,7 +637,8 @@ public class DecisionCycle
     {
         assert current_phase == Phase.INPUT;
         
-        Phase.INPUT.trace(context.trace, true);
+        final Trace trace = context.getTrace();
+        Phase.INPUT.trace(trace, true);
 
         // for Operand2 mode using the new decision cycle ordering,
         // we need to do some initialization in the INPUT PHASE, which
@@ -655,7 +672,7 @@ public class DecisionCycle
             // Soar 7 flag, but always true for Soar8
             beforePhase(Phase.INPUT);
 
-            context.io.do_input_cycle();
+            io.do_input_cycle();
 
             run_elaboration_count++; // All phases count as a run elaboration
             
@@ -665,7 +682,7 @@ public class DecisionCycle
                 input_cycle_flag = false;
         }
 
-        Phase.INPUT.trace(context.trace, false);
+        Phase.INPUT.trace(trace, false);
 
         // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */
         // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[INPUT_PHASE]);
@@ -861,7 +878,7 @@ public class DecisionCycle
             do_one_top_level_phase();
             if (was_output_phase)
             {
-                if (context.io.isOutputLinkChanged())
+                if (io.isOutputLinkChanged())
                 {
                     n--;
                 }

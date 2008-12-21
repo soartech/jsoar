@@ -14,6 +14,7 @@ import org.jsoar.kernel.DefaultProductionManager;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.GoalIdTest;
@@ -38,6 +39,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * @author ray
@@ -84,6 +86,9 @@ public class ReinforcementLearning
     boolean rl_first_switch;
 
     private final Agent my_agent;
+    private final VariableGenerator variableGenerator;
+    private Exploration exploration;
+    
     private boolean enabled = false;
     
     /**
@@ -92,6 +97,7 @@ public class ReinforcementLearning
     public ReinforcementLearning(Agent context)
     {
         this.my_agent = context;
+        this.variableGenerator = new VariableGenerator(context.syms);
         
         // rl initialization
         // agent.cpp:311:create_agent
@@ -125,6 +131,11 @@ public class ReinforcementLearning
         
         rl_first_switch = true;
 
+    }
+    
+    public void initialize()
+    {
+        this.exploration = Adaptables.adapt(my_agent, Exploration.class);
     }
 
     /**
@@ -509,7 +520,7 @@ public class ReinforcementLearning
             if ( ( converted_val == RL_LEARNING_ON ) && rl_first_switch )
             {
                 rl_first_switch = false;
-                my_agent.exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
+                exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
                 
                 String msg = "Exploration Mode changed to epsilon-greedy";
                 my_agent.getPrinter().print( msg );
@@ -539,7 +550,7 @@ public class ReinforcementLearning
             if ( ( new_val == RL_LEARNING_ON ) && rl_first_switch )
             {
                 rl_first_switch = false;
-                my_agent.exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
+                exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
                 
                 String msg = "Exploration Mode changed to epsilon-greedy";
                 my_agent.getPrinter().print(msg);
@@ -579,7 +590,7 @@ public class ReinforcementLearning
             if ( ( converted_val == RL_LEARNING_ON ) && rl_first_switch )
             {
                 rl_first_switch = false;
-                my_agent.exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
+                exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
                 
                 String msg = "Exploration Mode changed to epsilon-greedy";
                 my_agent.getPrinter().print(msg);
@@ -605,7 +616,7 @@ public class ReinforcementLearning
             if ( ( new_val == RL_LEARNING_ON ) && rl_first_switch )
             {
                 rl_first_switch = false;
-                my_agent.exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
+                exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
                 
                 String msg = "Exploration Mode changed to epsilon-greedy";
                 my_agent.getPrinter().print(msg);
@@ -1095,7 +1106,7 @@ public class ReinforcementLearning
         ByRef<Condition> cond_bottom = ByRef.create(null);
         Condition.copy_condition_list( my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
         rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
-        my_agent.variableGenerator.reset( cond_top.value, null );
+        variableGenerator.reset( cond_top.value, null );
         my_agent.chunker.variablization_tc = my_agent.syms.get_new_tc_number( );
         my_agent.chunker.variablize_condition_list( cond_top.value );
         my_agent.chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
@@ -1297,7 +1308,7 @@ public class ReinforcementLearning
         {
             if ( data.reward_age != 0 )
             {
-                my_agent.trace.print(Category.RL, "gap ended (%s)", goal);
+                my_agent.getTrace().print(Category.RL, "gap ended (%s)", goal);
                 
                 //xml_generate_warning(buf );
             }
@@ -1309,7 +1320,7 @@ public class ReinforcementLearning
         {
             if ( data.reward_age == 0 )
             {
-                my_agent.trace.print(Category.RL, "gap started (%s)", goal);
+                my_agent.getTrace().print(Category.RL, "gap started (%s)", goal);
                 
                 //xml_generate_warning(buf );
             }

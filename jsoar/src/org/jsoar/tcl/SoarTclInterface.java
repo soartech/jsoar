@@ -6,7 +6,6 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.tracing.Trace.Category;
 
 import tcl.lang.Command;
@@ -254,17 +253,5 @@ public class SoarTclInterface
         {
             throw new SoarTclException(interp);
         }
-    }
-    
-    public static void main(String[] args) throws SoarTclException
-    {
-        Agent agent = new Agent();
-        SoarTclInterface ifc = new SoarTclInterface(agent);
-        agent.initialize();
-        
-        ifc.sourceFile("single.soar");
-        
-        agent.trace.setEnabled(false);
-        agent.runFor(3000, RunType.DECISIONS);
     }
 }

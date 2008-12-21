@@ -10,6 +10,7 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
@@ -108,7 +109,7 @@ public class Consistency
         { /* If there is something in the context slot */
             if (s.getWmes().value == w.value)
             { /* The WME in the context slot is WME whose pref changed */
-                context.trace.print(Category.OPERAND2_REMOVALS,
+                context.getTrace().print(Category.OPERAND2_REMOVALS,
                         "\n        REMOVING: Operator from context slot (proposal no longer matches): %s", w);
                 context.decider.remove_wmes_for_context_slot(s);
                 if (s.id.lower_goal != null)
@@ -346,12 +347,13 @@ public class Consistency
      */
     private void remove_current_decision(Slot s)
     {
+        final Trace trace = context.getTrace();
         if (s.getWmes() == null)
-            context.trace.print(Category.OPERAND2_REMOVALS,
+            trace.print(Category.OPERAND2_REMOVALS,
                     "\n       REMOVING CONTEXT SLOT: Slot IdentifierImpl [%s] and attribute [%s]\n", s.id, s.attr);
 
         if (s.id != null)
-            context.trace.print(Category.OPERAND2_REMOVALS,
+            trace.print(Category.OPERAND2_REMOVALS,
                     "\n          Decision for goal [%s] is inconsistent.  Replacing it with....\n", s.id);
 
         /* If there is an operator in the slot, remove it */
@@ -517,7 +519,7 @@ public class Consistency
         if (!context.soarReteListener.nil_goal_retractions.isEmpty())
             return null;
 
-        context.trace.flush();
+        context.getTrace().flush();
         throw new IllegalStateException("Unable to find an active goal when not at quiescence.");
     }
 

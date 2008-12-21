@@ -38,6 +38,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ListItem;
@@ -628,6 +629,8 @@ public class RecognitionMemory
      */
     private void create_instantiation(Production prod, Token tok, WmeImpl w, IdentifierImpl top_goal)
     {
+        final Trace trace = context.getTrace();
+        
         // RPM workaround for bug #139: don't fire justifications
     	// code moved to do_preference_phase
     	assert prod.getType() != ProductionType.JUSTIFICATION;
@@ -637,7 +640,7 @@ public class RecognitionMemory
 
         if (context.operand2_mode)
         {
-            context.trace.print(Category.VERBOSE, "\n in create_instantiation: %s", inst.prod.getName());
+            trace.print(Category.VERBOSE, "\n in create_instantiation: %s", inst.prod.getName());
         }
 
         this.production_being_fired = inst.prod;
@@ -661,10 +664,10 @@ public class RecognitionMemory
             }
         }
 
-        boolean trace_it = context.trace.isEnabled(inst.prod.getType().getTraceCategory());
+        boolean trace_it = trace.isEnabled(inst.prod.getType().getTraceCategory());
         if(trace_it)
         {
-            context.trace.startNewLine().print("Firing %s", inst);
+            trace.startNewLine().print("Firing %s", inst);
         }
         
         // initialize rhs_variable_bindings array with names of variables
@@ -679,9 +682,9 @@ public class RecognitionMemory
 
         // Before executing the RHS actions, tell the user that the
         // phases has changed to output by printing the arrow
-        if(trace_it && context.trace.isEnabled(Category.FIRINGS_PREFERENCES))
+        if(trace_it && trace.isEnabled(Category.FIRINGS_PREFERENCES))
         {
-            context.trace.print(" -->\n");
+            trace.print(" -->\n");
         }
 
         // execute the RHS actions, collect the results
@@ -729,7 +732,7 @@ public class RecognitionMemory
                         else
                         {
                             need_to_do_support_calculations = true;
-                            context.trace.print(Category.VERBOSE, "\n\nin create_instantiation(): need_to_do_support_calculations == TRUE!!!\n\n");
+                            trace.print(Category.VERBOSE, "\n\nin create_instantiation(): need_to_do_support_calculations == TRUE!!!\n\n");
                         }
 
                     }
@@ -771,11 +774,11 @@ public class RecognitionMemory
         // print trace info: printing preferences 
         // Note: can't move this up, since fill_in_new_instantiation_stuff gives
         // the o-support info for the preferences we're about to print
-        if (trace_it && context.trace.isEnabled(Category.FIRINGS_PREFERENCES))
+        if (trace_it && trace.isEnabled(Category.FIRINGS_PREFERENCES))
         {
             for (Preference pref : inst.preferences_generated)
             {
-                context.trace.print(" %s", pref);
+                trace.print(" %s", pref);
             }
         }
         
@@ -860,7 +863,7 @@ public class RecognitionMemory
             
             if (id.level <= context.decider.change_level)
             {
-            	context.trace.print(Category.WATERFALL, "*** Waterfall: aborting firing because (%s * *)" +
+            	context.getTrace().print(Category.WATERFALL, "*** Waterfall: aborting firing because (%s * *)" +
             			" level %d is on or higher (lower int) than change level %d\n", 
             			id, id.level, context.decider.change_level);
             	return false;
@@ -962,7 +965,8 @@ public class RecognitionMemory
 
         boolean retracted_a_preference = false;
 
-        final boolean trace_it = context.trace.isEnabled(inst.prod.getType().getTraceCategory());
+        final Trace trace = context.getTrace();
+        final boolean trace_it = trace.isEnabled(inst.prod.getType().getTraceCategory());
 
         // retract any preferences that are in TM and aren't o-supported
         ListItem<Preference> prefItem = inst.preferences_generated.first;
@@ -976,10 +980,10 @@ public class RecognitionMemory
                 if (trace_it) {
                     if (!retracted_a_preference) 
                     {
-                        context.trace.startNewLine().print(inst.prod.getType().getTraceCategory(), "Retracting %s", inst);
-                        context.trace.print(Category.FIRINGS_PREFERENCES, " -->\n");
+                        trace.startNewLine().print(inst.prod.getType().getTraceCategory(), "Retracting %s", inst);
+                        trace.print(Category.FIRINGS_PREFERENCES, " -->\n");
                     }
-                    context.trace.print(Category.FIRINGS_PREFERENCES, " %s", pref);
+                    trace.print(Category.FIRINGS_PREFERENCES, " %s", pref);
                 }
                 remove_preference_from_tm(pref);
                 retracted_a_preference = true;
@@ -1020,6 +1024,7 @@ public class RecognitionMemory
      */
     private void assert_new_preferences()
     {
+        final Trace trace = context.getTrace();
         // Note: In CSoar, this list is just build up using the next link in the
         // Preference object. When I tried to do that, I was getting some occasional
         // weird behavior. So, since this list is really supposed to be independent
@@ -1028,7 +1033,7 @@ public class RecognitionMemory
 
         if (context.operand2_mode)
         {
-            context.trace.print(Category.VERBOSE, "\n in assert_new_preferences:");
+            trace.print(Category.VERBOSE, "\n in assert_new_preferences:");
         }
 
         if (SoarConstants.O_REJECTS_FIRST)
@@ -1069,7 +1074,7 @@ public class RecognitionMemory
 
              if (context.operand2_mode)
              {
-                 context.trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.item.prod.getName());
+                 trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.item.prod.getName());
              }
 
             ListItem<Preference> pref, next_pref;
@@ -1286,7 +1291,8 @@ public class RecognitionMemory
          * or not when we're ready to print a newline. 94.11.14
          */
 
-        if (context.trace.isEnabled(Category.PHASES))
+        final Trace trace = context.getTrace();
+        if (trace.isEnabled(Category.PHASES))
         {
             if (context.operand2_mode)
             {
@@ -1295,11 +1301,11 @@ public class RecognitionMemory
                     switch (FIRING_TYPE)
                     {
                     case PE_PRODS:
-                        context.trace.print("--- Firing Productions (PE) For State At Depth %d ---\n",
+                        trace.print("--- Firing Productions (PE) For State At Depth %d ---\n",
                                 context.decider.active_level);
                         break;
                     case IE_PRODS:
-                        context.trace.print("--- Firing Productions (IE) For State At Depth %d ---\n",
+                        trace.print("--- Firing Productions (IE) For State At Depth %d ---\n",
                                 context.decider.active_level);
                         break;
                     }
@@ -1307,7 +1313,7 @@ public class RecognitionMemory
             }
             else
                 // the XML for this is generated in this function
-                context.trace.print("\n--- Preference Phase ---\n");
+                trace.print("\n--- Preference Phase ---\n");
         }
         
         // Save previous active level for usage on next elaboration cycle.
@@ -1323,15 +1329,15 @@ public class RecognitionMemory
         	// Inner elaboration loop
         	context.decider.change_level = context.decider.next_change_level;
         	
-	        if (context.trace.isEnabled(Category.WATERFALL))
+	        if (trace.isEnabled(Category.WATERFALL))
 	        {
-	        	context.trace.print("--- Inner Elaboration Phase, active level: %d",
+	        	trace.print("--- Inner Elaboration Phase, active level: %d",
 	        			context.decider.active_level);
 	        	if (context.decider.active_goal != null)
 	        	{
-		        	context.trace.print(" (%s)", context.decider.active_goal);
+		        	trace.print(" (%s)", context.decider.active_goal);
 	        	}
-	        	context.trace.print(" ---\n");
+	        	trace.print(" ---\n");
 	        }
 	        
 	        this.newly_created_instantiations.clear();
@@ -1384,13 +1390,13 @@ public class RecognitionMemory
 	        
 	        if (context.decider.active_goal == null)
 	        {
-	        	context.trace.print(Category.WATERFALL, " inner preference loop doesn't have active goal.\n");
+	        	trace.print(Category.WATERFALL, " inner preference loop doesn't have active goal.\n");
 	        	break;
 	        }
 	        
 	        if (context.decider.active_goal.lower_goal == null)
 	        {
-	        	context.trace.print(Category.WATERFALL, " inner preference loop at bottom goal.\n");
+	        	trace.print(Category.WATERFALL, " inner preference loop at bottom goal.\n");
 	        	break;
 	        }
 	        
@@ -1411,7 +1417,7 @@ public class RecognitionMemory
 	        	// FIXME: highest_active_goal_x functions are intended to be used only when it is
 	        	// guaranteed that the agent is not at quiescence.
 	        	context.decider.active_goal = null;
-	        	context.trace.print(Category.WATERFALL, " inner preference loop finished but not at quiescence.\n");
+	        	trace.print(Category.WATERFALL, " inner preference loop finished but not at quiescence.\n");
 	        	break;
 	        }
             
@@ -1450,7 +1456,7 @@ public class RecognitionMemory
         
         if(!context.operand2_mode)
         {
-            Phase.PREFERENCE.trace(context.trace, false);
+            Phase.PREFERENCE.trace(trace, false);
         }
     }
 

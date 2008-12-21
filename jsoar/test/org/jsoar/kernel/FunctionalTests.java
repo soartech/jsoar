@@ -47,7 +47,7 @@ public class FunctionalTests
     {
         sourceTestFile(testName + ".soar");
         
-        agent.trace.disableAll();
+        agent.getTrace().disableAll();
         //agent.trace.setEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM, true);
         //agent.trace.setEnabled(false);
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
@@ -100,7 +100,7 @@ public class FunctionalTests
     public void setUp() throws Exception
     {
         agent = new Agent();
-        agent.trace.enableAll();
+        agent.getTrace().enableAll();
         ifc = SoarTclInterface.findOrCreate(agent);
         agent.initialize();
     }

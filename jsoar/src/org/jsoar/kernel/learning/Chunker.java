@@ -12,6 +12,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.Conditions;
@@ -40,10 +41,11 @@ import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 
 /**
  * chunking.cpp
@@ -53,6 +55,9 @@ import org.jsoar.util.ListHead;
 public class Chunker
 {
     private final Agent context;
+    private final Backtracer backtrace;
+    private final VariableGenerator variableGenerator;
+    
     public int chunks_this_d_cycle;
     /**
      * <p>gsysparam.h:118:MAX_CHUNKS_SYSPARAM
@@ -115,9 +120,6 @@ public class Chunker
      * <p>Defaults to true in init_soar()
      */
     private boolean learningAllGoals = true;
-    private boolean chunk_free_flag;
-    private boolean chunky_flag;
-
     /**
      * <p>gsysparam.h:125:LEARNING_EXCEPT_SYSPARAM
      * <p>Defaults to false in init_soar
@@ -129,6 +131,10 @@ public class Chunker
      * <p>Defaults to false in init_soar
      */
     private boolean learningOnly = false;
+    
+    private boolean chunk_free_flag;
+    private boolean chunky_flag;
+
     
     /**
      * lists of symbols (PS names) declared chunk-free
@@ -154,6 +160,8 @@ public class Chunker
     public Chunker(Agent context)
     {
         this.context = context;
+        this.backtrace = new Backtracer(context);
+        this.variableGenerator = new VariableGenerator(this.context.syms);
     }
 
     /**
@@ -329,7 +337,7 @@ public class Chunker
 
         // need to create a new variable
         id.tc_number = this.variablization_tc;
-        Variable var = context.variableGenerator.generate_new_variable(Character.toString(id.getNameLetter()));
+        Variable var = this.variableGenerator.generate_new_variable(Character.toString(id.getNameLetter()));
         id.variablization = var;
         return var;
     }
@@ -456,9 +464,9 @@ public class Chunker
 
         // build instantiated conds for grounds and setup their TC
         ListItem<ChunkCondition> prev_cc = null;
-        while (!context.backtrace.grounds.isEmpty())
+        while (!backtrace.grounds.isEmpty())
         {
-            Condition ground = context.backtrace.grounds.pop();
+            Condition ground = backtrace.grounds.pop();
             // make the instantiated condition
             ChunkCondition cc = new ChunkCondition(ground);
             cc.instantiated_cond = Condition.copy_condition(cc.cond);
@@ -484,7 +492,8 @@ public class Chunker
 
         // scan through negated conditions and check which ones are connected
         // to the grounds
-        context.trace.print(Category.BACKTRACING, "\n\n*** Adding Grounded Negated Conditions ***\n");
+        final Trace trace = context.getTrace();
+        trace.print(Category.BACKTRACING, "\n\n*** Adding Grounded Negated Conditions ***\n");
 
         while (!negated_set.all.isEmpty())
         {
@@ -495,7 +504,7 @@ public class Chunker
             {
                 // negated cond is in the TC, so add it to the grounds
 
-                context.trace.print(Category.BACKTRACING, "\n-.Moving to grounds: %s", cc.cond);
+                trace.print(Category.BACKTRACING, "\n-.Moving to grounds: %s", cc.cond);
 
                 cc.instantiated_cond = Condition.copy_condition(cc.cond);
                 cc.variablized_cond = Condition.copy_condition(cc.cond);
@@ -525,7 +534,7 @@ public class Chunker
                     // report what local negations are preventing the chunk,
                     // and set flags like we saw a ^quiescence t so it won't be
                     // created
-                    context.backtrace.report_local_negation ( cc.cond );
+                    backtrace.report_local_negation ( cc.cond );
                     this.quiescence_t_flag = true;
                     this.variablize_this_chunk = false;
                 }
@@ -1019,6 +1028,7 @@ public class Chunker
                   explanation seemed reasonable, at the moment.
         */
 
+        final Trace trace = context.getTrace();
         boolean making_topmost_chunk = false;
         if (context.operand2_mode)
         {
@@ -1031,7 +1041,7 @@ public class Chunker
                     allow_variablization = false;
                     inst.okay_to_variablize = false;
 
-                    context.trace.print(Category.VERBOSE,
+                    trace.print(Category.VERBOSE,
                             "\n   in chunk_instantiation: making justification only");
                 }
                 else
@@ -1040,7 +1050,7 @@ public class Chunker
                     allow_variablization = isLearningOn();
                     inst.okay_to_variablize = isLearningOn();
 
-                    context.trace.print(Category.VERBOSE,
+                    trace.print(Category.VERBOSE,
                             "\n   in chunk_instantiation: resetting allow_variablization to %s", allow_variablization);
                 }
             }
@@ -1063,21 +1073,21 @@ public class Chunker
         int grounds_level = inst.match_goal_level - 1;
 
         // TODO All these ops should be in Backtracer
-        context.backtrace.backtrace_number++;
-        if (context.backtrace.backtrace_number == 0)
-            context.backtrace.backtrace_number = 1;
-        context.backtrace.grounds_tc++;
-        if (context.backtrace.grounds_tc == 0)
-            context.backtrace.grounds_tc = 1;
-        context.backtrace.potentials_tc++;
-        if (context.backtrace.potentials_tc == 0)
-            context.backtrace.potentials_tc = 1;
-        context.backtrace.locals_tc++;
-        if (context.backtrace.locals_tc == 0)
-            context.backtrace.locals_tc = 1;
-        context.backtrace.grounds.clear();
-        context.backtrace.positive_potentials.clear();
-        context.backtrace.locals.clear();
+        backtrace.backtrace_number++;
+        if (backtrace.backtrace_number == 0)
+            backtrace.backtrace_number = 1;
+        backtrace.grounds_tc++;
+        if (backtrace.grounds_tc == 0)
+            backtrace.grounds_tc = 1;
+        backtrace.potentials_tc++;
+        if (backtrace.potentials_tc == 0)
+            backtrace.potentials_tc = 1;
+        backtrace.locals_tc++;
+        if (backtrace.locals_tc == 0)
+            backtrace.locals_tc = 1;
+        backtrace.grounds.clear();
+        backtrace.positive_potentials.clear();
+        backtrace.locals.clear();
         this.instantiations_with_nots.clear();
 
         if (allow_variablization && (!learningAllGoals))
@@ -1133,21 +1143,21 @@ public class Chunker
         /* --- backtrace through the instantiation that produced each result --- */
         for (pref = results; pref != null; pref = pref.next_result)
         {
-            context.trace.print(Category.BACKTRACING, "\nFor result preference %s ", pref);
-            context.backtrace.backtrace_through_instantiation(pref.inst, grounds_level, null, 0);
+            trace.print(Category.BACKTRACING, "\nFor result preference %s ", pref);
+            backtrace.backtrace_through_instantiation(pref.inst, grounds_level, null, 0);
         }
 
         this.quiescence_t_flag = false;
 
         while (true)
         {
-            context.backtrace.trace_locals(grounds_level);
-            context.backtrace.trace_grounded_potentials();
-            if (!context.backtrace.trace_ungrounded_potentials(grounds_level))
+            backtrace.trace_locals(grounds_level);
+            backtrace.trace_grounded_potentials();
+            if (!backtrace.trace_ungrounded_potentials(grounds_level))
                 break;
         }
 
-        context.backtrace.positive_potentials.clear();
+        backtrace.positive_potentials.clear();
 
         // backtracing done; collect the grounds into the chunk
         ByRef<ChunkCondition> top_cc = ByRef.create(null);
@@ -1176,18 +1186,18 @@ public class Chunker
 
             prod_type = ProductionType.CHUNK;
             // TODO startNewLine()?
-            print_name = context.trace.isEnabled(Category.CHUNK_NAMES);
-            context.trace.print(Category.CHUNK_NAMES, "Building %s", prod_name);
-            print_prod = context.trace.isEnabled(Category.CHUNKS);
+            print_name = trace.isEnabled(Category.CHUNK_NAMES);
+            trace.print(Category.CHUNK_NAMES, "Building %s", prod_name);
+            print_prod = trace.isEnabled(Category.CHUNKS);
         }
         else
         {
             prod_name = context.syms.generateUniqueString("justification-", justification_count);
             prod_type = ProductionType.JUSTIFICATION;
             // TODO startNewLine()?
-            print_name = context.trace.isEnabled(Category.JUSTIFICATION_NAMES);
-            context.trace.print(Category.JUSTIFICATION_NAMES, "Building %s", prod_name);
-            print_prod = context.trace.isEnabled(Category.JUSTIFICATIONS);
+            print_name = trace.isEnabled(Category.JUSTIFICATION_NAMES);
+            trace.print(Category.JUSTIFICATION_NAMES, "Building %s", prod_name);
+            print_prod = trace.isEnabled(Category.JUSTIFICATIONS);
         }
 
         // if there aren't any grounds, exit
@@ -1207,7 +1217,7 @@ public class Chunker
         // variablize it
         Condition lhs_top = top_cc.value.variablized_cond;
         Condition lhs_bottom = bottom_cc.value.variablized_cond;
-        context.variableGenerator.reset(lhs_top, null);
+        this.variableGenerator.reset(lhs_top, null);
         this.variablization_tc = context.syms.get_new_tc_number();
         variablize_condition_list(lhs_top);
         variablize_nots_and_insert_into_conditions(nots, lhs_top);

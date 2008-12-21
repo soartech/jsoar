@@ -32,6 +32,7 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsValue;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
@@ -91,13 +92,13 @@ public class Rete
      */
     private Token dummy_matches_node_tokens;
     
-    public Rete(Trace trace, VariableGenerator variableGenerator)
+    public Rete(Trace trace, SymbolFactoryImpl syms)
     {
         Arguments.checkNotNull(trace, "trace");
-        Arguments.checkNotNull(variableGenerator, "variableGenerator");
+        Arguments.checkNotNull(syms, "syms");
         
         this.trace = trace;
-        this.variableGenerator = variableGenerator;
+        this.variableGenerator = new VariableGenerator(syms);
         
         // rete.cpp:8864
         alpha_hash_tables = new ArrayList<HashTable<AlphaMemory>>(16);

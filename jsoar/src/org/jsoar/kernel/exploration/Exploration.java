@@ -17,6 +17,7 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.symbols.DoubleSymbolImpl;
 import org.jsoar.kernel.symbols.IntegerSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
@@ -400,8 +401,8 @@ public class Exploration
             exploration_compute_value_of_candidate( cand, s, 0.0);
 
         // should find highest valued candidate in q-learning
-        if (context.rl.rl_enabled()
-            /* TODO && ( rl_get_parameter( my_agent, RL_PARAM_LEARNING_POLICY, RL_RETURN_LONG ) == RL_LEARNING_Q ) */ )
+        if (context.rl.rl_enabled() && 
+            context.rl.rl_get_parameter(ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_Q)
         {
             for ( Preference cand=candidates; cand!=null; cand=cand.next_candidate )
                 if ( cand.numeric_value > top_value )
@@ -442,7 +443,7 @@ public class Exploration
         else if ( context.rl.rl_enabled() && ( context.rl.rl_get_parameter( ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_Q ) )
         {
             if ( return_val.numeric_value != top_value )
-                context.rl.rl_watkins_clear( s.id );
+                ReinforcementLearning.rl_watkins_clear( s.id );
 
             context.rl.rl_perform_update( top_value, s.id );
         }
@@ -516,12 +517,13 @@ public class Exploration
         double temp =  exploration_get_parameter_value("temperature" /* (const long) EXPLORATION_PARAM_TEMPERATURE */);
         
         // output trace information
-        if ( context.trace.isEnabled(Category.INDIFFERENT))
+        final Trace trace = context.getTrace();
+        if ( trace.isEnabled(Category.INDIFFERENT))
         {
             for (Preference cand = candidates; cand != null; cand = cand.next_candidate )
             {
-                context.trace.print("\n Candidate %s:  ", cand.value );
-                context.trace.print("Value (Sum) = %f, (Exp) = %f", cand.numeric_value, 
+                trace.print("\n Candidate %s:  ", cand.value );
+                trace.print("Value (Sum) = %f, (Exp) = %f", cand.numeric_value, 
                                     Math.exp( cand.numeric_value / temp ) );
                 /*
                 xml_begin_tag( my_agent, kTagCandidate );
@@ -616,11 +618,12 @@ public class Exploration
         // TODO this seems weird
         double epsilon = exploration_get_parameter_value( "epsilon" /* (const long) EXPLORATION_PARAM_EPSILON */);
 
-        if ( context.trace.isEnabled(Category.INDIFFERENT))
+        final Trace trace = context.getTrace();
+        if ( trace.isEnabled(Category.INDIFFERENT))
         {
             for (Preference cand = candidates; cand != null; cand = cand.next_candidate )
             {
-                context.trace.print("\n Candidate %s:  Value (Sum) = %f", cand.value , cand.numeric_value );
+                trace.print("\n Candidate %s:  Value (Sum) = %f", cand.value , cand.numeric_value );
                 /*
                 xml_begin_tag( my_agent, kTagCandidate );
                 xml_att_val( my_agent, kCandidateName, cand->value );

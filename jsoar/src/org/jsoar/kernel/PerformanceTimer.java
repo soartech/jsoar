@@ -54,7 +54,7 @@ public class PerformanceTimer
     private static void doRun(String[] args) throws SoarTclException
     {
         Agent agent = new Agent();
-        agent.trace.setEnabled(false);
+        agent.getTrace().setEnabled(false);
         agent.getPrinter().pushWriter(new NullWriter(), false);
         agent.initialize();
         SoarTclInterface ifc = SoarTclInterface.findOrCreate(agent);

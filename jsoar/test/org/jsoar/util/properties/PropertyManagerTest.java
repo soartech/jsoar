@@ -42,7 +42,7 @@ public class PropertyManagerTest
         PropertyManager pm = new PropertyManager();
         
         assertEquals("default", pm.get(KEY));
-        assertEquals(666, pm.get(KEY2));
+        assertEquals(666, pm.get(KEY2).intValue());
     }
     
     @Test
@@ -56,9 +56,9 @@ public class PropertyManagerTest
         assertEquals("default", pm.set(KEY, "new"));
         assertEquals("new", pm.get(KEY));
         
-        assertEquals(666, pm.get(KEY2));
-        assertEquals(666, pm.set(KEY2, 555));
-        assertEquals(555, pm.get(KEY2));
+        assertEquals(666, pm.get(KEY2).intValue());
+        assertEquals(666, pm.set(KEY2, 555).intValue());
+        assertEquals(555, pm.get(KEY2).intValue());
     }
     
     @Test
@@ -118,8 +118,8 @@ public class PropertyManagerTest
             {
                 assertNotNull(event);
                 assertEquals(KEY2, event.getKey());
-                assertEquals(666, event.getOldValue());
-                assertEquals(555, event.getNewValue());
+                assertEquals(666, event.getOldValue().intValue());
+                assertEquals(555, event.getNewValue().intValue());
                 key2Count[0]++;
             }});
         
@@ -127,9 +127,9 @@ public class PropertyManagerTest
         assertEquals("default", pm.set(KEY, "new"));
         assertEquals("new", pm.get(KEY));
         
-        assertEquals(666, pm.get(KEY2));
-        assertEquals(666, pm.set(KEY2, 555));
-        assertEquals(555, pm.get(KEY2));
+        assertEquals(666, pm.get(KEY2).intValue());
+        assertEquals(666, pm.set(KEY2, 555).intValue());
+        assertEquals(555, pm.get(KEY2).intValue());
         
         assertEquals(1, key1Count[0]);
         assertEquals(1, key2Count[0]);
