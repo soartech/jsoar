@@ -6,6 +6,8 @@
 package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -124,6 +126,15 @@ public class JSoarDebugger extends JPanel implements Adaptable
             public void onEvent(SoarEvent event)
             {
                 update(true);
+            }});
+        
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                exit();
             }});
         
         Adaptables.adapt(this, TraceView.class).setVisible(true);
@@ -335,10 +346,10 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         DockingManager.setFloatingEnabled(true);
         
-        JFrame frame = new JFrame("Little JSoar Debugger");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
         final JSoarDebugger littleDebugger = new JSoarDebugger();
+        
+        JFrame frame = new JFrame("Little JSoar Debugger");
+        
         frame.setContentPane(littleDebugger);
         frame.setSize(1200, 1024);
         
