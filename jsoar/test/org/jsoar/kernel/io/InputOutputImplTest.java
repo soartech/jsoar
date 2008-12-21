@@ -107,7 +107,7 @@ public class InputOutputImplTest extends JSoarTest
             {
                 listenerCallCount[0]++;
                 
-                InputBuilder builder = InputBuilder.create(agent.io);
+                InputBuilder builder = InputBuilder.create(agent.getInputOutput());
                 builder.push("location").markId("L1").
                             add("x", 3).
                             add("y", 4).
@@ -145,13 +145,13 @@ public class InputOutputImplTest extends JSoarTest
             {
                 if(wme[0] == null)
                 {
-                    InputBuilder builder = InputBuilder.create(agent.io);
+                    InputBuilder builder = InputBuilder.create(agent.getInputOutput());
                     builder.add("location", "ann arbor").markWme("wme");
                     wme[0] = builder.getWme("wme");
                 }
                 else
                 {
-                    agent.io.removeInputWme(wme[0]);
+                    agent.getInputOutput().removeInputWme(wme[0]);
                 }
             }});
         
@@ -187,7 +187,7 @@ public class InputOutputImplTest extends JSoarTest
             {
                 if(agent.decisionCycle.d_cycle_count == 2)
                 {
-                    InputBuilder builder = InputBuilder.create(agent.io);
+                    InputBuilder builder = InputBuilder.create(agent.getInputOutput());
                     builder.add("retract-output", "*yes*");
                 }
             }});

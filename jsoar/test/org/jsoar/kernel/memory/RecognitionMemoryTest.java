@@ -64,7 +64,7 @@ public class RecognitionMemoryTest
             }};
             
         agent.getRhsFunctions().registerHandler(func);
-        agent.trace.setEnabled(Category.WM_CHANGES, true);
+        agent.getTrace().setEnabled(Category.WM_CHANGES, true);
         agent.decider.setWaitsnc(true);
         agent.getProductions().loadProduction("" +
         		"testRhsFunctionThatCreatesStructure\n" +

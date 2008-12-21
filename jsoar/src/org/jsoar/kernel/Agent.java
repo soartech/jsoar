@@ -18,7 +18,6 @@ import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputOutputImpl;
-import org.jsoar.kernel.learning.Backtracer;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.Explain;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
@@ -43,6 +42,8 @@ import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.util.adaptables.AbstractAdaptable;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.timing.DefaultExecutionTimer;
 import org.jsoar.util.timing.ExecutionTimer;
@@ -50,7 +51,7 @@ import org.jsoar.util.timing.ExecutionTimer;
 /**
  * @author ray
  */
-public class Agent
+public class Agent extends AbstractAdaptable
 {
     private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
     
@@ -59,31 +60,29 @@ public class Agent
      */
     private final Random random = new Random();
     
-    public final Trace trace = new Trace(printer);
+    private final Trace trace = new Trace(printer);
     public final TraceFormats traceFormats = new TraceFormats(this);
     
     public final PredefinedSymbols predefinedSyms = new PredefinedSymbols();
     public final SymbolFactoryImpl syms = predefinedSyms.getSyms();
-    public final VariableGenerator variableGenerator = new VariableGenerator(syms);
-    public final MultiAttributes multiAttrs = new MultiAttributes();
-    public final Rete rete = new Rete(trace, variableGenerator);
+    private final MultiAttributes multiAttrs = new MultiAttributes();
+    public final Rete rete = new Rete(trace, syms);
     public final WorkingMemory workingMemory = new WorkingMemory(this);
     public final TemporaryMemory tempMemory = new TemporaryMemory();
     public final OSupport osupport = new OSupport(predefinedSyms, printer);
     public final SoarReteListener soarReteListener = new SoarReteListener(this);
     public final RecognitionMemory recMemory = new RecognitionMemory(this);
     
-    public final Exploration exploration = new Exploration(this);
-    public final Decider decider = new Decider(this, exploration);
+    private final Exploration exploration = new Exploration(this);
+    public final Decider decider = new Decider(this);
     public final Consistency consistency = new Consistency(this);
     
     public final Chunker chunker = new Chunker(this);
     public final Explain explain = new Explain(this);
-    public final Backtracer backtrace = new Backtracer(this);
     public final ReinforcementLearning rl = new ReinforcementLearning(this);
     
-    public final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
-    public final InputOutputImpl io = new InputOutputImpl(this);
+    private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
+    private final InputOutputImpl io = new InputOutputImpl(this);
     
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(recMemory.getRhsFunctionContext());
     public final DecisionCycle decisionCycle = new DecisionCycle(this);
@@ -114,8 +113,28 @@ public class Agent
     
     private boolean initialized = false;
     
+    /**
+     * The objects in this list are retrievable by requesting them, by class,
+     * using the adaptables framework.
+     * 
+     * <p>For example:
+     * <pre>{@code
+     *    InputOutputImpl io = Adaptables.adapt(agent, InputOutputImpl.class);
+     * }</pre>
+     * 
+     * This allows these fields to be private (not cluttering up the public interface) 
+     * while still making them accessible to the spaghetti that is the kernel at the
+     * moment. Hopefully, it will become less necessary as the system is cleaned up.
+     */
+    private final List<Object> adaptables = Arrays.asList((Object) decisionManip, exploration, io);
+    
     public Agent()
     {
+        // Initialize components that rely on adaptables lookup
+        decider.initialize();
+        decisionCycle.initialize();
+        rl.initialize();
+        
         // Set up standard RHS functions
         new StandardFunctions(this);
         installDefaultTraceFormats();
@@ -516,4 +535,19 @@ public class Agent
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
+     */
+    @Override
+    public Object getAdapter(Class<?> klass)
+    {
+        Object o = Adaptables.findAdapter(adaptables, klass);
+        if(o != null)
+        {
+            return o;
+        }
+        return super.getAdapter(klass);
+    }
+
+    
 }

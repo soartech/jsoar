@@ -26,8 +26,8 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 
 /**
  * User-defined Soar I/O routines should be added at system startup time
@@ -228,7 +228,7 @@ public class InputOutputImpl implements InputOutput
                 if (w.gds.getGoal() != null)
                 {
                     // TODO verbose trace wm changes in verbose as well
-                    context.trace.print(Category.WM_CHANGES, 
+                    context.getTrace().print(Category.WM_CHANGES, 
                             "remove_input_wme: Removing state S%d because element in GDS changed. WME: %s\n", 
                             w.gds.getGoal().level, w);
 

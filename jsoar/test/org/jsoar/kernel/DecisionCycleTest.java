@@ -27,7 +27,7 @@ public class DecisionCycleTest
     public void setUp() throws Exception
     {
         this.agent = new Agent();
-        this.agent.trace.enableAll();
+        this.agent.getTrace().enableAll();
         this.agent.initialize();
     }
 

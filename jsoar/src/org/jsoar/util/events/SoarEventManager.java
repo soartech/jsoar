@@ -5,9 +5,10 @@
  */
 package org.jsoar.util.events;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -23,7 +24,7 @@ public class SoarEventManager
     /**
      * Listeners indexed by event type
      */
-    private Map<Class<? extends SoarEvent>, List<SoarEventListener>> listeners = new ConcurrentHashMap<Class<? extends SoarEvent>, List<SoarEventListener>>();
+    private Map<Class<? extends SoarEvent>, List<SoarEventListener>> listeners = Collections.synchronizedMap(new HashMap<Class<? extends SoarEvent>, List<SoarEventListener>>());
 
     public SoarEventManager()
     {
@@ -65,9 +66,12 @@ public class SoarEventManager
         if(klass == null)
         {
             listenersForAny.remove(listener);
-            for(List<SoarEventListener> list : listeners.values())
+            synchronized(listeners)
             {
-                list.remove(listener);
+                for(List<SoarEventListener> list : listeners.values())
+                {
+                    list.remove(listener);
+                }
             }
         }
         else
@@ -126,14 +130,15 @@ public class SoarEventManager
         {
             return listenersForAny;
         }
-        
-        List<SoarEventListener> list = listeners.get(klass);
-        
-        if(list == null)
+        synchronized(listeners)
         {
-            list = new CopyOnWriteArrayList<SoarEventListener>();
-            listeners.put(klass, list);
+            List<SoarEventListener> list = listeners.get(klass);
+            if(list == null)
+            {
+                list = new CopyOnWriteArrayList<SoarEventListener>();
+                listeners.put(klass, list);
+            }
+            return list;
         }
-        return list;
     }
 }

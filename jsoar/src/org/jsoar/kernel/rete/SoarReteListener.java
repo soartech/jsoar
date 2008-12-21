@@ -24,6 +24,7 @@ import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
@@ -465,13 +466,14 @@ public class SoarReteListener implements ReteListener
 
             } /* end UNDECLARED_SUPPORT */
 
+            final Trace trace = context.getTrace();
             if (prod_type == SavedFiringType.PE_PRODS)
             {
                 msc.next_prev.insertAtHead(ms_o_assertions);
                 msc.in_level.insertAtHead(msc.goal.ms_o_assertions);
                 node.b_p.prod.OPERAND_which_assert_list = AssertListType.O_LIST;
 
-                context.trace.print(Category.VERBOSE, 
+                trace.print(Category.VERBOSE, 
                                     "\n   RETE: putting [%s] into ms_o_assertions",
                                     node.b_p.prod.getName());
             }
@@ -481,7 +483,7 @@ public class SoarReteListener implements ReteListener
                 msc.in_level.insertAtHead(msc.goal.ms_i_assertions);
                 node.b_p.prod.OPERAND_which_assert_list = AssertListType.I_LIST;
 
-                context.trace.print(Category.VERBOSE, 
+                trace.print(Category.VERBOSE, 
                                     "\n   RETE: putting [%s] into ms_i_assertions",
                                     node.b_p.prod.getName());
             }
@@ -659,7 +661,7 @@ public class SoarReteListener implements ReteListener
 
         if (context.operand2_mode)
         {
-            context.trace.print(Category.VERBOSE, "\n%s: ", node.b_p.prod.getName());
+            context.getTrace().print(Category.VERBOSE, "\n%s: ", node.b_p.prod.getName());
         }
         
         //#ifdef BUG_139_WORKAROUND

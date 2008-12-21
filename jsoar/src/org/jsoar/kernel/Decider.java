@@ -12,6 +12,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.jsoar.kernel.exploration.Exploration;
+import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
@@ -23,12 +24,14 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * decide.cpp
@@ -78,7 +81,13 @@ public class Decider
     private static final boolean DEBUG_LINKS = false;
     
     private final Agent context;
-    private final Exploration exploration;
+    
+    // These fields are all filled in initialize() through the agent with the
+    // adaptable framework. See Agent.adaptables for more info
+    private DecisionManipulation decisionManip;
+    private Exploration exploration;
+    private InputOutputImpl io;
+    
     
     /**
      * <p>gsysparam.h:164:MAX_GOAL_DEPTH
@@ -163,14 +172,18 @@ public class Decider
      * @param context
      * @param exploration 
      */
-    public Decider(Agent context, Exploration exploration)
+    public Decider(Agent context)
     {
         Arguments.checkNotNull(context, "context");
-        Arguments.checkNotNull(exploration, "exploration");
         this.context = context;
-        this.exploration = exploration;
     }
     
+    public void initialize()
+    {
+        this.exploration = Adaptables.adapt(context, Exploration.class);
+        this.decisionManip = Adaptables.adapt(context, DecisionManipulation.class);
+        this.io = Adaptables.adapt(context, InputOutputImpl.class);
+    }
     
     /**
      * @return the waitsnc
@@ -844,7 +857,7 @@ public class Decider
         // the lone require is the winner
         if (candidates != null && context.rl.rl_enabled())
         {
-            context.exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
+            exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
             context.rl.rl_perform_update( candidates.numeric_value, s.id );
         }
 
@@ -899,9 +912,9 @@ public class Decider
         // attempt force selection
         if (!(((context.attribute_preferences_mode == 2) || (context.operand2_mode == true)) && (!s.isa_context_slot)))
         {
-            if (context.decisionManip.select_get_operator() != null)
+            if (decisionManip.select_get_operator() != null)
             {
-                Preference force_result = context.decisionManip.select_force(s.getAllPreferences(), !predict);
+                Preference force_result = decisionManip.select_force(s.getAllPreferences(), !predict);
 
                 if (force_result != null)
                 {
@@ -909,7 +922,7 @@ public class Decider
 
                     if (!predict && context.rl.rl_enabled())
                     {
-                        context.exploration.exploration_compute_value_of_candidate( force_result, s, 0 );
+                        exploration.exploration_compute_value_of_candidate( force_result, s, 0 );
                         context.rl.rl_perform_update( force_result.numeric_value, s.id );
                     }
 
@@ -966,7 +979,7 @@ public class Decider
             if (!consistency && context.rl.rl_enabled() && candidates != null)
             {
                 // perform update here for just one candidate
-                context.exploration.exploration_compute_value_of_candidate(candidates, s, 0);
+                exploration.exploration_compute_value_of_candidate(candidates, s, 0);
                 context.rl.rl_perform_update( candidates.numeric_value, s.id );
             }
 
@@ -1169,7 +1182,7 @@ public class Decider
             if (!consistency && context.rl.rl_enabled() && candidates != null)
             {
                 // perform update here for just one candidate
-                context.exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
+                exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
                 context.rl.rl_perform_update( candidates.numeric_value, s.id );
             }
 
@@ -1357,7 +1370,7 @@ public class Decider
             add_impasse_wme(id, predefined.superstate_symbol, object, null);
 
             id.reward_header = context.syms.make_new_identifier('R', level);
-            context.io.addInputWme(id, predefined.reward_link_symbol, id.reward_header);
+            io.addInputWme(id, predefined.reward_link_symbol, id.reward_header);
         }
         else
             add_impasse_wme(id, predefined.object_symbol, object, null);
@@ -1676,7 +1689,7 @@ public class Decider
                      if (w.gds.getGoal() != null)
                      {
                          // If the goal pointer is non-NIL, then goal is in the stack
-                         context.trace.print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
+                         context.getTrace().print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
                                  "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.getGoal().level, w);
                          gds_invalid_so_remove_goal(w);
                      }
@@ -2220,7 +2233,7 @@ public class Decider
 
             if (predict)
             {
-                context.decisionManip.predict_set("none");
+                decisionManip.predict_set("none");
                 return true;
             }
         }
@@ -2235,30 +2248,30 @@ public class Decider
                 switch (impasse_type)
                 {
                 case CONSTRAINT_FAILURE:
-                    context.decisionManip.predict_set("constraint");
+                    decisionManip.predict_set("constraint");
                     break;
 
                 case CONFLICT:
-                    context.decisionManip.predict_set("conflict");
+                    decisionManip.predict_set("conflict");
                     break;
 
                 case TIE:
-                    context.decisionManip.predict_set("tie");
+                    decisionManip.predict_set("tie");
                     break;
 
                 case NO_CHANGE:
-                    context.decisionManip.predict_set("none");
+                    decisionManip.predict_set("none");
                     break;
 
                 default:
                     if (candidates.value == null || (candidates.value.value.asIdentifier() == null))
-                        context.decisionManip.predict_set("none");
+                        decisionManip.predict_set("none");
                     else
                     {
                         IdentifierImpl tempId = candidates.value.value.asIdentifier();
                         // TODO can this be null?
                         String temp = String.format("%s", tempId);
-                        context.decisionManip.predict_set(temp);
+                        decisionManip.predict_set(temp);
                     }
                     break;
                 }
@@ -2445,7 +2458,7 @@ public class Decider
     {
         do_buffered_acceptable_preference_wme_changes();
         do_buffered_link_changes();
-        context.workingMemory.do_buffered_wm_changes(context.io);
+        context.workingMemory.do_buffered_wm_changes(io);
         context.tempMemory.remove_garbage_slots();
     }
     
@@ -2455,7 +2468,8 @@ public class Decider
      */
     public void do_working_memory_phase()
     {
-        if (context.trace.isEnabled() && context.trace.isEnabled(Category.PHASES))
+        final Trace trace = context.getTrace();
+        if (trace.isEnabled() && trace.isEnabled(Category.PHASES))
         {
             if (context.operand2_mode == true)
             {
@@ -2481,7 +2495,7 @@ public class Decider
             else
             {
                 // TODO the XML for this is generated in this function
-                Phase.WM.trace(context.trace, true);
+                Phase.WM.trace(trace, true);
             }
         }
 
@@ -2490,7 +2504,7 @@ public class Decider
 
         if(!context.operand2_mode)
         {
-            Phase.WM.trace(context.trace, false);
+            Phase.WM.trace(trace, false);
         }
     }
 
@@ -2504,7 +2518,7 @@ public class Decider
         if (!predict && context.rl.rl_enabled())
             context.rl.rl_tabulate_reward_values();
 
-        context.decisionManip.predict_srand_restore_snapshot(!predict);
+        decisionManip.predict_srand_restore_snapshot(!predict);
 
         /* phases printing moved to init_soar: do_one_top_level_phase */
 
@@ -2611,7 +2625,7 @@ public class Decider
         wme_to_add.gds = gds;
         gds.addWme(wme_to_add);
 
-        context.trace.print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
+        context.getTrace().print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
                 "Adding to GDS for %s: %s", wme_to_add.gds.getGoal(), wme_to_add);
     }
     
@@ -2628,7 +2642,7 @@ public class Decider
             Instantiation inst = curr_pi.inst;
             if(DEBUG_GDS)
             {
-                context.trace.print("\n      EXPLORING INSTANTIATION: %s\n", inst);
+                context.getTrace().print("\n      EXPLORING INSTANTIATION: %s\n", inst);
             }
             
             for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
@@ -3068,7 +3082,7 @@ public class Decider
             context.tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
         }
         
-        context.trace.print(Category.OPERAND2_REMOVALS, 
+        context.getTrace().print(Category.OPERAND2_REMOVALS, 
                             "\n    REMOVING GOAL [%s] due to change in GDS WME %s",
                             w.gds.getGoal(), w);
         

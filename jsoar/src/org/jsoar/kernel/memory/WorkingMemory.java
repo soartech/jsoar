@@ -11,6 +11,7 @@ import org.jsoar.kernel.events.WorkingMemoryChangedEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
@@ -224,17 +225,18 @@ public class WorkingMemory
         warnIfSameWmeAddedAndRemoved();
         
         // do tracing and cleanup stuff
+        final Trace trace = context.getTrace();
         for (ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...
-            context.trace.print(Category.WM_CHANGES, "=>WM: %s", w.item);
+            trace.print(Category.WM_CHANGES, "=>WM: %s", w.item);
             wme_addition_count++;
         }
         
         for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_remove", but filtering seems disabled in CSoar...
-            context.trace.print(Category.WM_CHANGES, "<=WM: %s", w.item);
+            trace.print(Category.WM_CHANGES, "<=WM: %s", w.item);
             wme_removal_count++;
         }
         

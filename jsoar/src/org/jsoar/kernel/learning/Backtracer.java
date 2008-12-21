@@ -16,6 +16,7 @@ import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.rete.NotStruct;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
@@ -211,8 +212,9 @@ public class Backtracer
      */
     void backtrace_through_instantiation(Instantiation inst, int grounds_level, Condition trace_cond, int indent)
     {
-        final Printer p = context.trace.getPrinter();
-        final boolean traceBacktracing = context.trace.isEnabled(Category.BACKTRACING);
+        final Trace trace = context.getTrace();
+        final Printer p = trace.getPrinter();
+        final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
         if (traceBacktracing)
         {
 
@@ -418,8 +420,9 @@ public class Backtracer
      */
     void trace_locals(int grounds_level)
     {
-        final Printer printer = context.trace.getPrinter();
-        final boolean traceBacktracing = context.trace.isEnabled(Category.BACKTRACING);
+        final Trace trace = context.getTrace();
+        final Printer printer = trace.getPrinter();
+        final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
         if (traceBacktracing)
         {
             printer.print("\n\n*** Tracing Locals ***\n");
@@ -493,8 +496,9 @@ public class Backtracer
      */
     void trace_grounded_potentials()
     {
-        final Printer printer = context.trace.getPrinter();
-        final boolean traceBacktracing = context.trace.isEnabled(Category.BACKTRACING);
+        final Trace trace = context.getTrace();
+        final Printer printer = trace.getPrinter();
+        final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
         if (traceBacktracing)
         {
             printer.print("\n\n*** Tracing Grounded Potentials ***\n");
@@ -556,8 +560,9 @@ public class Backtracer
      */
     boolean trace_ungrounded_potentials(int grounds_level)
     {
-        final Printer printer = context.trace.getPrinter();
-        final boolean traceBacktracing = context.trace.isEnabled(Category.BACKTRACING);
+        final Trace trace = context.getTrace();
+        final Printer printer = trace.getPrinter();
+        final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
 
         if (traceBacktracing)
         {
@@ -621,13 +626,14 @@ public class Backtracer
      */
     void report_local_negation(Condition c)
     {
-        if (context.trace.isEnabled(Category.BACKTRACING))
+        final Trace trace = context.getTrace();
+        if (trace.isEnabled(Category.BACKTRACING))
         {
             // use the same code as the backtracing above
             LinkedList<Condition> negated_to_print = new LinkedList<Condition>();
             negated_to_print.push(c);
 
-            context.trace.getPrinter().print("\n*** Chunk won't be formed due to local negation in backtrace ***\n");
+            trace.getPrinter().print("\n*** Chunk won't be formed due to local negation in backtrace ***\n");
             print_consed_list_of_conditions(negated_to_print, 2);
         }
     }

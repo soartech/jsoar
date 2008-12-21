@@ -158,16 +158,16 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         
         agent.runFor(2, RunType.DECISIONS);
         
-        assertEquals(3, Iterators.size(agent.io.getInputLink().getWmes()));
+        assertEquals(3, Iterators.size(agent.getInputOutput().getInputLink().getWmes()));
         
         adapter.detach();
         
-        assertEquals(3, Iterators.size(agent.io.getInputLink().getWmes()));
+        assertEquals(3, Iterators.size(agent.getInputOutput().getInputLink().getWmes()));
         
         agent.runFor(1, RunType.DECISIONS);
         
         // Verify that all WMEs were removed from input-link
-        assertEquals(0, Iterators.size(agent.io.getInputLink().getWmes()));
+        assertEquals(0, Iterators.size(agent.getInputOutput().getInputLink().getWmes()));
         
     }
 
