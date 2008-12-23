@@ -12,6 +12,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.lhs.Condition;
@@ -46,6 +47,8 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
+import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.properties.BooleanPropertyProvider;
 
 /**
  * chunking.cpp
@@ -55,8 +58,9 @@ import org.jsoar.util.ListItem;
 public class Chunker
 {
     private final Agent context;
-    private final Backtracer backtrace;
     private final VariableGenerator variableGenerator;
+    private Backtracer backtrace;
+    Explain explain;
     
     public int chunks_this_d_cycle;
     /**
@@ -113,7 +117,7 @@ public class Chunker
      * <p>gsysparam.h:123:LEARNING_ON_SYSPARAM
      * <p>Defaults to false in init_soar()
      */
-    private boolean learningOn = false;
+    private BooleanPropertyProvider learningOn = new BooleanPropertyProvider(SoarProperties.LEARNING_ON);
     
     /**
      * <p>gsysparam.h:126:LEARNING_ALL_GOALS_SYSPARAM
@@ -160,28 +164,27 @@ public class Chunker
     public Chunker(Agent context)
     {
         this.context = context;
-        this.backtrace = new Backtracer(context);
         this.variableGenerator = new VariableGenerator(this.context.syms);
+        
+        this.context.getProperties().setProvider(SoarProperties.LEARNING_ON, learningOn);
+    }
+    
+    public void initialize()
+    {
+        this.explain = Adaptables.adapt(context, Explain.class);
+        this.backtrace = new Backtracer(context, this);
     }
 
     /**
+     * Client code should use {@link SoarProperties#LEARNING_ON} rather than this
+     * method.
+     * 
      * @return true if learning (chunking) is currently enabled. False otherwise.
      */
     public boolean isLearningOn()
     {
-        return learningOn;
+        return learningOn.value.get();
     }
-
-    /**
-     * Enable learning (chunking). Equivalent to "learn --on"
-     * 
-     * @param learningOn True to enable learning, false to disable.
-     */
-    public void setLearningOn(boolean learningOn)
-    {
-        this.learningOn = learningOn;
-    }
-
 
     /**
      * @return the maxChunksReached
@@ -1031,7 +1034,7 @@ public class Chunker
         final Trace trace = context.getTrace();
         if (context.operand2_mode)
         {
-            if (this.learningOn)
+            if (this.learningOn.value.get())
             {
                 if (pref.id.level < (inst.match_goal_level - 1))
                 {
@@ -1126,10 +1129,10 @@ public class Chunker
 
         // Start a new structure for this potential chunk
         ExplainChunk temp_explain_chunk = null;
-        if (context.explain.isEnabled())
+        if (this.explain.isEnabled())
         {
             temp_explain_chunk = new ExplainChunk();
-            context.explain.reset_backtrace_list();
+            this.explain.reset_backtrace_list();
         }
 
         /* --- backtrace through the instantiation that produced each result --- */
@@ -1247,7 +1250,7 @@ public class Chunker
 
             // Record the list of grounds in the order they will appear in the
             // chunk.
-            if (context.explain.isEnabled())
+            if (this.explain.isEnabled())
                 temp_explain_chunk.all_grounds = inst_lhs_top.value; /* Not a copy yet */
 
             chunk_inst = new Instantiation(prod, null, null);
@@ -1288,7 +1291,7 @@ public class Chunker
         /* RBD 4/6/95 Need to copy cond's and actions for the production here,
         otherwise some of the variables might get deallocated by the call to
         add_production_to_rete() when it throws away chunk variable names. */
-        if (context.explain.isEnabled())
+        if (this.explain.isEnabled())
         {
             ByRef<Condition> new_top = ByRef.create(null);
             ByRef<Condition> new_bottom = ByRef.create(null);
@@ -1303,12 +1306,12 @@ public class Chunker
         // If didn't immediately excise the chunk from the rete net
         // then record the temporary structure in the list of explained chunks.
 
-        if (context.explain.isEnabled())
+        if (this.explain.isEnabled())
             if ((rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION)
                     && ((prod_type != ProductionType.JUSTIFICATION) || (rete_addition_result != ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH)))
             {
                 temp_explain_chunk.name = prod_name.getValue();
-                context.explain.explain_add_temp_to_chunk_list(temp_explain_chunk);
+                this.explain.explain_add_temp_to_chunk_list(temp_explain_chunk);
             }
             else
             {

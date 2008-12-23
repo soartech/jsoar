@@ -9,6 +9,7 @@ package org.jsoar.kernel.rhs.functions;
 import static org.junit.Assert.*;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.io.CycleCountInput;
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +44,7 @@ public class InterruptTest
     public void testInterrupt() throws Exception
     {
         new CycleCountInput(agent.getInputOutput(), agent.getEventManager());
-        this.agent.decider.setWaitsnc(true);
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
         this.agent.getProductions().loadProduction("testInterrupt (state <s> ^superstate nil ^io.input-link.cycle-count 45) --> (interrupt)");
         
         this.agent.decisionCycle.runForever();

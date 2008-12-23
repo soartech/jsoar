@@ -6,6 +6,7 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.tracing.Trace.Category;
 
 import tcl.lang.Command;
@@ -75,7 +76,7 @@ public class SoarTclInterface
         @Override
         protected void execute(Agent agent, boolean enable) throws TclException
         {
-            agent.chunker.setLearningOn(enable);
+            agent.getProperties().set(SoarProperties.LEARNING_ON, enable);
         }
     }; 
     
@@ -91,7 +92,7 @@ public class SoarTclInterface
         @Override
         protected void execute(Agent agent, boolean enable) throws TclException
         {
-            agent.decider.setWaitsnc(enable);
+            agent.getProperties().set(SoarProperties.WAITSNC, enable);
         }
     };
     
@@ -115,7 +116,7 @@ public class SoarTclInterface
         @Override
         protected void execute(Agent agent, boolean enable) throws TclException
         {
-            agent.explain.setEnabled(enable);
+            agent.getProperties().set(SoarProperties.EXPLAIN, enable);
         }
     };  
             

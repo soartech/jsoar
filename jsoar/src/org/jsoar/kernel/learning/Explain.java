@@ -8,10 +8,12 @@ package org.jsoar.kernel.learning;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.Conditions;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.properties.BooleanPropertyProvider;
 
 /**
  * <p>agent.h:564:explain_chunk_name - Eliminated. Not used in CSoar
@@ -35,8 +37,10 @@ public class Explain
     /**
      * <p>gsysparam.h:140:EXPLAIN_SYSPARAM
      * <p>Defaults to false in init_soar()
+     * 
+     * TODO There's probably more to do here (EXPLAIN_SYSPARAM on)
      */
-    private boolean enabled = false;
+    private BooleanPropertyProvider enabled = new BooleanPropertyProvider(SoarProperties.EXPLAIN);
     
     /**
      * @param agent
@@ -44,29 +48,21 @@ public class Explain
     public Explain(Agent agent)
     {
         this.context = agent;
+        this.context.getProperties().setProvider(SoarProperties.EXPLAIN, enabled);
     }
 
     /**
      * @return the enabled
      */
-    public boolean isEnabled()
+    boolean isEnabled()
     {
-        return enabled;
-    }
-
-    /**
-     * @param enabled the enabled to set
-     */
-    public void setEnabled(boolean enabled)
-    {
-        // TODO There's probably more to do here (EXPLAIN_SYSPARAM on)
-        this.enabled = enabled;
+        return enabled.value.get();
     }
 
     /**
      * <p>explain.cpp:105:reset_backtrace_list
      */
-    public void reset_backtrace_list()
+    void reset_backtrace_list()
     {
         explain_backtrace_list = null;
     }

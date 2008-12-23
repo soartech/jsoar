@@ -63,6 +63,7 @@ import org.jsoar.kernel.tracing.Trace.Category;
 public class Backtracer
 {
     private final Agent context;
+    private final Chunker chunker;
 
     /**
      * <p>agent.h:514:backtrace_number
@@ -100,9 +101,10 @@ public class Backtracer
     /**
      * @param context
      */
-    public Backtracer(Agent context)
+    public Backtracer(Agent context, Chunker chunker)
     {
         this.context = context;
+        this.chunker = chunker;
     }
 
     /**
@@ -237,7 +239,7 @@ public class Backtracer
 
         // Record information on the production being backtraced through
         Backtrace temp_explain_backtrace = null;
-        if (context.explain.isEnabled())
+        if (chunker.explain.isEnabled())
         {
             temp_explain_backtrace = new Backtrace();
             temp_explain_backtrace.trace_cond = trace_cond; /* Not copied yet */
@@ -257,7 +259,7 @@ public class Backtracer
 
         // check okay_to_variablize flag
         if (!inst.okay_to_variablize)
-            context.chunker.variablize_this_chunk = false;
+            chunker.variablize_this_chunk = false;
 
         // mark transitive closure of each higher goal id that was tested in
         // the id field of a top-level positive condition
@@ -338,7 +340,7 @@ public class Backtracer
         final LinkedList<Condition> negateds_to_print = new LinkedList<Condition>();
 
         // Record the conds in the print_lists even if not going to be printed
-        final boolean traceBacktracingOrExplain = traceBacktracing || context.explain.isEnabled();
+        final boolean traceBacktracingOrExplain = traceBacktracing || chunker.explain.isEnabled();
         for (Condition c = inst.top_of_instantiated_conditions; c != null; c = c.next)
         {
             PositiveCondition pc = c.asPositiveCondition();
@@ -371,7 +373,7 @@ public class Backtracer
             else
             {
                 // negative or nc cond's are either grounds or potentials
-                context.chunker.negated_set.add_to_chunk_cond_set(ChunkCondition.make_chunk_cond_for_condition(c));
+                chunker.negated_set.add_to_chunk_cond_set(ChunkCondition.make_chunk_cond_for_condition(c));
                 if (traceBacktracingOrExplain)
                     negateds_to_print.push(c);
             }
@@ -379,15 +381,15 @@ public class Backtracer
 
         // add new nots to the not set
         if (inst.nots != null)
-            context.chunker.instantiations_with_nots.push(inst);
+            chunker.instantiations_with_nots.push(inst);
 
         /* Now record the sets of conditions.  Note that these are not necessarily */
         /* the final resting place for these wmes.  In particular potentials may   */
         /* move over to become grounds, but since all we really need for explain is*/
         /* the list of wmes, this will do as a place to record them.               */
 
-        if (context.explain.isEnabled())
-            context.explain.explain_add_temp_to_backtrace_list(temp_explain_backtrace, grounds_to_print, pots_to_print,
+        if (chunker.explain.isEnabled())
+            chunker.explain.explain_add_temp_to_backtrace_list(temp_explain_backtrace, grounds_to_print, pots_to_print,
                     locals_to_print, negateds_to_print);
 
         // if tracing BT, print the resulting conditions, etc.
@@ -471,8 +473,8 @@ public class Backtracer
                         && (cond.value_test.asEqualityTest().getReferent() == context.predefinedSyms.t_symbol)
                         && (!cond.test_for_acceptable_preference))
                 {
-                    context.chunker.variablize_this_chunk = false;
-                    context.chunker.quiescence_t_flag = true;
+                    chunker.variablize_this_chunk = false;
+                    chunker.quiescence_t_flag = true;
                 }
                 continue;
             }

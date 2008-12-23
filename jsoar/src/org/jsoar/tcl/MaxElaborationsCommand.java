@@ -1,5 +1,7 @@
 package org.jsoar.tcl;
 
+import org.jsoar.kernel.SoarProperties;
+
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
@@ -34,11 +36,23 @@ final class MaxElaborationsCommand implements Command
 
         if(args.length == 1)
         {
-            ifc.getAgent().getPrinter().print("%d", ifc.getAgent().consistency.getMaxElaborations());
+            ifc.getAgent().getPrinter().print("\n%d", ifc.getAgent().consistency.getMaxElaborations());
         }
         else
         {
-            ifc.getAgent().consistency.setMaxElaborations(Integer.parseInt(args[1].toString()));
+            try
+            {
+                final int value = Integer.parseInt(args[1].toString());
+                ifc.getAgent().getProperties().set(SoarProperties.MAX_ELABORATIONS, value);
+            }
+            catch(NumberFormatException e)
+            {
+                throw new TclException(interp, "'" + args[1] + "' is not a valid integer");
+            }
+            catch(IllegalArgumentException e)
+            {
+                throw new TclException(interp, e.getMessage());
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ByRef;
 import org.junit.Before;
@@ -72,7 +73,7 @@ public class DeepCopyTest
                 "-->\n" +
                 "(match)");
         
-        agent.decider.setWaitsnc(true);
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.runFor(2, RunType.DECISIONS);
         
         assertTrue(matched.value);

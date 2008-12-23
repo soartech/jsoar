@@ -88,10 +88,7 @@ public class PropertyManager
      */
     public <T> T get(PropertyKey<T> key)
     {
-        synchronized(properties)
-        {
-            return getProvider(key).get();
-        }
+        return getProvider(key).get();
     }
     
     /**
@@ -109,11 +106,7 @@ public class PropertyManager
      */
     public <T, V extends T> T set(PropertyKey<T> key, V value)
     {
-        final T oldValue;
-        synchronized(properties)
-        {
-            oldValue = getProvider(key).set(value);
-        }
+        final T oldValue = getProvider(key).set(value);
         
         firePropertyChanged(key, value, oldValue);
         

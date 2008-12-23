@@ -16,6 +16,7 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.exploration.Exploration;
+import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.GoalIdTest;
 import org.jsoar.kernel.lhs.ImpasseIdTest;
@@ -88,6 +89,7 @@ public class ReinforcementLearning
     private final Agent my_agent;
     private final VariableGenerator variableGenerator;
     private Exploration exploration;
+    private Chunker chunker;
     
     private boolean enabled = false;
     
@@ -136,6 +138,7 @@ public class ReinforcementLearning
     public void initialize()
     {
         this.exploration = Adaptables.adapt(my_agent, Exploration.class);
+        this.chunker = Adaptables.adapt(my_agent, Chunker.class);
     }
 
     /**
@@ -1066,7 +1069,7 @@ public class ReinforcementLearning
         Production my_template = my_template_instance.prod;
         MakeAction my_action = my_template.action_list.asMakeAction();
 
-        boolean chunk_var = my_agent.chunker.variablize_this_chunk;
+        boolean chunk_var = this.chunker.variablize_this_chunk;
 
         // get the preference value
         IdentifierImpl id = my_agent.recMemory.instantiate_rhs_value( my_action.id, -1, 's', tok, w ).asIdentifier();
@@ -1077,8 +1080,8 @@ public class ReinforcementLearning
 
         // make new action list
         // small hack on variablization: the artificial tc gets dealt with later, just needs to be explicit non-zero
-        my_agent.chunker.variablize_this_chunk = true;
-        my_agent.chunker.variablization_tc = -1; // TODO ??? (0u - 1);
+        this.chunker.variablize_this_chunk = true;
+        this.chunker.variablization_tc = -1; // TODO ??? (0u - 1);
         MakeAction new_action = rl_make_simple_action( id, attr, value, referent );
         new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
@@ -1101,9 +1104,9 @@ public class ReinforcementLearning
         Condition.copy_condition_list( my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
         rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
         variableGenerator.reset( cond_top.value, null );
-        my_agent.chunker.variablization_tc = my_agent.syms.get_new_tc_number( );
-        my_agent.chunker.variablize_condition_list( cond_top.value );
-        my_agent.chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
+        this.chunker.variablization_tc = my_agent.syms.get_new_tc_number( );
+        this.chunker.variablize_condition_list( cond_top.value );
+        this.chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
 
         // make new production
         Production new_production = new Production( ProductionType.USER, new_name_symbol, cond_top.value, cond_bottom.value, new_action);
@@ -1116,7 +1119,7 @@ public class ReinforcementLearning
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        my_agent.chunker.variablize_this_chunk = chunk_var;
+        this.chunker.variablize_this_chunk = chunk_var;
 
         /*
         // attempt to add to rete, remove if duplicate
@@ -1146,16 +1149,16 @@ public class ReinforcementLearning
         MakeAction rhs = new MakeAction();
 
         // id
-        rhs.id = new RhsSymbolValue(my_agent.chunker.variablize_symbol( id_sym ));
+        rhs.id = new RhsSymbolValue(this.chunker.variablize_symbol( id_sym ));
         
         // attribute
-        rhs.attr = new RhsSymbolValue(my_agent.chunker.variablize_symbol(attr_sym));
+        rhs.attr = new RhsSymbolValue(this.chunker.variablize_symbol(attr_sym));
 
         // value
-        rhs.value = new RhsSymbolValue(my_agent.chunker.variablize_symbol(val_sym));
+        rhs.value = new RhsSymbolValue(this.chunker.variablize_symbol(val_sym));
 
         // referent
-        rhs.referent = new RhsSymbolValue(my_agent.chunker.variablize_symbol(ref_sym));
+        rhs.referent = new RhsSymbolValue(this.chunker.variablize_symbol(ref_sym));
 
         return rhs;
     }
