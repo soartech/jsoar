@@ -30,18 +30,15 @@ public enum smlRunResult {
     throw new IllegalArgumentException("No enum " + smlRunResult.class + " with value " + swigValue);
   }
 
-  @SuppressWarnings("unused")
   private smlRunResult() {
     this.swigValue = SwigNext.next++;
   }
 
-  @SuppressWarnings("unused")
   private smlRunResult(int swigValue) {
     this.swigValue = swigValue;
     SwigNext.next = swigValue+1;
   }
 
-  @SuppressWarnings("unused")
   private smlRunResult(smlRunResult swigEnum) {
     this.swigValue = swigEnum.swigValue;
     SwigNext.next = this.swigValue+1;

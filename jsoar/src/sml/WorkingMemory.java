@@ -338,6 +338,7 @@ public class WorkingMemory
         assert(m_Agent == pSharedValue.GetAgent()) ;
 
         // Look up the id from the existing identifier
+        @SuppressWarnings("unused")
         String id = pSharedValue.GetValueAsString() ;
 
         // Create the new WME with the same value
@@ -987,6 +988,7 @@ public class WorkingMemory
                 // Technically we should reset the value of the input link identifier itself, but it should never
                 // change value (since it's architecturally created) and also adding a method to set the identifier value
                 // is a bad idea if we only need it here.
+                @SuppressWarnings("unused")
                 String result = response.GetResultString() ;
             }
 

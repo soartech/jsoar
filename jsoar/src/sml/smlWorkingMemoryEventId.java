@@ -27,18 +27,15 @@ public enum smlWorkingMemoryEventId {
     throw new IllegalArgumentException("No enum " + smlWorkingMemoryEventId.class + " with value " + swigValue);
   }
 
-  @SuppressWarnings("unused")
   private smlWorkingMemoryEventId() {
     this.swigValue = SwigNext.next++;
   }
 
-  @SuppressWarnings("unused")
   private smlWorkingMemoryEventId(int swigValue) {
     this.swigValue = swigValue;
     SwigNext.next = swigValue+1;
   }
 
-  @SuppressWarnings("unused")
   private smlWorkingMemoryEventId(smlWorkingMemoryEventId swigEnum) {
     this.swigValue = swigEnum.swigValue;
     SwigNext.next = this.swigValue+1;

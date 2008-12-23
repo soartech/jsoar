@@ -31,18 +31,15 @@ public enum smlPhase {
     throw new IllegalArgumentException("No enum " + smlPhase.class + " with value " + swigValue);
   }
 
-  @SuppressWarnings("unused")
   private smlPhase() {
     this.swigValue = SwigNext.next++;
   }
 
-  @SuppressWarnings("unused")
   private smlPhase(int swigValue) {
     this.swigValue = swigValue;
     SwigNext.next = swigValue+1;
   }
 
-  @SuppressWarnings("unused")
   private smlPhase(smlPhase swigEnum) {
     this.swigValue = swigEnum.swigValue;
     SwigNext.next = this.swigValue+1;

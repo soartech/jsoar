@@ -1075,12 +1075,6 @@ public class ReinforcementLearning
         SymbolImpl value = my_agent.recMemory.instantiate_rhs_value( my_action.value, id.level, first_letter, tok, w );
         SymbolImpl referent = my_agent.recMemory.instantiate_rhs_value( my_action.referent, id.level, first_letter, tok, w );
 
-        double init_value = 0;
-        if ( referent.asInteger() != null )
-            init_value = (double) referent.asInteger().getValue();
-        else if (referent.asDouble() != null)
-            init_value = referent.asDouble().getValue();
-
         // make new action list
         // small hack on variablization: the artificial tc gets dealt with later, just needs to be explicit non-zero
         my_agent.chunker.variablize_this_chunk = true;
@@ -1092,7 +1086,7 @@ public class ReinforcementLearning
         StringSymbol new_name_symbol;
         String new_name = "";
         String empty_string = "";
-        String temp_id;
+        // String temp_id;
         int new_id = 0;
         do
         {

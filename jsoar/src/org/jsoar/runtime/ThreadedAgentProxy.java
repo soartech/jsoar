@@ -279,5 +279,6 @@ public class ThreadedAgentProxy
     
     private static class InterruptAgentException extends RuntimeException
     {
+        private static final long serialVersionUID = 3075897216751716278L;
     }
 }
