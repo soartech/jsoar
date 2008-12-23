@@ -27,18 +27,15 @@ public enum smlStopLocationFlags {
     throw new IllegalArgumentException("No enum " + smlStopLocationFlags.class + " with value " + swigValue);
   }
 
-  @SuppressWarnings("unused")
   private smlStopLocationFlags() {
     this.swigValue = SwigNext.next++;
   }
 
-  @SuppressWarnings("unused")
   private smlStopLocationFlags(int swigValue) {
     this.swigValue = swigValue;
     SwigNext.next = swigValue+1;
   }
 
-  @SuppressWarnings("unused")
   private smlStopLocationFlags(smlStopLocationFlags swigEnum) {
     this.swigValue = swigEnum.swigValue;
     SwigNext.next = this.swigValue+1;

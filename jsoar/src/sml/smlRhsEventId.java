@@ -28,18 +28,15 @@ public enum smlRhsEventId {
     throw new IllegalArgumentException("No enum " + smlRhsEventId.class + " with value " + swigValue);
   }
 
-  @SuppressWarnings("unused")
   private smlRhsEventId() {
     this.swigValue = SwigNext.next++;
   }
 
-  @SuppressWarnings("unused")
   private smlRhsEventId(int swigValue) {
     this.swigValue = swigValue;
     SwigNext.next = swigValue+1;
   }
 
-  @SuppressWarnings("unused")
   private smlRhsEventId(smlRhsEventId swigEnum) {
     this.swigValue = swigEnum.swigValue;
     SwigNext.next = this.swigValue+1;

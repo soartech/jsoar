@@ -1029,15 +1029,12 @@ public class Chunker
         */
 
         final Trace trace = context.getTrace();
-        boolean making_topmost_chunk = false;
         if (context.operand2_mode)
         {
-
             if (this.learningOn)
             {
                 if (pref.id.level < (inst.match_goal_level - 1))
                 {
-                    making_topmost_chunk = false;
                     allow_variablization = false;
                     inst.okay_to_variablize = false;
 
@@ -1046,17 +1043,12 @@ public class Chunker
                 }
                 else
                 {
-                    making_topmost_chunk = true;
                     allow_variablization = isLearningOn();
                     inst.okay_to_variablize = isLearningOn();
 
                     trace.print(Category.VERBOSE,
                             "\n   in chunk_instantiation: resetting allow_variablization to %s", allow_variablization);
                 }
-            }
-            else
-            {
-                making_topmost_chunk = true;
             }
         }
 

@@ -294,6 +294,7 @@ public class Kernel extends ClientErrors
             return ;
 
         // Look up the agent
+        @SuppressWarnings("unused")
         Agent pAgent = pAgentName != null ? GetAgent(pAgentName) : null;
 
         // Go through the list of event handlers calling each in turn...except

@@ -170,13 +170,11 @@ public class Consistency
             operator_in_slot = false;
         }
 
-        boolean goal_is_impassed = false;
         ImpasseType current_impasse_type, new_impasse_type;
         SymbolImpl current_impasse_attribute;
         if (goal.lower_goal != null)
         {
-            /* the goal is impassed */
-            goal_is_impassed = true;
+            // the goal is impassed
             current_impasse_type = context.decider.type_of_existing_impasse(goal);
             current_impasse_attribute = context.decider.attribute_of_existing_impasse(goal);
             if (DEBUG_CONSISTENCY_CHECK)
@@ -203,7 +201,6 @@ public class Consistency
         }
         else
         {
-            goal_is_impassed = false;
             current_impasse_type = ImpasseType.NONE;
             current_impasse_attribute = null;
             if (DEBUG_CONSISTENCY_CHECK)

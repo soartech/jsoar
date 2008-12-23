@@ -110,6 +110,7 @@ public class InputOutputImpl implements InputOutput
 
     private IdentifierImpl io_header_output;
 
+    @SuppressWarnings("unused")
     private WmeImpl io_header_link;
     
     private WmeImpl outputLinkWme;

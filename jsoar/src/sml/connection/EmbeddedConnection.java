@@ -20,6 +20,7 @@ public abstract class EmbeddedConnection extends Connection
     *        (which we passed to the other side of the connection)
     *        back to its original object.
     *************************************************************/
+    @SuppressWarnings("unused")
     private static EmbeddedConnection GetConnectionFromHandle(Connection_Receiver_Handle hConnection)
     {
         return (EmbeddedConnection)hConnection ;
@@ -143,6 +144,7 @@ TODO    #ifdef KERNEL_SML_DIRECT
         if (m_hConnection != null)
         {
             // Make the call to the kernel to close this connection
+            @SuppressWarnings("unused")
             ElementXML hResponse = m_pProcessMessageFunction.execute(m_hConnection, (ElementXML)null, ProcessMessageFunction.SML_MESSAGE_ACTION_CLOSE) ;
             //unused(hResponse) ;
         }
@@ -165,6 +167,7 @@ TODO    #ifdef KERNEL_SML_DIRECT
         if (m_hConnection != null)
         {
             // Tell the kernel to turn tracing on or off
+            @SuppressWarnings("unused")
             ElementXML hResponse = m_pProcessMessageFunction.execute(m_hConnection, (ElementXML)null, 
                         state ? ProcessMessageFunction.SML_MESSAGE_ACTION_TRACE_ON : ProcessMessageFunction.SML_MESSAGE_ACTION_TRACE_OFF) ;
             //unused(hResponse) ;

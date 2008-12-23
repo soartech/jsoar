@@ -20,7 +20,6 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.util.StringTools;
 
 
 /**   
@@ -65,6 +64,7 @@ import org.jsoar.util.StringTools;
  * set_tagged_trace_formats:unimplemented
  * print_stack_trace_xml:unimplemented
  * print_object_trace_using_provided_format_string:unimplemented
+ * print_trace_format_list:not used (removed in jsoar trunk revision 207)
  * 
  * @author ray
  */
@@ -547,117 +547,6 @@ public class TraceFormats
         /* --- if we haven't recognized it yet, we don't understand it --- */
         format_string_error_message = "Unrecognized escape sequence";
         return null;
-    }
-
-    /**
-     * This routine takes a trace format (list) and prints it out as a format
-     * string (without the surrounding quotation marks).
-     * 
-     * trace.cpp:514:print_trace_format_list
-     * 
-     * @param writer
-     * @param tf
-     * @throws IOException
-     */
-    private void print_trace_format_list(Writer writer, TraceFormat tf) throws IOException
-    {
-        for (; tf != null; tf = tf.next)
-        {
-            switch (tf.type)
-            {
-            case STRING_TFT:
-                writer.append(StringTools.string_to_escaped_string(tf.data_string, '"'));
-                break;
-            case PERCENT_TFT:
-                writer.append("%%");
-                break;
-            case L_BRACKET_TFT:
-                writer.append("%[");
-                break;
-            case R_BRACKET_TFT:
-                writer.append("%]");
-                break;
-
-            case VALUES_TFT:
-            case VALUES_RECURSIVELY_TFT:
-            case ATTS_AND_VALUES_TFT:
-            case ATTS_AND_VALUES_RECURSIVELY_TFT:
-                if (tf.type == TraceFormatType.VALUES_TFT)
-                    writer.append("%v[");
-                else if (tf.type == TraceFormatType.VALUES_RECURSIVELY_TFT)
-                    writer.append("%o[");
-                else if (tf.type == TraceFormatType.ATTS_AND_VALUES_TFT)
-                    writer.append("%av[");
-                else
-                    writer.append("%ao[");
-                if (tf.data_attribute_path != null)
-                {
-                    for (Iterator<SymbolImpl> it = tf.data_attribute_path.iterator(); it.hasNext();)
-                    {
-                        SymbolImpl c = it.next();
-                        writer.append(c.asString().getValue());
-                        if (it.hasNext())
-                            writer.append(".");
-                    }
-                }
-                else
-                {
-                    writer.append("*");
-                }
-                writer.append("]");
-                break;
-
-            case CURRENT_STATE_TFT:
-                writer.append("%cs");
-                break;
-            case CURRENT_OPERATOR_TFT:
-                writer.append("%co");
-                break;
-            case DECISION_CYCLE_COUNT_TFT:
-                writer.append("%dc");
-                break;
-            case ELABORATION_CYCLE_COUNT_TFT:
-                writer.append("%ec");
-                break;
-            case IDENTIFIER_TFT:
-                writer.append("%id");
-                break;
-
-            case IF_ALL_DEFINED_TFT:
-                writer.append("%ifdef[");
-                print_trace_format_list(writer, tf.data_subformat);
-                writer.append("]");
-                break;
-
-            case LEFT_JUSTIFY_TFT:
-            case RIGHT_JUSTIFY_TFT:
-                if (tf.type == TraceFormatType.LEFT_JUSTIFY_TFT)
-                    writer.append("%left[");
-                else
-                    writer.append("%right[");
-                writer.append(Integer.toString(tf.num));
-                print_trace_format_list(writer, tf.data_subformat);
-                writer.append("]");
-                break;
-
-            case SUBGOAL_DEPTH_TFT:
-                writer.append("%sd");
-                break;
-
-            case REPEAT_SUBGOAL_DEPTH_TFT:
-                writer.append("%rsd[");
-                print_trace_format_list(writer, tf.data_subformat);
-                writer.append("]");
-                break;
-
-            case NEWLINE_TFT:
-                writer.append("%nl");
-                break;
-
-            default:
-                throw new IllegalStateException("Internal error: bad trace format type: " + tf.type);
-            }
-        }
     }
 
     /**

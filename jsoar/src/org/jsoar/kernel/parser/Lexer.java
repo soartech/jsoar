@@ -38,8 +38,10 @@ public class Lexer
 
     private int current_line = 0;
 
+    @SuppressWarnings("unused")
     private int column_of_start_of_last_lexeme = 0;
 
+    @SuppressWarnings("unused")
     private int line_of_start_of_last_lexeme = 0;
 
     private boolean allow_ids;

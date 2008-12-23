@@ -17,6 +17,8 @@ import org.jsoar.debugger.selection.SelectionManager;
  */
 public abstract class AbstractDebuggerAction extends AbstractAction
 {
+    private static final long serialVersionUID = -8312655935200259621L;
+    
     private final ActionManager manager;
     
     public AbstractDebuggerAction(String label)

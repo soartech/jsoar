@@ -28,18 +28,15 @@ public enum smlRunStepSize {
     throw new IllegalArgumentException("No enum " + smlRunStepSize.class + " with value " + swigValue);
   }
 
-  @SuppressWarnings("unused")
   private smlRunStepSize() {
     this.swigValue = SwigNext.next++;
   }
 
-  @SuppressWarnings("unused")
   private smlRunStepSize(int swigValue) {
     this.swigValue = swigValue;
     SwigNext.next = swigValue+1;
   }
 
-  @SuppressWarnings("unused")
   private smlRunStepSize(smlRunStepSize swigEnum) {
     this.swigValue = swigEnum.swigValue;
     SwigNext.next = this.swigValue+1;

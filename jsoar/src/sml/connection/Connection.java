@@ -991,6 +991,7 @@ public abstract class Connection
             // Get the command object
             ElementXML command = new ElementXML(null) ;
             ElementXML pCommand = command ;
+            @SuppressWarnings("unused")
             boolean found = pMsg.GetChild(pCommand, 0) ;
 /*
         #ifdef DEBUG
