@@ -16,7 +16,9 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * Simple class that retrieves support information for a particular WME.
@@ -109,7 +111,8 @@ public class WmeSupportInfo
 
     private static Support createSupport(Agent agent, Preference pref)
     {
-        List<Wme> sourceWmes = pref.inst.getBacktraceWmes();
+        final TraceFormats traceFormats = Adaptables.adapt(agent, TraceFormats.class);
+        final List<Wme> sourceWmes = pref.inst.getBacktraceWmes();
         
         final String valueTrace;
         if(pref.attr == agent.predefinedSyms.operator_symbol)
@@ -117,7 +120,7 @@ public class WmeSupportInfo
             StringWriter w = new StringWriter();
             try
             {
-                agent.traceFormats.print_object_trace(w, pref.value);
+                traceFormats.print_object_trace(w, pref.value);
             }
             catch (IOException e)
             {

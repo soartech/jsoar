@@ -16,7 +16,9 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * 
@@ -249,10 +251,11 @@ public class PrintPreferencesCommand
      */
     private void print_preference_and_source(Agent agnt, Printer printer, Preference pref) throws IOException
     {
+        final TraceFormats traceFormats = Adaptables.adapt(agnt, TraceFormats.class);
         printer.print("  ");
         if (pref.attr == agnt.predefinedSyms.operator_symbol)
         {
-            agnt.traceFormats.print_object_trace(printer.getWriter(), pref.value);
+            traceFormats.print_object_trace(printer.getWriter(), pref.value);
         }
         else
         {
@@ -263,7 +266,7 @@ public class PrintPreferencesCommand
             printer.print(" %c", pref.type.getIndicator());
         }
         if (pref.type.isBinary())
-            agnt.traceFormats.print_object_trace(printer.getWriter(), pref.referent);
+            traceFormats.print_object_trace(printer.getWriter(), pref.referent);
         if (pref.o_supported)
             printer.print(" :O ");
         else

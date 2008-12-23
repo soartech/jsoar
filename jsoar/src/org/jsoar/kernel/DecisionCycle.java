@@ -28,6 +28,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
@@ -43,6 +44,7 @@ public class DecisionCycle
     private final Agent context;
     
     private InputOutputImpl io;
+    private TraceFormats traceFormats;
     
     private static enum GoType
     {
@@ -123,6 +125,7 @@ public class DecisionCycle
     public void initialize()
     {
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
+        this.traceFormats = Adaptables.adapt(context, TraceFormats.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -285,7 +288,7 @@ public class DecisionCycle
             try
             {
                 //writer.append("\n");
-                context.decider.print_lowest_slot_in_context_stack (writer);
+                traceFormats.print_lowest_slot_in_context_stack(writer, context.decider.bottom_goal);
                 writer.append("\n");
                 writer.flush();
             }
@@ -401,7 +404,7 @@ public class DecisionCycle
     /**
      * extracted from run_one_top_level_phase(), switch case APPLY_PHASE
      * 
-     * Modified at umich for new waterfall model, see:
+     * <p>Modified at umich for new waterfall model, see:
      * https://winter.eecs.umich.edu/soarumwiki/index.php/Soar/Waterfall
      */
     private void doApplyPhase()
@@ -433,7 +436,7 @@ public class DecisionCycle
             // 'prime' the cycle for a new round of production firings in the APPLY (pref/wm) phases
             context.consistency.initialize_consistency_calculations_for_new_decision();
 
-            context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS; /* might get reset in det_high_active_prod_level... */
+            context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS; // might get reset in det_high_active_prod_level...
             context.consistency.determine_highest_active_production_level_in_stack_apply();
             
             if (current_phase == Phase.OUTPUT)
@@ -469,6 +472,7 @@ public class DecisionCycle
                 this.pe_cycle_count++;
                 this.pe_cycles_this_d_cycle++;
             }
+            
             context.consistency.determine_highest_active_production_level_in_stack_apply();
 
             afterElaboration();

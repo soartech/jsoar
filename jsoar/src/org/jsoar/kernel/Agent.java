@@ -61,10 +61,10 @@ public class Agent extends AbstractAdaptable
     private final Random random = new Random();
     
     private final Trace trace = new Trace(printer);
-    public final TraceFormats traceFormats = new TraceFormats(this);
+    private final TraceFormats traceFormats = new TraceFormats(this);
     
-    public final PredefinedSymbols predefinedSyms = new PredefinedSymbols();
-    public final SymbolFactoryImpl syms = predefinedSyms.getSyms();
+    public final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+    public final PredefinedSymbols predefinedSyms = new PredefinedSymbols(syms);
     private final MultiAttributes multiAttrs = new MultiAttributes();
     public final Rete rete = new Rete(trace, syms);
     public final WorkingMemory workingMemory = new WorkingMemory(this);
@@ -126,7 +126,7 @@ public class Agent extends AbstractAdaptable
      * while still making them accessible to the spaghetti that is the kernel at the
      * moment. Hopefully, it will become less necessary as the system is cleaned up.
      */
-    private final List<Object> adaptables = Arrays.asList((Object) decisionManip, exploration, io);
+    private final List<Object> adaptables = Arrays.asList((Object) decisionManip, exploration, io, traceFormats);
     
     public Agent()
     {
@@ -402,7 +402,7 @@ public class Agent extends AbstractAdaptable
             try
             {
                 writer.write("\n");
-                decider.print_lowest_slot_in_context_stack (writer);
+                traceFormats.print_lowest_slot_in_context_stack (writer, decider.bottom_goal);
             }
             catch (IOException e)
             {
@@ -493,8 +493,7 @@ public class Agent extends AbstractAdaptable
 
         if (operand2_mode)
         {
-            decider.active_level = 0; // Signal that everything should be
-                                        // retracted
+            decider.active_level = 0; // Signal that everything should be retracted
             recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             // allow all i-instantiations to retract
             recMemory.do_preference_phase(decider.top_goal, osupport.o_support_calculation_type); 
