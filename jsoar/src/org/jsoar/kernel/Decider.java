@@ -29,6 +29,7 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.properties.BooleanPropertyProvider;
 
 /**
  * decide.cpp
@@ -158,7 +159,7 @@ public class Decider
     /**
      * agent.h:740:waitsnc
      */
-    private boolean waitsnc;
+    private BooleanPropertyProvider waitsnc = new BooleanPropertyProvider(SoarProperties.WAITSNC);
     
     /**
      * agent.h:384:parent_list_head
@@ -177,29 +178,13 @@ public class Decider
     
     public void initialize()
     {
+        context.getProperties().setProvider(SoarProperties.WAITSNC, waitsnc);
+        
         this.exploration = Adaptables.adapt(context, Exploration.class);
         this.decisionManip = Adaptables.adapt(context, DecisionManipulation.class);
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
     }
     
-    /**
-     * @return the waitsnc
-     */
-    public boolean isWaitsnc()
-    {
-        return waitsnc;
-    }
-
-
-    /**
-     * @param waitsnc the waitsnc to set
-     */
-    public void setWaitsnc(boolean waitsnc)
-    {
-        this.waitsnc = waitsnc;
-    }
-
-
     /**
      * 
      * <p>chunk.cpp:753:find_goal_at_goal_stack_level
@@ -2373,7 +2358,7 @@ public class Decider
         if (goal.lower_goal != null)
             remove_existing_context_and_descendents(goal.lower_goal);
 
-        if (context.operand2_mode && this.waitsnc && (impasse_type == ImpasseType.NO_CHANGE)
+        if (context.operand2_mode && this.waitsnc.value.get() && (impasse_type == ImpasseType.NO_CHANGE)
                 && (attribute_of_impasse == context.predefinedSyms.state_symbol))
         {
             // Note: In csoar, waitsnc_detect was set to true here, but it was 

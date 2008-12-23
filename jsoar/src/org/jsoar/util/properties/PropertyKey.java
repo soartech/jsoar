@@ -18,30 +18,44 @@ public class PropertyKey<T>
     private final String name;
     private final Class<T> type;
     private final T defValue;
+    private final boolean boundable;
     
-    /**
-     * Create a new property key.
-     * 
-     * @param <T> The value type
-     * @param name The name of the property
-     * @param type The class of the value type
-     * @param defValue The default value of the property
-     * @return new PropertyKey
-     */
-    public static <T> PropertyKey<T> create(String name, Class<T> type, T defValue)
+    public static class Builder<T>
     {
-        return new PropertyKey<T>(name, type, defValue);
+        private final String name;
+        private final Class<T> type;
+        private T defValue;
+        private boolean boundable;
+        
+        private Builder(String name, Class<T> type)
+        {
+            this.name = name;
+            this.type = type;
+        }
+
+        public T defaultValue() { return defValue; }
+        public Builder<T> defaultValue(T defValue) { this.defValue = defValue; return this; }
+        public boolean boundable() { return boundable; }
+        public Builder<T> boundable(boolean boundable) { this.boundable = boundable; return this; }
+        
+        public PropertyKey<T> build()
+        {
+            return new PropertyKey<T>(this);
+        }
     }
     
-    /**
-     * @param name
-     * @param type
-     */
-    private PropertyKey(String name, Class<T> type, T defValue)
+    public static <T> Builder<T> builder(String name, Class<T> type)
     {
-        this.name = name;
-        this.type = type;
-        this.defValue = defValue;
+        return new Builder<T>(name, type);
+    }
+    
+   
+    private PropertyKey(Builder<T> builder)
+    {
+        this.name = builder.name;
+        this.type = builder.type;
+        this.defValue = builder.defValue;
+        this.boundable = builder.boundable;
     }
 
     /**
@@ -66,5 +80,17 @@ public class PropertyKey<T>
     public T getDefaultValue()
     {
         return defValue;
+    }
+
+    /**
+     * Returns true if this property will fire events when its value changed.
+     * For certain high-frequency events, change events are not practical. In
+     * these cases, the property will return false for this method.
+     * 
+     * @return true if this property fires change events when its value changes
+     */
+    public boolean isBoundable()
+    {
+        return boundable;
     }
 }

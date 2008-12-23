@@ -16,6 +16,7 @@ import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
+import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
@@ -43,6 +44,7 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.timing.ExecutionTimers;
 
 /**
@@ -66,6 +68,7 @@ import org.jsoar.util.timing.ExecutionTimers;
 public class RecognitionMemory
 {
     private final Agent context;
+    private Chunker chunker;
     
     /**
      * agent.h:174:firer_highest_rhs_unboundvar_index
@@ -131,6 +134,11 @@ public class RecognitionMemory
     public RhsFunctionContext getRhsFunctionContext()
     {
         return rhsFuncContext;
+    }
+    
+    public void initialize()
+    {
+        this.chunker = Adaptables.adapt(context, Chunker.class);
     }
     
     /**
@@ -788,7 +796,7 @@ public class RecognitionMemory
         this.production_being_fired = null;
 
         // build chunks/justifications if necessary
-        context.chunker.chunk_instantiation(inst, context.chunker.isLearningOn());
+        this.chunker.chunk_instantiation(inst, this.chunker.isLearningOn());
 
         // TODO callback FIRING_CALLBACK
         //   if (!thisAgent->system_halted) {
@@ -1349,7 +1357,7 @@ public class RecognitionMemory
 	        {
 	        	assertionsExist = true;
 	        	
-	            if(context.chunker.isMaxChunksReached()) 
+	            if(this.chunker.isMaxChunksReached()) 
 	            {
 	            	context.soarReteListener.consume_last_postponed_assertion();
 	                context.decisionCycle.halt("Max chunks reached");

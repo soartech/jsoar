@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.ByRef;
 
 /**
@@ -84,10 +85,10 @@ public class StatusBar extends JPanel implements Refreshable
     {
         StringBuilder b = new StringBuilder("<html>");
         b.append(status("warnings", a.getPrinter().isPrintWarnings()) + ", ");
-        b.append(status("waitsnc", a.decider.isWaitsnc()) + ", ");
-        b.append(status("learn", a.chunker.isLearningOn()) + ", ");
+        b.append(status("waitsnc", a.getProperties().get(SoarProperties.WAITSNC)) + ", ");
+        b.append(status("learn", a.getProperties().get(SoarProperties.LEARNING_ON)) + ", ");
         b.append(status("rl", a.rl.rl_enabled()) + ", ");
-        b.append(status("save-backtraces", a.explain.isEnabled()));
+        b.append(status("save-backtraces", a.getProperties().get(SoarProperties.EXPLAIN)));
         b.append("</html>");
         
         return b.toString();

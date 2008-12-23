@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.io.CycleCountInput;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
@@ -65,7 +66,7 @@ public class RecognitionMemoryTest
             
         agent.getRhsFunctions().registerHandler(func);
         agent.getTrace().setEnabled(Category.WM_CHANGES, true);
-        agent.decider.setWaitsnc(true);
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction("" +
         		"testRhsFunctionThatCreatesStructure\n" +
         		"(state <s> ^superstate nil ^io.input-link.cycle-count 1)\n" +

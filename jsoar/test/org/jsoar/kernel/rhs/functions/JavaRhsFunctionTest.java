@@ -14,6 +14,7 @@ import java.util.List;
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.ByRef;
@@ -129,7 +130,7 @@ public class JavaRhsFunctionTest extends JSoarTest
                 return oldSucceeded.execute(rhsContext, arguments);
             }});
         
-        agent.decider.setWaitsnc(true);
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
         
         // Create a new StringBuilder and store in (<s> ^builder)
         agent.getProductions().loadProduction(

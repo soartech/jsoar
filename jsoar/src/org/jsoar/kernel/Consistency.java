@@ -14,6 +14,7 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.properties.IntegerPropertyProvider;
 
 /**
  * consistency.cpp
@@ -33,7 +34,16 @@ public class Consistency
     /**
      * gsysparam.h:MAX_ELABORATIONS_SYSPARAM
      */
-    private int maxElaborations = 100;
+    private IntegerPropertyProvider maxElaborations = new IntegerPropertyProvider(SoarProperties.MAX_ELABORATIONS)
+    {
+
+        @Override
+        public Integer set(Integer value)
+        {
+            Arguments.check(value > 0, "max elaborations must be greater than zero");
+            return super.set(value);
+        }
+    };
     private boolean hitMaxElaborations = false;
     
     /**
@@ -42,11 +52,15 @@ public class Consistency
     public Consistency(Agent context)
     {
         this.context = context;
+        
+        this.context.getProperties().setProvider(SoarProperties.MAX_ELABORATIONS, maxElaborations);
     }
-    
     
     /**
      * The current setting for max elaborations.
+     * 
+     * <p>Client code should access this value through the agent's
+     * property manager.
      * 
      * gsysparam.h::MAX_ELABORATIONS_SYSPARAM
      * 
@@ -54,22 +68,8 @@ public class Consistency
      */
     public int getMaxElaborations()
     {
-        return maxElaborations;
+        return maxElaborations.value.get();
     }
-
-    /**
-     * The the value of max elaborations.
-     * 
-     * gsysparam.g::MAX_ELABORATIONS_SYSPARAM
-     * 
-     * @param maxElaborations the maxElaborations to set
-     */
-    public void setMaxElaborations(int maxElaborations)
-    {
-        Arguments.check(maxElaborations > 0, "max elaborations must be greater than zero");
-        this.maxElaborations = maxElaborations;
-    }
-    
 
     /**
      * @return the hitMaxElaborations
@@ -705,7 +705,7 @@ public class Consistency
 
         /* Check for Max ELABORATIONS EXCEEDED */
 
-        if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations )
+        if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations.value.get() )
         {
             setHitMaxElaborations(true);
             context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to output phases.", maxElaborations);
@@ -959,7 +959,7 @@ public class Consistency
 
         /* Check for Max ELABORATIONS EXCEEDED */
 
-        if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations)
+        if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations.value.get())
         {
             setHitMaxElaborations(true);
             context.getPrinter().warn("Warning: reached max-elaborations(%d); proceeding to decision phases.", maxElaborations);

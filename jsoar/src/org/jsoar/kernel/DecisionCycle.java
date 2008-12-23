@@ -19,6 +19,7 @@ import org.jsoar.kernel.events.BeforeElaborationEvent;
 import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
+import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -45,6 +46,7 @@ public class DecisionCycle
     
     private InputOutputImpl io;
     private TraceFormats traceFormats;
+    private Chunker chunker;
     
     private static enum GoType
     {
@@ -126,6 +128,7 @@ public class DecisionCycle
     {
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
         this.traceFormats = Adaptables.adapt(context, TraceFormats.class);
+        this.chunker = Adaptables.adapt(context, Chunker.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -307,7 +310,7 @@ public class DecisionCycle
 
             context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.DECISION));
 
-            context.chunker.chunks_this_d_cycle = 0;
+            chunker.chunks_this_d_cycle = 0;
 
             Phase.DECISION.trace(trace, false);
 
@@ -649,7 +652,7 @@ public class DecisionCycle
         // now comes first.  e_cycles are also zeroed before the APPLY Phase.
         if (context.operand2_mode == true)
         {
-            this.context.chunker.chunks_this_d_cycle = 0;
+            this.chunker.chunks_this_d_cycle = 0;
             this.e_cycles_this_d_cycle = 0;
         }
         

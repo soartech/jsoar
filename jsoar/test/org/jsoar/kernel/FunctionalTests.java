@@ -190,7 +190,7 @@ public class FunctionalTests
         "   (<s> ^operator <o> +)\n" +
         "   (<o> ^name initialize-toh)");
         
-        agent.consistency.setMaxElaborations(5);
+        agent.getProperties().set(SoarProperties.MAX_ELABORATIONS, 5);
         agent.runFor(1, RunType.DECISIONS);
         assertFalse(agent.consistency.isHitMaxElaborations()); //  TODO replace with callback?
         

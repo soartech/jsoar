@@ -37,8 +37,8 @@ public class PropertyManagerTest
     @Test
     public void testGetReturnsDefaultValue()
     {
-        final PropertyKey<String> KEY = PropertyKey.create("test", String.class, "default");
-        final PropertyKey<Integer> KEY2 = PropertyKey.create("test2", Integer.class, 666);
+        final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
+        final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();
         PropertyManager pm = new PropertyManager();
         
         assertEquals("default", pm.get(KEY));
@@ -48,8 +48,8 @@ public class PropertyManagerTest
     @Test
     public void testSetCreatesDefaultProvider()
     {
-        final PropertyKey<String> KEY = PropertyKey.create("test", String.class, "default");
-        final PropertyKey<Integer> KEY2 = PropertyKey.create("test2", Integer.class, 666);
+        final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
+        final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();
         PropertyManager pm = new PropertyManager();
         
         assertEquals("default", pm.get(KEY));
@@ -64,7 +64,7 @@ public class PropertyManagerTest
     @Test
     public void testCustomProvider()
     {
-        final PropertyKey<String> KEY = PropertyKey.create("test", String.class, "default");
+        final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
         final ByRef<String> storage = ByRef.create("hello");
         final PropertyProvider<String> provider = new PropertyProvider<String>() {
 
@@ -95,8 +95,8 @@ public class PropertyManagerTest
     @Test
     public void testEvents()
     {
-        final PropertyKey<String> KEY = PropertyKey.create("test", String.class, "default");
-        final PropertyKey<Integer> KEY2 = PropertyKey.create("test2", Integer.class, 666);
+        final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
+        final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();
         PropertyManager pm = new PropertyManager();
         final int[] key1Count = new int[] { 0 };
         pm.addListener(KEY, new PropertyListener<String>(){

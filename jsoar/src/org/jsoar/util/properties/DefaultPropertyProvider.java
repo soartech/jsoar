@@ -6,7 +6,8 @@
 package org.jsoar.util.properties;
 
 /**
- * Default implementation of {@link PropertyProvider}.
+ * Default implementation of {@link PropertyProvider}. {@link #get()} and
+ * {@link #set(Object)} are synchronized for thread safety.
  * 
  * @author ray
  */
@@ -23,7 +24,7 @@ public class DefaultPropertyProvider <T> implements PropertyProvider <T>
      * @see org.jsoar.kernel.properties.PropertyProvider#get()
      */
     @Override
-    public T get()
+    public synchronized T get()
     {
         return value;
     }
@@ -32,7 +33,7 @@ public class DefaultPropertyProvider <T> implements PropertyProvider <T>
      * @see org.jsoar.kernel.properties.PropertyProvider#set(java.lang.Object)
      */
     @Override
-    public T set(T value)
+    public synchronized T set(T value)
     {
         T oldValue = this.value;
         this.value = value;

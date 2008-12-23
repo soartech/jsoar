@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
@@ -62,7 +63,7 @@ public class CycleCountInputTest
             }});
         CycleCountInput input = new CycleCountInput(agent.getInputOutput(), agent.getEventManager());
         
-        agent.decider.setWaitsnc(true);
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction("testCycleCountInput " +
         		"(state <s> ^superstate nil ^io.input-link.cycle-count <cc>)" +
         		"-->" +

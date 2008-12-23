@@ -45,6 +45,7 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEventManager;
+import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.timing.DefaultExecutionTimer;
 import org.jsoar.util.timing.ExecutionTimer;
 
@@ -60,6 +61,7 @@ public class Agent extends AbstractAdaptable
      */
     private final Random random = new Random();
     
+    private final PropertyManager properties = new PropertyManager();
     private final Trace trace = new Trace(printer);
     private final TraceFormats traceFormats = new TraceFormats(this);
     
@@ -77,8 +79,8 @@ public class Agent extends AbstractAdaptable
     public final Decider decider = new Decider(this);
     public final Consistency consistency = new Consistency(this);
     
-    public final Chunker chunker = new Chunker(this);
-    public final Explain explain = new Explain(this);
+    private final Chunker chunker = new Chunker(this);
+    private final Explain explain = new Explain(this);
     public final ReinforcementLearning rl = new ReinforcementLearning(this);
     
     private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
@@ -126,7 +128,7 @@ public class Agent extends AbstractAdaptable
      * while still making them accessible to the spaghetti that is the kernel at the
      * moment. Hopefully, it will become less necessary as the system is cleaned up.
      */
-    private final List<Object> adaptables = Arrays.asList((Object) decisionManip, exploration, io, traceFormats);
+    private final List<Object> adaptables = Arrays.asList((Object) decisionManip, exploration, io, traceFormats, properties, chunker, explain);
     
     public Agent()
     {
@@ -134,6 +136,8 @@ public class Agent extends AbstractAdaptable
         decider.initialize();
         decisionCycle.initialize();
         rl.initialize();
+        recMemory.initialize();
+        chunker.initialize();
         
         // Set up standard RHS functions
         new StandardFunctions(this);
@@ -164,6 +168,18 @@ public class Agent extends AbstractAdaptable
             reinitialize_soar();
             init_agent_memory();
         }
+    }
+    
+    /**
+     * Returns the property manager for this agent. All agent configuration
+     * (waitsnc, learn, etc) should be performed programmatically through
+     * the property manager
+     * 
+     * @return The agent's property manager
+     */
+    public PropertyManager getProperties()
+    {
+        return properties;
     }
     
     /**

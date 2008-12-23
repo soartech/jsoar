@@ -14,6 +14,11 @@ package org.jsoar.util.properties;
  * may provide custom storage along with expanded constraints on the value
  * of the property.
  * 
+ * <p>It is expected that the implementation of the {@link #get()} and
+ * {@link #set(Object)} methods will provide synchronization. That is,
+ * the owning property manager's state is sufficiently guarded, but
+ * the property provider is not protected by default.
+ * 
  * @author ray
  */
 public interface PropertyProvider <T>
