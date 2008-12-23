@@ -1245,6 +1245,62 @@ public class TraceFormats
     }
     
     /**
+     * TODO This should probably go somewhere else
+     * 
+     * decide.cpp:2456:print_lowest_slot_in_context_stack
+     * 
+     * @param writer
+     * @throws IOException
+     */
+    public void print_lowest_slot_in_context_stack(Writer writer, IdentifierImpl bottom_goal) throws IOException
+    {
+        // Note: There was commented out code from Bob Wray in 1997 here in csoar about
+        // "this doesn't work yet so for now just print the last selection".
+        // Presumably, whatever it was supposed to do has been lost to the ages.
+
+        if (bottom_goal.operator_slot.getWmes() != null)
+        {
+            print_stack_trace(writer, bottom_goal.operator_slot.getWmes().value,
+                    bottom_goal, TraceFormatRestriction.FOR_OPERATORS_TF, true);
+        }
+
+        /*
+        this coded is needed just so that when an ONC is created in OPERAND
+        (i.e. if the previous goal's operator slot is not empty), it's stack
+        trace line doesn't get a number.  this is done because in OPERAND,
+        ONCs are detected for "free".
+        */
+
+        else
+        {
+            if (context.operand2_mode)
+            {
+                print_stack_trace(writer, bottom_goal, bottom_goal,
+                        TraceFormatRestriction.FOR_STATES_TF, true);
+            }
+            else
+            {
+                if (context.decisionCycle.d_cycle_count == 0)
+                    print_stack_trace(writer, bottom_goal, bottom_goal,
+                            TraceFormatRestriction.FOR_STATES_TF, true);
+                else
+                {
+                    if (bottom_goal.higher_goal != null && bottom_goal.higher_goal.operator_slot.getWmes() != null)
+                    {
+                        print_stack_trace(writer, bottom_goal, bottom_goal,
+                                TraceFormatRestriction.FOR_STATES_TF, true);
+                    }
+                    else
+                    {
+                        print_stack_trace(writer, bottom_goal, bottom_goal,
+                                TraceFormatRestriction.FOR_STATES_TF, true);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
      * a utility function for finding the value of the ^name attribute on a 
      * given object (symbol).  It returns the name, or NIL if the object has 
      * no name.

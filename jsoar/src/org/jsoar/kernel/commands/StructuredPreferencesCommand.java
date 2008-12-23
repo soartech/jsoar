@@ -21,7 +21,9 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * TODO: This should be stripped down to only support what's needed by PreferencesView
@@ -254,8 +256,9 @@ public class StructuredPreferencesCommand
     
     private ResultEntry createEntry(Agent agent, Preference pref)
     {
-        String source = pref.inst.prod != null ? pref.inst.prod.getName().toString() : "[dummy production]";
-        List<Wme> sourceWmes = pref.inst.getBacktraceWmes();
+        final TraceFormats traceFormats = Adaptables.adapt(agent, TraceFormats.class);
+        final String source = pref.inst.prod != null ? pref.inst.prod.getName().toString() : "[dummy production]";
+        final List<Wme> sourceWmes = pref.inst.getBacktraceWmes();
         
         final String valueTrace;
         if(pref.attr == agent.predefinedSyms.operator_symbol)
@@ -263,7 +266,7 @@ public class StructuredPreferencesCommand
             StringWriter w = new StringWriter();
             try
             {
-                agent.traceFormats.print_object_trace(w, pref.value);
+                traceFormats.print_object_trace(w, pref.value);
             }
             catch (IOException e)
             {

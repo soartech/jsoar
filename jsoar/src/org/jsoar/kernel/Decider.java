@@ -5,8 +5,6 @@
  */
 package org.jsoar.kernel;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -25,12 +23,11 @@ import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
-import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -3135,59 +3132,4 @@ public class Decider
         }
     }
 
-    /**
-     * TODO This should probably go somewhere else
-     * 
-     * decide.cpp:2456:print_lowest_slot_in_context_stack
-     * 
-     * @param writer
-     * @throws IOException
-     */
-    public void print_lowest_slot_in_context_stack(Writer writer) throws IOException
-    {
-        // Note: There was commented out code from Bob Wray in 1997 here in csoar about
-        // "this doesn't work yet so for now just print the last selection".
-        // Presumably, whatever it was supposed to do has been lost to the ages.
-
-        if (bottom_goal.operator_slot.getWmes() != null)
-        {
-            context.traceFormats.print_stack_trace(writer, bottom_goal.operator_slot.getWmes().value,
-                    bottom_goal, TraceFormatRestriction.FOR_OPERATORS_TF, true);
-        }
-
-        /*
-        this coded is needed just so that when an ONC is created in OPERAND
-        (i.e. if the previous goal's operator slot is not empty), it's stack
-        trace line doesn't get a number.  this is done because in OPERAND,
-        ONCs are detected for "free".
-        */
-
-        else
-        {
-            if (context.operand2_mode)
-            {
-                context.traceFormats.print_stack_trace(writer, bottom_goal, bottom_goal,
-                        TraceFormatRestriction.FOR_STATES_TF, true);
-            }
-            else
-            {
-                if (context.decisionCycle.d_cycle_count == 0)
-                    context.traceFormats.print_stack_trace(writer, bottom_goal, bottom_goal,
-                            TraceFormatRestriction.FOR_STATES_TF, true);
-                else
-                {
-                    if (bottom_goal.higher_goal != null && bottom_goal.higher_goal.operator_slot.getWmes() != null)
-                    {
-                        context.traceFormats.print_stack_trace(writer, bottom_goal, bottom_goal,
-                                TraceFormatRestriction.FOR_STATES_TF, true);
-                    }
-                    else
-                    {
-                        context.traceFormats.print_stack_trace(writer, bottom_goal, bottom_goal,
-                                TraceFormatRestriction.FOR_STATES_TF, true);
-                    }
-                }
-            }
-        }
-    }
 }

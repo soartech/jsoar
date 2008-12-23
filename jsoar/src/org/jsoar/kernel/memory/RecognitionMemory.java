@@ -478,7 +478,6 @@ public class RecognitionMemory
      * @param inst
      * @param need_to_do_support_calculations
      * @param top_goal
-     * @param o_support_calculation_type
      */
     public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations,
             final IdentifierImpl top_goal)
@@ -560,19 +559,21 @@ public class RecognitionMemory
         }
         inst.backtrace_number = 0;
 
-        if ((context.osupport.o_support_calculation_type == 0) || 
-            (context.osupport.o_support_calculation_type == 3) || 
-            (context.osupport.o_support_calculation_type == 4))
+        final OSupport osupport = context.osupport;
+        final int o_support_calculation_type = osupport.o_support_calculation_type;
+        
+        if (o_support_calculation_type == 0 || o_support_calculation_type == 3 || o_support_calculation_type == 4)
         {
             // do calc's the normal Soar 6 way
             if (need_to_do_support_calculations)
-                context.osupport.calculate_support_for_instantiation_preferences(inst, top_goal, context.operand2_mode);
+                osupport.calculate_support_for_instantiation_preferences(inst, top_goal, context.operand2_mode);
         }
-        else if (context.osupport.o_support_calculation_type == 1)
+        else if (o_support_calculation_type == 1)
         {
             if (need_to_do_support_calculations)
-                context.osupport.calculate_support_for_instantiation_preferences(inst, top_goal, context.operand2_mode);
-            /* --- do calc's both ways, warn on differences --- */
+                osupport.calculate_support_for_instantiation_preferences(inst, top_goal, context.operand2_mode);
+            
+            // do calc's both ways, warn on differences
             if ((inst.prod.declared_support != ProductionSupport.DECLARED_O_SUPPORT)
                     && (inst.prod.declared_support != ProductionSupport.DECLARED_I_SUPPORT))
             {
@@ -586,7 +587,7 @@ public class RecognitionMemory
                 }
                 // Note: I just used add() above, so the list isn't backwards in Java
                 // saved_flags = destructively_reverse_list (saved_flags);
-                context.osupport.dougs_calculate_support_for_instantiation_preferences(inst);
+                osupport.dougs_calculate_support_for_instantiation_preferences(inst);
                 boolean difference_found = false;
                 int savedFlagsIndex = 0;
                 for (ListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
@@ -610,7 +611,7 @@ public class RecognitionMemory
             if ((inst.prod.declared_support != ProductionSupport.DECLARED_O_SUPPORT)
                     && (inst.prod.declared_support != ProductionSupport.DECLARED_I_SUPPORT))
             {
-                context.osupport.dougs_calculate_support_for_instantiation_preferences(inst);
+                osupport.dougs_calculate_support_for_instantiation_preferences(inst);
             }
         }
     }
