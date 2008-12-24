@@ -93,10 +93,10 @@ public class RecognitionMemoryTest
         agent.runFor(1, RunType.DECISIONS);
         
         assertNull(Wmes.find(s1.getWmes(), Wmes.newMatcher(agent.getSymbols(), s1, "result")));
-        assertFalse(agent.rete.getAllWmes().contains(x));
-        assertFalse(agent.rete.getAllWmes().contains(y));
-        assertFalse(agent.rete.getAllWmes().contains(z));
-        assertFalse(agent.rete.getAllWmes().contains(name));
+        assertFalse(agent.getAllWmesInRete().contains(x));
+        assertFalse(agent.getAllWmesInRete().contains(y));
+        assertFalse(agent.getAllWmesInRete().contains(z));
+        assertFalse(agent.getAllWmesInRete().contains(name));
     }
 
 }

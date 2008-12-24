@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
@@ -181,31 +182,16 @@ public class StructuredPreferencesCommand
         }
         
         final List<ResultEntry> entries = new ArrayList<ResultEntry>();
-        for(WmeImpl w : agent.rete.getAllWmes())
+        for(Wme w : agent.getAllWmesInRete())
         {
             if(w.getValue() == valueId)
             {
-                if (w.preference != null)
+                final Iterator<Preference> it = w.getPreferences();
+                // TODO if it is empty, this is an arch or input WME
+                while(it.hasNext())
                 {
-                    Slot s = Slot.find_slot(w.id, w.attr);
-                    if (s == null)
-                    {
-                        // TODO
-                        // printer.print("    This is an arch-wme and has no prefs.\n");
-                    }
-                    else
-                    {
-                        for (Preference p = s.getAllPreferences(); p != null; p = p.nextOfSlot)
-                        {
-                            if(p.value == valueId)
-                            {
-                                entries.add(createEntry(agent, p));
-                            }
-                        }
-                    }
-                    // print it
+                    entries.add(createEntry(agent, it.next()));
                 }
-                
             }
         }
         Result r = new Result(null, null, valueId, entries, new ArrayList<Wme>(), new ArrayList<Wme>());

@@ -31,7 +31,7 @@ public class ContextVariableInfoTest
         agent.getProductions().loadProduction("propose (state <s> ^superstate nil -^done) --> (<s> ^operator <o>)(<o> ^name test)");
         agent.getProductions().loadProduction("apply (state <s> ^operator <o>) (<o> ^name test) --> (<s> ^done *yes*)");
         
-        while(agent.decisionCycle.current_phase != Phase.APPLY)
+        while(agent.getCurrentPhase() != Phase.APPLY)
         {
             agent.runFor(1, RunType.PHASES);
         }

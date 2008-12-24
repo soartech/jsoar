@@ -39,7 +39,8 @@ import org.jsoar.util.ListHead;
  */
 public class SoarReteListener implements ReteListener
 {
-    private Agent context;
+    private final Agent context;
+    private final Rete rete;
     
     /**
      * agent.h:733
@@ -75,20 +76,12 @@ public class SoarReteListener implements ReteListener
     /**
      * @param operator_symbol
      */
-    public SoarReteListener(Agent context)
+    public SoarReteListener(Agent context, Rete rete)
     {
         this.context = context;
+        this.rete = rete;
+        this.rete.setReteListener(this);
     }
-
-    
-    /**
-     * @return the rete
-     */
-    public Rete getRete()
-    {
-        return context.rete;
-    }
-
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.rete.ReteListener#finishRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)
@@ -987,7 +980,7 @@ public class SoarReteListener implements ReteListener
     
     private void print_whole_token(Printer printer, MatchSetChange msc, WmeTraceType wtt)
     {
-        context.rete.print_whole_token(printer, msc.tok, wtt);
+        this.rete.print_whole_token(printer, msc.tok, wtt);
         Rete.print_whole_token_wme(printer, msc.w, wtt);
     }
 

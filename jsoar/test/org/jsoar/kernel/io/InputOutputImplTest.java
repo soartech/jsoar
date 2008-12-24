@@ -18,6 +18,7 @@ import java.util.Set;
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.InputCycleEvent;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.OutputEvent.OutputMode;
@@ -185,7 +186,7 @@ public class InputOutputImplTest extends JSoarTest
             @Override
             public void onEvent(SoarEvent event)
             {
-                if(agent.decisionCycle.d_cycle_count == 2)
+                if(agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() == 2)
                 {
                     InputBuilder builder = InputBuilder.create(agent.getInputOutput());
                     builder.add("retract-output", "*yes*");

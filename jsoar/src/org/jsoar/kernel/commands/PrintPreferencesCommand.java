@@ -6,11 +6,13 @@
 package org.jsoar.kernel.commands;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -168,43 +170,26 @@ public class PrintPreferencesCommand
             // ??? should write print_prefs_for_id(soarAgent, id, print_prod,
             // wtt);
             // return;
-            for (WmeImpl w : agent.rete.getAllWmes())
+            for (Wme w : agent.getAllWmesInRete())
             {
-                if (w.value == id)
+                if (w.getValue() == id)
                 {
-                    if (w.value == agent.predefinedSyms.operator_symbol)
+                    if (w.getValue() == agent.predefinedSyms.operator_symbol)
                         printer.print("Preferences for ");
                     else
                         printer.print("Support for ");
-                    printer.print("(%d: %s ^%s %s)\n", w.timetag, w.id, w.attr, w.value);
-                    if (w.preference != null)
+                    printer.print("(%d: %s ^%s %s)\n", w.getTimetag(), w.getIdentifier(), w.getAttribute(), w.getValue());
+                    Iterator<Preference> it = w.getPreferences();
+                    if(!it.hasNext())
                     {
-                        Slot s = Slot.find_slot(w.id, w.attr);
-                        if (s == null)
-                        {
-                            printer.print("    This is an arch-wme and has no prefs.\n");
-                        }
-                        else
-                        {
-                            for (PreferenceType pt : PreferenceType.values())
-                            {
-                                if (s.getPreferencesByType(pt) != null)
-                                {
-                                    // print(soarAgent, "\n%ss:\n",
-                                    // preference_name[i]);
-                                    for (Preference p = s.getPreferencesByType(pt); p != null; p = p.next)
-                                    {
-                                        if (p.value == id)
-                                            print_preference_and_source(agent, printer, p);
-                                    }
-                                }
-                            }
-                        }
-                        // print it
+                        printer.print("    This is an architecture or input wme and has no prefs.\n");
                     }
                     else
                     {
-                        printer.print("    This is an input-wme and has no prefs.\n");
+                        while(it.hasNext())
+                        {
+                            print_preference_and_source(agent, printer, it.next());
+                        }
                     }
                 }
             }

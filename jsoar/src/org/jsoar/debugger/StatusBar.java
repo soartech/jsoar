@@ -14,8 +14,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * @author ray
@@ -68,9 +70,11 @@ public class StatusBar extends JPanel implements Refreshable
             @Override
             public Void call() throws Exception
             {
+                final DecisionCycle decisionCycle = Adaptables.adapt(a, DecisionCycle.class);
+                
                 runStateString.value = debugger.getAgentProxy().isRunning() ? "Running" : "Idle";
-                phaseString.value = a.decisionCycle.current_phase.toString().toLowerCase();
-                decisionsString.value = Integer.toString(a.decisionCycle.decision_phases_count) + " decisions";
+                phaseString.value = a.getCurrentPhase().toString().toLowerCase();
+                decisionsString.value = Integer.toString(decisionCycle.decision_phases_count) + " decisions";
                 settingsString.value = getSettings(a);
                 return null;
             }});

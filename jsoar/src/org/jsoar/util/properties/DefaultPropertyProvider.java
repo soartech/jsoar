@@ -40,4 +40,14 @@ public class DefaultPropertyProvider <T> implements PropertyProvider <T>
         return oldValue;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public synchronized String toString()
+    {
+        return value != null ? value.toString() : "null";
+    }
+
+    
 }

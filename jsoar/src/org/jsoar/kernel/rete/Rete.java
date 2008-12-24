@@ -74,7 +74,6 @@ public class Rete
      */
     private LinkedHashSet<WmeImpl> all_wmes_in_rete = new LinkedHashSet<WmeImpl>();
     //private ListHead<WmeImpl> all_wmes_in_rete = ListHead.newInstance();
-    public int num_wmes_in_rete= 0;
     private int beta_node_id_counter;
     ReteNode dummy_top_node;
     
@@ -151,7 +150,8 @@ public class Rete
     }
     
     /**
-     * @return List of all Wmes currently in the rete
+     * @return List of all Wmes currently in the rete. This is the actual list
+     *  so please don't modify it.
      */
     public Collection<WmeImpl> getAllWmes()
     {
@@ -439,7 +439,6 @@ public class Rete
         /* --- add w to all_wmes_in_rete --- */
         all_wmes_in_rete.add(w);
         //w.in_rete.insertAtHead(all_wmes_in_rete);
-        num_wmes_in_rete++;
 
         /* --- it's not in any right memories or tokens yet --- */
         w.clearnRightMemories();
@@ -484,7 +483,6 @@ public class Rete
         /* --- remove w from all_wmes_in_rete --- */
         all_wmes_in_rete.remove(w);
         //w.in_rete.remove(all_wmes_in_rete);
-        num_wmes_in_rete--;
         
         /* --- remove w from each alpha_mem it's in --- */
         while (w.getRightMemories() != null) {

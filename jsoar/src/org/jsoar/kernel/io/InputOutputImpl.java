@@ -19,6 +19,7 @@ import org.jsoar.kernel.events.OutputEvent.OutputMode;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -28,6 +29,7 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * User-defined Soar I/O routines should be added at system startup time
@@ -98,6 +100,7 @@ public class InputOutputImpl implements InputOutput
     }
     
     private final Agent context;
+    private WorkingMemory workingMemory;
     
     /**
      * agent.h:679:prev_top_state
@@ -133,6 +136,11 @@ public class InputOutputImpl implements InputOutput
         this.context = context;
     }
     
+    public void initialize()
+    {
+        this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
+        
+    }
     
     /* (non-Javadoc)
      * @see org.jsoar.kernel.io.InputOutput#getSymbolFactory()
@@ -193,9 +201,9 @@ public class InputOutputImpl implements InputOutput
         Arguments.checkNotNull(value, "value");
 
         // go ahead and add the wme
-        WmeImpl w = context.workingMemory.make_wme((IdentifierImpl) id, (SymbolImpl) attr, (SymbolImpl) value, false);
+        WmeImpl w = this.workingMemory.make_wme((IdentifierImpl) id, (SymbolImpl) attr, (SymbolImpl) value, false);
         ((IdentifierImpl) id).addInputWme(w);
-        context.workingMemory.add_wme_to_wm(w);
+        this.workingMemory.add_wme_to_wm(w);
 
         return w;
     }
@@ -241,7 +249,7 @@ public class InputOutputImpl implements InputOutput
             }
         }
 
-        context.workingMemory.remove_wme_from_wm(w);
+        this.workingMemory.remove_wme_from_wm(w);
     }
 
     /* (non-Javadoc)

@@ -97,5 +97,18 @@ public class SoarProperties
      * agent.h:687:o_support_calculation_type
      */
     public static final PropertyKey<Integer> O_SUPPORT_MODE = PropertyKey.builder("o-support-mode", Integer.class).defaultValue(4).build();
+    
+    /**
+     * <p>agent.h::d_cycle_count
+     * 
+     * @see DecisionCycle
+     */
+    public static final PropertyKey<Integer> D_CYCLE_COUNT = PropertyKey.builder("d_cycle_count", Integer.class).boundable(false).readonly(true).defaultValue(0).build();
 
+    /**
+     * <p>agent.h::e_cycle_count
+     * 
+     * @see DecisionCycle
+     */
+    public static final PropertyKey<Integer> E_CYCLE_COUNT = PropertyKey.builder("e_cycle_count", Integer.class).boundable(false).readonly(true).defaultValue(0).build();
 }
