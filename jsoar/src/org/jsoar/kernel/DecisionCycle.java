@@ -20,6 +20,7 @@ import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Chunker;
+import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -33,6 +34,7 @@ import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.properties.IntegerPropertyProvider;
 import org.jsoar.util.timing.ExecutionTimers;
 
 /**
@@ -47,6 +49,7 @@ public class DecisionCycle
     private InputOutputImpl io;
     private TraceFormats traceFormats;
     private Chunker chunker;
+    private WorkingMemory workingMemory;
     
     private static enum GoType
     {
@@ -79,7 +82,7 @@ public class DecisionCycle
     private int pe_cycles_this_d_cycle;
     private int run_last_output_count;
     private int run_generated_output_count;
-    public int d_cycle_count;
+    public IntegerPropertyProvider d_cycle_count = new IntegerPropertyProvider(SoarProperties.D_CYCLE_COUNT);
     public int decision_phases_count;
     public int inner_e_cycle_count;
     
@@ -126,9 +129,11 @@ public class DecisionCycle
     
     public void initialize()
     {
+        this.context.getProperties().setProvider(SoarProperties.D_CYCLE_COUNT, d_cycle_count);
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
         this.traceFormats = Adaptables.adapt(context, TraceFormats.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
+        this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -156,7 +161,7 @@ public class DecisionCycle
      */
     private void resetStatistics()
     {
-        d_cycle_count = 0;
+        d_cycle_count.value.set(0);
         decision_phases_count = 0;
         e_cycle_count = 0;
         e_cycles_this_d_cycle = 0;
@@ -197,7 +202,7 @@ public class DecisionCycle
         }
 
         // update WM size statistics
-        context.workingMemory.updateStats(context.rete.num_wmes_in_rete);
+        this.workingMemory.updateStats(context.getNumWmesInRete());
 
         checkForSystemHalt();
 
@@ -270,12 +275,12 @@ public class DecisionCycle
         
         /* d_cycle_count moved to input phases for Soar 8 new decision cycle */
         if (context.operand2_mode == false)
-            this.d_cycle_count++;
+            this.d_cycle_count.value.incrementAndGet();
         this.decision_phases_count++; // counts decisions, not cycles, for more accurate stats
 
         if (input_period == 0)
             this.input_cycle_flag = true;
-        else if ((this.d_cycle_count % this.input_period) == 0)
+        else if ((this.d_cycle_count.value.get() % this.input_period) == 0)
             this.input_cycle_flag = true;
 
         beforePhase(Phase.DECISION);
@@ -376,7 +381,7 @@ public class DecisionCycle
             
             Phase.OUTPUT.trace(trace, false);
             current_phase = Phase.INPUT;
-            this.d_cycle_count++;
+            this.d_cycle_count.value.incrementAndGet();
             return;
         }
 
@@ -830,7 +835,7 @@ public class DecisionCycle
         stop_soar = false;
         reason_for_stopping = null;
         int e_cycles_at_start = e_cycle_count;
-        int d_cycles_at_start = d_cycle_count;
+        int d_cycles_at_start = d_cycle_count.value.get();
         int elapsed_cycles = 0;
         GoType save_go_type = GoType.GO_PHASE;
         if (context.operand2_mode)
@@ -850,7 +855,7 @@ public class DecisionCycle
             }
             else
             {
-                elapsed_cycles = (d_cycle_count - d_cycles_at_start) + (e_cycle_count - e_cycles_at_start);
+                elapsed_cycles = (d_cycle_count.value.get() - d_cycles_at_start) + (e_cycle_count - e_cycles_at_start);
             }
             if (n == elapsed_cycles)
                 break;
@@ -918,13 +923,13 @@ public class DecisionCycle
 
         stop_soar = false;
         reason_for_stopping = null;
-        int d_cycles_at_start = d_cycle_count;
+        int d_cycles_at_start = d_cycle_count.value.get();
         /* need next line or runs only the input phases for "d 1" after init-soar */
         if (context.operand2_mode && (d_cycles_at_start == 0))
             d_cycles_at_start++;
         while (!stop_soar)
         {
-            if (n == (d_cycle_count - d_cycles_at_start))
+            if (n == (d_cycle_count.value.get() - d_cycles_at_start))
                 break;
             do_one_top_level_phase();
         }

@@ -3,8 +3,10 @@ package org.jsoar.tcl;
 import java.util.Calendar;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.adaptables.Adaptables;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -51,13 +53,14 @@ final class StatsCommand implements Command
         		agent.getTotalKernelTimer().getTotalSeconds(),
         		agent.getTotalCpuTimer().getTotalSeconds());
         
+        final DecisionCycle decisionCycle = Adaptables.adapt(agent, DecisionCycle.class);
         p.print("%d decisions%n" +
         		"%d elaboration cycles%n" +
         		"%d inner elaboration cycles%n" +
         		"%d p-elaboration cycles",
-        		agent.decisionCycle.decision_phases_count,
-        		agent.decisionCycle.e_cycle_count,
-        		agent.decisionCycle.inner_e_cycle_count,
-        		agent.decisionCycle.pe_cycle_count);
+        		decisionCycle.decision_phases_count,
+        		decisionCycle.e_cycle_count,
+        		decisionCycle.inner_e_cycle_count,
+        		decisionCycle.pe_cycle_count);
     }
 }

@@ -10,8 +10,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
@@ -26,6 +28,7 @@ import org.jsoar.kernel.memory.ContextVariableInfo;
 import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.TemporaryMemory;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
@@ -68,11 +71,11 @@ public class Agent extends AbstractAdaptable
     public final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     public final PredefinedSymbols predefinedSyms = new PredefinedSymbols(syms);
     private final MultiAttributes multiAttrs = new MultiAttributes();
-    public final Rete rete = new Rete(trace, syms);
-    public final WorkingMemory workingMemory = new WorkingMemory(this);
+    private final Rete rete = new Rete(trace, syms);
+    private final WorkingMemory workingMemory = new WorkingMemory();
     public final TemporaryMemory tempMemory = new TemporaryMemory();
     public final OSupport osupport = new OSupport(predefinedSyms, printer);
-    public final SoarReteListener soarReteListener = new SoarReteListener(this);
+    public final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
     public final RecognitionMemory recMemory = new RecognitionMemory(this);
     
     private final Exploration exploration = new Exploration(this);
@@ -87,7 +90,7 @@ public class Agent extends AbstractAdaptable
     private final InputOutputImpl io = new InputOutputImpl(this);
     
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(recMemory.getRhsFunctionContext());
-    public final DecisionCycle decisionCycle = new DecisionCycle(this);
+    private final DecisionCycle decisionCycle = new DecisionCycle(this);
     private SoarEventManager eventManager = new SoarEventManager();
     private DefaultProductionManager productions = new DefaultProductionManager(this);
     
@@ -117,7 +120,7 @@ public class Agent extends AbstractAdaptable
     
     /**
      * The objects in this list are retrievable by requesting them, by class,
-     * using the adaptables framework.
+     * using the adaptables framework, i.e. {@link #getAdapter(Class)}
      * 
      * <p>For example:
      * <pre>{@code
@@ -128,7 +131,10 @@ public class Agent extends AbstractAdaptable
      * while still making them accessible to the spaghetti that is the kernel at the
      * moment. Hopefully, it will become less necessary as the system is cleaned up.
      */
-    private final List<Object> adaptables = Arrays.asList((Object) decisionManip, exploration, io, traceFormats, properties, chunker, explain);
+    private final List<Object> adaptables = Arrays.asList((Object) 
+            decisionManip, exploration, io, traceFormats, properties, 
+            chunker, explain, decisionCycle, rete, predefinedSyms, decider,
+            workingMemory);
     
     public Agent()
     {
@@ -138,12 +144,15 @@ public class Agent extends AbstractAdaptable
         rl.initialize();
         recMemory.initialize();
         chunker.initialize();
+        consistency.initialize();
+        traceFormats.initalize();
+        productions.initialize();
+        workingMemory.initialize(this);
+        io.initialize();
         
         // Set up standard RHS functions
         new StandardFunctions(this);
         installDefaultTraceFormats();
-        
-        rete.setReteListener(soarReteListener);
     }
     
     /**
@@ -198,6 +207,12 @@ public class Agent extends AbstractAdaptable
         return trace;
     }
     
+    /**
+     * Returns the agents RHS function manager. Use this interface to register
+     * new RHS functions.
+     * 
+     * @return the agent's RHS function interface
+     */
     public RhsFunctionManager getRhsFunctions()
     {
         return rhsFunctions;
@@ -213,26 +228,37 @@ public class Agent extends AbstractAdaptable
         return eventManager;
     }
     
-    public void setEventManager(SoarEventManager eventManager)
-    {
-        this.eventManager = eventManager;
-    }
-    
+    /**
+     * Returns the agent's production manager. Use this interface to access
+     * loaded productions, load new productions, or excise existing productions.
+     * 
+     * @return the agent's production manager
+     */
     public ProductionManager getProductions()
     {
         return productions;
     }
     
+    /**
+     * Returns this agent's input/output interface
+     * 
+     * @return the agent's input/output interface
+     */
     public InputOutput getInputOutput()
     {
         return io;
     }
     
+    /**
+     * Returns this agent's symbol factory. The symbol factory is the interface
+     * to use to create new symbols or find existing ones.
+     * 
+     * @return the agent's symbol factory
+     */
     public SymbolFactory getSymbols()
     {
         return syms;
     }
-    
     
     /**
      *
@@ -385,6 +411,39 @@ public class Agent extends AbstractAdaptable
         this.decisionCycle.stop();
     }
     
+    public String getReasonForStop()
+    {
+        return decisionCycle.getReasonForStop();
+    }
+    
+    /**
+     * Returns the current phase of the decision cycle
+     * 
+     * @return the current phase of the decision cycle
+     */
+    public Phase getCurrentPhase()
+    {
+        return this.decisionCycle.current_phase;
+    }
+    
+    /**
+     * Returns a <b>copy</b> of the set of all WMEs currently in the rete.
+     * 
+     * @return a <b>copy</b> of the set of all WMEs currently in the rete
+     */
+    public Set<Wme> getAllWmesInRete()
+    {
+        return new LinkedHashSet<Wme>(rete.getAllWmes());
+    }
+    
+    /**
+     * @return Number of WMEs currently in the rete
+     */
+    public int getNumWmesInRete()
+    {
+        return rete.getAllWmes().size();
+    }
+    
     /**
      * Print the current match set for the agent
      * 
@@ -428,7 +487,7 @@ public class Agent extends AbstractAdaptable
         }
         decisionCycle.current_phase = Phase.INPUT;
         if (operand2_mode)
-            decisionCycle.d_cycle_count++;
+            decisionCycle.d_cycle_count.value.incrementAndGet();
 
         io.init_agent_memory();
 

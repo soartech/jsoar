@@ -19,6 +19,7 @@ public class PropertyKey<T>
     private final Class<T> type;
     private final T defValue;
     private final boolean boundable;
+    private final boolean readonly;
     
     public static class Builder<T>
     {
@@ -26,6 +27,7 @@ public class PropertyKey<T>
         private final Class<T> type;
         private T defValue;
         private boolean boundable;
+        private boolean readonly;
         
         private Builder(String name, Class<T> type)
         {
@@ -37,7 +39,8 @@ public class PropertyKey<T>
         public Builder<T> defaultValue(T defValue) { this.defValue = defValue; return this; }
         public boolean boundable() { return boundable; }
         public Builder<T> boundable(boolean boundable) { this.boundable = boundable; return this; }
-        
+        public boolean readonly() { return readonly; }
+        public Builder<T> readonly(boolean readonly) { this.readonly = readonly; return this; }
         public PropertyKey<T> build()
         {
             return new PropertyKey<T>(this);
@@ -56,6 +59,7 @@ public class PropertyKey<T>
         this.type = builder.type;
         this.defValue = builder.defValue;
         this.boundable = builder.boundable;
+        this.readonly = builder.readonly;
     }
 
     /**
@@ -92,5 +96,17 @@ public class PropertyKey<T>
     public boolean isBoundable()
     {
         return boundable;
+    }
+    
+    /**
+     * Returns true if this property is readonly. An exception will be thrown if
+     * client code attempts to modify a readonly property. Note that the value of
+     * the property may still change, just not externally.
+     * 
+     * @return true if the property is read only.
+     */
+    public boolean isReadonly()
+    {
+        return readonly;
     }
 }

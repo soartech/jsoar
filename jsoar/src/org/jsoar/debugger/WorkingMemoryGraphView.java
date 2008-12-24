@@ -306,7 +306,7 @@ public class WorkingMemoryGraphView extends AbstractAdaptableView implements Ref
         Set<Wme> newWmes = debugger.getAgentProxy().execute(new Callable<Set<Wme>>() {
             public Set<Wme> call() throws Exception
             {
-                return new HashSet<Wme>(agent.rete.getAllWmes());
+                return agent.getAllWmesInRete();
             }});
         
         Set<Wme> added = new HashSet<Wme>();

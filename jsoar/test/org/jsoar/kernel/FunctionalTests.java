@@ -26,6 +26,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.adaptables.Adaptables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,12 +84,12 @@ public class FunctionalTests
                 return oldHalt.execute(rhsContext, arguments);
             }});
         
-        agent.decisionCycle.runForever();
+        agent.runForever();
         assertTrue(testName + " functional test did not halt", halted[0]);
         assertFalse(testName + " functional test failed", failed[0]);
         if(expectedDecisions >= 0)
         {
-            assertEquals(expectedDecisions, agent.decisionCycle.d_cycle_count); // deterministic!
+            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
         }
         
         ifc.eval("stats");
@@ -360,19 +361,21 @@ public class FunctionalTests
     public void testArithmetic() throws Exception
     {
         runTest("testArithmetic", -1);
-        assertTrue(agent.decisionCycle.d_cycle_count > 40000);
+        assertTrue(agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() > 40000);
     }
     
     @Test(timeout=80000)
     public void testCountTest() throws Exception
     {
+        final DecisionCycle decisionCycle = Adaptables.adapt(agent, DecisionCycle.class);
+        
         runTest("testCountTest", -1);
         assertEquals(42, agent.getProductions().getProductions(ProductionType.USER).size());
         assertEquals(15014, agent.getProductions().getProductions(ProductionType.CHUNK).size());
-        assertEquals(45047, agent.decisionCycle.decision_phases_count);
-        assertEquals(115136, agent.decisionCycle.e_cycle_count);
-        assertEquals(40039, agent.decisionCycle.pe_cycle_count);
-        assertEquals(120146, agent.decisionCycle.inner_e_cycle_count);
+        assertEquals(45047, decisionCycle.decision_phases_count);
+        assertEquals(115136, decisionCycle.e_cycle_count);
+        assertEquals(40039, decisionCycle.pe_cycle_count);
+        assertEquals(120146, decisionCycle.inner_e_cycle_count);
     }
 
 }

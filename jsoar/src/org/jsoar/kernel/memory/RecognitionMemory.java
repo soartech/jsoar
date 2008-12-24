@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
@@ -20,6 +21,7 @@ import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
+import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteAssertion;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
@@ -69,6 +71,8 @@ public class RecognitionMemory
 {
     private final Agent context;
     private Chunker chunker;
+    private DecisionCycle decisionCycle;
+    private Rete rete;
     
     /**
      * agent.h:174:firer_highest_rhs_unboundvar_index
@@ -139,6 +143,8 @@ public class RecognitionMemory
     public void initialize()
     {
         this.chunker = Adaptables.adapt(context, Chunker.class);
+        this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
+        this.rete = Adaptables.adapt(context, Rete.class);
     }
     
     /**
@@ -288,12 +294,12 @@ public class RecognitionMemory
             {
                 this.firer_highest_rhs_unboundvar_index = index;
             }
-            SymbolImpl sym = context.rete.getRhsVariableBinding(index);
+            SymbolImpl sym = this.rete.getRhsVariableBinding(index);
 
             if (sym == null)
             {
                 sym = context.syms.make_new_identifier(new_id_letter, new_id_level);
-                context.rete.setRhsVariableBinding(index, sym);
+                this.rete.setRhsVariableBinding(index, sym);
                 return sym;
             }
             else if (sym.asVariable() != null)
@@ -301,7 +307,7 @@ public class RecognitionMemory
                 Variable v = sym.asVariable();
                 new_id_letter = v.getFirstLetter();
                 sym = context.syms.make_new_identifier(new_id_letter, new_id_level);
-                context.rete.setRhsVariableBinding(index, sym);
+                this.rete.setRhsVariableBinding(index, sym);
                 return sym;
             }
             else
@@ -657,7 +663,7 @@ public class RecognitionMemory
         this.production_firing_count++;
 
         // build the instantiated conditions, and bind LHS variables
-        ConditionsAndNots cans = context.rete.p_node_to_conditions_and_nots(prod.getReteNode(), tok, w, false);
+        ConditionsAndNots cans = this.rete.p_node_to_conditions_and_nots(prod.getReteNode(), tok, w, false);
         inst.top_of_instantiated_conditions = cans.top;
         inst.bottom_of_instantiated_conditions = cans.bottom;
         inst.nots = cans.nots;
@@ -684,7 +690,7 @@ public class RecognitionMemory
         int index = 0;
         for (Variable c : prod.rhs_unbound_variables)
         {
-            context.rete.setRhsVariableBinding(index, c);
+            this.rete.setRhsVariableBinding(index, c);
             index++;
         }
         this.firer_highest_rhs_unboundvar_index = index - 1;
@@ -774,7 +780,7 @@ public class RecognitionMemory
         index = 0;
         for (; index <= firer_highest_rhs_unboundvar_index; ++index)
         {
-            context.rete.setRhsVariableBinding(index, null);
+            this.rete.setRhsVariableBinding(index, null);
         }
 
         // fill in lots of other stuff
@@ -1305,7 +1311,7 @@ public class RecognitionMemory
         {
             if (context.operand2_mode)
             {
-                if (context.decisionCycle.current_phase == Phase.APPLY)
+                if (this.decisionCycle.current_phase == Phase.APPLY)
                 { /* it's always IE for PROPOSE */
                     switch (FIRING_TYPE)
                     {
@@ -1360,7 +1366,7 @@ public class RecognitionMemory
 	            if(this.chunker.isMaxChunksReached()) 
 	            {
 	            	context.soarReteListener.consume_last_postponed_assertion();
-	                context.decisionCycle.halt("Max chunks reached");
+	                this.decisionCycle.halt("Max chunks reached");
 	                return;
 	            }
 	            
@@ -1395,7 +1401,7 @@ public class RecognitionMemory
 	        assert_new_preferences();
 	
 	        // update accounting
-	        context.decisionCycle.inner_e_cycle_count++;
+	        this.decisionCycle.inner_e_cycle_count++;
 	        
 	        if (context.decider.active_goal == null)
 	        {
@@ -1411,11 +1417,11 @@ public class RecognitionMemory
 	        
 	        try
 	        {
-	            if (context.decisionCycle.current_phase == Phase.APPLY)
+	            if (this.decisionCycle.current_phase == Phase.APPLY)
 	            {
 	    	        context.decider.active_goal = context.consistency.highest_active_goal_apply(context.decider.active_goal.lower_goal);
 	            }
-	            else if (context.decisionCycle.current_phase == Phase.PROPOSE)
+	            else if (this.decisionCycle.current_phase == Phase.PROPOSE)
 	            {
 	            	// PROPOSE
 	            	context.decider.active_goal = context.consistency.highest_active_goal_propose(context.decider.active_goal.lower_goal);

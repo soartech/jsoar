@@ -47,9 +47,9 @@ public class InterruptTest
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         this.agent.getProductions().loadProduction("testInterrupt (state <s> ^superstate nil ^io.input-link.cycle-count 45) --> (interrupt)");
         
-        this.agent.decisionCycle.runForever();
+        this.agent.runForever();
         
-        assertEquals("*** Interrupt from production testInterrupt ***", this.agent.decisionCycle.getReasonForStop());
-        assertEquals(46, this.agent.decisionCycle.d_cycle_count);
+        assertEquals("*** Interrupt from production testInterrupt ***", this.agent.getReasonForStop());
+        assertEquals(46, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
     }
 }

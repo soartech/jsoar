@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
@@ -33,6 +34,7 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.NotStruct;
 import org.jsoar.kernel.rete.ProductionAddResult;
+import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReordererException;
@@ -61,6 +63,8 @@ public class Chunker
     private final VariableGenerator variableGenerator;
     private Backtracer backtrace;
     Explain explain;
+    private DecisionCycle decisionCycle;
+    private Rete rete;
     
     public int chunks_this_d_cycle;
     /**
@@ -173,6 +177,8 @@ public class Chunker
     {
         this.explain = Adaptables.adapt(context, Explain.class);
         this.backtrace = new Backtracer(context, this);
+        this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
+        this.rete = Adaptables.adapt(context, Rete.class);
     }
 
     /**
@@ -939,7 +945,7 @@ public class Chunker
             impass_name = "unknownimpasse";
         }
 
-        String name = chunk_name_prefix + "-" + chunk_count.value + "*d" + context.decisionCycle.d_cycle_count + "*"
+        String name = chunk_name_prefix + "-" + chunk_count.value + "*d" + this.decisionCycle.d_cycle_count + "*"
                 + impass_name + "*" + chunks_this_d_cycle;
         chunk_count.value = chunk_count.value + 1;
 
@@ -952,7 +958,7 @@ public class Chunker
                     name);
             do
             {
-                name = chunk_name_prefix + "-" + chunk_count + "*d" + context.decisionCycle.d_cycle_count + "*"
+                name = chunk_name_prefix + "-" + chunk_count + "*d" + this.decisionCycle.d_cycle_count + "*"
                         + impass_name + "*" + chunks_this_d_cycle + "*" + collision_count++;
 
             } while (context.syms.findString(name) != null);
@@ -1300,7 +1306,7 @@ public class Chunker
             temp_explain_chunk.actions = copy_and_variablize_result_list(results);
         }
 
-        ProductionAddResult rete_addition_result = context.rete.add_production_to_rete(prod, chunk_inst, print_name,
+        ProductionAddResult rete_addition_result = this.rete.add_production_to_rete(prod, chunk_inst, print_name,
                 false);
 
         // If didn't immediately excise the chunk from the rete net

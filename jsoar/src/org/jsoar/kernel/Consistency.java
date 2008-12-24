@@ -14,6 +14,7 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.IntegerPropertyProvider;
 
 /**
@@ -31,12 +32,13 @@ public class Consistency
     }
     
     private final Agent context;
+    private DecisionCycle decisionCycle;
+    
     /**
      * gsysparam.h:MAX_ELABORATIONS_SYSPARAM
      */
     private IntegerPropertyProvider maxElaborations = new IntegerPropertyProvider(SoarProperties.MAX_ELABORATIONS)
     {
-
         @Override
         public Integer set(Integer value)
         {
@@ -44,6 +46,7 @@ public class Consistency
             return super.set(value);
         }
     };
+    
     private boolean hitMaxElaborations = false;
     
     /**
@@ -54,6 +57,11 @@ public class Consistency
         this.context = context;
         
         this.context.getProperties().setProvider(SoarProperties.MAX_ELABORATIONS, maxElaborations);
+    }
+    
+    public void initialize()
+    {
+        this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
     }
     
     /**
@@ -664,7 +672,7 @@ public class Consistency
      * goal that fired IE_PRODS in the previous elaboration). Mini-quiescence is
      * followed by a consistency check.
      * 
-     * consistency.cpp:590:determine_highest_active_production_level_in_stack_apply
+     * <p>consistency.cpp:590:determine_highest_active_production_level_in_stack_apply
      */
     public void determine_highest_active_production_level_in_stack_apply()
     {
@@ -697,7 +705,7 @@ public class Consistency
 
             // TODO why is this here?
             /* regardless of the outcome, we go to the output phases */
-            context.decisionCycle.current_phase = Phase.OUTPUT;
+            this.decisionCycle.current_phase = Phase.OUTPUT;
             return;
         }
 
@@ -705,11 +713,11 @@ public class Consistency
 
         /* Check for Max ELABORATIONS EXCEEDED */
 
-        if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations.value.get() )
+        if (this.decisionCycle.e_cycles_this_d_cycle >= maxElaborations.value.get() )
         {
             setHitMaxElaborations(true);
             context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to output phases.", maxElaborations);
-            context.decisionCycle.current_phase = Phase.OUTPUT;
+            this.decisionCycle.current_phase = Phase.OUTPUT;
             return;
         }
 
@@ -787,7 +795,7 @@ public class Consistency
                 */
                 if (!goal_stack_consistent_through_goal(context.decider.previous_active_goal))
                 {
-                    context.decisionCycle.current_phase = Phase.OUTPUT;
+                    this.decisionCycle.current_phase = Phase.OUTPUT;
                     break;
                 }
             }
@@ -850,7 +858,7 @@ public class Consistency
                 */
                 if (!goal_stack_consistent_through_goal(context.decider.active_goal))
                 {
-                    context.decisionCycle.current_phase = Phase.OUTPUT;
+                    this.decisionCycle.current_phase = Phase.OUTPUT;
                     break;
                 }
             }
@@ -890,7 +898,7 @@ public class Consistency
 
             if (!goal_stack_consistent_through_goal(context.decider.active_goal))
             {
-                context.decisionCycle.current_phase = Phase.OUTPUT;
+                this.decisionCycle.current_phase = Phase.OUTPUT;
                 break;
             }
 
@@ -913,10 +921,10 @@ public class Consistency
      * goal that fired IE_PRODS in the previous elaboration). Mini-quiescence is
      * followed by a consistency check.
      * 
-     * This routine could be further pruned, since with 8.6.0 we have a PROPOSE
+     * <p>This routine could be further pruned, since with 8.6.0 we have a PROPOSE
      * Phase, and don't have to keep toggling IE_PRODS KJC april 2005
      * 
-     * consistency.cpp:821:determine_highest_active_production_level_in_stack_propose
+     * <p>consistency.cpp:821:determine_highest_active_production_level_in_stack_propose
      */
     public void determine_highest_active_production_level_in_stack_propose()
     {
@@ -950,7 +958,7 @@ public class Consistency
 
                 /* Decision phases is always next */
 
-                context.decisionCycle.current_phase = Phase.DECISION;
+                this.decisionCycle.current_phase = Phase.DECISION;
                 return;
             }
         }
@@ -959,11 +967,11 @@ public class Consistency
 
         /* Check for Max ELABORATIONS EXCEEDED */
 
-        if (context.decisionCycle.e_cycles_this_d_cycle >= maxElaborations.value.get())
+        if (this.decisionCycle.e_cycles_this_d_cycle >= maxElaborations.value.get())
         {
             setHitMaxElaborations(true);
             context.getPrinter().warn("Warning: reached max-elaborations(%d); proceeding to decision phases.", maxElaborations);
-            context.decisionCycle.current_phase = Phase.DECISION;
+            this.decisionCycle.current_phase = Phase.DECISION;
             return;
         }
 
@@ -1036,7 +1044,7 @@ public class Consistency
                in the propose phases, so check for consistency. */
             if (!goal_stack_consistent_through_goal(context.decider.previous_active_goal))
             {
-                context.decisionCycle.current_phase = Phase.DECISION;
+                this.decisionCycle.current_phase = Phase.DECISION;
                 break;
             }
             /* else: just do a preference phases */
@@ -1087,7 +1095,7 @@ public class Consistency
             */
             if (!goal_stack_consistent_through_goal(context.decider.active_goal))
             {
-                context.decisionCycle.current_phase = Phase.DECISION;
+                this.decisionCycle.current_phase = Phase.DECISION;
                 break;
             }
 

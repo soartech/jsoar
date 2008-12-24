@@ -19,6 +19,7 @@ import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -85,6 +86,8 @@ public class Decider
     private DecisionManipulation decisionManip;
     private Exploration exploration;
     private InputOutputImpl io;
+    private DecisionCycle decisionCycle;
+    private WorkingMemory workingMemory;
     
     
     /**
@@ -183,6 +186,8 @@ public class Decider
         this.exploration = Adaptables.adapt(context, Exploration.class);
         this.decisionManip = Adaptables.adapt(context, DecisionManipulation.class);
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
+        this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
+        this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
     }
     
     /**
@@ -204,7 +209,7 @@ public class Decider
      * Whenever some acceptable or require preference for a context slot
      * changes, we call mark_context_slot_as_acceptable_preference_changed().
      * 
-     * decide.cpp:146:mark_context_slot_as_acceptable_preference_changed
+     * <p>decide.cpp:146:mark_context_slot_as_acceptable_preference_changed
      * 
      * @param s
      */
@@ -221,7 +226,7 @@ public class Decider
     /**
      * This updates the acceptable preference wmes for a single slot.
      * 
-     * decide.cpp:158:do_acceptable_preference_wme_changes_for_slot
+     * <p>decide.cpp:158:do_acceptable_preference_wme_changes_for_slot
      * 
      * @param s
      */
@@ -264,7 +269,7 @@ public class Decider
                 if (context.operand2_mode)
                     context.consistency.remove_operator_if_necessary(s, w);
 
-                context.workingMemory.remove_wme_from_wm(w);
+                this.workingMemory.remove_wme_from_wm(w);
             }
             w = next_w;
         }
@@ -282,10 +287,10 @@ public class Decider
             }
             else
             {
-                WmeImpl wme = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
+                WmeImpl wme = this.workingMemory.make_wme(p.id, p.attr, p.value, true);
                 s.addAcceptablePreferenceWme(wme);
                 wme.preference = p;
-                context.workingMemory.add_wme_to_wm(wme);
+                this.workingMemory.add_wme_to_wm(wme);
                 p.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME;
                 p.value.decider_wme = wme;
             }
@@ -302,10 +307,10 @@ public class Decider
             }
             else
             {
-                WmeImpl wme = context.workingMemory.make_wme(p.id, p.attr, p.value, true);
+                WmeImpl wme = this.workingMemory.make_wme(p.id, p.attr, p.value, true);
                 s.addAcceptablePreferenceWme(wme);
                 wme.preference = p;
-                context.workingMemory.add_wme_to_wm(wme);
+                this.workingMemory.add_wme_to_wm(wme);
                 p.value.decider_flag = DeciderFlag.ALREADY_EXISTING_WME;
                 p.value.decider_wme = wme;
             }
@@ -318,7 +323,7 @@ public class Decider
      * is called to update the acceptable preference wmes. This should be called
      * *before* do_buffered_link_changes() and do_buffered_wm_changes().
      * 
-     * decide.cpp:232:do_buffered_acceptable_preference_wme_changes
+     * <p>decide.cpp:232:do_buffered_acceptable_preference_wme_changes
      */
     private void do_buffered_acceptable_preference_wme_changes()
     {
@@ -333,7 +338,7 @@ public class Decider
     /**
      * Post a link addition for later processing.
      * 
-     * decide.cpp:288:post_link_addition
+     * <p>decide.cpp:288:post_link_addition
      * 
      * @param from
      * @param to
@@ -357,11 +362,11 @@ public class Decider
         if (from == null)
             return; /* if adding a special link, we're done */
 
-        /* --- if adding link from same level, ignore it --- */
+        // if adding link from same level, ignore it
         if (from.promotion_level == to.promotion_level)
             return;
 
-        /* --- if adding link from lower to higher, mark higher accordingly --- */
+        // if adding link from lower to higher, mark higher accordingly
         if (from.promotion_level > to.promotion_level)
         {
             to.could_be_a_link_from_below = true;
@@ -389,14 +394,13 @@ public class Decider
     /**
      * Promote an id and its transitive closure.
      * 
-     * decide.cpp:333:promote_id_and_tc
+     * <p>decide.cpp:333:promote_id_and_tc
      * 
      * @param id
      * @param new_level
      */
     private void promote_id_and_tc(IdentifierImpl id, /* goal_stack_level */int new_level)
     {
-
         // if it's already that high, or is going to be soon, don't bother
         if (id.level <= new_level)
             return;
@@ -528,7 +532,7 @@ public class Decider
         // This is handled by remove_existing_such-and-such...
 
         // remove any input wmes from the id
-        context.workingMemory.remove_wme_list_from_wm(id.getInputWmes(), true);
+        this.workingMemory.remove_wme_list_from_wm(id.getInputWmes(), true);
         id.removeAllInputWmes();
 
         for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
@@ -540,7 +544,7 @@ public class Decider
                 remove_existing_attribute_impasse_for_slot(s);
 
             // remove all wme's from the slot
-            context.workingMemory.remove_wme_list_from_wm(s.getWmes(), false);
+            this.workingMemory.remove_wme_list_from_wm(s.getWmes(), false);
             s.removeAllWmes();
 
             // remove all preferences for the slot
@@ -765,11 +769,11 @@ public class Decider
     }
 
     /**
-     * This routine does all the buffered link (ownership) chages, updating the
+     * This routine does all the buffered link (ownership) changes, updating the
      * goal stack level on all identifiers and garbage collecting disconnected
      * wmes.
      * 
-     * decide.cpp:744:do_buffered_link_changes
+     * <p>decide.cpp:744:do_buffered_link_changes
      */
     private void do_buffered_link_changes()
     {
@@ -779,7 +783,7 @@ public class Decider
         // #endif
         // #endif
 
-        /* --- if no promotions or demotions are buffered, do nothing --- */
+        // if no promotions or demotions are buffered, do nothing
         if (promoted_ids.isEmpty() && ids_with_unknown_level.isEmpty() && disconnected_ids.isEmpty())
             return;
 
@@ -1315,10 +1319,10 @@ public class Decider
      */
     private void add_impasse_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, Preference p)
     {
-        WmeImpl w = context.workingMemory.make_wme(id, attr, value, false);
+        WmeImpl w = this.workingMemory.make_wme(id, attr, value, false);
         id.addImpasseWme(w);
         w.preference = p;
-        context.workingMemory.add_wme_to_wm(w);
+        this.workingMemory.add_wme_to_wm(w);
     }
 
     /**
@@ -1420,7 +1424,7 @@ public class Decider
         s.impasse_id = null;
         s.impasse_type = ImpasseType.NONE;
 
-        context.workingMemory.remove_wme_list_from_wm(id.getImpasseWmes(), false);
+        this.workingMemory.remove_wme_list_from_wm(id.getImpasseWmes(), false);
         id.removeAllImpasseWmes();
         post_link_removal(null, id); // remove the special link
     }
@@ -1575,7 +1579,7 @@ public class Decider
                     id.removeImpasseWme(w);
                     if (id.isa_goal)
                         remove_fake_preference_for_goal_item(w.preference);
-                    context.workingMemory.remove_wme_from_wm(w);
+                    this.workingMemory.remove_wme_from_wm(w);
                 }
             }
 
@@ -1584,7 +1588,7 @@ public class Decider
             else if (w.attr == predefined.item_count_symbol)
             {
                 id.removeImpasseWme(w);
-                context.workingMemory.remove_wme_from_wm(w);
+                this.workingMemory.remove_wme_from_wm(w);
             }
 
             w = next_w;
@@ -1677,7 +1681,7 @@ public class Decider
                      }
                   }
                }
-               context.workingMemory.remove_wme_from_wm (w);
+               this.workingMemory.remove_wme_from_wm (w);
             }
          } 
          
@@ -1691,7 +1695,7 @@ public class Decider
             } 
             else 
             {
-               WmeImpl w = context.workingMemory.make_wme(cand.id, cand.attr, cand.value, false);
+               WmeImpl w = this.workingMemory.make_wme(cand.id, cand.attr, cand.value, false);
                s.addWme(w);
                w.preference = cand;
                
@@ -1817,7 +1821,7 @@ public class Decider
                 }  /* end if thisAgent->OPERAND2_MODE ... */
                    /* REW: end   09.15.96 */
        
-                context.workingMemory.add_wme_to_wm (w);
+                this.workingMemory.add_wme_to_wm (w);
              }
           }
           
@@ -1828,7 +1832,7 @@ public class Decider
        if (s.getWmes() != null) 
        {  
           // remove any existing wmes
-          context.workingMemory.remove_wme_list_from_wm (s.getWmes(), false); 
+          this.workingMemory.remove_wme_list_from_wm (s.getWmes(), false); 
           s.removeAllWmes();
        }
     
@@ -1912,7 +1916,7 @@ public class Decider
         final WmeImpl w = s.getWmes();
         assert w.next == null;
         w.preference.preference_remove_ref(context.recMemory);
-        context.workingMemory.remove_wme_from_wm(w);
+        this.workingMemory.remove_wme_from_wm(w);
         s.removeAllWmes();
     }    
     
@@ -1998,7 +2002,7 @@ public class Decider
             context.rl.rl_perform_update( 0, goal ); // this update only sees reward - there is no next state
         }
 
-        context.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
+        this.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
         goal.removeAllImpasseWmes();
         
         /*
@@ -2104,7 +2108,7 @@ public class Decider
                 		"exceed the program stack of your system.\n",
                         MAX_GOAL_DEPTH);
 
-                context.decisionCycle.halt("Max Goal Depth (" + MAX_GOAL_DEPTH + ") exceeded");
+                this.decisionCycle.halt("Max Goal Depth (" + MAX_GOAL_DEPTH + ") exceeded");
             }
         }
         else
@@ -2316,13 +2320,13 @@ public class Decider
             if (goal.lower_goal != null)
                 remove_existing_context_and_descendents(goal.lower_goal);
 
-            WmeImpl w = context.workingMemory.make_wme(s.id, s.attr, candidates.value.value, false);
+            WmeImpl w = this.workingMemory.make_wme(s.id, s.attr, candidates.value.value, false);
             s.addWme(w);
             w.preference = candidates.value;
             w.preference.preference_add_ref();
 
             /* JC Adding an operator to working memory in the current state */
-            context.workingMemory.add_wme_to_wm(w);
+            this.workingMemory.add_wme_to_wm(w);
 
             for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
                 temp.preference_remove_ref(context.recMemory);
@@ -2440,7 +2444,7 @@ public class Decider
     {
         do_buffered_acceptable_preference_wme_changes();
         do_buffered_link_changes();
-        context.workingMemory.do_buffered_wm_changes(io);
+        this.workingMemory.do_buffered_wm_changes(io);
         context.tempMemory.remove_garbage_slots();
     }
     
@@ -2455,7 +2459,7 @@ public class Decider
         {
             if (context.operand2_mode == true)
             {
-                if (context.decisionCycle.current_phase == Phase.APPLY)
+                if (this.decisionCycle.current_phase == Phase.APPLY)
                 { // it's always IE for PROPOSE
                     // TODO xml
                     // xml_begin_tag(thisAgent, kTagSubphase);

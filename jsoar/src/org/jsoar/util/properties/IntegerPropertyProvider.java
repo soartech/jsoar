@@ -45,4 +45,9 @@ public class IntegerPropertyProvider implements PropertyProvider<Integer>
         return this.value.getAndSet(value.intValue());
     }
 
+    @Override
+    public String toString()
+    {
+        return value.toString();
+    }
 }

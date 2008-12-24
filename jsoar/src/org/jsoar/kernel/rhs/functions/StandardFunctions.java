@@ -11,7 +11,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * @author ray
@@ -108,7 +110,8 @@ public class StandardFunctions
     {
         this.context = context;
         
-        allInternal.add(new Interrupt(context.recMemory, context.decisionCycle));
+        final DecisionCycle decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
+        allInternal.add(new Interrupt(context.recMemory, decisionCycle));
         
         for(RhsFunctionHandler handler : all)
         {

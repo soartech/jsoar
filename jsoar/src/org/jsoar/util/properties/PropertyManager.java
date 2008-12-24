@@ -94,7 +94,8 @@ public class PropertyManager
     /**
      * Set the value of a property. A property changed event will be 
      * fired. A default property provider will be created if one has
-     * not already been set.
+     * not already been set.  If the property is readonly, an exception will be
+     * thrown.
      * 
      * <p>This method may be called from any thread.
      * 
@@ -103,9 +104,16 @@ public class PropertyManager
      * @param key The key
      * @param value The new value
      * @return the old value
+     * @throws IllegalArgumentException if the value is not compatible with the
+     *      property (out of range, null, etc)
+     * @throws UnsupportedOperationException if the property is readonly
      */
     public <T, V extends T> T set(PropertyKey<T> key, V value)
     {
+        if(key.isReadonly())
+        {
+            throw new UnsupportedOperationException("property '" + key + "' is readonly");
+        }
         final T oldValue = getProvider(key).set(value);
         
         firePropertyChanged(key, value, oldValue);

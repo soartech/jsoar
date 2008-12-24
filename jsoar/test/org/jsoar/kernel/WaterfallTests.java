@@ -17,6 +17,7 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.adaptables.Adaptables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import org.junit.Test;
 public class WaterfallTests
 {
     private Agent agent;
+    private DecisionCycle decisionCycle;
     private SoarTclInterface ifc;
 
     private void sourceTestFile(String name) throws SoarTclException
@@ -74,12 +76,12 @@ public class WaterfallTests
                 return oldHalt.execute(rhsContext, arguments);
             }});
         
-        agent.decisionCycle.runForever();
+        agent.runForever();
         assertTrue(testName + " functional test did not halt", halted[0]);
         assertFalse(testName + " functional test failed", failed[0]);
         if(expectedDecisions >= 0)
         {
-            assertEquals(expectedDecisions, agent.decisionCycle.d_cycle_count); // deterministic!
+            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
         }
         
         ifc.eval("stats");
@@ -91,6 +93,7 @@ public class WaterfallTests
     public void setUp() throws Exception
     {
         agent = new Agent();
+        this.decisionCycle = Adaptables.adapt(agent, DecisionCycle.class);
         agent.getTrace().enableAll();
         ifc = SoarTclInterface.findOrCreate(agent);
         agent.initialize();
@@ -110,22 +113,22 @@ public class WaterfallTests
     public void testWaterfall() throws Exception
     {
         runTest("testWaterfall", 2);
-        assertEquals(4, agent.decisionCycle.e_cycle_count);
-        assertEquals(5, agent.decisionCycle.inner_e_cycle_count);
+        assertEquals(4, this.decisionCycle.e_cycle_count);
+        assertEquals(5, this.decisionCycle.inner_e_cycle_count);
     }
     @Test(timeout=1000)
     public void testWaterfallUnbound() throws Exception
     {
         runTest("testWaterfallUnbound", 2);
-        assertEquals(4, agent.decisionCycle.e_cycle_count);
-        assertEquals(5, agent.decisionCycle.inner_e_cycle_count);
+        assertEquals(4, this.decisionCycle.e_cycle_count);
+        assertEquals(5, this.decisionCycle.inner_e_cycle_count);
     }
     @Test(timeout=1000)
     public void testWaterfallFiveStates() throws Exception
     {
         runTest("testWaterfallFiveStates", 8);
-        assertEquals(10, agent.decisionCycle.e_cycle_count);
-        assertEquals(16, agent.decisionCycle.inner_e_cycle_count);
+        assertEquals(10, this.decisionCycle.e_cycle_count);
+        assertEquals(16, this.decisionCycle.inner_e_cycle_count);
     }
     @Test(timeout=20000)
     public void testWaterfallBlocksWorldHRL() throws Exception

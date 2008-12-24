@@ -6,15 +6,20 @@
 package org.jsoar.kernel.memory;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Decider;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.events.InputWmeGarbageCollectedEvent;
 import org.jsoar.kernel.events.WorkingMemoryChangedEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
+import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.events.SoarEventManager;
 
 /**
  * <p>wmem.cpp
@@ -29,7 +34,11 @@ import org.jsoar.util.ListHead;
  */
 public class WorkingMemory
 {
-    private final Agent context;
+    private Rete rete;
+    private PredefinedSymbols predefinedSyms;
+    private Trace trace;
+    private Decider decider;
+    private SoarEventManager eventManager;
     
     private int current_wme_timetag = 1;
     private final ListHead<WmeImpl> wmes_to_add = ListHead.newInstance();
@@ -45,9 +54,17 @@ public class WorkingMemory
     /**
      * @param operator_symbol
      */
-    public WorkingMemory(Agent context)
+    public WorkingMemory()
     {
-        this.context = context;
+    }
+    
+    public void initialize(Agent context)
+    {
+        this.rete = Adaptables.adapt(context, Rete.class);
+        this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
+        this.trace = context.getTrace();
+        this.decider = Adaptables.adapt(context, Decider.class);
+        this.eventManager = context.getEventManager();
     }
 
     /**
@@ -111,8 +128,8 @@ public class WorkingMemory
         IdentifierImpl valueId = w.value.asIdentifier();
         if (valueId != null)
         {
-            context.decider.post_link_addition(w.id, valueId);
-            if (w.attr == context.predefinedSyms.operator_symbol)
+            this.decider.post_link_addition(w.id, valueId);
+            if (w.attr == this.predefinedSyms.operator_symbol)
             {
                 valueId.isa_operator++;
             }
@@ -132,8 +149,8 @@ public class WorkingMemory
 
         if (valueId != null)
         {
-            context.decider.post_link_removal(w.id, valueId);
-            if (w.attr == context.predefinedSyms.operator_symbol)
+            this.decider.post_link_removal(w.id, valueId);
+            if (w.attr == this.predefinedSyms.operator_symbol)
             {
                 // Do this afterward so that gSKI can know that this is an operator
                 valueId.isa_operator--;
@@ -168,7 +185,7 @@ public class WorkingMemory
         {
             // Note: For jsoar, moved this out of the loop below into a single callback
             // soar_invoke_callbacks( thisAgent, INPUT_WME_GARBAGE_COLLECTED_CALLBACK, reinterpret_cast<soar_call_data >( w ) );
-            context.getEventManager().fireEvent(new InputWmeGarbageCollectedEvent(w));
+            eventManager.fireEvent(new InputWmeGarbageCollectedEvent(w));
         }
         
         while (w != null)
@@ -200,7 +217,7 @@ public class WorkingMemory
         // call output module in case any changes are output link changes
         io.inform_output_module_of_wm_changes (wmes_to_add, wmes_to_remove);
         
-        context.getEventManager().fireEvent(new WorkingMemoryChangedEvent(wmes_to_add, wmes_to_remove));
+        eventManager.fireEvent(new WorkingMemoryChangedEvent(wmes_to_add, wmes_to_remove));
         
         // stuff wme changes through the rete net
         // #ifndef NO_TIMING_STUFF
@@ -210,11 +227,11 @@ public class WorkingMemory
         // #endif
         for (ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
-            context.rete.add_wme_to_rete(w.item);
+            this.rete.add_wme_to_rete(w.item);
         }
         for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
-            context.rete.remove_wme_from_rete(w.item);
+            this.rete.remove_wme_from_rete(w.item);
         }
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
@@ -225,7 +242,6 @@ public class WorkingMemory
         warnIfSameWmeAddedAndRemoved();
         
         // do tracing and cleanup stuff
-        final Trace trace = context.getTrace();
         for (ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...

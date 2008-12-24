@@ -72,7 +72,7 @@ public class PerformanceTimer
             }
         }
         
-        agent.decisionCycle.runForever();
+        agent.runForever();
         
         agent.getPrinter().popWriter();
         

@@ -15,11 +15,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.util.adaptables.Adaptables;
 
 
 /**   
@@ -71,6 +73,8 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 public class TraceFormats
 {
     private final Agent context;
+    private DecisionCycle decisionCycle;
+    
     private String format;
     private int offset;
     private String format_string_error_message;
@@ -130,6 +134,11 @@ public class TraceFormats
             stack_tr_ht.put(r, new HashMap<SymbolImpl, TraceFormat>());
             object_tr_ht.put(r, new HashMap<SymbolImpl, TraceFormat>());
         }
+    }
+    
+    public void initalize()
+    {
+        this.decisionCycle = Adaptables.adapt(this.context, DecisionCycle.class);
     }
 
 
@@ -871,7 +880,7 @@ public class TraceFormats
             case DECISION_CYCLE_COUNT_TFT:
                 if (tparams.allow_cycle_counts)
                 {
-                    result.append(context.decisionCycle.d_cycle_count);
+                    result.append(this.decisionCycle.d_cycle_count);
                 }
                 else
                 {
@@ -881,7 +890,7 @@ public class TraceFormats
             case ELABORATION_CYCLE_COUNT_TFT:
                 if (tparams.allow_cycle_counts)
                 {
-                    result.append(context.decisionCycle.e_cycle_count);
+                    result.append(this.decisionCycle.e_cycle_count);
                 }
                 else
                 {
@@ -1169,7 +1178,7 @@ public class TraceFormats
             }
             else
             {
-                if (context.decisionCycle.d_cycle_count == 0)
+                if (this.decisionCycle.d_cycle_count.value.get() == 0)
                     print_stack_trace(writer, bottom_goal, bottom_goal,
                             TraceFormatRestriction.FOR_STATES_TF, true);
                 else

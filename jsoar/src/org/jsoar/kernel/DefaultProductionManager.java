@@ -23,11 +23,13 @@ import org.jsoar.kernel.parser.Lexer;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rete.ProductionAddResult;
+import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * @author ray
@@ -36,6 +38,7 @@ public class DefaultProductionManager implements ProductionManager
 {
     private final Agent context;
     private final VariableGenerator variableGenerator;
+    private Rete rete;
     
     private int totalProductions = 0;
     private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
@@ -51,6 +54,11 @@ public class DefaultProductionManager implements ProductionManager
     {
         this.context = context;
         this.variableGenerator = new VariableGenerator(this.context.syms);
+    }
+    
+    void initialize()
+    {
+        this.rete = Adaptables.adapt(context, Rete.class);
     }
     
     /**
@@ -115,7 +123,7 @@ public class DefaultProductionManager implements ProductionManager
         }
         if (prod.getReteNode() != null)
         {
-            context.rete.excise_production_from_rete(prod);
+            this.rete.excise_production_from_rete(prod);
         }
         prod.production_remove_ref();
     }
@@ -205,7 +213,7 @@ public class DefaultProductionManager implements ProductionManager
         context.rl.addProduction(p);
         
         // Add it to the rete.
-        ProductionAddResult result = context.rete.add_production_to_rete(p);
+        ProductionAddResult result = this.rete.add_production_to_rete(p);
         
         // from parser.cpp
         if (result==ProductionAddResult.DUPLICATE_PRODUCTION) 
