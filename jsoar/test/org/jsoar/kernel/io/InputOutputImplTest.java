@@ -29,6 +29,7 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
@@ -215,11 +216,12 @@ public class InputOutputImplTest extends JSoarTest
         final Set<Wme> d1 = outputs.get(0);
         assertEquals(5, d1.size());
         final Identifier ol = agent.getInputOutput().getOutputLink();
-        final Wme struct = Wmes.find(d1.iterator(), Wmes.newMatcher(agent.getSymbols(), ol, "struct", null));
+        final SymbolFactory syms = agent.getSymbols();
+        final Wme struct = Wmes.matcher(syms).withId(ol).withAttr("struct").find(d1);
         assertNotNull(struct);
-        assertNotNull(Wmes.find(d1.iterator(), Wmes.newMatcher(agent.getSymbols(), struct.getValue().asIdentifier(), "name", "hello")));
-        assertNotNull(Wmes.find(d1.iterator(), Wmes.newMatcher(agent.getSymbols(), ol, "a", 1)));
-        assertNotNull(Wmes.find(d1.iterator(), Wmes.newMatcher(agent.getSymbols(), ol, "b", 2)));
+        assertNotNull(Wmes.matcher(syms).withId(struct.getValue().asIdentifier()).withAttr("name").withValue("hello").find(d1));
+        assertNotNull(Wmes.matcher(syms).withId(ol).withAttr("a").withValue(1).find(d1));
+        assertNotNull(Wmes.matcher(syms).withId(ol).withAttr("b").withValue(2).find(d1));
         
         // After retract-output is added in the second decision cycle above, the
         // test production will retract and we'll be left with only the output-link

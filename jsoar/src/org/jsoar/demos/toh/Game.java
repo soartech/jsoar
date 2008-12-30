@@ -85,11 +85,11 @@ public class Game
      
         if(name.equals("move-disk"))
         {
-            Wme sourceWme = Wmes.find(command.getChildren(), Wmes.newMatcher(syms, null, "source-peg"));
-            Wme destWme = Wmes.find(command.getChildren(), Wmes.newMatcher(syms, null, "destination-peg"));
+            final Wme sourceWme = Wmes.matcher(syms).withAttr("source-peg").find(command.getChildren());
+            final Wme destWme = Wmes.matcher(syms).withAttr("destination-peg").find(command.getChildren());
             
-            Peg sourcePeg = pegs.get(sourceWme.getValue().toString());
-            Peg destPeg = pegs.get(destWme.getValue().toString());
+            final Peg sourcePeg = pegs.get(sourceWme.getValue().toString());
+            final Peg destPeg = pegs.get(destWme.getValue().toString());
             destPeg.placeDisk(sourcePeg.getTopDisk());
         }
     }
