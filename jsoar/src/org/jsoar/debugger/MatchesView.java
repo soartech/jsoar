@@ -104,7 +104,7 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
         }
         
         printer.print("*** matches\n");
-        agent.soarReteListener.print_match_set(printer, 
+        agent.printMatchSet(printer, 
                 WmeTraceType.FULL, 
                 EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
         

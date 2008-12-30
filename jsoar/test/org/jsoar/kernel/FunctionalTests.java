@@ -193,7 +193,8 @@ public class FunctionalTests
         
         agent.getProperties().set(SoarProperties.MAX_ELABORATIONS, 5);
         agent.runFor(1, RunType.DECISIONS);
-        assertFalse(agent.consistency.isHitMaxElaborations()); //  TODO replace with callback?
+        final DecisionCycle dc = Adaptables.adapt(agent, DecisionCycle.class);
+        assertFalse(dc.isHitMaxElaborations()); //  TODO replace with callback?
         
     }    
     
@@ -367,15 +368,13 @@ public class FunctionalTests
     @Test(timeout=80000)
     public void testCountTest() throws Exception
     {
-        final DecisionCycle decisionCycle = Adaptables.adapt(agent, DecisionCycle.class);
-        
         runTest("testCountTest", -1);
         assertEquals(42, agent.getProductions().getProductions(ProductionType.USER).size());
         assertEquals(15014, agent.getProductions().getProductions(ProductionType.CHUNK).size());
-        assertEquals(45047, decisionCycle.decision_phases_count);
-        assertEquals(115136, decisionCycle.e_cycle_count);
-        assertEquals(40039, decisionCycle.pe_cycle_count);
-        assertEquals(120146, decisionCycle.inner_e_cycle_count);
+        assertEquals(45047, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue());
+        assertEquals(115136, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+        assertEquals(40039, agent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
+        assertEquals(120146, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
 
 }

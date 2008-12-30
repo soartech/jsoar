@@ -8,7 +8,6 @@ package org.jsoar.kernel.rhs.functions;
 import java.util.List;
 
 import org.jsoar.kernel.DecisionCycle;
-import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.Arguments;
 
@@ -19,20 +18,17 @@ import org.jsoar.util.Arguments;
  */
 public class Interrupt extends AbstractRhsFunctionHandler
 {
-    private final RecognitionMemory recMemory;
     private final DecisionCycle decisionCycle;
     
     /**
      * @param name
      */
-    public Interrupt(RecognitionMemory recMemory, DecisionCycle decisionCycle)
+    public Interrupt(DecisionCycle decisionCycle)
     {
         super("interrupt", 0, 0);
         
-        Arguments.checkNotNull(recMemory, "recMemory");
         Arguments.checkNotNull(decisionCycle, "decisionCycle");
         
-        this.recMemory = recMemory;
         this.decisionCycle = decisionCycle;
     }
 
@@ -43,7 +39,7 @@ public class Interrupt extends AbstractRhsFunctionHandler
     public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
-        decisionCycle.interrupt(recMemory.getProductionBeingFired().getName().getValue());
+        decisionCycle.interrupt(rhsContext.getProductionBeingFired().getName().getValue());
         return null;
     }
 

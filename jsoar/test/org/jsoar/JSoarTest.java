@@ -51,6 +51,15 @@ public class JSoarTest
         {
             throw new UnsupportedOperationException("This test implementation of RhsFunctionContext doesn't support addWme");
         }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getProductionBeingFired()
+         */
+        @Override
+        public Production getProductionBeingFired()
+        {
+            throw new UnsupportedOperationException("This test implementation of RhsFunctionContext doesn't support getProductionBeingFired");
+        }
         
     };
     protected VariableGenerator varGen;

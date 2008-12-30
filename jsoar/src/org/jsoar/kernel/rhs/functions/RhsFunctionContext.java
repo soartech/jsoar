@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rhs.functions;
 
+import org.jsoar.kernel.Production;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -36,4 +37,12 @@ public interface RhsFunctionContext
      * @throws IllegalArgumentException if any of the parameters are <code>null</code>.
      */
     void addWme(Identifier id, Symbol attr, Symbol value);
+    
+    /**
+     * Returns the production that is currently firing, causing the RHS function
+     * to execute.
+     * 
+     * @return The production being fired.
+     */
+    Production getProductionBeingFired();
 }

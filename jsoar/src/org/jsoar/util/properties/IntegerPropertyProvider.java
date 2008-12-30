@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class IntegerPropertyProvider implements PropertyProvider<Integer>
 {
+    public final PropertyKey<Integer> key;
+    
     /**
      * The current value. This value may be freely modified by owning
      * code as long as change events are not required.
@@ -24,7 +26,23 @@ public class IntegerPropertyProvider implements PropertyProvider<Integer>
     
     public IntegerPropertyProvider(PropertyKey<Integer> key)
     {
+        this.key = key;
         this.value = new AtomicInteger(key.getDefaultValue());
+    }
+    
+    public void reset()
+    {
+        this.value.set(key.getDefaultValue().intValue());
+    }
+    
+    public int increment()
+    {
+        return value.incrementAndGet();
+    }
+    
+    public int intValue()
+    {
+        return value.get();
     }
     
     /* (non-Javadoc)

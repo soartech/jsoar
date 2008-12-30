@@ -15,6 +15,7 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.Instantiation;
+import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.Action;
@@ -30,6 +31,7 @@ import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * Soar-specific implementation of the {@link ReteListener} interface. This includes
@@ -41,6 +43,7 @@ public class SoarReteListener implements ReteListener
 {
     private final Agent context;
     private final Rete rete;
+    private OSupport osupport;
     
     /**
      * agent.h:733
@@ -81,6 +84,11 @@ public class SoarReteListener implements ReteListener
         this.context = context;
         this.rete = rete;
         this.rete.setReteListener(this);
+    }
+    
+    public void initialize()
+    {
+        this.osupport = Adaptables.adapt(context, OSupport.class);
     }
 
     /* (non-Javadoc)
@@ -352,7 +360,7 @@ public class SoarReteListener implements ReteListener
                                     if ((temp_tok.w.attr == context.predefinedSyms.operator_symbol) && (temp_tok.w.acceptable == false)
                                             && (temp_tok.w.id == lowest_goal_wme.id))
                                     {
-                                        if ((context.osupport.o_support_calculation_type == 3) || (context.osupport.o_support_calculation_type == 4))
+                                        if ((osupport.o_support_calculation_type == 3) || (osupport.o_support_calculation_type == 4))
                                         {
                                             /*
                                              * iff RHS has only operator
@@ -389,7 +397,7 @@ public class SoarReteListener implements ReteListener
                                                     {
                                                         op_elab = true;
                                                     }
-                                                    else if ((context.osupport.o_support_calculation_type == 4)
+                                                    else if ((osupport.o_support_calculation_type == 4)
                                                             && (rl != null)
                                                             && (temp_tok.w.value == rl.lookupSymbol(tok, w)))
                                                     {
@@ -414,7 +422,7 @@ public class SoarReteListener implements ReteListener
                             } /* end while (temp_tok != NIL) ... */
 
                             if (prod_type == SavedFiringType.PE_PRODS)
-                                if ((context.osupport.o_support_calculation_type != 3) && (context.osupport.o_support_calculation_type != 4))
+                                if ((osupport.o_support_calculation_type != 3) && (osupport.o_support_calculation_type != 4))
                                 {
                                     break;
                                 }
@@ -422,7 +430,7 @@ public class SoarReteListener implements ReteListener
                                 {
                                     /* warn user about mixed actions */
                                     final boolean warnings = context.getPrinter().isPrintWarnings();
-                                    if ((context.osupport.o_support_calculation_type == 3) && warnings)
+                                    if ((osupport.o_support_calculation_type == 3) && warnings)
                                     {
                                         context.getPrinter().warn(
                                         "\nWARNING: operator elaborations mixed with operator applications\n" +
@@ -431,7 +439,7 @@ public class SoarReteListener implements ReteListener
                                         prod_type = SavedFiringType.PE_PRODS;
                                         break;
                                     }
-                                    else if ((context.osupport.o_support_calculation_type == 4) && warnings)
+                                    else if ((osupport.o_support_calculation_type == 4) && warnings)
                                     {
                                         context.getPrinter().warn(
                                         "\nWARNING: operator elaborations mixed with operator applications\n" +

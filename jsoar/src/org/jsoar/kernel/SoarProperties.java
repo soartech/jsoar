@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel;
 
+import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.util.properties.PropertyKey;
 
 /**
@@ -103,12 +104,80 @@ public class SoarProperties
      * 
      * @see DecisionCycle
      */
-    public static final PropertyKey<Integer> D_CYCLE_COUNT = PropertyKey.builder("d_cycle_count", Integer.class).boundable(false).readonly(true).defaultValue(0).build();
-
+    public static final PropertyKey<Integer> D_CYCLE_COUNT = counter("d_cycle_count");
+    
     /**
      * <p>agent.h::e_cycle_count
      * 
      * @see DecisionCycle
      */
-    public static final PropertyKey<Integer> E_CYCLE_COUNT = PropertyKey.builder("e_cycle_count", Integer.class).boundable(false).readonly(true).defaultValue(0).build();
+    public static final PropertyKey<Integer> E_CYCLE_COUNT = counter("e_cycle_count");
+
+    /**
+     * <p>agent.h::decision_phases_count
+     * 
+     * @see DecisionCycle
+     */
+    public static final PropertyKey<Integer> DECISION_PHASES_COUNT = counter("decision_phases_count");
+
+    /**
+     * <p>agent.h::inner_e_cycle_count
+     * 
+     * @see DecisionCycle
+     */
+    public static final PropertyKey<Integer> INNER_E_CYCLE_COUNT = counter("inner_e_cycle_count");
+
+    /**
+     * <p>agent.h::pe_cycle_count
+     * 
+     * @see DecisionCycle
+     */
+    public static final PropertyKey<Integer> PE_CYCLE_COUNT = counter("pe_cycle_count");
+
+    /**
+     * <p>agent.h::gent.h:367:production_firing_count
+     * 
+     * @see RecognitionMemory
+     */
+    public static final PropertyKey<Integer> PRODUCTION_FIRING_COUNT = counter("production_firing_count");
+
+    /**
+     * <p>agent.h::wme_addition_count
+     * 
+     * @see WorkingMemory
+     */
+    public static final PropertyKey<Integer> WME_ADDITION_COUNT = counter("wme_addition_count");
+    
+    /**
+     * <p>agent.h::wme_removal_count
+     * 
+     * @see WorkingMemory
+     */
+    public static final PropertyKey<Integer> WME_REMOVAL_COUNT = counter("wme_removal_count");
+
+    /**
+     * <p>agent.h::max_wm_size
+     * 
+     * @see WorkingMemory
+     */
+    public static final PropertyKey<Integer> MAX_WM_SIZE = counter("max_wm_size");
+    
+    /**
+     * <p>agent.h::cumulative_wm_size
+     * 
+     * @see WorkingMemory
+     */
+    public static final PropertyKey<Integer> CUMULATIVE_WM_SIZE = counter("cumulative_wm_size");
+    
+    /**
+     * <p>agent.h::num_wm_sizes_accumulated
+     * 
+     * @see WorkingMemory
+     */
+    public static final PropertyKey<Integer> NUM_WM_SIZES_ACCUMULATED = counter("num_wm_sizes_accumulated");
+    
+    private static PropertyKey<Integer> counter(String name)
+    {
+        return PropertyKey.builder(name, Integer.class).boundable(false).readonly(true).defaultValue(0).build();
+    }
 }

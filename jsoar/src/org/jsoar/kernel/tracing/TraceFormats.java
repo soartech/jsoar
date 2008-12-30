@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DecisionCycle;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -890,7 +891,7 @@ public class TraceFormats
             case ELABORATION_CYCLE_COUNT_TFT:
                 if (tparams.allow_cycle_counts)
                 {
-                    result.append(this.decisionCycle.e_cycle_count);
+                    result.append(this.context.getProperties().get(SoarProperties.E_CYCLE_COUNT));
                 }
                 else
                 {

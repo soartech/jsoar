@@ -73,14 +73,14 @@ public class Agent extends AbstractAdaptable
     private final MultiAttributes multiAttrs = new MultiAttributes();
     private final Rete rete = new Rete(trace, syms);
     private final WorkingMemory workingMemory = new WorkingMemory();
-    public final TemporaryMemory tempMemory = new TemporaryMemory();
-    public final OSupport osupport = new OSupport(predefinedSyms, printer);
-    public final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
+    private final TemporaryMemory tempMemory = new TemporaryMemory();
+    private final OSupport osupport = new OSupport(predefinedSyms, printer);
+    private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
     public final RecognitionMemory recMemory = new RecognitionMemory(this);
     
     private final Exploration exploration = new Exploration(this);
     public final Decider decider = new Decider(this);
-    public final Consistency consistency = new Consistency(this);
+    private final Consistency consistency = new Consistency(this);
     
     private final Chunker chunker = new Chunker(this);
     private final Explain explain = new Explain(this);
@@ -134,7 +134,8 @@ public class Agent extends AbstractAdaptable
     private final List<Object> adaptables = Arrays.asList((Object) 
             decisionManip, exploration, io, traceFormats, properties, 
             chunker, explain, decisionCycle, rete, predefinedSyms, decider,
-            workingMemory);
+            workingMemory, tempMemory, osupport, soarReteListener,
+            consistency);
     
     public Agent()
     {
@@ -149,6 +150,7 @@ public class Agent extends AbstractAdaptable
         productions.initialize();
         workingMemory.initialize(this);
         io.initialize();
+        soarReteListener.initialize();
         
         // Set up standard RHS functions
         new StandardFunctions(this);
@@ -487,7 +489,7 @@ public class Agent extends AbstractAdaptable
         }
         decisionCycle.current_phase = Phase.INPUT;
         if (operand2_mode)
-            decisionCycle.d_cycle_count.value.incrementAndGet();
+            decisionCycle.d_cycle_count.increment();
 
         io.init_agent_memory();
 

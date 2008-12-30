@@ -7,15 +7,15 @@ package org.jsoar.kernel;
 
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
+import org.jsoar.kernel.memory.TemporaryMemory;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.properties.IntegerPropertyProvider;
 
 /**
  * consistency.cpp
@@ -33,105 +33,24 @@ public class Consistency
     
     private final Agent context;
     private DecisionCycle decisionCycle;
-    
-    /**
-     * gsysparam.h:MAX_ELABORATIONS_SYSPARAM
-     */
-    private IntegerPropertyProvider maxElaborations = new IntegerPropertyProvider(SoarProperties.MAX_ELABORATIONS)
-    {
-        @Override
-        public Integer set(Integer value)
-        {
-            Arguments.check(value > 0, "max elaborations must be greater than zero");
-            return super.set(value);
-        }
-    };
-    
-    private boolean hitMaxElaborations = false;
-    
+    private TemporaryMemory tempMemory;
+    private SoarReteListener soarReteListener;
+        
     /**
      * @param context
      */
     public Consistency(Agent context)
     {
         this.context = context;
-        
-        this.context.getProperties().setProvider(SoarProperties.MAX_ELABORATIONS, maxElaborations);
     }
     
     public void initialize()
     {
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
+        this.tempMemory = Adaptables.adapt(context, TemporaryMemory.class);
+        this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
     }
     
-    /**
-     * The current setting for max elaborations.
-     * 
-     * <p>Client code should access this value through the agent's
-     * property manager.
-     * 
-     * gsysparam.h::MAX_ELABORATIONS_SYSPARAM
-     * 
-     * @return the maxElaborations
-     */
-    public int getMaxElaborations()
-    {
-        return maxElaborations.value.get();
-    }
-
-    /**
-     * @return the hitMaxElaborations
-     */
-    public boolean isHitMaxElaborations()
-    {
-        return hitMaxElaborations;
-    }
-
-    /**
-     * @param hitMaxElaborations the hitMaxElaborations to set
-     */
-    public void setHitMaxElaborations(boolean hitMaxElaborations)
-    {
-        this.hitMaxElaborations = hitMaxElaborations;
-    }
-
-
-    /**
-     * 
-     * consistency.cpp:41:remove_operator_if_necessary
-     * 
-     * @param s
-     * @param w
-     */
-    public void remove_operator_if_necessary(Slot s, WmeImpl w)
-    {
-        // #ifndef NO_TIMING_STUFF
-        // #ifdef DETAILED_TIMING_STATS
-        // start_timer(thisAgent, &thisAgent->start_gds_tv);
-        // #endif
-        // #endif
-
-        // Note: Deleted about 40 lines of commented printf debugging code here from CSoar
-
-        if (s.getWmes() != null)
-        { /* If there is something in the context slot */
-            if (s.getWmes().value == w.value)
-            { /* The WME in the context slot is WME whose pref changed */
-                context.getTrace().print(Category.OPERAND2_REMOVALS,
-                        "\n        REMOVING: Operator from context slot (proposal no longer matches): %s", w);
-                context.decider.remove_wmes_for_context_slot(s);
-                if (s.id.lower_goal != null)
-                    context.decider.remove_existing_context_and_descendents(s.id.lower_goal);
-            }
-        }
-
-        // #ifndef NO_TIMING_STUFF
-        // #ifdef DETAILED_TIMING_STATS
-        //  stop_timer(thisAgent, &thisAgent->start_gds_tv, 
-        //             &thisAgent->gds_cpu_time[thisAgent->current_phase]);
-        //  #endif
-        //  #endif
-    }
 
 
     /**
@@ -178,8 +97,8 @@ public class Consistency
             operator_in_slot = false;
         }
 
-        ImpasseType current_impasse_type, new_impasse_type;
-        SymbolImpl current_impasse_attribute;
+        ImpasseType current_impasse_type;
+        final SymbolImpl current_impasse_attribute;
         if (goal.lower_goal != null)
         {
             // the goal is impassed
@@ -218,8 +137,8 @@ public class Consistency
         }
 
         /* Determine the new impasse type, based on the preferences that exist now */
-        ByRef<Preference> candidates = ByRef.create(null);
-        new_impasse_type = context.decider.run_preference_semantics_for_consistency_check(s, candidates);
+        final ByRef<Preference> candidates = ByRef.create(null);
+        final ImpasseType new_impasse_type = context.decider.run_preference_semantics_for_consistency_check(s, candidates);
 
         if (DEBUG_CONSISTENCY_CHECK)
         {
@@ -241,10 +160,9 @@ public class Consistency
             /* Then there is an inconsistency: no more work necessary */
             if (DEBUG_CONSISTENCY_CHECK)
             {
-                context
-                        .getPrinter()
-                        .print(
-                                "    Impasse types are different: Returning FALSE, preferences are not consistent with prior decision.\n");
+                context.getPrinter().print(
+                  "    Impasse types are different: Returning FALSE, " +
+                  "preferences are not consistent with prior decision.\n");
             }
             return false;
         }
@@ -253,7 +171,6 @@ public class Consistency
            just want to check and make the actual impasses/decisions are the same. */
         switch (new_impasse_type)
         {
-
         case NONE:
             /* There are four cases to consider when NONE_IMPASSE_TYPE is returned: */
             /* 1.  Previous operator and operator returned by run_pref_sem are the same.
@@ -385,14 +302,14 @@ public class Consistency
     {
         if (DEBUG_CONSISTENCY_CHECK)
         {
-            if (context.tempMemory.highest_goal_whose_context_changed != null)
+            if (tempMemory.highest_goal_whose_context_changed != null)
                 context.getPrinter().print("    Highest goal with changed context: [%s]\n",
-                        context.tempMemory.highest_goal_whose_context_changed);
+                        tempMemory.highest_goal_whose_context_changed);
         }
 
         /* Check only those goals where preferences have changes that are at or above the level 
            of the consistency check */
-        for (IdentifierImpl goal = context.tempMemory.highest_goal_whose_context_changed; goal != null
+        for (IdentifierImpl goal = tempMemory.highest_goal_whose_context_changed; goal != null
                 && goal.level <= level; goal = goal.lower_goal)
         {
             if (DEBUG_CONSISTENCY_CHECK)
@@ -521,7 +438,7 @@ public class Consistency
            xml_generate_warning(thisAgent, "WARNING: Returning NIL active goal because only NIL goal retractions are active.");
         #endif
         */
-        if (!context.soarReteListener.nil_goal_retractions.isEmpty())
+        if (!this.soarReteListener.nil_goal_retractions.isEmpty())
             return null;
 
         context.getTrace().flush();
@@ -567,7 +484,7 @@ public class Consistency
         xml_generate_warning(thisAgent, "WARNING: Returning NIL active goal because only NIL goal retractions are active.");
         #endif
         */
-        if (!context.soarReteListener.nil_goal_retractions.isEmpty())
+        if (!this.soarReteListener.nil_goal_retractions.isEmpty())
             return null;
 
         throw new IllegalStateException("Unable to find an active goal when not at quiescence.");
@@ -613,10 +530,10 @@ public class Consistency
             context.getPrinter().print("\nStart: CONSISTENCY CHECK at level %d\n", goal.level);
 
             /* Just a bunch of debug stuff for now */
-            if (context.tempMemory.highest_goal_whose_context_changed != null)
+            if (tempMemory.highest_goal_whose_context_changed != null)
             {
                 context.getPrinter().print("current_agent(highest_goal_whose_context_changed) = [%s]\n",
-                        context.tempMemory.highest_goal_whose_context_changed);
+                        tempMemory.highest_goal_whose_context_changed);
             }
             else
             {
@@ -682,7 +599,7 @@ public class Consistency
         #endif
         */
 
-        if (!context.soarReteListener.any_assertions_or_retractions_ready())
+        if (!this.soarReteListener.any_assertions_or_retractions_ready())
         {
             /* This is quiescence */
             /*
@@ -713,11 +630,8 @@ public class Consistency
 
         /* Check for Max ELABORATIONS EXCEEDED */
 
-        if (this.decisionCycle.e_cycles_this_d_cycle >= maxElaborations.value.get() )
+        if(this.decisionCycle.checkForMaxElaborations(Phase.OUTPUT))
         {
-            setHitMaxElaborations(true);
-            context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to output phases.", maxElaborations);
-            this.decisionCycle.current_phase = Phase.OUTPUT;
             return;
         }
 
@@ -941,7 +855,7 @@ public class Consistency
         /* We are only checking for i_assertions, not o_assertions, since we don't
          *  want operators to fire in the proposal phases
          */
-        if (!(!context.soarReteListener.ms_retractions.isEmpty() || !context.soarReteListener.ms_i_assertions.isEmpty()))
+        if (!(!this.soarReteListener.ms_retractions.isEmpty() || !this.soarReteListener.ms_i_assertions.isEmpty()))
         {
             if (minor_quiescence_at_goal(context.decider.bottom_goal))
             {
@@ -966,12 +880,8 @@ public class Consistency
         /* Not Quiescence, there are elaborations ready to fire at some level. */
 
         /* Check for Max ELABORATIONS EXCEEDED */
-
-        if (this.decisionCycle.e_cycles_this_d_cycle >= maxElaborations.value.get())
+        if(this.decisionCycle.checkForMaxElaborations(Phase.DECISION))
         {
-            setHitMaxElaborations(true);
-            context.getPrinter().warn("Warning: reached max-elaborations(%d); proceeding to decision phases.", maxElaborations);
-            this.decisionCycle.current_phase = Phase.DECISION;
             return;
         }
 

@@ -18,9 +18,11 @@ import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
+import org.jsoar.kernel.memory.TemporaryMemory;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rete.MatchSetChange;
+import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
@@ -88,7 +90,8 @@ public class Decider
     private InputOutputImpl io;
     private DecisionCycle decisionCycle;
     private WorkingMemory workingMemory;
-    
+    private TemporaryMemory tempMemory;
+    private SoarReteListener soarReteListener;
     
     /**
      * <p>gsysparam.h:164:MAX_GOAL_DEPTH
@@ -188,6 +191,8 @@ public class Decider
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
+        this.tempMemory = Adaptables.adapt(context, TemporaryMemory.class);
+        this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
     }
     
     /**
@@ -267,7 +272,7 @@ public class Decider
                  * mini-quiescence.
                  */
                 if (context.operand2_mode)
-                    context.consistency.remove_operator_if_necessary(s, w);
+                    remove_operator_if_necessary(s, w);
 
                 this.workingMemory.remove_wme_from_wm(w);
             }
@@ -317,6 +322,47 @@ public class Decider
         }
     }
     
+    /**
+     * 
+     * <p>Moved here from consistency since it accesses no other state and is
+     * only ever called from decider.
+     * 
+     * <p>consistency.cpp:41:remove_operator_if_necessary
+     * 
+     * @param s
+     * @param w
+     */
+    private void remove_operator_if_necessary(Slot s, WmeImpl w)
+    {
+        // #ifndef NO_TIMING_STUFF
+        // #ifdef DETAILED_TIMING_STATS
+        // start_timer(thisAgent, &thisAgent->start_gds_tv);
+        // #endif
+        // #endif
+
+        // Note: Deleted about 40 lines of commented printf debugging code here from CSoar
+
+        if (s.getWmes() != null)
+        { 
+            // If there is something in the context slot
+            if (s.getWmes().value == w.value)
+            { 
+                // The WME in the context slot is WME whose pref changed
+                context.getTrace().print(Category.OPERAND2_REMOVALS,
+                        "\n        REMOVING: Operator from context slot (proposal no longer matches): %s", w);
+                context.decider.remove_wmes_for_context_slot(s);
+                if (s.id.lower_goal != null)
+                    context.decider.remove_existing_context_and_descendents(s.id.lower_goal);
+            }
+        }
+
+        // #ifndef NO_TIMING_STUFF
+        // #ifdef DETAILED_TIMING_STATS
+        //  stop_timer(thisAgent, &thisAgent->start_gds_tv, 
+        //             &thisAgent->gds_cpu_time[thisAgent->current_phase]);
+        //  #endif
+        //  #endif
+    }
 
     /**
      * At the end of the phases, do_buffered_acceptable_preference_wme_changes()
@@ -561,7 +607,7 @@ public class Decider
                 pref = next_pref;
             }
 
-            context.tempMemory.mark_slot_for_possible_removal(s);
+            tempMemory.mark_slot_for_possible_removal(s);
         } /* end of for slots loop */
     }
 
@@ -889,7 +935,7 @@ public class Decider
         if (s.getAllPreferences() == null)
         {
             if (!s.isa_context_slot)
-                context.tempMemory.mark_slot_for_possible_removal(s);
+                tempMemory.mark_slot_for_possible_removal(s);
             result_candidates.value = null;
             return ImpasseType.NONE;
         }
@@ -1861,7 +1907,7 @@ public class Decider
      */
     private void decide_non_context_slots()
     {
-        final ListHead<Slot> changed_slots = context.tempMemory.changed_slots;
+        final ListHead<Slot> changed_slots = tempMemory.changed_slots;
         while (!changed_slots.isEmpty())
         {
             Slot s = changed_slots.pop();
@@ -2039,7 +2085,7 @@ public class Decider
             }
             tail.goal = null;
 
-            final ListHead<MatchSetChange> nil_goal_retractions = context.soarReteListener.nil_goal_retractions;
+            final ListHead<MatchSetChange> nil_goal_retractions = this.soarReteListener.nil_goal_retractions;
             if (!nil_goal_retractions.isEmpty())
             {
                 /* There are already retractions on the list */
@@ -2392,9 +2438,9 @@ public class Decider
     {
         IdentifierImpl goal;
 
-        if (context.tempMemory.highest_goal_whose_context_changed != null)
+        if (tempMemory.highest_goal_whose_context_changed != null)
         {
-            goal = context.tempMemory.highest_goal_whose_context_changed;
+            goal = tempMemory.highest_goal_whose_context_changed;
         }
         else
             /* no context changed, so jump right to the bottom */
@@ -2431,7 +2477,7 @@ public class Decider
         } /* end of while (TRUE) loop down context stack */
 
         if (!predict)
-            context.tempMemory.highest_goal_whose_context_changed = null;
+            tempMemory.highest_goal_whose_context_changed = null;
     }
     
     /**
@@ -2445,7 +2491,7 @@ public class Decider
         do_buffered_acceptable_preference_wme_changes();
         do_buffered_link_changes();
         this.workingMemory.do_buffered_wm_changes(io);
-        context.tempMemory.remove_garbage_slots();
+        tempMemory.remove_garbage_slots();
     }
     
     /**
@@ -2531,7 +2577,7 @@ public class Decider
     public void create_top_goal()
     {
         create_new_context(null, ImpasseType.NONE);
-        context.tempMemory.highest_goal_whose_context_changed = null; // nothing changed yet
+        tempMemory.highest_goal_whose_context_changed = null; // nothing changed yet
         do_buffered_wm_and_ownership_changes();
     }
 
@@ -2544,7 +2590,7 @@ public class Decider
             return;
 
         remove_existing_context_and_descendents(top_goal);
-        context.tempMemory.highest_goal_whose_context_changed = null; // nothing changed yet
+        tempMemory.highest_goal_whose_context_changed = null; // nothing changed yet
         do_buffered_wm_and_ownership_changes();
         top_state = null;
         active_goal = null;
@@ -3055,17 +3101,17 @@ public class Decider
          * in the inner 'if' seems to clear up the difficulty.
          */
 
-        if (context.tempMemory.highest_goal_whose_context_changed != null)
+        if (tempMemory.highest_goal_whose_context_changed != null)
         {
-            if (context.tempMemory.highest_goal_whose_context_changed.level >= w.gds.getGoal().level)
+            if (tempMemory.highest_goal_whose_context_changed.level >= w.gds.getGoal().level)
             {
-                context.tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
+                tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
             }
         }
         else
         {
             // If nothing has yet changed (highest_ ... = NIL) then set the goal automatically
-            context.tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
+            tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
         }
         
         context.getTrace().print(Category.OPERAND2_REMOVALS, 

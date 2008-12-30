@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Consistency;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.Production;
@@ -17,12 +18,14 @@ import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteAssertion;
+import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionSupport;
@@ -44,9 +47,10 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.properties.IntegerPropertyProvider;
 import org.jsoar.util.timing.ExecutionTimers;
 
 /**
@@ -73,6 +77,10 @@ public class RecognitionMemory
     private Chunker chunker;
     private DecisionCycle decisionCycle;
     private Rete rete;
+    private TemporaryMemory tempMemory;
+    private OSupport osupport;
+    private SoarReteListener soarReteListener;
+    private Consistency consistency;
     
     /**
      * agent.h:174:firer_highest_rhs_unboundvar_index
@@ -94,7 +102,8 @@ public class RecognitionMemory
     /**
      * agent.h:367:production_firing_count
      */
-    private int production_firing_count = 0;
+    private final IntegerPropertyProvider production_firing_count = new IntegerPropertyProvider(SoarProperties.PRODUCTION_FIRING_COUNT);
+    
     /**
      * agent.h:720:FIRING_TYPE
      */
@@ -122,14 +131,6 @@ public class RecognitionMemory
     }
 
     /**
-     * @return The production currently being fired
-     */
-    public Production getProductionBeingFired()
-    {
-        return production_being_fired;
-    }
-    
-    /**
      * As the "firer", this object is in charge of implementing the {@link RhsFunctionContext}
      * that is passed to RHS functions when they are executed.
      * 
@@ -145,6 +146,12 @@ public class RecognitionMemory
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
         this.rete = Adaptables.adapt(context, Rete.class);
+        this.tempMemory = Adaptables.adapt(context, TemporaryMemory.class);
+        this.osupport = Adaptables.adapt(context, OSupport.class);
+        this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
+        this.consistency = Adaptables.adapt(context, Consistency.class);
+        
+        context.getProperties().setProvider(SoarProperties.PRODUCTION_FIRING_COUNT, production_firing_count);
     }
     
     /**
@@ -153,7 +160,7 @@ public class RecognitionMemory
      */
     public void reset()
     {
-        this.production_firing_count = 0;
+        this.production_firing_count.reset();
         
         if (context.operand2_mode)
         {
@@ -573,7 +580,6 @@ public class RecognitionMemory
         }
         inst.backtrace_number = 0;
 
-        final OSupport osupport = context.osupport;
         final int o_support_calculation_type = osupport.o_support_calculation_type;
         
         if (o_support_calculation_type == 0 || o_support_calculation_type == 3 || o_support_calculation_type == 4)
@@ -660,7 +666,7 @@ public class RecognitionMemory
 
         this.production_being_fired = inst.prod;
         prod.firing_count++; // TODO move into Instantiation constructor
-        this.production_firing_count++;
+        this.production_firing_count.increment();
 
         // build the instantiated conditions, and bind LHS variables
         ConditionsAndNots cans = this.rete.p_node_to_conditions_and_nots(prod.getReteNode(), tok, w, false);
@@ -1210,7 +1216,7 @@ public class RecognitionMemory
         // other miscellaneous stuff
         pref.preference_add_ref();
 
-        context.tempMemory.mark_slot_as_changed(s);
+        tempMemory.mark_slot_as_changed(s);
 
         // update identifier levels
         IdentifierImpl valueId = pref.value.asIdentifier();
@@ -1260,7 +1266,7 @@ public class RecognitionMemory
 
         // other miscellaneous stuff
 
-        context.tempMemory.mark_slot_as_changed(s);
+        tempMemory.mark_slot_as_changed(s);
 
         /// if acceptable/require pref for context slot, we may need to remove a wme later
         if ((s.isa_context_slot)
@@ -1359,20 +1365,20 @@ public class RecognitionMemory
 	    	
 	        SoarReteAssertion assertion = null;
 	        boolean assertionsExist = false;
-	        while ((assertion = context.soarReteListener.postpone_assertion()) != null)
+	        while ((assertion = this.soarReteListener.postpone_assertion()) != null)
 	        {
 	        	assertionsExist = true;
 	        	
 	            if(this.chunker.isMaxChunksReached()) 
 	            {
-	            	context.soarReteListener.consume_last_postponed_assertion();
+	            	this.soarReteListener.consume_last_postponed_assertion();
 	                this.decisionCycle.halt("Max chunks reached");
 	                return;
 	            }
 	            
 	            if (assertion.production.getType() == ProductionType.JUSTIFICATION)
 	            {
-	            	context.soarReteListener.consume_last_postponed_assertion();
+	            	this.soarReteListener.consume_last_postponed_assertion();
 
 	            	// don't fire justifications
 	            	continue;
@@ -1380,7 +1386,7 @@ public class RecognitionMemory
 	            
 	            if (shouldCreateInstantiation(assertion.production, assertion.token, assertion.wme))
 	            {
-	            	context.soarReteListener.consume_last_postponed_assertion();
+	            	this.soarReteListener.consume_last_postponed_assertion();
 	            	create_instantiation(assertion.production, assertion.token, assertion.wme, top_goal);
 	            }
 	        }
@@ -1396,12 +1402,12 @@ public class RecognitionMemory
 	        }
 	        
 	        // New waterfall model: push unfired matches back on to the assertion lists
-	        context.soarReteListener.restore_postponed_assertions();
+	        this.soarReteListener.restore_postponed_assertions();
 	        
 	        assert_new_preferences();
 	
 	        // update accounting
-	        this.decisionCycle.inner_e_cycle_count++;
+	        this.decisionCycle.inner_e_cycle_count.increment();
 	        
 	        if (context.decider.active_goal == null)
 	        {
@@ -1419,12 +1425,12 @@ public class RecognitionMemory
 	        {
 	            if (this.decisionCycle.current_phase == Phase.APPLY)
 	            {
-	    	        context.decider.active_goal = context.consistency.highest_active_goal_apply(context.decider.active_goal.lower_goal);
+	    	        context.decider.active_goal = this.consistency.highest_active_goal_apply(context.decider.active_goal.lower_goal);
 	            }
 	            else if (this.decisionCycle.current_phase == Phase.PROPOSE)
 	            {
 	            	// PROPOSE
-	            	context.decider.active_goal = context.consistency.highest_active_goal_propose(context.decider.active_goal.lower_goal);
+	            	context.decider.active_goal = this.consistency.highest_active_goal_propose(context.decider.active_goal.lower_goal);
 	            } 
 	        } 
 	        catch (IllegalStateException e)
@@ -1445,7 +1451,7 @@ public class RecognitionMemory
         context.decider.active_goal = context.decider.highest_active_goal;
         
         Instantiation inst = null;
-        while ((inst = context.soarReteListener.get_next_retraction()) != null)
+        while ((inst = this.soarReteListener.get_next_retraction()) != null)
         {
             retract_instantiation(inst);
         }
@@ -1461,9 +1467,9 @@ public class RecognitionMemory
          * strucutre (because they don't appear on any goal) REW.
          */
 
-        if (context.operand2_mode && context.soarReteListener.hasNilGoalRetractions())
+        if (context.operand2_mode && this.soarReteListener.hasNilGoalRetractions())
         {
-            while ((inst = context.soarReteListener.get_next_nil_goal_retraction()) != null)
+            while ((inst = this.soarReteListener.get_next_nil_goal_retraction()) != null)
             {
                 retract_instantiation(inst);
             }
@@ -1500,6 +1506,15 @@ public class RecognitionMemory
                                           (IdentifierImpl) id, (SymbolImpl) attr, (SymbolImpl) value, 
                                           null);
             rhsFunctionPreferences.add(p);
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#getProductionBeingFired()
+         */
+        @Override
+        public Production getProductionBeingFired()
+        {
+            return production_being_fired;
         }
         
     }
