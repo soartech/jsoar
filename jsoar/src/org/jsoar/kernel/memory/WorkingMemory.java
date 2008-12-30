@@ -8,6 +8,7 @@ package org.jsoar.kernel.memory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.InputWmeGarbageCollectedEvent;
 import org.jsoar.kernel.events.WorkingMemoryChangedEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
@@ -20,6 +21,8 @@ import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEventManager;
+import org.jsoar.util.properties.IntegerPropertyProvider;
+import org.jsoar.util.properties.PropertyManager;
 
 /**
  * <p>wmem.cpp
@@ -41,25 +44,29 @@ public class WorkingMemory
     private SoarEventManager eventManager;
     
     private int current_wme_timetag = 1;
-    private final ListHead<WmeImpl> wmes_to_add = ListHead.newInstance();
-    private final ListHead<WmeImpl> wmes_to_remove = ListHead.newInstance();
-    private int wme_addition_count;
-    private int wme_removal_count;
     
     // Stats stuff
-    public int max_wm_size = 0;
-    public int cumulative_wm_size = 0;
-    public int num_wm_sizes_accumulated;
+    private final ListHead<WmeImpl> wmes_to_add = ListHead.newInstance();
+    private final ListHead<WmeImpl> wmes_to_remove = ListHead.newInstance();
+    private final IntegerPropertyProvider wme_addition_count = new IntegerPropertyProvider(SoarProperties.WME_ADDITION_COUNT);
+    private final IntegerPropertyProvider wme_removal_count = new IntegerPropertyProvider(SoarProperties.WME_REMOVAL_COUNT);
+    private final IntegerPropertyProvider max_wm_size = new IntegerPropertyProvider(SoarProperties.MAX_WM_SIZE);
+    private final IntegerPropertyProvider cumulative_wm_size = new IntegerPropertyProvider(SoarProperties.CUMULATIVE_WM_SIZE);
+    private final IntegerPropertyProvider num_wm_sizes_accumulated = new IntegerPropertyProvider(SoarProperties.NUM_WM_SIZES_ACCUMULATED);
     
-    /**
-     * @param operator_symbol
-     */
     public WorkingMemory()
     {
     }
     
     public void initialize(Agent context)
     {
+        final PropertyManager pm = context.getProperties();
+        pm.setProvider(wme_addition_count.key, wme_addition_count);
+        pm.setProvider(wme_removal_count.key, wme_removal_count);
+        pm.setProvider(max_wm_size.key, max_wm_size);
+        pm.setProvider(cumulative_wm_size.key, cumulative_wm_size);
+        pm.setProvider(num_wm_sizes_accumulated.key, num_wm_sizes_accumulated);
+        
         this.rete = Adaptables.adapt(context, Rete.class);
         this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
         this.trace = context.getTrace();
@@ -74,11 +81,11 @@ public class WorkingMemory
     public void reset()
     {
         // reset_statistics
-        wme_addition_count = 0;
-        wme_removal_count = 0;
-        max_wm_size = 0;
-        cumulative_wm_size = 0;
-        num_wm_sizes_accumulated = 0;
+        wme_addition_count.reset();
+        wme_removal_count.reset();
+        max_wm_size.reset();
+        cumulative_wm_size.reset();
+        num_wm_sizes_accumulated.reset();
         
         // Note: Originally num_existing_wmes was checked here and a warning was printed
         // to catch memory leaks. Removed in jsoar.
@@ -95,10 +102,10 @@ public class WorkingMemory
      */
     public void updateStats(int num_wmes_in_rete)
     {
-        if (num_wmes_in_rete > max_wm_size)
-            max_wm_size = num_wmes_in_rete;
-        cumulative_wm_size += num_wmes_in_rete;
-        num_wm_sizes_accumulated++;
+        if (num_wmes_in_rete > max_wm_size.intValue())
+            max_wm_size.value.set(num_wmes_in_rete);
+        cumulative_wm_size.value.addAndGet(num_wmes_in_rete);
+        num_wm_sizes_accumulated.increment();
     }
     
     /**
@@ -246,14 +253,14 @@ public class WorkingMemory
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...
             trace.print(Category.WM_CHANGES, "=>WM: %s", w.item);
-            wme_addition_count++;
+            wme_addition_count.increment();
         }
         
         for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_remove", but filtering seems disabled in CSoar...
             trace.print(Category.WM_CHANGES, "<=WM: %s", w.item);
-            wme_removal_count++;
+            wme_removal_count.increment();
         }
         
         wmes_to_add.clear();

@@ -111,7 +111,7 @@ public class StandardFunctions
         this.context = context;
         
         final DecisionCycle decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
-        allInternal.add(new Interrupt(context.recMemory, decisionCycle));
+        allInternal.add(new Interrupt(decisionCycle));
         
         for(RhsFunctionHandler handler : all)
         {

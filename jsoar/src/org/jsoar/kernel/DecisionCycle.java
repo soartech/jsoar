@@ -20,7 +20,9 @@ import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Chunker;
+import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -35,6 +37,7 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.IntegerPropertyProvider;
+import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.timing.ExecutionTimers;
 
 /**
@@ -50,6 +53,9 @@ public class DecisionCycle
     private TraceFormats traceFormats;
     private Chunker chunker;
     private WorkingMemory workingMemory;
+    private OSupport osupport;
+    private SoarReteListener soarReteListener;
+    private Consistency consistency;
     
     private static enum GoType
     {
@@ -77,14 +83,29 @@ public class DecisionCycle
     private int run_phase_count;
     private int run_elaboration_count;
     private int input_period;
-    public int e_cycle_count;
-    public int pe_cycle_count;
     private int pe_cycles_this_d_cycle;
     private int run_last_output_count;
     private int run_generated_output_count;
     public IntegerPropertyProvider d_cycle_count = new IntegerPropertyProvider(SoarProperties.D_CYCLE_COUNT);
-    public int decision_phases_count;
-    public int inner_e_cycle_count;
+    private IntegerPropertyProvider decision_phases_count = new IntegerPropertyProvider(SoarProperties.DECISION_PHASES_COUNT);
+    private IntegerPropertyProvider e_cycle_count = new IntegerPropertyProvider(SoarProperties.E_CYCLE_COUNT);
+    private IntegerPropertyProvider pe_cycle_count = new IntegerPropertyProvider(SoarProperties.PE_CYCLE_COUNT);
+    public IntegerPropertyProvider inner_e_cycle_count = new IntegerPropertyProvider(SoarProperties.INNER_E_CYCLE_COUNT);
+    
+    /**
+     * gsysparam.h:MAX_ELABORATIONS_SYSPARAM
+     */
+    private IntegerPropertyProvider maxElaborations = new IntegerPropertyProvider(SoarProperties.MAX_ELABORATIONS)
+    {
+        @Override
+        public Integer set(Integer value)
+        {
+            Arguments.check(value > 0, "max elaborations must be greater than zero");
+            return super.set(value);
+        }
+    };
+    
+    private boolean hitMaxElaborations = false;
     
     /**
      * gsysparams.h::MAX_NIL_OUTPUT_CYCLES_SYSPARAM
@@ -129,11 +150,21 @@ public class DecisionCycle
     
     public void initialize()
     {
-        this.context.getProperties().setProvider(SoarProperties.D_CYCLE_COUNT, d_cycle_count);
+        final PropertyManager properties = this.context.getProperties();
+        properties.setProvider(SoarProperties.D_CYCLE_COUNT, d_cycle_count);
+        properties.setProvider(SoarProperties.E_CYCLE_COUNT, e_cycle_count);
+        properties.setProvider(SoarProperties.DECISION_PHASES_COUNT, decision_phases_count);
+        properties.setProvider(SoarProperties.PE_CYCLE_COUNT, pe_cycle_count);
+        properties.setProvider(SoarProperties.INNER_E_CYCLE_COUNT, inner_e_cycle_count);
+        properties.setProvider(SoarProperties.MAX_ELABORATIONS, maxElaborations);
+        
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
         this.traceFormats = Adaptables.adapt(context, TraceFormats.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
+        this.osupport = Adaptables.adapt(context, OSupport.class);
+        this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
+        this.consistency = Adaptables.adapt(context, Consistency.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -161,18 +192,51 @@ public class DecisionCycle
      */
     private void resetStatistics()
     {
-        d_cycle_count.value.set(0);
-        decision_phases_count = 0;
-        e_cycle_count = 0;
+        d_cycle_count.reset();
+        decision_phases_count.reset();
+        e_cycle_count.reset();
         e_cycles_this_d_cycle = 0;
-        pe_cycle_count = 0;
+        pe_cycle_count.reset();
         pe_cycles_this_d_cycle = 0;
         run_phase_count = 0 ;
         run_elaboration_count = 0 ;
         run_last_output_count = 0 ;
         run_generated_output_count = 0 ;
-        inner_e_cycle_count = 0;
+        inner_e_cycle_count.reset();
     }
+    
+    /**
+     * The current setting for max elaborations.
+     * 
+     * <p>Client code should access this value through the agent's
+     * property manager.
+     * 
+     * gsysparam.h::MAX_ELABORATIONS_SYSPARAM
+     * 
+     * @return the maxElaborations
+     */
+    public int getMaxElaborations()
+    {
+        return maxElaborations.value.get();
+    }
+
+    /**
+     * @return the hitMaxElaborations
+     */
+    public boolean isHitMaxElaborations()
+    {
+        return hitMaxElaborations;
+    }
+
+    /**
+     * @param hitMaxElaborations the hitMaxElaborations to set
+     */
+    private void setHitMaxElaborations(boolean hitMaxElaborations)
+    {
+        this.hitMaxElaborations = hitMaxElaborations;
+    }
+
+
     
     /**
      * runs Soar one top-level phases. Note that this does not start/stop the 
@@ -275,8 +339,8 @@ public class DecisionCycle
         
         /* d_cycle_count moved to input phases for Soar 8 new decision cycle */
         if (context.operand2_mode == false)
-            this.d_cycle_count.value.incrementAndGet();
-        this.decision_phases_count++; // counts decisions, not cycles, for more accurate stats
+            this.d_cycle_count.increment();
+        this.decision_phases_count.increment(); // counts decisions, not cycles, for more accurate stats
 
         if (input_period == 0)
             this.input_cycle_flag = true;
@@ -381,25 +445,19 @@ public class DecisionCycle
             
             Phase.OUTPUT.trace(trace, false);
             current_phase = Phase.INPUT;
-            this.d_cycle_count.value.incrementAndGet();
+            this.d_cycle_count.increment();
             return;
         }
 
         /* ******************* otherwise we're in Soar7 mode ...  */
 
-        this.e_cycle_count++;
+        this.e_cycle_count.increment();
         this.e_cycles_this_d_cycle++;
         this.run_elaboration_count++; // All phases count as a run elaboration
 
         Phase.OUTPUT.trace(trace, false);
 
-        if (e_cycles_this_d_cycle >= context.consistency.getMaxElaborations())
-        {
-            context.getPrinter().warn("Warning: reached max-elaborations; proceeding to decision phases.");
-            // xml_generate_warning(thisAgent, "Warning: reached max-elaborations; proceeding to decision phases.");
-            current_phase = Phase.DECISION;
-        }
-        else
+        if(!checkForMaxElaborations(Phase.DECISION))
         {
             current_phase = Phase.INPUT;
         }
@@ -409,6 +467,27 @@ public class DecisionCycle
         // #endif
     }
 
+    /**
+     * Checks whether max elaborations has been succeeded. If so, prints a
+     * warning and sets the current phase to the nextPhase parameter and returns
+     * true
+     * 
+     * @param nextPhase the phase to jump to if max elaborations is reached
+     * @return true if max elaborations is reached. false otherwise
+     */
+    boolean checkForMaxElaborations(Phase nextPhase)
+    {
+        if (this.e_cycles_this_d_cycle >= maxElaborations.value.get() )
+        {
+            setHitMaxElaborations(true);
+            context.getPrinter().warn("\nWarning: reached max-elaborations(%d); proceeding to %s phases.", maxElaborations.value.get(), nextPhase);
+            // xml_generate_warning(thisAgent, "Warning: reached max-elaborations; proceeding to decision phases.");
+            this.current_phase = nextPhase;
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * extracted from run_one_top_level_phase(), switch case APPLY_PHASE
      * 
@@ -442,10 +521,10 @@ public class DecisionCycle
             beforeElaboration();
 
             // 'prime' the cycle for a new round of production firings in the APPLY (pref/wm) phases
-            context.consistency.initialize_consistency_calculations_for_new_decision();
+            this.consistency.initialize_consistency_calculations_for_new_decision();
 
             context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS; // might get reset in det_high_active_prod_level...
-            context.consistency.determine_highest_active_production_level_in_stack_apply();
+            this.consistency.determine_highest_active_production_level_in_stack_apply();
             
             if (current_phase == Phase.OUTPUT)
             { 
@@ -467,21 +546,21 @@ public class DecisionCycle
                 beforeElaboration();
             }
             
-            context.recMemory.do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
+            context.recMemory.do_preference_phase(context.decider.top_goal, osupport.o_support_calculation_type);
             context.decider.do_working_memory_phase();
 
             // Update accounting
-            this.e_cycle_count++;
+            this.e_cycle_count.increment();
             this.e_cycles_this_d_cycle++;
             this.run_elaboration_count++;
 
             if (context.recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
-                this.pe_cycle_count++;
+                this.pe_cycle_count.increment();
                 this.pe_cycles_this_d_cycle++;
             }
             
-            context.consistency.determine_highest_active_production_level_in_stack_apply();
+            this.consistency.determine_highest_active_production_level_in_stack_apply();
 
             afterElaboration();
 
@@ -577,10 +656,10 @@ public class DecisionCycle
             beforeElaboration();
 
             // 'Prime the decision for a new round of production firings at the end of
-            context.consistency.initialize_consistency_calculations_for_new_decision();
+            this.consistency.initialize_consistency_calculations_for_new_decision();
 
             context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
-            context.consistency.determine_highest_active_production_level_in_stack_propose();
+            this.consistency.determine_highest_active_production_level_in_stack_propose();
 
             if (current_phase == Phase.DECISION)
             { 
@@ -601,15 +680,15 @@ public class DecisionCycle
                 beforeElaboration();
             }
             
-            context.recMemory.do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
+            context.recMemory.do_preference_phase(context.decider.top_goal, osupport.o_support_calculation_type);
             context.decider.do_working_memory_phase();
             
             // Update accounting.
-            this.e_cycle_count++;
+            this.e_cycle_count.increment();
             this.e_cycles_this_d_cycle++;
             this.run_elaboration_count++;
             
-            context.consistency.determine_highest_active_production_level_in_stack_propose();
+            this.consistency.determine_highest_active_production_level_in_stack_propose();
             
             afterElaboration();
             
@@ -707,7 +786,7 @@ public class DecisionCycle
         else
         { 
             // we're running in Soar7 mode
-            if (context.soarReteListener.any_assertions_or_retractions_ready())
+            if (this.soarReteListener.any_assertions_or_retractions_ready())
                 current_phase = Phase.PREFERENCE;
             else
                 current_phase = Phase.DECISION;
@@ -731,7 +810,7 @@ public class DecisionCycle
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
         beforePhase(Phase.PREFERENCE);
-        context.recMemory.do_preference_phase(context.decider.top_goal, context.osupport.o_support_calculation_type);
+        context.recMemory.do_preference_phase(context.decider.top_goal, osupport.o_support_calculation_type);
 
         this.run_elaboration_count++; // All phases count as a run elaboration
         
@@ -808,7 +887,7 @@ public class DecisionCycle
         
         stop_soar = false;
         reason_for_stopping = null;
-        context.consistency.setHitMaxElaborations(false);
+        setHitMaxElaborations(false);
         while (!stop_soar && n != 0)
         {
             do_one_top_level_phase();
@@ -834,7 +913,7 @@ public class DecisionCycle
 
         stop_soar = false;
         reason_for_stopping = null;
-        int e_cycles_at_start = e_cycle_count;
+        int e_cycles_at_start = e_cycle_count.value.get();
         int d_cycles_at_start = d_cycle_count.value.get();
         int elapsed_cycles = 0;
         GoType save_go_type = GoType.GO_PHASE;
@@ -855,7 +934,7 @@ public class DecisionCycle
             }
             else
             {
-                elapsed_cycles = (d_cycle_count.value.get() - d_cycles_at_start) + (e_cycle_count - e_cycles_at_start);
+                elapsed_cycles = (d_cycle_count.value.get() - d_cycles_at_start) + (e_cycle_count.value.get() - e_cycles_at_start);
             }
             if (n == elapsed_cycles)
                 break;

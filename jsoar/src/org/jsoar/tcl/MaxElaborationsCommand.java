@@ -36,7 +36,7 @@ final class MaxElaborationsCommand implements Command
 
         if(args.length == 1)
         {
-            ifc.getAgent().getPrinter().print("\n%d", ifc.getAgent().consistency.getMaxElaborations());
+            ifc.getAgent().getPrinter().print("\n%d", ifc.getAgent().getProperties().get(SoarProperties.MAX_ELABORATIONS));
         }
         else
         {
