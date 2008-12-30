@@ -5,7 +5,10 @@
  */
 package org.jsoar.kernel.memory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -22,6 +25,27 @@ import com.google.common.base.Predicate;
  */
 public class Wmes
 {
+    /**
+     * Begin constructing a new WME matcher. This uses a builder pattern. 
+     * Chain methods together to construct a predicate the WME you'd like to
+     * find.
+     * 
+     * <p>For example, to find a WME on the output link with the attribute
+     * "my-command":
+     * 
+     * <pre>{@code
+     * final SymbolFactory syms = agent.getSymbols();
+     *Wme w = Wmes.matcher(syms).withAttr("my-command").find(agent.getInputOutput().getOutputLink());
+     * }</pre>
+     * 
+     * @param syms the agent's symbol factory
+     * @return a matcher builder
+     */
+    public static MatcherBuilder matcher(SymbolFactory syms)
+    {
+        return new MatcherBuilder(syms);
+    }
+    
     /**
      * Create a new predicate that matches a particular id/attr/value pattern for
      * a wme. The returned predicate can be used in the filter methods of the
@@ -71,6 +95,139 @@ public class Wmes
             }
         }
         return null;
+    }
+    
+    /**
+     * Filter the given iterator of WMEs with the given predicate.
+     * 
+     * @param it the WME iterator
+     * @param pred predicate that tests WMEs
+     * @return list of all WMEs {@code w} for whom {@code pred.apply(w)} is
+     *      true
+     */
+    public static List<Wme> filter(Iterator<Wme> it, Predicate<Wme> pred)
+    {
+        List<Wme> result = new ArrayList<Wme>();
+        for(; it.hasNext();)
+        {
+            final Wme w = it.next();
+            if(pred.apply(w))
+            {
+                result.add(w);
+            }
+        }
+        return result;
+    }
+    
+    public static class MatcherBuilder
+    {
+        private final SymbolFactory syms;
+        private Identifier id;
+        private Object attr;
+        private Object value;
+        private int timetag = -1;
+        
+        private MatcherBuilder(SymbolFactory syms)
+        {
+            this.syms = syms;
+        }
+        
+        /**
+         * @param id the desired id, or <code>null</code> for don't care
+         * @return this
+         */
+        public MatcherBuilder withId(Identifier id)
+        {
+            this.id = id;
+            return this;
+        }
+        
+        /**
+         * @param attr the desired attribute, or <code>null</code> for don't care
+         * @return
+         */
+        public MatcherBuilder withAttr(Object attr)
+        {
+            this.attr = attr;
+            return this;
+        }
+        
+        /**
+         * @param value the desired value, or <code>null</code> for don't care
+         * @return
+         */
+        public MatcherBuilder withValue(Object value)
+        {
+            this.value = value;
+            return this;
+        }
+        
+        /**
+         * @param timetag the desired timetag, or <code>-1</code> for don't care
+         * @return
+         */
+        public MatcherBuilder withTimetag(int timetag)
+        {
+            this.timetag = timetag;
+            return this;
+        }
+        
+        /**
+         * Find a WME in the given iterator
+         * 
+         * @param it the iterator to search
+         * @return the WME, or <code>null</code> if not found
+         */
+        public Wme find(Iterator<Wme> it)
+        {
+            return Wmes.find(it, createPredicate());
+        }
+        
+        /**
+         * Find a WME in the set of WMEs with the given id, i.e. using
+         * {@link Identifier#getWmes()}
+         * 
+         * @param id the id
+         * @return the WME, or <code>null</code> if not found
+         */
+        public Wme find(Identifier id)
+        {
+            return find(id.getWmes());
+        }
+        
+        /**
+         * Find a WME in the given collection of WMEs
+         * 
+         * @param wmes the wmes
+         * @return the WME, or <code>null</code> if not found
+         */
+        public Wme find(Collection<Wme> wmes)
+        {
+            return find(wmes.iterator());
+        }
+        
+        public List<Wme> filter(Iterator<Wme> it)
+        {
+            return Wmes.filter(it, createPredicate());
+        }
+        
+        public List<Wme> filter(Identifier id)
+        {
+            return filter(id.getWmes());
+        }
+        
+        public List<Wme> filter(Collection<Wme> wmes)
+        {
+            return filter(wmes.iterator());
+        }
+        
+        /**
+         * @return a predicate for the current state of this builder
+         */
+        public Predicate<Wme> createPredicate()
+        {
+            return newMatcher(syms, id, attr, value, timetag);
+        }
     }
     
     private static class MatcherPredicate implements Predicate<Wme>
