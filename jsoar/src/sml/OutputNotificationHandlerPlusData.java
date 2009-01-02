@@ -8,8 +8,12 @@
 
 package sml;
 
+import sml.Agent.OutputNotificationInterface;
+
 public class OutputNotificationHandlerPlusData extends EventHandlerPlusData {
-    /*
+    OutputNotificationInterface m_Handler;
+
+/*
   private long swigCPtr;
 
   protected OutputNotificationHandlerPlusData(long cPtr, boolean cMemoryOwn) {

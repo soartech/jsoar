@@ -17,6 +17,11 @@ public class ClientXML {
   public ClientXML() {
   }
 
+  public ClientXML(ElementXML pElementXML)
+  {
+      this.m_pElementXML = pElementXML;
+  }
+  
   public ClientXML(ClientXML pXML) {
       this.m_pElementXML = pXML.m_pElementXML;
   }
