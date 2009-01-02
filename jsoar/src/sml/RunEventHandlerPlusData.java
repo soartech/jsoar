@@ -9,6 +9,8 @@
 package sml;
 
 public class RunEventHandlerPlusData extends EventHandlerPlusData {
+    
+    Agent.RunEventInterface m_Handler;
     /*
   private long swigCPtr;
 

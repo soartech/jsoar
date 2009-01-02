@@ -20,6 +20,11 @@ public class ListMap<KeyType, ValueType>
 {
     protected Map<KeyType, List<ValueType>>  m_Map = new TreeMap<KeyType, List<ValueType>>();
 
+    public static <K, V> ListMap<K, V> newInstance()
+    {
+        return new ListMap<K, V>();
+    }
+    
     public ListMap() { } 
 
     public void clear()

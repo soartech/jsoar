@@ -8,8 +8,12 @@
 
 package sml;
 
+import sml.Agent.xmlEventInterface;
+
 public class XMLEventHandlerPlusData extends EventHandlerPlusData {
-    /*
+    xmlEventInterface m_Handler;
+
+/*
   private long swigCPtr;
 
   protected XMLEventHandlerPlusData(long cPtr, boolean cMemoryOwn) {

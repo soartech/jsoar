@@ -9,6 +9,10 @@
 package sml;
 
 public class PrintEventHandlerPlusData extends EventHandlerPlusData {
+    
+    Agent.PrintEventInterface m_Handler;
+    boolean m_IgnoreOwnEchos;
+    
     /*
   private long swigCPtr;
 

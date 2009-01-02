@@ -8,8 +8,12 @@
 
 package sml;
 
+import sml.Agent.ProductionEventInterface;
+
 public class ProductionEventHandlerPlusData extends EventHandlerPlusData {
-    /*
+    ProductionEventInterface m_Handler;
+
+/*
   private long swigCPtr;
 
   protected ProductionEventHandlerPlusData(long cPtr, boolean cMemoryOwn) {
