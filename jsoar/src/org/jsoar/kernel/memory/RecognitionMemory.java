@@ -28,7 +28,6 @@ import org.jsoar.kernel.rete.SoarReteAssertion;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
-import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
@@ -162,10 +161,7 @@ public class RecognitionMemory
     {
         this.production_firing_count.reset();
         
-        if (context.operand2_mode)
-        {
-            this.FIRING_TYPE = SavedFiringType.IE_PRODS; /* KJC 10.05.98 was PE */
-        }
+        this.FIRING_TYPE = SavedFiringType.IE_PRODS; /* KJC 10.05.98 was PE */
     }
     
     /**
@@ -436,30 +432,9 @@ public class RecognitionMemory
         if (((a.preference_type != PreferenceType.ACCEPTABLE) && (a.preference_type != PreferenceType.REJECT))
                 && (!(id.isa_goal && (attr == context.predefinedSyms.operator_symbol))))
         {
-            if ((context.attribute_preferences_mode == 2) || (context.operand2_mode == true))
-            {
-                context.getPrinter().error("attribute preference" +
-                		" other than +/- for %s ^%s -- ignoring it.", id, attr);
-                return null;
-            }
-            else if (context.attribute_preferences_mode == 1)
-            {
-                context.getPrinter().warn("\nWarning: attribute preference" +
-                        " other than +/- for %s ^%s -- ignoring it.", id, attr);
-                
-                // TODO xml
-                // growable_string gs = make_blank_growable_string(thisAgent);
-                // add_to_growable_string(thisAgent, &gs, "Warning: attribute
-                // preference other than +/- for ");
-                // add_to_growable_string(thisAgent, &gs,
-                // symbol_to_string(thisAgent, id, true, 0, 0));
-                //        add_to_growable_string(thisAgent, &gs, " ^");
-                //        add_to_growable_string(thisAgent, &gs, symbol_to_string(thisAgent, attr, true, 0, 0));
-                //        add_to_growable_string(thisAgent, &gs, ".");
-                //        xml_generate_warning(thisAgent, text_of_growable_string(gs));
-                //        free_growable_string(thisAgent, gs);
-
-            }
+            context.getPrinter().error("attribute preference" +
+            		" other than +/- for %s ^%s -- ignoring it.", id, attr);
+            return null;
         }
 
         return new Preference(a.preference_type, id, attr, value, referent);
@@ -586,12 +561,12 @@ public class RecognitionMemory
         {
             // do calc's the normal Soar 6 way
             if (need_to_do_support_calculations)
-                osupport.calculate_support_for_instantiation_preferences(inst, top_goal, context.operand2_mode);
+                osupport.calculate_support_for_instantiation_preferences(inst, top_goal);
         }
         else if (o_support_calculation_type == 1)
         {
             if (need_to_do_support_calculations)
-                osupport.calculate_support_for_instantiation_preferences(inst, top_goal, context.operand2_mode);
+                osupport.calculate_support_for_instantiation_preferences(inst, top_goal);
             
             // do calc's both ways, warn on differences
             if ((inst.prod.declared_support != ProductionSupport.DECLARED_O_SUPPORT)
@@ -659,10 +634,7 @@ public class RecognitionMemory
         Instantiation inst = new Instantiation(prod, tok, w);
         inst.inProdList.insertAtHead(this.newly_created_instantiations);
 
-        if (context.operand2_mode)
-        {
-            trace.print(Category.VERBOSE, "\n in create_instantiation: %s", inst.prod.getName());
-        }
+        trace.print(Category.VERBOSE, "\n in create_instantiation: %s", inst.prod.getName());
 
         this.production_being_fired = inst.prod;
         prod.firing_count++; // TODO move into Instantiation constructor
@@ -740,24 +712,7 @@ public class RecognitionMemory
                 }
                 else
                 {
-                    if (context.operand2_mode)
-                    {
-                        pref.o_supported = (this.FIRING_TYPE == SavedFiringType.PE_PRODS) ? true : false;
-                    }
-                    else
-                    {
-                        if (a.support == ActionSupport.O_SUPPORT)
-                            pref.o_supported = true;
-                        else if (a.support == ActionSupport.I_SUPPORT)
-                            pref.o_supported = false;
-                        else
-                        {
-                            need_to_do_support_calculations = true;
-                            trace.print(Category.VERBOSE, "\n\nin create_instantiation(): need_to_do_support_calculations == TRUE!!!\n\n");
-                        }
-
-                    }
-
+                    pref.o_supported = this.FIRING_TYPE == SavedFiringType.PE_PRODS;
                 }
 
                 /*
@@ -1052,10 +1007,7 @@ public class RecognitionMemory
         // for this function anyway, why not just use a normal list? Yay.
         final LinkedList<Preference> o_rejects = new LinkedList<Preference>();
 
-        if (context.operand2_mode)
-        {
-            trace.print(Category.VERBOSE, "\n in assert_new_preferences:");
-        }
+        trace.print(Category.VERBOSE, "\n in assert_new_preferences:");
 
         if (SoarConstants.O_REJECTS_FIRST)
         {
@@ -1093,10 +1045,7 @@ public class RecognitionMemory
                 inst.insertAtHead(inst.item.prod.instantiations);
             }
 
-             if (context.operand2_mode)
-             {
-                 trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.item.prod.getName());
-             }
+            trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.item.prod.getName());
 
             ListItem<Preference> pref, next_pref;
             for (pref = inst.item.preferences_generated.first; pref != null; pref = next_pref)
@@ -1315,26 +1264,20 @@ public class RecognitionMemory
         final Trace trace = context.getTrace();
         if (trace.isEnabled(Category.PHASES))
         {
-            if (context.operand2_mode)
-            {
-                if (this.decisionCycle.current_phase == Phase.APPLY)
-                { /* it's always IE for PROPOSE */
-                    switch (FIRING_TYPE)
-                    {
-                    case PE_PRODS:
-                        trace.print("--- Firing Productions (PE) For State At Depth %d ---\n",
-                                context.decider.active_level);
-                        break;
-                    case IE_PRODS:
-                        trace.print("--- Firing Productions (IE) For State At Depth %d ---\n",
-                                context.decider.active_level);
-                        break;
-                    }
+            if (this.decisionCycle.current_phase == Phase.APPLY)
+            { /* it's always IE for PROPOSE */
+                switch (FIRING_TYPE)
+                {
+                case PE_PRODS:
+                    trace.print("--- Firing Productions (PE) For State At Depth %d ---\n",
+                            context.decider.active_level);
+                    break;
+                case IE_PRODS:
+                    trace.print("--- Firing Productions (IE) For State At Depth %d ---\n",
+                            context.decider.active_level);
+                    break;
                 }
             }
-            else
-                // the XML for this is generated in this function
-                trace.print("\n--- Preference Phase ---\n");
         }
         
         // Save previous active level for usage on next elaboration cycle.
@@ -1467,17 +1410,12 @@ public class RecognitionMemory
          * strucutre (because they don't appear on any goal) REW.
          */
 
-        if (context.operand2_mode && this.soarReteListener.hasNilGoalRetractions())
+        if (this.soarReteListener.hasNilGoalRetractions())
         {
             while ((inst = this.soarReteListener.get_next_nil_goal_retraction()) != null)
             {
                 retract_instantiation(inst);
             }
-        }
-        
-        if(!context.operand2_mode)
-        {
-            Phase.PREFERENCE.trace(trace, false);
         }
     }
 

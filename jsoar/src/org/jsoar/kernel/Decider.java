@@ -271,8 +271,7 @@ public class Decider
                  * the slot, then we don;t need to do anything special until
                  * mini-quiescence.
                  */
-                if (context.operand2_mode)
-                    remove_operator_if_necessary(s, w);
+                remove_operator_if_necessary(s, w);
 
                 this.workingMemory.remove_wme_from_wm(w);
             }
@@ -942,7 +941,7 @@ public class Decider
 
         // if this is the true decision slot and selection has been made,
         // attempt force selection
-        if (!(((context.attribute_preferences_mode == 2) || (context.operand2_mode == true)) && (!s.isa_context_slot)))
+        if (!s.isa_context_slot)
         {
             if (decisionManip.select_get_operator() != null)
             {
@@ -997,7 +996,7 @@ public class Decider
         }
 
         /* === Handling of attribute_preferences_mode 2 === */
-        if (((context.attribute_preferences_mode == 2) || (context.operand2_mode == true)) && (!s.isa_context_slot))
+        if (!s.isa_context_slot)
         {
             result_candidates.value = candidates;
             return ImpasseType.NONE;
@@ -1714,17 +1713,14 @@ public class Decider
             else 
             {
                s.removeWme(w);
-               if (context.operand2_mode)
+               if (w.gds != null) 
                {
-                  if (w.gds != null) 
+                  if (w.gds.getGoal() != null)
                   {
-                     if (w.gds.getGoal() != null)
-                     {
-                         // If the goal pointer is non-NIL, then goal is in the stack
-                         context.getTrace().print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
-                                 "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.getGoal().level, w);
-                         gds_invalid_so_remove_goal(w);
-                     }
+                      // If the goal pointer is non-NIL, then goal is in the stack
+                      context.getTrace().print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
+                              "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.getGoal().level, w);
+                      gds_invalid_so_remove_goal(w);
                   }
                }
                this.workingMemory.remove_wme_from_wm (w);
@@ -1745,8 +1741,6 @@ public class Decider
                s.addWme(w);
                w.preference = cand;
                
-               if (context.operand2_mode)
-               {
                /* Whenever we add a WME to WM, we also want to check and see if
                this new WME is o-supported.  If so, then we want to add the
                supergoal dependencies of the new, o-supported element to the
@@ -1864,8 +1858,6 @@ public class Decider
     //#endif
                   /* REW: end   11.25.96 */ 
                   
-                }  /* end if thisAgent->OPERAND2_MODE ... */
-                   /* REW: end   09.15.96 */
        
                 this.workingMemory.add_wme_to_wm (w);
              }
@@ -2408,7 +2400,7 @@ public class Decider
         if (goal.lower_goal != null)
             remove_existing_context_and_descendents(goal.lower_goal);
 
-        if (context.operand2_mode && this.waitsnc.value.get() && (impasse_type == ImpasseType.NO_CHANGE)
+        if (this.waitsnc.value.get() && (impasse_type == ImpasseType.NO_CHANGE)
                 && (attribute_of_impasse == context.predefinedSyms.state_symbol))
         {
             // Note: In csoar, waitsnc_detect was set to true here, but it was 
@@ -2503,41 +2495,28 @@ public class Decider
         final Trace trace = context.getTrace();
         if (trace.isEnabled() && trace.isEnabled(Category.PHASES))
         {
-            if (context.operand2_mode == true)
-            {
-                if (this.decisionCycle.current_phase == Phase.APPLY)
-                { // it's always IE for PROPOSE
-                    // TODO xml
-                    // xml_begin_tag(thisAgent, kTagSubphase);
-                    // xml_att_val(thisAgent, kPhase_Name, kSubphaseName_ChangingWorkingMemory);
-                    switch (context.recMemory.FIRING_TYPE)
-                    {
-                    case PE_PRODS:
-                        context.getPrinter().print("--- Change Working Memory (PE) ---\n");
-                        // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_PE);
-                        break;
-                    case IE_PRODS:
-                        context.getPrinter().print("--- Change Working Memory (IE) ---\n");
-                        // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_IE);
-                        break;
-                    }
-                    // TODO xml_end_tag(thisAgent, kTagSubphase);
+            if (this.decisionCycle.current_phase == Phase.APPLY)
+            { // it's always IE for PROPOSE
+                // TODO xml
+                // xml_begin_tag(thisAgent, kTagSubphase);
+                // xml_att_val(thisAgent, kPhase_Name, kSubphaseName_ChangingWorkingMemory);
+                switch (context.recMemory.FIRING_TYPE)
+                {
+                case PE_PRODS:
+                    context.getPrinter().print("--- Change Working Memory (PE) ---\n");
+                    // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_PE);
+                    break;
+                case IE_PRODS:
+                    context.getPrinter().print("--- Change Working Memory (IE) ---\n");
+                    // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_IE);
+                    break;
                 }
-            }
-            else
-            {
-                // TODO the XML for this is generated in this function
-                Phase.WM.trace(trace, true);
+                // TODO xml_end_tag(thisAgent, kTagSubphase);
             }
         }
 
         decide_non_context_slots();
         do_buffered_wm_and_ownership_changes();
-
-        if(!context.operand2_mode)
-        {
-            Phase.WM.trace(trace, false);
-        }
     }
 
     /**

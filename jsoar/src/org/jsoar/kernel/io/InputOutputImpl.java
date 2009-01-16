@@ -230,22 +230,19 @@ public class InputOutputImpl implements InputOutput
         // go ahead and remove the wme
         w.id.removeInputWme(w);
 
-        if (context.operand2_mode)
+        if (w.gds != null)
         {
-            if (w.gds != null)
+            if (w.gds.getGoal() != null)
             {
-                if (w.gds.getGoal() != null)
-                {
-                    // TODO verbose trace wm changes in verbose as well
-                    context.getTrace().print(Category.WM_CHANGES, 
-                            "remove_input_wme: Removing state S%d because element in GDS changed. WME: %s\n", 
-                            w.gds.getGoal().level, w);
+                // TODO verbose trace wm changes in verbose as well
+                context.getTrace().print(Category.WM_CHANGES, 
+                        "remove_input_wme: Removing state S%d because element in GDS changed. WME: %s\n", 
+                        w.gds.getGoal().level, w);
 
-                    context.decider.gds_invalid_so_remove_goal(w);
-                    
-                    // NOTE: the call to remove_wme_from_wm will take care
-                    // of checking if GDS should be removed
-                }
+                context.decider.gds_invalid_so_remove_goal(w);
+                
+                // NOTE: the call to remove_wme_from_wm will take care
+                // of checking if GDS should be removed
             }
         }
 

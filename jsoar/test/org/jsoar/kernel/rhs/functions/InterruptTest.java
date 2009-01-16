@@ -50,6 +50,6 @@ public class InterruptTest
         this.agent.runForever();
         
         assertEquals("*** Interrupt from production testInterrupt ***", this.agent.getReasonForStop());
-        assertEquals(46, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
+        assertEquals(45, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
     }
 }

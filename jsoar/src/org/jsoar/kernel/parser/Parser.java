@@ -102,12 +102,11 @@ public class Parser
     private final Printer printer;
     private final SymbolFactoryImpl syms;
     private final VariableGenerator varGen;
-    private final boolean operand2_mode;
     private int[] placeholder_counter = new int[26];
     private StringSymbolImpl currentProduction = null;
     private RhsFunctionManager funcs = null;
     
-    public Parser(VariableGenerator varGen, Lexer lexer, boolean operand2_mode)
+    public Parser(VariableGenerator varGen, Lexer lexer)
     {
         Arguments.checkNotNull(varGen, "varGen");
         Arguments.checkNotNull(lexer, "lexer");
@@ -116,7 +115,6 @@ public class Parser
         this.varGen = varGen;
         this.syms = varGen.getSyms();
         this.lexer = lexer;
-        this.operand2_mode = operand2_mode;
         this.funcs = new RhsFunctionManager(null);
     }
     
@@ -1678,7 +1676,7 @@ public class Parser
             /* parse_preferences actually creates the action.  eventhough
              there aren't really any preferences to read, we need the default
              acceptable and parallel prefs created for all attributes in path */
-            if (operand2_mode && !"operator".equals(szAttribute))
+            if (!"operator".equals(szAttribute))
             {
                 new_actions = parse_preferences_soar8_non_operator(id, attr, new RhsSymbolValue(new_var));
             }
@@ -1711,7 +1709,7 @@ public class Parser
         do
         {
             value = parse_rhs_value();
-            if (operand2_mode && !"operator".equals(szAttribute))
+            if (!"operator".equals(szAttribute))
             {
                 new_actions = parse_preferences_soar8_non_operator(id, attr, value);
             }

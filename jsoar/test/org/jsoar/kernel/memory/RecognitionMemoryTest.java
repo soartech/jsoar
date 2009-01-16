@@ -74,7 +74,6 @@ public class RecognitionMemoryTest
         		"(<s> ^result (rhs-structure))");
         
         agent.runFor(1, RunType.DECISIONS);
-        agent.runFor(1, RunType.DECISIONS);
         
         // Verify that the x, y, z, name structure is there
         Identifier s1 = agent.getSymbols().findIdentifier('S', 1);

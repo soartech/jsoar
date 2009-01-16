@@ -53,6 +53,12 @@ import org.jsoar.util.timing.DefaultExecutionTimer;
 import org.jsoar.util.timing.ExecutionTimer;
 
 /**
+ * 
+ * <p>The following symbols were removed:
+ * <ul>
+ * <li>agent.h:728:operand2_mode
+ * </ul>
+ * 
  * @author ray
  */
 public class Agent extends AbstractAdaptable
@@ -102,13 +108,6 @@ public class Agent extends AbstractAdaptable
      * agent.h:482:total_kernel_time
      */
     private final ExecutionTimer totalKernelTimer = DefaultExecutionTimer.newInstance().setName("Total kernel time");
-    
-    /**
-     * false is Soar 7 mode
-     * 
-     * <p>agent.h:728
-     */
-    public boolean operand2_mode = true;
     
     /**
      * <p>agent.h:688:attribute_preferences_mode
@@ -488,8 +487,7 @@ public class Agent extends AbstractAdaptable
             }
         }
         decisionCycle.current_phase = Phase.INPUT;
-        if (operand2_mode)
-            decisionCycle.d_cycle_count.increment();
+        decisionCycle.d_cycle_count.increment();
 
         io.init_agent_memory();
 
@@ -568,18 +566,10 @@ public class Agent extends AbstractAdaptable
         io.do_output_cycle(); // tell output functions that output commands are gone
         rl.rl_reset_stats();
 
-        if (operand2_mode)
-        {
-            decider.active_level = 0; // Signal that everything should be retracted
-            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
-            // allow all i-instantiations to retract
-            recMemory.do_preference_phase(decider.top_goal, osupport.o_support_calculation_type); 
-        }
-        else
-        {
-            // allow all instantiations to retract
-            recMemory.do_preference_phase(decider.top_goal, osupport.o_support_calculation_type);
-        }
+        decider.active_level = 0; // Signal that everything should be retracted
+        recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
+        // allow all i-instantiations to retract
+        recMemory.do_preference_phase(decider.top_goal, osupport.o_support_calculation_type); 
 
         explain.reset_explain();
         syms.reset();

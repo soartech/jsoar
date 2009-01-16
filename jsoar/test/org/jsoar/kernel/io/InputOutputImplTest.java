@@ -128,7 +128,7 @@ public class InputOutputImplTest extends JSoarTest
         
         sourceTestFile("testBasicInput.soar");
         agent.runFor(3, RunType.DECISIONS);
-        assertEquals(2, listenerCallCount[0]);
+        assertEquals(3, listenerCallCount[0]);
         if(!match.called)
         {
             ifc.eval("matches testBasicInput");
@@ -159,20 +159,15 @@ public class InputOutputImplTest extends JSoarTest
         
         sourceTestFile("testAddAndRemoveInputWme.soar");
         
-        // First the "removed" production will fire because the WME isn't present yet
-        agent.runFor(1, RunType.DECISIONS);
-        assertEquals(1, match.calls.size());
-        assertEquals("removed", match.calls.get(0).get(0).toString());
-        
         // Next the "added" production will fire because the WME has been added
         agent.runFor(1, RunType.DECISIONS);
-        assertEquals(2, match.calls.size());
-        assertEquals("added", match.calls.get(1).get(0).toString());
+        assertEquals(1, match.calls.size());
+        assertEquals("added", match.calls.get(0).get(0).toString());
         
         // Finally, "removed" fires again after the WME has been removed
         agent.runFor(1, RunType.DECISIONS);
-        assertEquals(3, match.calls.size());
-        assertEquals("removed", match.calls.get(2).get(0).toString());
+        assertEquals(2, match.calls.size());
+        assertEquals("removed", match.calls.get(1).get(0).toString());
         
     }
     
@@ -236,9 +231,6 @@ public class InputOutputImplTest extends JSoarTest
         final InputOutput io = agent.getInputOutput();
         new CycleCountInput(io, agent.getEventManager());
         sourceTestFile("testGetPendingCommands.soar");
-        
-        // Run one decision to get cycle count going
-        agent.runFor(1, RunType.DECISIONS);
         
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
