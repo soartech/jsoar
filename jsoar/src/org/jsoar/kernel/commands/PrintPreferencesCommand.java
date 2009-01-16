@@ -140,7 +140,7 @@ public class PrintPreferencesCommand
                 {
                     if (s.getPreferencesByType(pt) != null)
                     {
-                        if (!agent.operand2_mode || s.isa_context_slot)
+                        if (s.isa_context_slot)
                             printer.print("\n%ss:\n", pt.getDisplayName());
                         for (Preference p = s.getPreferencesByType(pt); p != null; p = p.next)
                         {
@@ -246,7 +246,7 @@ public class PrintPreferencesCommand
         {
             printer.print("(%s ^%s %s) ", pref.id, pref.attr, pref.value);
         }
-        if (!agnt.operand2_mode || (pref.attr == agnt.predefinedSyms.operator_symbol))
+        if (pref.attr == agnt.predefinedSyms.operator_symbol)
         {
             printer.print(" %c", pref.type.getIndicator());
         }

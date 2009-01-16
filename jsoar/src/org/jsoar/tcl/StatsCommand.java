@@ -69,14 +69,11 @@ final class StatsCommand implements Command
         		pe_cycle_count);
         
         final double total_kernel_msec = agent.getTotalKernelTimer().getTotalSeconds() * 1000.0;
-        if (agent.operand2_mode ) 
-        {
-            p.print("%d p-elaboration cycles (%f pe's per dc, %f msec/pe)%n",
-                    pe_cycle_count,
-                    decision_phases_count != 0 ? ((double) pe_cycle_count / decision_phases_count) : 0.0,
-                    pe_cycle_count != 0 ? total_kernel_msec / pe_cycle_count : 0.0
-                    );
-        }
+        p.print("%d p-elaboration cycles (%f pe's per dc, %f msec/pe)%n",
+                pe_cycle_count,
+                decision_phases_count != 0 ? ((double) pe_cycle_count / decision_phases_count) : 0.0,
+                pe_cycle_count != 0 ? total_kernel_msec / pe_cycle_count : 0.0
+                );
 
         final int production_firing_count = props.get(SoarProperties.PRODUCTION_FIRING_COUNT);
         p.print("%d production firings (%f pf's per ec, %f msec/pf)%n",

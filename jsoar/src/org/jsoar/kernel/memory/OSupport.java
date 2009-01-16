@@ -86,21 +86,6 @@ public class OSupport
     }
 
     /**
-     * osupport.cpp:72:add_to_os_tc_if_id
-     * 
-     * @param sym
-     * @param flag
-     */
-    private void add_to_os_tc_if_id(SymbolImpl sym, boolean flag)
-    {
-        IdentifierImpl id = sym.asIdentifier();
-        if (id != null)
-        {
-            add_to_os_tc(id, flag);
-        }
-    }
-
-    /**
      * SBH 4/14/93
      * For NNPSCM, we must exclude the operator slot from the transitive closure of a state.
      * Do that by passing a boolean argument, "isa_state" to this routine.
@@ -163,155 +148,7 @@ public class OSupport
            never start there and there's never a pointer to a goal or impasse from
            something else. */
     }
-    
-    /**
-     * osupport.cpp:122:begin_os_tc
-     * 
-     * @param rhs_prefs_or_nil
-     */
-    private void begin_os_tc(ListItem<Preference> rhs_prefs_or_nil)
-    {
-        o_support_tc = syms.getSyms().get_new_tc_number();
-        rhs_prefs_from_instantiation.first = rhs_prefs_or_nil;
-    }
-    
-    /**
-     * After a TC has been marked with the above routine, these utility routines
-     * are used for checking whether certain things are in the TC.
-     * Test_has_id_in_os_tc() checks whether a given test contains an equality
-     * test for any identifier in the TC, other than the identifier
-     * "excluded_sym". Id_or_value_of_condition_list_is_in_os_tc() checks
-     * whether any id or value test in the given condition list (including
-     * id/value tests inside NCC's) has a test for an id in the TC. In the case
-     * of value tests, the id is not allowed to be "sym_excluded_from_value".
-     * 
-     * <p>osupport.cpp:140:test_has_id_in_os_tc
-     * 
-     * @param t
-     * @param excluded_sym
-     * @return
-     */
-    private boolean test_has_id_in_os_tc(Test t, SymbolImpl excluded_sym)
-    {
-        if (Tests.isBlank(t))
-        {
-            return false;
-        }
-        
-        EqualityTest eq = t.asEqualityTest();
-        if (eq != null)
-        {
-            IdentifierImpl referent = eq.getReferent().asIdentifier();
-            if (referent != null)
-            {
-                if (referent.tc_number == o_support_tc)
-                {
-                    if (referent != excluded_sym)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        ConjunctiveTest ct = t.asConjunctiveTest();
-        if (ct != null)
-        {
-            for (Test c : ct.conjunct_list)
-            {
-                if (test_has_id_in_os_tc(c, excluded_sym))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return false;
-    }
 
-    /**
-     * <p>osupport.cpp:163:id_or_value_of_condition_list_is_in_os_tc
-     * 
-     * @param conds
-     * @param sym_excluded_from_value
-     * @param match_state_to_exclude_test_of_the_operator_off_of
-     * @return
-     */
-    private boolean id_or_value_of_condition_list_is_in_os_tc(Condition conds, SymbolImpl sym_excluded_from_value,
-            SymbolImpl match_state_to_exclude_test_of_the_operator_off_of)
-    {
-        /*
-         * RBD 8/19/94 Under NNPSCM, when we use this routine to look for
-         * "something off the state", we want to exclude tests of (match_state
-         * ^operator _).
-         */
-        for (; conds != null; conds = conds.next)
-        {
-            // The original switch statement here was a little tricky.
-            // I think I got the gist of it though.
-            
-            // Positive or negative condition
-            ThreeFieldCondition tfc = conds.asThreeFieldCondition();
-            if (tfc != null)
-            {
-                if (Tests.test_includes_equality_test_for_symbol(tfc.id_test,
-                        match_state_to_exclude_test_of_the_operator_off_of)
-                        && Tests.test_includes_equality_test_for_symbol(tfc.attr_test, syms.operator_symbol))
-                {
-                    // This is a break in the original switch, which should mean break out
-                    // of the switch and start the loop again...
-                    continue;
-                }
-                if (test_has_id_in_os_tc(tfc.id_test, null))
-                {
-                    return true;
-                }
-                if (test_has_id_in_os_tc(tfc.value_test, sym_excluded_from_value))
-                {
-                    return true;
-                }
-            }
-            ConjunctiveNegationCondition ncc = conds.asConjunctiveNegationCondition();
-            if (ncc != null)
-            {
-                if (id_or_value_of_condition_list_is_in_os_tc(ncc.top, sym_excluded_from_value,
-                        match_state_to_exclude_test_of_the_operator_off_of))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * GAP 10-6-94
-     * 
-     * This routine checks to see if the identifier is one of the context
-     * objects i.e. it is the state somewhere in the context stack. This is used
-     * to ensure that O-support is not given to context objects in super-states.
-     * 
-     * <p>osupport.cpp:207:is_state_id
-     * 
-     * @param top_goal Originally retrieved from agent struct.
-     * @param sym
-     * @param match_state
-     * @return
-     */
-    private boolean is_state_id(IdentifierImpl top_goal, SymbolImpl sym, SymbolImpl match_state)
-    {
-        for (IdentifierImpl c = top_goal; c != match_state; c = c.lower_goal)
-        {
-            if (sym == c)
-            {
-                return true;
-            }
-        }
-
-        return sym == match_state;
-    }
-    
     /**
      *                 Run-Time O-Support Calculation
      *
@@ -358,420 +195,194 @@ public class OSupport
      * @param top_goal
      * @param operand2_mode
      */
-    public void calculate_support_for_instantiation_preferences(Instantiation inst, final IdentifierImpl top_goal,
-            final boolean operand2_mode)
+    public void calculate_support_for_instantiation_preferences(Instantiation inst, final IdentifierImpl top_goal)
     {
-        IdentifierImpl match_goal, match_state, match_operator;
-        WmeImpl match_operator_wme;
-        boolean lhs_tests_operator_installed;
-        boolean lhs_tests_operator_acceptable_or_installed;
-        boolean lhs_is_known_to_test_something_off_match_state;
-        boolean lhs_is_known_to_test_something_off_match_operator;
-        boolean rhs_does_an_operator_creation;
-        boolean oc_support_possible;
-        boolean om_support_possible;
-        boolean oa_support_possible;
         WmeImpl w;
-        Condition lhs, c;
-
-        /* RCHONG: begin 10.11 */
-
+        Condition c;
         Action act;
         boolean o_support, op_elab;
         boolean operator_proposal;
         int pass;
         WmeImpl lowest_goal_wme;
 
-        /* RCHONG: end 10.11 */
+        // TODO: verbose
+        // if (thisAgent.soar_verbose_flag == true) {
+        // printf("\n in calculate_support_for_instantiation_preferences:");
+        // xml_generate_verbose(thisAgent, "in
+        // calculate_support_for_instantiation_preferences:");
+        // }
+        o_support = false;
+        op_elab = false;
 
-        /* REW: begin 09.15.96 */
-
-        if (operand2_mode)
+        if (inst.prod.declared_support == ProductionSupport.DECLARED_O_SUPPORT)
         {
-            // TODO: verbose
-            // if (thisAgent.soar_verbose_flag == true) {
-            // printf("\n in calculate_support_for_instantiation_preferences:");
-            // xml_generate_verbose(thisAgent, "in
-            // calculate_support_for_instantiation_preferences:");
-            // }
+            o_support = true;
+        }
+        else if (inst.prod.declared_support == ProductionSupport.DECLARED_I_SUPPORT)
+        {
             o_support = false;
-            op_elab = false;
+        }
+        else if (inst.prod.declared_support == ProductionSupport.UNDECLARED)
+        {
+            /*
+             * check if the instantiation is proposing an operator. if it
+             * is, then this instantiation is i-supported.
+             */
 
-            if (inst.prod.declared_support == ProductionSupport.DECLARED_O_SUPPORT)
+            operator_proposal = false;
+            for (act = inst.prod.action_list; act != null; act = act.next)
             {
-                o_support = true;
-            }
-            else if (inst.prod.declared_support == ProductionSupport.DECLARED_I_SUPPORT)
-            {
-                o_support = false;
-            }
-            else if (inst.prod.declared_support == ProductionSupport.UNDECLARED)
-            {
-                /*
-                 * check if the instantiation is proposing an operator. if it
-                 * is, then this instantiation is i-supported.
-                 */
-
-                operator_proposal = false;
-                for (act = inst.prod.action_list; act != null; act = act.next)
+                MakeAction ma = act.asMakeAction();
+                if (ma != null && ma.attr.asSymbolValue() != null)
                 {
-                    MakeAction ma = act.asMakeAction();
-                    if (ma != null && ma.attr.asSymbolValue() != null)
+                    if (syms.operator_symbol == ma.attr.asSymbolValue().sym && 
+                        act.preference_type == PreferenceType.ACCEPTABLE)
                     {
-                        if (syms.operator_symbol == ma.attr.asSymbolValue().sym && 
-                            act.preference_type == PreferenceType.ACCEPTABLE)
-                        {
-                            operator_proposal = true;
-                            o_support = false;
-                            break;
-                        }
+                        operator_proposal = true;
+                        o_support = false;
+                        break;
                     }
                 }
+            }
 
-                if (operator_proposal == false)
+            if (operator_proposal == false)
+            {
+                /*
+                 * an operator wasn't being proposed, so now we need to test
+                 * if the operator is being tested on the LHS.
+                 * 
+                 * i'll need to make two passes over the wmes that pertain
+                 * to this instantiation. the first pass looks for the
+                 * lowest goal identifier. the second pass looks for a wme
+                 * of the form:
+                 *  (<lowest-goal-id> ^operator ...)
+                 * 
+                 * if such a wme is found, then this o-support = true; false
+                 * otherwise.
+                 * 
+                 * this code is essentially identical to that in
+                 * p_node_left_addition() in rete.c.
+                 * 
+                 * BUGBUG this check only looks at positive conditions. we
+                 * haven't really decided what testing the absence of the
+                 * operator will do. this code assumes that such a
+                 * productions (instantiation) would get i-support.
+                 */
+
+                lowest_goal_wme = null;
+
+                for (pass = 0; pass != 2; pass++)
                 {
-                    /*
-                     * an operator wasn't being proposed, so now we need to test
-                     * if the operator is being tested on the LHS.
-                     * 
-                     * i'll need to make two passes over the wmes that pertain
-                     * to this instantiation. the first pass looks for the
-                     * lowest goal identifier. the second pass looks for a wme
-                     * of the form:
-                     *  (<lowest-goal-id> ^operator ...)
-                     * 
-                     * if such a wme is found, then this o-support = true; false
-                     * otherwise.
-                     * 
-                     * this code is essentially identical to that in
-                     * p_node_left_addition() in rete.c.
-                     * 
-                     * BUGBUG this check only looks at positive conditions. we
-                     * haven't really decided what testing the absence of the
-                     * operator will do. this code assumes that such a
-                     * productions (instantiation) would get i-support.
-                     */
-
-                    lowest_goal_wme = null;
-
-                    for (pass = 0; pass != 2; pass++)
+                    for (c = inst.top_of_instantiated_conditions; c != null; c = c.next)
                     {
-                        for (c = inst.top_of_instantiated_conditions; c != null; c = c.next)
+                        PositiveCondition pc = c.asPositiveCondition();
+                        if (pc != null)
                         {
-                            PositiveCondition pc = c.asPositiveCondition();
-                            if (pc != null)
-                            {
-                                w = pc.bt.wme_;
+                            w = pc.bt.wme_;
 
-                                if (pass == 0)
+                            if (pass == 0)
+                            {
+                                if (w.id.isa_goal == true)
                                 {
-                                    if (w.id.isa_goal == true)
+                                    if (lowest_goal_wme == null)
                                     {
-                                        if (lowest_goal_wme == null)
+                                        lowest_goal_wme = w;
+                                    }
+                                    else
+                                    {
+                                        if (w.id.level > lowest_goal_wme.id.level)
                                         {
                                             lowest_goal_wme = w;
                                         }
-                                        else
-                                        {
-                                            if (w.id.level > lowest_goal_wme.id.level)
-                                            {
-                                                lowest_goal_wme = w;
-                                            }
-                                        }
                                     }
                                 }
-                                else
+                            }
+                            else
+                            {
+                                if ((w.attr == syms.operator_symbol) && (w.acceptable == false)
+                                        && (w.id == lowest_goal_wme.id))
                                 {
-                                    if ((w.attr == syms.operator_symbol) && (w.acceptable == false)
-                                            && (w.id == lowest_goal_wme.id))
+                                    if (o_support_calculation_type == 3 || o_support_calculation_type == 4)
                                     {
-                                        if (o_support_calculation_type == 3 || o_support_calculation_type == 4)
-                                        {
 
-                                            /*
-                                             * iff RHS has only operator
-                                             * elaborations then it's IE_PROD,
-                                             * otherwise PE_PROD, so look for
-                                             * non-op-elabs in the actions KJC
-                                             * 1/00
-                                             */
-                                            for (act = inst.prod.action_list; act != null; act = act.next)
+                                        /*
+                                         * iff RHS has only operator
+                                         * elaborations then it's IE_PROD,
+                                         * otherwise PE_PROD, so look for
+                                         * non-op-elabs in the actions KJC
+                                         * 1/00
+                                         */
+                                        for (act = inst.prod.action_list; act != null; act = act.next)
+                                        {
+                                            MakeAction ma = act.asMakeAction();
+                                            if (ma != null)
                                             {
-                                                MakeAction ma = act.asMakeAction();
-                                                if (ma != null)
+                                                RhsSymbolValue symVal = ma.id.asSymbolValue();
+                                                ReteLocation reteLoc = ma.id.asReteLocation();
+                                                if (symVal != null && symVal.sym == w.value)
                                                 {
-                                                    RhsSymbolValue symVal = ma.id.asSymbolValue();
-                                                    ReteLocation reteLoc = ma.id.asReteLocation();
-                                                    if (symVal != null && symVal.sym == w.value)
-                                                    {
-                                                        op_elab = true;
-                                                    }
-                                                    else if (o_support_calculation_type == 4
-                                                            && reteLoc != null
-                                                            && w.value == reteLoc.lookupSymbol(inst.rete_token, w))
-                                                    {
-                                                        op_elab = true;
-                                                    }
-                                                    else
-                                                    {
-                                                        /*
-                                                         * this is not an
-                                                         * operator elaboration
-                                                         */
-                                                        o_support = true;
-                                                    }
+                                                    op_elab = true;
+                                                }
+                                                else if (o_support_calculation_type == 4
+                                                        && reteLoc != null
+                                                        && w.value == reteLoc.lookupSymbol(inst.rete_token, w))
+                                                {
+                                                    op_elab = true;
+                                                }
+                                                else
+                                                {
+                                                    /*
+                                                     * this is not an
+                                                     * operator elaboration
+                                                     */
+                                                    o_support = true;
                                                 }
                                             }
                                         }
-                                        else
-                                        {
-                                            o_support = true;
-                                            break;
-                                        }
+                                    }
+                                    else
+                                    {
+                                        o_support = true;
+                                        break;
                                     }
                                 }
-
                             }
+
                         }
                     }
                 }
             }
-
-            /* KJC 01/00: Warn if operator elabs mixed w/ applications */
-            if ((o_support_calculation_type == 3 || o_support_calculation_type == 4) && (o_support == true))
-            {
-                if (op_elab == true)
-                {
-                    // warn user about mixed actions
-                    if (o_support_calculation_type == 3)
-                    {
-                        printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
-                        		     "get o_support in prod %s", inst.prod.getName());
-
-                        o_support = true;
-                    }
-                    else if (o_support_calculation_type == 4)
-                    {
-                        printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
-                        		"get i_support in prod %s", inst.prod.getName());
-
-                        o_support = false;
-                    }
-                }
-            }
-
-            // assign every preference the correct support
-            for (ListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
-            {
-                pref.item.o_supported = o_support;
-            }
-
-            return; // goto o_support_done;
         }
 
-        // initialize by giving everything NO o_support
+        /* KJC 01/00: Warn if operator elabs mixed w/ applications */
+        if ((o_support_calculation_type == 3 || o_support_calculation_type == 4) && (o_support == true))
+        {
+            if (op_elab == true)
+            {
+                // warn user about mixed actions
+                if (o_support_calculation_type == 3)
+                {
+                    printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
+                    		     "get o_support in prod %s", inst.prod.getName());
+
+                    o_support = true;
+                }
+                else if (o_support_calculation_type == 4)
+                {
+                    printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
+                    		"get i_support in prod %s", inst.prod.getName());
+
+                    o_support = false;
+                }
+            }
+        }
+
+        // assign every preference the correct support
         for (ListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
         {
-            pref.item.o_supported = false;
+            pref.item.o_supported = o_support;
         }
 
-        // find the match goal, match state, and match operator
-        match_goal = inst.match_goal;
-        if (match_goal == null)
-        {
-            return; // goto o_support_done; // nothing gets o-support
-        }
-
-        match_state = match_goal;
-
-        match_operator_wme = match_goal.operator_slot.getWmes();
-        if (match_operator_wme != null)
-        {
-            match_operator = match_operator_wme.value.asIdentifier();
-        }
-        else
-        {
-            match_operator = null;
-        }
-
-        lhs = inst.top_of_instantiated_conditions;
-        final ListHead<Preference> rhs = inst.preferences_generated;
-
-        // scan through rhs to look for various things
-        rhs_does_an_operator_creation = false;
-
-        for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
-        {
-            Preference pref = pit.item;
-            if ((pref.id == match_goal)
-                    && (pref.attr == syms.operator_symbol)
-                    && ((pref.type == PreferenceType.ACCEPTABLE) || (pref.type == PreferenceType.REQUIRE)))
-            {
-                rhs_does_an_operator_creation = true;
-            }
-        }
-
-        // scan through lhs to look for various tests
-        lhs_tests_operator_acceptable_or_installed = false;
-        lhs_tests_operator_installed = false;
-        lhs_is_known_to_test_something_off_match_state = false;
-        lhs_is_known_to_test_something_off_match_operator = false;
-
-        for (c = lhs; c != null; c = c.next)
-        {
-            PositiveCondition pc = c.asPositiveCondition();
-            if (pc == null)
-            {
-                continue;
-            }
-            w = pc.bt.wme_;
-            // For NNPSCM, count something as "off the match state" only if it's
-            // not the OPERATOR.
-            if ((w.id == match_state) && (w.attr != syms.operator_symbol))
-            {
-                lhs_is_known_to_test_something_off_match_state = true;
-            }
-            if (w.id == match_operator)
-            {
-                lhs_is_known_to_test_something_off_match_operator = true;
-            }
-            if (w == match_operator_wme)
-            {
-                lhs_tests_operator_installed = true;
-            }
-            if ((w.id == match_goal) && (w.attr == syms.operator_symbol))
-            {
-                lhs_tests_operator_acceptable_or_installed = true;
-            }
-        }
-
-        // calcluate lhs support flags
-        oa_support_possible = lhs_tests_operator_installed;
-        oc_support_possible = rhs_does_an_operator_creation;
-        om_support_possible = lhs_tests_operator_acceptable_or_installed;
-
-        if ((!oa_support_possible) && (!oc_support_possible) && (!om_support_possible))
-        {
-            return; // goto o_support_done;
-        }
-
-        if (!lhs_is_known_to_test_something_off_match_state)
-        {
-            begin_os_tc(null);
-            add_to_os_tc_if_id(match_state, true);
-            if (!id_or_value_of_condition_list_is_in_os_tc(lhs, match_state, match_state))
-            {
-                oc_support_possible = false;
-                om_support_possible = false;
-            }
-        }
-
-        if (oa_support_possible)
-        {
-            if (!lhs_is_known_to_test_something_off_match_operator)
-            {
-                begin_os_tc(null);
-                add_to_os_tc_if_id(match_operator, false);
-                if (!id_or_value_of_condition_list_is_in_os_tc(lhs, match_operator, null))
-                    oa_support_possible = false;
-            }
-        }
-
-        // look for rhs oa support
-        if (oa_support_possible)
-        {
-            begin_os_tc(rhs.first);
-            add_to_os_tc_if_id(match_state, true);
-            for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
-            {
-                final Preference pref = pit.item;
-                if (pref.id.tc_number == o_support_tc)
-                {
-                    /* RBD 8/19/94 added extra NNPSCM test -- ^operator augs on the state
-                                                              don't get o-support */
-                    /* AGR 639 begin 94.11.01 */
-                    /* gap 10/6/94 You need to check the id on all preferences that have
-                       an attribute of operator to see if this is an operator slot of a
-                       context being modified. */
-                    if (!((pref.attr == syms.operator_symbol) && (is_state_id(top_goal, pref.id, match_state))))
-                    {
-                        /* AGR 639 end */
-                        pref.o_supported = true;
-                    }
-                }
-            }
-
-            // look for rhs oc support
-            if (oc_support_possible)
-            {
-                begin_os_tc(rhs.first);
-                for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
-                {
-                   final Preference pref = pit.item;
-                   if ((pref.id == match_goal)
-                            && (pref.attr == syms.operator_symbol)
-                            && ((pref.type == PreferenceType.ACCEPTABLE) || (pref.type == PreferenceType.REQUIRE)))
-                    {
-                        add_to_os_tc_if_id(pref.value, false);
-                    }
-                }
-                for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
-                {
-                    final Preference pref = pit.item;
-                    if ((pref.id.tc_number == o_support_tc) && pref.id != match_state)
-                    {
-                        /* SBH: Added 2nd test to avoid circular assignment of o-support
-                           to augmentations of the state: in, e.g.
-                           (sp p2
-                                 (state <g> ^problem-space)(state <ig> ^problem-space.name top-ps)
-                              -.
-                              (<g> ^operator <o>)(<o> ^name opx ^circular-goal-test <ig>))
-                           Here, the op acc. pref would get o-support (it's in the transitive
-                           closure); this test rules it out.
-                           
-                           BUGBUG: this is not fully general; it does not rule out assiging
-                           o-support to substructures of the state that are in the TC of an
-                           operator creation; e.g.
-                           (sp p2
-                                 (state <g> ^problem-space)(state <ig> ^problem-space.name top-ps)
-                              -.
-                              (<g> ^operator <o> ^other <x>)
-                              (<o> ^name opx ^circular-goal-test <ig>)
-                              (<x> ^THIS-GETS-O-SUPPORT T))
-                         */
-                        /* end SBH 6/23/94 */
-                        pref.o_supported = true;
-                    }
-                }
-            }
-
-            // look for rhs om support
-            if (om_support_possible)
-            {
-                begin_os_tc(rhs.first);
-                for (c = inst.top_of_instantiated_conditions; c != null; c = c.next)
-                {
-                    PositiveCondition pc = c.asPositiveCondition();
-                    if (pc != null)
-                    {
-                        w = pc.bt.wme_;
-                        if ((w.id == match_goal) && (w.attr == syms.operator_symbol))
-                        {
-                            add_to_os_tc_if_id(w.value, false);
-                        }
-                    }
-                }
-                for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
-                {
-                    final Preference pref = pit.item;
-                    if (pref.id.tc_number == o_support_tc)
-                    {
-                        pref.o_supported = true;
-                    }
-                }
-            }
-
-        }
     }
 
     /**

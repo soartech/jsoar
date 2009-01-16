@@ -1038,26 +1038,23 @@ public class Chunker
         */
 
         final Trace trace = context.getTrace();
-        if (context.operand2_mode)
+        if (this.learningOn.value.get())
         {
-            if (this.learningOn.value.get())
+            if (pref.id.level < (inst.match_goal_level - 1))
             {
-                if (pref.id.level < (inst.match_goal_level - 1))
-                {
-                    allow_variablization = false;
-                    inst.okay_to_variablize = false;
+                allow_variablization = false;
+                inst.okay_to_variablize = false;
 
-                    trace.print(Category.VERBOSE,
-                            "\n   in chunk_instantiation: making justification only");
-                }
-                else
-                {
-                    allow_variablization = isLearningOn();
-                    inst.okay_to_variablize = isLearningOn();
+                trace.print(Category.VERBOSE,
+                        "\n   in chunk_instantiation: making justification only");
+            }
+            else
+            {
+                allow_variablization = isLearningOn();
+                inst.okay_to_variablize = isLearningOn();
 
-                    trace.print(Category.VERBOSE,
-                            "\n   in chunk_instantiation: resetting allow_variablization to %s", allow_variablization);
-                }
+                trace.print(Category.VERBOSE,
+                        "\n   in chunk_instantiation: resetting allow_variablization to %s", allow_variablization);
             }
         }
 

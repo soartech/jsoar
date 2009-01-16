@@ -87,7 +87,7 @@ public class JSoarTest
     {
         Lexer lexer = new Lexer(Printer.createStdOutPrinter(), new StringReader(input));
         
-        Parser parser = new Parser(new VariableGenerator(syms), lexer, true);
+        Parser parser = new Parser(new VariableGenerator(syms), lexer);
         lexer.getNextLexeme();
         return parser;
     }

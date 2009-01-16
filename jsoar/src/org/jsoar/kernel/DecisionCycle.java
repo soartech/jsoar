@@ -22,7 +22,6 @@ import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.WorkingMemory;
-import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -54,7 +53,6 @@ public class DecisionCycle
     private Chunker chunker;
     private WorkingMemory workingMemory;
     private OSupport osupport;
-    private SoarReteListener soarReteListener;
     private Consistency consistency;
     
     private static enum GoType
@@ -79,10 +77,8 @@ public class DecisionCycle
     private GoType go_type = GoType.GO_DECISION;
     
     int e_cycles_this_d_cycle;
-    boolean input_cycle_flag;
     private int run_phase_count;
     private int run_elaboration_count;
-    private int input_period;
     private int pe_cycles_this_d_cycle;
     private int run_last_output_count;
     private int run_generated_output_count;
@@ -163,7 +159,6 @@ public class DecisionCycle
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
         this.osupport = Adaptables.adapt(context, OSupport.class);
-        this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
         this.consistency = Adaptables.adapt(context, Consistency.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
@@ -181,7 +176,6 @@ public class DecisionCycle
         stop_soar = false;
         reason_for_stopping = null;
         go_type = GoType.GO_DECISION;
-        input_cycle_flag = true;
         current_phase = Phase.INPUT;
         
         resetStatistics();
@@ -337,15 +331,7 @@ public class DecisionCycle
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
         
-        /* d_cycle_count moved to input phases for Soar 8 new decision cycle */
-        if (context.operand2_mode == false)
-            this.d_cycle_count.increment();
         this.decision_phases_count.increment(); // counts decisions, not cycles, for more accurate stats
-
-        if (input_period == 0)
-            this.input_cycle_flag = true;
-        else if ((this.d_cycle_count.value.get() % this.input_period) == 0)
-            this.input_cycle_flag = true;
 
         beforePhase(Phase.DECISION);
         
@@ -371,34 +357,16 @@ public class DecisionCycle
             }
          }
 
-        if (context.operand2_mode == false)
-        {
-            // TODO xml
-            // JRV: Get rid of the cached XML after every decision but before the after-decision-phases callback
-            // xml_invoke_callback( thisAgent ); // invokes XML_GENERATION_CALLBACK, clears XML state
-
-            context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.DECISION));
-
-            chunker.chunks_this_d_cycle = 0;
-
-            Phase.DECISION.trace(trace, false);
-
-            current_phase = Phase.INPUT;
-        }
-        
         // reset elaboration counter
         this.e_cycles_this_d_cycle = 0;
         this.pe_cycles_this_d_cycle = 0;
 
-        if (context.operand2_mode == true)
-        {
-            // Note: AGGRESSIVE_ONC used to be here. Dropped from jsoar because 
-            // it didn't look like it had been used in years.
-            Phase.DECISION.trace(trace, false);
+        // Note: AGGRESSIVE_ONC used to be here. Dropped from jsoar because 
+        // it didn't look like it had been used in years.
+        Phase.DECISION.trace(trace, false);
 
-            context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS;
-            current_phase = Phase.APPLY;
-        }
+        context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS;
+        current_phase = Phase.APPLY;
 
         //      #ifndef NO_TIMING_STUFF
         //      stop_timer (thisAgent, &thisAgent->start_phase_tv, 
@@ -434,37 +402,16 @@ public class DecisionCycle
         
         afterPhase(Phase.OUTPUT);
 
-        if (context.operand2_mode == true)
-        {
-            context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.OUTPUT));
-
-            // #ifndef NO_TIMING_STUFF
-            // stop_timer (thisAgent, &thisAgent->start_phase_tv,
-            // &thisAgent->decision_cycle_phase_timers[OUTPUT_PHASE]);
-            // #endif
-            
-            Phase.OUTPUT.trace(trace, false);
-            current_phase = Phase.INPUT;
-            this.d_cycle_count.increment();
-            return;
-        }
-
-        /* ******************* otherwise we're in Soar7 mode ...  */
-
-        this.e_cycle_count.increment();
-        this.e_cycles_this_d_cycle++;
-        this.run_elaboration_count++; // All phases count as a run elaboration
-
-        Phase.OUTPUT.trace(trace, false);
-
-        if(!checkForMaxElaborations(Phase.DECISION))
-        {
-            current_phase = Phase.INPUT;
-        }
+        context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.OUTPUT));
 
         // #ifndef NO_TIMING_STUFF
-        // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[OUTPUT_PHASE]);
+        // stop_timer (thisAgent, &thisAgent->start_phase_tv,
+        // &thisAgent->decision_cycle_phase_timers[OUTPUT_PHASE]);
         // #endif
+        
+        Phase.OUTPUT.trace(trace, false);
+        current_phase = Phase.INPUT;
+        this.d_cycle_count.increment();
     }
 
     /**
@@ -734,11 +681,8 @@ public class DecisionCycle
         // for Operand2 mode using the new decision cycle ordering,
         // we need to do some initialization in the INPUT PHASE, which
         // now comes first.  e_cycles are also zeroed before the APPLY Phase.
-        if (context.operand2_mode == true)
-        {
-            this.chunker.chunks_this_d_cycle = 0;
-            this.e_cycles_this_d_cycle = 0;
-        }
+        this.chunker.chunks_this_d_cycle = 0;
+        this.e_cycles_this_d_cycle = 0;
         
         // #ifndef NO_TIMING_STUFF
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
@@ -758,40 +702,21 @@ public class DecisionCycle
         // determine_lapsing(thisAgent);
         // #endif
 
-        if (input_cycle_flag == true)
-        { 
-            // Soar 7 flag, but always true for Soar8
-            beforePhase(Phase.INPUT);
+        beforePhase(Phase.INPUT);
 
-            io.do_input_cycle();
+        io.do_input_cycle();
 
-            run_elaboration_count++; // All phases count as a run elaboration
-            
-            afterPhase(Phase.INPUT);
-
-            if (input_period != 0)
-                input_cycle_flag = false;
-        }
-
+        run_elaboration_count++; // All phases count as a run elaboration
+        
+        afterPhase(Phase.INPUT);
+        
         Phase.INPUT.trace(trace, false);
 
         // #ifndef NO_TIMING_STUFF /* REW: 28.07.96 */
         // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[INPUT_PHASE]);
         // #endif
 
-        if (context.operand2_mode == true)
-        {
-            current_phase = Phase.PROPOSE;
-        }
-        else
-        { 
-            // we're running in Soar7 mode
-            if (this.soarReteListener.any_assertions_or_retractions_ready())
-                current_phase = Phase.PREFERENCE;
-            else
-                current_phase = Phase.DECISION;
-        }
-
+        current_phase = Phase.PROPOSE;
     }
 
     /**
@@ -913,37 +838,25 @@ public class DecisionCycle
 
         stop_soar = false;
         reason_for_stopping = null;
-        int e_cycles_at_start = e_cycle_count.value.get();
         int d_cycles_at_start = d_cycle_count.value.get();
         int elapsed_cycles = 0;
         GoType save_go_type = GoType.GO_PHASE;
-        if (context.operand2_mode)
-        {
-            elapsed_cycles = -1;
-            save_go_type = go_type;
-            go_type = GoType.GO_ELABORATION;
-            // need next line or runs only the input phases for "d 1" after init-soar
-            if (d_cycles_at_start == 0)
-                d_cycles_at_start++;
-        }
+        
+        elapsed_cycles = -1;
+        save_go_type = go_type;
+        go_type = GoType.GO_ELABORATION;
+        // need next line or runs only the input phases for "d 1" after init-soar
+        if (d_cycles_at_start == 0)
+            d_cycles_at_start++;
+        
         while (!stop_soar)
         {
-            if (context.operand2_mode)
-            {
-                elapsed_cycles++;
-            }
-            else
-            {
-                elapsed_cycles = (d_cycle_count.value.get() - d_cycles_at_start) + (e_cycle_count.value.get() - e_cycles_at_start);
-            }
+            elapsed_cycles++;
             if (n == elapsed_cycles)
                 break;
             do_one_top_level_phase();
         }
-        if (context.operand2_mode)
-        {
-            go_type = save_go_type;
-        }
+        go_type = save_go_type;
 
         pauseTopLevelTimers();
     }
@@ -1004,7 +917,7 @@ public class DecisionCycle
         reason_for_stopping = null;
         int d_cycles_at_start = d_cycle_count.value.get();
         /* need next line or runs only the input phases for "d 1" after init-soar */
-        if (context.operand2_mode && (d_cycles_at_start == 0))
+        if (d_cycles_at_start == 0)
             d_cycles_at_start++;
         while (!stop_soar)
         {

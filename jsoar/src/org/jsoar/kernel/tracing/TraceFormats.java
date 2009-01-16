@@ -1172,30 +1172,8 @@ public class TraceFormats
 
         else
         {
-            if (context.operand2_mode)
-            {
-                print_stack_trace(writer, bottom_goal, bottom_goal,
-                        TraceFormatRestriction.FOR_STATES_TF, true);
-            }
-            else
-            {
-                if (this.decisionCycle.d_cycle_count.value.get() == 0)
-                    print_stack_trace(writer, bottom_goal, bottom_goal,
-                            TraceFormatRestriction.FOR_STATES_TF, true);
-                else
-                {
-                    if (bottom_goal.higher_goal != null && bottom_goal.higher_goal.operator_slot.getWmes() != null)
-                    {
-                        print_stack_trace(writer, bottom_goal, bottom_goal,
-                                TraceFormatRestriction.FOR_STATES_TF, true);
-                    }
-                    else
-                    {
-                        print_stack_trace(writer, bottom_goal, bottom_goal,
-                                TraceFormatRestriction.FOR_STATES_TF, true);
-                    }
-                }
-            }
+            print_stack_trace(writer, bottom_goal, bottom_goal,
+                    TraceFormatRestriction.FOR_STATES_TF, true);
         }
     }
     

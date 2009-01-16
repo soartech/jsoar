@@ -169,7 +169,7 @@ public class DefaultProductionManager implements ProductionManager
     {
         StringReader reader = new StringReader(productionBody);
         Lexer lexer = new Lexer(context.getPrinter(), reader);
-        Parser parser = new Parser(this.variableGenerator, lexer, context.operand2_mode);
+        Parser parser = new Parser(this.variableGenerator, lexer);
         parser.setRhsFunctions(context.getRhsFunctions());
         lexer.getNextLexeme();
         addProduction(parser.parserProduction(), true);

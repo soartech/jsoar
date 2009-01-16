@@ -72,7 +72,7 @@ public class CycleCountInputTest
         final int n = 50;
         agent.runFor(n, RunType.DECISIONS);
         
-        assertEquals(n - 1, matches.size());
+        assertEquals(n, matches.size());
         
         int expected = 1;
         for(Integer i : matches)
@@ -85,9 +85,7 @@ public class CycleCountInputTest
         agent.runFor(1, RunType.DECISIONS);
         
         // make sure the production doesn't fire again, i.e. that the wme has been removed
-        assertEquals(n - 1, matches.size());
+        assertEquals(n, matches.size());
         assertNull(Wmes.matcher(agent.getSymbols()).withAttr("cycle-count").find(agent.getInputOutput().getInputLink()));
-        
-        
     }
 }
