@@ -15,7 +15,6 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.Instantiation;
-import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.Action;
@@ -29,9 +28,8 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
-import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.ListItem;
 
 /**
  * Soar-specific implementation of the {@link ReteListener} interface. This includes
@@ -43,7 +41,6 @@ public class SoarReteListener implements ReteListener
 {
     private final Agent context;
     private final Rete rete;
-    private OSupport osupport;
     
     /**
      * agent.h:733
@@ -88,7 +85,6 @@ public class SoarReteListener implements ReteListener
     
     public void initialize()
     {
-        this.osupport = Adaptables.adapt(context, OSupport.class);
     }
 
     /* (non-Javadoc)
@@ -355,95 +351,69 @@ public class SoarReteListener implements ReteListener
                                 if ((temp_tok.w.attr == context.predefinedSyms.operator_symbol) && (temp_tok.w.acceptable == false)
                                         && (temp_tok.w.id == lowest_goal_wme.id))
                                 {
-                                    if ((osupport.o_support_calculation_type == 3) || (osupport.o_support_calculation_type == 4))
+                                    // former o_support_calculation_type (3 or 4)  test site
+                                    
+                                    // iff RHS has only operator elaborations then it's IE_PROD,
+                                    // otherwise PE_PROD, so look for non-op-elabs in the actions KJC 1/00
+
+                                    // We also need to check reteloc's to see if they are referring to
+                                    // operator augmentations before determining if this is an
+                                    // operator elaboration
+
+                                    for (Action act = node.b_p.prod.action_list; act != null; act = act.next)
                                     {
-                                        /*
-                                         * iff RHS has only operator
-                                         * elaborations then it's IE_PROD,
-                                         * otherwise PE_PROD, so look for
-                                         * non-op-elabs in the actions KJC
-                                         * 1/00
-                                         */
-
-                                        /*
-                                         * We also need to check reteloc's
-                                         * to see if they are referring to
-                                         * operator augmentations before
-                                         * determining if this is an
-                                         * operator elaboration
-                                         */
-
-                                        for (Action act = node.b_p.prod.action_list; act != null; act = act.next)
+                                        MakeAction ma = act.asMakeAction();
+                                        if (ma != null)
                                         {
-                                            MakeAction ma = act.asMakeAction();
-                                            if (ma != null)
-                                            {
-                                                RhsSymbolValue rhsSym = ma.id.asSymbolValue();
-                                                ReteLocation rl = ma.id.asReteLocation();
-                                                if ((rhsSym != null) &&
+                                            RhsSymbolValue rhsSym = ma.id.asSymbolValue();
+                                            ReteLocation rl = ma.id.asReteLocation();
+                                            if ((rhsSym != null) &&
 
-                                                /***************************
-                                                 * TODO shouldn't this be either
-                                                 * symbol_to_rhs_value
-                                                 * (act->id) == or act->id ==
-                                                 * rhs_value_to_symbol(temp..)
-                                                 **************************/
-                                                (rhsSym.sym == temp_tok.w.value))
-                                                {
-                                                    op_elab = true;
-                                                }
-                                                else if ((osupport.o_support_calculation_type == 4)
-                                                        && (rl != null)
-                                                        && (temp_tok.w.value == rl.lookupSymbol(tok, w)))
-                                                {
-                                                    op_elab = true;
-                                                }
-                                                else
-                                                {
-                                                    // this is not an operator elaboration
-                                                    prod_type = SavedFiringType.PE_PRODS;
-                                                }
-                                            } // act->type == MAKE_ACTION
-                                        } // for
-                                    }
-                                    else
-                                    {
-                                        prod_type = SavedFiringType.PE_PRODS;
-                                        break;
-                                    }
+                                            /***************************
+                                             * TODO shouldn't this be either
+                                             * symbol_to_rhs_value
+                                             * (act->id) == or act->id ==
+                                             * rhs_value_to_symbol(temp..)
+                                             **************************/
+                                            (rhsSym.sym == temp_tok.w.value))
+                                            {
+                                                op_elab = true;
+                                            }
+                                            else if ( /* osupport.o_support_calculation_type == 4 &&*/
+                                                    (rl != null)
+                                                    && (temp_tok.w.value == rl.lookupSymbol(tok, w)))
+                                            {
+                                                op_elab = true;
+                                            }
+                                            else
+                                            {
+                                                // this is not an operator elaboration
+                                                prod_type = SavedFiringType.PE_PRODS;
+                                            }
+                                        } // act->type == MAKE_ACTION
+                                    } // for
                                 }
                             } /* end if (pass == 0) ... */
                             temp_tok = temp_tok.parent;
                         } /* end while (temp_tok != NIL) ... */
 
                         if (prod_type == SavedFiringType.PE_PRODS)
-                            if ((osupport.o_support_calculation_type != 3) && (osupport.o_support_calculation_type != 4))
+                        {
+                            // former o_support_calculation_type (3 or 4) test site
+                            if (op_elab)
                             {
-                                break;
-                            }
-                            else if (op_elab)
-                            {
-                                /* warn user about mixed actions */
-                                final boolean warnings = context.getPrinter().isPrintWarnings();
-                                if ((osupport.o_support_calculation_type == 3) && warnings)
-                                {
-                                    context.getPrinter().warn(
-                                    "\nWARNING: operator elaborations mixed with operator applications\n" +
-                                    "get o_support in prod %s", node.b_p.prod.getName());
-
-                                    prod_type = SavedFiringType.PE_PRODS;
-                                    break;
-                                }
-                                else if ((osupport.o_support_calculation_type == 4) && warnings)
+                                // warn user about mixed actions
+                                if (context.getPrinter().isPrintWarnings())
                                 {
                                     context.getPrinter().warn(
                                     "\nWARNING: operator elaborations mixed with operator applications\n" +
                                     "get i_support in prod %s", node.b_p.prod.getName());
 
-                                    prod_type = SavedFiringType.IE_PRODS;
-                                    break;
                                 }
+                                prod_type = SavedFiringType.IE_PRODS;
+                                break;
                             }
+                        }
                     } /* end for pass =  */
                 } /* end for loop checking all matches */
 

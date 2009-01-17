@@ -78,7 +78,27 @@ public class SoarTclInterface
         {
             agent.getProperties().set(SoarProperties.LEARNING_ON, enable);
         }
-    }; 
+    };
+    
+    private final Command oSupportModeCommand = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            throw new TclException(interp, 
+                    "o-support-mode command is not supported. " +
+            		"jsoar's default behavior is equivalent to o-support mode 4 in" +
+            		"the standard Soar 9.0.0 release.");
+        }}; 
+    private final Command soar8Command = new Command() {
+
+        @Override
+        public void cmdProc(Interp interp, TclObject[] args) throws TclException
+        {
+            throw new TclException(interp, 
+                    "soar8 command is not supported by jsoar. " +
+                    "jsoar does not support Soar 7 mode.");
+        }}; 
     
     private final Command rlCommand = new ReinforcementLearningCommand(this);
     
@@ -200,6 +220,8 @@ public class SoarTclInterface
         interp.createCommand("rhs-functions", rhsFuncsCommand);
         interp.createCommand("print", printCommand);
         interp.createCommand("p", printCommand); // TODO do aliases
+        interp.createCommand("o-support-mode", oSupportModeCommand);
+        interp.createCommand("soar8", soar8Command);
     }
     
     public Interp getInterpreter()

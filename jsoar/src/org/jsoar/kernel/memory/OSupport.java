@@ -40,11 +40,6 @@ public class OSupport
     private final PredefinedSymbols syms;
     private final Printer printer;
     
-    /**
-     * agent.h:687:o_support_calculation_type
-     */
-    public int o_support_calculation_type = 4;
-
     private static enum YesNoMaybe
     {
         YES, NO, MAYBE
@@ -155,10 +150,11 @@ public class OSupport
      * This routine calculates o-support for each preference for the given
      * instantiation, filling in pref.o_supported (true or false) on each one.
      *
-     * The following predicates are used for support calculations.  In the
+     * <p>The following predicates are used for support calculations.  In the
      * following, "lhs has some elt. ..." means the lhs has some id or value
      * at any nesting level.
      *
+     * <pre>
      *  lhs_oa_support:
      *    (1) does lhs test (match_goal ^operator match_operator NO) ?
      *    (2) mark TC (match_operator) using TM;
@@ -182,12 +178,15 @@ public class OSupport
      *  rhs_om_support:
      *    mark TC (inst.lhsoperators) using TM+RHS;
      *    if pref.id is in TC, give support
-     *
+     * </pre>
+     * 
+     * <pre>
      * BUGBUG the code does a check of whether the lhs tests the match state via
      *       looking just at id and value fields of top-level positive cond's.
      *       It doesn't look at the attr field, or at any negative or NCC's.
      *       I'm not sure whether this is right or not.  (It's a pretty
      *       obscure case, though.)
+     * </pre>
      * 
      * <p>osupport.cpp:267:calculate_support_for_instantiation_preferences
      * 
@@ -302,48 +301,31 @@ public class OSupport
                                 if ((w.attr == syms.operator_symbol) && (w.acceptable == false)
                                         && (w.id == lowest_goal_wme.id))
                                 {
-                                    if (o_support_calculation_type == 3 || o_support_calculation_type == 4)
+                                    // former o_support_calculation_type test site
+                                    // iff RHS has only operator elaborations then it's IE_PROD,
+                                    // otherwise PE_PROD, so look for non-op-elabs in the actions KJC 1/00
+                                    for (act = inst.prod.action_list; act != null; act = act.next)
                                     {
-
-                                        /*
-                                         * iff RHS has only operator
-                                         * elaborations then it's IE_PROD,
-                                         * otherwise PE_PROD, so look for
-                                         * non-op-elabs in the actions KJC
-                                         * 1/00
-                                         */
-                                        for (act = inst.prod.action_list; act != null; act = act.next)
+                                        MakeAction ma = act.asMakeAction();
+                                        if (ma != null)
                                         {
-                                            MakeAction ma = act.asMakeAction();
-                                            if (ma != null)
+                                            RhsSymbolValue symVal = ma.id.asSymbolValue();
+                                            ReteLocation reteLoc = ma.id.asReteLocation();
+                                            if (symVal != null && symVal.sym == w.value)
                                             {
-                                                RhsSymbolValue symVal = ma.id.asSymbolValue();
-                                                ReteLocation reteLoc = ma.id.asReteLocation();
-                                                if (symVal != null && symVal.sym == w.value)
-                                                {
-                                                    op_elab = true;
-                                                }
-                                                else if (o_support_calculation_type == 4
-                                                        && reteLoc != null
-                                                        && w.value == reteLoc.lookupSymbol(inst.rete_token, w))
-                                                {
-                                                    op_elab = true;
-                                                }
-                                                else
-                                                {
-                                                    /*
-                                                     * this is not an
-                                                     * operator elaboration
-                                                     */
-                                                    o_support = true;
-                                                }
+                                                op_elab = true;
+                                            }
+                                            else if (/*o_support_calculation_type == 4 &&*/ reteLoc != null
+                                                    && w.value == reteLoc.lookupSymbol(inst.rete_token, w))
+                                            {
+                                                op_elab = true;
+                                            }
+                                            else
+                                            {
+                                                // this is not an operator elaboration
+                                                o_support = true;
                                             }
                                         }
-                                    }
-                                    else
-                                    {
-                                        o_support = true;
-                                        break;
                                     }
                                 }
                             }
@@ -355,25 +337,17 @@ public class OSupport
         }
 
         /* KJC 01/00: Warn if operator elabs mixed w/ applications */
-        if ((o_support_calculation_type == 3 || o_support_calculation_type == 4) && (o_support == true))
+        // former o_support_calculation_type (3 or 4)  test site
+        if (o_support)
         {
-            if (op_elab == true)
+            if (op_elab)
             {
+                // former o_support_calculation_type (4)  test site
                 // warn user about mixed actions
-                if (o_support_calculation_type == 3)
-                {
-                    printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
-                    		     "get o_support in prod %s", inst.prod.getName());
+                printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
+                		"get i_support in prod %s", inst.prod.getName());
 
-                    o_support = true;
-                }
-                else if (o_support_calculation_type == 4)
-                {
-                    printer.warn("\nWARNING: operator elaborations mixed with operator applications\n" +
-                    		"get i_support in prod %s", inst.prod.getName());
-
-                    o_support = false;
-                }
+                o_support = false;
             }
         }
 
@@ -384,149 +358,6 @@ public class OSupport
         }
 
     }
-
-    /**
-     *    Run-Time O-Support Calculation:  Doug Pearson's Scheme
-     *
-     * This routine calculates o-support for each preference for the given
-     * instantiation, filling in pref.o_supported (true or false) on each one.
-     *
-     * This is basically Doug's original scheme (from email August 16, 1994)
-     * modified by John's response (August 17) points #2 (don't give o-c
-     * support unless pref in TC of RHS op.) and #3 (all support calc's should
-     * be local to a goal).  In detail:
-     *
-     * For a particular preference p=(id ^attr ...) on the RHS of an
-     * instantiation [LHS,RHS]:
-     *
-     * RULE #1 (Context pref's): If id is the match state and attr="operator", 
-     * then p does NOT get o-support.  This rule overrides all other rules.
-     *
-     * RULE #2 (O-A support):  If LHS includes (match-state ^operator ...),
-     * then p gets o-support.
-     *
-     * RULE #3 (O-M support):  If LHS includes (match-state ^operator ... +),
-     * then p gets o-support.
-     *
-     * RULE #4 (O-C support): If RHS creates (match-state ^operator ... +/!),
-     * and p is in TC(RHS-operators, RHS), then p gets o-support.
-     *
-     * Here "TC" means transitive closure; the starting points for the TC are 
-     * all operators the RHS creates an acceptable/require preference for (i.e., 
-     * if the RHS includes (match-state ^operator such-and-such +/!), then 
-     * "such-and-such" is one of the starting points for the TC).  The TC
-     * is computed only through the preferences created by the RHS, not
-     * through any other existing preferences or WMEs.
-     *
-     * If none of rules 1-4 apply, then p does NOT get o-support.
-     *
-     * Note that rules 1 through 3 can be handled in linear time (linear in 
-     * the size of the LHS and RHS); rule 4 can be handled in time quadratic 
-     * in the size of the RHS (and typical behavior will probably be linear).
-     * 
-     * osupport.cpp:661:dougs_calculate_support_for_instantiation_preferences
-     * 
-     * @param inst
-     */
-    void dougs_calculate_support_for_instantiation_preferences(Instantiation inst)
-    {
-        Condition lhs = inst.top_of_instantiated_conditions;
-        ListHead<Preference> rhs = inst.preferences_generated;
-        IdentifierImpl match_state = inst.match_goal;
-
-        /* --- First, check whether rule 2 or 3 applies. --- */
-        boolean rule_2_or_3 = false;
-        Condition c;
-        WmeImpl w;
-        for (c = lhs; c != null; c = c.next)
-        {
-            PositiveCondition pc = c.asPositiveCondition();
-            if (pc == null)
-            {
-                continue;
-            }
-            w = pc.bt.wme_;
-            if ((w.id == match_state) && (w.attr == syms.operator_symbol))
-            {
-                rule_2_or_3 = true;
-                break;
-            }
-        }
-
-        /* --- Initialize all pref's according to rules 2 and 3 --- */
-        for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
-        {
-            final Preference pref = pit.item;
-            pref.o_supported = rule_2_or_3;
-        }
-
-        /* --- If they didn't apply, check rule 4 --- */
-        if (!rule_2_or_3)
-        {
-            o_support_tc = syms.getSyms().get_new_tc_number();
-            /*
-             * BUGBUG With Doug's scheme, o_support_tc no longer needs to be a
-             * global variable -- it could simply be local to this procedure
-             */
-            boolean anything_added = false;
-            /*
-             * --- look for RHS operators, add 'em (starting points) to the TC
-             * ---
-             */
-            for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
-            {
-                final Preference pref = pit.item;
-                if ((pref.id == match_state)
-                        && (pref.attr == syms.operator_symbol)
-                        && ((pref.type == PreferenceType.ACCEPTABLE) || (pref.type == PreferenceType.REQUIRE))
-                        && (pref.value.asIdentifier() != null))
-                {
-                    pref.value.asIdentifier().tc_number = o_support_tc;
-                    anything_added = true;
-                }
-            }
-            /* --- Keep adding stuff to the TC until nothing changes anymore --- */
-            while (anything_added)
-            {
-                anything_added = false;
-                for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
-                {
-                    final Preference pref = pit.item;
-                    if (pref.id.tc_number != o_support_tc)
-                    {
-                        continue;
-                    }
-                    if (pref.o_supported)
-                    {
-                        continue; /* already added this thing */
-                    }
-                    pref.o_supported = true;
-                    anything_added = true;
-                    IdentifierImpl idValue = pref.value.asIdentifier();
-                    if (idValue != null)
-                    {
-                        idValue.tc_number = o_support_tc;
-                    }
-                    IdentifierImpl referentId = pref.type.isBinary() ? pref.referent.asIdentifier() : null;
-                    if (referentId != null)
-                    {
-                        referentId.tc_number = o_support_tc;
-                    }
-                }
-            }
-        }
-
-        /* --- Finally, use rule 1, which overrides all the other rules. --- */
-        for (ListItem<Preference> pit = rhs.first; pit != null; pit = pit.next)
-        {
-            final Preference pref = pit.item;
-            if ((pref.id == match_state) && (pref.attr == syms.operator_symbol))
-            {
-                pref.o_supported = false;
-            }
-        }
-    }
-
 
     /**
      * This function determines whether a given symbol could be the match for a
@@ -611,11 +442,11 @@ public class OSupport
      * This routine looks at the LHS and returns a list of variables that are
      * certain to be bound to goals.
      * 
-     * Note: this uses the TC routines and clobbers any existing TC.
+     * <p>Note: this uses the TC routines and clobbers any existing TC.
      * 
-     * BUGBUG should follow ^object links up the goal stack if possible
+     * <p>BUGBUG should follow ^object links up the goal stack if possible
      * 
-     * osupport.cpp:796:find_known_goals
+     * <p>osupport.cpp:796:find_known_goals
      * 
      * @param lhs
      * @return
@@ -645,9 +476,9 @@ public class OSupport
      * variable will be the match goal. If successful, it returns that variable;
      * if it can't tell which variable will be the match goal, it returns NIL.
      * 
-     * Note: this uses the TC routines and clobbers any existing TC.
+     * <p>Note: this uses the TC routines and clobbers any existing TC.
      * 
-     * osupport.cpp:825:find_compile_time_match_goal
+     * <p>osupport.cpp:825:find_compile_time_match_goal
      * 
      * @param lhs
      * @param known_goals

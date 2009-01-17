@@ -569,7 +569,7 @@ public class Agent extends AbstractAdaptable
         decider.active_level = 0; // Signal that everything should be retracted
         recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
         // allow all i-instantiations to retract
-        recMemory.do_preference_phase(decider.top_goal, osupport.o_support_calculation_type); 
+        recMemory.do_preference_phase(decider.top_goal); 
 
         explain.reset_explain();
         syms.reset();
