@@ -20,7 +20,6 @@ import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Chunker;
-import org.jsoar.kernel.memory.OSupport;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
@@ -52,7 +51,6 @@ public class DecisionCycle
     private TraceFormats traceFormats;
     private Chunker chunker;
     private WorkingMemory workingMemory;
-    private OSupport osupport;
     private Consistency consistency;
     
     private static enum GoType
@@ -158,7 +156,6 @@ public class DecisionCycle
         this.traceFormats = Adaptables.adapt(context, TraceFormats.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
-        this.osupport = Adaptables.adapt(context, OSupport.class);
         this.consistency = Adaptables.adapt(context, Consistency.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
@@ -493,7 +490,7 @@ public class DecisionCycle
                 beforeElaboration();
             }
             
-            context.recMemory.do_preference_phase(context.decider.top_goal, osupport.o_support_calculation_type);
+            context.recMemory.do_preference_phase(context.decider.top_goal);
             context.decider.do_working_memory_phase();
 
             // Update accounting
@@ -627,7 +624,7 @@ public class DecisionCycle
                 beforeElaboration();
             }
             
-            context.recMemory.do_preference_phase(context.decider.top_goal, osupport.o_support_calculation_type);
+            context.recMemory.do_preference_phase(context.decider.top_goal);
             context.decider.do_working_memory_phase();
             
             // Update accounting.
@@ -735,7 +732,7 @@ public class DecisionCycle
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
         beforePhase(Phase.PREFERENCE);
-        context.recMemory.do_preference_phase(context.decider.top_goal, osupport.o_support_calculation_type);
+        context.recMemory.do_preference_phase(context.decider.top_goal);
 
         this.run_elaboration_count++; // All phases count as a run elaboration
         

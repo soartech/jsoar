@@ -555,59 +555,12 @@ public class RecognitionMemory
         }
         inst.backtrace_number = 0;
 
-        final int o_support_calculation_type = osupport.o_support_calculation_type;
+        // former o_support_calculation_type (0 or 3 or 4)  test site
         
-        if (o_support_calculation_type == 0 || o_support_calculation_type == 3 || o_support_calculation_type == 4)
+        // do calc's the normal Soar 6 way
+        if (need_to_do_support_calculations)
         {
-            // do calc's the normal Soar 6 way
-            if (need_to_do_support_calculations)
-                osupport.calculate_support_for_instantiation_preferences(inst, top_goal);
-        }
-        else if (o_support_calculation_type == 1)
-        {
-            if (need_to_do_support_calculations)
-                osupport.calculate_support_for_instantiation_preferences(inst, top_goal);
-            
-            // do calc's both ways, warn on differences
-            if ((inst.prod.declared_support != ProductionSupport.DECLARED_O_SUPPORT)
-                    && (inst.prod.declared_support != ProductionSupport.DECLARED_I_SUPPORT))
-            {
-                // At this point, we've done them the normal way. To look
-                // for differences, save o-support flags on a list, then do
-                // Doug's calculations, then compare and restore saved flags.
-                List<Preference> saved_flags = new ArrayList<Preference>();
-                for (ListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
-                {
-                    saved_flags.add(pref.item.o_supported ? pref.item : null);
-                }
-                // Note: I just used add() above, so the list isn't backwards in Java
-                // saved_flags = destructively_reverse_list (saved_flags);
-                osupport.dougs_calculate_support_for_instantiation_preferences(inst);
-                boolean difference_found = false;
-                int savedFlagsIndex = 0;
-                for (ListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
-                {
-                    final Preference pref = it.item;
-                    final Preference saved = saved_flags.get(savedFlagsIndex++);
-                    boolean b = (saved != null ? true : false);
-                    if (pref.o_supported != b)
-                        difference_found = true;
-                    pref.o_supported = b;
-                }
-                if (difference_found)
-                {
-                    context.getPrinter().warn("\n*** O-support difference found in production %s", inst.prod.getName());
-                }
-            }
-        }
-        else
-        {
-            // do calc's Doug's way
-            if ((inst.prod.declared_support != ProductionSupport.DECLARED_O_SUPPORT)
-                    && (inst.prod.declared_support != ProductionSupport.DECLARED_I_SUPPORT))
-            {
-                osupport.dougs_calculate_support_for_instantiation_preferences(inst);
-            }
+            osupport.calculate_support_for_instantiation_preferences(inst, top_goal);
         }
     }
     
@@ -1249,9 +1202,8 @@ public class RecognitionMemory
      * <p>recmem.cpp:1035:do_preference_phase
      * 
      * @param top_goal
-     * @param o_support_calculation_type
      */
-    public void do_preference_phase(IdentifierImpl top_goal, int o_support_calculation_type)
+    public void do_preference_phase(IdentifierImpl top_goal)
     {
         /*
          * AGR 617/634: These are 2 bug reports that report the same problem,
