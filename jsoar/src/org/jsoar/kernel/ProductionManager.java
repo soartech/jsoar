@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.jsoar.kernel.parser.ParserException;
+import org.jsoar.kernel.parser.original.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 
 /**

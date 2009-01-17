@@ -3,7 +3,7 @@
  *
  * Created on Aug 17, 2008
  */
-package org.jsoar.kernel.parser;
+package org.jsoar.kernel.parser.original;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -21,6 +21,7 @@ import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.parser.original.Parser;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsFunctionCall;

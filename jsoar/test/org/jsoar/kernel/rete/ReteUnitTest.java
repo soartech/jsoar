@@ -15,7 +15,7 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.parser.Parser;
+import org.jsoar.kernel.parser.original.Parser;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.junit.Before;

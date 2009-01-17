@@ -2,7 +2,7 @@ package org.jsoar.tcl;
 
 import java.io.IOException;
 
-import org.jsoar.kernel.parser.ParserException;
+import org.jsoar.kernel.parser.original.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 
 import tcl.lang.Command;
