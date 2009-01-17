@@ -3,7 +3,7 @@
  *
  * Created on Aug 15, 2008
  */
-package org.jsoar.kernel.parser;
+package org.jsoar.kernel.parser.original;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -3,7 +3,7 @@
  *
  * Created on Aug 14, 2008
  */
-package org.jsoar.kernel.parser;
+package org.jsoar.kernel.parser.original;
 
 import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.memory.PreferenceType;

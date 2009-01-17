@@ -3,16 +3,16 @@
  *
  * Created on Aug 14, 2008
  */
-package org.jsoar.kernel.parser;
+package org.jsoar.kernel.parser.original;
 
 import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.jsoar.kernel.parser.Lexeme;
-import org.jsoar.kernel.parser.LexemeType;
-import org.jsoar.kernel.parser.Lexer;
+import org.jsoar.kernel.parser.original.Lexeme;
+import org.jsoar.kernel.parser.original.LexemeType;
+import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.kernel.tracing.Printer;
 import org.junit.Test;
 

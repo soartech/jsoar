@@ -8,7 +8,7 @@ package org.jsoar.kernel.symbols;
 import java.util.FormattableFlags;
 import java.util.Formatter;
 
-import org.jsoar.kernel.parser.PossibleLexemeTypes;
+import org.jsoar.kernel.parser.original.PossibleLexemeTypes;
 import org.jsoar.util.StringTools;
 
 /**

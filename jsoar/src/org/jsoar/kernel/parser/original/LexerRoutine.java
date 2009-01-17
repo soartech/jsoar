@@ -3,14 +3,14 @@
  *
  * Created on Aug 14, 2008
  */
-package org.jsoar.kernel.parser;
+package org.jsoar.kernel.parser.original;
 
 import java.io.IOException;
 
 /**
  * @author ray
  */
-public interface LexerRoutine
+interface LexerRoutine
 {
     void lex(Lexer lexer) throws IOException;
 }
