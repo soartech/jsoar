@@ -132,7 +132,8 @@ public class Agent extends AbstractAdaptable
      */
     private final List<Object> adaptables = Arrays.asList((Object) 
             decisionManip, exploration, io, traceFormats, properties, 
-            chunker, explain, decisionCycle, rete, predefinedSyms, decider,
+            chunker, explain, decisionCycle, rete, predefinedSyms, 
+            predefinedSyms.getSyms(), decider, printer, rhsFunctions,
             workingMemory, tempMemory, osupport, soarReteListener,
             consistency);
     

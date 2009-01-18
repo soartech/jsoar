@@ -8,17 +8,12 @@ package org.jsoar;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.io.StringWriter;
 
 import org.apache.log4j.BasicConfigurator;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
-import org.jsoar.kernel.VariableGenerator;
-import org.jsoar.kernel.parser.original.Lexer;
-import org.jsoar.kernel.parser.original.Parser;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -62,13 +57,11 @@ public class JSoarTest
         }
         
     };
-    protected VariableGenerator varGen;
     
     @Before
     public void setUp() throws Exception
     {
         this.syms = new SymbolFactoryImpl();
-        this.varGen = new VariableGenerator(this.syms);
     }
     
     @BeforeClass
@@ -83,15 +76,6 @@ public class JSoarTest
         BasicConfigurator.resetConfiguration();
     }
     
-    protected Parser createParser(String input) throws IOException
-    {
-        Lexer lexer = new Lexer(Printer.createStdOutPrinter(), new StringReader(input));
-        
-        Parser parser = new Parser(new VariableGenerator(syms), lexer);
-        lexer.getNextLexeme();
-        return parser;
-    }
-
     public static void verifyProduction(Agent agent, String name, ProductionType type, String body, boolean internal)
     {
         Production j = agent.getProductions().getProduction(name);

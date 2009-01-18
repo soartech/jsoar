@@ -10,10 +10,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.DisjunctionTest;
@@ -21,7 +24,7 @@ import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.memory.PreferenceType;
-import org.jsoar.kernel.parser.original.Parser;
+import org.jsoar.kernel.parser.original.OriginalParserImpl;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsFunctionCall;
@@ -32,12 +35,13 @@ import org.jsoar.kernel.symbols.IntegerSymbolImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.tracing.Printer;
 import org.junit.Test;
 
 /**
  * @author ray
  */
-public class ParserTest extends JSoarTest
+public class ParserImplTest extends JSoarTest
 {
     private void verifyVariableSymbol(SymbolImpl sym, String name)
     {
@@ -66,11 +70,21 @@ public class ParserTest extends JSoarTest
         assertEquals(value, fc.getValue(), 0.001);
     }
     
+    private OriginalParserImpl createParser(String input) throws IOException
+    {
+        Lexer lexer = new Lexer(Printer.createStdOutPrinter(), new StringReader(input));
+        
+        OriginalParserImpl parser = new OriginalParserImpl(new VariableGenerator(syms), lexer);
+        lexer.getNextLexeme();
+        return parser;
+    }
+
+    
     @Test
     public void testParseDisjunctionTest() throws Exception
     {
         // Trailing paren is because lexer doesn't like EOF
-        Parser parser = createParser("   << a b 1 2 3 4.5 >> ");
+        OriginalParserImpl parser = createParser("   << a b 1 2 3 4.5 >> ");
         
         DisjunctionTest dt = parser.parse_disjunction_test();
         assertNotNull(dt);
@@ -86,7 +100,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseEqualityTest() throws Exception
     {
-        Parser parser = createParser("  = |hello there| ");
+        OriginalParserImpl parser = createParser("  = |hello there| ");
         
         EqualityTest rt = parser.parse_relational_test().asEqualityTest();
         assertNotNull(rt);
@@ -96,7 +110,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseLessTest() throws Exception
     {
-        Parser parser = createParser("  < 99 ");
+        OriginalParserImpl parser = createParser("  < 99 ");
         
         RelationalTest rt = parser.parse_relational_test().asRelationalTest();
         assertNotNull(rt);
@@ -107,7 +121,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseLessOrEqualTest() throws Exception
     {
-        Parser parser = createParser("  <= 123.4 ");
+        OriginalParserImpl parser = createParser("  <= 123.4 ");
         
         RelationalTest rt = parser.parse_relational_test().asRelationalTest();
         assertNotNull(rt);
@@ -118,7 +132,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseGreaterTest() throws Exception
     {
-        Parser parser = createParser("  > <x> ");
+        OriginalParserImpl parser = createParser("  > <x> ");
         
         RelationalTest rt = parser.parse_relational_test().asRelationalTest();
         assertNotNull(rt);
@@ -129,7 +143,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseGreaterOrEqualTest() throws Exception
     {
-        Parser parser = createParser("  >= <y> ");
+        OriginalParserImpl parser = createParser("  >= <y> ");
         
         RelationalTest rt = parser.parse_relational_test().asRelationalTest();
         assertNotNull(rt);
@@ -140,7 +154,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testNotEqualTest() throws Exception
     {
-        Parser parser = createParser("  <> <z> ");
+        OriginalParserImpl parser = createParser("  <> <z> ");
         
         RelationalTest rt = parser.parse_relational_test().asRelationalTest();
         assertNotNull(rt);
@@ -151,7 +165,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testSameTypeTest() throws Exception
     {
-        Parser parser = createParser("  <=> <another> ");
+        OriginalParserImpl parser = createParser("  <=> <another> ");
         
         RelationalTest rt = parser.parse_relational_test().asRelationalTest();
         assertNotNull(rt);
@@ -162,7 +176,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseConjunctiveTest() throws Exception
     {
-        Parser parser = createParser(" { < 99 <> <x> << a b >> } ");
+        OriginalParserImpl parser = createParser(" { < 99 <> <x> << a b >> } ");
         
         ConjunctiveTest ct = parser.parse_test().asConjunctiveTest();
         assertNotNull(ct);
@@ -188,7 +202,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseCondsForOneId() throws Exception
     {
-        Parser parser = createParser("(state <s> ^superstate nil) ");
+        OriginalParserImpl parser = createParser("(state <s> ^superstate nil) ");
         
         Condition c = parser.parse_conds_for_one_id('s', null);
         assertNotNull(c);
@@ -206,7 +220,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseCondsPlus() throws Exception
     {
-        Parser parser = createParser("(state <s> ^superstate nil)\n" +
+        OriginalParserImpl parser = createParser("(state <s> ^superstate nil)\n" +
         		"(<s> ^io <io> ^superstate <ss>)\n" +
         		" -(<s> ^value 3)");
         
@@ -235,7 +249,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testFunctionCallAfterLParen() throws Exception
     {
-        Parser parser = createParser("   + 1 2 (- 3 5) <x> <y>)");
+        OriginalParserImpl parser = createParser("   + 1 2 (- 3 5) <x> <y>)");
         
         RhsFunctionCall rfc = parser.parse_function_call_after_lparen(false);
         assertNotNull(rfc);
@@ -252,7 +266,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseRhsValue() throws Exception
     {
-        Parser parser = createParser(" |rhs value|");
+        OriginalParserImpl parser = createParser(" |rhs value|");
         RhsValue v = parser.parse_rhs_value();
         assertNotNull(v);
         verifyStringSymbol(v.asSymbolValue().getSym(), "rhs value");
@@ -265,7 +279,7 @@ public class ParserTest extends JSoarTest
     
     private void verifyParsePreference(String input, PreferenceType expected) throws Exception
     {
-        Parser parser = createParser(input);
+        OriginalParserImpl parser = createParser(input);
         assertEquals(expected, parser.parse_preference_specifier_without_referent());
     }
     
@@ -291,7 +305,7 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseAttributeValueMake() throws Exception
     {
-        Parser parser = createParser(" ^test 99 - )");
+        OriginalParserImpl parser = createParser(" ^test 99 - )");
         IdentifierImpl id = syms.make_new_identifier('s', (short) 0);
         Action a = parser.parse_attr_value_make(id);
         assertNotNull(a);
@@ -307,8 +321,8 @@ public class ParserTest extends JSoarTest
     @Test
     public void testParseProduction() throws Exception
     {
-        Parser parser = createParser("testParseProduction (state <s> ^superstate nil) --> (<s> ^value 99) ");
-        Production p = parser.parserProduction();
+        OriginalParserImpl parser = createParser("testParseProduction (state <s> ^superstate nil) --> (<s> ^value 99) ");
+        Production p = parser.parseProduction();
         assertNotNull(p);
     }
     
@@ -317,7 +331,7 @@ public class ParserTest extends JSoarTest
     {
         // Just testing a larger production to exercise the parser more
         // blocks-opsub.soar:58
-        Parser parser = createParser(
+        OriginalParserImpl parser = createParser(
         "    top-ps*propose*operator*build-tower\n" +
         "    (state <s> ^name blocks-world\n" +
         "               ^object <blockA> <blockB> <blockC> <table>)\n" +
@@ -344,15 +358,15 @@ public class ParserTest extends JSoarTest
         "    (<ontop3> ^top-block <blockC> \n" +
         "              ^bottom-block <table>)\n" +
         "    (write (crlf) |The goal is to get A on B on C on the table.|)\n");
-        Production p = parser.parserProduction();
+        Production p = parser.parseProduction();
         assertNotNull(p);
     }
     
     @Test
     public void testParseProductionWithNoActions() throws Exception
     {
-        Parser parser = createParser("test (state <s> ^superstate nil) -->");
-        Production p = parser.parserProduction();
+        OriginalParserImpl parser = createParser("test (state <s> ^superstate nil) -->");
+        Production p = parser.parseProduction();
         assertNotNull(p);
     }
     
@@ -360,13 +374,13 @@ public class ParserTest extends JSoarTest
     public void testParseProduction3() throws Exception
     {
         // Testing a problematic production from towers-of-hanoi
-        Parser parser = createParser("towers-of-hanoi*propose*initialize\n" +
+        OriginalParserImpl parser = createParser("towers-of-hanoi*propose*initialize\n" +
 "   (state <s> ^superstate nil\n" +
 "             -^name)\n" +
 "-->\n" +
 "   (<s> ^operator <o> +)\n" +
 "   (<o> ^name initialize-toh)");
-        Production p = parser.parserProduction();
+        Production p = parser.parseProduction();
         assertNotNull(p);
     }
 

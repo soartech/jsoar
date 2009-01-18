@@ -179,12 +179,10 @@ public class SoarTclInterface
         }}; 
         
     private final WatchCommand watchCommand = new WatchCommand(this);
-    
     private final PrintCommand printCommand = new PrintCommand(this);
-        
     private final RhsFunctionsCommand rhsFuncsCommand = new RhsFunctionsCommand(this);
-    
     private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
+    private final SetParserCommand setParserCommand = new SetParserCommand(this);
     
     private SoarTclInterface(Agent agent)
     {
@@ -222,6 +220,8 @@ public class SoarTclInterface
         interp.createCommand("p", printCommand); // TODO do aliases
         interp.createCommand("o-support-mode", oSupportModeCommand);
         interp.createCommand("soar8", soar8Command);
+        
+        interp.createCommand("set-parser", setParserCommand);
     }
     
     public Interp getInterpreter()

@@ -8,6 +8,7 @@ package org.jsoar.kernel.parser.original;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.jsoar.kernel.parser.PossibleSymbolTypes;
 import org.jsoar.kernel.tracing.Printer;
 
 /**
@@ -26,6 +27,11 @@ import org.jsoar.kernel.tracing.Printer;
  */
 public class Lexer
 {
+    /**
+     * <p>lexer.h:95:LENGTH_OF_LONGEST_SPECIAL_LEXEME
+     */
+    private static final int LENGTH_OF_LONGEST_SPECIAL_LEXEME = 3;
+    
     private static final char EOF_AS_CHAR = 0xffff;
 
     private final Printer printer;
@@ -531,7 +537,7 @@ public class Lexer
 
     private boolean determine_type_of_constituent_string()
     {
-        PossibleLexemeTypes possibleType = PossibleLexemeTypes.determine_possible_symbol_types_for_string(lexeme.string);
+        PossibleSymbolTypes possibleType = determine_possible_symbol_types_for_string(lexeme.string);
 
         // check whether it's a variable
         if (possibleType.possible_var)
@@ -877,4 +883,101 @@ public class Lexer
     {
         this.allow_ids = allow_identifiers;
     }
+    
+    /**
+     * This is a utility routine which figures out what kind(s) of symbol a
+     * given string could represent. At entry: s, length_of_s represent the
+     * string. At exit: possible_xxx is set to TRUE/FALSE to indicate whether
+     * the given string could represent that kind of symbol; rereadable is set
+     * to TRUE indicating whether the lexer would read the given string as a
+     * symbol with exactly the same name (as opposed to treating it as a special
+     * lexeme like "+", changing upper to lower case, etc.
+     * 
+     * <p>lexer.cpp:1225:determine_possible_symbol_types_for_string
+     */
+    public static PossibleSymbolTypes determine_possible_symbol_types_for_string(String s)
+    {
+
+        PossibleSymbolTypes p = new PossibleSymbolTypes();
+
+        if (s.length() == 0)
+        {
+            return p;
+        }
+
+        /* --- check if it's an integer or floating point number --- */
+        if (Lexer.number_starters[s.charAt(0)])
+        {
+            try
+            {
+                Integer.parseInt(s);
+                p.possible_ic = true;
+            }
+            catch (NumberFormatException e)
+            {
+            }
+            try
+            {
+                Float.parseFloat(s);
+                p.possible_fc = s.indexOf('.') != -1;
+            }
+            catch (NumberFormatException e)
+            {
+            }
+        }
+
+        /* --- make sure it's entirely constituent characters --- */
+        for (int i = 0; i < s.length(); ++i)
+        {
+            if (!Lexer.constituent_char[s.charAt(i)])
+            {
+                return p;
+            }
+        }
+
+        /* --- any string of constituents could be a sym constant --- */
+        p.possible_sc = true;
+
+        /* --- check whether it's a variable --- */
+        if ((s.charAt(0) == '<') && (s.charAt(s.length() - 1) == '>'))
+        {
+            p.possible_var = true;
+        }
+        
+        /* --- check for rereadability --- */
+        boolean rereadability_questionable = false;
+        boolean rereadability_dead = false;
+        for (int i = 0; i < s.length(); i++)
+        {
+            char ch = s.charAt(i);
+            if (Character.isLowerCase(ch) || Character.isDigit(ch))
+                continue; /* these guys are fine */
+            if (Character.isUpperCase(ch))
+            {
+                rereadability_dead = true;
+                break;
+            }
+            rereadability_questionable = true;
+        }
+        if (!rereadability_dead)
+        {
+            if ((!rereadability_questionable) || (s.length() >= LENGTH_OF_LONGEST_SPECIAL_LEXEME)
+                    || ((s.length() == 1) && (s.charAt(0) == '*')))
+                p.rereadable = true;
+        }
+
+        /* --- check if it's an identifier --- */
+        if (Character.isLetter(s.charAt(0)))
+        {
+            /* --- is the rest of the string an integer? --- */
+            int i = 1;
+            while (i < s.length() && Character.isDigit(s.charAt(i)))
+            {
+                ++i;
+            }
+            p.possible_id = i == s.length();
+        }
+        return p;
+    }
+
 }

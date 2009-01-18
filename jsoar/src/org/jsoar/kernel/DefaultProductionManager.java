@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,9 +18,10 @@ import java.util.Set;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.kernel.lhs.ConditionReorderer;
-import org.jsoar.kernel.parser.original.Lexer;
-import org.jsoar.kernel.parser.original.Parser;
-import org.jsoar.kernel.parser.original.ParserException;
+import org.jsoar.kernel.parser.Parser;
+import org.jsoar.kernel.parser.ParserContext;
+import org.jsoar.kernel.parser.ParserException;
+import org.jsoar.kernel.parser.original.OriginalParser;
 import org.jsoar.kernel.rete.ProductionAddResult;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.ActionReorderer;
@@ -29,6 +29,7 @@ import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -40,7 +41,17 @@ public class DefaultProductionManager implements ProductionManager
     private final VariableGenerator variableGenerator;
     private Rete rete;
     
-    private int totalProductions = 0;
+    private final ParserContext parserContext = new ParserContext() 
+    {
+        @Override
+        public Object getAdapter(Class<?> klass)
+        {
+            return Adaptables.adapt(context, klass);
+        }
+    };
+    
+    private Parser parser = new OriginalParser();
+    
     private EnumMap<ProductionType, Set<Production>> productionsByType = new EnumMap<ProductionType, Set<Production>>(ProductionType.class);
     {
         for(ProductionType type : ProductionType.values())
@@ -96,7 +107,6 @@ public class DefaultProductionManager implements ProductionManager
              
              // Production is added to the rete by the chunker
 
-             totalProductions++;
              productionsByType.get(p.getType()).add(p);
              productionsByName.put(p.getName(), p);
     }
@@ -111,7 +121,6 @@ public class DefaultProductionManager implements ProductionManager
         
         context.getEventManager().fireEvent(new ProductionExcisedEvent(context, prod));
         
-        totalProductions--;
         productionsByType.get(prod.getType()).remove(prod);
         productionsByName.remove(prod.getName());
 
@@ -152,7 +161,7 @@ public class DefaultProductionManager implements ProductionManager
         }
         else
         {
-            result = new ArrayList<Production>(totalProductions);
+            result = new ArrayList<Production>(getProductionCount());
             for(Set<Production> ofType : productionsByType.values())
             {
                 result.addAll(ofType);
@@ -162,32 +171,43 @@ public class DefaultProductionManager implements ProductionManager
     }
 
     /* (non-Javadoc)
+     * @see org.jsoar.kernel.ProductionManager#getParser()
+     */
+    @Override
+    public Parser getParser()
+    {
+        return parser;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.ProductionManager#setParser(org.jsoar.kernel.parser.Parser)
+     */
+    @Override
+    public void setParser(Parser parser)
+    {
+        Arguments.checkNotNull(parser, "parser");
+        this.parser = parser;
+    }
+
+    /* (non-Javadoc)
      * @see org.jsoar.kernel.ProductionManager#loadProduction(java.lang.String)
      */
     @Override
-    public void loadProduction(String productionBody) throws IOException, ReordererException, ParserException
+    public void loadProduction(String productionBody) throws ReordererException, ParserException
     {
         StringReader reader = new StringReader(productionBody);
-        Lexer lexer = new Lexer(context.getPrinter(), reader);
-        Parser parser = new Parser(this.variableGenerator, lexer);
-        parser.setRhsFunctions(context.getRhsFunctions());
-        lexer.getNextLexeme();
-        addProduction(parser.parserProduction(), true);
+        addProduction(parser.parseProduction(parserContext, reader), true);
     }
     
-    /**
-     * Add the given production to the agent. If a production with the same name
-     * is already loaded, it is excised and replaced.
-     * 
-     * <p>This is part of a refactoring of make_production().
-     * 
-     * @param p The production to add
-     * @param reorder_nccs if true, NCC conditions on the LHS are reordered
-     * @throws ReordererException if there is an error during reordering
-     * @throws IllegalArgumentException if p is a chunk or justification
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.ProductionManager#addProduction(org.jsoar.kernel.Production, boolean)
      */
     public void addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
+        if(productionsByName.values().contains(p))
+        {
+            throw new IllegalArgumentException("Production instance '" + p + " already added.");
+        }
         if(p.getType() == ProductionType.CHUNK || p.getType() == ProductionType.JUSTIFICATION)
         {
             throw new IllegalArgumentException("Chunk or justification passed to addProduction: " + p);
@@ -222,7 +242,6 @@ public class DefaultProductionManager implements ProductionManager
             return;
         }
         
-        totalProductions++;
         productionsByType.get(p.getType()).add(p);
         productionsByName.put(p.getName(), p);
         
@@ -253,7 +272,7 @@ public class DefaultProductionManager implements ProductionManager
     @Override
     public int getProductionCount()
     {
-        return totalProductions;
+        return productionsByName.size();
     }
 
 }
