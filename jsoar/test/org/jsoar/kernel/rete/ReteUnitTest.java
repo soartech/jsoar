@@ -6,8 +6,11 @@
 package org.jsoar.kernel.rete;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.*;
 
+import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,8 +18,12 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.parser.original.Parser;
+import org.jsoar.kernel.parser.ParserContext;
+import org.jsoar.kernel.parser.original.OriginalParser;
+import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,6 +98,34 @@ public class ReteUnitTest extends JSoarTest
         this.rete = new Rete(Trace.createStdOutTrace().enableAll(), syms);
         this.rete.setReteListener(listener);
     }
+    
+    private Production parseProduction(String s) throws Exception
+    {
+        final OriginalParser parser = new OriginalParser();
+        final StringReader reader = new StringReader(s);
+        final ParserContext context = new ParserContext() {
+
+            @Override
+            public Object getAdapter(Class<?> klass)
+            {
+                if(klass.equals(SymbolFactoryImpl.class))
+                {
+                    return syms;
+                }
+                if(klass.equals(RhsFunctionManager.class))
+                {
+                    return new RhsFunctionManager(rhsFuncContext);
+                }
+                else if(klass.equals(Printer.class))
+                {
+                    return Printer.createStdOutPrinter();
+                }
+                return null;
+            }
+            
+        };
+        return parser.parseProduction(context, reader);
+    }
 
     @Test
     public void testInitDummyTopNode() throws Exception
@@ -106,7 +141,7 @@ public class ReteUnitTest extends JSoarTest
     @Test
     public void testAddProductionToRete() throws Exception
     {
-        Parser parser = createParser(
+        Production p = parseProduction(
            "testAddProductionToRete \n" +
            "(<root> ^integer 1 \n" +
            "        ^float 3.14 \n" +
@@ -115,7 +150,6 @@ public class ReteUnitTest extends JSoarTest
            "--> \n" +
            "(write <root>)");
         
-        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);
@@ -128,13 +162,12 @@ public class ReteUnitTest extends JSoarTest
     @Test
     public void testSimpleAddWmeToRete() throws Exception
     {
-        Parser parser = createParser(
+        Production p = parseProduction(
            "testAddProductionToRete \n" +
            "(<root> ^integer 1 ^float 3.14 ^string |S| ^id <id>)" +
            "--> \n" +
            "(write <root>)");
         
-        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);
@@ -182,7 +215,7 @@ public class ReteUnitTest extends JSoarTest
     @Test
     public void testReteWithNegatedConjunctiveCondition() throws Exception
     {
-        Parser parser = createParser(
+        Production p = parseProduction(
            "testReteWithNegatedConjunctiveCondition \n" +
            "(<root> ^integer 1 ^float 3.14)\n" +
            "-{ (<root> ^string |S|) " +
@@ -190,7 +223,6 @@ public class ReteUnitTest extends JSoarTest
            "--> \n" +
            "(write <root>)");
         
-        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);
@@ -232,13 +264,12 @@ public class ReteUnitTest extends JSoarTest
     @Test
     public void testSimpleReteTests() throws Exception
     {
-        Parser parser = createParser(
+        Production p = parseProduction(
            "testAddProductionToRete \n" +
            "(<root> ^integer  < 2 ^float >= 3.14 ^string << T UV S >> ^id <id>)" +
            "--> \n" +
            "(write <root>)");
         
-        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);
@@ -286,13 +317,12 @@ public class ReteUnitTest extends JSoarTest
     @Test
     public void testAddProductionSimpleMakeAction() throws Exception
     {
-        Parser parser = createParser(
+        Production p = parseProduction(
                 "testAddProductionSimpleMakeAction \n" +
                 "(state <s> ^superstate nil)" +
                 "--> \n" +
                 "(<s> ^value 1)");
              
-         Production p = parser.parserProduction();
          assertNotNull(p);
          
          ProductionAddResult result = rete.add_production_to_rete(p);
@@ -303,26 +333,24 @@ public class ReteUnitTest extends JSoarTest
     @Test
     public void testAddTwoProductionsToRete() throws Exception
     {
-        Parser parser = createParser(
+        Production p = parseProduction(
                 "testAddTwoProductionsToRete1 \n" +
                 "(state <s> ^superstate nil)" +
                 "--> \n" +
                 "(<s> ^value 1)");
              
-         Production p = parser.parserProduction();
          assertNotNull(p);
          
          ProductionAddResult result = rete.add_production_to_rete(p);
          assertNotNull(result);
          assertEquals(ProductionAddResult.NO_REFRACTED_INST, result);
          
-         parser = createParser(
+         Production p2 = parseProduction(
                  "testAddTwoProductionsToRete2 \n" +
                  "(state <s> ^superstate nil ^value 1)" +
                  "--> \n" +
                  "(<s> ^value 2)");
               
-          Production p2 = parser.parserProduction();
           assertNotNull(p2);
           
           result = rete.add_production_to_rete(p2);
@@ -333,14 +361,13 @@ public class ReteUnitTest extends JSoarTest
     @Test
     public void testAddProblematicTowersOfHanoiProduction() throws Exception
     {
-        Parser parser = createParser("towers-of-hanoi*propose*initialize\n" +
+        Production p = parseProduction("towers-of-hanoi*propose*initialize\n" +
                 "   (state <s> ^superstate nil\n" +
                 "             -^name)\n" +
                 "-->\n" +
                 "   (<s> ^operator <o> +)\n" +
                 "   (<o> ^name initialize-toh)");
         
-        Production p = parser.parserProduction();
         assertNotNull(p);
         
         ProductionAddResult result = rete.add_production_to_rete(p);

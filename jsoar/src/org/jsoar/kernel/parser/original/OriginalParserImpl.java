@@ -30,6 +30,7 @@ import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
@@ -96,7 +97,7 @@ import org.jsoar.util.ByRef;
     
  * @author ray
  */
-public class Parser
+class OriginalParserImpl
 {
     private final Lexer lexer;
     private final Printer printer;
@@ -106,7 +107,7 @@ public class Parser
     private StringSymbolImpl currentProduction = null;
     private RhsFunctionManager funcs = null;
     
-    public Parser(VariableGenerator varGen, Lexer lexer)
+    public OriginalParserImpl(VariableGenerator varGen, Lexer lexer)
     {
         Arguments.checkNotNull(varGen, "varGen");
         Arguments.checkNotNull(lexer, "lexer");
@@ -1836,7 +1837,7 @@ public class Parser
      * @throws IOException
      * @throws ParserException
      */
-    public Production parserProduction() throws IOException, ParserException
+    public Production parseProduction() throws IOException, ParserException
     {
         reset_placeholder_variable_generator();
 

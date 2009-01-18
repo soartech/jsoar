@@ -5,11 +5,11 @@
  */
 package org.jsoar.kernel;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.jsoar.kernel.parser.original.ParserException;
+import org.jsoar.kernel.parser.Parser;
+import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 
 /**
@@ -19,7 +19,26 @@ import org.jsoar.kernel.rhs.ReordererException;
  */
 public interface ProductionManager
 {
-    public void loadProduction(String productionBody) throws IOException, ReordererException, ParserException;
+    /**
+     * @return the currently installed parser. Never <code>null</code>.
+     */
+    Parser getParser();
+    
+    /**
+     * Set the default parser used by this production manager when 
+     * {@link #loadProduction(String)} is called.
+     * 
+     * @param parser the new parser, never <code>null</code>
+     * @throws IllegalArgumentException if parser is <code>null</code>
+     */
+    void setParser(Parser parser);
+    
+    /**
+     * @param productionBody
+     * @throws ReordererException
+     * @throws ParserException
+     */
+    public void loadProduction(String productionBody) throws ReordererException, ParserException;
     
     /**
      * Add the given chunk or justification production to the agent. The chunk 
@@ -51,6 +70,20 @@ public interface ProductionManager
      */
     public List<Production> getProductions(ProductionType type);
 
+    /**
+     * Add the given production to the agent. If a production with the same name
+     * is already loaded, it is excised and replaced.
+     * 
+     * <p>This is part of a refactoring of make_production().
+     * 
+     * @param p The production to add
+     * @param reorder_nccs if true, NCC conditions on the LHS are reordered
+     * @throws ReordererException if there is an error during reordering
+     * @throws IllegalArgumentException if p is a chunk or justification or if
+     *      p (actual instance, not name) has already been added
+     */
+    public void addProduction(Production p, boolean reorder_nccs) throws ReordererException;
+    
     /**
      * 
      * <p>production.cpp:1595:excise_production

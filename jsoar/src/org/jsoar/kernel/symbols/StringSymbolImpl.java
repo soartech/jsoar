@@ -8,7 +8,8 @@ package org.jsoar.kernel.symbols;
 import java.util.FormattableFlags;
 import java.util.Formatter;
 
-import org.jsoar.kernel.parser.original.PossibleLexemeTypes;
+import org.jsoar.kernel.parser.PossibleSymbolTypes;
+import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.util.StringTools;
 
 /**
@@ -97,7 +98,7 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
             return;
         }
         
-        final PossibleLexemeTypes possible = PossibleLexemeTypes.determine_possible_symbol_types_for_string(getValue());
+        final PossibleSymbolTypes possible = Lexer.determine_possible_symbol_types_for_string(getValue());
         final boolean hasAngleBracket = getValue().startsWith("<") || getValue().startsWith(">");
         
         if(!possible.possible_sc || possible.possible_var || possible.possible_ic || possible.possible_fc ||

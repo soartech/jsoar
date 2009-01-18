@@ -1,8 +1,6 @@
 package org.jsoar.tcl;
 
-import java.io.IOException;
-
-import org.jsoar.kernel.parser.original.ParserException;
+import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 
 import tcl.lang.Command;
@@ -40,10 +38,6 @@ final class SpCommand implements Command
         try
         {
             ifc.getAgent().getProductions().loadProduction(args[1].toString());
-        }
-        catch (IOException e)
-        {
-            throw new TclException(interp, e.getMessage());
         }
         catch (ReordererException e)
         {
