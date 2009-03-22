@@ -24,8 +24,8 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -74,7 +74,7 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
             {
                 return safeGetMatchOutput(selection);
             }};
-        Completer<String> finish = new Completer<String>() {
+        CompletionHandler<String> finish = new CompletionHandler<String>() {
             @Override
             public void finish(String result)
             {
@@ -83,7 +83,7 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
             }
             
         };
-        debugger.getAgentProxy().execute(matchCall, SwingCompletion.newInstance(finish));
+        debugger.getAgentProxy().execute(matchCall, SwingCompletionHandler.newInstance(finish));
     }
     
     private Production getProduction(Agent agent, Object o)

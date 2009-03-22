@@ -45,6 +45,7 @@ import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEventManager;
@@ -65,6 +66,7 @@ public class Agent extends AbstractAdaptable
 {
     private String name = "JSoar Agent " + System.identityHashCode(this);
     
+    private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
     private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
     
     /**
@@ -137,7 +139,8 @@ public class Agent extends AbstractAdaptable
             chunker, explain, decisionCycle, rete, predefinedSyms, 
             predefinedSyms.getSyms(), decider, printer, rhsFunctions,
             workingMemory, tempMemory, osupport, soarReteListener,
-            consistency);
+            consistency,
+            debuggerProvider);
     
     public Agent()
     {
@@ -167,7 +170,6 @@ public class Agent extends AbstractAdaptable
         return name;
     }
 
-
     /**
      * Set the name of the agent
      * 
@@ -176,6 +178,23 @@ public class Agent extends AbstractAdaptable
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    /**
+     * @return the debuggerProvider
+     */
+    public DebuggerProvider getDebuggerProvider()
+    {
+        return debuggerProvider;
+    }
+
+    /**
+     * @param debuggerProvider the debuggerProvider to set
+     */
+    public void setDebuggerProvider(DebuggerProvider debuggerProvider)
+    {
+        Arguments.checkNotNull(debuggerProvider, "debuggerProvider");
+        this.debuggerProvider = debuggerProvider;
     }
 
     /**
@@ -637,5 +656,12 @@ public class Agent extends AbstractAdaptable
         return super.getAdapter(klass);
     }
 
-    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return name;
+    }
 }

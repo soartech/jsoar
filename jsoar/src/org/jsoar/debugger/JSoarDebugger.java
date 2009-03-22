@@ -42,11 +42,13 @@ import org.jsoar.debugger.actions.StopAction;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DebuggerProvider;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
-import org.jsoar.runtime.ThreadedAgentProxy;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.adaptables.Adaptable;
@@ -67,7 +69,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
     private Agent agent;
     private SoarTclInterface ifc;
-    private ThreadedAgentProxy proxy;
+    private ThreadedAgent proxy;
     private LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
     private List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
     
@@ -92,7 +94,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      * @param parentFrame The parent frame of the debugger
      * @param proxy A non-null, <b>initialized</b> agent proxy
      */
-    private void initialize(JFrame parentFrame, ThreadedAgentProxy proxy)
+    private void initialize(JFrame parentFrame, ThreadedAgent proxy)
     {
         this.frame = parentFrame;
         this.agent = proxy.getAgent();
@@ -189,7 +191,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         preferencesView.dock(wmeSupportView, DockingConstants.SOUTH_REGION);
     }
     
-    public ThreadedAgentProxy getAgentProxy()
+    public ThreadedAgent getAgentProxy()
     {
         return proxy;
     }
@@ -242,7 +244,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         plugins.clear();
         
-        proxy.shutdown();
+        proxy.detach();
         
         System.exit(0);
     }
@@ -305,9 +307,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
     }
           
-    public Completer<Void> newUpdateCompleter(final boolean afterInitSoar)
+    public CompletionHandler<Void> newUpdateCompleter(final boolean afterInitSoar)
     {
-        return SwingCompletion.newInstance( new Completer<Void>() {
+        return SwingCompletionHandler.newInstance( new CompletionHandler<Void>() {
 
             @Override
             public void finish(Void result)
@@ -351,7 +353,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      * @param proxy an <b>initialized</b> threaded agent to attach to
      * @return the debugger
      */
-    public static JSoarDebugger attach(ThreadedAgentProxy proxy)
+    public static JSoarDebugger attach(ThreadedAgent proxy)
     {
         DockingManager.setFloatingEnabled(true);
         
@@ -376,6 +378,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     {
         // TODO clean up dock property listener
         // TODO clean up soar event listener
+        // TODO clean up printer listener (trace)
         // TODO close debugger window
     }
     
@@ -388,7 +391,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static JSoarDebugger initialize(final String[] args)
     {
-        final JSoarDebugger debugger = attach(new ThreadedAgentProxy(new Agent()).initialize());
+        final JSoarDebugger debugger = attach(ThreadedAgent.attach(new Agent()).initialize());
         
         debugger.proxy.execute(new Callable<Void>() {
             public Void call() 
@@ -410,6 +413,29 @@ public class JSoarDebugger extends JPanel implements Adaptable
         return debugger;
     }
 
+    /**
+     * Creates and returns a {@link DebuggerProvider} that will open this
+     * debugger when an agent calls the debug RHS function
+     * @return
+     */
+    public static DebuggerProvider newDebuggerProvider()
+    {
+        return new DebuggerProvider() {
+
+            @Override
+            public void openDebugger(Agent agent) throws SoarException
+            {
+                final ThreadedAgent ta = ThreadedAgent.find(agent);
+                if(ta == null)
+                {
+                    throw new SoarException("Can't attach debugger to agent with no ThreadedAgent proxy");
+                }
+                attach(ta);
+            }
+            
+        };
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.util.adaptables.Adaptable#getAdapter(java.lang.Class)
      */
@@ -424,7 +450,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         {
             return agent;
         }
-        if(klass.equals(ThreadedAgentProxy.class))
+        if(klass.equals(ThreadedAgent.class))
         {
             return proxy;
         }

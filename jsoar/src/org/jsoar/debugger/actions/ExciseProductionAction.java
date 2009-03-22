@@ -11,9 +11,9 @@ import java.util.concurrent.Callable;
 
 import org.jsoar.debugger.Images;
 import org.jsoar.kernel.Production;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
-import org.jsoar.runtime.ThreadedAgentProxy;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -55,7 +55,7 @@ public class ExciseProductionAction extends AbstractDebuggerAction
             return;
         }
         
-        final ThreadedAgentProxy proxy = getApplication().getAgentProxy();
+        final ThreadedAgent proxy = getApplication().getAgentProxy();
         final Callable<Void> call = new Callable<Void>() {
 
             @Override
@@ -68,14 +68,14 @@ public class ExciseProductionAction extends AbstractDebuggerAction
                 proxy.getAgent().getTrace().flush();
                 return null;
             }};
-        final Completer<Void> finish  = new Completer<Void>() {
+        final CompletionHandler<Void> finish  = new CompletionHandler<Void>() {
             @Override
             public void finish(Void result)
             {
                 getApplication().updateActionsAndStatus();
             }
         };
-        proxy.execute(call, SwingCompletion.newInstance(finish));
+        proxy.execute(call, SwingCompletionHandler.newInstance(finish));
     }
 
 }

@@ -39,8 +39,8 @@ import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
 
 
 /**
@@ -227,7 +227,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
                 }
                 return result;
             }};
-        final Completer<List<Identifier>> finish = new Completer<List<Identifier>>() {
+        final CompletionHandler<List<Identifier>> finish = new CompletionHandler<List<Identifier>>() {
 
             @Override
             public void finish(List<Identifier> ids)
@@ -246,7 +246,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
             
         };
         
-        debugger.getAgentProxy().execute(callable, SwingCompletion.newInstance(finish));
+        debugger.getAgentProxy().execute(callable, SwingCompletionHandler.newInstance(finish));
     }
 
     /* (non-Javadoc)

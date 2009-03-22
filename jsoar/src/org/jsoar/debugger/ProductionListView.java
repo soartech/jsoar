@@ -33,8 +33,8 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.adaptables.Adaptables;
 
 
@@ -152,7 +152,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
             {
                 return p != null ? p.getReteTokenCount() : 0;
             }};
-        final Completer<Integer> finish = new Completer<Integer>() {
+        final CompletionHandler<Integer> finish = new CompletionHandler<Integer>() {
 
             @Override
             public void finish(Integer count)
@@ -173,7 +173,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
                 info.setText(b.toString());
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
+        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
     }
 
     private void updateStats()
@@ -186,7 +186,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
                 return debugger.getAgentProxy().getAgent().getProductions().getProductionCounts();
             }};
             
-        final Completer<Map<ProductionType, Integer>> finish = new Completer<Map<ProductionType,Integer>>() {
+        final CompletionHandler<Map<ProductionType, Integer>> finish = new CompletionHandler<Map<ProductionType,Integer>>() {
 
             @Override
             public void finish(Map<ProductionType, Integer> counts)
@@ -203,7 +203,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
                 stats.setText(b.toString());
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
+        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
     }
 
     /* (non-Javadoc)

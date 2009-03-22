@@ -6,9 +6,12 @@
 package org.jsoar.runtime;
 
 /**
+ * A callback interface for handling completion of a callable in a threaded
+ * agent.
+ * 
  * @author ray
  */
-public interface Completer<T>
+public interface CompletionHandler<T>
 {
     void finish(T result);
 }

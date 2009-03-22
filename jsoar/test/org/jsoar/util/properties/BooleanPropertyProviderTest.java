@@ -1,3 +1,4 @@
+package org.jsoar.util.properties;
 import static org.junit.Assert.*;
 
 import org.jsoar.util.properties.BooleanPropertyProvider;

@@ -32,8 +32,8 @@ import org.jsoar.kernel.commands.StructuredPreferencesCommand.Result;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -163,7 +163,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
                 {
                     return safeGetPreferences(id);
                 }},
-            SwingCompletion.newInstance(new Completer<Result>() {
+            SwingCompletionHandler.newInstance(new CompletionHandler<Result>() {
 
                 @Override
                 public void finish(Result result)
