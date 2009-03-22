@@ -5,13 +5,15 @@
  */
 package org.jsoar.debugger;
 
+import java.util.concurrent.Callable;
+
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.tcl.SoarTclException;
 
 /**
  * @author ray
  */
-public class CommandLineRunnable implements Runnable
+public class CommandLineRunnable implements Callable<Void>
 {
     private final JSoarDebugger ifc;
     private final String command;
@@ -30,7 +32,7 @@ public class CommandLineRunnable implements Runnable
      * @see java.lang.Runnable#run()
      */
     @Override
-    public void run()
+    public Void call()
     {
         final Printer printer = ifc.getTcl().getAgent().getPrinter();
         printer.startNewLine().print(command);
@@ -48,6 +50,7 @@ public class CommandLineRunnable implements Runnable
         }
         printer.flush();
         ifc.updateActionsAndStatus();
+        return null;
     }
 
 }

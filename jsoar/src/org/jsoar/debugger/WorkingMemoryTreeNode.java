@@ -5,29 +5,20 @@
  */
 package org.jsoar.debugger;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.swing.tree.TreeNode;
-
-import org.jdesktop.swingx.treetable.TreeTableNode;
+import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-
-import com.google.common.collect.Iterators;
 
 /**
  * @author ray
  */
-public class WorkingMemoryTreeNode implements TreeTableNode
+public class WorkingMemoryTreeNode extends DefaultMutableTreeTableNode
 {
     private WorkingMemoryTreeModel model;
-    private WorkingMemoryTreeNode parent;
     private Wme wme;
     private Identifier valueId;
     
-    private List<WorkingMemoryTreeNode> kids;
+    private boolean updated = false;
     
     /**
      * Construct a node for a WME
@@ -38,8 +29,9 @@ public class WorkingMemoryTreeNode implements TreeTableNode
      */
     public WorkingMemoryTreeNode(WorkingMemoryTreeModel model, WorkingMemoryTreeNode parent, Wme wme)
     {
+        super(wme);
+        setParent(parent);
         this.model = model;
-        this.parent = parent;
         this.wme = wme;
         this.valueId = this.wme.getValue().asIdentifier();
     }
@@ -53,8 +45,9 @@ public class WorkingMemoryTreeNode implements TreeTableNode
      */
     public WorkingMemoryTreeNode(WorkingMemoryTreeModel model, WorkingMemoryTreeNode parent, Identifier valueId)
     {
+        super(valueId);
+        setParent(parent);
         this.model = model;
-        this.parent = parent;
         this.valueId = valueId;
     }
     
@@ -66,7 +59,6 @@ public class WorkingMemoryTreeNode implements TreeTableNode
     public WorkingMemoryTreeNode(WorkingMemoryTreeModel model)
     {
         this.model = model;
-        this.kids = new ArrayList<WorkingMemoryTreeNode>();
     }
     
     /**
@@ -85,50 +77,17 @@ public class WorkingMemoryTreeNode implements TreeTableNode
         return valueId;
     }
 
-    void addChild(WorkingMemoryTreeNode kid)
-    {
-        this.kids.add(kid);
-    }
-
     private void updateChildren()
     {
-        if(kids != null)
+        if(updated || valueId == null)
         {
             return;
         }
+        updated = true;
         
-        kids = model.getChildWmes(this, valueId);
+        model.getChildWmes(this, valueId);
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#children()
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Enumeration children()
-    {
-        updateChildren();
-        return Iterators.asEnumeration(kids.iterator());
-    }
-
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getAllowsChildren()
-     */
-    @Override
-    public boolean getAllowsChildren()
-    {
-        return !isLeaf();
-    }
-
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getChildAt(int)
-     */
-    @Override
-    public TreeTableNode getChildAt(int n)
-    {
-        updateChildren();
-        return kids.get(n);
-    }
 
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeNode#getChildCount()
@@ -137,35 +96,7 @@ public class WorkingMemoryTreeNode implements TreeTableNode
     public int getChildCount()
     {
         updateChildren();
-        return kids.size();
-    }
-
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getIndex(javax.swing.tree.TreeNode)
-     */
-    @Override
-    public int getIndex(TreeNode node)
-    {
-        updateChildren();
-        return kids.indexOf(node);
-    }
-
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getParent()
-     */
-    @Override
-    public TreeTableNode getParent()
-    {
-        return parent;
-    }
-
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#isLeaf()
-     */
-    @Override
-    public boolean isLeaf()
-    {
-        return parent != null && valueId == null;
+        return super.getChildCount();
     }
 
     /* (non-Javadoc)

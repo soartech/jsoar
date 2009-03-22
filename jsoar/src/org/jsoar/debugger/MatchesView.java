@@ -7,6 +7,7 @@ package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -23,6 +24,8 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.runtime.Completer;
+import org.jsoar.runtime.SwingCompletion;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -59,11 +62,10 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
     @Override
     public void selectionChanged(SelectionManager manager)
     {
-        textArea.setText(getMatchOutput(manager.getSelection()));
-        textArea.setCaretPosition(0);
+        getMatchOutput(new ArrayList<Object>(manager.getSelection()));
     }
     
-    private String getMatchOutput(final List<Object> selection)
+    private void getMatchOutput(final List<Object> selection)
     {
         Callable<String> matchCall = new Callable<String>() {
 
@@ -72,7 +74,16 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
             {
                 return safeGetMatchOutput(selection);
             }};
-        return debugger.getAgentProxy().execute(matchCall);
+        Completer<String> finish = new Completer<String>() {
+            @Override
+            public void finish(String result)
+            {
+                textArea.setText(result);
+                textArea.setCaretPosition(0);
+            }
+            
+        };
+        debugger.getAgentProxy().execute(matchCall, SwingCompletion.newInstance(finish));
     }
     
     private Production getProduction(Agent agent, Object o)

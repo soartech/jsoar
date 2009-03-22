@@ -13,6 +13,8 @@ import java.util.concurrent.Callable;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.runtime.Completer;
+import org.jsoar.runtime.SwingCompletion;
 import org.jsoar.runtime.ThreadedAgentProxy;
 
 import com.google.common.collect.Iterators;
@@ -39,7 +41,7 @@ public class WorkingMemoryTreeModel extends DefaultTreeTableModel
         WorkingMemoryTreeNode root = new WorkingMemoryTreeNode(this);
         for(Identifier id : roots)
         {
-            root.addChild(new WorkingMemoryTreeNode(this, root, id));
+            this.insertNodeInto(new WorkingMemoryTreeNode(this, root, id), root, root.getChildCount());
         }
         
         this.setRoot(root);
@@ -52,9 +54,9 @@ public class WorkingMemoryTreeModel extends DefaultTreeTableModel
      * @param valueId parent identifier
      * @return list of tree nodes, one for each child wme of the identifier
      */
-    public List<WorkingMemoryTreeNode> getChildWmes(WorkingMemoryTreeNode parent, final Identifier valueId)
+    void getChildWmes(final WorkingMemoryTreeNode parent, final Identifier valueId)
     {
-        Callable<List<Wme>> callable = new Callable<List<Wme>>() {
+        final Callable<List<Wme>> callable = new Callable<List<Wme>>() {
 
             public List<Wme> call() throws Exception
             {
@@ -63,13 +65,19 @@ public class WorkingMemoryTreeModel extends DefaultTreeTableModel
                 return wmes;
             }};
             
-        List<Wme> wmes = proxy.execute(callable);
-        List<WorkingMemoryTreeNode> nodes = new ArrayList<WorkingMemoryTreeNode>(wmes.size());
-        for(Wme w : wmes)
-        {
-            nodes.add(new WorkingMemoryTreeNode(this, parent, w));
-        }
-        return nodes;
+        final Completer<List<Wme>> finish = new Completer<List<Wme>>() {
+
+            @Override
+            public void finish(List<Wme> wmes)
+            {
+                for(Wme w : wmes)
+                {
+                    insertNodeInto(new WorkingMemoryTreeNode(WorkingMemoryTreeModel.this, parent, w), parent, parent.getChildCount());
+                }
+            }
+            
+        };
+        proxy.execute(callable, SwingCompletion.newInstance(finish));
     }
 
 }

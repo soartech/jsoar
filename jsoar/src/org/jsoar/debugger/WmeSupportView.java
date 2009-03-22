@@ -33,6 +33,8 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeSupportInfo;
 import org.jsoar.kernel.memory.WmeSupportInfo.Support;
+import org.jsoar.runtime.Completer;
+import org.jsoar.runtime.SwingCompletion;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -145,21 +147,12 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
     public void selectionChanged(SelectionManager manager)
     {
         final Object selection = manager.getSelectedObject();
-        Wme w = Adaptables.adapt(selection, Wme.class);
-        if(w != null)
+        final Wme w = Adaptables.adapt(selection, Wme.class);
+        if(w == null)
         {
-            sourceInfo = getSourceInfo(w);
-            
-            source.setText(String.format("<html><b><code>%#s</code></b> is supported by the following productions:</html>", w));
-            sourceWmeTable.setTreeTableModel(new WmeSupportTreeModel(sourceInfo));
-            sourceWmeTable.expandAll();
-            sourceWmeTable.packAll();
+            return;
         }
-    }
-    
-    private WmeSupportInfo getSourceInfo(final Wme w)
-    {
-        Callable<WmeSupportInfo> callable = new Callable<WmeSupportInfo>() {
+        final Callable<WmeSupportInfo> call = new Callable<WmeSupportInfo>() {
 
             @Override
             public WmeSupportInfo call() throws Exception
@@ -167,7 +160,18 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
                 final Agent agent = debugger.getAgentProxy().getAgent();
                 return WmeSupportInfo.get(agent, w);
             }};
-        return debugger.getAgentProxy().execute(callable);
+        final Completer<WmeSupportInfo> finish = new Completer<WmeSupportInfo>() {
+
+            @Override
+            public void finish(WmeSupportInfo sourceInfo)
+            {
+                source.setText(String.format("<html><b><code>%#s</code></b> is supported by the following productions:</html>", w));
+                sourceWmeTable.setTreeTableModel(new WmeSupportTreeModel(sourceInfo));
+                sourceWmeTable.expandAll();
+                sourceWmeTable.packAll();
+            }
+        };
+        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
     }
     
     private static class CellRenderer extends DefaultTreeCellRenderer

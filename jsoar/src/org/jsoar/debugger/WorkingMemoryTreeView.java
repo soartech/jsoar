@@ -39,6 +39,8 @@ import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.runtime.Completer;
+import org.jsoar.runtime.SwingCompletion;
 
 
 /**
@@ -204,16 +206,16 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
         
         final String[] tokens = idString.split("\\s+");
         final Agent agent = debugger.getAgentProxy().getAgent();
-        Callable<List<Identifier>> callable = new Callable<List<Identifier>>() {
+        final Callable<List<Identifier>> callable = new Callable<List<Identifier>>() {
 
             public List<Identifier> call() throws Exception
             {
-                List<Identifier> result = new ArrayList<Identifier>();
+                final List<Identifier> result = new ArrayList<Identifier>();
                 for(String t : tokens)
                 {
                     t = t.trim();
                     
-                    Symbol s = agent.readIdentifierOrContextVariable(t);
+                    final Symbol s = agent.readIdentifierOrContextVariable(t);
                     if(s != null)
                     {
                         Identifier id = s.asIdentifier();
@@ -225,18 +227,26 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
                 }
                 return result;
             }};
-        
-        List<Identifier> ids = debugger.getAgentProxy().execute(callable);
+        final Completer<List<Identifier>> finish = new Completer<List<Identifier>>() {
 
-        // Reset the tree model
-        this.model = new WorkingMemoryTreeModel(debugger.getAgentProxy(), ids);
-        this.table.setTreeTableModel(this.model);
+            @Override
+            public void finish(List<Identifier> ids)
+            {
+
+                // Reset the tree model
+                model = new WorkingMemoryTreeModel(debugger.getAgentProxy(), ids);
+                table.setTreeTableModel(model);
+                
+                // Expand the rows
+                for(int row = table.getRowCount() - 1; row >= 0; row--)
+                {
+                    table.expandRow(row);
+                }
+            }
+            
+        };
         
-        // Expand the rows
-        for(int row = this.table.getRowCount() - 1; row >= 0; row--)
-        {
-            this.table.expandRow(row);
-        }
+        debugger.getAgentProxy().execute(callable, SwingCompletion.newInstance(finish));
     }
 
     /* (non-Javadoc)

@@ -12,6 +12,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JFrame;
@@ -42,6 +43,9 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
+import org.jsoar.kernel.events.StopEvent;
+import org.jsoar.runtime.Completer;
+import org.jsoar.runtime.SwingCompletion;
 import org.jsoar.runtime.ThreadedAgentProxy;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
@@ -76,7 +80,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     /**
      * Construct a new debugger. Add to a JFrame and call initialize().
      */
-    public JSoarDebugger()
+    private JSoarDebugger()
     {
         super(new BorderLayout());
         
@@ -88,7 +92,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      * @param parentFrame The parent frame of the debugger
      * @param proxy A non-null, <b>initialized</b> agent proxy
      */
-    public void initialize(JFrame parentFrame, ThreadedAgentProxy proxy)
+    private void initialize(JFrame parentFrame, ThreadedAgentProxy proxy)
     {
         this.frame = parentFrame;
         this.agent = proxy.getAgent();
@@ -107,6 +111,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         initMenuBar();
         initToolbar();
         
+        // Track selection to active view
         ActiveDockableTracker.getTracker(frame).addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -120,12 +125,22 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 }
             }});
         
+        // Update after init-soar
         agent.getEventManager().addListener(AfterInitSoarEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
             {
-                update(true);
+                newUpdateCompleter(true).finish(null);
+            }});
+
+        // Update when the agent stops running
+        agent.getEventManager().addListener(StopEvent.class, new SoarEventListener() {
+
+            @Override
+            public void onEvent(SoarEvent event)
+            {
+                newUpdateCompleter(false).finish(null);
             }});
         
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -161,17 +176,13 @@ public class JSoarDebugger extends JPanel implements Adaptable
         views.add(prodEditView);
         traceView.dock(prodEditView);
         
-        final WorkingMemoryGraphView wmGraphView = new WorkingMemoryGraphView(this);
-        views.add(wmGraphView);
-        traceView.dock(wmGraphView, DockingConstants.SOUTH_REGION);
-        
         final WorkingMemoryTreeView wmTreeView = new WorkingMemoryTreeView(this);
         views.add(wmTreeView);
-        wmGraphView.dock(wmTreeView);
+        traceView.dock(wmTreeView, DockingConstants.SOUTH_REGION);
         
         final PreferencesView preferencesView = new PreferencesView(this);
         views.add(preferencesView);
-        wmGraphView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
+        wmTreeView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
         
         final WmeSupportView wmeSupportView = new WmeSupportView(this);
         views.add(wmeSupportView);
@@ -283,20 +294,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         add(bar, BorderLayout.NORTH);
     }
     
-    public void update(final boolean afterInitSoar)
+    private void update(final boolean afterInitSoar)
     {
-        if(!SwingUtilities.isEventDispatchThread())
-        {
-            SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run()
-                {
-                    update(afterInitSoar);
-                }});
-            return;
-        }
-        
         updateActionsAndStatus();
         
         List<Refreshable> refreshables = Adaptables.adaptCollection(views, Refreshable.class);
@@ -305,7 +304,18 @@ public class JSoarDebugger extends JPanel implements Adaptable
             r.refresh(afterInitSoar);
         }
     }
-            
+          
+    public Completer<Void> newUpdateCompleter(final boolean afterInitSoar)
+    {
+        return SwingCompletion.newInstance( new Completer<Void>() {
+
+            @Override
+            public void finish(Void result)
+            {
+                update(afterInitSoar);
+            }
+        });
+    }
     /**
      * Initialize the UI look and feel to the system look and feel. 
      */
@@ -333,7 +343,42 @@ public class JSoarDebugger extends JPanel implements Adaptable
             public void run() { initialize(args); }
         });
     }
+    
+    /**
+     * Attach a new debugger window to the given threaded agent. This function
+     * <b>must<b/> be called from the Swing event thread!
+     * 
+     * @param proxy an <b>initialized</b> threaded agent to attach to
+     * @return the debugger
+     */
+    public static JSoarDebugger attach(ThreadedAgentProxy proxy)
+    {
+        DockingManager.setFloatingEnabled(true);
+        
+        final JSoarDebugger debugger = new JSoarDebugger();
+        
+        JFrame frame = new JFrame("JSoar Debugger - " + proxy.getAgent().getName());
+        
+        frame.setContentPane(debugger);
+        frame.setSize(1200, 1024);
+        
+        debugger.initialize(frame, proxy);
 
+        SwingUtility.centerOnScreen(frame);
+        frame.setVisible(true);
+        return debugger;
+    }
+
+    /**
+     * Detach debugger from agent
+     */
+    public void detach()
+    {
+        // TODO clean up dock property listener
+        // TODO clean up soar event listener
+        // TODO close debugger window
+    }
+    
     /**
      * This is identical to {@link #main(String[])}, but it must be called from
      * the Swing event thread. Also the look and feel must be initialized prior
@@ -343,29 +388,16 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static JSoarDebugger initialize(final String[] args)
     {
+        final JSoarDebugger debugger = attach(new ThreadedAgentProxy(new Agent()).initialize());
         
-        DockingManager.setFloatingEnabled(true);
-        
-        final JSoarDebugger littleDebugger = new JSoarDebugger();
-        
-        JFrame frame = new JFrame("Little JSoar Debugger");
-        
-        frame.setContentPane(littleDebugger);
-        frame.setSize(1200, 1024);
-        
-        littleDebugger.initialize(frame, new ThreadedAgentProxy(new Agent()).initialize());
-
-        SwingUtility.centerOnScreen(frame);
-        frame.setVisible(true);
-        
-        littleDebugger.proxy.execute(new Runnable() {
-            public void run() 
+        debugger.proxy.execute(new Callable<Void>() {
+            public Void call() 
             {
                 for(String arg : args)
                 {
                     try
                     {
-                        littleDebugger.ifc.sourceFile(arg);
+                        debugger.ifc.sourceFile(arg);
                     }
                     catch (SoarTclException e)
                     {
@@ -373,9 +405,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
                         e.printStackTrace();
                     }
                 }
-                littleDebugger.update(false);
-            } } );
-        return littleDebugger;
+                return null;
+            } }, debugger.newUpdateCompleter(false));
+        return debugger;
     }
 
     /* (non-Javadoc)
