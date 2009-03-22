@@ -22,7 +22,7 @@ public class AboutDialog
         JSoarVersion version = JSoarVersion.getInstance();
         String message = "<html>" + 
         "<b>JSoar Demonstration Debugger</b><br>" +
-        "Copyright 2008, Dave Ray &lt;daveray@gmail.com><br>" +
+        "Copyright 2009, Dave Ray &lt;daveray@gmail.com><br>" +
         "<br>" +
         "<b>Version</b>: " + version + "<br>" +
         "<b>Built on</b>: " + version.getBuildDate() + "<br>" + 

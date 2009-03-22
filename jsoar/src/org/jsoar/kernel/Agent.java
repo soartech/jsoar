@@ -63,6 +63,8 @@ import org.jsoar.util.timing.ExecutionTimer;
  */
 public class Agent extends AbstractAdaptable
 {
+    private String name = "JSoar Agent " + System.identityHashCode(this);
+    
     private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
     
     /**
@@ -157,6 +159,25 @@ public class Agent extends AbstractAdaptable
         installDefaultTraceFormats();
     }
     
+    /**
+     * @return the name of the agent
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+
+    /**
+     * Set the name of the agent
+     * 
+     * @param name the name to set
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
     /**
      * Must be called before the agent is run. This is separate from the 
      * constructor to give client code the change to register callbacks,

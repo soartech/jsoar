@@ -7,6 +7,7 @@ package org.jsoar.debugger.actions;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.concurrent.Callable;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -67,10 +68,10 @@ public class SourceFileAction extends AbstractDebuggerAction
         lastDir = f.getParentFile().getAbsolutePath();
         
         final SoarTclInterface tcl = getApplication().getTcl();
-        getApplication().getAgentProxy().execute(new Runnable() {
+        getApplication().getAgentProxy().execute(new Callable<Void>() {
 
             @Override
-            public void run()
+            public Void call()
             {
                 try
                 {
@@ -80,8 +81,8 @@ public class SourceFileAction extends AbstractDebuggerAction
                 {
                     tcl.getAgent().getPrinter().error(e.getMessage());
                 }
-                getApplication().update(false);
-            }});
+                return null;
+            }}, getApplication().newUpdateCompleter(false));
         
     }
 

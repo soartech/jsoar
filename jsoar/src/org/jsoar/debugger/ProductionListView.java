@@ -33,6 +33,8 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.runtime.Completer;
+import org.jsoar.runtime.SwingCompletion;
 import org.jsoar.util.adaptables.Adaptables;
 
 
@@ -144,49 +146,64 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
     {
         final Production p =  Adaptables.adapt(selectionProvider.getSelectedObject(), Production.class);
         
-        final StringBuilder b = new StringBuilder("<html>");
-        if(p != null)
-        {
-            int count = debugger.getAgentProxy().execute(new Callable<Integer>() {
+        final Callable<Integer> call = new Callable<Integer>() {
 
-                public Integer call() throws Exception
+            public Integer call() throws Exception
+            {
+                return p != null ? p.getReteTokenCount() : 0;
+            }};
+        final Completer<Integer> finish = new Completer<Integer>() {
+
+            @Override
+            public void finish(Integer count)
+            {
+                final StringBuilder b = new StringBuilder("<html>");
+                if(p != null)
                 {
-                    return p.getReteTokenCount();
-                }});
-            b.append("<b>Name:</b>&nbsp;" + p.getName() + "<br>");
-            b.append("<b>Comment:</b>&nbsp;" + p.getDocumentation() + "<br>");
-            b.append("<b>Memories:</b>&nbsp;" + count);
-        }
-        else
-        {
-            b.append("No selection");
-        }
-        b.append("</html>");
-        
-        info.setText(b.toString());
+                    b.append("<b>Name:</b>&nbsp;" + p.getName() + "<br>");
+                    b.append("<b>Comment:</b>&nbsp;" + p.getDocumentation() + "<br>");
+                    b.append("<b>Memories:</b>&nbsp;" + count);
+                }
+                else
+                {
+                    b.append("No selection");
+                }
+                b.append("</html>");
+                
+                info.setText(b.toString());
+            }
+        };
+        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
     }
 
     private void updateStats()
     {
-        Map<ProductionType, Integer> counts = 
-        debugger.getAgentProxy().execute(new Callable<Map<ProductionType, Integer>>() {
+        final Callable<Map<ProductionType, Integer>> call = new Callable<Map<ProductionType, Integer>>() {
 
             @Override
             public Map<ProductionType, Integer> call() throws Exception
             {
                 return debugger.getAgentProxy().getAgent().getProductions().getProductionCounts();
-            }});
-        
-        final String spaces = "&nbsp;&nbsp;&nbsp;";
-        final StringBuilder b = new StringBuilder("<html>");
-        b.append("<b>Total:</b>&nbsp;" + this.model.getRowCount() + spaces);
-        for(Map.Entry<ProductionType, Integer> e : counts.entrySet())
-        {
-            b.append(" <b>" + e.getKey().getDisplayString() + ":</b>&nbsp;" + e.getValue() + spaces);
-        }
-        b.append("</html>");
+            }};
             
-        this.stats.setText(b.toString());
+        final Completer<Map<ProductionType, Integer>> finish = new Completer<Map<ProductionType,Integer>>() {
+
+            @Override
+            public void finish(Map<ProductionType, Integer> counts)
+            {
+                final String spaces = "&nbsp;&nbsp;&nbsp;";
+                final StringBuilder b = new StringBuilder("<html>");
+                b.append("<b>Total:</b>&nbsp;" + model.getRowCount() + spaces);
+                for(Map.Entry<ProductionType, Integer> e : counts.entrySet())
+                {
+                    b.append(" <b>" + e.getKey().getDisplayString() + ":</b>&nbsp;" + e.getValue() + spaces);
+                }
+                b.append("</html>");
+                    
+                stats.setText(b.toString());
+            }
+        };
+        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
     }
 
     /* (non-Javadoc)

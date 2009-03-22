@@ -41,7 +41,7 @@ public class ThreadedAgentProxyTest
         proxy.getAgent().getProperties().set(SoarProperties.WAITSNC, true);
         proxy.getAgent().getTrace().setWatchLevel(0);
         proxy.initialize();
-        proxy.runForever(null);
+        proxy.runForever();
         Thread.sleep(500);
         proxy.shutdown();
     }

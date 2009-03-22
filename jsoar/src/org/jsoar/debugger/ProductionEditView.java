@@ -29,6 +29,8 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.runtime.Completer;
+import org.jsoar.runtime.SwingCompletion;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.SwingTools;
@@ -138,12 +140,31 @@ public class ProductionEditView extends AbstractAdaptableView
      * 
      * @param name The name of the production to edit.
      */
-    public void editProduction(String name)
+    public void editProduction(final String name)
     {
-        final String productionText = getProductionText(name);
-        textArea.setText(productionText);
-        status.setText(productionText.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
-        this.setActive(true);
+        final Callable<String> call = new Callable<String>() {
+
+            public String call() throws Exception
+            {
+                final Production p = debugger.getAgentProxy().getAgent().getProductions().getProduction(name);
+                if(p != null)
+                {
+                    StringWriter s = new StringWriter();
+                    p.print(new Printer(s, true), false);
+                    return s.toString();
+                }
+                return "";
+            }};
+        final Completer<String> finish = new Completer<String>() {
+            @Override
+            public void finish(String result)
+            {
+                textArea.setText(result);
+                status.setText(result.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
+                setActive(true);
+            }
+        };
+        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
     }
     
     private void load()
@@ -155,8 +176,7 @@ public class ProductionEditView extends AbstractAdaptableView
         }
         
         final SoarTclInterface ifc = debugger.getTcl();
-        
-        final String result = debugger.getAgentProxy().execute(new Callable<String>() {
+        final Callable<String> call = new Callable<String>() {
 
             @Override
             public String call()
@@ -170,25 +190,15 @@ public class ProductionEditView extends AbstractAdaptableView
                 {
                     return "ERROR: " + e.getMessage();
                 }
-            }});
-        
-        status.setText(result);
-    }
+            }};
+        final Completer<String> finish = new Completer<String>() {
 
-    private String getProductionText(final String name)
-    {
-        return debugger.getAgentProxy().execute(new Callable<String>() {
-
-            public String call() throws Exception
+            @Override
+            public void finish(String result)
             {
-                final Production p = debugger.getAgentProxy().getAgent().getProductions().getProduction(name);
-                if(p != null)
-                {
-                    StringWriter s = new StringWriter();
-                    p.print(new Printer(s, true), false);
-                    return s.toString();
-                }
-                return "";
-            }});
+                status.setText(result);
+            }
+        };
+        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
     }
 }

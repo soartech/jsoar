@@ -11,7 +11,6 @@ import javax.swing.KeyStroke;
 
 import org.jsoar.debugger.Images;
 import org.jsoar.debugger.RunControlModel;
-import org.jsoar.kernel.RunType;
 
 /**
  * @author ray
@@ -45,9 +44,7 @@ public class RunAction extends AbstractDebuggerAction
     public void actionPerformed(ActionEvent arg0)
     {
         final RunControlModel model = getApplication().getRunControlModel();
-        int count = model.getCount();
-        RunType type = model.getType();
-        getApplication().getAgentProxy().runFor(count, type, new Runnable() { public void run() { getApplication().update(false); }});
+        getApplication().getAgentProxy().runFor(model.getCount(), model.getType());
         getApplication().updateActionsAndStatus();
     }
 

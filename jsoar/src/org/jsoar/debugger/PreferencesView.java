@@ -32,6 +32,8 @@ import org.jsoar.kernel.commands.StructuredPreferencesCommand.Result;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.runtime.Completer;
+import org.jsoar.runtime.SwingCompletion;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -136,19 +138,8 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         
         if(id != null && id.isGoal())
         {
-            info.setText(String.format("<html><b>Operator preferences for <code>%s</code></b></html>", id));
-            
-            final Result result = getPreferences(id);
-            if(result.getError() == null)
-            {
-                table.setModel(new PreferencesTableModel(result));
-            }
-            else
-            {
-                table.setModel(new DefaultTableModel(new Object[][] { new Object[] {result.getError()} }, new Object[] { "" }));
-            }
+            getPreferences(id);
         }
-        table.packAll();
     }
     
     private Result getLastResult()
@@ -162,16 +153,37 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         return ((PreferencesTableModel) prefModel).getResult();
     }
     
-    private Result getPreferences(final Identifier id)
+    private void getPreferences(final Identifier id)
     {
-        Callable<Result> callable = new Callable<Result>() {
+        debugger.getAgentProxy().execute(
+            new Callable<Result>() {
 
-            @Override
-            public Result call() throws Exception
-            {
-                return safeGetPreferences(id);
-            }};
-        return debugger.getAgentProxy().execute(callable);
+                @Override
+                public Result call() throws Exception
+                {
+                    return safeGetPreferences(id);
+                }},
+            SwingCompletion.newInstance(new Completer<Result>() {
+
+                @Override
+                public void finish(Result result)
+                {
+                    finishGetPreferences(result);
+                }}));
+    }
+    
+    private void finishGetPreferences(Result result)
+    {
+        info.setText(String.format("<html><b>Operator preferences for <code>%s</code></b></html>", result.getQueryId()));
+        if(result.getError() == null)
+        {
+            table.setModel(new PreferencesTableModel(result));
+        }
+        else
+        {
+            table.setModel(new DefaultTableModel(new Object[][] { new Object[] {result.getError()} }, new Object[] { "" }));
+        }
+        table.packAll();        
     }
     
     private Result safeGetPreferences(final Identifier id)

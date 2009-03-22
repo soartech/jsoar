@@ -46,17 +46,18 @@ public class ProductionTableModel extends AbstractTableModel
         eventManager.addListener(ProductionAddedEvent.class, listener);
         eventManager.addListener(ProductionExcisedEvent.class, listener);
         
+        // TODO does this need to block for any reason?
         this.agent.execute(new Callable<Void>() {
 
             @Override
-            public Void call() throws Exception
+            public Void call()
             {
                 synchronized(productions)
                 {
                     productions.addAll(agent.getAgent().getProductions().getProductions(null));
                 }
                 return null;
-            }});
+            }}, null);
     }
     
     /**

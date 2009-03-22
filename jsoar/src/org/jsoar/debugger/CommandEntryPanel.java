@@ -52,7 +52,7 @@ public class CommandEntryPanel extends JPanel
         final String command = field.getEditor().getItem().toString().trim();
         if(command.length() > 0)
         {
-            debugger.getAgentProxy().execute(new CommandLineRunnable(debugger, command));
+            debugger.getAgentProxy().execute(new CommandLineRunnable(debugger, command), null);
             addCommand(command);
         }
     }

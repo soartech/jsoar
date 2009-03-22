@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.runtime.Completer;
+import org.jsoar.runtime.SwingCompletion;
 import org.jsoar.util.ByRef;
 
 /**
@@ -64,21 +66,30 @@ public class StatusBar extends JPanel implements Refreshable
         final ByRef<String> settingsString = ByRef.create(null);
         final Agent a = debugger.getAgentProxy().getAgent();
         
-        debugger.getAgentProxy().execute(new Callable<Void>() {
+        final Callable<Object> call = new Callable<Object>() {
             @Override
-            public Void call() throws Exception
+            public Object call() throws Exception
             {
                 runStateString.value = debugger.getAgentProxy().isRunning() ? "Running" : "Idle";
                 phaseString.value = a.getCurrentPhase().toString().toLowerCase();
                 decisionsString.value = a.getProperties().get(SoarProperties.DECISION_PHASES_COUNT) + " decisions";
                 settingsString.value = getSettings(a);
                 return null;
-            }});
-        
-        runState.setText("<html><b>" + runStateString.value + "</b></html>");
-        phase.setText("<html><b>before " + phaseString.value + "</b></html>");
-        decisions.setText("<html><b>" + decisionsString.value + "</b></html>");
-        settings.setText(settingsString.value);
+            }};
+        final Completer<Object> finish = new Completer<Object>() {
+
+            @Override
+            public void finish(Object result)
+            {
+                
+                runState.setText("<html><b>" + runStateString.value + "</b></html>");
+                phase.setText("<html><b>before " + phaseString.value + "</b></html>");
+                decisions.setText("<html><b>" + decisionsString.value + "</b></html>");
+                settings.setText(settingsString.value);
+            }
+            
+        };
+        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
     }
     
     private String getSettings(Agent a)

@@ -7,16 +7,13 @@ package org.jsoar.runtime;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.events.RunLoopEvent;
+import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
@@ -25,7 +22,6 @@ import org.jsoar.util.events.SoarEventListener;
  */
 public class ThreadedAgentProxy
 {
-    private final Lock lock = new ReentrantLock();
     private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();
     private final Agent agent;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -70,7 +66,7 @@ public class ThreadedAgentProxy
     /**
      * Initialize this proxy and the agent
      */
-    public ThreadedAgentProxy initialize(final Runnable done)
+    public ThreadedAgentProxy initialize(final Completer<Void> done)
     {
         // Only start the agent thread once
         if(!initialized.getAndSet(true))
@@ -78,17 +74,14 @@ public class ThreadedAgentProxy
             this.agentThread.start();
         }
         
-        execute(new Runnable()
+        execute(new Callable<Void>()
         {
-            public void run()
+            public Void call() throws Exception
             {
                 agent.initialize();
-                if(done != null)
-                {
-                    done.run();
-                }
+                return null;
             }
-        });
+        }, done);
         return this;
     }
     
@@ -140,22 +133,19 @@ public class ThreadedAgentProxy
      * 
      * @param n number of steps
      * @param runType type of steps
-     * @param done if not <code>null</code>, this runnable is run after the run
-     *      has been completed
      * @see Agent#runFor(int, RunType)
      */
-    public void runFor(final int n, final RunType runType, final Runnable done)
+    public void runFor(final int n, final RunType runType)
     {
         if(agentRunning.getAndSet(true))
         {
             return;
         }
-        execute(new Runnable() {
+        execute(new Callable<Void>() {
 
             @Override
-            public void run()
+            public Void call()
             {
-                lock.lock();
                 try
                 {
                     agent.runFor(n, runType);
@@ -163,20 +153,16 @@ public class ThreadedAgentProxy
                 finally
                 {
                     agentRunning.set(false);
-                    lock.unlock();
-                    
-                    if(done != null)
-                    {
-                        done.run();
-                    }
+                    agent.getEventManager().fireEvent(new StopEvent(agent));
                 }
+                return null;
                 
-            }});
+            }}, null);
     }
     
-    public void runForever(final Runnable done)
+    public void runForever()
     {
-        runFor(0, RunType.FOREVER, done);
+        runFor(0, RunType.FOREVER);
     }
     
     /**
@@ -193,7 +179,7 @@ public class ThreadedAgentProxy
      * 
      * @param runnable the runnable to run
      */
-    public void execute(Runnable runnable)
+    private void execute(Runnable runnable)
     {
         if(!isAgentThread())
         {
@@ -201,7 +187,7 @@ public class ThreadedAgentProxy
         }
         else
         {
-            executeRunnableInAgentThread(runnable);
+            runnable.run();
         }
     }
     
@@ -215,42 +201,30 @@ public class ThreadedAgentProxy
      * @throws RuntimeException if an exception is thrown while waiting for the
      *  result.
      */
-    public <V> V execute(Callable<V> callable)
+    public <V> void execute(final Callable<V> callable, final Completer<V> completer)
     {
-        FutureTask<V> task = new FutureTask<V>(callable);
-        execute(task);
-        
-        try
-        {
-            return task.get();
-        }
-        catch (InterruptedException e)
-        {
-            throw new RuntimeException(e);
-        }
-        catch (ExecutionException e)
-        {
-            agent.getPrinter().error("ERROR: " + e.getCause().getMessage() + "\n");
-            throw new RuntimeException(e);
-        }
+        execute(new Runnable() {
+
+            @Override
+            public void run()
+            {
+                try
+                {
+                    final V result = callable.call();
+                    if(completer != null)
+                    {
+                        completer.finish(result);
+                    }
+                }
+                catch (Exception e)
+                {
+                    // TODO
+                    e.printStackTrace();
+                    agent.getPrinter().error("ERROR: " + e.getCause().getMessage() + "\n");
+                }
+            }});
     }
     
-    /**
-     * @param runnable
-     */
-    private void executeRunnableInAgentThread(final Runnable runnable)
-    {
-        try
-        {
-            lock.lock();
-            runnable.run();
-        }
-        finally
-        {
-            lock.unlock();
-        }
-    }
-
     private class AgentThread extends Thread
     {
         /* (non-Javadoc)
@@ -263,7 +237,7 @@ public class ThreadedAgentProxy
             {
                 try
                 {
-                    executeRunnableInAgentThread(commands.take());
+                    commands.take().run();
                 }
                 catch (InterruptAgentException e)
                 {
