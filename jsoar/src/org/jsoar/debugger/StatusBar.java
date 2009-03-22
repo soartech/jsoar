@@ -15,8 +15,8 @@ import javax.swing.JPanel;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.ByRef;
 
 /**
@@ -76,7 +76,7 @@ public class StatusBar extends JPanel implements Refreshable
                 settingsString.value = getSettings(a);
                 return null;
             }};
-        final Completer<Object> finish = new Completer<Object>() {
+        final CompletionHandler<Object> finish = new CompletionHandler<Object>() {
 
             @Override
             public void finish(Object result)
@@ -89,7 +89,7 @@ public class StatusBar extends JPanel implements Refreshable
             }
             
         };
-        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
+        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
     }
     
     private String getSettings(Agent a)

@@ -13,9 +13,9 @@ import java.util.concurrent.Callable;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
-import org.jsoar.runtime.ThreadedAgentProxy;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
+import org.jsoar.runtime.ThreadedAgent;
 
 import com.google.common.collect.Iterators;
 
@@ -24,7 +24,7 @@ import com.google.common.collect.Iterators;
  */
 public class WorkingMemoryTreeModel extends DefaultTreeTableModel
 {
-    private final ThreadedAgentProxy proxy;
+    private final ThreadedAgent proxy;
 
     /**
      * Construct a new tree model
@@ -32,7 +32,7 @@ public class WorkingMemoryTreeModel extends DefaultTreeTableModel
      * @param proxy agenr proxy object
      * @param roots list of roots for the tree
      */
-    public WorkingMemoryTreeModel(ThreadedAgentProxy proxy, List<Identifier> roots)
+    public WorkingMemoryTreeModel(ThreadedAgent proxy, List<Identifier> roots)
     {
         this.proxy = proxy;
         
@@ -65,7 +65,7 @@ public class WorkingMemoryTreeModel extends DefaultTreeTableModel
                 return wmes;
             }};
             
-        final Completer<List<Wme>> finish = new Completer<List<Wme>>() {
+        final CompletionHandler<List<Wme>> finish = new CompletionHandler<List<Wme>>() {
 
             @Override
             public void finish(List<Wme> wmes)
@@ -77,7 +77,7 @@ public class WorkingMemoryTreeModel extends DefaultTreeTableModel
             }
             
         };
-        proxy.execute(callable, SwingCompletion.newInstance(finish));
+        proxy.execute(callable, SwingCompletionHandler.newInstance(finish));
     }
 
 }

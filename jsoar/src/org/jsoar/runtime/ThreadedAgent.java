@@ -17,11 +17,26 @@ import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
+import com.google.common.base.ReferenceType;
+import com.google.common.collect.ReferenceMap;
+
 /**
+ * A wrapper around a raw {@link Agent} which gives the agent its own thread
+ * and provides methods for safely interacting with the agent from other 
+ * threads.
+ * 
+ * <p>Generally, <b>all</b> access to agent data structures, i.e. the 
+ * {@link Agent} instance should be marshaled through the {@link #execute(Runnable)}
+ * methods. Note however, that many public Soar interfaces, or at least parts of them,
+ * are immutable, so it is safe to access them from other threads.
+ * 
  * @author ray
  */
-public class ThreadedAgentProxy
+public class ThreadedAgent
 {
+    private final static ReferenceMap<Agent, ThreadedAgent> proxies = 
+        new ReferenceMap<Agent, ThreadedAgent>(ReferenceType.WEAK, ReferenceType.STRONG);
+    
     private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();
     private final Agent agent;
     private final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -29,12 +44,49 @@ public class ThreadedAgentProxy
     private final AgentThread agentThread = new AgentThread();
     
     /**
-     * @param agent an unitialized agent
+     * If there is a ThreadedAgent already attached to the given agent, return
+     * it.
+     * 
+     * @param agent the agent
+     * @return the ThreadedAgent proxy, or <code>null</code> if none is 
+     *  currently attached.
      */
-    public ThreadedAgentProxy(Agent agent)
+    public static ThreadedAgent find(Agent agent)
+    {
+        synchronized (proxies)
+        {
+            return proxies.get(agent);
+        }
+    }
+    
+    /**
+     * Attach a threaded wrapper to the given agent. The returned object must
+     * be initialized.
+     * 
+     * @param agent the agent to wrap
+     * @return 
+     */
+    public static ThreadedAgent attach(Agent agent) 
+    {
+        synchronized(proxies)
+        {
+            ThreadedAgent ta = proxies.get(agent);
+            if(ta == null)
+            {
+                ta = new ThreadedAgent(agent);
+                proxies.put(agent, ta);
+            }
+            return ta;
+        }
+    }
+    
+    /**
+     * @param agent the agent to wrap.
+     */
+    private ThreadedAgent(Agent agent)
     {
         this.agent = agent;
-        agentThread.setName("ThreadedAgentProxy thread");
+        agentThread.setName("ThreadedAgent thread");
         
         this.agent.getEventManager().addListener(RunLoopEvent.class, new SoarEventListener() {
 
@@ -58,15 +110,24 @@ public class ThreadedAgentProxy
             }});
     }
     
-    public ThreadedAgentProxy initialize()
+    /**
+     * Initialize this object and the underlying agent.
+     * 
+     * @return this
+     */
+    public ThreadedAgent initialize()
     {
         return initialize(null);
     }
     
     /**
-     * Initialize this proxy and the agent
+     * Initialize this object and the underlying agent.
+     * 
+     * @param done if not <code>null</code> this handler is called after the 
+     * agent is initialized.
+     * @return this
      */
-    public ThreadedAgentProxy initialize(final Completer<Void> done)
+    public ThreadedAgent initialize(final CompletionHandler<Void> done)
     {
         // Only start the agent thread once
         if(!initialized.getAndSet(true))
@@ -86,18 +147,30 @@ public class ThreadedAgentProxy
     }
     
     /**
-     * Shutdown this proxy
+     * Detach this object from the agent. This method will stop the agent thread,
+     * and wait for it to exit before proceeding. After being detached, this
+     * object may not be used again.
      */
-    public void shutdown()
+    public void detach()
     {
-        agentThread.interrupt();
         try
         {
-            agentThread.join();
+            agentThread.interrupt();
+            try
+            {
+                agentThread.join();
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
         }
-        catch (InterruptedException e)
+        finally
         {
-            e.printStackTrace();
+            synchronized(proxies)
+            {
+                proxies.remove(agent);
+            }
         }
     }
     
@@ -129,7 +202,8 @@ public class ThreadedAgentProxy
 
     /**
      * Run the agent in a separate thread. This method returns immediately.
-     * If the agent is already running, the command is ignored.
+     * If the agent is already running, the command is ignored. When the agent
+     * stops a {@link StopEvent} event will be fired.
      * 
      * @param n number of steps
      * @param runType type of steps
@@ -160,13 +234,19 @@ public class ThreadedAgentProxy
             }}, null);
     }
     
+    /**
+     * Start the agent running. The agent will run until {@link #stop()} is
+     * called or it halts for some reason. When the agent stops a
+     * {@link StopEvent} event will be fired.
+     */
     public void runForever()
     {
         runFor(0, RunType.FOREVER);
     }
     
     /**
-     * Stop the agent running at some point in the future
+     * Stop the agent running at some point in the future. When the agent
+     * finally stops, a {@link StopEvent} event will be fired.
      */
     public void stop()
     {
@@ -174,8 +254,7 @@ public class ThreadedAgentProxy
     }
     
     /**
-     * Execute the given runnable in the agent thread. The agent lock will be held
-     * while the command is run.
+     * Execute the given runnable in the agent thread.
      * 
      * @param runnable the runnable to run
      */
@@ -193,15 +272,15 @@ public class ThreadedAgentProxy
     
     /**
      * Execute the given callable in the agent thread, wait for its result and
-     * return it. The agent lock will be help while the command is run.
+     * return it.
      * 
      * @param <V> return type
      * @param callable the callable to run
-     * @return the result of the callable
+     * @param finish called after the callable is executed. Ignored if <code>null</code>.
      * @throws RuntimeException if an exception is thrown while waiting for the
      *  result.
      */
-    public <V> void execute(final Callable<V> callable, final Completer<V> completer)
+    public <V> void execute(final Callable<V> callable, final CompletionHandler<V> finish)
     {
         execute(new Runnable() {
 
@@ -211,10 +290,14 @@ public class ThreadedAgentProxy
                 try
                 {
                     final V result = callable.call();
-                    if(completer != null)
+                    if(finish != null)
                     {
-                        completer.finish(result);
+                        finish.finish(result);
                     }
+                }
+                catch(InterruptAgentException e)
+                {
+                    throw e;
                 }
                 catch (Exception e)
                 {

@@ -33,8 +33,8 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeSupportInfo;
 import org.jsoar.kernel.memory.WmeSupportInfo.Support;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -160,7 +160,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
                 final Agent agent = debugger.getAgentProxy().getAgent();
                 return WmeSupportInfo.get(agent, w);
             }};
-        final Completer<WmeSupportInfo> finish = new Completer<WmeSupportInfo>() {
+        final CompletionHandler<WmeSupportInfo> finish = new CompletionHandler<WmeSupportInfo>() {
 
             @Override
             public void finish(WmeSupportInfo sourceInfo)
@@ -171,7 +171,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
                 sourceWmeTable.packAll();
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
+        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
     }
     
     private static class CellRenderer extends DefaultTreeCellRenderer

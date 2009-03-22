@@ -8,19 +8,22 @@ package org.jsoar.runtime;
 import javax.swing.SwingUtilities;
 
 /**
+ * Wrap a completion handler in logic to ensure that it executes on the 
+ * Swing event thread.
+ * 
  * @author ray
  * @param <T>
  */
-public class SwingCompletion<T> implements Completer<T>
+public class SwingCompletionHandler<T> implements CompletionHandler<T>
 {
-    private final Completer<T> inner;
+    private final CompletionHandler<T> inner;
     
-    public static <V> Completer<V> newInstance(Completer<V> inner) 
+    public static <V> CompletionHandler<V> newInstance(CompletionHandler<V> inner) 
     {
-        return new SwingCompletion<V>(inner);
+        return new SwingCompletionHandler<V>(inner);
     }
     
-    private SwingCompletion(Completer<T> inner)
+    private SwingCompletionHandler(CompletionHandler<T> inner)
     {
         this.inner = inner;
     }

@@ -16,7 +16,7 @@ import javax.swing.table.AbstractTableModel;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
-import org.jsoar.runtime.ThreadedAgentProxy;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
@@ -28,14 +28,14 @@ public class ProductionTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = -6372714301859379317L;
     
-    private final ThreadedAgentProxy agent;
+    private final ThreadedAgent agent;
     private final Listener listener = new Listener();
     private final List<Production> productions = Collections.synchronizedList(new ArrayList<Production>());
     
     /**
      * @param agent
      */
-    public ProductionTableModel(ThreadedAgentProxy agent)
+    public ProductionTableModel(ThreadedAgent agent)
     {
         this.agent = agent;
     }

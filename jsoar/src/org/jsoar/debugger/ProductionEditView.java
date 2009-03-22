@@ -29,8 +29,8 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.runtime.Completer;
-import org.jsoar.runtime.SwingCompletion;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.SwingTools;
@@ -155,7 +155,7 @@ public class ProductionEditView extends AbstractAdaptableView
                 }
                 return "";
             }};
-        final Completer<String> finish = new Completer<String>() {
+        final CompletionHandler<String> finish = new CompletionHandler<String>() {
             @Override
             public void finish(String result)
             {
@@ -164,7 +164,7 @@ public class ProductionEditView extends AbstractAdaptableView
                 setActive(true);
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
+        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
     }
     
     private void load()
@@ -191,7 +191,7 @@ public class ProductionEditView extends AbstractAdaptableView
                     return "ERROR: " + e.getMessage();
                 }
             }};
-        final Completer<String> finish = new Completer<String>() {
+        final CompletionHandler<String> finish = new CompletionHandler<String>() {
 
             @Override
             public void finish(String result)
@@ -199,6 +199,6 @@ public class ProductionEditView extends AbstractAdaptableView
                 status.setText(result);
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletion.newInstance(finish));
+        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
     }
 }
