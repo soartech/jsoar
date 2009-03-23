@@ -141,8 +141,6 @@
                 <pathelement path="${main.resources}" />
                 <pathelement path="${test.resources}" />
                 <path refid="build.classpath" />
-            	<!-- Make sure tests can find .soar files in test directory -->
-            	<path location="${test.src}"/>
             </classpath>
 
             <formatter type="xml" />
@@ -209,7 +207,7 @@
 
 	<target name="doc" description="Generate API documentation">
 		<javadoc packagenames="org.jsoar.*"
-		           sourcepath="src"
+		           sourcepath="src/main/java"
 		           excludepackagenames="org.jsoar.demos.*"
 		           defaultexcludes="yes"
 		           destdir="${dist.complete}/docs/api"
