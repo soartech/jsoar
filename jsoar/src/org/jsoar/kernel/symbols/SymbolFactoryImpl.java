@@ -10,8 +10,7 @@ import java.util.Map;
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.util.ByRef;
 
-import com.google.common.base.ReferenceType;
-import com.google.common.collect.ReferenceMap;
+import com.google.common.collect.MapMaker;
 
 /**
  * This is the internal implementation class for the symbol factory. It should
@@ -48,7 +47,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      */
     private static <K, V> Map<K, V> newReferenceMap()
     {
-        return new ReferenceMap<K, V>(ReferenceType.STRONG, ReferenceType.WEAK);
+        return new MapMaker().weakValues().makeMap();
     }
     
     private int id_counter[] = new int[26];

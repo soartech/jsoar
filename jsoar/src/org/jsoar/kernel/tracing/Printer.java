@@ -13,7 +13,7 @@ import java.util.Formatter;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.io.output.NullWriter;
+import org.jsoar.util.NullWriter;
 
 /**
  * Soar agent print interface

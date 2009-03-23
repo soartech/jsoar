@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.output.NullWriter;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.NullWriter;
 
 /**
  * @author ray

@@ -9,14 +9,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author ray
  */
 public final class JSoarVersion
 {
-    private static final Logger logger = Logger.getLogger(JSoarVersion.class);
+    private static final Log logger = LogFactory.getLog(JSoarVersion.class);
     
     private static JSoarVersion instance = new JSoarVersion();
         

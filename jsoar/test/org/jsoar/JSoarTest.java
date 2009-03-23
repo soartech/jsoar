@@ -10,7 +10,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.StringWriter;
 
-import org.apache.log4j.BasicConfigurator;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
@@ -67,13 +66,11 @@ public class JSoarTest
     @BeforeClass
     public static void configureLogging()
     {
-        BasicConfigurator.configure();
     }
     
     @AfterClass
     public static void unconfigureLogging()
     {
-        BasicConfigurator.resetConfiguration();
     }
     
     public static void verifyProduction(Agent agent, String name, ProductionType type, String body, boolean internal)

@@ -12,9 +12,9 @@ import java.util.concurrent.Callable;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.io.FilenameUtils;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.FileTools;
 
 /**
  * @author ray
@@ -50,7 +50,7 @@ public class SourceFileAction extends AbstractDebuggerAction
             @Override
             public boolean accept(File f)
             {
-                return f.isDirectory() || (f.isFile() && "soar".equals(FilenameUtils.getExtension(f.getName())));
+                return f.isDirectory() || (f.isFile() && "soar".equals(FileTools.getExtension(f.getName())));
             }
 
             @Override
