@@ -2,12 +2,13 @@
     <description>jsoar</description>
 
     <!-- set global properties for this build -->
-    <property name="src" location="src" />
+    <property name="src" location="src/main/java" />
     <property name="lib" location="lib" />
     <property name="scripts" location="scripts" />
-    <property name="resources" location="resources" />
+    <property name="main.resources" location="src/main/resources" />
+    <property name="test.resources" location="src/test/resources" />
     <property name="tools" location="tools" />
-    <property name="test.src" location="test" />
+    <property name="test.src" location="src/test/java" />
     <property name="demos" location="demos" />
     
     <property name="build" location="build" />
@@ -137,7 +138,8 @@
             <classpath>
                 <pathelement path="${build.classes}" />
                 <pathelement path="${test.classes}" />
-                <pathelement path="${resources}" />
+                <pathelement path="${main.resources}" />
+                <pathelement path="${test.resources}" />
                 <path refid="build.classpath" />
             	<!-- Make sure tests can find .soar files in test directory -->
             	<path location="${test.src}"/>
@@ -159,7 +161,7 @@
         <!-- copy the resources directory into the build directory 
         	 to be included in the jar class path -->
         <copy todir="${build.classes}">
-            <fileset dir="${resources}">
+            <fileset dir="${main.resources}">
                 <exclude name="**/.svn"/>
             </fileset>
         </copy>
