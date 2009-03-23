@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
@@ -21,7 +22,7 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class ActionManager
 {
-    private static final Logger logger = Logger.getLogger(ActionManager.class);
+    private static final Log logger = LogFactory.getLog(ActionManager.class);
     
     private JSoarDebugger app;
     private List<AbstractDebuggerAction> actions = new ArrayList<AbstractDebuggerAction>();

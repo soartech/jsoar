@@ -5,6 +5,8 @@
  */
 package org.jsoar.tcl;
 
+import java.util.concurrent.ConcurrentMap;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -15,16 +17,14 @@ import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
-import com.google.common.base.ReferenceType;
-import com.google.common.collect.ReferenceMap;
+import com.google.common.collect.MapMaker;
 
 /**
  * @author ray
  */
 public class SoarTclInterface
 {
-    private final static ReferenceMap<Agent, SoarTclInterface> interfaces = 
-        new ReferenceMap<Agent, SoarTclInterface>(ReferenceType.WEAK, ReferenceType.STRONG);
+    private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
     
     public static SoarTclInterface find(Agent agent)
     {

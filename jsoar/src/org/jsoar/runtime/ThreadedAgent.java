@@ -5,6 +5,7 @@
  */
 package org.jsoar.runtime;
 
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,8 +18,7 @@ import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
-import com.google.common.base.ReferenceType;
-import com.google.common.collect.ReferenceMap;
+import com.google.common.collect.MapMaker;
 
 /**
  * A wrapper around a raw {@link Agent} which gives the agent its own thread
@@ -34,8 +34,7 @@ import com.google.common.collect.ReferenceMap;
  */
 public class ThreadedAgent
 {
-    private final static ReferenceMap<Agent, ThreadedAgent> proxies = 
-        new ReferenceMap<Agent, ThreadedAgent>(ReferenceType.WEAK, ReferenceType.STRONG);
+    private final static Map<Agent, ThreadedAgent> proxies = new MapMaker().weakKeys().makeMap();
     
     private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();
     private final Agent agent;

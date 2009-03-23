@@ -24,6 +24,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.flexdock.docking.Dockable;
 import org.flexdock.docking.DockingConstants;
 import org.flexdock.docking.DockingManager;
@@ -62,6 +64,7 @@ import org.jsoar.util.events.SoarEventListener;
 public class JSoarDebugger extends JPanel implements Adaptable
 {
     private static final long serialVersionUID = 7997119112479665988L;
+    private static final Log logger = LogFactory.getLog(JSoarDebugger.class);
 
     private final SelectionManager selectionManager = new SelectionManager();
     private final ActionManager actionManager = new ActionManager(this);
@@ -96,6 +99,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     private void initialize(JFrame parentFrame, ThreadedAgent proxy)
     {
+        logger.info("Initializing debugger for agent '" + proxy.getAgent() + "'");
+        
         this.frame = parentFrame;
         this.agent = proxy.getAgent();
         this.proxy = proxy;
