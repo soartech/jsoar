@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-core"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/jacl.jar"/>
-	<classpathentry kind="lib" path="lib/tcljava.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexdock-0.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/swingx-0.9.5.jar"/>
-	<classpathentry kind="lib" path="lib/google-collect-snapshot-20090211.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

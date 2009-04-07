@@ -1,0 +1,22 @@
+<project name="jsoar-core" default="dist" basedir=".">
+    <description>jsoar-core</description>
+
+    <import file="../build-common.xml"/>
+
+    <!-- set global properties for this build -->
+    <property name="tools" location="tools" />
+    <property name="demos" location="demos" />
+	
+    <property name="jar.main.class" value="org.jsoar.debugger.JSoarDebugger"/>
+	
+	
+    <target name="dist" depends="jar,licenses,doc" description="generate the distribution">
+		
+        <copy todir="${dist}" >
+            <fileset dir="${tools}">
+                <include name="*.bat"/>
+            </fileset>
+        </copy>
+    </target>
+
+</project>

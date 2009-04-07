@@ -4,9 +4,9 @@ http://jsoar.googlecode.com for more information.
 ###############################################################################
 Getting Started
 
-Double-click @JSOAR_COMPLETE_JAR@, or run from the command-line:
+Double-click @JSOAR_DEBUGGER_JAR@, or run from the command-line:
 
-    > java -jar @JSOAR_COMPLETE_JAR@ 
+    > java -jar @JSOAR_DEBUGGER_JAR@ 
 
 This will run the jsoar debugger. Now you can load some Soar code:
 
@@ -17,21 +17,17 @@ A Towers of Hanoi game visualization will be displayed. Now step the agent
 with the run controls at the top of the debugger. Each decision cycle a
 disk will be moved. 
 
-jsoar's performance is prett good, but it also loves memory, so it's probably
+jsoar's performance is pretty good, but it also loves memory, so it's probably
 a good idea to bump up the size of your Java heap:
 
-    > java -Xmx1024m -jar @JSOAR_COMPLETE_JAR@
-
-The working memory graph is a purely experimental visualization which will
-probably be removed at some point. Don't be surprised if it crashes the debugger,
-especially on large working memories.
+    > java -Xmx1024m -jar @JSOAR_DEBUGGER_JAR@
 
 ###############################################################################
 Contents of this distribution:
 
-   @JSOAR_COMPLETE_JAR@ - the jsoar jar including all third-party libraries.
-      Download and build from SVN (http://jsoar.googlecode.com/svn/trunk/) to
-      build a minimal jar with separate dependencies.
+   lib/jsoar-core-x.x.x.jar - Core jsoar core including Soar kernel
+   lib/jsoar-debugger-x.x.x.jar - jsoar debugger
+   lib/jsoar-sml-x.x.x.jar - Unfinished jsoar implementation of SML API.
       
    license.txt - the jsoar BSD license
    
@@ -42,3 +38,4 @@ Contents of this distribution:
    doc/ - jsoar API documenation
       
    demos/ - Demonstration agents
+

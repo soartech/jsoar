@@ -1,0 +1,44 @@
+<project name="jsoar" default="dist" basedir=".">
+   <property name="version" value="0.5.0" />
+   <property name="soarVersion" value="9.0.1" />
+   <property name="copyright" value="(c) Dave Ray, 2009"/>
+   <property name="manifest.vendor" value="Dave Ray"/>
+
+   <property name="dist" location="dist" />
+   <property name="dist.lib" location="${dist}/lib" />
+   <property name="dist.zip" location="${ant.project.name}-${version}.zip"/>
+
+   <target name="init" description="Create temporary build directories">
+      <tstamp />
+      <mkdir dir="${dist}" />
+      <mkdir dir="${dist.lib}" />
+
+      <copy todir="${dist}" file="license.txt"/>
+      <copy todir="${dist}">
+         <fileset file="readme.txt"/>
+         <filterset>
+            <filter token="JSOAR_VERSION" value="${version}"/>
+            <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>
+         </filterset>
+      </copy>
+   </target>
+
+   <target name="dist" depends="init">
+      <ant dir="jsoar-core" antfile="build.xml"/>
+      <ant dir="jsoar-debugger" antfile="build.xml"/>
+      <ant dir="jsoar-sml" antfile="build.xml"/>
+    	
+      <zip destfile="${dist.zip}">
+         <zipfileset dir="${dist}" prefix="${ant.project.name}-${version}"/>
+      </zip>
+    	
+   </target>
+
+   <target name="clean">
+      <delete dir="${dist}" />
+      <delete file="${dist.zip}"/>
+      <ant dir="jsoar-core" antfile="build.xml" target="clean"/>
+      <ant dir="jsoar-debugger" antfile="build.xml" target="clean"/>
+      <ant dir="jsoar-sml" antfile="build.xml" target="clean"/>
+   </target>
+</project>
