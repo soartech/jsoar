@@ -1,58 +1,59 @@
-<project name="jsoar" default="dist" basedir=".">
-    <description>jsoar</description>
+<project name="jsoar-build-common" basedir=".">
+    <description>jsoar-build-common</description>
 
-    <!-- set global properties for this build -->
     <property name="src" location="src/main/java" />
     <property name="lib" location="lib" />
     <property name="main.resources" location="src/main/resources" />
     <property name="test.resources" location="src/test/resources" />
-    <property name="tools" location="tools" />
     <property name="test.src" location="src/test/java" />
-    <property name="demos" location="demos" />
-    
+
     <property name="target" location="target" />
     <property name="target.classes" location="${target}/classes" />
     <property name="test.classes" location="${target}/test-classes" />
     <property name="test.reports" value="${target}/test-results" />
-	
-    <property name="dist" location="dist" />
-    <property name="dist.complete" location="${dist}/complete" />
-    <property name="version" value="0.5.0" />
-    <property name="soarVersion" value="9.0.1" />
-	 <property name="copyright" value="(c) Dave Ray, 2009"/>
-	 <property name="manifest.vendor" value="Dave Ray"/>
-	
+
     <property name="java.source.level" value="1.6"/>
     <property name="java.target.level" value="1.6"/>
 	
-    <property name="jar.main.class" value="org.jsoar.debugger.JSoarDebugger"/>
     <property name="jar.name" value="${ant.project.name}-${version}.jar"/>
     <property name="jar.source.name" value="${ant.project.name}-${version}.src.jar"/>
 
-    <!-- Create the time stamp -->
-    <tstamp />
-	
-    <!-- Set up the build path used throughout the build script  -->
-    <path id="build.classpath">
-        <pathelement path="${target.classes}" />
-        <fileset dir="${lib}">
-            <include name="**/*.jar" />
-        </fileset>
-    	<pathelement location="${lib}/build-only/junit.jar" />
-    </path>
-	
+    <property name="manifest.classpath" value=""/>
+
+    <property name="doc.packagenames" value="org.jsoar.*"/>
+    <property name="doc.sourcepath" location="${src}"/>
+    <property name="doc.excludepackagenames" value="org.jsoar.demos.*"/>
+    <property name="doc.destdir" location="${dist}/docs/${ant.project.name}/api"/>
+    <property name="doc.windowtitle" value="${ant.project.name} ${version}"/>
+
+
     <target name="init" description="Create temporary build directories">
         <mkdir dir="${target}" />
         <mkdir dir="${target.classes}" />
         <mkdir dir="${test.classes}" />
         <mkdir dir="${test.reports}" />
-        <mkdir dir="${dist}" />
-        <mkdir dir="${dist.complete}" />
+
+         <path id="compile.libs.extra"/>
+
+         <!-- Set up the build path used throughout the build script  -->
+         <path id="compile.libs">
+            <fileset dir="${lib}">
+                  <include name="*.jar" />
+            </fileset>
+            <fileset dir="${dist.lib}">
+                  <include name="*.jar" />
+            </fileset>
+         </path>
+
+         <path id="test.libs">
+            <path refid="compile.libs" />
+            <pathelement location="../lib/build/junit-4.4.jar" />
+         </path>
+	
     </target>
 	
     <target name="clean" description="Delete all temporary build files">
         <delete dir="${target}" />
-        <delete dir="${dist}" />
     </target>
 	
 	<target name="buildinfo">
@@ -90,56 +91,68 @@
             <entry key="${ant.project.name}.buildinfo.svn.url" value="${svn.info.entry.url}"/>
 		</propertyfile>
 	</target>
-    
-    <target name="build" depends="init" description="compile the source ">
 
-        <javac destdir="${target.classes}" debug="on" optimize="on" target="${java.target.level}" source="${java.source.level}">
+    <target name="compile" depends="init" description="compile the source ">
+
+        <javac destdir="${target.classes}" debug="on" optimize="on" 
+                target="${java.target.level}" source="${java.source.level}">
             <src path="${src}" />
-            <classpath refid="build.classpath"/>
+            <classpath refid="compile.libs"/>
         </javac>
-    	
-        <javac destdir="${test.classes}" debug="on" optimize="on" target="${java.target.level}" source="${java.source.level}">
+
+        <copy todir="${target.classes}">
+            <fileset dir="${main.resources}">
+                <exclude name="**/.svn"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compile-tests" depends="compile" description="compile the test sources">
+
+        <javac destdir="${test.classes}" debug="on" optimize="on" 
+               target="${java.target.level}" source="${java.source.level}">
             <src path="${test.src}" />
             <classpath>
-            	<path refid="build.classpath"/>
-                <pathelement path="${target.classes}" />
+               <pathelement path="${target.classes}" />
+            	<path refid="test.libs"/>
             </classpath>
         </javac>
-    	
+
+        <copy todir="${test.classes}">
+            <fileset dir="${test.resources}">
+                <exclude name="**/.svn"/>
+            </fileset>
+        </copy>
     </target>
 	
-    <target name="test" depends="build" description="Run unit tests">
+    <target name="test" depends="compile-tests" description="Run unit tests">
         <junit printsummary="on" haltonfailure="yes" fork="yes" forkmode="perBatch" showoutput="true">
-        	<jvmarg value="-Xmx1000M"/>
+        	   <jvmarg value="-Xmx1000M"/>
 
             <classpath>
                 <pathelement path="${target.classes}" />
                 <pathelement path="${test.classes}" />
-                <pathelement path="${main.resources}" />
-                <pathelement path="${test.resources}" />
-                <path refid="build.classpath" />
+                <path refid="test.libs" />
             </classpath>
 
             <formatter type="xml" />
 
             <batchtest todir="${test.reports}">
                 <fileset dir="${test.src}">
-                    <include name="**/*.java" />
-                	<exclude name="org/jsoar/JSoarTest.java"/>
+                    <include name="**/*Test.java" />
+                    <include name="**/*Tests.java" />
+                    <include name="**/Test*.java" />
+                    <!-- TODO get rid of this -->
+                	  <exclude name="org/jsoar/JSoarTest.java"/>
                 </fileset>
             </batchtest>
         </junit>
     </target>
-	
-	<target name="jar" depends="test,buildinfo" description="Create Jar with manifest">
-		
-        <!-- Create directory with all jars merged into single jar -->
-        <jar destfile="${dist.complete}/${jar.name}">
+
+	<target name="jar" depends="test,buildinfo,licenses" description="Create Jar with manifest">
+        <jar destfile="${dist.lib}/${jar.name}">
+            <fileset dir="${target.classes}"/>
             <zipgroupfileset dir="${lib}" includes="*.jar"/>
-            <fileset dir="${target.classes}" />
-            <fileset dir="${main.resources}">
-                <exclude name="**/.svn"/>
-            </fileset>
             <manifest>
                 <attribute name="Title" value="${ant.project.name} ${version}" />
                 <attribute name="Vendor" value="${manifest.vendor}" />
@@ -148,28 +161,40 @@
                 <attribute name="Built-By" value="${user.name}" />
                 <attribute name="Copyright" value="${copyright}" />
                 <attribute name="Main-Class" value="${jar.main.class}" />
+                <attribute name="Class-Path" value=". ${manifest.classpath}" />
             </manifest>
         </jar>
 		
 		<!-- Create source jar -->
-		<jar destfile="${dist.complete}/${jar.source.name}">
-            <fileset dir="${src}">
-                <exclude name="**/.svn"/>
-            </fileset>
+		<jar destfile="${dist.lib}/${jar.source.name}">
+         <fileset dir="${src}">
+            <exclude name="**/.svn"/>
+         </fileset>
 		</jar>
 		
 	</target>
 
+   <target name="licenses">
+      <!-- Copy vendor license files -->
+    	<mkdir dir="${dist}/licenses"/>
+      <copy todir="${dist}/licenses">
+         <fileset dir="${lib}">
+               <include name="*.txt"/>
+               <include name="*.htm"/>
+         </fileset>
+      </copy>
+   </target>
+    
 	<target name="doc" description="Generate API documentation">
-		<javadoc packagenames="org.jsoar.*"
-		           sourcepath="src/main/java"
-		           excludepackagenames="org.jsoar.demos.*"
+		<javadoc packagenames="${doc.packagenames}"
+		           sourcepath="${src}"
+		           excludepackagenames="${doc.excludepackagenames}"
 		           defaultexcludes="yes"
-		           destdir="${dist.complete}/docs/api"
+		           destdir="${doc.destdir}"
 		           author="true"
 		           version="true"
 		           use="true"
-		           windowtitle="jsoar ${version}">
+		           windowtitle="${doc.windowtitle}">
 		    <doctitle><![CDATA[<h1><a href="http://jsoar.googlecode.com">jsoar</a> ${version}</h1>]]></doctitle>
 		    <bottom><![CDATA[<i>${copyright}</i>]]></bottom>
 		    <tag name="todo" scope="all" description="Todo:"/>
@@ -181,44 +206,4 @@
 		    -->
 		</javadoc>
 	</target>
-	
-    <target name="dist" depends="clean,jar,doc" description="generate the distribution">
-		
-    	<!-- Copy the license -->
-        <copy todir="${dist.complete}" file="license.txt"/>
-        <copy todir="${dist.complete}">
-        	<fileset file="readme.txt"/>
-            <fileset dir="${tools}">
-                <include name="*.bat"/>
-            </fileset>
-        	<filterset>
-        		<!-- Insert name with version into files while copying -->
-            <filter token="JSOAR_JAR" value="${jar.complete.name}"/>
-            <filter token="JSOAR_VERSION" value="${version}"/>
-        	</filterset>
-        </copy>
-    	
-        <!-- Copy vendor license files -->
-    	<mkdir dir="${dist.complete}/licenses"/>
-        <copy todir="${dist.complete}/licenses">
-            <fileset dir="${lib}">
-                <include name="*.txt"/>
-                <include name="*.htm"/>
-            </fileset>
-        </copy>
-    	
-    	  <!-- Copy demos -->
-        <mkdir dir="${dist.complete}/demos"/>
-        <copy todir="${dist.complete}/demos">
-            <fileset dir="${demos}">
-                <exclude name="**/.svn"/>
-            </fileset>
-        </copy>
-    	
-        <zip destfile="${dist}/${ant.project.name}-${version}.zip">
-           <zipfileset dir="${dist.complete}" prefix="${ant.project.name}-${version}"/>
-        </zip>
-    	
-    </target>
-
 </project>
