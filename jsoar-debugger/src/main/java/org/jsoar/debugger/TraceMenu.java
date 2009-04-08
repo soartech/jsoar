@@ -74,16 +74,10 @@ public class TraceMenu extends JMenu
         }
     }
     
-    /**
-     * @author ray
-     */
     private final class TraceEverything extends AbstractAction
     {
         private static final long serialVersionUID = 1L;
 
-        /**
-         * @param name
-         */
         private TraceEverything(String name)
         {
             super(name);
@@ -96,16 +90,10 @@ public class TraceMenu extends JMenu
         }
     }
 
-    /**
-     * @author ray
-     */
     private final class TraceNothingAction extends AbstractAction
     {
         private static final long serialVersionUID = 1L;
 
-        /**
-         * @param name
-         */
         private TraceNothingAction(String name)
         {
             super(name);

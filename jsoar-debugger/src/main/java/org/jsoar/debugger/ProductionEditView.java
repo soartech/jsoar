@@ -31,9 +31,11 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.SwingTools;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
 import com.google.common.collect.ForwardingList;
@@ -45,7 +47,8 @@ public class ProductionEditView extends AbstractAdaptableView
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
-    private final JSoarDebugger debugger;
+    private final Adaptable debugger;
+    private final ThreadedAgent agent;
     private final JTextArea textArea = new JTextArea("Double-click a production (or right-click) to edit, or just start typing.");
     private final JXLabel status = new JXLabel("Ready");
     private final AbstractAction loadAction = new AbstractAction("Load [Ctrl-Return]") {
@@ -77,11 +80,12 @@ public class ProductionEditView extends AbstractAdaptableView
             return model.getProductions();
         }};
     
-    public ProductionEditView(JSoarDebugger debugger)
+    public ProductionEditView(Adaptable debugger)
     {
         super("productionEditor", "Production Editor");
         
         this.debugger = debugger;
+        this.agent = Adaptables.adapt(debugger, ThreadedAgent.class);
         
         addAction(DockingConstants.PIN_ACTION);
         
@@ -146,7 +150,7 @@ public class ProductionEditView extends AbstractAdaptableView
 
             public String call() throws Exception
             {
-                final Production p = debugger.getAgentProxy().getAgent().getProductions().getProduction(name);
+                final Production p = agent.getAgent().getProductions().getProduction(name);
                 if(p != null)
                 {
                     StringWriter s = new StringWriter();
@@ -164,7 +168,7 @@ public class ProductionEditView extends AbstractAdaptableView
                 setActive(true);
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
+        agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }
     
     private void load()
@@ -175,7 +179,7 @@ public class ProductionEditView extends AbstractAdaptableView
             return;
         }
         
-        final SoarTclInterface ifc = debugger.getTcl();
+        final SoarTclInterface ifc = SoarTclInterface.find(agent.getAgent());
         final Callable<String> call = new Callable<String>() {
 
             @Override
@@ -199,6 +203,6 @@ public class ProductionEditView extends AbstractAdaptableView
                 status.setText(result);
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
+        agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }
 }

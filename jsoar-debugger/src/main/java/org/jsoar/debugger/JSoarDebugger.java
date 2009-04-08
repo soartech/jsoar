@@ -70,6 +70,15 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final ActionManager actionManager = new ActionManager(this);
     private final RunControlModel runControlModel = new RunControlModel();
         
+    private JSoarDebuggerConfiguration configuration = new JSoarDebuggerConfiguration() {
+
+        @Override
+        public void exit()
+        {
+            System.exit(0);
+        }
+    };
+    
     private Agent agent;
     private SoarTclInterface ifc;
     private ThreadedAgent proxy;
@@ -78,7 +87,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private JFrame frame;
     private Viewport viewport = new Viewport();
-    private StatusBar status = new StatusBar(this);
+    private StatusBar status;
     
     private final List<AbstractAdaptableView> views = new ArrayList<AbstractAdaptableView>();
     
@@ -112,7 +121,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         initActions();
         
-        this.add(status, BorderLayout.SOUTH);
+        this.add(status = new StatusBar(proxy), BorderLayout.SOUTH);
         
         initViews();
         initMenuBar();
@@ -243,15 +252,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     public void exit()
     {
-        for(JSoarDebuggerPlugin plugin : plugins)
-        {
-            plugin.shutdown();
-        }
-        plugins.clear();
-        
-        proxy.detach();
-        
-        System.exit(0);
+        detach();
+        configuration.exit();
     }
     
     private void initActions()
@@ -323,6 +325,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
         });
     }
+    
+    public void setConfiguration(JSoarDebuggerConfiguration config)
+    {
+        this.configuration = config;
+    }
+    
     /**
      * Initialize the UI look and feel to the system look and feel. 
      */
@@ -385,6 +393,19 @@ public class JSoarDebugger extends JPanel implements Adaptable
         // TODO clean up soar event listener
         // TODO clean up printer listener (trace)
         // TODO close debugger window
+        
+        if(frame.isVisible())
+        {
+            frame.setVisible(false);
+        }
+        
+        for(JSoarDebuggerPlugin plugin : plugins)
+        {
+            plugin.shutdown();
+        }
+        plugins.clear();
+        
+        proxy.detach();
     }
     
     /**
@@ -421,6 +442,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     /**
      * Creates and returns a {@link DebuggerProvider} that will open this
      * debugger when an agent calls the debug RHS function
+     * 
      * @return
      */
     public static DebuggerProvider newDebuggerProvider()
@@ -463,7 +485,20 @@ public class JSoarDebugger extends JPanel implements Adaptable
         {
             return selectionManager;
         }
-        return Adaptables.findAdapter(views, klass);
+        if(klass.equals(RunControlModel.class))
+        {
+            return runControlModel;
+        }
+        if(klass.equals(ActionManager.class))
+        {
+            return actionManager;
+        }
+        Object o = Adaptables.findAdapter(views, klass);
+        if(o != null)
+        {
+            return o;
+        }
+        return Adaptables.findAdapter(plugins, klass);
     }
     
 }

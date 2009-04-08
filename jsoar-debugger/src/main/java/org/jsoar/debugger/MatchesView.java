@@ -26,6 +26,7 @@ import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -35,7 +36,7 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
-    private final JSoarDebugger debugger;
+    private final ThreadedAgent agent;
     private final SelectionManager selectionManager;
     private JTextArea textArea = new JTextArea();
     
@@ -43,7 +44,7 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
     {
         super("matches", "Matches");
         
-        this.debugger = debugger;
+        this.agent = debugger.getAgentProxy();
         this.selectionManager = debugger.getSelectionManager();
         
         addAction(DockingConstants.PIN_ACTION);
@@ -83,7 +84,7 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
             }
             
         };
-        debugger.getAgentProxy().execute(matchCall, SwingCompletionHandler.newInstance(finish));
+        agent.execute(matchCall, SwingCompletionHandler.newInstance(finish));
     }
     
     private Production getProduction(Agent agent, Object o)
@@ -99,12 +100,11 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
     
     private String safeGetMatchOutput(List<Object> selection)
     {
-        final Agent agent = debugger.getAgentProxy().getAgent();
         final StringWriter writer = new StringWriter();
         final Printer printer = new Printer(writer, true);
         for(Object o : selection)
         {
-            Production p = getProduction(agent, o);
+            Production p = getProduction(agent.getAgent(), o);
             if(p != null)
             {
                 printer.print("*************************************************\n");
@@ -115,7 +115,7 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
         }
         
         printer.print("*** matches\n");
-        agent.printMatchSet(printer, 
+        agent.getAgent().printMatchSet(printer, 
                 WmeTraceType.FULL, 
                 EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
         
