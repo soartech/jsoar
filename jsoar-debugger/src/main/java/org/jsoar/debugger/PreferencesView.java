@@ -26,7 +26,6 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand.Result;
 import org.jsoar.kernel.memory.PreferenceType;
@@ -34,6 +33,7 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -45,7 +45,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
-    private final JSoarDebugger debugger;
+    private final ThreadedAgent agent;
     private final SelectionManager selectionManager;
     private final JLabel info = new JLabel("No state selected");
     private final JXTable table = new JXTable();
@@ -54,8 +54,8 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     {
         super("preferences", "Preferences");
         
-        this.debugger = debuggerIn;
-        this.selectionManager = debugger.getSelectionManager();
+        this.agent = debuggerIn.getAgentProxy();
+        this.selectionManager = debuggerIn.getSelectionManager();
         
         addAction(DockingConstants.PIN_ACTION);
         
@@ -116,7 +116,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
                 Result r = getLastResult();
                 if(r != null)
                 {
-                    debugger.getAgentProxy().getAgent().getPrinter().startNewLine().print(r.getPrintResult()).flush();
+                    agent.getAgent().getPrinter().startNewLine().print(r.getPrintResult()).flush();
                 }
             }});
         return bar;
@@ -155,7 +155,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     
     private void getPreferences(final Identifier id)
     {
-        debugger.getAgentProxy().execute(
+        agent.execute(
             new Callable<Result>() {
 
                 @Override
@@ -188,9 +188,8 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     
     private Result safeGetPreferences(final Identifier id)
     {
-        final Agent agent = debugger.getAgentProxy().getAgent();
-        StructuredPreferencesCommand c = new StructuredPreferencesCommand();
+        final StructuredPreferencesCommand c = new StructuredPreferencesCommand();
         // Do (id ^operator *)
-        return c.getPreferences(agent, id, agent.predefinedSyms.operator_symbol);
+        return c.getPreferences(agent.getAgent(), id, agent.getAgent().predefinedSyms.operator_symbol);
     }
 }

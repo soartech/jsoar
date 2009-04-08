@@ -27,6 +27,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.EditProductionAction;
 import org.jsoar.debugger.actions.ObjectPopupMenu;
 import org.jsoar.debugger.selection.SelectionManager;
@@ -35,6 +36,8 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
+import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
 
@@ -45,7 +48,8 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
 {
     private static final long serialVersionUID = -5724361674833156058L;
     
-    private final JSoarDebugger debugger;
+    private final ThreadedAgent agent;
+    private final ActionManager actionManager;
     private final ProductionTableModel model;
     private final JXTable table;
     private final JLabel stats = new JLabel();
@@ -55,17 +59,18 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
     /**
      * @param debuggerIn The owning debugger
      */
-    public ProductionListView(JSoarDebugger debuggerIn)
+    public ProductionListView(Adaptable debuggerIn)
     {
         super("productionList", "Productions");
         
-        this.debugger = debuggerIn;
+        this.agent = Adaptables.adapt(debuggerIn, ThreadedAgent.class);
+        this.actionManager = Adaptables.adapt(debuggerIn, ActionManager.class);
         
         this.addAction(DockingConstants.PIN_ACTION);
         
         JPanel p = new JPanel(new BorderLayout());
         
-        this.model = new ProductionTableModel(this.debugger.getAgentProxy());
+        this.model = new ProductionTableModel(this.agent);
         this.model.initialize();
         this.table = new JXTable(this.model);
         this.table.getSelectionModel().addListSelectionListener(selectionProvider);
@@ -92,13 +97,13 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
             @Override
             public void mousePressed(MouseEvent e)
             {
-                ObjectPopupMenu.show(e, debugger.getActionManager(), true);
+                ObjectPopupMenu.show(e, actionManager, true);
             }
 
             @Override
             public void mouseReleased(MouseEvent e)
             {
-                ObjectPopupMenu.show(e, debugger.getActionManager(), true);
+                ObjectPopupMenu.show(e, actionManager, true);
             }});
         
         p.add(new JScrollPane(table), BorderLayout.CENTER);
@@ -139,7 +144,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
     
     private void handleDoubleClick()
     {
-        debugger.getActionManager().executeAction(EditProductionAction.class.getCanonicalName());
+        actionManager.executeAction(EditProductionAction.class.getCanonicalName());
     }
     
     private void updateInfo()
@@ -173,7 +178,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
                 info.setText(b.toString());
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
+        agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }
 
     private void updateStats()
@@ -183,7 +188,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
             @Override
             public Map<ProductionType, Integer> call() throws Exception
             {
-                return debugger.getAgentProxy().getAgent().getProductions().getProductionCounts();
+                return agent.getAgent().getProductions().getProductionCounts();
             }};
             
         final CompletionHandler<Map<ProductionType, Integer>> finish = new CompletionHandler<Map<ProductionType,Integer>>() {
@@ -203,7 +208,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
                 stats.setText(b.toString());
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
+        agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }
 
     /* (non-Javadoc)
