@@ -499,7 +499,7 @@ public class SoarReteListener implements ReteListener
                 // #endif
                 return;
             }
-        } /* end of for loop */
+        }
 
         // find the instantiation corresponding to this token
         Instantiation inst = null;
@@ -897,31 +897,115 @@ public class SoarReteListener implements ReteListener
      */
     private static class MS_trace 
     {
-        Symbol sym;
+        final Symbol sym;
+        final Symbol goal;
         int    count;
         MS_trace next;
-        Symbol goal;
-    }
-    
-    /**
-     * <p>rete.cpp:7747:in_ms_trace_same_goal
-     * 
-     * @param sym
-     * @param trace
-     * @param goal
-     * @return
-     */
-    private static MS_trace in_ms_trace_same_goal(Symbol sym, MS_trace trace, Symbol goal)
-    {
-        for (MS_trace tmp = trace; tmp != null; tmp = tmp.next)
+        
+        public MS_trace(Symbol sym, Symbol goal, MS_trace next)
         {
-            if ((tmp.sym == sym) && (goal == tmp.goal))
-                return tmp;
+            this.sym = sym;
+            this.count = 1;
+            this.goal = goal;
+            this.next = next;
         }
-        return null;
+        
+        /**
+         * <p>rete.cpp:7747:in_ms_trace_same_goal
+         * 
+         * @param sym
+         * @param goal
+         * @return
+         */
+        public static MS_trace incrementOrCreate(MS_trace start, Symbol sym, Symbol goal)
+        {
+            for (MS_trace tmp = start; tmp != null; tmp = tmp.next)
+            {
+                if ((tmp.sym == sym) && (goal == tmp.goal))
+                {
+                    tmp.count++;
+                    return start;
+                }
+            }
+            return new MS_trace(sym, goal, start);
+        }
     }
-      
     
+    private void printAssertions(ListHead<MatchSetChange> assertions, Printer printer, WmeTraceType wtt)
+    {
+        MS_trace ms_trace = null;
+        for (MatchSetChange msc : assertions)
+        {
+            if (wtt != WmeTraceType.NONE)
+            {
+                printer.print("  %s [%s] ", msc.getProduction().getName(), msc.goal);
+                print_whole_token(printer, msc, wtt);
+                printer.print("\n");
+            }
+            else
+            {
+                ms_trace = MS_trace.incrementOrCreate(ms_trace, msc.getProduction().getName(), msc.goal);
+            }
+        }
+
+        if (wtt == WmeTraceType.NONE)
+        {
+            while (ms_trace != null)
+            {
+                final MS_trace tmp = ms_trace;
+                ms_trace = tmp.next;
+                //  BUG: for now this will print the goal of the first
+                // assertion inspected, even though there can be multiple
+                // assertions at different levels. See 2.110 in the OPERAND-CHANGE-LOG.
+                printer.print("  %s [%s] ", tmp.sym, tmp.goal);
+                if (tmp.count > 1)
+                    printer.print("(%d)", tmp.count);
+                printer.print("\n");
+            }
+        }
+    }
+    
+    private void printRetractions(Printer printer, WmeTraceType wtt)
+    {
+        MS_trace ms_trace = null;
+        for (MatchSetChange msc : ms_retractions)
+        {
+            if (wtt != WmeTraceType.NONE)
+            {
+                printer.print("  ");
+                msc.inst.trace(printer.asFormatter(), wtt);
+                printer.print("\n");
+            }
+            else
+            {
+                if (msc.inst.prod != null)
+                {
+                    ms_trace = MS_trace.incrementOrCreate(ms_trace, msc.getProduction().getName(), msc.goal);
+                }
+            }
+        }
+        if (wtt == WmeTraceType.NONE)
+        {
+            while (ms_trace != null)
+            {
+                final MS_trace tmp = ms_trace;
+                ms_trace = tmp.next;
+                printer.print("  %s ", tmp.sym);
+                //  BUG: for now this will print the goal of the first assertion
+                //  inspected, even though there can be multiple assertions at
+                //  different levels. See 2.110 in the OPERAND-CHANGE-LOG.
+                if (tmp.goal != null)
+                    printer.print(" [%s] ", tmp.goal);
+                else
+                    printer.print(" [NIL] ");
+                if (tmp.count > 1)
+                    printer.print("(%d)", tmp.count);
+                printer.print("\n");
+            }
+        }
+        
+    }
+        
     /**
      * Print the current match set. Client code should use the method {@link Agent#printMatchSet(Printer, WmeTraceType, EnumSet)}.
      * 
@@ -932,165 +1016,24 @@ public class SoarReteListener implements ReteListener
      */
     public void print_match_set(Printer printer, WmeTraceType wtt, EnumSet<MatchSetTraceType> mst)
     {
-        MS_trace ms_trace = null;
-        MS_trace tmp;
-
         // Print assertions
         if (mst.contains(MatchSetTraceType.MS_ASSERT))
         {
             printer.print("O Assertions:\n");
-            for (MatchSetChange msc : ms_o_assertions)
-            {
-
-                if (wtt != WmeTraceType.NONE)
-                {
-                    printer.print("  %s [%s] ", msc.p_node.b_p.prod.getName(), msc.goal);
-                    print_whole_token(printer, msc, wtt);
-                    printer.print("\n");
-                }
-                else
-                {
-                    if ((tmp = in_ms_trace_same_goal(msc.p_node.b_p.prod.getName(), ms_trace, msc.goal)) != null)
-                    {
-                        tmp.count++;
-                    }
-                    else
-                    {
-                        tmp = new MS_trace();
-                        tmp.sym = msc.p_node.b_p.prod.getName();
-                        tmp.count = 1;
-                        tmp.next = ms_trace;
-                        // Add match goal to the print of the matching
-                        // production
-                        tmp.goal = msc.goal;
-                        ms_trace = tmp;
-                    }
-                }
-            }
-
-            if (wtt == WmeTraceType.NONE)
-            {
-                while (ms_trace != null)
-                {
-                    tmp = ms_trace;
-                    ms_trace = tmp.next;
-                    /*  BUG: for now this will print the goal of the first
-                    assertion inspected, even though there can be multiple
-                    assertions at different levels. 
-                    See 2.110 in the OPERAND-CHANGE-LOG. */
-                    printer.print("  %s [%s] ", tmp.sym, tmp.goal);
-                    if (tmp.count > 1)
-                        printer.print("(%d)\n", tmp.count);
-                    else
-                        printer.print("\n");
-                }
-            }
+            printAssertions(ms_o_assertions, printer, wtt);
         }
 
         if (mst.contains(MatchSetTraceType.MS_ASSERT))
         {
             printer.print("I Assertions:\n");
-            for (MatchSetChange msc : ms_i_assertions)
-            {
-
-                if (wtt != WmeTraceType.NONE)
-                {
-                    printer.print("  %s [%s] ", msc.p_node.b_p.prod.getName(), msc.goal);
-                    print_whole_token(printer, msc, wtt);
-                    printer.print("\n");
-                }
-                else
-                {
-                    if ((tmp = in_ms_trace_same_goal(msc.p_node.b_p.prod.getName(), ms_trace, msc.goal)) != null)
-                    {
-                        tmp.count++;
-                    }
-                    else
-                    {
-                        tmp = new MS_trace();
-                        tmp.sym = msc.p_node.b_p.prod.getName();
-                        tmp.count = 1;
-                        tmp.next = ms_trace;
-                        tmp.goal = msc.goal;
-                        ms_trace = tmp;
-                    }
-                }
-            }
-
-            if (wtt == WmeTraceType.NONE)
-            {
-                while (ms_trace != null)
-                {
-                    tmp = ms_trace;
-                    ms_trace = tmp.next;
-                    /*  BUG: for now this will print the goal of the first
-                    assertion inspected, even though there can be multiple
-                    assertions at different levels. 
-                    See 2.110 in the OPERAND-CHANGE-LOG. */
-                    printer.print("  %s [%s] ", tmp.sym, tmp.goal);
-                    if (tmp.count > 1)
-                        printer.print("(%d)\n", tmp.count);
-                    else
-                        printer.print("\n");
-                }
-            }
+            printAssertions(ms_i_assertions, printer, wtt);
         }
-
 
         // Print retractions
         if (mst.contains(MatchSetTraceType.MS_RETRACT))
         {
             printer.print("Retractions:\n");
-            for (MatchSetChange msc : ms_retractions)
-            {
-                if (wtt != WmeTraceType.NONE)
-                {
-                    printer.print("  ");
-                    msc.inst.trace(printer.asFormatter(), wtt);
-                    printer.print("\n");
-                }
-                else
-                {
-                    if (msc.inst.prod != null)
-                    {
-                        if ((tmp = in_ms_trace_same_goal(msc.inst.prod.getName(), ms_trace, msc.goal)) != null)
-                        {
-                            tmp.count++;
-                        }
-                        else
-                        {
-                            tmp = new MS_trace();
-                            tmp.sym = msc.inst.prod.getName();
-                            tmp.count = 1;
-                            tmp.next = ms_trace;
-                            tmp.goal = msc.goal;
-                            ms_trace = tmp;
-                        }
-                    }
-                }
-            }
-            if (wtt == WmeTraceType.NONE)
-            {
-                while (ms_trace != null)
-                {
-                    tmp = ms_trace;
-                    ms_trace = tmp.next;
-                    printer.print("  %s ", tmp.sym);
-                    /*  BUG: for now this will print the goal of the first assertion
-                        inspected, even though there can be multiple assertions at
-
-                        different levels. 
-                        See 2.110 in the OPERAND-CHANGE-LOG. */
-                    if (tmp.goal != null)
-                        printer.print(" [%s] ", tmp.goal);
-                    else
-                        printer.print(" [NIL] ");
-                    if (tmp.count > 1)
-                        printer.print("(%d)\n", tmp.count);
-                    else
-                        printer.print("\n");
-                }
-            }
+            printRetractions(printer, wtt);
         }
     }
 }

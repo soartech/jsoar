@@ -8,7 +8,6 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -22,7 +21,6 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
@@ -32,7 +30,7 @@ import org.jsoar.util.adaptables.Adaptables;
 /**
  * @author ray
  */
-public class MatchesView extends AbstractAdaptableView implements SelectionListener
+public class PartialMatchesView extends AbstractAdaptableView implements SelectionListener
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
@@ -40,9 +38,9 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
     private final SelectionManager selectionManager;
     private JTextArea textArea = new JTextArea();
     
-    public MatchesView(JSoarDebugger debugger)
+    public PartialMatchesView(JSoarDebugger debugger)
     {
-        super("matches", "Matches");
+        super("partialmatches", "Partial Matches");
         
         this.agent = debugger.getAgentProxy();
         this.selectionManager = debugger.getSelectionManager();
@@ -113,12 +111,6 @@ public class MatchesView extends AbstractAdaptableView implements SelectionListe
                 printer.print("\n\n");
             }
         }
-        
-        printer.print("*** matches\n");
-        agent.getAgent().printMatchSet(printer, 
-                WmeTraceType.FULL, 
-                EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
-        
         return writer.toString();
     }
 }

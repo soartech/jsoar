@@ -184,9 +184,13 @@ public class JSoarDebugger extends JPanel implements Adaptable
         views.add(prodListView);
         traceView.dock(prodListView, DockingConstants.EAST_REGION, 0.75f);
         
-        final MatchesView matchesView = new MatchesView(this);
+        final PartialMatchesView matchesView = new PartialMatchesView(this);
         views.add(matchesView);
         prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
+        
+        final MatchSetView matchSetView = new MatchSetView(this.proxy);
+        views.add(matchSetView);
+        matchesView.dock(matchSetView);
         
         final ProductionEditView prodEditView = new ProductionEditView(this);
         views.add(prodEditView);

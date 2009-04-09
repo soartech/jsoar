@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
+import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -55,7 +56,8 @@ public class MatchSetChange
     
     private MatchSetChange(ReteNode p_node, Token tok, WmeImpl w)
     {
-        assert p_node.node_type == ReteNodeType.P_BNODE && p_node.b_p != null;
+        assert p_node.node_type == ReteNodeType.P_BNODE;
+        assert p_node.b_p != null;
         
         this.p_node = p_node;
         this.tok = tok;
@@ -65,8 +67,10 @@ public class MatchSetChange
     
     private MatchSetChange(ReteNode p_node, Instantiation inst)
     {
-        assert p_node.node_type == ReteNodeType.P_BNODE && p_node.b_p != null;
+        assert p_node.node_type == ReteNodeType.P_BNODE;
+        assert p_node.b_p != null;
         assert inst != null;
+        assert inst.prod == p_node.b_p.prod;
         
         this.p_node = p_node;
         this.inst = inst;
@@ -75,6 +79,15 @@ public class MatchSetChange
         this.tok = null;
     }
     
+    
+    /**
+     * @return the production associated with this match set change
+     */
+    public Production getProduction()
+    {
+        return inst != null ? inst.prod : p_node.b_p.prod;
+    }
+
     /**
      * rete.cpp:1011:find_goal_for_match_set_change_assertion
      * @param msc
