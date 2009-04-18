@@ -5,17 +5,25 @@
  */
 package org.jsoar.kernel.rete;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AssertListType;
+import org.jsoar.kernel.MatchSet;
+import org.jsoar.kernel.MatchSetEntry;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
+import org.jsoar.kernel.MatchSetEntry.EntryType;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
@@ -1035,5 +1043,64 @@ public class SoarReteListener implements ReteListener
             printer.print("Retractions:\n");
             printRetractions(printer, wtt);
         }
+    }
+
+    private MatchSetEntry getAssertion(MatchSetChange msc, EntryType type)
+    {
+        final LinkedList<Wme> wmes = new LinkedList<Wme>();
+        Token tok = msc.tok;
+        while(tok != rete.dummy_top_token)
+        {
+            if(tok.w != null)
+            {
+                wmes.addFirst(tok.w);
+            }
+            tok = tok.parent;
+        }
+        if(msc.w != null)
+        {
+            wmes.add(msc.w);
+        }
+        
+        return new DefaultMatchSetEntry(msc.getProduction(), type, wmes);
+    }
+    
+    private List<MatchSetEntry> getAssertions(ListHead<MatchSetChange> assertions, EntryType type)
+    {
+        List<MatchSetEntry> entries = new ArrayList<MatchSetEntry>();
+        for(MatchSetChange msc : assertions)
+        {
+            entries.add(getAssertion(msc, type));
+        }
+        return entries;
+    }
+    
+    private MatchSetEntry getRetraction(MatchSetChange msc)
+    {
+        return new DefaultMatchSetEntry(msc.getProduction(), EntryType.RETRACTION, msc.inst.getBacktraceWmes());
+    }
+    
+    private List<MatchSetEntry> getRetractions()
+    {
+        List<MatchSetEntry> entries = new ArrayList<MatchSetEntry>();
+        for(MatchSetChange msc : ms_retractions)
+        {
+            entries.add(getRetraction(msc));
+        }
+        return entries;
+    }
+    
+    public MatchSet getMatchSet()
+    {
+        final List<MatchSetEntry> entries = new ArrayList<MatchSetEntry>();
+        entries.addAll(getAssertions(ms_i_assertions, EntryType.I_ASSERTION));
+        entries.addAll(getAssertions(ms_o_assertions, EntryType.O_ASSERTION));
+        entries.addAll(getRetractions());
+        
+        return new MatchSet() {
+
+            @Override
+            public List<MatchSetEntry> getEntries() { return Collections.unmodifiableList(entries); }
+        };
     }
 }

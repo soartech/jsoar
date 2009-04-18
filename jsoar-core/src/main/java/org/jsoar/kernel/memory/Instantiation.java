@@ -96,6 +96,7 @@ public class Instantiation implements Traceable
             return;
         }
 
+        // TODO replace with getBacktraceWmes()
         for (Condition cond = top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();

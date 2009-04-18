@@ -29,6 +29,9 @@ public class Images
     public static final ImageIcon COPY = loadImage("/org/jsoar/debugger/copy.gif");
     public static final ImageIcon CLEAR = loadImage("/org/jsoar/debugger/clear.gif");
     public static final ImageIcon EDIT = loadImage("/org/jsoar/debugger/edit.gif");
+    public static final ImageIcon IASSERTION = loadImage("/org/jsoar/debugger/iassert.png");
+    public static final ImageIcon OASSERTION = loadImage("/org/jsoar/debugger/oassert.png");
+    public static final ImageIcon RETRACTION = loadImage("/org/jsoar/debugger/retract.png");
 
     /**
      * @param string
