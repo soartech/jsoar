@@ -48,11 +48,13 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         addAction(DockingConstants.PIN_ACTION);
         
         JPanel p = new JPanel(new BorderLayout());
+        this.textArea.setEditable(false);
         p.add(new JScrollPane(textArea), BorderLayout.CENTER);
         
         setContentPane(p);
 
         this.selectionManager.addListener(this);
+        selectionChanged(selectionManager);
     }
 
     /* (non-Javadoc)
@@ -77,7 +79,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
             @Override
             public void finish(String result)
             {
-                textArea.setText(result);
+                textArea.setText(result.length() != 0 ? result : "Select a production");
                 textArea.setCaretPosition(0);
             }
             
@@ -105,8 +107,8 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
             Production p = getProduction(agent.getAgent(), o);
             if(p != null)
             {
-                printer.print("*************************************************\n");
-                printer.print("*** matches %s\n", p.getName());
+                printer.print("--------------------------------------------\n");
+                printer.print("- matches %s\n", p.getName());
                 p.printPartialMatches(printer, WmeTraceType.FULL);
                 printer.print("\n\n");
             }

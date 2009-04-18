@@ -6,16 +6,27 @@
 package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
-import java.io.StringWriter;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.util.EnumSet;
 import java.util.concurrent.Callable;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JToolBar;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.flexdock.docking.DockingConstants;
-import org.jsoar.kernel.tracing.Printer;
+import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.treetable.TreeTableNode;
+import org.jsoar.debugger.actions.AbstractDebuggerAction;
+import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.MatchSet;
+import org.jsoar.kernel.MatchSetEntry;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.CompletionHandler;
@@ -30,7 +41,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
     private static final long serialVersionUID = -5150761314645770374L;
 
     private final ThreadedAgent agent;
-    private JTextArea textArea = new JTextArea();
+    private final JXTreeTable entryTable = new JXTreeTable();
     
     public MatchSetView(ThreadedAgent agent)
     {
@@ -40,10 +51,47 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         
         addAction(DockingConstants.PIN_ACTION);
         
-        JPanel p = new JPanel(new BorderLayout());
-        p.add(new JScrollPane(textArea), BorderLayout.CENTER);
+        JPanel barPanel = new JPanel(new BorderLayout());
+        JToolBar bar = createToolbar();
+        barPanel.add(bar, BorderLayout.EAST);
         
+        JPanel p = new JPanel(new BorderLayout());
+        p.add(barPanel, BorderLayout.NORTH);
+        
+        this.entryTable.setRootVisible(false);
+        this.entryTable.setShowGrid(false);
+        this.entryTable.setHighlighters(HighlighterFactory.createAlternateStriping());
+        this.entryTable.setColumnControlVisible(true);
+        this.entryTable.setTreeCellRenderer(new CellRenderer());
+        
+        p.add(new JScrollPane(entryTable), BorderLayout.CENTER);
         setContentPane(p);
+    }
+    
+    private JToolBar createToolbar()
+    {
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        
+        bar.add(new AbstractDebuggerAction("Print match set to trace", Images.COPY) {
+            private static final long serialVersionUID = -3614573079885324027L;
+
+            {
+                setToolTip("Print match set to trace");
+            }
+            @Override
+            public void update()
+            {
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent arg0)
+            {
+                final Agent a = agent.getAgent();
+                a.getPrinter().startNewLine();
+                a.printMatchSet(a.getPrinter(), WmeTraceType.FULL, EnumSet.allOf(MatchSetTraceType.class));
+            }});
+        return bar;
     }
 
     /* (non-Javadoc)
@@ -52,34 +100,68 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
     @Override
     public void refresh(boolean afterInitSoar)
     {
-        Callable<String> matchCall = new Callable<String>() {
+        final Callable<MatchSet> matchCall = new Callable<MatchSet>() {
 
             @Override
-            public String call() throws Exception
+            public MatchSet call() throws Exception
             {
-                return safeGetMatchOutput();
+                return agent.getAgent().getMatchSet();
             }};
-        CompletionHandler<String> finish = new CompletionHandler<String>() {
+        final CompletionHandler<MatchSet> finish = new CompletionHandler<MatchSet>() {
             @Override
-            public void finish(String result)
+            public void finish(MatchSet result)
             {
-                textArea.setText(result);
-                textArea.setCaretPosition(0);
+                entryTable.setTreeTableModel(new MatchSetTreeModel(result));
+                //sourceWmeTable.expandAll();
+                entryTable.packAll();
             }
             
         };
         agent.execute(matchCall, SwingCompletionHandler.newInstance(finish));
     }
     
-    private String safeGetMatchOutput()
+    private static class CellRenderer extends DefaultTreeCellRenderer
     {
-        final StringWriter writer = new StringWriter();
-        final Printer printer = new Printer(writer, true);
-
-        agent.getAgent().printMatchSet(printer, 
-                WmeTraceType.FULL, 
-                EnumSet.of(MatchSetTraceType.MS_ASSERT, MatchSetTraceType.MS_RETRACT));
+        private static final long serialVersionUID = -2334648499852429083L;
+        private Font normalFont;
+        private Font boldFont;
         
-        return writer.toString();
+        /* (non-Javadoc)
+         * @see javax.swing.tree.DefaultTreeCellRenderer#getTreeCellRendererComponent(javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int, boolean)
+         */
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object object, boolean arg2, boolean arg3,
+                boolean arg4, int arg5, boolean arg6)
+        {
+            Component c = super.getTreeCellRendererComponent(tree, object, arg2, arg3, arg4, arg5, arg6);
+            if(normalFont == null)
+            {
+                normalFont = getFont();
+                boldFont = normalFont.deriveFont(Font.BOLD);
+            }
+            setIcon(null);
+            
+            Object user = ((TreeTableNode) object).getUserObject();
+            if(user instanceof MatchSetEntry)
+            {
+                final MatchSetEntry entry = (MatchSetEntry) user;
+                switch(entry.getType())
+                {
+                case I_ASSERTION: setIcon(Images.IASSERTION); break;
+                case O_ASSERTION: setIcon(Images.OASSERTION); break;
+                case RETRACTION: setIcon(Images.RETRACTION);  break;
+                }
+                setFont(boldFont);
+                setText(entry.getProduction() != null ? entry.getProduction().getName().toString() : "[dummy]");
+            } 
+            else if(user instanceof Wme)
+            {
+                final Wme wme = (Wme) user;
+                setIcon(Images.WME);
+                setFont(normalFont);
+                setText(wme.getIdentifier().toString());
+            }
+            return c;
+        }
     }
 }

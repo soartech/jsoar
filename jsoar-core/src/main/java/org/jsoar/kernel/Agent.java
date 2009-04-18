@@ -500,6 +500,11 @@ public class Agent extends AbstractAdaptable
         this.soarReteListener.print_match_set(printer, wtt, mst);
     }
     
+    public MatchSet getMatchSet()
+    {
+        return soarReteListener.getMatchSet();
+    }
+    
     /**
      * <p>init_soar.cpp:1374:init_agent_memory()
      */
