@@ -204,16 +204,16 @@ public class SoarReteListener implements ReteListener
             }
             else
             {
-                // BUGBUG FIXME BADBAD
                 // RPM 6/05
                 // This if statement is to avoid a crash we get on most platforms in Soar 7 mode
                 // It's unknown what consequences it has, but the Soar 7 demos seem to work
                 // To return things to how they were, simply remove the if statement (but leave
                 // the remove_from_dll line).
-                if (!nil_goal_retractions.isEmpty())
-                {
+                // voigtjr 2009: returning things to how they were now that soar7 is removed
+                //if (!nil_goal_retractions.isEmpty())
+                //{
                     msc.in_level.remove(nil_goal_retractions);
-                }
+                //}
             }
 
             // #ifdef DEBUG_RETE_PNODES
