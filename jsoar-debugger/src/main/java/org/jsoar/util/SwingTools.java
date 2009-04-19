@@ -6,8 +6,10 @@
 package org.jsoar.util;
 
 import java.awt.event.ActionEvent;
+import java.util.Collection;
 
 import javax.swing.AbstractAction;
+import javax.swing.DefaultListModel;
 import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
@@ -22,6 +24,15 @@ import javax.swing.undo.UndoManager;
  */
 public class SwingTools
 {
+    public static DefaultListModel addAll(DefaultListModel model, Collection<?> items)
+    {
+        for(Object o : items)
+        {
+            model.addElement(o);
+        }
+        return model;
+    }
+    
     /**
      * Add undo/redo support to a text component. Undo is bound to "ctrl-z",
      * redo to "ctrl-y".

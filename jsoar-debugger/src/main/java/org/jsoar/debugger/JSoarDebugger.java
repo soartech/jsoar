@@ -198,7 +198,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         views.add(matchesView);
         prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
         
-        final MatchSetView matchSetView = new MatchSetView(this.proxy);
+        final MatchSetView matchSetView = new MatchSetView(this);
         views.add(matchSetView);
         matchesView.dock(matchSetView);
         
@@ -216,7 +216,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         final WmeSupportView wmeSupportView = new WmeSupportView(this);
         views.add(wmeSupportView);
-        preferencesView.dock(wmeSupportView, DockingConstants.SOUTH_REGION);
+        preferencesView.dock(wmeSupportView);
     }
     
     public ThreadedAgent getAgentProxy()

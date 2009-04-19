@@ -12,26 +12,35 @@ import java.awt.event.ActionEvent;
 import java.util.EnumSet;
 import java.util.concurrent.Callable;
 
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.flexdock.docking.DockingConstants;
-import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.JXList;
+import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.MatchSet;
 import org.jsoar.kernel.MatchSetEntry;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.util.SwingTools;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * @author ray
@@ -40,32 +49,60 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
+    private final JSoarDebugger debugger;
     private final ThreadedAgent agent;
-    private final JXTreeTable entryTable = new JXTreeTable();
+    private final JXList entryList = new JXList();
+    private final JXTable wmeTable = new JXTable(new DefaultWmeTableModel());
     
-    public MatchSetView(ThreadedAgent agent)
+    public MatchSetView(JSoarDebugger debugger)
     {
         super("matcheset", "Match Set");
         
-        this.agent = agent;
+        this.debugger = debugger;
+        this.agent = debugger.getAgentProxy();
         
         addAction(DockingConstants.PIN_ACTION);
         
-        JPanel barPanel = new JPanel(new BorderLayout());
-        JToolBar bar = createToolbar();
+        final JPanel barPanel = new JPanel(new BorderLayout());
+        final JToolBar bar = createToolbar();
         barPanel.add(bar, BorderLayout.EAST);
+        barPanel.add(new JLabel("Pending Assertions/Retractions"), BorderLayout.WEST);
         
-        JPanel p = new JPanel(new BorderLayout());
+        final JPanel p = new JPanel(new BorderLayout());
         p.add(barPanel, BorderLayout.NORTH);
         
-        this.entryTable.setRootVisible(false);
-        this.entryTable.setShowGrid(false);
-        this.entryTable.setHighlighters(HighlighterFactory.createAlternateStriping());
-        this.entryTable.setColumnControlVisible(true);
-        this.entryTable.setTreeCellRenderer(new CellRenderer());
+        this.entryList.setHighlighters(HighlighterFactory.createAlternateStriping());
+        this.entryList.setCellRenderer(new CellRenderer());
+        this.entryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.entryList.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+
+            @Override
+            public void valueChanged(ListSelectionEvent e)
+            {
+                if(!e.getValueIsAdjusting())
+                {
+                    tableSelectionChange();
+                }
+            }});
         
-        p.add(new JScrollPane(entryTable), BorderLayout.CENTER);
+        this.wmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
+        this.wmeTable.setShowGrid(true);
+        this.wmeTable.setDefaultRenderer(Identifier.class, new DefaultWmeTableCellRenderer());
+        
+        
+        final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(entryList), new JScrollPane(wmeTable));
+        split.setDividerSize(5);
+        p.add(split, BorderLayout.CENTER);
+        
         setContentPane(p);
+        
+        SwingUtilities.invokeLater(new Runnable(){
+
+            @Override
+            public void run()
+            {
+                split.setDividerLocation(0.5);
+            }});
     }
     
     private JToolBar createToolbar()
@@ -111,56 +148,56 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
             @Override
             public void finish(MatchSet result)
             {
-                entryTable.setTreeTableModel(new MatchSetTreeModel(result));
-                //sourceWmeTable.expandAll();
-                entryTable.packAll();
+                entryList.setModel(SwingTools.addAll(new DefaultListModel(), result.getEntries()));
+                wmeTable.setModel(new DefaultWmeTableModel());
+                wmeTable.packAll();
             }
             
         };
         agent.execute(matchCall, SwingCompletionHandler.newInstance(finish));
     }
     
-    private static class CellRenderer extends DefaultTreeCellRenderer
+    private void tableSelectionChange()
+    {
+        final MatchSetEntry entry = (MatchSetEntry) entryList.getSelectedValue();
+        wmeTable.setModel(entry != null ? new DefaultWmeTableModel(entry.getWmes()) : new DefaultWmeTableModel());
+        
+        if(entry != null)
+        {
+            final ProductionListView view = Adaptables.adapt(debugger, ProductionListView.class);
+            if(view != null)
+            {
+                view.selectProduction(entry.getProduction());
+            }
+        }
+    }
+    
+    
+    private static class CellRenderer extends DefaultListCellRenderer
     {
         private static final long serialVersionUID = -2334648499852429083L;
         private Font normalFont;
         private Font boldFont;
         
-        /* (non-Javadoc)
-         * @see javax.swing.tree.DefaultTreeCellRenderer#getTreeCellRendererComponent(javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int, boolean)
-         */
         @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object object, boolean arg2, boolean arg3,
-                boolean arg4, int arg5, boolean arg6)
+        public Component getListCellRendererComponent(JList list, Object value,
+                int index, boolean isSelected, boolean cellHasFocus)
         {
-            Component c = super.getTreeCellRendererComponent(tree, object, arg2, arg3, arg4, arg5, arg6);
+            Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if(normalFont == null)
             {
                 normalFont = getFont();
                 boldFont = normalFont.deriveFont(Font.BOLD);
             }
-            setIcon(null);
-            
-            Object user = ((TreeTableNode) object).getUserObject();
-            if(user instanceof MatchSetEntry)
+            final MatchSetEntry entry = (MatchSetEntry) value;
+            switch(entry.getType())
             {
-                final MatchSetEntry entry = (MatchSetEntry) user;
-                switch(entry.getType())
-                {
-                case I_ASSERTION: setIcon(Images.IASSERTION); break;
-                case O_ASSERTION: setIcon(Images.OASSERTION); break;
-                case RETRACTION: setIcon(Images.RETRACTION);  break;
-                }
-                setFont(boldFont);
-                setText(entry.getProduction() != null ? entry.getProduction().getName().toString() : "[dummy]");
-            } 
-            else if(user instanceof Wme)
-            {
-                final Wme wme = (Wme) user;
-                setIcon(Images.WME);
-                setFont(normalFont);
-                setText(wme.getIdentifier().toString());
+            case I_ASSERTION: setIcon(Images.IASSERTION); break;
+            case O_ASSERTION: setIcon(Images.OASSERTION); break;
+            case RETRACTION: setIcon(Images.RETRACTION);  break;
             }
+            setFont(boldFont);
+            setText(entry.getProduction() != null ? entry.getProduction().getName().toString() : "[dummy]");
             return c;
         }
     }
