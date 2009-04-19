@@ -495,7 +495,6 @@ public class Chunker
             }
             prev_cc = cc.next_prev;
             // add this in to the TC
-            // TODO eliminate dummy lists
             ground.add_cond_to_tc(tc_to_use, null, null);
         }
 

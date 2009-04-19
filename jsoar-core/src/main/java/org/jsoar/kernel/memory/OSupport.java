@@ -207,8 +207,7 @@ public class OSupport
         // TODO: verbose
         // if (thisAgent.soar_verbose_flag == true) {
         // printf("\n in calculate_support_for_instantiation_preferences:");
-        // xml_generate_verbose(thisAgent, "in
-        // calculate_support_for_instantiation_preferences:");
+        // xml_generate_verbose(thisAgent, "in calculate_support_for_instantiation_preferences:");
         // }
         o_support = false;
         op_elab = false;
