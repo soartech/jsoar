@@ -12,7 +12,7 @@ import org.jsoar.util.adaptables.Adaptables;
 /**
  * @author ray
  */
-public class AbstractAdaptableView extends View implements Adaptable
+public abstract class AbstractAdaptableView extends View implements Adaptable
 {
     private static final long serialVersionUID = 8049528094231200441L;
 
@@ -29,5 +29,4 @@ public class AbstractAdaptableView extends View implements Adaptable
     {
         return Adaptables.adapt(this, klass, false);
     }
-
 }

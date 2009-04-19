@@ -668,24 +668,6 @@ public class RecognitionMemory
                     pref.o_supported = this.FIRING_TYPE == SavedFiringType.PE_PRODS;
                 }
 
-                /*
-                 * TEMPORARY HACK (Ideally this should be doable through the
-                 * external kernel interface but for now using a couple of
-                 * global STL lists to get this information from the rhs
-                 * function to this prefference adding code)
-                 * 
-                 * Getting the next pref from the set of possible prefs added by
-                 * the deep copy rhs function
-                 */
-                // TODO deep-copy
-                // if ( glbDeepCopyWMEs != 0 ) {
-                // wme* tempwme = glbDeepCopyWMEs;
-                // pref = make_preference(thisAgent, a->preference_type, tempwme->id, tempwme->attr, tempwme->value, 0);
-                // glbDeepCopyWMEs = tempwme->next;
-                // deallocate_wme(thisAgent, tempwme);
-                // } else {
-                //pref = null;
-                // }
                 pref = !rhsFunctionPreferences.isEmpty() ? rhsFunctionPreferences.pop() : null;
             }
         }

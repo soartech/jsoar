@@ -18,20 +18,21 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import org.flexdock.docking.DockingConstants;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
  * @author ray
  */
-public class TraceView extends AbstractAdaptableView
+public class TraceView extends AbstractAdaptableView implements Disposable
 {
     private static final long serialVersionUID = -358416409712991384L;
 
     private final JSoarDebugger debugger;
     
-    private JTextArea outputWindow = new JTextArea();
-    private Writer outputWriter = new Writer()
+    private final JTextArea outputWindow = new JTextArea();
+    private final Writer outputWriter = new Writer()
     {
         private StringBuilder buffer = new StringBuilder();
         
@@ -93,11 +94,22 @@ public class TraceView extends AbstractAdaptableView
         
         this.addAction(DockingConstants.PIN_ACTION);
 
-        JPanel p = new JPanel(new BorderLayout());
+        final JPanel p = new JPanel(new BorderLayout());
         //p.add(new RunControlPanel(debugger), BorderLayout.NORTH);
         p.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
         
         p.add(new CommandEntryPanel(debugger), BorderLayout.SOUTH);
         this.setContentPane(p);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Disposable#dispose()
+     */
+    public void dispose()
+    {
+        final Printer printer = debugger.getAgentProxy().getAgent().getPrinter();
+        while(outputWriter != printer.popWriter())
+        {
+        }
     }
 }

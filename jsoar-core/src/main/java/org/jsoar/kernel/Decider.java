@@ -2292,9 +2292,9 @@ public class Decider
                         decisionManip.predict_set("none");
                     else
                     {
-                        IdentifierImpl tempId = candidates.value.value.asIdentifier();
+                        final IdentifierImpl tempId = candidates.value.value.asIdentifier();
                         // TODO can this be null?
-                        String temp = String.format("%s", tempId);
+                        final String temp = String.format("%s", tempId);
                         decisionManip.predict_set(temp);
                     }
                     break;

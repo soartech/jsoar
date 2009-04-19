@@ -96,25 +96,21 @@ public class Instantiation implements Traceable
             return;
         }
 
-        // TODO replace with getBacktraceWmes()
-        for (Condition cond = top_of_instantiated_conditions; cond != null; cond = cond.next)
+        // Note: replaced duplicate loop with call to getBacktraceWmes()
+        for (Wme wme : getBacktraceWmes())
         {
-            PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null)
+            switch (wtt)
             {
-                switch (wtt)
-                {
-                case TIMETAG:
-                    formatter.format(" %d", pc.bt.wme_.timetag);
-                    break;
-                case FULL:
-                    // TODO: In CSoar, at this point in/ print_instantiation_with_wmes() there's
-                    // some stuff about DO_TOP_LEVEL_REF_CTS and avoiding/ printing WMEs because
-                    // they may have been deleted already during a retraction. I don't think
-                    // this should be a problem in jsoar, so I'm just printing the WME. Yay.
-                    formatter.format(" %s", pc.bt.wme_);
-                    break;
-                }
+            case TIMETAG:
+                formatter.format(" %d", wme.getTimetag());
+                break;
+            case FULL:
+                // Note: In CSoar, at this point in/ print_instantiation_with_wmes() there's
+                // some stuff about DO_TOP_LEVEL_REF_CTS and avoiding/ printing WMEs because
+                // they may have been deleted already during a retraction. I don't think
+                // this should be a problem in jsoar, so I'm just printing the WME. Yay.
+                formatter.format(" %s", wme);
+                break;
             }
         }
     }
@@ -126,7 +122,7 @@ public class Instantiation implements Traceable
      */
     public List<Wme> getBacktraceWmes()
     {
-        List<Wme> result = new ArrayList<Wme>();
+        final List<Wme> result = new ArrayList<Wme>();
         for (Condition cond = top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             PositiveCondition pc = cond.asPositiveCondition();

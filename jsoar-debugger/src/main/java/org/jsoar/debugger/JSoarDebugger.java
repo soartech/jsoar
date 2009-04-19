@@ -91,6 +91,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private final List<AbstractAdaptableView> views = new ArrayList<AbstractAdaptableView>();
     
+    private PropertyChangeListener dockTrackerListener = null;
+    private final List<SoarEventListener> soarEventListeners = new ArrayList<SoarEventListener>();
+    
     /**
      * Construct a new debugger. Add to a JFrame and call initialize().
      */
@@ -128,7 +131,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         initToolbar();
         
         // Track selection to active view
-        ActiveDockableTracker.getTracker(frame).addPropertyChangeListener(new PropertyChangeListener() {
+        ActiveDockableTracker.getTracker(frame).addPropertyChangeListener(
+                dockTrackerListener = new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt)
@@ -142,22 +146,22 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }});
         
         // Update after init-soar
-        agent.getEventManager().addListener(AfterInitSoarEvent.class, new SoarEventListener() {
+        agent.getEventManager().addListener(AfterInitSoarEvent.class, saveListener(new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
             {
                 newUpdateCompleter(true).finish(null);
-            }});
+            }}));
 
         // Update when the agent stops running
-        agent.getEventManager().addListener(StopEvent.class, new SoarEventListener() {
+        agent.getEventManager().addListener(StopEvent.class, saveListener(new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
             {
                 newUpdateCompleter(false).finish(null);
-            }});
+            }}));
         
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
@@ -174,6 +178,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
     }
 
+    private SoarEventListener saveListener(SoarEventListener listener)
+    {
+        soarEventListeners.add(listener);
+        return listener;
+    }
+    
     private void initViews()
     {
         final TraceView traceView = new TraceView(this); 
@@ -376,7 +386,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         final JSoarDebugger debugger = new JSoarDebugger();
         
-        JFrame frame = new JFrame("JSoar Debugger - " + proxy.getAgent().getName());
+        final JFrame frame = new JFrame("JSoar Debugger - " + proxy.getAgent().getName());
         
         frame.setContentPane(debugger);
         frame.setSize(1200, 1024);
@@ -393,10 +403,25 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public void detach()
     {
-        // TODO clean up dock property listener
-        // TODO clean up soar event listener
-        // TODO clean up printer listener (trace)
-        // TODO close debugger window
+        logger.info(String.format("Detaching from agent '" + agent + "'"));
+        
+        // clean up dock property listener
+        ActiveDockableTracker.getTracker(frame).removePropertyChangeListener(dockTrackerListener);
+        dockTrackerListener = null;
+        
+        // clean up soar event listener
+        for(SoarEventListener listener : soarEventListeners)
+        {
+            agent.getEventManager().removeListener(null, listener);
+        }
+        soarEventListeners.clear();
+        
+        // clean up disposable views
+        for(Disposable d : Adaptables.adaptCollection(views, Disposable.class))
+        {
+            d.dispose();
+        }
+        views.clear();
         
         if(frame.isVisible())
         {
@@ -434,8 +459,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
                     }
                     catch (SoarTclException e)
                     {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        logger.error("Error sourcing file '" + arg + "'", e);
                     }
                 }
                 return null;

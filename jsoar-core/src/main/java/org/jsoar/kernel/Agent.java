@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.exploration.Exploration;
@@ -64,6 +66,8 @@ import org.jsoar.util.timing.ExecutionTimer;
  */
 public class Agent extends AbstractAdaptable
 {
+    private static final Log logger = LogFactory.getLog(Agent.class);
+    
     private String name = "JSoar Agent " + System.identityHashCode(this);
     
     private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
@@ -181,7 +185,9 @@ public class Agent extends AbstractAdaptable
     }
 
     /**
-     * @return the debuggerProvider
+     * The agent's current debugger provider
+     * 
+     * @return the  current debugger provider
      */
     public DebuggerProvider getDebuggerProvider()
     {
@@ -189,6 +195,9 @@ public class Agent extends AbstractAdaptable
     }
 
     /**
+     * Set the agent's current debugger provider. This is the mechanism used
+     * by the debug RHS function to launch a debugger.
+     * 
      * @param debuggerProvider the debuggerProvider to set
      */
     public void setDebuggerProvider(DebuggerProvider debuggerProvider)
@@ -528,8 +537,7 @@ public class Agent extends AbstractAdaptable
             }
             catch (IOException e)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.error("IOException while printing initial stack trace. Ignoring.", e);
             }
         }
         decisionCycle.current_phase = Phase.INPUT;
