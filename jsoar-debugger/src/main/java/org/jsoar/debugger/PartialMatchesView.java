@@ -79,8 +79,11 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
             @Override
             public void finish(String result)
             {
-                textArea.setText(result.length() != 0 ? result : "Select a production");
-                textArea.setCaretPosition(0);
+                if(result.length() != 0)
+                {
+                    textArea.setText(result);
+                    textArea.setCaretPosition(0);
+                }
             }
             
         };

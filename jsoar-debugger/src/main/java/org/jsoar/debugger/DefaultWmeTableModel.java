@@ -5,6 +5,7 @@
  */
 package org.jsoar.debugger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -25,6 +26,11 @@ public class DefaultWmeTableModel extends AbstractTableModel
             Identifier.class, Symbol.class, Symbol.class, Integer.class, String.class };
     
     private final List<Wme> wmes;
+    
+    public DefaultWmeTableModel()
+    {
+        this.wmes = new ArrayList<Wme>();
+    }
     
     /**
      * @param wmes

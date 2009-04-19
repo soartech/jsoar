@@ -11,30 +11,34 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.Callable;
 
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
-import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.flexdock.docking.DockingConstants;
-import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.JXList;
+import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jdesktop.swingx.treetable.TreeTableNode;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.Production;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeSupportInfo;
 import org.jsoar.kernel.memory.WmeSupportInfo.Support;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
+import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -49,8 +53,9 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
     private final JSoarDebugger debugger;
     private final SelectionManager selectionManager;
     private final JLabel source = new JLabel("");
-    private final JXTreeTable sourceWmeTable = new JXTreeTable();
     private WmeSupportInfo sourceInfo;
+    private final JXList entryList = new JXList();
+    private final JXTable wmeTable = new JXTable(new DefaultWmeTableModel());
     
     public WmeSupportView(JSoarDebugger debuggerIn)
     {
@@ -68,30 +73,36 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         
         JPanel p = new JPanel(new BorderLayout());
         p.add(barPanel, BorderLayout.NORTH);
-        
-        this.sourceWmeTable.setRootVisible(false);
-        this.sourceWmeTable.setShowGrid(false);
-        this.sourceWmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
-        this.sourceWmeTable.setColumnControlVisible(true);
-        this.sourceWmeTable.setTreeCellRenderer(new CellRenderer());
-        this.sourceWmeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.sourceWmeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        this.entryList.setHighlighters(HighlighterFactory.createAlternateStriping());
+        this.entryList.setCellRenderer(new CellRenderer());
+        this.entryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.entryList.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 
-            /* (non-Javadoc)
-             * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
-             */
             @Override
             public void valueChanged(ListSelectionEvent e)
             {
-                if(!e.getValueIsAdjusting())
-                {
-                    tableSelectionChange();
-                }
+                if(e.getValueIsAdjusting()) return;
+                tableSelectionChange();
             }});
         
-        p.add(new JScrollPane(sourceWmeTable), BorderLayout.CENTER);
+        this.wmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
+        this.wmeTable.setShowGrid(true);
+        this.wmeTable.setDefaultRenderer(Identifier.class, new DefaultWmeTableCellRenderer());
+        
+        
+        final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(entryList), new JScrollPane(wmeTable));
+        split.setDividerSize(5);
+        p.add(split, BorderLayout.CENTER);
         
         setContentPane(p);
+        
+        SwingUtilities.invokeLater(new Runnable(){
+
+            @Override
+            public void run()
+            {
+                split.setDividerLocation(0.5);
+            }});
 
         this.selectionManager.addListener(this);
     }
@@ -128,14 +139,15 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
 
     private void tableSelectionChange()
     {
-        int r = sourceWmeTable.getSelectedRow();
-        Object o = sourceWmeTable.getModel().getValueAt(r, 0);
-        if(o instanceof Production)
+        final Support support = (Support) entryList.getSelectedValue();
+        wmeTable.setModel(support != null ? new DefaultWmeTableModel(support.getSourceWmes()) : new DefaultWmeTableModel());
+        
+        if(support != null)
         {
             ProductionListView view = Adaptables.adapt(debugger, ProductionListView.class);
             if(view != null)
             {
-                view.selectProduction((Production) o);
+                view.selectProduction(support.getSource());
             }
         }
     }
@@ -166,52 +178,36 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             public void finish(WmeSupportInfo sourceInfo)
             {
                 source.setText(String.format("<html><b><code>%#s</code></b> is supported by the following productions:</html>", w));
-                sourceWmeTable.setTreeTableModel(new WmeSupportTreeModel(sourceInfo));
-                sourceWmeTable.expandAll();
-                sourceWmeTable.packAll();
+                entryList.setModel(SwingTools.addAll(new DefaultListModel(), sourceInfo.getSupports()));
+                wmeTable.setModel(new DefaultWmeTableModel());
+                wmeTable.packAll();
             }
         };
         debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
     }
     
-    private static class CellRenderer extends DefaultTreeCellRenderer
+    private static class CellRenderer extends DefaultListCellRenderer
     {
         private static final long serialVersionUID = -2334648499852429083L;
         private Font normalFont;
         private Font boldFont;
         
-        /* (non-Javadoc)
-         * @see javax.swing.tree.DefaultTreeCellRenderer#getTreeCellRendererComponent(javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int, boolean)
-         */
         @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object object, boolean arg2, boolean arg3,
-                boolean arg4, int arg5, boolean arg6)
+        public Component getListCellRendererComponent(JList list, Object value,
+                int index, boolean isSelected, boolean cellHasFocus)
         {
-            Component c = super.getTreeCellRendererComponent(tree, object, arg2, arg3, arg4, arg5, arg6);
+            Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if(normalFont == null)
             {
                 normalFont = getFont();
                 boldFont = normalFont.deriveFont(Font.BOLD);
             }
-            setIcon(null);
-            
-            Object user = ((TreeTableNode) object).getUserObject();
-            if(user instanceof Support)
-            {
-                Support support = (Support) user;
-                setIcon(Images.PRODUCTION);
-                setFont(boldFont);
-                setText(String.format("%s (:%c)", 
-                                      support.getSource() != null ? support.getSource().getName().toString() : "[dummy]",
-                                      support.isOSupported() ? 'O' : 'I'));
-            } 
-            else if(user instanceof Wme)
-            {
-                Wme wme = (Wme) user;
-                setIcon(Images.WME);
-                setFont(normalFont);
-                setText(wme.getIdentifier().toString());
-            }
+            final Support support = (Support) value;
+            setIcon(Images.PRODUCTION);
+            setFont(boldFont);
+            setText(String.format("%s (:%c)", 
+                                  support.getSource() != null ? support.getSource().getName().toString() : "[dummy]",
+                                  support.isOSupported() ? 'O' : 'I'));
             return c;
         }
     }
