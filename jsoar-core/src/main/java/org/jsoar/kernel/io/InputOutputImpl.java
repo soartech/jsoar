@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
 import org.jsoar.kernel.events.InputCycleEvent;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.TopStateRemovedEvent;
@@ -126,7 +127,7 @@ public class InputOutputImpl implements InputOutput
     private final TopStateRemovedEvent topStateRemovedEvent = new TopStateRemovedEvent(this);
 
     private final InputCycleEvent inputCycleEvent = new InputCycleEvent(this);
-    
+    private final AsynchronousInputReadyEvent asyncInputReadyEvent = new AsynchronousInputReadyEvent(this);
     
     /**
      * @param context
@@ -275,6 +276,15 @@ public class InputOutputImpl implements InputOutput
     public List<Wme> getPendingCommands()
     {
         return new ArrayList<Wme>(pendingCommands);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.InputOutput#asynchronousInputReady()
+     */
+    @Override
+    public void asynchronousInputReady()
+    {
+        context.getEventManager().fireEvent(asyncInputReadyEvent);
     }
 
     /**

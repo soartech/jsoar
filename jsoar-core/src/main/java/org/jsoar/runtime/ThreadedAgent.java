@@ -41,6 +41,7 @@ public class ThreadedAgent
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final AtomicBoolean agentRunning = new AtomicBoolean(false);
     private final AgentThread agentThread = new AgentThread();
+    private final WaitRhsFunction waitFunction = new WaitRhsFunction();
     
     /**
      * If there is a ThreadedAgent already attached to the given agent, return
@@ -85,7 +86,7 @@ public class ThreadedAgent
     private ThreadedAgent(Agent agent)
     {
         this.agent = agent;
-        agentThread.setName("ThreadedAgent thread");
+        agentThread.setName("Agent '" + this.agent + "' thread");
         
         this.agent.getEventManager().addListener(RunLoopEvent.class, new SoarEventListener() {
 
@@ -107,6 +108,8 @@ public class ThreadedAgent
                     runnable = commands.poll();
                 }
             }});
+        
+        waitFunction.attach(this);
     }
     
     /**
@@ -163,6 +166,7 @@ public class ThreadedAgent
             {
                 e.printStackTrace();
             }
+            waitFunction.detach();
         }
         finally
         {
@@ -252,6 +256,8 @@ public class ThreadedAgent
         execute(new Runnable() { public void run() { agent.stop(); } });
     }
     
+    
+    
     /**
      * Execute the given runnable in the agent thread.
      * 
@@ -307,6 +313,16 @@ public class ThreadedAgent
             }});
     }
     
+    /**
+     * Returns the command queue. For use only by the {@link WaitRhsFunction}
+     * 
+     * @return the command queue
+     */
+    BlockingQueue<Runnable> getCommandQueue()
+    {
+        return commands;
+    }
+    
     private class AgentThread extends Thread
     {
         /* (non-Javadoc)
@@ -332,7 +348,7 @@ public class ThreadedAgent
             }
         }
     }
-    
+        
     private static class InterruptAgentException extends RuntimeException
     {
         private static final long serialVersionUID = 3075897216751716278L;
