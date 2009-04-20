@@ -7,6 +7,7 @@ package org.jsoar.kernel.io;
 
 import java.util.List;
 
+import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -78,5 +79,15 @@ public interface InputOutput
      *     last decision cycle.
      */
     List<Wme> getPendingCommands();
+    
+    /**
+     * Notify the agent that asynchronous input is ready. This will ensure that 
+     * the agent will break out of suspension (e.g. due to "wait" rhs function)
+     * and proceed to the input phase.
+     * 
+     * <p>This method only causes an {@link AsynchronousInputReadyEvent} to be
+     * fired.
+     */
+    void asynchronousInputReady();
     
 }

@@ -72,6 +72,10 @@ public class StatusBar extends JPanel implements Refreshable
             public Object call() throws Exception
             {
                 runStateString.value = agent.isRunning() ? "Running" : "Idle";
+                if(a.getProperties().get(SoarProperties.WAITING))
+                {
+                    runStateString.value += " (wait)";
+                }
                 phaseString.value = a.getCurrentPhase().toString().toLowerCase();
                 decisionsString.value = a.getProperties().get(SoarProperties.DECISION_PHASES_COUNT) + " decisions";
                 settingsString.value = getSettings(a);
