@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.runtime.WaitInfo;
 import org.jsoar.runtime.WaitRhsFunction;
 import org.jsoar.util.properties.PropertyKey;
 
@@ -178,9 +179,9 @@ public class SoarProperties
     public static final PropertyKey<Integer> NUM_WM_SIZES_ACCUMULATED = counter("num_wm_sizes_accumulated");
     
     /**
-     * Set to true if the agent is currently suspended, e.g. in {@link WaitRhsFunction}
+     * Current agent wait state info, e.g. set by {@link WaitRhsFunction}
      */
-    public static final PropertyKey<Boolean> WAITING = PropertyKey.builder("learning-only", Boolean.class).readonly(true).defaultValue(false).build();
+    public static final PropertyKey<WaitInfo> WAIT_INFO = PropertyKey.builder("wait_info", WaitInfo.class).readonly(true).defaultValue(WaitInfo.NOT_WAITING).build();
 
     private static PropertyKey<Integer> counter(String name)
     {

@@ -5,6 +5,7 @@
  */
 package org.jsoar.util.properties;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -89,6 +90,14 @@ public class PropertyManager
     public <T> T get(PropertyKey<T> key)
     {
         return getProvider(key).get();
+    }
+    
+    /**
+     * @return a list of all known keys
+     */
+    public List<PropertyKey<?>> getKeys()
+    {
+        return new ArrayList<PropertyKey<?>>(properties.keySet());
     }
     
     /**
