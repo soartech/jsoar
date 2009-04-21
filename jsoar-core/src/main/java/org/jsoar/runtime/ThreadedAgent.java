@@ -97,7 +97,7 @@ public class ThreadedAgent
                 // an exception to break us out of the agent run loop.
                 // TODO: It may be nice to have a more official way of doing this
                 // from the RunLoopEvent.
-                if(Thread.interrupted()) 
+                if(Thread.currentThread().isInterrupted()) 
                 {
                     throw new InterruptAgentException();
                 }

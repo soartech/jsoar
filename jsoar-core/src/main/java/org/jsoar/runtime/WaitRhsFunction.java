@@ -10,6 +10,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.AfterDecisionCycleEvent;
@@ -23,7 +24,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
-import org.jsoar.util.properties.BooleanPropertyProvider;
+import org.jsoar.util.properties.PropertyProvider;
 
 /**
  * A "wait" RHS function used in conjunction with a {@link ThreadedAgent}.
@@ -52,7 +53,7 @@ import org.jsoar.util.properties.BooleanPropertyProvider;
  * reentrancy issues as well as ensuring that when a wait is stopped because of
  * new input, another wait before the input cycle doesn't cause a deadlock. 
  * 
- * <p>The current waiting status of the agent is stored in the {@link SoarProperties#WAITING}
+ * <p>The current waiting status of the agent is stored in the {@link SoarProperties#WAIT_INFO}
  * property.
  * 
  * <p>Note: This RHS function is automatically registered by {@link ThreadedAgent}
@@ -67,8 +68,22 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
     private SoarEventListener inputReadyListener;
     private final AsynchronousInputReadyCommand inputReadyCommand = new AsynchronousInputReadyCommand();
     private SoarEventListener afterDecisionCycleListener;
-    private final BooleanPropertyProvider waiting = new BooleanPropertyProvider(SoarProperties.WAITING);
-    private long waitTimeout = -1;
+    private WaitInfo requestedWaitInfo = WaitInfo.NOT_WAITING;
+    private final AtomicReference<WaitInfo> waitInfo = new AtomicReference<WaitInfo>(WaitInfo.NOT_WAITING);
+    private final PropertyProvider<WaitInfo> waitInfoProp = new PropertyProvider<WaitInfo>() {
+
+        @Override
+        public WaitInfo get()
+        {
+            return waitInfo.get();
+        }
+
+        @Override
+        public WaitInfo set(WaitInfo value)
+        {
+            throw new IllegalArgumentException("Can't set wait_info property");
+        }};
+        
     
     public WaitRhsFunction()
     {
@@ -108,7 +123,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
                     }});
         
         // Set up "waiting" property
-        this.agent.getAgent().getProperties().setProvider(SoarProperties.WAITING, waiting);
+        this.agent.getAgent().getProperties().setProvider(SoarProperties.WAIT_INFO, waitInfoProp);
         
         // Register the RHS function
         this.oldHandler = this.agent.getAgent().getRhsFunctions().registerHandler(this);
@@ -132,7 +147,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
     
     private void doWait()
     {
-        if(waitTimeout < -1) // no wait requested
+        if(!requestedWaitInfo.waiting) // no wait requested
         {
             inputReady.set(false);
             return;
@@ -140,18 +155,17 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         
         synchronized(this)
         {
-            waiting.set(true);
+            waitInfo.set(requestedWaitInfo);
         }
 
         final long start = System.currentTimeMillis();
-        
         final BlockingQueue<Runnable> commands = agent.getCommandQueue();
         boolean done = isDoneWaiting();
         while(!done)
         {
             try
             {
-                final long remaining = waitTimeout - (System.currentTimeMillis() - start);
+                final long remaining = requestedWaitInfo.timeout - (System.currentTimeMillis() - start);
                 if(remaining <= 0)
                 {
                     done = true;
@@ -172,15 +186,16 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
             catch (InterruptedException e)
             {
                 done = true;
+                Thread.currentThread().interrupt(); // Reset the interrupt status for higher levels!
                 break;
             }
         }
-        waitTimeout = -1; // clear the wait
+        requestedWaitInfo = WaitInfo.NOT_WAITING; // clear the wait
         
         synchronized(this)
         {
             inputReady.set(false);
-            waiting.set(false);
+            waitInfo.set(WaitInfo.NOT_WAITING);
         }
     }
     
@@ -188,7 +203,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
     {
         // This will break out of the poll below
         inputReady.set(true);
-        if(waiting.get())
+        if(waitInfo.get().waiting)
         {
             WaitRhsFunction.this.agent.execute(inputReadyCommand, null);
         }
@@ -211,7 +226,12 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         RhsFunctions.checkArgumentCount(this, arguments);
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
         
-        waitTimeout = arguments.isEmpty() ? Long.MAX_VALUE : arguments.get(0).asInteger().getValue();
+        // If multiple waits are requested, use the shortest
+        final long timeout = arguments.isEmpty() ? Long.MAX_VALUE : arguments.get(0).asInteger().getValue();
+        if(!requestedWaitInfo.waiting || timeout < requestedWaitInfo.timeout)
+        {
+            requestedWaitInfo = new WaitInfo(timeout, context.getProductionBeingFired());
+        }
         
         return null;
     }

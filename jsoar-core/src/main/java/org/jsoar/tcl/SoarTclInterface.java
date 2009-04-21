@@ -183,6 +183,7 @@ public class SoarTclInterface
     private final RhsFunctionsCommand rhsFuncsCommand = new RhsFunctionsCommand(this);
     private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
     private final SetParserCommand setParserCommand = new SetParserCommand(this);
+    private final PropertiesCommand propertiesCommand = new PropertiesCommand(this);
     
     private SoarTclInterface(Agent agent)
     {
@@ -222,6 +223,7 @@ public class SoarTclInterface
         interp.createCommand("soar8", soar8Command);
         
         interp.createCommand("set-parser", setParserCommand);
+        interp.createCommand("properties", propertiesCommand);
     }
     
     public Interp getInterpreter()
