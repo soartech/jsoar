@@ -10,7 +10,9 @@ import java.util.Collection;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
+import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.Document;
@@ -24,6 +26,13 @@ import javax.swing.undo.UndoManager;
  */
 public class SwingTools
 {
+    /**
+     * Add all the items in the given collection to the given list model
+     * 
+     * @param model the list model
+     * @param items the items to add
+     * @return the list model
+     */
     public static DefaultListModel addAll(DefaultListModel model, Collection<?> items)
     {
         for(Object o : items)
@@ -31,6 +40,26 @@ public class SwingTools
             model.addElement(o);
         }
         return model;
+    }
+    
+    /**
+     * May be called to set a split pane's proportional divider location before the
+     * split pane is displayed. Uggh.
+     * 
+     * @param split the split pane
+     * @param location the proportional location
+     */
+    public static void setDividerLocation(final JSplitPane split, final double location)
+    {
+        split.setResizeWeight(location);
+        SwingUtilities.invokeLater(new Runnable(){
+
+            @Override
+            public void run()
+            {
+                split.setDividerLocation(location);
+            }});
+        
     }
     
     /**
@@ -87,7 +116,5 @@ public class SwingTools
         
         // Bind the redo action to ctl-Y
         textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
-
-        
     }
 }
