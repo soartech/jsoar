@@ -21,7 +21,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -92,17 +91,10 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         
         final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(entryList), new JScrollPane(wmeTable));
         split.setDividerSize(5);
+        SwingTools.setDividerLocation(split, 0.5);
         p.add(split, BorderLayout.CENTER);
         
         setContentPane(p);
-        
-        SwingUtilities.invokeLater(new Runnable(){
-
-            @Override
-            public void run()
-            {
-                split.setDividerLocation(0.5);
-            }});
     }
     
     private JToolBar createToolbar()

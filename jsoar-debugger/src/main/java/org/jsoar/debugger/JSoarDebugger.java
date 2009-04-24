@@ -10,6 +10,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -30,6 +34,8 @@ import org.flexdock.docking.Dockable;
 import org.flexdock.docking.DockingConstants;
 import org.flexdock.docking.DockingManager;
 import org.flexdock.docking.activation.ActiveDockableTracker;
+import org.flexdock.docking.state.PersistenceException;
+import org.flexdock.perspective.persist.FilePersistenceHandler;
 import org.flexdock.util.SwingUtility;
 import org.flexdock.view.Viewport;
 import org.jsoar.debugger.actions.AboutAction;
@@ -38,6 +44,7 @@ import org.jsoar.debugger.actions.EditProductionAction;
 import org.jsoar.debugger.actions.ExciseProductionAction;
 import org.jsoar.debugger.actions.ExitAction;
 import org.jsoar.debugger.actions.InitSoarAction;
+import org.jsoar.debugger.actions.RestoreLayoutAction;
 import org.jsoar.debugger.actions.RunAction;
 import org.jsoar.debugger.actions.SourceFileAction;
 import org.jsoar.debugger.actions.StopAction;
@@ -53,6 +60,7 @@ import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.FileTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEvent;
@@ -280,6 +288,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         new ExciseProductionAction(actionManager);
         new AboutAction(actionManager);
         new EditProductionAction(actionManager);
+        new RestoreLayoutAction(actionManager);
     }
     
     private void initMenuBar()
@@ -292,6 +301,10 @@ public class JSoarDebugger extends JPanel implements Adaptable
         fileMenu.add(actionManager.getAction(ExitAction.class));
         
         bar.add(fileMenu);
+        
+        final JMenu viewMenu = new JMenu("View");
+        viewMenu.add(actionManager.getAction(RestoreLayoutAction.class));
+        bar.add(viewMenu);
         
         JMenu runMenu = new JMenu("Run");
         runMenu.add(actionManager.getAction(RunAction.class));
@@ -394,6 +407,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
         debugger.initialize(frame, proxy);
 
         SwingUtility.centerOnScreen(frame);
+        
+        debugger.loadLayout();
+        
         frame.setVisible(true);
         return debugger;
     }
@@ -435,6 +451,73 @@ public class JSoarDebugger extends JPanel implements Adaptable
         plugins.clear();
         
         proxy.detach();
+        
+        saveLayout();
+    }
+    
+    public void restoreLayout()
+    {
+        OutputStream target = null;
+        try
+        {
+            // Copy the default layout (from jar resources) into the persistence directory
+            target = new BufferedOutputStream(new FileOutputStream(FilePersistenceHandler.DEFAULT_PERSPECTIVE_DIR + "/" + JSoarDebugger.class.getCanonicalName() + ".layout"));
+            FileTools.copy(JSoarDebugger.class.getResourceAsStream("/org/jsoar/debugger/layout.xml"), target);
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to restore layout", e);
+            return;
+        }
+        finally
+        {
+            if(target != null)
+            {
+                try { target.close(); } catch (IOException e) {}
+            }
+        }
+        
+        // Now just reload the layout
+        loadLayout();
+    }
+    
+    private void loadLayout()
+    {
+        // Stores layout in $HOME/flexdock/perspectives
+        DockingManager.setDefaultPersistenceKey(JSoarDebugger.class.getCanonicalName() + ".layout");
+        try
+        {
+            DockingManager.loadLayoutModel(true);
+        }
+        catch (IOException e)
+        {
+            logger.error("Error loading debugger layout", e);
+        }
+        catch (PersistenceException e)
+        {
+            logger.error("Error loading debugger layout", e);
+        }
+        
+    }
+    
+    private void saveLayout()
+    {
+        // Stores layout in $HOME/flexdock/perspectives
+        DockingManager.setDefaultPersistenceKey(JSoarDebugger.class.getCanonicalName() + ".layout");
+        try
+        {
+            DockingManager.storeLayoutModel();
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to save layout", e);
+        }
+        catch (PersistenceException e)
+        {
+            logger.error("Failed to save layout", e);
+        }
+        
+        // TODO save window size and position
     }
     
     /**

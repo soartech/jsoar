@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PerspectiveModel currentPerspectiveId="PerspectiveManager.EMPTY_PERSPECTIVE" defaultPerspectiveId="PerspectiveManager.EMPTY_PERSPECTIVE">
+    <Perspective id="PerspectiveManager.EMPTY_PERSPECTIVE" name="PerspectiveManager.EMPTY_PERSPECTIVE">
+        <Layout>
+            <DockingState dockableId="matcheset" dockingRegion="unknown" state="opened"/>
+            <DockingState dockableId="workingMemory.tree" dockingRegion="unknown" state="opened"/>
+            <DockingState dockableId="partialmatches" dockingRegion="unknown" state="opened">
+                <Point x="88" y="73"/>
+                <DockingPath isTabbed="true" rootPortId="7a76cae3-a6b9-489d-89ee-b66ce3d6967d">
+                    <SplitNode orientation="horizontal" percentage="0.7474832" region="right"/>
+                    <SplitNode orientation="vertical" percentage="0.49836424" region="bottom" siblingId="productionList"/>
+                </DockingPath>
+            </DockingState>
+            <DockingState dockableId="wmeSupport" dockingRegion="unknown" state="opened"/>
+            <DockingState dockableId="productionEditor" dockingRegion="unknown" state="opened">
+                <Point x="37" y="25"/>
+                <DockingPath isTabbed="true" rootPortId="7a76cae3-a6b9-489d-89ee-b66ce3d6967d">
+                    <SplitNode orientation="horizontal" percentage="0.7474832" region="left"/>
+                    <SplitNode orientation="vertical" percentage="0.49836424" region="top"/>
+                </DockingPath>
+            </DockingState>
+            <DockingState dockableId="productionList" dockingRegion="center" state="opened">
+                <Point x="88" y="26"/>
+                <DockingPath rootPortId="7a76cae3-a6b9-489d-89ee-b66ce3d6967d">
+                    <SplitNode orientation="horizontal" percentage="0.7474832" region="right"/>
+                    <SplitNode orientation="vertical" percentage="0.49836424" region="top"/>
+                </DockingPath>
+            </DockingState>
+            <DockingState dockableId="preferences" dockingRegion="unknown" state="opened">
+                <Point x="60" y="73"/>
+                <DockingPath isTabbed="true" rootPortId="7a76cae3-a6b9-489d-89ee-b66ce3d6967d">
+                    <SplitNode orientation="horizontal" percentage="0.7474832" region="left"/>
+                    <SplitNode orientation="vertical" percentage="0.49836424" region="bottom"/>
+                    <SplitNode orientation="horizontal" percentage="0.59708196" region="right" siblingId="workingMemory.tree"/>
+                </DockingPath>
+            </DockingState>
+            <DockingPortNode>
+                <SplitNode dockingRegion="east" orientation="horizontal" percentage="0.7474832" region="left">
+                    <DockingPortNode>
+                        <SplitNode dockingRegion="south" orientation="vertical" percentage="0.49836424" region="left">
+                            <DockingPortNode>
+                                <DockableNode dockableId="trace"/>
+                                <DockableNode dockableId="productionEditor"/>
+                            </DockingPortNode>
+                            <DockingPortNode>
+                                <SplitNode dockingRegion="east" orientation="horizontal" percentage="0.59708196" region="left">
+                                    <DockingPortNode>
+                                        <DockableNode dockableId="workingMemory.tree"/>
+                                    </DockingPortNode>
+                                    <DockingPortNode>
+                                        <DockableNode dockableId="preferences"/>
+                                        <DockableNode dockableId="wmeSupport"/>
+                                    </DockingPortNode>
+                                </SplitNode>
+                            </DockingPortNode>
+                        </SplitNode>
+                    </DockingPortNode>
+                    <DockingPortNode>
+                        <SplitNode dockingRegion="south" orientation="vertical" percentage="0.49836424" region="left">
+                            <DockingPortNode>
+                                <DockableNode dockableId="productionList"/>
+                            </DockingPortNode>
+                            <DockingPortNode>
+                                <DockableNode dockableId="partialmatches"/>
+                                <DockableNode dockableId="matcheset"/>
+                            </DockingPortNode>
+                        </SplitNode>
+                    </DockingPortNode>
+                </SplitNode>
+            </DockingPortNode>
+        </Layout>
+    </Perspective>
+</PerspectiveModel>
