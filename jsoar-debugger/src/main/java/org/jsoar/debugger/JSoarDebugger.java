@@ -52,7 +52,6 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
-import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
@@ -78,14 +77,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final ActionManager actionManager = new ActionManager(this);
     private final RunControlModel runControlModel = new RunControlModel();
         
-    private JSoarDebuggerConfiguration configuration = new JSoarDebuggerConfiguration() {
-
-        @Override
-        public void exit()
-        {
-            System.exit(0);
-        }
-    };
+    private JSoarDebuggerConfiguration configuration = new DefaultDebuggerConfiguration();
     
     private Agent agent;
     private SoarTclInterface ifc;
@@ -194,37 +186,35 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private void initViews()
     {
-        final TraceView traceView = new TraceView(this); 
-        views.add(traceView);
+        final TraceView traceView = addView(new TraceView(this)); 
         viewport.dock(traceView);
         
-        final ProductionListView prodListView = new ProductionListView(this);
-        views.add(prodListView);
+        final ProductionListView prodListView = addView(new ProductionListView(this));
         traceView.dock(prodListView, DockingConstants.EAST_REGION, 0.75f);
         
-        final PartialMatchesView matchesView = new PartialMatchesView(this);
-        views.add(matchesView);
+        final PartialMatchesView matchesView = addView(new PartialMatchesView(this));
         prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
         
-        final MatchSetView matchSetView = new MatchSetView(this);
-        views.add(matchSetView);
+        final MatchSetView matchSetView = addView(new MatchSetView(this));
         matchesView.dock(matchSetView);
         
-        final ProductionEditView prodEditView = new ProductionEditView(this);
-        views.add(prodEditView);
+        final ProductionEditView prodEditView = addView(new ProductionEditView(this));
         traceView.dock(prodEditView);
         
-        final WorkingMemoryTreeView wmTreeView = new WorkingMemoryTreeView(this);
-        views.add(wmTreeView);
+        final WorkingMemoryTreeView wmTreeView = addView(new WorkingMemoryTreeView(this));
         traceView.dock(wmTreeView, DockingConstants.SOUTH_REGION);
         
-        final PreferencesView preferencesView = new PreferencesView(this);
-        views.add(preferencesView);
+        final PreferencesView preferencesView = addView(new PreferencesView(this));
         wmTreeView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
         
-        final WmeSupportView wmeSupportView = new WmeSupportView(this);
-        views.add(wmeSupportView);
+        final WmeSupportView wmeSupportView = addView(new WmeSupportView(this));
         preferencesView.dock(wmeSupportView);
+    }
+    
+    private <T extends AbstractAdaptableView> T addView(T view)
+    {
+        views.add(view);
+        return view;
     }
     
     public ThreadedAgent getAgentProxy()
@@ -396,7 +386,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     public static JSoarDebugger attach(ThreadedAgent proxy)
     {
         DockingManager.setFloatingEnabled(true);
-        
+
         final JSoarDebugger debugger = new JSoarDebugger();
         
         final JFrame frame = new JFrame("JSoar Debugger - " + proxy.getAgent().getName());
@@ -558,20 +548,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static DebuggerProvider newDebuggerProvider()
     {
-        return new DebuggerProvider() {
-
-            @Override
-            public void openDebugger(Agent agent) throws SoarException
-            {
-                final ThreadedAgent ta = ThreadedAgent.find(agent);
-                if(ta == null)
-                {
-                    throw new SoarException("Can't attach debugger to agent with no ThreadedAgent proxy");
-                }
-                attach(ta);
-            }
-            
-        };
+        return new DefaultDebuggerProvider();
     }
     
     /* (non-Javadoc)
