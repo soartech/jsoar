@@ -426,7 +426,7 @@ public class Agent extends AbstractAdaptable
     {
         return Arrays.asList(totalCpuTimer, totalKernelTimer);
     }
-        
+      
     /**
      * Run this agent for the given number of steps with the given step type. 
      * The agent is run in the current thread.
@@ -436,18 +436,34 @@ public class Agent extends AbstractAdaptable
      */
     public void runFor(int n, RunType runType)
     {
+        enusreInitialized();
         this.decisionCycle.runFor(n, runType);
         getTrace().flush();
     }
-    
+
     /**
      * Run this agent forever, i.e. until an interrupt or halt. The agent is
      * run in the current thread.
      */
     public void runForever()
     {
+        enusreInitialized();
         this.decisionCycle.runForever();
         getTrace().flush();
+    }
+    
+    /**
+     * Checks that the agent has been initialized and throws an exception if
+     * not.
+     * 
+     * @throws IllegalStateException if agent has not been initialized
+     */
+    private void enusreInitialized()
+    {
+        if(!initialized)
+        {
+            throw new IllegalStateException("Agent has not been initialized.");
+        }
     }
     
     /**
@@ -462,6 +478,10 @@ public class Agent extends AbstractAdaptable
         this.decisionCycle.stop();
     }
     
+    /**
+     * @return the reason the agent stopped, or <code>null</code> if the agent
+     *  has not stopped.
+     */
     public String getReasonForStop()
     {
         return decisionCycle.getReasonForStop();
