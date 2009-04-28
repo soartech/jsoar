@@ -33,10 +33,14 @@ public final class SoarConstants
      * with the top-level-ref-cts turned off. Soar will be much more efficient.
      * See comments in recmem.cpp
      * 
+     * <p>This value is controlled by the system property 'jsoar.do_top_level_ref_cts'. For example:
+     * <pre>
+     * $ java -Djsoar.do_top_level_ref_cts=false ...
+     * </pre>
      * <p>kernel.h:129:DO_TOP_LEVEL_REF_CTS (pre-processor macro defaults to <b>not defined</b> in csoar)
      * <p>Defaults to <code>false</code>
      */
-    public static final boolean DO_TOP_LEVEL_REF_CTS = false;
+    public static final boolean DO_TOP_LEVEL_REF_CTS = Boolean.valueOf(System.getProperty("jsoar.do_top_level_ref_cts", "false"));
     
     /**
      * UnComment the following to enable Soar to deal with certain productions
@@ -45,9 +49,13 @@ public final class SoarConstants
      * ensure that the current and new values differ. This option may add a
      * small run time cost, since two loops are made through the preferences
      * list.
-     * 
+     *
+     * <p>This value is controlled by the system property 'jsoar.o_rejects_first'. For example:
+     * <pre>
+     * $ java -Djsoar.o_rejects_first=false ...
+     * </pre>
      * <p>kernel.h:165:O_REJECTS_FIRST (pre-processor macro defaults to <b>defined</b> in csoar)
      * <p>Defaults to <code>true</code>
      */
-    public static final boolean O_REJECTS_FIRST = true;
+    public static final boolean O_REJECTS_FIRST = Boolean.valueOf(System.getProperty("jsoar.o_rejects_first", "true"));
 }
