@@ -86,6 +86,6 @@ public class CycleCountInputTest
         
         // make sure the production doesn't fire again, i.e. that the wme has been removed
         assertEquals(n, matches.size());
-        assertNull(Wmes.matcher(agent.getSymbols()).withAttr("cycle-count").find(agent.getInputOutput().getInputLink()));
+        assertNull(Wmes.matcher(agent.getSymbols()).attr("cycle-count").find(agent.getInputOutput().getInputLink()));
     }
 }

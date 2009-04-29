@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -35,7 +36,7 @@ public class Wmes
      * 
      * <pre>{@code
      * final SymbolFactory syms = agent.getSymbols();
-     *Wme w = Wmes.matcher(syms).withAttr("my-command").find(agent.getInputOutput().getOutputLink());
+     * Wme w = Wmes.matcher(syms).withAttr("my-command").find(agent.getInputOutput().getOutputLink());
      * }</pre>
      * 
      * @param syms the agent's symbol factory
@@ -46,10 +47,18 @@ public class Wmes
         return new MatcherBuilder(syms);
     }
     
+    public static MatcherBuilder matcher(Agent agent)
+    {
+        return matcher(agent.getSymbols());
+    }
+    
     /**
      * Create a new predicate that matches a particular id/attr/value pattern for
      * a wme. The returned predicate can be used in the filter methods of the
      * Google collections API.
+     * 
+     * <p><b>Note</b>: It is generally preferable to use {@link #matcher(Agent)} to
+     * build a match predicate rather than using this method directly.
      * 
      * @param syms A symbol factory
      * @param id Desired id, or <code>null</code> for any id
@@ -65,16 +74,6 @@ public class Wmes
                                    attr != null ? Symbols.create(syms, attr) : null,
                                    value != null ? Symbols.create(syms, value) : null,
                                    timetag);
-    }
-    
-    public static Predicate<Wme> newMatcher(SymbolFactory syms, Identifier id, Object attr, Object value)
-    {
-        return newMatcher(syms, id, attr, value, -1);
-    }
-    
-    public static Predicate<Wme> newMatcher(SymbolFactory syms, Identifier id, Object attr)
-    {
-        return newMatcher(syms, id, attr, null);
     }
     
     /**
@@ -132,11 +131,20 @@ public class Wmes
             this.syms = syms;
         }
         
+        public MatcherBuilder reset()
+        {
+            this.id = null;
+            this.attr = null;
+            this.value = null;
+            this.timetag = -1;
+            return this;
+        }
+        
         /**
          * @param id the desired id, or <code>null</code> for don't care
          * @return this
          */
-        public MatcherBuilder withId(Identifier id)
+        public MatcherBuilder id(Identifier id)
         {
             this.id = id;
             return this;
@@ -146,7 +154,7 @@ public class Wmes
          * @param attr the desired attribute, or <code>null</code> for don't care
          * @return
          */
-        public MatcherBuilder withAttr(Object attr)
+        public MatcherBuilder attr(Object attr)
         {
             this.attr = attr;
             return this;
@@ -156,7 +164,7 @@ public class Wmes
          * @param value the desired value, or <code>null</code> for don't care
          * @return
          */
-        public MatcherBuilder withValue(Object value)
+        public MatcherBuilder value(Object value)
         {
             this.value = value;
             return this;
@@ -166,7 +174,7 @@ public class Wmes
          * @param timetag the desired timetag, or <code>-1</code> for don't care
          * @return
          */
-        public MatcherBuilder withTimetag(int timetag)
+        public MatcherBuilder timetag(int timetag)
         {
             this.timetag = timetag;
             return this;
@@ -195,6 +203,11 @@ public class Wmes
             return find(id.getWmes());
         }
         
+        public Wme find(Wme parent)
+        {
+            return find(parent.getChildren());
+        }
+        
         /**
          * Find a WME in the given collection of WMEs
          * 
@@ -214,6 +227,11 @@ public class Wmes
         public List<Wme> filter(Identifier id)
         {
             return filter(id.getWmes());
+        }
+        
+        public List<Wme> filter(Wme parent)
+        {
+            return filter(parent.getChildren());
         }
         
         public List<Wme> filter(Collection<Wme> wmes)

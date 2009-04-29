@@ -89,7 +89,10 @@ public class StandardFunctions
                 new Concat(), new IfEq(), new MakeConstantSymbol(), new StrLen(),
                 new JavaRhsFunction(),
                 new DeepCopy(),
-                new IntRhsFunction(), new FloatRhsFunction()));
+                new IntRhsFunction(), new FloatRhsFunction(),
+                new FromXml(), 
+                new ToXml(),
+                new GetUrl()));
     {
         allInternal.addAll(MathFunctions.all);
     }
