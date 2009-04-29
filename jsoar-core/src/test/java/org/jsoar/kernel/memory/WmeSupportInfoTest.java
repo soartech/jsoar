@@ -64,10 +64,10 @@ public class WmeSupportInfoTest
 
         agent.runFor(2, RunType.DECISIONS);
         
-        Identifier s1 = agent.getSymbols().findIdentifier('S', 1);
+        final Identifier s1 = agent.getSymbols().findIdentifier('S', 1);
         assertNotNull(s1);
 
-        Wme foo = Wmes.find(s1.getWmes(), Wmes.newMatcher(agent.getSymbols(), s1, "foo", "bar"));
+        final Wme foo = Wmes.matcher(agent).attr("foo").value("bar").find(s1);
         assertNotNull(foo);
         
         WmeSupportInfo info = WmeSupportInfo.get(agent, foo);

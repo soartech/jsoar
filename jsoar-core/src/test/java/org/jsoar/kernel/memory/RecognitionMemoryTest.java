@@ -14,6 +14,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.io.CycleCountInput;
+import org.jsoar.kernel.memory.Wmes.MatcherBuilder;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
@@ -76,22 +77,23 @@ public class RecognitionMemoryTest
         agent.runFor(1, RunType.DECISIONS);
         
         // Verify that the x, y, z, name structure is there
-        Identifier s1 = agent.getSymbols().findIdentifier('S', 1);
-        Wme result = Wmes.find(s1.getWmes(), Wmes.newMatcher(agent.getSymbols(), s1, "result"));
+        final Identifier s1 = agent.getSymbols().findIdentifier('S', 1);
+        final MatcherBuilder m = Wmes.matcher(agent);
+        Wme result = m.attr("result").find(s1);
         assertNotNull(result);
-        Identifier r1 = result.getValue().asIdentifier();
+        final Identifier r1 = result.getValue().asIdentifier();
         
         Wme x, y, z, name;
-        assertNotNull(x = Wmes.find(r1.getWmes(), Wmes.newMatcher(agent.getSymbols(), r1, "x", 1)));
-        assertNotNull(y = Wmes.find(r1.getWmes(), Wmes.newMatcher(agent.getSymbols(), r1, "y", 2)));
-        assertNotNull(z = Wmes.find(r1.getWmes(), Wmes.newMatcher(agent.getSymbols(), r1, "z", 3)));
-        assertNotNull(name = Wmes.find(r1.getWmes(), Wmes.newMatcher(agent.getSymbols(), r1, "name", "hello")));
+        assertNotNull(x = m.reset().attr("x").value(1).find(r1));
+        assertNotNull(y = m.reset().attr("y").value(2).find(r1));
+        assertNotNull(z = m.reset().attr("z").value(3).find(r1));
+        assertNotNull(name = m.reset().attr("name").value("hello").find(r1));
         
         // Step again and verify that all the WMEs are retracted because of the test on 
         // cycle-count
         agent.runFor(1, RunType.DECISIONS);
         
-        assertNull(Wmes.find(s1.getWmes(), Wmes.newMatcher(agent.getSymbols(), s1, "result")));
+        assertNull(m.reset().attr("result").find(s1));
         assertFalse(agent.getAllWmesInRete().contains(x));
         assertFalse(agent.getAllWmesInRete().contains(y));
         assertFalse(agent.getAllWmesInRete().contains(z));

@@ -24,6 +24,7 @@ import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.OutputEvent.OutputMode;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
+import org.jsoar.kernel.memory.Wmes.MatcherBuilder;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
@@ -212,11 +213,11 @@ public class InputOutputImplTest extends JSoarTest
         assertEquals(5, d1.size());
         final Identifier ol = agent.getInputOutput().getOutputLink();
         final SymbolFactory syms = agent.getSymbols();
-        final Wme struct = Wmes.matcher(syms).withId(ol).withAttr("struct").find(d1);
+        final Wme struct = Wmes.matcher(syms).id(ol).attr("struct").find(d1);
         assertNotNull(struct);
-        assertNotNull(Wmes.matcher(syms).withId(struct.getValue().asIdentifier()).withAttr("name").withValue("hello").find(d1));
-        assertNotNull(Wmes.matcher(syms).withId(ol).withAttr("a").withValue(1).find(d1));
-        assertNotNull(Wmes.matcher(syms).withId(ol).withAttr("b").withValue(2).find(d1));
+        assertNotNull(Wmes.matcher(syms).id(struct.getValue().asIdentifier()).attr("name").value("hello").find(d1));
+        assertNotNull(Wmes.matcher(syms).id(ol).attr("a").value(1).find(d1));
+        assertNotNull(Wmes.matcher(syms).id(ol).attr("b").value(2).find(d1));
         
         // After retract-output is added in the second decision cycle above, the
         // test production will retract and we'll be left with only the output-link
@@ -232,20 +233,22 @@ public class InputOutputImplTest extends JSoarTest
         new CycleCountInput(io, agent.getEventManager());
         sourceTestFile("testGetPendingCommands.soar");
         
+        final MatcherBuilder m = Wmes.matcher(agent);
+        
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
         assertEquals(1, Iterators.size(io.getOutputLink().getWmes()));
-        assertNotNull(Wmes.find(io.getPendingCommands().iterator(), Wmes.newMatcher(agent.getSymbols(), io.getOutputLink(), "first")));
+        assertNotNull(m.id(io.getOutputLink()).attr("first").find(io.getPendingCommands()));
         
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
         assertEquals(2, Iterators.size(io.getOutputLink().getWmes()));
-        assertNotNull(Wmes.find(io.getPendingCommands().iterator(), Wmes.newMatcher(agent.getSymbols(), io.getOutputLink(), "second")));
+        assertNotNull(m.id(io.getOutputLink()).attr("second").find(io.getPendingCommands()));
         
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(1, io.getPendingCommands().size());
         assertEquals(3, Iterators.size(io.getOutputLink().getWmes()));
-        assertNotNull(Wmes.find(io.getPendingCommands().iterator(), Wmes.newMatcher(agent.getSymbols(), io.getOutputLink(), "third")));
+        assertNotNull(m.id(io.getOutputLink()).attr("third").find(io.getPendingCommands()));
         
         agent.runFor(1, RunType.DECISIONS);
         assertEquals(0, io.getPendingCommands().size());

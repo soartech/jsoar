@@ -15,6 +15,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
+import org.jsoar.kernel.memory.Wmes.MatcherBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,11 +65,12 @@ public class IdentifierImplTest extends JSoarTest
         
         agent.runFor(1, RunType.DECISIONS);
         
-        Identifier id = agent.getSymbols().findIdentifier('S', 1);
+        final Identifier id = agent.getSymbols().findIdentifier('S', 1);
         assertNotNull(id);
         
         // Find the test wme
-        Wme test = Wmes.find(id.getWmes(), Wmes.newMatcher(agent.getSymbols(), null, "test"));
+        final MatcherBuilder m = Wmes.matcher(agent);
+        final Wme test = m.attr("test").find(id);
         assertNotNull(test);
         
         // Now verify that all the sub-wmes are there.
@@ -76,10 +78,10 @@ public class IdentifierImplTest extends JSoarTest
         final Identifier testId = test.getValue().asIdentifier();
         Iterators.addAll(kids, testId.getWmes());
         assertEquals(4, kids.size());
-        assertNotNull(Wmes.find(kids.iterator(), Wmes.newMatcher(agent.getSymbols(), testId, "a", 1)));
-        assertNotNull(Wmes.find(kids.iterator(), Wmes.newMatcher(agent.getSymbols(), testId, "b", 2)));
-        assertNotNull(Wmes.find(kids.iterator(), Wmes.newMatcher(agent.getSymbols(), testId, "c", 3)));
-        assertNotNull(Wmes.find(kids.iterator(), Wmes.newMatcher(agent.getSymbols(), testId, "d", 4)));
+        assertNotNull(m.reset().attr("a").value(1).find(kids));
+        assertNotNull(m.reset().attr("b").value(2).find(kids));
+        assertNotNull(m.reset().attr("c").value(3).find(kids));
+        assertNotNull(m.reset().attr("d").value(4).find(kids));
     }
 
 }
