@@ -1,5 +1,5 @@
 /*
- * (c) 2009  Soar Technology, Inc.
+ * Copyright (c) 2009  Dave Ray <daveray@gmail.com>
  *
  * Created on Apr 7, 2009
  */

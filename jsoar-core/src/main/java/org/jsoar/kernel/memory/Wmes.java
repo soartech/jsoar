@@ -35,8 +35,7 @@ public class Wmes
      * "my-command":
      * 
      * <pre>{@code
-     * final SymbolFactory syms = agent.getSymbols();
-     * Wme w = Wmes.matcher(syms).withAttr("my-command").find(agent.getInputOutput().getOutputLink());
+     * Wme w = Wmes.matcher(agent).attr("my-command").find(agent.getInputOutput().getOutputLink());
      * }</pre>
      * 
      * @param syms the agent's symbol factory
@@ -47,6 +46,13 @@ public class Wmes
         return new MatcherBuilder(syms);
     }
     
+    /**
+     * Convenience version of {@link #matcher(SymbolFactory)}.
+     * 
+     * @param agent the agent
+     * @return new matcher builder
+     * @see #matcher(SymbolFactory)
+     */
     public static MatcherBuilder matcher(Agent agent)
     {
         return matcher(agent.getSymbols());
