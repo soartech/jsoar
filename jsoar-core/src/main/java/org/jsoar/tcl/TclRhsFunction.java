@@ -55,4 +55,14 @@ public class TclRhsFunction extends AbstractRhsFunctionHandler
             throw new RhsFunctionException(e.getMessage(), e);
         }
     }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeStandalone()
+     */
+    @Override
+    public boolean mayBeStandalone()
+    {
+        // TODO Auto-generated method stub
+        return true;
+    }    
 }
