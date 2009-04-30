@@ -221,6 +221,10 @@ public class SoarTclInterface
         interp.createCommand("p", printCommand); // TODO do aliases
         interp.createCommand("o-support-mode", oSupportModeCommand);
         interp.createCommand("soar8", soar8Command);
+        interp.createCommand("firing-counts", new FiringCountsCommand(this));
+        interp.createCommand("fc", interp.getCommand("firing-counts")); // TODO do aliases
+        interp.createCommand("excise", new ExciseCommand(this));
+        interp.createCommand("ex", interp.getCommand("excise")); // TODO do aliases
         
         interp.createCommand("set-parser", setParserCommand);
         interp.createCommand("properties", propertiesCommand);
