@@ -1256,12 +1256,12 @@ class OriginalParserImpl
             // make sure stand-alone/rhs_value is appropriate
             if (is_stand_alone_action && (!handler.mayBeStandalone()))
             {
-                printer.error("Function %s cannot be used as a stand-alone action\n", fun_name);
+                printer.error("In '%s': Function %s cannot be used as a stand-alone action\n", currentProduction, fun_name);
                 // TODO print_location_of_most_recent_lexeme(thisAgent);
             }
             if ((!is_stand_alone_action) && (!handler.mayBeValue()))
             {
-                printer.error("Function %s can only be used as a stand-alone action\n", fun_name);
+                printer.error("In '%s': Function %s can only be used as a stand-alone action\n", currentProduction, fun_name);
                 // print_location_of_most_recent_lexeme(thisAgent);
             }
             
