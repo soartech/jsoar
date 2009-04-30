@@ -7,7 +7,7 @@
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry exported="true" kind="lib" path="lib/flexdock-0.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/flexdock-0.5.1.jar" sourcepath="C:/Documents and Settings/ray/home/mine/projects/my-project-dl/jsoar-dl/flexdock-0.5.1-src/src/java"/>
 	<classpathentry exported="true" kind="lib" path="lib/swingx-0.9.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
