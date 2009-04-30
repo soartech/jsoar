@@ -137,7 +137,7 @@ public class WorkingMemoryPrinter
 
         // xml_object( thisAgent, w );
 
-        String buf = String.format(" ^%s %s", w.getAttribute(), w.isAcceptable() ? " +" : "");
+        String buf = String.format(" ^%s %s%s", w.getAttribute(), w.getValue(), w.isAcceptable() ? " +" : "");
 
         if (printer.getOutputColumn() + buf.length() >= 80)
         {
