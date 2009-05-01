@@ -1,0 +1,23 @@
+<project name="jsoar-debugger" default="dist" basedir=".">
+    <description>jsoar-debugger</description>
+
+    <!-- set global properties for this build -->
+    <property name="manifest.classpath" value="jsoar-core-${version}.jar:jsoar-debugger-${version}.jar"/>
+    <property name="jar.main.class" value="org.jsoar.debugger.JSoarDebugger"/>
+    <property name="demos" location="demos" />
+	
+
+    <import file="../build-common.xml"/>
+	
+    <target name="dist" depends="jar,licenses,doc" description="generate the distribution">
+		
+    	  <!-- Copy demos -->
+        <mkdir dir="${dist}/demos"/>
+        <copy todir="${dist}/demos">
+            <fileset dir="${demos}">
+                <exclude name="**/.svn"/>
+            </fileset>
+        </copy>
+    </target>
+
+</project>
