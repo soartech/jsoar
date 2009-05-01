@@ -24,9 +24,12 @@
    </target>
 
    <target name="dist" depends="init">
+   <!--
       <ant dir="jsoar-core" antfile="build.xml"/>
       <ant dir="jsoar-debugger" antfile="build.xml"/>
       <ant dir="jsoar-sml" antfile="build.xml"/>
+      -->
+      <ant dir="jsoar-demos" antfile="build.xml"/>
     	
       <zip destfile="${dist.zip}">
          <zipfileset dir="${dist}" prefix="${ant.project.name}-${version}"/>
@@ -40,5 +43,6 @@
       <ant dir="jsoar-core" antfile="build.xml" target="clean"/>
       <ant dir="jsoar-debugger" antfile="build.xml" target="clean"/>
       <ant dir="jsoar-sml" antfile="build.xml" target="clean"/>
+      <ant dir="jsoar-demos" antfile="build.xml" target="clean"/>
    </target>
 </project>
