@@ -9,17 +9,6 @@
 
     <import file="../build-common.xml"/>
 
-	
-	
-    <target name="dist" depends="jar,licenses,doc" description="generate the distribution">
-		
-    	  <!-- Copy demos -->
-        <mkdir dir="${dist}/demos"/>
-        <copy todir="${dist}/demos">
-            <fileset dir="${demos}">
-                <exclude name="**/.svn"/>
-            </fileset>
-        </copy>
-    </target>
+	<target name="dist" depends="jar,licenses,doc" description="generate the distribution"/>
 
 </project>
