@@ -59,14 +59,8 @@ public class CommandEntryPanel extends JPanel
     
     private void addCommand(String command)
     {
-        for(int i = 0; i < field.getItemCount(); ++i)
-        {
-            if(command.equals(field.getItemAt(i)))
-            {
-                field.removeItemAt(i);
-                break;
-            }
-        }
+        field.removeItem(command);
         field.insertItemAt(command, 0);
-        field.setSelectedItem("");
+        field.setSelectedIndex(0);
+        field.getEditor().selectAll();
     }}

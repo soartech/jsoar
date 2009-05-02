@@ -45,7 +45,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         synchronized public void flush() throws IOException
         {
             final String output = buffer.toString();
-            buffer = new StringBuilder();
+            buffer.setLength(0);
 
             if(output.length() > 0)
             {
