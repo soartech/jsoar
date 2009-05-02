@@ -225,6 +225,7 @@ public class SoarTclInterface
         interp.createCommand("fc", interp.getCommand("firing-counts")); // TODO do aliases
         interp.createCommand("excise", new ExciseCommand(this));
         interp.createCommand("ex", interp.getCommand("excise")); // TODO do aliases
+        interp.createCommand("init-soar", new InitSoarCommand(this));
         
         interp.createCommand("set-parser", setParserCommand);
         interp.createCommand("properties", propertiesCommand);

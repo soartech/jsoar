@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.io;
 
+import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputCycleEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.IntegerSymbol;
@@ -22,10 +23,13 @@ import org.jsoar.util.events.SoarEventManager;
  */
 public class CycleCountInput
 {
+    private static final int START = 1; // TODO: I think this should be 0. Why isn't it?
     private final InputOutput io;
     private final SoarEventManager events;
     private final InputListener listener;
-    private int count = 1;
+    private final InitSoarListener initListener;
+    
+    private int count = START;
     private Wme wme;
     
     /**
@@ -43,7 +47,9 @@ public class CycleCountInput
         this.io = io;
         this.events = events;
         this.listener = new InputListener();
+        this.initListener = new InitSoarListener();
         this.events.addListener(InputCycleEvent.class, listener);
+        this.events.addListener(BeforeInitSoarEvent.class, initListener);
     }
     
     /**
@@ -52,7 +58,8 @@ public class CycleCountInput
      */
     public void dispose()
     {
-        this.events.removeListener(InputCycleEvent.class, listener);
+        this.events.removeListener(null, listener);
+        this.events.removeListener(null, initListener);
         
         // Schedule removal of wme at next input cycle.
         // TODO: I think this should be handled by InputOutput
@@ -94,6 +101,20 @@ public class CycleCountInput
         {
             update();
         }
+    }
+    
+    private class InitSoarListener implements SoarEventListener
+    {
+        /* (non-Javadoc)
+         * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
+         */
+        @Override
+        public void onEvent(SoarEvent event)
+        {
+            wme = null;
+            count = START;
+        }
+        
     }
     
     private static class CleanupListener implements SoarEventListener
