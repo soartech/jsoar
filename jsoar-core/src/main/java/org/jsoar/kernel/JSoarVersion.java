@@ -19,6 +19,8 @@ public final class JSoarVersion
 {
     private static final Log logger = LogFactory.getLog(JSoarVersion.class);
     
+    private static final String PREFIX = "jsoar-core.buildinfo";
+    
     private static JSoarVersion instance = new JSoarVersion();
         
     private Properties properties = new Properties();
@@ -56,27 +58,27 @@ public final class JSoarVersion
     
     public String getVersion()
     {
-        return properties.getProperty("jsoar.buildinfo.version", "0.0.0").toString();
+        return properties.getProperty(PREFIX + ".version", "0.0.0").toString();
     }
     
     public String getBuildDate()
     {
-        return properties.getProperty("jsoar.buildinfo.date", "Unknown");
+        return properties.getProperty(PREFIX + ".date", "Unknown");
     }
 
     public String getBuiltBy()
     {
-        return properties.getProperty("jsoar.buildinfo.builtBy", "Unknown");
+        return properties.getProperty(PREFIX + ".builtBy", "Unknown");
     }
     
     public String getSvnRevision()
     {
-        return properties.getProperty("jsoar.buildinfo.svn.revision", "Unknown");
+        return properties.getProperty(PREFIX + ".svn.revision", "Unknown");
     }
     
     public String getSvnUrl()
     {
-        return properties.getProperty("jsoar.buildinfo.svn.url", "Unknown");
+        return properties.getProperty(PREFIX + ".svn.url", "Unknown");
     }
 
     /* (non-Javadoc)
