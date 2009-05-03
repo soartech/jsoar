@@ -28,6 +28,7 @@ Contents of this distribution:
    lib/jsoar-core-x.x.x.jar - Core jsoar core including Soar kernel
    lib/jsoar-debugger-x.x.x.jar - jsoar debugger
    lib/jsoar-sml-x.x.x.jar - Unfinished jsoar implementation of SML API.
+   lib/jsoar-demos-x.x.x.jar - jsoar demos
       
    license.txt - the jsoar BSD license
    

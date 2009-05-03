@@ -1,5 +1,5 @@
 <project name="jsoar" default="dist" basedir=".">
-   <property name="version" value="0.5.0" />
+   <property name="version" value="0.6.0" />
    <property name="soarVersion" value="9.0.1" />
    <property name="copyright" value="(c) Dave Ray, 2009"/>
    <property name="manifest.vendor" value="Dave Ray"/>
@@ -24,11 +24,9 @@
    </target>
 
    <target name="dist" depends="init">
-   <!--
       <ant dir="jsoar-core" antfile="build.xml"/>
       <ant dir="jsoar-debugger" antfile="build.xml"/>
       <ant dir="jsoar-sml" antfile="build.xml"/>
-      -->
       <ant dir="jsoar-demos" antfile="build.xml"/>
     	
       <zip destfile="${dist.zip}">
@@ -44,5 +42,23 @@
       <ant dir="jsoar-debugger" antfile="build.xml" target="clean"/>
       <ant dir="jsoar-sml" antfile="build.xml" target="clean"/>
       <ant dir="jsoar-demos" antfile="build.xml" target="clean"/>
+   </target>
+
+   <!--
+   Sign the jars. This is necessary for applets since some libraries jsoar
+   uses (Google Collections, Jacl, etc) use restricted operations. To set
+   up the keystore:
+
+   $ keytool -genkey -alias jsoar
+   $ keytool -selfcert -alias jsoar
+   -->
+   <target name="sign">
+      <input message="Keystore password:" addproperty="storepass"/>
+
+      <signjar alias="jsoar" storepass="${storepass}">
+         <path>
+            <fileset dir="${dist.lib}" includes="*.jar"/>
+         </path>
+      </signjar>
    </target>
 </project>
