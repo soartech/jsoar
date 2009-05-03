@@ -6,15 +6,21 @@
     <!-- set global properties for this build -->
     <property name="tools" location="tools" />
     <property name="demos" location="demos" />
+    <property name="src.html" location="src/main/html"/>
 	
     <property name="jar.main.class" value="org.jsoar.debugger.JSoarDebugger"/>
-	
 	
     <target name="dist" depends="jar,licenses,doc" description="generate the distribution">
 		
         <copy todir="${dist}" >
             <fileset dir="${tools}">
                 <include name="*.bat"/>
+            </fileset>
+        </copy>
+
+        <copy todir="${dist.lib}">
+            <fileset dir="${src.html}">
+                <include name="*.html"/>
             </fileset>
         </copy>
     </target>

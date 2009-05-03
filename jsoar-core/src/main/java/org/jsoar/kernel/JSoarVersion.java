@@ -30,7 +30,7 @@ public final class JSoarVersion
 
     private JSoarVersion()
     {
-        InputStream input = JSoarVersion.class.getResourceAsStream("/jsoar.buildinfo.properties");
+        InputStream input = JSoarVersion.class.getResourceAsStream("/jsoar-core.buildinfo.properties");
         if(input != null)
         {
             try

@@ -51,7 +51,10 @@ public class TinyDebugger extends JApplet
     
     private final JPanel tracePanel = new JPanel(new BorderLayout());
     private final JTextArea trace = new JTextArea();
-    private final DefaultComboBoxModel promptModel = new DefaultComboBoxModel(new Object[] { "run -d 1", "run", "stats", "p s1", "stop-soar", "waitsnc --on" });
+    private final DefaultComboBoxModel promptModel = new DefaultComboBoxModel(new Object[] { 
+          "source http://darevay.com/jsoar/waterjugs.soar",
+          "source http://darevay.com/jsoar/towers.soar",
+          "run -d 1", "run", "stats", "p s1", "stop-soar", "init-soar", "waitsnc --on" });
     private final JComboBox prompt = new JComboBox(promptModel);
     
     private final JPanel productionPanel = new JPanel(new BorderLayout());
@@ -132,13 +135,20 @@ public class TinyDebugger extends JApplet
                 }
             }});
         
-        SwingUtilities.invokeLater(new Runnable() {
+        try
+        {
+            SwingUtilities.invokeAndWait(new Runnable() {
 
-            @Override
-            public void run()
-            {
-                createUi();
-            }});
+               @Override
+               public void run()
+               {
+                  createUi();
+               }});
+        }
+        catch(Exception e)
+        {
+           System.err.println("Failed to initialize: " + e);
+        }
     }
 
     /* (non-Javadoc)
@@ -166,7 +176,7 @@ public class TinyDebugger extends JApplet
         trace.setFont(new Font("Monospaced", Font.PLAIN, 12));
         trace.setEditable(false);
         JSoarVersion version = JSoarVersion.getInstance();
-        trace.setText("jsoar " + version + "\nCopyright 2009, Dave Ray <daveray@gmail.com>\n\n");
+        trace.setText("jsoar " + version + "\nhttp://jsoar.googlecode.com\n\n");
         tracePanel.add(new JScrollPane(trace), BorderLayout.CENTER);
         
         final JPanel promptPanel = new JPanel(new BorderLayout());
