@@ -1,7 +1,16 @@
 package org.jsoar.tcl;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Stack;
+
+import org.jsoar.util.FileTools;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -68,7 +77,15 @@ public class SourceCommand implements Command
             throw new TclNumArgsException(interp, 0, args, "fileName");
         }
         
-        String fileName = args[1].toString();
+        final String fileName = args[1].toString();
+        
+        // First see if it's a URL
+        if(tryUrl(interp, fileName))
+        {
+            return;
+        }
+        
+        // Fallback to file system
         source(interp, fileName);
     }
 
@@ -93,6 +110,36 @@ public class SourceCommand implements Command
         finally
         {
             popd(interp);
+        }
+    }
+    
+    private boolean tryUrl(Interp interp, String fileName) throws TclException 
+    {
+        try
+        {
+            final URL url = new URL(fileName);
+            
+            // TODO: This should also handle relative URL paths as well as proxies, authentication, etc
+            final InputStream in = new BufferedInputStream(url.openStream());
+            try
+            {
+                final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                FileTools.copy(in, out);
+                interp.eval(out.toString());
+                return true;
+            }
+            finally
+            {
+                in.close();
+            }
+        }
+        catch (MalformedURLException e)
+        {
+            return false; // Not a URL
+        }
+        catch (IOException e)
+        {
+            throw new TclException(interp, e.getMessage());
         }
     }
 }
