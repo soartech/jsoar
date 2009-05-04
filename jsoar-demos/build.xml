@@ -7,7 +7,7 @@
     <property name="demos" location="demos" />
 	
 
-    <import file="../build-common.xml"/>
+    <import file="../jsoar-build/build-common.xml"/>
 	
     <target name="dist" depends="jar,licenses" description="generate the distribution">
 		
