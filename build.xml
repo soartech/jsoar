@@ -1,64 +1,10 @@
-<project name="jsoar" default="dist" basedir=".">
-   <property name="version" value="0.6.0" />
-   <property name="soarVersion" value="9.0.1" />
-   <property name="copyright" value="(c) Dave Ray, 2009"/>
-   <property name="manifest.vendor" value="Dave Ray"/>
-
-   <property name="dist" location="dist" />
-   <property name="dist.lib" location="${dist}/lib" />
-   <property name="dist.zip" location="${ant.project.name}-${version}.zip"/>
-
-   <target name="init" description="Create temporary build directories">
-      <tstamp />
-      <mkdir dir="${dist}" />
-      <mkdir dir="${dist.lib}" />
-
-      <copy todir="${dist}" file="license.txt"/>
-      <copy todir="${dist}">
-         <fileset file="readme.txt"/>
-         <filterset>
-            <filter token="JSOAR_VERSION" value="${version}"/>
-            <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>
-         </filterset>
-      </copy>
-   </target>
-
-   <target name="dist" depends="init">
-      <ant dir="jsoar-core" antfile="build.xml"/>
-      <ant dir="jsoar-debugger" antfile="build.xml"/>
-      <ant dir="jsoar-sml" antfile="build.xml"/>
-      <ant dir="jsoar-demos" antfile="build.xml"/>
-    	
-      <zip destfile="${dist.zip}">
-         <zipfileset dir="${dist}" prefix="${ant.project.name}-${version}"/>
-      </zip>
-    	
+<project name="jsoar" default="dist">
+   <!-- See jsoar-build/readme.txt. Build results are in jsoar-build/dist -->
+   <target name="dist">
+      <ant dir="jsoar-build"/>
    </target>
 
    <target name="clean">
-      <delete dir="${dist}" />
-      <delete file="${dist.zip}"/>
-      <ant dir="jsoar-core" antfile="build.xml" target="clean"/>
-      <ant dir="jsoar-debugger" antfile="build.xml" target="clean"/>
-      <ant dir="jsoar-sml" antfile="build.xml" target="clean"/>
-      <ant dir="jsoar-demos" antfile="build.xml" target="clean"/>
-   </target>
-
-   <!--
-   Sign the jars. This is necessary for applets since some libraries jsoar
-   uses (Google Collections, Jacl, etc) use restricted operations. To set
-   up the keystore:
-
-   $ keytool -genkey -alias jsoar
-   $ keytool -selfcert -alias jsoar
-   -->
-   <target name="sign">
-      <input message="Keystore password:" addproperty="storepass"/>
-
-      <signjar alias="jsoar" storepass="${storepass}">
-         <path>
-            <fileset dir="${dist.lib}" includes="*.jar"/>
-         </path>
-      </signjar>
+      <ant dir="jsoar-build" target="clean"/>
    </target>
 </project>

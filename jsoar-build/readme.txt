@@ -5,6 +5,8 @@ run ant to create a new build:
 
 $ ant
 
+The resulting distribution will be in the dist folder.
+
 Note that this will always perform a full rebuild of jsoar. jsoar is
 developed in Eclipse which compiles code on the fly. Thus, the ANT
 build scripts are only used to build releases.  In fact, this folder
