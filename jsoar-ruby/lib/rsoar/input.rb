@@ -29,6 +29,7 @@ module RSoar
       value
     end
   
+    # Construct a new id , pass it to the block and return it
     def new_id(char = 'Z', &block)
       id = InputId.new @tree, char
       yield id if block_given?
@@ -43,8 +44,13 @@ module RSoar
       end
     end
   
+    # Add an attribute/value to this id
     def + (name, value = nil, &block) add_attribute name, value, &block end
+    
+    # Remove all attributes with the given name from this id
     def - (name)  remove_attribute name end
+      
+    # Update the WME with the given attribute name with a new value
     def ^ (name, value = nil, &block) update_attribute name, value, &block end
   end
   
@@ -63,12 +69,44 @@ module RSoar
       @ids = {}
     end
   
+    # Execute a set of WM modifications atomically
     def atomic(&block)
       @queue.synchronized do
         yield self
       end
     end
+    
+    def enqueue(op)
+      @queue.synchronized do
+        @queue.addLast op
+      end
+      @agent.input_output.asynchronous_input_ready
+    end
   
+    def do_add(node, name, value)
+      if value.is_a? InputId
+        value = create_id_symbol value
+      end
+      
+      id = create_id_symbol node
+      wme = org.jsoar.kernel.io.InputBuilder.add @agent.input_output, id, @agent.symbols.create_string(name.to_s), value
+      node.map[name] << wme
+    end
+  
+    def do_remove(node, name)
+      node.map[name].each do |wme|
+        @agent.input_output.remove_input_wme wme
+      end
+      node.map.delete name
+    end
+  
+    def do_update(node, name, value)
+      do_remove node, name
+      do_add node, name, value 
+    end
+    
+    private
+    
     def get_id_symbol(node)
       @root == node ? @agent.input_output.input_link : @ids[node]
     end
@@ -84,13 +122,6 @@ module RSoar
       id 
     end
   
-    def enqueue(op)
-      @queue.synchronized do
-        @queue.addLast op
-      end
-      @agent.input_output.asynchronous_input_ready
-    end
-  
     def on_event(event)
       @queue.synchronized do
         while !@queue.is_empty
@@ -98,27 +129,6 @@ module RSoar
         end
       end
     end
-  
-    def do_add(node, name, value)
-      if value.is_a? InputId
-        value = create_id_symbol value
-      end
-      
-      id = create_id_symbol node
-      wme = org.jsoar.kernel.io.InputBuilder.add @agent.input_output, id, name, value
-      node.map[name] << wme
-    end
-  
-    def do_remove(node, name)
-      node.map[name].each do |wme|
-        @agent.input_output.remove_input_wme wme
-      end
-      node.map.delete name
-    end
-  
-    def do_update(node, name, value)
-      do_remove node, name
-      do_add node, name, value 
-    end
+
   end
 end

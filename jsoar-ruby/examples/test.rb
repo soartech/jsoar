@@ -1,5 +1,3 @@
-$JSOAR_HOME = '../../../jsoar-full/dist'
-
 require 'rsoar'
 
 import org.jsoar.kernel.SoarProperties
@@ -31,10 +29,9 @@ agent = RSoar::RAgent.new do |a|
     (interrupt)
     (debug)
   '
-
 end
-input = RSoar::Input.new agent
-root = input.root
+
+root = agent.input.root
 
 agent.run_forever
 
