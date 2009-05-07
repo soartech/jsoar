@@ -32,10 +32,15 @@ module RSoar
     
     def print(s)
       printer.print s
+      printer.flush
     end
     
     def eval(script) tcl.eval script  end
   
+    def is_running
+      @threaded.is_running
+    end
+    
     def run_for(n, type)
       @threaded.run_for n, type
     end
