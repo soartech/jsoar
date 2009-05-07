@@ -4,6 +4,9 @@
 # set JSOAR_HOME
 # $ jruby twagent.rb user pass soar-file
 
+# Add lib to load path
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+
 require 'rubygems'
 require 'twitter'
 require 'rsoar'
