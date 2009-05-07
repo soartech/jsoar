@@ -11,7 +11,9 @@ require 'set'
 
 class Twagent
 
-  def initialize(user, pass, file)
+  attr_reader :agent
+  
+  def initialize(user, pass)
     
     @known_tweets = Set.new
     @users = {}
@@ -21,6 +23,7 @@ class Twagent
     @twitter = Twitter::Base.new(@httpauth)
     
     @agent = RSoar::RAgent.new do |a|
+      a.name = "Twagent - #{user}"
       a.debugger_provider = org.jsoar.debugger.JSoarDebugger.new_debugger_provider
     
       a.output_link.when :update do |v|
@@ -78,10 +81,6 @@ class Twagent
       @friends_root = a.input_link.+ :friends
       a.debug
     end
-    
-    if file
-      @agent.source file
-    end
   end
 
   def copy_attrs(from, to, attrs)
@@ -124,6 +123,7 @@ class Twagent
   end
   
   def update
+    @agent.print "\nenv: Retrieving new tweets ...\n"
     @agent.input.atomic do |il|
       update_tweets
       
@@ -134,7 +134,7 @@ class Twagent
   def update_tweets
     @twitter.friends_timeline.each do |tweet| 
       if !@known_tweets.include?(tweet[:id])
-        @agent.print "\nenv: New tweet #{tweet[:id]}\n"
+        @agent.print "env:    New tweet #{tweet[:id]}\n"
         @last_tweet = create_tweet_input tweet
         @known_tweets.add tweet[:id]
       end
@@ -146,8 +146,14 @@ end
 org.jsoar.debugger.JSoarDebugger::initialize_look_and_feel
 
 user, pass, file = ARGV
-twagent = Twagent.new user, pass, file
+twagent = Twagent.new user, pass
 sleep 2.0
+
+if file
+  twagent.agent.print("\nenv: Sourcing '#{file}'")
+  twagent.agent.source file
+end
+twagent.agent.print("\nenv: New tweets will be retrieved every 60 seconds")
 
 twagent.get_followers
 twagent.get_friends
