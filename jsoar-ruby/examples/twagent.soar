@@ -1,0 +1,37 @@
+
+sp {send*update
+   (state <s> ^superstate nil 
+              ^io.output-link <ol>)
+-->
+   (<ol> ^update.text |The bomb in the baby carriage was wired through the radio|)
+}
+
+sp {send*direct
+   (state <s> ^superstate nil
+              ^io.output-link <ol>
+              ^io.input-link.followers.<sn> <u>)
+   (<u> ^screen_name jsoar)
+-->
+   (<ol> ^direct <direct>)
+   (<direct> ^user <u>
+             ^text (concat |Hello | <sn>))
+}
+
+sp {follow
+   (state <s> ^superstate nil
+              ^io.output-link <ol>
+              ^io.input-link.users.<sn> <u>)
+   (<u> ^screen_name jsoar)
+-->
+   (<ol> ^follow.user <u>)
+}
+
+sp {unfollow
+   (state <s> ^superstate nil
+              ^io.output-link <ol>
+              ^io.input-link.users.<sn> <u>)
+   (<u> ^screen_name jsoar)
+-->
+   (<ol> ^unfollow.user <u>)
+}
+

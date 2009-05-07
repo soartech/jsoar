@@ -2,6 +2,27 @@ module RSoar
   
   OutputCommand = Struct.new("OutputCommand", :handler, :options)
   
+  class OutputId
+    
+    def initialize(agent, id)
+      @agent = agent
+      @id = id
+    end
+    
+    def [](name)
+      w = org.jsoar.kernel.memory.Wmes.matcher(@agent).attr(name.to_s).find(@id)
+      if !w.nil?
+        v = w.value
+        v.asIdentifier.nil? ? v.value : OutputId.new(@agent, v)
+      else
+        nil
+      end      
+    end
+    def method_missing(method_name, *args)
+      self[method_name]
+    end
+  end
+  
   class Output
     include org.jsoar.util.events.SoarEventListener
 
@@ -23,7 +44,7 @@ module RSoar
       io.get_pending_commands.each do |wme|
         value = wme.value
         if (command = @commands[wme.attribute.value])
-          r = command.handler.call value
+          r = command.handler.call OutputId.new(@agent, value)
           if r && !value.asIdentifier.nil?
             io.add_input_wme value, @status_sym, @agent.symbols.create_string(r.to_s)
           end

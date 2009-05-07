@@ -30,6 +30,10 @@ module RSoar
       eval "source {#{file}}"
     end
     
+    def print(s)
+      printer.print s
+    end
+    
     def eval(script) tcl.eval script  end
   
     def run_for(n, type)
