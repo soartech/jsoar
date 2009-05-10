@@ -441,7 +441,7 @@ public class Rete
         //w.in_rete.insertAtHead(all_wmes_in_rete);
 
         /* --- it's not in any right memories or tokens yet --- */
-        w.clearnRightMemories();
+        w.clearRightMemories();
         w.tokens = null;
 
         /* --- add w to the appropriate alpha_mem in each of 8 possible tables --- */

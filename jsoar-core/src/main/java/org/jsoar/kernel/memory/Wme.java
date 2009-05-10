@@ -10,13 +10,14 @@ import java.util.Iterator;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.util.adaptables.Adaptable;
 
 /**
  * Public interface for a working memory element for use by I/O code.
  * 
  * @author ray
  */
-public interface Wme extends Formattable
+public interface Wme extends Formattable, Adaptable
 {
     /**
      * @return The identifier field of the WME. This value will never change.

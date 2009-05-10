@@ -12,7 +12,7 @@ import java.util.Set;
  * but keys are dot-delimited paths corresponding, eventually, to Soar working
  * memory paths. 
  * 
- * <p>Instanceo of QMemory may be instantiated with the create() methods of
+ * <p>Instances of QMemory may be instantiated with the create() methods of
  * {@link DefaultQMemory}.
  * 
  * <p>Unlike in Soar, paths are unique, so setting more than one

@@ -89,13 +89,13 @@ module RSoar
       end
       
       id = create_id_symbol node
-      wme = org.jsoar.kernel.io.InputBuilder.add @agent.input_output, id, @agent.symbols.create_string(name.to_s), value
+      wme = org.jsoar.kernel.io.InputWmes.add @agent.input_output, id, @agent.symbols.create_string(name.to_s), value
       node.map[name] << wme
     end
   
     def do_remove(node, name)
       node.map[name].each do |wme|
-        @agent.input_output.remove_input_wme wme
+        wme.remove
       end
       node.map.delete name
     end

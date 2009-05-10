@@ -163,14 +163,14 @@ public class InputOutputImpl implements InputOutput
 
         /* The following code was taken from the do_input_cycle function of io.cpp */
         // Creating the io_header and adding the top state io header wme
-        this.io_header_link = addInputWme(context.decider.top_state, context.predefinedSyms.io_symbol, this.io_header);
+        this.io_header_link = addInputWmeInternal(context.decider.top_state, context.predefinedSyms.io_symbol, this.io_header);
         
         // Creating the input and output header symbols and wmes
         // RPM 9/06 changed to use this.input/output_link_symbol
         // Note we don't have to save these wmes for later release since their parent
         //  is already being saved (above), and when we release it they will automatically be released
-        addInputWme(this.io_header, context.predefinedSyms.input_link_symbol, this.io_header_input);
-        outputLinkWme = addInputWme(this.io_header, context.predefinedSyms.output_link_symbol, this.io_header_output);
+        addInputWmeInternal(this.io_header, context.predefinedSyms.input_link_symbol, this.io_header_input);
+        outputLinkWme = addInputWmeInternal(this.io_header, context.predefinedSyms.output_link_symbol, this.io_header_output);
     }
 
     /* (non-Javadoc)
@@ -190,12 +190,17 @@ public class InputOutputImpl implements InputOutput
     {
         return io_header_output;
     }
-
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.io.InputOutput#addInputWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
      */
     @Override
-    public WmeImpl addInputWme(Identifier id, Symbol attr, Symbol value)
+    public InputWme addInputWme(Identifier id, Symbol attr, Symbol value)
+    {
+        return new InputWmeImpl(this, addInputWmeInternal(id, attr, value));
+    }
+
+    public WmeImpl addInputWmeInternal(Identifier id, Symbol attr, Symbol value)
     {
         Arguments.checkNotNull(id, "id");
         Arguments.checkNotNull(attr, "attr");
@@ -208,18 +213,17 @@ public class InputOutputImpl implements InputOutput
 
         return w;
     }
-
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.io.InputOutput#removeInputWme(org.jsoar.kernel.memory.Wme)
-     */
-    @Override
-    public void removeInputWme(Wme wIn)
+    
+    void removeInputWme(InputWme w)
     {
-        Arguments.checkNotNull(wIn, "w");
-        Arguments.check(wIn instanceof WmeImpl, "Incompatible WME type");
+        Arguments.check(w instanceof InputWmeImpl, "Incompatible WME type: " + w + ", " + w.getClass());
+        removeInputWmeInternal(((InputWmeImpl) w).getInner());
+    }
+    
+    public void removeInputWmeInternal(WmeImpl w)
+    {
+        Arguments.checkNotNull(w, "w");
 
-        final WmeImpl w = (WmeImpl) wIn;
-        
         if (!w.isMemberOfList(w.id.getInputWmes()))
         {
             throw new IllegalArgumentException("w is not currently in working memory");
@@ -250,22 +254,22 @@ public class InputOutputImpl implements InputOutput
         this.workingMemory.remove_wme_from_wm(w);
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.io.InputOutput#updateInputWme(org.jsoar.kernel.memory.Wme, org.jsoar.kernel.symbols.Symbol)
-     */
-    @Override
-    public Wme updateInputWme(Wme w, Symbol newValue)
+    InputWme updateInputWme(InputWme w, Symbol newValue)
     {
         Arguments.checkNotNull(w, "w");
-        Arguments.check(w instanceof WmeImpl, "Incompatible WME type");
+        Arguments.check(w instanceof InputWmeImpl, "Incompatible WME type: " + w + ", " + w.getClass());
 
         if(newValue == w.getValue())
         {
             return w;
         }
         
-        removeInputWme(w);
-        return addInputWme(w.getIdentifier(), w.getAttribute(), newValue);
+        final InputWmeImpl iw = (InputWmeImpl) w;
+        final WmeImpl inner = iw.getInner();
+        
+        removeInputWmeInternal(inner);
+        iw.setInner(addInputWmeInternal(w.getIdentifier(), w.getAttribute(), newValue));
+        return w;
     }
 
 

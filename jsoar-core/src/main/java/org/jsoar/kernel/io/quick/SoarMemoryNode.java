@@ -2,7 +2,7 @@
 package org.jsoar.kernel.io.quick;
 
 import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbols;
 
@@ -10,7 +10,7 @@ class SoarMemoryNode
 {
     // private static Logger logger = Logger.getLogger(SoarMemoryNode.class);
     
-    private Wme wme;
+    private InputWme wme;
     private Identifier idValue;
 
     private String name;
@@ -24,12 +24,12 @@ class SoarMemoryNode
         return idValue;
     }
     
-    public Wme getWME()
+    public InputWme getWME()
     {
         return wme;
     }
 
-    private void setWME(Wme wme)
+    private void setWME(InputWme wme)
     {
         this.wme = wme;
         this.idValue = wme != null ? wme.getValue().asIdentifier() : null;
@@ -98,8 +98,8 @@ class SoarMemoryNode
         
         if(!memoryNode.valueIsEqual(node))
         {
-            setWME(io.updateInputWme(wme, 
-                    Symbols.create(io.getSymbols(), node.getValue() != null ? node.getValue() : Symbols.NEW_ID)));
+            wme.update(Symbols.create(io.getSymbols(), node.getValue() != null ? node.getValue() : Symbols.NEW_ID));
+            setWME(wme);
             memoryNode.setValue(node);
         }
     }
@@ -108,7 +108,7 @@ class SoarMemoryNode
     {
         if(wme != null)
         {
-            io.removeInputWme(wme);
+            wme.remove();
             setWME(null);
         }
     }
@@ -121,7 +121,7 @@ class SoarMemoryNode
         }
         else if (!memoryNode.hasSameType(node))
         {
-            io.removeInputWme(wme);
+            wme.remove();
             wme = null;
             createWME(io, node);
         }

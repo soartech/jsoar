@@ -32,7 +32,7 @@ public class Symbols
      * <li>Symbol - returns the symbol
      * <li>Character - {@link StringSymbol}
      * <li>Double, Float - {@link DoubleSymbol}
-     * <li>Integer, Log, Short, Byte, AtomicInteger, AtomicLong - IntegerSymbol (note possible loss of data)
+     * <li>Integer, Long, Short, Byte, AtomicInteger, AtomicLong - IntegerSymbol (note possible loss of data)
      * <li>All others, including <code>null</code> - {@link JavaSymbol}
      * </ul>
      * 
@@ -136,6 +136,15 @@ public class Symbols
         return result;
     }
     
+    /**
+     * Get the first letter of an attribute. Uses {@link Object#toString()}
+     * and retrieves the first character. If {@code attr} is {@code null}, is
+     * an empty string, or begins with a non-alphabetic character, {@code 'Z'} 
+     * is returned.
+     * 
+     * @param attr an attribute name
+     * @return first letter of attribute name, or {@code 'Z'}
+     */
     public static char getFirstLetter(Object attr)
     {
         if(attr == null)

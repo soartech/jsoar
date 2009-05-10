@@ -7,9 +7,6 @@ package org.jsoar.kernel.io;
 
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputCycleEvent;
-import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.IntegerSymbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
@@ -30,7 +27,7 @@ public class CycleCountInput
     private final InitSoarListener initListener;
     
     private int count = START;
-    private Wme wme;
+    private InputWme wme;
     
     /**
      * Construct a new cycle count input object.
@@ -79,16 +76,15 @@ public class CycleCountInput
         // the cycle count from the agent (or I/O?) rather than maintaining it
         // manually like this.
         
-        final SymbolFactory syms = io.getSymbols();
-        final IntegerSymbol newCount = syms.createInteger(count++);
         if(wme == null)
         {
-            wme = io.addInputWme(io.getInputLink(), syms.createString("cycle-count"), newCount);
+            wme = InputWmes.add(io, "cycle-count", count);
         }
         else
         {
-            wme = io.updateInputWme(wme, newCount);
+            InputWmes.update(wme, count);
         }
+        count++;
     }
     
     private class InputListener implements SoarEventListener
@@ -120,12 +116,12 @@ public class CycleCountInput
     private static class CleanupListener implements SoarEventListener
     {
         private final SoarEventManager manager;
-        private final Wme wme;
+        private final InputWme wme;
 
         /**
          * @param wme
          */
-        public CleanupListener(SoarEventManager manager, Wme wme)
+        public CleanupListener(SoarEventManager manager, InputWme wme)
         {
             this.manager = manager;
             this.wme = wme;
@@ -137,9 +133,7 @@ public class CycleCountInput
         @Override
         public void onEvent(SoarEvent event)
         {
-            InputCycleEvent ie = (InputCycleEvent) event;
-            
-            ie.getInputOutput().removeInputWme(wme);
+            wme.remove();
             
             this.manager.removeListener(null, this);
             

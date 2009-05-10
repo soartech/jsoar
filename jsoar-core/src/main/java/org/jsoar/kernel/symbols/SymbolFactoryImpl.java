@@ -50,13 +50,13 @@ public class SymbolFactoryImpl implements SymbolFactory
         return new MapMaker().weakValues().makeMap();
     }
     
-    private int id_counter[] = new int[26];
-    private Map<String, StringSymbolImpl> symConstants = newReferenceMap();
-    private Map<Integer, IntegerSymbolImpl> intConstants = newReferenceMap();
-    private Map<Double, DoubleSymbolImpl> floatConstants = newReferenceMap();
-    private Map<IdKey, IdentifierImpl> identifiers = newReferenceMap();
-    private Map<String, Variable> variables = newReferenceMap();
-    private Map<Object, JavaSymbolImpl> javaSyms = newReferenceMap();
+    private final int id_counter[] = new int[26];
+    private final Map<String, StringSymbolImpl> symConstants = newReferenceMap();
+    private final Map<Integer, IntegerSymbolImpl> intConstants = newReferenceMap();
+    private final Map<Double, DoubleSymbolImpl> floatConstants = newReferenceMap();
+    private final Map<IdKey, IdentifierImpl> identifiers = newReferenceMap();
+    private final Map<String, Variable> variables = newReferenceMap();
+    private final Map<Object, JavaSymbolImpl> javaSyms = newReferenceMap();
     private final JavaSymbolImpl nullJavaSym;
     private int current_tc_number = 0;
     private int current_symbol_hash_id = 0; 
@@ -170,7 +170,6 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
-     * 
      * symtab.cpp:280:make_new_identifier
      * 
      * @param name_letter

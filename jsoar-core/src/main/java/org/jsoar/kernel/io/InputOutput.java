@@ -12,7 +12,6 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
-import org.jsoar.kernel.symbols.Symbols;
 
 /**
  * @author ray
@@ -26,8 +25,8 @@ public interface InputOutput
     
     /**
      * Create a new input WME. The symbols used must have been created with
-     * the symbol factory returned by {@link #getSymbols()}. Use of
-     * the utility functions in {@link Symbols} is encouraged.
+     * the symbol factory returned by {@link #getSymbols()}. <b>Use of
+     * the utility functions in {@link InputWmes} is encouraged.</b>
      * 
      * <p>io.cpp::add_input_wme
      * 
@@ -37,29 +36,8 @@ public interface InputOutput
      * @return The newly created WME object
      * @throws IllegalArgumentException if any of the ids is <code>null</code>
      */
-    Wme addInputWme(Identifier id, Symbol attr, Symbol value);
-    
-    /**
-     * Remove an input WME previously created with {@link #addInputWme(Identifier, Symbol, Symbol)}.
-     * 
-     * <p>io.cpp:243:remove_input_wme
-     * 
-     * @param w The WME to remove
-     * @throws IllegalArgumentException if the WME is <code>null</code>
-     */
-    void removeInputWme(Wme w);
-    
-    /**
-     * Update the value of a WME, returning the new WME.  Since WMEs are 
-     * immutable, a new WME must be created.
-     *  
-     * @param w The WME to update
-     * @param newValue New value for the WME
-     * @return The new WME with id and attr same as input WME and new value
-     * @throws IllegalArgumentException if the WME is <code>null</code>
-     */
-    Wme updateInputWme(Wme w, Symbol newValue);
-    
+    InputWme addInputWme(Identifier id, Symbol attr, Symbol value);
+            
     /**
      * @return The identifier of the input-link, typically <code>I2</code>
      */

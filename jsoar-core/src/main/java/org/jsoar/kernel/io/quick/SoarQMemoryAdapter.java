@@ -334,7 +334,7 @@ public class SoarQMemoryAdapter implements SoarEventListener
     {
         for(SoarMemoryNode node : memory.values())
         {
-            io.removeInputWme(node.getWME());
+            node.getWME().remove();
         }
         memory.clear();
     }

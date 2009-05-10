@@ -8,10 +8,7 @@ package org.jsoar.kernel.io;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 
 /**
@@ -62,23 +59,7 @@ public class InputBuilder
     public final Identifier id;
     private final InputBuilder parent;
     private final Map<String, Identifier> idMap;
-    private final Map<String, Wme> wmeMap;
-    
-    public static Wme add(InputOutput io, Identifier id, Object attr, Object value)
-    {
-        final SymbolFactory syms = io.getSymbols();
-        return io.addInputWme(id, Symbols.create(syms, attr), Symbols.create(syms, value));
-    }
-    
-    public static void remove(InputOutput io, Wme wme)
-    {
-        io.removeInputWme(wme);
-    }
-    
-    public static Wme update(InputOutput io, Wme wme, Object newValue)
-    {
-        return io.updateInputWme(wme, Symbols.create(io.getSymbols(), newValue));
-    }
+    private final Map<String, InputWme> wmeMap;
     
     /**
      * Construct a new builder object that starts building WMEs at the given
@@ -90,7 +71,7 @@ public class InputBuilder
      */
     public static InputBuilder create(InputOutput io, Identifier root)
     {
-        return new InputBuilder(io, null, root, new HashMap<String, Identifier>(), new HashMap<String, Wme>());
+        return new InputBuilder(io, null, root, new HashMap<String, Identifier>(), new HashMap<String, InputWme>());
     }
     
     /**
@@ -106,7 +87,7 @@ public class InputBuilder
     }
     
     private InputBuilder(InputOutput io, InputBuilder parent, Identifier id, 
-                          Map<String, Identifier> idMap, Map<String, Wme> wmeMap)
+                          Map<String, Identifier> idMap, Map<String, InputWme> wmeMap)
     {
         this.io = io;
         this.parent = parent;
@@ -128,9 +109,7 @@ public class InputBuilder
      */
     public InputBuilder add(Object attr, Object value)
     {
-        Symbol attrSym = Symbols.create(io.getSymbols(), attr);
-        Symbol valueSym = Symbols.create(io.getSymbols(), value);
-        wmeMap.put(null, io.addInputWme(id, attrSym, valueSym));
+        wmeMap.put(null, InputWmes.add(io, id, attr, value));
         return this;
     }
     
@@ -149,8 +128,7 @@ public class InputBuilder
     public InputBuilder push(Object attr)
     {
         final Identifier newId = io.getSymbols().createIdentifier(Symbols.getFirstLetter(attr));
-        Symbol attrSym = Symbols.create(io.getSymbols(), attr);
-        wmeMap.put(null, io.addInputWme(id, attrSym, newId));
+        wmeMap.put(null, InputWmes.add(io, id, attr, newId));
         return new InputBuilder(io, this, newId, idMap, wmeMap);
     }
     
@@ -170,8 +148,7 @@ public class InputBuilder
         {
             throw new IllegalArgumentException("Unknown target '" + target + "'");
         }
-        Symbol attrSym = Symbols.create(io.getSymbols(), attr);
-        wmeMap.put(null, io.addInputWme(id, attrSym, targetId));
+        wmeMap.put(null, InputWmes.add(io, id, attr, targetId));
         return this;
     }
     
@@ -217,7 +194,7 @@ public class InputBuilder
      *      recently created WME
      * @return the WME, or <code>null</code> if not found
      */
-    public Wme getWme(String name)
+    public InputWme getWme(String name)
     {
         return wmeMap.get(name);
     }
