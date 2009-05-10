@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jsoar.kernel.io.InputBuilder;
 import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.io.InputWmes;
 import org.jsoar.kernel.memory.Wme;
 
 /**
@@ -52,7 +52,7 @@ public class Peg
     {
         if(pegWme == null)
         {
-            pegWme = InputBuilder.add(io, io.getInputLink(), "peg", name);
+            pegWme = InputWmes.add(io, "peg", name);
         }
         
         Disk below = null;

@@ -7,7 +7,8 @@ package org.jsoar.demos.toh;
 
 import org.jsoar.kernel.io.InputBuilder;
 import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.io.InputWme;
+import org.jsoar.kernel.io.InputWmes;
 
 
 /**
@@ -19,7 +20,7 @@ public class Disk
     
     private Peg peg;
     private boolean moved;
-    private Wme pegWme, aboveWme;
+    private InputWme pegWme, aboveWme;
 
     /**
      * @param size
@@ -67,8 +68,8 @@ public class Disk
         }
         else if(moved)
         {
-            pegWme = InputBuilder.update(io, pegWme, peg.getName());
-            aboveWme = InputBuilder.update(io, aboveWme, getAbove(below));
+            InputWmes.update(pegWme, peg.getName());
+            InputWmes.update(aboveWme, getAbove(below));
             
             moved = false;
         }

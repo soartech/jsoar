@@ -140,7 +140,7 @@ public class InputOutputImplTest extends JSoarTest
     @Test
     public void testAddAndRemoveInputWme() throws Exception
     {
-        final Wme[] wme = { null };
+        final InputWme[] wme = { null };
         agent.getEventManager().addListener(InputCycleEvent.class, new SoarEventListener() {
 
             @Override
@@ -154,7 +154,7 @@ public class InputOutputImplTest extends JSoarTest
                 }
                 else
                 {
-                    agent.getInputOutput().removeInputWme(wme[0]);
+                    wme[0].remove();
                 }
             }});
         

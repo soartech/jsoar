@@ -1401,7 +1401,7 @@ public class Decider
             add_impasse_wme(id, predefined.superstate_symbol, object, null);
 
             id.reward_header = context.syms.make_new_identifier('R', level);
-            io.addInputWme(id, predefined.reward_link_symbol, id.reward_header);
+            io.addInputWmeInternal(id, predefined.reward_link_symbol, id.reward_header);
         }
         else
             add_impasse_wme(id, predefined.object_symbol, object, null);

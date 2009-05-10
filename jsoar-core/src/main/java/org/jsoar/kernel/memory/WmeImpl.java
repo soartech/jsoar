@@ -5,18 +5,19 @@
  */
 package org.jsoar.kernel.memory;
 
-import java.util.Formattable;
 import java.util.FormattableFlags;
 import java.util.Formatter;
 import java.util.Iterator;
 
 import org.jsoar.kernel.GoalDependencySet;
+import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.rete.RightMemory;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.util.adaptables.AbstractAdaptable;
 
 import com.google.common.collect.Iterators;
 
@@ -93,13 +94,15 @@ import com.google.common.collect.Iterators;
  * 
  * @author ray
  */
-public class WmeImpl implements Wme, Formattable
+public class WmeImpl extends AbstractAdaptable implements Wme
 {
     public final IdentifierImpl id;
     public final SymbolImpl attr;
     public final SymbolImpl value;
     public final boolean acceptable;
     public final int timetag;
+    
+    private InputWme outerInputWme;
     
     private RightMemory right_mems; // used for dll of rm's it's in
     public Token tokens = null; // dll of tokens in rete
@@ -143,6 +146,20 @@ public class WmeImpl implements Wme, Formattable
         this.value = value;
         this.acceptable = acceptable;
         this.timetag = timetag;
+    }
+    
+    /**
+     * Set the containing InputWme for this wme. This method is only intended to
+     * be called by {@link InputWme} implementations.
+     * 
+     * @param outer the outer input wme, or null when detaching
+     */
+    public void setOuterInputWme(InputWme outer)
+    {
+        assert (this.outerInputWme == null && outer != null) ||
+               (this.outerInputWme != null && outer == null);
+        
+        this.outerInputWme = outer;
     }
 
     /**
@@ -259,7 +276,7 @@ public class WmeImpl implements Wme, Formattable
         return right_mems;
     }
     
-    public void clearnRightMemories()
+    public void clearRightMemories()
     {
         right_mems= null;
     }
@@ -372,4 +389,19 @@ public class WmeImpl implements Wme, Formattable
         // <wme tag="123" id="s1" attr="foo" attrtype="string" val="123" valtype="string"></wme>
         // TODO xml_object( thisAgent, w );
     }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
+     */
+    @Override
+    public Object getAdapter(Class<?> klass)
+    {
+        if(InputWme.class.equals(klass))
+        {
+            return outerInputWme;
+        }
+        return super.getAdapter(klass);
+    }
+    
+    
 }

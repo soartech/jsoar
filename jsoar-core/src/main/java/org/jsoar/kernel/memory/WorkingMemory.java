@@ -236,10 +236,12 @@ public class WorkingMemory
         {
             this.rete.add_wme_to_rete(w.item);
         }
+        
         for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             this.rete.remove_wme_from_rete(w.item);
         }
+        
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
         // stop_timer (thisAgent, &start_tv, &thisAgent->match_cpu_time[thisAgent->current_phase]);
