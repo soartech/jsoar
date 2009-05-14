@@ -370,7 +370,7 @@ public class FunctionalTests
     {
         runTest("testCountTest", -1);
         assertEquals(42, agent.getProductions().getProductions(ProductionType.USER).size());
-        assertEquals(15014, agent.getProductions().getProductions(ProductionType.CHUNK).size());
+        assertEquals(15012, agent.getProductions().getProductions(ProductionType.CHUNK).size());
         assertEquals(45047, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue());
         assertEquals(115136, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
         assertEquals(40039, agent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());

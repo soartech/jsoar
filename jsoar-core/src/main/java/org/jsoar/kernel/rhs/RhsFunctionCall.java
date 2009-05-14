@@ -14,6 +14,8 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 
 /**
+ * Represents a RHS function call. Instances of this class are mutable.
+ * 
  * @author ray
  */
 public class RhsFunctionCall extends RhsValue

@@ -15,6 +15,7 @@ import org.jsoar.util.ListHead;
 
 /**
  * <p>rhs_value_to_string is handled by Formattable implementation
+ * <p>TODO make this an interface
  * 
  * @author ray
  */
@@ -98,7 +99,7 @@ public abstract class RhsValue implements Formattable
         if (rl != null)
         {
             SymbolImpl sym = Rete.var_bound_in_reconstructed_conds(cond, rl.getFieldNum(), rl.getLevelsUp());
-            return new RhsSymbolValue(sym);
+            return sym.toRhsValue();
         }
 
         final UnboundVariable uv = rv.asUnboundVariable();
@@ -111,7 +112,7 @@ public abstract class RhsValue implements Formattable
                 sym = rete.variableGenerator.generate_new_variable(Character.toString(uv.getFirstLetter()));
                 rete.setRhsVariableBinding(index, sym);
             }
-            return new RhsSymbolValue(sym);
+            return sym.toRhsValue();
         }
 
         final RhsFunctionCall fc = rv.asFunctionCall();
@@ -127,7 +128,7 @@ public abstract class RhsValue implements Formattable
             return newFc;
         }
 
-        return new RhsSymbolValue(rv.asSymbolValue().getSym());
+        return rv.asSymbolValue().getSym().toRhsValue();
     }
 
 }

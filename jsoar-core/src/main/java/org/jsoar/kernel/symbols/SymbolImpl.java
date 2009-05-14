@@ -8,6 +8,7 @@ package org.jsoar.kernel.symbols;
 import org.jsoar.kernel.DeciderFlag;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.util.ListHead;
 
 /**
@@ -25,10 +26,20 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     public WmeImpl decider_wme;
     public int retesave_symindex;
     public final int hash_id;
+    private RhsSymbolValue rhsValue;
     
     /*package*/ SymbolImpl(int hash_id)
     {
         this.hash_id = hash_id;
+    }
+    
+    public RhsSymbolValue toRhsValue()
+    {
+        if(rhsValue == null)
+        {
+            rhsValue = new RhsSymbolValue(this);
+        }
+        return rhsValue;
     }
     
     /* (non-Javadoc)

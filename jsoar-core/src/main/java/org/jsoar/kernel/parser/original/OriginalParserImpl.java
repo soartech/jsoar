@@ -1313,7 +1313,7 @@ class OriginalParserImpl
                 || (currentType() == LexemeType.FLOAT)
                 || (currentType() == LexemeType.VARIABLE))
         {
-            RhsValue rv = new RhsSymbolValue(make_symbol_for_current_lexeme());
+            RhsValue rv = make_symbol_for_current_lexeme().toRhsValue();
             lexer.getNextLexeme();
             return rv;
         }
@@ -1490,7 +1490,7 @@ class OriginalParserImpl
             a.preference_type = preference_type;
             a.next = prev_a;
             prev_a = a;
-            a.id = new RhsSymbolValue(id);
+            a.id = id.toRhsValue();
             a.attr = attr.copy();
             a.value = value.copy();
             if (preference_type.isBinary())
@@ -1590,7 +1590,7 @@ class OriginalParserImpl
                 a.next = prev_a;
                 prev_a = a;
                 a.preference_type = preference_type;
-                a.id = new RhsSymbolValue(id);
+                a.id = id.toRhsValue();
                 a.attr = attr.copy();
                 a.value = value.copy();
             }
@@ -1615,7 +1615,7 @@ class OriginalParserImpl
                     a.next = prev_a;
                     prev_a = a;
                     a.preference_type = PreferenceType.ACCEPTABLE;
-                    a.id = new RhsSymbolValue(id);
+                    a.id = id.toRhsValue();
                     a.attr = attr.copy();
                     a.value = value.copy();
                 }
@@ -1679,11 +1679,11 @@ class OriginalParserImpl
              acceptable and parallel prefs created for all attributes in path */
             if (!"operator".equals(szAttribute))
             {
-                new_actions = parse_preferences_soar8_non_operator(id, attr, new RhsSymbolValue(new_var));
+                new_actions = parse_preferences_soar8_non_operator(id, attr, new_var.toRhsValue());
             }
             else
             {
-                new_actions = parse_preferences(id, attr, new RhsSymbolValue(new_var));
+                new_actions = parse_preferences(id, attr, new_var.toRhsValue());
             }
 
             for (last = new_actions; last.next != null; last = last.next)
