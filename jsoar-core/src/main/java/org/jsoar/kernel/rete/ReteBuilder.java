@@ -733,7 +733,7 @@ import org.jsoar.util.ListHead;
             if (var_loc != null)
             {
                 /* --- Yes, replace it with reteloc --- */
-                return new ReteLocation(var_loc.field_num, var_loc.levels_up - 1);
+                return ReteLocation.create(var_loc.field_num, var_loc.levels_up - 1);
             }
             else
             {
@@ -753,7 +753,7 @@ import org.jsoar.util.ListHead;
                 {
                     index = var.unbound_variable_index;
                 }
-                return new UnboundVariable(index);
+                return UnboundVariable.create(index);
             }
         }
 

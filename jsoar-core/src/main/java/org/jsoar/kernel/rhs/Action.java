@@ -50,7 +50,7 @@ public abstract class Action
      * Tests whether two RHS's (i.e., action lists) are the same (except
      * for function calls).  This is used for finding duplicate productions.
      * 
-     * rete.cpp:3374:same_rhs
+     * <p>rete.cpp:3374:same_rhs
      * 
      * @param rhs1
      * @param rhs2
@@ -82,11 +82,11 @@ public abstract class Action
 
             MakeAction ma1 = a1.asMakeAction();
             MakeAction ma2 = a2.asMakeAction();
-            if (ma1.id != ma2.id)
+            if (!ma1.id.equals(ma2.id))
                 return false;
-            if (ma1.attr != ma2.attr)
+            if (!ma1.attr.equals(ma2.attr))
                 return false;
-            if (ma1.value != ma2.value)
+            if (!ma1.value.equals(ma2.value))
                 return false;
             if (ma1.preference_type.isBinary())
             {

@@ -14,12 +14,21 @@ import org.jsoar.util.ListHead;
 /**
  * A rhs value that is just a symbol. Objects of this type are immutable.
  * 
+ * <p>TODO Memory usage: make this an interface implemented by SymbolImpl
+ * 
  * @author ray
  */
 public class RhsSymbolValue extends RhsValue
 {
     public final SymbolImpl sym;
     
+    /**
+     * Construct a RHS symbol value. <b>This should only be used by
+     * {@link SymbolImpl}! If you want one of these, get it through
+     * {@link SymbolImpl#toRhsValue()}.
+     * 
+     * @param sym the symbol
+     */
     public RhsSymbolValue(SymbolImpl sym)
     {
         this.sym = sym;
@@ -36,7 +45,7 @@ public class RhsSymbolValue extends RhsValue
      */
     public RhsSymbolValue setSymbol(SymbolImpl newSym)
     {
-        return sym == newSym ? this : new RhsSymbolValue(newSym);
+        return sym == newSym ? this : newSym.toRhsValue();
     }
     
     /**
@@ -109,4 +118,35 @@ public class RhsSymbolValue extends RhsValue
     {
         formatter.format("%s", getSym());
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((sym == null) ? 0 : sym.hashCode());
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (!(obj instanceof RhsSymbolValue))
+            return false;
+        RhsSymbolValue other = (RhsSymbolValue) obj;
+        
+        return other.sym == sym;
+    }
+    
+    
 }

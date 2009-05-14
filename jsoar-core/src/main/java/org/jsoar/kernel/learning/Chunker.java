@@ -38,7 +38,6 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -427,15 +426,15 @@ public class Chunker
 
         MakeAction a = new MakeAction();
 
-        a.id = new RhsSymbolValue(variablize_symbol(pref.id));
-        a.attr = new RhsSymbolValue(variablize_symbol(pref.attr));
-        a.value = new RhsSymbolValue(variablize_symbol(pref.value));
+        a.id = variablize_symbol(pref.id).toRhsValue();
+        a.attr = variablize_symbol(pref.attr).toRhsValue();
+        a.value = variablize_symbol(pref.value).toRhsValue();
 
         a.preference_type = pref.type;
 
         if (pref.type.isBinary())
         {
-            a.referent = new RhsSymbolValue(variablize_symbol(pref.referent));
+            a.referent = variablize_symbol(pref.referent).toRhsValue();
         }
 
         a.next = copy_and_variablize_result_list(pref.next_result);
