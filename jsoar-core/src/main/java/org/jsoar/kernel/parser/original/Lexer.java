@@ -413,7 +413,7 @@ public class Lexer
     static final boolean constituent_char[] = new boolean[256];
     static 
     {
-        String extra_constituents = "$%&*+-/:<=>?_";
+        final String extra_constituents = "$%&*+-/:<=>?_";
         for (int i = 0; i < constituent_char.length; i++)
         {
             // When i == 1, strchr returns true based on the terminating
@@ -427,6 +427,11 @@ public class Lexer
                 constituent_char[i] = Character.isLetterOrDigit((char) i);
             }
         }
+    }
+    
+    private static boolean isConstituentChar(char c)
+    {
+        return c < constituent_char.length && constituent_char[c];
     }
 
     static final boolean number_starters[] = new boolean[256];
@@ -506,7 +511,7 @@ public class Lexer
 
     void read_constituent_string() throws IOException
     {
-        while ((current_char != EOF_AS_CHAR) && constituent_char[current_char])
+        while ((current_char != EOF_AS_CHAR) && isConstituentChar(current_char))
         {
             store_and_advance();
         }
@@ -792,7 +797,7 @@ public class Lexer
                 {
                     lexer_routines[i] = lex_digit;
                 }
-                else if (constituent_char[i])
+                else if (isConstituentChar((char) i))
                 {
                     lexer_routines[i] = lex_constituent_string;
                 }
@@ -929,7 +934,7 @@ public class Lexer
         /* --- make sure it's entirely constituent characters --- */
         for (int i = 0; i < s.length(); ++i)
         {
-            if (!Lexer.constituent_char[s.charAt(i)])
+            if (!isConstituentChar(s.charAt(i)))
             {
                 return p;
             }
