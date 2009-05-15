@@ -377,4 +377,25 @@ public class FunctionalTests
         assertEquals(120146, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
 
+    @Test
+    public void testUnboundedVarInNegationBug517() throws Exception
+    {
+    	// bad rule crashes soar, see bug 517
+        agent.getProductions().loadProduction("test\n" +
+			"   (state <s> ^superstate nil\n" +
+			"             -^foo { <> <x> })\n" +
+			"-->\n" +
+			"   (<s> ^foo bar)");
+        JSoarTest.verifyProduction(agent, 
+			"test", 
+			ProductionType.USER,
+			"sp {test\n" +
+			"    (state <s> ^superstate nil)\n" +
+			"    (<s> -^foo <f*1>)\n" +
+			"    -->\n" +
+			"    (<s> ^foo bar +)\n" +
+			"}\n", 
+			true);
+    }
+    
 }

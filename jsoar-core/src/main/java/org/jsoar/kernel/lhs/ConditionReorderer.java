@@ -157,28 +157,56 @@ public class ConditionReorderer
         ListHead<Variable> new_vars = ListHead.newInstance();
         for (Condition cond = conds_list; cond != null; cond = cond.next)
         {
-            PositiveCondition pc = cond.asPositiveCondition();
-            if (pc == null)
+        	if (cond.asConjunctiveNegationCondition() != null)
+        	{
+        		// only skip conjunctive negation conditions, bug 517
+        		continue;
+        	}
+        	
+            if (cond.asPositiveCondition() != null) 
             {
-                continue;
+                PositiveCondition pc = cond.asPositiveCondition();
+                
+                ByRef<Test> id_test = ByRef.create(pc.id_test);
+                tests_to_restore = restore_saved_tests_to_test(id_test, true, tc, tests_to_restore);
+                pc.id_test = id_test.value;
+
+                pc.id_test.addBoundVariables(tc, new_vars);
+
+                ByRef<Test> attr_test = ByRef.create(pc.attr_test);
+                tests_to_restore = restore_saved_tests_to_test(attr_test, false, tc, tests_to_restore);
+                pc.attr_test = attr_test.value;
+
+                pc.attr_test.addBoundVariables(tc, new_vars);
+
+                ByRef<Test> value_test = ByRef.create(pc.value_test);
+                tests_to_restore = restore_saved_tests_to_test(value_test, false, tc, tests_to_restore);
+                pc.value_test = value_test.value;
+
+                pc.value_test.addBoundVariables(tc, new_vars);
             }
-            ByRef<Test> id_test = ByRef.create(pc.id_test);
-            tests_to_restore = restore_saved_tests_to_test(id_test, true, tc, tests_to_restore);
-            pc.id_test = id_test.value;
+            else if (cond.asNegativeCondition() != null) 
+            {
+                NegativeCondition nc = cond.asNegativeCondition();
+                
+                ByRef<Test> id_test = ByRef.create(nc.id_test);
+                tests_to_restore = restore_saved_tests_to_test(id_test, true, tc, tests_to_restore);
+                nc.id_test = id_test.value;
 
-            pc.id_test.addBoundVariables(tc, new_vars);
+                nc.id_test.addBoundVariables(tc, new_vars);
 
-            ByRef<Test> attr_test = ByRef.create(pc.attr_test);
-            tests_to_restore = restore_saved_tests_to_test(attr_test, false, tc, tests_to_restore);
-            pc.attr_test = attr_test.value;
+                ByRef<Test> attr_test = ByRef.create(nc.attr_test);
+                tests_to_restore = restore_saved_tests_to_test(attr_test, false, tc, tests_to_restore);
+                nc.attr_test = attr_test.value;
 
-            pc.attr_test.addBoundVariables(tc, new_vars);
+                nc.attr_test.addBoundVariables(tc, new_vars);
 
-            ByRef<Test> value_test = ByRef.create(pc.value_test);
-            tests_to_restore = restore_saved_tests_to_test(value_test, false, tc, tests_to_restore);
-            pc.value_test = value_test.value;
+                ByRef<Test> value_test = ByRef.create(nc.value_test);
+                tests_to_restore = restore_saved_tests_to_test(value_test, false, tc, tests_to_restore);
+                nc.value_test = value_test.value;
 
-            pc.value_test.addBoundVariables(tc, new_vars);
+                nc.value_test.addBoundVariables(tc, new_vars);
+            }
         }
         if (tests_to_restore != null)
         {
@@ -701,9 +729,15 @@ public class ConditionReorderer
         SavedTest sts = null;
         for (Condition c = conds_list; c != null; c = c.next)
         {
-            PositiveCondition pc = c.asPositiveCondition();
-            if (pc != null)
+        	if (c.asConjunctiveNegationCondition() != null)
+        	{
+        		// only skip conjunctive negation conditions, bug 517
+        		continue;
+        	}
+            if (c.asPositiveCondition() != null)
             {
+                PositiveCondition pc = c.asPositiveCondition();
+
                 ByRef<Test> id_test = ByRef.create(pc.id_test);
                 sts = simplify_test(id_test, sts);
                 pc.id_test = id_test.value;
@@ -715,6 +749,22 @@ public class ConditionReorderer
                 ByRef<Test> value_test = ByRef.create(pc.value_test);
                 sts = simplify_test(value_test, sts);
                 pc.value_test = value_test.value;
+            }
+            else if (c.asNegativeCondition() != null)
+            {
+                NegativeCondition nc = c.asNegativeCondition();
+
+                ByRef<Test> id_test = ByRef.create(nc.id_test);
+                sts = simplify_test(id_test, sts);
+                nc.id_test = id_test.value;
+
+                ByRef<Test> attr_test = ByRef.create(nc.attr_test);
+                sts = simplify_test(attr_test, sts);
+                nc.attr_test = attr_test.value;
+
+                ByRef<Test> value_test = ByRef.create(nc.value_test);
+                sts = simplify_test(value_test, sts);
+                nc.value_test = value_test.value;
             }
         }
         return sts;
