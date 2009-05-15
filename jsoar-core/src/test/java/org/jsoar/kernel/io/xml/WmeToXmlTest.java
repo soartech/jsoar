@@ -20,7 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class WmeToXmlTreeTest
+public class WmeToXmlTest
 {
 
     @Before
@@ -41,7 +41,8 @@ public class WmeToXmlTreeTest
         agent.getProductions().loadProduction(
         "testToXmlInit (state <s> ^superstate nil ^io.input-link <il>) -->" +
         "(<il> ^location <loc> ^person <person>)" +
-        "(<loc> ^name |Ann Arbor| ^population 100000)" +
+        "(<loc> ^/attrs <attrs> ^/text |This is some text|)" +
+        "(<attrs> ^name |Ann Arbor| ^population 100000)" +
         "(<person> ^name Bill ^where <loc>)");
         
         final AtomicReference<String> result = new AtomicReference<String>();
@@ -64,13 +65,10 @@ public class WmeToXmlTreeTest
         
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
         		"<something>" +
-            		"<location link-id=\"L1\">" +
-                		"<name>Ann Arbor</name>" +
-                		"<population type=\"integer\">100000</population>" +
-            		"</location>" +
+            		"<location name=\"Ann Arbor\" population=\"100000\">This is some text</location>" +
             		"<person>" +
                 		"<name>Bill</name>" +
-                		"<where link=\"L1\"/>" +
+                		"<where>L1</where>" +
             		"</person>" +
         		"</something>", result.get());
     }
