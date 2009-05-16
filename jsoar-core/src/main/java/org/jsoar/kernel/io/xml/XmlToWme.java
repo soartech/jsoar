@@ -75,7 +75,7 @@ public class XmlToWme
         }
     }
     
-    public Identifier fromXmlInternal(Element element)
+    private Identifier fromXmlInternal(Element element)
     {
         final Identifier targetId = syms.createIdentifier(Symbols.getFirstLetter(element.getTagName()));
         String text = "";
