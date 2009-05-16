@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.learning;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -199,6 +200,18 @@ public class Chunker
         return maxChunksReached;
     }
 
+    public void removeGoalFromChunkyProblemSpaces(IdentifierImpl goal)
+    {
+        final Iterator<IdentifierImpl> it = chunky_problem_spaces.iterator();
+        while(it.hasNext())
+        {
+            final IdentifierImpl id = it.next();
+            if(id == goal)
+            {
+                it.remove();
+            }
+        }
+    }
     /**
      * <p>chunk.cpp:77:add_results_if_needed
      * 
