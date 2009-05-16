@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutputImpl;
+import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
@@ -87,6 +88,7 @@ public class Decider
     // adaptable framework. See Agent.adaptables for more info
     private DecisionManipulation decisionManip;
     private Exploration exploration;
+    private Chunker chunker;
     private InputOutputImpl io;
     private DecisionCycle decisionCycle;
     private WorkingMemory workingMemory;
@@ -193,6 +195,7 @@ public class Decider
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
         this.tempMemory = Adaptables.adapt(context, TemporaryMemory.class);
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
+        this.chunker = Adaptables.adapt(context, Chunker.class);
     }
     
     /**
@@ -2107,7 +2110,12 @@ public class Decider
          * such cases exhaustively -- I would guess that some processing may be
          * necessary for the assertions here at some point?
          */
-
+        
+        /* We have to remove this state from the list of states to learn in 
+         * jzxu April 24, 2009 */
+        // TODO: The fact that we have to access chunker here sucks. Decouple?
+        this.chunker.removeGoalFromChunkyProblemSpaces(goal);
+        
         post_link_removal(null, goal); // remove the special link
     }
 
