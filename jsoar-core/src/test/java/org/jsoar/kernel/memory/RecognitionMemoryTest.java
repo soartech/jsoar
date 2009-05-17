@@ -6,11 +6,17 @@
 package org.jsoar.kernel.memory;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.io.CycleCountInput;
@@ -23,6 +29,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.tcl.SoarTclInterface;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,6 +47,7 @@ public class RecognitionMemoryTest
     public void setUp() throws Exception
     {
         this.agent = new Agent();
+        agent.getTrace().disableAll();
         this.agent.initialize();
     }
     
@@ -100,4 +108,42 @@ public class RecognitionMemoryTest
         assertFalse(agent.getAllWmesInRete().contains(name));
     }
 
+    @Test
+    public void testChunkedActionsAreCorrectlyConsideredAsNumericIndifferent() throws Exception
+    {
+        /*
+         * Test for Joseph's fix in csoar r10460
+         * 
+         * From an email from Joseph explaining the bug: I didn't file a bug in
+         * bugzilla about it, if that's what you mean. However, it does cause
+         * unexpected behavior in that when you chunk over a result that was
+         * created by a rule with an action of the form
+         * 
+         * (<s> ^operator <o> = <x>)
+         * 
+         * where <x> is bound to a numeric value, the chunk's action will be
+         * considered a binary indifferent type, even though it's clearly a
+         * numeric indifferent type. This became important because I was using
+         * chunking to create RL rules, and for a rule to qualify as an RL rule,
+         * it must have a numeric indifferent action on the RHS.
+         * 
+         * That explanation probably wasn't clear, so I've included a test case
+         * where you can see the difference. If you run it 2 steps as is and do
+         * a "print --rl", you'll see that the two learned chunks are considered
+         * RL rules. If you go into the file and change the commented out line
+         * and run it again, you'll see that the chunks are no longer considered
+         * RL rules. The patch fixes this behavior.
+         */
+        final SoarTclInterface ifc = SoarTclInterface.findOrCreate(agent);
+        ifc.sourceResource("/" + RecognitionMemoryTest.class.getName().replace('.', '/')  + "_r10460.soar");
+
+        agent.runFor(2, RunType.DECISIONS);
+        
+        final List<Production> chunks = agent.getProductions().getProductions(ProductionType.CHUNK);
+        assertEquals(2, chunks.size());
+        for(Production p : chunks)
+        {
+            assertTrue(p.getName() + " should be an rl rule", p.rl_rule);
+        }
+    }
 }
