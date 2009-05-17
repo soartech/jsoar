@@ -27,6 +27,7 @@ public class WorkingMemoryPrinter
     private int depth = 1;
     private boolean internal = false;
     private boolean tree = false;
+    private boolean exact = false;
 
     /**
      * <p>sml_KernelHelpers.cpp::do_print_for_identifier
@@ -109,6 +110,23 @@ public class WorkingMemoryPrinter
     public WorkingMemoryPrinter setTree(boolean tree)
     {
         this.tree = tree;
+        return this;
+    }
+    
+    /**
+     * @return the exact
+     */
+    public boolean isExact()
+    {
+        return exact;
+    }
+
+    /**
+     * @param exact the exact to set
+     */
+    public WorkingMemoryPrinter setExact(boolean exact)
+    {
+        this.exact = exact;
         return this;
     }
     

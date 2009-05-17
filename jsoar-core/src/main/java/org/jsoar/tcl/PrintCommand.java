@@ -30,7 +30,7 @@ public class PrintCommand implements Command
     private static enum Options
     {
         ALL, CHUNKS, DEFAULTS, INTERNAL, JUSTIFICATIONS, STACK, TREE, TEMPLATE, USER,
-        STATES, OPERATORS, FULL, RL, FILE_NAME;
+        STATES, OPERATORS, FULL, RL, FILE_NAME, EXACT, DEPTH;
         // TODO varprint
     }
     private final SoarTclInterface ifc;
@@ -81,6 +81,7 @@ public class PrintCommand implements Command
             String arg = args[i].toString();
             if(has(arg, "-d", "--depth"))
             {
+            	options.add(Options.DEPTH);
                 if(i + 1 == args.length)
                 {
                     throw new TclException(interp, "No argument for --depth option");
@@ -118,7 +119,7 @@ public class PrintCommand implements Command
             {
                 options.add(Options.CHUNKS);
             }
-            else if(has(arg, "-d", "--defaults"))
+            else if(has(arg, "-D", "--defaults"))
             {
                 options.add(Options.DEFAULTS);
             }
@@ -149,6 +150,10 @@ public class PrintCommand implements Command
             else if(has(arg, "-r", "--rl"))
             {
                 options.add(Options.RL);
+            }
+            else if(has(arg, "-e", "--exact"))
+            {
+            	options.add(Options.EXACT);
             }
             else if(arg.startsWith("-"))
             {
@@ -211,6 +216,10 @@ public class PrintCommand implements Command
             }
             return;
         }
+        else if(options.contains(Options.EXACT) && (options.contains(Options.DEPTH) || options.contains(Options.TREE)))
+        {
+        	throw new TclException(interp, "No depth/tree flags allowed when printing exact.");
+        }
                 
         if(firstNonOption == args.length)
         {
@@ -225,6 +234,7 @@ public class PrintCommand implements Command
             wmp.setDepth(depth);
             wmp.setInternal(options.contains(Options.INTERNAL));
             wmp.setTree(options.contains(Options.TREE));
+            wmp.setExact(options.contains(Options.EXACT));
             wmp.print(agent.syms, agent.getPrinter(), arg);
             agent.getPrinter().flush();
         }
