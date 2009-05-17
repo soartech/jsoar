@@ -436,8 +436,31 @@ public class RecognitionMemory
             		" other than +/- for %s ^%s -- ignoring it.", id, attr);
             return null;
         }
+        
+       /* The parser assumes that any rhs preference of the form 
+        *
+        * (<s> ^operator <o> = <x>)
+        * 
+        * is a binary indifferent preference, because it assumes <x> is an
+        * operator. However, it could be the case that <x> is actually bound to
+        * a number, which would make this a numeric indifferent preference. The
+        * parser had no way of easily figuring this out, but it's easy to check
+        * here.
+        *
+        * jsoar note: in csoar this was put in create_instantiation(). I (dr) put
+        * it here so that Preference.type could remain final. Joseph said there
+        * was no particular reason it was in create_instantiation().
+        * 
+        * jzxu April 22, 2009
+        */
+        PreferenceType type = a.preference_type;
+        if (type == PreferenceType.BINARY_INDIFFERENT && 
+            (referent.asDouble() != null || referent.asInteger() != null))
+        {
+            type = PreferenceType.NUMERIC_INDIFFERENT;
+        }
 
-        return new Preference(a.preference_type, id, attr, value, referent);
+        return new Preference(type, id, attr, value, referent);
     }
 
     /**
@@ -656,9 +679,11 @@ public class RecognitionMemory
             while (pref != null)
             {
                 pref.setInstantiation(inst);
-                
+                                
                 if (inst.prod.declared_support == ProductionSupport.DECLARED_O_SUPPORT)
+                {
                     pref.o_supported = true;
+                }
                 else if (inst.prod.declared_support == ProductionSupport.DECLARED_I_SUPPORT)
                 {
                     pref.o_supported = false;

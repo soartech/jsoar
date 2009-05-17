@@ -15,6 +15,7 @@ import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.memory.WorkingMemoryPrinter;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.tracing.Printer;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -29,8 +30,8 @@ public class PrintCommand implements Command
     private static enum Options
     {
         ALL, CHUNKS, DEFAULTS, INTERNAL, JUSTIFICATIONS, STACK, TREE, TEMPLATE, USER,
-        STATES, OPERATORS, FULL;
-        // TODO full, filename, rl, states, varprint
+        STATES, OPERATORS, FULL, RL, FILE_NAME;
+        // TODO varprint
     }
     private final SoarTclInterface ifc;
     private final WorkingMemoryPrinter wmp = new WorkingMemoryPrinter();
@@ -145,6 +146,10 @@ public class PrintCommand implements Command
             {
                 options.add(Options.TEMPLATE);
             }
+            else if(has(arg, "-r", "--rl"))
+            {
+                options.add(Options.RL);
+            }
             else if(arg.startsWith("-"))
             {
                 throw new TclException(interp, "Unknow option " + arg);
@@ -195,6 +200,17 @@ public class PrintCommand implements Command
             agent.getPrinter().flush();
             return;
         }
+        else if(options.contains(Options.RL))
+        {
+            for(Production p : ifc.getAgent().getProductions().getProductions(null))
+            {
+                if(p.rl_rule)
+                {
+                    do_print_for_production(p);
+                }
+            }
+            return;
+        }
                 
         if(firstNonOption == args.length)
         {
@@ -227,4 +243,36 @@ public class PrintCommand implements Command
             agent.getPrinter().flush();
         }
     }
+    
+    private void do_print_for_production(Production prod)
+    {
+        final Printer p = ifc.getAgent().getPrinter();
+
+        if (!options.contains(Options.FULL))
+        {
+            p.print("%s ", prod.getName());
+
+            if (prod.rl_rule)
+            {
+                p.print("%f  ", prod.rl_update_count);
+                p.print("%s", prod.action_list.asMakeAction().referent);
+            }
+        }
+        if (!options.contains(Options.FILE_NAME))
+        {
+            p.print("# sourcefile : ");
+            // TODO print file name
+            /*
+             * if (prod->filename) { print_string(agnt, prod->filename); } else
+             * { print_string(agnt, " _unknown_ "); }
+             */
+        }
+        p.print("\n");
+        if (options.contains(Options.FULL))
+        {
+            prod.print(p, options.contains(Options.INTERNAL));
+            p.print("\n");
+        }
+    }
+
 }
