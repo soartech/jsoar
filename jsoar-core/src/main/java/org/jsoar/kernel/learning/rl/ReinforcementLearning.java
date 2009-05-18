@@ -1070,20 +1070,7 @@ public class ReinforcementLearning
         MakeAction my_action = my_template.action_list.asMakeAction();
 
         boolean chunk_var = this.chunker.variablize_this_chunk;
-
-        // get the preference value
-        IdentifierImpl id = my_agent.recMemory.instantiate_rhs_value( my_action.id, -1, 's', tok, w ).asIdentifier();
-        SymbolImpl attr = my_agent.recMemory.instantiate_rhs_value( my_action.attr, id.level, 'a', tok, w );
-        char first_letter = attr.getFirstLetter();
-        SymbolImpl value = my_agent.recMemory.instantiate_rhs_value( my_action.value, id.level, first_letter, tok, w );
-        SymbolImpl referent = my_agent.recMemory.instantiate_rhs_value( my_action.referent, id.level, first_letter, tok, w );
-
-        // make new action list
-        // small hack on variablization: the artificial tc gets dealt with later, just needs to be explicit non-zero
         this.chunker.variablize_this_chunk = true;
-        this.chunker.variablization_tc = -1; // TODO ??? (0u - 1);
-        MakeAction new_action = rl_make_simple_action( id, attr, value, referent );
-        new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
         // make unique production name
         StringSymbol new_name_symbol;
@@ -1103,10 +1090,21 @@ public class ReinforcementLearning
         ByRef<Condition> cond_bottom = ByRef.create(null);
         Condition.copy_condition_list( my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
         rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
-        variableGenerator.reset( cond_top.value, null );
+        this.chunker.variableGenerator.reset( cond_top.value, null );
         this.chunker.variablization_tc = my_agent.syms.get_new_tc_number( );
         this.chunker.variablize_condition_list( cond_top.value );
         this.chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
+
+        // get the preference value
+        IdentifierImpl id = my_agent.recMemory.instantiate_rhs_value( my_action.id, -1, 's', tok, w ).asIdentifier();
+        SymbolImpl attr = my_agent.recMemory.instantiate_rhs_value( my_action.attr, id.level, 'a', tok, w );
+        char first_letter = attr.getFirstLetter();
+        SymbolImpl value = my_agent.recMemory.instantiate_rhs_value( my_action.value, id.level, first_letter, tok, w );
+        SymbolImpl referent = my_agent.recMemory.instantiate_rhs_value( my_action.referent, id.level, first_letter, tok, w );
+
+        // make new action list
+        MakeAction new_action = rl_make_simple_action( id, attr, value, referent );
+        new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
         // make new production
         Production new_production = new Production( ProductionType.USER, new_name_symbol, cond_top.value, cond_bottom.value, new_action);
@@ -1119,7 +1117,7 @@ public class ReinforcementLearning
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        this.chunker.variablize_this_chunk = chunk_var;
+        this.chunker.variablize_this_chunk = chunk_var; // restored to original value
 
         /*
         // attempt to add to rete, remove if duplicate

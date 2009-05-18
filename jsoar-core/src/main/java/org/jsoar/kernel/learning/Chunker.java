@@ -60,7 +60,7 @@ import org.jsoar.util.properties.BooleanPropertyProvider;
 public class Chunker
 {
     private final Agent context;
-    private final VariableGenerator variableGenerator;
+    public final VariableGenerator variableGenerator;
     private Backtracer backtrace;
     Explain explain;
     private DecisionCycle decisionCycle;
