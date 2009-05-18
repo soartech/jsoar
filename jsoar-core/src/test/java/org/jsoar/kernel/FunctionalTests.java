@@ -398,4 +398,9 @@ public class FunctionalTests
 			true);
     }
     
+    @Test(timeout=10000)
+    public void testTemplateVariableNameBug1121() throws Exception
+    {
+        runTest("testTemplateVariableNameBug1121", 1);
+    }
 }
