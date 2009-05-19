@@ -402,5 +402,6 @@ public class FunctionalTests
     public void testTemplateVariableNameBug1121() throws Exception
     {
         runTest("testTemplateVariableNameBug1121", 1);
+        assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
     }
 }
