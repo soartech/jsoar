@@ -142,6 +142,10 @@ public class WmeToXml
             {
                 processText(wme, element);
             }
+            else if(NEXT.equals(attr))
+            {
+                // TODO handle ^/next attributes
+            }
             else
             {
                 processNormalWme(wme, element);
