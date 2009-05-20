@@ -211,12 +211,14 @@ public abstract class Condition implements Formattable
         ThreeFieldCondition tfc1 = c1.asThreeFieldCondition();
         if (tfc1 != null)
         {
+        	// treat variables in negations slightly differently, bug 510
+        	boolean neg = c1.asNegativeCondition() != null;
             ThreeFieldCondition tfc2 = c2.asThreeFieldCondition();
-            if (!Tests.tests_are_equal(tfc1.id_test, tfc2.id_test))
+            if (!Tests.tests_are_equal(tfc1.id_test, tfc2.id_test, neg))
                 return false;
-            if (!Tests.tests_are_equal(tfc1.attr_test, tfc2.attr_test))
+            if (!Tests.tests_are_equal(tfc1.attr_test, tfc2.attr_test, neg))
                 return false;
-            if (!Tests.tests_are_equal(tfc1.value_test, tfc2.value_test))
+            if (!Tests.tests_are_equal(tfc1.value_test, tfc2.value_test, neg))
                 return false;
             if (c1.test_for_acceptable_preference != c2.test_for_acceptable_preference)
                 return false;

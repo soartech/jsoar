@@ -14,6 +14,8 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 
+import com.google.common.collect.Lists;
+
 /**
  * Various utility methods for working with Test objects.
  * 
@@ -293,11 +295,12 @@ public class Tests
      * 
      * @param t test to add new test to
      * @param add_me the test to add
+     * @param neg if part of a negative condition
      * @return resulting test, possibly t, but not necessarily.
      */
-    public static Test add_new_test_to_test_if_not_already_there(Test t, Test add_me)
+    public static Test add_new_test_to_test_if_not_already_there(Test t, Test add_me, boolean neg)
     {
-        if (tests_are_equal (t, add_me)) {
+        if (tests_are_equal (t, add_me, neg)) {
           //deallocate_test (thisAgent, add_me);
           return t;
         }
@@ -307,7 +310,7 @@ public class Tests
         {
             for(Test child : ct.conjunct_list)
             {
-                if(tests_are_equal(child, add_me))
+                if(tests_are_equal(child, add_me, neg))
                 {
                     // deallocate_test (thisAgent, add_me);
                     return t;
@@ -323,9 +326,10 @@ public class Tests
      * 
      * @param t1 first test to compare
      * @param t2 second test to compare
+     * @param neg if tests are part of a negation
      * @return true if the two tests are equal
      */
-    static boolean tests_are_equal(Test t1, Test t2)
+    static boolean tests_are_equal(Test t1, Test t2, boolean neg)
     {
         if(t1 == t2)
         {
@@ -339,6 +343,18 @@ public class Tests
         EqualityTest eq1 = t1.asEqualityTest();
         if(eq1 != null)
         {
+        	if (neg)
+        	{
+        		// ignore variables in negation tests, bug 510
+        		if (eq1.getReferent().asVariable() != null)
+        		{
+        			EqualityTest eq2 = t2.asEqualityTest();
+        			if (eq2 != null && eq2.getReferent().asVariable() != null)
+        			{
+        				return true;
+        			}
+        		}
+        	}
             return eq1.getReferent() == t2.asEqualityTest().getReferent();
         }
 
@@ -361,14 +377,21 @@ public class Tests
             {
                 return false;
             }
+            // ignore order of test members in conjunctions, bug 510
+            // TODO: consider reorder before comparing
+            List<Test> copy2 = Lists.newLinkedList(c2);
             for(int i = 0; i < c1.size(); ++i)
             {
-                if(!tests_are_equal(c1.get(i), c2.get(i)))
-                {
-                    return false;
-                }
+            	for(int j = 0; j < copy2.size(); ++j)
+            	{
+            		if (tests_are_equal(c1.get(i), copy2.get(j), neg))
+            		{
+            			copy2.remove(j);
+            			break;
+            		}
+            	}
             }
-            return true;
+            return copy2.size() == 0;
         }
 
         return t1.asRelationalTest().referent == t2.asRelationalTest().referent;
@@ -469,8 +492,9 @@ public class Tests
         if (ct != null)
         {
             int result = 100276;
-            for (Test c : ct.conjunct_list)
-                result = result + hash_test(c);
+			// bug 510: conjunctive tests' order needs to be ignored
+            //for (Test c : ct.conjunct_list)
+            //    result = result + hash_test(c);
             return result;
         }
         RelationalTest rt = t.asRelationalTest();

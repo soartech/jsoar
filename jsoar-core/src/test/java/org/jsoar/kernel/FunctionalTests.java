@@ -399,6 +399,14 @@ public class FunctionalTests
     }
     
     @Test(timeout=10000)
+    public void testNegatedConjunctiveChunkLoopBug510() throws Exception
+    {
+        runTest("testNegatedConjunctiveChunkLoopBug510", 3);
+        assertEquals(3, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
+        assertEquals(5, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+    }
+
+    @Test(timeout=10000)
     public void testTemplateVariableNameBug1121() throws Exception
     {
         runTest("testTemplateVariableNameBug1121", 1);

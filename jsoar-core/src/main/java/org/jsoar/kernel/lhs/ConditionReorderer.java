@@ -168,19 +168,19 @@ public class ConditionReorderer
                 PositiveCondition pc = cond.asPositiveCondition();
                 
                 ByRef<Test> id_test = ByRef.create(pc.id_test);
-                tests_to_restore = restore_saved_tests_to_test(id_test, true, tc, tests_to_restore);
+                tests_to_restore = restore_saved_tests_to_test(id_test, true, tc, tests_to_restore, false);
                 pc.id_test = id_test.value;
 
                 pc.id_test.addBoundVariables(tc, new_vars);
 
                 ByRef<Test> attr_test = ByRef.create(pc.attr_test);
-                tests_to_restore = restore_saved_tests_to_test(attr_test, false, tc, tests_to_restore);
+                tests_to_restore = restore_saved_tests_to_test(attr_test, false, tc, tests_to_restore, false);
                 pc.attr_test = attr_test.value;
 
                 pc.attr_test.addBoundVariables(tc, new_vars);
 
                 ByRef<Test> value_test = ByRef.create(pc.value_test);
-                tests_to_restore = restore_saved_tests_to_test(value_test, false, tc, tests_to_restore);
+                tests_to_restore = restore_saved_tests_to_test(value_test, false, tc, tests_to_restore, false);
                 pc.value_test = value_test.value;
 
                 pc.value_test.addBoundVariables(tc, new_vars);
@@ -190,19 +190,19 @@ public class ConditionReorderer
                 NegativeCondition nc = cond.asNegativeCondition();
                 
                 ByRef<Test> id_test = ByRef.create(nc.id_test);
-                tests_to_restore = restore_saved_tests_to_test(id_test, true, tc, tests_to_restore);
+                tests_to_restore = restore_saved_tests_to_test(id_test, true, tc, tests_to_restore, true);
                 nc.id_test = id_test.value;
 
                 nc.id_test.addBoundVariables(tc, new_vars);
 
                 ByRef<Test> attr_test = ByRef.create(nc.attr_test);
-                tests_to_restore = restore_saved_tests_to_test(attr_test, false, tc, tests_to_restore);
+                tests_to_restore = restore_saved_tests_to_test(attr_test, false, tc, tests_to_restore, true);
                 nc.attr_test = attr_test.value;
 
                 nc.attr_test.addBoundVariables(tc, new_vars);
 
                 ByRef<Test> value_test = ByRef.create(nc.value_test);
-                tests_to_restore = restore_saved_tests_to_test(value_test, false, tc, tests_to_restore);
+                tests_to_restore = restore_saved_tests_to_test(value_test, false, tc, tests_to_restore, true);
                 nc.value_test = value_test.value;
 
                 nc.value_test.addBoundVariables(tc, new_vars);
@@ -231,7 +231,7 @@ public class ConditionReorderer
      * @return
      */
     private SavedTest restore_saved_tests_to_test(ByRef<Test> t, boolean is_id_field, int bound_vars_tc_number,
-            SavedTest tests_to_restore)
+            SavedTest tests_to_restore, boolean neg)
     {
         SavedTest prev_st = null, next_st = null;
         SavedTest st = tests_to_restore;
@@ -245,7 +245,7 @@ public class ConditionReorderer
             {
                 if (Tests.test_includes_equality_test_for_symbol(t.value, st.var))
                 {
-                    t.value =  Tests.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
+                    t.value =  Tests.add_new_test_to_test_if_not_already_there(t.value, st.the_test, neg);
                     added_it = true;
                 }
             }
@@ -257,7 +257,7 @@ public class ConditionReorderer
                 {
                     if (symbol_is_constant_or_marked_variable(referent, bound_vars_tc_number) || (st.var == referent))
                     {
-                        t.value = Tests.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
+                        t.value = Tests.add_new_test_to_test_if_not_already_there(t.value, st.the_test, neg);
                         added_it = true;
                     }
                 }
@@ -269,7 +269,7 @@ public class ConditionReorderer
                         rt.type = RelationalTest.reverse_direction_of_relational_test(rt.type);
                         rt.referent = st.var;
                         st.var = referent;
-                        t.value = Tests.add_new_test_to_test_if_not_already_there(t.value, st.the_test);
+                        t.value = Tests.add_new_test_to_test_if_not_already_there(t.value, st.the_test, neg);
                         added_it = true;
                     }
                 }
