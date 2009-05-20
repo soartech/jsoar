@@ -184,7 +184,7 @@ public class Conditions
     
                     // pick_conds_with_matching_id_test
                     ThreeFieldCondition ntfc = n.asThreeFieldCondition();
-                    if (ntfc != null && Tests.tests_are_equal(id_test_to_match, ntfc.id_test))
+                    if (ntfc != null && Tests.tests_are_equal(id_test_to_match, ntfc.id_test, false))
                     {
                         conds_for_this_id.add(ntfc);
                         it.remove();
