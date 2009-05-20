@@ -14,7 +14,6 @@ import org.jsoar.kernel.DefaultProductionManager;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
-import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.lhs.Condition;
@@ -87,7 +86,6 @@ public class ReinforcementLearning
     boolean rl_first_switch;
 
     private final Agent my_agent;
-    private final VariableGenerator variableGenerator;
     private Exploration exploration;
     private Chunker chunker;
     
@@ -99,7 +97,6 @@ public class ReinforcementLearning
     public ReinforcementLearning(Agent context)
     {
         this.my_agent = context;
-        this.variableGenerator = new VariableGenerator(context.syms);
         
         // rl initialization
         // agent.cpp:311:create_agent
