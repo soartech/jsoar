@@ -325,6 +325,7 @@ public class SoarQMemoryAdapter implements SoarEventListener
             oldNode.setParentNode(parentNode);
             oldNode.synchronizeToMemoryNode(io, newNode);
         }
+        io.asynchronousInputReady();
     }
 
     /**
