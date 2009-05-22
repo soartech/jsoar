@@ -113,7 +113,7 @@ public class FunctionalTests
     public void tearDown() throws Exception
     {
         agent.getPrinter().flush();
-        SoarTclInterface.dispose(ifc);
+        ifc.dispose();
     }
 
     @Test
