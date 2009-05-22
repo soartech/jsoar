@@ -50,9 +50,8 @@ public class SoarTclInterface
     
     public static void dispose(SoarTclInterface ifc)
     {
-        synchronized(interfaces)
+        if(ifc != null)
         {
-            interfaces.remove(ifc.agent);
             ifc.dispose();
         }
     }
@@ -236,11 +235,15 @@ public class SoarTclInterface
         return interp;
     }
     
-    private void dispose()
+    public void dispose()
     {
-        interp.dispose();
-        agent.getRhsFunctions().unregisterHandler(tclRhsFunction.getName());
-        agent = null;
+        synchronized(interfaces)
+        {
+            interfaces.remove(agent);
+            interp.dispose();
+            agent.getRhsFunctions().unregisterHandler(tclRhsFunction.getName());
+            agent = null;
+        }
     }
     
     public Agent getAgent()
