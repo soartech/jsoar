@@ -117,12 +117,6 @@ public class Agent extends AbstractAdaptable
      */
     private final ExecutionTimer totalKernelTimer = DefaultExecutionTimer.newInstance().setName("Total kernel time");
     
-    /**
-     * <p>agent.h:688:attribute_preferences_mode
-     * <p>Defaults to 0 in agent.cpp
-     */
-    public int attribute_preferences_mode = 0;
-    
     private boolean initialized = false;
     
     /**
