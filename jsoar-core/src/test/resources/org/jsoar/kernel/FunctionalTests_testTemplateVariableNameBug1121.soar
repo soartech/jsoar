@@ -26,6 +26,6 @@ sp {c
 sp {done
    (state <s> ^operator.name foo)
 -->
-   (halt)
+   (succeeded)
 }
 
