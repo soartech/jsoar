@@ -19,6 +19,7 @@ import org.jsoar.kernel.symbols.IntegerSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * exploration.cpp
@@ -90,6 +91,7 @@ public class Exploration
     }
     
     private final Agent context;
+    private ReinforcementLearning rl;
     
     /**
      * USER_SELECT_MODE_SYSPARAM
@@ -125,6 +127,11 @@ public class Exploration
         exploration_add_parameter( 0.1, new ExplorationValidateEpsilon(), "epsilon" );
         exploration_add_parameter( 25, new ExplorationValidateTemperature(), "temperature" );
 
+    }
+    
+    public void initialize()
+    {
+        this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
     }
 
     /**
@@ -401,8 +408,8 @@ public class Exploration
             exploration_compute_value_of_candidate( cand, s, 0.0);
 
         // should find highest valued candidate in q-learning
-        if (context.rl.rl_enabled() && 
-            context.rl.rl_get_parameter(ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_Q)
+        if (rl.rl_enabled() && 
+            rl.rl_get_parameter(ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_Q)
         {
             for ( Preference cand=candidates; cand!=null; cand=cand.next_candidate )
                 if ( cand.numeric_value > top_value )
@@ -438,14 +445,14 @@ public class Exploration
         }
 
         // should perform update here for chosen candidate in sarsa
-        if ( context.rl.rl_enabled() && ( context.rl.rl_get_parameter( ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_SARSA ) )
-            context.rl.rl_perform_update( return_val.numeric_value, s.id );
-        else if ( context.rl.rl_enabled() && ( context.rl.rl_get_parameter( ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_Q ) )
+        if ( rl.rl_enabled() && ( rl.rl_get_parameter( ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_SARSA ) )
+            rl.rl_perform_update( return_val.numeric_value, s.id );
+        else if ( rl.rl_enabled() && ( rl.rl_get_parameter( ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_Q ) )
         {
             if ( return_val.numeric_value != top_value )
                 ReinforcementLearning.rl_watkins_clear( s.id );
 
-            context.rl.rl_perform_update( top_value, s.id );
+            rl.rl_perform_update( top_value, s.id );
         }
         
         return return_val;    

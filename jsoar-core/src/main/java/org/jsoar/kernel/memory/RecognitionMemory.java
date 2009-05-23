@@ -21,6 +21,7 @@ import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.learning.Chunker;
+import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
@@ -82,6 +83,7 @@ public class RecognitionMemory
     private OSupport osupport;
     private SoarReteListener soarReteListener;
     private Consistency consistency;
+    private ReinforcementLearning rl;
     
     /**
      * agent.h:174:firer_highest_rhs_unboundvar_index
@@ -152,6 +154,7 @@ public class RecognitionMemory
         this.osupport = Adaptables.adapt(context, OSupport.class);
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
         this.consistency = Adaptables.adapt(context, Consistency.class);
+        this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
         
         context.getProperties().setProvider(SoarProperties.PRODUCTION_FIRING_COUNT, production_firing_count);
     }
@@ -672,7 +675,7 @@ public class RecognitionMemory
             else
             {
                 pref = null;
-                /* SymbolImpl *result = */context.rl.rl_build_template_instantiation(inst, tok, w);
+                /* SymbolImpl *result = */rl.rl_build_template_instantiation(inst, tok, w);
             }
 
             /*

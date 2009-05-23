@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
+import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.lhs.ConditionReorderer;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.parser.ParserContext;
@@ -39,6 +40,7 @@ public class DefaultProductionManager implements ProductionManager
     private final Agent context;
     private final VariableGenerator variableGenerator;
     private Rete rete;
+    private ReinforcementLearning rl;
     
     private final ParserContext parserContext = new ParserContext() 
     {
@@ -69,6 +71,7 @@ public class DefaultProductionManager implements ProductionManager
     void initialize()
     {
         this.rete = Adaptables.adapt(context, Rete.class);
+        this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
     }
     
     /**
@@ -102,7 +105,7 @@ public class DefaultProductionManager implements ProductionManager
                        false);
 
              // Tell RL about the new production
-             context.rl.addProduction(p);
+             rl.addProduction(p);
              
              // Production is added to the rete by the chunker
 
@@ -123,7 +126,7 @@ public class DefaultProductionManager implements ProductionManager
         productionsByType.get(prod.getType()).remove(prod);
         productionsByName.remove(prod.getName());
 
-        context.rl.exciseProduction(prod);
+        rl.exciseProduction(prod);
 
         if (print_sharp_sign)
         {
@@ -231,7 +234,7 @@ public class DefaultProductionManager implements ProductionManager
                   reorder_nccs);
 
         // Tell RL about the new production
-        context.rl.addProduction(p);
+        rl.addProduction(p);
         
         // Add it to the rete.
         ProductionAddResult result = this.rete.add_production_to_rete(p);
