@@ -34,11 +34,16 @@ public interface ProductionManager
     void setParser(Parser parser);
     
     /**
-     * @param productionBody
+     * Parse a <b>production body</b> and add it to the agent's rete network.
+     * Note that the production body does not include the {@code sp} or surrounding
+     * braces!
+     * 
+     * @param productionBody body of production with no {@code sp} or braces
+     * @return the parsed production
      * @throws ReordererException
      * @throws ParserException
      */
-    public void loadProduction(String productionBody) throws ReordererException, ParserException;
+    public Production loadProduction(String productionBody) throws ReordererException, ParserException;
     
     /**
      * Add the given chunk or justification production to the agent. The chunk 

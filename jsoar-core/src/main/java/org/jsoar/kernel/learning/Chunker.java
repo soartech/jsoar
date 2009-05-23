@@ -41,6 +41,7 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
@@ -862,7 +863,7 @@ public class Chunker
     private StringSymbol generate_chunk_name_sym_constant(Instantiation inst)
     {
         if (!this.useLongChunkNames)
-            return (context.syms.generateUniqueString(this.chunk_name_prefix, this.chunk_count));
+            return (context.getSymbols().generateUniqueString(this.chunk_name_prefix, this.chunk_count));
 
         int lowest_result_level = context.decider.top_goal.level;
         for (ListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
@@ -962,8 +963,9 @@ public class Chunker
                 + impass_name + "*" + chunks_this_d_cycle;
         chunk_count.value = chunk_count.value + 1;
 
-        /* Any user who named a production like this deserves to be burned, but we'll have mercy: */
-        if (context.syms.findString(name) != null)
+        // Any user who named a production like this deserves to be burned, but we'll have mercy: 
+        final SymbolFactory syms = context.getSymbols();
+        if (syms.findString(name) != null)
         {
             int collision_count = 1;
 
@@ -974,10 +976,10 @@ public class Chunker
                 name = chunk_name_prefix + "-" + chunk_count + "*d" + this.decisionCycle.d_cycle_count + "*"
                         + impass_name + "*" + chunks_this_d_cycle + "*" + collision_count++;
 
-            } while (context.syms.findString(name) != null);
+            } while (syms.findString(name) != null);
         }
 
-        return context.syms.createString(name);
+        return syms.createString(name);
     }
     
     /**
@@ -1203,7 +1205,7 @@ public class Chunker
         }
         else
         {
-            prod_name = context.syms.generateUniqueString("justification-", justification_count);
+            prod_name = context.getSymbols().generateUniqueString("justification-", justification_count);
             prod_type = ProductionType.JUSTIFICATION;
             // TODO startNewLine()?
             print_name = trace.isEnabled(Category.JUSTIFICATION_NAMES);

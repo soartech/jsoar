@@ -21,6 +21,7 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
@@ -193,7 +194,7 @@ public class TraceFormats
      * 
      * @return
      */
-    private List<SymbolImpl> parse_attribute_path_in_brackets()
+    private List<Symbol> parse_attribute_path_in_brackets()
     {
         /* --- look for opening bracket --- */
         if (format.charAt(offset) != '[')
@@ -203,7 +204,7 @@ public class TraceFormats
         }
         offset++;
 
-        List<SymbolImpl> path = null;
+        List<Symbol> path = null;
 
         /* --- check for '*' (null path) --- */
         if (format.charAt(offset) == '*')
@@ -214,7 +215,7 @@ public class TraceFormats
         else
         {
             /* --- normal case: read the attribute path --- */
-            path = new ArrayList<SymbolImpl>();
+            path = new ArrayList<Symbol>();
             while (true)
             {
                 String name = "";
@@ -341,7 +342,7 @@ public class TraceFormats
         if (format.startsWith("%v", offset))
         {
             offset += 2;
-            List<SymbolImpl> attribute_path = parse_attribute_path_in_brackets();
+            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
             if (format_string_error_message != null)
                 return null;
             TraceFormat tf = new TraceFormat();
@@ -353,7 +354,7 @@ public class TraceFormats
         if (format.startsWith("%o", offset))
         {
             offset += 2;
-            List<SymbolImpl> attribute_path = parse_attribute_path_in_brackets();
+            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
             if (format_string_error_message != null)
                 return null;
             TraceFormat tf = new TraceFormat();
@@ -365,7 +366,7 @@ public class TraceFormats
         if (format.startsWith("%av", offset))
         {
             offset += 3;
-            List<SymbolImpl> attribute_path = parse_attribute_path_in_brackets();
+            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
             if (format_string_error_message != null)
                 return null;
             TraceFormat tf = new TraceFormat();
@@ -377,7 +378,7 @@ public class TraceFormats
         if (format.startsWith("%ao", offset))
         {
             offset += 3;
-            List<SymbolImpl> attribute_path = parse_attribute_path_in_brackets();
+            List<Symbol> attribute_path = parse_attribute_path_in_brackets();
             if (format_string_error_message != null)
                 return null;
             TraceFormat tf = new TraceFormat();
@@ -677,7 +678,7 @@ public class TraceFormats
      * @param count
      * @return
      */
-    private int add_values_of_attribute_path(SymbolImpl object, List<SymbolImpl> path, int pathIndex, StringBuilder result,
+    private int add_values_of_attribute_path(SymbolImpl object, List<Symbol> path, int pathIndex, StringBuilder result,
             boolean recursive, int count)
     {
         if (pathIndex >= path.size())
@@ -766,7 +767,7 @@ public class TraceFormats
      * @param print_attributes
      * @param recursive
      */
-    private void add_trace_for_attribute_path(SymbolImpl object, List<SymbolImpl> path, StringBuilder result,
+    private void add_trace_for_attribute_path(SymbolImpl object, List<Symbol> path, StringBuilder result,
             boolean print_attributes, boolean recursive)
     {
         StringBuilder values = new StringBuilder();
@@ -799,9 +800,9 @@ public class TraceFormats
         if (print_attributes)
         {
             result.append("^");
-            for (Iterator<SymbolImpl> it = path.iterator(); it.hasNext();)
+            for (Iterator<Symbol> it = path.iterator(); it.hasNext();)
             {
-                SymbolImpl c = it.next();
+                final Symbol c = it.next();
                 result.append(String.format("%s", c));
                 if (it.hasNext())
                     result.append(".");
