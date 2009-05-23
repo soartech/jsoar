@@ -15,9 +15,11 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -73,7 +75,7 @@ public class ConditionReorderer
      */
     public void reorder_lhs(ByRef<Condition> lhs_top, ByRef<Condition> lhs_bottom, boolean reorder_nccs) throws ReordererException
     {
-        int tc = vars.getSyms().get_new_tc_number();
+        Marker tc = DefaultMarker.create();
         /* don't mark any variables, since nothing is bound outside the LHS */
 
         ListHead<Variable> roots = Conditions.collect_root_variables(lhs_top.value, tc, trace.getPrinter(), prodName);
@@ -136,7 +138,7 @@ public class ConditionReorderer
      * @param reorder_nccs
      */
     private void reorder_condition_list(ByRef<Condition> top_of_conds, ByRef<Condition> bottom_of_conds,
-            ListHead<Variable> roots, int tc, boolean reorder_nccs)
+            ListHead<Variable> roots, Marker tc, boolean reorder_nccs)
     {
         SavedTest saved_tests = simplify_condition_list(top_of_conds.value);
         reorder_simplified_conditions(top_of_conds, bottom_of_conds, roots, tc, reorder_nccs);
@@ -152,7 +154,7 @@ public class ConditionReorderer
      * @param tc
      * @param saved_tests
      */
-    private void restore_and_deallocate_saved_tests(Condition conds_list, int tc, SavedTest tests_to_restore)
+    private void restore_and_deallocate_saved_tests(Condition conds_list, Marker tc, SavedTest tests_to_restore)
     {
         ListHead<Variable> new_vars = ListHead.newInstance();
         for (Condition cond = conds_list; cond != null; cond = cond.next)
@@ -230,7 +232,7 @@ public class ConditionReorderer
      * @param tests_to_restore
      * @return
      */
-    private SavedTest restore_saved_tests_to_test(ByRef<Test> t, boolean is_id_field, int bound_vars_tc_number,
+    private SavedTest restore_saved_tests_to_test(ByRef<Test> t, boolean is_id_field, Marker bound_vars_tc_number,
             SavedTest tests_to_restore, boolean neg)
     {
         SavedTest prev_st = null, next_st = null;
@@ -305,7 +307,7 @@ public class ConditionReorderer
      * @param bound_vars_tc_number
      * @return
      */
-    private static boolean symbol_is_constant_or_marked_variable(SymbolImpl referent, int bound_vars_tc_number)
+    private static boolean symbol_is_constant_or_marked_variable(SymbolImpl referent, Marker bound_vars_tc_number)
     {
         Variable var = referent.asVariable();
         return var == null || var.tc_number == bound_vars_tc_number;
@@ -322,7 +324,7 @@ public class ConditionReorderer
      * @param reorder_nccs
      */
     private void reorder_simplified_conditions(ByRef<Condition> top_of_conds, ByRef<Condition> bottom_of_conds,
-            ListHead<Variable> roots, int bound_vars_tc_number, boolean reorder_nccs)
+            ListHead<Variable> roots, Marker bound_vars_tc_number, boolean reorder_nccs)
     {
         Condition remaining_conds = top_of_conds.value; // header of dll
         Condition first_cond = null;
@@ -551,7 +553,7 @@ public class ConditionReorderer
      * @param root_vars_not_bound_yet
      * @return
      */
-    private int find_lowest_cost_lookahead(Condition candidates, Condition chosen, int tc,
+    private int find_lowest_cost_lookahead(Condition candidates, Condition chosen, Marker tc,
             ListHead<Variable> root_vars_not_bound_yet)
     {
         ListHead<Variable> new_vars = ListHead.newInstance();
@@ -590,7 +592,7 @@ public class ConditionReorderer
      * @param roots
      * @return
      */
-    private int cost_of_adding_condition(Condition cond, int tc, ListHead<Variable> root_vars_not_bound_yet)
+    private int cost_of_adding_condition(Condition cond, Marker tc, ListHead<Variable> root_vars_not_bound_yet)
     {
         int result;
 
@@ -685,7 +687,7 @@ public class ConditionReorderer
      * @param root_vars_not_bound_yet
      * @return
      */
-    private boolean test_covered_by_bound_vars(Test t, int tc, ListHead<Variable> extra_vars)
+    private boolean test_covered_by_bound_vars(Test t, Marker tc, ListHead<Variable> extra_vars)
     {
         if (Tests.isBlank(t))
         {
@@ -897,7 +899,7 @@ public class ConditionReorderer
      * @param cond_list
      * @param tc
      */
-    private void fill_in_vars_requiring_bindings(Condition cond_list, int tc)
+    private void fill_in_vars_requiring_bindings(Condition cond_list, Marker tc)
     {
         // add anything bound in a positive condition at this level
         ListHead<Variable> new_bound_vars = ListHead.newInstance();
@@ -936,7 +938,7 @@ public class ConditionReorderer
      * @param tc
      * @param starting_list
      */
-    private LinkedList<Variable> collect_vars_tested_by_cond_that_are_bound(Condition cond, int tc, LinkedList<Variable> starting_list)
+    private LinkedList<Variable> collect_vars_tested_by_cond_that_are_bound(Condition cond, Marker tc, LinkedList<Variable> starting_list)
     {
         Arguments.checkNotNull(starting_list, "startingList");
         
@@ -968,7 +970,7 @@ public class ConditionReorderer
      * @param tc
      * @param starting_list
      */
-    private void collect_vars_tested_by_test_that_are_bound(Test t, int tc, LinkedList<Variable> starting_list)
+    private void collect_vars_tested_by_test_that_are_bound(Test t, Marker tc, LinkedList<Variable> starting_list)
     {
         Arguments.checkNotNull(starting_list, "starting_list");
         

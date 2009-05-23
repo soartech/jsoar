@@ -8,6 +8,7 @@ package org.jsoar.kernel.lhs;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -48,7 +49,7 @@ public class PositiveCondition extends ThreeFieldCondition
      * @see org.jsoar.kernel.Condition#addBoundVariables(int, java.util.List)
      */
     @Override
-    public void addBoundVariables(int tc_number, ListHead<Variable> var_list)
+    public void addBoundVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         id_test.addBoundVariables(tc_number, var_list);
         attr_test.addBoundVariables(tc_number, var_list);
@@ -59,7 +60,7 @@ public class PositiveCondition extends ThreeFieldCondition
      * @see org.jsoar.kernel.lhs.Condition#add_cond_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
-    public void add_cond_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
+    public void add_cond_to_tc(Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         Tests.add_test_to_tc(id_test, tc, id_list, var_list);
         Tests.add_test_to_tc(value_test, tc, id_list, var_list);

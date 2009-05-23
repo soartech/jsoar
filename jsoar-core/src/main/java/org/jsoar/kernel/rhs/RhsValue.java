@@ -12,6 +12,7 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * <p>rhs_value_to_string is handled by Formattable implementation
@@ -70,7 +71,7 @@ public abstract class RhsValue implements Formattable
      * @param tc_number
      * @param var_list
      */
-    public abstract void addAllVariables(int tc_number, ListHead<Variable> var_list);
+    public abstract void addAllVariables(Marker tc_number, ListHead<Variable> var_list);
     
     /**
      * When we print a production (but not when we fire one), we have to

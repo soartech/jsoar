@@ -9,6 +9,7 @@ import java.util.Formatter;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * Instances of this class are immutable
@@ -83,7 +84,7 @@ public class UnboundVariable extends RhsValue
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
+    public void addAllVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         // See comment in RhsValue.addAllVariables.
         throw new UnsupportedOperationException("addAllVariables not supported on UnboundVariable RhsValue");

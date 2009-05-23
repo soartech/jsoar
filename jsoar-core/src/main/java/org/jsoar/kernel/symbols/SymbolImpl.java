@@ -10,6 +10,7 @@ import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * This is the internal implementation class for symbols. It should
@@ -163,7 +164,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
      * @param id_list
      * @param var_list
      */
-    public void add_symbol_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
+    public void add_symbol_to_tc(Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         // DO nothing by default
     }
@@ -174,7 +175,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
      * @param tc
      * @return
      */
-    public boolean symbol_is_in_tc(int tc)
+    public boolean symbol_is_in_tc(Marker tc)
     {
         // False by default
         return false;

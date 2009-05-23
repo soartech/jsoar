@@ -10,6 +10,7 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -54,7 +55,7 @@ public class ConjunctiveTest extends ComplexTest
      * @see org.jsoar.kernel.Test#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
+    public void addAllVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         for(Test child : conjunct_list)
         {
@@ -66,7 +67,7 @@ public class ConjunctiveTest extends ComplexTest
      * @see org.jsoar.kernel.Test#addBoundVariables(int, java.util.List)
      */
     @Override
-    public void addBoundVariables(int tc_number, ListHead<Variable> var_list)
+    public void addBoundVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         for(Test child : conjunct_list)
         {

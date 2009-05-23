@@ -50,6 +50,8 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 import org.jsoar.util.properties.BooleanPropertyProvider;
 
 /**
@@ -78,11 +80,11 @@ public class Chunker
     private boolean maxChunksReached = false;
     
     private int results_match_goal_level;
-    private int results_tc_number;
+    private Marker results_tc_number;
     private Preference results;
     private ListHead<Preference> extra_result_prefs_from_instantiation;
     public boolean variablize_this_chunk;
-    public int variablization_tc;
+    public Marker variablization_tc;
     final ChunkConditionSet negated_set = new ChunkConditionSet();
     
     /**
@@ -320,7 +322,7 @@ public class Chunker
     {
         this.results = null;
         this.results_match_goal_level = inst.match_goal_level;
-        this.results_tc_number = context.syms.get_new_tc_number();
+        this.results_tc_number = DefaultMarker.create();
         this.extra_result_prefs_from_instantiation = ListHead.newInstance(inst.preferences_generated);
         for (ListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
         {
@@ -479,7 +481,7 @@ public class Chunker
      * @param tc_to_use
      */
     private void build_chunk_conds_for_grounds_and_add_negateds(ByRef<ChunkCondition> dest_top,
-            ByRef<ChunkCondition> dest_bottom, int tc_to_use)
+            ByRef<ChunkCondition> dest_bottom, Marker tc_to_use)
     {
         ListItem<ChunkCondition> first_cc = null;
 
@@ -590,7 +592,7 @@ public class Chunker
      * @return
      */
     private NotStruct get_nots_for_instantiated_conditions(LinkedList<Instantiation> instantiations_with_nots,
-            int tc_of_grounds)
+            Marker tc_of_grounds)
     {
         // collect nots for which both id's are marked
         NotStruct collected_nots = null;
@@ -703,7 +705,7 @@ public class Chunker
      */
     private void add_goal_or_impasse_tests(ListItem<ChunkCondition> all_ccs)
     {
-        int tc = context.syms.get_new_tc_number();
+        Marker tc = DefaultMarker.create();
         for (ListItem<ChunkCondition> ccIter = all_ccs; ccIter != null; ccIter = ccIter.next)
         {
             ChunkCondition cc = ccIter.item;
@@ -1173,7 +1175,7 @@ public class Chunker
         ByRef<ChunkCondition> bottom_cc = ByRef.create(null);
         NotStruct nots = null;
         {
-            int tc_for_grounds = context.syms.get_new_tc_number();
+            final Marker tc_for_grounds = DefaultMarker.create();
             build_chunk_conds_for_grounds_and_add_negateds(top_cc, bottom_cc, tc_for_grounds);
             nots = get_nots_for_instantiated_conditions(instantiations_with_nots, tc_for_grounds);
         }
@@ -1227,7 +1229,7 @@ public class Chunker
         Condition lhs_top = top_cc.value.variablized_cond;
         Condition lhs_bottom = bottom_cc.value.variablized_cond;
         this.variableGenerator.reset(lhs_top, null);
-        this.variablization_tc = context.syms.get_new_tc_number();
+        this.variablization_tc = DefaultMarker.create();
         variablize_condition_list(lhs_top);
         variablize_nots_and_insert_into_conditions(nots, lhs_top);
         Action rhs = copy_and_variablize_result_list(results);

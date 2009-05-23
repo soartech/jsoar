@@ -10,6 +10,7 @@ import java.util.Formatter;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * A rhs value that is just a symbol. Objects of this type are immutable.
@@ -90,7 +91,7 @@ public class RhsSymbolValue extends RhsValue
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
+    public void addAllVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         Variable var = getSym().asVariable();
         if(var != null)

@@ -235,7 +235,7 @@ public class PrintCommand implements Command
             wmp.setInternal(options.contains(Options.INTERNAL));
             wmp.setTree(options.contains(Options.TREE));
             wmp.setExact(options.contains(Options.EXACT));
-            wmp.print(agent.syms, agent.getPrinter(), arg);
+            wmp.print(agent.getPrinter(), arg);
             agent.getPrinter().flush();
         }
         else

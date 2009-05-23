@@ -40,6 +40,8 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -1088,7 +1090,7 @@ public class ReinforcementLearning
         Condition.copy_condition_list( my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
         rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
         this.chunker.variableGenerator.reset( cond_top.value, null );
-        this.chunker.variablization_tc = my_agent.syms.get_new_tc_number( );
+        this.chunker.variablization_tc = DefaultMarker.create();
         this.chunker.variablize_condition_list( cond_top.value );
         this.chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
 
@@ -1161,7 +1163,7 @@ public class ReinforcementLearning
     void rl_add_goal_or_impasse_tests_to_conds( Condition all_conds )
     {
         // mark each id as we add a test for it, so we don't add a test for the same id in two different places
-        int tc = my_agent.syms.get_new_tc_number( );
+        Marker tc = DefaultMarker.create();
 
         for (Condition cond = all_conds; cond != null; cond = cond.next )
         {

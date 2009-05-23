@@ -9,8 +9,10 @@ import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Variable;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 /**
  * Variable Generator
@@ -71,7 +73,7 @@ public class VariableGenerator
         }
 
         // mark all variables in the given conds and actions
-        int tc_number = syms.get_new_tc_number();
+        Marker tc_number = DefaultMarker.create();
         ListHead<Variable> var_list = ListHead.newInstance();
 
         Condition.addAllVariables(conds_with_vars_to_avoid, tc_number, var_list);

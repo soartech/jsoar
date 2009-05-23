@@ -10,6 +10,7 @@ import java.util.LinkedList;
 
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -17,7 +18,7 @@ import org.jsoar.util.ListHead;
 public class Variable extends SymbolImpl
 {
     public final String name;
-    public int tc_number;
+    public Marker tc_number;
     public SymbolImpl current_binding_value;
     /**
      * In C, this just gets shoved in the current_binding_value pointer. Can't do that in
@@ -49,7 +50,7 @@ public class Variable extends SymbolImpl
      * @param tc_number
      * @param var_list
      */
-    public void markIfUnmarked(int tc_number, ListHead<Variable> var_list)
+    public void markIfUnmarked(Marker tc_number, ListHead<Variable> var_list)
     {
         if(this.tc_number != tc_number)
         {
@@ -76,7 +77,7 @@ public class Variable extends SymbolImpl
     
     public void unmark()
     {
-        this.tc_number = 0;
+        this.tc_number = null;
     }
     
     /**
@@ -175,7 +176,7 @@ public class Variable extends SymbolImpl
      * @see org.jsoar.kernel.symbols.SymbolImpl#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
-    public void add_symbol_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
+    public void add_symbol_to_tc(Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         markIfUnmarked(tc, var_list);
     }
@@ -184,7 +185,7 @@ public class Variable extends SymbolImpl
      * @see org.jsoar.kernel.symbols.SymbolImpl#symbol_is_in_tc(int)
      */
     @Override
-    public boolean symbol_is_in_tc(int tc)
+    public boolean symbol_is_in_tc(Marker tc)
     {
         return tc_number == tc;
     }

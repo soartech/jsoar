@@ -18,6 +18,8 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 /**
  * Global level functions and variables for backtracing
@@ -263,8 +265,8 @@ public class Backtracer
 
         // mark transitive closure of each higher goal id that was tested in
         // the id field of a top-level positive condition
-        int tc = context.syms.get_new_tc_number(); // use this to mark ids in the ground set
-        int tc2 = context.syms.get_new_tc_number(); // use this to mark other ids we see
+        Marker tc = DefaultMarker.create(); // use this to mark ids in the ground set
+        Marker tc2 = DefaultMarker.create(); // use this to mark other ids we see
         boolean need_another_pass = false;
 
         for (Condition c = inst.top_of_instantiated_conditions; c != null; c = c.next)
@@ -507,7 +509,7 @@ public class Backtracer
         }
 
         // setup the tc of the ground set
-        int tc = context.syms.get_new_tc_number();
+        Marker tc = DefaultMarker.create();
         for (Condition c : grounds)
         {
             c.add_cond_to_tc(tc, null, null);

@@ -39,10 +39,12 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.HashTable;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -216,7 +218,7 @@ public class Rete
         // unbound variable indices
 
         List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>();
-        int rhs_unbound_vars_tc = variableGenerator.getSyms().get_new_tc_number();
+        Marker rhs_unbound_vars_tc = DefaultMarker.create();
         for (Action a = p.action_list; a != null; a = a.next)
         {
             MakeAction ma = a.asMakeAction();

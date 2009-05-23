@@ -12,10 +12,11 @@ import java.util.List;
 
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 
 /**
@@ -36,9 +37,8 @@ public class WorkingMemoryPrinter
      * @param printer
      * @param idIn
      */
-    public void print(SymbolFactoryImpl syms, Printer printer, Symbol idIn)
+    public void print(Printer printer, Symbol idIn)
     {
-        Arguments.checkNotNull(syms, "syms");
         Arguments.checkNotNull(printer, "printer");
         Arguments.checkNotNull(idIn, "id");
 
@@ -47,9 +47,9 @@ public class WorkingMemoryPrinter
 
         // RPM 4/07: first mark the nodes with their shallowest depth
         // then print them at their shallowest depth
-        int tc = syms.get_new_tc_number();
+        Marker tc = DefaultMarker.create();
         mark_depths_augs_of_id(id, depth, tc);
-        tc = syms.get_new_tc_number();
+        tc = DefaultMarker.create();
         print_augs_of_id(id, depth, depth, internal, tree, tc);
         this.printer = null;
     }
@@ -179,7 +179,7 @@ public class WorkingMemoryPrinter
  * @param depth
  * @param tc
  */
-private void mark_depths_augs_of_id (SymbolImpl idIn, int depth, int tc) 
+private void mark_depths_augs_of_id (SymbolImpl idIn, int depth, Marker tc) 
 {
     /* AGR 652  The plan is to go through the list of WMEs and find out how
     many there are.  Then we malloc an array of that many pointers.
@@ -237,7 +237,7 @@ private void print_augs_of_id (SymbolImpl idIn,
     int maxdepth,
     boolean internal,
     boolean tree,
-    int tc) 
+    Marker tc) 
 {
     /* AGR 652  The plan is to go through the list of WMEs and find out how
     many there are.  Then we malloc an array of that many pointers.

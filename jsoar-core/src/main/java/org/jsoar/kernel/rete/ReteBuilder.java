@@ -30,6 +30,7 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * Functions and data structures for building the rete network. Extracted
@@ -718,7 +719,7 @@ import org.jsoar.util.ListHead;
      * @return The value to replace rv, possibly rv itself
      */
     /*package*/ static RhsValue fixup_rhs_value_variable_references(Rete rete, RhsValue rv, int bottom_depth,
-            List<Variable> rhs_unbound_vars_for_new_prod, int rhs_unbound_vars_tc)
+            List<Variable> rhs_unbound_vars_for_new_prod, Marker rhs_unbound_vars_tc)
     {
         RhsSymbolValue rvsym = rv.asSymbolValue();
         if (rvsym != null)

@@ -1386,7 +1386,7 @@ public class RecognitionMemory
         @Override
         public SymbolFactory getSymbols()
         {
-            return context.syms;
+            return context.getSymbols();
         }
 
         /* (non-Javadoc)

@@ -7,9 +7,10 @@ package org.jsoar.kernel.rhs;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -64,7 +65,7 @@ public class ActionReorderer
      * @param lhs_tc
      * @throws ReordererException on error
      */
-    public void reorder_action_list(ByRef<Action> action_list, int lhs_tc) throws ReordererException
+    public void reorder_action_list(ByRef<Action> action_list, Marker lhs_tc) throws ReordererException
     {
         ListHead<Variable> new_bound_vars = ListHead.newInstance();
         Action remaining_actions = action_list.value;
@@ -154,7 +155,7 @@ public class ActionReorderer
      * @param tc
      * @return
      */
-    private boolean legal_to_execute_action(Action a, int tc)
+    private boolean legal_to_execute_action(Action a, Marker tc)
     {
         MakeAction ma = a.asMakeAction();
         if (ma != null)
@@ -186,7 +187,7 @@ public class ActionReorderer
                 tc);
     }
 
-    private boolean all_variables_in_rhs_value_bound(RhsValue rv, int tc)
+    private boolean all_variables_in_rhs_value_bound(RhsValue rv, Marker tc)
     {
 
         RhsFunctionCall fc = rv.asFunctionCall();

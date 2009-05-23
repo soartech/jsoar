@@ -12,6 +12,7 @@ import java.util.List;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * Represents a RHS function call. Instances of this class are mutable.
@@ -89,7 +90,7 @@ public class RhsFunctionCall extends RhsValue
      * @see org.jsoar.kernel.RhsValue#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
+    public void addAllVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         for(RhsValue arg : arguments)
         {

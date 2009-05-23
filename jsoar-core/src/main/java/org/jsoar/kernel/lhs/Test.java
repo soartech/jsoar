@@ -9,6 +9,7 @@ import java.util.Formattable;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -60,7 +61,7 @@ public abstract class Test implements Formattable
         return null;
     }
 
-    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
+    public void addAllVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         // Do nothing by default
     }
@@ -71,7 +72,7 @@ public abstract class Test implements Formattable
      * @param tc_number
      * @param var_list
      */
-    public void addBoundVariables(int tc_number, ListHead<Variable> var_list)
+    public void addBoundVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         // Do nothing by default
     }

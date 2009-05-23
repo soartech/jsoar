@@ -16,6 +16,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -27,7 +28,7 @@ public abstract class Action
     public ActionSupport support = ActionSupport.UNKNOWN_SUPPORT;
     public boolean already_in_tc;  /* used only by compile-time o-support calcs */
     
-    public static void addAllVariables(Action head, int tc_number, ListHead<Variable> var_list)
+    public static void addAllVariables(Action head, Marker tc_number, ListHead<Variable> var_list)
     {
         for(Action a = head; a != null; a = a.next)
         {
@@ -35,7 +36,7 @@ public abstract class Action
         }
     }
     
-    public abstract void addAllVariables(int tc_number, ListHead<Variable> var_list);
+    public abstract void addAllVariables(Marker tc_number, ListHead<Variable> var_list);
 
     public MakeAction asMakeAction()
     {
@@ -114,7 +115,7 @@ public abstract class Action
      * @param tc
      * @return
      */
-    public boolean action_is_in_tc(int tc)
+    public boolean action_is_in_tc(Marker tc)
     {
         // TODO Implement action_is_in_tc in sub-classes
         throw new UnsupportedOperationException("Not implemented");
@@ -129,7 +130,7 @@ public abstract class Action
      * @param id_list
      * @param var_list
      */
-    public void add_action_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
+    public void add_action_to_tc(Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         // Do nothing by default
         

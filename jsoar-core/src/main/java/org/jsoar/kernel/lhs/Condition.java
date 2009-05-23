@@ -15,6 +15,7 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * gdatastructs.h:524:condition
@@ -72,7 +73,7 @@ public abstract class Condition implements Formattable
         return header;
     }
     
-    public static void addAllVariables(Condition header, int tc_number, ListHead<Variable> var_list)
+    public static void addAllVariables(Condition header, Marker tc_number, ListHead<Variable> var_list)
     {
         for(Condition c = header; c != null; c = c.next)
         {
@@ -80,7 +81,7 @@ public abstract class Condition implements Formattable
         }
     }
     
-    public static void addBoundVariables(Condition header, int tc_number, ListHead<Variable> var_list)
+    public static void addBoundVariables(Condition header, Marker tc_number, ListHead<Variable> var_list)
     {
         for(Condition c = header; c != null; c = c.next)
         {
@@ -88,7 +89,7 @@ public abstract class Condition implements Formattable
         }
     }
     
-    public abstract void addBoundVariables(int tc_number, ListHead<Variable> var_list);
+    public abstract void addBoundVariables(Marker tc_number, ListHead<Variable> var_list);
 
     /**
      * production.cpp:1191:add_all_variables_in_condition
@@ -96,7 +97,7 @@ public abstract class Condition implements Formattable
      * @param tc_number
      * @param var_list
      */
-    public abstract void addAllVariables(int tc_number, ListHead<Variable> var_list);
+    public abstract void addAllVariables(Marker tc_number, ListHead<Variable> var_list);
 
     public ThreeFieldCondition asThreeFieldCondition()
     {
@@ -123,7 +124,7 @@ public abstract class Condition implements Formattable
      * @param tc
      * @return
      */
-    public abstract boolean cond_is_in_tc(int tc);
+    public abstract boolean cond_is_in_tc(Marker tc);
 
     /**
      * <p>production.cpp:1327:add_cond_to_tc
@@ -133,7 +134,7 @@ public abstract class Condition implements Formattable
      * @param id_list
      * @param var_list
      */
-    public abstract void add_cond_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list);
+    public abstract void add_cond_to_tc(Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list);
 
     /**
      * Returns a hash value for the given condition.
