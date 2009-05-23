@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 import org.jsoar.kernel.memory.Preference;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.TemporaryMemory;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -35,6 +36,7 @@ public class Consistency
     private Decider decider;
     private DecisionCycle decisionCycle;
     private TemporaryMemory tempMemory;
+    private RecognitionMemory recMemory;
     private SoarReteListener soarReteListener;
         
     /**
@@ -50,6 +52,7 @@ public class Consistency
         this.decider = Adaptables.adapt(context, Decider.class);
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
         this.tempMemory = Adaptables.adapt(context, TemporaryMemory.class);
+        this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
     }
     
@@ -392,7 +395,7 @@ public class Consistency
      */
     private boolean minor_quiescence_at_goal(IdentifierImpl goal)
     {
-        if ((context.recMemory.FIRING_TYPE == SavedFiringType.IE_PRODS) && (!i_activity_at_goal(goal)))
+        if ((recMemory.FIRING_TYPE == SavedFiringType.IE_PRODS) && (!i_activity_at_goal(goal)))
             /* firing IEs but no more to fire == minor quiescence */
             return true;
         else
@@ -680,7 +683,7 @@ public class Consistency
             print(thisAgent, "\nOnly NIL goal retractions are active");
             #endif
             */
-            context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
+            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -690,7 +693,7 @@ public class Consistency
             print(thisAgent, "\nThis is a new decision....");
             #endif
             */
-            context.recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
+            recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
             /* in APPLY phases, we can test for ONC here, check ms_o_assertions */
             // KJC: thisAgent->current_phase = PREFERENCE_PHASE;
             break;
@@ -738,7 +741,7 @@ public class Consistency
                 print(thisAgent, "\nRestoring production type from previous processing at this level"); 
                 #endif
                 */
-                context.recMemory.FIRING_TYPE = goal.saved_firing_type;
+                recMemory.FIRING_TYPE = goal.saved_firing_type;
                 // KJC 04.05 commented the next line after reworking the phases
                 // in init_soar.cpp
                 // thisAgent->current_phase = DETERMINE_LEVEL_PHASE;
@@ -755,7 +758,7 @@ public class Consistency
             }
 
             /* else: just do a preference phases */
-            context.recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
+            recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
             // KJC: thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -778,7 +781,7 @@ public class Consistency
                     break;
                 }
             }
-            context.recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
+            recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
             // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -790,7 +793,7 @@ public class Consistency
             */
 
             goal = decider.previous_active_goal;
-            goal.saved_firing_type = context.recMemory.FIRING_TYPE;
+            goal.saved_firing_type = recMemory.FIRING_TYPE;
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE       
             if (goal->id.saved_firing_type == IE_PRODS)
@@ -819,7 +822,7 @@ public class Consistency
             }
 
             /* If the decision is consistent, then just start processing at this level */
-            context.recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
+            recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
             //thisAgent->current_phase = PREFERENCE_PHASE;
             break;
         }
@@ -932,7 +935,7 @@ public class Consistency
             print(thisAgent, "\nOnly NIL goal retractions are active");
             #endif
             */
-            context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
+            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -942,7 +945,7 @@ public class Consistency
             print(thisAgent, "\nThis is a new decision....");
             #endif
             */
-            context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
+            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -960,7 +963,7 @@ public class Consistency
                 break;
             }
             /* else: just do a preference phases */
-            context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
+            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -970,7 +973,7 @@ public class Consistency
             print(thisAgent, "\nThe level is the same as the previous level...."); 
             #endif
             */
-            context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
+            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -982,7 +985,7 @@ public class Consistency
             */
 
             IdentifierImpl goal = decider.previous_active_goal;
-            goal.saved_firing_type = context.recMemory.FIRING_TYPE;
+            goal.saved_firing_type = recMemory.FIRING_TYPE;
 
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE       
@@ -1014,7 +1017,7 @@ public class Consistency
             /* If the decision is consistent, then just keep processing
                at this level */
 
-            context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
+            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
         }

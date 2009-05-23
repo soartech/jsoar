@@ -90,7 +90,7 @@ public class Agent extends AbstractAdaptable
     private final TemporaryMemory tempMemory = new TemporaryMemory();
     private final OSupport osupport = new OSupport(predefinedSyms, printer);
     private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
-    public final RecognitionMemory recMemory = new RecognitionMemory(this);
+    private final RecognitionMemory recMemory = new RecognitionMemory(this);
     
     private final Exploration exploration = new Exploration(this);
     private final Decider decider = new Decider(this);
@@ -136,7 +136,7 @@ public class Agent extends AbstractAdaptable
             decisionManip, exploration, io, traceFormats, properties, 
             chunker, explain, decisionCycle, rete, predefinedSyms, 
             predefinedSyms.getSyms(), decider, printer, rhsFunctions,
-            workingMemory, tempMemory, osupport, soarReteListener,
+            workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
             debuggerProvider, decider);
     

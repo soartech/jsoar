@@ -24,6 +24,7 @@ import org.jsoar.kernel.MatchSetEntry.EntryType;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.Action;
@@ -52,6 +53,7 @@ public class SoarReteListener implements ReteListener
     private final Agent context;
     private final Rete rete;
     private Decider decider;
+    private RecognitionMemory recMemory;
     
     /**
      * agent.h:733
@@ -97,6 +99,7 @@ public class SoarReteListener implements ReteListener
     public void initialize()
     {
         this.decider = Adaptables.adapt(context, Decider.class);
+        this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
     }
 
     /* (non-Javadoc)
@@ -716,7 +719,7 @@ public class SoarReteListener implements ReteListener
 
         if (decider.active_goal != null)
         { /* Just do asserts for current goal */
-            if (context.recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
+            if (recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
                 if (decider.active_goal.ms_o_assertions.isEmpty())
                     return null;
@@ -785,7 +788,7 @@ public class SoarReteListener implements ReteListener
         	
         	assert decider.active_goal != null;
 
-        	if (context.recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
+        	if (recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
                 msc.next_prev.insertAtHead(ms_o_assertions);
                 decider.active_goal.ms_o_assertions.push(msc);

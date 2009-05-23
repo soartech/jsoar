@@ -18,6 +18,7 @@ import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.TemporaryMemory;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -95,6 +96,7 @@ public class Decider
     private DecisionCycle decisionCycle;
     private WorkingMemory workingMemory;
     private TemporaryMemory tempMemory;
+    private RecognitionMemory recMemory;
     private SoarReteListener soarReteListener;
     
     /**
@@ -196,6 +198,7 @@ public class Decider
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
         this.tempMemory = Adaptables.adapt(context, TemporaryMemory.class);
+        this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
     }
@@ -602,7 +605,7 @@ public class Decider
             while (pref != null)
             {
                 final Preference next_pref = pref.nextOfSlot;
-                context.recMemory.remove_preference_from_tm(pref);
+                recMemory.remove_preference_from_tm(pref);
 
                 /*
                  * Note: the call to remove_preference_from_slot handles the
@@ -1574,7 +1577,7 @@ public class Decider
      */
     private void remove_fake_preference_for_goal_item(Preference pref)
     {
-        pref.preference_remove_ref(context.recMemory); /* everything else happens automatically */
+        pref.preference_remove_ref(recMemory); /* everything else happens automatically */
     }
     
     /**
@@ -1958,7 +1961,7 @@ public class Decider
          */
         final WmeImpl w = s.getWmes();
         assert w.next == null;
-        w.preference.preference_remove_ref(context.recMemory);
+        w.preference.preference_remove_ref(recMemory);
         this.workingMemory.remove_wme_from_wm(w);
         s.removeAllWmes();
     }    
@@ -2002,9 +2005,9 @@ public class Decider
                 Preference p = goal.preferences_from_goal.pop();
                 p.on_goal_list = false;
                 
-                if (!p.remove_preference_from_clones(context.recMemory))
+                if (!p.remove_preference_from_clones(recMemory))
                     if (p.isInTempMemory())
-                        context.recMemory.remove_preference_from_tm(p);
+                        recMemory.remove_preference_from_tm(p);
             }
         }
         else
@@ -2028,9 +2031,9 @@ public class Decider
                     final ListItem<Preference> p_next = p.previous; 
                     p.remove(goal.preferences_from_goal);
                     p.item.on_goal_list = false;
-                    if (!p.item.remove_preference_from_clones(context.recMemory))
+                    if (!p.item.remove_preference_from_clones(recMemory))
                         if (p.item.isInTempMemory())
-                            context.recMemory.remove_preference_from_tm(p.item);
+                            recMemory.remove_preference_from_tm(p.item);
                     p = p_next;
                 }
             }
@@ -2377,7 +2380,7 @@ public class Decider
             this.workingMemory.add_wme_to_wm(w);
 
             for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
-                temp.preference_remove_ref(context.recMemory);
+                temp.preference_remove_ref(recMemory);
 
             if (context.rl.rl_enabled())
                 context.rl.rl_store_data(goal, candidates.value);
@@ -2423,7 +2426,7 @@ public class Decider
         }
 
         for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
-            temp.preference_remove_ref(context.recMemory);
+            temp.preference_remove_ref(recMemory);
 
         return true;
     }
@@ -2510,7 +2513,7 @@ public class Decider
                 // TODO xml
                 // xml_begin_tag(thisAgent, kTagSubphase);
                 // xml_att_val(thisAgent, kPhase_Name, kSubphaseName_ChangingWorkingMemory);
-                switch (context.recMemory.FIRING_TYPE)
+                switch (recMemory.FIRING_TYPE)
                 {
                 case PE_PRODS:
                     context.getPrinter().print("--- Change Working Memory (PE) ---\n");
