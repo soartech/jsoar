@@ -10,8 +10,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.Arguments;
@@ -37,20 +40,30 @@ public class WorkingMemoryPrinter
      * @param printer
      * @param idIn
      */
-    public void print(Printer printer, Symbol idIn)
+    public void print(Agent agent, Printer printer, Symbol idIn, String pattern) throws Exception
     {
+        Arguments.checkNotNull(agent, "agent");
         Arguments.checkNotNull(printer, "printer");
-        Arguments.checkNotNull(idIn, "id");
 
-        IdentifierImpl id = (IdentifierImpl) idIn;
         this.printer = printer;
 
-        // RPM 4/07: first mark the nodes with their shallowest depth
-        // then print them at their shallowest depth
-        Marker tc = DefaultMarker.create();
-        mark_depths_augs_of_id(id, depth, tc);
-        tc = DefaultMarker.create();
-        print_augs_of_id(id, depth, depth, internal, tree, tc);
+        if(exact) {
+            List<Wme> wmes = Wmes.filter(agent.getAllWmesInRete().iterator(), WorkingMemoryPatternReader.GetPredicate(agent, pattern));
+            for(Wme w : wmes) {
+                printer.print("%s", w);
+            }
+        }
+        else {
+            Arguments.checkNotNull(idIn, "id");
+            IdentifierImpl id = (IdentifierImpl) idIn;
+            
+            // RPM 4/07: first mark the nodes with their shallowest depth
+            // then print them at their shallowest depth
+            Marker tc = DefaultMarker.create();
+            mark_depths_augs_of_id(id, depth, tc);
+            tc = DefaultMarker.create();
+            print_augs_of_id(id, depth, depth, internal, tree, tc);
+        }
         this.printer = null;
     }
     

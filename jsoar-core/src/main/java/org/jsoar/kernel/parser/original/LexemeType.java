@@ -11,7 +11,7 @@ import org.jsoar.kernel.memory.PreferenceType;
 /**
  * @author ray
  */
-enum LexemeType
+public enum LexemeType
 {
     EOF("eof"),
     VARIABLE("variable"),

@@ -220,7 +220,7 @@ public class PrintCommand implements Command
         {
         	throw new TclException(interp, "No depth/tree flags allowed when printing exact.");
         }
-                
+        
         if(firstNonOption == args.length)
         {
             throw new TclException(interp, "Expected id or production name argument");
@@ -228,14 +228,20 @@ public class PrintCommand implements Command
         
         String argString = args[firstNonOption].toString();
         Symbol arg = agent.readIdentifierOrContextVariable(argString);
-        if(arg != null)
+        if(arg != null || options.contains(Options.EXACT))
         {
             agent.getPrinter().startNewLine();
             wmp.setDepth(depth);
             wmp.setInternal(options.contains(Options.INTERNAL));
             wmp.setTree(options.contains(Options.TREE));
             wmp.setExact(options.contains(Options.EXACT));
-            wmp.print(agent.getPrinter(), arg);
+            
+            try {
+                wmp.print(agent, agent.getPrinter(), arg, argString);
+            } catch(Exception e) {
+                throw new TclException(interp, e.toString());
+            }
+
             agent.getPrinter().flush();
         }
         else

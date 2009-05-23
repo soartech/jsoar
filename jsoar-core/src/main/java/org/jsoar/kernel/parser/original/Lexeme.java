@@ -8,7 +8,7 @@ package org.jsoar.kernel.parser.original;
 /**
  * @author ray
  */
-class Lexeme
+public class Lexeme
 {
     public String string = "";
     public LexemeType type = null;
