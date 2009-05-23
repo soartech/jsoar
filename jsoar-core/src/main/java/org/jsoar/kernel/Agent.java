@@ -98,7 +98,7 @@ public class Agent extends AbstractAdaptable
     
     private final Chunker chunker = new Chunker(this);
     private final Explain explain = new Explain(this);
-    public final ReinforcementLearning rl = new ReinforcementLearning(this);
+    private final ReinforcementLearning rl = new ReinforcementLearning(this);
     
     private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
     private final InputOutputImpl io = new InputOutputImpl(this);
@@ -138,7 +138,7 @@ public class Agent extends AbstractAdaptable
             predefinedSyms.getSyms(), decider, printer, rhsFunctions,
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
-            debuggerProvider, decider);
+            debuggerProvider, decider, rl);
     
     public Agent()
     {
@@ -154,6 +154,7 @@ public class Agent extends AbstractAdaptable
         workingMemory.initialize(this);
         io.initialize();
         soarReteListener.initialize();
+        exploration.initialize();
         
         // Set up standard RHS functions
         new StandardFunctions(this);

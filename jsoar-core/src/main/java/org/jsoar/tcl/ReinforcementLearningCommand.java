@@ -1,6 +1,7 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
+import org.jsoar.util.adaptables.Adaptables;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -35,7 +36,8 @@ final class ReinforcementLearningCommand implements Command
         }
         
         // TODO reinforcement learning: Obviously, this implementation is insufficient
-        ifc.getAgent().rl.rl_set_parameter(ReinforcementLearning.RL_PARAM_LEARNING, 
+        final ReinforcementLearning rl = Adaptables.adapt(ifc.getAgent(), ReinforcementLearning.class);
+        rl.rl_set_parameter(ReinforcementLearning.RL_PARAM_LEARNING, 
                 "on".equals(args[3].toString()) ? ReinforcementLearning.RL_LEARNING_ON :
                     ReinforcementLearning.RL_LEARNING_ON );
     }

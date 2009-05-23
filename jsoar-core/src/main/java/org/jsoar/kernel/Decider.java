@@ -12,6 +12,7 @@ import java.util.List;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Chunker;
+import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
@@ -98,6 +99,7 @@ public class Decider
     private TemporaryMemory tempMemory;
     private RecognitionMemory recMemory;
     private SoarReteListener soarReteListener;
+    private ReinforcementLearning rl;
     
     /**
      * <p>gsysparam.h:164:MAX_GOAL_DEPTH
@@ -201,6 +203,7 @@ public class Decider
         this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
+        this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
     }
     
     /**
@@ -894,10 +897,10 @@ public class Decider
                 return ImpasseType.CONSTRAINT_FAILURE;
 
         // the lone require is the winner
-        if (candidates != null && context.rl.rl_enabled())
+        if (candidates != null && rl.rl_enabled())
         {
             exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
-            context.rl.rl_perform_update( candidates.numeric_value, s.id );
+            rl.rl_perform_update( candidates.numeric_value, s.id );
         }
 
         return ImpasseType.NONE;
@@ -959,10 +962,10 @@ public class Decider
                 {
                     result_candidates.value = force_result;
 
-                    if (!predict && context.rl.rl_enabled())
+                    if (!predict && rl.rl_enabled())
                     {
                         exploration.exploration_compute_value_of_candidate( force_result, s, 0 );
-                        context.rl.rl_perform_update( force_result.numeric_value, s.id );
+                        rl.rl_perform_update( force_result.numeric_value, s.id );
                     }
 
                     return ImpasseType.NONE;
@@ -1015,11 +1018,11 @@ public class Decider
         {
             result_candidates.value = candidates;
 
-            if (!consistency && context.rl.rl_enabled() && candidates != null)
+            if (!consistency && rl.rl_enabled() && candidates != null)
             {
                 // perform update here for just one candidate
                 exploration.exploration_compute_value_of_candidate(candidates, s, 0);
-                context.rl.rl_perform_update( candidates.numeric_value, s.id );
+                rl.rl_perform_update( candidates.numeric_value, s.id );
             }
 
             return ImpasseType.NONE;
@@ -1218,11 +1221,11 @@ public class Decider
         {
             result_candidates.value = candidates;
 
-            if (!consistency && context.rl.rl_enabled() && candidates != null)
+            if (!consistency && rl.rl_enabled() && candidates != null)
             {
                 // perform update here for just one candidate
                 exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
-                context.rl.rl_perform_update( candidates.numeric_value, s.id );
+                rl.rl_perform_update( candidates.numeric_value, s.id );
             }
 
             return ImpasseType.NONE;
@@ -2042,10 +2045,10 @@ public class Decider
         remove_wmes_for_context_slot(goal.operator_slot);
         update_impasse_items(goal, null); // causes items & fake pref's to go away
 
-        if (context.rl.rl_enabled())
+        if (rl.rl_enabled())
         {
-            context.rl.rl_tabulate_reward_value_for_goal( goal );
-            context.rl.rl_perform_update( 0, goal ); // this update only sees reward - there is no next state
+            rl.rl_tabulate_reward_value_for_goal( goal );
+            rl.rl_perform_update( 0, goal ); // this update only sees reward - there is no next state
         }
 
         this.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
@@ -2382,8 +2385,8 @@ public class Decider
             for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
                 temp.preference_remove_ref(recMemory);
 
-            if (context.rl.rl_enabled())
-                context.rl.rl_store_data(goal, candidates.value);
+            if (rl.rl_enabled())
+                rl.rl_store_data(goal, candidates.value);
 
             return true;
         }
@@ -2539,8 +2542,8 @@ public class Decider
      */
     public void do_decision_phase(boolean predict /*=false*/)
     {
-        if (!predict && context.rl.rl_enabled())
-            context.rl.rl_tabulate_reward_values();
+        if (!predict && rl.rl_enabled())
+            rl.rl_tabulate_reward_values();
 
         decisionManip.predict_srand_restore_snapshot(!predict);
 

@@ -20,6 +20,7 @@ import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Chunker;
+import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
@@ -55,6 +56,7 @@ public class DecisionCycle
     private WorkingMemory workingMemory;
     private RecognitionMemory recMemory;
     private Consistency consistency;
+    private ReinforcementLearning rl;
     
     private static enum GoType
     {
@@ -162,6 +164,7 @@ public class DecisionCycle
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
         this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
         this.consistency = Adaptables.adapt(context, Consistency.class);
+        this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -788,13 +791,13 @@ public class DecisionCycle
             context.getEventManager().fireEvent(afterHaltEvent);
 
             // To model episodic task, after halt, perform RL update with next-state value 0
-            if (context.rl.rl_enabled())
+            if (rl.rl_enabled())
             {
                 // TODO how about a method?
                 for (IdentifierImpl g = decider.bottom_goal; g != null; g = g.higher_goal)
                 {
-                    context.rl.rl_tabulate_reward_value_for_goal(g);
-                    context.rl.rl_perform_update(0, g);
+                    rl.rl_tabulate_reward_value_for_goal(g);
+                    rl.rl_perform_update(0, g);
                 }
             }
         }

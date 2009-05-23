@@ -15,10 +15,12 @@ import javax.swing.JPanel;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * @author ray
@@ -99,11 +101,12 @@ public class StatusBar extends JPanel implements Refreshable
     
     private String getSettings(Agent a)
     {
-        StringBuilder b = new StringBuilder("<html>");
+        final StringBuilder b = new StringBuilder("<html>");
         b.append(status("warnings", a.getPrinter().isPrintWarnings()) + ", ");
         b.append(status("waitsnc", a.getProperties().get(SoarProperties.WAITSNC)) + ", ");
         b.append(status("learn", a.getProperties().get(SoarProperties.LEARNING_ON)) + ", ");
-        b.append(status("rl", a.rl.rl_enabled()) + ", ");
+        final ReinforcementLearning rl = Adaptables.adapt(a, ReinforcementLearning.class);
+        b.append(status("rl", rl.rl_enabled()) + ", ");
         b.append(status("save-backtraces", a.getProperties().get(SoarProperties.EXPLAIN)));
         b.append("</html>");
         
