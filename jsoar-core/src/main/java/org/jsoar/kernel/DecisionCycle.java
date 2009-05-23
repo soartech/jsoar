@@ -20,6 +20,7 @@ import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Chunker;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
@@ -52,6 +53,7 @@ public class DecisionCycle
     private TraceFormats traceFormats;
     private Chunker chunker;
     private WorkingMemory workingMemory;
+    private RecognitionMemory recMemory;
     private Consistency consistency;
     
     private static enum GoType
@@ -158,6 +160,7 @@ public class DecisionCycle
         this.traceFormats = Adaptables.adapt(context, TraceFormats.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
+        this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
         this.consistency = Adaptables.adapt(context, Consistency.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
@@ -364,7 +367,7 @@ public class DecisionCycle
         // it didn't look like it had been used in years.
         Phase.DECISION.trace(trace, false);
 
-        context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS;
+        recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS;
         current_phase = Phase.APPLY;
 
         //      #ifndef NO_TIMING_STUFF
@@ -469,7 +472,7 @@ public class DecisionCycle
             // 'prime' the cycle for a new round of production firings in the APPLY (pref/wm) phases
             this.consistency.initialize_consistency_calculations_for_new_decision();
 
-            context.recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS; // might get reset in det_high_active_prod_level...
+            recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS; // might get reset in det_high_active_prod_level...
             this.consistency.determine_highest_active_production_level_in_stack_apply();
             
             if (current_phase == Phase.OUTPUT)
@@ -492,7 +495,7 @@ public class DecisionCycle
                 beforeElaboration();
             }
             
-            context.recMemory.do_preference_phase(decider.top_goal);
+            recMemory.do_preference_phase(decider.top_goal);
             decider.do_working_memory_phase();
 
             // Update accounting
@@ -500,7 +503,7 @@ public class DecisionCycle
             this.e_cycles_this_d_cycle++;
             this.run_elaboration_count++;
 
-            if (context.recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
+            if (recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
                 this.pe_cycle_count.increment();
                 this.pe_cycles_this_d_cycle++;
@@ -604,7 +607,7 @@ public class DecisionCycle
             // 'Prime the decision for a new round of production firings at the end of
             this.consistency.initialize_consistency_calculations_for_new_decision();
 
-            context.recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
+            recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
             this.consistency.determine_highest_active_production_level_in_stack_propose();
 
             if (current_phase == Phase.DECISION)
@@ -626,7 +629,7 @@ public class DecisionCycle
                 beforeElaboration();
             }
             
-            context.recMemory.do_preference_phase(decider.top_goal);
+            recMemory.do_preference_phase(decider.top_goal);
             decider.do_working_memory_phase();
             
             // Update accounting.
@@ -734,7 +737,7 @@ public class DecisionCycle
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
         beforePhase(Phase.PREFERENCE);
-        context.recMemory.do_preference_phase(decider.top_goal);
+        recMemory.do_preference_phase(decider.top_goal);
 
         this.run_elaboration_count++; // All phases count as a run elaboration
         

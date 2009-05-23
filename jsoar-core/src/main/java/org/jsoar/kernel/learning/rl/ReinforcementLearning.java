@@ -26,6 +26,7 @@ import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.Token;
@@ -92,6 +93,7 @@ public class ReinforcementLearning
     private Decider decider;
     private Exploration exploration;
     private Chunker chunker;
+    private RecognitionMemory recMemory;
     
     private boolean enabled = false;
     
@@ -141,6 +143,7 @@ public class ReinforcementLearning
         this.decider = Adaptables.adapt(my_agent, Decider.class);
         this.exploration = Adaptables.adapt(my_agent, Exploration.class);
         this.chunker = Adaptables.adapt(my_agent, Chunker.class);
+        this.recMemory = Adaptables.adapt(my_agent, RecognitionMemory.class);
     }
 
     /**
@@ -1098,11 +1101,11 @@ public class ReinforcementLearning
         this.chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
 
         // get the preference value
-        IdentifierImpl id = my_agent.recMemory.instantiate_rhs_value( my_action.id, -1, 's', tok, w ).asIdentifier();
-        SymbolImpl attr = my_agent.recMemory.instantiate_rhs_value( my_action.attr, id.level, 'a', tok, w );
+        IdentifierImpl id = recMemory.instantiate_rhs_value( my_action.id, -1, 's', tok, w ).asIdentifier();
+        SymbolImpl attr = recMemory.instantiate_rhs_value( my_action.attr, id.level, 'a', tok, w );
         char first_letter = attr.getFirstLetter();
-        SymbolImpl value = my_agent.recMemory.instantiate_rhs_value( my_action.value, id.level, first_letter, tok, w );
-        SymbolImpl referent = my_agent.recMemory.instantiate_rhs_value( my_action.referent, id.level, first_letter, tok, w );
+        SymbolImpl value = recMemory.instantiate_rhs_value( my_action.value, id.level, first_letter, tok, w );
+        SymbolImpl referent = recMemory.instantiate_rhs_value( my_action.referent, id.level, first_letter, tok, w );
 
         // make new action list
         MakeAction new_action = rl_make_simple_action( id, attr, value, referent );

@@ -32,6 +32,7 @@ import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.NotStruct;
@@ -70,6 +71,7 @@ public class Chunker
     Explain explain;
     private DecisionCycle decisionCycle;
     private Rete rete;
+    private RecognitionMemory recMemory;
     
     public int chunks_this_d_cycle;
     /**
@@ -185,6 +187,7 @@ public class Chunker
         this.backtrace = new Backtracer(context, this);
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
         this.rete = Adaptables.adapt(context, Rete.class);
+        this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
     }
 
     /**
@@ -1305,7 +1308,7 @@ public class Chunker
 
             chunk_inst.in_ms = true; /* set TRUE for now, we'll find out later... */
             make_clones_of_results(results, chunk_inst);
-            context.recMemory.fill_in_new_instantiation_stuff(chunk_inst, true, decider.top_goal);
+            recMemory.fill_in_new_instantiation_stuff(chunk_inst, true, decider.top_goal);
 
         } /* matches { condition *inst_lhs_top, *inst_lhs_bottom ...  */
 
@@ -1372,7 +1375,7 @@ public class Chunker
         }
 
         // assert the preferences
-        chunk_inst.inProdList.insertAtHead(context.recMemory.newly_created_instantiations);
+        chunk_inst.inProdList.insertAtHead(recMemory.newly_created_instantiations);
 
         if (!maxChunksReached)
             chunk_instantiation(chunk_inst, variablize_this_chunk);
