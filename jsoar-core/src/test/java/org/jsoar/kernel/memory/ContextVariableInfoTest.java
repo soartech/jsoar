@@ -5,12 +5,13 @@
  */
 package org.jsoar.kernel.memory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
-import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.Identifier;
 import org.junit.Test;
 
 /**
@@ -36,7 +37,7 @@ public class ContextVariableInfoTest
             agent.runFor(1, RunType.PHASES);
         }
         ContextVariableInfo info = ContextVariableInfo.get(agent.predefinedSyms, agent.decider.top_goal, agent.decider.bottom_goal, "<o>");
-        final IdentifierImpl o1 = agent.syms.findIdentifier('O', 1);
+        final Identifier o1 = agent.getSymbols().findIdentifier('O', 1);
         assertNotNull(o1);
         assertSame(o1, info.getValue());
     }

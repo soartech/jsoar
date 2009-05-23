@@ -27,7 +27,6 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.StringSymbol;
-import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
@@ -143,7 +142,7 @@ public class DefaultProductionManager implements ProductionManager
     @Override
     public Production getProduction(String name)
     {
-        StringSymbolImpl sc = context.syms.findString(name);
+        StringSymbol sc = context.getSymbols().findString(name);
         return productionsByName.get(sc);
     }
 
@@ -193,10 +192,12 @@ public class DefaultProductionManager implements ProductionManager
      * @see org.jsoar.kernel.ProductionManager#loadProduction(java.lang.String)
      */
     @Override
-    public void loadProduction(String productionBody) throws ReordererException, ParserException
+    public Production loadProduction(String productionBody) throws ReordererException, ParserException
     {
-        StringReader reader = new StringReader(productionBody);
-        addProduction(parser.parseProduction(parserContext, reader), true);
+        final StringReader reader = new StringReader(productionBody);
+        final Production p = parser.parseProduction(parserContext, reader);
+        addProduction(p, true);
+        return p;
     }
     
     /* (non-Javadoc)
