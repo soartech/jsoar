@@ -9,9 +9,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.util.adaptables.Adaptables;
 import org.junit.Test;
 
 /**
@@ -26,7 +28,7 @@ public class ContextVariableInfoTest
     @Test
     public void testGetCurrentOperator() throws Exception
     {
-        Agent agent = new Agent();
+        final Agent agent = new Agent();
         agent.initialize();
         
         agent.getProductions().loadProduction("propose (state <s> ^superstate nil -^done) --> (<s> ^operator <o>)(<o> ^name test)");
@@ -36,7 +38,9 @@ public class ContextVariableInfoTest
         {
             agent.runFor(1, RunType.PHASES);
         }
-        ContextVariableInfo info = ContextVariableInfo.get(agent.predefinedSyms, agent.decider.top_goal, agent.decider.bottom_goal, "<o>");
+        
+        final Decider decider = Adaptables.adapt(agent, Decider.class);
+        ContextVariableInfo info = ContextVariableInfo.get(agent.predefinedSyms, decider.top_goal, decider.bottom_goal, "<o>");
         final Identifier o1 = agent.getSymbols().findIdentifier('O', 1);
         assertNotNull(o1);
         assertSame(o1, info.getValue());

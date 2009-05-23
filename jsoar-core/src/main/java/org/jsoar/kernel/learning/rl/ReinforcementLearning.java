@@ -10,6 +10,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.DefaultProductionManager;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
@@ -88,6 +89,7 @@ public class ReinforcementLearning
     boolean rl_first_switch;
 
     private final Agent my_agent;
+    private Decider decider;
     private Exploration exploration;
     private Chunker chunker;
     
@@ -136,6 +138,7 @@ public class ReinforcementLearning
     
     public void initialize()
     {
+        this.decider = Adaptables.adapt(my_agent, Decider.class);
         this.exploration = Adaptables.adapt(my_agent, Exploration.class);
         this.chunker = Adaptables.adapt(my_agent, Chunker.class);
     }
@@ -167,7 +170,7 @@ public class ReinforcementLearning
      */
     public void rl_reset_data()
     {
-        IdentifierImpl goal = my_agent.decider.top_goal;
+        IdentifierImpl goal = decider.top_goal;
         while( goal != null)
         {
             ReinforcementLearningInfo data = goal.rl_info;
@@ -203,7 +206,7 @@ public class ReinforcementLearning
      */
     void rl_remove_refs_for_prod(Production prod )
     {
-        for ( IdentifierImpl state = my_agent.decider.top_state; state != null; state = state.lower_goal )
+        for ( IdentifierImpl state = decider.top_state; state != null; state = state.lower_goal )
         {
             state.rl_info.eligibility_traces.remove( prod );
             
@@ -1245,7 +1248,7 @@ public class ReinforcementLearning
      */
     public void rl_tabulate_reward_values()
     {
-        IdentifierImpl goal = my_agent.decider.top_goal;
+        IdentifierImpl goal = decider.top_goal;
 
         while( goal != null)
         {

@@ -354,9 +354,9 @@ public class Decider
                 // The WME in the context slot is WME whose pref changed
                 context.getTrace().print(Category.OPERAND2_REMOVALS,
                         "\n        REMOVING: Operator from context slot (proposal no longer matches): %s", w);
-                context.decider.remove_wmes_for_context_slot(s);
+                this.remove_wmes_for_context_slot(s);
                 if (s.id.lower_goal != null)
-                    context.decider.remove_existing_context_and_descendents(s.id.lower_goal);
+                    this.remove_existing_context_and_descendents(s.id.lower_goal);
             }
         }
 

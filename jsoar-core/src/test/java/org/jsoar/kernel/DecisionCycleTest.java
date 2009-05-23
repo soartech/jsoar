@@ -47,6 +47,7 @@ public class DecisionCycleTest
     @Test
     public void testDoOneTopLevelPhaseWithEmptyAgent() throws Exception
     {
+        final Decider decider = Adaptables.adapt(agent, Decider.class);
         for(int i = 1; i < 10; ++i)
         {
             assertEquals(Phase.INPUT, this.decisionCycle.current_phase);
@@ -61,7 +62,7 @@ public class DecisionCycleTest
             this.decisionCycle.runFor(1, RunType.PHASES);
             
             // Verify that new states are being generates
-            assertEquals("S" + (i + 1), agent.decider.bottom_goal.toString());
+            assertEquals("S" + (i + 1), decider.bottom_goal.toString());
         }
     }
     
@@ -88,7 +89,8 @@ public class DecisionCycleTest
         assertFalse(agent.getProductions().getProduction("test2").instantiations.isEmpty());
         
         // Verify that new states are being generates
-        assertEquals("S2", agent.decider.bottom_goal.toString());
+        final Decider decider = Adaptables.adapt(agent, Decider.class);
+        assertEquals("S2", decider.bottom_goal.toString());
     }
     
     @Test
@@ -119,7 +121,8 @@ public class DecisionCycleTest
             
             // Verify that one state-no-change occurs, producting S2, but no further
             // states are generated. Also verify that the current operator.
-            assertEquals("S2", agent.decider.bottom_goal.toString());
+            final Decider decider = Adaptables.adapt(agent, Decider.class);
+            assertEquals("S2", decider.bottom_goal.toString());
             validateLastOperator(i);
         }
     }

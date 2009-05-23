@@ -47,6 +47,7 @@ public class DecisionCycle
 {
     private final Agent context;
     
+    private Decider decider;
     private InputOutputImpl io;
     private TraceFormats traceFormats;
     private Chunker chunker;
@@ -153,6 +154,7 @@ public class DecisionCycle
         properties.setProvider(SoarProperties.MAX_ELABORATIONS, maxElaborations);
         
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
+        this.decider = Adaptables.adapt(context, Decider.class);
         this.traceFormats = Adaptables.adapt(context, TraceFormats.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
@@ -332,7 +334,7 @@ public class DecisionCycle
 
         beforePhase(Phase.DECISION);
         
-        context.decider.do_decision_phase(false);
+        decider.do_decision_phase(false);
 
         this.run_elaboration_count++; // All phases count as a run elaboration
 
@@ -343,7 +345,7 @@ public class DecisionCycle
             try
             {
                 //writer.append("\n");
-                traceFormats.print_lowest_slot_in_context_stack(writer, context.decider.bottom_goal);
+                traceFormats.print_lowest_slot_in_context_stack(writer, decider.bottom_goal);
                 writer.append("\n");
                 writer.flush();
             }
@@ -490,8 +492,8 @@ public class DecisionCycle
                 beforeElaboration();
             }
             
-            context.recMemory.do_preference_phase(context.decider.top_goal);
-            context.decider.do_working_memory_phase();
+            context.recMemory.do_preference_phase(decider.top_goal);
+            decider.do_working_memory_phase();
 
             // Update accounting
             this.e_cycle_count.increment();
@@ -552,7 +554,7 @@ public class DecisionCycle
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
         beforePhase(Phase.WM);
-        context.decider.do_working_memory_phase();
+        decider.do_working_memory_phase();
 
         this.run_elaboration_count++; // All phases count as a run elaboration
         
@@ -624,8 +626,8 @@ public class DecisionCycle
                 beforeElaboration();
             }
             
-            context.recMemory.do_preference_phase(context.decider.top_goal);
-            context.decider.do_working_memory_phase();
+            context.recMemory.do_preference_phase(decider.top_goal);
+            decider.do_working_memory_phase();
             
             // Update accounting.
             this.e_cycle_count.increment();
@@ -732,7 +734,7 @@ public class DecisionCycle
         // start_timer (thisAgent, &thisAgent->start_phase_tv);
         // #endif
         beforePhase(Phase.PREFERENCE);
-        context.recMemory.do_preference_phase(context.decider.top_goal);
+        context.recMemory.do_preference_phase(decider.top_goal);
 
         this.run_elaboration_count++; // All phases count as a run elaboration
         
@@ -786,7 +788,7 @@ public class DecisionCycle
             if (context.rl.rl_enabled())
             {
                 // TODO how about a method?
-                for (IdentifierImpl g = context.decider.bottom_goal; g != null; g = g.higher_goal)
+                for (IdentifierImpl g = decider.bottom_goal; g != null; g = g.higher_goal)
                 {
                     context.rl.rl_tabulate_reward_value_for_goal(g);
                     context.rl.rl_perform_update(0, g);

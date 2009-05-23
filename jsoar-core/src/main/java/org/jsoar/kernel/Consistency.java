@@ -32,6 +32,7 @@ public class Consistency
     }
     
     private final Agent context;
+    private Decider decider;
     private DecisionCycle decisionCycle;
     private TemporaryMemory tempMemory;
     private SoarReteListener soarReteListener;
@@ -46,6 +47,7 @@ public class Consistency
     
     public void initialize()
     {
+        this.decider = Adaptables.adapt(context, Decider.class);
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
         this.tempMemory = Adaptables.adapt(context, TemporaryMemory.class);
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
@@ -102,8 +104,8 @@ public class Consistency
         if (goal.lower_goal != null)
         {
             // the goal is impassed
-            current_impasse_type = context.decider.type_of_existing_impasse(goal);
-            current_impasse_attribute = context.decider.attribute_of_existing_impasse(goal);
+            current_impasse_type = decider.type_of_existing_impasse(goal);
+            current_impasse_attribute = decider.attribute_of_existing_impasse(goal);
             if (DEBUG_CONSISTENCY_CHECK)
             {
                 context.getPrinter().print("    Goal is impassed:  Impasse type: %d: Impasse attribute: [%s]\n",
@@ -138,7 +140,7 @@ public class Consistency
 
         /* Determine the new impasse type, based on the preferences that exist now */
         final ByRef<Preference> candidates = ByRef.create(null);
-        final ImpasseType new_impasse_type = context.decider.run_preference_semantics_for_consistency_check(s, candidates);
+        final ImpasseType new_impasse_type = decider.run_preference_semantics_for_consistency_check(s, candidates);
 
         if (DEBUG_CONSISTENCY_CHECK)
         {
@@ -279,13 +281,13 @@ public class Consistency
                     "\n          Decision for goal [%s] is inconsistent.  Replacing it with....\n", s.id);
 
         /* If there is an operator in the slot, remove it */
-        context.decider.remove_wmes_for_context_slot(s);
+        decider.remove_wmes_for_context_slot(s);
 
         /* If there are any subgoals, remove those */
         if (s.id.lower_goal != null)
-            context.decider.remove_existing_context_and_descendents(s.id.lower_goal);
+            decider.remove_existing_context_and_descendents(s.id.lower_goal);
 
-        context.decider.do_buffered_wm_and_ownership_changes();
+        decider.do_buffered_wm_and_ownership_changes();
     }
 
     /**
@@ -570,11 +572,11 @@ public class Consistency
         */
 
         /* No current activity level */
-        context.decider.active_level = 0;
-        context.decider.active_goal = null;
+        decider.active_level = 0;
+        decider.active_goal = null;
         
         /* Clear any interruption flags on the goals....*/
-        for (IdentifierImpl goal = context.decider.top_goal; goal != null; goal = goal.lower_goal)
+        for (IdentifierImpl goal = decider.top_goal; goal != null; goal = goal.lower_goal)
             goal.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
     }
 
@@ -615,9 +617,9 @@ public class Consistency
             consistency check over the entire stack (by checking at the
             bottom goal). */
 
-            if (minor_quiescence_at_goal(context.decider.bottom_goal))
+            if (minor_quiescence_at_goal(decider.bottom_goal))
             {
-                goal_stack_consistent_through_goal(context.decider.bottom_goal);
+                goal_stack_consistent_through_goal(decider.bottom_goal);
             }
 
             // TODO why is this here?
@@ -636,15 +638,15 @@ public class Consistency
         }
 
         /* Save the old goal and level (must save level explicitly in case goal is NIL) */
-        context.decider.previous_active_goal = context.decider.active_goal;
-        context.decider.previous_active_level = context.decider.active_level;
+        decider.previous_active_goal = decider.active_goal;
+        decider.previous_active_level = decider.active_level;
 
         /* Determine the new highest level of activity */
-        context.decider.active_goal = highest_active_goal_apply(context.decider.top_goal);
-        if (context.decider.active_goal != null)
-            context.decider.active_level = context.decider.active_goal.level;
+        decider.active_goal = highest_active_goal_apply(decider.top_goal);
+        if (decider.active_goal != null)
+            decider.active_level = decider.active_goal.level;
         else
-            context.decider.active_level = 0; /* Necessary for get_next_retraction */
+            decider.active_level = 0; /* Necessary for get_next_retraction */
 
         /*
         #ifdef DEBUG_DETERMINE_LEVEL_PHASE
@@ -654,14 +656,14 @@ public class Consistency
         */
 
         LevelChangeType level_change_type;
-        if (context.decider.active_goal == null)
+        if (decider.active_goal == null)
             /* Only NIL goal retractions */
             level_change_type = LevelChangeType.NIL_GOAL_RETRACTIONS;
-        else if (context.decider.previous_active_level == 0)
+        else if (decider.previous_active_level == 0)
             level_change_type = LevelChangeType.NEW_DECISION;
         else
         {
-            int diff = context.decider.active_level - context.decider.previous_active_level;
+            int diff = decider.active_level - decider.previous_active_level;
             if (diff == 0)
                 level_change_type = LevelChangeType.SAME_LEVEL;
             else if (diff > 0)
@@ -688,7 +690,7 @@ public class Consistency
             print(thisAgent, "\nThis is a new decision....");
             #endif
             */
-            context.recMemory.FIRING_TYPE = active_production_type_at_goal(context.decider.active_goal);
+            context.recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
             /* in APPLY phases, we can test for ONC here, check ms_o_assertions */
             // KJC: thisAgent->current_phase = PREFERENCE_PHASE;
             break;
@@ -700,14 +702,14 @@ public class Consistency
             #endif
             */
             /* Is there a minor quiescence at the previous level? */
-            if (minor_quiescence_at_goal(context.decider.previous_active_goal))
+            if (minor_quiescence_at_goal(decider.previous_active_goal))
             {
                 /*
                 #ifdef DEBUG_DETERMINE_LEVEL_PHASE
                 printf("\nMinor quiescence at level %d", thisAgent->previous_active_level); 
                 #endif
                 */
-                if (!goal_stack_consistent_through_goal(context.decider.previous_active_goal))
+                if (!goal_stack_consistent_through_goal(decider.previous_active_goal))
                 {
                     this.decisionCycle.current_phase = Phase.OUTPUT;
                     break;
@@ -716,7 +718,7 @@ public class Consistency
 
             /* else: check if return to interrupted level */
 
-            IdentifierImpl goal = context.decider.active_goal;
+            IdentifierImpl goal = decider.active_goal;
 
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE
@@ -753,7 +755,7 @@ public class Consistency
             }
 
             /* else: just do a preference phases */
-            context.recMemory.FIRING_TYPE = active_production_type_at_goal(context.decider.active_goal);
+            context.recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
             // KJC: thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -763,20 +765,20 @@ public class Consistency
             print(thisAgent, "\nThe level is the same as the previous level...."); 
             #endif
             */
-            if (minor_quiescence_at_goal(context.decider.active_goal))
+            if (minor_quiescence_at_goal(decider.active_goal))
             {
                 /*
                 #ifdef DEBUG_DETERMINE_LEVEL_PHASE
                 printf("\nMinor quiescence at level %d", thisAgent->active_level); 
                 #endif
                 */
-                if (!goal_stack_consistent_through_goal(context.decider.active_goal))
+                if (!goal_stack_consistent_through_goal(decider.active_goal))
                 {
                     this.decisionCycle.current_phase = Phase.OUTPUT;
                     break;
                 }
             }
-            context.recMemory.FIRING_TYPE = active_production_type_at_goal(context.decider.active_goal);
+            context.recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
             // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
@@ -787,7 +789,7 @@ public class Consistency
             #endif
             */
 
-            goal = context.decider.previous_active_goal;
+            goal = decider.previous_active_goal;
             goal.saved_firing_type = context.recMemory.FIRING_TYPE;
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE       
@@ -810,14 +812,14 @@ public class Consistency
             #endif
             */
 
-            if (!goal_stack_consistent_through_goal(context.decider.active_goal))
+            if (!goal_stack_consistent_through_goal(decider.active_goal))
             {
                 this.decisionCycle.current_phase = Phase.OUTPUT;
                 break;
             }
 
             /* If the decision is consistent, then just start processing at this level */
-            context.recMemory.FIRING_TYPE = active_production_type_at_goal(context.decider.active_goal);
+            context.recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
             //thisAgent->current_phase = PREFERENCE_PHASE;
             break;
         }
@@ -857,7 +859,7 @@ public class Consistency
          */
         if (!(!this.soarReteListener.ms_retractions.isEmpty() || !this.soarReteListener.ms_i_assertions.isEmpty()))
         {
-            if (minor_quiescence_at_goal(context.decider.bottom_goal))
+            if (minor_quiescence_at_goal(decider.bottom_goal))
             {
                 /* This is minor quiescence */
                 /*
@@ -868,7 +870,7 @@ public class Consistency
 
                 /* Force a consistency check over the entire stack (by checking at
                 the bottom goal). */
-                goal_stack_consistent_through_goal(context.decider.bottom_goal);
+                goal_stack_consistent_through_goal(decider.bottom_goal);
 
                 /* Decision phases is always next */
 
@@ -889,15 +891,15 @@ public class Consistency
 
         /* Save the old goal and level (must save level explicitly in case
            goal is NIL) */
-        context.decider.previous_active_goal = context.decider.active_goal;
-        context.decider.previous_active_level = context.decider.active_level;
+        decider.previous_active_goal = decider.active_goal;
+        decider.previous_active_level = decider.active_level;
 
         /* Determine the new highest level of activity */
-        context.decider.active_goal = highest_active_goal_propose(context.decider.top_goal);
-        if (context.decider.active_goal != null)
-            context.decider.active_level = context.decider.active_goal.level;
+        decider.active_goal = highest_active_goal_propose(decider.top_goal);
+        if (decider.active_goal != null)
+            decider.active_level = decider.active_goal.level;
         else
-            context.decider.active_level = 0; /* Necessary for get_next_retraction */
+            decider.active_level = 0; /* Necessary for get_next_retraction */
         /*
         #ifdef DEBUG_DETERMINE_LEVEL_PHASE
         printf("\nHighest level of activity is....%d", thisAgent->active_level); 
@@ -906,14 +908,14 @@ public class Consistency
         */
 
         LevelChangeType level_change_type;
-        if (context.decider.active_goal == null)
+        if (decider.active_goal == null)
             /* Only NIL goal retractions */
             level_change_type = LevelChangeType.NIL_GOAL_RETRACTIONS;
-        else if (context.decider.previous_active_level == 0)
+        else if (decider.previous_active_level == 0)
             level_change_type = LevelChangeType.NEW_DECISION;
         else
         {
-            int diff = context.decider.active_level - context.decider.previous_active_level;
+            int diff = decider.active_level - decider.previous_active_level;
             if (diff == 0)
                 level_change_type = LevelChangeType.SAME_LEVEL;
             else if (diff > 0)
@@ -952,7 +954,7 @@ public class Consistency
             */
             /* There is always a minor quiescence at the previous level
                in the propose phases, so check for consistency. */
-            if (!goal_stack_consistent_through_goal(context.decider.previous_active_goal))
+            if (!goal_stack_consistent_through_goal(decider.previous_active_goal))
             {
                 this.decisionCycle.current_phase = Phase.DECISION;
                 break;
@@ -979,7 +981,7 @@ public class Consistency
             #endif
             */
 
-            IdentifierImpl goal = context.decider.previous_active_goal;
+            IdentifierImpl goal = decider.previous_active_goal;
             goal.saved_firing_type = context.recMemory.FIRING_TYPE;
 
             /*
@@ -1003,7 +1005,7 @@ public class Consistency
             printf("\nMinor quiescence at level %d", thisAgent->active_level);
             #endif
             */
-            if (!goal_stack_consistent_through_goal(context.decider.active_goal))
+            if (!goal_stack_consistent_through_goal(decider.active_goal))
             {
                 this.decisionCycle.current_phase = Phase.DECISION;
                 break;

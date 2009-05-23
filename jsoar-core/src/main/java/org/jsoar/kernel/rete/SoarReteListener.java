@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AssertListType;
+import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.MatchSet;
 import org.jsoar.kernel.MatchSetEntry;
 import org.jsoar.kernel.Production;
@@ -38,6 +39,7 @@ import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * Soar-specific implementation of the {@link ReteListener} interface. This includes
@@ -49,6 +51,7 @@ public class SoarReteListener implements ReteListener
 {
     private final Agent context;
     private final Rete rete;
+    private Decider decider;
     
     /**
      * agent.h:733
@@ -93,6 +96,7 @@ public class SoarReteListener implements ReteListener
     
     public void initialize()
     {
+        this.decider = Adaptables.adapt(context, Decider.class);
     }
 
     /* (non-Javadoc)
@@ -710,23 +714,23 @@ public class SoarReteListener implements ReteListener
         // In Waterfall, we return only assertions that match in the
         // currently active goal
 
-        if (context.decider.active_goal != null)
+        if (decider.active_goal != null)
         { /* Just do asserts for current goal */
             if (context.recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
-                if (context.decider.active_goal.ms_o_assertions.isEmpty())
+                if (decider.active_goal.ms_o_assertions.isEmpty())
                     return null;
 
-                msc = context.decider.active_goal.ms_o_assertions.pop();
+                msc = decider.active_goal.ms_o_assertions.pop();
                 msc.next_prev.remove(ms_o_assertions);
             }
             else
             {
                 /* IE PRODS */
-                if (context.decider.active_goal.ms_i_assertions.isEmpty())
+                if (decider.active_goal.ms_i_assertions.isEmpty())
                     return null;
 
-                msc = context.decider.active_goal.ms_i_assertions.pop();
+                msc = decider.active_goal.ms_i_assertions.pop();
                 msc.next_prev.remove(ms_i_assertions);
             }
 
@@ -779,18 +783,18 @@ public class SoarReteListener implements ReteListener
         	
             msc.of_node.insertAtHead(msc.p_node.b_p.tentative_assertions);
         	
-        	assert context.decider.active_goal != null;
+        	assert decider.active_goal != null;
 
         	if (context.recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
                 msc.next_prev.insertAtHead(ms_o_assertions);
-                context.decider.active_goal.ms_o_assertions.push(msc);
+                decider.active_goal.ms_o_assertions.push(msc);
             }
             else
             {
                 /* IE PRODS */
                 msc.next_prev.insertAtHead(ms_i_assertions);
-                context.decider.active_goal.ms_i_assertions.push(msc);
+                decider.active_goal.ms_i_assertions.push(msc);
             }
     	}
     }
@@ -805,14 +809,14 @@ public class SoarReteListener implements ReteListener
         /* just do the retractions for the current level */
 
         /* initialization condition (2.107/2.111) */
-        if (context.decider.active_level == 0)
+        if (decider.active_level == 0)
             return null;
 
-        if (context.decider.active_goal.ms_retractions.isEmpty())
+        if (decider.active_goal.ms_retractions.isEmpty())
             return null;
 
         // remove from the Waterfall-specific list */
-        MatchSetChange msc = context.decider.active_goal.ms_retractions.pop();
+        MatchSetChange msc = decider.active_goal.ms_retractions.pop();
         // and remove from the complete retraction list
         msc.next_prev.remove(ms_retractions);
 
@@ -877,7 +881,7 @@ public class SoarReteListener implements ReteListener
         // Loop from bottom to top because we expect activity at
         // the bottom usually
 
-        for (IdentifierImpl goal = context.decider.bottom_goal; goal != null; goal = goal.higher_goal)
+        for (IdentifierImpl goal = decider.bottom_goal; goal != null; goal = goal.higher_goal)
         {
             // if there are any assertions or retrctions for this goal,
             // return TRUE
