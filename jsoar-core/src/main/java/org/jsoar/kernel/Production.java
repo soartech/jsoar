@@ -26,6 +26,8 @@ import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.StringTools;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 public class Production
 {
@@ -169,7 +171,7 @@ public class Production
             // name->sc.name;
 
             varGen.reset(lhs_top.value, rhs_top.value);
-            int tc = varGen.getSyms().get_new_tc_number();
+            Marker tc = DefaultMarker.create();
             Condition.addBoundVariables(lhs_top.value, tc, null);
 
             ar.reorder_action_list(rhs_top, tc);

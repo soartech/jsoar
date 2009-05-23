@@ -31,6 +31,8 @@ import org.jsoar.util.Arguments;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 /**
  * User-defined Soar I/O routines should be added at system startup time
@@ -122,7 +124,7 @@ public class InputOutputImpl implements InputOutput
     private LinkedList<IdentifierImpl> ids_in_tc = new LinkedList<IdentifierImpl>(); /* ids in TC(link) */
     private boolean output_link_changed = false;
     private final Set<Wme> pendingCommands = new HashSet<Wme>();
-    private int output_link_tc_num;
+    private Marker output_link_tc_num;
 
     private final TopStateRemovedEvent topStateRemovedEvent = new TopStateRemovedEvent(this);
 
@@ -523,7 +525,7 @@ public class InputOutputImpl implements InputOutput
             return;
 
         // do TC starting with the link wme's value
-        output_link_tc_num = context.syms.get_new_tc_number();
+        output_link_tc_num = DefaultMarker.create();
         add_id_to_output_link_tc(valueAsId);
     }
 

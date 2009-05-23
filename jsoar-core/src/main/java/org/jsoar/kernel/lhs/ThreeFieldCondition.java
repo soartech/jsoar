@@ -7,6 +7,7 @@ package org.jsoar.kernel.lhs;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 /**
  * @author ray
@@ -46,7 +47,7 @@ public abstract class ThreeFieldCondition extends Condition
      * @see org.jsoar.kernel.Condition#addAllVariables(int, java.util.List)
      */
     @Override
-    public void addAllVariables(int tc_number, ListHead<Variable> var_list)
+    public void addAllVariables(Marker tc_number, ListHead<Variable> var_list)
     {
         if(id_test != null)
         {
@@ -66,7 +67,7 @@ public abstract class ThreeFieldCondition extends Condition
      * @see org.jsoar.kernel.lhs.Condition#cond_is_in_tc(int)
      */
     @Override
-    public boolean cond_is_in_tc(int tc)
+    public boolean cond_is_in_tc(Marker tc)
     {
         return Tests.test_is_in_tc(id_test, tc);
     }

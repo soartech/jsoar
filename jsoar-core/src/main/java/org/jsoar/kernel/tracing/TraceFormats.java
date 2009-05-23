@@ -23,6 +23,8 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 
 /**   
@@ -120,7 +122,7 @@ public class TraceFormats
      * trace.cpp:928:tparams
      */
     private TracingParameters tparams = new TracingParameters();
-    private int tf_printing_tc;
+    private Marker tf_printing_tc;
     
     /**
      * @param context
@@ -1053,7 +1055,7 @@ public class TraceFormats
             gs = String.format("%s", object);
         }
 
-        id.tc_number = 0; // unmark it now that we're done 
+        id.tc_number = null; // unmark it now that we're done 
         return gs;
     }
     
@@ -1111,7 +1113,7 @@ public class TraceFormats
      */
     public void print_object_trace(Writer writer, SymbolImpl object) throws IOException
     {
-        tf_printing_tc = context.syms.get_new_tc_number();
+        tf_printing_tc = DefaultMarker.create();
         String gs = object_to_trace_string(object);
         writer.append(gs);
     }
@@ -1135,7 +1137,7 @@ public class TraceFormats
     public void print_stack_trace(Writer writer, SymbolImpl object, IdentifierImpl state, TraceFormatRestriction slot_type,
             boolean allow_cycle_counts) throws IOException
     {
-        tf_printing_tc = context.syms.get_new_tc_number();
+        tf_printing_tc = DefaultMarker.create();
         String gs = selection_to_trace_string(object, state, slot_type, allow_cycle_counts);
         writer.append(gs);
 

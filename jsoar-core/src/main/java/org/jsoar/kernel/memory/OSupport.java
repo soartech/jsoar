@@ -26,8 +26,10 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 
 /**
  * 
@@ -48,7 +50,7 @@ public class OSupport
     /**
      * agent.h:658:o_support_tc
      */
-    private int o_support_tc;
+    private Marker o_support_tc;
     
     /**
      * agent.h:659:rhs_prefs_from_instantiation
@@ -452,7 +454,7 @@ public class OSupport
      */
     private ListHead<Variable> find_known_goals(Condition lhs)
     {
-        final int tc = syms.getSyms().get_new_tc_number();
+        final Marker tc = DefaultMarker.create();
         final ListHead<Variable> vars = ListHead.newInstance();
         for (Condition c = lhs; c != null; c = c.next)
         {
@@ -486,7 +488,7 @@ public class OSupport
     private Variable find_compile_time_match_goal(Condition lhs, ListHead<Variable> known_goals)
     {
         // find root variables 
-        final int tc = syms.getSyms().get_new_tc_number();
+        final Marker tc = DefaultMarker.create();
         final ListHead<Variable> roots = Conditions.collect_root_variables(lhs, tc, null, null);
 
         // intersect roots with known_goals, producing root_goals
@@ -572,7 +574,7 @@ public class OSupport
             if (test_is_for_symbol(pc.attr_test, attr) != YesNoMaybe.YES) continue;
             if (c.test_for_acceptable_preference) continue;
             
-            int tc = syms.getSyms().get_new_tc_number();
+            final Marker tc = DefaultMarker.create();
             ListHead<Variable> vars = ListHead.newInstance();
             pc.value_test.addBoundVariables(tc, vars);
             if (!vars.isEmpty())
@@ -667,7 +669,7 @@ public class OSupport
      * @param id_list
      * @param var_list
      */
-    private void add_tc_through_lhs_and_rhs(Condition lhs, Action rhs, int tc, ListHead<IdentifierImpl> id_list,
+    private void add_tc_through_lhs_and_rhs(Condition lhs, Action rhs, Marker tc, ListHead<IdentifierImpl> id_list,
             ListHead<Variable> var_list)
     {
 
@@ -729,7 +731,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
   Action a;
   Condition cond;
   YesNoMaybe ynm;
-  int tc;
+  Marker tc;
 
   // initialize:  mark all rhs actions as "unknown"
   for (a=rhs; a!=null; a=a.next){
@@ -870,7 +872,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
 
   if (lhs_oa_support == YesNoMaybe.YES) {    // look for RHS o-a support
     // do TC(match_state)
-    tc = syms.getSyms().get_new_tc_number();
+    tc = DefaultMarker.create();
     match_state.add_symbol_to_tc (tc, null, null);
     add_tc_through_lhs_and_rhs (lhs, rhs, tc, null, null);
 
@@ -897,7 +899,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
   
   if (lhs_oc_support == YesNoMaybe.YES) {    // look for RHS o-c support
     // do TC(rhs operators)
-    tc = syms.getSyms().get_new_tc_number();
+    tc = DefaultMarker.create();
     for (a=rhs; a!=null; a=a.next) {
       MakeAction ma = a.asMakeAction();
       if (ma == null) { continue; }
@@ -944,7 +946,7 @@ public void calculate_compile_time_o_support (Condition lhs, Action rhs, boolean
 
   if (lhs_om_support == YesNoMaybe.YES) {    // look for RHS o-m support
     // do TC(lhs operators)
-    tc = syms.getSyms().get_new_tc_number();
+    tc = DefaultMarker.create();
     for (cond=lhs; cond!=null; cond=cond.next) {
       PositiveCondition pc = cond.asPositiveCondition();
       if (pc == null) { continue; }

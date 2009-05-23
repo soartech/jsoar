@@ -13,6 +13,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 import com.google.common.collect.Lists;
 
@@ -407,7 +408,7 @@ public class Tests
      * @param id_list
      * @param var_list
      */
-    static void add_test_to_tc(Test t, int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
+    static void add_test_to_tc(Test t, Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         if (Tests.isBlank(t))
             return;
@@ -433,7 +434,7 @@ public class Tests
      * @param tc
      * @return
      */
-    static boolean test_is_in_tc(Test t, int tc)
+    static boolean test_is_in_tc(Test t, Marker tc)
     {
         if (Tests.isBlank(t))
             return false;

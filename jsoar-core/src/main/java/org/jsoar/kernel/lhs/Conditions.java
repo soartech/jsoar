@@ -10,9 +10,10 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
+import org.jsoar.util.markers.Marker;
 
 /**
  * Utility methods for working with LHS conditions
@@ -40,7 +41,7 @@ public class Conditions
      *      warnings will be printed to this printer
      * @return
      */
-    public static ListHead<Variable> collect_root_variables(Condition cond_list, int tc, Printer printer, String name_of_production_being_reordered)
+    public static ListHead<Variable> collect_root_variables(Condition cond_list, Marker tc, Printer printer, String name_of_production_being_reordered)
     {
         // find everthing that's in the value slot of some condition
         ListHead<Variable> new_vars_from_value_slot = ListHead.newInstance();

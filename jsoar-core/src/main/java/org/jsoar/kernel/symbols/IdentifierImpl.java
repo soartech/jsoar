@@ -21,6 +21,7 @@ import org.jsoar.kernel.memory.WmeType;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.markers.Marker;
 
 import com.google.common.collect.Iterators;
 
@@ -51,7 +52,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public int link_count;
     public ListItem<IdentifierImpl> unknown_level;
     public final ListHead<Slot> slots = ListHead.newInstance(); // dll of slots for this identifier
-    public int tc_number; /* used for transitive closures, marking, etc. */
+    public Marker tc_number; /* used for transitive closures, marking, etc. */
     public SymbolImpl variablization; /* used by the chunker */
 
     // TODO I think, in the long run, all of these fields should be pushed into a Goal object.
@@ -185,7 +186,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
      * @param tc
      * @param id_list
      */
-    private void mark_identifier_if_unmarked(int tc, ListHead<IdentifierImpl> id_list)
+    private void mark_identifier_if_unmarked(Marker tc, ListHead<IdentifierImpl> id_list)
     {
         if (tc_number != (tc))
         {
@@ -245,7 +246,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         for(ListItem<IdentifierImpl> id = ids.first; id != null; id = id.next)
         {
-            id.item.tc_number = 0;
+            id.item.tc_number = null;
         }
     }
 
@@ -253,7 +254,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
      * @see org.jsoar.kernel.symbols.SymbolImpl#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
     @Override
-    public void add_symbol_to_tc(int tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
+    public void add_symbol_to_tc(Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list)
     {
         mark_identifier_if_unmarked (tc, id_list);
     }
@@ -262,7 +263,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
      * @see org.jsoar.kernel.symbols.SymbolImpl#symbol_is_in_tc(int)
      */
     @Override
-    public boolean symbol_is_in_tc(int tc)
+    public boolean symbol_is_in_tc(Marker tc)
     {
         return tc_number == tc;
     }

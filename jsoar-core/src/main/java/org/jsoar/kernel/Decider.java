@@ -33,6 +33,8 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.markers.DefaultMarker;
+import org.jsoar.util.markers.Marker;
 import org.jsoar.util.properties.BooleanPropertyProvider;
 
 /**
@@ -126,11 +128,11 @@ public class Decider
      */
     private final ListHead<IdentifierImpl> disconnected_ids = ListHead.newInstance();
     
-    private int mark_tc_number;
+    private Marker mark_tc_number;
     private int level_at_which_marking_started;
     private int highest_level_anything_could_fall_from;
     private int lowest_level_anything_could_fall_to;
-    private int walk_tc_number;
+    private Marker walk_tc_number;
     private int walk_level;
     
     public IdentifierImpl top_goal;
@@ -780,7 +782,7 @@ public class Decider
         // do the mark
         this.highest_level_anything_could_fall_from = LOWEST_POSSIBLE_GOAL_LEVEL;
         this.lowest_level_anything_could_fall_to = -1;
-        this.mark_tc_number = context.syms.get_new_tc_number();
+        this.mark_tc_number = DefaultMarker.create();
         for (dc = this.ids_with_unknown_level.first; dc != null; dc = dc.next)
         {
             final IdentifierImpl id = dc.item;
@@ -799,7 +801,7 @@ public class Decider
             if (g.level >= this.highest_level_anything_could_fall_from)
             {
                 this.walk_level = g.level;
-                this.walk_tc_number = context.syms.get_new_tc_number();
+                this.walk_tc_number = DefaultMarker.create();
                 walk_and_update_levels(g);
             }
             g = g.lower_goal;

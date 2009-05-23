@@ -58,37 +58,12 @@ public class SymbolFactoryImpl implements SymbolFactory
     private final Map<String, Variable> variables = newReferenceMap();
     private final Map<Object, JavaSymbolImpl> javaSyms = newReferenceMap();
     private final JavaSymbolImpl nullJavaSym;
-    private int current_tc_number = 0;
     private int current_symbol_hash_id = 0; 
     
     public SymbolFactoryImpl()
     {
         nullJavaSym = new JavaSymbolImpl(get_next_hash_id(), null);
         reset();
-    }
-    
-    /**
-     * Get_new_tc_number() is called from lots of places.  Any time we need
-     * to mark a set of identifiers and/or variables, we get a new tc_number
-     * by calling this routine, then proceed to mark various ids or vars
-     * by setting the sym->id.tc_num or sym->var.tc_num fields.
-     * 
-     * <p>A global tc number counter is maintained and incremented by this
-     * routine in order to generate a different tc_number each time.  If
-     * the counter ever wraps around back to 0, we bump it up to 1 and
-     * reset the the tc_num fields on all existing identifiers and variables
-     * to 0.
-     * 
-     * @return
-     */
-    public int get_new_tc_number()
-    {
-        current_tc_number++;
-        if (current_tc_number==Integer.MAX_VALUE) {
-          reset_id_and_variable_tc_numbers ();
-          current_tc_number = 1;
-        }
-        return current_tc_number;
     }
     
     /**
@@ -119,11 +94,11 @@ public class SymbolFactoryImpl implements SymbolFactory
     {
         for(IdentifierImpl id : identifiers.values())
         {
-            id.tc_number = 0;
+            id.tc_number = null;
         }
         for(Variable v : variables.values())
         {
-            v.tc_number = 0;
+            v.tc_number = null;
         }
     }
     
