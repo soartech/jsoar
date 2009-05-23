@@ -93,7 +93,7 @@ public class Agent extends AbstractAdaptable
     public final RecognitionMemory recMemory = new RecognitionMemory(this);
     
     private final Exploration exploration = new Exploration(this);
-    public final Decider decider = new Decider(this);
+    private final Decider decider = new Decider(this);
     private final Consistency consistency = new Consistency(this);
     
     private final Chunker chunker = new Chunker(this);
@@ -138,7 +138,7 @@ public class Agent extends AbstractAdaptable
             predefinedSyms.getSyms(), decider, printer, rhsFunctions,
             workingMemory, tempMemory, osupport, soarReteListener,
             consistency,
-            debuggerProvider);
+            debuggerProvider, decider);
     
     public Agent()
     {

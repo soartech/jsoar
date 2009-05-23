@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Consistency;
+import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.Production;
@@ -73,6 +74,7 @@ import org.jsoar.util.timing.ExecutionTimers;
 public class RecognitionMemory
 {
     private final Agent context;
+    private Decider decider;
     private Chunker chunker;
     private DecisionCycle decisionCycle;
     private Rete rete;
@@ -142,6 +144,7 @@ public class RecognitionMemory
     
     public void initialize()
     {
+        this.decider = Adaptables.adapt(context, Decider.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
         this.rete = Adaptables.adapt(context, Rete.class);
@@ -742,7 +745,7 @@ public class RecognitionMemory
      */
     private boolean shouldCreateInstantiation(Production prod, Token tok, WmeImpl w)
     {
-        if (context.decider.active_level == context.decider.highest_active_level)
+        if (decider.active_level == decider.highest_active_level)
         {
         	return true;
         }
@@ -797,11 +800,11 @@ public class RecognitionMemory
             	continue;
             }
             
-            if (id.level <= context.decider.change_level)
+            if (id.level <= decider.change_level)
             {
             	context.getTrace().print(Category.WATERFALL, "*** Waterfall: aborting firing because (%s * *)" +
             			" level %d is on or higher (lower int) than change level %d\n", 
-            			id, id.level, context.decider.change_level);
+            			id, id.level, decider.change_level);
             	return false;
             }
         }
@@ -1131,7 +1134,7 @@ public class RecognitionMemory
         IdentifierImpl valueId = pref.value.asIdentifier();
         if (valueId != null)
         {
-            context.decider.post_link_addition (pref.id, valueId);
+            decider.post_link_addition (pref.id, valueId);
         }
 
         if (pref.type.isBinary())
@@ -1139,7 +1142,7 @@ public class RecognitionMemory
             IdentifierImpl refId = pref.referent.asIdentifier();
             if (refId != null)
             {
-                context.decider.post_link_addition (pref.id, refId);
+                decider.post_link_addition (pref.id, refId);
             }
         }
 
@@ -1149,7 +1152,7 @@ public class RecognitionMemory
                 && (pref.type == PreferenceType.ACCEPTABLE || 
                     pref.type == PreferenceType.REQUIRE))
         {
-            context.decider.mark_context_slot_as_acceptable_preference_changed (s);
+            decider.mark_context_slot_as_acceptable_preference_changed (s);
         }
     }
 
@@ -1181,21 +1184,21 @@ public class RecognitionMemory
         if ((s.isa_context_slot)
                 && ((pref.type == PreferenceType.ACCEPTABLE) || (pref.type == PreferenceType.REQUIRE)))
         {
-            context.decider.mark_context_slot_as_acceptable_preference_changed(s);
+            decider.mark_context_slot_as_acceptable_preference_changed(s);
         }
 
         // update identifier levels
         IdentifierImpl valueId = pref.value.asIdentifier();
         if (valueId != null)
         {
-            context.decider.post_link_removal (pref.id, valueId);
+            decider.post_link_removal (pref.id, valueId);
         }
         if (pref.type.isBinary())
         {
             IdentifierImpl refId = pref.referent.asIdentifier();
             if (refId != null)
             {
-                context.decider.post_link_removal (pref.id, refId);
+                decider.post_link_removal (pref.id, refId);
             }
         }
 
@@ -1229,36 +1232,36 @@ public class RecognitionMemory
                 {
                 case PE_PRODS:
                     trace.print("--- Firing Productions (PE) For State At Depth %d ---\n",
-                            context.decider.active_level);
+                            decider.active_level);
                     break;
                 case IE_PRODS:
                     trace.print("--- Firing Productions (IE) For State At Depth %d ---\n",
-                            context.decider.active_level);
+                            decider.active_level);
                     break;
                 }
             }
         }
         
         // Save previous active level for usage on next elaboration cycle.
-        context.decider.highest_active_level = context.decider.active_level;
-        context.decider.highest_active_goal = context.decider.active_goal;
+        decider.highest_active_level = decider.active_level;
+        decider.highest_active_goal = decider.active_goal;
 
-        context.decider.change_level = context.decider.highest_active_level;
-        context.decider.next_change_level = context.decider.highest_active_level;
+        decider.change_level = decider.highest_active_level;
+        decider.next_change_level = decider.highest_active_level;
         
         // FIXME: should not do this inner elaboration loop for soar 7 mode.
         for (;;)
         {
         	// Inner elaboration loop
-        	context.decider.change_level = context.decider.next_change_level;
+        	decider.change_level = decider.next_change_level;
         	
 	        if (trace.isEnabled(Category.WATERFALL))
 	        {
 	        	trace.print("--- Inner Elaboration Phase, active level: %d",
-	        			context.decider.active_level);
-	        	if (context.decider.active_goal != null)
+	        			decider.active_level);
+	        	if (decider.active_goal != null)
 	        	{
-		        	trace.print(" (%s)", context.decider.active_goal);
+		        	trace.print(" (%s)", decider.active_goal);
 	        	}
 	        	trace.print(" ---\n");
 	        }
@@ -1297,9 +1300,9 @@ public class RecognitionMemory
 	        // so this active level becomes the next change level.
 	        if (assertionsExist)
 	        {
-	            if (context.decider.active_level > context.decider.next_change_level) 
+	            if (decider.active_level > decider.next_change_level) 
 	            {
-	            	context.decider.next_change_level = context.decider.active_level;
+	            	decider.next_change_level = decider.active_level;
 	            }
 	        }
 	        
@@ -1311,13 +1314,13 @@ public class RecognitionMemory
 	        // update accounting
 	        this.decisionCycle.inner_e_cycle_count.increment();
 	        
-	        if (context.decider.active_goal == null)
+	        if (decider.active_goal == null)
 	        {
 	        	trace.print(Category.WATERFALL, " inner preference loop doesn't have active goal.\n");
 	        	break;
 	        }
 	        
-	        if (context.decider.active_goal.lower_goal == null)
+	        if (decider.active_goal.lower_goal == null)
 	        {
 	        	trace.print(Category.WATERFALL, " inner preference loop at bottom goal.\n");
 	        	break;
@@ -1327,30 +1330,30 @@ public class RecognitionMemory
 	        {
 	            if (this.decisionCycle.current_phase == Phase.APPLY)
 	            {
-	    	        context.decider.active_goal = this.consistency.highest_active_goal_apply(context.decider.active_goal.lower_goal);
+	    	        decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.lower_goal);
 	            }
 	            else if (this.decisionCycle.current_phase == Phase.PROPOSE)
 	            {
 	            	// PROPOSE
-	            	context.decider.active_goal = this.consistency.highest_active_goal_propose(context.decider.active_goal.lower_goal);
+	            	decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.lower_goal);
 	            } 
 	        } 
 	        catch (IllegalStateException e)
 	        {
 	        	// FIXME: highest_active_goal_x functions are intended to be used only when it is
 	        	// guaranteed that the agent is not at quiescence.
-	        	context.decider.active_goal = null;
+	        	decider.active_goal = null;
 	        	trace.print(Category.WATERFALL, " inner preference loop finished but not at quiescence.\n");
 	        	break;
 	        }
             
-	        assert context.decider.active_goal != null;
-        	context.decider.active_level = context.decider.active_goal.level;
+	        assert decider.active_goal != null;
+        	decider.active_level = decider.active_goal.level;
         } // inner elaboration loop/cycle end
 
         // Restore previous active level.
-        context.decider.active_level = context.decider.highest_active_level;
-        context.decider.active_goal = context.decider.highest_active_goal;
+        decider.active_level = decider.highest_active_level;
+        decider.active_goal = decider.highest_active_goal;
         
         Instantiation inst = null;
         while ((inst = this.soarReteListener.get_next_retraction()) != null)

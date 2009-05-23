@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
@@ -64,6 +65,7 @@ public class Chunker
 {
     private final Agent context;
     public final VariableGenerator variableGenerator;
+    private Decider decider;
     private Backtracer backtrace;
     Explain explain;
     private DecisionCycle decisionCycle;
@@ -178,6 +180,7 @@ public class Chunker
     
     public void initialize()
     {
+        this.decider = Adaptables.adapt(context, Decider.class);
         this.explain = Adaptables.adapt(context, Explain.class);
         this.backtrace = new Backtracer(context, this);
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
@@ -865,17 +868,17 @@ public class Chunker
         if (!this.useLongChunkNames)
             return (context.getSymbols().generateUniqueString(this.chunk_name_prefix, this.chunk_count));
 
-        int lowest_result_level = context.decider.top_goal.level;
+        int lowest_result_level = decider.top_goal.level;
         for (ListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
             if (p.item.id.level > lowest_result_level)
                 lowest_result_level = p.item.id.level;
 
-        IdentifierImpl goal = context.decider.find_goal_at_goal_stack_level(lowest_result_level);
+        IdentifierImpl goal = decider.find_goal_at_goal_stack_level(lowest_result_level);
 
         String impass_name = null;
         if (goal != null)
         {
-            ImpasseType impasse_type = context.decider.type_of_existing_impasse(goal);
+            ImpasseType impasse_type = decider.type_of_existing_impasse(goal);
             // TODO: make this a method of ImpasseType
             switch (impasse_type)
             {
@@ -1302,7 +1305,7 @@ public class Chunker
 
             chunk_inst.in_ms = true; /* set TRUE for now, we'll find out later... */
             make_clones_of_results(results, chunk_inst);
-            context.recMemory.fill_in_new_instantiation_stuff(chunk_inst, true, context.decider.top_goal);
+            context.recMemory.fill_in_new_instantiation_stuff(chunk_inst, true, decider.top_goal);
 
         } /* matches { condition *inst_lhs_top, *inst_lhs_bottom ...  */
 

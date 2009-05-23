@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
 import org.jsoar.kernel.events.InputCycleEvent;
 import org.jsoar.kernel.events.OutputEvent;
@@ -103,6 +104,7 @@ public class InputOutputImpl implements InputOutput
     }
     
     private final Agent context;
+    private Decider decider;
     private WorkingMemory workingMemory;
     
     /**
@@ -141,6 +143,7 @@ public class InputOutputImpl implements InputOutput
     
     public void initialize()
     {
+        this.decider = Adaptables.adapt(context, Decider.class);
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
         
     }
@@ -165,7 +168,7 @@ public class InputOutputImpl implements InputOutput
 
         /* The following code was taken from the do_input_cycle function of io.cpp */
         // Creating the io_header and adding the top state io header wme
-        this.io_header_link = addInputWmeInternal(context.decider.top_state, context.predefinedSyms.io_symbol, this.io_header);
+        this.io_header_link = addInputWmeInternal(decider.top_state, context.predefinedSyms.io_symbol, this.io_header);
         
         // Creating the input and output header symbols and wmes
         // RPM 9/06 changed to use this.input/output_link_symbol
@@ -246,7 +249,7 @@ public class InputOutputImpl implements InputOutput
                         "remove_input_wme: Removing state S%d because element in GDS changed. WME: %s\n", 
                         w.gds.getGoal().level, w);
 
-                context.decider.gds_invalid_so_remove_goal(w);
+                decider.gds_invalid_so_remove_goal(w);
                 
                 // NOTE: the call to remove_wme_from_wm will take care
                 // of checking if GDS should be removed
@@ -300,7 +303,7 @@ public class InputOutputImpl implements InputOutput
     {
         this.pendingCommands.clear();
         
-        if (prev_top_state != null && context.decider.top_state == null)
+        if (prev_top_state != null && decider.top_state == null)
         {
             // top state was just removed
 
@@ -314,17 +317,17 @@ public class InputOutputImpl implements InputOutput
         }
 
         // if there is a top state, do the normal input cycle
-        if (context.decider.top_state != null)
+        if (decider.top_state != null)
         {
             context.getEventManager().fireEvent(inputCycleEvent);
             // soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK, (soar_call_data) NORMAL_INPUT_CYCLE);
         }
 
         // do any WM resulting changes
-        context.decider.do_buffered_wm_and_ownership_changes();
+        decider.do_buffered_wm_and_ownership_changes();
 
         // save current top state for next time
-        prev_top_state = context.decider.top_state;
+        prev_top_state = decider.top_state;
 
         // reset the output-link status flag to FALSE when running til output, 
         // only want to stop if agent does add-wme to output.  don't stop if 
