@@ -15,6 +15,7 @@ import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
@@ -29,25 +30,47 @@ public class SoarBeanReaderTest
 {
     private Agent agent;
     
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() throws Exception
     {
         this.agent = new Agent();
         this.agent.initialize();
+        this.agent.getProperties().set(SoarProperties.WAITSNC, true);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
     public void tearDown() throws Exception
     {
         this.agent = null;
     }
 
+    private <T> T runTest(final Class<T> klass)
+    {
+        final SoarBeanReader converter = new SoarBeanReader();
+        
+        final ByRef<T> bean = ByRef.create(null);
+        agent.getEventManager().addListener(OutputEvent.class, new SoarEventListener() {
+
+            @Override
+            public void onEvent(SoarEvent event)
+            {
+                final Wme testCommand = agent.getInputOutput().getPendingCommands().get(0);
+                assertNotNull(testCommand);
+                try
+                {
+                    bean.value = converter.read(testCommand.getValue().asIdentifier(), klass);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }});
+        
+        agent.runFor(1, RunType.DECISIONS);
+        assertNotNull(bean.value);
+        
+        return bean.value;
+    }
     public static class TestReadBeanWithPublicFields
     {
         public int integerProp;
@@ -66,41 +89,42 @@ public class SoarBeanReaderTest
                 "(<t> ^integerProp 99 ^doubleProp 3.14 ^stringProp |A String| ^arg |arg0| ^arg |arg1|)\n" +
                 "");
         
-        final SoarBeanReader converter = new SoarBeanReader();
+        final TestReadBeanWithPublicFields bean = runTest(TestReadBeanWithPublicFields.class);
+ 
+        assertNotNull(bean);
+        assertEquals(99, bean.integerProp);
+        assertEquals(3.14, bean.doubleProp, 0.0001);
+        assertEquals("A String", bean.stringProp);
+    }  
+    
+    @Test
+    public void testConversionFromSoarToJavaStylePropertyNames() throws Exception
+    {
+        agent.getProperties().set(SoarProperties.WAITSNC, false);         
+        agent.getProductions().loadProduction("" +
+                "testConversionFromSoarToJavaStylePropertyNames\n" +
+                "(state <s> ^superstate nil ^io.output-link <ol>)\n" +
+                "-->\n" +
+                "(<ol> ^test <t>)\n" +
+                "(<t> ^integer-prop 99 ^double*prop 3.14 ^string-prop |A String|)\n" +
+                "");
         
-        final ByRef<TestReadBeanWithPublicFields> bean = ByRef.create(null);
-        agent.getEventManager().addListener(OutputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                final Wme testCommand = agent.getInputOutput().getPendingCommands().get(0);
-                assertNotNull(testCommand);
-                try
-                {
-                    bean.value = converter.read(testCommand.getValue().asIdentifier(), TestReadBeanWithPublicFields.class);
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }});
-        
-        agent.runFor(1, RunType.DECISIONS);
-        assertNotNull(bean.value);
-        assertEquals(99, bean.value.integerProp);
-        assertEquals(3.14, bean.value.doubleProp, 0.0001);
-        assertEquals("A String", bean.value.stringProp);
+        final TestReadBeanWithPublicFields bean = runTest(TestReadBeanWithPublicFields.class);
+ 
+        assertNotNull(bean);
+        assertEquals(99, bean.integerProp);
+        assertEquals(3.14, bean.doubleProp, 0.0001);
+        assertEquals("A String", bean.stringProp);
     }  
     
     public static class TestReadBeanWithNoSubObjects
     {
-        private int integerProp;
+        private int privateIntegerProp;
         private double doubleProp;
         private String stringProp;
 
-        public int getIntegerProp() { return integerProp; }
-        public void setIntegerProp(int integerProp) { this.integerProp = integerProp; }
+        public int getIntegerProp() { return privateIntegerProp; }
+        public void setIntegerProp(int integerProp) { this.privateIntegerProp = integerProp; }
         public double getDoubleProp() { return doubleProp; }
         public void setDoubleProp(double doubleProp) { this.doubleProp = doubleProp; }
         public String getStringProp() { return stringProp; }
@@ -123,31 +147,11 @@ public class SoarBeanReaderTest
                 "(<t> ^integerProp 99 ^doubleProp 3.14 ^stringProp |A String| ^arg |arg0| ^arg |arg1|)\n" +
                 "");
         
-        final SoarBeanReader converter = new SoarBeanReader();
-        
-        final ByRef<TestReadBeanWithNoSubObjects> bean = ByRef.create(null);
-        agent.getEventManager().addListener(OutputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                final Wme testCommand = agent.getInputOutput().getPendingCommands().get(0);
-                assertNotNull(testCommand);
-                try
-                {
-                    bean.value = converter.read(testCommand.getValue().asIdentifier(), TestReadBeanWithNoSubObjects.class);
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }});
-        
-        agent.runFor(1, RunType.DECISIONS);
-        assertNotNull(bean.value);
-        assertEquals(99, bean.value.integerProp);
-        assertEquals(3.14, bean.value.doubleProp, 0.0001);
-        assertEquals("A String", bean.value.stringProp);
+        final TestReadBeanWithNoSubObjects bean = runTest(TestReadBeanWithNoSubObjects.class);
+        assertNotNull(bean);
+        assertEquals(99, bean.privateIntegerProp);
+        assertEquals(3.14, bean.doubleProp, 0.0001);
+        assertEquals("A String", bean.stringProp);
     }
 
     public static class TestReadBeanWithSubObjects
@@ -171,32 +175,12 @@ public class SoarBeanReaderTest
                 "(<sub> ^integerProp 99 ^doubleProp 3.14 ^stringProp |A String| ^arg |arg0| ^arg |arg1|)\n" +
                 "");
         
-        final SoarBeanReader converter = new SoarBeanReader();
+        final TestReadBeanWithSubObjects bean = runTest(TestReadBeanWithSubObjects.class);
+        assertNotNull(bean);
+        assertNotNull(bean.subObject);
         
-        final ByRef<TestReadBeanWithSubObjects> bean = ByRef.create(null);
-        agent.getEventManager().addListener(OutputEvent.class, new SoarEventListener() {
-
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                final Wme testCommand = agent.getInputOutput().getPendingCommands().get(0);
-                assertNotNull(testCommand);
-                try
-                {
-                    bean.value = converter.read(testCommand.getValue().asIdentifier(), TestReadBeanWithSubObjects.class);
-                }
-                catch (SoarBeanException e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }});
-        
-        agent.runFor(1, RunType.DECISIONS);
-        assertNotNull(bean.value);
-        assertNotNull(bean.value.subObject);
-        
-        final TestReadBeanWithNoSubObjects sub = bean.value.subObject;
-        assertEquals(99, sub.integerProp);
+        final TestReadBeanWithNoSubObjects sub = bean.subObject;
+        assertEquals(99, sub.privateIntegerProp);
         assertEquals(3.14, sub.doubleProp, 0.0001);
         assertEquals("A String", sub.stringProp);
     }
@@ -205,22 +189,14 @@ public class SoarBeanReaderTest
     {
         public int[] integers;
         private TestReadBeanWithNoSubObjects[] objs;
-        /**
-         * @return the objs
-         */
         public TestReadBeanWithNoSubObjects[] getObjs()
         {
             return objs;
         }
-        /**
-         * @param objs the objs to set
-         */
         public void setObjs(TestReadBeanWithNoSubObjects[] objs)
         {
             this.objs = objs;
         }
-        
-        
     }
     
     @Test
@@ -228,7 +204,7 @@ public class SoarBeanReaderTest
     {
         agent.getProperties().set(SoarProperties.WAITSNC, false);         
         agent.getProductions().loadProduction("" +
-                "testReadBeanWithNoSubObjects\n" +
+                "testReadBeanWithArrayField\n" +
                 "(state <s> ^superstate nil ^io.output-link <ol>)\n" +
                 "-->\n" +
                 "(<ol> ^test <t>)\n" +
@@ -239,43 +215,48 @@ public class SoarBeanReaderTest
                 "(<o2> ^integerProp 100 ^doubleProp 4.14 ^stringProp |B String|)\n" +
                                "");
         
-        final SoarBeanReader converter = new SoarBeanReader();
-        
-        final ByRef<TestReadBeanWithArrayField> bean = ByRef.create(null);
-        agent.getEventManager().addListener(OutputEvent.class, new SoarEventListener() {
+        final TestReadBeanWithArrayField bean = runTest(TestReadBeanWithArrayField.class);
 
-            @Override
-            public void onEvent(SoarEvent event)
-            {
-                final Wme testCommand = agent.getInputOutput().getPendingCommands().get(0);
-                assertNotNull(testCommand);
-                try
-                {
-                    bean.value = converter.read(testCommand.getValue().asIdentifier(), TestReadBeanWithArrayField.class);
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-            }});
+        assertNotNull(bean);
+        assertEquals(4, bean.integers.length);
+        assertEquals(1, bean.integers[0]);
+        assertEquals(2, bean.integers[1]);
+        assertEquals(3, bean.integers[2]);
+        assertEquals(4, bean.integers[3]);
         
-        agent.runFor(1, RunType.DECISIONS);
-        assertNotNull(bean.value);
-        assertEquals(4, bean.value.integers.length);
-        assertEquals(1, bean.value.integers[0]);
-        assertEquals(2, bean.value.integers[1]);
-        assertEquals(3, bean.value.integers[2]);
-        assertEquals(4, bean.value.integers[3]);
-        
-        assertEquals(2, bean.value.objs.length);
-        final TestReadBeanWithNoSubObjects  o1 = bean.value.objs[0];
-        assertEquals(99, o1.integerProp);
+        assertEquals(2, bean.objs.length);
+        final TestReadBeanWithNoSubObjects  o1 = bean.objs[0];
+        assertEquals(99, o1.privateIntegerProp);
         assertEquals(3.14, o1.doubleProp, 0.0001);
         assertEquals("A String", o1.stringProp);
         
-        final TestReadBeanWithNoSubObjects  o2 = bean.value.objs[1];
-        assertEquals(100, o2.integerProp);
+        final TestReadBeanWithNoSubObjects  o2 = bean.objs[1];
+        assertEquals(100, o2.privateIntegerProp);
         assertEquals(4.14, o2.doubleProp, 0.0001);
         assertEquals("B String", o2.stringProp);
+    }
+    
+    public static class TestReadBeanWithSymbolField
+    {
+        public Symbol thisIsASymbol;
+    }
+    
+    @Test
+    public void testReadBeanWithSymbolField() throws Exception
+    {
+        agent.getProperties().set(SoarProperties.WAITSNC, false);         
+        agent.getProductions().loadProduction("" +
+                "testReadBeanWithSymbolField\n" +
+                "(state <s> ^superstate nil ^io.output-link <ol>)\n" +
+                "-->\n" +
+                "(<ol> ^test <t>)\n" +
+                "(<t> ^this-is-a-symbol 99)" +
+                               "");
+        
+        final TestReadBeanWithSymbolField bean = runTest(TestReadBeanWithSymbolField.class);
+
+        assertNotNull(bean);
+        assertNotNull(bean.thisIsASymbol);
+        assertEquals(99, bean.thisIsASymbol.asInteger().getValue());
     }  
 }

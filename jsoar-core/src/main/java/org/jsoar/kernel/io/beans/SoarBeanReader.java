@@ -10,11 +10,19 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Iterator;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.symbols.DoubleSymbol;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.IntegerSymbol;
+import org.jsoar.kernel.symbols.JavaSymbol;
+import org.jsoar.kernel.symbols.StringSymbol;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
 
 import com.google.common.collect.Iterators;
@@ -70,7 +78,16 @@ import com.google.common.collect.Iterators;
  *    // now use person as normal...
  * }
  * </pre>
- *  
+ * 
+ * <p>Other features:
+ * <ul>
+ * <li>Soar-style attributes, i.e. those with hyphens or stars, are automatically 
+ * converted to Java naming conventions. For example, {@code first-name} and {@code first*name}
+ * both become {@code firstName}
+ * <li>A property whose type is a sub-type of {@link Symbol} will just get the raw
+ * {@link Symbol} value of a WME with no conversions. So Soar {@link Identifier}s can be
+ * captured in beans.
+ * </ul>
  *  
  * <p>Limitations:
  * <ul>
@@ -81,6 +98,8 @@ import com.google.common.collect.Iterators;
  */
 public class SoarBeanReader
 {
+    private static final Log logger = LogFactory.getLog(SoarBeanReader.class);
+    
     private BeanUtilsBean util = new BeanUtilsBean();
     
     /**
@@ -102,7 +121,7 @@ public class SoarBeanReader
             {
                 final Wme wme = it.next();
                 final String name = getPropertyName(wme);
-                setProperty(bean, name, Symbols.valueOf(wme.getValue()));
+                setProperty(bean, name, wme.getValue());
             }
             return bean;
         }
@@ -139,10 +158,36 @@ public class SoarBeanReader
     
     private String getPropertyName(Wme wme)
     {
-        return wme.getAttribute().toString();
+        final String name = wme.getAttribute().toString();
+        int hyphen = name.indexOf('-');
+        int star = name.indexOf('*');
+        if(hyphen == -1 && star == -1)
+        {
+            return name;
+        }
+        final StringBuilder result = new StringBuilder();
+        boolean skipped = false;
+        for(int i = 0; i < name.length(); i++)
+        {
+            char c = name.charAt(i);
+            if(c == '-' || c == '*')
+            {
+                skipped = true;
+            }
+            else if(skipped)
+            {
+                result.append(result.length() != 0 ? Character.toUpperCase(c) : c);
+                skipped = false;
+            }
+            else
+            {
+                result.append(c);
+            }
+        }
+        return result.toString();
     }
         
-    private <T> void setProperty(T bean, String name, Object value) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SoarBeanException, SecurityException, IllegalArgumentException
+    private <T> void setProperty(T bean, String name, Symbol value) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SoarBeanException, SecurityException, IllegalArgumentException
     {
         final PropertyDescriptor desc = util.getPropertyUtils().getPropertyDescriptor(bean, name);
         if(desc == null)
@@ -164,19 +209,30 @@ public class SoarBeanReader
         writer.invoke(bean, convertedValue);
     }
     
-    private <T> void setField(T bean, String name, Object value) throws SecurityException, SoarBeanException, IllegalArgumentException, IllegalAccessException
+    private <T> void setField(T bean, String name, Symbol value) throws SecurityException, SoarBeanException, IllegalArgumentException, IllegalAccessException
     {
         final Class<?> beanClass = bean.getClass();
         try
         {
             final Field field = beanClass.getField(name);
-            
+            final int modifiers = field.getModifiers();
+            if(Modifier.isStatic(modifiers))
+            {
+                logger.warn("SoarBean field " + beanClass.getCanonicalName() + "." + name + " is static. Ignoring.");
+                return;
+            }
+            else if(Modifier.isPrivate(modifiers))
+            {
+                logger.warn("SoarBean field " + beanClass.getCanonicalName() + "." + name + " is private. Ignoring.");
+                return;
+            }
             final Class<?> type = getTargetType(field.getType());
             final Object convertedValue = convert(value, type);
             field.set(bean, convertedValue);
         }
         catch (NoSuchFieldException e)
         {
+            logger.warn("Unknown property " + beanClass.getCanonicalName() + "." + name + ". Ignoring.");
             return;
         }
     }
@@ -185,10 +241,48 @@ public class SoarBeanReader
     {
         return tempType;
     }
-    
-    private Object convert(Object value, Class<?> targetType) throws SoarBeanException
+
+    private <T> T trySymbolConversion(Symbol initialValue, T convertedValue, Class<T> symbolType) throws SoarBeanException
     {
-        if(value instanceof Identifier)
+        if(convertedValue == null)
+        {
+            throw new SoarBeanException("Can't convert '" + initialValue + "' to " + symbolType.getCanonicalName());
+        }
+        return convertedValue;
+    }
+    
+    private Object convert(Symbol value, Class<?> targetType) throws SoarBeanException
+    {
+        if(targetType.isAssignableFrom(Symbol.class))
+        {
+            return value;
+        }
+        else if(targetType.isAssignableFrom(Identifier.class))
+        {
+            return trySymbolConversion(value, value.asIdentifier(), Identifier.class);
+        }
+        else if(targetType.isAssignableFrom(StringSymbol.class))
+        {
+            return trySymbolConversion(value, value.asString(), StringSymbol.class);
+        }
+        else if(targetType.isAssignableFrom(DoubleSymbol.class))
+        {
+            return trySymbolConversion(value, value.asDouble(), DoubleSymbol.class);
+        }
+        else if(targetType.isAssignableFrom(IntegerSymbol.class))
+        {
+            return trySymbolConversion(value, value.asInteger(), IntegerSymbol.class);
+        }
+        else if(targetType.isAssignableFrom(JavaSymbol.class))
+        {
+            final JavaSymbol s = value.asJava();
+            if(s == null)
+            {
+                throw new SoarBeanException("Can't convert '" + value + "' to JavaSymbol");
+            }
+            return util.getConvertUtils().convert(s.getValue(), targetType);
+        }
+        else if(value instanceof Identifier)
         {
             final Identifier id = (Identifier) value;
             if(!targetType.isArray())
@@ -202,7 +296,7 @@ public class SoarBeanReader
         }
         else
         {
-            return util.getConvertUtils().convert(value, targetType);
+            return util.getConvertUtils().convert(Symbols.valueOf(value), targetType);
         }
     }
     
@@ -216,7 +310,7 @@ public class SoarBeanReader
         for(final Iterator<Wme> it = id.getWmes(); it.hasNext(); i++)
         {
             final Wme kid = it.next();
-            final Object value = convert(Symbols.valueOf(kid.getValue()), targetType);
+            final Object value = convert(kid.getValue(), targetType);
             Array.set(array, i, value);
         }
         
