@@ -6,6 +6,9 @@
 package org.jsoar.kernel.io.beans;
 
 /**
+ * Exception thrown when an error related to SoarBean reading or writing
+ * occurs.
+ * 
  * @author ray
  */
 public class SoarBeanException extends Exception
