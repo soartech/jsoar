@@ -100,7 +100,7 @@ public class SoarBeanReader
 {
     private static final Log logger = LogFactory.getLog(SoarBeanReader.class);
     
-    private BeanUtilsBean util = new BeanUtilsBean();
+    private final BeanUtilsBean util = new BeanUtilsBean();
     
     /**
      * Read the working memory structure under the given identifier into
