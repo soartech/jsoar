@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.io;
 
-import org.jsoar.kernel.events.InputCycleEvent;
+import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
@@ -23,7 +23,7 @@ public class InputWmes
      * Create a new input Wme with the given id, attribute and value. The 
      * attribute and value are created according to the rules of
      * {@link Symbols#create(SymbolFactory, Object)}. This method should
-     * only be called from inside {@link InputCycleEvent}.
+     * only be called from inside {@link InputEvent}.
      * 
      * @param io the input/output interface
      * @param id the identifier of the wme

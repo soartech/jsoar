@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.events.InputCycleEvent;
+import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.Arguments;
@@ -153,7 +153,7 @@ public class SoarQMemoryAdapter implements SoarEventListener
             }
             
             this.events = events;
-            this.events.addListener(InputCycleEvent.class, this);
+            this.events.addListener(InputEvent.class, this);
             this.io = io;
             if(rootElement != null)
             {
@@ -172,7 +172,7 @@ public class SoarQMemoryAdapter implements SoarEventListener
         {
             if(this.events != null)
             {
-                this.events.removeListener(InputCycleEvent.class, this);
+                this.events.removeListener(InputEvent.class, this);
                 
                 // Create a temporary listener that will remove all our WMEs
                 // at the next input cycle. 
@@ -367,7 +367,7 @@ public class SoarQMemoryAdapter implements SoarEventListener
         public DetachCompletion(SoarEventManager events, InputOutput io, Map<String, SoarMemoryNode> memory)
         {
             this.events = events;
-            this.events.addListener(InputCycleEvent.class, this);
+            this.events.addListener(InputEvent.class, this);
             
             this.io = io;
             this.memory = memory;
@@ -380,7 +380,7 @@ public class SoarQMemoryAdapter implements SoarEventListener
         public void onEvent(SoarEvent event)
         {
             removeAllWmes(io, memory);
-            this.events.removeListener(InputCycleEvent.class, this);
+            this.events.removeListener(InputEvent.class, this);
         }
     }
 }

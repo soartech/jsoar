@@ -6,7 +6,7 @@
 package org.jsoar.kernel.io;
 
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
-import org.jsoar.kernel.events.InputCycleEvent;
+import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
@@ -45,7 +45,7 @@ public class CycleCountInput
         this.events = events;
         this.listener = new InputListener();
         this.initListener = new InitSoarListener();
-        this.events.addListener(InputCycleEvent.class, listener);
+        this.events.addListener(InputEvent.class, listener);
         this.events.addListener(BeforeInitSoarEvent.class, initListener);
     }
     
@@ -62,7 +62,7 @@ public class CycleCountInput
         // TODO: I think this should be handled by InputOutput
         if(wme != null)
         {
-            this.events.addListener(InputCycleEvent.class, new CleanupListener(this.events, wme));
+            this.events.addListener(InputEvent.class, new CleanupListener(this.events, wme));
             this.wme = null;
         }
     }

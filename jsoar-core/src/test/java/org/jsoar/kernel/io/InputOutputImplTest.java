@@ -19,7 +19,7 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.events.InputCycleEvent;
+import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.OutputEvent.OutputMode;
 import org.jsoar.kernel.memory.Wme;
@@ -103,7 +103,7 @@ public class InputOutputImplTest extends JSoarTest
     public void testBasicInput() throws Exception
     {
         final int listenerCallCount[] = { 0 };
-        agent.getEventManager().addListener(InputCycleEvent.class, new SoarEventListener() {
+        agent.getEventManager().addListener(InputEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -141,7 +141,7 @@ public class InputOutputImplTest extends JSoarTest
     public void testAddAndRemoveInputWme() throws Exception
     {
         final InputWme[] wme = { null };
-        agent.getEventManager().addListener(InputCycleEvent.class, new SoarEventListener() {
+        agent.getEventManager().addListener(InputEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -178,7 +178,7 @@ public class InputOutputImplTest extends JSoarTest
         
         final List<Set<Wme>> outputs = new ArrayList<Set<Wme>>();
         
-        agent.getEventManager().addListener(InputCycleEvent.class, new SoarEventListener() {
+        agent.getEventManager().addListener(InputEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)

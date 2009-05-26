@@ -14,7 +14,7 @@ import java.util.Set;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
-import org.jsoar.kernel.events.InputCycleEvent;
+import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.TopStateRemovedEvent;
 import org.jsoar.kernel.events.OutputEvent.OutputMode;
@@ -130,7 +130,7 @@ public class InputOutputImpl implements InputOutput
 
     private final TopStateRemovedEvent topStateRemovedEvent = new TopStateRemovedEvent(this);
 
-    private final InputCycleEvent inputCycleEvent = new InputCycleEvent(this);
+    private final InputEvent inputEvent = new InputEvent(this);
     private final AsynchronousInputReadyEvent asyncInputReadyEvent = new AsynchronousInputReadyEvent(this);
     
     /**
@@ -319,7 +319,7 @@ public class InputOutputImpl implements InputOutput
         // if there is a top state, do the normal input cycle
         if (decider.top_state != null)
         {
-            context.getEventManager().fireEvent(inputCycleEvent);
+            context.getEventManager().fireEvent(inputEvent);
             // soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK, (soar_call_data) NORMAL_INPUT_CYCLE);
         }
 
