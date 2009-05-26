@@ -63,7 +63,7 @@ module RSoar
       @agent = agent
   
       @queue = java.util.LinkedList.new
-      @agent.event_manager.add_listener org.jsoar.kernel.events.InputCycleEvent.java_class, self
+      @agent.event_manager.add_listener org.jsoar.kernel.events.InputEvent.java_class, self
   
       @root = InputId.new self
       @ids = {}

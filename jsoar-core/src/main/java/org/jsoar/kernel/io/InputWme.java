@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.io;
 
-import org.jsoar.kernel.events.InputCycleEvent;
+import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Symbol;
 
@@ -46,7 +46,7 @@ public interface InputWme extends Wme
     
     /**
      * Update the value of this input WME. This should only be called during the
-     * input phase, i.e. from within an {@link InputCycleEvent} callback.
+     * input phase, i.e. from within an {@link InputEvent} callback.
      * 
      * @param newValue New value for the WME
      */
@@ -54,7 +54,7 @@ public interface InputWme extends Wme
     
     /**
      * Remove this input WME. This should only be called during the input
-     * phase, i.e. from within an {@link InputCycleEvent} callback.
+     * phase, i.e. from within an {@link InputEvent} callback.
      * 
      * <p>io.cpp:243:remove_input_wme
      */

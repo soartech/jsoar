@@ -13,7 +13,7 @@ import org.jsoar.debugger.JSoarDebuggerPlugin;
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.TraceView;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
-import org.jsoar.kernel.events.InputCycleEvent;
+import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEvent;
@@ -79,12 +79,12 @@ public class TowersOfHanoi extends AbstractAdaptableView implements JSoarDebugge
         this.setContentPane(panel);
         
         // update the input from the game each input cycle.
-        em.addListener(InputCycleEvent.class, new SoarEventListener() {
+        em.addListener(InputEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
             {
-                game.update(((InputCycleEvent) event).getInputOutput());
+                game.update(((InputEvent) event).getInputOutput());
             }});
         
         // handle output commands from the agent
