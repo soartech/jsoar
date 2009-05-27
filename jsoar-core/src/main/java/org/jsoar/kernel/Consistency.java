@@ -345,7 +345,9 @@ public class Consistency
                                             "   The current preferences indicate that the decision at [%s] needs to be removed.\n",
                                             goal);
                         }
-                        /* This doesn;t seem like it should be necessary but evidently it is: see 2.008 */
+                    	if (context.getTrace().isEnabled(Category.VERBOSE) || context.getTrace().isEnabled(Category.WM_CHANGES))
+                    		context.getTrace().print("Removing state %y because of a failed consistency check.\n", goal);
+                    	/* This doesn;t seem like it should be necessary but evidently it is: see 2.008 */
                         remove_current_decision(s);
                         return false; /* No need to continue once a decision is removed */
                     }

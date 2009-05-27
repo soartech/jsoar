@@ -362,7 +362,11 @@ public class Decider
                         "\n        REMOVING: Operator from context slot (proposal no longer matches): %s", w);
                 this.remove_wmes_for_context_slot(s);
                 if (s.id.lower_goal != null)
+                {
+                	if (context.getTrace().isEnabled(Category.VERBOSE) || context.getTrace().isEnabled(Category.WM_CHANGES))
+                		context.getTrace().print("Removing state %y because of an operator removal.\n", s.id.lower_goal);
                     this.remove_existing_context_and_descendents(s.id.lower_goal);
+                }
             }
         }
 
@@ -2383,7 +2387,11 @@ public class Decider
                 temp.preference_add_ref();
 
             if (goal.lower_goal != null)
+            {
+            	if (context.getTrace().isEnabled(Category.VERBOSE) || context.getTrace().isEnabled(Category.WM_CHANGES))
+            		context.getTrace().print("Removing state %y because of a decision.\n", goal.lower_goal);
                 remove_existing_context_and_descendents(goal.lower_goal);
+            }
 
             WmeImpl w = this.workingMemory.make_wme(s.id, s.attr, candidates.value.value, false);
             s.addWme(w);
@@ -2425,8 +2433,12 @@ public class Decider
             temp.preference_add_ref();
 
         if (goal.lower_goal != null)
+        {
+        	if (context.getTrace().isEnabled(Category.VERBOSE) || context.getTrace().isEnabled(Category.WM_CHANGES))
+        		context.getTrace().print("Removing state %y because it's the wrong type of impasse.\n", goal.lower_goal);
             remove_existing_context_and_descendents(goal.lower_goal);
-
+        }
+        
         if (this.waitsnc.value.get() && (impasse_type == ImpasseType.NO_CHANGE)
                 && (attribute_of_impasse == context.predefinedSyms.state_symbol))
         {
