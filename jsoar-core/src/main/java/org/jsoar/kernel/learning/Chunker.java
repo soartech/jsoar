@@ -507,12 +507,15 @@ public class Chunker
                 cc.next_prev.previous = prev_cc;
                 cc.variablized_cond.prev = prev_cc.item.variablized_cond;
                 prev_cc.item.variablized_cond.next = cc.variablized_cond;
+                cc.instantiated_cond.prev = prev_cc.item.instantiated_cond;
+                prev_cc.item.instantiated_cond.next = cc.instantiated_cond;
             }
             else
             {
                 first_cc = cc.next_prev;
                 cc.next_prev.previous = null;
                 cc.variablized_cond.prev = null;
+                cc.instantiated_cond.prev = null;
             }
             prev_cc = cc.next_prev;
             // add this in to the TC
@@ -543,12 +546,15 @@ public class Chunker
                     cc.next_prev.previous = prev_cc;
                     cc.variablized_cond.prev = prev_cc.item.variablized_cond;
                     prev_cc.item.variablized_cond.next = cc.variablized_cond;
+                    cc.instantiated_cond.prev = prev_cc.item.instantiated_cond;
+                    prev_cc.item.instantiated_cond.next = cc.instantiated_cond;
                 }
                 else
                 {
                     first_cc = cc.next_prev;
                     cc.next_prev.previous = null;
                     cc.variablized_cond.prev = null;
+                    cc.instantiated_cond.prev = null;
                 }
                 prev_cc = cc.next_prev;
             }
@@ -576,6 +582,7 @@ public class Chunker
         {
             prev_cc.next = null;
             prev_cc.item.variablized_cond.next = null;
+            prev_cc.item.instantiated_cond.next = null;
         }
         else
         {
@@ -1260,7 +1267,16 @@ public class Chunker
             Conditions.print_condition_list(p, lhs_top, 2, false);
             p.print("\n -->\n ");
             Action.print_action_list(p, rhs, 3, false);
-            p.print ("\n\n(Ignoring this chunk. Weird things could happen from now on...)\n");
+            p.print ("\n\nThis error is likely caused by the reasons outlined section 4 of the Soar\n");
+            p.print ("manual, subsection \"revising the substructure of a previous result\".\n");
+            p.print ("\n");
+            p.print ("Check that the rules are not revising substructure of a result matched only\n");
+            p.print ("through the local state.\n");
+            
+            // a bunch of memory stuff goes here, unnecessary in java
+            
+    		// We cannot proceed, the GDS will crash in decide.cpp:decide_non_context_slot
+            this.decisionCycle.halt("Bad chunk");
             return;
         }
 

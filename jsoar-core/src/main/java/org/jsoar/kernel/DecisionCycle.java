@@ -1042,6 +1042,6 @@ public class DecisionCycle
     {
         stop_soar = true;
         system_halted = true;
-        reason_for_stopping = "Max Goal Depth exceeded.";
+        reason_for_stopping = string;
     }
 }
