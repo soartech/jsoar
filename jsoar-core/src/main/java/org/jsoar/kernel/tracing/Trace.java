@@ -66,13 +66,13 @@ public class Trace
         JUSTIFICATION_NAMES(-1),
         
         /** gsysparam.h:107:TRACE_CHUNKS_SYSPARAM */
-        CHUNKS(-1),
+        CHUNKS(1),
         
         /** gsysparam.h:108:TRACE_JUSTIFICATIONS_SYSPARAM */
         JUSTIFICATIONS(-1),
         
         /** gsysparam.h:109:TRACE_BACKTRACING_SYSPARAM */
-        BACKTRACING(-1),
+        BACKTRACING(1),
         
         /** gsysparam.h:112:TRACE_LOADING_SYSPARAM */
         LOADING(true, -1),

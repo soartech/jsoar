@@ -412,4 +412,10 @@ public class FunctionalTests
         runTest("testTemplateVariableNameBug1121", 1);
         assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
     }
+    
+    @Test(timeout=10000)
+    public void testGDSBug1144() throws Exception
+    {
+        runTest("testGDSBug1144", -1); // should halt not crash
+    }
 }
