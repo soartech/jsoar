@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.learning;
 
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -147,9 +148,6 @@ public class Chunker
      */
     private boolean learningOnly = false;
     
-    private boolean chunk_free_flag;
-    private boolean chunky_flag;
-
     
     /**
      * lists of symbols (PS names) declared chunk-free
@@ -188,6 +186,12 @@ public class Chunker
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
         this.rete = Adaptables.adapt(context, Rete.class);
         this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
+    }
+    
+    public void reset()
+    {
+    	this.chunk_free_problem_spaces.clear();
+    	this.chunky_problem_spaces.clear();
     }
 
     /**
@@ -1119,39 +1123,36 @@ public class Chunker
         if (allow_variablization && (!learningAllGoals))
             allow_variablization = inst.match_goal.allow_bottom_up_chunks;
 
-        /* DJP : Need to initialize chunk_free_flag to be FALSE, as default before
-        looking for problem spaces and setting the chunk_free_flag below  */
-
-        this.chunk_free_flag = false;
-        /* DJP : Noticed this also isn't set if no ps_name */
-        this.chunky_flag = false;
+        boolean chunk_free_flag = false;
+        boolean chunky_flag = false;
 
         // check whether ps name is in chunk_free_problem_spaces
+    	// if allow_variablization is true, need to disable it if
+    	//   learn --except is on and the state is in chunk_free_problem_spaces
+    	//   learn --only is on and the state is not in chunky_problem_spaces
+    	// if chunk_free_flag, variablize_this_chunk is initialized to false because of dont-learn
+    	// if chunky_flag, variablize_this_chunk is initialized to true because of force-learn
         if (allow_variablization)
         {
-            /* KJC new implementation of learn cmd:  old SPECIFY ==> ONLY,
-            * old ON ==> EXCEPT,  now ON is just ON always
-            * checking if state is chunky or chunk-free...
-                */
             if (learningExcept)
             {
                 if (chunk_free_problem_spaces.contains(inst.match_goal))
                 {
+                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "\nnot chunking due to chunk-free state %y", inst.match_goal);
                     allow_variablization = false;
-                    this.chunk_free_flag = true;
+                    chunk_free_flag = true;
                 }
             }
             else if (learningOnly)
             {
                 if (chunky_problem_spaces.contains(inst.match_goal))
                 {
-                    allow_variablization = true;
-                    this.chunky_flag = true;
+                    chunky_flag = true;
                 }
                 else
                 {
+                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "\nnot chunking due to non-chunky state %y", inst.match_goal);
                     allow_variablization = false;
-                    this.chunky_flag = false;
                 }
             }
         }
@@ -1307,16 +1308,21 @@ public class Chunker
             it's okay to variablize through this instantiation later.
             */
 
+    		// set chunk_inst->okay_to_variablize to thisAgent->variablize_this_chunk unless:
+    		//   - we didn't variablize it because of dont-learn (implies learning mode is "except" because if "off" or "on", chunk_free_flag is false)
+    		//   - or, learn mode is "only" and we didn't variablize it because of force-learn
+    		// if one of those two cases is true, we set chunk_inst->okay_to_variablize to TRUE saying we could variablize through it in the future
+
             if (!learningOnly)
             {
-                if ((!this.variablize_this_chunk) && (this.chunk_free_flag) && (!this.quiescence_t_flag))
+                if ((!this.variablize_this_chunk) && (chunk_free_flag) && (!this.quiescence_t_flag))
                     chunk_inst.okay_to_variablize = true;
                 else
                     chunk_inst.okay_to_variablize = this.variablize_this_chunk;
             }
             else
             {
-                if ((!this.variablize_this_chunk) && (!this.chunky_flag) && (!this.quiescence_t_flag))
+                if ((!this.variablize_this_chunk) && (!chunky_flag) && (!this.quiescence_t_flag))
                     chunk_inst.okay_to_variablize = true;
                 else
                     chunk_inst.okay_to_variablize = this.variablize_this_chunk;

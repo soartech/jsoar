@@ -645,6 +645,7 @@ public class Agent extends AbstractAdaptable
         workingMemory.reset();
         decisionCycle.reset();
         recMemory.reset();
+        chunker.reset();
 
         reset_statistics();
 
