@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel;
 
+import java.util.EnumSet;
+
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
@@ -345,8 +347,8 @@ public class Consistency
                                             "   The current preferences indicate that the decision at [%s] needs to be removed.\n",
                                             goal);
                         }
-                    	if (context.getTrace().isEnabled(Category.VERBOSE) || context.getTrace().isEnabled(Category.WM_CHANGES))
-                    		context.getTrace().print("Removing state %y because of a failed consistency check.\n", goal);
+                        
+                    	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %y because of a failed consistency check.\n", goal);
                     	/* This doesn;t seem like it should be necessary but evidently it is: see 2.008 */
                         remove_current_decision(s);
                         return false; /* No need to continue once a decision is removed */
