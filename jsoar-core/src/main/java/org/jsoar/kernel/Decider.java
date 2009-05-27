@@ -1830,7 +1830,7 @@ public class Decider
                        *          will be explored in elaborate_gds().
                      */
                      
-                     if (this.decisionCycle.isHalted()) {
+                     if (!this.decisionCycle.isHalted()) {
                      for (Preference pref=w.preference; pref!=null; pref=pref.next) {
     if(DEBUG_GDS_HIGH){
                         context.getPrinter().print("\n\n   %s   Goal level of preference: %d\n", pref, pref.id.level);
@@ -3130,6 +3130,17 @@ public class Decider
         {
             // If nothing has yet changed (highest_ ... = NIL) then set the goal automatically
             tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
+            
+    		// Tell those slots they are changed so that the impasses can be regenerated
+    		// bug 1011
+            for (ListItem<Slot> sit = tempMemory.highest_goal_whose_context_changed.slots.first; sit != null; sit = sit.next)
+            {
+                final Slot s = sit.item;
+                if (s.isa_context_slot && s.changed == null)
+                {
+                	s.changed = s; // use non-zero value to indicate change, see definition of slot::changed
+                }
+    		}
         }
         
         context.getTrace().print(Category.OPERAND2_REMOVALS, 
