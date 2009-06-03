@@ -4,6 +4,7 @@ package org.jsoar.kernel.io.quick;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
 
 class SoarMemoryNode
@@ -61,10 +62,12 @@ class SoarMemoryNode
             return;
         }
         
-        Identifier parentWME = (Identifier) parentNode.getIdValue();
-        setWME(io.addInputWme(parentWME, 
-                             Symbols.create(io.getSymbols(), name), 
-                             Symbols.create(io.getSymbols(), node.getValue() != null ? node.getValue() : Symbols.NEW_ID)));
+        final Identifier parentWME = (Identifier) parentNode.getIdValue();
+        final Symbol attr = Symbols.create(io.getSymbols(), name);
+        final Symbol value = node.getValue() != null ? 
+                Symbols.create(io.getSymbols(), node.getValue()) :
+                io.getSymbols().createIdentifier(name.charAt(0));
+        setWME(io.addInputWme(parentWME, attr, value));
         
         if (node.isString())
         {
