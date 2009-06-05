@@ -363,7 +363,7 @@ public class Decider
                 this.remove_wmes_for_context_slot(s);
                 if (s.id.lower_goal != null)
                 {
-                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %y because of an operator removal.\n", s.id.lower_goal);
+                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of an operator removal.\n", s.id.lower_goal);
                     this.remove_existing_context_and_descendents(s.id.lower_goal);
                 }
             }
@@ -2387,7 +2387,7 @@ public class Decider
 
             if (goal.lower_goal != null)
             {
-           		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %y because of a decision.\n", goal.lower_goal);
+           		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of a decision.\n", goal.lower_goal);
                 remove_existing_context_and_descendents(goal.lower_goal);
             }
 
@@ -2432,7 +2432,7 @@ public class Decider
 
         if (goal.lower_goal != null)
         {
-       		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %y because it's the wrong type of impasse.\n", goal.lower_goal);
+       		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because it's the wrong type of impasse.\n", goal.lower_goal);
             remove_existing_context_and_descendents(goal.lower_goal);
         }
         
