@@ -72,10 +72,6 @@ public class CycleCountInput
      */
     private void update()
     {
-        // TODO on init-soar, the count should go back to 0. It would be better to the
-        // the cycle count from the agent (or I/O?) rather than maintaining it
-        // manually like this.
-        
         if(wme == null)
         {
             wme = InputWmes.add(io, "cycle-count", count);
