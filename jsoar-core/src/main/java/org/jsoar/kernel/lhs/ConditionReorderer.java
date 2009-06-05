@@ -159,13 +159,6 @@ public class ConditionReorderer
         ListHead<Variable> new_vars = ListHead.newInstance();
         for (Condition cond = conds_list; cond != null; cond = cond.next)
         {
-            /*
-        	if (cond.asConjunctiveNegationCondition() != null)
-        	{
-        		// only skip conjunctive negation conditions, bug 517
-        		continue;
-        	}
-        	*/
             if (cond.asPositiveCondition() != null) 
             {
                 PositiveCondition pc = cond.asPositiveCondition();
@@ -188,30 +181,6 @@ public class ConditionReorderer
 
                 pc.value_test.addBoundVariables(tc, new_vars);
             }
-            /*
-            else if (cond.asNegativeCondition() != null) 
-            {
-                NegativeCondition nc = cond.asNegativeCondition();
-                
-                ByRef<Test> id_test = ByRef.create(nc.id_test);
-                tests_to_restore = restore_saved_tests_to_test(id_test, true, tc, tests_to_restore, true);
-                nc.id_test = id_test.value;
-
-                nc.id_test.addBoundVariables(tc, new_vars);
-
-                ByRef<Test> attr_test = ByRef.create(nc.attr_test);
-                tests_to_restore = restore_saved_tests_to_test(attr_test, false, tc, tests_to_restore, true);
-                nc.attr_test = attr_test.value;
-
-                nc.attr_test.addBoundVariables(tc, new_vars);
-
-                ByRef<Test> value_test = ByRef.create(nc.value_test);
-                tests_to_restore = restore_saved_tests_to_test(value_test, false, tc, tests_to_restore, true);
-                nc.value_test = value_test.value;
-
-                nc.value_test.addBoundVariables(tc, new_vars);
-            }
-            */
         }
         if (tests_to_restore != null)
         {
@@ -734,13 +703,6 @@ public class ConditionReorderer
         SavedTest sts = null;
         for (Condition c = conds_list; c != null; c = c.next)
         {
-            /*
-        	if (c.asConjunctiveNegationCondition() != null)
-        	{
-        		// only skip conjunctive negation conditions, bug 517
-        		continue;
-        	}
-        	*/
             if (c.asPositiveCondition() != null)
             {
                 PositiveCondition pc = c.asPositiveCondition();
@@ -757,24 +719,6 @@ public class ConditionReorderer
                 sts = simplify_test(value_test, sts);
                 pc.value_test = value_test.value;
             }
-            /*
-            else if (c.asNegativeCondition() != null)
-            {
-                NegativeCondition nc = c.asNegativeCondition();
-
-                ByRef<Test> id_test = ByRef.create(nc.id_test);
-                sts = simplify_test(id_test, sts);
-                nc.id_test = id_test.value;
-
-                ByRef<Test> attr_test = ByRef.create(nc.attr_test);
-                sts = simplify_test(attr_test, sts);
-                nc.attr_test = attr_test.value;
-
-                ByRef<Test> value_test = ByRef.create(nc.value_test);
-                sts = simplify_test(value_test, sts);
-                nc.value_test = value_test.value;
-            }
-            */
         }
         return sts;
     }
