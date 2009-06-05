@@ -9,11 +9,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
@@ -51,17 +56,18 @@ import org.jsoar.util.events.SoarEventManager;
  */
 public class SoarQMemoryAdapter implements SoarEventListener
 {
-    private static String getNameFromPath(String path)
+    private static final Log logger = LogFactory.getLog(SoarQMemoryAdapter.class);
+    private static final Pattern INDEX_PATTERN = Pattern.compile("\\[[^]]+\\]$");
+    
+    static String getNameFromPath(String path)
     {
-        // TODO compile regex
-        String pattern = "\\[\\d+\\]$";
-        String[] pathElements = path.split("\\.");
-        return pathElements[pathElements.length - 1].replaceFirst(pattern, "");
+        final String[] pathElements = path.split("\\.");
+        return INDEX_PATTERN.matcher(pathElements[pathElements.length - 1]).replaceFirst("");
     }
 
     private static String getParentPath(String path)
     {
-        int ix = path.lastIndexOf('.');
+        final int ix = path.lastIndexOf('.');
         return (ix<0) ? "" : path.substring(0, ix);
     }
 
@@ -79,11 +85,12 @@ public class SoarQMemoryAdapter implements SoarEventListener
         }
     };
     
-    private String lock = new String(getClass().getName() + " lock");
+    private final String lock = new String(getClass().getName() + " lock");
     private SoarEventManager events;
     private QMemory source;
     private boolean sourceChanged = false;
     private InputOutput io;
+    private Identifier rootId;
     private SoarMemoryNode rootNode;
     
     private Map<String, SoarMemoryNode> memory = new HashMap<String, SoarMemoryNode>();
@@ -110,17 +117,17 @@ public class SoarQMemoryAdapter implements SoarEventListener
      * 
      * @param events An event manager
      * @param io An I/O interface
-     * @param rootElement The root identifier to attach to, or <code>null</code> to
+     * @param rootId The root identifier to attach to, or <code>null</code> to
      *          attach to the input-link directly.
      * @param source The source, or <code>null</code> if there is no initial source
      * @return New adapter object
      * @throws IllegalArgumentException if events or io are <code>null</code>
      */
-    public static SoarQMemoryAdapter attach(SoarEventManager events, InputOutput io, Identifier rootElement, QMemory source)
+    public static SoarQMemoryAdapter attach(SoarEventManager events, InputOutput io, Identifier rootId, QMemory source)
     {
         SoarQMemoryAdapter adapter = new SoarQMemoryAdapter();
         adapter.setSource(source);
-        adapter.initialize(events, io, rootElement);
+        adapter.initialize(events, io, rootId);
         return adapter;
     }
     
@@ -138,9 +145,10 @@ public class SoarQMemoryAdapter implements SoarEventListener
      * 
      * @param events An event manager
      * @param io An io interface
-     * @param rootElement Root identifier to construct WMEs from
+     * @param rootId Root identifier to construct WMEs from. If {@code null} 
+     *      then the root of the input-link is used.
      */
-    public void initialize(SoarEventManager events, InputOutput io, Identifier rootElement)
+    public void initialize(SoarEventManager events, InputOutput io, Identifier rootId)
     {
         synchronized(lock)
         {
@@ -154,10 +162,12 @@ public class SoarQMemoryAdapter implements SoarEventListener
             
             this.events = events;
             this.events.addListener(InputEvent.class, this);
+            this.events.addListener(AfterInitSoarEvent.class, this);
             this.io = io;
-            if(rootElement != null)
+            if(rootId != null)
             {
-                this.rootNode = new SoarMemoryNode(rootElement);
+                this.rootId = rootId;
+                this.rootNode = new SoarMemoryNode(rootId);
             }
         }
     }
@@ -172,7 +182,7 @@ public class SoarQMemoryAdapter implements SoarEventListener
         {
             if(this.events != null)
             {
-                this.events.removeListener(InputEvent.class, this);
+                this.events.removeListener(null, this);
                 
                 // Create a temporary listener that will remove all our WMEs
                 // at the next input cycle. 
@@ -209,6 +219,26 @@ public class SoarQMemoryAdapter implements SoarEventListener
             this.sourceChanged = this.sourceChanged | (this.source != source);
             this.source = source;
         }
+    }
+    
+    /**
+     * Retrieve the {@link Symbol} value for the given path, or {@code null} if
+     * no value exists for that path.
+     * 
+     * <p>This method is thread-safe
+     * 
+     * @param path a memory path
+     * @return the value, or {@code null} if not found
+     */
+    public Symbol getValue(String path)
+    {
+        synchronized(lock)
+        {
+            final SoarMemoryNode node = memory.get(path);
+            
+            return node != null ? node.getValue() : null;
+        }
+        
     }
 
     private void synchronize()
@@ -348,11 +378,43 @@ public class SoarQMemoryAdapter implements SoarEventListener
     {
         synchronized(lock) // Lock this object
         {
-            synchronized(source) // Lock the source
+            if(event instanceof InputEvent)
             {
-                synchronize();
+                synchronized(source) // Lock the source
+                {
+                    synchronize();
+                }
+            }
+            else if(event instanceof AfterInitSoarEvent)
+            {
+                resetAfterInitSoar();
             }
         }
+    }
+    
+    private void resetAfterInitSoar()
+    {
+        logger.info("Repopulating after init-soar");
+        
+        memory.clear();
+        sourceChanged = true;
+        
+        if(rootId != null)
+        {
+            final Identifier oldRootId = rootId;
+            rootId = io.getSymbols().findOrCreateIdentifier(oldRootId.getNameLetter(), oldRootId.getNameNumber());
+            if(rootId == null)
+            {
+                rootId = io.getSymbols().findOrCreateIdentifier(oldRootId.getNameLetter(), oldRootId.getNameNumber());
+                logger.warn("After init-soar, could not find custom root identifier " + oldRootId + ". Using " + rootId + ".");
+            }
+            rootNode = new SoarMemoryNode(rootId);
+        }
+        else
+        {
+            rootNode = null;
+        }
+        
     }
     
     private static class DetachCompletion implements SoarEventListener

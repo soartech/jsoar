@@ -30,6 +30,11 @@ class SoarMemoryNode
         return wme;
     }
 
+    public Symbol getValue()
+    {
+        return wme != null ? wme.getValue() : getIdValue();
+    }
+    
     private void setWME(InputWme wme)
     {
         this.wme = wme;
