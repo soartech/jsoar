@@ -109,21 +109,21 @@ public class WaterfallTests
         SoarTclInterface.dispose(ifc);
     }
 
-    @Test(timeout=1000)
+    @Test(timeout=10000)
     public void testWaterfall() throws Exception
     {
         runTest("testWaterfall", 2);
         assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
         assertEquals(5, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
-    @Test(timeout=1000)
+    @Test(timeout=10000)
     public void testWaterfallUnbound() throws Exception
     {
         runTest("testWaterfallUnbound", 2);
         assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
         assertEquals(5, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
-    @Test(timeout=1000)
+    @Test(timeout=10000)
     public void testWaterfallFiveStates() throws Exception
     {
         runTest("testWaterfallFiveStates", 8);
