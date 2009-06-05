@@ -186,11 +186,7 @@ public class SoarQMemoryAdapter implements SoarEventListener
             if(this.events != null)
             {
                 this.events.removeListener(null, this);
-                
-                // Create a temporary listener that will remove all our WMEs
-                // at the next input cycle. 
-                // TODO: If I/O was thread-safe we wouldn't need to do this
-                new DetachCompletion(this.events, this.io, this.memory);
+                removeAllWmes(io, memory);
             }
             this.events = null;
             this.io = null;
@@ -418,35 +414,6 @@ public class SoarQMemoryAdapter implements SoarEventListener
             rootNode = null;
         }
         
-    }
-    
-    private static class DetachCompletion implements SoarEventListener
-    {
-        private final SoarEventManager events;
-        private final InputOutput io;
-        private final Map<String, SoarMemoryNode> memory;
-        
-        /**
-         * @param events
-         */
-        public DetachCompletion(SoarEventManager events, InputOutput io, Map<String, SoarMemoryNode> memory)
-        {
-            this.events = events;
-            this.events.addListener(InputEvent.class, this);
-            
-            this.io = io;
-            this.memory = memory;
-        }
-
-        /* (non-Javadoc)
-         * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
-         */
-        @Override
-        public void onEvent(SoarEvent event)
-        {
-            removeAllWmes(io, memory);
-            this.events.removeListener(InputEvent.class, this);
-        }
     }
 }
 

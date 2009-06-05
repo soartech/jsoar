@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
@@ -133,6 +134,10 @@ public class InputOutputImpl implements InputOutput
     private final InputEvent inputEvent = new InputEvent(this);
     private final AsynchronousInputReadyEvent asyncInputReadyEvent = new AsynchronousInputReadyEvent(this);
     
+    private final ConcurrentLinkedQueue<InputWmeImpl> wmesToRemove = new ConcurrentLinkedQueue<InputWmeImpl>();
+    
+    //private final Set<InputWmeImpl> allInputWmes = new LinkedHashSet<InputWmeImpl>();
+    
     /**
      * @param context
      */
@@ -145,7 +150,6 @@ public class InputOutputImpl implements InputOutput
     {
         this.decider = Adaptables.adapt(context, Decider.class);
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
-        
     }
     
     /* (non-Javadoc)
@@ -162,6 +166,7 @@ public class InputOutputImpl implements InputOutput
      */
     public void init_agent_memory()
     {
+        // Creating the input and output header symbols and wmes
         this.io_header = context.syms.createIdentifier('I');
         this.io_header_input = context.syms.createIdentifier ('I');
         this.io_header_output = context.syms.createIdentifier ('I');
@@ -170,14 +175,48 @@ public class InputOutputImpl implements InputOutput
         // Creating the io_header and adding the top state io header wme
         this.io_header_link = addInputWmeInternal(decider.top_state, context.predefinedSyms.io_symbol, this.io_header);
         
-        // Creating the input and output header symbols and wmes
         // RPM 9/06 changed to use this.input/output_link_symbol
         // Note we don't have to save these wmes for later release since their parent
         //  is already being saved (above), and when we release it they will automatically be released
         addInputWmeInternal(this.io_header, context.predefinedSyms.input_link_symbol, this.io_header_input);
         outputLinkWme = addInputWmeInternal(this.io_header, context.predefinedSyms.output_link_symbol, this.io_header_output);
+        
+        //restorePreviousInput();
+    }
+    
+    /*
+    private Symbol findRestoredSymbol(Symbol oldSym, Map<Identifier, Identifier> idMap)
+    {
+        final Identifier oldId = oldSym.asIdentifier();
+        if(oldId != null)
+        {
+            Identifier newId = idMap.get(oldId);
+            if(newId == null)
+            {
+                newId = context.syms.findOrCreateIdentifier(oldId.getNameLetter(), oldId.getNameNumber());
+                idMap.put(oldId, newId);
+            }
+            return newId;
+        }
+        else
+        {
+            return oldSym;
+        }
     }
 
+    private void restorePreviousInput()
+    {
+        final Map<Identifier, Identifier> idMap = new HashMap<Identifier, Identifier>();
+        for(InputWmeImpl iw : allInputWmes)
+        {
+            final Identifier newId = (Identifier) findRestoredSymbol(iw.getIdentifier(), idMap);
+            final Symbol newAttr = findRestoredSymbol(iw.getAttribute(), idMap);
+            final Symbol newValue = findRestoredSymbol(iw.getValue(), idMap);
+            iw.setInner(addInputWmeInternal(newId, newAttr, newValue));
+        }
+    }
+    */
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.io.InputOutput#getInputLink()
      */
@@ -202,7 +241,9 @@ public class InputOutputImpl implements InputOutput
     @Override
     public InputWme addInputWme(Identifier id, Symbol attr, Symbol value)
     {
-        return new InputWmeImpl(this, addInputWmeInternal(id, attr, value));
+        final InputWmeImpl iw = new InputWmeImpl(this, addInputWmeInternal(id, attr, value));
+        //allInputWmes.add(iw);
+        return iw;
     }
 
     public WmeImpl addInputWmeInternal(Identifier id, Symbol attr, Symbol value)
@@ -222,7 +263,18 @@ public class InputOutputImpl implements InputOutput
     void removeInputWme(InputWme w)
     {
         Arguments.check(w instanceof InputWmeImpl, "Incompatible WME type: " + w + ", " + w.getClass());
-        removeInputWmeInternal(((InputWmeImpl) w).getInner());
+        //allInputWmes.remove(w);
+        wmesToRemove.offer((InputWmeImpl)w);
+    }
+    
+    private void processPendingWmeRemovals()
+    {
+        InputWmeImpl w = wmesToRemove.poll();
+        while(w != null)
+        {
+            removeInputWmeInternal(w.getInner());
+            w = wmesToRemove.poll();
+        }
     }
     
     public void removeInputWmeInternal(WmeImpl w)
@@ -231,7 +283,7 @@ public class InputOutputImpl implements InputOutput
 
         if (!w.isMemberOfList(w.id.getInputWmes()))
         {
-            throw new IllegalArgumentException("w is not currently in working memory");
+            throw new IllegalArgumentException(String.format("%s is not currently in working memory", w));
         }
 
         /* TODO for efficiency, it might be better to use a hash table for the
@@ -323,6 +375,8 @@ public class InputOutputImpl implements InputOutput
             // soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK, (soar_call_data) NORMAL_INPUT_CYCLE);
         }
 
+        processPendingWmeRemovals();
+        
         // do any WM resulting changes
         decider.do_buffered_wm_and_ownership_changes();
 
