@@ -7,6 +7,7 @@ package org.jsoar.kernel.io;
 
 import java.util.Formatter;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Wme;
@@ -21,25 +22,36 @@ import org.jsoar.util.adaptables.AbstractAdaptable;
 class InputWmeImpl extends AbstractAdaptable implements InputWme
 {
     private final InputOutputImpl io;
-    private WmeImpl inner;
+    private final AtomicReference<WmeImpl> inner = new AtomicReference<WmeImpl>();
     
     InputWmeImpl(InputOutputImpl io, WmeImpl inner)
     {
         this.io = io;
-        this.inner = inner;
-        this.inner.setOuterInputWme(this);
+        this.inner.set(inner);
+        this.inner.get().setOuterInputWme(this);
     }
     
+    /**
+     * Returns the inner WME. This should only be called by InputOutputImpl.
+     * 
+     * @return the inner WME.
+     */
     WmeImpl getInner()
     {
-        return inner;
+        return inner.get();
     }
     
+    /**
+     * Sets the inner WME. This should only be called by InputOutputImpl on
+     * the agent thread.
+     * 
+     * @param inner the new inner WME
+     */
     void setInner(WmeImpl inner)
     {
-        this.inner.setOuterInputWme(null);
-        this.inner = inner;
-        this.inner.setOuterInputWme(this);
+        this.inner.get().setOuterInputWme(null);
+        this.inner.set(inner);
+        this.inner.get().setOuterInputWme(this);
     }
     
     /* (non-Javadoc)
@@ -75,7 +87,7 @@ class InputWmeImpl extends AbstractAdaptable implements InputWme
     @Override
     public Symbol getAttribute()
     {
-        return inner.getAttribute();
+        return inner.get().getAttribute();
     }
 
     /* (non-Javadoc)
@@ -84,7 +96,7 @@ class InputWmeImpl extends AbstractAdaptable implements InputWme
     @Override
     public Iterator<Wme> getChildren()
     {
-        return inner.getChildren();
+        return inner.get().getChildren();
     }
 
     /* (non-Javadoc)
@@ -93,7 +105,7 @@ class InputWmeImpl extends AbstractAdaptable implements InputWme
     @Override
     public Identifier getIdentifier()
     {
-        return inner.getIdentifier();
+        return inner.get().getIdentifier();
     }
 
     /* (non-Javadoc)
@@ -102,7 +114,7 @@ class InputWmeImpl extends AbstractAdaptable implements InputWme
     @Override
     public Iterator<Preference> getPreferences()
     {
-        return inner.getPreferences();
+        return inner.get().getPreferences();
     }
 
     /* (non-Javadoc)
@@ -111,7 +123,7 @@ class InputWmeImpl extends AbstractAdaptable implements InputWme
     @Override
     public int getTimetag()
     {
-        return inner.getTimetag();
+        return inner.get().getTimetag();
     }
 
     /* (non-Javadoc)
@@ -120,7 +132,7 @@ class InputWmeImpl extends AbstractAdaptable implements InputWme
     @Override
     public Symbol getValue()
     {
-        return inner.getValue();
+        return inner.get().getValue();
     }
 
     /* (non-Javadoc)
@@ -129,7 +141,7 @@ class InputWmeImpl extends AbstractAdaptable implements InputWme
     @Override
     public boolean isAcceptable()
     {
-        return inner.isAcceptable();
+        return inner.get().isAcceptable();
     }
 
     /* (non-Javadoc)
@@ -139,7 +151,7 @@ class InputWmeImpl extends AbstractAdaptable implements InputWme
     public void formatTo(Formatter formatter, int flags, int width,
             int precision)
     {
-        inner.formatTo(formatter, flags, width, precision);
+        inner.get().formatTo(formatter, flags, width, precision);
     }
 
 }
