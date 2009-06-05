@@ -18,7 +18,8 @@ import java.util.Set;
  * <p>Unlike in Soar, paths are unique, so setting more than one
  * value at a particular path will overwrite the value rather than creating
  * multi-attributes. Multi-attributes are supported through and array-style
- * syntax in the paths:
+ * syntax in the paths (note that the array index may be any string, not
+ * just integers):
  * 
  * <pre>
  * {@code

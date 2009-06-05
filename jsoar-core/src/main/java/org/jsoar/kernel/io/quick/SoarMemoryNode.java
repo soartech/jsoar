@@ -9,8 +9,6 @@ import org.jsoar.kernel.symbols.Symbols;
 
 class SoarMemoryNode
 {
-    // private static Logger logger = Logger.getLogger(SoarMemoryNode.class);
-    
     private InputWme wme;
     private Identifier idValue;
 

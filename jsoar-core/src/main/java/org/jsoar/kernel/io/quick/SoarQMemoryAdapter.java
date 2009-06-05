@@ -49,8 +49,11 @@ import org.jsoar.util.events.SoarEventManager;
  * at any time, more than one agent can share a source, and that more than one
  * adapter can be attached to an agent.
  * 
- * <p>When you're done with an adapter, call {@link #detach()} to remove it, and
- * any WMEs it has created from the agent.
+ * <p>In the event of an init-soar, this object will automatically reconstruct
+ * its last working memory state.
+ * 
+ * <p>When you're done with an adapter, call {@link #detach()} to remove it. Any
+ * WMEs it has created will be removed from the agent during the next input phase.
  * 
  * @author ray
  */
