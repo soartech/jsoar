@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.jsoar.JSoarTest;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
@@ -377,29 +378,6 @@ public class FunctionalTests
         assertEquals(120146, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
 
-    @Test
-    public void testUnboundedVarInNegationBug517() throws Exception
-    {
-        /*
-    	// bad rule crashes soar, see bug 517
-        agent.getProductions().loadProduction("test\n" +
-			"   (state <s> ^superstate nil\n" +
-			"             -^foo { <> <x> })\n" +
-			"-->\n" +
-			"   (<s> ^foo bar)");
-        JSoarTest.verifyProduction(agent, 
-			"test", 
-			ProductionType.USER,
-			"sp {test\n" +
-			"    (state <s> ^superstate nil)\n" +
-			"    (<s> -^foo <f*1>)\n" +
-			"    -->\n" +
-			"    (<s> ^foo bar +)\n" +
-			"}\n", 
-			true);
-        */
-    }
-    
     @Test 
     public void testForBadBug517Fix() throws Exception
     {
@@ -445,5 +423,52 @@ public class FunctionalTests
         runTest("testGDSBug1011", -1);
         assertEquals(8, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
         assertEquals(19, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
+    }
+    
+    @Test(timeout=10000)
+    public void testNegatedConjunctiveTestUnbound() throws Exception
+    {
+    	boolean success;
+    	
+    	// these should all fail in reorder
+    	success = false;
+    	try {
+    		agent.getProductions().loadProduction("test (state <s> ^superstate nil -^foo { <> <bad> }) -->");
+    	} catch (ReordererException e) {
+    		// <bad> is unbound referent in value test
+    		success = true;
+    	}
+    	assertTrue(success);
+    	
+    	success = false;
+    	try {
+    		agent.getProductions().loadProduction("test (state <s> ^superstate nil -^{ <> <bad> } <s>) -->");
+    	} catch (ReordererException e) {
+    		// <bad> is unbound referent in attr test
+    		success = true;
+    	}
+    	assertTrue(success);
+    	
+    	success = false;
+    	try {
+    		agent.getProductions().loadProduction("test (state <s> ^superstate nil -^foo { <> <b> }) -{(<s> ^bar <b>) (<s> -^bar { <> <b>})} -->");
+    	} catch (ReordererException e) {
+    		// <b> is unbound referent in test, defined in ncc out of scope
+    		success = true;
+    	}
+    	assertTrue(success);
+    	
+    	success = false;
+    	try {
+    		agent.getProductions().loadProduction("test  (state <s> ^superstate <d> -^foo { <> <b> }) -{(<s> ^bar <b>) (<s> -^bar { <> <d>})} -->");
+    	} catch (ReordererException e) {
+    		// <d> is unbound referent in value test in ncc
+    		success = true;
+    	}
+    	assertTrue(success);
+    	
+    	// these should succeed
+   		agent.getProductions().loadProduction("test (state <s> ^superstate <d>) -{(<s> ^bar <b>) (<s> -^bar { <> <d>})} -->");
+   		agent.getProductions().loadProduction("test (state <s> ^superstate nil) -{(<s> ^bar <d>) (<s> -^bar { <> <d>})} -->");
     }
 }
