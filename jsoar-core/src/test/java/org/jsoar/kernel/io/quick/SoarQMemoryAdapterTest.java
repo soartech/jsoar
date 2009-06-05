@@ -6,8 +6,7 @@
 package org.jsoar.kernel.io.quick;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +95,10 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         
         agent.runFor(2, RunType.DECISIONS);
         
+        assertEquals(99, adapter.getValue("cycles").asInteger().getValue());
+        assertEquals(3.14159, adapter.getValue("location.x").asDouble().getValue(), 0.0001);
+        assertEquals('L', adapter.getValue("location").asIdentifier().getNameLetter());
+        
         assertEquals("first", match.calls.get(0).get(0).toString());
         
         qmem.setInteger("cycles", 100);
@@ -169,6 +172,13 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         // Verify that all WMEs were removed from input-link
         assertEquals(0, Iterators.size(agent.getInputOutput().getInputLink().getWmes()));
         
+    }
+    
+    @Test
+    public void testGetNameFromPath()
+    {
+        assertEquals("foo", SoarQMemoryAdapter.getNameFromPath("foo[1]"));
+        assertEquals("foo", SoarQMemoryAdapter.getNameFromPath("foo[hello there]"));
     }
 
 }
