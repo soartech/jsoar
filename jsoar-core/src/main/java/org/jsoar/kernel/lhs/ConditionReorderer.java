@@ -118,6 +118,7 @@ public class ConditionReorderer
         fill_in_vars_requiring_bindings(lhs_top.value, tc);
         reorder_condition_list(lhs_top, lhs_bottom, roots, tc, reorder_nccs);
         remove_vars_requiring_bindings(lhs_top.value);
+        check_negative_relational_test_bindings(lhs_top.value, DefaultMarker.create());
     }
 
     /**
@@ -963,4 +964,124 @@ public class ConditionReorderer
         // Do nothing for GoalId, Impasse, or disjunction
     }
 
+    /* -------------------------------------------------------------
+	------------------------------------------------------------- */
+    /**
+     * 
+     * reorder.cpp:1121:check_negative_relational_test_bindings
+	 *
+		check_unbound_negative_relational_test_referents
+		check_negative_relational_test_bindings
+	
+		These two functions are for fixing bug 517. The bug stems
+		from two different code paths being used to check the bound
+		variables after reordering the left hand side; one for 
+		positive conditions and one for negated conditions.
+	
+		Specifically, the old system would let unbound referents of 
+		non-equality relational tests continue past the reordering
+		until the production addition failed as the bad production
+		was added to the rete.
+	
+		These two productions specifically check that all referents
+		of non-equality relational tests are bound and return false
+		if an unbound referent is discovered.
+	
+		There may be a faster way of checking for this inside of
+		the existing calls to fill_in_vars_requiring_bindings and
+		reorder_condition_list, but my last attempt at fixing it
+		there failed.
+	
+		Example bad production:
+		sp {test
+		    (state <s> ^superstate nil -^foo {<> <bar>})
+	    -->
+		}
+     * 
+     * @param cond_list
+     * @param tc
+     */
+    private void check_negative_relational_test_bindings(Condition cond_list, Marker tc) throws ReordererException
+    {
+		ListHead<Variable> bound_vars = ListHead.newInstance(); // this list necessary pop variables bound inside ncc's out of scope on return
+
+    	  /* --- add anything bound in a positive condition at this level --- */
+    	  /* --- recurse in to NCCs --- */
+		for (Condition c = cond_list; c != null; c = c.next)
+		{
+            PositiveCondition pc = c.asPositiveCondition();
+            if (pc != null)
+            {
+            	PositiveCondition.addBoundVariables(c, tc, bound_vars);
+           	}
+            else
+            {
+            	ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
+            	if (ncc != null)
+            	{
+            		check_negative_relational_test_bindings(ncc.top, tc);
+            	}
+            }
+		}
+		
+		/* --- find referents of non-equality tests in conjunctive tests in negated conditions ---*/
+		for (Condition c = cond_list; c != null; c = c.next)
+		{
+			NegativeCondition nc = c.asNegativeCondition();
+			if (nc != null)
+			{
+				check_unbound_negative_relational_test_referents(nc.id_test, tc);
+				check_unbound_negative_relational_test_referents(nc.attr_test, tc);
+				check_unbound_negative_relational_test_referents(nc.value_test, tc);
+			}
+		}
+    	      
+		// unmark anything bound on this level
+		Variable.unmark(bound_vars);
+    }
+    
+    /**
+     * 
+     * reorder.cpp:1080:check_unbound_negative_relational_test_referents
+     * @see org.jsoar.kernel.lhs.ConditionReorderer#check_negative_relational_test_bindings
+     * 
+     * @param t
+     * @param tc
+     */
+    private void check_unbound_negative_relational_test_referents(Test t, Marker tc) throws ReordererException
+    {
+    	// we only care about relational tests other than equality
+        if (Tests.isBlank(t))
+        {
+            return;
+        }
+        EqualityTest eq = t.asEqualityTest();
+        if (eq != null)
+        {
+        	return;
+        }
+        
+        ConjunctiveTest ct = t.asConjunctiveTest();
+        if (ct != null)
+        {
+			// we do need to loop over conjunctive tests, however
+            for (Test subtest : ct.conjunct_list)
+            {
+				check_unbound_negative_relational_test_referents (subtest, tc);
+            }
+        }
+        
+        RelationalTest rt = t.asRelationalTest();
+        if (rt != null)
+        {
+    	    /* --- relational tests other than equality --- */
+        	Variable referent = rt.referent.asVariable();
+        	if (referent != null && referent.tc_number != tc)
+        	{
+    			String message = String.format("Error: production %s has an unbound referent in negated relational test %s", this.prodName, t);
+    			trace.getPrinter().print(message);
+    			throw new ReordererException(message);
+    		}
+        }
+    }
 }
