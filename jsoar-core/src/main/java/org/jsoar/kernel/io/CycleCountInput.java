@@ -59,10 +59,9 @@ public class CycleCountInput
         this.events.removeListener(null, initListener);
         
         // Schedule removal of wme at next input cycle.
-        // TODO: I think this should be handled by InputOutput
         if(wme != null)
         {
-            this.events.addListener(InputEvent.class, new CleanupListener(this.events, wme));
+            this.wme.remove();
             this.wme = null;
         }
     }
@@ -105,34 +104,6 @@ public class CycleCountInput
         {
             wme = null;
             count = START;
-        }
-        
-    }
-    
-    private static class CleanupListener implements SoarEventListener
-    {
-        private final SoarEventManager manager;
-        private final InputWme wme;
-
-        /**
-         * @param wme
-         */
-        public CleanupListener(SoarEventManager manager, InputWme wme)
-        {
-            this.manager = manager;
-            this.wme = wme;
-        }
-
-        /* (non-Javadoc)
-         * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
-         */
-        @Override
-        public void onEvent(SoarEvent event)
-        {
-            wme.remove();
-            
-            this.manager.removeListener(null, this);
-            
         }
         
     }

@@ -6,9 +6,7 @@
 package org.jsoar.kernel.io;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,6 +32,7 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.ByRef;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
@@ -254,4 +253,39 @@ public class InputOutputImplTest extends JSoarTest
         assertEquals(0, io.getPendingCommands().size());
         assertEquals(3, Iterators.size(io.getOutputLink().getWmes()));
     }
+    /*
+    @Test
+    public void testInputIsRestoredAfterInitSoar() throws Exception
+    {
+        final InputOutput io = agent.getInputOutput();
+        final ByRef<InputWme> wme1 = ByRef.create(null);
+        final ByRef<InputWme> wme2 = ByRef.create(null);
+        agent.getEventManager().addListener(InputEvent.class, new SoarEventListener() {
+
+            @Override
+            public void onEvent(SoarEvent event)
+            {
+                if(wme1.value == null)
+                {
+                    io.getSymbols().createIdentifier('S'); // dummy symbol to force use of idMap in restorePreviousInput()
+                    final Identifier id = io.getSymbols().createIdentifier('S');
+                    wme1.value = InputWmes.add(io, "some", id);
+                    wme2.value = InputWmes.add(io, id, "test", 99);
+                }
+            }});
+        agent.runFor(1, RunType.DECISIONS);
+        assertNotNull(wme1.value);
+        assertNotNull(wme2.value);
+        
+        agent.initialize();
+        
+        final Wme inner1 = Wmes.matcher(agent).id(io.getInputLink()).attr("some").find(io.getInputLink().getWmes());
+        assertNotNull(inner1);
+        assertSame(wme1.value, inner1.getAdapter(InputWme.class));
+        
+        final Wme inner2 = Wmes.matcher(agent).id(inner1.getValue().asIdentifier()).attr("test").value(99).find(inner1.getChildren());
+        assertNotNull(inner2);
+        assertSame(wme2.value, inner2.getAdapter(InputWme.class));
+    }
+    */
 }

@@ -53,8 +53,9 @@ public interface InputWme extends Wme
     void update(Symbol newValue);
     
     /**
-     * Remove this input WME. This should only be called during the input
-     * phase, i.e. from within an {@link InputEvent} callback.
+     * Remove this input WME. This method may be called at any time, from any
+     * thread, although the underlying WME will not be removed from the agents
+     * working memory until the next input phase.
      * 
      * <p>io.cpp:243:remove_input_wme
      */
