@@ -11,7 +11,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.logging.Log;
@@ -101,6 +103,7 @@ public class SoarBeanReader
     private static final Log logger = LogFactory.getLog(SoarBeanReader.class);
     
     private final BeanUtilsBean util = new BeanUtilsBean();
+    private final Map<Identifier, Object> beanMap = new HashMap<Identifier, Object>();
     
     /**
      * Read the working memory structure under the given identifier into
@@ -116,7 +119,27 @@ public class SoarBeanReader
     {
         try
         {
+            return readInternal(id, klass);
+        }
+        finally
+        {
+            beanMap.clear();
+        }
+    }
+    
+    private <T> T readInternal(Identifier id, Class<T> klass) throws SoarBeanException
+    {
+        // First check whether we've seen this id before...
+        final Object cached = beanMap.get(id);
+        if(cached != null)
+        {
+            return klass.cast(cached);
+        }
+        
+        try
+        {
             final T bean = klass.newInstance();
+            beanMap.put(id, bean); // remember id to avoid cycles
             for(final Iterator<Wme> it = id.getWmes(); it.hasNext();)
             {
                 final Wme wme = it.next();
@@ -287,7 +310,7 @@ public class SoarBeanReader
             final Identifier id = (Identifier) value;
             if(!targetType.isArray())
             {
-                return read(id, targetType);
+                return readInternal(id, targetType);
             }
             else
             {

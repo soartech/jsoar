@@ -7,9 +7,6 @@ package org.jsoar.kernel.io.beans;
 
 import static org.junit.Assert.*;
 
-import java.awt.Point;
-import java.lang.reflect.InvocationTargetException;
-
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
@@ -156,10 +153,13 @@ public class SoarBeanReaderTest
 
     public static class TestReadBeanWithSubObjects
     {
-        private TestReadBeanWithNoSubObjects subObject;
+        private TestReadBeanWithNoSubObjects subObject1;
+        private TestReadBeanWithNoSubObjects subObject2;
 
-        public TestReadBeanWithNoSubObjects getSubObject() { return subObject; }
-        public void setSubObject(TestReadBeanWithNoSubObjects subObject) { this.subObject = subObject; }
+        public TestReadBeanWithNoSubObjects getSubObject1() { return subObject1; }
+        public void setSubObject1(TestReadBeanWithNoSubObjects subObject) { this.subObject1 = subObject; }
+        public TestReadBeanWithNoSubObjects getSubObject2() { return subObject2; }
+        public void setSubObject2(TestReadBeanWithNoSubObjects subObject) { this.subObject2 = subObject; }
     }
     
     @Test
@@ -171,18 +171,22 @@ public class SoarBeanReaderTest
                 "(state <s> ^superstate nil ^io.output-link <ol>)\n" +
                 "-->\n" +
                 "(<ol> ^test <t>)\n" +
-                "(<t> ^subObject <sub>)\n" +
+                "(<t> ^subObject1 <sub>)\n" +
+                "(<t> ^subObject2 <sub>)\n" +
                 "(<sub> ^integerProp 99 ^doubleProp 3.14 ^stringProp |A String| ^arg |arg0| ^arg |arg1|)\n" +
                 "");
         
         final TestReadBeanWithSubObjects bean = runTest(TestReadBeanWithSubObjects.class);
         assertNotNull(bean);
-        assertNotNull(bean.subObject);
+        assertNotNull(bean.subObject1);
+        assertNotNull(bean.subObject2);
         
-        final TestReadBeanWithNoSubObjects sub = bean.subObject;
+        final TestReadBeanWithNoSubObjects sub = bean.subObject1;
         assertEquals(99, sub.privateIntegerProp);
         assertEquals(3.14, sub.doubleProp, 0.0001);
         assertEquals("A String", sub.stringProp);
+        
+        assertSame(bean.subObject1, bean.subObject2);
     }
     
     public static class TestReadBeanWithArrayField
