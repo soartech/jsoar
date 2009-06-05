@@ -380,6 +380,7 @@ public class FunctionalTests
     @Test
     public void testUnboundedVarInNegationBug517() throws Exception
     {
+        /*
     	// bad rule crashes soar, see bug 517
         agent.getProductions().loadProduction("test\n" +
 			"   (state <s> ^superstate nil\n" +
@@ -396,6 +397,26 @@ public class FunctionalTests
 			"    (<s> ^foo bar +)\n" +
 			"}\n", 
 			true);
+        */
+    }
+    
+    @Test 
+    public void testForBadBug517Fix() throws Exception
+    {
+        // Original fix for bug 517 (ca. r299) caused a bug in the following production.
+        // This tests against the regression.
+        agent.getProductions().loadProduction("test (state <s> ^a <val> -^a {<val> < 1}) -->");
+        JSoarTest.verifyProduction(agent, 
+            "test", 
+            ProductionType.USER,
+            "sp {test\n"+
+            "    (state <s> ^a <val>)\n" +
+            "    (<s> -^a { <val> < 1 })\n"+
+            "    -->\n"+
+            "    \n"+
+            "}\n", 
+            true);
+        
     }
     
     @Test(timeout=10000)

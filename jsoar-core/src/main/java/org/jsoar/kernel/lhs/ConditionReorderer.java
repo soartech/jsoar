@@ -159,12 +159,13 @@ public class ConditionReorderer
         ListHead<Variable> new_vars = ListHead.newInstance();
         for (Condition cond = conds_list; cond != null; cond = cond.next)
         {
+            /*
         	if (cond.asConjunctiveNegationCondition() != null)
         	{
         		// only skip conjunctive negation conditions, bug 517
         		continue;
         	}
-        	
+        	*/
             if (cond.asPositiveCondition() != null) 
             {
                 PositiveCondition pc = cond.asPositiveCondition();
@@ -187,6 +188,7 @@ public class ConditionReorderer
 
                 pc.value_test.addBoundVariables(tc, new_vars);
             }
+            /*
             else if (cond.asNegativeCondition() != null) 
             {
                 NegativeCondition nc = cond.asNegativeCondition();
@@ -209,6 +211,7 @@ public class ConditionReorderer
 
                 nc.value_test.addBoundVariables(tc, new_vars);
             }
+            */
         }
         if (tests_to_restore != null)
         {
@@ -731,11 +734,13 @@ public class ConditionReorderer
         SavedTest sts = null;
         for (Condition c = conds_list; c != null; c = c.next)
         {
+            /*
         	if (c.asConjunctiveNegationCondition() != null)
         	{
         		// only skip conjunctive negation conditions, bug 517
         		continue;
         	}
+        	*/
             if (c.asPositiveCondition() != null)
             {
                 PositiveCondition pc = c.asPositiveCondition();
@@ -752,6 +757,7 @@ public class ConditionReorderer
                 sts = simplify_test(value_test, sts);
                 pc.value_test = value_test.value;
             }
+            /*
             else if (c.asNegativeCondition() != null)
             {
                 NegativeCondition nc = c.asNegativeCondition();
@@ -768,6 +774,7 @@ public class ConditionReorderer
                 sts = simplify_test(value_test, sts);
                 nc.value_test = value_test.value;
             }
+            */
         }
         return sts;
     }
