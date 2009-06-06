@@ -1,5 +1,5 @@
 <project name="jsoar" default="dist" basedir=".">
-   <property name="version" value="0.6.0" />
+   <!-- Use -Dversion=X.X.X to override the JSoar version number -->
    <property name="soarVersion" value="9.0.1" />
    <property name="copyright" value="(c) Dave Ray, 2009"/>
    <property name="manifest.vendor" value="Dave Ray"/>
@@ -10,6 +10,8 @@
 
    <target name="init" description="Create temporary build directories">
       <tstamp />
+      <!-- version defaults to snapshot-XXXXX. Use -Dversion=X.X.X on command-line to override -->
+      <property name="version" value="snapshot-${DSTAMP}" />
       <mkdir dir="${dist}" />
       <mkdir dir="${dist.lib}" />
 
