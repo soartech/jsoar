@@ -8,6 +8,7 @@ package org.jsoar.demos.robot;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoar.debugger.JSoarDebugger;
+import org.jsoar.debugger.JSoarDebuggerConfiguration;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.io.CycleCountInput;
 import org.jsoar.kernel.io.quick.DefaultQMemory;
@@ -34,21 +35,19 @@ public class RobotAgent
     {
         logger.info("Creating robot agent " + this);
         this.agent = ThreadedAgent.create();
-        this.agent.setDebuggerProvider(JSoarDebugger.newDebuggerProvider());
+        this.agent.setDebuggerProvider(JSoarDebugger.newDebuggerProvider(new JSoarDebuggerConfiguration() {
+
+            @Override
+            public void exit()
+            {
+                // nothing
+            }}));
+        
         SoarQMemoryAdapter.attach(this.agent.getAgent(), memory);
         new CycleCountInput(this.agent.getInputOutput(), 
                             this.agent.getEvents());
         
-        try
-        {
-            this.agent.openDebugger();
-        }
-        catch (SoarException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
+        //debug();
     }
 
     private String getWaypointKey(Waypoint w)
@@ -74,6 +73,18 @@ public class RobotAgent
         this.agent.stop();
     }
     
+    public void debug()
+    {
+        try
+        {
+            this.agent.openDebugger();
+        }
+        catch (SoarException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
     /**
      * 
      */
@@ -82,6 +93,7 @@ public class RobotAgent
         logger.info("Disposing robot agent " + this);
         this.agent.detach();
     }
+    
     
     public void update()
     {
