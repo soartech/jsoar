@@ -13,14 +13,19 @@ import org.jsoar.util.properties.PropertyKey;
 /**
  * Declaration of per-agent Soar configuration properties.
  * 
- * <p><b>Not used yet</b>
- * 
  * @author ray
  */
 public class SoarProperties
 {
     // TODO Reinforcement Learning
     // TODO Exploration
+    
+    /**
+     * Property which stores the name of an agent.
+     * 
+     * @see Agent#getName()
+     */
+    public static final PropertyKey<String> NAME = PropertyKey.builder("name", String.class).build();
     
     /**
      * agent.h:740:waitsnc

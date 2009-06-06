@@ -52,6 +52,7 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
@@ -64,6 +65,8 @@ import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
+import org.jsoar.util.properties.PropertyListener;
+import org.jsoar.util.properties.PropertyListenerHandle;
 
 /**
  * @author ray
@@ -93,6 +96,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private PropertyChangeListener dockTrackerListener = null;
     private final List<SoarEventListener> soarEventListeners = new ArrayList<SoarEventListener>();
+    private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<PropertyListenerHandle<?>>();
+    
     
     /**
      * Construct a new debugger. Add to a JFrame and call initialize().
@@ -114,6 +119,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         logger.info("Initializing debugger for agent '" + proxy + "'");
         
         this.frame = parentFrame;
+        this.frame.setTitle("JSoar Debugger - " + proxy.getName());
+
         this.proxy = proxy;
         this.ifc = SoarTclInterface.findOrCreate(proxy.getAgent());
         
@@ -143,6 +150,16 @@ public class JSoarDebugger extends JPanel implements Adaptable
                     selectionManager.setSelectionProvider(provider);
                 }
             }});
+        
+        // Track the agent name in the title bar
+        saveListener(proxy.getProperties().addListener(SoarProperties.NAME, new PropertyListener<String>() {
+
+            @Override
+            public void propertyChanged(
+                    org.jsoar.util.properties.PropertyChangeEvent<String> event)
+            {
+                frame.setTitle("JSoar Debugger - " + event.getNewValue());
+            }}));
         
         // Update after init-soar
         proxy.getEvents().addListener(AfterInitSoarEvent.class, saveListener(new SoarEventListener() {
@@ -177,6 +194,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
     }
 
+    private <T> void saveListener(PropertyListenerHandle<T> listener)
+    {
+        propertyListeners.add(listener);
+    }
+    
     private SoarEventListener saveListener(SoarEventListener listener)
     {
         soarEventListeners.add(listener);
@@ -388,7 +410,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
         final JSoarDebugger debugger = new JSoarDebugger();
         
-        final JFrame frame = new JFrame("JSoar Debugger - " + proxy.getName());
+        final JFrame frame = new JFrame();
         
         frame.setContentPane(debugger);
         frame.setSize(1200, 1024);
@@ -413,6 +435,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
         // clean up dock property listener
         ActiveDockableTracker.getTracker(frame).removePropertyChangeListener(dockTrackerListener);
         dockTrackerListener = null;
+        
+        // clean up soar prop listeners
+        for(PropertyListenerHandle<?> listener : propertyListeners)
+        {
+            listener.removeListener();
+        }
         
         // clean up soar event listener
         for(SoarEventListener listener : soarEventListeners)

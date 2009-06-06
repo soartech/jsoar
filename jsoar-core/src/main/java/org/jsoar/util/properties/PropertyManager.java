@@ -39,12 +39,15 @@ public class PropertyManager
      * @param <T> The value type of the property
      * @param key The property key
      * @param listener The listener
+     * @return a handle that can be used to easily remove or re-add the listener later
      * @see PropertyKey
      * @see PropertyListener
+     * @see PropertyListenerHandle
      */
-    public <T> void addListener(PropertyKey<T> key, PropertyListener<T> listener)
+    public <T> PropertyListenerHandle<T> addListener(PropertyKey<T> key, PropertyListener<T> listener)
     {
         getListenersForKey(key).add(listener);
+        return new PropertyListenerHandle<T>(this, key, listener);
     }
     
     /**
