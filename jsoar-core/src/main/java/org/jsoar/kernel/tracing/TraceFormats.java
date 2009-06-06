@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DecisionCycle;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -77,6 +78,7 @@ import org.jsoar.util.markers.Marker;
 public class TraceFormats
 {
     private final Agent context;
+    private PredefinedSymbols predefinedSyms;
     private DecisionCycle decisionCycle;
     
     private String format;
@@ -142,6 +144,7 @@ public class TraceFormats
     
     public void initalize()
     {
+        this.predefinedSyms = Adaptables.adapt(this.context, PredefinedSymbols.class);
         this.decisionCycle = Adaptables.adapt(this.context, DecisionCycle.class);
     }
 
@@ -234,7 +237,7 @@ public class TraceFormats
                     format_string_error_message = "null attribute found in attribute path";
                     return null;
                 }
-                path.add(context.syms.createString(name));
+                path.add(context.getSymbols().createString(name));
                 if (format.charAt(offset) == ']')
                     break;
                 offset++; /* skip past '.' */
@@ -1035,7 +1038,7 @@ public class TraceFormats
         else
             type_of_object = TraceFormatRestriction.FOR_ANYTHING_TF;
 
-        SymbolImpl name = find_name_of_object(object, context.predefinedSyms.name_symbol);
+        SymbolImpl name = find_name_of_object(object, predefinedSyms.name_symbol);
 
         // find the trace format to use
         TraceFormat tf = find_appropriate_trace_format(false, type_of_object, name);

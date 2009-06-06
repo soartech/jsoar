@@ -11,6 +11,7 @@ import static org.junit.Assert.assertSame;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.Phase;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.adaptables.Adaptables;
@@ -40,7 +41,8 @@ public class ContextVariableInfoTest
         }
         
         final Decider decider = Adaptables.adapt(agent, Decider.class);
-        ContextVariableInfo info = ContextVariableInfo.get(agent.predefinedSyms, decider.top_goal, decider.bottom_goal, "<o>");
+        final PredefinedSymbols predefinedSyms = Adaptables.adapt(agent, PredefinedSymbols.class);
+        ContextVariableInfo info = ContextVariableInfo.get(predefinedSyms, decider.top_goal, decider.bottom_goal, "<o>");
         final Identifier o1 = agent.getSymbols().findIdentifier('O', 1);
         assertNotNull(o1);
         assertSame(o1, info.getValue());

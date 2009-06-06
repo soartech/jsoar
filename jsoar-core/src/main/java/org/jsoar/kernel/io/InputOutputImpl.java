@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.events.OutputEvent;
@@ -27,6 +28,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
@@ -158,7 +160,7 @@ public class InputOutputImpl implements InputOutput
     @Override
     public SymbolFactory getSymbols()
     {
-        return context.syms;
+        return context.getSymbols();
     }
 
     /**
@@ -166,20 +168,24 @@ public class InputOutputImpl implements InputOutput
      */
     public void init_agent_memory()
     {
+        final PredefinedSymbols predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
+        final SymbolFactoryImpl syms = predefinedSyms.getSyms();
+        
         // Creating the input and output header symbols and wmes
-        this.io_header = context.syms.createIdentifier('I');
-        this.io_header_input = context.syms.createIdentifier ('I');
-        this.io_header_output = context.syms.createIdentifier ('I');
+        this.io_header = syms.createIdentifier('I');
+        this.io_header_input = syms.createIdentifier ('I');
+        this.io_header_output = syms.createIdentifier ('I');
 
         /* The following code was taken from the do_input_cycle function of io.cpp */
         // Creating the io_header and adding the top state io header wme
-        this.io_header_link = addInputWmeInternal(decider.top_state, context.predefinedSyms.io_symbol, this.io_header);
+
+        this.io_header_link = addInputWmeInternal(decider.top_state, predefinedSyms.io_symbol, this.io_header);
         
         // RPM 9/06 changed to use this.input/output_link_symbol
         // Note we don't have to save these wmes for later release since their parent
         //  is already being saved (above), and when we release it they will automatically be released
-        addInputWmeInternal(this.io_header, context.predefinedSyms.input_link_symbol, this.io_header_input);
-        outputLinkWme = addInputWmeInternal(this.io_header, context.predefinedSyms.output_link_symbol, this.io_header_output);
+        addInputWmeInternal(this.io_header, predefinedSyms.input_link_symbol, this.io_header_input);
+        outputLinkWme = addInputWmeInternal(this.io_header, predefinedSyms.output_link_symbol, this.io_header_output);
         
         //restorePreviousInput();
     }

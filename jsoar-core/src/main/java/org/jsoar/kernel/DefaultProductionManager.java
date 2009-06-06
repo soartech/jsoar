@@ -28,6 +28,7 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.StringSymbol;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
@@ -38,7 +39,7 @@ import org.jsoar.util.adaptables.Adaptables;
 public class DefaultProductionManager implements ProductionManager
 {
     private final Agent context;
-    private final VariableGenerator variableGenerator;
+    private VariableGenerator variableGenerator;
     private Rete rete;
     private ReinforcementLearning rl;
     
@@ -65,11 +66,11 @@ public class DefaultProductionManager implements ProductionManager
     DefaultProductionManager(Agent context)
     {
         this.context = context;
-        this.variableGenerator = new VariableGenerator(this.context.syms);
     }
     
     void initialize()
     {
+        this.variableGenerator = new VariableGenerator(Adaptables.adapt(this.context, SymbolFactoryImpl.class));
         this.rete = Adaptables.adapt(context, Rete.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
     }

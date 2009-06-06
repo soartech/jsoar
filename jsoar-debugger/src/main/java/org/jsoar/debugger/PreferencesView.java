@@ -26,6 +26,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand;
 import org.jsoar.kernel.commands.StructuredPreferencesCommand.Result;
 import org.jsoar.kernel.memory.PreferenceType;
@@ -188,8 +189,9 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     
     private Result safeGetPreferences(final Identifier id)
     {
+        final PredefinedSymbols predefinedSyms = Adaptables.adapt(agent.getAgent(), PredefinedSymbols.class);
         final StructuredPreferencesCommand c = new StructuredPreferencesCommand();
         // Do (id ^operator *)
-        return c.getPreferences(agent.getAgent(), id, agent.getAgent().predefinedSyms.operator_symbol);
+        return c.getPreferences(agent.getAgent(), id, predefinedSyms.operator_symbol);
     }
 }
