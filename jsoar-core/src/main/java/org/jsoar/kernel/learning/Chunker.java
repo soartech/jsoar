@@ -14,6 +14,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.ImpasseType;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarProperties;
@@ -45,6 +46,7 @@ import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
@@ -69,6 +71,7 @@ public class Chunker
     public final VariableGenerator variableGenerator;
     private Decider decider;
     private Backtracer backtrace;
+    private PredefinedSymbols predefinedSyms;
     Explain explain;
     private DecisionCycle decisionCycle;
     private Rete rete;
@@ -173,16 +176,21 @@ public class Chunker
     public Chunker(Agent context)
     {
         this.context = context;
-        this.variableGenerator = new VariableGenerator(this.context.syms);
+        this.variableGenerator = new VariableGenerator((SymbolFactoryImpl) this.context.getSymbols());
         
         this.context.getProperties().setProvider(SoarProperties.LEARNING_ON, learningOn);
     }
     
     public void initialize()
     {
+        this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
+
         this.decider = Adaptables.adapt(context, Decider.class);
         this.explain = Adaptables.adapt(context, Explain.class);
-        this.backtrace = new Backtracer(context, this);
+        
+        this.backtrace = new Backtracer(context);
+        this.backtrace.initialize();
+        
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
         this.rete = Adaptables.adapt(context, Rete.class);
         this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
@@ -916,7 +924,7 @@ public class Chunker
                 break;
             case NO_CHANGE:
             {
-                SymbolImpl sym = find_impasse_wme_value(goal.lower_goal, context.predefinedSyms.attribute_symbol);
+                SymbolImpl sym = find_impasse_wme_value(goal.lower_goal, predefinedSyms.attribute_symbol);
 
                 if (sym == null)
                 {
@@ -931,11 +939,11 @@ public class Chunker
                     // #endif
                     impass_name = "unknownimpasse";
                 }
-                else if (sym == context.predefinedSyms.operator_symbol)
+                else if (sym == predefinedSyms.operator_symbol)
                 {
                     impass_name = "opnochange";
                 }
-                else if (sym == context.predefinedSyms.state_symbol)
+                else if (sym == predefinedSyms.state_symbol)
                 {
                     impass_name = "snochange";
                 }

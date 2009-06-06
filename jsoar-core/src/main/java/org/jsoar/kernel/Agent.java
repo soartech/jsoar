@@ -82,8 +82,8 @@ public class Agent extends AbstractAdaptable
     private final Trace trace = new Trace(printer);
     private final TraceFormats traceFormats = new TraceFormats(this);
     
-    public final SymbolFactoryImpl syms = new SymbolFactoryImpl();
-    public final PredefinedSymbols predefinedSyms = new PredefinedSymbols(syms);
+    private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+    private final PredefinedSymbols predefinedSyms = new PredefinedSymbols(syms);
     private final MultiAttributes multiAttrs = new MultiAttributes();
     private final Rete rete = new Rete(trace, syms);
     private final WorkingMemory workingMemory = new WorkingMemory();

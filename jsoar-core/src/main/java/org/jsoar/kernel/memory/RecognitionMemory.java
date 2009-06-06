@@ -14,6 +14,7 @@ import org.jsoar.kernel.Consistency;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.Phase;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
@@ -43,6 +44,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
@@ -75,6 +77,7 @@ import org.jsoar.util.timing.ExecutionTimers;
 public class RecognitionMemory
 {
     private final Agent context;
+    private PredefinedSymbols predefinedSyms;
     private Decider decider;
     private Chunker chunker;
     private DecisionCycle decisionCycle;
@@ -146,6 +149,7 @@ public class RecognitionMemory
     
     public void initialize()
     {
+        this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
         this.decider = Adaptables.adapt(context, Decider.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
@@ -305,9 +309,10 @@ public class RecognitionMemory
             }
             SymbolImpl sym = this.rete.getRhsVariableBinding(index);
 
+            final SymbolFactoryImpl syms = predefinedSyms.getSyms();
             if (sym == null)
             {
-                sym = context.syms.make_new_identifier(new_id_letter, new_id_level);
+                sym = syms.make_new_identifier(new_id_letter, new_id_level);
                 this.rete.setRhsVariableBinding(index, sym);
                 return sym;
             }
@@ -315,7 +320,7 @@ public class RecognitionMemory
             {
                 Variable v = sym.asVariable();
                 new_id_letter = v.getFirstLetter();
-                sym = context.syms.make_new_identifier(new_id_letter, new_id_level);
+                sym = syms.make_new_identifier(new_id_letter, new_id_level);
                 this.rete.setRhsVariableBinding(index, sym);
                 return sym;
             }
@@ -436,7 +441,7 @@ public class RecognitionMemory
 
         /* --- RBD 4/17/95 added stuff to handle attribute_preferences_mode --- */
         if (((a.preference_type != PreferenceType.ACCEPTABLE) && (a.preference_type != PreferenceType.REJECT))
-                && (!(id.isa_goal && (attr == context.predefinedSyms.operator_symbol))))
+                && (!(id.isa_goal && (attr == predefinedSyms.operator_symbol))))
         {
             context.getPrinter().error("attribute preference" +
             		" other than +/- for %s ^%s -- ignoring it.", id, attr);
@@ -1125,7 +1130,7 @@ public class RecognitionMemory
         // #endif
 
         // JC: This will retrieve the slot for pref->id if it already exists
-        Slot s = Slot.make_slot(pref.id, pref.attr, context.predefinedSyms.operator_symbol);
+        Slot s = Slot.make_slot(pref.id, pref.attr, predefinedSyms.operator_symbol);
         s.addPreference(pref);
 
         // other miscellaneous stuff

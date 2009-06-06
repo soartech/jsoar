@@ -90,6 +90,7 @@ public class Decider
     
     // These fields are all filled in initialize() through the agent with the
     // adaptable framework. See Agent.adaptables for more info
+    private PredefinedSymbols predefinedSyms;
     private DecisionManipulation decisionManip;
     private Exploration exploration;
     private Chunker chunker;
@@ -194,6 +195,7 @@ public class Decider
     {
         context.getProperties().setProvider(SoarProperties.WAITSNC, waitsnc);
         
+        this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
         this.exploration = Adaptables.adapt(context, Exploration.class);
         this.decisionManip = Adaptables.adapt(context, DecisionManipulation.class);
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
@@ -1402,9 +1404,9 @@ public class Decider
     private IdentifierImpl create_new_impasse(boolean isa_goal, SymbolImpl object, SymbolImpl attr, ImpasseType impasse_type,
             int level)
     {
-        final PredefinedSymbols predefined = context.predefinedSyms; // reduce typing
+        final PredefinedSymbols predefined = predefinedSyms; // reduce typing
         
-        IdentifierImpl id = context.syms.make_new_identifier(isa_goal ? 'S' : 'I', level);
+        IdentifierImpl id = predefined.getSyms().make_new_identifier(isa_goal ? 'S' : 'I', level);
         post_link_addition(null, id); // add the special link
 
         add_impasse_wme(id, predefined.type_symbol, 
@@ -1414,7 +1416,7 @@ public class Decider
         {
             add_impasse_wme(id, predefined.superstate_symbol, object, null);
 
-            id.reward_header = context.syms.make_new_identifier('R', level);
+            id.reward_header = predefined.getSyms().make_new_identifier('R', level);
             io.addInputWmeInternal(id, predefined.reward_link_symbol, id.reward_header);
         }
         else
@@ -1530,7 +1532,7 @@ public class Decider
         }
         // make the fake preference
         Preference pref = new Preference(PreferenceType.ACCEPTABLE, goal,
-                context.predefinedSyms.item_symbol, cand.value, null);
+                predefinedSyms.item_symbol, cand.value, null);
         pref.all_of_goal.insertAtHead(goal.preferences_from_goal);
         pref.on_goal_list = true;
         pref.preference_add_ref();
@@ -1599,8 +1601,6 @@ public class Decider
      */
     private void update_impasse_items(IdentifierImpl id, Preference items)
     {
-        final PredefinedSymbols predefined = context.predefinedSyms;
-        
         /*
         Count up the number of candidates
         REW: 2003-01-06
@@ -1613,7 +1613,7 @@ public class Decider
 
         // reset flags on existing items to "NOTHING"
         for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
-            if (w.attr == predefined.item_symbol)
+            if (w.attr == predefinedSyms.item_symbol)
                 w.value.decider_flag = DeciderFlag.NOTHING;
 
         // mark set of desired items as "CANDIDATEs"
@@ -1626,7 +1626,7 @@ public class Decider
         while (w != null)
         {
             final WmeImpl next_w = w.next;
-            if (w.attr == predefined.item_symbol)
+            if (w.attr == predefinedSyms.item_symbol)
             {
                 if (w.value.decider_flag == DeciderFlag.CANDIDATE)
                 {
@@ -1644,7 +1644,7 @@ public class Decider
 
             // SBW 5/07
             // remove item-count WME if it exists
-            else if (w.attr == predefined.item_count_symbol)
+            else if (w.attr == predefinedSyms.item_count_symbol)
             {
                 id.removeImpasseWme(w);
                 this.workingMemory.remove_wme_from_wm(w);
@@ -1669,7 +1669,7 @@ public class Decider
             }
             else
             {
-                add_impasse_wme(id, predefined.item_symbol, cand.value, bt_pref);
+                add_impasse_wme(id, predefinedSyms.item_symbol, cand.value, bt_pref);
             }
         }
 
@@ -1678,7 +1678,7 @@ public class Decider
         // detect relevant impasses by having more than one item
         if (item_count > 0)
         {
-            add_impasse_wme(id, predefined.item_count_symbol, context.syms.createInteger(item_count), null);
+            add_impasse_wme(id, predefinedSyms.item_count_symbol, predefinedSyms.getSyms().createInteger(item_count), null);
         }
     }
 
@@ -2162,7 +2162,7 @@ public class Decider
             id.higher_goal = bottom_goal;
             bottom_goal.lower_goal = id;
             bottom_goal = id;
-            add_impasse_wme(id, context.predefinedSyms.quiescence_symbol, context.predefinedSyms.t_symbol, null);
+            add_impasse_wme(id, predefinedSyms.quiescence_symbol, predefinedSyms.t_symbol, null);
             if ((ImpasseType.NO_CHANGE == impasse_type) && (MAX_GOAL_DEPTH < bottom_goal.level))
             {
                 // appear to be SNC'ing deep in goalstack, so interrupt and warn user
@@ -2182,7 +2182,7 @@ public class Decider
         else
         {
             // Creating the top state
-            id = create_new_impasse(true, context.predefinedSyms.nil_symbol, null, ImpasseType.NONE,
+            id = create_new_impasse(true, predefinedSyms.nil_symbol, null, ImpasseType.NONE,
                     SoarConstants.TOP_GOAL_LEVEL);
             top_goal = id;
             bottom_goal = id;
@@ -2192,8 +2192,8 @@ public class Decider
         }
 
         id.isa_goal = true;
-        id.operator_slot = Slot.make_slot(id, context.predefinedSyms.operator_symbol,
-                context.predefinedSyms.operator_symbol);
+        id.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol,
+                predefinedSyms.operator_symbol);
         id.allow_bottom_up_chunks = true;
 
         id.rl_info = new ReinforcementLearningInfo();
@@ -2218,20 +2218,19 @@ public class Decider
         if (goal.lower_goal == null)
             return ImpasseType.NONE;
 
-        final PredefinedSymbols predefined = context.predefinedSyms;
         for (WmeImpl w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
         {
-            if (w.attr == predefined.impasse_symbol)
+            if (w.attr == predefinedSyms.impasse_symbol)
             {
-                if (w.value == predefined.no_change_symbol)
+                if (w.value == predefinedSyms.no_change_symbol)
                     return ImpasseType.NO_CHANGE;
-                if (w.value == predefined.tie_symbol)
+                if (w.value == predefinedSyms.tie_symbol)
                     return ImpasseType.TIE;
-                if (w.value == predefined.constraint_failure_symbol)
+                if (w.value == predefinedSyms.constraint_failure_symbol)
                     return ImpasseType.CONSTRAINT_FAILURE;
-                if (w.value == predefined.conflict_symbol)
+                if (w.value == predefinedSyms.conflict_symbol)
                     return ImpasseType.CONFLICT;
-                if (w.value == predefined.none_symbol)
+                if (w.value == predefinedSyms.none_symbol)
                     return ImpasseType.NONE;
 
                 throw new IllegalStateException("Internal error: bad type of existing impasse.");
@@ -2253,7 +2252,7 @@ public class Decider
             return null;
         
         for (WmeImpl w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
-            if (w.attr == context.predefinedSyms.attribute_symbol)
+            if (w.attr == predefinedSyms.attribute_symbol)
                 return w.value;
 
         throw new IllegalStateException("Internal error: couldn't find attribute of existing impasse.");
@@ -2363,7 +2362,7 @@ public class Decider
             }
             else
             {
-                attribute_of_impasse = context.predefinedSyms.state_symbol;
+                attribute_of_impasse = predefinedSyms.state_symbol;
             }
         }
         else
@@ -2373,7 +2372,7 @@ public class Decider
         }
 
         // remove wme's for lower slots of this context
-        if (attribute_of_impasse == context.predefinedSyms.state_symbol)
+        if (attribute_of_impasse == predefinedSyms.state_symbol)
         {
             remove_wmes_for_context_slot(goal.operator_slot);
         }
@@ -2437,7 +2436,7 @@ public class Decider
         }
         
         if (this.waitsnc.value.get() && (impasse_type == ImpasseType.NO_CHANGE)
-                && (attribute_of_impasse == context.predefinedSyms.state_symbol))
+                && (attribute_of_impasse == predefinedSyms.state_symbol))
         {
             // Note: In csoar, waitsnc_detect was set to true here, but it was 
             // never used in any actual code, so I (DR) removed it.

@@ -16,6 +16,7 @@ import org.jsoar.kernel.AssertListType;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.MatchSet;
 import org.jsoar.kernel.MatchSetEntry;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
@@ -52,6 +53,7 @@ public class SoarReteListener implements ReteListener
 {
     private final Agent context;
     private final Rete rete;
+    private PredefinedSymbols predefinedSyms;
     private Decider decider;
     private RecognitionMemory recMemory;
     
@@ -98,6 +100,7 @@ public class SoarReteListener implements ReteListener
     
     public void initialize()
     {
+        this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
         this.decider = Adaptables.adapt(context, Decider.class);
         this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
     }
@@ -277,7 +280,7 @@ public class SoarReteListener implements ReteListener
                 MakeAction ma = act.asMakeAction();
                 if (ma != null && (ma.attr.asSymbolValue() != null))
                 {
-                    if (context.predefinedSyms.operator_symbol == ma.attr.asSymbolValue().getSym()
+                    if (predefinedSyms.operator_symbol == ma.attr.asSymbolValue().getSym()
                             && act.preference_type == PreferenceType.ACCEPTABLE)
                     {
                         operator_proposal = true;
@@ -363,7 +366,7 @@ public class SoarReteListener implements ReteListener
                             }
                             else
                             {
-                                if ((temp_tok.w.attr == context.predefinedSyms.operator_symbol) && (temp_tok.w.acceptable == false)
+                                if ((temp_tok.w.attr == predefinedSyms.operator_symbol) && (temp_tok.w.acceptable == false)
                                         && (temp_tok.w.id == lowest_goal_wme.id))
                                 {
                                     // former o_support_calculation_type (3 or 4)  test site

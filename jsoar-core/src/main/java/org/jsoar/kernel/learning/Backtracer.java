@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Instantiation;
@@ -18,6 +19,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
@@ -65,7 +67,8 @@ import org.jsoar.util.markers.Marker;
 public class Backtracer
 {
     private final Agent context;
-    private final Chunker chunker;
+    private Chunker chunker;
+    private PredefinedSymbols predefinedSyms;
 
     /**
      * <p>agent.h:514:backtrace_number
@@ -103,12 +106,16 @@ public class Backtracer
     /**
      * @param context
      */
-    public Backtracer(Agent context, Chunker chunker)
+    public Backtracer(Agent context)
     {
         this.context = context;
-        this.chunker = chunker;
     }
 
+    public void initialize()
+    {
+        this.chunker = Adaptables.adapt(context, Chunker.class);
+        this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
+    }
     /**
      * 
      * <p>backtrace.cpp:106:add_to_grounds
@@ -471,8 +478,8 @@ public class Backtracer
             // "^quiescence t" test or discard it
             if (cond.id_test.asEqualityTest().getReferent().asIdentifier().isa_goal)
             {
-                if ((cond.attr_test.asEqualityTest().getReferent() == context.predefinedSyms.quiescence_symbol)
-                        && (cond.value_test.asEqualityTest().getReferent() == context.predefinedSyms.t_symbol)
+                if ((cond.attr_test.asEqualityTest().getReferent() == predefinedSyms.quiescence_symbol)
+                        && (cond.value_test.asEqualityTest().getReferent() == predefinedSyms.t_symbol)
                         && (!cond.test_for_acceptable_preference))
                 {
                     chunker.variablize_this_chunk = false;

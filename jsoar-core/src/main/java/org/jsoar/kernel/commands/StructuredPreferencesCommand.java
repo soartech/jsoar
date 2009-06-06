@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
@@ -243,11 +244,12 @@ public class StructuredPreferencesCommand
     private ResultEntry createEntry(Agent agent, Preference pref)
     {
         final TraceFormats traceFormats = Adaptables.adapt(agent, TraceFormats.class);
+        final PredefinedSymbols predefinedSyms = Adaptables.adapt(agent, PredefinedSymbols.class);
         final String source = pref.inst.prod != null ? pref.inst.prod.getName().toString() : "[dummy production]";
         final List<Wme> sourceWmes = pref.inst.getBacktraceWmes();
         
         final String valueTrace;
-        if(pref.attr == agent.predefinedSyms.operator_symbol)
+        if(pref.attr == predefinedSyms.operator_symbol)
         {
             StringWriter w = new StringWriter();
             try

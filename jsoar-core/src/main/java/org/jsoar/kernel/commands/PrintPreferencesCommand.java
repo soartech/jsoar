@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
@@ -120,6 +121,7 @@ public class PrintPreferencesCommand
      */
     public void print(Agent agent, Printer printer) throws IOException
     {
+        final PredefinedSymbols predefinedSyms = Adaptables.adapt(agent, PredefinedSymbols.class);
         // We have one of three cases now, as of v8.6.3
         // 1. --object is specified: return prefs for all wmes comprising object
         // ID
@@ -132,7 +134,7 @@ public class PrintPreferencesCommand
             // step thru dll of slots for ID, printing prefs for each one
             for (Slot s : id.slots)
             {
-                if (s.attr == agent.predefinedSyms.operator_symbol)
+                if (s.attr == predefinedSyms.operator_symbol)
                     printer.print("Preferences for %s ^%s:", s.id, s.attr);
                 else
                     printer.print("Support for %s ^%s:\n", s.id, s.attr);
@@ -174,7 +176,7 @@ public class PrintPreferencesCommand
             {
                 if (w.getValue() == id)
                 {
-                    if (w.getValue() == agent.predefinedSyms.operator_symbol)
+                    if (w.getValue() == predefinedSyms.operator_symbol)
                         printer.print("Preferences for ");
                     else
                         printer.print("Support for ");
@@ -237,8 +239,9 @@ public class PrintPreferencesCommand
     private void print_preference_and_source(Agent agnt, Printer printer, Preference pref) throws IOException
     {
         final TraceFormats traceFormats = Adaptables.adapt(agnt, TraceFormats.class);
+        final PredefinedSymbols predefinedSyms = Adaptables.adapt(agnt, PredefinedSymbols.class);
         printer.print("  ");
-        if (pref.attr == agnt.predefinedSyms.operator_symbol)
+        if (pref.attr == predefinedSyms.operator_symbol)
         {
             traceFormats.print_object_trace(printer.getWriter(), pref.value);
         }
@@ -246,7 +249,7 @@ public class PrintPreferencesCommand
         {
             printer.print("(%s ^%s %s) ", pref.id, pref.attr, pref.value);
         }
-        if (pref.attr == agnt.predefinedSyms.operator_symbol)
+        if (pref.attr == predefinedSyms.operator_symbol)
         {
             printer.print(" %c", pref.type.getIndicator());
         }
