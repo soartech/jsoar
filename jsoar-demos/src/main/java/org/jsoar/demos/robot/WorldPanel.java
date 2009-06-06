@@ -167,6 +167,11 @@ public class WorldPanel extends JPanel
         repaint();
     }
     
+    public Robot getSelection()
+    {
+        return selection;
+    }
+    
     private void drawShape(Graphics2D g2d, Shape shape, Color fill, Color stroke)
     {
         g2d.setColor(fill);
@@ -252,7 +257,7 @@ public class WorldPanel extends JPanel
         {
             final double selR = robot.radius * 1.4;
             final Ellipse2D sel = new Ellipse2D.Double(-selR, -selR, selR * 2.0, selR * 2.0);
-            g2d.setColor(Color.GREEN);
+            g2d.setColor(Color.BLUE);
             g2d.fill(sel);
         }
         

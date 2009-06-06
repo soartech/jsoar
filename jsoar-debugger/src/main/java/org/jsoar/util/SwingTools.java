@@ -16,6 +16,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.Document;
@@ -29,6 +31,24 @@ import javax.swing.undo.UndoManager;
  */
 public class SwingTools
 {
+    /**
+     * Initialize the UI look and feel to the system look and feel. 
+     */
+    public static void initializeLookAndFeel()
+    {
+        try
+        {
+            // Use the look and feel of the system we're running on rather
+            // than Java. If an error occurs, we proceed normally using
+            // whatever L&F we get.
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (UnsupportedLookAndFeelException e) { }
+        catch (ClassNotFoundException e) { }
+        catch (InstantiationException e) { }
+        catch (IllegalAccessException e) { }
+    }
+    
     /**
      * Add all the items in the given collection to the given list model
      * 

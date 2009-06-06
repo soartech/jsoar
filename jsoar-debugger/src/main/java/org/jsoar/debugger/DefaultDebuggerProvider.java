@@ -26,6 +26,16 @@ class DefaultDebuggerProvider implements DebuggerProvider
 {
     private static final Log logger = LogFactory.getLog(DefaultDebuggerProvider.class);
     
+    private final JSoarDebuggerConfiguration config;
+    
+    /**
+     * @param config
+     */
+    public DefaultDebuggerProvider(JSoarDebuggerConfiguration config)
+    {
+        this.config = config;
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.DebuggerProvider#openDebugger(org.jsoar.kernel.Agent)
      */
@@ -55,7 +65,11 @@ class DefaultDebuggerProvider implements DebuggerProvider
         {
             throw new SoarException("Can't attach debugger to agent with no ThreadedAgent proxy");
         }
-        JSoarDebugger.attach(ta);
+        final JSoarDebugger debugger = JSoarDebugger.attach(ta);
+        if(debugger != null && config != null)
+        {
+            debugger.setConfiguration(config);
+        }
     }
 
 }

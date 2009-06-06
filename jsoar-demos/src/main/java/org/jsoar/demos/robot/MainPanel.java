@@ -32,6 +32,8 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import org.jsoar.util.SwingTools;
+
 
 
 public class MainPanel extends JPanel 
@@ -112,8 +114,36 @@ public class MainPanel extends JPanel
             {
                 loadWorldFromClipboard();
             }});
+        
+        bar.add(new AbstractAction("Debug") {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                debug();
+            }});
     }
     
+    /**
+     * 
+     */
+    private void debug()
+    {
+        final Robot selection = worldPanel.getSelection();
+        if(selection == null)
+        {
+            return;
+        }
+        
+        final RobotAgent agent = agents.get(selection.name);
+        if(agent == null)
+        {
+            return;
+        }
+        
+        agent.debug();
+    }
+
     /**
      * 
      */
@@ -228,6 +258,8 @@ public class MainPanel extends JPanel
 
     public static void main(String[] args)
     {
+        SwingTools.initializeLookAndFeel();
+        
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override

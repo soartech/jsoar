@@ -10,12 +10,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -25,8 +24,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,8 +31,6 @@ import org.flexdock.docking.Dockable;
 import org.flexdock.docking.DockingConstants;
 import org.flexdock.docking.DockingManager;
 import org.flexdock.docking.activation.ActiveDockableTracker;
-import org.flexdock.docking.state.PersistenceException;
-import org.flexdock.perspective.persist.FilePersistenceHandler;
 import org.flexdock.util.SwingUtility;
 import org.flexdock.view.Viewport;
 import org.jsoar.debugger.actions.AboutAction;
@@ -60,7 +55,7 @@ import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
-import org.jsoar.util.FileTools;
+import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEvent;
@@ -76,6 +71,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private static final long serialVersionUID = 7997119112479665988L;
     private static final Log logger = LogFactory.getLog(JSoarDebugger.class);
 
+    private static final Map<ThreadedAgent, JSoarDebugger> debuggers = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
+    
     private final SelectionManager selectionManager = new SelectionManager();
     private final ActionManager actionManager = new ActionManager(this);
     private final RunControlModel runControlModel = new RunControlModel();
@@ -289,6 +286,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
         configuration.exit();
     }
     
+    public void restoreLayout()
+    {
+        // TODO: Implement layout storage in a way that doesn't suck.
+    }
+    
     private void initActions()
     {
         new ExitAction(actionManager);
@@ -369,27 +371,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
         this.configuration = config;
     }
     
-    /**
-     * Initialize the UI look and feel to the system look and feel. 
-     */
-    public static void initializeLookAndFeel()
-    {
-        try
-        {
-            // Use the look and feel of the system we're running on rather
-            // than Java. If an error occurs, we proceed normally using
-            // whatever L&F we get.
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch (UnsupportedLookAndFeelException e) { }
-        catch (ClassNotFoundException e) { }
-        catch (InstantiationException e) { }
-        catch (IllegalAccessException e) { }
-    }
-    
     public static void main(final String[] args)
     {
-        initializeLookAndFeel();
+        SwingTools.initializeLookAndFeel();
         
         SwingUtilities.invokeLater(new Runnable() {
             
@@ -406,23 +390,35 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static JSoarDebugger attach(ThreadedAgent proxy)
     {
-        DockingManager.setFloatingEnabled(true);
-
-        final JSoarDebugger debugger = new JSoarDebugger();
+        synchronized(debuggers)
+        {
+            JSoarDebugger debugger = debuggers.get(proxy);
+            if(debugger == null)
+            {
+                DockingManager.setFloatingEnabled(true);
         
-        final JFrame frame = new JFrame();
+                debugger = new JSoarDebugger();
+                
+                final JFrame frame = new JFrame();
+                
+                frame.setContentPane(debugger);
+                frame.setSize(1200, 1024);
+                
+                debugger.initialize(frame, proxy);
         
-        frame.setContentPane(debugger);
-        frame.setSize(1200, 1024);
-        
-        debugger.initialize(frame, proxy);
-
-        SwingUtility.centerOnScreen(frame);
-        
-        debugger.loadLayout();
-        
-        frame.setVisible(true);
-        return debugger;
+                SwingUtility.centerOnScreen(frame);
+                
+                frame.setVisible(true);
+                
+                debuggers.put(proxy, debugger);
+            }
+            else
+            {
+                debugger.frame.setVisible(true);
+                debugger.frame.requestFocus();
+            }
+            return debugger;
+        }
     }
 
     /**
@@ -430,113 +426,49 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public void detach()
     {
-        logger.info(String.format("Detaching from agent '" + proxy + "'"));
-        
-        // clean up dock property listener
-        ActiveDockableTracker.getTracker(frame).removePropertyChangeListener(dockTrackerListener);
-        dockTrackerListener = null;
-        
-        // clean up soar prop listeners
-        for(PropertyListenerHandle<?> listener : propertyListeners)
+        synchronized(debuggers)
         {
-            listener.removeListener();
-        }
-        
-        // clean up soar event listener
-        for(SoarEventListener listener : soarEventListeners)
-        {
-            proxy.getEvents().removeListener(null, listener);
-        }
-        soarEventListeners.clear();
-        
-        // clean up disposable views
-        for(Disposable d : Adaptables.adaptCollection(views, Disposable.class))
-        {
-            d.dispose();
-        }
-        views.clear();
-        
-        if(frame.isVisible())
-        {
-            frame.setVisible(false);
-        }
-        
-        for(JSoarDebuggerPlugin plugin : plugins)
-        {
-            plugin.shutdown();
-        }
-        plugins.clear();
-        
-        proxy.detach();
-        
-        saveLayout();
-    }
-    
-    public void restoreLayout()
-    {
-        OutputStream target = null;
-        try
-        {
-            // Copy the default layout (from jar resources) into the persistence directory
-            target = new BufferedOutputStream(new FileOutputStream(FilePersistenceHandler.DEFAULT_PERSPECTIVE_DIR + "/" + JSoarDebugger.class.getCanonicalName() + ".layout"));
-            FileTools.copy(JSoarDebugger.class.getResourceAsStream("/org/jsoar/debugger/layout.xml"), target);
-        }
-        catch (IOException e)
-        {
-            logger.error("Failed to restore layout", e);
-            return;
-        }
-        finally
-        {
-            if(target != null)
+            logger.info(String.format("Detaching from agent '" + proxy + "'"));
+            
+            // clean up dock property listener
+            ActiveDockableTracker.getTracker(frame).removePropertyChangeListener(dockTrackerListener);
+            dockTrackerListener = null;
+            
+            // clean up soar prop listeners
+            for(PropertyListenerHandle<?> listener : propertyListeners)
             {
-                try { target.close(); } catch (IOException e) {}
+                listener.removeListener();
             }
+            
+            // clean up soar event listener
+            for(SoarEventListener listener : soarEventListeners)
+            {
+                proxy.getEvents().removeListener(null, listener);
+            }
+            soarEventListeners.clear();
+            
+            // clean up disposable views
+            for(Disposable d : Adaptables.adaptCollection(views, Disposable.class))
+            {
+                d.dispose();
+            }
+            views.clear();
+            
+            if(frame.isVisible())
+            {
+                frame.setVisible(false);
+            }
+            
+            for(JSoarDebuggerPlugin plugin : plugins)
+            {
+                plugin.shutdown();
+            }
+            plugins.clear();
+            
+            debuggers.remove(proxy);
         }
-        
-        // Now just reload the layout
-        loadLayout();
     }
-    
-    private void loadLayout()
-    {
-        // Stores layout in $HOME/flexdock/perspectives
-        DockingManager.setDefaultPersistenceKey(JSoarDebugger.class.getCanonicalName() + ".layout");
-        try
-        {
-            DockingManager.loadLayoutModel(true);
-        }
-        catch (IOException e)
-        {
-            logger.error("Error loading debugger layout", e);
-        }
-        catch (PersistenceException e)
-        {
-            logger.error("Error loading debugger layout", e);
-        }
         
-    }
-    
-    private void saveLayout()
-    {
-        // Stores layout in $HOME/flexdock/perspectives
-        DockingManager.setDefaultPersistenceKey(JSoarDebugger.class.getCanonicalName() + ".layout");
-        try
-        {
-            DockingManager.storeLayoutModel();
-        }
-        catch (IOException e)
-        {
-            logger.error("Failed to save layout", e);
-        }
-        catch (PersistenceException e)
-        {
-            logger.error("Failed to save layout", e);
-        }
-        
-        // TODO save window size and position
-    }
-    
     /**
      * This is identical to {@link #main(String[])}, but it must be called from
      * the Swing event thread. Also the look and feel must be initialized prior
@@ -575,7 +507,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static DebuggerProvider newDebuggerProvider()
     {
-        return new DefaultDebuggerProvider();
+        return newDebuggerProvider(null);
+    }
+    
+    public static DebuggerProvider newDebuggerProvider(JSoarDebuggerConfiguration config)
+    {
+        return new DefaultDebuggerProvider(config);
     }
     
     /* (non-Javadoc)
