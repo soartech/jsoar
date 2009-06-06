@@ -68,8 +68,6 @@ public class Agent extends AbstractAdaptable
 {
     private static final Log logger = LogFactory.getLog(Agent.class);
     
-    private String name = "JSoar Agent " + System.identityHashCode(this);
-    
     private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
     private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
     
@@ -142,6 +140,8 @@ public class Agent extends AbstractAdaptable
     
     public Agent()
     {
+        setName("JSoar Agent " + System.identityHashCode(this));
+        
         // Initialize components that rely on adaptables lookup
         decider.initialize();
         decisionCycle.initialize();
@@ -162,21 +162,24 @@ public class Agent extends AbstractAdaptable
     }
     
     /**
+     * Returns the name of the agent. This is also bound to {@link SoarProperties#NAME}
+     *  
      * @return the name of the agent
      */
     public String getName()
     {
-        return name;
+        return getProperties().get(SoarProperties.NAME);
     }
 
     /**
-     * Set the name of the agent
+     * Set the name of the agent. This can also be set with property
+     * {@link SoarProperties#NAME}.
      * 
      * @param name the name to set
      */
     public void setName(String name)
     {
-        this.name = name;
+        getProperties().set(SoarProperties.NAME, name);
     }
 
     /**
@@ -711,6 +714,6 @@ public class Agent extends AbstractAdaptable
     @Override
     public String toString()
     {
-        return name;
+        return getName();
     }
 }
