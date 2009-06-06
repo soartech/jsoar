@@ -249,7 +249,7 @@ public class DecisionCycle
         assert !stop_soar;
         
         ExecutionTimers.pause(context.getTotalKernelTimer());
-        context.getEventManager().fireEvent(pollEvent);
+        context.getEvents().fireEvent(pollEvent);
         ExecutionTimers.start(context.getTotalKernelTimer());
         
         switch (current_phase)
@@ -280,26 +280,26 @@ public class DecisionCycle
     
     private void beforePhase(Phase phase)
     {
-        context.getEventManager().fireEvent(beforePhaseEvents.get(phase));    
+        context.getEvents().fireEvent(beforePhaseEvents.get(phase));    
     }
     
     private void afterPhase(Phase phase)
     {
         this.run_phase_count++;
         
-        context.getEventManager().fireEvent(afterPhaseEvents.get(phase));
+        context.getEvents().fireEvent(afterPhaseEvents.get(phase));
     }
     
     private void beforeElaboration()
     {
         // FIXME return the correct enum top_level_phase constant in soar_call_data?
-        context.getEventManager().fireEvent(beforeElaborationEvent);
+        context.getEvents().fireEvent(beforeElaborationEvent);
     }
     
     private void afterElaboration()
     {
         // FIXME return the correct enum top_level_phase constant in soar_call_data?
-        context.getEventManager().fireEvent(afterElaborationEvent);
+        context.getEvents().fireEvent(afterElaborationEvent);
     }
     
     /**
@@ -407,7 +407,7 @@ public class DecisionCycle
         
         afterPhase(Phase.OUTPUT);
 
-        context.getEventManager().fireEvent(new AfterDecisionCycleEvent(context, Phase.OUTPUT));
+        context.getEvents().fireEvent(new AfterDecisionCycleEvent(context, Phase.OUTPUT));
 
         // #ifndef NO_TIMING_STUFF
         // stop_timer (thisAgent, &thisAgent->start_phase_tv,
@@ -697,7 +697,7 @@ public class DecisionCycle
         // always true for Soar 8
         if (e_cycles_this_d_cycle == 0)
         {
-            context.getEventManager().fireEvent(beforeDecisionCycleEvent);
+            context.getEvents().fireEvent(beforeDecisionCycleEvent);
         }
 
         // #ifdef REAL_TIME_BEHAVIOR /* RM Jones */
@@ -788,7 +788,7 @@ public class DecisionCycle
             stop_soar = true;
             reason_for_stopping = "System halted.";
             
-            context.getEventManager().fireEvent(afterHaltEvent);
+            context.getEvents().fireEvent(afterHaltEvent);
 
             // To model episodic task, after halt, perform RL update with next-state value 0
             if (rl.rl_enabled())

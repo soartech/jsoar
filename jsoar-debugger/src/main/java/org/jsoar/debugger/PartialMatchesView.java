@@ -18,8 +18,8 @@ import javax.swing.JTextArea;
 import org.flexdock.docking.DockingConstants;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.CompletionHandler;
@@ -90,7 +90,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         agent.execute(matchCall, SwingCompletionHandler.newInstance(finish));
     }
     
-    private Production getProduction(Agent agent, Object o)
+    private Production getProduction(ProductionManager pm, Object o)
     {
         Production p = Adaptables.adapt(o, Production.class);
         if(p != null)
@@ -98,7 +98,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
             return p;
         }
         
-        return agent.getProductions().getProduction(o.toString());
+        return pm.getProduction(o.toString());
     }
     
     private String safeGetMatchOutput(List<Object> selection)
@@ -107,7 +107,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         final Printer printer = new Printer(writer, true);
         for(Object o : selection)
         {
-            Production p = getProduction(agent.getAgent(), o);
+            Production p = getProduction(agent.getProductions(), o);
             if(p != null)
             {
                 printer.print("--------------------------------------------\n");

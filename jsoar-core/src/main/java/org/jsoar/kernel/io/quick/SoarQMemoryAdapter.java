@@ -110,7 +110,7 @@ public class SoarQMemoryAdapter implements SoarEventListener
     public static SoarQMemoryAdapter attach(Agent agent, QMemory source)
     {
         Arguments.checkNotNull(agent, "agent");
-        return attach(agent.getEventManager(), agent.getInputOutput(), null, source);
+        return attach(agent.getEvents(), agent.getInputOutput(), null, source);
     }
     
     /**

@@ -12,7 +12,7 @@ import java.awt.geom.Ellipse2D;
  */
 public class Robot
 {
-    public final World game;
+    public final World world;
     public final String name;
     public final Ellipse2D shape = new Ellipse2D.Double(-0.5, -0.5, 1.0, 1.0);
     public double yaw;
@@ -35,7 +35,7 @@ public class Robot
      */
     public Robot(World game, String name)
     {
-        this.game = game;
+        this.world = game;
         this.name = name;
     }
 
@@ -54,14 +54,14 @@ public class Robot
         
         final double newX = shape.getCenterX() + dx;
         final double newY = shape.getCenterY() + dy;
-        if(!game.willCollide(this, newX, newY))
+        if(!world.willCollide(this, newX, newY))
         {
             move(newX, newY);
         }
         
         for(RadarRange range : ranges)
         {
-            range.range = game.getCollisionRange(this, range.angle + yaw);
+            range.range = world.getCollisionRange(this, range.angle + yaw);
         }
     }
     

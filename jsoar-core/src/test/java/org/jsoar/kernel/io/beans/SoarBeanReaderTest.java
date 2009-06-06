@@ -46,7 +46,7 @@ public class SoarBeanReaderTest
         final SoarBeanReader converter = new SoarBeanReader();
         
         final ByRef<T> bean = ByRef.create(null);
-        agent.getEventManager().addListener(OutputEvent.class, new SoarEventListener() {
+        agent.getEvents().addListener(OutputEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)

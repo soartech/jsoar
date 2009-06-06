@@ -100,7 +100,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         this.agent = agent;
         
         // Listen for input ready events
-        this.agent.getAgent().getEventManager().addListener(AsynchronousInputReadyEvent.class, 
+        this.agent.getEvents().addListener(AsynchronousInputReadyEvent.class, 
                 inputReadyListener = new SoarEventListener() {
 
                     @Override
@@ -113,7 +113,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         // if one has been requested. Since the next phase will be the input phase,
         // we don't have to worry about additional waits blocking it and we'll conveniently
         // go straight to input when an asynch input ready event knocks us out of a wait.
-        this.agent.getAgent().getEventManager().addListener(AfterDecisionCycleEvent.class, 
+        this.agent.getEvents().addListener(AfterDecisionCycleEvent.class, 
                 afterDecisionCycleListener = new SoarEventListener() {
 
                     @Override
@@ -123,22 +123,22 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
                     }});
         
         // Set up "waiting" property
-        this.agent.getAgent().getProperties().setProvider(SoarProperties.WAIT_INFO, waitInfoProp);
+        this.agent.getProperties().setProvider(SoarProperties.WAIT_INFO, waitInfoProp);
         
         // Register the RHS function
-        this.oldHandler = this.agent.getAgent().getRhsFunctions().registerHandler(this);
+        this.oldHandler = this.agent.getRhsFunctions().registerHandler(this);
     }
     
     public void detach()
     {
         if(agent != null)
         {
-            agent.getAgent().getEventManager().removeListener(null, inputReadyListener);
-            agent.getAgent().getEventManager().removeListener(null, afterDecisionCycleListener);
-            agent.getAgent().getRhsFunctions().unregisterHandler(getName());
+            agent.getEvents().removeListener(null, inputReadyListener);
+            agent.getEvents().removeListener(null, afterDecisionCycleListener);
+            agent.getRhsFunctions().unregisterHandler(getName());
             if(oldHandler != null)
             {
-                agent.getAgent().getRhsFunctions().registerHandler(oldHandler);
+                agent.getRhsFunctions().registerHandler(oldHandler);
                 oldHandler = null;
             }
             agent = null;

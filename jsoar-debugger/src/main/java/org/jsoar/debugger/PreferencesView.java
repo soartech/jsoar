@@ -116,7 +116,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
                 Result r = getLastResult();
                 if(r != null)
                 {
-                    agent.getAgent().getPrinter().startNewLine().print(r.getPrintResult()).flush();
+                    agent.getPrinter().startNewLine().print(r.getPrintResult()).flush();
                 }
             }});
         return bar;

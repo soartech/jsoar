@@ -61,7 +61,7 @@ public class PredefinedSymbols
     public final Variable o_context_variable;
 
     // Symbols used only in InputOutputImpl
-    public StringSymbolImpl io_symbol;
+    public final StringSymbolImpl io_symbol;
     public final StringSymbolImpl input_link_symbol;
     public final StringSymbolImpl output_link_symbol;
 

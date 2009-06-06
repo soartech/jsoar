@@ -5,9 +5,11 @@
  */
 package org.jsoar.demos.robot;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.debugger.JSoarDebugger;
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.io.CycleCountInput;
 import org.jsoar.kernel.io.quick.DefaultQMemory;
 import org.jsoar.kernel.io.quick.QMemory;
 import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
@@ -18,7 +20,9 @@ import org.jsoar.runtime.ThreadedAgent;
  */
 public class RobotAgent
 {
-    private final Robot robot;
+    private static final Log logger = LogFactory.getLog(RobotAgent.class);
+    
+    private Robot robot;
     private final ThreadedAgent agent;
     
     private final QMemory memory = DefaultQMemory.create();
@@ -26,36 +30,70 @@ public class RobotAgent
     /**
      * @param robot
      */
-    public RobotAgent(Robot robot)
+    public RobotAgent()
     {
-        this.robot = robot;
-        
-        this.agent = ThreadedAgent.attach(new Agent()).initialize();
-        this.agent.getAgent().setName(robot.name);
-        this.agent.getAgent().setDebuggerProvider(JSoarDebugger.newDebuggerProvider());
+        logger.info("Creating robot agent " + this);
+        this.agent = ThreadedAgent.create();
+        this.agent.setDebuggerProvider(JSoarDebugger.newDebuggerProvider());
         SoarQMemoryAdapter.attach(this.agent.getAgent(), memory);
+        new CycleCountInput(this.agent.getInputOutput(), 
+                            this.agent.getEvents());
         
-        memory.setString("self.name", robot.name);
-        memory.setDouble("self.radius", robot.radius);
-
         try
         {
-            this.agent.getAgent().getDebuggerProvider().openDebugger(this.agent.getAgent());
+            this.agent.openDebugger();
         }
         catch (SoarException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
+    }
+
+    private String getWaypointKey(Waypoint w)
+    {
+        return "self.waypoints.waypoint[" + w.name + "]";
     }
     
-   
+    public void setRobot(Robot robot)
+    {
+        logger.info("Attaching robot agent " + this + " to robot " + robot.name);
+        this.robot = robot;
+        this.agent.setName(robot.name);
+        this.agent.initialize(); // Do an init-soar
+    }
+    
+    public void start()
+    {
+        this.agent.runForever();
+    }
+    
+    public void stop()
+    {
+        this.agent.stop();
+    }
+    
+    /**
+     * 
+     */
+    public void dispose()
+    {
+        logger.info("Disposing robot agent " + this);
+        this.agent.detach();
+    }
+    
     public void update()
     {
         synchronized(memory)
         {
-            memory.setDouble("self.pose.x", robot.shape.getCenterX());
-            memory.setDouble("self.pose.y", robot.shape.getCenterY());
+            memory.setString("self.name", robot.name);
+            memory.setDouble("self.radius", robot.radius);
+
+            final double x = robot.shape.getCenterX();
+            final double y = robot.shape.getCenterY();
+            memory.setDouble("self.pose.x", x);
+            memory.setDouble("self.pose.y", y);
             memory.setDouble("self.pose.yaw", Math.toDegrees(robot.yaw));
             for(int i = 0; i < robot.ranges.length; ++i)
             {
@@ -65,6 +103,24 @@ public class RobotAgent
                 sub.setDouble("distance", r.range);
                 sub.setDouble("angle", Math.toDegrees(r.angle));
             }
+            
+            for(Waypoint wp : robot.world.getWaypoints())
+            {
+                final double wpx = wp.point.getX();
+                final double wpy = wp.point.getY();
+                
+                final QMemory sub = memory.subMemory(getWaypointKey(wp));
+                sub.setDouble("x", wp.point.getX());
+                sub.setDouble("y", wp.point.getY());
+                sub.setDouble("distance", wp.point.distance(x, y));
+                
+                double bearing = Math.toDegrees(Math.atan2(y - wpy, x - wpx) - robot.yaw);
+                while(bearing <= -180.0) bearing += 180.0;
+                while(bearing >= 180.0) bearing -= 180.0;
+                
+                sub.setDouble("relative-bearing", bearing);
+            }
         }
     }
+
 }

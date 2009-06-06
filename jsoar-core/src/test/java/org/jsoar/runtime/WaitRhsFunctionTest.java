@@ -10,7 +10,6 @@ import static org.junit.Assert.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.junit.After;
@@ -24,8 +23,7 @@ public class WaitRhsFunctionTest
     @Before
     public void setUp()
     {
-        this.agent = ThreadedAgent.attach(new Agent());
-        this.agent.initialize();
+        this.agent = ThreadedAgent.create();
     }
     
     @After
@@ -37,8 +35,8 @@ public class WaitRhsFunctionTest
     @Test(timeout=10000)
     public void testDoesNotWaitIfAsynchInputIsReadyAndInputPhaseHasntRunYet() throws Exception
     {
-        this.agent.getAgent().getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
-        this.agent.getAgent().getInputOutput().asynchronousInputReady();
+        this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
+        this.agent.getInputOutput().asynchronousInputReady();
         final Object signal = new String("testDoesNotWaitIfAsynchInputIsReadyAndInputPhaseHasntRunYet");
         agent.execute(new Callable<Void>() {
 
@@ -67,27 +65,27 @@ public class WaitRhsFunctionTest
     @Test(timeout=10000)
     public void testWaitingPropertyIsSetAndWaitExitsWhenAsynchInputIsReady() throws Exception
     {
-        this.agent.getAgent().getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
+        this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
         
-        assertSame(WaitInfo.NOT_WAITING, this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO));
+        assertSame(WaitInfo.NOT_WAITING, this.agent.getProperties().get(SoarProperties.WAIT_INFO));
         
         agent.runFor(2, RunType.DECISIONS);
         
         // Wait for the wait to start
-        WaitInfo waitInfo = this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO);
+        WaitInfo waitInfo = this.agent.getProperties().get(SoarProperties.WAIT_INFO);
         while(!waitInfo.waiting)
         {
             Thread.sleep(50);
-            waitInfo = this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO);
+            waitInfo = this.agent.getProperties().get(SoarProperties.WAIT_INFO);
         }
-        assertSame(agent.getAgent().getProductions().getProduction("test"), waitInfo.cause);
+        assertSame(agent.getProductions().getProduction("test"), waitInfo.cause);
         assertEquals(Long.MAX_VALUE, waitInfo.timeout);
         
         // Knock it out of wait with asynch input
-        agent.getAgent().getInputOutput().asynchronousInputReady();
+        agent.getInputOutput().asynchronousInputReady();
         
         // Wait for wait to stop
-        while(this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO).waiting)
+        while(this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting)
         {
             Thread.sleep(50);
         }
@@ -96,14 +94,14 @@ public class WaitRhsFunctionTest
     @Test(timeout=10000)
     public void testWaitIsInterruptedIfAgentIsStopped() throws Exception
     {
-        this.agent.getAgent().getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
+        this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
         
-        assertFalse(this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO).waiting);
+        assertFalse(this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting);
         
         agent.runForever();
         
         // Wait for the wait to start
-        while(!this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO).waiting)
+        while(!this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting)
         {
             Thread.sleep(50);
         }
@@ -112,7 +110,7 @@ public class WaitRhsFunctionTest
         agent.stop();
         
         // Wait for wait to stop
-        while(this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO).waiting)
+        while(this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting)
         {
             Thread.sleep(50);
         }
@@ -122,9 +120,9 @@ public class WaitRhsFunctionTest
     public void testNoWaitIfAgentHalts() throws Exception
     {
         // The (halt) should trump the (wait)
-        this.agent.getAgent().getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait) (halt)");
+        this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait) (halt)");
         
-        assertFalse(this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO).waiting);
+        assertFalse(this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting);
         
         final AtomicBoolean signalled = new AtomicBoolean(false);
         final Object signal = new String("testNoWaitIfAgentHalts");
@@ -159,30 +157,30 @@ public class WaitRhsFunctionTest
     @Test //(timeout=10000)
     public void testShortestWaitInDecisionCycleIsUsed() throws Exception
     {
-        this.agent.getAgent().getProductions().loadProduction("forever (state <s> ^superstate nil) --> (wait)");
-        this.agent.getAgent().getProductions().loadProduction("middle (state <s> ^superstate nil) --> (wait 15000)");
-        this.agent.getAgent().getProductions().loadProduction("short (state <s> ^superstate nil) --> (wait 5000)");
-        this.agent.getAgent().getProductions().loadProduction("long (state <s> ^superstate nil) --> (wait 25000)");
+        this.agent.getProductions().loadProduction("forever (state <s> ^superstate nil) --> (wait)");
+        this.agent.getProductions().loadProduction("middle (state <s> ^superstate nil) --> (wait 15000)");
+        this.agent.getProductions().loadProduction("short (state <s> ^superstate nil) --> (wait 5000)");
+        this.agent.getProductions().loadProduction("long (state <s> ^superstate nil) --> (wait 25000)");
         
-        assertFalse(this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO).waiting);
+        assertFalse(this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting);
         
         agent.runForever();
         
         // Wait for the wait to start
-        WaitInfo waitInfo = this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO);
+        WaitInfo waitInfo = this.agent.getProperties().get(SoarProperties.WAIT_INFO);
         while(!waitInfo.waiting)
         {
             Thread.sleep(50);
-            waitInfo = this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO);
+            waitInfo = this.agent.getProperties().get(SoarProperties.WAIT_INFO);
         }
         assertEquals(5000, waitInfo.timeout);
-        assertSame(agent.getAgent().getProductions().getProduction("short"), waitInfo.cause);
+        assertSame(agent.getProductions().getProduction("short"), waitInfo.cause);
         
         // Ask the agent to stop
         agent.stop();
         
         // Wait for wait to stop
-        while(this.agent.getAgent().getProperties().get(SoarProperties.WAIT_INFO).waiting)
+        while(this.agent.getProperties().get(SoarProperties.WAIT_INFO).waiting)
         {
             Thread.sleep(50);
         }

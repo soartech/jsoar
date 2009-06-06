@@ -25,7 +25,6 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.events.AfterDecisionCycleEvent;
 import org.jsoar.kernel.io.CycleCountInput;
@@ -111,16 +110,16 @@ public class TinyDebugger extends JApplet
     @Override
     public void init()
     {
-        agent = ThreadedAgent.attach(new Agent()).initialize();
-        agent.getAgent().getPrinter().pushWriter(outputWriter, true);
-        new CycleCountInput(agent.getAgent().getInputOutput(), agent.getAgent().getEventManager());
+        agent = ThreadedAgent.create();
+        agent.getPrinter().pushWriter(outputWriter, true);
+        new CycleCountInput(agent.getInputOutput(), agent.getEvents());
         
         tcl = SoarTclInterface.findOrCreate(agent.getAgent());
         tcl.getInterpreter().createCommand("run", new RunCommand(agent));
         tcl.getInterpreter().createCommand("stop", new StopCommand(agent));
         tcl.getInterpreter().createCommand("stop-soar", new StopCommand(agent));
         
-        agent.getAgent().getEventManager().addListener(AfterDecisionCycleEvent.class, new SoarEventListener() {
+        agent.getEvents().addListener(AfterDecisionCycleEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -228,7 +227,7 @@ public class TinyDebugger extends JApplet
         
         setContentPane(tabs);
         
-        agent.getAgent().getPrinter().flush();
+        agent.getPrinter().flush();
     }
 
     private void loadProduction()
@@ -245,7 +244,7 @@ public class TinyDebugger extends JApplet
                 }
                 catch (SoarTclException e)
                 {
-                    agent.getAgent().getPrinter().print(e.getMessage()).flush();
+                    agent.getPrinter().print(e.getMessage()).flush();
                 }
                 return null;
             }};
@@ -264,7 +263,7 @@ public class TinyDebugger extends JApplet
             @Override
             public Void call() throws Exception
             {
-                final Printer printer = agent.getAgent().getPrinter();
+                final Printer printer = agent.getPrinter();
                 String result;
                 try
                 {

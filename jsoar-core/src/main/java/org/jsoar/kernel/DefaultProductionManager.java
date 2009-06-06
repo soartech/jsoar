@@ -121,7 +121,7 @@ public class DefaultProductionManager implements ProductionManager
     {
         // TODO if (prod->trace_firings) remove_pwatch (thisAgent, prod);
         
-        context.getEventManager().fireEvent(new ProductionExcisedEvent(context, prod));
+        context.getEvents().fireEvent(new ProductionExcisedEvent(context, prod));
         
         productionsByType.get(prod.getType()).remove(prod);
         productionsByName.remove(prod.getName());
@@ -249,7 +249,7 @@ public class DefaultProductionManager implements ProductionManager
         productionsByType.get(p.getType()).add(p);
         productionsByName.put(p.getName(), p);
         
-        context.getEventManager().fireEvent(new ProductionAddedEvent(context, p));
+        context.getEvents().fireEvent(new ProductionAddedEvent(context, p));
     }
 
     /* (non-Javadoc)

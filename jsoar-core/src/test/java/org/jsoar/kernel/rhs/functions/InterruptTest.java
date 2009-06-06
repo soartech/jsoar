@@ -43,7 +43,7 @@ public class InterruptTest
     @Test(timeout=3000)
     public void testInterrupt() throws Exception
     {
-        new CycleCountInput(agent.getInputOutput(), agent.getEventManager());
+        new CycleCountInput(agent.getInputOutput(), agent.getEvents());
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         this.agent.getProductions().loadProduction("testInterrupt (state <s> ^superstate nil ^io.input-link.cycle-count 45) --> (interrupt)");
         

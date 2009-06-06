@@ -5,6 +5,9 @@
  */
 package org.jsoar.util;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.util.Collection;
 
@@ -117,4 +120,15 @@ public class SwingTools
         // Bind the redo action to ctl-Y
         textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
     }
+    
+    public static void enableAntiAliasing(Graphics g)
+    {
+        if(g instanceof Graphics2D)
+        {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+        }
+    }
+ 
 }

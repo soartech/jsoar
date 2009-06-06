@@ -150,7 +150,7 @@ public class ProductionEditView extends AbstractAdaptableView
 
             public String call() throws Exception
             {
-                final Production p = agent.getAgent().getProductions().getProduction(name);
+                final Production p = agent.getProductions().getProduction(name);
                 if(p != null)
                 {
                     StringWriter s = new StringWriter();

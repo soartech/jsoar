@@ -21,7 +21,7 @@ import org.jsoar.util.markers.Marker;
  * necessarily "completely" new--they might occur in some existing production.
  * But we usually need to make sure the new variables don't overlap with those
  * already used in a *certain* production--for instance, when variablizing a
- * chunk, we don't want to introduce a new variable that conincides with the
+ * chunk, we don't want to introduce a new variable that coincides with the
  * name of a variable already in an NCC in the chunk.
  * 
  * <p>To use these routines, first call reset_variable_generator(), giving it lists

@@ -123,7 +123,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             {
                 if(sourceInfo != null)
                 {
-                    debugger.getAgentProxy().getAgent().getPrinter().startNewLine().print(sourceInfo.toString()).flush();
+                    debugger.getAgentProxy().getPrinter().startNewLine().print(sourceInfo.toString()).flush();
                 }
             }});
         return bar;
