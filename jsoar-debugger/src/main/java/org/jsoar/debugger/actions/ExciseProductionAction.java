@@ -63,9 +63,9 @@ public class ExciseProductionAction extends AbstractDebuggerAction
             {
                 for(Production p : prods)
                 {
-                    proxy.getAgent().getProductions().exciseProduction(p, true);
+                    proxy.getProductions().exciseProduction(p, true);
                 }
-                proxy.getAgent().getTrace().flush();
+                proxy.getTrace().flush();
                 return null;
             }};
         final CompletionHandler<Void> finish  = new CompletionHandler<Void>() {

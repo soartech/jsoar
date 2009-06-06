@@ -34,7 +34,7 @@ public class SoarBeanOutputManagerTest
     {
         this.agent = new Agent();
         
-        this.output = new SoarBeanOutputManager(agent.getEventManager());
+        this.output = new SoarBeanOutputManager(agent.getEvents());
         this.agent.initialize();
         this.agent.getProperties().set(SoarProperties.WAITSNC, true);
     }

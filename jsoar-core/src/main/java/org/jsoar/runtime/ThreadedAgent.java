@@ -12,18 +12,28 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DebuggerProvider;
+import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.events.StopEvent;
+import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
+import org.jsoar.util.events.SoarEventManager;
+import org.jsoar.util.properties.PropertyManager;
 
 import com.google.common.collect.MapMaker;
 
 /**
  * A wrapper around a raw {@link Agent} which gives the agent its own thread
  * and provides methods for safely interacting with the agent from other 
- * threads.
+ * threads. The wrapper includes a number of convenience wrapper methods that
+ * forward to the methods with the same name in the underlying agent.
  * 
  * <p>Generally, <b>all</b> access to agent data structures, i.e. the 
  * {@link Agent} instance should be marshaled through the {@link #execute(Runnable)}
@@ -42,6 +52,22 @@ public class ThreadedAgent
     private final AtomicBoolean agentRunning = new AtomicBoolean(false);
     private final AgentThread agentThread = new AgentThread();
     private final WaitRhsFunction waitFunction = new WaitRhsFunction();
+    
+    /**
+     * Create a new {@link Agent} and automatically wrap it with a ThreadedAgent.
+     * This method also initializes the agent and starts its thread. 
+     * 
+     * <p>This is convenience method equivalent to
+     * <pre>{@code
+     * ThreadedAgent agent = ThreadedAgent.create(new Agent()).initialize();
+     * }</pre>
+     * 
+     * @return a new, initialized threaded agent
+     */
+    public static ThreadedAgent create()
+    {
+        return attach(new Agent()).initialize();
+    }
     
     /**
      * If there is a ThreadedAgent already attached to the given agent, return
@@ -88,7 +114,7 @@ public class ThreadedAgent
         this.agent = agent;
         agentThread.setName("Agent '" + this.agent + "' thread");
         
-        this.agent.getEventManager().addListener(RunLoopEvent.class, new SoarEventListener() {
+        getEvents().addListener(RunLoopEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -230,7 +256,7 @@ public class ThreadedAgent
                 finally
                 {
                     agentRunning.set(false);
-                    agent.getEventManager().fireEvent(new StopEvent(agent));
+                    getEvents().fireEvent(new StopEvent(agent));
                 }
                 return null;
                 
@@ -256,6 +282,19 @@ public class ThreadedAgent
         execute(new Runnable() { public void run() { agent.stop(); } });
     }
     
+    // Convenience methods forwarded to equivalent {@link Agent} methods.
+    public String getName() { return agent.getName(); }
+    public void setName(String name) { agent.setName(name); }
+    public Printer getPrinter() { return agent.getPrinter(); }
+    public Trace getTrace() { return agent.getTrace(); }
+    public SoarEventManager getEvents() { return agent.getEvents(); }
+    public PropertyManager getProperties() { return agent.getProperties(); }
+    public InputOutput getInputOutput() { return agent.getInputOutput(); }
+    public ProductionManager getProductions() { return agent.getProductions(); }
+    public RhsFunctionManager getRhsFunctions() { return agent.getRhsFunctions(); }
+    public DebuggerProvider getDebuggerProvider() { return agent.getDebuggerProvider(); }
+    public void setDebuggerProvider(DebuggerProvider p) { agent.setDebuggerProvider(p); }
+    public void openDebugger() throws SoarException { agent.openDebugger(); }
     
     
     /**
@@ -323,6 +362,17 @@ public class ThreadedAgent
         return commands;
     }
     
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return agent.toString();
+    }
+
+
     private class AgentThread extends Thread
     {
         /* (non-Javadoc)

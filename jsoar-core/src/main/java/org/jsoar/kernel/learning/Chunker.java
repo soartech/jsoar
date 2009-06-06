@@ -1393,7 +1393,7 @@ public class Chunker
         
         if(rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION)
         {
-            context.getEventManager().fireEvent(new ProductionAddedEvent(context, prod));
+            context.getEvents().fireEvent(new ProductionAddedEvent(context, prod));
         }
 
         // assert the preferences

@@ -50,8 +50,8 @@ public class ThreadedAgentTest
     public void testShutdownDoesntHangIfAgentIsRunningForever() throws Exception
     {
         ThreadedAgent proxy = ThreadedAgent.attach(new Agent());
-        proxy.getAgent().getProperties().set(SoarProperties.WAITSNC, true);
-        proxy.getAgent().getTrace().setWatchLevel(0);
+        proxy.getProperties().set(SoarProperties.WAITSNC, true);
+        proxy.getTrace().setWatchLevel(0);
         proxy.initialize();
         proxy.runForever();
         Thread.sleep(500);

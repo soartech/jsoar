@@ -13,6 +13,7 @@ import org.jsoar.util.Arguments;
  * An immutable structure containing information about the wait state of
  * an agent, typically modified by {@link WaitRhsFunction}. This type is
  * used as the value of the {@link SoarProperties#WAIT_INFO} property.
+ * 
  * @author ray
  */
 public class WaitInfo

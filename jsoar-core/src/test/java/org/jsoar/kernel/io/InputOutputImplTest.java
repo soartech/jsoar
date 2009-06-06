@@ -32,7 +32,6 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
-import org.jsoar.util.ByRef;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
@@ -102,7 +101,7 @@ public class InputOutputImplTest extends JSoarTest
     public void testBasicInput() throws Exception
     {
         final int listenerCallCount[] = { 0 };
-        agent.getEventManager().addListener(InputEvent.class, new SoarEventListener() {
+        agent.getEvents().addListener(InputEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -140,7 +139,7 @@ public class InputOutputImplTest extends JSoarTest
     public void testAddAndRemoveInputWme() throws Exception
     {
         final InputWme[] wme = { null };
-        agent.getEventManager().addListener(InputEvent.class, new SoarEventListener() {
+        agent.getEvents().addListener(InputEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -177,7 +176,7 @@ public class InputOutputImplTest extends JSoarTest
         
         final List<Set<Wme>> outputs = new ArrayList<Set<Wme>>();
         
-        agent.getEventManager().addListener(InputEvent.class, new SoarEventListener() {
+        agent.getEvents().addListener(InputEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -188,7 +187,7 @@ public class InputOutputImplTest extends JSoarTest
                     builder.add("retract-output", "*yes*");
                 }
             }});
-        agent.getEventManager().addListener(OutputEvent.class, new SoarEventListener() {
+        agent.getEvents().addListener(OutputEvent.class, new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -229,7 +228,7 @@ public class InputOutputImplTest extends JSoarTest
     public void testGetPendingCommands() throws Exception
     {
         final InputOutput io = agent.getInputOutput();
-        new CycleCountInput(io, agent.getEventManager());
+        new CycleCountInput(io, agent.getEvents());
         sourceTestFile("testGetPendingCommands.soar");
         
         final MatcherBuilder m = Wmes.matcher(agent);

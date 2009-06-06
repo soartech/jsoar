@@ -188,7 +188,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
             @Override
             public Map<ProductionType, Integer> call() throws Exception
             {
-                return agent.getAgent().getProductions().getProductionCounts();
+                return agent.getProductions().getProductionCounts();
             }};
             
         final CompletionHandler<Map<ProductionType, Integer>> finish = new CompletionHandler<Map<ProductionType,Integer>>() {

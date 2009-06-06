@@ -6,18 +6,21 @@
 package org.jsoar.demos.robot;
 
 import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.jsoar.demos.robot.events.WaypointAdded;
+import org.jsoar.demos.robot.events.WaypointRemoved;
+import org.jsoar.util.events.SoarEventManager;
 
 /**
  * @author ray
  */
 public class World
 {
+    public final SoarEventManager events = new SoarEventManager();
     public final Rectangle2D extents = new Rectangle2D.Double(-5.0, -5.0, 10.0, 10.0);
     private final List<Robot> robots = new ArrayList<Robot>();
     private final List<Shape> obstacles = new ArrayList<Shape>();
@@ -42,10 +45,10 @@ public class World
         
         addRobot(robot2);
         */
-        addObstacle(new RoundRectangle2D.Double(-3.0, -3.0, 3, 3, .25, .25));
-        addObstacle(new Ellipse2D.Double(0, 0, 2, 2));
+        //addObstacle(new RoundRectangle2D.Double(-3.0, -3.0, 3, 3, .25, .25));
+        //addObstacle(new Ellipse2D.Double(0, 0, 2, 2));
         
-        addWaypoint(new Waypoint("w", new Point2D.Double(0.5, 0.5)));
+        //addWaypoint(new Waypoint("w", new Point2D.Double(0.5, 0.5)));
     }
     
     public void addRobot(Robot robot)
@@ -84,11 +87,13 @@ public class World
     public void addWaypoint(Waypoint waypoint)
     {
         this.waypoints.add(waypoint);
+        events.fireEvent(new WaypointAdded(this, waypoint));
     }
     
     public void removeWaypoint(Waypoint waypoint)
     {
         this.waypoints.remove(waypoint);
+        events.fireEvent(new WaypointRemoved(this, waypoint));
     }
     
     public List<Waypoint> getWaypoints()

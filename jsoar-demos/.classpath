@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.6.0_06"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-debugger"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-core"/>

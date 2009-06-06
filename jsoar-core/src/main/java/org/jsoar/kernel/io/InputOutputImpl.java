@@ -345,7 +345,7 @@ public class InputOutputImpl implements InputOutput
     @Override
     public void asynchronousInputReady()
     {
-        context.getEventManager().fireEvent(asyncInputReadyEvent);
+        context.getEvents().fireEvent(asyncInputReadyEvent);
     }
 
     /**
@@ -359,7 +359,7 @@ public class InputOutputImpl implements InputOutput
         {
             // top state was just removed
 
-            context.getEventManager().fireEvent(topStateRemovedEvent);
+            context.getEvents().fireEvent(topStateRemovedEvent);
             // soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK, (soar_call_data) TOP_STATE_JUST_REMOVED);
             
             this.io_header = null;
@@ -371,7 +371,7 @@ public class InputOutputImpl implements InputOutput
         // if there is a top state, do the normal input cycle
         if (decider.top_state != null)
         {
-            context.getEventManager().fireEvent(inputEvent);
+            context.getEvents().fireEvent(inputEvent);
             // soar_invoke_callbacks(thisAgent, INPUT_PHASE_CALLBACK, (soar_call_data) NORMAL_INPUT_CYCLE);
         }
 
@@ -644,7 +644,7 @@ public class InputOutputImpl implements InputOutput
             // start_timer (thisAgent, &thisAgent->start_kernel_tv);
             // #endif
 
-            context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.ADDED_OUTPUT_COMMAND, iw_list));
+            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.ADDED_OUTPUT_COMMAND, iw_list));
 
             // #ifndef NO_TIMING_STUFF
             // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
@@ -664,7 +664,7 @@ public class InputOutputImpl implements InputOutput
             // start_timer (thisAgent, &thisAgent->start_kernel_tv);
             // #endif
 
-            context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
+            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
 
             // #ifndef NO_TIMING_STUFF
             // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
@@ -687,7 +687,7 @@ public class InputOutputImpl implements InputOutput
             // start_timer (thisAgent, &thisAgent->start_kernel_tv);
             // #endif
 
-            context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
+            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
 
             // #ifndef NO_TIMING_STUFF
             // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
@@ -708,7 +708,7 @@ public class InputOutputImpl implements InputOutput
             //      start_timer (thisAgent, &thisAgent->start_kernel_tv);
             //      #endif
 
-            context.getEventManager().fireEvent(new OutputEvent(this, OutputMode.REMOVED_OUTPUT_COMMAND, iw_list));
+            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.REMOVED_OUTPUT_COMMAND, iw_list));
 
             //      #ifndef NO_TIMING_STUFF      
             //      stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);

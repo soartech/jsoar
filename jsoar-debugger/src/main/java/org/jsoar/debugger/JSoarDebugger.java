@@ -79,7 +79,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
     private JSoarDebuggerConfiguration configuration = new DefaultDebuggerConfiguration();
     
-    private Agent agent;
+    //private Agent agent;
     private SoarTclInterface ifc;
     private ThreadedAgent proxy;
     private LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
@@ -111,12 +111,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     private void initialize(JFrame parentFrame, ThreadedAgent proxy)
     {
-        logger.info("Initializing debugger for agent '" + proxy.getAgent() + "'");
+        logger.info("Initializing debugger for agent '" + proxy + "'");
         
         this.frame = parentFrame;
-        this.agent = proxy.getAgent();
         this.proxy = proxy;
-        this.ifc = SoarTclInterface.findOrCreate(agent);
+        this.ifc = SoarTclInterface.findOrCreate(proxy.getAgent());
         
         this.ifc.getInterpreter().createCommand("load-plugin", loadPluginCommand);
         
@@ -146,7 +145,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }});
         
         // Update after init-soar
-        agent.getEventManager().addListener(AfterInitSoarEvent.class, saveListener(new SoarEventListener() {
+        proxy.getEvents().addListener(AfterInitSoarEvent.class, saveListener(new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -155,7 +154,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }}));
 
         // Update when the agent stops running
-        agent.getEventManager().addListener(StopEvent.class, saveListener(new SoarEventListener() {
+        proxy.getEvents().addListener(StopEvent.class, saveListener(new SoarEventListener() {
 
             @Override
             public void onEvent(SoarEvent event)
@@ -389,7 +388,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
         final JSoarDebugger debugger = new JSoarDebugger();
         
-        final JFrame frame = new JFrame("JSoar Debugger - " + proxy.getAgent().getName());
+        final JFrame frame = new JFrame("JSoar Debugger - " + proxy.getName());
         
         frame.setContentPane(debugger);
         frame.setSize(1200, 1024);
@@ -409,7 +408,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public void detach()
     {
-        logger.info(String.format("Detaching from agent '" + agent + "'"));
+        logger.info(String.format("Detaching from agent '" + proxy + "'"));
         
         // clean up dock property listener
         ActiveDockableTracker.getTracker(frame).removePropertyChangeListener(dockTrackerListener);
@@ -418,7 +417,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         // clean up soar event listener
         for(SoarEventListener listener : soarEventListeners)
         {
-            agent.getEventManager().removeListener(null, listener);
+            proxy.getEvents().removeListener(null, listener);
         }
         soarEventListeners.clear();
         
@@ -519,7 +518,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static JSoarDebugger initialize(final String[] args)
     {
-        final JSoarDebugger debugger = attach(ThreadedAgent.attach(new Agent()).initialize());
+        final JSoarDebugger debugger = attach(ThreadedAgent.create());
         
         debugger.proxy.execute(new Callable<Void>() {
             public Void call() 
@@ -563,7 +562,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         if(klass.equals(Agent.class))
         {
-            return agent;
+            return proxy.getAgent();
         }
         if(klass.equals(ThreadedAgent.class))
         {

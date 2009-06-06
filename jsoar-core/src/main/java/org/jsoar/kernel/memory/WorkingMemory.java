@@ -71,7 +71,7 @@ public class WorkingMemory
         this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
         this.trace = context.getTrace();
         this.decider = Adaptables.adapt(context, Decider.class);
-        this.eventManager = context.getEventManager();
+        this.eventManager = context.getEvents();
     }
 
     /**

@@ -61,7 +61,7 @@ public class CycleCountInputTest
                 matches.add(arguments.get(0).asInteger().getValue());
                 return null;
             }});
-        CycleCountInput input = new CycleCountInput(agent.getInputOutput(), agent.getEventManager());
+        CycleCountInput input = new CycleCountInput(agent.getInputOutput(), agent.getEvents());
         
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction("testCycleCountInput " +

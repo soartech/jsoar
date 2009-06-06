@@ -42,7 +42,7 @@ public class ProductionTableModel extends AbstractTableModel
     
     public void initialize()
     {
-        final SoarEventManager eventManager = this.agent.getAgent().getEventManager();
+        final SoarEventManager eventManager = this.agent.getEvents();
         eventManager.addListener(ProductionAddedEvent.class, listener);
         eventManager.addListener(ProductionExcisedEvent.class, listener);
         
@@ -54,7 +54,7 @@ public class ProductionTableModel extends AbstractTableModel
             {
                 synchronized(productions)
                 {
-                    productions.addAll(agent.getAgent().getProductions().getProductions(null));
+                    productions.addAll(agent.getProductions().getProductions(null));
                 }
                 return null;
             }}, null);
