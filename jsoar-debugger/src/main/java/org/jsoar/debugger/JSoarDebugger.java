@@ -53,8 +53,10 @@ import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.tcl.RunCommand;
 import org.jsoar.tcl.SoarTclException;
 import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.tcl.StopCommand;
 import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -121,7 +123,10 @@ public class JSoarDebugger extends JPanel implements Adaptable
         this.proxy = proxy;
         this.ifc = SoarTclInterface.findOrCreate(proxy.getAgent());
         
-        this.ifc.getInterpreter().createCommand("load-plugin", loadPluginCommand);
+        this.ifc.addCommand("run", new RunCommand(proxy));
+        this.ifc.addCommand("stop", new StopCommand(proxy));
+        this.ifc.addCommand("stop-soar", new StopCommand(proxy));
+        this.ifc.addCommand("load-plugin", loadPluginCommand);
         
         this.add(viewport, BorderLayout.CENTER);
         
@@ -158,6 +163,16 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 frame.setTitle("JSoar Debugger - " + event.getNewValue());
             }}));
         
+        // Track agent's running state
+        saveListener(proxy.getProperties().addListener(SoarProperties.IS_RUNNING, new PropertyListener<Boolean>() {
+
+            @Override
+            public void propertyChanged(
+                    org.jsoar.util.properties.PropertyChangeEvent<Boolean> event)
+            {
+                updateActionsAndStatus();
+            }}));
+
         // Update after init-soar
         proxy.getEvents().addListener(AfterInitSoarEvent.class, saveListener(new SoarEventListener() {
 

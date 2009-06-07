@@ -133,7 +133,16 @@ public class PropertyManager
         return oldValue;
     }
 
-    private <T, V extends T> void firePropertyChanged(PropertyKey<T> key, V value, final T oldValue)
+    /**
+     * Manually fire a property change event.
+     * 
+     * @param <T> The property type
+     * @param <V> The value type, sub-class of T
+     * @param key The key
+     * @param value The new value
+     * @param oldValue The old value
+     */
+    public <T, V extends T> void firePropertyChanged(PropertyKey<T> key, V value, final T oldValue)
     {
         final PropertyChangeEvent<T> event = new PropertyChangeEvent<T>(key, oldValue, value);
         for(PropertyListener<T> listener : getListenersForKey(key))

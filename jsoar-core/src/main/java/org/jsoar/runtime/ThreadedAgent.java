@@ -16,6 +16,7 @@ import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.kernel.io.InputOutput;
@@ -26,6 +27,7 @@ import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.properties.PropertyManager;
+import org.jsoar.util.properties.PropertyProvider;
 
 import com.google.common.collect.MapMaker;
 
@@ -40,16 +42,34 @@ import com.google.common.collect.MapMaker;
  * methods. Note however, that many public Soar interfaces, or at least parts of them,
  * are immutable, so it is safe to access them from other threads.
  * 
+ * <p>This object sets the {@link SoarProperties#IS_RUNNING} property appropriately
+ * and fires events when its state changes.
+ * 
  * @author ray
  */
 public class ThreadedAgent
 {
     private final static Map<Agent, ThreadedAgent> proxies = new MapMaker().weakKeys().makeMap();
     
-    private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();
     private final Agent agent;
+    private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final AtomicBoolean agentRunning = new AtomicBoolean(false);
+    private final PropertyProvider<Boolean> agentRunningProvider = new PropertyProvider<Boolean>() {
+
+        @Override
+        public Boolean get()
+        {
+            return agentRunning.get();
+        }
+
+        @Override
+        public Boolean set(Boolean value)
+        {
+            throw new UnsupportedOperationException(SoarProperties.IS_RUNNING.getName() + " property is read-only");
+        }
+    };
+    
     private final AgentThread agentThread = new AgentThread();
     private final WaitRhsFunction waitFunction = new WaitRhsFunction();
     
@@ -114,6 +134,8 @@ public class ThreadedAgent
         this.agent = agent;
         agentThread.setName("Agent '" + this.agent + "' thread");
         
+        this.agent.getProperties().setProvider(SoarProperties.IS_RUNNING, agentRunningProvider);
+        
         getEvents().addListener(RunLoopEvent.class, new SoarEventListener() {
 
             @Override
@@ -133,6 +155,16 @@ public class ThreadedAgent
                     runnable.run();
                     runnable = commands.poll();
                 }
+                try
+                {
+                    Thread.sleep(50);
+                }
+                catch (InterruptedException e)
+                {
+                    Thread.currentThread().interrupt();
+                    throw new InterruptAgentException();
+                }
+                
             }});
         
         waitFunction.attach(this);
@@ -244,6 +276,8 @@ public class ThreadedAgent
         {
             return;
         }
+        agent.getProperties().firePropertyChanged(SoarProperties.IS_RUNNING, true, false);
+        
         execute(new Callable<Void>() {
 
             @Override
@@ -256,6 +290,7 @@ public class ThreadedAgent
                 finally
                 {
                     agentRunning.set(false);
+                    agent.getProperties().firePropertyChanged(SoarProperties.IS_RUNNING, false, true);
                     getEvents().fireEvent(new StopEvent(agent));
                 }
                 return null;

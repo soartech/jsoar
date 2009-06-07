@@ -85,6 +85,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                     menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
                 }
             }});
+        outputWindow.setEditable(false);
+        
         debugger.getAgentProxy().getPrinter().pushWriter(outputWriter, true);
         
         final Trace trace = debugger.getAgentProxy().getTrace();
