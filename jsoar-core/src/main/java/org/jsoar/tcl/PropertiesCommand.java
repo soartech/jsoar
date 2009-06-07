@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
 import java.util.Collections;
@@ -21,20 +24,19 @@ import tcl.lang.TclObject;
  */
 final class PropertiesCommand implements Command
 {
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
     /**
-     * @param ifc the owning Tcl interface
+     * @param agent the agent
      */
-    PropertiesCommand(SoarTclInterface ifc)
+    PropertiesCommand(Agent agent)
     {
-        this.ifc = ifc;
+        this.agent = agent;
     }
 
     @Override
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
-        final Agent agent = ifc.getAgent();
         final Printer p = agent.getPrinter();
         
         p.startNewLine();

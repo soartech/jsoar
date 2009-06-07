@@ -1,4 +1,9 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
+
+import org.jsoar.kernel.Agent;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -11,17 +16,14 @@ import tcl.lang.TclObject;
  */
 final class SrandCommand implements Command
 {
-    /**
-     * 
-     */
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
     /**
      * @param soarTclInterface
      */
-    SrandCommand(SoarTclInterface soarTclInterface)
+    SrandCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
@@ -41,6 +43,6 @@ final class SrandCommand implements Command
         {
             seed = Long.parseLong(args[1].toString());
         }
-        ifc.getAgent().getRandom().setSeed(seed);
+        agent.getRandom().setSeed(seed);
     }
 }

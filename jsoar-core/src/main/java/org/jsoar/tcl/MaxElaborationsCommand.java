@@ -1,5 +1,9 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
 
 import tcl.lang.Command;
@@ -16,14 +20,11 @@ final class MaxElaborationsCommand implements Command
     /**
      * 
      */
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
-    /**
-     * @param soarTclInterface
-     */
-    MaxElaborationsCommand(SoarTclInterface soarTclInterface)
+    MaxElaborationsCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
@@ -36,14 +37,14 @@ final class MaxElaborationsCommand implements Command
 
         if(args.length == 1)
         {
-            ifc.getAgent().getPrinter().print("\n%d", ifc.getAgent().getProperties().get(SoarProperties.MAX_ELABORATIONS));
+            agent.getPrinter().print("\n%d", agent.getProperties().get(SoarProperties.MAX_ELABORATIONS));
         }
         else
         {
             try
             {
                 final int value = Integer.parseInt(args[1].toString());
-                ifc.getAgent().getProperties().set(SoarProperties.MAX_ELABORATIONS, value);
+                agent.getProperties().set(SoarProperties.MAX_ELABORATIONS, value);
             }
             catch(NumberFormatException e)
             {

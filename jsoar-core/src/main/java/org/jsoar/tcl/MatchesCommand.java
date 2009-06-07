@@ -23,21 +23,19 @@ import tcl.lang.TclObject;
  */
 public class MatchesCommand implements Command
 {
-    private final SoarTclInterface ifc;
+    private final Agent agent;
     
     /**
      * @param agent
      */
-    public MatchesCommand(SoarTclInterface ifc)
+    public MatchesCommand(Agent agent)
     {
-        this.ifc = ifc;
+        this.agent = agent;
     }
 
     @Override
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
-        final Agent agent = ifc.getAgent();
-        
         if(args.length == 1)
         {
             agent.printMatchSet(agent.getPrinter(), WmeTraceType.FULL, 

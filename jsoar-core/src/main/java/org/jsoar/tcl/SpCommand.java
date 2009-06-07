@@ -1,5 +1,9 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
 
@@ -14,17 +18,14 @@ import tcl.lang.TclObject;
  */
 final class SpCommand implements Command
 {
-    /**
-     * 
-     */
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
     /**
      * @param soarTclInterface
      */
-    SpCommand(SoarTclInterface soarTclInterface)
+    SpCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
@@ -37,7 +38,7 @@ final class SpCommand implements Command
         
         try
         {
-            ifc.getAgent().getProductions().loadProduction(args[1].toString());
+            agent.getProductions().loadProduction(args[1].toString());
         }
         catch (ReordererException e)
         {

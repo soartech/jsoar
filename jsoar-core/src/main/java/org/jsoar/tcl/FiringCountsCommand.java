@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
 
@@ -26,11 +27,11 @@ import tcl.lang.TclObject;
  */
 final class FiringCountsCommand implements Command
 {
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
-    FiringCountsCommand(SoarTclInterface soarTclInterface)
+    FiringCountsCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
@@ -63,7 +64,7 @@ final class FiringCountsCommand implements Command
 
     private void printResults(List<Production> productions, int n)
     {
-        final Printer printer = ifc.getAgent().getPrinter();
+        final Printer printer = agent.getPrinter();
         for(int i = 0; i < n && i < productions.size(); ++i)
         {
             final Production p = productions.get(i);
@@ -73,7 +74,7 @@ final class FiringCountsCommand implements Command
     
     private void printSingleProduction(Interp interp, String name) throws TclException
     {
-        final Production p = ifc.getAgent().getProductions().getProduction(name);
+        final Production p = agent.getProductions().getProduction(name);
         if(p == null)
         {
             throw new TclException(interp, "No production named '" + name + "'");
@@ -83,7 +84,7 @@ final class FiringCountsCommand implements Command
 
     private void printTopProductions(Interp interp, int n)
     {
-        final List<Production> prods = ifc.getAgent().getProductions().getProductions(null);
+        final List<Production> prods = agent.getProductions().getProductions(null);
         Collections.sort(prods, new Comparator<Production> () {
 
             @Override

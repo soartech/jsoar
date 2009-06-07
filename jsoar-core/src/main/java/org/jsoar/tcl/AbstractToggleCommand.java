@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
 import java.util.Arrays;
@@ -19,14 +22,11 @@ abstract class AbstractToggleCommand implements Command
     private static final List<String> enableOpts = Arrays.asList("--on", "-e", "--enable");
     private static final List<String> disableOpts = Arrays.asList("--off", "-d", "--disable");
     
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
-    /**
-     * @param soarTclInterface
-     */
-    AbstractToggleCommand(SoarTclInterface soarTclInterface)
+    AbstractToggleCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
@@ -40,11 +40,11 @@ abstract class AbstractToggleCommand implements Command
         final String a = args[1].toString();
         if(enableOpts.contains(a))
         {
-            execute(ifc.getAgent(), true);
+            execute(agent, true);
         }
         else if(disableOpts.contains(a))
         {
-            execute(ifc.getAgent(), false);
+            execute(agent, false);
         }
         else
         {

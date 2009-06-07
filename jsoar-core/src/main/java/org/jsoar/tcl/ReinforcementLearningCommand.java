@@ -1,5 +1,9 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.util.adaptables.Adaptables;
 
@@ -14,17 +18,13 @@ import tcl.lang.TclObject;
  */
 final class ReinforcementLearningCommand implements Command
 {
-    /**
-     * 
-     */
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
     /**
-     * @param soarTclInterface
      */
-    ReinforcementLearningCommand(SoarTclInterface soarTclInterface)
+    ReinforcementLearningCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
@@ -36,7 +36,7 @@ final class ReinforcementLearningCommand implements Command
         }
         
         // TODO reinforcement learning: Obviously, this implementation is insufficient
-        final ReinforcementLearning rl = Adaptables.adapt(ifc.getAgent(), ReinforcementLearning.class);
+        final ReinforcementLearning rl = Adaptables.adapt(agent, ReinforcementLearning.class);
         rl.rl_set_parameter(ReinforcementLearning.RL_PARAM_LEARNING, 
                 "on".equals(args[3].toString()) ? ReinforcementLearning.RL_LEARNING_ON :
                     ReinforcementLearning.RL_LEARNING_ON );

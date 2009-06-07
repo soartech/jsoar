@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
 import java.util.LinkedHashSet;
@@ -8,6 +11,7 @@ import java.util.LinkedHashSet;
  */
 import java.util.Set;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
@@ -24,18 +28,18 @@ import tcl.lang.TclObject;
  */
 final class ExciseCommand implements Command
 {
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
-    ExciseCommand(SoarTclInterface soarTclInterface)
+    ExciseCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
         final Set<Production> toExcise = new LinkedHashSet<Production>();
-        final ProductionManager pm = ifc.getAgent().getProductions();
+        final ProductionManager pm = agent.getProductions();
         boolean doInit = false;
         for(int i = 1; i < args.length; ++i)
         {
@@ -96,9 +100,9 @@ final class ExciseCommand implements Command
         // If -a is given, we do an init-soar as well
         if(doInit)
         {
-            ifc.getAgent().initialize();
+            agent.initialize();
         }
         
-        ifc.getAgent().getPrinter().startNewLine().print("%d production%s excise.", toExcise.size(), toExcise.size() == 1 ? "" : "s");
+        agent.getPrinter().startNewLine().print("%d production%s excise.", toExcise.size(), toExcise.size() == 1 ? "" : "s");
     }
 }

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
 import java.util.Collections;
@@ -20,20 +23,16 @@ import tcl.lang.TclObject;
  */
 final class RhsFunctionsCommand implements Command
 {
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
-    /**
-     * @param ifc the owning Tcl interface
-     */
-    RhsFunctionsCommand(SoarTclInterface ifc)
+    RhsFunctionsCommand(Agent agent)
     {
-        this.ifc = ifc;
+        this.agent = agent;
     }
 
     @Override
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
-        final Agent agent = ifc.getAgent();
         final Printer p = agent.getPrinter();
         
         p.startNewLine();

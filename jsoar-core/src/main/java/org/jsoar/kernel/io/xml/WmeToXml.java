@@ -74,7 +74,6 @@ public class WmeToXml
         else
         {
             logger.warn("Don't know what to do with " + ATTRS + " element with non-id value: " + attrWme);
-            // TODO what to do with ^@attrs (string|int|float)...?
         }
     }
     

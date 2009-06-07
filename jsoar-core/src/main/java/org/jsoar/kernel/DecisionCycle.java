@@ -10,6 +10,8 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.events.AbstractPhaseEvent;
 import org.jsoar.kernel.events.AfterDecisionCycleEvent;
 import org.jsoar.kernel.events.AfterElaborationEvent;
@@ -47,6 +49,8 @@ import org.jsoar.util.timing.ExecutionTimers;
  */
 public class DecisionCycle
 {
+    private static final Log logger = LogFactory.getLog(DecisionCycle.class);
+    
     private final Agent context;
     
     private Decider decider;
@@ -357,8 +361,7 @@ public class DecisionCycle
             }
             catch (IOException e)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.warn("While printing current context: " + e);
             }
          }
 

@@ -33,7 +33,7 @@ public class PrintCommand implements Command
         STATES, OPERATORS, FULL, RL, FILE_NAME, EXACT, DEPTH;
         // TODO varprint
     }
-    private final SoarTclInterface ifc;
+    private final Agent agent;
     private final WorkingMemoryPrinter wmp = new WorkingMemoryPrinter();
     
     private final EnumSet<Options> options = EnumSet.noneOf(Options.class);
@@ -42,9 +42,9 @@ public class PrintCommand implements Command
     /**
      * @param agent
      */
-    public PrintCommand(SoarTclInterface ifc)
+    public PrintCommand(Agent agent)
     {
-        this.ifc = ifc;
+        this.agent = agent;
     }
     
     private static boolean has(String arg, String little, String big)
@@ -54,7 +54,7 @@ public class PrintCommand implements Command
     
     private List<Production> collectProductions()
     {
-        final ProductionManager pm = ifc.getAgent().getProductions();
+        final ProductionManager pm = agent.getProductions();
         final List<Production> result = new ArrayList<Production>();
         
         if(options.contains(Options.ALL))
@@ -170,7 +170,6 @@ public class PrintCommand implements Command
     @Override
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
-        final Agent agent = ifc.getAgent();
         agent.getPrinter().startNewLine();
         
         options.clear();
@@ -207,7 +206,7 @@ public class PrintCommand implements Command
         }
         else if(options.contains(Options.RL))
         {
-            for(Production p : ifc.getAgent().getProductions().getProductions(null))
+            for(Production p : agent.getProductions().getProductions(null))
             {
                 if(p.rl_rule)
                 {
@@ -262,7 +261,7 @@ public class PrintCommand implements Command
     
     private void do_print_for_production(Production prod)
     {
-        final Printer p = ifc.getAgent().getPrinter();
+        final Printer p = agent.getPrinter();
 
         if (!options.contains(Options.FULL))
         {

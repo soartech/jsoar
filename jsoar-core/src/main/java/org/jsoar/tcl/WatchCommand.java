@@ -1,4 +1,9 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
+
+import org.jsoar.kernel.Agent;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -11,17 +16,11 @@ import tcl.lang.TclObject;
  */
 final class WatchCommand implements Command
 {
-    /**
-     * 
-     */
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
-    /**
-     * @param soarTclInterface
-     */
-    WatchCommand(SoarTclInterface soarTclInterface)
+    WatchCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
@@ -35,7 +34,7 @@ final class WatchCommand implements Command
         try
         {
             int level = Integer.valueOf(args[1].toString());
-            ifc.getAgent().getTrace().setWatchLevel(level);
+            agent.getTrace().setWatchLevel(level);
         }
         catch(NumberFormatException e)
         {
