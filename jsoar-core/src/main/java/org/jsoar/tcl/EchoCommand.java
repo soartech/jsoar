@@ -5,16 +5,13 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class EchoCommand implements Command
+final class EchoCommand implements SoarCommand
 {
     private final Agent agent;
 
@@ -24,7 +21,7 @@ final class EchoCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         boolean noNewLine = false;
         for(int i = 1; i < args.length; ++i)
@@ -44,5 +41,6 @@ final class EchoCommand implements Command
             agent.getPrinter().print("\n");
         }
         agent.getPrinter().flush();
+        return "";
     }
 }

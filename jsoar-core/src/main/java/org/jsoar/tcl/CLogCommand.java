@@ -12,47 +12,37 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.util.TeeWriter;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class CLogCommand implements Command
+final class CLogCommand implements SoarCommand
 {
     private static final List<String> offOptions = Arrays.asList("-c", "--close", "-o", "--off", "-d", "--disable");
     private static final List<String> queryOptions = Arrays.asList("-q", "--query");
     
-    /**
-     * 
-     */
     private final Agent agent;
     private LinkedList<Writer> writerStack = new LinkedList<Writer>();
 
-    /**
-     * @param soarTclInterface
-     */
     CLogCommand(Agent agent)
     {
         this.agent = agent;
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length == 2)
         {
-            String arg = args[1].toString();
+            String arg = args[1];
             if(offOptions.contains(arg))
             {
                 if(writerStack.isEmpty())
                 {
-                    throw new TclException(interp, "Log stack is empty");
+                    throw new SoarException("Log stack is empty");
                 }
                 final Writer w = writerStack.pop();
                 agent.getPrinter().popWriter();
@@ -64,29 +54,28 @@ final class CLogCommand implements Command
                     }
                     catch (IOException e)
                     {
-                        throw new TclException(interp, "While closing writer: " + e.getMessage());
+                        throw new SoarException("While closing writer: " + e.getMessage());
                     }
                 }
-                return;
+                return "";
             }
             else if(queryOptions.contains(arg))
             {
-                interp.setResult(writerStack.isEmpty() ? "closed" : String.format("open (%d writers)", writerStack.size()));
-                return;
+                return writerStack.isEmpty() ? "closed" : String.format("open (%d writers)", writerStack.size());
             }
             else if(arg.equals("stdout"))
             {
                 Writer w = new OutputStreamWriter(System.out);
                 writerStack.push(null);
                 agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w), true);
-                return;
+                return "";
             }
             else if(arg.equals("stderr"))
             {
                 Writer w = new OutputStreamWriter(System.err);
                 writerStack.push(null);
                 agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w), true);
-                return;
+                return "";
             }
             else
             {
@@ -95,16 +84,16 @@ final class CLogCommand implements Command
                     Writer w = new FileWriter(arg);
                     writerStack.push(w);
                     agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w), true);
-                    return;
+                    return "";
                 }
                 catch (IOException e)
                 {
-                    throw new TclException(interp, "Failed to open file '" + arg + "': " + e.getMessage());
+                    throw new SoarException("Failed to open file '" + arg + "': " + e.getMessage());
                 }
             }
         }
         // TODO: Implement -a, --add, -A, --append, -e, --existing
         
-        throw new TclNumArgsException(interp, 0, args, "");
+        throw new SoarException("Expected 1 argument, got " + (args.length - 1));
     }
 }

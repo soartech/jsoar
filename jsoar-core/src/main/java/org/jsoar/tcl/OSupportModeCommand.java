@@ -3,24 +3,22 @@
  */
 package org.jsoar.tcl;
 
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class OSupportModeCommand implements Command
+final class OSupportModeCommand implements SoarCommand
 {
     OSupportModeCommand()
     {
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
-        throw new TclException(interp, 
+        throw new SoarException( 
                 "o-support-mode command is not supported. " +
                 "jsoar's default behavior is equivalent to o-support mode 4 in" +
                 "the standard Soar 9.0.0 release.");

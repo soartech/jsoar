@@ -6,8 +6,7 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
-
-import tcl.lang.TclException;
+import org.jsoar.kernel.SoarException;
 
 /**
  * @author ray
@@ -27,7 +26,7 @@ public class WarningsCommand extends AbstractToggleCommand
      * @see org.jsoar.tcl.AbstractToggleCommand#execute(org.jsoar.kernel.Agent, boolean)
      */
     @Override
-    protected void execute(Agent agent, boolean enable) throws TclException
+    protected void execute(Agent agent, boolean enable) throws SoarException
     {
         agent.getPrinter().setPrintWarnings(enable);
     }

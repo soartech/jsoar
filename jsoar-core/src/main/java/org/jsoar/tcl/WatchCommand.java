@@ -4,17 +4,13 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class WatchCommand implements Command
+final class WatchCommand implements SoarCommand
 {
     private final Agent agent;
 
@@ -24,25 +20,27 @@ final class WatchCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length != 2)
         {
-            throw new TclNumArgsException(interp, 0, args, "level");
+            // TODO illegal args
+            throw new SoarException(String.format("%s <level>", args[0]));
         }
         
         try
         {
-            int level = Integer.valueOf(args[1].toString());
+            int level = Integer.valueOf(args[1]);
             agent.getTrace().setWatchLevel(level);
+            return "";
         }
         catch(NumberFormatException e)
         {
-            throw new TclException(interp, args[1] + " is not a valid number");
+            throw new SoarException(args[1] + " is not a valid number");
         }
         catch(IllegalArgumentException e)
         {
-            throw new TclException(interp, e.getMessage());
+            throw new SoarException(e.getMessage());
         }
     }
 }

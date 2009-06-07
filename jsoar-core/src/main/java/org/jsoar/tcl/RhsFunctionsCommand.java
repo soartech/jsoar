@@ -8,20 +8,17 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.tracing.Printer;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * Command that prints out all registered RHS functions
  * 
  * @author ray
  */
-final class RhsFunctionsCommand implements Command
+final class RhsFunctionsCommand implements SoarCommand
 {
     private final Agent agent;
 
@@ -31,7 +28,7 @@ final class RhsFunctionsCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         final Printer p = agent.getPrinter();
         
@@ -51,5 +48,6 @@ final class RhsFunctionsCommand implements Command
             int max = f.getMaxArguments();
             p.print("%20s (%d, %s)%n", f.getName(), f.getMinArguments(), max == Integer.MAX_VALUE ? "*" : Integer.toString(max));
         }
+        return "";
     }
 }

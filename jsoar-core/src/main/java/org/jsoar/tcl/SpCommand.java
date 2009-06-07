@@ -4,49 +4,44 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class SpCommand implements Command
+final class SpCommand implements SoarCommand
 {
     private final Agent agent;
 
-    /**
-     * @param soarTclInterface
-     */
     SpCommand(Agent agent)
     {
         this.agent = agent;
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length != 2)
         {
-            throw new TclNumArgsException(interp, 0, args, "body");
+            // TODO illegal argument
+            throw new SoarException(String.format("%s body", args[0]));
         }
         
         try
         {
-            agent.getProductions().loadProduction(args[1].toString());
+            agent.getProductions().loadProduction(args[1]);
+            return "";
         }
         catch (ReordererException e)
         {
-            throw new TclException(interp, e.getMessage());
+            throw new SoarException(e.getMessage());
         }
         catch (ParserException e)
         {
-            throw new TclException(interp, e.getMessage());
+            throw new SoarException(e.getMessage());
         }
     }
 }

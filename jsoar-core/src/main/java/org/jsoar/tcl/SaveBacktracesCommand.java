@@ -6,9 +6,8 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
-
-import tcl.lang.TclException;
 
 /**
  * @author ray
@@ -28,7 +27,7 @@ public class SaveBacktracesCommand extends AbstractToggleCommand
      * @see org.jsoar.tcl.AbstractToggleCommand#execute(org.jsoar.kernel.Agent, boolean)
      */
     @Override
-    protected void execute(Agent agent, boolean enable) throws TclException
+    protected void execute(Agent agent, boolean enable) throws SoarException
     {
         agent.getProperties().set(SoarProperties.EXPLAIN, enable);
     }

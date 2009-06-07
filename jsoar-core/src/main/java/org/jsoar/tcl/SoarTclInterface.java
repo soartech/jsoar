@@ -8,7 +8,10 @@ package org.jsoar.tcl;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 
+import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
 
@@ -17,7 +20,7 @@ import com.google.common.collect.MapMaker;
 /**
  * @author ray
  */
-public class SoarTclInterface
+public class SoarTclInterface implements SoarCommandInterpreter
 {
     private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
     
@@ -51,7 +54,6 @@ public class SoarTclInterface
         }
     }
     
-    
     private Agent agent;
     private final Interp interp = new Interp();
     
@@ -76,35 +78,43 @@ public class SoarTclInterface
         interp.createCommand("popd", this.popdCommand);
         interp.createCommand("pwd", new PwdCommand(sourceCommand));
         
-        interp.createCommand("sp", new SpCommand(this.agent));
-        interp.createCommand("multi-attributes", new MultiAttrCommand(this.agent));
-        interp.createCommand("stats", new StatsCommand(this.agent));
-        interp.createCommand("learn", new LearnCommand(this.agent));
-        interp.createCommand("rl", new ReinforcementLearningCommand(this.agent));
-        interp.createCommand("srand", new SrandCommand(this.agent));
-        interp.createCommand("max-elaborations", new MaxElaborationsCommand(this.agent));
-        interp.createCommand("matches", new MatchesCommand(this.agent));
-        interp.createCommand("waitsnc", new WaitSncCommand(this.agent));
-        interp.createCommand("init-soar", new InitSoarCommand(this.agent));
-        interp.createCommand("warnings", new WarningsCommand(this.agent));
-        interp.createCommand("verbose", new VerboseCommand(this.agent));
-        interp.createCommand("save-backtraces", new SaveBacktracesCommand(this.agent));
-        interp.createCommand("echo", new EchoCommand(this.agent));
-        interp.createCommand("clog", new CLogCommand(this.agent));
-        interp.createCommand("watch", new WatchCommand(this.agent));
-        interp.createCommand("rhs-functions", new RhsFunctionsCommand(this.agent));
-        interp.createCommand("print", new PrintCommand(this.agent));
-        interp.createCommand("p", new PrintCommand(this.agent)); // TODO do aliases
-        interp.createCommand("o-support-mode", new OSupportModeCommand());
-        interp.createCommand("soar8", new Soar8Command());
-        interp.createCommand("firing-counts", new FiringCountsCommand(this.agent));
-        interp.createCommand("fc", interp.getCommand("firing-counts")); // TODO do aliases
-        interp.createCommand("excise", new ExciseCommand(this.agent));
-        interp.createCommand("ex", interp.getCommand("excise")); // TODO do aliases
-        interp.createCommand("init-soar", new InitSoarCommand(this.agent));
+        addCommand("sp", new SpCommand(this.agent));
+        addCommand("multi-attributes", new MultiAttrCommand(this.agent));
+        addCommand("stats", new StatsCommand(this.agent));
+        addCommand("learn", new LearnCommand(this.agent));
+        addCommand("rl", new ReinforcementLearningCommand(this.agent));
+        addCommand("srand", new SrandCommand(this.agent));
+        addCommand("max-elaborations", new MaxElaborationsCommand(this.agent));
+        addCommand("matches", new MatchesCommand(this.agent));
+        addCommand("waitsnc", new WaitSncCommand(this.agent));
+        addCommand("init-soar", new InitSoarCommand(this.agent));
+        addCommand("warnings", new WarningsCommand(this.agent));
+        addCommand("verbose", new VerboseCommand(this.agent));
+        addCommand("save-backtraces", new SaveBacktracesCommand(this.agent));
+        addCommand("echo", new EchoCommand(this.agent));
+        addCommand("clog", new CLogCommand(this.agent));
+        addCommand("watch", new WatchCommand(this.agent));
+        addCommand("rhs-functions", new RhsFunctionsCommand(this.agent));
+        final PrintCommand print = new PrintCommand(this.agent);
+        addCommand("print", print);
+        addCommand("p", print); // TODO do aliases
+        addCommand("o-support-mode", new OSupportModeCommand());
+        addCommand("soar8", new Soar8Command());
+        final FiringCountsCommand fc = new FiringCountsCommand(this.agent);
+        addCommand("firing-counts", fc);
+        addCommand("fc", fc); // TODO do aliases
+        final ExciseCommand excise = new ExciseCommand(this.agent);
+        addCommand("excise", excise);
+        addCommand("ex", excise); // TODO do aliases
+        addCommand("init-soar", new InitSoarCommand(this.agent));
         
-        interp.createCommand("set-parser", new SetParserCommand(this.agent));
-        interp.createCommand("properties", new PropertiesCommand(this.agent));
+        addCommand("set-parser", new SetParserCommand(this.agent));
+        addCommand("properties", new PropertiesCommand(this.agent));
+    }
+    
+    private Command adapt(SoarCommand c)
+    {
+        return new SoarTclCommandAdapter(c);
     }
     
     public Interp getInterpreter()
@@ -164,4 +174,15 @@ public class SoarTclInterface
             throw new SoarTclException(interp);
         }
     }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#addCommand(java.lang.String, org.jsoar.util.commands.SoarCommand)
+     */
+    @Override
+    public void addCommand(String name, SoarCommand handler)
+    {
+        interp.createCommand(name, adapt(handler));
+    }
+    
+    
 }

@@ -4,29 +4,21 @@
 package org.jsoar.tcl;
 
 import java.util.LinkedHashSet;
-/*
- * Copyright (c) 2009  Dave Ray <daveray@gmail.com>
- *
- * Created on April 29, 2009
- */
 import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * http://winter.eecs.umich.edu/soarwiki/Excise
  * 
  * @author ray
  */
-final class ExciseCommand implements Command
+final class ExciseCommand implements SoarCommand
 {
     private final Agent agent;
 
@@ -36,14 +28,14 @@ final class ExciseCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         final Set<Production> toExcise = new LinkedHashSet<Production>();
         final ProductionManager pm = agent.getProductions();
         boolean doInit = false;
         for(int i = 1; i < args.length; ++i)
         {
-            final String arg = args[i].toString();
+            final String arg = args[i];
             if("-a".equals(arg) || "--all".equals(arg))
             {
                 toExcise.addAll(pm.getProductions(null));
@@ -86,7 +78,7 @@ final class ExciseCommand implements Command
                 final Production p = pm.getProduction(arg);
                 if(p == null)
                 {
-                    throw new TclException(interp, "No production named '" + arg + "'");
+                    throw new SoarException("No production named '" + arg + "'");
                 }
                 toExcise.add(p);
             }
@@ -104,5 +96,6 @@ final class ExciseCommand implements Command
         }
         
         agent.getPrinter().startNewLine().print("%d production%s excise.", toExcise.size(), toExcise.size() == 1 ? "" : "s");
+        return "";
     }
 }

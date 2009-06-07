@@ -3,12 +3,9 @@
  */
 package org.jsoar.tcl;
 
+import org.jsoar.kernel.SoarException;
 import org.jsoar.runtime.ThreadedAgent;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * http://winter.eecs.umich.edu/soarwiki/Run
@@ -17,7 +14,7 @@ import tcl.lang.TclObject;
  * 
  * @author ray
  */
-public final class StopCommand implements Command
+public final class StopCommand implements SoarCommand
 {
     private final ThreadedAgent threadedAgent;
     
@@ -27,8 +24,9 @@ public final class StopCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         threadedAgent.stop();
+        return "";
     }
 }
