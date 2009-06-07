@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
 import java.util.Calendar;
@@ -19,23 +22,16 @@ import tcl.lang.TclObject;
  */
 final class StatsCommand implements Command
 {
-    /**
-     * 
-     */
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
-    /**
-     * @param ifc
-     */
-    StatsCommand(SoarTclInterface ifc)
+    StatsCommand(Agent agent)
     {
-        this.ifc = ifc;
+        this.agent = agent;
     }
 
     @Override
     public void cmdProc(Interp interp, TclObject[] args) throws TclException
     {
-        final Agent agent = ifc.getAgent();
         final Printer p = agent.getPrinter();
         
         p.startNewLine();

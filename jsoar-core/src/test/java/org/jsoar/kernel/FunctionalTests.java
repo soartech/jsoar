@@ -195,7 +195,7 @@ public class FunctionalTests
         agent.getProperties().set(SoarProperties.MAX_ELABORATIONS, 5);
         agent.runFor(1, RunType.DECISIONS);
         final DecisionCycle dc = Adaptables.adapt(agent, DecisionCycle.class);
-        assertFalse(dc.isHitMaxElaborations()); //  TODO replace with callback?
+        assertFalse(dc.isHitMaxElaborations());
         
     }    
     

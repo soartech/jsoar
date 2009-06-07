@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
 import java.io.FileWriter;
@@ -8,6 +11,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.util.TeeWriter;
 
 import tcl.lang.Command;
@@ -27,15 +31,15 @@ final class CLogCommand implements Command
     /**
      * 
      */
-    private final SoarTclInterface ifc;
+    private final Agent agent;
     private LinkedList<Writer> writerStack = new LinkedList<Writer>();
 
     /**
      * @param soarTclInterface
      */
-    CLogCommand(SoarTclInterface soarTclInterface)
+    CLogCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
@@ -50,8 +54,8 @@ final class CLogCommand implements Command
                 {
                     throw new TclException(interp, "Log stack is empty");
                 }
-                Writer w = writerStack.pop();
-                ifc.getAgent().getPrinter().popWriter();
+                final Writer w = writerStack.pop();
+                agent.getPrinter().popWriter();
                 if(w != null)
                 {
                     try
@@ -74,14 +78,14 @@ final class CLogCommand implements Command
             {
                 Writer w = new OutputStreamWriter(System.out);
                 writerStack.push(null);
-                ifc.getAgent().getPrinter().pushWriter(new TeeWriter(ifc.getAgent().getPrinter().getWriter(), w), true);
+                agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w), true);
                 return;
             }
             else if(arg.equals("stderr"))
             {
                 Writer w = new OutputStreamWriter(System.err);
                 writerStack.push(null);
-                ifc.getAgent().getPrinter().pushWriter(new TeeWriter(ifc.getAgent().getPrinter().getWriter(), w), true);
+                agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w), true);
                 return;
             }
             else
@@ -90,7 +94,7 @@ final class CLogCommand implements Command
                 {
                     Writer w = new FileWriter(arg);
                     writerStack.push(w);
-                    ifc.getAgent().getPrinter().pushWriter(new TeeWriter(ifc.getAgent().getPrinter().getWriter(), w), true);
+                    agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w), true);
                     return;
                 }
                 catch (IOException e)

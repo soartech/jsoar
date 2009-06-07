@@ -5,6 +5,7 @@
  */
 package org.jsoar.tcl;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.parser.Parser;
 
 import tcl.lang.Command;
@@ -18,11 +19,11 @@ import tcl.lang.TclObject;
  */
 public class SetParserCommand implements Command
 {
-    private final SoarTclInterface ifc;
+    private final Agent agent;
     
-    SetParserCommand(SoarTclInterface ifc)
+    SetParserCommand(Agent agent)
     {
-        this.ifc = ifc;
+        this.agent = agent;
     }
 
     /* (non-Javadoc)
@@ -39,7 +40,7 @@ public class SetParserCommand implements Command
         {
             Class<?> klass = Class.forName(args[1].toString());
             Parser parser = (Parser) klass.newInstance();
-            ifc.getAgent().getProductions().setParser(parser);
+            agent.getProductions().setParser(parser);
         }
         catch (ClassNotFoundException e)
         {

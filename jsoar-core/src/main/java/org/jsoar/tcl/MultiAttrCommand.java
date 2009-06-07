@@ -1,5 +1,9 @@
+/*
+ * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.tcl;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.StringSymbol;
 
 import tcl.lang.Command;
@@ -16,14 +20,14 @@ final class MultiAttrCommand implements Command
     /**
      * 
      */
-    private final SoarTclInterface ifc;
+    private final Agent agent;
 
     /**
      * @param soarTclInterface
      */
-    MultiAttrCommand(SoarTclInterface soarTclInterface)
+    MultiAttrCommand(Agent agent)
     {
-        ifc = soarTclInterface;
+        this.agent = agent;
     }
 
     @Override
@@ -34,8 +38,8 @@ final class MultiAttrCommand implements Command
             throw new TclNumArgsException(interp, 0, args, "attr cost");
         }
         
-        StringSymbol attr = ifc.getAgent().getSymbols().createString(args[1].toString());
+        StringSymbol attr = agent.getSymbols().createString(args[1].toString());
         int cost = Integer.valueOf(args[2].toString());
-        ifc.getAgent().getMultiAttributes().setCost(attr, cost);
+        agent.getMultiAttributes().setCost(attr, cost);
     }
 }
