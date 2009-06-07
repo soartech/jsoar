@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.runtime.WaitInfo;
 import org.jsoar.runtime.WaitRhsFunction;
 import org.jsoar.util.properties.PropertyKey;
@@ -182,6 +183,15 @@ public class SoarProperties
      * @see WorkingMemory
      */
     public static final PropertyKey<Integer> NUM_WM_SIZES_ACCUMULATED = counter("num_wm_sizes_accumulated");
+    
+    /**
+     * True if the agent is currently running. This property is not set on a raw 
+     * {@link Agent}. It is only set by higher-level run controllers such as 
+     * {@link ThreadedAgent}.
+     * 
+     * @see ThreadedAgent
+     */
+    public static final PropertyKey<Boolean> IS_RUNNING = PropertyKey.builder("is_running", Boolean.class).readonly(true).boundable(true).build();
     
     /**
      * Current agent wait state info, e.g. set by {@link WaitRhsFunction}
