@@ -13,19 +13,16 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.memory.WorkingMemoryPrinter;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-public class PrintCommand implements Command
+public class PrintCommand implements SoarCommand
 {
     private static enum Options
     {
@@ -73,30 +70,30 @@ public class PrintCommand implements Command
         return result;
     }
     
-    private int processArgs(Interp interp, TclObject[] args) throws TclException
+    private int processArgs(String[] args) throws SoarException
     {
         int i = 1;
         for(; i < args.length; ++i)
         {
-            String arg = args[i].toString();
+            String arg = args[i];
             if(has(arg, "-d", "--depth"))
             {
             	options.add(Options.DEPTH);
                 if(i + 1 == args.length)
                 {
-                    throw new TclException(interp, "No argument for --depth option");
+                    throw new SoarException("No argument for --depth option");
                 }
                 try
                 {
                     depth = Integer.parseInt(args[++i].toString());
                     if(depth < 0)
                     {
-                        throw new TclException(interp, "--depth must be positive");
+                        throw new SoarException("--depth must be positive");
                     }
                 }
                 catch(NumberFormatException e)
                 {
-                    throw new TclException(interp, "Invalid --depth value");
+                    throw new SoarException("Invalid --depth value");
                 }
             }
             else if(has(arg, "-t", "--tree"))
@@ -157,7 +154,7 @@ public class PrintCommand implements Command
             }
             else if(arg.startsWith("-"))
             {
-                throw new TclException(interp, "Unknow option " + arg);
+                throw new SoarException("Unknow option " + arg);
             }
             else
             {
@@ -168,18 +165,18 @@ public class PrintCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         agent.getPrinter().startNewLine();
         
         options.clear();
         
-        int firstNonOption = processArgs(interp, args);
+        int firstNonOption = processArgs(args);
         if(options.contains(Options.STACK))
         {
             agent.printStackTrace(options.contains(Options.STATES), options.contains(Options.OPERATORS));
             agent.getPrinter().print("\n").flush();
-            return;
+            return "";
         }
         else if(options.contains(Options.ALL) || options.contains(Options.CHUNKS) ||
                 options.contains(Options.USER) || options.contains(Options.TEMPLATE) ||
@@ -202,7 +199,7 @@ public class PrintCommand implements Command
                 agent.getPrinter().print("\n");
             }
             agent.getPrinter().flush();
-            return;
+            return "";
         }
         else if(options.contains(Options.RL))
         {
@@ -213,16 +210,16 @@ public class PrintCommand implements Command
                     do_print_for_production(p);
                 }
             }
-            return;
+            return "";
         }
         else if(options.contains(Options.EXACT) && (options.contains(Options.DEPTH) || options.contains(Options.TREE)))
         {
-        	throw new TclException(interp, "No depth/tree flags allowed when printing exact.");
+        	throw new SoarException("No depth/tree flags allowed when printing exact.");
         }
         
         if(firstNonOption == args.length)
         {
-            throw new TclException(interp, "Expected id or production name argument");
+            throw new SoarException("Expected id or production name argument");
         }
         
         String argString = args[firstNonOption].toString();
@@ -238,7 +235,7 @@ public class PrintCommand implements Command
             try {
                 wmp.print(agent, agent.getPrinter(), arg, argString);
             } catch(Exception e) {
-                throw new TclException(interp, e.toString());
+                throw new SoarException(e.toString());
             }
 
             agent.getPrinter().flush();
@@ -257,6 +254,7 @@ public class PrintCommand implements Command
             }
             agent.getPrinter().flush();
         }
+        return "";
     }
     
     private void do_print_for_production(Production prod)

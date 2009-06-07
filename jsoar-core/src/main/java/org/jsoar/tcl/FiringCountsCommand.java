@@ -12,20 +12,16 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Printer;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * http://winter.eecs.umich.edu/soarwiki/Firing-counts
  * 
  * @author ray
  */
-final class FiringCountsCommand implements Command
+final class FiringCountsCommand implements SoarCommand
 {
     private final Agent agent;
 
@@ -35,31 +31,32 @@ final class FiringCountsCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length > 2)
         {
-            throw new TclNumArgsException(interp, 0, args, "n");
+            throw new SoarException("Expected at least one argument.");
         }
         
         try
         {
-            final int n = args.length == 1 ? Integer.MAX_VALUE : Integer.valueOf(args[1].toString());
+            final int n = args.length == 1 ? Integer.MAX_VALUE : Integer.valueOf(args[1]);
             if(n < 1)
             {
                 throw new IllegalArgumentException("Numeric argument must be 1 or more, got " + n);
             }
-            printTopProductions(interp, n);
+            printTopProductions(n);
         }
         catch(NumberFormatException e)
         {
-            final String name = args[1].toString();
-            printSingleProduction(interp, name);
+            final String name = args[1];
+            printSingleProduction(name);
         }
         catch(IllegalArgumentException e)
         {
-            throw new TclException(interp, e.getMessage());
+            throw new SoarException(e.getMessage());
         }
+        return "";
     }
 
     private void printResults(List<Production> productions, int n)
@@ -72,17 +69,17 @@ final class FiringCountsCommand implements Command
         }
     }
     
-    private void printSingleProduction(Interp interp, String name) throws TclException
+    private void printSingleProduction(String name) throws SoarException
     {
         final Production p = agent.getProductions().getProduction(name);
         if(p == null)
         {
-            throw new TclException(interp, "No production named '" + name + "'");
+            throw new SoarException("No production named '" + name + "'");
         }
         printResults(Arrays.asList(p), 1);
     }
 
-    private void printTopProductions(Interp interp, int n)
+    private void printTopProductions(int n)
     {
         final List<Production> prods = agent.getProductions().getProductions(null);
         Collections.sort(prods, new Comparator<Production> () {

@@ -4,35 +4,30 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.util.adaptables.Adaptables;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class ReinforcementLearningCommand implements Command
+final class ReinforcementLearningCommand implements SoarCommand
 {
     private final Agent agent;
 
-    /**
-     */
     ReinforcementLearningCommand(Agent agent)
     {
         this.agent = agent;
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length != 4)
         {
-            throw new TclNumArgsException(interp, 0, args, "--set learning [on|off]");
+            // TODO illegal arguments
+            throw new SoarException(String.format("%s --set learning [on|off]", args[0]));
         }
         
         // TODO reinforcement learning: Obviously, this implementation is insufficient
@@ -40,5 +35,6 @@ final class ReinforcementLearningCommand implements Command
         rl.rl_set_parameter(ReinforcementLearning.RL_PARAM_LEARNING, 
                 "on".equals(args[3].toString()) ? ReinforcementLearning.RL_LEARNING_ON :
                     ReinforcementLearning.RL_LEARNING_ON );
+        return "";
     }
 }

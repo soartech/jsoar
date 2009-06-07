@@ -3,24 +3,22 @@
  */
 package org.jsoar.tcl;
 
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class Soar8Command implements Command
+final class Soar8Command implements SoarCommand
 {
     Soar8Command()
     {
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
-        throw new TclException(interp, 
+        throw new SoarException(
                 "soar8 command is not supported by jsoar. " +
                 "jsoar does not support Soar 7 mode.");
     }

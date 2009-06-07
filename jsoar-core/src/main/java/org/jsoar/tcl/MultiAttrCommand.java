@@ -4,26 +4,19 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.symbols.StringSymbol;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class MultiAttrCommand implements Command
+final class MultiAttrCommand implements SoarCommand
 {
-    /**
-     * 
-     */
     private final Agent agent;
 
     /**
-     * @param soarTclInterface
+     * @param agent
      */
     MultiAttrCommand(Agent agent)
     {
@@ -31,15 +24,17 @@ final class MultiAttrCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length != 3)
         {
-            throw new TclNumArgsException(interp, 0, args, "attr cost");
+            // TODO illegal arguments
+            throw new SoarException(String.format("%s attr cost"));
         }
         
-        StringSymbol attr = agent.getSymbols().createString(args[1].toString());
-        int cost = Integer.valueOf(args[2].toString());
+        final StringSymbol attr = agent.getSymbols().createString(args[1].toString());
+        final int cost = Integer.valueOf(args[2].toString());
         agent.getMultiAttributes().setCost(attr, cost);
+        return "";
     }
 }

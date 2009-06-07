@@ -4,17 +4,13 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class SrandCommand implements Command
+final class SrandCommand implements SoarCommand
 {
     private final Agent agent;
 
@@ -27,11 +23,12 @@ final class SrandCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length > 2)
         {
-            throw new TclNumArgsException(interp, 0, args, "[seed]");
+            // TODO illegal args
+            throw new SoarException(String.format("%s [seed]", args[0]));
         }
 
         long seed = 0;
@@ -41,8 +38,16 @@ final class SrandCommand implements Command
         }
         else
         {
-            seed = Long.parseLong(args[1].toString());
+            try
+            {
+                seed = Long.parseLong(args[1]);
+            }
+            catch(NumberFormatException e)
+            {
+                throw new SoarException(String.format("%s is not a valid integer: %s", args[1], e.getMessage()));
+            }
         }
         agent.getRandom().setSeed(seed);
+        return "";
     }
 }

@@ -7,17 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-abstract class AbstractToggleCommand implements Command
+abstract class AbstractToggleCommand implements SoarCommand
 {
     private static final List<String> enableOpts = Arrays.asList("--on", "-e", "--enable");
     private static final List<String> disableOpts = Arrays.asList("--off", "-d", "--disable");
@@ -30,14 +26,14 @@ abstract class AbstractToggleCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length != 2)
         {
-            throw new TclNumArgsException(interp, 0, args, "[--on|--off|-e|-d|--enable|--disable]");
+            throw new SoarException("Option must be one of [--on|--off|-e|-d|--enable|--disable]");
         }
         
-        final String a = args[1].toString();
+        final String a = args[1];
         if(enableOpts.contains(a))
         {
             execute(agent, true);
@@ -48,9 +44,10 @@ abstract class AbstractToggleCommand implements Command
         }
         else
         {
-            throw new TclException(interp, "Option must be --on, --off, -e, -d, --enable, or --disable");
+            throw new SoarException("Option must be --on, --off, -e, -d, --enable, or --disable");
         }
+        return "";
     }
     
-    protected abstract void execute(Agent agent, boolean enable) throws TclException;
+    protected abstract void execute(Agent agent, boolean enable) throws SoarException;
 }

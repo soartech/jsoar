@@ -4,17 +4,13 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.Agent;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class InitSoarCommand implements Command
+final class InitSoarCommand implements SoarCommand
 {
     private final Agent agent;
 
@@ -24,13 +20,14 @@ final class InitSoarCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length != 1)
         {
-            throw new TclNumArgsException(interp, 0, args, "");
+            throw new SoarException(String.format("%s takes no arguments", args[0]));
         }
         agent.initialize();
         agent.getPrinter().startNewLine().print("Agent reinitialized\n").flush();
+        return "";
     }
 }

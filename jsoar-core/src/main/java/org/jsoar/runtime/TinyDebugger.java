@@ -115,9 +115,9 @@ public class TinyDebugger extends JApplet
         new CycleCountInput(agent.getInputOutput(), agent.getEvents());
         
         tcl = SoarTclInterface.findOrCreate(agent.getAgent());
-        tcl.getInterpreter().createCommand("run", new RunCommand(agent));
-        tcl.getInterpreter().createCommand("stop", new StopCommand(agent));
-        tcl.getInterpreter().createCommand("stop-soar", new StopCommand(agent));
+        tcl.addCommand("run", new RunCommand(agent));
+        tcl.addCommand("stop", new StopCommand(agent));
+        tcl.addCommand("stop-soar", new StopCommand(agent));
         
         agent.getEvents().addListener(AfterDecisionCycleEvent.class, new SoarEventListener() {
 

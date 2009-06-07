@@ -9,19 +9,15 @@ import java.util.EnumSet;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-public class MatchesCommand implements Command
+public class MatchesCommand implements SoarCommand
 {
     private final Agent agent;
     
@@ -34,7 +30,7 @@ public class MatchesCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         if(args.length == 1)
         {
@@ -47,17 +43,18 @@ public class MatchesCommand implements Command
             Production p = agent.getProductions().getProduction(args[1].toString());
             if(p == null)
             {
-                throw new TclException(interp, "No production '" + args[1] + "'");
+                throw new SoarException("No production '" + args[1] + "'");
             }
             if(p.getReteNode() == null)
             {
-                throw new TclException(interp, "Production '" + args[1] + "' is not in rete");
+                throw new SoarException("Production '" + args[1] + "' is not in rete");
             }
             p.printPartialMatches(agent.getPrinter(), WmeTraceType.FULL);
         }
         else
         {
-            throw new TclNumArgsException(interp, 0, args, "[production]");
+            throw new SoarException(String.format("%s [production]", args[0]));
         }
+        return "";
     }
 }

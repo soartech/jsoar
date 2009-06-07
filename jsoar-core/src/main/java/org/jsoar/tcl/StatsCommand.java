@@ -8,19 +8,16 @@ import java.util.Calendar;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.properties.PropertyManager;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
 
 /**
  * @author ray
  */
-final class StatsCommand implements Command
+final class StatsCommand implements SoarCommand
 {
     private final Agent agent;
 
@@ -30,7 +27,7 @@ final class StatsCommand implements Command
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         final Printer p = agent.getPrinter();
         
@@ -89,5 +86,6 @@ final class StatsCommand implements Command
                 agent.getNumWmesInRete(), 
                 num_wm_sizes_accumulated != 0 ? ((double) props.get(SoarProperties.CUMULATIVE_WM_SIZE).intValue() / num_wm_sizes_accumulated) : 0.0,
                 props.get(SoarProperties.MAX_WM_SIZE));
+        return "";
     }
 }

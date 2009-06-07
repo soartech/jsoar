@@ -4,12 +4,9 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.runtime.ThreadedAgent;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * http://winter.eecs.umich.edu/soarwiki/Run
@@ -18,7 +15,7 @@ import tcl.lang.TclObject;
  * 
  * @author ray
  */
-public final class RunCommand implements Command
+public final class RunCommand implements SoarCommand
 {
     private final ThreadedAgent threadedAgent;
     
@@ -27,12 +24,12 @@ public final class RunCommand implements Command
         this.threadedAgent = threadedAgent;
     }
     
-    private int getCount(Interp interp, int i, TclObject[] args) throws TclException
+    private int getCount(int i, String[] args) throws SoarException
     {
-        final String arg = args[i].toString();
+        final String arg = args[i];
         if(i + 1 >= args.length)
         {
-            throw new TclException(interp, "No count argument for " + arg + " option");
+            throw new SoarException("No count argument for " + arg + " option");
         }
         final String countString = args[i+1].toString();
         try
@@ -40,38 +37,38 @@ public final class RunCommand implements Command
             int n = Integer.parseInt(countString);
             if(n < 1)
             {
-                throw new TclException(interp, "Expected count larger than 0 for " + arg + " option");
+                throw new SoarException("Expected count larger than 0 for " + arg + " option");
             }
             return n;
         }
         catch(NumberFormatException e)
         {
-            throw new TclException(interp, "Expected integer for run count, got '" + countString + "'");
+            throw new SoarException("Expected integer for run count, got '" + countString + "'");
         }
     }
 
     @Override
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    public String execute(String[] args) throws SoarException
     {
         RunType type = RunType.FOREVER;
         int count = 0;
         for(int i = 1; i < args.length; ++i)
         {
-            final String arg = args[i].toString();
+            final String arg = args[i];
             if("-d".equals(arg) || "--decision".equals(arg))
             {
                 type = RunType.DECISIONS;
-                count = getCount(interp, i++, args);
+                count = getCount(i++, args);
             }
             else if("-e".equals(arg) || "--elaboration".equals(arg))
             {
                 type = RunType.ELABORATIONS;
-                count = getCount(interp, i++, args);
+                count = getCount(i++, args);
             }
             else if("-p".equals(arg) || "--phase".equals(arg))
             {
                 type = RunType.PHASES;
-                count = getCount(interp, i++, args);
+                count = getCount(i++, args);
             }
             else if("-f".equals(arg) || "--forever".equals(arg))
             {
@@ -79,11 +76,11 @@ public final class RunCommand implements Command
             }
             else
             {
-                throw new TclException(interp, "Unknow option '" + arg + "'");
+                throw new SoarException("Unknow option '" + arg + "'");
             }
         }
         
         threadedAgent.runFor(count, type);
-        
+        return "";
     }
 }
