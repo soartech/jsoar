@@ -3,7 +3,7 @@
  *
  * Created on Dec 7, 2008
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -17,7 +17,7 @@ public class SetParserCommand implements SoarCommand
 {
     private final Agent agent;
     
-    SetParserCommand(Agent agent)
+    public SetParserCommand(Agent agent)
     {
         this.agent = agent;
     }

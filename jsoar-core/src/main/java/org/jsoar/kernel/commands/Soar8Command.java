@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
@@ -9,9 +9,9 @@ import org.jsoar.util.commands.SoarCommand;
 /**
  * @author ray
  */
-final class Soar8Command implements SoarCommand
+public final class Soar8Command implements SoarCommand
 {
-    Soar8Command()
+    public Soar8Command()
     {
     }
 

@@ -5,9 +5,36 @@
  */
 package org.jsoar.tcl;
 
+import java.io.File;
+import java.net.URL;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.commands.CLogCommand;
+import org.jsoar.kernel.commands.EchoCommand;
+import org.jsoar.kernel.commands.ExciseCommand;
+import org.jsoar.kernel.commands.FiringCountsCommand;
+import org.jsoar.kernel.commands.InitSoarCommand;
+import org.jsoar.kernel.commands.LearnCommand;
+import org.jsoar.kernel.commands.MatchesCommand;
+import org.jsoar.kernel.commands.MaxElaborationsCommand;
+import org.jsoar.kernel.commands.MultiAttrCommand;
+import org.jsoar.kernel.commands.OSupportModeCommand;
+import org.jsoar.kernel.commands.PrintCommand;
+import org.jsoar.kernel.commands.PropertiesCommand;
+import org.jsoar.kernel.commands.ReinforcementLearningCommand;
+import org.jsoar.kernel.commands.RhsFunctionsCommand;
+import org.jsoar.kernel.commands.SaveBacktracesCommand;
+import org.jsoar.kernel.commands.SetParserCommand;
+import org.jsoar.kernel.commands.Soar8Command;
+import org.jsoar.kernel.commands.SpCommand;
+import org.jsoar.kernel.commands.SrandCommand;
+import org.jsoar.kernel.commands.StatsCommand;
+import org.jsoar.kernel.commands.VerboseCommand;
+import org.jsoar.kernel.commands.WaitSncCommand;
+import org.jsoar.kernel.commands.WarningsCommand;
+import org.jsoar.kernel.commands.WatchCommand;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
@@ -24,6 +51,15 @@ public class SoarTclInterface implements SoarCommandInterpreter
 {
     private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
     
+    /**
+     * Find the SoarTclInterface for the given agent.
+     * 
+     * <p>Note: you almost never want to use this. You'd be much happier
+     * with {@link Agent#getInterpreter()}.
+     * 
+     * @param agent the agent
+     * @return the Tcl interface, or {@code} if none is associated with the agent.
+     */
     public static SoarTclInterface find(Agent agent)
     {
         synchronized (interfaces)
@@ -32,6 +68,16 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
     }
     
+    /**
+     * Find the Tcl interface associated with the given agent, or create
+     * a new one if there is none.
+     * 
+     * <p>Note: you almost never want to use this. You'd be much happier
+     * with {@link Agent#getInterpreter()}.
+     * 
+     * @param agent the agent
+     * @return the Tcl interface
+     */
     public static SoarTclInterface findOrCreate(Agent agent)
     {
         synchronized (interfaces)
@@ -46,6 +92,14 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
     }
     
+    /**
+     * Dispose of a Tcl interface, removing it from its agent.
+     * 
+     * <p>Note: you almost never want to use this. You'd be much happier
+     * with {@link Agent#getInterpreter()}.
+     * 
+     * @param ifc the interface. If it's {@code null} this method is a no-op.
+     */
     public static void dispose(SoarTclInterface ifc)
     {
         if(ifc != null)
@@ -138,7 +192,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         return agent;
     }
     
-    public void sourceFile(String file) throws SoarTclException
+    public void source(File file) throws SoarException
     {
         try
         {
@@ -150,11 +204,11 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
     }
     
-    public void sourceResource(String resource) throws SoarTclException
+    public void source(URL url) throws SoarException
     {
         try
         {
-            interp.evalResource(resource);
+            sourceCommand.source(interp, url);
         }
         catch (TclException e)
         {
@@ -162,7 +216,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
     }
     
-    public String eval(String command) throws SoarTclException
+    public String eval(String command) throws SoarException
     {
         try
         {
@@ -171,7 +225,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
         catch (TclException e)
         {
-            throw new SoarTclException(interp);
+            throw new SoarException(interp.getResult().toString());
         }
     }
 

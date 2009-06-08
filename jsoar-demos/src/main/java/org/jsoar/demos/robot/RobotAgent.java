@@ -5,6 +5,9 @@
  */
 package org.jsoar.demos.robot;
 
+import java.util.Properties;
+import java.util.concurrent.Callable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoar.debugger.JSoarDebugger;
@@ -15,6 +18,7 @@ import org.jsoar.kernel.io.quick.DefaultQMemory;
 import org.jsoar.kernel.io.quick.QMemory;
 import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
 import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.util.commands.SoarCommands;
 
 /**
  * @author ray
@@ -55,12 +59,26 @@ public class RobotAgent
         return "self.waypoints.waypoint[" + w.name + "]";
     }
     
-    public void setRobot(Robot robot)
+    public void setRobot(Robot robot, Properties config)
     {
         logger.info("Attaching robot agent " + this + " to robot " + robot.name);
         this.robot = robot;
         this.agent.setName(robot.name);
         this.agent.initialize(); // Do an init-soar
+        
+        final String source = config.getProperty(robot.name + ".agent.source");
+        if(source != null)
+        {
+            final Callable<Void> call = new Callable<Void>() {
+
+                @Override
+                public Void call() throws Exception
+                {
+                    SoarCommands.source(agent.getAgent().getInterpreter(), source);
+                    return null;
+                }};
+            this.agent.execute(call, null);
+        }
     }
     
     public void start()

@@ -10,8 +10,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.NullWriter;
+import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarCommands;
 
 /**
  * @author ray
@@ -25,7 +26,7 @@ public class PerformanceTimer
      * @param args
      * @throws SoarTclException 
      */
-    public static void main(String[] args) throws SoarTclException
+    public static void main(String[] args) throws Exception
     {
         for(String arg : args)
         {
@@ -50,14 +51,15 @@ public class PerformanceTimer
     /**
      * @param args
      * @throws SoarTclException
+     * @throws SoarException 
      */
-    private static void doRun(String[] args) throws SoarTclException
+    private static void doRun(String[] args) throws SoarTclException, SoarException
     {
         Agent agent = new Agent();
         agent.getTrace().setEnabled(false);
         agent.getPrinter().pushWriter(new NullWriter(), false);
         agent.initialize();
-        SoarTclInterface ifc = SoarTclInterface.findOrCreate(agent);
+        SoarCommandInterpreter ifc = agent.getInterpreter();
         
         boolean raw = false;
         for(String arg : args)
@@ -68,7 +70,7 @@ public class PerformanceTimer
             }
             else
             {
-                ifc.sourceFile(arg);
+                SoarCommands.source(ifc, arg);
             }
         }
         
@@ -90,6 +92,6 @@ public class PerformanceTimer
         {
             agent.getPrinter().print("%f, %f\n", cpuTime, kernelTime);
         }
-        SoarTclInterface.dispose(ifc);
+        agent.dispose();
     }
 }

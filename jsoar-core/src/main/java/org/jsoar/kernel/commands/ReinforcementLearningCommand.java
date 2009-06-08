@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -12,11 +12,11 @@ import org.jsoar.util.commands.SoarCommand;
 /**
  * @author ray
  */
-final class ReinforcementLearningCommand implements SoarCommand
+public final class ReinforcementLearningCommand implements SoarCommand
 {
     private final Agent agent;
 
-    ReinforcementLearningCommand(Agent agent)
+    public ReinforcementLearningCommand(Agent agent)
     {
         this.agent = agent;
     }

@@ -1,20 +1,22 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.parser.ParserException;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-final class WatchCommand implements SoarCommand
+public final class SpCommand implements SoarCommand
 {
     private final Agent agent;
 
-    WatchCommand(Agent agent)
+    public SpCommand(Agent agent)
     {
         this.agent = agent;
     }
@@ -24,21 +26,20 @@ final class WatchCommand implements SoarCommand
     {
         if(args.length != 2)
         {
-            // TODO illegal args
-            throw new SoarException(String.format("%s <level>", args[0]));
+            // TODO illegal argument
+            throw new SoarException(String.format("%s body", args[0]));
         }
         
         try
         {
-            int level = Integer.valueOf(args[1]);
-            agent.getTrace().setWatchLevel(level);
+            agent.getProductions().loadProduction(args[1]);
             return "";
         }
-        catch(NumberFormatException e)
+        catch (ReordererException e)
         {
-            throw new SoarException(args[1] + " is not a valid number");
+            throw new SoarException(e.getMessage());
         }
-        catch(IllegalArgumentException e)
+        catch (ParserException e)
         {
             throw new SoarException(e.getMessage());
         }

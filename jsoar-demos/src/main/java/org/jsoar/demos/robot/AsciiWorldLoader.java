@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import org.jsoar.util.ByRef;
 
@@ -26,7 +27,19 @@ public class AsciiWorldLoader
 {
     private final double CELL_SIZE = 2.0;
     
-    public World load(URL url) throws IOException 
+    public static class Result
+    {
+        public final World world;
+        public final Properties config;
+
+        public Result(World world, Properties config)
+        {
+            this.world = world;
+            this.config = config;
+        }
+    }
+    
+    public Result load(URL url) throws IOException 
     {
         final InputStream in = url.openStream();
         try 
@@ -39,7 +52,7 @@ public class AsciiWorldLoader
         }
     }
     
-    public World load(InputStream in) throws IOException 
+    public Result load(InputStream in) throws IOException 
     {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         final ByRef<Integer> maxLine = ByRef.create(0);
@@ -55,7 +68,7 @@ public class AsciiWorldLoader
         readObstacles(world, lines);
         readRobots(world, lines);
         
-        return world;
+        return new Result(world, readConfigSection(reader));
     }
     
     private void readObstacles(World world, String[] lines)
@@ -127,7 +140,7 @@ public class AsciiWorldLoader
         final List<String> lines = new ArrayList<String>();
         int max = 0;
         String line = reader.readLine();
-        while(line != null)
+        while(line != null && !"---".equals(line.trim()))
         {
             max = Math.max(max, line.length());
             lines.add(line);
@@ -137,6 +150,13 @@ public class AsciiWorldLoader
         
         maxLine.value = max;
         return lines.toArray(new String[lines.size()]);
+    }
+    
+    private Properties readConfigSection(BufferedReader reader) throws IOException
+    {
+        final Properties props = new Properties();
+        props.load(reader);
+        return props;
     }
     
     private String padLine(String line, int newLength)

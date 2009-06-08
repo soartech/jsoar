@@ -8,9 +8,11 @@ package org.jsoar.util.commands;
 import org.jsoar.kernel.SoarException;
 
 /**
- * Interface for implementing Soar commands.
+ * Interface for implementing a Soar command.
  * 
  * @author ray
+ * @see SoarCommandInterpreter
+ * @see SoarCommands
  */
 public interface SoarCommand
 {

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -18,11 +18,11 @@ import org.jsoar.util.commands.SoarCommand;
  * 
  * @author ray
  */
-final class ExciseCommand implements SoarCommand
+public final class ExciseCommand implements SoarCommand
 {
     private final Agent agent;
 
-    ExciseCommand(Agent agent)
+    public ExciseCommand(Agent agent)
     {
         this.agent = agent;
     }

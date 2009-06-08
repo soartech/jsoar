@@ -88,20 +88,14 @@ public class SourceCommand implements Command
         }
         
         // Fallback to file system
-        source(interp, fileName);
+        source(interp, new File(fileName));
     }
 
-    /**
-     * @param interp
-     * @param fileName
-     * @throws TclException
-     */
-    public void source(Interp interp, String fileName) throws TclException
+    public void source(Interp interp, File file) throws TclException
     {
-        File file = new File(fileName);
         if(!file.isAbsolute())
         {
-            file = new File(workingDirectory, fileName);
+            file = new File(workingDirectory, file.getPath());
         }
         final String parent = file.getParent();
         pushd(interp, parent);
@@ -115,33 +109,39 @@ public class SourceCommand implements Command
         }
     }
     
-    private boolean tryUrl(Interp interp, String fileName) throws TclException 
+    public void source(Interp interp, URL url) throws TclException
     {
+        // TODO: This should also handle relative URL paths as well as proxies, authentication, etc
         try
         {
-            final URL url = new URL(fileName);
-            
-            // TODO: This should also handle relative URL paths as well as proxies, authentication, etc
             final InputStream in = new BufferedInputStream(url.openStream());
             try
             {
                 final ByteArrayOutputStream out = new ByteArrayOutputStream();
                 FileTools.copy(in, out);
                 interp.eval(out.toString());
-                return true;
             }
             finally
             {
                 in.close();
             }
         }
-        catch (MalformedURLException e)
-        {
-            return false; // Not a URL
-        }
         catch (IOException e)
         {
             throw new TclException(interp, e.getMessage());
+        }
+    }
+    
+    private boolean tryUrl(Interp interp, String fileName) throws TclException 
+    {
+        try
+        {
+            source(interp, new URL(fileName));
+            return true;
+        }
+        catch (MalformedURLException e)
+        {
+            return false; // Not a URL
         }
     }
 }

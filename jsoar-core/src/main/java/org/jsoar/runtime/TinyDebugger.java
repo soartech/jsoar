@@ -25,14 +25,15 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.JSoarVersion;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.commands.RunCommand;
+import org.jsoar.kernel.commands.StopCommand;
 import org.jsoar.kernel.events.AfterDecisionCycleEvent;
 import org.jsoar.kernel.io.CycleCountInput;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.tcl.RunCommand;
-import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
-import org.jsoar.tcl.StopCommand;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 
@@ -45,7 +46,7 @@ public class TinyDebugger extends JApplet
 {
     private static final long serialVersionUID = 3028131188835230802L;
     private ThreadedAgent agent;
-    private SoarTclInterface tcl;
+    private SoarCommandInterpreter tcl;
     private int sleepCounter = 0;
     
     private final JPanel tracePanel = new JPanel(new BorderLayout());
@@ -114,7 +115,7 @@ public class TinyDebugger extends JApplet
         agent.getPrinter().pushWriter(outputWriter, true);
         new CycleCountInput(agent.getInputOutput(), agent.getEvents());
         
-        tcl = SoarTclInterface.findOrCreate(agent.getAgent());
+        tcl = agent.getAgent().getInterpreter();
         tcl.addCommand("run", new RunCommand(agent));
         tcl.addCommand("stop", new StopCommand(agent));
         tcl.addCommand("stop-soar", new StopCommand(agent));
@@ -156,8 +157,9 @@ public class TinyDebugger extends JApplet
     @Override
     public void destroy()
     {
+        final Agent inner = agent.getAgent();
         agent.detach();
-        SoarTclInterface.dispose(tcl);
+        inner.dispose();
     }
 
     /* (non-Javadoc)
@@ -242,7 +244,7 @@ public class TinyDebugger extends JApplet
                 {
                     tcl.eval(command);
                 }
-                catch (SoarTclException e)
+                catch (SoarException e)
                 {
                     agent.getPrinter().print(e.getMessage()).flush();
                 }
@@ -270,7 +272,7 @@ public class TinyDebugger extends JApplet
                     printer.startNewLine().print(command);
                     result = tcl.eval(command);
                 }
-                catch (SoarTclException e)
+                catch (SoarException e)
                 {
                     result = "\n" + e.getMessage();
                 }

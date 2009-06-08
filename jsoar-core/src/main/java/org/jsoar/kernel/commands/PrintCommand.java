@@ -3,7 +3,7 @@
  *
  * Created on Oct 30, 2008
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -36,9 +36,6 @@ public class PrintCommand implements SoarCommand
     private final EnumSet<Options> options = EnumSet.noneOf(Options.class);
     private int depth = 1;
     
-    /**
-     * @param agent
-     */
     public PrintCommand(Agent agent)
     {
         this.agent = agent;

@@ -6,7 +6,9 @@
 package org.jsoar.tcl;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 import java.io.Reader;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.parser.ParserContext;
 import org.jsoar.kernel.parser.ParserException;
@@ -51,15 +54,15 @@ public class SoarTclInterfaceTest
     }
     
     @Test
-    public void testSourceResource() throws SoarTclException
+    public void testSourceResource() throws SoarException
     {
-        ifc.sourceResource("/" + SoarTclInterfaceTest.class.getCanonicalName().replace('.', '/') + "_sourceResource.soar");
+        ifc.source(getClass().getResource("/" + SoarTclInterfaceTest.class.getCanonicalName().replace('.', '/') + "_sourceResource.soar"));
         
         assertNotNull(ifc.getAgent().getProductions().getProduction("top-state*propose*wait"));
     }
 
     @Test
-    public void testSrandCommand() throws SoarTclException
+    public void testSrandCommand() throws Exception
     {
         ifc.eval("srand 98765");
         List<Integer> firstInts = new ArrayList<Integer>();

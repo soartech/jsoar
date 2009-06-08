@@ -7,6 +7,7 @@ package org.jsoar.tcl;
 
 import java.util.List;
 
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.Concat;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
@@ -50,7 +51,7 @@ public class TclRhsFunction extends AbstractRhsFunctionHandler
             final String result = ifc.eval(exp);
             return context.getSymbols().createString(result);
         }
-        catch (SoarTclException e)
+        catch (SoarException e)
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }

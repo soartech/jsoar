@@ -3,7 +3,7 @@
  *
  * Created on April 29, 2009
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,11 +21,11 @@ import org.jsoar.util.commands.SoarCommand;
  * 
  * @author ray
  */
-final class FiringCountsCommand implements SoarCommand
+public final class FiringCountsCommand implements SoarCommand
 {
     private final Agent agent;
 
-    FiringCountsCommand(Agent agent)
+    public FiringCountsCommand(Agent agent)
     {
         this.agent = agent;
     }

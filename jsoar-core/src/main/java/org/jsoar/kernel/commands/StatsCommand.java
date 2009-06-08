@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import java.util.Calendar;
 
@@ -17,11 +17,11 @@ import org.jsoar.util.properties.PropertyManager;
 /**
  * @author ray
  */
-final class StatsCommand implements SoarCommand
+public final class StatsCommand implements SoarCommand
 {
     private final Agent agent;
 
-    StatsCommand(Agent agent)
+    public StatsCommand(Agent agent)
     {
         this.agent = agent;
     }

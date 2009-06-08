@@ -25,9 +25,8 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctions;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,14 +37,14 @@ import org.junit.Test;
 public class FunctionalTests
 {
     private Agent agent;
-    private SoarTclInterface ifc;
+    private SoarCommandInterpreter ifc;
 
-    private void sourceTestFile(String name) throws SoarTclException
+    private void sourceTestFile(String name) throws SoarException
     {
-        ifc.sourceResource("/" + FunctionalTests.class.getName().replace('.', '/')  + "_" + name);
+        ifc.source(FunctionalTests.class.getResource("/" + FunctionalTests.class.getName().replace('.', '/')  + "_" + name));
     }
     
-    private void runTest(String testName, int expectedDecisions) throws SoarTclException
+    private void runTest(String testName, int expectedDecisions) throws Exception
     {
         sourceTestFile(testName + ".soar");
         
@@ -103,7 +102,7 @@ public class FunctionalTests
     {
         agent = new Agent();
         agent.getTrace().enableAll();
-        ifc = SoarTclInterface.findOrCreate(agent);
+        ifc = agent.getInterpreter();
         agent.initialize();
     }
 

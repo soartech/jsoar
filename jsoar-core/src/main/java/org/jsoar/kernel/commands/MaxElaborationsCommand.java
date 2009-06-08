@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -11,11 +11,11 @@ import org.jsoar.util.commands.SoarCommand;
 /**
  * @author ray
  */
-final class MaxElaborationsCommand implements SoarCommand
+public final class MaxElaborationsCommand implements SoarCommand
 {
     private final Agent agent;
 
-    MaxElaborationsCommand(Agent agent)
+    public MaxElaborationsCommand(Agent agent)
     {
         this.agent = agent;
     }

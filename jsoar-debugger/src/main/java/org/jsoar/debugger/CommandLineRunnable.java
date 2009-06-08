@@ -7,8 +7,8 @@ package org.jsoar.debugger;
 
 import java.util.concurrent.Callable;
 
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.tcl.SoarTclException;
 
 /**
  * @author ray
@@ -34,7 +34,7 @@ public class CommandLineRunnable implements Callable<Void>
     @Override
     public Void call()
     {
-        final Printer printer = ifc.getTcl().getAgent().getPrinter();
+        final Printer printer = ifc.getAgentProxy().getAgent().getPrinter();
         printer.startNewLine().print(command);
         try
         {
@@ -44,7 +44,7 @@ public class CommandLineRunnable implements Callable<Void>
                 printer.startNewLine().print(result).flush();
             }
         }
-        catch (SoarTclException e)
+        catch (SoarException e)
         {
             printer.error(e.getMessage() + "\n");
         }

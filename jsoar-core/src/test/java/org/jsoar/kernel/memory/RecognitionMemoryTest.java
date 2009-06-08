@@ -29,7 +29,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -134,8 +134,8 @@ public class RecognitionMemoryTest
          * and run it again, you'll see that the chunks are no longer considered
          * RL rules. The patch fixes this behavior.
          */
-        final SoarTclInterface ifc = SoarTclInterface.findOrCreate(agent);
-        ifc.sourceResource("/" + RecognitionMemoryTest.class.getName().replace('.', '/')  + "_r10460.soar");
+        final SoarCommandInterpreter ifc = agent.getInterpreter();
+        ifc.source(RecognitionMemoryTest.class.getResource("/" + RecognitionMemoryTest.class.getName().replace('.', '/')  + "_r10460.soar"));
 
         agent.runFor(2, RunType.DECISIONS);
         

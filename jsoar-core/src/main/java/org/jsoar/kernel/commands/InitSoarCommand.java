@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -10,11 +10,11 @@ import org.jsoar.util.commands.SoarCommand;
 /**
  * @author ray
  */
-final class InitSoarCommand implements SoarCommand
+public final class InitSoarCommand implements SoarCommand
 {
     private final Agent agent;
 
-    InitSoarCommand(Agent agent)
+    public InitSoarCommand(Agent agent)
     {
         this.agent = agent;
     }

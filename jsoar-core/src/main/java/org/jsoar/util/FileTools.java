@@ -13,12 +13,32 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * @author ray
  */
 public class FileTools
 {
+    /**
+     * Convert the given string to a URL.
+     * 
+     * @param url the url string
+     * @return a new URL object, or {@code null} if not a valid URL.
+     */
+    public static URL asUrl(String url)
+    {
+        try
+        {
+            return new URL(url);
+        }
+        catch (MalformedURLException e)
+        {
+            return null;
+        }
+    }
+    
     public static String getExtension(String name)
     {
         int i = name.lastIndexOf('.');

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,20 +9,21 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.properties.PropertyKey;
+import org.jsoar.util.properties.PropertyManager;
 
 /**
- * Command that prints out all registered RHS functions
+ * Command that prints out all property values
  * 
  * @author ray
  */
-final class RhsFunctionsCommand implements SoarCommand
+public final class PropertiesCommand implements SoarCommand
 {
     private final Agent agent;
 
-    RhsFunctionsCommand(Agent agent)
+    public PropertiesCommand(Agent agent)
     {
         this.agent = agent;
     }
@@ -33,20 +34,18 @@ final class RhsFunctionsCommand implements SoarCommand
         final Printer p = agent.getPrinter();
         
         p.startNewLine();
-        
-        final List<RhsFunctionHandler> handlers = agent.getRhsFunctions().getHandlers();
-        Collections.sort(handlers, new Comparator<RhsFunctionHandler>(){
+        final PropertyManager properties = agent.getProperties();
+        final List<PropertyKey<?>> keys = properties.getKeys();
+        Collections.sort(keys, new Comparator<PropertyKey<?>>(){
 
             @Override
-            public int compare(RhsFunctionHandler a, RhsFunctionHandler b)
+            public int compare(PropertyKey<?> a, PropertyKey<?> b)
             {
                 return a.getName().compareTo(b.getName());
             }});
-        
-        for(RhsFunctionHandler f : handlers)
+        for(PropertyKey<?> key : keys)
         {
-            int max = f.getMaxArguments();
-            p.print("%20s (%d, %s)%n", f.getName(), f.getMinArguments(), max == Integer.MAX_VALUE ? "*" : Integer.toString(max));
+            p.print("%30s = %s%s\n", key.getName(), properties.get(key), key.isReadonly() ? " [RO]" : "");
         }
         return "";
     }

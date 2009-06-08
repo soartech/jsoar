@@ -12,9 +12,9 @@ import java.util.concurrent.Callable;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 
 /**
  * @author ray
@@ -67,7 +67,7 @@ public class SourceFileAction extends AbstractDebuggerAction
         final File f = chooser.getSelectedFile();
         lastDir = f.getParentFile().getAbsolutePath();
         
-        final SoarTclInterface tcl = getApplication().getTcl();
+        final SoarCommandInterpreter tcl = getApplication().getTcl();
         getApplication().getAgentProxy().execute(new Callable<Void>() {
 
             @Override
@@ -75,11 +75,12 @@ public class SourceFileAction extends AbstractDebuggerAction
             {
                 try
                 {
-                    tcl.sourceFile(f.getAbsolutePath());
+                    tcl.source(f);
                 }
-                catch (SoarTclException e)
+                catch (SoarException e)
                 {
-                    tcl.getAgent().getPrinter().error(e.getMessage());
+                    // TODO this is a little smelly.
+                    getApplication().getAgentProxy().getAgent().getPrinter().error(e.getMessage());
                 }
                 return null;
             }}, getApplication().newUpdateCompleter(false));
