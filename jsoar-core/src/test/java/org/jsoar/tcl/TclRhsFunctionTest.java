@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,9 +22,9 @@ public class TclRhsFunctionTest
     private Agent agent;
     private SoarTclInterface ifc;
 
-    private void sourceTestFile(String name) throws SoarTclException
+    private void sourceTestFile(String name) throws SoarException
     {
-        ifc.sourceResource("/" + TclRhsFunctionTest.class.getName().replace('.', '/')  + "_" + name);
+        ifc.source(getClass().getResource("/" + TclRhsFunctionTest.class.getName().replace('.', '/')  + "_" + name));
     }
     
     /**

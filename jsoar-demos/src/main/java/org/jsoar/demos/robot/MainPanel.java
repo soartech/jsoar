@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -32,6 +33,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import org.jsoar.demos.robot.AsciiWorldLoader.Result;
 import org.jsoar.util.SwingTools;
 
 
@@ -203,15 +205,15 @@ public class MainPanel extends JPanel
         setWorld(new AsciiWorldLoader().load(new ByteArrayInputStream(ascii.getBytes())));
     }
     
-    public void setWorld(World world)
+    public void setWorld(Result loadResult)
     {
-        this.world = world;
+        this.world = loadResult.world;
         this.worldPanel.setWorld(this.world);
         this.worldPanel.fit();
-        updateAgents();
+        updateAgents(loadResult.config);
     }
     
-    private void updateAgents()
+    private void updateAgents(Properties config)
     {
         final Set<RobotAgent> deadAgents = new HashSet<RobotAgent>(agents.values());
         for(Robot robot : world.getRobots())
@@ -220,12 +222,12 @@ public class MainPanel extends JPanel
             if(existing != null)
             {
                 deadAgents.remove(existing);
-                existing.setRobot(robot);
+                existing.setRobot(robot, config);
             }
             else
             {
                 final RobotAgent newAgent = new RobotAgent();
-                newAgent.setRobot(robot);
+                newAgent.setRobot(robot, config);
                 agents.put(robot.name, newAgent);
             }
         }

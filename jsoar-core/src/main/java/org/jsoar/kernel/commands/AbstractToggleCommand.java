@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import java.util.Arrays;
 import java.util.List;

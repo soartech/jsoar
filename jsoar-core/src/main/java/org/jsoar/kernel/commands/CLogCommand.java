@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import org.jsoar.util.commands.SoarCommand;
 /**
  * @author ray
  */
-final class CLogCommand implements SoarCommand
+public final class CLogCommand implements SoarCommand
 {
     private static final List<String> offOptions = Arrays.asList("-c", "--close", "-o", "--off", "-d", "--disable");
     private static final List<String> queryOptions = Arrays.asList("-q", "--query");
@@ -27,7 +27,7 @@ final class CLogCommand implements SoarCommand
     private final Agent agent;
     private LinkedList<Writer> writerStack = new LinkedList<Writer>();
 
-    CLogCommand(Agent agent)
+    public CLogCommand(Agent agent)
     {
         this.agent = agent;
     }

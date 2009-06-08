@@ -6,7 +6,9 @@
 package org.jsoar.kernel.io;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,6 +18,7 @@ import java.util.Set;
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.events.OutputEvent;
@@ -30,8 +33,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
-import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
@@ -46,7 +48,7 @@ import com.google.common.collect.Iterators;
 public class InputOutputImplTest extends JSoarTest
 {
     private Agent agent;
-    private SoarTclInterface ifc;
+    private SoarCommandInterpreter ifc;
     
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
@@ -69,9 +71,9 @@ public class InputOutputImplTest extends JSoarTest
     
     private MatchFunction match;
     
-    private void sourceTestFile(String name) throws SoarTclException
+    private void sourceTestFile(String name) throws SoarException
     {
-        ifc.sourceResource("/" + getClass().getName().replace('.', '/')  + "_" + name);
+        ifc.source(getClass().getResource("/" + getClass().getName().replace('.', '/')  + "_" + name));
     }
     
     /**
@@ -83,7 +85,7 @@ public class InputOutputImplTest extends JSoarTest
         super.setUp();
         
         agent = new Agent();
-        ifc = SoarTclInterface.findOrCreate(agent);
+        ifc = agent.getInterpreter();
         agent.getRhsFunctions().registerHandler(match = new MatchFunction());
         agent.initialize();
     }
@@ -94,7 +96,7 @@ public class InputOutputImplTest extends JSoarTest
     @After
     public void tearDown() throws Exception
     {
-        SoarTclInterface.dispose(ifc);
+        agent.dispose();
     }
 
     @Test

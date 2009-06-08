@@ -3,22 +3,21 @@
  *
  * Created on Jun 6, 2009
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.SoarProperties;
 
 /**
  * @author ray
  */
-public class WaitSncCommand extends AbstractToggleCommand
+public class WarningsCommand extends AbstractToggleCommand
 {
 
     /**
      * @param agent
      */
-    public WaitSncCommand(Agent agent)
+    public WarningsCommand(Agent agent)
     {
         super(agent);
     }
@@ -29,6 +28,6 @@ public class WaitSncCommand extends AbstractToggleCommand
     @Override
     protected void execute(Agent agent, boolean enable) throws SoarException
     {
-        agent.getProperties().set(SoarProperties.WAITSNC, enable);
+        agent.getPrinter().setPrintWarnings(enable);
     }
 }

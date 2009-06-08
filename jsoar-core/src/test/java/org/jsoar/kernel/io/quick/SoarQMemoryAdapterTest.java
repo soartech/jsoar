@@ -6,7 +6,8 @@
 package org.jsoar.kernel.io.quick;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +15,12 @@ import java.util.List;
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,7 @@ import com.google.common.collect.Iterators;
 public class SoarQMemoryAdapterTest extends JSoarTest
 {
     private Agent agent;
-    private SoarTclInterface ifc;
+    private SoarCommandInterpreter ifc;
     
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
@@ -55,9 +56,9 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     
     private MatchFunction match;
     
-    private void sourceTestFile(String name) throws SoarTclException
+    private void sourceTestFile(String name) throws SoarException
     {
-        ifc.sourceResource("/" + getClass().getName().replace('.', '/')  + "_" + name);
+        ifc.source(getClass().getResource("/" + getClass().getName().replace('.', '/')  + "_" + name));
     }
     /**
      * @throws java.lang.Exception
@@ -68,7 +69,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         super.setUp();
         
         agent = new Agent();
-        ifc = SoarTclInterface.findOrCreate(agent);
+        ifc = agent.getInterpreter();
         agent.getRhsFunctions().registerHandler(match = new MatchFunction());
         agent.initialize();
     }
@@ -79,7 +80,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     @After
     public void tearDown() throws Exception
     {
-        SoarTclInterface.dispose(ifc);
+        agent.dispose();
     }
     
     @Test public void testBasicInput() throws Exception

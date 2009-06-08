@@ -3,21 +3,22 @@
  *
  * Created on Jun 6, 2009
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
  * @author ray
  */
-public class WarningsCommand extends AbstractToggleCommand
+public class VerboseCommand extends AbstractToggleCommand
 {
 
     /**
      * @param agent
      */
-    public WarningsCommand(Agent agent)
+    public VerboseCommand(Agent agent)
     {
         super(agent);
     }
@@ -28,6 +29,6 @@ public class WarningsCommand extends AbstractToggleCommand
     @Override
     protected void execute(Agent agent, boolean enable) throws SoarException
     {
-        agent.getPrinter().setPrintWarnings(enable);
+        agent.getTrace().setEnabled(Category.VERBOSE, enable);
     }
 }

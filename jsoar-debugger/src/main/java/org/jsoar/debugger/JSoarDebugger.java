@@ -47,19 +47,20 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.commands.RunCommand;
+import org.jsoar.kernel.commands.StopCommand;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.tcl.RunCommand;
-import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
-import org.jsoar.tcl.StopCommand;
 import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarCommands;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.properties.PropertyListener;
@@ -82,7 +83,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private JSoarDebuggerConfiguration configuration = new DefaultDebuggerConfiguration();
     
     //private Agent agent;
-    private SoarTclInterface ifc;
     private ThreadedAgent proxy;
     private LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
     private List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
@@ -121,12 +121,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
         this.frame.setTitle("JSoar Debugger - " + proxy.getName());
 
         this.proxy = proxy;
-        this.ifc = SoarTclInterface.findOrCreate(proxy.getAgent());
-        
-        this.ifc.addCommand("run", new RunCommand(proxy));
-        this.ifc.addCommand("stop", new StopCommand(proxy));
-        this.ifc.addCommand("stop-soar", new StopCommand(proxy));
-        this.ifc.addCommand("load-plugin", loadPluginCommand);
+        final SoarCommandInterpreter ifc = proxy.getAgent().getInterpreter();
+        ifc.addCommand("run", new RunCommand(proxy));
+        ifc.addCommand("stop", new StopCommand(proxy));
+        ifc.addCommand("stop-soar", new StopCommand(proxy));
+        ifc.addCommand("load-plugin", loadPluginCommand);
         
         this.add(viewport, BorderLayout.CENTER);
         
@@ -255,9 +254,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
         return proxy;
     }
     
-    public SoarTclInterface getTcl()
+    public SoarCommandInterpreter getTcl()
     {
-        return ifc;
+        return proxy.getAgent().getInterpreter();
     }
     
     public SelectionManager getSelectionManager()
@@ -502,9 +501,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 {
                     try
                     {
-                        debugger.ifc.sourceFile(arg);
+                        SoarCommands.source(debugger.getTcl(), arg);
                     }
-                    catch (SoarTclException e)
+                    catch (SoarException e)
                     {
                         logger.error("Error sourcing file '" + arg + "'", e);
                     }
@@ -536,9 +535,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
     @Override
     public Object getAdapter(Class<?> klass)
     {
-        if(klass.equals(SoarTclInterface.class))
+        if(klass.equals(SoarCommandInterpreter.class))
         {
-            return ifc;
+            return getTcl();
         }
         if(klass.equals(Agent.class))
         {

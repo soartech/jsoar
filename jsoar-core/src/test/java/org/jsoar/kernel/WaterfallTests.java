@@ -18,8 +18,7 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,14 +29,14 @@ import org.junit.Test;
 public class WaterfallTests
 {
     private Agent agent;
-    private SoarTclInterface ifc;
+    private SoarCommandInterpreter ifc;
 
-    private void sourceTestFile(String name) throws SoarTclException
+    private void sourceTestFile(String name) throws SoarException
     {
-        ifc.sourceResource("/" + WaterfallTests.class.getName().replace('.', '/')  + "_" + name);
+        ifc.source(getClass().getResource("/" + WaterfallTests.class.getName().replace('.', '/')  + "_" + name));
     }
     
-    private void runTest(String testName, int expectedDecisions) throws SoarTclException
+    private void runTest(String testName, int expectedDecisions) throws Exception
     {
         sourceTestFile(testName + ".soar");
         
@@ -95,7 +94,7 @@ public class WaterfallTests
     {
         agent = new Agent();
         agent.getTrace().enableAll();
-        ifc = SoarTclInterface.findOrCreate(agent);
+        ifc = agent.getInterpreter();
         agent.initialize();
     }
 
@@ -106,7 +105,7 @@ public class WaterfallTests
     public void tearDown() throws Exception
     {
         agent.getPrinter().flush();
-        SoarTclInterface.dispose(ifc);
+        agent.dispose();
     }
 
     @Test(timeout=10000)

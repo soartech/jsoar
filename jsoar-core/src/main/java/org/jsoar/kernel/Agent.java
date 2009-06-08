@@ -47,9 +47,11 @@ import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.timing.DefaultExecutionTimer;
@@ -76,6 +78,7 @@ public class Agent extends AbstractAdaptable
      */
     private final Random random = new Random();
     
+    private SoarCommandInterpreter interp;
     private final PropertyManager properties = new PropertyManager();
     private final Trace trace = new Trace(printer);
     private final TraceFormats traceFormats = new TraceFormats(this);
@@ -162,6 +165,14 @@ public class Agent extends AbstractAdaptable
     }
     
     /**
+     * Dispose of this agent and any additional resources it is holding 
+     */
+    public void dispose()
+    {
+        setInterpreter(null);
+    }
+    
+    /**
      * Returns the name of the agent. This is also bound to {@link SoarProperties#NAME}
      *  
      * @return the name of the agent
@@ -236,6 +247,46 @@ public class Agent extends AbstractAdaptable
         {
             reinitialize_soar();
             init_agent_memory();
+        }
+    }
+    
+    /**
+     * Returns the agent's current command interpreter.
+     * 
+     * <p>If an interpreter has not been set yet, a default one will be
+     * created the first time this method is called.
+     * 
+     * <p>This method may be called from any thread, but care should be
+     * taken when calling the methods of the returned interpreter.
+     * 
+     * @return the command interpreter, never {@code null}.
+     */
+    public SoarCommandInterpreter getInterpreter()
+    {
+        synchronized(this)
+        {
+            if(interp == null)
+            {
+                interp = SoarTclInterface.findOrCreate(this);
+            }
+            return interp;
+        }
+    }
+    
+    /**
+     * Set the agent's current command interpreter. 
+     * 
+     * @param interp the new interpreter
+     */
+    public void setInterpreter(SoarCommandInterpreter interp)
+    {
+        synchronized(this)
+        {
+            if(this.interp != null)
+            {
+                this.interp.dispose();
+            }
+            this.interp = interp;
         }
     }
     

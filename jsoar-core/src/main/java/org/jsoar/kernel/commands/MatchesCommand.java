@@ -3,7 +3,7 @@
  *
  * Created on Oct 30, 2008
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import java.util.EnumSet;
 
@@ -21,9 +21,6 @@ public class MatchesCommand implements SoarCommand
 {
     private final Agent agent;
     
-    /**
-     * @param agent
-     */
     public MatchesCommand(Agent agent)
     {
         this.agent = agent;

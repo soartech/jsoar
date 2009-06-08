@@ -2,7 +2,7 @@
  * Copyright (c) 2009  Dave Ray <daveray@gmail.com>
  *
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -11,11 +11,11 @@ import org.jsoar.util.commands.SoarCommand;
 /**
  * @author ray
  */
-final class EchoCommand implements SoarCommand
+public final class EchoCommand implements SoarCommand
 {
     private final Agent agent;
 
-    EchoCommand(Agent agent)
+    public EchoCommand(Agent agent)
     {
         this.agent = agent;
     }

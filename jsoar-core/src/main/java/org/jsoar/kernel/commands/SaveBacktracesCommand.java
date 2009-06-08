@@ -3,22 +3,18 @@
  *
  * Created on Jun 6, 2009
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.SoarProperties;
 
 /**
  * @author ray
  */
-public class VerboseCommand extends AbstractToggleCommand
+public class SaveBacktracesCommand extends AbstractToggleCommand
 {
-
-    /**
-     * @param agent
-     */
-    public VerboseCommand(Agent agent)
+    public SaveBacktracesCommand(Agent agent)
     {
         super(agent);
     }
@@ -29,6 +25,6 @@ public class VerboseCommand extends AbstractToggleCommand
     @Override
     protected void execute(Agent agent, boolean enable) throws SoarException
     {
-        agent.getTrace().setEnabled(Category.VERBOSE, enable);
+        agent.getProperties().set(SoarProperties.EXPLAIN, enable);
     }
 }

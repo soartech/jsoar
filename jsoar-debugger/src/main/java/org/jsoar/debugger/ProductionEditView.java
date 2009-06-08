@@ -28,12 +28,11 @@ import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.tcl.SoarTclException;
-import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -179,7 +178,6 @@ public class ProductionEditView extends AbstractAdaptableView
             return;
         }
         
-        final SoarTclInterface ifc = SoarTclInterface.find(agent.getAgent());
         final Callable<String> call = new Callable<String>() {
 
             @Override
@@ -187,10 +185,10 @@ public class ProductionEditView extends AbstractAdaptableView
             {
                 try
                 {
-                    ifc.eval(contents);
+                    agent.getAgent().getInterpreter().eval(contents);
                     return "Loaded";
                 }
-                catch (SoarTclException e)
+                catch (SoarException e)
                 {
                     return "ERROR: " + e.getMessage();
                 }
