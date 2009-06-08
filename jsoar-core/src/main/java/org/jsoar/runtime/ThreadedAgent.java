@@ -154,17 +154,7 @@ public class ThreadedAgent
                 {
                     runnable.run();
                     runnable = commands.poll();
-                }
-                try
-                {
-                    Thread.sleep(50);
-                }
-                catch (InterruptedException e)
-                {
-                    Thread.currentThread().interrupt();
-                    throw new InterruptAgentException();
-                }
-                
+                }                
             }});
         
         waitFunction.attach(this);
