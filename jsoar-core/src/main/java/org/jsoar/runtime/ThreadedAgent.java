@@ -200,7 +200,10 @@ public class ThreadedAgent
     /**
      * Detach this object from the agent. This method will stop the agent thread,
      * and wait for it to exit before proceeding. After being detached, this
-     * object may not be used again.
+     * object may not be used again. The underyling agent remains available for
+     * use.
+     * 
+     * @see #dispose()
      */
     public void detach()
     {
@@ -224,6 +227,17 @@ public class ThreadedAgent
                 proxies.remove(agent);
             }
         }
+    }
+    
+    /**
+     * Dispose of this object and the underlying agent.
+     * 
+     * @see #detach()
+     */
+    public void dispose()
+    {
+        detach();
+        agent.dispose();
     }
     
     /**
