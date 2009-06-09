@@ -23,6 +23,7 @@ import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
@@ -310,6 +311,7 @@ public class ThreadedAgent
     // Convenience methods forwarded to equivalent {@link Agent} methods.
     public String getName() { return agent.getName(); }
     public void setName(String name) { agent.setName(name); }
+    public SoarCommandInterpreter getInterpreter() { return agent.getInterpreter(); }
     public Printer getPrinter() { return agent.getPrinter(); }
     public Trace getTrace() { return agent.getTrace(); }
     public SoarEventManager getEvents() { return agent.getEvents(); }
