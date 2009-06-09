@@ -67,8 +67,8 @@ public class SourceFileAction extends AbstractDebuggerAction
         final File f = chooser.getSelectedFile();
         lastDir = f.getParentFile().getAbsolutePath();
         
-        final SoarCommandInterpreter tcl = getApplication().getTcl();
-        getApplication().getAgentProxy().execute(new Callable<Void>() {
+        final SoarCommandInterpreter tcl = getApplication().getAgent().getInterpreter();
+        getApplication().getAgent().execute(new Callable<Void>() {
 
             @Override
             public Void call()
@@ -80,7 +80,7 @@ public class SourceFileAction extends AbstractDebuggerAction
                 catch (SoarException e)
                 {
                     // TODO this is a little smelly.
-                    getApplication().getAgentProxy().getAgent().getPrinter().error(e.getMessage());
+                    getApplication().getAgent().getAgent().getPrinter().error(e.getMessage());
                 }
                 return null;
             }}, getApplication().newUpdateCompleter(false));

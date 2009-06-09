@@ -58,7 +58,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         super("matcheset", "Match Set");
         
         this.debugger = debugger;
-        this.agent = debugger.getAgentProxy();
+        this.agent = debugger.getAgent();
         
         addAction(DockingConstants.PIN_ACTION);
         

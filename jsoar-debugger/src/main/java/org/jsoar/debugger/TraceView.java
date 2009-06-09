@@ -80,16 +80,16 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 if(e.isPopupTrigger())
                 {
-                    TraceMenu menu = new TraceMenu(debugger.getAgentProxy().getTrace());
+                    TraceMenu menu = new TraceMenu(debugger.getAgent().getTrace());
                     menu.populateMenu();
                     menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
                 }
             }});
         outputWindow.setEditable(false);
         
-        debugger.getAgentProxy().getPrinter().pushWriter(outputWriter, true);
+        debugger.getAgent().getPrinter().pushWriter(outputWriter, true);
         
-        final Trace trace = debugger.getAgentProxy().getTrace();
+        final Trace trace = debugger.getAgent().getTrace();
         trace.disableAll();
         trace.setEnabled(Category.LOADING, true);
         trace.setWatchLevel(1);
@@ -109,7 +109,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
      */
     public void dispose()
     {
-        final Printer printer = debugger.getAgentProxy().getPrinter();
+        final Printer printer = debugger.getAgent().getPrinter();
         while(outputWriter != printer.popWriter())
         {
         }

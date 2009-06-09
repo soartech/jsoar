@@ -55,7 +55,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     {
         super("preferences", "Preferences");
         
-        this.agent = debuggerIn.getAgentProxy();
+        this.agent = debuggerIn.getAgent();
         this.selectionManager = debuggerIn.getSelectionManager();
         
         addAction(DockingConstants.PIN_ACTION);

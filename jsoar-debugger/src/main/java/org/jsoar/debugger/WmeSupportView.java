@@ -123,7 +123,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             {
                 if(sourceInfo != null)
                 {
-                    debugger.getAgentProxy().getPrinter().startNewLine().print(sourceInfo.toString()).flush();
+                    debugger.getAgent().getPrinter().startNewLine().print(sourceInfo.toString()).flush();
                 }
             }});
         return bar;
@@ -161,7 +161,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             @Override
             public WmeSupportInfo call() throws Exception
             {
-                final Agent agent = debugger.getAgentProxy().getAgent();
+                final Agent agent = debugger.getAgent().getAgent();
                 return WmeSupportInfo.get(agent, w);
             }};
         final CompletionHandler<WmeSupportInfo> finish = new CompletionHandler<WmeSupportInfo>() {
@@ -175,7 +175,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
                 wmeTable.packAll();
             }
         };
-        debugger.getAgentProxy().execute(call, SwingCompletionHandler.newInstance(finish));
+        debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(finish));
     }
     
     private static class CellRenderer extends DefaultListCellRenderer

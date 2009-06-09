@@ -91,7 +91,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
         addAction(DockingConstants.PIN_ACTION);
         
         this.debugger = debugger;
-        this.model = new WorkingMemoryTreeModel(debugger.getAgentProxy(), new ArrayList<Identifier>());
+        this.model = new WorkingMemoryTreeModel(debugger.getAgent(), new ArrayList<Identifier>());
         this.table = new JXTreeTable(this.model);
         this.table.setRootVisible(false);
         this.table.setHighlighters(HighlighterFactory.createAlternateStriping());
@@ -205,7 +205,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
         forwardAction.setEnabled(historyPosition < history.size() - 1);
         
         final String[] tokens = idString.split("\\s+");
-        final Agent agent = debugger.getAgentProxy().getAgent();
+        final Agent agent = debugger.getAgent().getAgent();
         final Callable<List<Identifier>> callable = new Callable<List<Identifier>>() {
 
             public List<Identifier> call() throws Exception
@@ -234,7 +234,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
             {
 
                 // Reset the tree model
-                model = new WorkingMemoryTreeModel(debugger.getAgentProxy(), ids);
+                model = new WorkingMemoryTreeModel(debugger.getAgent(), ids);
                 table.setTreeTableModel(model);
                 
                 // Expand the rows
@@ -246,7 +246,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
             
         };
         
-        debugger.getAgentProxy().execute(callable, SwingCompletionHandler.newInstance(finish));
+        debugger.getAgent().execute(callable, SwingCompletionHandler.newInstance(finish));
     }
 
     /* (non-Javadoc)

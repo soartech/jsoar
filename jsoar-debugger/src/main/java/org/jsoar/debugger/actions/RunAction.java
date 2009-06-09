@@ -34,7 +34,7 @@ public class RunAction extends AbstractDebuggerAction
     @Override
     public void update()
     {
-        setEnabled(!getApplication().getAgentProxy().isRunning());
+        setEnabled(!getApplication().getAgent().isRunning());
     }
 
     /* (non-Javadoc)
@@ -44,7 +44,7 @@ public class RunAction extends AbstractDebuggerAction
     public void actionPerformed(ActionEvent arg0)
     {
         final RunControlModel model = getApplication().getRunControlModel();
-        getApplication().getAgentProxy().runFor(model.getCount(), model.getType());
+        getApplication().getAgent().runFor(model.getCount(), model.getType());
         getApplication().updateActionsAndStatus();
     }
 

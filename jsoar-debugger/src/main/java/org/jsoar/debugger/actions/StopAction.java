@@ -31,7 +31,7 @@ public class StopAction extends AbstractDebuggerAction
     @Override
     public void update()
     {
-        setEnabled(getApplication().getAgentProxy().isRunning());
+        setEnabled(getApplication().getAgent().isRunning());
     }
 
     /* (non-Javadoc)
@@ -40,7 +40,7 @@ public class StopAction extends AbstractDebuggerAction
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
-        getApplication().getAgentProxy().stop();
+        getApplication().getAgent().stop();
     }
 
 }

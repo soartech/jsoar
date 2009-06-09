@@ -55,7 +55,7 @@ public class ExciseProductionAction extends AbstractDebuggerAction
             return;
         }
         
-        final ThreadedAgent proxy = getApplication().getAgentProxy();
+        final ThreadedAgent proxy = getApplication().getAgent();
         final Callable<Void> call = new Callable<Void>() {
 
             @Override
