@@ -121,7 +121,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         this.frame.setTitle("JSoar Debugger - " + proxy.getName());
 
         this.proxy = proxy;
-        final SoarCommandInterpreter ifc = proxy.getAgent().getInterpreter();
+        final SoarCommandInterpreter ifc = proxy.getInterpreter();
         ifc.addCommand("run", new RunCommand(proxy));
         ifc.addCommand("stop", new StopCommand(proxy));
         ifc.addCommand("stop-soar", new StopCommand(proxy));
@@ -249,14 +249,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
         return view;
     }
     
-    public ThreadedAgent getAgentProxy()
+    public ThreadedAgent getAgent()
     {
         return proxy;
-    }
-    
-    public SoarCommandInterpreter getTcl()
-    {
-        return proxy.getAgent().getInterpreter();
     }
     
     public SelectionManager getSelectionManager()
@@ -501,7 +496,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 {
                     try
                     {
-                        SoarCommands.source(debugger.getTcl(), arg);
+                        SoarCommands.source(debugger.getAgent().getInterpreter(), arg);
                     }
                     catch (SoarException e)
                     {
@@ -537,7 +532,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     {
         if(klass.equals(SoarCommandInterpreter.class))
         {
-            return getTcl();
+            return getAgent().getInterpreter();
         }
         if(klass.equals(Agent.class))
         {

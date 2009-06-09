@@ -42,7 +42,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     {
         super("partialmatches", "Partial Matches");
         
-        this.agent = debugger.getAgentProxy();
+        this.agent = debugger.getAgent();
         this.selectionManager = debugger.getSelectionManager();
         
         addAction(DockingConstants.PIN_ACTION);

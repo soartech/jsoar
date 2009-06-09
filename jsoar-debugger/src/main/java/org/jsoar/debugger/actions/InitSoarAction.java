@@ -32,7 +32,7 @@ public class InitSoarAction extends AbstractDebuggerAction
     @Override
     public void update()
     {
-        setEnabled(!getApplication().getAgentProxy().isRunning());
+        setEnabled(!getApplication().getAgent().isRunning());
     }
 
     /* (non-Javadoc)
@@ -41,7 +41,7 @@ public class InitSoarAction extends AbstractDebuggerAction
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
-        getApplication().getAgentProxy().initialize();
+        getApplication().getAgent().initialize();
     }
 
 }

@@ -34,11 +34,11 @@ public class CommandLineRunnable implements Callable<Void>
     @Override
     public Void call()
     {
-        final Printer printer = ifc.getAgentProxy().getAgent().getPrinter();
+        final Printer printer = ifc.getAgent().getAgent().getPrinter();
         printer.startNewLine().print(command);
         try
         {
-            String result = ifc.getTcl().eval(command);
+            String result = ifc.getAgent().getInterpreter().eval(command);
             if(result != null && result.length() != 0)
             {
                 printer.startNewLine().print(result).flush();
