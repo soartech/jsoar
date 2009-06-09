@@ -7,17 +7,20 @@ package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
 
+import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import org.flexdock.docking.DockingConstants;
+import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -35,6 +38,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private final Writer outputWriter = new Writer()
     {
         private StringBuilder buffer = new StringBuilder();
+        private boolean flushing = false;
         
         @Override
         public void close() throws IOException
@@ -44,18 +48,24 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         @Override
         synchronized public void flush() throws IOException
         {
-            final String output = buffer.toString();
-            buffer.setLength(0);
-
-            if(output.length() > 0)
-            {
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        outputWindow.append(output);
+            // If there's already a runnable headed for the UI thread, don't send another
+            if(flushing) { return; }
+            
+            // Send a runnable over to the UI thread to take the current buffer contents
+            // and put them in the trace window.
+            flushing = true;
+            
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    synchronized(outputWriter) // synchronized on outer.this like the flush() method
+                    {
+                        outputWindow.append(buffer.toString());
                         outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
+                        buffer.setLength(0);
+                        flushing = false;
                     }
-                });
-            }
+                }
+            });
         }
 
         @Override
@@ -82,10 +92,24 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 {
                     TraceMenu menu = new TraceMenu(debugger.getAgent().getTrace());
                     menu.populateMenu();
+                    menu.insertSeparator(0);
+                    menu.insert(new AbstractAction("Clear") {
+
+                        private static final long serialVersionUID = 3871607368064705900L;
+
+                        @Override
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            outputWindow.setText("");
+                        }}, 0);
                     menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
                 }
             }});
         outputWindow.setEditable(false);
+        
+        final JSoarVersion version = JSoarVersion.getInstance();
+        outputWindow.setText("JSoar " + version + "\nhttp://jsoar.googlecode.com\n\n" +  
+                             "Right-click for trace options\n");
         
         debugger.getAgent().getPrinter().pushWriter(outputWriter, true);
         
