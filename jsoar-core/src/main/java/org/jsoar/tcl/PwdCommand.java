@@ -38,7 +38,7 @@ public class PwdCommand implements Command
             throw new TclNumArgsException(interp, 0, args, "");
         }
         
-        interp.setResult(sourceCommand.getWorkingDirectory().getAbsolutePath().replace('\\', '/'));
+        interp.setResult(sourceCommand.getWorkingDirectory().replace('\\', '/'));
     }
 
 }

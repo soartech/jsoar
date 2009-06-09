@@ -196,7 +196,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     {
         try
         {
-            sourceCommand.source(interp, file);
+            sourceCommand.source(interp, file.getPath());
         }
         catch (TclException e)
         {
@@ -208,7 +208,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     {
         try
         {
-            sourceCommand.source(interp, url);
+            sourceCommand.source(interp, url.toExternalForm());
         }
         catch (TclException e)
         {

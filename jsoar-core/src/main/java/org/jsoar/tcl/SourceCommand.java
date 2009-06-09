@@ -8,10 +8,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Stack;
 
+import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
 
 import tcl.lang.Command;
@@ -25,39 +25,63 @@ import tcl.lang.TclObject;
  */
 public class SourceCommand implements Command
 {
-    private File workingDirectory = new File(System.getProperty("user.dir"));
-    private Stack<File> directoryStack = new Stack<File>();
+    // This ain't pretty, but it's private and it works
+    private static class Entry
+    {
+        File file;
+        URL url;
+        
+        public Entry(File file) { this.file = file; }
+        public Entry(URL url) { this.url = url; }
+    }
     
-    /**
-     * @param interp
-     */
+    private Entry workingDirectory = new Entry(new File(System.getProperty("user.dir")));
+    private Stack<Entry> directoryStack = new Stack<Entry>();
+    
     public SourceCommand()
     {
     }
     
-    public File getWorkingDirectory()
+    public String getWorkingDirectory()
     {
-        return workingDirectory;
+        return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();
     }
     
     public void pushd(Interp interp, String dirString) throws TclException
     {
         File newDir = new File(dirString);
-        if(!newDir.isAbsolute())
+        URL url = FileTools.asUrl(dirString);
+        if(url != null)
         {
-            newDir = new File(workingDirectory, dirString);
+            // A new URL. Just set that to be the working directory
+            directoryStack.push(workingDirectory);
+            workingDirectory = new Entry(url);
         }
-        
-        if(!newDir.exists())
+        else if(workingDirectory.url != null && !newDir.isAbsolute())
         {
-            throw new TclException(interp, "Directory '" + newDir  + "' does not exist");
+            // Relative path where current directory is a URL.
+            directoryStack.push(workingDirectory);
+            workingDirectory = new Entry(joinUrl(workingDirectory.url, dirString));
         }
-        if(!newDir.isDirectory())
+        else 
         {
-            throw new TclException(interp, "'" + newDir + "' is not a directory");
+            if(!newDir.isAbsolute())
+            {
+                assert workingDirectory.url == null;
+                newDir = new File(workingDirectory.file, dirString);
+            }
+            
+            if(!newDir.exists())
+            {
+                throw new TclException(interp, "Directory '" + newDir  + "' does not exist");
+            }
+            if(!newDir.isDirectory())
+            {
+                throw new TclException(interp, "'" + newDir + "' is not a directory");
+            }
+            directoryStack.push(workingDirectory);
+            workingDirectory = new Entry(newDir);
         }
-        directoryStack.push(workingDirectory);
-        workingDirectory = newDir;
     }
     
     public void popd(Interp interp) throws TclException
@@ -69,6 +93,34 @@ public class SourceCommand implements Command
         workingDirectory = directoryStack.pop();
     }
 
+    public void source(Interp interp, String fileString) throws TclException, SoarException
+    {
+        final URL url = FileTools.asUrl(fileString);
+        File file = new File(fileString);
+        if(url != null)
+        {
+            pushd(interp, getParentUrl(url).toExternalForm());
+            evalUrlAndPop(interp, url);
+        }
+        else if(file.isAbsolute())
+        {
+            pushd(interp, file.getParent());
+            evalFileAndPop(interp, file);
+        }
+        else if(workingDirectory.url != null)
+        {
+            final URL childUrl = joinUrl(workingDirectory.url, fileString);
+            pushd(interp, getParentUrl(childUrl).toExternalForm());
+            evalUrlAndPop(interp, childUrl);
+        }
+        else 
+        {
+            file = new File(workingDirectory.file, file.getPath());
+            pushd(interp, file.getParent());
+            evalFileAndPop(interp, file);
+        }
+    }
+    
     /* (non-Javadoc)
      * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
      */
@@ -79,26 +131,35 @@ public class SourceCommand implements Command
             throw new TclNumArgsException(interp, 0, args, "fileName");
         }
         
-        final String fileName = args[1].toString();
-        
-        // First see if it's a URL
-        if(tryUrl(interp, fileName))
+        try
         {
-            return;
+            source(interp, args[1].toString());
         }
-        
-        // Fallback to file system
-        source(interp, new File(fileName));
+        catch (SoarException e)
+        {
+            throw new TclException(interp, e.getMessage());
+        }
     }
-
-    public void source(Interp interp, File file) throws TclException
+    
+    private URL getParentUrl(URL url) throws SoarException
     {
-        if(!file.isAbsolute())
+        final String s = url.toExternalForm();
+        final int i = s.lastIndexOf('/');
+        if(i == -1)
         {
-            file = new File(workingDirectory, file.getPath());
+            throw new SoarException("Cannot determine parent of URL: " + url);
         }
-        final String parent = file.getParent();
-        pushd(interp, parent);
+        return FileTools.asUrl(s.substring(0, i));
+    }
+    
+    private URL joinUrl(URL parent, String child)
+    {
+        final String s = parent.toExternalForm();
+        return FileTools.asUrl(s.endsWith("/") ? s + child : s + "/" + child);
+    }
+    
+    private void evalFileAndPop(Interp interp, File file) throws TclException
+    {
         try
         {
             interp.evalFile(file.getAbsolutePath());
@@ -109,9 +170,8 @@ public class SourceCommand implements Command
         }
     }
     
-    public void source(Interp interp, URL url) throws TclException
+    private void evalUrlAndPop(Interp interp, URL url) throws TclException
     {
-        // TODO: This should also handle relative URL paths as well as proxies, authentication, etc
         try
         {
             final InputStream in = new BufferedInputStream(url.openStream());
@@ -130,18 +190,9 @@ public class SourceCommand implements Command
         {
             throw new TclException(interp, e.getMessage());
         }
-    }
-    
-    private boolean tryUrl(Interp interp, String fileName) throws TclException 
-    {
-        try
+        finally
         {
-            source(interp, new URL(fileName));
-            return true;
-        }
-        catch (MalformedURLException e)
-        {
-            return false; // Not a URL
+            popd(interp);
         }
     }
 }
