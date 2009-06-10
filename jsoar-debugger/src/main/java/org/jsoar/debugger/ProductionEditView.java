@@ -127,6 +127,7 @@ public class ProductionEditView extends AbstractAdaptableView
         final JButton loadButton = new JButton(loadAction);
         // map ctrl+return to load the production back into the agent.
         textArea.getKeymap().addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_MASK), loadAction);
+        textArea.selectAll();
         
         JPanel t = new JPanel();
         t.add(loadButton);

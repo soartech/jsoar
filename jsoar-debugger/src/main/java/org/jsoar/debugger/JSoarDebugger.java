@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -44,6 +45,7 @@ import org.jsoar.debugger.actions.RestoreLayoutAction;
 import org.jsoar.debugger.actions.RunAction;
 import org.jsoar.debugger.actions.SourceFileAction;
 import org.jsoar.debugger.actions.StopAction;
+import org.jsoar.debugger.actions.UrlAction;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
@@ -72,7 +74,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
 {
     private static final long serialVersionUID = 7997119112479665988L;
     private static final Log logger = LogFactory.getLog(JSoarDebugger.class);
-
+    private static final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
+    
     private static final Map<ThreadedAgent, JSoarDebugger> debuggers = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
     
     static 
@@ -343,6 +346,10 @@ public class JSoarDebugger extends JPanel implements Adaptable
         bar.add(runMenu);
         
         JMenu helpMenu = new JMenu("Help");
+        helpMenu.add(new UrlAction(actionManager, "JSoar Home Page", resources.getString("jsoar.site.url")));
+        helpMenu.add(new UrlAction(actionManager, "MSoar Home Page", resources.getString("msoar.site.url")));
+        helpMenu.add(new UrlAction(actionManager, "Command Help", resources.getString("help.url.all")));
+        helpMenu.addSeparator();
         helpMenu.add(actionManager.getAction(AboutAction.class));
         bar.add(helpMenu);
         
