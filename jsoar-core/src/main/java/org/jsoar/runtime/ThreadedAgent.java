@@ -17,6 +17,8 @@ import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.commands.RunCommand;
+import org.jsoar.kernel.commands.StopCommand;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.kernel.io.InputOutput;
@@ -46,6 +48,9 @@ import com.google.common.collect.MapMaker;
  * <p>This object sets the {@link SoarProperties#IS_RUNNING} property appropriately
  * and fires events when its state changes.
  * 
+ * <p>This object installs {@code run} and {@code stop-soar} commands as well as
+ * the {@code wait} RHS function.
+ * 
  * @author ray
  */
 public class ThreadedAgent
@@ -74,6 +79,9 @@ public class ThreadedAgent
     private final AgentThread agentThread = new AgentThread();
     private final WaitRhsFunction waitFunction = new WaitRhsFunction();
     
+    private final RunCommand runCommand = new RunCommand(this);
+    private final StopCommand stopCommand = new StopCommand(this);
+
     /**
      * Create a new {@link Agent} and automatically wrap it with a ThreadedAgent.
      * This method also initializes the agent and starts its thread. 
@@ -159,6 +167,10 @@ public class ThreadedAgent
             }});
         
         waitFunction.attach(this);
+
+        final SoarCommandInterpreter interp = agent.getInterpreter();
+        interp.addCommand("run", runCommand);
+        interp.addCommand("stop-soar", stopCommand);
     }
     
     /**
@@ -219,6 +231,8 @@ public class ThreadedAgent
                 e.printStackTrace();
             }
             waitFunction.detach();
+            
+            // TODO: Unregister run and stop commands.
         }
         finally
         {
