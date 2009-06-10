@@ -31,6 +31,7 @@ import org.flexdock.docking.Dockable;
 import org.flexdock.docking.DockingConstants;
 import org.flexdock.docking.DockingManager;
 import org.flexdock.docking.activation.ActiveDockableTracker;
+import org.flexdock.plaf.PlafManager;
 import org.flexdock.util.SwingUtility;
 import org.flexdock.view.Viewport;
 import org.jsoar.debugger.actions.AboutAction;
@@ -49,8 +50,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.commands.RunCommand;
-import org.jsoar.kernel.commands.StopCommand;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
@@ -76,6 +75,19 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
     private static final Map<ThreadedAgent, JSoarDebugger> debuggers = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
     
+    static 
+    {
+        // This is a workaround for the loading behavior of FlexDock.
+        // The static initializer of PlafManager messes with the Swing
+        // look and feel which means that if it executes "late" due to lazy
+        // class loading, it will mess with non-flexdock frames that were
+        // previously created. Uggh. So we force instantiation here just to
+        // make it as early as possible.
+        // The symptom I was seeing was that an existing window would become
+        // very small the first time the debugger was loaded.
+        PlafManager.getSystemThemeName();
+    }
+    
     private final SelectionManager selectionManager = new SelectionManager();
     private final ActionManager actionManager = new ActionManager(this);
     private final RunControlModel runControlModel = new RunControlModel();
@@ -96,7 +108,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private PropertyChangeListener dockTrackerListener = null;
     private final List<SoarEventListener> soarEventListeners = new ArrayList<SoarEventListener>();
     private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<PropertyListenerHandle<?>>();
-    
     
     /**
      * Construct a new debugger. Add to a JFrame and call initialize().
@@ -121,11 +132,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         this.frame.setTitle("JSoar Debugger - " + proxy.getName());
 
         this.proxy = proxy;
-        final SoarCommandInterpreter ifc = proxy.getInterpreter();
-        ifc.addCommand("run", new RunCommand(proxy));
-        ifc.addCommand("stop", new StopCommand(proxy));
-        ifc.addCommand("stop-soar", new StopCommand(proxy));
-        ifc.addCommand("load-plugin", loadPluginCommand);
+        proxy.getInterpreter().addCommand("load-plugin", loadPluginCommand);
         
         this.add(viewport, BorderLayout.CENTER);
         
@@ -199,7 +206,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 exit();
             }});
         
-        Adaptables.adapt(this, TraceView.class).setVisible(true);
+        //Adaptables.adapt(this, TraceView.class).setVisible(true);
         
         update(false);
         
