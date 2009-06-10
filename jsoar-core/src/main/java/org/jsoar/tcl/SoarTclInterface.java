@@ -9,12 +9,15 @@ import java.io.File;
 import java.net.URL;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.CLogCommand;
 import org.jsoar.kernel.commands.EchoCommand;
 import org.jsoar.kernel.commands.ExciseCommand;
 import org.jsoar.kernel.commands.FiringCountsCommand;
+import org.jsoar.kernel.commands.HelpCommand;
 import org.jsoar.kernel.commands.InitSoarCommand;
 import org.jsoar.kernel.commands.LearnCommand;
 import org.jsoar.kernel.commands.MatchesCommand;
@@ -49,6 +52,10 @@ import com.google.common.collect.MapMaker;
  */
 public class SoarTclInterface implements SoarCommandInterpreter
 {
+    private static final String DEFAULT_TCL_CODE = "/org/jsoar/tcl/jsoar.tcl";
+
+    private static final Log logger = LogFactory.getLog(SoarTclInterface.class);
+    
     private final static ConcurrentMap<Agent, SoarTclInterface> interfaces = new MapMaker().weakKeys().makeMap();
     
     /**
@@ -112,8 +119,6 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private final Interp interp = new Interp();
     
     private final SourceCommand sourceCommand;
-    private final PushdCommand pushdCommand;
-    private final PopdCommand popdCommand;
     
     final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
     
@@ -123,13 +128,9 @@ public class SoarTclInterface implements SoarCommandInterpreter
         
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
         
-        this.sourceCommand = new SourceCommand();
-        interp.createCommand("source", sourceCommand);
-
-        this.pushdCommand = new PushdCommand(sourceCommand);
-        interp.createCommand("pushd", pushdCommand);
-        this.popdCommand = new PopdCommand(sourceCommand);
-        interp.createCommand("popd", this.popdCommand);
+        interp.createCommand("source", this.sourceCommand = new SourceCommand());
+        interp.createCommand("pushd", new PushdCommand(sourceCommand));
+        interp.createCommand("popd", new PopdCommand(sourceCommand));
         interp.createCommand("pwd", new PwdCommand(sourceCommand));
         
         addCommand("sp", new SpCommand(this.agent));
@@ -149,21 +150,29 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("clog", new CLogCommand(this.agent));
         addCommand("watch", new WatchCommand(this.agent));
         addCommand("rhs-functions", new RhsFunctionsCommand(this.agent));
-        final PrintCommand print = new PrintCommand(this.agent);
-        addCommand("print", print);
-        addCommand("p", print); // TODO do aliases
+        addCommand("print", new PrintCommand(this.agent));
         addCommand("o-support-mode", new OSupportModeCommand());
         addCommand("soar8", new Soar8Command());
-        final FiringCountsCommand fc = new FiringCountsCommand(this.agent);
-        addCommand("firing-counts", fc);
-        addCommand("fc", fc); // TODO do aliases
-        final ExciseCommand excise = new ExciseCommand(this.agent);
-        addCommand("excise", excise);
-        addCommand("ex", excise); // TODO do aliases
+        addCommand("firing-counts", new FiringCountsCommand(this.agent));
+        addCommand("excise", new ExciseCommand(this.agent));
         addCommand("init-soar", new InitSoarCommand(this.agent));
         
         addCommand("set-parser", new SetParserCommand(this.agent));
         addCommand("properties", new PropertiesCommand(this.agent));
+        
+        addCommand("help", new HelpCommand(this));
+        
+        try
+        {
+            interp.evalResource(DEFAULT_TCL_CODE);
+        }
+        catch (TclException e)
+        {
+            final String message = "Failed to load resource " + DEFAULT_TCL_CODE + 
+                ". Some commands may not work as expected: " + interp.getResult();
+            logger.error(message);
+            agent.getPrinter().error(message);
+        }
     }
     
     private Command adapt(SoarCommand c)

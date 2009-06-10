@@ -170,6 +170,8 @@ public class Agent extends AbstractAdaptable
     public void dispose()
     {
         setInterpreter(null);
+        
+        logger.info("Agent '" + this + "' disposed.");
     }
     
     /**
@@ -268,6 +270,15 @@ public class Agent extends AbstractAdaptable
             if(interp == null)
             {
                 interp = SoarTclInterface.findOrCreate(this);
+                final String DEFAULT_ALIASES = "/org/jsoar/kernel/commands/aliases";
+                try
+                {
+                    interp.source(Agent.class.getResource(DEFAULT_ALIASES));
+                }
+                catch (SoarException e)
+                {
+                    logger.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage());
+                }
             }
             return interp;
         }

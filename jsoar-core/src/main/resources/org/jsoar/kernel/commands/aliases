@@ -1,0 +1,43 @@
+# Default command aliases for jsoar
+# Core/CLI/src/cli_Aliases.cpp
+
+alias a alias
+alias aw add-wme
+alias chdir cd
+alias ctf command-to-file
+alias set-default-depth default-wme-depth
+alias ex excise
+alias eb explain-backtraces
+alias fc firing-counts
+alias gds_print gds-print
+alias h help
+alias man help
+alias ? help
+alias inds indifferent-selection
+alias init init-soar
+alias is init-soar
+alias l learn
+alias dir ls
+alias p print
+alias pc print --chunks
+alias pr preferences
+alias ps print --stack
+alias topd pwd
+alias pw pwatch
+alias exit quit
+alias step run -d 1
+alias d run -d 1
+alias e run -e 1
+alias rw remove-wme
+alias rn rete-net
+alias sn soarnews
+alias st stats
+alias start start-system
+alias stop stop-soar
+alias ss stop-soar
+alias interrupt stop-soar
+alias support preferences --object
+alias un unalias
+alias w watch
+alias wmes print -i
+alias varprint print -v -d 100
