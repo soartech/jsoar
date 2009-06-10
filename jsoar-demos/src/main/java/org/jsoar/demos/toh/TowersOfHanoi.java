@@ -47,7 +47,7 @@ public class TowersOfHanoi extends AbstractAdaptableView implements JSoarDebugge
         TraceView trace = Adaptables.adapt(debugger, TraceView.class);
         trace.dock(this, DockingConstants.SOUTH_REGION);
         
-        SoarEventManager em = debugger.getAgentProxy().getEvents();
+        SoarEventManager em = debugger.getAgent().getEvents();
         
         initialize(em, args);
     }
