@@ -74,7 +74,7 @@ public class RobotAgent
                 @Override
                 public Void call() throws Exception
                 {
-                    SoarCommands.source(agent.getAgent().getInterpreter(), source);
+                    SoarCommands.source(agent.getInterpreter(), source);
                     return null;
                 }};
             this.agent.execute(call, null);
