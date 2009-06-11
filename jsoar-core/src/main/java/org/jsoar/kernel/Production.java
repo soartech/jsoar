@@ -33,7 +33,7 @@ public class Production
 {
     private final ProductionType type;
     private final StringSymbol name;
-    public String documentation;
+    private final String documentation;
     public Condition condition_list;
     private Condition bottomOfConditionList;
     public Action action_list;
@@ -66,7 +66,7 @@ public class Production
      * @param lhs_bottom_in Bottom of LHS conditions
      * @param rhs_top_in Top of RHS actions
      */
-    public Production(ProductionType type, StringSymbol name,
+    public Production(ProductionType type, StringSymbol name, String doc,
                       Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in)
     {
         Arguments.checkNotNull(type, "type");
@@ -76,6 +76,7 @@ public class Production
         
         this.type = type;
         this.name = name;
+        this.documentation = doc;
         this.p_node = null; // it's not in the Rete yet
         this.condition_list = lhs_top_in;
         this.bottomOfConditionList = lhs_bottom_in;

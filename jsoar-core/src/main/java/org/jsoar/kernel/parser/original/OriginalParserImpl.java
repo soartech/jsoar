@@ -1922,9 +1922,8 @@ class OriginalParserImpl
             // Nothing
         }
 
-        Production p = new Production(prod_type, name, lhs_top, lhs_bottom, rhs);
+        Production p = new Production(prod_type, name, documentation, lhs_top, lhs_bottom, rhs);
 
-        p.documentation = documentation;
         p.declared_support = declared_support;
         p.interrupt = interrupt_on_match;
 

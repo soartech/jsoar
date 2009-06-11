@@ -39,6 +39,15 @@ public class DefaultWmeTableModel extends AbstractTableModel
     {
         this.wmes = wmes;
     }
+    
+    /**
+     * @return the wmes
+     */
+    public List<Wme> getWmes()
+    {
+        return wmes;
+    }
+
     /* (non-Javadoc)
      * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
      */

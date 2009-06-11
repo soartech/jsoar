@@ -48,7 +48,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
 
     private final ThreadedAgent agent;
     private final SelectionManager selectionManager;
-    private final JLabel info = new JLabel("No state selected");
+    private final JLabel info = new JLabel(" No state selected");
     private final JXTable table = new JXTable();
     
     public PreferencesView(JSoarDebugger debuggerIn)
@@ -175,7 +175,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     
     private void finishGetPreferences(Result result)
     {
-        info.setText(String.format("<html><b>Operator preferences for <code>%s</code></b></html>", result.getQueryId()));
+        info.setText(String.format("<html><b>&nbsp;Operator preferences for <code>%s</code></b></html>", result.getQueryId()));
         if(result.getError() == null)
         {
             table.setModel(new PreferencesTableModel(result));

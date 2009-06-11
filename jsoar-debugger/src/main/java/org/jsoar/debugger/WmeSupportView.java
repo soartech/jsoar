@@ -85,7 +85,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             }});
         
         this.wmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
-        this.wmeTable.setShowGrid(true);
+        this.wmeTable.setShowGrid(false);
         this.wmeTable.setDefaultRenderer(Identifier.class, new DefaultWmeTableCellRenderer());
         
         
@@ -169,7 +169,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             @Override
             public void finish(WmeSupportInfo sourceInfo)
             {
-                source.setText(String.format("<html><b><code>%#s</code></b> is supported by the following productions:</html>", w));
+                source.setText(String.format("<html><b>&nbsp;<code> %#s</code></b> is supported by the following productions:</html>", w));
                 entryList.setModel(SwingTools.addAll(new DefaultListModel(), sourceInfo.getSupports()));
                 wmeTable.setModel(new DefaultWmeTableModel());
                 wmeTable.packAll();

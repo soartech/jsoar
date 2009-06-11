@@ -9,8 +9,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -21,7 +19,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.flexdock.docking.DockingConstants;
@@ -30,8 +27,8 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.EditProductionAction;
 import org.jsoar.debugger.actions.ObjectPopupMenu;
-import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
+import org.jsoar.debugger.selection.TableSelectionProvider;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.runtime.CompletionHandler;
@@ -54,7 +51,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
     private final JXTable table;
     private final JLabel stats = new JLabel();
     private final JLabel info = new JLabel();
-    private final Provider selectionProvider = new Provider();
+    private final TableSelectionProvider selectionProvider;
     
     /**
      * @param debuggerIn The owning debugger
@@ -73,7 +70,16 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         this.model = new ProductionTableModel(this.agent);
         this.model.initialize();
         this.table = new JXTable(this.model);
-        this.table.getSelectionModel().addListSelectionListener(selectionProvider);
+        this.selectionProvider = new TableSelectionProvider(this.table) {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e)
+            {
+                super.valueChanged(e);
+                updateInfo();
+            }};
+        this.selectionProvider.activate(actionManager.getSelectionManager());
+        
         this.table.setDefaultRenderer(Production.class, new NameCellRenderer());
         
         DefaultTableCellRenderer fcRenderer = new DefaultTableCellRenderer();
@@ -245,67 +251,5 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
             setText(p.getName().toString());
             return c;
         }
-    }
-    
-    private class Provider implements SelectionProvider, ListSelectionListener
-    {
-        private SelectionManager manager;
-        
-        /* (non-Javadoc)
-         * @see org.jsoar.debugger.selection.SelectionProvider#activate(org.jsoar.debugger.selection.SelectionManager)
-         */
-        @Override
-        public void activate(SelectionManager manager)
-        {
-            this.manager = manager;
-        }
-
-        /* (non-Javadoc)
-         * @see org.jsoar.debugger.selection.SelectionProvider#deactivate()
-         */
-        @Override
-        public void deactivate()
-        {
-            this.manager = null;
-        }
-
-        /* (non-Javadoc)
-         * @see org.jsoar.debugger.selection.SelectionProvider#getSelectedObject()
-         */
-        @Override
-        public Object getSelectedObject()
-        {
-            List<Object> s = getSelection();
-            return !s.isEmpty() ? s.get(0) : null;
-        }
-
-        /* (non-Javadoc)
-         * @see org.jsoar.debugger.selection.SelectionProvider#getSelection()
-         */
-        @Override
-        public List<Object> getSelection()
-        {
-            List<Object> result = new ArrayList<Object>();
-            for(int row : table.getSelectedRows())
-            {
-                final Object value = table.getValueAt(row, 0);
-                result.add(value);
-            }
-            return result;
-        }
-
-        /* (non-Javadoc)
-         * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
-         */
-        @Override
-        public void valueChanged(ListSelectionEvent e)
-        {
-            if(manager != null)
-            {
-                manager.fireSelectionChanged();
-            }
-            updateInfo();
-        }
-        
     }
 }
