@@ -157,6 +157,9 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
         jump(idField.getText(), true);
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Refreshable#refresh(boolean)
+     */
     public void refresh(boolean afterInitSoar)
     {
         if(synch.isSelected())
