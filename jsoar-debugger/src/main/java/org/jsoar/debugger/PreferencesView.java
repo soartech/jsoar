@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -42,7 +43,7 @@ import org.jsoar.util.adaptables.Adaptables;
  * 
  * @author ray
  */
-public class PreferencesView extends AbstractAdaptableView implements SelectionListener
+public class PreferencesView extends AbstractAdaptableView implements SelectionListener, Refreshable
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
@@ -50,6 +51,10 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     private final SelectionManager selectionManager;
     private final JLabel info = new JLabel(" No state selected");
     private final JXTable table = new JXTable();
+    private JToggleButton synch = new JToggleButton(Images.SYNCH, true);
+    {
+        synch.setToolTipText("Refresh when run ends");
+    }
     
     public PreferencesView(JSoarDebugger debuggerIn)
     {
@@ -100,6 +105,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         
+        bar.add(synch);
         bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY) {
             private static final long serialVersionUID = -3614573079885324027L;
 
@@ -143,6 +149,19 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         }
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Refreshable#refresh(boolean)
+     */
+    @Override
+    public void refresh(boolean afterInitSoar)
+    {
+        if(synch.isSelected())
+        {
+            // Force an update
+            selectionChanged(selectionManager);
+        }
+    }
+
     private Result getLastResult()
     {
         final TableModel prefModel = table.getModel();

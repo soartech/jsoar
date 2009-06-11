@@ -19,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import org.flexdock.docking.DockingConstants;
@@ -44,7 +45,7 @@ import com.google.common.collect.Collections2;
  * 
  * @author ray
  */
-public class WmeSearchView extends AbstractAdaptableView
+public class WmeSearchView extends AbstractAdaptableView implements Refreshable
 {
     private static final long serialVersionUID = -2680823027837157856L;
     
@@ -65,6 +66,10 @@ public class WmeSearchView extends AbstractAdaptableView
             row = wmeTable.convertRowIndexToModel(row);
             return ((DefaultWmeTableModel) wmeTable.getModel()).getWmes().get(row);
         }};
+    private JToggleButton synch = new JToggleButton(Images.SYNCH, false);
+    {
+        synch.setToolTipText("Re-run search when run ends");
+    }
     
     public WmeSearchView(JSoarDebugger debuggerIn)
     {
@@ -141,10 +146,24 @@ public class WmeSearchView extends AbstractAdaptableView
         return super.getAdapter(klass);
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Refreshable#refresh(boolean)
+     */
+    @Override
+    public void refresh(boolean afterInitSoar)
+    {
+        if(synch.isSelected())
+        {
+            doSearch();
+        }
+    }
+
     private JToolBar createToolbar()
     {
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
+        
+        bar.add(synch);
         
         bar.add(new AbstractDebuggerAction("Print to trace", Images.COPY) {
             private static final long serialVersionUID = -3614573079885324027L;
@@ -209,7 +228,7 @@ public class WmeSearchView extends AbstractAdaptableView
     private List<Wme> getWmes(String id, String attr, String value)
     {
         final Agent agent = debugger.getAgent().getAgent();
-        final Pattern idPattern = Pattern.compile(StringTools.createRegexFromGlob(id));
+        final Pattern idPattern = Pattern.compile(StringTools.createRegexFromGlob(id).toUpperCase());
         final Pattern attrPattern = Pattern.compile(StringTools.createRegexFromGlob(attr));
         final Pattern valuePattern = Pattern.compile(StringTools.createRegexFromGlob(value));
         
