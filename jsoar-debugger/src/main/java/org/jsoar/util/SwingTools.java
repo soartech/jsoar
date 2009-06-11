@@ -9,6 +9,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.Collection;
 
 import javax.swing.AbstractAction;
@@ -151,4 +153,19 @@ public class SwingTools
         }
     }
  
+    public static void addSelectAllOnFocus(final JTextComponent text)
+    {
+        text.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e)
+            {
+                text.selectAll();
+            }
+
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+            }});
+    }
 }

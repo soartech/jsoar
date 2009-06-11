@@ -126,7 +126,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
         
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
-        bar.add(new JLabel("Roots: "));
+        bar.add(new JLabel(" Roots: "));
         idField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {

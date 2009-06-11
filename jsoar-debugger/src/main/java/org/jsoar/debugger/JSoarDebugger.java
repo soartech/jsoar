@@ -246,6 +246,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
         final WorkingMemoryTreeView wmTreeView = addView(new WorkingMemoryTreeView(this));
         traceView.dock(wmTreeView, DockingConstants.SOUTH_REGION);
         
+        final WmeSearchView wmeSearch = addView(new WmeSearchView(this));
+        wmTreeView.dock(wmeSearch);
+        
         final PreferencesView preferencesView = addView(new PreferencesView(this));
         wmTreeView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
         

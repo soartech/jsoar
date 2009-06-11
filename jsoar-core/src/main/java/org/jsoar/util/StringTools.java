@@ -5,6 +5,7 @@
  */
 package org.jsoar.util;
 
+
 /**
  * @author ray
  */
@@ -38,5 +39,46 @@ public class StringTools
         }
         dest.append(first_and_last_char);
         return dest.toString();
+    }
+    
+    
+    /**
+     * Convert a glob-style pattern to a regular expression for use with
+     * {@link java.lang.Pattern}.
+     * 
+     * <p> The following substitutions are used:
+     * 
+     * <pre>
+     * GLOB            RE
+     * ----            -------
+     * *               .*
+     * ?               .
+     * .               \.
+     * \               \\
+     * [a-z]           [a-z]
+     * </pre>
+     * 
+     * <p>For example {@code *foo* --> ^.*foo.*$}
+     * 
+     * @param in The input glob pattern
+     * @returns The regex
+     */
+    public static String createRegexFromGlob(String glob)
+    {
+        String out = "^";
+        for(int i = 0; i < glob.length(); ++i)
+        {
+            final char c = glob.charAt(i);
+            switch(c)
+            {
+            case '*': out += ".*"; break;
+            case '?': out += '.'; break;
+            case '.': out += "\\."; break;
+            case '\\': out += "\\\\"; break;
+            default: out += c;
+            }
+        }
+        out += '$';
+        return out;
     }
 }

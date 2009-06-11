@@ -1263,7 +1263,7 @@ public class Chunker
 
         // make the production
 
-        Production prod = new Production(prod_type, prod_name, lhs_top, lhs_bottom, rhs);
+        Production prod = new Production(prod_type, prod_name, "", lhs_top, lhs_bottom, rhs);
         // Reorder the production
         try
         {

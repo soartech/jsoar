@@ -1113,7 +1113,7 @@ public class ReinforcementLearning
         new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
         // make new production
-        Production new_production = new Production( ProductionType.USER, new_name_symbol, cond_top.value, cond_bottom.value, new_action);
+        Production new_production = new Production( ProductionType.USER, new_name_symbol, "", cond_top.value, cond_bottom.value, new_action);
         try
         {
             ((DefaultProductionManager)my_agent.getProductions()).addProduction(new_production, false);

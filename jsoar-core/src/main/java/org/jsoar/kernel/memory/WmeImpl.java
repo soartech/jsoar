@@ -373,6 +373,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         // print.cpp:981:print_wme
         // print.cpp:981:print_wme_without_timetag
         
+        // TODO: I don't think that this should automatically insert a newline!
         if((f & FormattableFlags.ALTERNATE) == 0)
         {
             // This is the normal print_wme case. It is specified with the 

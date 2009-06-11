@@ -65,7 +65,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         final JPanel barPanel = new JPanel(new BorderLayout());
         final JToolBar bar = createToolbar();
         barPanel.add(bar, BorderLayout.EAST);
-        barPanel.add(new JLabel("Pending Assertions/Retractions"), BorderLayout.WEST);
+        barPanel.add(new JLabel(" Pending Assertions/Retractions"), BorderLayout.WEST);
         
         final JPanel p = new JPanel(new BorderLayout());
         p.add(barPanel, BorderLayout.NORTH);
@@ -85,7 +85,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
             }});
         
         this.wmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
-        this.wmeTable.setShowGrid(true);
+        this.wmeTable.setShowGrid(false);
         this.wmeTable.setDefaultRenderer(Identifier.class, new DefaultWmeTableCellRenderer());
         
         
