@@ -8,12 +8,14 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
 
 import javax.swing.AbstractAction;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -81,7 +83,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         this.debugger = debuggerIn;
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        
+        outputWindow.setLineWrap(true);
         outputWindow.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e) { mouseReleased(e); }
@@ -90,19 +92,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 if(e.isPopupTrigger())
                 {
-                    TraceMenu menu = new TraceMenu(debugger.getAgent().getTrace());
-                    menu.populateMenu();
-                    menu.insertSeparator(0);
-                    menu.insert(new AbstractAction("Clear") {
-
-                        private static final long serialVersionUID = 3871607368064705900L;
-
-                        @Override
-                        public void actionPerformed(ActionEvent e)
-                        {
-                            outputWindow.setText("");
-                        }}, 0);
-                    menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+                    showPopupMenu(e);
                 }
             }});
         outputWindow.setEditable(false);
@@ -137,5 +127,39 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         while(outputWriter != printer.popWriter())
         {
         }
+    }
+
+    private void showPopupMenu(MouseEvent e)
+    {
+        final TraceMenu menu = new TraceMenu(debugger.getAgent().getTrace());
+        
+        menu.populateMenu();
+        
+        menu.insertSeparator(0);
+        
+        // Add Wrap text action
+        final JCheckBoxMenuItem wrapTextItem = new JCheckBoxMenuItem("Wrap text", outputWindow.getLineWrap());
+        wrapTextItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                outputWindow.setLineWrap(!outputWindow.getLineWrap());
+            }});
+        menu.insert(wrapTextItem, 0);
+        
+        // Add clear action
+        menu.insert(new AbstractAction("Clear") {
+
+            private static final long serialVersionUID = 3871607368064705900L;
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                outputWindow.setText("");
+            }}, 0);
+        
+        // Show the menu
+        menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
     }
 }
