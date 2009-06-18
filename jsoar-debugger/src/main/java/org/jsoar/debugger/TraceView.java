@@ -35,6 +35,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private static final long serialVersionUID = -358416409712991384L;
 
     private final JSoarDebugger debugger;
+    private final CommandEntryPanel commandPanel;
     
     private final JTextArea outputWindow = new JTextArea();
     private final Writer outputWriter = new Writer()
@@ -83,7 +84,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         this.debugger = debuggerIn;
         
         outputWindow.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        outputWindow.setLineWrap(true);
+        outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
         outputWindow.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e) { mouseReleased(e); }
@@ -114,7 +115,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         //p.add(new RunControlPanel(debugger), BorderLayout.NORTH);
         p.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
         
-        p.add(new CommandEntryPanel(debugger), BorderLayout.SOUTH);
+        commandPanel = new CommandEntryPanel(debugger);
+        p.add(commandPanel, BorderLayout.SOUTH);
         this.setContentPane(p);
     }
     
@@ -123,10 +125,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
      */
     public void dispose()
     {
+        commandPanel.dispose();
+        
         final Printer printer = debugger.getAgent().getPrinter();
         while(outputWriter != printer.popWriter())
         {
         }
+        
+        getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
     }
 
     private void showPopupMenu(MouseEvent e)

@@ -8,7 +8,9 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.prefs.Preferences;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
@@ -17,12 +19,13 @@ import javax.swing.JPanel;
  * 
  * @author ray
  */
-public class CommandEntryPanel extends JPanel
+public class CommandEntryPanel extends JPanel implements Disposable
 {
     private static final long serialVersionUID = 667991263123343775L;
     
     private final JSoarDebugger debugger;
-    private final JComboBox field = new JComboBox();
+    private final DefaultComboBoxModel model = new DefaultComboBoxModel();
+    private final JComboBox field = new JComboBox(model);
     
     /**
      * Construct the panel with the given debugger
@@ -45,8 +48,45 @@ public class CommandEntryPanel extends JPanel
             {
                 execute();
             }});
+        
+        final String[] history = new String(getPrefs().get("history", "")).split("\\00"); // split on null character
+        for(String s : history)
+        {
+            final String trimmed = s.trim();
+            if(trimmed.length() > 0)
+            {
+                model.addElement(trimmed);
+            }
+        }
     }
     
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Disposable#dispose()
+     */
+    @Override
+    public void dispose()
+    {
+        final StringBuilder b = new StringBuilder();
+        boolean first = true;
+        for(int i = 0; i < model.getSize() && i < 20; ++i)
+        {
+            if(!first)
+            {
+                b.append((char) 0); // null-separated strings
+            }
+            b.append(model.getElementAt(i));
+            first = false;
+        }
+        
+        getPrefs().put("history", b.toString());
+    }
+
+    private Preferences getPrefs()
+    {
+        return JSoarDebugger.PREFERENCES.node("commands");
+    }
+
     private void execute()
     {
         final String command = field.getEditor().getItem().toString().trim();

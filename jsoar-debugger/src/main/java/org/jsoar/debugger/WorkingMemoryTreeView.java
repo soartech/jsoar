@@ -46,7 +46,7 @@ import org.jsoar.runtime.SwingCompletionHandler;
 /**
  * @author ray
  */
-public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refreshable
+public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refreshable, Disposable
 {
     private static final long serialVersionUID = -6587008765716839376L;
     
@@ -54,7 +54,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
     private WorkingMemoryTreeModel model;
     private JXTreeTable table;
     private Provider selectionProvider = new Provider();
-    private JToggleButton synch = new JToggleButton(Images.SYNCH, true);
+    private JToggleButton synch = new JToggleButton(Images.SYNCH, getPreferences().getBoolean("synch", true));
     {
         synch.setToolTipText("Refresh tree when run ends");
     }
@@ -168,6 +168,15 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
         }
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Disposable#dispose()
+     */
+    @Override
+    public void dispose()
+    {
+        getPreferences().putBoolean("synch", synch.isSelected());
+    }
+
     private void jump(String idList, boolean addToHistory)
     {
         idField.setText(idList);

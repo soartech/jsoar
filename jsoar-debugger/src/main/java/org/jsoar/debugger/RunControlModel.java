@@ -5,6 +5,8 @@
  */
 package org.jsoar.debugger;
 
+import java.util.prefs.Preferences;
+
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -12,13 +14,18 @@ import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 
 /**
  * @author ray
  */
-public class RunControlModel
+public class RunControlModel implements Disposable
 {
+    private static final Log logger = LogFactory.getLog(Agent.class);
+    
     private PlainDocument count = new PlainDocument();
     {
         try
@@ -31,6 +38,17 @@ public class RunControlModel
         }
     }
     private ComboBoxModel runType = new DefaultComboBoxModel(RunType.values());
+    
+    public RunControlModel()
+    {
+        final Preferences prefs = getPrefs();
+        setCount(prefs.getInt("count", 1));
+        final RunType runType = RunType.valueOf(prefs.get("type", RunType.values()[0].name()));
+        if(runType != null)
+        {
+            setType(runType);
+        }
+    }
     
     public int getCount()
     {
@@ -48,9 +66,26 @@ public class RunControlModel
         }
     }
     
+    public void setCount(int count)
+    {
+        try
+        {
+            this.count.replace(0, this.count.getLength(), Integer.toString(count), null);
+        }
+        catch (BadLocationException e)
+        {
+            logger.error("Failed to set count to " + count, e);
+        }
+    }
+    
     public RunType getType()
     {
         return (RunType) runType.getSelectedItem();
+    }
+    
+    public void setType(RunType type)
+    {
+        runType.setSelectedItem(type);
     }
     
     public JTextField createCountField()
@@ -62,6 +97,25 @@ public class RunControlModel
     
     public JComboBox createTypeCombo()
     {
-        return new JComboBox(runType);
+        final JComboBox cb = new JComboBox(runType);
+        cb.setSelectedItem(getType());
+        return cb;
     }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Disposable#dispose()
+     */
+    @Override
+    public void dispose()
+    {
+        final Preferences prefs = getPrefs();
+        prefs.putInt("count", getCount());
+        prefs.put("type", getType().name());
+    }
+
+    private Preferences getPrefs()
+    {
+        return JSoarDebugger.PREFERENCES.node("run");
+    }
+    
 }

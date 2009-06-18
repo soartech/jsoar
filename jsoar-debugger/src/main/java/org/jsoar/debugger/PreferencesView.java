@@ -43,7 +43,7 @@ import org.jsoar.util.adaptables.Adaptables;
  * 
  * @author ray
  */
-public class PreferencesView extends AbstractAdaptableView implements SelectionListener, Refreshable
+public class PreferencesView extends AbstractAdaptableView implements SelectionListener, Refreshable, Disposable
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
@@ -51,7 +51,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     private final SelectionManager selectionManager;
     private final JLabel info = new JLabel(" No state selected");
     private final JXTable table = new JXTable();
-    private JToggleButton synch = new JToggleButton(Images.SYNCH, true);
+    private JToggleButton synch = new JToggleButton(Images.SYNCH, getPreferences().getBoolean("synch", true));
     {
         synch.setToolTipText("Refresh when run ends");
     }
@@ -127,6 +127,15 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
                 }
             }});
         return bar;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Disposable#dispose()
+     */
+    @Override
+    public void dispose()
+    {
+        getPreferences().putBoolean("synch", synch.isSelected());
     }
 
     /* (non-Javadoc)
