@@ -377,9 +377,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private void initMenuBar()
     {
-        JMenuBar bar = new JMenuBar();
+        final JMenuBar bar = new JMenuBar();
         
-        JMenu fileMenu = new JMenu("File");
+        final JMenu fileMenu = new JMenu("File");
         fileMenu.add(actionManager.getAction(SourceFileAction.class));
         fileMenu.addSeparator();
         fileMenu.add(new AbstractAction("Reset preferences ...") {
@@ -401,7 +401,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         viewMenu.add(actionManager.getAction(RestoreLayoutAction.class));
         bar.add(viewMenu);
         
-        JMenu runMenu = new JMenu("Run");
+        final JMenu runMenu = new JMenu("Run");
         runMenu.add(actionManager.getAction(RunAction.class));
         runMenu.add(actionManager.getAction(StopAction.class));
         runMenu.addSeparator();
@@ -413,7 +413,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         runMenu.add(actionManager.getAction(InitSoarAction.class));
         bar.add(runMenu);
         
-        JMenu helpMenu = new JMenu("Help");
+        final JMenu helpMenu = new JMenu("Help");
         helpMenu.add(new UrlAction(actionManager, "JSoar Home Page", resources.getString("jsoar.site.url")));
         helpMenu.add(new UrlAction(actionManager, "MSoar Home Page", resources.getString("msoar.site.url")));
         helpMenu.add(new UrlAction(actionManager, "Command Help", resources.getString("help.url.all")));

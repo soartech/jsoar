@@ -52,7 +52,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             }});
         SwingTools.addSelectAllOnFocus(field);
         
-        final String[] history = new String(getPrefs().get("history", "")).split("\\00"); // split on null character
+        final String[] history = getPrefs().get("history", "").split("\\00"); // split on null character
         for(String s : history)
         {
             final String trimmed = s.trim();
