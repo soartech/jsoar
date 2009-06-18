@@ -15,6 +15,7 @@ import java.util.Collection;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
+import javax.swing.JComboBox;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -167,5 +168,9 @@ public class SwingTools
             public void focusLost(FocusEvent e)
             {
             }});
+    }
+    public static void addSelectAllOnFocus(final JComboBox combo)
+    {
+        addSelectAllOnFocus((JTextComponent) combo.getEditor().getEditorComponent());
     }
 }
