@@ -287,7 +287,7 @@ public class Production
         printer.print("sp {%s\n", this.name);
 
         // print optional documentation string
-        if (documentation != null)
+        if (documentation != null && documentation.length() > 0)
         {
             printer.print("    %s\n", StringTools.string_to_escaped_string(documentation, '"'));
         }
