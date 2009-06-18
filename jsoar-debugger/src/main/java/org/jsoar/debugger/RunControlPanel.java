@@ -46,7 +46,6 @@ public class RunControlPanel extends JPanel
         bar.add(countField);
         
         stepTypeCombo = rcm.createTypeCombo();
-        stepTypeCombo.setSelectedIndex(0);
         stepTypeCombo.setMaximumSize(new Dimension(150, 20));
         bar.add(stepTypeCombo);
         

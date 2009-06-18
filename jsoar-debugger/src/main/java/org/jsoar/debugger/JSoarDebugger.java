@@ -6,6 +6,7 @@
 package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -44,12 +46,14 @@ import org.jsoar.debugger.actions.InitSoarAction;
 import org.jsoar.debugger.actions.RestoreLayoutAction;
 import org.jsoar.debugger.actions.RunAction;
 import org.jsoar.debugger.actions.SourceFileAction;
+import org.jsoar.debugger.actions.StepAction;
 import org.jsoar.debugger.actions.StopAction;
 import org.jsoar.debugger.actions.UrlAction;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
+import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
@@ -75,6 +79,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private static final long serialVersionUID = 7997119112479665988L;
     private static final Log logger = LogFactory.getLog(JSoarDebugger.class);
     private static final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
+    public static final Preferences PREFERENCES = Preferences.userRoot().node("org/jsoar/debugger");
     
     private static final Map<ThreadedAgent, JSoarDebugger> debuggers = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
     
@@ -206,6 +211,16 @@ public class JSoarDebugger extends JPanel implements Adaptable
             @Override
             public void windowClosing(WindowEvent e)
             {
+                final Preferences winPrefs = getWindowPrefs();
+                final Rectangle r = frame.getBounds();
+                if(frame.getExtendedState() == JFrame.NORMAL)
+                {
+                    winPrefs.putInt("x", r.x);
+                    winPrefs.putInt("y", r.y);
+                    winPrefs.putInt("width", r.width);
+                    winPrefs.putInt("height", r.height);
+                }
+                
                 exit();
             }});
         
@@ -213,6 +228,24 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         update(false);
         
+        final Preferences winPrefs = getWindowPrefs();
+        if(winPrefs.get("x", null) != null)
+        {
+            frame.setBounds(winPrefs.getInt("x", 0), 
+                            winPrefs.getInt("y", 0), 
+                            winPrefs.getInt("width", 1200), 
+                            winPrefs.getInt("height", 1024));
+        }
+        else
+        {
+            frame.setSize(1200, 1024);
+            SwingUtility.centerOnScreen(frame);
+        }
+    }
+    
+    private Preferences getWindowPrefs()
+    {
+        return PREFERENCES.node("window");
     }
 
     private <T> void saveListener(PropertyListenerHandle<T> listener)
@@ -345,6 +378,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
         runMenu.add(actionManager.getAction(RunAction.class));
         runMenu.add(actionManager.getAction(StopAction.class));
         runMenu.addSeparator();
+        runMenu.add(new StepAction(actionManager, "Forever", RunType.FOREVER, "ctrl shift F"));
+        runMenu.add(new StepAction(actionManager, "1 Elaboration", RunType.ELABORATIONS, "ctrl shift E"));
+        runMenu.add(new StepAction(actionManager, "1 Phase", RunType.PHASES, "ctrl shift P"));
+        runMenu.add(new StepAction(actionManager, "1 Decision", RunType.DECISIONS, "ctrl shift D"));
+        runMenu.addSeparator();
         runMenu.add(actionManager.getAction(InitSoarAction.class));
         bar.add(runMenu);
         
@@ -428,12 +466,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 final JFrame frame = new JFrame();
                 
                 frame.setContentPane(debugger);
-                frame.setSize(1200, 1024);
                 
                 debugger.initialize(frame, proxy);
         
-                SwingUtility.centerOnScreen(frame);
-                
                 frame.setVisible(true);
                 
                 debuggers.put(proxy, debugger);
@@ -473,12 +508,14 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
             soarEventListeners.clear();
             
-            // clean up disposable views
+            // clean up disposables 
+            runControlModel.dispose();
             for(Disposable d : Adaptables.adaptCollection(views, Disposable.class))
             {
                 d.dispose();
             }
             views.clear();
+
             
             if(frame.isVisible())
             {

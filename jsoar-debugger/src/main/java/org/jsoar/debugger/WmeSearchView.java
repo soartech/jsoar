@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
@@ -45,16 +46,16 @@ import com.google.common.collect.Collections2;
  * 
  * @author ray
  */
-public class WmeSearchView extends AbstractAdaptableView implements Refreshable
+public class WmeSearchView extends AbstractAdaptableView implements Refreshable, Disposable
 {
     private static final long serialVersionUID = -2680823027837157856L;
     
     private final JSoarDebugger debugger;
     private final JLabel description = new JLabel(" Enter glob pattern below and click Search");
     private final JXTable wmeTable = new JXTable(new DefaultWmeTableModel());
-    private final JTextField idField = new JTextField("*", 3);
-    private final JTextField attrField = new JTextField("*", 6);
-    private final JTextField valueField = new JTextField("*", 6);
+    private final JTextField idField = new JTextField(getPreferences().get("id", "*"), 3);
+    private final JTextField attrField = new JTextField(getPreferences().get("attr", "*"), 6);
+    private final JTextField valueField = new JTextField(getPreferences().get("value", "*"), 6);
     private final TableSelectionProvider selectionProvider = new TableSelectionProvider(wmeTable) {
 
         /* (non-Javadoc)
@@ -66,7 +67,7 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable
             row = wmeTable.convertRowIndexToModel(row);
             return ((DefaultWmeTableModel) wmeTable.getModel()).getWmes().get(row);
         }};
-    private JToggleButton synch = new JToggleButton(Images.SYNCH, false);
+    private JToggleButton synch = new JToggleButton(Images.SYNCH, getPreferences().getBoolean("synch", false));
     {
         synch.setToolTipText("Re-run search when run ends");
     }
@@ -156,6 +157,19 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable
         {
             doSearch();
         }
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Disposable#dispose()
+     */
+    @Override
+    public void dispose()
+    {
+        final Preferences prefs = getPreferences();
+        prefs.putBoolean("synch", synch.isSelected());
+        prefs.put("id", idField.getText().trim());
+        prefs.put("attr", attrField.getText().trim());
+        prefs.put("value", valueField.getText().trim());
     }
 
     private JToolBar createToolbar()
