@@ -7,6 +7,7 @@ package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -19,11 +20,14 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
@@ -101,6 +105,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final RunControlModel runControlModel = new RunControlModel();
         
     private JSoarDebuggerConfiguration configuration = new DefaultDebuggerConfiguration();
+    private boolean resetPreferencesAtExit = false;
     
     //private Agent agent;
     private ThreadedAgent proxy;
@@ -338,9 +343,20 @@ public class JSoarDebugger extends JPanel implements Adaptable
     public void exit()
     {
         detach();
+        if(resetPreferencesAtExit)
+        {
+            try
+            {
+                PREFERENCES.removeNode();
+            }
+            catch (BackingStoreException e)
+            {
+                logger.error(e);
+            }
+        }
         configuration.exit();
     }
-    
+        
     public void restoreLayout()
     {
         // TODO: Implement layout storage in a way that doesn't suck.
@@ -365,6 +381,17 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(actionManager.getAction(SourceFileAction.class));
+        fileMenu.addSeparator();
+        fileMenu.add(new AbstractAction("Reset preferences ...") {
+
+            private static final long serialVersionUID = -294498142478298760L;
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                resetPreferencesAtExit = true;
+                JOptionPane.showMessageDialog(frame, "Preferences will be reset next time the debugger is loaded.");
+            }});
         fileMenu.addSeparator();
         fileMenu.add(actionManager.getAction(ExitAction.class));
         
