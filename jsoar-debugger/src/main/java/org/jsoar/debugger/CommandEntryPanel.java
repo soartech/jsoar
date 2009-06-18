@@ -14,6 +14,8 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
+import org.jsoar.util.SwingTools;
+
 /**
  * A panel with a command entry field and history.
  * 
@@ -48,6 +50,7 @@ public class CommandEntryPanel extends JPanel implements Disposable
             {
                 execute();
             }});
+        SwingTools.addSelectAllOnFocus(field);
         
         final String[] history = new String(getPrefs().get("history", "")).split("\\00"); // split on null character
         for(String s : history)
