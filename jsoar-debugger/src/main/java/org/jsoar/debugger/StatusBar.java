@@ -47,8 +47,8 @@ public class StatusBar extends JPanel implements Refreshable
         phase.setPreferredSize(new Dimension(100, 25));
         phase.setMaximumSize(new Dimension(100, 25));
         decisions.setBorder(BorderFactory.createEtchedBorder());
-        decisions.setPreferredSize(new Dimension(100, 25));
-        decisions.setMaximumSize(new Dimension(100, 25));
+        decisions.setPreferredSize(new Dimension(120, 25));
+        //decisions.setMaximumSize(new Dimension(100, 25));
         
         settings.setBorder(BorderFactory.createEtchedBorder());
         
