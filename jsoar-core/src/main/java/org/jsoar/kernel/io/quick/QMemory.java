@@ -154,4 +154,6 @@ public interface QMemory
      */
     void remove(String path);
 
+    void addListener(QMemoryListener listener);
+    void removeListener(QMemoryListener listener);
 }

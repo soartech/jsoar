@@ -4,8 +4,10 @@ package org.jsoar.kernel.io.quick;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
@@ -27,7 +29,8 @@ public class DefaultQMemory implements QMemory
     static final int MAX_DEPTH = 20;
     
     private Map<String, MemoryNode> memory = new HashMap<String, MemoryNode>();
-
+    private List<QMemoryListener> listeners = new CopyOnWriteArrayList<QMemoryListener>();
+    
     /**
      * @return A new empty QMemory
      */
@@ -187,6 +190,7 @@ public class DefaultQMemory implements QMemory
     public synchronized void setDouble(String path, double doubleVal)
     {
         getNode(path).setDoubleValue(doubleVal);
+        fireChangeEvent();
     }
 
     /* (non-Javadoc)
@@ -195,6 +199,7 @@ public class DefaultQMemory implements QMemory
     public synchronized void setInteger(String path, int intVal)
     {
         getNode(path).setIntValue(intVal);
+        fireChangeEvent();
     }
 
     /* (non-Javadoc)
@@ -203,6 +208,7 @@ public class DefaultQMemory implements QMemory
     public synchronized void setString(String path, String strVal)
     {
         getNode(path).setStringValue(strVal);
+        fireChangeEvent();
     }
 
     /* (non-Javadoc)
@@ -211,6 +217,7 @@ public class DefaultQMemory implements QMemory
     public synchronized void clear(String path)
     {
         getNode(path).clearValue();
+        fireChangeEvent();
     }
 
     /* (non-Javadoc)
@@ -219,8 +226,35 @@ public class DefaultQMemory implements QMemory
     public synchronized void remove(String path)
     {
         removeNode(path);
+        fireChangeEvent();
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.quick.QMemory#addListener(org.jsoar.kernel.io.quick.QMemoryListener)
+     */
+    @Override
+    public void addListener(QMemoryListener listener)
+    {
+        listeners.add(listener);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.quick.QMemory#removeListener(org.jsoar.kernel.io.quick.QMemoryListener)
+     */
+    @Override
+    public void removeListener(QMemoryListener listener)
+    {
+        listeners.remove(listener);
+    }
+
+    private void fireChangeEvent()
+    {
+        for(QMemoryListener listener : listeners)
+        {
+            listener.onQMemoryChanged();
+        }
+    }
+    
     private void setNode(String path, MemoryNode node)
     {
         memory.put(path, node);
