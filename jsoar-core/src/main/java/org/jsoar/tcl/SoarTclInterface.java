@@ -26,6 +26,7 @@ import org.jsoar.kernel.commands.MultiAttrCommand;
 import org.jsoar.kernel.commands.OSupportModeCommand;
 import org.jsoar.kernel.commands.PrintCommand;
 import org.jsoar.kernel.commands.PropertiesCommand;
+import org.jsoar.kernel.commands.QMemoryCommand;
 import org.jsoar.kernel.commands.ReinforcementLearningCommand;
 import org.jsoar.kernel.commands.RhsFunctionsCommand;
 import org.jsoar.kernel.commands.SaveBacktracesCommand;
@@ -161,6 +162,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("properties", new PropertiesCommand(this.agent));
         
         addCommand("help", new HelpCommand(this));
+        
+        addCommand("qmemory", new QMemoryCommand(this.agent));
         
         try
         {

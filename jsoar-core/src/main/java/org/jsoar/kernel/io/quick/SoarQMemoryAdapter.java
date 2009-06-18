@@ -57,7 +57,7 @@ import org.jsoar.util.events.SoarEventManager;
  * 
  * @author ray
  */
-public class SoarQMemoryAdapter implements SoarEventListener
+public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
 {
     private static final Log logger = LogFactory.getLog(SoarQMemoryAdapter.class);
     private static final Pattern INDEX_PATTERN = Pattern.compile("\\[[^]]+\\]$");
@@ -215,8 +215,21 @@ public class SoarQMemoryAdapter implements SoarEventListener
     {
         synchronized(lock)
         {
+            if(this.source != null)
+            {
+                this.source.removeListener(this);
+            }
             this.sourceChanged = this.sourceChanged | (this.source != source);
             this.source = source;
+            if(this.source != null)
+            {
+                this.source.addListener(this);
+            }
+            
+            if(sourceChanged && io != null)
+            {
+                io.asynchronousInputReady();
+            }
         }
     }
     
@@ -261,14 +274,14 @@ public class SoarQMemoryAdapter implements SoarEventListener
             rootNode = new SoarMemoryNode(io.getInputLink());
         }
         
-        Set<String> oldPaths = new HashSet<String>(memory.keySet());
+        final Set<String> oldPaths = new HashSet<String>(memory.keySet());
         
-        Set<String> newPaths = new HashSet<String>();
-        Set<String> newInternalPaths = new HashSet<String>();
+        final Set<String> newPaths = new HashSet<String>();
+        final Set<String> newInternalPaths = new HashSet<String>();
         
         for (String fullPath : source.getPaths())
         {
-            String[] pathElements = fullPath.split("\\.");
+            final String[] pathElements = fullPath.split("\\.");
             String tmp = "";
             for (int ix = 0; ix < pathElements.length; ++ix)
             {
@@ -290,16 +303,16 @@ public class SoarQMemoryAdapter implements SoarEventListener
         // no longer present in the memory structure
         // ... walk through in order of decreasing length
         // so that child WMEs are destroyed before their parents
-        List<String> oldPathsByLength = new ArrayList<String>(oldPaths);
+        final List<String> oldPathsByLength = new ArrayList<String>(oldPaths);
         Collections.sort(oldPathsByLength, decreasingLengthComparator);
         
         for (String path : oldPathsByLength)
         {
-            SoarMemoryNode oldNode = memory.remove(path);
+            final SoarMemoryNode oldNode = memory.remove(path);
             oldNode.remove(io);
         }
 
-        List<String> newPathsByLength = new ArrayList<String>(newPaths);
+        final List<String> newPathsByLength = new ArrayList<String>(newPaths);
         Collections.sort(newPathsByLength, increasingLengthComparator);
         
         // walk through paths in order of increasing length
@@ -331,9 +344,9 @@ public class SoarQMemoryAdapter implements SoarEventListener
                 parentNode = rootNode;
             }
             
-            String name = getNameFromPath(path);
+            final String name = getNameFromPath(path);
 
-            MemoryNode newNode;
+            final MemoryNode newNode;
             
             if (!newInternalPaths.contains(path))
             {
@@ -354,7 +367,6 @@ public class SoarQMemoryAdapter implements SoarEventListener
             oldNode.setParentNode(parentNode);
             oldNode.synchronizeToMemoryNode(io, newNode);
         }
-        io.asynchronousInputReady();
     }
 
     /**
@@ -391,6 +403,15 @@ public class SoarQMemoryAdapter implements SoarEventListener
         }
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.quick.QMemoryListener#onQMemoryChanged()
+     */
+    @Override
+    public void onQMemoryChanged()
+    {
+        io.asynchronousInputReady();
+    }
+
     private void resetAfterInitSoar()
     {
         logger.info("Repopulating after init-soar");

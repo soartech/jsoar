@@ -135,4 +135,22 @@ class SubQMemory implements QMemory
         source.setString(getPath(path), strVal);
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.quick.QMemory#addListener(org.jsoar.kernel.io.quick.QMemoryListener)
+     */
+    @Override
+    public void addListener(QMemoryListener listener)
+    {
+        source.addListener(listener);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.quick.QMemory#removeListener(org.jsoar.kernel.io.quick.QMemoryListener)
+     */
+    @Override
+    public void removeListener(QMemoryListener listener)
+    {
+        source.removeListener(listener);
+    }
+
 }

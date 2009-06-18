@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel;
 
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.runtime.WaitInfo;
@@ -197,7 +198,7 @@ public class SoarProperties
      * Current agent wait state info, e.g. set by {@link WaitRhsFunction}
      */
     public static final PropertyKey<WaitInfo> WAIT_INFO = PropertyKey.builder("wait_info", WaitInfo.class).readonly(true).defaultValue(WaitInfo.NOT_WAITING).build();
-
+    
     private static PropertyKey<Integer> counter(String name)
     {
         return PropertyKey.builder(name, Integer.class).boundable(false).readonly(true).defaultValue(0).build();
