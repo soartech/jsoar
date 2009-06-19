@@ -187,6 +187,7 @@ public class ProductionEditView extends AbstractAdaptableView
                 try
                 {
                     agent.getInterpreter().eval(contents);
+                    agent.getPrinter().flush();
                     return "Loaded";
                 }
                 catch (SoarException e)
