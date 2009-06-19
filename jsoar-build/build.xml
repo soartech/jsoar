@@ -6,12 +6,12 @@
 
    <property name="dist" location="dist" />
    <property name="dist.lib" location="${dist}/lib" />
-   <property name="dist.zip" location="${ant.project.name}-${version}.zip"/>
 
    <target name="init" description="Create temporary build directories">
       <tstamp />
       <!-- version defaults to snapshot-XXXXX. Use -Dversion=X.X.X on command-line to override -->
       <property name="version" value="snapshot-${DSTAMP}" />
+      <property name="dist.zip" location="${ant.project.name}-${version}.zip"/>
       <mkdir dir="${dist}" />
       <mkdir dir="${dist.lib}" />
 
