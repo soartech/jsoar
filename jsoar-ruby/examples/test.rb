@@ -7,7 +7,8 @@ agent = RSoar::RAgent.new do |a|
 
   a.debugger_provider = org.jsoar.debugger.JSoarDebugger.new_debugger_provider
 
-  a.properties[SoarProperties::WAITSNC] = true
+  #a.properties[SoarProperties::WAITSNC] = true
+  a.eval "waitsnc --on"
 
   a.sp 'hello
     (state <s> ^superstate nil ^io.input-link.cycle-count <cc>)
@@ -44,7 +45,7 @@ end
 java.lang.Thread.sleep 2000
 
 puts "Waiting = #{agent.properties[SoarProperties::WAIT_INFO]}"
-input.atomic do |input|
+agent.input.atomic do |input|
   root.^ :foo, 100
   root.+ :location do |l|
     l.x=100
@@ -60,4 +61,4 @@ end
 
 java.lang.Thread.sleep 2000
 root.- :foo
-agent.debug
+agent.open_debugger

@@ -19,6 +19,7 @@ class Twagent
   def initialize(user, pass)
     
     @known_tweets = Set.new
+    @last_id = nil
     @users = {}
     @last_tweet = nil
     @api_calls = 0
@@ -30,51 +31,31 @@ class Twagent
       a.debugger_provider = org.jsoar.debugger.JSoarDebugger.new_debugger_provider
     
       a.output_link.when :update do |v|
-        begin
-          a.print "\nenv: Sending tweet #{v[:text]}\n"
-          @twitter.update v.text 
-          'complete'
-        rescue Twitter::General => e
-          a.print "env: ERROR: #{e}"
-          'error'
-        end
+        a.print "\nenv: Sending tweet #{v[:text]}\n"
+        @twitter.update v.text 
+        'complete'
       end
       
       a.output_link.when :direct do |v|
-        begin
-          a.print "\nenv: Sending direct message to #{v.user.screen_name}: #{v.text}\n"
-          @twitter.direct_message_create v.user[:id], v.text 
-          'complete'
-        rescue Twitter::General => e
-          a.print "env: ERROR: #{e}"
-          'error'
-        end
+        a.print "\nenv: Sending direct message to #{v.user.screen_name}: #{v.text}\n"
+        @twitter.direct_message_create v.user[:id], v.text 
+        'complete'
       end
       
       a.output_link.when :follow do |v|
-        begin
-          a.input.atomic do
-            a.print "\nenv: following #{v.user.screen_name}\n"
-            @twitter.friendship_create v.user[:id], true 
-          end
-          'complete'
-        rescue Twitter::General => e
-          a.print "env: ERROR: #{e}"
-          'error'
+        a.input.atomic do
+          a.print "\nenv: following #{v.user.screen_name}\n"
+          @twitter.friendship_create v.user[:id], true 
         end
+        'complete'
       end
       
       a.output_link.when :unfollow do |v|
-        begin
-          a.input.atomic do
-            a.print "\nenv: unfollowing #{v.user.screen_name}\n"
-            @twitter.friendship_destroy v.user[:id] 
-          end
-          'complete'
-        rescue Twitter::General => e
-          a.print "env: ERROR: #{e}"
-          'error'
+        a.input.atomic do
+          a.print "\nenv: unfollowing #{v.user.screen_name}\n"
+          @twitter.friendship_destroy v.user[:id] 
         end
+        'complete'
       end
       
       a.input_link.^ :api_calls, @api_calls
@@ -82,22 +63,23 @@ class Twagent
       @users_root = a.input_link.+ :users
       @followers_root = a.input_link.+ :followers
       @friends_root = a.input_link.+ :friends
-      a.debug
+      a.open_debugger
     end
   end
 
   def copy_attrs(from, to, attrs)
     attrs.each do |a|
       v = from.send(a)
-      to.^(a, from.send(a)) if v
+      v = v.to_s if a == :id
+      to.^(a, v) if v
     end
   end
 
-  def get_followers() get_user_list @followers_root, :followers end
-  def get_friends() get_user_list @friends_root, :friends end
+  def get_followers(*args) get_user_list @followers_root, :followers, *args end
+  def get_friends(*args) get_user_list @friends_root, :friends, *args end
   
-  def get_user_list(root, method)
-    @twitter.send(method).each do |f|
+  def get_user_list(root, method, *args)
+    @twitter.send(method, *args).each do |f|
       uid = create_user_input f
       root.^ f.screen_name, uid
     end
@@ -135,18 +117,20 @@ class Twagent
   end
   
   def update_tweets
-    @twitter.friends_timeline.each do |tweet| 
+    tweets = @last_id ? @twitter.friends_timeline(:since_id => @last_id) : @twitter.friends_timeline 
+    tweets.each do |tweet| 
       if !@known_tweets.include?(tweet[:id])
         @agent.print "env:    New tweet #{tweet[:id]}\n"
         @last_tweet = create_tweet_input tweet
         @known_tweets.add tweet[:id]
+        @last_id = tweet[:id]
       end
     end  
   end
 
 end
 
-org.jsoar.debugger.JSoarDebugger::initialize_look_and_feel
+org.jsoar.util.SwingTools::initialize_look_and_feel
 
 user, pass, file = ARGV
 twagent = Twagent.new user, pass

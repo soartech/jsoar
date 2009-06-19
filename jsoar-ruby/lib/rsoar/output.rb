@@ -18,6 +18,7 @@ module RSoar
         nil
       end      
     end
+    
     def method_missing(method_name, *args)
       self[method_name]
     end
@@ -31,8 +32,7 @@ module RSoar
       @status_sym = @agent.symbols.create_string 'status'
       @commands = {}
       
-      @agent.event_manager.add_listener org.jsoar.kernel.events.OutputEvent.java_class, self
-      
+      @agent.events.add_listener org.jsoar.kernel.events.OutputEvent.java_class, self
     end
     
     def when(name, options = {}, &block)
@@ -44,11 +44,21 @@ module RSoar
       io.get_pending_commands.each do |wme|
         value = wme.value
         if (command = @commands[wme.attribute.value])
-          r = command.handler.call OutputId.new(@agent, value)
-          if r && !value.asIdentifier.nil?
-            io.add_input_wme value, @status_sym, @agent.symbols.create_string(r.to_s)
-          end
+          handle_command io, command, value
         end      
+      end
+    end
+    
+    def handle_command(io, command, value)
+      r = nil
+      begin
+        r = command.handler.call OutputId.new(@agent.agent.agent, value)
+      rescue Exception => e
+        @agent.print "ERROR: #{e}"
+        r = "error"   
+      end
+      if r && !value.asIdentifier.nil?
+        io.add_input_wme value, @status_sym, @agent.symbols.create_string(r.to_s)
       end
     end
   end  
