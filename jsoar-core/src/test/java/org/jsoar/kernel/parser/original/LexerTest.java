@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.StringReader;
 
+import org.jsoar.kernel.parser.PossibleSymbolTypes;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.parser.original.Lexer;
@@ -81,5 +82,20 @@ public class LexerTest
         assertEquals('S', lexeme.id_letter);
         assertEquals(123, lexeme.id_number);
         
+    }
+    
+    @Test public void testThatAnOutOfBoundsIntegerIsStillAPossibleInteger()
+    {
+        final PossibleSymbolTypes pst = Lexer.determine_possible_symbol_types_for_string("5000000000");
+        assertNotNull(pst);
+        assertTrue(pst.possible_ic);
+    }
+    
+    @Test public void testThatAnOutOfBoundsIntegerCausesALexerError() throws Exception
+    {
+        Lexer lexer = createLexer("5000000000");
+        lexer.getNextLexeme();
+        final Lexeme lexeme = lexer.getCurrentLexeme();
+        assertEquals(0, lexeme.int_val);
     }
 }

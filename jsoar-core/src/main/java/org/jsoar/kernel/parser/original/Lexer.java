@@ -913,21 +913,20 @@ public class Lexer
         /* --- check if it's an integer or floating point number --- */
         if (Lexer.number_starters[s.charAt(0)])
         {
-            try
-            {
-                Integer.parseInt(s);
-                p.possible_ic = true;
-            }
-            catch (NumberFormatException e)
-            {
-            }
-            try
-            {
-                Float.parseFloat(s);
-                p.possible_fc = s.indexOf('.') != -1;
-            }
-            catch (NumberFormatException e)
-            {
+            int ch = 0;
+            if ((s.charAt(ch)=='+')||(s.charAt(ch)=='-')) ch++;  /* optional leading + or - */
+            while (ch < s.length() && Character.isDigit(s.charAt(ch))) ch++;         /* string of digits */
+            if (ch == s.length() && Character.isDigit(s.charAt(ch-1)))
+              p.possible_ic = true;
+            if (ch < s.length() && s.charAt(ch)=='.') {
+              ch++;                              /* decimal point */
+              while (ch < s.length() && Character.isDigit(s.charAt(ch))) ch++;         /* string of digits */
+              if (ch < s.length() && (s.charAt(ch)=='e' || s.charAt(ch)=='E')) {
+                ch++;                              /* E */
+                if (ch < s.length() && (s.charAt(ch)=='+' || s.charAt(ch)=='-')) ch++;  /* optional leading + or - */
+                while (ch < s.length() && Character.isDigit(s.charAt(ch))) ch++;         /* string of digits */
+              }
+              if (ch==s.length()) p.possible_fc = true;
             }
         }
 
