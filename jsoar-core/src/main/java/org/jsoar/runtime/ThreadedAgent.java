@@ -23,6 +23,7 @@ import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.commands.SoarCommandInterpreter;
@@ -344,6 +345,7 @@ public class ThreadedAgent
     public Trace getTrace() { return agent.getTrace(); }
     public SoarEventManager getEvents() { return agent.getEvents(); }
     public PropertyManager getProperties() { return agent.getProperties(); }
+    public SymbolFactory getSymbols() { return agent.getSymbols(); }
     public InputOutput getInputOutput() { return agent.getInputOutput(); }
     public ProductionManager getProductions() { return agent.getProductions(); }
     public RhsFunctionManager getRhsFunctions() { return agent.getRhsFunctions(); }
