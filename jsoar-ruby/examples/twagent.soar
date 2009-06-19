@@ -1,9 +1,14 @@
 
 sp {send*update
    (state <s> ^superstate nil 
+              ^io.input-link.time <time>
               ^io.output-link <ol>)
+   (<time> ^day <day> ^month <month> ^year <year> ^hour <hour>)
 -->
-   (<ol> ^update.text |The bomb in the baby carriage was wired through the radio|)
+   (<ol> ^update.text (concat |It is hour | <hour> 
+                              | of day |    <day> 
+                              | of month |  <month> 
+                              | of year |   <year>))
 }
 
 sp {send*direct
