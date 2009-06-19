@@ -80,6 +80,11 @@ public final class QMemoryCommand implements SoarCommand
         }
     }
 
+    private String fixPath(String path)
+    {
+        return path.replace('(', '[').replace(')', ']');
+    }
+    
     private String doClear(String[] args, int i) throws SoarException
     {
         this.adapter.setSource(DefaultQMemory.create());
@@ -92,7 +97,7 @@ public final class QMemoryCommand implements SoarCommand
         {
             throw new SoarException("Expected <input path>");
         }
-        adapter.getSource().remove(args[i]);
+        adapter.getSource().remove(fixPath(args[i]));
         return "";
     }
 
@@ -104,7 +109,7 @@ public final class QMemoryCommand implements SoarCommand
         }
         
         final QMemory qmemory = adapter.getSource();
-        final String path = args[i];
+        final String path = fixPath(args[i]);
         final String value = args[i+1];
         try
         {
@@ -138,6 +143,6 @@ public final class QMemoryCommand implements SoarCommand
         {
             throw new SoarException("Expected <input path>");
         }
-        return adapter.getSource().getString(args[i]);
+        return adapter.getSource().getString(fixPath(args[i]));
     }
 }
