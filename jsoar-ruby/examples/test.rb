@@ -1,3 +1,6 @@
+# Add lib to load path
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+
 require 'rsoar'
 
 import org.jsoar.kernel.SoarProperties
