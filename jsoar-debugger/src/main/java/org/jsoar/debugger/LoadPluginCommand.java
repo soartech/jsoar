@@ -51,7 +51,7 @@ public class LoadPluginCommand implements SoarCommand
         }
         catch (ClassNotFoundException e)
         {
-            throw new SoarException(e.getMessage());
+            throw new SoarException("Failed to find plugin class. Maybe it's not on the class path? : " + e.getMessage(), e);
         }
         catch (InstantiationException e)
         {
