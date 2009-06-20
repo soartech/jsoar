@@ -173,6 +173,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
                 entryList.setModel(SwingTools.addAll(new DefaultListModel(), sourceInfo.getSupports()));
                 wmeTable.setModel(new DefaultWmeTableModel());
                 wmeTable.packAll();
+                entryList.setSelectedIndex(0);
             }
         };
         debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(finish));

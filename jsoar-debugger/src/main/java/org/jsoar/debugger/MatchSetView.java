@@ -143,6 +143,8 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
                 entryList.setModel(SwingTools.addAll(new DefaultListModel(), result.getEntries()));
                 wmeTable.setModel(new DefaultWmeTableModel());
                 wmeTable.packAll();
+                
+                entryList.setSelectedIndex(0);
             }
             
         };
