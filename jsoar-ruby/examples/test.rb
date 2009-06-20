@@ -8,8 +8,6 @@ import org.jsoar.kernel.SoarProperties
 agent = RSoar::RAgent.new do |a|
   a.name = "Hello"
 
-  a.debugger_provider = org.jsoar.debugger.JSoarDebugger.new_debugger_provider
-
   #a.properties[SoarProperties::WAITSNC] = true
   a.eval "waitsnc --on"
 

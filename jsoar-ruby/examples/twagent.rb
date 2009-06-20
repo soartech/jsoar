@@ -48,7 +48,6 @@ class Twagent
     
     @agent = RSoar::RAgent.new do |a|
       a.name = "Twagent - #{user}"
-      a.debugger_provider = org.jsoar.debugger.JSoarDebugger.new_debugger_provider
     
       a.output_link.when :update do |v|
         a.print "\nenv: Sending tweet #{v[:text]}\n"

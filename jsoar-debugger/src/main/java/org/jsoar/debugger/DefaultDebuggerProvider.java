@@ -22,12 +22,17 @@ import org.jsoar.runtime.ThreadedAgent;
  * 
  * @author ray
  */
-class DefaultDebuggerProvider implements DebuggerProvider
+public class DefaultDebuggerProvider implements DebuggerProvider
 {
     private static final Log logger = LogFactory.getLog(DefaultDebuggerProvider.class);
     
     private final JSoarDebuggerConfiguration config;
-    
+
+    public DefaultDebuggerProvider()
+    {
+        this(null);
+    }
+
     /**
      * @param config
      */
