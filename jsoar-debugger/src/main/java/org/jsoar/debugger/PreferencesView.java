@@ -33,6 +33,7 @@ import org.jsoar.kernel.commands.StructuredPreferencesCommand.Result;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
@@ -97,9 +98,6 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         this.selectionManager.addListener(this);
     }
 
-    /**
-     * @return
-     */
     private JToolBar createToolbar()
     {
         JToolBar bar = new JToolBar();
@@ -152,7 +150,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
             id = w.getIdentifier();
         }
         
-        if(id != null && id.isGoal())
+        if(id == null || id.isGoal())
         {
             getPreferences(id);
         }
@@ -203,6 +201,11 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
     
     private void finishGetPreferences(Result result)
     {
+        if(result == null)
+        {
+            return;
+        }
+        
         info.setText(String.format("<html><b>&nbsp;Operator preferences for <code>%s</code></b></html>", result.getQueryId()));
         if(result.getError() == null)
         {
@@ -215,8 +218,21 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         table.packAll();        
     }
     
-    private Result safeGetPreferences(final Identifier id)
+    private Result safeGetPreferences(Identifier id)
     {
+        if(id == null)
+        {
+            // If a state hasn't been selected in the UI, try to just show the current state
+            final Symbol s = agent.getAgent().readIdentifierOrContextVariable("<s>");
+            if(s != null && s.asIdentifier() != null)
+            {
+                id = s.asIdentifier();
+            }
+            else
+            {
+                return null;
+            }
+        }
         final PredefinedSymbols predefinedSyms = Adaptables.adapt(agent.getAgent(), PredefinedSymbols.class);
         final StructuredPreferencesCommand c = new StructuredPreferencesCommand();
         // Do (id ^operator *)
