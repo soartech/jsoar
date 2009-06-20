@@ -14,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.jsoar.debugger.actions.ExitAction;
 import org.jsoar.debugger.actions.InitSoarAction;
 import org.jsoar.debugger.actions.RestoreLayoutAction;
 import org.jsoar.debugger.actions.RunAction;
+import org.jsoar.debugger.actions.ShowViewAction;
 import org.jsoar.debugger.actions.SourceFileAction;
 import org.jsoar.debugger.actions.StepAction;
 import org.jsoar.debugger.actions.StopAction;
@@ -399,6 +401,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         final JMenu viewMenu = new JMenu("View");
         viewMenu.add(actionManager.getAction(RestoreLayoutAction.class));
+        viewMenu.addSeparator();
+        addViewMenuItems(viewMenu);
         bar.add(viewMenu);
         
         final JMenu runMenu = new JMenu("Run");
@@ -424,6 +428,25 @@ public class JSoarDebugger extends JPanel implements Adaptable
         frame.setJMenuBar(bar);
     }
     
+    private void addViewMenuItems(JMenu viewMenu)
+    {
+        final List<AbstractAdaptableView> sortedViews = new ArrayList<AbstractAdaptableView>(views);
+        Collections.sort(sortedViews, new Comparator<AbstractAdaptableView>() {
+
+            @Override
+            public int compare(AbstractAdaptableView a,
+                    AbstractAdaptableView b)
+            {
+                return a.getTitle().compareToIgnoreCase(b.getTitle());
+            }});
+        
+        int i = 1;
+        for(final AbstractAdaptableView view : sortedViews)
+        {
+            viewMenu.add(new ShowViewAction(view, "ctrl " + i++));
+        }
+    }
+
     private void initToolbar()
     {
         JToolBar bar = new JToolBar();
