@@ -1,42 +1,103 @@
+#
+# To send an update (tweet):
+#
+# ^output-link
+#   ^update
+#     ^text |The text of the tweet|
+#
+# To send a direct message:
+#
+# ^output-link
+#   ^direct
+#     ^user <id or screen name>
+#     ^text |The text of the direct message|
+#
+# To follow someone:
+#
+# ^output-link
+#   ^follow
+#      ^user <id or screen name>
+#
+# To unfollow someone:
+#
+# ^output-link
+#   ^unfollow
+#      ^user <id or screen name>
+#
 
-sp {send*update
-   (state <s> ^superstate nil 
-              ^io.input-link.time <time>
-              ^io.output-link <ol>)
-   (<time> ^day <day> ^month <month> ^year <year> ^hour <hour>)
+sp {propose*process*tweet
+  (state <s> ^superstate nil
+             ^io.input-link.tweets.<id> <tweet>)
+  (<tweet> -^processed)
 -->
-   (<ol> ^update.text (concat |It is hour | <hour> 
-                              | of day |    <day> 
-                              | of month |  <month> 
-                              | of year |   <year>))
+  (<s> ^operator <o> + =)
+  (<o> ^name process-tweet
+       ^tweet <tweet>)
 }
 
-sp {send*direct
-   (state <s> ^superstate nil
-              ^io.output-link <ol>
-              ^io.input-link.followers.<sn> <u>)
-   (<u> ^screen_name jsoar)
+sp {apply*process*tweet
+  (state <s> ^operator <o>)
+  (<o> ^name process-tweet
+       ^tweet <tweet>)
+  (<tweet> ^id <id>)
 -->
-   (<ol> ^direct <direct>)
-   (<direct> ^user <u>
-             ^text (concat |Hello | <sn>))
+  (<tweet> ^processed *yes*)
+  (write (crlf) |Marking tweet | <id> | as processed|)
 }
 
-sp {follow
-   (state <s> ^superstate nil
-              ^io.output-link <ol>
-              ^io.input-link.users.<sn> <u>)
-   (<u> ^screen_name jsoar)
+sp {propose*wait
+  (state <s> ^superstate nil
+             ^io.input-link <il>)
+  (<il> ^cycle-count <cc> ^tweets <tweets>)
+
+  -{
+  (<tweets> ^<id> <tweet>)
+  (<tweet> -^processed)
+  }
 -->
-   (<ol> ^follow.user <u>)
+  (<s> ^operator <o> + =)
+  (<o> ^name wait)
 }
 
-sp {unfollow
-   (state <s> ^superstate nil
-              ^io.output-link <ol>
-              ^io.input-link.users.<sn> <u>)
-   (<u> ^screen_name jsoar)
+sp {apply*wait
+  (state <s> ^operator.name wait)
 -->
-   (<ol> ^unfollow.user <u>)
+  (write (crlf) |Going to sleep while waiting for new tweets|)
+  (wait)
 }
+
+#sp {send*update
+#   (state <s> ^superstate nil 
+#              ^io.input-link.time <time>
+#              ^io.output-link <ol>)
+#   (<time> ^day <day> ^month <month> ^year <year> ^hour <hour>)
+#-->
+#   (<ol> ^update.text (concat |It is hour | <hour> 
+#                              | of day |    <day> 
+#                              | of month |  <month> 
+#                              | of year |   <year>))
+#}
+#
+#sp {send*direct
+#   (state <s> ^superstate nil
+#              ^io.output-link <ol>)
+#-->
+#   (<ol> ^direct <direct>)
+#   (<direct> ^user jsoar 
+#             ^text |Hello JSoar|)
+#}
+#
+#sp {follow
+#   (state <s> ^superstate nil
+#              ^io.output-link <ol>)
+#-->
+#   (<ol> ^follow.user jsoar)
+#}
+#
+#sp {unfollow
+#   (state <s> ^superstate nil
+#              ^io.output-link <ol>)
+#-->
+#   (<ol> ^unfollow.user jsoar)
+#}
 

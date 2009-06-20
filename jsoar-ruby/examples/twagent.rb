@@ -3,6 +3,8 @@
 # $ gem install jruby-openssl (0.4)
 # set JSOAR_HOME
 # $ jruby twagent.rb user pass soar-file
+#
+# see twagent.soar for output command details.
 
 # Add lib to load path
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
@@ -16,9 +18,27 @@ class Twagent
 
   attr_reader :agent
   
+  def read_processed_tweets(user)
+    @processed_tweets_file = "#{user}.tweets.txt"
+    result = Set.new
+    if File.exist?(@processed_tweets_file)
+      File.open(@processed_tweets_file) do |f|
+        f.each_line do |line|
+          result.add line.chomp
+        end
+      end
+    end
+    result
+  end
+
+  def write_processed_tweet(id)
+    File.open(@processed_tweets_file, 'a') { |f| f.write(id.to_s + "\n") }
+  end
+
   def initialize(user, pass)
     
     @known_tweets = Set.new
+    @processed_tweets = read_processed_tweets user
     @last_id = nil
     @users = {}
     @last_tweet = nil
@@ -37,23 +57,23 @@ class Twagent
       end
       
       a.output_link.when :direct do |v|
-        a.print "\nenv: Sending direct message to #{v.user.screen_name}: #{v.text}\n"
-        @twitter.direct_message_create v.user[:id], v.text 
+        a.print "\nenv: Sending direct message to #{v.user}: #{v.text}\n"
+        @twitter.direct_message_create v.user, v.text 
         'complete'
       end
       
       a.output_link.when :follow do |v|
         a.input.atomic do
-          a.print "\nenv: following #{v.user.screen_name}\n"
-          @twitter.friendship_create v.user[:id], true 
+          a.print "\nenv: following #{v.user}\n"
+          @twitter.friendship_create v.user, true 
         end
         'complete'
       end
       
       a.output_link.when :unfollow do |v|
         a.input.atomic do
-          a.print "\nenv: unfollowing #{v.user.screen_name}\n"
-          @twitter.friendship_destroy v.user[:id] 
+          a.print "\nenv: unfollowing #{v.user}\n"
+          @twitter.friendship_destroy v.user 
         end
         'complete'
       end
@@ -96,13 +116,15 @@ class Twagent
   end
   
   def create_tweet_input(tweet)
-    @tweet_root.+ tweet[:id] do |tid|
+    tweet_id = tweet[:id]
+    @tweet_root.+ tweet_id do |tid|
       copy_attrs tweet, tid, [:id, :text, :source]
       
       tid.+ :user, create_user_input(tweet.user)
-      
-      if !@last_tweet.nil?
-        tid.previous = @last_tweet
+      if @processed_tweets.include?(tweet_id.to_s)
+        tid.+ :processed, '*yes*'
+      else
+        write_processed_tweet tweet_id
       end
     end
   end
@@ -119,11 +141,13 @@ class Twagent
   def update_tweets
     tweets = @last_id ? @twitter.friends_timeline(:since_id => @last_id) : @twitter.friends_timeline 
     tweets.each do |tweet| 
-      if !@known_tweets.include?(tweet[:id])
-        @agent.print "env:    New tweet #{tweet[:id]}\n"
+      tweet_id = tweet[:id].to_s
+      if !@known_tweets.include?(tweet_id)
+        suffix = @processed_tweets.include?(tweet_id) ? "(old)" : "(new)"
+        @agent.print "env:    tweet #{tweet_id} #{suffix}\n"
         @last_tweet = create_tweet_input tweet
-        @known_tweets.add tweet[:id]
-        @last_id = tweet[:id]
+        @known_tweets.add tweet_id
+        @last_id = tweet_id
       end
     end  
   end
