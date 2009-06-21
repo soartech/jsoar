@@ -21,6 +21,7 @@ alias dir ls
 alias p print
 alias pc print --chunks
 alias pr preferences
+alias pref preferences
 alias ps print --stack
 alias topd pwd
 alias pw pwatch

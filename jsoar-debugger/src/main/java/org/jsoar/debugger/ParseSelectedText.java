@@ -55,15 +55,6 @@ public class ParseSelectedText
             parent.add(new ExecuteCommandAction(debugger, String.format("matches %s", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("matches --wmes %s", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("excise %s", m_Name)));
-            /*
-			addItem(outputView, menu, doc.getSoarCommands().getPrintCommand(m_Name)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getEditCommand(m_Name)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getMatchesCommand(m_Name)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getMatchesWmesCommand(m_Name)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getExciseCommand(m_Name)) ;
-			
-			addWindowSubMenu(owningView, menu) ;
-			*/
 		}
 	}
 	
@@ -89,19 +80,8 @@ public class ParseSelectedText
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print --depth 2 %s", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print --internal %s", m_Name)));
-            //parent.add(new ExecuteCommandAction(debugger, String.format("preferences %s", m_Name)));
-            //parent.add(new ExecuteCommandAction(debugger, String.format("preferences --object %s", m_Name)));
-            /*
-			addItem(outputView, menu, doc.getSoarCommands().getPrintCommand(m_Name)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getPrintDepthCommand(m_Name, 2)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getPrintInternalCommand(m_Name)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getPrintCommand("(* ^* " + m_Name + ")")) ;
-
-			addItem(outputView, menu, doc.getSoarCommands().getPreferencesCommand(m_Name)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getPreferencesObjectCommand(m_Name)) ;
-			
-			addWindowSubMenu(owningView, menu) ;
-			*/
+            parent.add(new ExecuteCommandAction(debugger, String.format("preferences %s", m_Name)));
+            parent.add(new ExecuteCommandAction(debugger, String.format("preferences --object %s", m_Name)));
 		}
 	}
 	
@@ -146,18 +126,12 @@ public class ParseSelectedText
 		/** Fills in menu items that are appropriate for this type of object */
         public void fillMenu(JSoarDebugger debugger, JMenu parent)
 		{
+            parent.add(new ExecuteCommandAction(debugger, String.format("preferences %s %s", m_ID, m_Att)));
+            parent.add(new ExecuteCommandAction(debugger, String.format("preferences --names %s %s", m_ID, m_Att)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_ID)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_Value)));
-            /*
-			addItem(outputView, menu, doc.getSoarCommands().getPreferencesCommand(m_ID + " " + m_Att)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getPreferencesNameCommand(m_ID + " " + m_Att)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getPrintCommand(m_ID)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getPrintCommand(m_Value)) ;
-			addItem(outputView, menu, doc.getSoarCommands().getPrintCommand("(* " + m_Att + " " + m_Value + " )")) ;
-			addItem(outputView, menu, doc.getSoarCommands().getPrintCommand("(* " + m_Att + " *)")) ;
-			
-			addWindowSubMenu(owningView, menu) ;
-			*/
+            parent.add(new ExecuteCommandAction(debugger, String.format("print --exact {* %s %s}", m_Att, m_Value)));
+            parent.add(new ExecuteCommandAction(debugger, String.format("print --exact {* %s *}", m_Att)));
 		}
 		
 		public String toString() { return "WME " + m_ID + " " + m_Att + " " + m_Value ; }

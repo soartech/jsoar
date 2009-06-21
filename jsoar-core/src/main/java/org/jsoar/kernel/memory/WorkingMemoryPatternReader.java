@@ -43,7 +43,7 @@ public class WorkingMemoryPatternReader
         }
         else if(!idlexeme.toString().equals("*"))
         {
-            throw new IllegalArgumentException("First entry must be identifier or '*'");
+            throw new IllegalArgumentException("First entry must be identifier or '*', got '" + idlexeme + "'");
         }
         try {
             lex.getNextLexeme();
@@ -51,6 +51,15 @@ public class WorkingMemoryPatternReader
             e.printStackTrace(); // probably should throw a new exception (e.g., PatternReaderException)
         }
         Lexeme attrlexeme = lex.getCurrentLexeme();
+        if(attrlexeme.type == LexemeType.UP_ARROW) // skip up arrow on attribute if it's there.
+        {
+            try {
+                lex.getNextLexeme();
+                attrlexeme = lex.getCurrentLexeme();
+            } catch(IOException e) {
+                e.printStackTrace(); // probably should throw a new exception (e.g., PatternReaderException)
+            }
+        }
         Object attr = getPatternValue(syms, attrlexeme);
         
         try {

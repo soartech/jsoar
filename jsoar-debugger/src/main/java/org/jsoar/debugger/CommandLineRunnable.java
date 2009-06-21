@@ -35,7 +35,7 @@ public class CommandLineRunnable implements Callable<Void>
     public Void call()
     {
         final Printer printer = ifc.getAgent().getAgent().getPrinter();
-        printer.startNewLine().print(command);
+        printer.startNewLine().print(command).startNewLine();
         try
         {
             String result = ifc.getAgent().getInterpreter().eval(command);
