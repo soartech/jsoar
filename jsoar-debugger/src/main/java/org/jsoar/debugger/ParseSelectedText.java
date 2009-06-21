@@ -115,7 +115,11 @@ public class ParseSelectedText
             while(it.hasNext())
             {
                 final Wme w = it.next();
-                if(strippedAttr.equals(w.getAttribute().toString()) && m_Value.equals(w.getValue().toString()))
+                // These have to be formatted so that they're escaped properly to match what would show
+                // up in the trace window.
+                final String attr = String.format("%s", w.getAttribute());
+                final String value = String.format("%s", w.getValue());
+                if(strippedAttr.equals(attr) && m_Value.equals(value))
                 {
                     return w;
                 }
