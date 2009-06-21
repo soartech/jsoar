@@ -8,7 +8,9 @@ package org.jsoar.kernel.memory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -47,8 +49,34 @@ public class WorkingMemoryPrinter
 
         if(exact) {
             List<Wme> wmes = Wmes.filter(agent.getAllWmesInRete().iterator(), WorkingMemoryPatternReader.GetPredicate(agent, pattern));
-            for(Wme w : wmes) {
-                printer.print("%s", w);
+            if(internal) {
+                for(Wme w : wmes) {
+                    printer.print("%s", w);
+                }
+            }
+            else
+            {
+                // create a map of id -> wme so we can print out wmes with the same id together
+                Map<Symbol,List<Wme>> objects = new HashMap<Symbol, List<Wme>>();
+                for(Wme w : wmes) {
+                    if(!objects.containsKey(w.getIdentifier())) {
+                        objects.put(w.getIdentifier(), new ArrayList<Wme>());
+                    }
+                    List<Wme> l = objects.get(w.getIdentifier());
+                    l.add(w);
+                }
+                
+                // for each id, print the id and the attr/value pairs of the wmes with that id
+                for(Symbol id : objects.keySet()) {
+                    printer.print("(%s", id);
+                    for(Wme w : objects.get(id)) {
+                        printer.print(" ^%s %s", w.getAttribute(), w.getValue());
+                        if(w.isAcceptable()) {
+                            printer.print(" +");
+                        }
+                    }
+                    printer.print(")\n");
+                }
             }
         }
         else {
