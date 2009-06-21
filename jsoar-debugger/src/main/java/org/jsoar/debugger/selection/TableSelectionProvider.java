@@ -29,6 +29,11 @@ public class TableSelectionProvider implements SelectionProvider, ListSelectionL
         this.table = table;
     }
 
+    public boolean isActive()
+    {
+        return manager != null;
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.debugger.selection.SelectionProvider#activate(org.jsoar.debugger.selection.SelectionManager)
      */
