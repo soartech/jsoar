@@ -5,11 +5,16 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.parser.original.Lexeme;
+import org.jsoar.kernel.parser.original.Lexer;
 import org.jsoar.util.Arguments;
 
 /**
@@ -162,5 +167,56 @@ public class Symbols
             return 'Z';
         }
         return Character.toUpperCase(c);
+    }
+    
+    /**
+     * 
+     * <p>sml_KernelHelpers.cpp:731:read_attribute_from_string
+     * 
+     * <p>TODO: This probably shouldn't be here because of the Agent dependency
+     * 
+     * @param agent the agent 
+     * @param s the attribute as a string
+     * @return the associated symbol, or {@code null} if not found.
+     */
+    public static Symbol readAttributeFromString(Agent agent, String s)
+    {
+        if(s == null)
+        {
+            return null;
+        }
+        
+        if(s.length() > 0 && s.charAt(0) == '^')
+        {
+            s = s.substring(1);
+        }
+        
+        try
+        {
+            final Lexer lexer = new Lexer(agent.getPrinter(), new StringReader(s));
+            lexer.getNextLexeme();
+            final Lexeme lexeme = lexer.getCurrentLexeme();
+            if(lexeme == null)
+            {
+                return null;
+            }
+            final SymbolFactory syms = agent.getSymbols();
+            final Symbol attr;
+            switch(lexeme.type)
+            {
+            case SYM_CONSTANT: attr = syms.findString(lexeme.string); break;
+            case INTEGER: attr = syms.findInteger(lexeme.int_val); break;
+            case FLOAT:  attr = syms.findDouble(lexeme.float_val); break;
+            case IDENTIFIER: attr = syms.findIdentifier(lexeme.id_letter, lexeme.id_number); break; 
+            case VARIABLE: attr = agent.readIdentifierOrContextVariable(lexeme.string); break;
+            default:
+                return null;
+            }
+            return attr;
+        }
+        catch (IOException e)
+        {
+            return null;
+        } 
     }
 }

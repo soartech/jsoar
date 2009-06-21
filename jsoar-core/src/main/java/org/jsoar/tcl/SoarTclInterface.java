@@ -24,6 +24,7 @@ import org.jsoar.kernel.commands.MatchesCommand;
 import org.jsoar.kernel.commands.MaxElaborationsCommand;
 import org.jsoar.kernel.commands.MultiAttrCommand;
 import org.jsoar.kernel.commands.OSupportModeCommand;
+import org.jsoar.kernel.commands.PreferencesCommand;
 import org.jsoar.kernel.commands.PrintCommand;
 import org.jsoar.kernel.commands.PropertiesCommand;
 import org.jsoar.kernel.commands.QMemoryCommand;
@@ -157,6 +158,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("firing-counts", new FiringCountsCommand(this.agent));
         addCommand("excise", new ExciseCommand(this.agent));
         addCommand("init-soar", new InitSoarCommand(this.agent));
+        addCommand("preferences", new PreferencesCommand(this.agent));
         
         addCommand("set-parser", new SetParserCommand(this.agent));
         addCommand("properties", new PropertiesCommand(this.agent));
