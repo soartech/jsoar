@@ -269,11 +269,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private void initViews()
     {
-        final TraceView traceView = addView(new TraceView(this)); 
-        viewport.dock(traceView);
+        final ProductionEditView prodEditView = addView(new ProductionEditView(this));
+        viewport.dock(prodEditView);
         
         final ProductionListView prodListView = addView(new ProductionListView(this));
-        traceView.dock(prodListView, DockingConstants.EAST_REGION, 0.75f);
+        prodEditView.dock(prodListView, DockingConstants.EAST_REGION, 0.75f);
         
         final PartialMatchesView matchesView = addView(new PartialMatchesView(this));
         prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
@@ -281,20 +281,21 @@ public class JSoarDebugger extends JPanel implements Adaptable
         final MatchSetView matchSetView = addView(new MatchSetView(this));
         matchesView.dock(matchSetView);
         
-        final ProductionEditView prodEditView = addView(new ProductionEditView(this));
-        traceView.dock(prodEditView);
-        
-        final WorkingMemoryTreeView wmTreeView = addView(new WorkingMemoryTreeView(this));
-        traceView.dock(wmTreeView, DockingConstants.SOUTH_REGION);
+        final TraceView traceView = addView(new TraceView(this)); 
+        prodEditView.dock(traceView);
         
         final WmeSearchView wmeSearch = addView(new WmeSearchView(this));
-        wmTreeView.dock(wmeSearch);
+        prodEditView.dock(wmeSearch, DockingConstants.SOUTH_REGION);
         
-        final PreferencesView preferencesView = addView(new PreferencesView(this));
-        wmTreeView.dock(preferencesView, DockingConstants.EAST_REGION, 0.6f);
+        final WorkingMemoryTreeView wmTreeView = addView(new WorkingMemoryTreeView(this));
+        wmeSearch.dock(wmTreeView);
         
         final WmeSupportView wmeSupportView = addView(new WmeSupportView(this));
-        preferencesView.dock(wmeSupportView);
+        wmTreeView.dock(wmeSupportView, DockingConstants.EAST_REGION, 0.6f);
+        
+        final PreferencesView preferencesView = addView(new PreferencesView(this));
+        wmeSupportView.dock(preferencesView);
+        
     }
     
     private <T extends AbstractAdaptableView> T addView(T view)
