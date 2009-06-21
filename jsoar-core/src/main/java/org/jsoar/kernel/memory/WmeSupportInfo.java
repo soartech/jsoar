@@ -19,6 +19,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -41,7 +42,7 @@ public class WmeSupportInfo
      * 
      * @author ray
      */
-    public static class Support
+    public static class Support extends AbstractAdaptable
     {
         private final Preference pref;
         private final boolean osupported;
@@ -65,6 +66,21 @@ public class WmeSupportInfo
         public boolean isOSupported() { return osupported; }
         public Production getSource() { return pref.inst.prod; }
         public List<Wme> getSourceWmes() { return wmes; }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
+         */
+        @Override
+        public Object getAdapter(Class<?> klass)
+        {
+            if(klass.equals(Production.class))
+            {
+                return getSource();
+            }
+            return super.getAdapter(klass);
+        }
+        
+        
     }
     
     /**

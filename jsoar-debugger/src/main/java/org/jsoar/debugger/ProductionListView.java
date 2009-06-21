@@ -27,6 +27,8 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.EditProductionAction;
 import org.jsoar.debugger.actions.ObjectPopupMenu;
+import org.jsoar.debugger.selection.SelectionListener;
+import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.selection.TableSelectionProvider;
 import org.jsoar.kernel.Production;
@@ -41,7 +43,7 @@ import org.jsoar.util.adaptables.Adaptables;
 /**
  * @author ray
  */
-public class ProductionListView extends AbstractAdaptableView implements Refreshable
+public class ProductionListView extends AbstractAdaptableView implements Refreshable, SelectionListener
 {
     private static final long serialVersionUID = -5724361674833156058L;
     
@@ -78,7 +80,8 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
                 super.valueChanged(e);
                 updateInfo();
             }};
-        this.selectionProvider.activate(actionManager.getSelectionManager());
+        
+        this.actionManager.getSelectionManager().addListener(this);
         
         this.table.setDefaultRenderer(Production.class, new NameCellRenderer());
         
@@ -128,6 +131,9 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         this.setContentPane(p);
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Refreshable#refresh(boolean)
+     */
     public void refresh(boolean afterInitSoar)
     {
         this.table.repaint();
@@ -135,12 +141,32 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         
         updateInfo();
         updateStats();
-        
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.selection.SelectionListener#selectionChanged(org.jsoar.debugger.selection.SelectionManager)
+     */
+    public void selectionChanged(SelectionManager manager)
+    {
+        if(selectionProvider.isActive()) // ignore our own selection
+        {
+            return;
+        }
+        
+        final Production p = Adaptables.adapt(manager.getSelectedObject(), Production.class);
+        if(p != null)
+        {
+            int index = model.getProductions().indexOf(p);
+            if(index != -1)
+            {
+                table.getSelectionModel().setSelectionInterval(index, index);
+            }
+        }
+    }
+    
     public void selectProduction(Production production)
     {
-        this.setActive(true);
+        //this.setActive(true);
         int index = model.getProductions().indexOf(production);
         if(index != -1)
         {

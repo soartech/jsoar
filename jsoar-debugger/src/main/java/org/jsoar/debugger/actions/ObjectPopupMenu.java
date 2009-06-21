@@ -47,7 +47,7 @@ public class ObjectPopupMenu extends JPopupMenu
             }
         }
         
-        Object o = am.getSelectionManager().getSelectedObject();
+        final Object o = am.getSelectionManager().getSelectedObject();
         if(o != null)
         {
             ObjectPopupMenu menu = new ObjectPopupMenu(am, o);

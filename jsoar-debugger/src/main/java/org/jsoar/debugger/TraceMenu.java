@@ -63,14 +63,15 @@ public class TraceMenu extends JMenu
         
         add(new TraceNothingAction("Trace nothing"));
         
-        addSeparator();
+        final JMenu categories = new JMenu("Details");
+        add(categories);
         
         for(Category c : Category.values())
         {
             JCheckBoxMenuItem item = new JCheckBoxMenuItem(c.toString(), trace.isEnabled(c));
             item.setActionCommand(c.toString());
             item.addActionListener(listener);
-            add(item);
+            categories.add(item);
         }
     }
     

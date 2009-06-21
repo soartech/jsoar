@@ -13,6 +13,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
@@ -22,10 +25,15 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import org.flexdock.docking.DockingConstants;
+import org.jsoar.debugger.ParseSelectedText.SelectedObject;
+import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.runtime.CompletionHandler;
+import org.jsoar.runtime.SwingCompletionHandler;
 
 /**
  * @author ray
@@ -36,6 +44,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
     private final JSoarDebugger debugger;
     private final CommandEntryPanel commandPanel;
+    private final Provider selectionProvider = new Provider();
     
     private final JTextArea outputWindow = new JTextArea();
     private final Writer outputWriter = new Writer()
@@ -87,13 +96,23 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setLineWrap(getPreferences().getBoolean("wrap", true));
         outputWindow.addMouseListener(new MouseAdapter() {
 
-            public void mousePressed(MouseEvent e) { mouseReleased(e); }
+            public void mousePressed(MouseEvent e) 
+            {
+                if(e.isPopupTrigger())
+                {
+                    showPopupMenu(e);
+                }
+            }
 
             public void mouseReleased(MouseEvent e)
             {
                 if(e.isPopupTrigger())
                 {
                     showPopupMenu(e);
+                }
+                else if(SwingUtilities.isLeftMouseButton(e))
+                {
+                    updateSelectionOnLeftClick(e);
                 }
             }});
         outputWindow.setEditable(false);
@@ -135,6 +154,49 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.AbstractAdaptableView#getAdapter(java.lang.Class)
+     */
+    @Override
+    public Object getAdapter(Class<?> klass)
+    {
+        if(klass.equals(SelectionProvider.class))
+        {
+            return selectionProvider;
+        }
+        return super.getAdapter(klass);
+    }
+
+    private void updateSelectionOnLeftClick(MouseEvent e)
+    {
+        int offset = outputWindow.viewToModel(e.getPoint());
+        if(offset < 0)
+        {
+            return;
+        }
+        final ParseSelectedText pst = new ParseSelectedText(outputWindow.getText(), offset);
+        final SelectedObject object = pst.getParsedObject(debugger);
+        if(object == null)
+        {
+            return;
+        }
+        final Callable<Object> call = new Callable<Object>() {
+
+            @Override
+            public Object call() throws Exception
+            {
+                return object.retrieveSelection(debugger);
+            }};
+        final CompletionHandler<Object> finish = new CompletionHandler<Object>() {
+
+            @Override
+            public void finish(Object result)
+            {
+                selectionProvider.setSelection(result);
+            }};
+        debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(finish));
+    }
+    
     private void showPopupMenu(MouseEvent e)
     {
         final TraceMenu menu = new TraceMenu(debugger.getAgent().getTrace());
@@ -165,7 +227,76 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 outputWindow.setText("");
             }}, 0);
         
+        final int offset = outputWindow.viewToModel(e.getPoint());
+        SelectedObject object = null;
+        if(offset >= 0)
+        {
+            final ParseSelectedText pst = new ParseSelectedText(outputWindow.getText(), offset);
+            object = pst.getParsedObject(debugger);
+            if(object != null)
+            {
+                menu.addSeparator();
+                object.fillMenu(debugger, menu);
+            }
+        }
+        
         // Show the menu
         menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+    }
+    
+    private class Provider implements SelectionProvider
+    {
+        SelectionManager manager;
+        List<Object> selection = new ArrayList<Object>();
+        
+        public void setSelection(Object o)
+        {
+            selection.clear();
+            if(o != null)
+            {
+                selection.add(o);
+            }
+            if(manager != null)
+            {
+                manager.fireSelectionChanged();
+            }
+        }
+        
+        /* (non-Javadoc)
+         * @see org.jsoar.debugger.selection.SelectionProvider#activate(org.jsoar.debugger.selection.SelectionManager)
+         */
+        @Override
+        public void activate(SelectionManager manager)
+        {
+            this.manager = manager;
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.debugger.selection.SelectionProvider#deactivate()
+         */
+        @Override
+        public void deactivate()
+        {
+            this.manager = null;
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.debugger.selection.SelectionProvider#getSelectedObject()
+         */
+        @Override
+        public Object getSelectedObject()
+        {
+            return !selection.isEmpty() ? selection.get(0) : null;
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.debugger.selection.SelectionProvider#getSelection()
+         */
+        @Override
+        public List<Object> getSelection()
+        {
+            return selection;
+        }
+        
     }
 }

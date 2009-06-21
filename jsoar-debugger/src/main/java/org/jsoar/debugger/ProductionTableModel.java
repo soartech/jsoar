@@ -61,6 +61,27 @@ public class ProductionTableModel extends AbstractTableModel
     }
     
     /**
+     * Look up a production by name. This method may be safely called from any thread.
+     * 
+     * @param name the name of the production to find
+     * @return the production, or {@code null} if not found
+     */
+    public Production getProduction(String name)
+    {
+        synchronized(productions)
+        {
+            for(Production p : productions)
+            {
+                if(name.equals(p.getName().toString()))
+                {
+                    return p;
+                }
+            }
+            return null;
+        }
+    }
+    
+    /**
      * @return The list of productions in the model.
      */
     public List<Production> getProductions()
