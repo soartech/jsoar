@@ -86,10 +86,10 @@ public class StandardFunctions
     
     private final List<RhsFunctionHandler> allInternal = 
         new ArrayList<RhsFunctionHandler>(Arrays.asList(write, crlf, failed, succeeded,
-                new Concat(), new IfEq(), new MakeConstantSymbol(), new StrLen(),
+                new Concat(), new IfEq(), new MakeConstantSymbol(), new StrLen(), new Split(),
                 new JavaRhsFunction(),
                 new DeepCopy(),
-                new IntRhsFunction(), new FloatRhsFunction(),
+                new StringRhsFunction(), new IntRhsFunction(), new FloatRhsFunction(),
                 new FromXml(), 
                 new ToXml(),
                 new FromSoarTechXml(),
