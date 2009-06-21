@@ -89,7 +89,7 @@ public class WorkingMemoryPatternReader
             value = l.int_val;
             break;
         default:
-            break;
+            throw new IllegalArgumentException("Missing pattern element (must be '*', an attribute, or a value). Maybe you forgot to wrap your pattern in double quotes?");
         }
         
         return value;
