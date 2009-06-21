@@ -43,7 +43,6 @@ public class ShowViewAction extends AbstractDebuggerAction
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        view.setVisible(true);
         view.setActive(true);
     }
 
