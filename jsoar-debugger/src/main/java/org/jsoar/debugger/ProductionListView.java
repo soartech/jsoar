@@ -156,21 +156,17 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         final Production p = Adaptables.adapt(manager.getSelectedObject(), Production.class);
         if(p != null)
         {
-            int index = model.getProductions().indexOf(p);
-            if(index != -1)
-            {
-                table.getSelectionModel().setSelectionInterval(index, index);
-            }
+            selectProduction(p);
         }
     }
     
     public void selectProduction(Production production)
     {
-        //this.setActive(true);
         int index = model.getProductions().indexOf(production);
         if(index != -1)
         {
             table.getSelectionModel().setSelectionInterval(index, index);
+            table.scrollRowToVisible(index);
         }
     }
     
