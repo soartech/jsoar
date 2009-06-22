@@ -22,6 +22,9 @@
             <fileset dir="${src.html}">
                 <include name="*.html"/>
             </fileset>
+            <filterset>
+               <filter token="JSOAR_VERSION" value="${version}"/>
+            </filterset>
         </copy>
     </target>
 
