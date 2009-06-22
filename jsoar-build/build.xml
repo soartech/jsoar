@@ -7,11 +7,14 @@
    <property name="dist" location="dist" />
    <property name="dist.lib" location="${dist}/lib" />
 
-   <target name="init" description="Create temporary build directories">
+   <target name="init-props" description="Create temporary build directories">
       <tstamp />
       <!-- version defaults to snapshot-XXXXX. Use -Dversion=X.X.X on command-line to override -->
       <property name="version" value="snapshot-${DSTAMP}" />
       <property name="dist.zip" location="${ant.project.name}-${version}.zip"/>
+   </target>
+
+   <target name="init" depends="init-props" description="Create temporary build directories">
       <mkdir dir="${dist}" />
       <mkdir dir="${dist.lib}" />
 
@@ -36,7 +39,7 @@
       <antcall target="zip"/>
    </target>
     
-   <target name="zip">
+   <target name="zip" depends="init-props">
       <zip destfile="${dist.zip}" >
          <zipfileset dir="${dist}" prefix="${ant.project.name}-${version}"/>
       </zip>
@@ -62,7 +65,7 @@
    
    Be sure to follow this with another call to "zip"
    -->
-   <target name="sign">
+   <target name="sign" depends="init-props">
       <input message="Keystore password:" addproperty="storepass"/>
 
       <signjar alias="jsoar" storepass="${storepass}">
