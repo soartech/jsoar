@@ -30,7 +30,8 @@
       <ant dir="../jsoar-core" antfile="build.xml"/>
       <ant dir="../jsoar-debugger" antfile="build.xml"/>
       <ant dir="../jsoar-sml" antfile="build.xml"/>
-      <ant dir="../jsoar-demos" antfile="build.xml"/>
+       <ant dir="../jsoar-demos" antfile="build.xml"/>
+       <ant dir="../jsoar-ruby" antfile="build.xml"/>
     	
       <antcall target="zip"/>
    </target>

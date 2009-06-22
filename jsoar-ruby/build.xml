@@ -1,0 +1,26 @@
+<project name="jsoar-ruby" default="dist" basedir=".">
+    <description>jsoar-ruby</description>
+
+    <import file="../jsoar-build/build-common.xml"/>
+
+    <!-- set global properties for this build -->
+    <property name="dist.ruby" location="${dist}/ruby" />
+	
+    <target name="dist" depends="" description="generate the distribution">
+		
+		<mkdir dir="${dist.ruby}/lib"/>        
+        <copy todir="${dist.ruby}/lib">
+            <fileset dir="lib">
+                <exclude name="**/.svn"/>
+            </fileset>
+        </copy>
+        
+		<mkdir dir="${dist.ruby}/examples"/>        
+        <copy todir="${dist.ruby}/examples">
+            <fileset dir="examples">
+                <exclude name="**/.svn"/>
+            </fileset>
+        </copy>
+    </target>
+
+</project>
