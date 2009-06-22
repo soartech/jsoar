@@ -169,7 +169,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             @Override
             public void finish(WmeSupportInfo sourceInfo)
             {
-                source.setText(String.format("<html><b>&nbsp;<code> %#s</code></b> is supported by the following productions:</html>", w));
+                source.setText(String.format("<html><b>&nbsp;<code> %#s</code></b> is supported by:</html>", w));
                 entryList.setModel(SwingTools.addAll(new DefaultListModel(), sourceInfo.getSupports()));
                 wmeTable.setModel(new DefaultWmeTableModel());
                 wmeTable.packAll();
