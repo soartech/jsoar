@@ -4,7 +4,7 @@ http://jsoar.googlecode.com for more information.
 ###############################################################################
 Getting Started
 
-Double-click @JSOAR_DEBUGGER_JAR@ or @JSOAR_DEMOS_JAR@, or run from the command-line:
+Double-click @JSOAR_DEMOS_JAR@, or run from the command-line:
 
     > java -jar @JSOAR_DEMOS_JAR@ 
 
@@ -40,4 +40,6 @@ Contents of this distribution:
    doc/ - jsoar API documenation
       
    demos/ - Demonstration agents
+
+   ruby/ - Ruby API for jsoar
 
