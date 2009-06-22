@@ -7,4 +7,11 @@
    <target name="clean">
       <ant dir="jsoar-build" target="clean"/>
    </target>
+
+   <target name="sign">
+      <ant dir="jsoar-build" target="sign"/>
+   </target>
+   <target name="zip">
+      <ant dir="jsoar-build" target="zip"/>
+   </target>
 </project>
