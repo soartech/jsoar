@@ -47,6 +47,7 @@ import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.EditProductionAction;
 import org.jsoar.debugger.actions.ExciseProductionAction;
 import org.jsoar.debugger.actions.ExitAction;
+import org.jsoar.debugger.actions.GarbageCollectorAction;
 import org.jsoar.debugger.actions.InitSoarAction;
 import org.jsoar.debugger.actions.RestoreLayoutAction;
 import org.jsoar.debugger.actions.RunAction;
@@ -418,6 +419,10 @@ public class JSoarDebugger extends JPanel implements Adaptable
         runMenu.addSeparator();
         runMenu.add(actionManager.getAction(InitSoarAction.class));
         bar.add(runMenu);
+        
+        final JMenu toolsMenu = new JMenu("Tools");
+        toolsMenu.add(new GarbageCollectorAction(actionManager));
+        bar.add(toolsMenu);
         
         final JMenu helpMenu = new JMenu("Help");
         helpMenu.add(new UrlAction(actionManager, "JSoar Home Page", resources.getString("jsoar.site.url")));
