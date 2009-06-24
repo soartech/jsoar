@@ -863,7 +863,10 @@ public class RecognitionMemory
                 {
                     // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
                     if (pc.bt.trace != null)
+                    {
                         pc.bt.trace.preference_remove_ref(this);
+                        pc.bt.trace = null; // This is very important to avoid memory leaks!
+                    }
                 }
                 else
                 {
@@ -871,13 +874,17 @@ public class RecognitionMemory
                     {
                         // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
                         if (pc.bt.trace != null)
+                        {
                             pc.bt.trace.preference_remove_ref(this);
+                            pc.bt.trace = null; // This is very important to avoid memory leaks!
+                        }
                     }
                 }
             }
         }
 
         inst.top_of_instantiated_conditions = null;//  deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
+        inst.bottom_of_instantiated_conditions = null; // This is very important to avoid memory leaks!
         inst.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
         if (inst.prod != null) 
         {
