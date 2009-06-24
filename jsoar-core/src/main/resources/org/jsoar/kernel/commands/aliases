@@ -48,3 +48,5 @@ alias qget qmemory --get
 alias qset qmemory --set
 alias qrm  qmemory --remove
 alias qclear qmemory --clear
+
+alias internal-symbols symbols

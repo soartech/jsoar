@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.jsoar.kernel.SoarConstants;
@@ -64,6 +66,21 @@ public class SymbolFactoryImpl implements SymbolFactory
     {
         nullJavaSym = new JavaSymbolImpl(get_next_hash_id(), null);
         reset();
+    }
+    
+    /**
+     * Returns a list of all known symbols for use with the "symbols" command.
+     * 
+     * @return a list of all known symbols. 
+     */
+    public List<Symbol> getAllSymbols()
+    {
+        final List<Symbol> result = new ArrayList<Symbol>();
+        result.addAll(symConstants.values());
+        result.addAll(intConstants.values());
+        result.addAll(floatConstants.values());
+        result.addAll(javaSyms.values());
+        return result;
     }
     
     /**

@@ -36,6 +36,7 @@ import org.jsoar.kernel.commands.Soar8Command;
 import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.SrandCommand;
 import org.jsoar.kernel.commands.StatsCommand;
+import org.jsoar.kernel.commands.SymbolsCommand;
 import org.jsoar.kernel.commands.VerboseCommand;
 import org.jsoar.kernel.commands.WaitSncCommand;
 import org.jsoar.kernel.commands.WarningsCommand;
@@ -162,6 +163,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         
         addCommand("set-parser", new SetParserCommand(this.agent));
         addCommand("properties", new PropertiesCommand(this.agent));
+        addCommand("symbols", new SymbolsCommand(this.agent));
         
         addCommand("help", new HelpCommand(this));
         
