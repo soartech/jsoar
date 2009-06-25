@@ -24,7 +24,7 @@ public final class RunCommand implements SoarCommand
         this.threadedAgent = threadedAgent;
     }
     
-    private int getCount(int i, String[] args) throws SoarException
+    private long getCount(int i, String[] args) throws SoarException
     {
         final String arg = args[i];
         if(i + 1 >= args.length)
@@ -34,7 +34,7 @@ public final class RunCommand implements SoarCommand
         final String countString = args[i+1].toString();
         try
         {
-            int n = Integer.parseInt(countString);
+            long n = Long.parseLong(countString);
             if(n < 1)
             {
                 throw new SoarException("Expected count larger than 0 for " + arg + " option");
@@ -51,7 +51,7 @@ public final class RunCommand implements SoarCommand
     public String execute(String[] args) throws SoarException
     {
         RunType type = RunType.FOREVER;
-        int count = 0;
+        long count = 0;
         for(int i = 1; i < args.length; ++i)
         {
             final String arg = args[i];

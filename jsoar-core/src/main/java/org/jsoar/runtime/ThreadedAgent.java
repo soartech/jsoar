@@ -288,9 +288,9 @@ public class ThreadedAgent
      * 
      * @param n number of steps
      * @param runType type of steps
-     * @see Agent#runFor(int, RunType)
+     * @see Agent#runFor(long, RunType)
      */
-    public void runFor(final int n, final RunType runType)
+    public void runFor(final long n, final RunType runType)
     {
         if(agentRunning.getAndSet(true))
         {

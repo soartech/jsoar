@@ -48,10 +48,10 @@ public final class StatsCommand implements SoarCommand
         		agent.getTotalCpuTimer().getTotalSeconds());
         
         final PropertyManager props = agent.getProperties();
-        final int decision_phases_count = props.get(SoarProperties.DECISION_PHASES_COUNT);
-        final int e_cycle_count = props.get(SoarProperties.E_CYCLE_COUNT);
-        final int pe_cycle_count = props.get(SoarProperties.PE_CYCLE_COUNT);
-        final int inner_e_cycle_count = props.get(SoarProperties.INNER_E_CYCLE_COUNT);
+        final long decision_phases_count = props.get(SoarProperties.DECISION_PHASES_COUNT);
+        final long e_cycle_count = props.get(SoarProperties.E_CYCLE_COUNT);
+        final long pe_cycle_count = props.get(SoarProperties.PE_CYCLE_COUNT);
+        final long inner_e_cycle_count = props.get(SoarProperties.INNER_E_CYCLE_COUNT);
         p.print("%d decisions%n" +
         		"%d elaboration cycles%n" +
         		"%d inner elaboration cycles%n" +
@@ -68,20 +68,20 @@ public final class StatsCommand implements SoarCommand
                 pe_cycle_count != 0 ? total_kernel_msec / pe_cycle_count : 0.0
                 );
 
-        final int production_firing_count = props.get(SoarProperties.PRODUCTION_FIRING_COUNT);
+        final long production_firing_count = props.get(SoarProperties.PRODUCTION_FIRING_COUNT);
         p.print("%d production firings (%f pf's per ec, %f msec/pf)%n",
                 production_firing_count,
                 e_cycle_count != 0 ? ((double) production_firing_count / e_cycle_count) : 0.0,
                 production_firing_count != 0 ? total_kernel_msec / production_firing_count : 0.0
                );
 
-        final int wme_additions = props.get(SoarProperties.WME_ADDITION_COUNT);
-        final int wme_removes = props.get(SoarProperties.WME_REMOVAL_COUNT);
-        final int wme_changes = wme_additions + wme_removes;
+        final long wme_additions = props.get(SoarProperties.WME_ADDITION_COUNT);
+        final long wme_removes = props.get(SoarProperties.WME_REMOVAL_COUNT);
+        final long wme_changes = wme_additions + wme_removes;
         p.print("%d wme changes (%d additions, %d removals)%n",
                 wme_changes, wme_additions, wme_removes);
 
-        final int num_wm_sizes_accumulated = props.get(SoarProperties.NUM_WM_SIZES_ACCUMULATED);
+        final long num_wm_sizes_accumulated = props.get(SoarProperties.NUM_WM_SIZES_ACCUMULATED);
         p.print("WM size: %d current, %f mean, %d maximum%n",
                 agent.getNumWmesInRete(), 
                 num_wm_sizes_accumulated != 0 ? ((double) props.get(SoarProperties.CUMULATIVE_WM_SIZE).intValue() / num_wm_sizes_accumulated) : 0.0,

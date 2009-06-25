@@ -26,7 +26,7 @@ public class CycleCountInput
     private final InputListener listener;
     private final InitSoarListener initListener;
     
-    private int count = START;
+    private int count = START; // TODO: this should be long, but there's no long symbols
     private InputWme wme;
     
     /**

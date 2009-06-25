@@ -514,7 +514,7 @@ public class Agent extends AbstractAdaptable
      * @param n Number of steps. Ignored if runType is {@link RunType#FOREVER}.
      * @param runType The run type
      */
-    public void runFor(int n, RunType runType)
+    public void runFor(long n, RunType runType)
     {
         enusreInitialized();
         this.decisionCycle.runFor(n, runType);
@@ -547,7 +547,7 @@ public class Agent extends AbstractAdaptable
     }
     
     /**
-     * Request that the agent stop, i.e. exit the active call to {@link #runFor(int, RunType)}
+     * Request that the agent stop, i.e. exit the active call to {@link #runFor(long, RunType)}
      * of {@link #runForever()}. 
      * 
      * <p>This method is not thread safe. It must be called from the same thread that the
