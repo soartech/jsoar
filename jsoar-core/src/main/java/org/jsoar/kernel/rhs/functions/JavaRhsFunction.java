@@ -146,11 +146,16 @@ public class JavaRhsFunction extends AbstractRhsFunctionHandler
         return true;
     }
 
-    private void initialize()
+    private void initialize() throws RhsFunctionException
     {
         if(engine == null)
         {
             engine = new ScriptEngineManager().getEngineByName("JavaScript");
+            if(engine == null)
+            {
+                throw new RhsFunctionException("Could not locate 'JavaScript' script engine. " +
+                        "java RHS function will not function correctly.");
+            }
         }
     }
     
