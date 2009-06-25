@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Consistency;
 import org.jsoar.kernel.Decider;
@@ -76,6 +78,8 @@ import org.jsoar.util.timing.ExecutionTimers;
  */
 public class RecognitionMemory
 {
+    private static final Log logger = LogFactory.getLog(RecognitionMemory.class);
+    
     private final Agent context;
     private PredefinedSymbols predefinedSyms;
     private Decider decider;
@@ -371,7 +375,8 @@ public class RecognitionMemory
             }
             catch (RhsFunctionException e)
             {
-                context.getPrinter().error("Error: " + e.getMessage());
+                logger.error("Error executing RHS function '" + fc.getName() + "' with args " + arguments + ": " + e.getMessage(), e);
+                context.getPrinter().error("Error executing RHS function '%s' with args %s: %s\n", fc.getName(), arguments, e.getMessage());
             }
             finally
             {
