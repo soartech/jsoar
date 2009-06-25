@@ -42,7 +42,7 @@ public class RunControlModel implements Disposable
     public RunControlModel()
     {
         final Preferences prefs = getPrefs();
-        setCount(prefs.getInt("count", 1));
+        setCount(prefs.getLong("count", 1));
         final RunType runType = RunType.valueOf(prefs.get("type", RunType.values()[0].name()));
         if(runType != null)
         {
@@ -50,11 +50,11 @@ public class RunControlModel implements Disposable
         }
     }
     
-    public int getCount()
+    public long getCount()
     {
         try
         {
-            return Integer.valueOf(count.getText(0, count.getLength()));
+            return Long.valueOf(count.getText(0, count.getLength()));
         }
         catch (NumberFormatException e)
         {
@@ -66,11 +66,11 @@ public class RunControlModel implements Disposable
         }
     }
     
-    public void setCount(int count)
+    public void setCount(long count)
     {
         try
         {
-            this.count.replace(0, this.count.getLength(), Integer.toString(count), null);
+            this.count.replace(0, this.count.getLength(), Long.toString(count), null);
         }
         catch (BadLocationException e)
         {
@@ -109,7 +109,7 @@ public class RunControlModel implements Disposable
     public void dispose()
     {
         final Preferences prefs = getPrefs();
-        prefs.putInt("count", getCount());
+        prefs.putLong("count", getCount());
         prefs.put("type", getType().name());
     }
 
