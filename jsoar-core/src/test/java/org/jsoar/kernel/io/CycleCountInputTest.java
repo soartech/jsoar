@@ -69,7 +69,7 @@ public class CycleCountInputTest
         		"-->" +
         		"(match <cc>)");
         
-        final int n = 50;
+        final long n = 50;
         agent.runFor(n, RunType.DECISIONS);
         
         assertEquals(n, matches.size());

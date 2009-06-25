@@ -55,7 +55,7 @@ import org.jsoar.util.Arguments;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.properties.IntegerPropertyProvider;
+import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.timing.ExecutionTimers;
 
 /**
@@ -112,7 +112,7 @@ public class RecognitionMemory
     /**
      * agent.h:367:production_firing_count
      */
-    private final IntegerPropertyProvider production_firing_count = new IntegerPropertyProvider(SoarProperties.PRODUCTION_FIRING_COUNT);
+    private final LongPropertyProvider production_firing_count = new LongPropertyProvider(SoarProperties.PRODUCTION_FIRING_COUNT);
     
     /**
      * agent.h:720:FIRING_TYPE

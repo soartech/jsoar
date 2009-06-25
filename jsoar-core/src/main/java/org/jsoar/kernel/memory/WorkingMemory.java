@@ -17,11 +17,11 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEventManager;
-import org.jsoar.util.properties.IntegerPropertyProvider;
+import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
@@ -48,11 +48,11 @@ public class WorkingMemory
     // Stats stuff
     private final ListHead<WmeImpl> wmes_to_add = ListHead.newInstance();
     private final ListHead<WmeImpl> wmes_to_remove = ListHead.newInstance();
-    private final IntegerPropertyProvider wme_addition_count = new IntegerPropertyProvider(SoarProperties.WME_ADDITION_COUNT);
-    private final IntegerPropertyProvider wme_removal_count = new IntegerPropertyProvider(SoarProperties.WME_REMOVAL_COUNT);
-    private final IntegerPropertyProvider max_wm_size = new IntegerPropertyProvider(SoarProperties.MAX_WM_SIZE);
-    private final IntegerPropertyProvider cumulative_wm_size = new IntegerPropertyProvider(SoarProperties.CUMULATIVE_WM_SIZE);
-    private final IntegerPropertyProvider num_wm_sizes_accumulated = new IntegerPropertyProvider(SoarProperties.NUM_WM_SIZES_ACCUMULATED);
+    private final LongPropertyProvider wme_addition_count = new LongPropertyProvider(SoarProperties.WME_ADDITION_COUNT);
+    private final LongPropertyProvider wme_removal_count = new LongPropertyProvider(SoarProperties.WME_REMOVAL_COUNT);
+    private final LongPropertyProvider max_wm_size = new LongPropertyProvider(SoarProperties.MAX_WM_SIZE);
+    private final LongPropertyProvider cumulative_wm_size = new LongPropertyProvider(SoarProperties.CUMULATIVE_WM_SIZE);
+    private final LongPropertyProvider num_wm_sizes_accumulated = new LongPropertyProvider(SoarProperties.NUM_WM_SIZES_ACCUMULATED);
     
     public WorkingMemory()
     {
@@ -102,7 +102,7 @@ public class WorkingMemory
      */
     public void updateStats(int num_wmes_in_rete)
     {
-        if (num_wmes_in_rete > max_wm_size.intValue())
+        if (num_wmes_in_rete > max_wm_size.longValue())
             max_wm_size.value.set(num_wmes_in_rete);
         cumulative_wm_size.value.addAndGet(num_wmes_in_rete);
         num_wm_sizes_accumulated.increment();

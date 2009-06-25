@@ -39,6 +39,7 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.IntegerPropertyProvider;
+import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.timing.ExecutionTimers;
 
@@ -89,11 +90,11 @@ public class DecisionCycle
     private int pe_cycles_this_d_cycle;
     private int run_last_output_count;
     private int run_generated_output_count;
-    public IntegerPropertyProvider d_cycle_count = new IntegerPropertyProvider(SoarProperties.D_CYCLE_COUNT);
-    private IntegerPropertyProvider decision_phases_count = new IntegerPropertyProvider(SoarProperties.DECISION_PHASES_COUNT);
-    private IntegerPropertyProvider e_cycle_count = new IntegerPropertyProvider(SoarProperties.E_CYCLE_COUNT);
-    private IntegerPropertyProvider pe_cycle_count = new IntegerPropertyProvider(SoarProperties.PE_CYCLE_COUNT);
-    public IntegerPropertyProvider inner_e_cycle_count = new IntegerPropertyProvider(SoarProperties.INNER_E_CYCLE_COUNT);
+    public LongPropertyProvider d_cycle_count = new LongPropertyProvider(SoarProperties.D_CYCLE_COUNT);
+    private LongPropertyProvider decision_phases_count = new LongPropertyProvider(SoarProperties.DECISION_PHASES_COUNT);
+    private LongPropertyProvider e_cycle_count = new LongPropertyProvider(SoarProperties.E_CYCLE_COUNT);
+    private LongPropertyProvider pe_cycle_count = new LongPropertyProvider(SoarProperties.PE_CYCLE_COUNT);
+    public LongPropertyProvider inner_e_cycle_count = new LongPropertyProvider(SoarProperties.INNER_E_CYCLE_COUNT);
     
     /**
      * gsysparam.h:MAX_ELABORATIONS_SYSPARAM
@@ -812,7 +813,7 @@ public class DecisionCycle
      * @param n Number of phases to run. Must be non-negative
      * @throws IllegalArgumentException if n is negative
      */
-    private void run_for_n_phases(int n)
+    private void run_for_n_phases(long n)
     {
         Arguments.check(n >= 0, "n must be non-negative");
         
@@ -838,7 +839,7 @@ public class DecisionCycle
      * @param n Number of elaboration cycles to run. Must be non-negative
      * @throws IllegalArgumentException if n is negative
      */
-    private void run_for_n_elaboration_cycles(int n)
+    private void run_for_n_elaboration_cycles(long n)
     {
         Arguments.check(n >= 0, "n must be non-negative");
 
@@ -846,7 +847,7 @@ public class DecisionCycle
 
         stop_soar = false;
         reason_for_stopping = null;
-        int d_cycles_at_start = d_cycle_count.value.get();
+        long d_cycles_at_start = d_cycle_count.value.get();
         int elapsed_cycles = 0;
         GoType save_go_type = GoType.GO_PHASE;
         
@@ -875,7 +876,7 @@ public class DecisionCycle
      * @param n Number of modifications. Must be non-negative.
      * @throws IllegalArgumentException if n is negative
      */
-    private void run_for_n_modifications_of_output(int n)
+    private void run_for_n_modifications_of_output(long n)
     {
         Arguments.check(n >= 0, "n must be non-negative");
 
@@ -915,7 +916,7 @@ public class DecisionCycle
      * @param n Number of cycles to run. Must be non-negative
      * @throws IllegalArgumentException if n is negative
      */
-    private void run_for_n_decision_cycles(int n)
+    private void run_for_n_decision_cycles(long n)
     {
         Arguments.check(n >= 0, "n must be non-negative");
 
@@ -923,7 +924,7 @@ public class DecisionCycle
 
         stop_soar = false;
         reason_for_stopping = null;
-        int d_cycles_at_start = d_cycle_count.value.get();
+        long d_cycles_at_start = d_cycle_count.value.get();
         /* need next line or runs only the input phases for "d 1" after init-soar */
         if (d_cycles_at_start == 0)
             d_cycles_at_start++;
@@ -938,12 +939,12 @@ public class DecisionCycle
     }
     
     /**
-     * Client code should use {@link Agent#runFor(int, RunType)}
+     * Client code should use {@link Agent#runFor(long, RunType)}
      * 
      * @param n
      * @param runType
      */
-    public void runFor(int n, RunType runType)
+    public void runFor(long n, RunType runType)
     {
         if(checkForSystemHaltedAtStartOfTopLevel())
         {
