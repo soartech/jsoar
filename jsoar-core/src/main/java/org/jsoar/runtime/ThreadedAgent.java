@@ -26,6 +26,8 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.util.adaptables.AbstractAdaptable;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
@@ -41,10 +43,15 @@ import com.google.common.collect.MapMaker;
  * threads. The wrapper includes a number of convenience wrapper methods that
  * forward to the methods with the same name in the underlying agent.
  * 
+ * <p>See also: <a href="http://code.google.com/p/jsoar/wiki/JSoarUsersGuide">JSoar User Guide</a>
+ * 
  * <p>Generally, <b>all</b> access to agent data structures, i.e. the 
  * {@link Agent} instance should be marshaled through the {@link #execute(Runnable)}
  * methods. Note however, that many public Soar interfaces, or at least parts of them,
  * are immutable, so it is safe to access them from other threads.
+ * 
+ * <p>{@code ThreadedAgent} is an {@link Adaptable} where {{@link #getAdapter(Class)}
+ * has the same behavior as in {@link Agent}.
  * 
  * <p>This object sets the {@link SoarProperties#IS_RUNNING} property appropriately
  * and fires events when its state changes.
@@ -54,7 +61,7 @@ import com.google.common.collect.MapMaker;
  * 
  * @author ray
  */
-public class ThreadedAgent
+public class ThreadedAgent extends AbstractAdaptable
 {
     private final static Map<Agent, ThreadedAgent> proxies = new MapMaker().weakKeys().makeMap();
     
@@ -419,7 +426,20 @@ public class ThreadedAgent
         return commands;
     }
     
-    
+    /* (non-Javadoc)
+     * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
+     */
+    @Override
+    public Object getAdapter(Class<?> klass)
+    {
+        Object result = agent.getAdapter(klass);
+        if(result != null)
+        {
+            return result;
+        }
+        return super.getAdapter(klass);
+    }
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */

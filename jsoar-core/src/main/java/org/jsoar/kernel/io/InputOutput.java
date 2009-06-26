@@ -8,17 +8,37 @@ package org.jsoar.kernel.io;
 import java.util.List;
 
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
+import org.jsoar.kernel.events.InputEvent;
+import org.jsoar.kernel.events.OutputEvent;
+import org.jsoar.kernel.io.beans.SoarBeanOutputManager;
+import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
+ * This is the JSoar I/O interface. This is the interface you use for handling output
+ * commands as well as providing input to the agent.
+ * 
+ * <p>Note that the methods in this interface should generally only be called 
+ * from the {@link InputEvent} and {@link OutputEvent} callbacks in the agent thread. 
+ *  
+ * <p>See also: <a href="http://code.google.com/p/jsoar/wiki/JSoarInput">JSoar Input Guide</a>
+ * and <a href="http://code.google.com/p/jsoar/wiki/JSoarOutput">JSoar Output Guide</a>
+ *
+ * @see SoarQMemoryAdapter
+ * @see Wmes
+ * @see InputWmes
+ * @see SoarBeanOutputManager
+ * 
  * @author ray
  */
 public interface InputOutput
 {
     /**
+     * Returns the symbol factory used to generate I/O component
+     * 
      * @return The symbol factory used by this I/O component
      */
     SymbolFactory getSymbols();
