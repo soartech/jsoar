@@ -47,6 +47,7 @@ import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.AbstractAdaptable;
@@ -58,6 +59,30 @@ import org.jsoar.util.timing.DefaultExecutionTimer;
 import org.jsoar.util.timing.ExecutionTimer;
 
 /**
+ * This is a the base agent object in JSoar. It is a "raw" agent which roughly
+ * corresponds to the {@code agent_struct} in CSoar (see agent.h).
+ * 
+ * <p>Note that this is a low-level class and in most cases, you probably want
+ * {@link ThreadedAgent}.
+ * 
+ * <p>See also: <a href="http://code.google.com/p/jsoar/wiki/JSoarUsersGuide">JSoar User Guide</a>
+ *
+ * <p>The {@code Agent} object attempts to provide a simple interface for typical
+ * Soar integration cases (load productions, run, do I/O, etc). However, for more
+ * involved development, it may be necessary to access data structures that are
+ * not exposed through the public interface. In this case, {@code Agent} makes use
+ * of the {@code Adaptables} framework. Client code can ask for internal interfaces
+ * using the {@link Adaptables#adapt(Object, Class)} on the agent object. For
+ * example, to access reinforcement learning structures:
+ * 
+ * <pre>{@code
+ *     ReinforcementLearning rl = Adaptables.adapt(agent, ReinforcementLearning.class);
+ * }</pre>
+ * 
+ * Note that this access pattern should generally  be assumed to be unstable. It is
+ * useful for research programming, but for general development should be avoided. If
+ * a particular value in a module need to be exposed, consider exposing it through
+ * the property system.
  * 
  * <p>The following symbols were removed:
  * <ul>
