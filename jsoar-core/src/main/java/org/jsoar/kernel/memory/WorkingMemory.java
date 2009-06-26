@@ -156,6 +156,11 @@ public class WorkingMemory
 
         if (valueId != null)
         {
+            if(valueId.decider_wme == w)
+            {
+                valueId.decider_wme = null; // This is essential to avoid memory leaks!
+            }
+            
             this.decider.post_link_removal(w.id, valueId);
             if (w.attr == this.predefinedSyms.operator_symbol)
             {
@@ -163,6 +168,10 @@ public class WorkingMemory
                 valueId.isa_operator--;
             }
         }
+
+        // Avoid memory leaks!
+        w.preference = null;
+        w.chunker_bt_pref = null;
 
         /*
          * When we remove a WME, we always have to determine if it's on a GDS,
