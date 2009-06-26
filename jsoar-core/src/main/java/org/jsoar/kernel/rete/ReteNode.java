@@ -819,7 +819,7 @@ public class ReteNode
          */
         if (parent != null && parent.first_child == null)
         {
-            //deallocate_rete_node (thisAgent, parent);
+            deallocate_rete_node (rete, parent);
         }
     }
 
