@@ -558,11 +558,11 @@ public class Rete
     void add_wme_to_alpha_mem(WmeImpl w, AlphaMemory am)
     {
         /* --- allocate new right_mem, fill it fields --- */
-        RightMemory rm = new RightMemory(w, am);
+        final RightMemory rm = new RightMemory(w, am);
 
         /* --- add it to dll's for the hash bucket, alpha mem, and wme --- */
-        int hv = am.am_id ^ w.id.hash_id;
-        ListHead<RightMemory> header = right_ht.right_ht_bucket(hv);
+        final int hv = am.am_id ^ w.id.hash_id;
+        final ListHead<RightMemory> header = right_ht.right_ht_bucket(hv);
         rm.in_bucket.insertAtHead(header);
         rm.in_am.insertAtHead(am.right_mems);
         w.addRightMemory(rm);
@@ -578,12 +578,12 @@ public class Rete
      */
     void remove_wme_from_alpha_mem(RightMemory rm)
     {
-        WmeImpl w = rm.w;
-        AlphaMemory am = rm.am;
+        final WmeImpl w = rm.w;
+        final AlphaMemory am = rm.am;
 
         /* --- remove it from dll's for the hash bucket, alpha mem, and wme --- */
-        int hv = am.am_id ^ w.id.hash_id;
-        ListHead<RightMemory> header = right_ht.right_ht_bucket(hv);
+        final int hv = am.am_id ^ w.id.hash_id;
+        final ListHead<RightMemory> header = right_ht.right_ht_bucket(hv);
         rm.in_bucket.remove(header);
         rm.in_am.remove(am.right_mems);
         w.removeRightMemory(rm);
@@ -600,7 +600,7 @@ public class Rete
      */
     /*package*/ HashTable<AlphaMemory> table_for_tests(SymbolImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
-        int index = ((id != null) ? 1 : 0) + ((attr != null) ? 2 : 0) +
+        final int index = ((id != null) ? 1 : 0) + ((attr != null) ? 2 : 0) +
                                               ((value != null) ? 4 : 0) +
                                               ((acceptable) ? 8 : 0);
         return alpha_hash_tables.get(index);
@@ -1052,7 +1052,7 @@ public class Rete
      */
     private void beta_memory_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
-        SymbolImpl referent = null;
+        final SymbolImpl referent;
         {
             int levels_up = node.left_hash_loc_levels_up;
             if (levels_up == 1)
@@ -1071,7 +1071,7 @@ public class Rete
             }
         }
 
-        int hv = node.node_id ^ referent.hash_id;
+        final int hv = node.node_id ^ referent.hash_id;
 
         // build new left token, add it to the hash table
         LeftToken New = new LeftToken(node, tok, w, referent);
@@ -1371,8 +1371,8 @@ public class Rete
             }
         }
 
-        SymbolImpl referent = w.id;
-        int hv = node.parent.node_id ^ referent.hash_id;
+        final SymbolImpl referent = w.id;
+        final int hv = node.parent.node_id ^ referent.hash_id;
 
         for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
         {

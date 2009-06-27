@@ -121,7 +121,7 @@ public final class ListHead <T> implements Iterable<T>
      */
     public ListItem<T> push(T value)
     {
-        ListItem<T> item = new ListItem<T>(value);
+        final ListItem<T> item = new ListItem<T>(value);
         item.insertAtHead(this);
         return item;
     }
