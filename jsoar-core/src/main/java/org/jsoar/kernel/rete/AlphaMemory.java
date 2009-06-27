@@ -72,7 +72,7 @@ public class AlphaMemory extends HashTableItem
       return (this.id==null || this.id==w.id) &&
         (this.attr==null || this.attr==w.attr) &&
         (this.value==null || this.value==w.value) &&
-        (this.acceptable==(w).acceptable);
+        (this.acceptable==w.acceptable);
     }
 
     /**

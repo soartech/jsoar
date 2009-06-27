@@ -41,9 +41,9 @@ public final class ListItem <T> implements Iterable<T>
         
         next = head.first;
         previous = null;
-        if(head.first != null)
+        if(next != null)
         {
-            head.first.previous = this;
+            next.previous = this;
         }
         head.first = this;
     }

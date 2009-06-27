@@ -277,10 +277,11 @@ public class SoarReteListener implements ReteListener
 
             for (Action act = node.b_p.prod.action_list; act != null; act = act.next)
             {
-                MakeAction ma = act.asMakeAction();
-                if (ma != null && (ma.attr.asSymbolValue() != null))
+                final MakeAction ma = act.asMakeAction();
+                final RhsSymbolValue attr = ma != null ? ma.attr.asSymbolValue() : null;
+                if (attr != null)
                 {
-                    if (predefinedSyms.operator_symbol == ma.attr.asSymbolValue().getSym()
+                    if (predefinedSyms.operator_symbol == attr.getSym()
                             && act.preference_type == PreferenceType.ACCEPTABLE)
                     {
                         operator_proposal = true;
@@ -383,9 +384,9 @@ public class SoarReteListener implements ReteListener
                                         MakeAction ma = act.asMakeAction();
                                         if (ma != null)
                                         {
-                                            RhsSymbolValue rhsSym = ma.id.asSymbolValue();
-                                            ReteLocation rl = ma.id.asReteLocation();
-                                            if ((rhsSym != null) &&
+                                            final RhsSymbolValue rhsSym = ma.id.asSymbolValue();
+                                            final ReteLocation rl = ma.id.asReteLocation();
+                                            if (rhsSym != null &&
 
                                             /***************************
                                              * TODO shouldn't this be either
@@ -393,13 +394,12 @@ public class SoarReteListener implements ReteListener
                                              * (act->id) == or act->id ==
                                              * rhs_value_to_symbol(temp..)
                                              **************************/
-                                            (rhsSym.sym == temp_tok.w.value))
+                                                rhsSym.sym == temp_tok.w.value)
                                             {
                                                 op_elab = true;
                                             }
                                             else if ( /* osupport.o_support_calculation_type == 4 &&*/
-                                                    (rl != null)
-                                                    && (temp_tok.w.value == rl.lookupSymbol(tok, w)))
+                                                    rl != null && temp_tok.w.value == rl.lookupSymbol(tok, w))
                                             {
                                                 op_elab = true;
                                             }
