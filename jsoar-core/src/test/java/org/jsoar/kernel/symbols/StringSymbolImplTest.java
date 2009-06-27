@@ -15,9 +15,6 @@ import org.junit.Test;
 public class StringSymbolImplTest
 {
 
-    /**
-     * Test method for {@link org.jsoar.kernel.symbols.StringSymbolImpl#formatTo(java.util.Formatter, int, int, int)}.
-     */
     @Test
     public void testFormatTo()
     {
@@ -33,6 +30,17 @@ public class StringSymbolImplTest
         assertEquals("thisisalllowercase", String.format("%s", syms.createString("thisisalllowercase")));
         assertEquals("|<v>|", String.format("%s", syms.createString("<v>")));
         assertEquals("<v>", String.format("%#s", syms.createString("<v>")));
+    }
+    
+    @Test
+    public void testFormatToWhenStringContainsPercent()
+    {
+        final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+        
+        final StringSymbol s = syms.createString("%y");
+        assertEquals("%y", s.toString());
+        assertEquals("|%y|", String.format("%s", s));
+        assertEquals("%y", String.format("%#s", s));
     }
 
 }

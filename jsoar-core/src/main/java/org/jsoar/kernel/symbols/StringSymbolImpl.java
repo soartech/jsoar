@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.symbols;
 
+import java.io.IOException;
 import java.util.FormattableFlags;
 import java.util.Formatter;
 
@@ -86,31 +87,39 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        // 
-        
         // Since the csoar kernel uses rereadable==true in 90% of calls to 
         // symbol_to_string, we'll make that the default format. To get the
         // raw format, use the alternate, i.e. "%#s".
         final boolean rereadable = (FormattableFlags.ALTERNATE & flags) == 0;
-        if(!rereadable)
+        final String stringToWrite;
+        if(rereadable)
         {
-            formatter.format(getValue());
-            return;
-        }
-        
-        final PossibleSymbolTypes possible = Lexer.determine_possible_symbol_types_for_string(getValue());
-        final boolean hasAngleBracket = getValue().startsWith("<") || getValue().startsWith(">");
-        
-        if(!possible.possible_sc || possible.possible_var || possible.possible_ic || possible.possible_fc ||
-           !possible.rereadable || hasAngleBracket)
-        {
-            // BUGBUG if in context where id's could occur, should check
-            // possible_id flag here also
-            formatter.format(StringTools.string_to_escaped_string(getValue(), '|'));
+            final PossibleSymbolTypes possible = Lexer.determine_possible_symbol_types_for_string(getValue());
+            final boolean hasAngleBracket = getValue().startsWith("<") || getValue().startsWith(">");
+            
+            if(!possible.possible_sc || possible.possible_var || possible.possible_ic || possible.possible_fc ||
+               !possible.rereadable || hasAngleBracket)
+            {
+                // BUGBUG if in context where id's could occur, should check
+                // possible_id flag here also
+                stringToWrite = StringTools.string_to_escaped_string(getValue(), '|');
+            }
+            else
+            {
+                stringToWrite = getValue();
+            }
         }
         else
         {
-            formatter.format(getValue());
+            stringToWrite = getValue();
+        }
+
+        try
+        {
+            formatter.out().append(stringToWrite);
+        }
+        catch (IOException e)
+        {
         }
     }
     
