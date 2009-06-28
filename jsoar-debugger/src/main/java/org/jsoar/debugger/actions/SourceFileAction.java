@@ -12,6 +12,7 @@ import java.util.concurrent.Callable;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.commands.SoarCommandInterpreter;
@@ -28,6 +29,8 @@ public class SourceFileAction extends AbstractDebuggerAction
     public SourceFileAction(ActionManager manager)
     {
         super(manager, "Source File ...");
+        
+        lastDir = JSoarDebugger.PREFERENCES.get("lastSourceDir", System.getProperty("user.dir"));
     }
 
     /* (non-Javadoc)
@@ -66,6 +69,7 @@ public class SourceFileAction extends AbstractDebuggerAction
         
         final File f = chooser.getSelectedFile();
         lastDir = f.getParentFile().getAbsolutePath();
+        JSoarDebugger.PREFERENCES.put("lastSourceDir", lastDir);
         
         final SoarCommandInterpreter tcl = getApplication().getAgent().getInterpreter();
         getApplication().getAgent().execute(new Callable<Void>() {
