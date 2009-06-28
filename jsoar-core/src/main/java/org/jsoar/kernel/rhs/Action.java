@@ -55,14 +55,13 @@ public abstract class Action
      * 
      * @param rhs1
      * @param rhs2
-     * @return
+     * @return true if the actions are the same
      */
     public static boolean same_rhs(Action rhs1, Action rhs2)
     {
-        /*
-         * --- Scan through the two RHS's; make sure there's no function calls,
-         * and make sure the actions are all the same. ---
-         */
+        // Scan through the two RHS's; make sure there's no function calls,
+        // and make sure the actions are all the same.
+
         /*
          * --- Warning: this relies on the representation of rhs_value's: two of
          * the same funcall will not be equal (==), but two of the same symbol,
@@ -100,20 +99,20 @@ public abstract class Action
             a2 = a2.next;
         }
 
-        /* --- If we reached the end of one RHS but not the other, then
-           they must be different --- */
+        // If we reached the end of one RHS but not the other, then
+        //  they must be different
         if (a1 != a2)
             return false;
 
-        /* --- If we got this far, the RHS's must be identical. --- */
+        // If we got this far, the RHS's must be identical.
         return true;
     }
 
     /**
-     * production.cpp:1428:action_is_in_tc
+     * <p>production.cpp:1428:action_is_in_tc
      * 
-     * @param tc
-     * @return
+     * @param tc the transitive closure
+     * @return true if the action is in the given tc
      */
     public boolean action_is_in_tc(Marker tc)
     {
@@ -124,7 +123,7 @@ public abstract class Action
     }
 
     /**
-     * production.cpp:1353:add_action_to_tc
+     * <p>production.cpp:1353:add_action_to_tc
      * 
      * @param tc
      * @param id_list
@@ -144,12 +143,12 @@ public abstract class Action
      * TODO This function doesn't belong here. Circular dependency on rete package
      * TODO This function should be polymorphic on Action
      * 
-     * rete.cpp:4297:copy_action_list_and_substitute_varnames
+     * <p>rete.cpp:4297:copy_action_list_and_substitute_varnames
      * 
      * @param rete
      * @param actions
      * @param cond
-     * @return
+     * @return head of new action list
      */
     public static Action copy_action_list_and_substitute_varnames(Rete rete, Action actions, Condition cond)
     {

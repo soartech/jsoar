@@ -11,14 +11,14 @@ import java.util.Map;
 
 
 /**
- * exploration.h:32:exploration_parameter
+ * <p>exploration.h:32:exploration_parameter
  * 
  * @author ray
  */
 public class ExplorationParameter
 {
     /**
-     * exploration.h:21:EXPLORATION_REDUCTION_
+     * <p>exploration.h:21:EXPLORATION_REDUCTION_
      * 
      * @author ray
      */
@@ -56,9 +56,9 @@ public class ExplorationParameter
         }
         
         /**
-         * exploration.cpp:299:exploration_convert_reduction_policy
+         * <p>exploration.cpp:299:exploration_convert_reduction_policy
          * 
-         * @return
+         * @return the policy name
          */
         public String getPolicyName()
         {
@@ -66,10 +66,10 @@ public class ExplorationParameter
         }
         
         /**
-         * exploration.cpp:309:exploration_convert_reduction_policy
+         * <p>exploration.cpp:309:exploration_convert_reduction_policy
          * 
          * @param policyName
-         * @return
+         * @return the desired policy
          */
         public static ReductionPolicy findPolicy(String policyName)
         {
@@ -87,7 +87,7 @@ public class ExplorationParameter
          * <p>exploration.cpp:403:exploration_valid_reduction_rate
          * 
          * @param rate
-         * @return
+         * @return true if the rate is valid for this parameter
          */
         public abstract boolean isRateValid(double rate);
     }

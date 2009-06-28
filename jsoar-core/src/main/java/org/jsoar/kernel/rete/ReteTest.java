@@ -155,10 +155,10 @@ public class ReteTest
     }
     
     /**
-     * rete.cpp:220:test_is_constant_relational_test
+     * <p>rete.cpp:220:test_is_constant_relational_test
      * 
      * @param x
-     * @return
+     * @return true if is a constant relational test
      */
     public static boolean test_is_constant_relational_test(int x)
     {
@@ -166,10 +166,10 @@ public class ReteTest
     }
 
     /**
-     * rete.cpp:225:test_is_variable_relational_test
+     * <p>rete.cpp:225:test_is_variable_relational_test
      * 
      * @param x
-     * @return
+     * @return true if x is a variable relational test
      */
     public static boolean test_is_variable_relational_test(int x)
     {
@@ -177,10 +177,10 @@ public class ReteTest
     }
     
     /**
-     * rete.cpp:242:kind_of_relational_test
+     * <p>rete.cpp:242:kind_of_relational_test
      * 
      * @param x
-     * @return
+     * @return if x is any kind of relational test
      */
     public static int kind_of_relational_test(int x)
     {
@@ -188,10 +188,10 @@ public class ReteTest
     }
 
     /**
-     * rete.cpp:247:test_is_not_equal_test
+     * <p>rete.cpp:247:test_is_not_equal_test
      * 
      * @param x
-     * @return
+     * @return trie if x is a not-equal test
      */
     public static boolean test_is_not_equal_test(int x)
     {

@@ -199,7 +199,7 @@ public class Rete
      * @param refracted_inst Refracted instantiation
      * @param warn_on_duplicates
      * @param ignore_rhs
-     * @return
+     * @return the result code of adding the production
      */
     public ProductionAddResult add_production_to_rete(Production p, Instantiation refracted_inst,
             boolean warn_on_duplicates, boolean ignore_rhs)
@@ -931,7 +931,7 @@ public class Rete
      * @param cond
      * @param where_field_num
      * @param where_levels_up
-     * @return
+     * @return the variable
      */
     public static SymbolImpl var_bound_in_reconstructed_conds(Condition cond, int where_field_num, int where_levels_up)
     {
@@ -1999,7 +1999,7 @@ public class Rete
      * @param tok
      * @param w
      * @param doRhs If true, RHS will be filled in too
-     * @return
+     * @return conditions and nots struct with the reconstructed rule
      */
     public ConditionsAndNots p_node_to_conditions_and_nots(ReteNode p_node, Token tok, WmeImpl w, boolean doRhs)
     {

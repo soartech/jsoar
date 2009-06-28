@@ -287,22 +287,22 @@ public class RecognitionMemory
      * 
      * recmem.cpp:195:instantiate_rhs_value
      * 
-     * @param rv
-     * @param new_id_level
-     * @param new_id_letter
-     * @param tok
-     * @param w
-     * @return
+     * @param rv the RHS value from the production
+     * @param new_id_level current id level to use
+     * @param new_id_letter letter to use for ids
+     * @param tok the token
+     * @param w the wme
+     * @return the instantiated value as a symbol
      */
     public SymbolImpl instantiate_rhs_value(RhsValue rv, int new_id_level, char new_id_letter, Token tok, WmeImpl w)
     {
-        RhsSymbolValue rsv = rv.asSymbolValue();
+        final RhsSymbolValue rsv = rv.asSymbolValue();
         if (rsv != null)
         {
             return rsv.getSym();
         }
 
-        UnboundVariable uv = rv.asUnboundVariable();
+        final UnboundVariable uv = rv.asUnboundVariable();
         if (uv != null)
         {
 
@@ -322,7 +322,7 @@ public class RecognitionMemory
             }
             else if (sym.asVariable() != null)
             {
-                Variable v = sym.asVariable();
+                final Variable v = sym.asVariable();
                 new_id_letter = v.getFirstLetter();
                 sym = syms.make_new_identifier(new_id_letter, new_id_level);
                 this.rete.setRhsVariableBinding(index, sym);
@@ -334,20 +334,20 @@ public class RecognitionMemory
             }
         }
 
-        ReteLocation rl = rv.asReteLocation();
+        final ReteLocation rl = rv.asReteLocation();
         if (rl != null)
         {
             return rl.lookupSymbol(tok, w);
         }
 
-        RhsFunctionCall fc = rv.asFunctionCall();
+        final RhsFunctionCall fc = rv.asFunctionCall();
         if (fc == null)
         {
             throw new IllegalStateException("Unknow RhsValue type: " + rv);
         }
         
         // build up list of argument values
-        List<Symbol> arguments = new ArrayList<Symbol>(fc.getArguments().size());
+        final List<Symbol> arguments = new ArrayList<Symbol>(fc.getArguments().size());
         boolean nil_arg_found = false;
         for (RhsValue arg : fc.getArguments())
         {
@@ -371,6 +371,7 @@ public class RecognitionMemory
 
             try
             {
+                // we provide the RhsFunctionContext so we know this will return SymbolImpl
                 return (SymbolImpl) context.getRhsFunctions().execute(fc.getName().getValue(), arguments);
             }
             catch (RhsFunctionException e)
@@ -388,12 +389,12 @@ public class RecognitionMemory
     }
 
     /**
-     * recmem.cpp:292:execute_action
+     * <p>recmem.cpp:292:execute_action
      * 
-     * @param a
-     * @param tok
-     * @param w
-     * @return
+     * @param a the action
+     * @param tok the rete token
+     * @param w the wme
+     * @return the preference resulting from the action, possibly {@code null}
      */
     private Preference execute_action(Action a, Token tok, WmeImpl w)
     {

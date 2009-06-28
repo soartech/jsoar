@@ -13,6 +13,7 @@ import org.jsoar.kernel.rhs.functions.JavaRhsFunction;
  * <p>This symbol is meant to support {@link JavaRhsFunction}.
  *  
  * @author ray
+ * @see JavaRhsFunction
  */
 public interface JavaSymbol extends Symbol
 {

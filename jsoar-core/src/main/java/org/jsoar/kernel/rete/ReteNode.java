@@ -117,9 +117,9 @@ public class ReteNode
     }
 
     /**
-     * rete.cpp:432:real_parent_node
+     * <p>rete.cpp:432:real_parent_node
      * 
-     * @return
+     * @return real parent node of this node
      */
     public ReteNode real_parent_node()
     {
@@ -127,9 +127,9 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:448:node_is_right_unlinked
+     * <p>rete.cpp:448:node_is_right_unlinked
      * 
-     * @return
+     * @return true if this node is right unlinked
      */
     public boolean node_is_right_unlinked()
     {
@@ -138,7 +138,7 @@ public class ReteNode
     }
 
     /**
-     * rete.cpp:455:mark_node_as_right_unlinked
+     * <p>rete.cpp:455:mark_node_as_right_unlinked
      */
     private void mark_node_as_right_unlinked()
     {
@@ -147,7 +147,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:483:relink_to_right_mem
+     * <p>rete.cpp:483:relink_to_right_mem
      */
     /*package*/ void relink_to_right_mem()
     {
@@ -194,7 +194,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:512:unlink_from_right_mem
+     * <p>rete.cpp:512:unlink_from_right_mem
      */
     /*package*/ void unlink_from_right_mem() 
     { 
@@ -225,7 +225,7 @@ public class ReteNode
     }
 
     /**
-     * rete.cpp:532:node_is_left_unlinked
+     * <p>rete.cpp:532:node_is_left_unlinked
      * 
      * @return True if this node is left unlinked
      */
@@ -236,7 +236,7 @@ public class ReteNode
     }
 
     /**
-     * rete.cpp:539:mark_node_as_left_unlinked
+     * <p>rete.cpp:539:mark_node_as_left_unlinked
      */
     /*package*/ void mark_node_as_left_unlinked()
     {
@@ -245,7 +245,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:547:relink_to_left_mem
+     * <p>rete.cpp:547:relink_to_left_mem
      */
     /*package*/ void relink_to_left_mem() 
     { 
@@ -254,7 +254,7 @@ public class ReteNode
     }
 
     /**
-     * rete.cpp:555:unlink_from_left_mem
+     * <p>rete.cpp:555:unlink_from_left_mem
      */
     /*package*/ void unlink_from_left_mem() 
     {
@@ -263,7 +263,7 @@ public class ReteNode
     }
     
     /**
-     * rete.cpp:570:make_mp_bnode_left_unlinked
+     * <p>rete.cpp:570:make_mp_bnode_left_unlinked
      */
     /*package*/ void make_mp_bnode_left_unlinked() 
     {
@@ -271,7 +271,7 @@ public class ReteNode
     }
 
     /**
-     * rete.cpp:575:make_mp_bnode_left_linked
+     * <p>rete.cpp:575:make_mp_bnode_left_linked
      */
     /*package*/ void make_mp_bnode_left_linked() 
     {
@@ -279,9 +279,9 @@ public class ReteNode
     }
 
     /**
-     * rete.cpp:580:mp_bnode_is_left_unlinked
+     * <p>rete.cpp:580:mp_bnode_is_left_unlinked
      * 
-     * @return
+     * @return true if left unlinked
      */
     /*package*/ boolean mp_bnode_is_left_unlinked() 
     { 
@@ -294,8 +294,6 @@ public class ReteNode
      * would take up a lot of extra space.
      * 
      * <p>rete.cpp:1744:remove_node_from_parents_list_of_children
-     * 
-     * @param node
      */
     /*package*/ void remove_node_from_parents_list_of_children()
     {
@@ -319,7 +317,7 @@ public class ReteNode
      * <p>rete.cpp:1824:nearest_ancestor_with_same_am
      * 
      * @param am
-     * @return
+     * @return nearest ancestor
      */
     ReteNode nearest_ancestor_with_same_am(AlphaMemory am)
     {
@@ -346,11 +344,11 @@ public class ReteNode
      * 
      * <p>rete.cpp:1840:make_new_mem_node
      * 
-     * @param rete
-     * @param parent
-     * @param node_type
-     * @param left_hash_loc
-     * @return
+     * @param rete the owning rete
+     * @param parent the parent node
+     * @param node_type the type of node to create
+     * @param left_hash_loc left hash location
+     * @return new memory node
      */
     static ReteNode make_new_mem_node(Rete rete, ReteNode parent, ReteNodeType node_type, VarLocation left_hash_loc)
     {
@@ -383,7 +381,7 @@ public class ReteNode
      * @param am
      * @param rt
      * @param prefer_left_unlinking
-     * @return
+     * @return a new positive node
      */
     static ReteNode make_new_positive_node(Rete rete, ReteNode parent_mem, ReteNodeType node_type, AlphaMemory am, ReteTest rt,
             boolean prefer_left_unlinking)
@@ -427,7 +425,7 @@ public class ReteNode
      * <p>rete.cpp:1916:split_mp_node
      * 
      * @param mp_node
-     * @return
+     * @return a new split MP node
      */
     static ReteNode split_mp_node(Rete rete, ReteNode mp_node)
     {
@@ -502,7 +500,7 @@ public class ReteNode
      * <p>rete.cpp:1979:merge_into_mp_node
      * 
      * @param mem_node
-     * @return
+     * @return new node resulting from merge
      */
     static ReteNode merge_into_mp_node(Rete rete, ReteNode mem_node)
     {
@@ -587,7 +585,7 @@ public class ReteNode
      * @param am
      * @param rt
      * @param prefer_left_unlinking
-     * @return
+     * @return new MP node
      */
     static ReteNode make_new_mp_node(Rete rete, ReteNode parent, ReteNodeType node_type, VarLocation left_hash_loc,
             AlphaMemory am, ReteTest rt, boolean prefer_left_unlinking)
@@ -621,7 +619,7 @@ public class ReteNode
      * @param left_hash_loc
      * @param am
      * @param rt
-     * @return
+     * @return new negative node
      */
     static ReteNode make_new_negative_node(Rete rete, ReteNode parent, ReteNodeType node_type, VarLocation left_hash_loc,
             AlphaMemory am, ReteTest rt)
@@ -662,7 +660,7 @@ public class ReteNode
      * @param rete
      * @param parent
      * @param bottom_of_subconditions
-     * @return
+     * @return new conjuctive negation node
      */
     static ReteNode make_new_cn_node(Rete rete, ReteNode parent, ReteNode bottom_of_subconditions)
     {
@@ -707,18 +705,19 @@ public class ReteNode
     /**
      * Make a new production node, return a pointer to it.
      *
-     * Does not handle the following tasks:
-     *   - filling in p_node->b.p.parents_nvn or discarding chunk variable names 
-     *   - filling in stuff on new_prod (except does fill in new_prod->p_node)
-     *   - using update_node_with_matches_from_above (p_node) or handling
+     * <p>Does not handle the following tasks:
+     * <ul>
+     *   <li>filling in p_node->b.p.parents_nvn or discarding chunk variable names 
+     *   <li>filling in stuff on new_prod (except does fill in new_prod->p_node)
+     *   <li>using update_node_with_matches_from_above (p_node) or handling
      *     an initial refracted instantiation
-     *
+     * </ul>
      * <p>rete.cpp:2163:make_new_production_node
      * 
      * @param rete
      * @param parent
      * @param new_prod
-     * @return
+     * @return new P-node
      */
     static ReteNode make_new_production_node(Rete rete, ReteNode parent, Production new_prod)
     {

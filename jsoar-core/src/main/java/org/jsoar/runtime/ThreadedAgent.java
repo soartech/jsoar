@@ -50,7 +50,7 @@ import com.google.common.collect.MapMaker;
  * methods. Note however, that many public Soar interfaces, or at least parts of them,
  * are immutable, so it is safe to access them from other threads.
  * 
- * <p>{@code ThreadedAgent} is an {@link Adaptable} where {{@link #getAdapter(Class)}
+ * <p>{@code ThreadedAgent} is an {@link Adaptable} where {@link #getAdapter(Class)}
  * has the same behavior as in {@link Agent}.
  * 
  * <p>This object sets the {@link SoarProperties#IS_RUNNING} property appropriately
@@ -127,7 +127,7 @@ public class ThreadedAgent extends AbstractAdaptable
      * be initialized.
      * 
      * @param agent the agent to wrap
-     * @return 
+     * @return a threaded agent wrapper
      */
     public static ThreadedAgent attach(Agent agent) 
     {

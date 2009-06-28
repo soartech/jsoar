@@ -29,10 +29,10 @@ public class RightMemoryHashTable
     }
     
     /**
-     * rete.cpp:683:right_ht_bucket
+     * <p>rete.cpp:683:right_ht_bucket
      * 
      * @param hv
-     * @return
+     * @return the head of the right memory bucket
      */
     public ListHead<RightMemory> right_ht_bucket(int hv) 
     {

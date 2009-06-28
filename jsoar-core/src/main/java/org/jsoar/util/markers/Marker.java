@@ -6,6 +6,9 @@
 package org.jsoar.util.markers;
 
 /**
+ * An interface for a marker object. This interface replaces the integer markers
+ * used in CSoar for marking objects during transitive closure calculations.
+ * 
  * @author ray
  */
 public interface Marker

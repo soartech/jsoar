@@ -22,7 +22,7 @@ public interface ReteListener
      * 
      * <p>Refactored out of add_production_to_rete within "if(refacted_inst != null)"
      * 
-     * rete.cpp:3515:add_production_to_rete
+     * <p>rete.cpp:3515:add_production_to_rete
      * 
      * @param p
      * @param refracted_inst
@@ -31,10 +31,10 @@ public interface ReteListener
     void startRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node);
     
     /**
-     * Called after {@link #startRefraction(Production, Instantiation, ReteNode)} and the initial
-     * call to {@link #update_node_with_matches_from_above(ReteNode)} on the p-node.
+     * Called after {@link #startRefraction(Rete, Production, Instantiation, ReteNode)} and the initial
+     * call to {@link Rete#update_node_with_matches_from_above(ReteNode)} on the p-node.
      * 
-     * rete.cpp:3515:add_production_to_rete
+     * <p>rete.cpp:3515:add_production_to_rete
      * 
      * @param rete The rete
      * @param p The production being added to the rete
@@ -47,7 +47,7 @@ public interface ReteListener
     /**
      * This method is called when a production matches.
      * 
-     * rete.cpp:5481:p_node_left_addition
+     * <p>rete.cpp:5481:p_node_left_addition
      * 
      * @param rete The rete
      * @param node
@@ -59,11 +59,11 @@ public interface ReteListener
     /**
      * This method is called when a production unmatches
      * 
-     * BUGBUG shouldn't need to pass in both tok and w -- should have the
+     * <p>BUGBUG shouldn't need to pass in both tok and w -- should have the
      * p-node's token get passed in instead, and have it point to the
      * corresponding instantiation structure.
      * 
-     * rete.cpp:5885:p_node_left_removal
+     * <p>rete.cpp:5885:p_node_left_removal
      * 
      * @param node
      * @param tok

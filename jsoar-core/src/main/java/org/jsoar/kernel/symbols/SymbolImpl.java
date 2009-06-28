@@ -93,7 +93,7 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     }
 
     /**
-     * @return
+     * @return the first letter of the symbol
      */
     public char getFirstLetter()
     {
@@ -172,8 +172,8 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     /**
      * <p>production.cpp:1346:symbol_is_in_tc
      * 
-     * @param tc
-     * @return
+     * @param tc the tc marker
+     * @return true if this symbols is in the transitive closure
      */
     public boolean symbol_is_in_tc(Marker tc)
     {

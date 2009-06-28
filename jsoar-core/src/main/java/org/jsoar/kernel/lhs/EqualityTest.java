@@ -25,11 +25,11 @@ public abstract class EqualityTest extends Test
     }
 
     /**
-     * gdatastructs.h:395:referent_of_equality_test
+     * <p>gdatastructs.h:395:referent_of_equality_test
      * 
-     * @return
+     * @return the referent of this equality test
      */
-    public  abstract SymbolImpl getReferent();
+    public abstract SymbolImpl getReferent();
     
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Test#asBlankTest()

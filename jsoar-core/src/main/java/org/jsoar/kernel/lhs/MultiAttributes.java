@@ -29,10 +29,11 @@ public class MultiAttributes
      * Returns the user set value of the expected match cost of the
      * multi-attribute, or 1 if the input symbol isn't in the user set list.
      * 
-     * reorder.cpp:699:get_cost_of_possible_multi_attribute
+     * <p>reorder.cpp:699:get_cost_of_possible_multi_attribute
      * 
-     * @param referent
-     * @return
+     * @param referent the referent
+     * @param defValue value to return if referent has no associated cost
+     * @return the cost
      */
     public int getCost(Symbol referent, int defValue)
     {

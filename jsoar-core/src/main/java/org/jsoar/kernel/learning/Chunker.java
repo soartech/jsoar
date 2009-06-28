@@ -360,8 +360,8 @@ public class Chunker
      * <p>Note: In jsoar, modified to return new variable rather than replace 
      * byref argument
      * 
-     * @param sym
-     * @return
+     * @param sym the symbol to variablize. This object is not modified.
+     * @return a new variablized version of the symbol
      */
     public SymbolImpl variablize_symbol(SymbolImpl sym)
     {

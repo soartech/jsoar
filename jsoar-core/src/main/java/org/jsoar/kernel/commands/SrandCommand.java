@@ -15,7 +15,7 @@ public final class SrandCommand implements SoarCommand
     private final Agent agent;
 
     /**
-     * @param soarTclInterface
+     * @param agent the owning agent
      */
     public SrandCommand(Agent agent)
     {

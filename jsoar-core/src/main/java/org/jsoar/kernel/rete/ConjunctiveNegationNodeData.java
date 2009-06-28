@@ -6,9 +6,9 @@
 package org.jsoar.kernel.rete;
 
 /**
- *  data for cn and cn_partner nodes only
+ * Data for cn and cn_partner nodes only
  *  
- *  rete.cpp:378
+ * <p>rete.cpp:378
  *  
  * @author ray
  */
@@ -17,7 +17,7 @@ public class ConjunctiveNegationNodeData extends ReteNodeData
     ReteNode partner;    /* cn, cn_partner point to each other */
 
     /**
-     * @return
+     * @return a copy of this object
      */
     public ConjunctiveNegationNodeData copy()
     {
@@ -26,5 +26,4 @@ public class ConjunctiveNegationNodeData extends ReteNodeData
         
         return n;
     }
-
 }

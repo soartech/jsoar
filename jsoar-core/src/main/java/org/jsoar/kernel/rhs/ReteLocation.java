@@ -76,11 +76,9 @@ public class ReteLocation extends RhsValue
     /**
      * <p>rete.cpp:4391:get_symbol_from_rete_loc
      * 
-     * @param levels_up
-     * @param field_num
-     * @param tok
-     * @param w
-     * @return
+     * @param tok the token to start at
+     * @param w the wme to start at
+     * @return the symbol referred to by this location
      */
     public SymbolImpl lookupSymbol(Token tok, WmeImpl w)
     {

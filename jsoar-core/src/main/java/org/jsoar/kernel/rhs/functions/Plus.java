@@ -10,13 +10,10 @@ import org.jsoar.kernel.symbols.Symbol;
  * Takes any number of int_constant or float_constant arguments, and
  * returns their sum.
  *  
- * rhsfun_math.cpp:41:plus_rhs_function_code
+ * <p>rhsfun_math.cpp:41:plus_rhs_function_code
  */
 public final class Plus extends AbstractRhsFunctionHandler
 {
-    /**
-     * @param name
-     */
     public Plus()
     {
         super("+");

@@ -36,9 +36,10 @@ public class WorkingMemoryPrinter
     /**
      * <p>sml_KernelHelpers.cpp::do_print_for_identifier
      * 
-     * @param syms
+     * @param agent
      * @param printer
      * @param idIn
+     * @param pattern
      */
     public void print(Agent agent, Printer printer, Symbol idIn, String pattern) throws Exception
     {
@@ -48,7 +49,7 @@ public class WorkingMemoryPrinter
         this.printer = printer;
 
         if(exact) {
-            List<Wme> wmes = Wmes.filter(agent.getAllWmesInRete().iterator(), WorkingMemoryPatternReader.GetPredicate(agent, pattern));
+            List<Wme> wmes = Wmes.filter(agent.getAllWmesInRete().iterator(), WorkingMemoryPatternReader.getPredicate(agent, pattern));
             if(internal) {
                 for(Wme w : wmes) {
                     printer.print("%s", w);

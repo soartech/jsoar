@@ -17,6 +17,7 @@ import org.jsoar.util.Arguments;
  * Manages registered RHS functions for an agent
  * 
  * @author ray
+ * @see RhsFunctionHandler
  */
 public class RhsFunctionManager
 {

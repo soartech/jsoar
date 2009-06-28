@@ -194,7 +194,6 @@ public class OSupport
      * 
      * @param inst
      * @param top_goal
-     * @param operand2_mode
      */
     public void calculate_support_for_instantiation_preferences(Instantiation inst, final IdentifierImpl top_goal)
     {

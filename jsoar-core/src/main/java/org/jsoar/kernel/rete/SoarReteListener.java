@@ -89,7 +89,10 @@ public class SoarReteListener implements ReteListener
     public final ListHead<MatchSetChange> postponed_assertions = ListHead.newInstance();
 
     /**
-     * @param operator_symbol
+     * Constuct a new rete listener. {@link #initialize()} must be called as well.
+     * 
+     * @param context the owning agent
+     * @param rete the rete
      */
     public SoarReteListener(Agent context, Rete rete)
     {
@@ -808,7 +811,7 @@ public class SoarReteListener implements ReteListener
     /**
      * <p>rete.cpp:1238:get_next_retraction
      * 
-     * @return
+     * @return the next retraction
      */
     public Instantiation get_next_retraction()
     {
@@ -822,7 +825,7 @@ public class SoarReteListener implements ReteListener
             return null;
 
         // remove from the Waterfall-specific list */
-        MatchSetChange msc = decider.active_goal.ms_retractions.pop();
+        final MatchSetChange msc = decider.active_goal.ms_retractions.pop();
         // and remove from the complete retraction list
         msc.next_prev.remove(ms_retractions);
 
@@ -854,7 +857,7 @@ public class SoarReteListener implements ReteListener
         if (nil_goal_retractions.isEmpty()) return null;
         
         // Remove this retraction from the NIL goal list
-        MatchSetChange msc = nil_goal_retractions.pop();
+        final MatchSetChange msc = nil_goal_retractions.pop();
 
         // next and prev set and used in Operand2 exactly as used in Soar 7 --
         // so we have to make sure and delete this retraction from the regular
@@ -874,7 +877,7 @@ public class SoarReteListener implements ReteListener
      * 
      * <p>rete.cpp:1109:any_assertions_or_retractions_ready
      * 
-     * @return
+     * @return true if there are any pending changes to the match set
      */
     public boolean any_assertions_or_retractions_ready()
     {
@@ -1029,6 +1032,7 @@ public class SoarReteListener implements ReteListener
      * 
      * <p>rete.cpp:7756:print_match_set
      * 
+     * @param printer
      * @param wtt
      * @param mst
      */

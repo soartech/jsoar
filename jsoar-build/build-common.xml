@@ -185,9 +185,10 @@
       </copy>
    </target>
     
-	<target name="doc" description="Generate API documentation">
+	<target name="doc" depends="init" description="Generate API documentation">
 		<javadoc packagenames="${doc.packagenames}"
 		           sourcepath="${src}"
+		    	   classpathref="compile.libs"
 		           excludepackagenames="${doc.excludepackagenames}"
 		           defaultexcludes="yes"
 		           destdir="${doc.destdir}"
@@ -195,7 +196,7 @@
 		           version="true"
 		           use="true"
 		           windowtitle="${doc.windowtitle}">
-		    <doctitle><![CDATA[<h1><a href="http://jsoar.googlecode.com">jsoar</a> ${version}</h1>]]></doctitle>
+		    <doctitle><![CDATA[<h1><a href="http://jsoar.googlecode.com">JSoar</a> ${version}</h1>]]></doctitle>
 		    <bottom><![CDATA[<i>${copyright}</i>]]></bottom>
 		    <tag name="todo" scope="all" description="Todo:"/>
 		</javadoc>

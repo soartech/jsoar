@@ -39,7 +39,7 @@ public class Conditions
      * @param tc
      * @param printer (originally allow_printing_warnings) if not <code>null</code>
      *      warnings will be printed to this printer
-     * @return
+     * @return head of list of root variables
      */
     public static ListHead<Variable> collect_root_variables(Condition cond_list, Marker tc, Printer printer, String name_of_production_being_reordered)
     {

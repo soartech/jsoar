@@ -182,8 +182,9 @@ public class Decider
     private ParentInstantiation parent_list_head;
     
     /**
-     * @param context
-     * @param exploration 
+     * Construct a decider using the given agent. {@link #initialize()} <b>must</b> be called.
+     * 
+     * @param context the owning agent
      */
     public Decider(Agent context)
     {
@@ -213,7 +214,7 @@ public class Decider
      * <p>chunk.cpp:753:find_goal_at_goal_stack_level
      * 
      * @param level
-     * @return
+     * @return the goal at the given stack level
      */
     public IdentifierImpl find_goal_at_goal_stack_level(int level)
     {
@@ -1358,7 +1359,7 @@ public class Decider
      * 
      * @param s
      * @param result_candidates
-     * @return
+     * @return the impasse type
      */
     public ImpasseType run_preference_semantics_for_consistency_check (Slot s, ByRef<Preference> result_candidates) 
     {
@@ -2211,7 +2212,7 @@ public class Decider
      * decide.cpp:2042:type_of_existing_impasse
      * 
      * @param goal
-     * @return
+     * @return the type of the impasse
      */
     public ImpasseType type_of_existing_impasse(IdentifierImpl goal)
     {
