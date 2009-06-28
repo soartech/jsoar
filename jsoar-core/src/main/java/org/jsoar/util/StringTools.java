@@ -22,7 +22,7 @@ public class StringTools
      * 
      * @param s
      * @param first_and_last_char
-     * @return
+     * @return the escaped string
      */
     public static String string_to_escaped_string(String s, char first_and_last_char)
     {
@@ -44,7 +44,7 @@ public class StringTools
     
     /**
      * Convert a glob-style pattern to a regular expression for use with
-     * {@link java.lang.Pattern}.
+     * {@link java.util.regex.Pattern}.
      * 
      * <p> The following substitutions are used:
      * 
@@ -60,8 +60,8 @@ public class StringTools
      * 
      * <p>For example {@code *foo* --> ^.*foo.*$}
      * 
-     * @param in The input glob pattern
-     * @returns The regex
+     * @param glob The input glob pattern
+     * @return The regex string
      */
     public static String createRegexFromGlob(String glob)
     {

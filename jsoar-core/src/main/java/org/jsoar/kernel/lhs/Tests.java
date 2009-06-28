@@ -156,12 +156,11 @@ public class Tests
     }
 
     /**
+     * <p>reorder.cpp:999test_tests_for_root:
      * 
-     * reorder.cpp:999test_tests_for_root:
-     * 
-     * @param t
-     * @param roots
-     * @return
+     * @param t the test
+     * @param roots list of roots
+     * @return true if the test tests for a root in {@code roots}
      */
     public static boolean test_tests_for_root(Test t, ListHead<Variable> roots)
     {
@@ -430,9 +429,9 @@ public class Tests
     /**
      * <p>production.cpp:1354:test_is_in_tc
      * 
-     * @param t
-     * @param tc
-     * @return
+     * @param t the test
+     * @param tc the TC marker
+     * @return true if {@code t} is in the transitive closure
      */
     static boolean test_is_in_tc(Test t, Marker tc)
     {
@@ -513,7 +512,7 @@ public class Tests
      * 
      * @param t A test, possibly <code>null</code>
      * @return Copy of t
-     * @see #copy()
+     * @see Test#copy()
      */
     public static Test copy(Test t)
     {

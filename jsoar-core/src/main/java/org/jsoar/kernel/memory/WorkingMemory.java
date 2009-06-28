@@ -109,13 +109,15 @@ public class WorkingMemory
     }
     
     /**
-     * wmem.cpp:82:make_wme
+     * Create a new WME object. The WME's timetag is automatically assigned.
      * 
-     * @param id
-     * @param attr
-     * @param value
-     * @param acceptable
-     * @return
+     * <p>wmem.cpp:82:make_wme
+     * 
+     * @param id the id of the WME
+     * @param attr the attribute of the WME
+     * @param value the value of the WME
+     * @param acceptable true if the WME is acceptable
+     * @return the new WME object
      */
     public WmeImpl make_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {

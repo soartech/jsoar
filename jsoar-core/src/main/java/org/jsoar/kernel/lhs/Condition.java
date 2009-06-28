@@ -118,21 +118,25 @@ public abstract class Condition implements Formattable
     }
 
     /**
+     * Test whether this condition is in the given transitive closure
+     * 
      * <p>Note: polymorphized in JSoar
      * <p>production.cpp:1372:cond_is_in_tc
      * 
-     * @param tc
-     * @return
+     * @param tc the transitive closure marker
+     * @return true if the condition is in the given transitive closure
      */
     public abstract boolean cond_is_in_tc(Marker tc);
 
     /**
+     * Add this condition to the given transitive closure
+     * 
      * <p>production.cpp:1327:add_cond_to_tc
      * <p>Note: polymorphized in JSoar
      * 
-     * @param tc
-     * @param id_list
-     * @param var_list
+     * @param tc the TC marker
+     * @param id_list list of ids added
+     * @param var_list list of variables added
      */
     public abstract void add_cond_to_tc(Marker tc, ListHead<IdentifierImpl> id_list, ListHead<Variable> var_list);
 
@@ -143,8 +147,8 @@ public abstract class Condition implements Formattable
      * 
      * <p>production.cpp:828:hash_condition
      * 
-     * @param cond
-     * @return
+     * @param cond the condition
+     * @return a hash value for the given condition
      */
     public static int hash_condition(Condition cond)
     {
@@ -246,15 +250,15 @@ public abstract class Condition implements Formattable
      * <p>TODO Make copy_condition polymorphic
      * <p>production.cpp:741:copy_condition
      * 
-     * @param cond
-     * @return
+     * @param cond the condition to copy
+     * @return a copy of the condition
      */
     public static Condition copy_condition(Condition cond)
     {
         if (cond == null)
             return null;
 
-        PositiveCondition pc = cond.asPositiveCondition();
+        final PositiveCondition pc = cond.asPositiveCondition();
         if (pc != null)
         {
             PositiveCondition New = new PositiveCondition();
@@ -265,7 +269,7 @@ public abstract class Condition implements Formattable
             New.bt = pc.bt.copy();
             return New;
         }
-        NegativeCondition nc = cond.asNegativeCondition();
+        final NegativeCondition nc = cond.asNegativeCondition();
         if (nc != null)
         {
             NegativeCondition New = new NegativeCondition();
@@ -275,7 +279,7 @@ public abstract class Condition implements Formattable
             New.test_for_acceptable_preference = nc.test_for_acceptable_preference;
             return New;
         }
-        ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+        final ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
         if (ncc != null)
         {
             ConjunctiveNegationCondition New = new ConjunctiveNegationCondition();
@@ -287,7 +291,7 @@ public abstract class Condition implements Formattable
             return New;
         }
 
-        throw new IllegalStateException("Unkonwn condition to copy_condition(): " + cond);
+        throw new IllegalStateException("Unknown condition type to copy_condition(): " + cond);
     }
 
     /**
@@ -296,9 +300,9 @@ public abstract class Condition implements Formattable
      * 
      * production.cpp:772:copy_condition_list
      * 
-     * @param top_cond
-     * @param dest_top
-     * @param dest_bottom
+     * @param top_cond the top of the condition list to copy
+     * @param dest_top receives top of new condition list
+     * @param dest_bottom receives bottom of new condition list
      */
     public static void copy_condition_list(Condition top_cond, ByRef<Condition> dest_top, ByRef<Condition> dest_bottom)
     {
@@ -326,10 +330,11 @@ public abstract class Condition implements Formattable
     
 
     /**
+     * Copy a condition list and return the new head
      * <p>explain.cpp:117:copy_cond_list
      * 
-     * @param top_list
-     * @return
+     * @param top_list head of the condition list
+     * @return head of new condition list
      */
     public static Condition copy_cond_list(Condition top_list)
     {
@@ -341,10 +346,12 @@ public abstract class Condition implements Formattable
     }
 
     /**
+     * Copy the conditions from a list and return the head of a new list
+     * 
      * <p>explain.cpp:129:copy_conds_from_list
      * 
-     * @param top_list
-     * @return
+     * @param top_list list of conditions to copy
+     * @return new head of condition list
      */
     public static Condition copy_conds_from_list(List<Condition> top_list)
     {
@@ -367,13 +374,15 @@ public abstract class Condition implements Formattable
     }
     
     /**
+     * Find a condition in a condition list using {@link #conditions_are_equal(Condition, Condition)}.
+     *  
      * <p>Moved from explain.cpp since this is fairly generic
      * 
      * <p>explain.cpp:353:explain_find_cond
      * 
-     * @param target
-     * @param cond_list
-     * @return
+     * @param target the condition to look for
+     * @param cond_list the head of a condition list
+     * @return the condition, or {@code null} if not found
      */
     public static Condition explain_find_cond(Condition target, Condition cond_list)
     {

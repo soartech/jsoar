@@ -54,6 +54,15 @@
       <ant dir="../jsoar-sml" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-demos" antfile="build.xml" target="clean"/>
    </target>
+    
+    <target name="doc">
+       <ant dir="../jsoar-core" antfile="build.xml" target="doc"/>
+       <ant dir="../jsoar-debugger" antfile="build.xml" target="doc"/>
+        <!--
+       <ant dir="../jsoar-sml" antfile="build.xml" target="doc"/>
+       <ant dir="../jsoar-demos" antfile="build.xml" target="doc"/>
+       -->
+    </target>
 
    <!--
    Sign the jars. This is necessary for applets since some libraries jsoar

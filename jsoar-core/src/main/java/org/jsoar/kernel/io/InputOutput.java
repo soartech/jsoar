@@ -13,6 +13,7 @@ import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.io.beans.SoarBeanOutputManager;
 import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;

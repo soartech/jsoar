@@ -64,7 +64,7 @@ public class Exploration
         /**
          * exploration.cpp:50:exploration_convert_policy
          * 
-         * @return
+         * @return the policy name
          */
         public String getPolicyName()
         {
@@ -75,7 +75,7 @@ public class Exploration
          * exploration.cpp:68:exploration_convert_policy
          * 
          * @param policyName
-         * @return
+         * @return the policy, or {@code null} if not found
          */
         public static Policy findPolicy(String policyName)
         {
@@ -137,8 +137,8 @@ public class Exploration
     /**
      * exploration.cpp:89:exploration_set_policy
      * 
-     * @param policy
-     * @return
+     * @param policy_name
+     * @return true if the policy was set
      */
     public boolean exploration_set_policy(String policy_name)
     {   
@@ -151,10 +151,10 @@ public class Exploration
     }
 
     /**
-     * exploration.cpp:99:exploration_set_policy
+     * <p>exploration.cpp:99:exploration_set_policy
      * 
      * @param policy
-     * @return
+     * @return true if the policy was set
      */
     public boolean exploration_set_policy( Policy policy )
     {
@@ -168,9 +168,9 @@ public class Exploration
     }
     
     /**
-     * exploration.cpp:113:exploration_get_policy
+     * <p>exploration.cpp:113:exploration_get_policy
      * 
-     * @return
+     * @return the current policy
      */
     public Policy exploration_get_policy()
     {
@@ -178,12 +178,12 @@ public class Exploration
     }
     
     /**
-     * exploration.cpp:121:exploration_add_parameter
+     * <p>exploration.cpp:121:exploration_add_parameter
      * 
      * @param value
      * @param val_func
      * @param name
-     * @return
+     * @return the new parameter
      */
     public ExplorationParameter exploration_add_parameter( double value, ExplorationValueFunction val_func, String name )
     {
@@ -202,10 +202,10 @@ public class Exploration
     } 
     
     /**
-     * exploration.cpp:168:exploration_get_parameter_value
+     * <p>exploration.cpp:168:exploration_get_parameter_value
      * 
      * @param parameter
-     * @return
+     * @return value of the parameter
      */
     double exploration_get_parameter_value(String parameter )
     {   
@@ -214,11 +214,11 @@ public class Exploration
     }  
     
     /**
-     * exploration.cpp:204:exploration_valid_parameter_value
+     * <p>exploration.cpp:204:exploration_valid_parameter_value
      * 
-     * @param name
-     * @param value
-     * @return
+     * @param name parameter name
+     * @param value parameter value
+     * @return true if the value is valid
      */
     boolean exploration_valid_parameter_value( String name, double value )
     {
@@ -230,11 +230,11 @@ public class Exploration
     }
 
     /**
-     * exploration.cpp:213:exploration_valid_parameter_value
+     * <p>exploration.cpp:213:exploration_valid_parameter_value
      * 
-     * @param parameter
-     * @param value
-     * @return
+     * @param parameter parameter object
+     * @param value new value
+     * @return true if the value is valid
      */
     boolean exploration_valid_parameter_value( ExplorationParameter parameter, double value )
     {
@@ -247,11 +247,11 @@ public class Exploration
     }
     
     /**
-     * exploration.cpp:224:exploration_set_parameter_value
+     * <p>exploration.cpp:224:exploration_set_parameter_value
      * 
-     * @param name
-     * @param value
-     * @return
+     * @param name parameter name
+     * @param value new value
+     * @return true if the parameter was set successfully
      */
     boolean exploration_set_parameter_value(String name, double value )
     {
@@ -265,11 +265,11 @@ public class Exploration
     }
 
     /**
-     * exploration.cpp:235:exploration_set_parameter_value
+     * <p>exploration.cpp:235:exploration_set_parameter_value
      * 
-     * @param parameter
-     * @param value
-     * @return
+     * @param parameter the parameter object
+     * @param value the new double value
+     * @return true if the parameter was set successfully
      */
     boolean exploration_set_parameter_value(ExplorationParameter parameter, double value )
     {
@@ -282,9 +282,9 @@ public class Exploration
     } 
     
     /**
-     * exploration.cpp:249:exploration_get_auto_update
+     * <p>exploration.cpp:249:exploration_get_auto_update
      * 
-     * @return
+     * @return true if auto update is enabled
      */
     boolean exploration_get_auto_update()
     {
@@ -292,10 +292,10 @@ public class Exploration
     }
 
     /**
-     * exploration.cpp:257:exploration_set_auto_update
+     * <p>exploration.cpp:257:exploration_set_auto_update
      * 
-     * @param setting
-     * @return
+     * @param setting new auto update setting
+     * @return true
      */
     boolean exploration_set_auto_update( boolean setting )
     {
@@ -305,7 +305,7 @@ public class Exploration
     }
     
     /**
-     * exploration.cpp:267:exploration_update_parameters
+     * <p>exploration.cpp:267:exploration_update_parameters
      */
     public void exploration_update_parameters()
     {   
@@ -319,10 +319,10 @@ public class Exploration
     }
     
     /**
-     * exploration.cpp:322:exploration_get_reduction_policy
+     * <p>exploration.cpp:322:exploration_get_reduction_policy
      * 
-     * @param parameter
-     * @return
+     * @param parameter parameter name
+     * @return the reudction policy
      */
     ReductionPolicy exploration_get_reduction_policy( String parameter )
     {
@@ -332,10 +332,10 @@ public class Exploration
     }
 
     /**
-     * exploration.cpp:331:exploration_get_reduction_policy
+     * <p>exploration.cpp:331:exploration_get_reduction_policy
      * 
-     * @param parameter
-     * @return
+     * @param parameter parameter object
+     * @return reduction policy
      */
     ReductionPolicy exploration_get_reduction_policy( ExplorationParameter parameter )
     {
@@ -343,11 +343,11 @@ public class Exploration
     }
     
     /**
-     * exploration:375:exploration_set_reduction_policy
+     * <p>exploration:375:exploration_set_reduction_policy
      * 
-     * @param parameter
-     * @param policy_name
-     * @return
+     * @param parameter parameter name
+     * @param policy_name policy name
+     * @return true if the reduction policy was set
      */
     boolean exploration_set_reduction_policy( String parameter, String policy_name )
     {
@@ -371,10 +371,10 @@ public class Exploration
     /**
      * <p>exploration.cpp:468:exploration_set_reduction_rate
      * 
-     * @param parameter
-     * @param policy_name
-     * @param reduction_rate
-     * @return
+     * @param parameter parameter name
+     * @param policy_name policy name
+     * @param reduction_rate reduction rate
+     * @return true if the reduction rate was set
      */
     boolean exploration_set_reduction_rate(String parameter, String policy_name, double reduction_rate )
     {
@@ -394,9 +394,9 @@ public class Exploration
     /**
      * <p>exploration.cpp:497:exploration_choose_according_to_policy
      * 
-     * @param s
-     * @param candidates
-     * @return
+     * @param s the slot
+     * @param candidates list of preference candidates, using {@link Preference#next_candidate}
+     * @return the chosen preference
      */
     public Preference exploration_choose_according_to_policy(Slot s, Preference candidates)
     {
@@ -460,9 +460,6 @@ public class Exploration
 
     /**
      * <p>exploration.cpp:557:exploration_randomly_select
-     * 
-     * @param candidates
-     * @return
      */
     private Preference exploration_randomly_select( Preference candidates )
     {
@@ -476,9 +473,6 @@ public class Exploration
 
     /**
      * <p>exploration.cpp:582:exploration_probabilistically_select
-     * 
-     * @param candidates
-     * @return
      */
     private Preference exploration_probabilistically_select( Preference candidates )
     {   
@@ -514,9 +508,6 @@ public class Exploration
 
     /**
      * <p>exploration.cpp:621:exploration_boltzmann_select
-     * 
-     * @param candidates
-     * @return
      */
     private Preference exploration_boltzmann_select( Preference candidates )
     {
@@ -616,9 +607,6 @@ public class Exploration
     
     /**
      * <p>exploration.cpp:723:exploration_epsilon_greedy_select
-     * 
-     * @param candidates
-     * @return
      */
     private Preference exploration_epsilon_greedy_select(Preference candidates )
     {
@@ -649,9 +637,6 @@ public class Exploration
     
     /**
      * <p>exploration.cpp:752:exploration_get_highest_q_value_pref
-     * 
-     * @param candidates
-     * @return
      */
     private Preference exploration_get_highest_q_value_pref( Preference candidates )
     {
@@ -698,9 +683,9 @@ public class Exploration
     /**
      * <p>exploration.cpp:798:exploration_compute_value_of_candidate
      * 
-     * @param cand
-     * @param s 
-     * @param default_value (Defaults to 0.0 in CSoar)
+     * @param cand candidate preference
+     * @param s  the slot
+     * @param default_value default value to use (Defaults to 0.0 in CSoar)
      */
     public void exploration_compute_value_of_candidate(Preference cand, Slot s, double default_value )
     {
@@ -747,8 +732,8 @@ public class Exploration
     /**
      * <p>misc.cpp:34:get_number_from_symbol
      * 
-     * @param s
-     * @return
+     * @param s the symbol
+     * @return the double value of the symbol if it is numeric
      */
     public static double get_number_from_symbol(SymbolImpl s)
     {

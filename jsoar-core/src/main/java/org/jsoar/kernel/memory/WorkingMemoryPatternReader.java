@@ -16,7 +16,7 @@ import com.google.common.base.Predicate;
 public class WorkingMemoryPatternReader
 {
 
-    public static Predicate<Wme> GetPredicate(Agent context, String pattern) throws IllegalArgumentException {
+    public static Predicate<Wme> getPredicate(Agent context, String pattern) throws IllegalArgumentException {
 		final Printer printer = context.getPrinter();
 		final StringReader reader = new StringReader(pattern);
 		final SymbolFactory syms = context.getSymbols();

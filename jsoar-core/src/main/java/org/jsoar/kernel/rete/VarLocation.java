@@ -32,7 +32,8 @@ public class VarLocation
      * 
      * @param var
      * @param current_depth
-     * @return
+     * @return a new var location for the given variable and depth, {@code null} if the
+     *      variable is not bound
      */
     static VarLocation find(Variable var, /* rete_node_level */ int current_depth)
     {
@@ -57,11 +58,11 @@ public class VarLocation
     }
 
     /**
-     * rete.cpp:263:var_locations_equal
+     * <p>rete.cpp:263:var_locations_equal
      * 
      * @param v1
      * @param v2
-     * @return
+     * @return true if the two var locations are equal
      */
     public static boolean var_locations_equal(VarLocation v1, VarLocation v2)
     {

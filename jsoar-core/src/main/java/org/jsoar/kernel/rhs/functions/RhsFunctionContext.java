@@ -16,6 +16,8 @@ import org.jsoar.kernel.symbols.SymbolFactory;
  * allow RHS functions to safely add new WMEs to working memory.
  * 
  * @author ray
+ * @see RhsFunctionManager
+ * @see RhsFunctionHandler
  */
 public interface RhsFunctionContext
 {

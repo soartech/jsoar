@@ -623,7 +623,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
      * Creates and returns a {@link DebuggerProvider} that will open this
      * debugger when an agent calls the debug RHS function
      * 
-     * @return
+     * @return a new debugger provider that opens this debugger with a default
+     *      configuration
      */
     public static DebuggerProvider newDebuggerProvider()
     {

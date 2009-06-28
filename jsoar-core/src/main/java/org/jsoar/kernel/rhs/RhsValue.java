@@ -91,7 +91,7 @@ public abstract class RhsValue implements Formattable
      * @param rv
      * @param cond
      * @param first_letter
-     * @return
+     * @return new RHS value object
      */
     public static RhsValue copy_rhs_value_and_substitute_varnames(Rete rete, RhsValue rv, Condition cond,
             char first_letter)

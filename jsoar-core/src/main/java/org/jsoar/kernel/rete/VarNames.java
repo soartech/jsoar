@@ -22,32 +22,33 @@ import org.jsoar.kernel.symbols.Variable;
  *  the variable names on each printing (unless discard_chunk_varnames
  *  is set to FALSE).
  *
- *  For each production, a chain of node_varnames structures is built,
+ *  <p>For each production, a chain of node_varnames structures is built,
  *  paralleling the structure of the rete net (i.e., the portion of the rete
  *  used for that production).  There is a node_varnames structure for
  *  each Mem, Neg, or NCC node in that part, giving the names of variables
  *  bound in the id, attr, and value fields of the condition at that node.
  *
- *  At each field, we could bind zero, one, or more variables.  To
+ *  <p>At each field, we could bind zero, one, or more variables.  To
  *  save space, we use some bit-twiddling here.  A "varnames" represents
  *  zero or more variables:   NIL means zero; a pointer (with the low-order
  *  bit being 0) to a variable means just that one variable; and any
  *  other pointer (with the low-order bit set to 1) points (minus 1, of
  *  course) to a consed list of variables.
  *
- *  Add_var_to_varnames() takes an existing varnames object (which can
+ *  <p>Add_var_to_varnames() takes an existing varnames object (which can
  *  be NIL, for no variable names) and returns a new varnames object
  *  which adds (destructively!) a given variable to the previous one.
  *  Deallocate_varnames() deallocates a varnames object, removing references
  *  to symbols, etc.  Deallocate_node_varnames() deallocates a whole
  *  chain of node_varnames structures, scanning up the net, etc.
  *
- *  jsoar: We store either a Variable or LinkedList<Variable> as a Java Object. The
+ *  <p>jsoar: We store either a Variable or LinkedList<Variable> as a Java Object. The
  *         original bit twiddling methods have been converted to use these types
  *         with the appropriate casts and instanceof calls.
  *         
  * <p>rete.cpp:2453
  * <p>rete.cpp:2539:deallocate_varnames - unneeded
+ * 
  * @author ray
  */
 public class VarNames
@@ -61,11 +62,11 @@ public class VarNames
     public static LinkedList<Variable> varnames_to_var_list(Object x) { return (LinkedList<Variable>) x; }
 
     /**
-     * rete.cpp:2516:add_var_to_varnames
+     * <p>rete.cpp:2516:add_var_to_varnames
      * 
      * @param var
      * @param old_varnames
-     * @return
+     * @return the variable, or a list of variables
      */
     public static Object add_var_to_varnames(Variable var, Object old_varnames)
     {
@@ -91,11 +92,11 @@ public class VarNames
      * Add_unbound_varnames_in_test() adds to an existing varnames object
      * the names of any currently-unbound variables equality-tested in a given test.
    
-     * rete.cpp:2586:add_unbound_varnames_in_test
+     * <p>rete.cpp:2586:add_unbound_varnames_in_test
      * 
      * @param t
      * @param starting_vn
-     * @return
+     * @return a variable, or list of variables
      */
     public static Object add_unbound_varnames_in_test(Test t, Object starting_vn)
     {
@@ -103,7 +104,7 @@ public class VarNames
         {
             return starting_vn;
         }
-        EqualityTest eq = t.asEqualityTest();
+        final EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
             Variable referent = eq.getReferent().asVariable();
@@ -117,7 +118,7 @@ public class VarNames
             return starting_vn;
         }
 
-        ConjunctiveTest ct = t.asConjunctiveTest();
+        final ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
             for (Test c : ct.conjunct_list)

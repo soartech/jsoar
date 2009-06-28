@@ -6,6 +6,8 @@
 package org.jsoar.util.markers;
 
 /**
+ * Default implementation of {@link Marker}
+ * 
  * @author ray
  */
 public class DefaultMarker implements Marker
@@ -22,7 +24,7 @@ public class DefaultMarker implements Marker
      * reset the the tc_num fields on all existing identifiers and variables
      * to 0.
      * 
-     * @return
+     * @return a new default marker
      */
     public static DefaultMarker create()
     {

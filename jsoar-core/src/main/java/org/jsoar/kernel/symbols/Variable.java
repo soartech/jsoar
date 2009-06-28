@@ -35,7 +35,8 @@ public class Variable extends SymbolImpl
     
     
     /**
-     * @param hash_id
+     * @param hash_id the variable's hash id
+     * @param name the variable name
      */
     /*package*/ Variable(int hash_id, String name)
     {
@@ -65,7 +66,7 @@ public class Variable extends SymbolImpl
     /**
      * <p>production.cpp:1081:unmark_variables_and_free_list
      * 
-     * @param vars
+     * @param vars list of vars to unmark
      */
     public static void unmark(ListHead<Variable> vars)
     {
@@ -81,9 +82,9 @@ public class Variable extends SymbolImpl
     }
     
     /**
-     * rete.cpp:2312:var_is_bound
+     * <p>rete.cpp:2312:var_is_bound
      * 
-     * @return
+     * @return true if this variable is bound
      */
     public boolean var_is_bound()
     {
@@ -91,11 +92,11 @@ public class Variable extends SymbolImpl
     }
 
     /**
-     * rete.cpp:2323:varloc_to_dummy
+     * <p>rete.cpp:2323:varloc_to_dummy
      * 
      * @param depth
      * @param field_num
-     * @return
+     * @return dummy version of variable location
      */
     private static int varloc_to_dummy(/*rete_node_level*/ int depth, int field_num)
     {
@@ -106,7 +107,7 @@ public class Variable extends SymbolImpl
      * rete.cpp:2328:dummy_to_varloc_depth
      * 
      * @param d
-     * @return
+     * @return the depth part of a dummy
      */
     public static int dummy_to_varloc_depth(int d)
     {
@@ -117,7 +118,7 @@ public class Variable extends SymbolImpl
      * rete.cpp:2333:dummy_to_varloc_field_num
      * 
      * @param d
-     * @return
+     * @return the fiel part of a dummy
      */
     public static int dummy_to_varloc_field_num(int d)
     {

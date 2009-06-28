@@ -56,7 +56,7 @@ public interface SoarCommandInterpreter
      * 
      * @param file the file to source
      * @throws SoarException
-     * @see {@link SoarCommands#source(SoarCommandInterpreter, Object)}
+     * @see SoarCommands#source(SoarCommandInterpreter, Object)
      */
     void source(File file) throws SoarException;
     
@@ -73,7 +73,7 @@ public interface SoarCommandInterpreter
      * 
      * @param url the URL.
      * @throws SoarException
-     * @see {@link SoarCommands#source(SoarCommandInterpreter, Object)}
+     * @see SoarCommands#source(SoarCommandInterpreter, Object)
      */
     void source(URL url) throws SoarException;
 }

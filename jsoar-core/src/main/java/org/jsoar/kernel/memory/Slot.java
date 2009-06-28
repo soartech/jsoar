@@ -9,6 +9,7 @@ import java.util.EnumMap;
 import java.util.Iterator;
 
 import org.jsoar.kernel.ImpasseType;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -103,17 +104,20 @@ public class Slot
     public Object acceptable_preference_changed;
 
     /**
+     * Find or create a new slot
+     * 
      * <p>tempmem.cpp:64:make_slot
      * 
-     * @param id
-     * @param attr
-     * @param operator_symbol
-     * @return
+     * @param id the id of the slot
+     * @param attr the attribute of the slot
+     * @param operator_symbol the operator symbol from {@link PredefinedSymbols}
+     * @return the slot. A new one is constructed if a slot for the given id/attr doesn't already
+     *  exist.
      */
     public static Slot make_slot(IdentifierImpl id, SymbolImpl attr, StringSymbolImpl operator_symbol)
     {
         // Search for a slot first.  If it exists for the given symbol, then just return it
-        Slot s = find_slot(id, attr);
+        final Slot s = find_slot(id, attr);
         if(s != null)
         {
             return s;
@@ -123,12 +127,13 @@ public class Slot
     }
     
     /**
+     * Construct a new slot
      * 
      * <p>tempmem.cpp:64:make_slot
      * 
-     * @param id
-     * @param attr
-     * @param operator_symbol
+     * @param id the slot identifier
+     * @param attr the slot attribute
+     * @param operator_symbol the operator symbol from {@link PredefinedSymbols}
      */
     private Slot(IdentifierImpl id, SymbolImpl attr, StringSymbolImpl operator_symbol)
     {
@@ -159,9 +164,9 @@ public class Slot
      * 
      * <p>tempmem.cpp:55:find_slot
      * 
-     * @param id
-     * @param attr
-     * @return
+     * @param id the slot identifier
+     * @param attr the slot attribute
+     * @return the slot, or {@code null} if not found
      */
     public static Slot find_slot(IdentifierImpl id, Symbol attr)
     {
@@ -196,27 +201,46 @@ public class Slot
     }
     
     
+    /**
+     * @return the head of the list of WMEs in this slot
+     */
     public WmeImpl getWmes()
     {
         return this.wmes;
     }
     
+    /**
+     * Add a WME to the head of the list of WMEs in this slot
+     * 
+     * @param w the WME to add
+     */
     public void addWme(WmeImpl w)
     {
         this.wmes = w.addToList(this.wmes);
     }
     
+    /**
+     * Remove a WME from the list of WMEs in this slot.
+     * 
+     * @param w the WME to remove
+     */
     public void removeWme(WmeImpl w)
     {
         this.wmes = w.removeFromList(this.wmes);
     }
     
+    /**
+     * Remove all WMEs from this slot 
+     */
     public void removeAllWmes()
     {
         this.wmes = null;
     }
     
     /**
+     * Returns an iterator over all the WMEs in this slot. Note that this should 
+     * not be used for performance critical code.
+     * 
      * @return An iterator over the wmes in this slot
      */
     public Iterator<Wme> getWmeIterator()

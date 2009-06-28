@@ -35,9 +35,6 @@ public class Concat extends AbstractRhsFunctionHandler
         return result.toString();
     }
     
-    /**
-     * @param name
-     */
     public Concat()
     {
         super("concat");

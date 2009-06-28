@@ -12,7 +12,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.Arguments;
 
 /**
- * rhsfun.cpp:223:interrupt_rhs_function_code
+ * <p>rhsfun.cpp:223:interrupt_rhs_function_code
  * 
  * @author ray
  */
@@ -21,7 +21,7 @@ public class Interrupt extends AbstractRhsFunctionHandler
     private final DecisionCycle decisionCycle;
     
     /**
-     * @param name
+     * @param decisionCycle the agent's decision cycle object
      */
     public Interrupt(DecisionCycle decisionCycle)
     {

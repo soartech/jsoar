@@ -16,6 +16,8 @@ import org.jsoar.util.adaptables.Adaptable;
  * Public interface for a working memory element for use by I/O code.
  * 
  * @author ray
+ * @see Wmes
+ * @see InputWme
  */
 public interface Wme extends Formattable, Adaptable
 {

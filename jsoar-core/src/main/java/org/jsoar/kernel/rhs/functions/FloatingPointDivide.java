@@ -8,17 +8,17 @@ import org.jsoar.kernel.symbols.Symbol;
 
 /**
  * Takes one or more int_constant or float_constant arguments.
- * If 0 arguments, returns NIL (error).
- * If 1 argument (x), returns 1/x.
- * If >=2 arguments (x, y1, ..., yk), returns x / y1 / ... / yk.
- *  
- * rhsfun_math.cpp:125:minus_rhs_function_code
+ * 
+ * <ul>
+ * <li>If 0 arguments, returns NIL (error).
+ * <li>If 1 argument (x), returns 1/x.
+ * <li>If >=2 arguments (x, y1, ..., yk), returns x / y1 / ... / yk.
+ * </ul>
+ * 
+ * <p>rhsfun_math.cpp:125:minus_rhs_function_code
  */
 public final class FloatingPointDivide extends AbstractRhsFunctionHandler
 {
-    /**
-     * @param name
-     */
     public FloatingPointDivide()
     {
         super("/", 1, Integer.MAX_VALUE);

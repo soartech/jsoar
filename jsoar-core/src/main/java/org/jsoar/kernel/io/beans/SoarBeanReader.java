@@ -61,13 +61,13 @@ import com.google.common.collect.Iterators;
  * <pre>
  * {@code
  * sp {testBean
- *    state &lt;s> ^superstate nil ^io.output-link &lt;ol>)
+ *    state <s> ^superstate nil ^io.output-link &lt;ol>)
  * -->
- *    (&lt;ol> ^person &lt;p>)
- *    (&lt;p> ^name |Don Lockwood| ^age 41 ^address &lt;a>)
- *    (&lt;a> ^street |123 Main| ^city |Hollywood| ^state |CA| ^zip 90221)
+ *    (<ol> ^person &lt;p>)
+ *    (<p> ^name |Don Lockwood| ^age 41 ^address &lt;a>)
+ *    (<a> ^street |123 Main| ^city |Hollywood| ^state |CA| ^zip 90221)
  * }
- * </pre>
+ * }</pre>
  * 
  * then, supposing you caught this output command and had the identifier {@code <p>}:
  * 
@@ -97,6 +97,7 @@ import com.google.common.collect.Iterators;
  * </ul>
  * 
  * @author ray
+ * @see SoarBeanOutputManager
  */
 public class SoarBeanReader
 {

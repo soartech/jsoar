@@ -599,12 +599,12 @@ public class TraceFormats
      * returns TRUE if a trace format was actually removed, or FALSE if there
      * was no such trace format for the given type/name restrictions.
      * 
-     * trace.cpp:691:remove_trace_format
+     * <p>trace.cpp:691:remove_trace_format
      * 
      * @param stack_trace
      * @param type_restriction
      * @param name_restriction
-     * @return
+     * @return true on success
      */
     public boolean remove_trace_format(boolean stack_trace, TraceFormatRestriction type_restriction,
             SymbolImpl name_restriction)
@@ -625,13 +625,13 @@ public class TraceFormats
     
 
     /**
-     * trace.cpp:727:add_trace_format
+     * <p>trace.cpp:727:add_trace_format
      * 
      * @param stack_trace
      * @param type_restriction
      * @param name_restriction
      * @param format_string
-     * @return
+     * @return true on success
      */
     public boolean add_trace_format(boolean stack_trace, TraceFormatRestriction type_restriction,
             SymbolImpl name_restriction, String format_string)
@@ -678,8 +678,8 @@ public class TraceFormats
      * @param pathIndex
      * @param result
      * @param recursive
-     * @param count
-     * @return
+     * @param count the current count
+     * @return the new count
      */
     private int add_values_of_attribute_path(SymbolImpl object, List<Symbol> path, int pathIndex, StringBuilder result,
             boolean recursive, int count)
@@ -728,7 +728,7 @@ public class TraceFormats
      * is TRUE, the value is printed recursively as an object, rather than as a
      * simple atomic value.
      * 
-     * trace.cpp:993:add_trace_for_wme
+     * <p>trace.cpp:993:add_trace_for_wme
      * 
      * @param result
      * @param w
@@ -762,7 +762,7 @@ public class TraceFormats
      * the given path is NIL, then all values of all attributes of the given
      * object are printed.
      * 
-     * trace.cpp:1028:add_trace_for_attribute_path
+     * <p>trace.cpp:1028:add_trace_for_attribute_path
      * 
      * @param object
      * @param path
@@ -821,11 +821,11 @@ public class TraceFormats
      * trace format list (the format to use) and an object (the object being
      * printed).
      * 
-     * trace.cpp:1086:trace_format_list_to_string
+     * <p>trace.cpp:1086:trace_format_list_to_string
      * 
      * @param tf
      * @param object
-     * @return
+     * @return object formatted as a string
      */
     public String trace_format_list_to_string(TraceFormat tf, SymbolImpl object)
     {
@@ -1010,10 +1010,10 @@ public class TraceFormats
     
 
     /**
-     * trace.cpp:1283:object_to_trace_string
+     * <p>trace.cpp:1283:object_to_trace_string
      * 
      * @param object
-     * @return
+     * @return trace string
      */
     private String object_to_trace_string(SymbolImpl object)
     {
@@ -1065,13 +1065,13 @@ public class TraceFormats
     
 
     /**
-     * trace.cpp:1330:selection_to_trace_string
+     * <p>trace.cpp:1330:selection_to_trace_string
      * 
      * @param object
      * @param current_state
      * @param selection_type
      * @param allow_cycle_counts
-     * @return
+     * @return trace string
      */
     private String selection_to_trace_string(SymbolImpl object, IdentifierImpl current_state,
             TraceFormatRestriction selection_type, boolean allow_cycle_counts)
@@ -1109,7 +1109,7 @@ public class TraceFormats
      * Print_object_trace() takes an object (any symbol). It prints the trace
      * for that object.
      * 
-     * trace.cpp:1377:print_object_trace
+     * <p>trace.cpp:1377:print_object_trace
      * 
      * @param writer
      * @param object
@@ -1152,7 +1152,7 @@ public class TraceFormats
     /**
      * TODO This should probably go somewhere else
      * 
-     * decide.cpp:2456:print_lowest_slot_in_context_stack
+     * <p>decide.cpp:2456:print_lowest_slot_in_context_stack
      * 
      * @param writer
      * @throws IOException
@@ -1191,7 +1191,7 @@ public class TraceFormats
      * <p>wmem.cpp:295:find_name_of_object
      * 
      * @param object
-     * @return
+     * @return the name of the object
      */
     private static SymbolImpl find_name_of_object(SymbolImpl object, StringSymbolImpl name_symbol)
     {

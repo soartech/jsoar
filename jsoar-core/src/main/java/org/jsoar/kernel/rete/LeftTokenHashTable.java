@@ -29,7 +29,7 @@ public class LeftTokenHashTable
      * <p>rete.cpp:678:left_ht_bucket
      * 
      * @param hv
-     * @return
+     * @return the head of the bucket
      */
     public LeftToken left_ht_bucket(int hv) 
     {

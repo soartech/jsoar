@@ -84,9 +84,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
-     * symtab.cpp:474:reset_id_counters
-     * 
-     * @return
+     * <p>symtab.cpp:474:reset_id_counters
      */
     public void reset()
     {
@@ -105,7 +103,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
-     * symtab.cpp:510:reset_id_and_variable_tc_numbers
+     * <p>symtab.cpp:510:reset_id_and_variable_tc_numbers
      */
     public void reset_id_and_variable_tc_numbers()
     {
@@ -120,7 +118,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
-     * symtab.cpp:523:reset_variable_gensym_numbers
+     * <p>symtab.cpp:523:reset_variable_gensym_numbers
      */
     public void reset_variable_gensym_numbers()
     {
@@ -131,10 +129,10 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
-     * symtab.cpp:195:find_variable
+     * <p>symtab.cpp:195:find_variable
      * 
      * @param name
-     * @return
+     * @return the variable, or {@code null} if not found
      */
     public Variable find_variable(String name)
     {
@@ -162,11 +160,11 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
-     * symtab.cpp:280:make_new_identifier
+     * <p>symtab.cpp:280:make_new_identifier
      * 
-     * @param name_letter
-     * @param level
-     * @return
+     * @param name_letter the name letter
+     * @param level the goal stack level of the id
+     * @return the new identifier
      */
     public IdentifierImpl make_new_identifier(char name_letter, int /*goal_stack_level*/ level)
     {

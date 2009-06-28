@@ -12,7 +12,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.ListItem;
 
 /**
- * explain.h:81
+ * <p>explain.h:81
  * 
  * @author ray
  */
@@ -24,7 +24,6 @@ public class MatchSetChange
     public ReteNode p_node; // for retractions, this can be null if the p node has been excised
     public final Token tok; // for assertions only
     public final WmeImpl w; // for assertions only
-    
     
     public final Instantiation inst;   // for retractions only
 
@@ -38,11 +37,11 @@ public class MatchSetChange
     }
     
     /**
-     * Extracted from rete.cpp:5953
+     * <p>Extracted from rete.cpp:5953
      * 
-     * @param p_node
-     * @param inst
-     * @return
+     * @param p_node the production node
+     * @param inst the instantiation
+     * @return a new match set change
      */
     public static MatchSetChange createRetraction(ReteNode p_node, Instantiation inst)
     {
@@ -89,9 +88,11 @@ public class MatchSetChange
     }
 
     /**
-     * rete.cpp:1011:find_goal_for_match_set_change_assertion
-     * @param msc
-     * @return
+     * <p>rete.cpp:1011:find_goal_for_match_set_change_assertion
+     * 
+     * @param dummy_top_token the dummy top token of the rete
+     * @return the goal
+     * @throws IllegalStateException if the goal is not found
      */
     public IdentifierImpl find_goal_for_match_set_change_assertion(Token dummy_top_token) {
 
@@ -136,10 +137,9 @@ public class MatchSetChange
       }
     
     /**
-     * rete.cpp:1065:find_goal_for_match_set_change_retraction
+     * <p>rete.cpp:1065:find_goal_for_match_set_change_retraction
      * 
-     * @param msc
-     * @return
+     * @return the goal or {@code null} if not found
      */
     public IdentifierImpl find_goal_for_match_set_change_retraction()
     {

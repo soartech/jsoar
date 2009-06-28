@@ -22,6 +22,11 @@ jsoar's performance is pretty good, but it also loves memory, so it's probably
 a good idea to bump up the size of your Java heap:
 
     > java -Xmx1024m -jar @JSOAR_DEMOS_JAR@
+    
+Additionally, JSoar performs better over time when using the -server version
+of the JVM. This is only available in the JDK version of the java executable:
+
+    > java -server -Xmx1024m -jar @JSOAR_DEMOS_JAR@
 
 ###############################################################################
 Contents of this distribution:

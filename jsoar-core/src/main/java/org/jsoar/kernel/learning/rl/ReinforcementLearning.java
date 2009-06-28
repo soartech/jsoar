@@ -835,7 +835,7 @@ public class ReinforcementLearning
     /**
      * reinforcement_learning.cpp:695:rl_enabled
      * 
-     * @return
+     * @return true if RL is enabled
      */
     public boolean rl_enabled()
     {
@@ -1264,9 +1264,9 @@ public class ReinforcementLearning
     /**
      * reinforcement_learning.cpp:1115:rl_discount_reward
      * 
-     * @param reward
-     * @param step
-     * @return
+     * @param reward the current reward
+     * @param step the step
+     * @return discounted reward
      */
     double rl_discount_reward( double reward, int step )
     {
@@ -1278,8 +1278,8 @@ public class ReinforcementLearning
     /**
      * reinforcement_learning.cpp:1125:rl_store_data
      * 
-     * @param goal
-     * @param value
+     * @param goal the goal
+     * @param cand the candidate preference
      */
     public void rl_store_data(IdentifierImpl goal, Preference cand)
     {
@@ -1339,8 +1339,8 @@ public class ReinforcementLearning
     /**
      * reinforcement_learning.cpp:1193:rl_perform_update
      * 
-     * @param i
-     * @param g
+     * @param op_value operator value
+     * @param goal the goal
      */
     public void rl_perform_update(double op_value, IdentifierImpl goal)
     {

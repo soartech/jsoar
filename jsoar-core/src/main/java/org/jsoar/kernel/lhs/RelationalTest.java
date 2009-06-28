@@ -29,11 +29,12 @@ public class RelationalTest extends ComplexTest
     public SymbolImpl referent;
     
     /**
+     * Reverse the direction of a relational test
      * 
-     * reorder.cpp:320
+     * <p>reorder.cpp:320
      * 
-     * @param type
-     * @return
+     * @param type the type of relational test
+     * @return the reverse of the given test
      */
     public static int reverse_direction_of_relational_test(int type)
     {

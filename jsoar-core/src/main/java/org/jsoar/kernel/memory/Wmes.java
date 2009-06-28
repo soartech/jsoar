@@ -158,7 +158,7 @@ public class Wmes
         
         /**
          * @param attr the desired attribute, or <code>null</code> for don't care
-         * @return
+         * @return this
          */
         public MatcherBuilder attr(Object attr)
         {
@@ -168,7 +168,7 @@ public class Wmes
         
         /**
          * @param value the desired value, or <code>null</code> for don't care
-         * @return
+         * @return this
          */
         public MatcherBuilder value(Object value)
         {
@@ -178,7 +178,7 @@ public class Wmes
         
         /**
          * @param timetag the desired timetag, or <code>-1</code> for don't care
-         * @return
+         * @return this
          */
         public MatcherBuilder timetag(int timetag)
         {

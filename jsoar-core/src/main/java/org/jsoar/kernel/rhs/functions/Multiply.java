@@ -8,15 +8,12 @@ import org.jsoar.kernel.symbols.Symbol;
 
 /**
  * Takes any number of int_constant or float_constant arguments, and
-   returns their product.
+ * returns their product.
  *  
- * rhsfun_math.cpp:82:times_rhs_function_code
+ * <p>rhsfun_math.cpp:82:times_rhs_function_code
  */
 public final class Multiply extends AbstractRhsFunctionHandler
 {
-    /**
-     * @param name
-     */
     public Multiply()
     {
         super("*");

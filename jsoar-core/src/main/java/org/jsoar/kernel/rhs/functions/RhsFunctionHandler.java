@@ -10,9 +10,13 @@ import java.util.List;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
- * Interface for the implementation of a RHS function
+ * Interface for the implementation of a RHS function.
  * 
  * @author ray
+ * @see RhsFunctions
+ * @see RhsFunctionManager
+ * @see AbstractRhsFunctionHandler
+ * @see StandaloneRhsFunctionHandler
  */
 public interface RhsFunctionHandler
 {
