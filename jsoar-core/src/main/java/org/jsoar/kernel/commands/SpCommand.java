@@ -33,6 +33,7 @@ public final class SpCommand implements SoarCommand
         try
         {
             agent.getProductions().loadProduction(args[1]);
+            agent.getPrinter().print("*");
             return "";
         }
         catch (ReordererException e)
