@@ -42,5 +42,4 @@ public class StringSymbolImplTest
         assertEquals("|%y|", String.format("%s", s));
         assertEquals("%y", String.format("%#s", s));
     }
-
 }

@@ -253,7 +253,7 @@ public class ParserImplTest extends JSoarTest
         
         RhsFunctionCall rfc = parser.parse_function_call_after_lparen(false);
         assertNotNull(rfc);
-        verifyStringSymbol(rfc.getName(), "+");
+        verifyStringSymbol((SymbolImpl) rfc.getName(), "+");
         List<RhsValue> args = rfc.getArguments();
         assertEquals(5, args.size());
         verifyIntSymbol(args.get(0).asSymbolValue().getSym(), 1);
