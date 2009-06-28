@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 
-import org.jsoar.kernel.symbols.StringSymbolImpl;
+import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.markers.Marker;
@@ -21,14 +21,17 @@ import org.jsoar.util.markers.Marker;
  */
 public class RhsFunctionCall extends RhsValue
 {
-    private final StringSymbolImpl name;
+    private final StringSymbol name;
     private final boolean standalone;
     private final List<RhsValue> arguments = new ArrayList<RhsValue>();
     
     /**
-     * @param name
+     * Construct a new RHS function call value
+     * 
+     * @param name the name of the function
+     * @param standalone true if it's in a standalone context
      */
-    public RhsFunctionCall(StringSymbolImpl name, boolean standalone)
+    public RhsFunctionCall(StringSymbol name, boolean standalone)
     {
         this.name = name;
         this.standalone = standalone;
@@ -44,14 +47,17 @@ public class RhsFunctionCall extends RhsValue
         }
     }
 
-    public StringSymbolImpl getName()
+    /**
+     * @return the name of the RHS function
+     */
+    public StringSymbol getName()
     {
         return name;
     }
     
     
     /**
-     * @return the standalone
+     * @return true if the function is in a standalone context
      */
     public boolean isStandalone()
     {
@@ -113,8 +119,19 @@ public class RhsFunctionCall extends RhsValue
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        // TODO special handling for  + and -??
-        formatter.format("(%s", getName());
+        // + and - are treated specially as RHS function names. They are not
+        // put in pipes even though they have to be in pipes in most other places
+        // they might appear in a production
+        // TODO is this special handling for  + and - correct, or is there a better way? What about "/" ??
+        final StringSymbol name = getName();
+        if("+".equals(name.getValue()) || "-".equals(name.getValue()))
+        {
+            formatter.format("(%s", name.getValue());
+        }
+        else
+        {
+            formatter.format("(%s", name);
+        }
         for(RhsValue v : arguments)
         {
             formatter.format(" %s", v);

@@ -939,15 +939,6 @@ public class Lexer
             }
         }
 
-        /* --- any string of constituents could be a sym constant --- */
-        p.possible_sc = true;
-
-        /* --- check whether it's a variable --- */
-        if ((s.charAt(0) == '<') && (s.charAt(s.length() - 1) == '>'))
-        {
-            p.possible_var = true;
-        }
-        
         /* --- check for rereadability --- */
         boolean rereadability_questionable = false;
         boolean rereadability_dead = false;
@@ -969,6 +960,16 @@ public class Lexer
                     || ((s.length() == 1) && (s.charAt(0) == '*')))
                 p.rereadable = true;
         }
+        
+        /* --- any string of constituents could be a sym constant --- */
+        p.possible_sc = true;
+
+        /* --- check whether it's a variable --- */
+        if ((s.charAt(0) == '<') && (s.charAt(s.length() - 1) == '>'))
+        {
+            p.possible_var = true;
+        }
+        
 
         /* --- check if it's an identifier --- */
         if (Character.isLetter(s.charAt(0)))
