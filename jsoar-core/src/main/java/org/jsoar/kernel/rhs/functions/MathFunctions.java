@@ -339,7 +339,8 @@ public class MathFunctions
 
 
     public static final List<RhsFunctionHandler> all = Arrays.asList(
-            new Plus(), new Multiply(), new Minus(), new FloatingPointDivide(), new Mod(), 
+            new Plus(), new Multiply(), new Minus(), new FloatingPointDivide(), new Mod(),
+            new Min(), new Max(),
             pi, e,
             abs, atan2, cos, sin, tan, sqrt, acos, asin, atan, cbrt, ceil, cosh, exp, expm1, floor,
             log, log10, log1p, sinh, tanh, degrees, radians, ulp);
