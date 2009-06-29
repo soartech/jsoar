@@ -84,7 +84,7 @@ public class SourceFileAction extends AbstractDebuggerAction
                 catch (SoarException e)
                 {
                     // TODO this is a little smelly.
-                    getApplication().getAgent().getAgent().getPrinter().error(e.getMessage());
+                    getApplication().getAgent().getPrinter().error(e.getMessage());
                 }
                 return null;
             }}, getApplication().newUpdateCompleter(false));
