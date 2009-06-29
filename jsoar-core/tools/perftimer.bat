@@ -5,13 +5,13 @@ rem Usage: perftimer.bat soarfile
 
 set HERE=%~sp0
 set ARGS=-Xmx1000M -cp "%HERE%lib\*" org.jsoar.kernel.PerformanceTimer
-
+set SERVER_ARGS=-server -XX:+DoEscapeAnalysis 
 if defined JAVA_HOME (
    if exist "%JAVA_HOME%\bin\javac.exe" (
       echo **** Running -client java **************************************
       "%JAVA_HOME%\bin\java" %ARGS% %*
       echo **** Running -server java **************************************
-      "%JAVA_HOME%\bin\java" -server %ARGS% %*
+      "%JAVA_HOME%\bin\java" %SERVER_ARGS% %ARGS% %*
       goto alldone
    )
 )
