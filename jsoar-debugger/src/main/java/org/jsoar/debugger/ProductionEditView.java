@@ -42,13 +42,16 @@ import com.google.common.collect.ForwardingList;
 /**
  * @author ray
  */
-public class ProductionEditView extends AbstractAdaptableView
+public class ProductionEditView extends AbstractAdaptableView implements Disposable
 {
     private static final long serialVersionUID = -5150761314645770374L;
-
+    
+    private static final String DEFAULT_CONTENTS = "Double-click a production (or right-click) to edit, or just start typing.";
+    private static final String LAST_CONTENT_KEY = "lastContent";
+    
     private final Adaptable debugger;
     private final ThreadedAgent agent;
-    private final JTextArea textArea = new JTextArea("Double-click a production (or right-click) to edit, or just start typing.");
+    private final JTextArea textArea = new JTextArea(DEFAULT_CONTENTS);
     private final JXLabel status = new JXLabel("Ready");
     private final AbstractAction loadAction = new AbstractAction("Load [Ctrl-Return]") {
 
@@ -136,6 +139,12 @@ public class ProductionEditView extends AbstractAdaptableView
         p.add(south, BorderLayout.SOUTH);
         
         setContentPane(p);
+        
+        final String oldContents = getPreferences().get(LAST_CONTENT_KEY, null);
+        if(oldContents != null)
+        {
+            textArea.setText(oldContents);
+        }
     }
     
     /**
@@ -205,4 +214,19 @@ public class ProductionEditView extends AbstractAdaptableView
         };
         agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Disposable#dispose()
+     */
+    @Override
+    public void dispose()
+    {
+        final String contents = textArea.getText();
+        if(!contents.equals(DEFAULT_CONTENTS))
+        {
+            getPreferences().put(LAST_CONTENT_KEY, contents);
+        }
+    }
+    
+    
 }
