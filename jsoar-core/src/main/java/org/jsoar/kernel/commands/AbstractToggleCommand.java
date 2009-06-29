@@ -25,6 +25,15 @@ abstract class AbstractToggleCommand implements SoarCommand
         this.agent = agent;
     }
 
+    
+    /**
+     * @return the agent
+     */
+    public Agent getAgent()
+    {
+        return agent;
+    }
+
     @Override
     public String execute(String[] args) throws SoarException
     {

@@ -14,13 +14,26 @@ import org.jsoar.kernel.SoarProperties;
  */
 public class WaitSncCommand extends AbstractToggleCommand
 {
-
     /**
      * @param agent
      */
     public WaitSncCommand(Agent agent)
     {
         super(agent);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.commands.AbstractToggleCommand#execute(java.lang.String[])
+     */
+    @Override
+    public String execute(String[] args) throws SoarException
+    {
+        if(args.length == 1)
+        {
+            final boolean v = getAgent().getProperties().get(SoarProperties.WAITSNC);
+            return "Current waitsnc setting: --" + (v ? "--enabled" : "--disabled"); 
+        }
+        return super.execute(args);
     }
 
     /* (non-Javadoc)
