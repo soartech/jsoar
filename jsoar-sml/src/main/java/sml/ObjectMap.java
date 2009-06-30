@@ -5,6 +5,7 @@
  */
 package sml;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,11 @@ public class ObjectMap<DataType>
         return m_Map.values().contains(value);
     }
 
+    public Collection<DataType> values()
+    {
+        return m_Map.values();
+    }
+    
     public DataType getIndex(int index)
     {
         for(DataType value : m_Map.values())

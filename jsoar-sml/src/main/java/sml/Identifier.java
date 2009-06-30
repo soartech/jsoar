@@ -8,32 +8,40 @@
 
 package sml;
 
+import java.util.List;
+
+import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.Wmes;
+
+import com.google.common.collect.Iterators;
+
 
 public class Identifier extends WMElement {
 
     // Two identifiers (i.e. two wmes) can share the same identifier value
     // So each identifier has a pointer to a symbol object, but two could share the same object.
-    IdentifierSymbol m_pSymbol ;
+    final IdentifierSymbol m_pSymbol ;
 
     // This version is only needed at the top of the tree (e.g. the input link)
-    Identifier(Agent pAgent, String pIdentifier, int timeTag)
+    Identifier(Agent pAgent, IdentifierSymbol valueId)
     {
-        super(pAgent, null, pIdentifier, null, timeTag);
+        super(pAgent, null, null);
         
-        m_pSymbol = new IdentifierSymbol(this);
-        m_pSymbol.SetIdentifierSymbol(pIdentifier);
-        RecordSymbolInMap();
+        m_pSymbol = valueId;
+        //m_pSymbol.SetIdentifierSymbol(pIdentifier);
+        //RecordSymbolInMap();
     }
 
     // The normal case (where there is a parent id)
-    Identifier(Agent pAgent, Identifier pParent, String pID, String pAttributeName, String pIdentifier, int timeTag)
+    Identifier(Agent pAgent, IdentifierSymbol pParent, Wme wme)
     {
-        super(pAgent, pParent.GetSymbol(), pID, pAttributeName, timeTag);
+        super(pAgent, pParent, wme);
         
-        m_pSymbol = new IdentifierSymbol(this);
-        m_pSymbol.SetIdentifierSymbol(pIdentifier);
-        RecordSymbolInMap();
+        m_pSymbol = new IdentifierSymbol(wme.getValue().asIdentifier());
+        //m_pSymbol.SetIdentifierSymbol(pIdentifier);
+        //RecordSymbolInMap();
     }
+    /*
     Identifier(Agent pAgent, IdentifierSymbol pParentSymbol, String pID, String pAttributeName, String pIdentifier, int timeTag)
     {
         super(pAgent, pParentSymbol, pID, pAttributeName, timeTag);
@@ -88,10 +96,11 @@ public class Identifier extends WMElement {
         }
     }
     
-    
+    */
     
     IdentifierSymbol GetSymbol() { return m_pSymbol ; }
 
+    /*
     void SetParent(Identifier pParent)
     {
         super.SetParent(pParent);
@@ -102,17 +111,19 @@ public class Identifier extends WMElement {
         GetAgent().GetWM().RecordSymbolInMap(m_pSymbol);
     }
 
-
+*/
     //virtual ~Identifier(void);
   public synchronized void delete() {
+      /*
       m_pSymbol.NoLongerUsedBy(this);
       if(m_pSymbol.GetNumberUsing() == 0)
       {
           GetAgent().GetWM().RemoveSymbolFromMap(m_pSymbol);
           m_pSymbol.delete();
       }
-      m_pSymbol = null;
+      //m_pSymbol = null;
     super.delete();
+    */
   }
 
   public String GetValueType() {
@@ -132,43 +143,12 @@ public class Identifier extends WMElement {
   }
 
   public WMElement FindFromTimeTag(int timeTag) {
-      if(GetTimeTag() == timeTag)
-      {
-          return this;
-      }
-      
-      for(WMElement pWME : m_pSymbol.m_Children)
-      {
-          if(pWME.GetTimeTag() == timeTag)
-          {
-              return pWME;
-          }
-          if(pWME.IsIdentifier())
-          {
-              WMElement pResult = ((Identifier) pWME).FindFromTimeTag(timeTag);
-              
-              if(pResult != null)
-              {
-                  return pResult;
-              }
-          }
-      }
-      return null;
+      return m_Agent.GetWM().timetagMap.get(timeTag);
   }
 
   public WMElement FindByAttribute(String pAttribute, int index) {
-      for(WMElement pWME : m_pSymbol.m_Children)
-      {
-          if(pAttribute.equalsIgnoreCase(pWME.GetAttribute()))
-          {
-              if(index == 0)
-              {
-                  return pWME;
-              }
-              index--;
-          }
-      }
-      return null;
+      List<Wme> kids = Wmes.matcher(m_Agent.agent).attr(pAttribute).filter(m_pSymbol.id);
+      return index < kids.size() ? m_Agent.GetWM().findWme(kids.get(index)) : null;
   }
 
   public String GetParameterValue(String pAttribute) {
@@ -193,11 +173,11 @@ public class Identifier extends WMElement {
   }
 
   public int GetNumberChildren() {
-      return m_pSymbol.m_Children.size();
+      return Iterators.size(m_pSymbol.id.getWmes()); // TODO slow
   }
 
   public WMElement GetChild(int index) {
-      return m_pSymbol.m_Children.get(index);
+      return GetAgent().GetWM().findWme(Iterators.get(m_pSymbol.id.getWmes(), index));
   }
 
   public boolean AreChildrenModified() {

@@ -8,16 +8,23 @@
 
 package sml;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import sml.connection.Connection;
+import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
+
 import sml.connection.ErrorCode;
 
 public class Agent extends ClientErrors
 {
-    protected final WorkingMemory m_WorkingMemory = new WorkingMemory();
+    final org.jsoar.kernel.Agent agent;
+    
+    protected final WorkingMemory m_WorkingMemory = new WorkingMemory(this);
     protected final Kernel m_Kernel;
-    protected final String m_Name;
     
     protected final ListMap<smlRunEventId, RunEventHandlerPlusData> m_RunEventMap = ListMap.newInstance();
     protected final ListMap<smlProductionEventId, ProductionEventHandlerPlusData>  m_ProductionEventMap = ListMap.newInstance();
@@ -26,38 +33,47 @@ public class Agent extends ClientErrors
     protected final ListMap<String, OutputEventHandlerPlusData>               m_OutputEventMap = ListMap.newInstance();
     protected final ListMap<smlWorkingMemoryEventId, OutputNotificationHandlerPlusData>    m_OutputNotificationMap = ListMap.newInstance();
     
+    private final Map<Integer, RhsFunctionHandler> rhsFunctions = new HashMap<Integer, RhsFunctionHandler>();
+    
     // Used to generate unique IDs for callbacks
-    protected int     m_CallbackIDCounter ;
+    protected int m_CallbackIDCounter ;
 
     // Used to generate unique IDs for visited values when walking graph
     protected int m_VisitedCounter ;
 
     // Internally we register a print callback and store its id here.
-    protected int     m_XMLCallback ;
+    protected int m_XMLCallback ;
 
     // When true, if a wme is updated to the same value as before we "blink" the wme by removing
     // the old wme and adding a new one, causing rules to rematch in Soar.
-    protected boolean    m_BlinkIfNoChange ;
+    protected boolean m_BlinkIfNoChange ;
     
     public synchronized void delete()
     {
         super.delete();
     }
 
+    public Agent(org.jsoar.kernel.Agent jsoarAgent)
+    {
+        this.agent = jsoarAgent;
+        this.m_Kernel = null;
+    }
+    
     /**
      * @param kernel
      * @param agentName
      */
     Agent(Kernel kernel, String agentName)
     {
+        this.agent = new org.jsoar.kernel.Agent();
+        this.agent.setName(agentName);
+        
+        this.agent.initialize();
         m_Kernel = kernel ;
-        m_Name   = agentName ;
         m_CallbackIDCounter = 0 ;
         m_VisitedCounter = 0 ;
         m_XMLCallback = -1 ;
         m_BlinkIfNoChange = true ;
-
-        m_WorkingMemory.SetAgent(this) ;
 
         ClearError() ;
     }
@@ -161,17 +177,12 @@ public class Agent extends ClientErrors
 
     public String GetAgentName()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return agent.getName();
     }
 
     public Kernel GetKernel()
     {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    public int GenerateNewVisitedCounter()
-    {
-        throw new UnsupportedOperationException("Not implemented");
+        return m_Kernel;
     }
 
     public boolean LoadProductions(String pFilename, boolean echoResults)
@@ -209,122 +220,123 @@ public class Agent extends ClientErrors
 
     public Identifier GetInputLink()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return GetILink();
     }
 
     public Identifier GetILink()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return m_WorkingMemory.GetInputLink();
     }
 
     public Identifier GetOutputLink()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return m_WorkingMemory.GetOutputLink();
     }
 
     public StringElement CreateStringWME(Identifier parent, String pAttribute, String pValue)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return GetWM().CreateStringWME(parent, pAttribute, pValue);
     }
 
     public IntElement CreateIntWME(Identifier parent, String pAttribute, int value)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return GetWM().CreateIntWME(parent, pAttribute, value);
     }
 
     public FloatElement CreateFloatWME(Identifier parent, String pAttribute, double value)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return GetWM().CreateFloatWME(parent, pAttribute, value);
     }
 
     public Identifier CreateIdWME(Identifier parent, String pAttribute)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return GetWM().CreateIdWME(parent, pAttribute);
     }
 
     public Identifier CreateSharedIdWME(Identifier parent, String pAttribute, Identifier pSharedValue)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return GetWM().CreateSharedIdWME(parent, pAttribute, pSharedValue);
     }
 
     public void Update(StringElement pWME, String pValue)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        GetWM().UpdateString(pWME, pValue);
     }
 
     public void Update(IntElement pWME, int value)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        GetWM().UpdateInt(pWME, value);
     }
 
     public void Update(FloatElement pWME, double value)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        GetWM().UpdateFloat(pWME, value);
     }
 
     public void SetBlinkIfNoChange(boolean state)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        m_BlinkIfNoChange = state;
     }
 
     public boolean IsBlinkIfNoChange()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return m_BlinkIfNoChange;
     }
 
     public boolean DestroyWME(WMElement pWME)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return GetWM().DestroyWME(pWME);
     }
 
     public String InitSoar()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return ExecuteCommandLine("init-soar");
     }
 
     public int GetNumberOutputLinkChanges()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return 0; // TODO GetNumberOutputLinkChanges
     }
 
     public WMElement GetOutputLinkChange(int index)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return null; // TODO GetOutputLinkChange(int index)
     }
 
     public boolean IsOutputLinkChangeAdd(int index)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return false; // TODO IsOutputLinkChangeAdd(int index)
     }
 
     public void ClearOutputLinkChanges()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        // TODO ClearOutputLinkChanges()
     }
 
     public int GetNumberCommands()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return agent.getInputOutput().getPendingCommands().size();
     }
 
     public boolean Commands()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return GetNumberCommands() > 0;
     }
 
     public Identifier GetCommand(int index)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        final List<Wme> commands = agent.getInputOutput().getPendingCommands();
+        return index < commands.size() ? GetWM().findWme(commands.get(index)).ConvertToIdentifier() : null;
     }
 
     public boolean Commit()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return true; // TODO
     }
 
     public boolean IsCommitRequired()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return false; // TODO
     }
 
     public String RunSelf(long numberSteps, smlRunStepSize stepSize)
@@ -364,7 +376,7 @@ public class Agent extends ClientErrors
 
     public void Refresh()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        // throw new UnsupportedOperationException("Not implemented");
     }
 
     public smlPhase GetCurrentPhase()
@@ -374,7 +386,7 @@ public class Agent extends ClientErrors
 
     public int GetDecisionCycleCounter()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue();
     }
 
     public smlRunState GetRunState()
@@ -384,17 +396,25 @@ public class Agent extends ClientErrors
 
     public String ExecuteCommandLine(String pCommandLine, boolean echoResults, boolean noFilter)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        try
+        {
+            return agent.getInterpreter().eval(pCommandLine);
+        }
+        catch (SoarException e)
+        {
+            SetDetailedError(ErrorCode.kDetailedError, e.getMessage());
+            return e.getMessage(); // TODO
+        }
     }
 
     public String ExecuteCommandLine(String pCommandLine, boolean echoResults)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return ExecuteCommandLine(pCommandLine, echoResults, false);
     }
 
     public String ExecuteCommandLine(String pCommandLine)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return ExecuteCommandLine(pCommandLine, true, false);
     }
 
     public boolean ExecuteCommandLineXML(String pCommandLine, ClientAnalyzedXML pResponse)
@@ -404,22 +424,24 @@ public class Agent extends ClientErrors
 
     public boolean GetLastCommandLineResult()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return HadError();
     }
 
     public boolean IsProductionLoaded(String pProductionName)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return agent.getProductions().getProduction(pProductionName) != null;
     }
 
     public boolean SynchronizeInputLink()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        // TODO throw new UnsupportedOperationException("Not implemented");
+        return true;
     }
 
     public boolean SynchronizeOutputLink()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        // TODO throw new UnsupportedOperationException("Not implemented");
+        return true;
     }
 
     /**
@@ -430,6 +452,20 @@ public class Agent extends ClientErrors
         return m_WorkingMemory;
     }
 
+    void addRhsFunction(int id, RhsFunctionHandler handler)
+    {
+        rhsFunctions.put(id, handler);
+        agent.getRhsFunctions().registerHandler(handler);
+    }
+    
+    void removeRhsFunction(int id)
+    {
+        final RhsFunctionHandler handler = rhsFunctions.remove(id);
+        if(handler != null)
+        {
+            agent.getRhsFunctions().unregisterHandler(handler.getName());
+        }
+    }
     /**
      * 
      */
@@ -473,27 +509,9 @@ public class Agent extends ClientErrors
     /**
      * @return
      */
-    Connection GetConnection()
-    {
-        return m_Kernel.m_Connection;
-    }
-
-    /**
-     * @return
-     */
     boolean IsAutoCommitEnabled()
     {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /**
-     * @param msg
-     * @param response
-     */
-    public void ReceivedOutput(AnalyzeXML pIncoming, ElementXML pResponse)
-    {
-        m_WorkingMemory.ReceivedOutput(pIncoming, pResponse);
+        return GetWM().IsAutoCommitEnabled();
     }
 
     /**

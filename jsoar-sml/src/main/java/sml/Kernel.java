@@ -8,26 +8,22 @@
 
 package sml;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import org.jsoar.util.ByRef;
+import org.jsoar.kernel.JSoarVersion;
+import org.jsoar.sml.JSoarRhsFunctionAdapter;
 
-import sml.connection.Connection;
 import sml.connection.ErrorCode;
-import sml.connection.ReceivedCall;
 
 public class Kernel extends ClientErrors
 {
-    private long swigCPtr;
-    
     int        m_TimeTagCounter ;  // Used to generate time tags (we do them in the kernel not the agent, so ids are unique for all agents)
     int        m_IdCounter ;       // Used to generate unique id names
     int         m_CallbackIDCounter ;   // Used to generate unique callback IDs
 
-    Connection         m_Connection ;
     final ObjectMap<Agent>   m_AgentMap = new ObjectMap<Agent>();
     String         m_CommandLineResult;
     boolean                m_CommandLineSucceeded ;
@@ -63,14 +59,16 @@ public class Kernel extends ClientErrors
     // (that is send them over to kernelSML immediately, rather than collecting them up for a single commit)
     boolean m_bAutoCommit = true;
 
+    private int nextRhsFunctionId = 0; 
+    private Map<Integer, JSoarRhsFunctionAdapter> rhsFunctionHandlers = new HashMap<Integer, JSoarRhsFunctionAdapter>();
+    
     // This thread is used to check for incoming events when the client goes to sleep
     // It ensures the client stays "alive" and is optional (there are other ways for clients to keep themselves
     // responsive).
     // TODO EventThread*        m_pEventThread ;
     
-    protected Kernel(Connection pConnection)
+    protected Kernel()
     {
-        m_Connection     = pConnection ;
         m_TimeTagCounter = 0 ;
         m_IdCounter      = 0 ;
         // TODO m_SocketLibrary  = null ;
@@ -89,19 +87,6 @@ public class Kernel extends ClientErrors
         m_bAutoCommit   = true ;
 
         ClearError() ;
-
-        if (pConnection != null)
-        {
-            // TODO m_pEventThread = new EventThread(pConnection) ;
-
-            // We start the event thread for asynch connections (remote and embedded on a new thread).
-            // Synchronous ones don't need it as the kernel can simply call right over to the client directly
-            // for those.
-            if (pConnection.IsAsynchronous())
-            {
-                // TODO m_pEventThread->Start() ;
-            }
-        }   
     }
     void InitEvents()
     {
@@ -152,11 +137,16 @@ public class Kernel extends ClientErrors
 
         // Record this in our list of agents
         m_AgentMap.add(agent.GetAgentName(), agent) ;
+        
+        for(Map.Entry<Integer, JSoarRhsFunctionAdapter> e : rhsFunctionHandlers.entrySet())
+        {
+            agent.addRhsFunction(e.getKey(), e.getValue());
+        }
 
         // Register to get output link events.  These won't come back as standard events.
         // Instead we'll get "output" messages which are handled in a special manner.
-        if (!m_bIgnoreOutput)
-            RegisterForEventWithKernel(smlWorkingMemoryEventId.smlEVENT_OUTPUT_PHASE_CALLBACK.ordinal(), agent.GetAgentName()) ;
+//        if (!m_bIgnoreOutput)
+//            RegisterForEventWithKernel(smlWorkingMemoryEventId.smlEVENT_OUTPUT_PHASE_CALLBACK.ordinal(), agent.GetAgentName()) ;
 
         return agent ;
         
@@ -313,7 +303,7 @@ public class Kernel extends ClientErrors
         String result = handler.rhsFunctionHandler(id.ordinal(), pUserData, pAgentName, pFunctionName, pArgument) ;
 
         // If we got back a result then fill in the value in the response message.
-        m_Connection.AddSimpleResultToSMLResponse(pResponse, result) ;
+        //m_Connection.AddSimpleResultToSMLResponse(pResponse, result) ;
         
     }
     void ReceivedUpdateEvent(smlUpdateEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
@@ -360,7 +350,7 @@ public class Kernel extends ClientErrors
             String result = handler.stringEventHandler(id.ordinal(), pUserData, this, pValue) ;
 
             // If we got back a result then fill in the value in the response message.
-            m_Connection.AddSimpleResultToSMLResponse(pResponse, result) ;
+            //m_Connection.AddSimpleResultToSMLResponse(pResponse, result) ;
         }
         
     }
@@ -415,25 +405,6 @@ public class Kernel extends ClientErrors
         return null ;
     }
 
-    protected void InitializeTimeTagCounter()
-    {
-        AnalyzeXML response = new AnalyzeXML();
-        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_GetInitialTimeTag()))
-        {
-            int initialTimeTag = response.GetResultInt(0) ;
-
-            // Client side time tags are negative (to distinguish them from kernel side ones)
-            assert(initialTimeTag <= 0) ;
-
-            // Start time tags from this value
-            m_TimeTagCounter = initialTimeTag ;
-
-            // Start IDs from this value too, so they don't collide
-            m_IdCounter = -initialTimeTag ;     
-        }
-        
-    }
-
     public synchronized void delete()
     {
         // If the user didn't call shutdown, we'll do it now.
@@ -447,10 +418,6 @@ public class Kernel extends ClientErrors
         // during clean up.
         m_AgentMap.clear() ;
 
-        // We also need to close the connection
-        if (m_Connection != null)
-            m_Connection.CloseConnection() ;
-
         // Must stop the event thread before deleting the connection
         // as it has a pointer to the connection.
 // TODO       if (m_pEventThread)
@@ -462,16 +429,6 @@ public class Kernel extends ClientErrors
             pInfo.delete();
         }
         m_ConnectionInfoList.clear() ;
-
-        // TODO delete m_pEventThread ;
-
-        if(m_Connection != null)
-        {
-            m_Connection.delete();
-        }
-
-        // Deleting this shuts down the socket library if we were using it.
-        // TOD delete m_SocketLibrary ;
 
         m_pEventMap.delete();
     }
@@ -510,63 +467,76 @@ public class Kernel extends ClientErrors
 
     public int RegisterForSystemEvent(smlSystemEventId id, SystemEventInterface handlerObject, Object callbackData)
     {
-        return smlJNI.Kernel_RegisterForSystemEvent(swigCPtr, id.swigValue(), this, handlerObject, callbackData);
+        throw new UnsupportedOperationException("");
     }
 
     public boolean UnregisterForSystemEvent(int callbackReturnValue)
     {
-        return smlJNI.Kernel_UnregisterForSystemEvent(swigCPtr, callbackReturnValue);
+        throw new UnsupportedOperationException("");
     }
 
     public int RegisterForUpdateEvent(smlUpdateEventId id, UpdateEventInterface handlerObject, Object callbackData)
     {
-        return smlJNI.Kernel_RegisterForUpdateEvent(swigCPtr, id.swigValue(), this, handlerObject, callbackData);
+        throw new UnsupportedOperationException("");
     }
 
     public boolean UnregisterForUpdateEvent(int callbackReturnValue)
     {
-        return smlJNI.Kernel_UnregisterForUpdateEvent(swigCPtr, callbackReturnValue);
+        throw new UnsupportedOperationException("");
     }
 
     public int RegisterForStringEvent(smlStringEventId id, StringEventInterface handlerObject, Object callbackData)
     {
-        return smlJNI.Kernel_RegisterForStringEvent(swigCPtr, id.swigValue(), this, handlerObject, callbackData);
+        throw new UnsupportedOperationException("");
     }
 
     public boolean UnregisterForStringEvent(int callbackReturnValue)
     {
-        return smlJNI.Kernel_UnregisterForStringEvent(swigCPtr, callbackReturnValue);
+        throw new UnsupportedOperationException("");
     }
 
     public int RegisterForAgentEvent(smlAgentEventId id, AgentEventInterface handlerObject, Object callbackData)
     {
-        return smlJNI.Kernel_RegisterForAgentEvent(swigCPtr, id.swigValue(), this, handlerObject, callbackData);
+        throw new UnsupportedOperationException("");
     }
 
     public boolean UnregisterForAgentEvent(int callbackReturnValue)
     {
-        return smlJNI.Kernel_UnregisterForAgentEvent(swigCPtr, callbackReturnValue);
+        throw new UnsupportedOperationException("");
     }
 
-    public int AddRhsFunction(String functionName, RhsFunctionInterface handlerObject, Object callbackData)
+    public int AddRhsFunction(final String functionName, final RhsFunctionInterface handlerObject, final Object callbackData)
     {
-        return smlJNI.Kernel_AddRhsFunction(swigCPtr, functionName, this, handlerObject, callbackData);
+        final int id = nextRhsFunctionId++;
+        final JSoarRhsFunctionAdapter prototype = JSoarRhsFunctionAdapter.create(null, functionName, handlerObject, callbackData);
+        rhsFunctionHandlers.put(id, prototype);
+        
+        for(final Agent a : m_AgentMap.values())
+        {
+            a.addRhsFunction(id, prototype.copy(a.GetAgentName()));
+        }
+        return id;
     }
 
     public boolean RemoveRhsFunction(int callbackReturnValue)
     {
-        return smlJNI.Kernel_RemoveRhsFunction(swigCPtr, callbackReturnValue);
+        final boolean result = null != rhsFunctionHandlers.remove(callbackReturnValue);
+        for(Agent a : m_AgentMap.values())
+        {
+            a.removeRhsFunction(callbackReturnValue);
+        }
+        return result;
     }
 
     public int RegisterForClientMessageEvent(String functionName, ClientMessageInterface handlerObject,
             Object callbackData)
     {
-        return smlJNI.Kernel_RegisterForClientMessageEvent(swigCPtr, functionName, this, handlerObject, callbackData);
+        throw new UnsupportedOperationException("");
     }
 
     public boolean UnregisterForClientMessageEvent(int callbackReturnValue)
     {
-        return smlJNI.Kernel_UnregisterForClientMessageEvent(swigCPtr, callbackReturnValue);
+        throw new UnsupportedOperationException("");
     }
 
     // In Java we want to explicitly delete the C++ kernel object after calling
@@ -579,19 +549,6 @@ public class Kernel extends ClientErrors
     {
         m_bShutdown = true ;
 
-        // Currently we have no work to do on the kernel side before
-        // disconnecting a remote connection.
-        if (m_Connection == null || m_Connection.IsRemoteConnection())
-        {
-            if (m_Connection != null)
-                m_Connection.CloseConnection() ;
-
-            return ;
-        }
-
-        AnalyzeXML response = new AnalyzeXML() ;
-        m_Connection.SendAgentCommand(response, sml_Names.getKCommand_Shutdown()) ;
-        m_Connection.CloseConnection() ;
         delete();
     }
 
@@ -599,17 +556,17 @@ public class Kernel extends ClientErrors
     // have some special reason.
     public void ShutdownNoDelete()
     {
-        smlJNI.Kernel_ShutdownInternal(swigCPtr, this);
+        throw new UnsupportedOperationException("");
     }
 
     public static String getKDefaultLibraryName()
     {
-        return smlJNI.Kernel_kDefaultLibraryName_get();
+        throw new UnsupportedOperationException("");
     }
 
     public static Kernel CreateKernelInCurrentThread(String pLibraryName, boolean optimized, int portToListenOn)
     {
-        return CreateEmbeddedConnection(pLibraryName, true, optimized, portToListenOn);
+        return new Kernel();
     }
 
     public static Kernel CreateKernelInCurrentThread(String pLibraryName, boolean optimized)
@@ -629,7 +586,7 @@ public class Kernel extends ClientErrors
 
     public static Kernel CreateKernelInNewThread(String pLibraryName, int portToListenOn)
     {
-        return CreateEmbeddedConnection(pLibraryName, false, false, portToListenOn) ;
+        return new Kernel(); // TODO
     }
 
     public static Kernel CreateKernelInNewThread(String pLibraryName)
@@ -701,30 +658,27 @@ public class Kernel extends ClientErrors
 
     public boolean IsConnectionClosed()
     {
-        return m_Connection == null || m_Connection.IsClosed();
+        return false;
     }
 
     public boolean IsRemoteConnection()
     {
-        return m_Connection != null && m_Connection.IsRemoteConnection() ;
+        return false;
     }
 
     public boolean IsDirectConnection()
     {
-        return m_Connection != null && m_Connection.IsDirectConnection() ;
+        return true;
     }
 
     public void ShutdownInternal()
     {
         // TODO implement ShutdownInternal
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("ShutdownInternal");
     }
 
     public void SetTraceCommunications(boolean state)
     {
-        if (m_Connection != null)
-            m_Connection.SetTraceCommunications(state) ;
-
         // We keep a local copy of this value so we can check it without
         // calling anywhere.
         m_bTracingCommunications = state ;
@@ -737,70 +691,11 @@ public class Kernel extends ClientErrors
 
     public Agent CreateAgent(String pAgentName)
     {
-        AnalyzeXML response = new AnalyzeXML();
-        Agent agent = null;
-        
-        // See if this agent already exists
-        agent = GetAgent(pAgentName) ;
-
-        // If so, trying to create it fails.
-        // (We could pass back agent, but that would hide this error from the client).
-        if (agent != null)
-        {
-            SetError(ErrorCode.kAgentExists) ;
-            return null ;
-        }
-
-        assert(m_Connection != null);
-        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_CreateAgent(), 
-                                            null, sml_Names.getKParamName(), pAgentName))
-        {
-            agent = MakeAgent(pAgentName) ;
-        }
-
-        // Set our error state based on what happened during this call.
-        SetError(m_Connection.GetLastError()) ;
-
-        return agent ;
+        return MakeAgent(pAgentName);
     }
 
     public void UpdateAgentList()
     {
-        AnalyzeXML response = new AnalyzeXML();
-        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_GetAgentList()))
-        {
-            ElementXML pResult = response.GetResultTag() ;
-            ElementXML child = new ElementXML(null) ;
-            
-            // Keep a record of the agents we find, so we can delete any that have been removed.
-            List<Agent>   inUse = new ArrayList<Agent>();
-
-            for (int i = 0 ; i < pResult.GetNumberChildren() ; i++)
-            {
-                pResult.GetChild(child, i) ;
-
-                // Look for the <name> tags
-                if (child.IsTag(sml_Names.getKTagName()))
-                {
-                    // Get the agent's name
-                    final String pAgentName = child.GetCharacterData() ;
-
-                    // If we don't know about this agent already, then add it to our list.
-                    Agent pAgent = m_AgentMap.find(pAgentName) ;
-
-                    if (pAgent == null)
-                    {
-                        pAgent = MakeAgent(pAgentName) ;
-                    }
-
-                    inUse.add(pAgent) ;
-                }
-            }
-
-            // Any agents that are in our map but not in the "inuse" list we should delete
-            // as they no longer exist.
-            m_AgentMap.keep(inUse) ;
-        }
     }
 
     public int GetNumberAgents()
@@ -810,16 +705,9 @@ public class Kernel extends ClientErrors
 
     public boolean DestroyAgent(Agent pAgent)
     {
-        AnalyzeXML response = new AnalyzeXML();
-
-        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_DestroyAgent(), pAgent.GetAgentName()))
-        {
-            // Remove the object from our map and delete it.
-            m_AgentMap.remove(pAgent.GetAgentName(), true) ;
-            return true ;
-        }
-
-        return false ;
+        // Remove the object from our map and delete it.
+        m_AgentMap.remove(pAgent.GetAgentName(), true) ;
+        return true ;
     }
 
     public Agent GetAgent(String pAgentName)
@@ -849,36 +737,15 @@ public class Kernel extends ClientErrors
 
     public String ExecuteCommandLine(String pCommandLine, String pAgentName, boolean echoResults, boolean noFilter)
     {
-        AnalyzeXML response = new AnalyzeXML();
-        boolean wantRawOutput = true ;
-
-        // Send the command line to the kernel
-        m_CommandLineSucceeded = m_Connection.SendAgentCommand(response,
-            sml_Names.getKCommand_CommandLine(), pAgentName,
-            sml_Names.getKParamLine(), pCommandLine,
-            sml_Names.getKParamEcho(), echoResults ? sml_Names.getKTrue() : sml_Names.getKFalse(),
-            sml_Names.getKParamNoFiltering(), 
-            !m_FilteringEnabled || noFilter ? sml_Names.getKTrue() : sml_Names.getKFalse(),
-            wantRawOutput);
-
-        if (m_CommandLineSucceeded)
+        final Agent agent = GetAgent(pAgentName);
+        if(agent != null)
         {
-            // Get the result as a string
-            final String pResult = response.GetResultString();
-            m_CommandLineResult = (pResult == null)? "" : pResult ;
+            return agent.ExecuteCommandLine(pCommandLine, echoResults, noFilter);
         }
         else
         {
-            // Get the error message
-            m_CommandLineResult = "\nError: ";
-            if (response.GetErrorTag() != null) {
-                m_CommandLineResult += response.GetErrorTag().GetCharacterData();
-            } else {
-                m_CommandLineResult += "<No error message returned by command>";
-            }
+            return "";
         }
-
-        return m_CommandLineResult;
     }
 
     public String ExecuteCommandLine(String pCommandLine, String pAgentName, boolean echoResults)
@@ -893,18 +760,7 @@ public class Kernel extends ClientErrors
 
     public boolean ExecuteCommandLineXML(String pCommandLine, String pAgentName, ClientAnalyzedXML pResponse)
     {
-        if (pCommandLine == null || pResponse == null)
-            return false ;
-
-        m_CommandLineSucceeded = m_Connection.SendAgentCommand(pResponse.GetAnalyzeXML(), 
-                                sml_Names.getKCommand_CommandLine(), 
-                                pAgentName,
-                                sml_Names.getKParamLine(), 
-                                pCommandLine, 
-                                sml_Names.getKParamNoFiltering(), 
-                                sml_Names.getKTrue());
-
-        return m_CommandLineSucceeded ;
+        throw new UnsupportedOperationException("ExecuteCommandLineXML");
     }
 
     public String RunAllAgents(long numberSteps, smlRunStepSize stepSize, smlRunStepSize interleaveStepSize)
@@ -963,73 +819,7 @@ public class Kernel extends ClientErrors
 
     public boolean GetAllConnectionInfo()
     {
-        LinkedList<ConnectionInfo> previousList = new LinkedList<ConnectionInfo>(m_ConnectionInfoList);
-
-        m_ConnectionInfoList.clear() ;
-
-        int previousConnectionCount = previousList.size() ;
-
-        AnalyzeXML response = new AnalyzeXML();
-        if (m_Connection.SendAgentCommand(response, sml_Names.getKCommand_GetConnections()))
-        {
-            final ElementXML pResult = response.GetResultTag() ;
-            ElementXML child = new ElementXML(null) ;
-            
-            for (int i = 0 ; i < pResult.GetNumberChildren() ; i++)
-            {
-                pResult.GetChild(child, i) ;
-
-                // Look for the <connection> tags
-                if (child.IsTag(sml_Names.getKTagConnection()))
-                {
-                    // Get the connection's id, name and status
-                    final String pID     = child.GetAttribute(sml_Names.getKConnectionId()) ;
-                    final String pName   = child.GetAttribute(sml_Names.getKConnectionName()) ;
-                    final String pStatus = child.GetAttribute(sml_Names.getKConnectionStatus()) ;
-                    final String pAgentStatus = child.GetAttribute(sml_Names.getKAgentStatus()) ;
-
-                    // If this info is on the previous list move it back to the current list
-                    boolean foundMatch = false ;
-                    Iterator<ConnectionInfo> it = previousList.iterator();
-                    while(it.hasNext())
-                    {
-                        final ConnectionInfo pPrevInfo = it.next();
-                        if (pID.equals(pPrevInfo.GetID()) &&
-                            pName.equals(pPrevInfo.GetName())&&
-                            pStatus.equals(pPrevInfo.GetConnectionStatus()) &&
-                            pAgentStatus.equals(pPrevInfo.GetAgentStatus()))
-                        {
-                            m_ConnectionInfoList.add(pPrevInfo) ;
-                            it.remove();
-                            foundMatch = true ;
-                            break ;
-                        }
-                    }
-
-                    if (!foundMatch)
-                    {
-                        ConnectionInfo info = new ConnectionInfo(pID, pName, pStatus, pAgentStatus) ;
-                        m_ConnectionInfoList.add(info) ;
-                    }
-                }
-            }
-        }
-
-        // If we deleted all of the items from the previous list, then each connection we found matched
-        // an existing one.
-        if (previousList.size() == 0 && previousConnectionCount == m_ConnectionInfoList.size())
-            m_ConnectionInfoChanged = false ;
-        else
-            m_ConnectionInfoChanged = true ;
-
-        // Clean up any left over information
-//        for (ConnectionListIter iter = previousList.begin() ; iter != previousList.end() ; iter++)
-//        {
-//            ConnectionInfo* pInfo = *iter ;
-//            delete pInfo ;
-//        }
-
-        return m_ConnectionInfoChanged ;
+        return false;
     }
 
     public int GetNumberConnections()
@@ -1073,12 +863,7 @@ public class Kernel extends ClientErrors
 
     public boolean SetConnectionInfo(String pName, String pConnectionStatus, String pAgentStatus)
     {
-        AnalyzeXML response = new AnalyzeXML();
-        boolean ok = m_Connection.SendAgentCommand(response, sml_Names.getKCommand_SetConnectionInfo(), null, 
-                sml_Names.getKConnectionName(), pName, 
-                sml_Names.getKConnectionStatus(), 
-                pConnectionStatus, sml_Names.getKAgentStatus(), pAgentStatus) ;
-        return ok ;
+        return true;
     }
 
     public boolean FireStartSystemEvent()
@@ -1188,14 +973,12 @@ public class Kernel extends ClientErrors
 
     public String GetLibraryLocation()
     {
-        // TODO implement GetLibraryLocation
         throw new UnsupportedOperationException();
     }
 
     public String GetSoarKernelVersion()
     {
-        // TODO implement GetSoarKernelVersion
-        throw new UnsupportedOperationException();
+        return JSoarVersion.getInstance().getVersion();
     }
 
     public void CommitAll()
@@ -1238,98 +1021,4 @@ public class Kernel extends ClientErrors
     public final static int kDefaultSMLPort = 12121;
     private final static String kDefaultLibraryName = "SoarKernelSML";
     
-    /*************************************************************
-    * @brief This function is called (indirectly) when we receive a "call" SML
-    *        message from the kernel.
-    *************************************************************/
-    protected ElementXML ProcessIncomingSML(Connection pConnection, ElementXML pIncomingMsg)
-    {
-        // Create a reply
-        ElementXML pResponse = pConnection.CreateSMLResponse(pIncomingMsg) ;
-
-        // Make sure the connection hasn't been closed along the way
-        if (pConnection.IsClosed())
-            return pResponse ;
-
-        // Special case.  We want to intercept XML trace messages and pass them directly to the handler
-        // without analyzing them.  This is just to boost performance for these messages as speed is critical here
-        // as they're used for trace output.
-        Agent pAgent = IsXMLTraceEvent(pIncomingMsg) ;
-        if (pAgent != null)
-        {
-            pAgent.ReceivedXMLTraceEvent(smlXMLEventId.smlEVENT_XML_TRACE_OUTPUT, pIncomingMsg, pResponse) ;
-            return pResponse ;
-        }
-
-        // Analyze the message and find important tags
-        AnalyzeXML msg = new AnalyzeXML() ;
-        msg.Analyze(pIncomingMsg) ;
-
-        // Get the "name" attribute from the <command> tag
-        String pCommandName = msg.GetCommandName() ;
-
-        // Look up the agent name parameter (most commands have this)
-        String pAgentName = msg.GetArgString(sml_Names.getKParamAgent()) ;
-
-        // Find the client agent structure that matches this agent
-        if (pAgentName != null && pCommandName != null)
-        {
-            pAgent = GetAgent(pAgentName) ;
-
-            // If this is a command for a known agent and it's an "output" command
-            // then we're interested in it.
-            if (pAgent != null && pCommandName.equals(sml_Names.getKCommand_Output()))
-            {
-                // Pass the incoming message over to the agent
-                pAgent.ReceivedOutput(msg, pResponse) ;
-            }
-
-            if (pAgent != null && pCommandName.equals(sml_Names.getKCommand_Event()))
-            {
-                // This is an event specific to an agent, so handle it there.
-                pAgent.ReceivedEvent(msg, pResponse) ;
-            }
-        }
-        else
-        {
-            // If this is a mesage for the kernel itself process it here
-            if (pAgentName == null)
-            {
-                if (pCommandName.equals(sml_Names.getKCommand_Event()))
-                {
-                    // This is an event that is not agent specific
-                    this.ReceivedEvent(msg, pResponse) ;
-                }
-            }
-        }
-
-        return pResponse ;
-    }
-    
-    protected static Kernel CreateEmbeddedConnection(String pLibraryName, boolean clientThread, boolean optimized, int portToListenOn)
-    {
-        ByRef<ErrorCode> errorCode = ByRef.create(null);
-        Connection pConnection = Connection.CreateEmbeddedConnection(pLibraryName, clientThread, optimized, portToListenOn, errorCode) ;
-
-        // Even if pConnection is NULL, we still build a kernel object, so we have
-        // a clean way to pass the error code back to the caller.
-        Kernel pKernel = new Kernel(pConnection) ;
-
-        // Transfer any errors over to the kernel object, so the caller can retrieve them.
-        pKernel.SetError(errorCode.value) ;
-
-        // Register for "calls" from the kernel.
-        if (pConnection != null)
-        {
-            pConnection.RegisterCallback(new ReceivedCall(), pKernel, sml_Names.getKDocType_Call(), true) ;
-
-            pKernel.InitializeTimeTagCounter() ;
-
-            pKernel.InitEvents() ;
-        }
-
-        return pKernel ;
-        
-    }
-
 }

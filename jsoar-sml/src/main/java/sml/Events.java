@@ -8,15 +8,16 @@
 
 package sml;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Events
 {
 
     // We keep two maps, one for each direction
-    private Map<Integer, String> m_ToStringMap;
+    private final Map<Integer, String> m_ToStringMap = new HashMap<Integer, String>();
 
-    private Map<String, Integer> m_ToEventMap;
+    private final Map<String, Integer> m_ToEventMap = new HashMap<String, Integer>();
 
     public synchronized void delete()
     {

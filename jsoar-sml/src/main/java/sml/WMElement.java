@@ -10,23 +10,15 @@ package sml;
 
 import java.util.Collection;
 
+import org.jsoar.kernel.memory.Wme;
+
 public class WMElement {
     // The agent which owns this WME.
     Agent  m_Agent ;
+    Wme wme;
     
-    // The time tag (a unique id for this WME)
-    // We used negative values so it's clear that this time tag is a client side tag.
-    int    m_TimeTag ;
-
-    // The identifier symbol as a string.  This can be necessary when connecting up
-    // disconnected segments of a graph.
-    String         m_IDName ;
-
     // The id for this wme (can be NULL if we're at the top of the tree)
     IdentifierSymbol   m_ID ;
-
-    // The attribute name for this wme (the value is owned by the derived class)
-    String m_AttributeName ;
 
     // This is true if the wme was just added.  The client chooses when to clear these flags.
     boolean    m_JustAdded ;
@@ -58,19 +50,19 @@ public class WMElement {
   }
 
   public String GetIdentifierName() {
-      return m_IDName;
+      return wme.getIdentifier().toString();
   }
 
   public String GetAttribute() {
-      return m_AttributeName;
+      return wme.getAttribute().toString();
   }
 
   public String GetValueType() { throw new UnsupportedOperationException(""); }
 
-  public String GetValueAsString() { throw new UnsupportedOperationException(""); }
+  public String GetValueAsString() { return wme.getValue().toString(); }
 
   public int GetTimeTag() {
-      return m_TimeTag;
+      return wme.getTimetag();
   }
 
   public boolean IsIdentifier() {
@@ -99,12 +91,11 @@ public class WMElement {
 
   // the methods exposed in the agent class.  This makes it clear that the
   // agent owns all objects.
-  WMElement(Agent pAgent, IdentifierSymbol pParentSymbol, String pID, String pAttributeName, int timeTag)
+  WMElement(Agent pAgent, IdentifierSymbol pParentSymbol, Wme wme)
   {
       this.m_Agent = pAgent;
       this.m_ID = pParentSymbol;
-      this.m_IDName = pID != null ? pID : "";
-      this.m_AttributeName = pAttributeName != null ? pAttributeName : "";
+      this.wme = wme;
   }
   // virtual ~WMElement(void);
 
@@ -115,18 +106,10 @@ public class WMElement {
       m_ID = pParent.GetSymbol();
   }
 
-  // If we update the value we need to assign a new time tag to this WME.
-  // That's because we're really doing a delete followed by an add
-  // and the add would create a new time tag.
-  void GenerateNewTimeTag()
-  {
-      m_TimeTag = GetAgent().GetWM().GenerateTimeTag();
-  }
-
   // Send over to the kernel again
   void Refresh()
   {
-      GetAgent().GetWM().GetInputDeltaList().AddWME(this) ;      
+      //GetAgent().GetWM().GetInputDeltaList().AddWME(this) ;      
   }
 
 }

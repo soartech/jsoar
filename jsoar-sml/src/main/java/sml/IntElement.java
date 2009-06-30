@@ -8,22 +8,18 @@
 
 package sml;
 
+import org.jsoar.kernel.memory.Wme;
+
 public class IntElement extends WMElement {
 
-    private int value;
-    private String stringForm;
-    IntElement(Agent agent, IdentifierSymbol parentSymbol, String pid, String attributeName, int value, int timeTag)
+    IntElement(Agent agent, IdentifierSymbol parentSymbol, Wme wme)
     {
-        super(agent, parentSymbol, pid, attributeName, timeTag);
-        this.value = value;
-        this.stringForm = Integer.toString(value);
+        super(agent, parentSymbol, wme);
     }
     
-    IntElement(Agent agent, Identifier parent, String pid, String attributeName, int value, int timeTag)
+    IntElement(Agent agent, Identifier parent, Wme wme)
     {
-        super(agent, parent.GetSymbol(), pid, attributeName, timeTag);
-        this.value = value;
-        this.stringForm = Integer.toString(value);
+        super(agent, parent.GetSymbol(), wme);
     }
 
 public synchronized void delete() {
@@ -34,21 +30,12 @@ public synchronized void delete() {
       return sml_Names.getKTypeInt();
   }
 
-  public String GetValueAsString() {
-      return stringForm;
-  }
-
   public int GetValue() {
-      return value;
+      return wme.getValue().asInteger().getValue();
   }
 
   public IntElement ConvertToIntElement() {
       return this;
   }
   
-  void SetValue(int value)
-  {
-      this.value = value ;
-  }
-
 }
