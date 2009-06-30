@@ -8,22 +8,17 @@
 
 package sml;
 
+import org.jsoar.kernel.memory.Wme;
+
 public class FloatElement extends WMElement {
 
-    private double value;
-    private String stringForm;
-
-    FloatElement(Agent agent, IdentifierSymbol parentSymbol, String pid, String attributeName, double value, int timeTag)
+    FloatElement(Agent agent, IdentifierSymbol parentSymbol, Wme wme)
     {
-        super(agent, parentSymbol, pid, attributeName, timeTag);
-        this.value = value;
-        this.stringForm = Double.toString(value);
+        super(agent, parentSymbol, wme);
     }
-    FloatElement(Agent agent, Identifier parent, String pid, String attributeName, double value, int timeTag)
+    FloatElement(Agent agent, Identifier parent, Wme wme)
     {
-        super(agent, parent.GetSymbol(), pid, attributeName, timeTag);
-        this.value = value;
-        this.stringForm = Double.toString(value);
+        super(agent, parent.GetSymbol(), wme);
     }
 
 public synchronized void delete() {
@@ -34,21 +29,12 @@ public synchronized void delete() {
       return sml_Names.getKTypeDouble();
   }
 
-  public String GetValueAsString() {
-      return stringForm;
-  }
-
   public double GetValue() {
-      return value;
+      return wme.getValue().asDouble().getValue();
   }
 
   public FloatElement ConvertToFloatElement() {
       return this;
   }
   
-  void SetValue(double value)
-  {
-      this.value = value ;
-  }
-
 }

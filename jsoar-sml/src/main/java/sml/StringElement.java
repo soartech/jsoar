@@ -8,20 +8,18 @@
 
 package sml;
 
+import org.jsoar.kernel.memory.Wme;
+
 public class StringElement extends WMElement {
 
 
-    private String m_Value;
-    
-    StringElement(Agent agent, IdentifierSymbol parentSymbol, String pid, String attributeName, String value, int timeTag)
+    StringElement(Agent agent, IdentifierSymbol parentSymbol, Wme wme)
     {
-        super(agent, parentSymbol, pid, attributeName, timeTag);
-        this.m_Value = value;
+        super(agent, parentSymbol, wme);
     }
-    StringElement(Agent agent, Identifier parent, String pid, String attributeName, String value, int timeTag)
+    StringElement(Agent agent, Identifier parent, Wme wme)
     {
-        super(agent, parent.GetSymbol(), pid, attributeName, timeTag);
-        this.m_Value = value;
+        super(agent, parent.GetSymbol(), wme);
     }
   public synchronized void delete() {
   }
@@ -30,21 +28,12 @@ public class StringElement extends WMElement {
       return sml_Names.getKTypeString();
   }
 
-  public String GetValueAsString() {
-      return m_Value;
-  }
-
   public String GetValue() {
-      return m_Value;
+      return wme.getValue().toString();
   }
 
   public StringElement ConvertToStringElement() {
       return this;
   }
   
-  void SetValue(String pValue)
-  {
-      m_Value = pValue ;
-  }
-
 }
