@@ -11,6 +11,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.ProductionManager;
@@ -63,6 +65,8 @@ import com.google.common.collect.MapMaker;
  */
 public class ThreadedAgent extends AbstractAdaptable
 {
+    private static final Log logger = LogFactory.getLog(ThreadedAgent.class);
+    
     private final static Map<Agent, ThreadedAgent> proxies = new MapMaker().weakKeys().makeMap();
     
     private final Agent agent;
@@ -99,11 +103,40 @@ public class ThreadedAgent extends AbstractAdaptable
      * ThreadedAgent agent = ThreadedAgent.create(new Agent()).initialize();
      * }</pre>
      * 
+     * <p>Note that, unlike a normal call to {@link #initialize()} this method
+     * will not return until initialization has completed. Otherwise, strange
+     * situations can arise if the agent is returned before initialization is
+     * complete.
+     * 
      * @return a new, initialized threaded agent
      */
     public static ThreadedAgent create()
     {
-        return attach(new Agent()).initialize();
+        final Object wait = new String("agent init wait lock");
+        synchronized(wait)
+        {
+            final ThreadedAgent agent = attach(new Agent()).initialize(new CompletionHandler<Void>() {
+
+                @Override
+                public void finish(Void result)
+                {
+                    synchronized(wait)
+                    {
+                        wait.notify();
+                    }
+                }});
+            try
+            {
+                wait.wait();
+            }
+            catch (InterruptedException e)
+            {
+                logger.error("Interrupted waiting for new ThreadedAgent to initialize.", e);
+                Thread.currentThread().interrupt(); // reset interrupt
+            }
+            
+            return agent;
+        }
     }
     
     /**

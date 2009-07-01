@@ -33,7 +33,7 @@ public class AgentTest
         assertTrue("Expected command to load production", agent.IsProductionLoaded("test"));
     }
     
-    @Test public void testConstructInputWithSML()
+    @Test public void testConstructInputWithSML() throws Exception
     {
         final Kernel kernel = Kernel.CreateKernelInCurrentThread();
         final Agent agent = kernel.CreateAgent("testConstructInputWithSML");
