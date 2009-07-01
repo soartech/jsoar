@@ -5,7 +5,6 @@
  */
 package sml;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jsoar.kernel.io.InputOutput;
@@ -16,21 +15,20 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.adaptables.Adaptables;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.MapMaker;
 
 /**
  * @author ray
  */
-public class WorkingMemory
+class WorkingMemory
 {
-    final Agent      m_Agent ;
-    Identifier m_InputLink ;
-    Identifier m_OutputLink ; // this is initialized the first time an agent generates output; until then it is null
+    final Agent m_Agent ;
+    private Identifier m_InputLink ;
+    private Identifier m_OutputLink ; // this is initialized the first time an agent generates output; until then it is null
     
-    final BiMap<WMElement, Wme> wmeMap = HashBiMap.create();
-    final BiMap<IdentifierSymbol, org.jsoar.kernel.symbols.Identifier> idmap = HashBiMap.create();
-    final Map<Integer, WMElement> timetagMap = new HashMap<Integer, WMElement>();
+    private final Map<Wme, WMElement> wmeMap = new MapMaker().weakKeys().weakValues().makeMap();
+    private final Map<org.jsoar.kernel.symbols.Identifier, IdentifierSymbol> idmap = new MapMaker().weakKeys().weakValues().makeMap();
+    private final Map<Integer, WMElement> timetagMap = new MapMaker().weakValues().makeMap();;
        
     WorkingMemory(Agent agent)
     {
@@ -39,18 +37,18 @@ public class WorkingMemory
     
     IdentifierSymbol findId(org.jsoar.kernel.symbols.Identifier id)
     {
-        IdentifierSymbol smlId = idmap.inverse().get(id);
+        IdentifierSymbol smlId = idmap.get(id);
         if(smlId == null)
         {
             smlId = new IdentifierSymbol(id);
-            idmap.put(smlId, id);
+            idmap.put(id, smlId);
         }
         return smlId;
     }
 
     WMElement findWme(Wme wme)
     {
-        WMElement smlWme = wmeMap.inverse().get(wme);
+        WMElement smlWme = wmeMap.get(wme);
         if(smlWme == null)
         {
             final Symbol v = wme.getValue();
@@ -76,18 +74,16 @@ public class WorkingMemory
             {
                 throw new RuntimeException("Unsupported WME value type " + v + ":" + v.getClass());
             }
-            wmeMap.put(smlWme, wme);
+            wmeMap.put(wme, smlWme);
         }
         return smlWme;
     }
-// public ...
-    WorkingMemory()
+    
+    WMElement findWme(int timetag)
     {
-        m_InputLink = null;
-        m_OutputLink = null;
-        m_Agent = null;
+        return timetagMap.get(timetag);
     }
-
+    
     public void delete()
     {
         m_OutputLink.delete();
@@ -95,10 +91,6 @@ public class WorkingMemory
     }
 
     Agent          GetAgent()        { return m_Agent ; }
-    String     GetAgentName()
-    {
-        return GetAgent().GetAgentName();
-    }
 
     InputOutput getIO()
     {
@@ -127,37 +119,37 @@ public class WorkingMemory
     StringElement  CreateStringWME(Identifier parent, String pAttribute, String pValue)
     {
         final StringElement result = new StringElement(GetAgent(), parent, InputWmes.add(getIO(), parent.m_pSymbol.id, pAttribute, pValue));
-        wmeMap.put(result, result.wme);
+        wmeMap.put(result.wme, result);
         return result;
     }
     
     IntElement     CreateIntWME(Identifier parent, String pAttribute, int value)
     {
         final IntElement result = new IntElement(GetAgent(), parent, InputWmes.add(getIO(), parent.m_pSymbol.id, pAttribute, value));
-        wmeMap.put(result, result.wme);
+        wmeMap.put(result.wme, result);
         return result;
     }
     FloatElement   CreateFloatWME(Identifier parent, String pAttribute, double value)
     {
         final FloatElement result = new FloatElement(GetAgent(), parent, InputWmes.add(getIO(), parent.m_pSymbol.id, pAttribute, value));
-        wmeMap.put(result, result.wme);
+        wmeMap.put(result.wme, result);
         return result;
     }
 
     Identifier     CreateIdWME(Identifier parent, String pAttribute)
     {
         final Identifier result = new Identifier(GetAgent(), parent.m_pSymbol, InputWmes.add(getIO(), parent.m_pSymbol.id, pAttribute, Symbols.NEW_ID));
-        wmeMap.put(result, result.wme);
+        wmeMap.put(result.wme, result);
         return result;
     }
     Identifier     CreateSharedIdWME(Identifier parent, String pAttribute, Identifier pSharedValue)
     {
         final Identifier result = new Identifier(GetAgent(), parent.m_pSymbol, InputWmes.add(getIO(), parent.m_pSymbol.id, pAttribute, pSharedValue.m_ID));
-        wmeMap.put(result, result.wme);
+        wmeMap.put(result.wme, result);
         return result;
     }
 
-    void            UpdateString(StringElement pWME, String pValue)
+    void UpdateString(StringElement pWME, String pValue)
     {
         if (pWME == null || pValue == null)
             return ;
@@ -180,7 +172,7 @@ public class WorkingMemory
         iw.update(GetAgent().agent.getSymbols().createString(pValue));
     }
     
-    void            UpdateInt(IntElement pWME, int value)
+    void UpdateInt(IntElement pWME, int value)
     {
         if (pWME == null)
             return ;
@@ -203,7 +195,7 @@ public class WorkingMemory
         iw.update(GetAgent().agent.getSymbols().createInteger(value));
     }
     
-    void            UpdateFloat(FloatElement pWME, double value)
+    void UpdateFloat(FloatElement pWME, double value)
     {
         if (pWME == null)
             return ;
@@ -228,7 +220,7 @@ public class WorkingMemory
         iw.update(GetAgent().agent.getSymbols().createDouble(value));
     }
 
-    boolean            DestroyWME(WMElement pWME)
+    boolean DestroyWME(WMElement pWME)
     {
         assert(m_Agent == pWME.GetAgent()) ;
         
@@ -243,12 +235,13 @@ public class WorkingMemory
         
         return true ;        
     }
-    boolean            IsCommitRequired() { return false; }
     
-    boolean            Commit()
+    boolean IsCommitRequired() { return false; }
+    
+    boolean Commit()
     {
         return true;
     }
-    boolean            IsAutoCommitEnabled(){ return m_Agent.IsAutoCommitEnabled() ; }
+    boolean IsAutoCommitEnabled(){ return m_Agent.IsAutoCommitEnabled() ; }
 
 }

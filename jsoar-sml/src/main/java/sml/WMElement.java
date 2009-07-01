@@ -50,7 +50,7 @@ public class WMElement {
   }
 
   public String GetIdentifierName() {
-      return wme.getIdentifier().toString();
+      return wme != null ? wme.getIdentifier().toString() : "";
   }
 
   public String GetAttribute() {

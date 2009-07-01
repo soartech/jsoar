@@ -143,11 +143,11 @@ public class Identifier extends WMElement {
   }
 
   public WMElement FindFromTimeTag(int timeTag) {
-      return m_Agent.GetWM().timetagMap.get(timeTag);
+      return m_Agent.GetWM().findWme(timeTag);
   }
 
   public WMElement FindByAttribute(String pAttribute, int index) {
-      List<Wme> kids = Wmes.matcher(m_Agent.agent).attr(pAttribute).filter(m_pSymbol.id);
+      List<Wme> kids = Wmes.matcher(m_Agent.agent.getAgent()).attr(pAttribute).filter(m_pSymbol.id);
       return index < kids.size() ? m_Agent.GetWM().findWme(kids.get(index)) : null;
   }
 
