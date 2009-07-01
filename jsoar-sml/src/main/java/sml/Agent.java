@@ -89,8 +89,7 @@ public class Agent extends ClientErrors
         this.agent.getEvents().addListener(StopEvent.class, listener);
         this.agent.getEvents().addListener(InputEvent.class, listener);
         this.agent.setName(agentName);
-        
-        this.agent.initialize();
+
         m_Kernel = kernel ;
         m_CallbackIDCounter = 0 ;
         m_VisitedCounter = 0 ;
