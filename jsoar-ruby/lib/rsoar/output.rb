@@ -3,7 +3,6 @@ module RSoar
   OutputCommand = Struct.new("OutputCommand", :handler, :options)
   
   class OutputId
-    
     def initialize(agent, id)
       @agent = agent
       @id = id
@@ -17,6 +16,10 @@ module RSoar
       else
         nil
       end      
+    end
+
+    def root
+      @id
     end
     
     def method_missing(method_name, *args)
