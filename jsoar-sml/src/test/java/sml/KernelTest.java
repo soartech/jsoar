@@ -7,8 +7,8 @@ package sml;
 
 import static org.junit.Assert.*;
 
-import org.jsoar.kernel.RunType;
-import org.jsoar.util.ByRef;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.junit.Test;
 
 import sml.Kernel.RhsFunctionInterface;
@@ -32,14 +32,14 @@ public class KernelTest
     
     @Test public void testAddRhsFunction()
     {
-        final ByRef<String> args = ByRef.create(null);
+        final AtomicReference<String> args = new AtomicReference<String>();
         final RhsFunctionInterface func = new RhsFunctionInterface() {
 
             @Override
             public String rhsFunctionHandler(int eventID, Object data,
                     String agentName, String functionName, String argument)
             {
-                args.value = argument;
+                args.set(argument);
                 return "";
             }
         };
@@ -49,15 +49,15 @@ public class KernelTest
         
         kernel.AddRhsFunction("test", func, null);
         agent.ExecuteCommandLine("sp {testAddRhsFunction (state <s> ^superstate nil) --> (<s> ^foo (exec test a b c d))}");
-        agent.agent.runFor(1, RunType.DECISIONS);
-        assertEquals("abcd", args.value);
+        agent.RunSelf(1);
+        assertEquals("abcd", args.get());
         
         // test additional agents get it...
         final Agent agent2 = kernel.CreateAgent("testCreateAgent2");
         
-        args.value = null;
+        args.set(null);
         agent2.ExecuteCommandLine("sp {testAddRhsFunction2 (state <s> ^superstate nil) --> (<s> ^foo (exec test a b c d))}");
-        agent2.agent.runFor(1, RunType.DECISIONS);
-        assertEquals("abcd", args.value);
+        agent2.RunSelf(1);
+        assertEquals("abcd", args.get());
     }
 }

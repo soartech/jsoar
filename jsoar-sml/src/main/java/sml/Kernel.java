@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import org.jsoar.kernel.JSoarVersion;
 import org.jsoar.sml.JSoarRhsFunctionAdapter;
@@ -771,14 +772,12 @@ public class Kernel extends ClientErrors
 
     public String RunAllAgents(long numberSteps, smlRunStepSize stepSize)
     {
-        // TODO implement RunAllAgents
-        throw new UnsupportedOperationException();
+        return RunAllAgents(numberSteps, stepSize, smlRunStepSize.sml_DECISION);
     }
 
     public String RunAllAgents(long numberSteps)
     {
-        // TODO implement RunAllAgents
-        throw new UnsupportedOperationException();
+        return RunAllAgents(numberSteps, smlRunStepSize.sml_DECISION);
     }
 
     public String RunAllAgentsForever(smlRunStepSize interleaveStepSize)
@@ -789,8 +788,7 @@ public class Kernel extends ClientErrors
 
     public String RunAllAgentsForever()
     {
-        // TODO implement RunAllAgentsForever
-        throw new UnsupportedOperationException();
+        return RunAllAgentsForever(smlRunStepSize.sml_DECISION);
     }
 
     public String RunAllTilOutput(smlRunStepSize interleaveStepSize)
@@ -801,14 +799,16 @@ public class Kernel extends ClientErrors
 
     public String RunAllTilOutput()
     {
-        // TODO implement RunAllTilOutput
-        throw new UnsupportedOperationException();
+        return RunAllTilOutput(smlRunStepSize.sml_DECISION);
     }
 
     public String StopAllAgents()
     {
-        // TODO implement StopAllAgents
-        throw new UnsupportedOperationException();
+        for(Agent a : m_AgentMap.values())
+        {
+            a.StopSelf();
+        }
+        return "";
     }
 
     public boolean IsSoarRunning()

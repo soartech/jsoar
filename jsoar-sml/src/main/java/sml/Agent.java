@@ -8,20 +8,30 @@
 
 package sml;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
+import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.events.InputEvent;
+import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
+import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.util.events.SoarEvent;
+import org.jsoar.util.events.SoarEventListener;
 
 import sml.connection.ErrorCode;
 
 public class Agent extends ClientErrors
 {
-    final org.jsoar.kernel.Agent agent;
+    final ThreadedAgent agent;
     
     protected final WorkingMemory m_WorkingMemory = new WorkingMemory(this);
     protected final Kernel m_Kernel;
@@ -48,14 +58,24 @@ public class Agent extends ClientErrors
     // the old wme and adding a new one, causing rules to rematch in Soar.
     protected boolean m_BlinkIfNoChange ;
     
+    private final Listener listener = new Listener();
+    private smlRunResult lastResult = smlRunResult.sml_RUN_COMPLETED;
+    private final Object agentStopMonitor = new String("Agent stop monitor");
+    
+    private boolean pendingCommandsNeedUpdate = true;
+    private final List<WMElement> pendingCommands = new ArrayList<WMElement>();
+    
     public synchronized void delete()
     {
+        this.agent.getEvents().removeListener(null, listener);
         super.delete();
     }
 
-    public Agent(org.jsoar.kernel.Agent jsoarAgent)
+    public Agent(ThreadedAgent agent)
     {
-        this.agent = jsoarAgent;
+        this.agent = agent;
+        this.agent.getEvents().addListener(StopEvent.class, listener);
+        this.agent.getEvents().addListener(InputEvent.class, listener);
         this.m_Kernel = null;
     }
     
@@ -65,7 +85,9 @@ public class Agent extends ClientErrors
      */
     Agent(Kernel kernel, String agentName)
     {
-        this.agent = new org.jsoar.kernel.Agent();
+        this.agent = ThreadedAgent.create();
+        this.agent.getEvents().addListener(StopEvent.class, listener);
+        this.agent.getEvents().addListener(InputEvent.class, listener);
         this.agent.setName(agentName);
         
         this.agent.initialize();
@@ -310,12 +332,14 @@ public class Agent extends ClientErrors
 
     public void ClearOutputLinkChanges()
     {
-        // TODO ClearOutputLinkChanges()
+        pendingCommands.clear();
+        pendingCommandsNeedUpdate = true;
     }
 
     public int GetNumberCommands()
     {
-        return agent.getInputOutput().getPendingCommands().size();
+        updatePendingCommands();
+        return pendingCommands.size();
     }
 
     public boolean Commands()
@@ -325,10 +349,25 @@ public class Agent extends ClientErrors
 
     public Identifier GetCommand(int index)
     {
-        final List<Wme> commands = agent.getInputOutput().getPendingCommands();
-        return index < commands.size() ? GetWM().findWme(commands.get(index)).ConvertToIdentifier() : null;
+        updatePendingCommands();
+        return index < pendingCommands.size() ? pendingCommands.get(index).ConvertToIdentifier() : null;
     }
 
+    private void updatePendingCommands()
+    {
+        if(!pendingCommandsNeedUpdate)
+        {
+            return;
+        }
+        
+        pendingCommandsNeedUpdate = false;
+        pendingCommands.clear();
+        for(Wme wme : agent.getInputOutput().getPendingCommands())
+        {
+            pendingCommands.add(GetWM().findWme(wme));
+        }
+    }
+    
     public boolean Commit()
     {
         return true; // TODO
@@ -341,37 +380,74 @@ public class Agent extends ClientErrors
 
     public String RunSelf(long numberSteps, smlRunStepSize stepSize)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        final RunType runType;
+        switch(stepSize)
+        {
+        case sml_DECISION: runType = RunType.DECISIONS; break;
+        case sml_ELABORATION: runType = RunType.ELABORATIONS; break;
+        case sml_PHASE: runType = RunType.PHASES; break;
+        case sml_UNTIL_OUTPUT: runType = RunType.MODIFICATIONS_OF_OUTPUT; break;
+        default:
+            throw new IllegalArgumentException("stepSize: " + stepSize);
+        }
+        
+        synchronized(agentStopMonitor)
+        {
+            agent.runFor(numberSteps, runType);
+            waitForAgentToStop();
+        }
+        return "";
+    }
+
+    private void waitForAgentToStop()
+    {
+        while(agent.isRunning())
+        {
+            try
+            {
+                agentStopMonitor.wait();
+            }
+            catch (InterruptedException e)
+            {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 
     public String RunSelf(long numberSteps)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return RunSelf(numberSteps, smlRunStepSize.sml_DECISION);
     }
 
     public String RunSelfForever()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        synchronized(agentStopMonitor)
+        {
+            agent.runForever();
+            waitForAgentToStop();
+        }
+        return "";
     }
 
     public String RunSelfTilOutput()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return RunSelf(0, smlRunStepSize.sml_UNTIL_OUTPUT);
     }
 
     public boolean WasAgentOnRunList()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return true;
     }
 
     public smlRunResult GetResultOfLastRun()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return lastResult;
     }
 
     public String StopSelf()
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return "";
     }
 
     public void Refresh()
@@ -394,16 +470,24 @@ public class Agent extends ClientErrors
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    public String ExecuteCommandLine(String pCommandLine, boolean echoResults, boolean noFilter)
+    public String ExecuteCommandLine(final String pCommandLine, boolean echoResults, boolean noFilter)
     {
+        ClearError();
+        final Callable<String> call = new Callable<String>() {
+
+            @Override
+            public String call() throws Exception
+            {
+                return agent.getInterpreter().eval(pCommandLine);
+            }};
         try
         {
-            return agent.getInterpreter().eval(pCommandLine);
+            return execAndWait(call);
         }
         catch (SoarException e)
         {
             SetDetailedError(ErrorCode.kDetailedError, e.getMessage());
-            return e.getMessage(); // TODO
+            return e.getMessage();
         }
     }
 
@@ -442,6 +526,32 @@ public class Agent extends ClientErrors
     {
         // TODO throw new UnsupportedOperationException("Not implemented");
         return true;
+    }
+    
+    private <T> T execAndWait(Callable<T> call) throws SoarException
+    {
+        final FutureTask<T> task = new FutureTask<T>(call);
+        agent.execute(new Callable<T>() {
+
+            @Override
+            public T call() throws Exception
+            {
+                task.run();
+                return null;
+            }}, null);
+        try
+        {
+            return task.get();
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+            throw new SoarException(e.getMessage(), e);
+        }
+        catch (ExecutionException e)
+        {
+            throw new SoarException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -660,4 +770,28 @@ public class Agent extends ClientErrors
         throw new UnsupportedOperationException();
     }
 
+    private class Listener implements SoarEventListener
+    {
+
+        /* (non-Javadoc)
+         * @see org.jsoar.util.events.SoarEventListener#onEvent(org.jsoar.util.events.SoarEvent)
+         */
+        @Override
+        public void onEvent(SoarEvent event)
+        {
+            if(event instanceof StopEvent)
+            {
+                synchronized (agentStopMonitor)
+                {
+                    agentStopMonitor.notifyAll();
+                }
+            }
+            else if(event instanceof InputEvent)
+            {
+                pendingCommands.clear();
+                pendingCommandsNeedUpdate = true;
+            }
+        }
+        
+    }
 }
