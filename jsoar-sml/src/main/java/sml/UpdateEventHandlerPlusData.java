@@ -9,6 +9,7 @@
 package sml;
 
 public class UpdateEventHandlerPlusData extends EventHandlerPlusData {
+    smlUpdateEventId eventId;
     Kernel.UpdateEventInterface m_Handler;
     
     /*

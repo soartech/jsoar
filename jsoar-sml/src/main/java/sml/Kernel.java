@@ -8,12 +8,23 @@
 
 package sml;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 
 import org.jsoar.kernel.JSoarVersion;
+import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.events.InputEvent;
+import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.sml.JSoarRhsFunctionAdapter;
+import org.jsoar.util.events.SoarEvent;
+import org.jsoar.util.events.SoarEventListener;
 
 import sml.connection.ErrorCode;
 
@@ -29,7 +40,7 @@ public class Kernel extends ClientErrors
     // TODO sock::SocketLib*    m_SocketLibrary ;
 
     // Info about all connections (have to explicitly request this)
-    LinkedList<ConnectionInfo> m_ConnectionInfoList ;
+    final LinkedList<ConnectionInfo> m_ConnectionInfoList = new LinkedList<ConnectionInfo>() ;
     boolean                m_ConnectionInfoChanged ;
 
     // When true, commands are sent to external filters (if they are registered) for filtering before execution.
@@ -60,6 +71,8 @@ public class Kernel extends ClientErrors
 
     private int nextRhsFunctionId = 0; 
     private Map<Integer, JSoarRhsFunctionAdapter> rhsFunctionHandlers = new HashMap<Integer, JSoarRhsFunctionAdapter>();
+    private int nextUpdateHandlerId = 0;
+    private final Map<Integer, UpdateEventHandlerPlusData> updateEventHandlers = new LinkedHashMap<Integer, UpdateEventHandlerPlusData>();
     
     // This thread is used to check for incoming events when the client goes to sleep
     // It ensures the client stays "alive" and is optional (there are other ways for clients to keep themselves
@@ -86,33 +99,6 @@ public class Kernel extends ClientErrors
         m_bAutoCommit   = true ;
 
         ClearError() ;
-    }
-    void InitEvents()
-    {
-        // TODO InitEvents
-        throw new UnsupportedOperationException();
-    }
-
-    /*************************************************************
-    * @brief Register for a particular event with the kernel.
-    *        (This is a primitive function, should call one of the
-    *         higher level methods which will call here if needed)
-    *************************************************************/
-    void    RegisterForEventWithKernel(int id, String pAgentName)
-    {
-        // TODO RegisterForEventWithKernel
-        throw new UnsupportedOperationException();
-    }
-
-    /*************************************************************
-    * @brief Unregister for a particular event with the kernel.
-    *        (This is a primitive function, should call one of the
-    *         higher level methods which will call here if needed)
-    *************************************************************/
-    void    UnregisterForEventWithKernel(int id, String pAgentName)
-    {
-        // TODO UnregisterForEventWithKernel
-        throw new UnsupportedOperationException();
     }
 
     /*************************************************************
@@ -149,26 +135,6 @@ public class Kernel extends ClientErrors
 
         return agent ;
         
-    }
-
-    // TODO void SetSocketLib(sock::SocketLib* pLibrary) { m_SocketLibrary = pLibrary ; }
-
-    int    GenerateNextID()        { return ++m_IdCounter ; }
-    int    GenerateNextTimeTag()   { return --m_TimeTagCounter ; } // Count down so different from Soar kernel
-
-    /***
-    ***   RHS functions and message event handlers use the same internal logic, although they look rather different to the user
-    ***/
-    int InternalAddRhsFunction(smlRhsEventId id, String pRhsFunctionName, RhsFunctionInterface handler, Object pUserData, boolean addToBack)
-    {
-        // implement InternalAddRhsFunction
-        throw new UnsupportedOperationException();
-    }
-    
-    boolean InternalRemoveRhsFunction(smlRhsEventId id, int callbackID)
-    {
-        // implement InternalRemoveRhsFunction
-        throw new UnsupportedOperationException();
     }
 
     public synchronized void delete()
@@ -233,7 +199,8 @@ public class Kernel extends ClientErrors
 
     public int RegisterForSystemEvent(smlSystemEventId id, SystemEventInterface handlerObject, Object callbackData)
     {
-        throw new UnsupportedOperationException("");
+        // TODO throw new UnsupportedOperationException("RegisterForSystemEvent");
+        return 0;
     }
 
     public boolean UnregisterForSystemEvent(int callbackReturnValue)
@@ -243,12 +210,19 @@ public class Kernel extends ClientErrors
 
     public int RegisterForUpdateEvent(smlUpdateEventId id, UpdateEventInterface handlerObject, Object callbackData)
     {
-        throw new UnsupportedOperationException("");
+        final int handlerId = nextUpdateHandlerId++;
+        final UpdateEventHandlerPlusData plusData = new UpdateEventHandlerPlusData();
+        plusData.eventId = id;
+        plusData.m_Handler = handlerObject;
+        plusData.m_UserData = callbackData;
+        
+        updateEventHandlers.put(handlerId, plusData);
+        return handlerId;
     }
 
     public boolean UnregisterForUpdateEvent(int callbackReturnValue)
     {
-        throw new UnsupportedOperationException("");
+        return null != updateEventHandlers.remove(callbackReturnValue);
     }
 
     public int RegisterForStringEvent(smlStringEventId id, StringEventInterface handlerObject, Object callbackData)
@@ -531,8 +505,88 @@ public class Kernel extends ClientErrors
 
     public String RunAllAgents(long numberSteps, smlRunStepSize stepSize, smlRunStepSize interleaveStepSize)
     {
-        // TODO implement RunAllAgents
-        throw new UnsupportedOperationException();
+        runAllAgents(numberSteps, Agent.smlToJSoarRunType(stepSize));
+        return "";
+    }
+    
+    private void runAllAgents(long numberSteps, RunType runType)
+    {
+        // List of agents we're running here to avoid issues if agent list changes
+        final List<Agent> agents = new ArrayList<Agent>(m_AgentMap.values());
+        
+        // counts down as each agent finishes running. We use this to make run into a blocking
+        // call which is what SML wants
+        final CountDownLatch stopLatch = new CountDownLatch(agents.size());
+        
+        // A barrier. All the agent threads meet here each decision cycle so we can have
+        // a single synchronized kernel update callback, which is what SML wants.
+        final CyclicBarrier updateBarrier = new CyclicBarrier(agents.size(), new Runnable() {
+
+            @Override
+            public void run()
+            {
+                for(UpdateEventHandlerPlusData handler : updateEventHandlers.values())
+                {
+                    handler.m_Handler.updateEventHandler(0, handler.m_UserData, Kernel.this, 0);
+                }
+            }});
+        
+        // Keep track of listeners we install so we can clean up later
+        final Map<Agent, SoarEventListener> listeners = new HashMap<Agent, SoarEventListener>();
+        for(final Agent agent : agents)
+        {
+            final SoarEventListener listener = new SoarEventListener() {
+
+                @Override
+                public void onEvent(SoarEvent event)
+                {
+                    if(event instanceof StopEvent)
+                    {
+                        stopLatch.countDown();
+                        updateBarrier.reset(); // yuck. force everybody out of the barrier so they can stop
+                    }
+                    else if(event instanceof InputEvent)
+                    {
+                        try
+                        {
+                            updateBarrier.await();
+                        }
+                        catch (InterruptedException e)
+                        {
+                            Thread.currentThread().interrupt();
+                        }
+                        catch (BrokenBarrierException e)
+                        {
+                            return; // see updateBarrier.reset() above
+                        }
+                    }
+                }};
+            listeners.put(agent, listener);
+            
+            agent.agent.getEvents().addListener(StopEvent.class, listener);
+            agent.agent.getEvents().addListener(InputEvent.class, listener);
+            
+            // start the agent running (returns immediately)
+            agent.agent.runFor(numberSteps, runType);
+        }
+        
+        try
+        {
+            // wait for the latch to go to zero, which means all the agents have stopped
+            stopLatch.await();
+        }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
+        finally
+        {
+            // Now clean up our listeners
+            for(Map.Entry<Agent, SoarEventListener> e : listeners.entrySet())
+            {
+                e.getKey().agent.getEvents().removeListener(null, e.getValue());
+            }
+        }
     }
 
     public String RunAllAgents(long numberSteps, smlRunStepSize stepSize)
@@ -547,8 +601,8 @@ public class Kernel extends ClientErrors
 
     public String RunAllAgentsForever(smlRunStepSize interleaveStepSize)
     {
-        // TODO implement RunAllAgentsForever
-        throw new UnsupportedOperationException();
+        runAllAgents(1, RunType.FOREVER);
+        return "";
     }
 
     public String RunAllAgentsForever()
@@ -578,8 +632,14 @@ public class Kernel extends ClientErrors
 
     public boolean IsSoarRunning()
     {
-        // TODO implement IsSoarRunning
-        throw new UnsupportedOperationException();
+        for(Agent a : m_AgentMap.values())
+        {
+            if(a.agent.isRunning())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean GetAllConnectionInfo()
@@ -687,24 +747,11 @@ public class Kernel extends ClientErrors
 
     public boolean StartEventThread()
     {
-        // This thread is used to listen for events from the kernel
-        // when the client is sleeping
-// TODO       if (m_pEventThread == null)
-//            return false ;
-//
-//        m_pEventThread.Start() ;
-
         return true ;
     }
 
     public boolean StopEventThread()
     {
-        // Shut down the event thread
-// TODO       if (m_pEventThread == null)
-//            return false ;
-//
-//        m_pEventThread.Stop(true) ;
-
         return true ;
     }
 
@@ -743,7 +790,7 @@ public class Kernel extends ClientErrors
 
     public String GetSoarKernelVersion()
     {
-        return JSoarVersion.getInstance().getVersion();
+        return "JSoar " + JSoarVersion.getInstance().getVersion();
     }
 
     public void CommitAll()

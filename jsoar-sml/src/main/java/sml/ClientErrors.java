@@ -11,7 +11,7 @@ package sml;
 import sml.connection.ErrorCode;
 
 public class ClientErrors {
-    protected ErrorCode           m_LastError ;
+    protected ErrorCode           m_LastError = ErrorCode.kNoError;
 
     // Usually this will be empty, indicating that the error code is sufficient.
     // If we do set this string, it should be displayed instead of the default message
