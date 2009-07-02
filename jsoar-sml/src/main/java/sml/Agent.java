@@ -15,11 +15,12 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.events.InputEvent;
+import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
@@ -62,7 +63,6 @@ public class Agent extends ClientErrors
     private smlRunResult lastResult = smlRunResult.sml_RUN_COMPLETED;
     private final Object agentStopMonitor = new String("Agent stop monitor");
     
-    private boolean pendingCommandsNeedUpdate = true;
     private final List<WMElement> pendingCommands = new ArrayList<WMElement>();
     
     public synchronized void delete()
@@ -75,7 +75,7 @@ public class Agent extends ClientErrors
     {
         this.agent = agent;
         this.agent.getEvents().addListener(StopEvent.class, listener);
-        this.agent.getEvents().addListener(InputEvent.class, listener);
+        this.agent.getEvents().addListener(OutputEvent.class, listener);
         this.m_Kernel = null;
     }
     
@@ -87,7 +87,7 @@ public class Agent extends ClientErrors
     {
         this.agent = ThreadedAgent.create();
         this.agent.getEvents().addListener(StopEvent.class, listener);
-        this.agent.getEvents().addListener(InputEvent.class, listener);
+        this.agent.getEvents().addListener(OutputEvent.class, listener);
         this.agent.setName(agentName);
 
         m_Kernel = kernel ;
@@ -236,7 +236,7 @@ public class Agent extends ClientErrors
 
     public boolean LoadProductions(String pFilename)
     {
-        throw new UnsupportedOperationException("Not implemented");
+        return LoadProductions(pFilename, true);
     }
 
     public Identifier GetInputLink()
@@ -332,12 +332,10 @@ public class Agent extends ClientErrors
     public void ClearOutputLinkChanges()
     {
         pendingCommands.clear();
-        pendingCommandsNeedUpdate = true;
     }
 
     public int GetNumberCommands()
     {
-        updatePendingCommands();
         return pendingCommands.size();
     }
 
@@ -348,18 +346,11 @@ public class Agent extends ClientErrors
 
     public Identifier GetCommand(int index)
     {
-        updatePendingCommands();
         return index < pendingCommands.size() ? pendingCommands.get(index).ConvertToIdentifier() : null;
     }
 
     private void updatePendingCommands()
     {
-        if(!pendingCommandsNeedUpdate)
-        {
-            return;
-        }
-        
-        pendingCommandsNeedUpdate = false;
         pendingCommands.clear();
         for(Wme wme : agent.getInputOutput().getPendingCommands())
         {
@@ -377,18 +368,22 @@ public class Agent extends ClientErrors
         return false; // TODO
     }
 
-    public String RunSelf(long numberSteps, smlRunStepSize stepSize)
+    static RunType smlToJSoarRunType(smlRunStepSize stepSize)
     {
-        final RunType runType;
         switch(stepSize)
         {
-        case sml_DECISION: runType = RunType.DECISIONS; break;
-        case sml_ELABORATION: runType = RunType.ELABORATIONS; break;
-        case sml_PHASE: runType = RunType.PHASES; break;
-        case sml_UNTIL_OUTPUT: runType = RunType.MODIFICATIONS_OF_OUTPUT; break;
+        case sml_DECISION: return RunType.DECISIONS;
+        case sml_ELABORATION: return RunType.ELABORATIONS;
+        case sml_PHASE: return RunType.PHASES;
+        case sml_UNTIL_OUTPUT: return RunType.MODIFICATIONS_OF_OUTPUT;
         default:
             throw new IllegalArgumentException("stepSize: " + stepSize);
         }
+        
+    }
+    public String RunSelf(long numberSteps, smlRunStepSize stepSize)
+    {
+        final RunType runType = smlToJSoarRunType(stepSize);
         
         synchronized(agentStopMonitor)
         {
@@ -446,6 +441,7 @@ public class Agent extends ClientErrors
 
     public String StopSelf()
     {
+        agent.stop();
         return "";
     }
 
@@ -472,16 +468,19 @@ public class Agent extends ClientErrors
     public String ExecuteCommandLine(final String pCommandLine, boolean echoResults, boolean noFilter)
     {
         ClearError();
+        final AtomicReference<String> result = new AtomicReference<String>("");
         final Callable<String> call = new Callable<String>() {
 
             @Override
             public String call() throws Exception
             {
-                return agent.getInterpreter().eval(pCommandLine);
+                result.set(agent.getInterpreter().eval(pCommandLine));
+                return result.get();
             }};
         try
         {
-            return execAndWait(call);
+            execAndWait(call);
+            return result.get();
         }
         catch (SoarException e)
         {
@@ -507,7 +506,7 @@ public class Agent extends ClientErrors
 
     public boolean GetLastCommandLineResult()
     {
-        return HadError();
+        return !HadError();
     }
 
     public boolean IsProductionLoaded(String pProductionName)
@@ -527,7 +526,7 @@ public class Agent extends ClientErrors
         return true;
     }
     
-    private <T> T execAndWait(Callable<T> call) throws SoarException
+    private <T> void execAndWait(Callable<T> call) throws SoarException
     {
         final FutureTask<T> task = new FutureTask<T>(call);
         agent.execute(new Callable<T>() {
@@ -540,7 +539,7 @@ public class Agent extends ClientErrors
             }}, null);
         try
         {
-            return task.get();
+            task.get();
         }
         catch (InterruptedException e)
         {
@@ -623,152 +622,6 @@ public class Agent extends ClientErrors
         return GetWM().IsAutoCommitEnabled();
     }
 
-    /**
-     * @param msg
-     * @param response
-     */
-    public void ReceivedEvent(AnalyzeXML pIncoming, ElementXML pResponse)
-    {
-        final String pEventName = pIncoming.GetArgString(sml_Names.getKParamEventID()) ;
-
-        // This event had no event id field
-        if (pEventName == null)
-        {
-            return ;
-        }
-
-        // Go from the string form of the event back to the integer ID
-        final int id = GetKernel().m_pEventMap.ConvertToEvent(pEventName) ;
-
-        if (sml.IsRunEventID(id))
-        {
-            ReceivedRunEvent(smlRunEventId.swigToEnum(id), pIncoming, pResponse) ;
-        } else if (sml.IsProductionEventID(id))
-        {
-            ReceivedProductionEvent(smlProductionEventId.swigToEnum(id), pIncoming, pResponse) ;
-        } else if (sml.IsPrintEventID(id))
-        {
-            ReceivedPrintEvent(smlPrintEventId.swigToEnum(id), pIncoming, pResponse) ;
-        } else if (sml.IsXMLEventID(id))
-        {
-            ReceivedXMLEvent(smlXMLEventId.swigToEnum(id), pIncoming, pResponse) ;
-        }    
-    }
-    
-    void ReceivedRunEvent(smlRunEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
-    {
-        smlPhase phase = smlPhase.swigToEnum(pIncoming.GetArgInt(sml_Names.getKParamPhase(), -1));
-
-        // Look up the handler(s) from the map
-        List<RunEventHandlerPlusData> pHandlers = m_RunEventMap.getList(id) ;
-
-        if (pHandlers == null)
-            return ;
-
-        // Go through the list of event handlers calling each in turn
-        for (RunEventHandlerPlusData handlerWithData : pHandlers)
-        {
-            RunEventInterface handler = handlerWithData.m_Handler ;
-            Object pUserData = handlerWithData.m_UserData ;
-
-            // Call the handler
-            handler.runEventHandler(id.swigValue(), pUserData, this, phase.swigValue()) ;
-        }
-    }
-    
-    void ReceivedPrintEvent(smlPrintEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
-    {
-        final String pMessage = pIncoming.GetArgString(sml_Names.getKParamMessage()) ;
-
-        // This argument is only present on echo messages.
-        final boolean self = pIncoming.GetArgBool(sml_Names.getKParamSelf(), false) ;
-
-        // Look up the handler(s) from the map
-        List<PrintEventHandlerPlusData> pHandlers = m_PrintEventMap.getList(id) ;
-
-        if (pHandlers == null)
-            return ;
-
-        // Go through the list of event handlers calling each in turn
-        for (PrintEventHandlerPlusData handlerPlus : pHandlers)
-        {
-            final PrintEventInterface handler = handlerPlus.m_Handler ;
-            final boolean ignoreOwnEchos = handlerPlus.m_IgnoreOwnEchos ;
-
-            // If this is an echo event triggered by a command issued by ourselves ignore it.
-            if (id == smlPrintEventId.smlEVENT_ECHO && ignoreOwnEchos && self)
-                continue ;
-
-            Object pUserData = handlerPlus.m_UserData ;
-
-            // Call the handler
-            handler.printEventHandler(id.swigValue(), pUserData, this, pMessage) ;
-        }
-    }
-    
-    void ReceivedProductionEvent(smlProductionEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
-    {
-        final String pProductionName = pIncoming.GetArgString(sml_Names.getKParamName()) ;
-        final String pInstance = null ; // gSKI defines this but doesn't support it yet.
-
-        // Look up the handler(s) from the map
-        final List<ProductionEventHandlerPlusData> pHandlers = m_ProductionEventMap.getList(id) ;
-
-        if (pHandlers == null)
-            return ;
-
-        // Go through the list of event handlers calling each in turn
-        for (ProductionEventHandlerPlusData handlerPlus : pHandlers)
-        {
-            ProductionEventInterface handler = handlerPlus.m_Handler ;
-            Object pUserData = handlerPlus.m_UserData ;
-
-            // Call the handler
-            handler.productionEventHandler(id.swigValue(), pUserData, this, pProductionName, pInstance) ;
-        }
-    } 
-    
-    void ReceivedXMLEvent(smlXMLEventId id, AnalyzeXML pIncoming, ElementXML pResponse)
-    {
-        // Retrieve the original message
-        ElementXML pXMLMessage = new ElementXML(pIncoming.m_hRootObject /*TODO ??*/) ;
-
-        // Need to record our new reference to this handle.
-        //pXMLMessage->AddRefOnHandle() ;
-
-        // NOTE: This object needs to stay in scope for as long as we're calling clients
-        // and then when it is deleted it will delete pXMLMessage.
-        ClientXML clientXML = new ClientXML(pXMLMessage) ;
-
-        // Look up the handler(s) from the map
-        final List<XMLEventHandlerPlusData> pHandlers = m_XMLEventMap.getList(id) ;
-
-        if (pHandlers == null)
-            return ;
-
-        // Go through the list of event handlers calling each in turn
-        for (XMLEventHandlerPlusData handlerPlus : pHandlers)
-        {
-            Agent.xmlEventInterface handler = handlerPlus.m_Handler ;
-
-            Object pUserData = handlerPlus.m_UserData ;
-
-            // Call the handler
-            handler.xmlEventHandler(id.swigValue(), pUserData, this, clientXML);
-        }
-    }    
-    
-    /**
-     * @param smlEVENT_XML_TRACE_OUTPUT
-     * @param incomingMsg
-     * @param response
-     */
-    void ReceivedXMLTraceEvent(smlXMLEventId smlEVENT_XML_TRACE_OUTPUT, ElementXML incomingMsg, ElementXML response)
-    {
-        // TODO implement ReceivedXMLTraceEvent
-        throw new UnsupportedOperationException();
-    }
-
     private class Listener implements SoarEventListener
     {
 
@@ -785,10 +638,9 @@ public class Agent extends ClientErrors
                     agentStopMonitor.notifyAll();
                 }
             }
-            else if(event instanceof InputEvent)
+            else if(event instanceof OutputEvent)
             {
-                pendingCommands.clear();
-                pendingCommandsNeedUpdate = true;
+                updatePendingCommands();
             }
         }
         
