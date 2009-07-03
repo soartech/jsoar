@@ -23,8 +23,11 @@ import org.w3c.dom.Node;
  * Convert SoarTech's XML working memory format to working memory.
  * 
  * @author ray
+ * @see XmlToWme
+ * @see InputXmlWmeFactory
+ * @see RhsFunctionXmlWmeFactory
  */
-public class SoarTechXmlToWme
+public class SoarTechXmlToWme implements XmlToWme
 {
     private static final Log logger = LogFactory.getLog(SoarTechXmlToWme.class);
     
@@ -45,6 +48,9 @@ public class SoarTechXmlToWme
     }
     
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.xml.XmlToWme#fromXml(org.w3c.dom.Element)
+     */
     public Identifier fromXml(Element element)
     {
         return fromXml(element, null);

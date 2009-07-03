@@ -17,8 +17,12 @@ import org.w3c.dom.Text;
 
 /**
  * @author ray
+ * @see XmlToWme
+ * @see InputXmlWmeFactory
+ * @see RhsFunctionXmlWmeFactory
+ * @see DefaultWmeToXml
  */
-public class DefaultXmlToWme
+public class DefaultXmlToWme implements XmlToWme
 {
     private final SymbolFactory syms;
     private final XmlWmeFactory wmeFactory;
@@ -33,7 +37,10 @@ public class DefaultXmlToWme
         this.wmeFactory = wmeFactory;
     }
 
-    public Symbol fromXml(Element element)
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.xml.XmlToWme#fromXml(org.w3c.dom.Element)
+     */
+    public Identifier fromXml(Element element)
     {
         return fromXmlInternal(element);
     }
