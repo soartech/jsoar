@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Iterators;
 
-public class XmlToWmeTest
+public class DefaultXmlToWmeTest
 {
 
     @Test
@@ -42,20 +42,20 @@ public class XmlToWmeTest
         
         final Wme location = m.attr("location").find(xml);
         assertNotNull(location);
-        final Wme locAttrs = m.attr(WmeToXml.ATTRS).find(location);
+        final Wme locAttrs = m.attr(DefaultWmeToXml.ATTRS).find(location);
         assertNotNull(locAttrs);
         assertEquals("Ann Arbor", m.attr("name").find(locAttrs).getValue().asString().getValue());
         assertEquals("100000", m.attr("population").find(locAttrs).getValue().asString().getValue());
         
-        assertEquals("This is some text", m.attr(WmeToXml.TEXT).find(location).getValue().asString().getValue());
+        assertEquals("This is some text", m.attr(DefaultWmeToXml.TEXT).find(location).getValue().asString().getValue());
         
         final Wme person = m.attr("person").find(xml);
         assertNotNull(person);
         
-        assertSame(person.getValue(), m.attr(WmeToXml.NEXT).find(location).getValue());
+        assertSame(person.getValue(), m.attr(DefaultWmeToXml.NEXT).find(location).getValue());
         
         final Wme name = m.attr("name").find(person);
-        assertEquals("Bill", m.attr(WmeToXml.TEXT).find(name).getValue().asString().getValue());
+        assertEquals("Bill", m.attr(DefaultWmeToXml.TEXT).find(name).getValue().asString().getValue());
     }
     @Test
     public void testFromXmlWithOnlyText() throws Exception
@@ -68,7 +68,7 @@ public class XmlToWmeTest
         final MatcherBuilder m = Wmes.matcher(agent);
         final Wme xml = m.attr("xml").find(il);
         assertNotNull(xml);
-        assertEquals("This is the only text in the document", m.attr(WmeToXml.TEXT).find(xml).getValue().asString().getValue());
+        assertEquals("This is the only text in the document", m.attr(DefaultWmeToXml.TEXT).find(xml).getValue().asString().getValue());
     }
     
     @Test
@@ -82,7 +82,7 @@ public class XmlToWmeTest
         final MatcherBuilder m = Wmes.matcher(agent);
         final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
         assertNotNull(xml);
-        final Wme attrs = m.attr(WmeToXml.ATTRS).find(xml);
+        final Wme attrs = m.attr(DefaultWmeToXml.ATTRS).find(xml);
         assertNotNull(attrs);
         assertEquals(1, Iterators.size(xml.getWmes())); // Only /attrs
         
@@ -101,9 +101,9 @@ public class XmlToWmeTest
         final MatcherBuilder m = Wmes.matcher(agent);
         final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
         assertNotNull(xml);
-        final Wme attrs = m.attr(WmeToXml.ATTRS).find(xml);
+        final Wme attrs = m.attr(DefaultWmeToXml.ATTRS).find(xml);
         assertNotNull(attrs);
-        final Wme text = m.attr(WmeToXml.TEXT).find(xml);
+        final Wme text = m.attr(DefaultWmeToXml.TEXT).find(xml);
         assertNotNull(text);
         assertEquals(2, Iterators.size(xml.getWmes())); // Only /attrs and /text
         
@@ -132,7 +132,7 @@ public class XmlToWmeTest
             if(i != 0)
             {
                 Wme prev = wmes[i-1];
-                Wme next = m.attr(WmeToXml.NEXT).find(prev);
+                Wme next = m.attr(DefaultWmeToXml.NEXT).find(prev);
                 assertNotNull(next);
                 assertSame(prev.getValue(), next.getIdentifier());
                 assertSame(next.getValue(), wme.getValue());
