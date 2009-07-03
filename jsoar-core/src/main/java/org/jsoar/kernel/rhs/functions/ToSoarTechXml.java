@@ -7,14 +7,14 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
-import org.jsoar.kernel.io.xml.WmeToSoarTechXml;
+import org.jsoar.kernel.io.xml.SoarTechWmeToXml;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.XmlTools;
 import org.w3c.dom.Document;
 
 /**
- * A RHS function that converts working memory to XML using {@link WmeToSoarTechXml}. 
+ * A RHS function that converts working memory to XML using {@link SoarTechWmeToXml}. 
  * 
  * @author ray
  */
@@ -68,7 +68,7 @@ public class ToSoarTechXml extends AbstractRhsFunctionHandler
             throw new RhsFunctionException("Argument to '" + getName() + "' RHS function must be an identifier.");
         }
         
-        final WmeToSoarTechXml toXml = new WmeToSoarTechXml();
+        final SoarTechWmeToXml toXml = new SoarTechWmeToXml();
         final Document doc = toXml.toXml(root, rootName);
         
         return context.getSymbols().createString(XmlTools.toString(doc));

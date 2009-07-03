@@ -9,14 +9,14 @@ import java.io.IOException;
 import java.util.List;
 
 import org.jsoar.kernel.io.xml.RhsFunctionXmlWmeFactory;
-import org.jsoar.kernel.io.xml.XmlToWme;
+import org.jsoar.kernel.io.xml.DefaultXmlToWme;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.XmlTools;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * A RHS function that parses an XML string using {@link XmlToWme} and
+ * A RHS function that parses an XML string using {@link DefaultXmlToWme} and
  * returns a working memory representation of the XML. The root element
  * of the XML input is ignored.
  * 
@@ -59,7 +59,7 @@ public class FromXml extends AbstractRhsFunctionHandler
             throw new RhsFunctionException(e.getMessage(), e);
         }
         
-        final XmlToWme toWmes = new XmlToWme(context.getSymbols(), new RhsFunctionXmlWmeFactory(context));
+        final DefaultXmlToWme toWmes = new DefaultXmlToWme(context.getSymbols(), new RhsFunctionXmlWmeFactory(context));
         
         return toWmes.fromXml(doc.getDocumentElement());
     }

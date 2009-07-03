@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
  * 
  * @author ray
  */
-public class WmeToSoarTechXml
+public class SoarTechWmeToXml
 {
     public static final String TYPE = "type";
     public static final String INTEGER = "integer";

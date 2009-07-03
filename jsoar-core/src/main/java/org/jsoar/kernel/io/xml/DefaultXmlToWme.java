@@ -5,8 +5,6 @@
  */
 package org.jsoar.kernel.io.xml;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -20,10 +18,8 @@ import org.w3c.dom.Text;
 /**
  * @author ray
  */
-public class XmlToWme
+public class DefaultXmlToWme
 {
-    private static final Log logger = LogFactory.getLog(XmlToWme.class);
-
     private final SymbolFactory syms;
     private final XmlWmeFactory wmeFactory;
     
@@ -31,7 +27,7 @@ public class XmlToWme
      * @param syms
      * @param wmeFactory
      */
-    public XmlToWme(SymbolFactory syms, XmlWmeFactory wmeFactory)
+    public DefaultXmlToWme(SymbolFactory syms, XmlWmeFactory wmeFactory)
     {
         this.syms = syms;
         this.wmeFactory = wmeFactory;
@@ -55,7 +51,7 @@ public class XmlToWme
         }
         
         final Identifier attrsId = syms.createIdentifier('a');
-        wmeFactory.addWme(targetId, syms.createString(WmeToXml.ATTRS), attrsId);
+        wmeFactory.addWme(targetId, syms.createString(DefaultWmeToXml.ATTRS), attrsId);
         
         for(int i = 0; i < attrsLength; ++i)
         {
@@ -71,7 +67,7 @@ public class XmlToWme
     {
         if(text != null && text.length() != 0)
         {
-            wmeFactory.addWme(targetId, syms.createString(WmeToXml.TEXT), syms.createString(text));
+            wmeFactory.addWme(targetId, syms.createString(DefaultWmeToXml.TEXT), syms.createString(text));
         }
     }
     
@@ -98,7 +94,7 @@ public class XmlToWme
                 // the order or the original xml in working memory
                 if(lastChildId != null)
                 {
-                    wmeFactory.addWme(lastChildId, syms.createString(WmeToXml.NEXT), kidId);
+                    wmeFactory.addWme(lastChildId, syms.createString(DefaultWmeToXml.NEXT), kidId);
                 }
                 lastChildId = kidId;
             }

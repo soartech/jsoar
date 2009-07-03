@@ -43,7 +43,13 @@ public class SoarTechXmlToWme
         this.syms = syms;
         this.wmeFactory = wmeFactory;
     }
-
+    
+    
+    public Identifier fromXml(Element element)
+    {
+        return fromXml(element, null);
+    }
+    
     public Identifier fromXml(Element element, Identifier targetId)
     {
         final Identifier result = fromXmlInternal(element, targetId);
@@ -78,14 +84,14 @@ public class SoarTechXmlToWme
             if(!(node instanceof Element)) continue;
             
             final Element kid = (Element) node;
-            final String linkTo = kid.getAttribute(WmeToSoarTechXml.LINK);
+            final String linkTo = kid.getAttribute(SoarTechWmeToXml.LINK);
             final Symbol attribute = syms.createString(kid.getTagName());
             if(linkTo.length() == 0)
             {
                 final Symbol value = getValue(kid);
                 wmeFactory.addWme(targetId, attribute, value);
                 
-                final String link = kid.getAttribute(WmeToSoarTechXml.LINK_ID);
+                final String link = kid.getAttribute(SoarTechWmeToXml.LINK_ID);
                 if(link.length() != 0)
                 {
                     linkMap.put(link, value);
@@ -101,16 +107,16 @@ public class SoarTechXmlToWme
     
     private Symbol getValue(Element element)
     {
-        final String type = element.getAttribute(WmeToSoarTechXml.TYPE);
+        final String type = element.getAttribute(SoarTechWmeToXml.TYPE);
         if(type.length() == 0 && XmlTools.getFirstChild(element) != null)
         {
             return fromXmlInternal(element, null);
         }
-        else if(WmeToSoarTechXml.DOUBLE.equals(type))
+        else if(SoarTechWmeToXml.DOUBLE.equals(type))
         {
             return syms.createDouble(Double.valueOf(element.getTextContent()));
         }
-        else if(WmeToSoarTechXml.INTEGER.equals(type))
+        else if(SoarTechWmeToXml.INTEGER.equals(type))
         {
             return syms.createInteger(Integer.valueOf(element.getTextContent()));
         }

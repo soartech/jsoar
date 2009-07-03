@@ -25,13 +25,13 @@ import org.w3c.dom.Text;
  * 
  * @author ray
  */
-public class WmeToXml
+public class DefaultWmeToXml
 {
     public static final String ATTRS = "/attrs";
     public static final String TEXT = "/text";
     public static final String NEXT = "/next";
     
-    private static final Log logger = LogFactory.getLog(XmlToWme.class);
+    private static final Log logger = LogFactory.getLog(DefaultXmlToWme.class);
     private static final DocumentBuilder builder = XmlTools.createDocumentBuilder();
     
     private final Map<Identifier, Element> idMap = new HashMap<Identifier, Element>();
