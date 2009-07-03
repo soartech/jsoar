@@ -22,6 +22,7 @@ import org.w3c.dom.Element;
  * A transform from working memory to SoarTech's working memory XML format.
  * 
  * @author ray
+ * @see SoarTechXmlToWme
  */
 public class SoarTechWmeToXml
 {
