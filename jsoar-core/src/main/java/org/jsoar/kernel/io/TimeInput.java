@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009  Dave Ray < daveray@gmail.com>
+ * Copyright (c) 2009  Dave Ray <daveray@gmail.com>
  *
  * Created on June 11, 2009
  */
@@ -26,7 +26,6 @@ import org.jsoar.util.events.SoarEventManager;
 public class TimeInput
 {
     private final InputOutput io;
-    private final SoarEventManager events;
     private final InputListener listener;
     private final InitSoarListener initListener;
     
@@ -35,11 +34,10 @@ public class TimeInput
     private final Map<String, InputWme> childWmes = new HashMap<String, InputWme>();
     
     /**
-     * Construct a new world-time input object.
+     * Construct a new world-time input object. This object will automatically 
+     * register for input events and update the input-link. 
      * 
      * @param io The I/O interface
-     * @param events The event manager. This object
-     *     will automatically register for input events and update the input-link.
      */
     public TimeInput(InputOutput io, SoarEventManager events)
     {
@@ -47,11 +45,10 @@ public class TimeInput
         Arguments.checkNotNull(events, "events");
         
         this.io = io;
-        this.events = events;
         this.listener = new InputListener();
         this.initListener = new InitSoarListener();
-        this.events.addListener(InputEvent.class, listener);
-        this.events.addListener(BeforeInitSoarEvent.class, initListener);
+        this.io.getEvents().addListener(InputEvent.class, listener);
+        this.io.getEvents().addListener(BeforeInitSoarEvent.class, initListener);
     }
     
     /**
@@ -60,8 +57,8 @@ public class TimeInput
      */
     public void dispose()
     {
-        this.events.removeListener(null, listener);
-        this.events.removeListener(null, initListener);
+        this.io.getEvents().removeListener(null, listener);
+        this.io.getEvents().removeListener(null, initListener);
         
         // Schedule removal of wme at next input cycle.
         if(wme != null)

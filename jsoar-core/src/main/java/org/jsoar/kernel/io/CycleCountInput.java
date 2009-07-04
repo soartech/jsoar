@@ -10,7 +10,6 @@ import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
-import org.jsoar.util.events.SoarEventManager;
 
 /**
  * Adds an augmentation to the input-link with the current cycle count. The
@@ -22,7 +21,6 @@ public class CycleCountInput
 {
     private static final int START = 1; // TODO: I think this should be 0. Why isn't it?
     private final InputOutput io;
-    private final SoarEventManager events;
     private final InputListener listener;
     private final InitSoarListener initListener;
     
@@ -30,23 +28,20 @@ public class CycleCountInput
     private InputWme wme;
     
     /**
-     * Construct a new cycle count input object.
+     * Construct a new cycle count input object. This object will automatically 
+     * register for input events and update the input-link.
      * 
      * @param io The I/O interface
-     * @param events The event manager. This object
-     *     will automatically register for input events and update the input-link.
      */
-    public CycleCountInput(InputOutput io, SoarEventManager events)
+    public CycleCountInput(InputOutput io)
     {
         Arguments.checkNotNull(io, "io");
-        Arguments.checkNotNull(events, "events");
         
         this.io = io;
-        this.events = events;
         this.listener = new InputListener();
         this.initListener = new InitSoarListener();
-        this.events.addListener(InputEvent.class, listener);
-        this.events.addListener(BeforeInitSoarEvent.class, initListener);
+        this.io.getEvents().addListener(InputEvent.class, listener);
+        this.io.getEvents().addListener(BeforeInitSoarEvent.class, initListener);
     }
     
     /**
@@ -55,8 +50,8 @@ public class CycleCountInput
      */
     public void dispose()
     {
-        this.events.removeListener(null, listener);
-        this.events.removeListener(null, initListener);
+        this.io.getEvents().removeListener(null, listener);
+        this.io.getEvents().removeListener(null, initListener);
         
         // Schedule removal of wme at next input cycle.
         if(wme != null)

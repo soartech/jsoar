@@ -54,7 +54,7 @@ public class RecognitionMemoryTest
     @Test
     public void testRhsFunctionThatCreatesStructure() throws Exception
     {
-        new CycleCountInput(agent.getInputOutput(), agent.getEvents());
+        new CycleCountInput(agent.getInputOutput());
         
         // Add a RHS function that puts a structure in working memory
         RhsFunctionHandler func = new AbstractRhsFunctionHandler("rhs-structure", 0, 0) {

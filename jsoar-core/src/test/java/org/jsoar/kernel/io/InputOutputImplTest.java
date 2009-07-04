@@ -230,7 +230,7 @@ public class InputOutputImplTest extends JSoarTest
     public void testGetPendingCommands() throws Exception
     {
         final InputOutput io = agent.getInputOutput();
-        new CycleCountInput(io, agent.getEvents());
+        new CycleCountInput(io);
         sourceTestFile("testGetPendingCommands.soar");
         
         final MatcherBuilder m = Wmes.matcher(agent);

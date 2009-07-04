@@ -48,8 +48,7 @@ public class RobotAgent
             }}));
         
         SoarQMemoryAdapter.attach(this.agent.getAgent(), memory);
-        new CycleCountInput(this.agent.getInputOutput(), 
-                            this.agent.getEvents());
+        new CycleCountInput(this.agent.getInputOutput());
         
         //debug();
     }
