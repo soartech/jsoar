@@ -17,6 +17,7 @@ import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.util.events.SoarEventManager;
 
 /**
  * This is the JSoar I/O interface. This is the interface you use for handling output
@@ -43,6 +44,14 @@ public interface InputOutput
      * @return The symbol factory used by this I/O component
      */
     SymbolFactory getSymbols();
+    
+    /**
+     * Returns the event manager that this I/O component will use to fire
+     * events.
+     * 
+     * @return The event manager this I/O component will use to fire events
+     */
+    SoarEventManager getEvents();
     
     /**
      * Create a new input WME. The symbols used must have been created with

@@ -35,6 +35,7 @@ import org.jsoar.util.Arguments;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
@@ -161,6 +162,15 @@ public class InputOutputImpl implements InputOutput
     public SymbolFactory getSymbols()
     {
         return context.getSymbols();
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.InputOutput#getEvents()
+     */
+    @Override
+    public SoarEventManager getEvents()
+    {
+        return context.getEvents();
     }
 
     /**
