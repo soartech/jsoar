@@ -14,7 +14,6 @@ import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
-import org.jsoar.util.events.SoarEventManager;
 
 /**
  * Adds an augmentation to the input-link with the current world time,
@@ -39,10 +38,9 @@ public class TimeInput
      * 
      * @param io The I/O interface
      */
-    public TimeInput(InputOutput io, SoarEventManager events)
+    public TimeInput(InputOutput io)
     {
         Arguments.checkNotNull(io, "io");
-        Arguments.checkNotNull(events, "events");
         
         this.io = io;
         this.listener = new InputListener();
