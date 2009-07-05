@@ -120,6 +120,9 @@ public class StandardFunctions
         allInternal.add(new Debug(context));
         allInternal.add(new ExecRhsFunction(context.getRhsFunctions()));
         
+        allInternal.add(new RandomInt(context.getRandom()));
+        allInternal.add(new RandomFloat(context.getRandom()));
+        
         for(RhsFunctionHandler handler : all)
         {
             context.getRhsFunctions().registerHandler(handler);
