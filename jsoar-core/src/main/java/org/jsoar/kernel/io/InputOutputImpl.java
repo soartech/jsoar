@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
@@ -90,6 +92,8 @@ import org.jsoar.util.markers.Marker;
  */
 public class InputOutputImpl implements InputOutput
 {
+    private static final Log logger = LogFactory.getLog(InputOutputImpl.class);
+    
     /**
      * io.cpp:387
      */
@@ -299,7 +303,8 @@ public class InputOutputImpl implements InputOutput
 
         if (!w.isMemberOfList(w.id.getInputWmes()))
         {
-            throw new IllegalArgumentException(String.format("%s is not currently in working memory", w));
+            logger.warn(String.format("removeInputWmeInternal: %s is not currently in working memory. Ignoring.", w));
+            return;
         }
 
         /* TODO for efficiency, it might be better to use a hash table for the
