@@ -59,11 +59,11 @@ module RSoar
   
     attr_reader :root
   
-    def initialize(agent)
-      @agent = agent
+    def initialize(io)
+      @io = io
   
       @queue = java.util.LinkedList.new
-      @agent.events.add_listener org.jsoar.kernel.events.InputEvent.java_class, self
+      @io.events.add_listener org.jsoar.kernel.events.InputEvent.java_class, self
   
       @root = InputId.new self
       @ids = {}
@@ -80,7 +80,7 @@ module RSoar
       @queue.synchronized do
         @queue.addLast op
       end
-      @agent.input_output.asynchronous_input_ready
+      @io.asynchronous_input_ready
     end
   
     def do_add(node, name, value)
@@ -89,7 +89,7 @@ module RSoar
       end
       
       id = create_id_symbol node
-      wme = org.jsoar.kernel.io.InputWmes.add @agent.input_output, id, @agent.symbols.create_string(name.to_s), value
+      wme = org.jsoar.kernel.io.InputWmes.add @io, id, @io.symbols.create_string(name.to_s), value
       node.map[name] << wme
     end
   
@@ -108,14 +108,14 @@ module RSoar
     private
     
     def get_id_symbol(node)
-      @root == node ? @agent.input_output.input_link : @ids[node]
+      @root == node ? @io.input_link : @ids[node]
     end
   
     def create_id_symbol(node)
       id = get_id_symbol node
   
       if id.nil?
-        id = @agent.input_output.symbols.create_identifier node.char[0]
+        id = @io.symbols.create_identifier node.char[0]
         @ids[node] = id
       end
   
