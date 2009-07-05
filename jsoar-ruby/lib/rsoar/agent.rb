@@ -11,10 +11,10 @@ module RSoar
   
       @agent = org.jsoar.runtime.ThreadedAgent.create
   
-      org.jsoar.kernel.io.CycleCountInput.new @agent.input_output, @agent.events
-      org.jsoar.kernel.io.TimeInput.new @agent.input_output, @agent.events
+      org.jsoar.kernel.io.CycleCountInput.new @agent.input_output
+      org.jsoar.kernel.io.TimeInput.new @agent.input_output
       
-      @input = RSoar::Input.new self
+      @input = RSoar::Input.new @agent.input_output
       @output = RSoar::Output.new self
 
       yield self if block_given?
