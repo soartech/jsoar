@@ -9,6 +9,8 @@ import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.util.Arguments;
 
 /**
  * Implementation of {@link XmlWmeFactory} that creates {@link InputWme}s.
@@ -27,7 +29,18 @@ public class InputXmlWmeFactory implements XmlWmeFactory
      */
     public InputXmlWmeFactory(InputOutput io)
     {
+        Arguments.checkNotNull(io, "io");
         this.io = io;
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.xml.XmlWmeFactory#getSymbols()
+     */
+    @Override
+    public SymbolFactory getSymbols()
+    {
+        return io.getSymbols();
     }
 
     /* (non-Javadoc)

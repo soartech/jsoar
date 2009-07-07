@@ -12,9 +12,12 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.util.Arguments;
 import org.jsoar.util.XmlTools;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,19 +34,44 @@ public class SoarTechXmlToWme implements XmlToWme
 {
     private static final Log logger = LogFactory.getLog(SoarTechXmlToWme.class);
     
-    private final SymbolFactory syms;
     private final XmlWmeFactory wmeFactory;
     
     private final Map<String, Symbol> linkMap = new HashMap<String, Symbol>(); 
     private final List<Link> links = new ArrayList<Link>();
     
     /**
-     * @param syms
-     * @param wmeFactory
+     * Construct an XML to WME converter for I/O, i.e. it uses an instance of
+     * {@link InputOutput} to generate symbols and WMEs.
+     * 
+     * @param io the I/O interface to use
+     * @return new converter
      */
-    public SoarTechXmlToWme(SymbolFactory syms, XmlWmeFactory wmeFactory)
+    public static SoarTechXmlToWme forInput(InputOutput io)
     {
-        this.syms = syms;
+        return new SoarTechXmlToWme(new InputXmlWmeFactory(io));
+    }
+    
+    /**
+     * Construct an XML to WME converter for RHS functions, i.e. it uses an
+     * instance of {@link RhsFunctionContext} to generate symbols and WMEs.
+     * 
+     * @param rhsContext the RHS function context to use 
+     * @return new converter
+     */
+    public static SoarTechXmlToWme forRhsFunction(RhsFunctionContext rhsContext)
+    {
+        return new SoarTechXmlToWme(new RhsFunctionXmlWmeFactory(rhsContext));
+    }
+    
+    /**
+     * Construct a new XML to WME converter using the given factory interface to
+     * generate symbols and WMEs
+     * 
+     * @param wmeFactory the WME factory
+     */
+    public SoarTechXmlToWme(XmlWmeFactory wmeFactory)
+    {
+        Arguments.checkNotNull(wmeFactory, "wmeFactory");
         this.wmeFactory = wmeFactory;
     }
     
@@ -80,6 +108,8 @@ public class SoarTechXmlToWme implements XmlToWme
     
     private Identifier fromXmlInternal(Element element, Identifier targetId)
     {
+        final SymbolFactory syms = wmeFactory.getSymbols();
+        
         if(targetId == null)
         {
             targetId = syms.createIdentifier(element.getTagName().charAt(0));
@@ -113,6 +143,7 @@ public class SoarTechXmlToWme implements XmlToWme
     
     private Symbol getValue(Element element)
     {
+        final SymbolFactory syms = wmeFactory.getSymbols();
         final String type = element.getAttribute(SoarTechWmeToXml.TYPE);
         if(type.length() == 0 && XmlTools.getFirstChild(element) != null)
         {

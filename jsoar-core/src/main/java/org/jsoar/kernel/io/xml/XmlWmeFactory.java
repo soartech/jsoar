@@ -7,6 +7,7 @@ package org.jsoar.kernel.io.xml;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * Interface use by objects that convert XML to working memory. Intended
@@ -20,6 +21,11 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public interface XmlWmeFactory
 {
+    /**
+     * @return a symbol factory to use to construct new symbols
+     */
+    SymbolFactory getSymbols();
+    
     /**
      * Add a new WME. Note that this method does not return a new Wme. This is
      * because Wmes created in a RHS function are not actually "created" until
