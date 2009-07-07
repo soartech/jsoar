@@ -8,7 +8,6 @@ package org.jsoar.kernel.rhs.functions;
 import java.io.IOException;
 import java.util.List;
 
-import org.jsoar.kernel.io.xml.RhsFunctionXmlWmeFactory;
 import org.jsoar.kernel.io.xml.DefaultXmlToWme;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.XmlTools;
@@ -59,8 +58,6 @@ public class FromXml extends AbstractRhsFunctionHandler
             throw new RhsFunctionException(e.getMessage(), e);
         }
         
-        final DefaultXmlToWme toWmes = new DefaultXmlToWme(context.getSymbols(), new RhsFunctionXmlWmeFactory(context));
-        
-        return toWmes.fromXml(doc.getDocumentElement());
+        return DefaultXmlToWme.forRhsFunction(context).fromXml(doc.getDocumentElement());
     }
 }

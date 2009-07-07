@@ -8,7 +8,6 @@ package org.jsoar.kernel.rhs.functions;
 import java.io.IOException;
 import java.util.List;
 
-import org.jsoar.kernel.io.xml.RhsFunctionXmlWmeFactory;
 import org.jsoar.kernel.io.xml.SoarTechXmlToWme;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.XmlTools;
@@ -59,8 +58,6 @@ public class FromSoarTechXml extends AbstractRhsFunctionHandler
             throw new RhsFunctionException(e.getMessage(), e);
         }
         
-        final SoarTechXmlToWme toWmes = new SoarTechXmlToWme(context.getSymbols(), new RhsFunctionXmlWmeFactory(context));
-        
-        return toWmes.fromXml(doc.getDocumentElement(), null);
+        return SoarTechXmlToWme.forRhsFunction(context).fromXml(doc.getDocumentElement(), null);
     }
 }

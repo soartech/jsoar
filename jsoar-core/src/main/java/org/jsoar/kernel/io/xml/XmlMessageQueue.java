@@ -97,6 +97,10 @@ public class XmlMessageQueue
     /** the root WME of the queue, created on first input event */
     private final AtomicReference<InputWme> queueWme = new AtomicReference<InputWme>();
     
+    /**
+     * Builder class for {@link XmlMessageQueue}. Instantiate with
+     * {@link XmlMessageQueue#newBuilder(InputOutput)}
+     */
     public static class Builder
     {
         private final InputOutput io;
@@ -111,12 +115,32 @@ public class XmlMessageQueue
         }
         
         public XmlToWme converter() { return converter; }
-        public Builder convert(XmlToWme c) { this.converter = c; return this; }
+        /**
+         * Set the {@link XmlToWme} converter used by the queue. Defaults to 
+         * {@link DefaultXmlToWme}.
+         * 
+         * @param c the converter
+         * @return this
+         */
+        public Builder converter(XmlToWme c) { this.converter = c; return this; }
         
         public long timeToLive() { return timeToLive; }
+        /**
+         * Set the number of input cycles that messages stay in working memory before
+         * being removed.
+         * 
+         * @param ttl number of input cycles
+         * @return this
+         */
         public Builder timeToLive(long ttl) { this.timeToLive = ttl; return this; }
         
         public String queueName() { return queueName; }
+        /**
+         * Set the name of the queue attribute on the input-link. Defaults to {@code "messages"}.
+         * 
+         * @param qn the name of the queue attribute
+         * @return this
+         */
         public Builder queueName(String qn) { this.queueName = qn; return this; }
         
         /**
@@ -138,7 +162,7 @@ public class XmlMessageQueue
         Arguments.checkNotNull(builder, "builder");
         
         this.io = builder.io;
-        this.converter = builder.converter != null ? builder.converter : new DefaultXmlToWme(io.getSymbols(), new InputXmlWmeFactory(io));
+        this.converter = builder.converter != null ? builder.converter : DefaultXmlToWme.forInput(io);
         this.queueName = builder.queueName;
         this.timeToLive = builder.timeToLive;
         

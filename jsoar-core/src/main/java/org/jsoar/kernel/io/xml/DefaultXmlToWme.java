@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.io.xml;
 
+import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -16,6 +18,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /**
+ * Default implementation of {@link XmlToWme} interface
+ * 
  * @author ray
  * @see XmlToWme
  * @see InputXmlWmeFactory
@@ -24,16 +28,40 @@ import org.w3c.dom.Text;
  */
 public class DefaultXmlToWme implements XmlToWme
 {
-    private final SymbolFactory syms;
     private final XmlWmeFactory wmeFactory;
     
     /**
-     * @param syms
-     * @param wmeFactory
+     * Construct an XML to WME converter for I/O, i.e. it uses an instance of
+     * {@link InputOutput} to generate symbols and WMEs.
+     * 
+     * @param io the I/O interface to use
+     * @return new converter
      */
-    public DefaultXmlToWme(SymbolFactory syms, XmlWmeFactory wmeFactory)
+    public static DefaultXmlToWme forInput(InputOutput io)
     {
-        this.syms = syms;
+        return new DefaultXmlToWme(new InputXmlWmeFactory(io));
+    }
+    
+    /**
+     * Construct an XML to WME converter for RHS functions, i.e. it uses an
+     * instance of {@link RhsFunctionContext} to generate symbols and WMEs.
+     * 
+     * @param rhsContext the RHS function context to use 
+     * @return new converter
+     */
+    public static DefaultXmlToWme forRhsFunction(RhsFunctionContext rhsContext)
+    {
+        return new DefaultXmlToWme(new RhsFunctionXmlWmeFactory(rhsContext));
+    }
+    
+    /**
+     * Construct a new XML to WME converter using the given factory to construct
+     * new symbols and WMEs.
+     * 
+     * @param wmeFactory the WME factory to use
+     */
+    public DefaultXmlToWme(XmlWmeFactory wmeFactory)
+    {
         this.wmeFactory = wmeFactory;
     }
 
@@ -49,7 +77,8 @@ public class DefaultXmlToWme implements XmlToWme
     {
         assert element != null;
         assert targetId != null;
-        
+
+        final SymbolFactory syms = wmeFactory.getSymbols();
         final NamedNodeMap attrs = element.getAttributes();
         final int attrsLength = attrs.getLength();
         if(attrsLength == 0)
@@ -74,12 +103,14 @@ public class DefaultXmlToWme implements XmlToWme
     {
         if(text != null && text.length() != 0)
         {
+            final SymbolFactory syms = wmeFactory.getSymbols();
             wmeFactory.addWme(targetId, syms.createString(DefaultWmeToXml.TEXT), syms.createString(text));
         }
     }
     
     private Identifier fromXmlInternal(Element element)
     {
+        final SymbolFactory syms = wmeFactory.getSymbols();
         final Identifier targetId = syms.createIdentifier(Symbols.getFirstLetter(element.getTagName()));
         String text = "";
         Identifier lastChildId = null;
