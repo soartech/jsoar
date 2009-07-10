@@ -22,7 +22,6 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
-import org.jsoar.util.events.SoarEventManager;
 
 /**
  * Adapts the contents of a {@link QMemory} structure to Soar working memory
@@ -89,7 +88,6 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
     };
     
     private final String lock = new String(getClass().getName() + " lock");
-    private SoarEventManager events;
     private QMemory source;
     private boolean sourceChanged = false;
     private InputOutput io;
@@ -110,7 +108,7 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
     public static SoarQMemoryAdapter attach(Agent agent, QMemory source)
     {
         Arguments.checkNotNull(agent, "agent");
-        return attach(agent.getEvents(), agent.getInputOutput(), null, source);
+        return attach(agent.getInputOutput(), null, source);
     }
     
     /**
@@ -118,7 +116,6 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
      * a lower-level version of {@link #attach(Agent, QMemory)} which allows working
      * memory to be manipulated at a point other than the agent's input-link.
      * 
-     * @param events An event manager
      * @param io An I/O interface
      * @param rootId The root identifier to attach to, or <code>null</code> to
      *          attach to the input-link directly.
@@ -126,11 +123,11 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
      * @return New adapter object
      * @throws IllegalArgumentException if events or io are <code>null</code>
      */
-    public static SoarQMemoryAdapter attach(SoarEventManager events, InputOutput io, Identifier rootId, QMemory source)
+    public static SoarQMemoryAdapter attach(InputOutput io, Identifier rootId, QMemory source)
     {
         SoarQMemoryAdapter adapter = new SoarQMemoryAdapter();
         adapter.setSource(source);
-        adapter.initialize(events, io, rootId);
+        adapter.initialize(io, rootId);
         return adapter;
     }
     
@@ -146,27 +143,24 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
      * Initialize this memory adapter. This should only be called when the default
      * constructor is used.
      * 
-     * @param events An event manager
      * @param io An io interface
      * @param rootId Root identifier to construct WMEs from. If {@code null} 
      *      then the root of the input-link is used.
      */
-    public void initialize(SoarEventManager events, InputOutput io, Identifier rootId)
+    public void initialize(InputOutput io, Identifier rootId)
     {
         synchronized(lock)
         {
-            Arguments.checkNotNull(events, "events");
             Arguments.checkNotNull(io, "io");
             
-            if(this.events != null)
+            if(this.io != null)
             {
                 throw new IllegalStateException("already initialized");
             }
             
-            this.events = events;
-            this.events.addListener(InputEvent.class, this);
-            this.events.addListener(AfterInitSoarEvent.class, this);
             this.io = io;
+            this.io.getEvents().addListener(InputEvent.class, this);
+            this.io.getEvents().addListener(AfterInitSoarEvent.class, this);
             if(rootId != null)
             {
                 this.rootId = rootId;
@@ -183,12 +177,11 @@ public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
     {
         synchronized(lock)
         {
-            if(this.events != null)
+            if(this.io != null)
             {
-                this.events.removeListener(null, this);
+                this.io.getEvents().removeListener(null, this);
                 removeAllWmes(io, memory);
             }
-            this.events = null;
             this.io = null;
             this.memory = null;
         }
