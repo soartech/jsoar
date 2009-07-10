@@ -32,7 +32,6 @@ module RSoar
 
     def initialize(agent)
       @agent = agent
-      @status_sym = @agent.symbols.create_string 'status'
       @commands = {}
       
       @agent.events.add_listener org.jsoar.kernel.events.OutputEvent.java_class, self
@@ -53,15 +52,20 @@ module RSoar
     end
     
     def handle_command(io, command, value)
-      r = nil
+      rname = rvalue = nil
       begin
-        r = command.handler.call OutputId.new(@agent.agent.agent, value)
+        rname, rvalue = command.handler.call OutputId.new(@agent.agent.agent, value)
       rescue Exception => e
         @agent.print "ERROR: #{e}"
-        r = "error"   
+        rname = 'status'
+        rvalue = 'error'
       end
-      if r && !value.asIdentifier.nil?
-        io.add_input_wme value, @status_sym, @agent.symbols.create_string(r.to_s)
+      if rname && !value.asIdentifier.nil?
+        if !rvalue
+          rvalue = rname
+          rname = 'status'
+        end
+        io.add_input_wme value, io.symbols.create_string(rname.to_s), io.symbols.create_string(rvalue.to_s)
       end
     end
   end  
