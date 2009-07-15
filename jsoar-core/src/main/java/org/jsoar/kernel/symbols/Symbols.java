@@ -26,7 +26,14 @@ public class Symbols
 {
     private Symbols() {}
     
-    public static final Object NEW_ID = new String("*create a new identifier*");
+    /**
+     * Sentinel value passed to {@link #create(SymbolFactory, Object)} to indicate
+     * that a new identifier should be created.
+     */
+    public static final Object NEW_ID = new Object() {
+        @Override
+        public String toString() { return "*create a new identifier*"; }
+    };
     
     /**
      * Convert an arbitrary Java object into a Soar symbol. 
