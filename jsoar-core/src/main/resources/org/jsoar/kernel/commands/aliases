@@ -43,6 +43,8 @@ alias w watch
 alias wmes print -i
 alias varprint print -v -d 100
 
+alias edit edit-production
+
 # qmemory command aliases
 alias qget qmemory --get
 alias qset qmemory --set

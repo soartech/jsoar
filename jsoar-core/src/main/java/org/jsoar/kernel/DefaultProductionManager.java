@@ -31,6 +31,8 @@ import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.DefaultSourceLocation;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -42,12 +44,17 @@ public class DefaultProductionManager implements ProductionManager
     private VariableGenerator variableGenerator;
     private Rete rete;
     private ReinforcementLearning rl;
+    private SourceLocation currentSourceLocation;
     
     private final ParserContext parserContext = new ParserContext() 
     {
         @Override
         public Object getAdapter(Class<?> klass)
         {
+            if(klass.equals(SourceLocation.class))
+            {
+                return currentSourceLocation;
+            }
             return Adaptables.adapt(context, klass);
         }
     };
@@ -198,12 +205,24 @@ public class DefaultProductionManager implements ProductionManager
     @Override
     public Production loadProduction(String productionBody) throws ReordererException, ParserException
     {
+        return loadProduction(productionBody, DefaultSourceLocation.UNKNOWN);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.ProductionManager#loadProduction(java.lang.String, org.jsoar.util.SourceLocation)
+     */
+    @Override
+    public Production loadProduction(String productionBody,
+            SourceLocation location) throws ReordererException, ParserException
+    {
+        Arguments.checkNotNull(location, "location");
+        this.currentSourceLocation = location;
         final StringReader reader = new StringReader(productionBody);
         final Production p = parser.parseProduction(parserContext, reader);
         addProduction(p, true);
         return p;
     }
-    
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.ProductionManager#addProduction(org.jsoar.kernel.Production, boolean)
      */

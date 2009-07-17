@@ -42,12 +42,12 @@ public class MakeConstantSymbolTest extends JSoarTest
     {
         List<Symbol> args = Symbols.asList(syms, "s", "1", "hello-", "goodbye-");
         MakeConstantSymbol mcs = new MakeConstantSymbol();
-        StringSymbol result = (StringSymbol) mcs.execute(rhsFuncContext, args);
-        assertEquals("s1hello-goodbye-", result.getValue());
-        result = (StringSymbol) mcs.execute(rhsFuncContext, args);
-        assertEquals("s1hello-goodbye-0", result.getValue());
-        result = (StringSymbol) mcs.execute(rhsFuncContext, args);
-        assertEquals("s1hello-goodbye-1", result.getValue());
+        final StringSymbol result1 = (StringSymbol) mcs.execute(rhsFuncContext, args);
+        assertEquals("s1hello-goodbye-", result1.getValue());
+        final StringSymbol result2 = (StringSymbol) mcs.execute(rhsFuncContext, args);
+        assertEquals("s1hello-goodbye-0", result2.getValue());
+        final StringSymbol result3 = (StringSymbol) mcs.execute(rhsFuncContext, args);
+        assertEquals("s1hello-goodbye-1", result3.getValue());
         
     }
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
+import org.jsoar.util.SourceLocation;
 
 /**
  * Public interface for accessing and manipulating productions in a Soar agent
@@ -39,6 +40,18 @@ public interface ProductionManager
      * braces!
      * 
      * @param productionBody body of production with no {@code sp} or braces
+     * @param location the source location of the production 
+     * @return the parsed production
+     * @throws ReordererException
+     * @throws ParserException
+     */
+    public Production loadProduction(String productionBody, SourceLocation location) throws ReordererException, ParserException;
+    
+    /**
+     * Convenience version of {@link #loadProduction(String, SourceLocation)} equivalent to 
+     * {@code loadProduction(body, DefaultSourceLocation.UNKNOWN); }
+     * 
+     * @param productionBody
      * @return the parsed production
      * @throws ReordererException
      * @throws ParserException

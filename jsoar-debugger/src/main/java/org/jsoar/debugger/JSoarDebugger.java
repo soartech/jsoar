@@ -113,7 +113,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private ThreadedAgent proxy;
     private final LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
     private final List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
-    private final EditProductionCommand editProductionCommand = new EditProductionCommand(this);
     
     private JFrame frame;
     private final Viewport viewport = new Viewport();
@@ -149,7 +148,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
 
         this.proxy = proxy;
         proxy.getInterpreter().addCommand("load-plugin", loadPluginCommand);
-        proxy.getInterpreter().addCommand("edit", editProductionCommand);
         
         this.add(viewport, BorderLayout.CENTER);
         

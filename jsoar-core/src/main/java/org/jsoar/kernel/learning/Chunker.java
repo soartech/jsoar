@@ -53,8 +53,10 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
@@ -67,6 +69,7 @@ import org.jsoar.util.properties.BooleanPropertyProvider;
  */
 public class Chunker
 {
+    private static final SourceLocation NEW_PRODUCTION_SOURCE = new DefaultSourceLocation("*chunker*", -1, -1);
     private final Agent context;
     public final VariableGenerator variableGenerator;
     private Decider decider;
@@ -1263,7 +1266,7 @@ public class Chunker
 
         // make the production
 
-        Production prod = new Production(prod_type, prod_name, "", lhs_top, lhs_bottom, rhs);
+        final Production prod = new Production(prod_type, NEW_PRODUCTION_SOURCE, prod_name, "", lhs_top, lhs_bottom, rhs);
         // Reorder the production
         try
         {

@@ -46,6 +46,8 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.DefaultSourceLocation;
+import org.jsoar.util.SourceLocation;
 
 /**
    <h3>Grammar for left hand sides of productions
@@ -106,6 +108,7 @@ class OriginalParserImpl
     private int[] placeholder_counter = new int[26];
     private StringSymbolImpl currentProduction = null;
     private RhsFunctionManager funcs = null;
+    private SourceLocation location = DefaultSourceLocation.UNKNOWN;
     
     public OriginalParserImpl(VariableGenerator varGen, Lexer lexer)
     {
@@ -127,6 +130,11 @@ class OriginalParserImpl
     public void setRhsFunctions(RhsFunctionManager funcs)
     {
         this.funcs = funcs != null ? funcs : new RhsFunctionManager(null);
+    }
+    
+    public void setSourceLocation(SourceLocation location)
+    {
+        this.location  = location;
     }
     
     public Lexer getLexer()
@@ -1922,7 +1930,7 @@ class OriginalParserImpl
             // Nothing
         }
 
-        Production p = new Production(prod_type, name, documentation, lhs_top, lhs_bottom, rhs);
+        Production p = new Production(prod_type, location, name, documentation, lhs_top, lhs_bottom, rhs);
 
         p.declared_support = declared_support;
         p.interrupt = interrupt_on_match;

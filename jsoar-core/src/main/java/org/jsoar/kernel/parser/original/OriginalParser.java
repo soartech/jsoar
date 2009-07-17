@@ -16,6 +16,8 @@ import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.DefaultSourceLocation;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
@@ -35,11 +37,15 @@ public class OriginalParser extends AbstractAdaptable implements Parser
         final SymbolFactoryImpl syms = require(context, SymbolFactoryImpl.class);
         final VariableGenerator vg = new VariableGenerator(syms);
         final RhsFunctionManager rhsFunctions = require(context, RhsFunctionManager.class);
+        final SourceLocation source = Adaptables.adapt(context, SourceLocation.class);
+        
         try
         {
             Lexer lexer = new Lexer(printer, reader);
             OriginalParserImpl parser = new OriginalParserImpl(vg, lexer);
             parser.setRhsFunctions(rhsFunctions);
+            parser.setSourceLocation(source != null ? source : DefaultSourceLocation.UNKNOWN);
+            
             lexer.getNextLexeme();
             return parser.parseProduction();
         }
