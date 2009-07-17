@@ -37,14 +37,21 @@ public class SourceCommand implements Command
     
     private Entry workingDirectory = new Entry(new File(System.getProperty("user.dir")));
     private Stack<Entry> directoryStack = new Stack<Entry>();
+    private Stack<String> fileStack = new Stack<String>();
     
     public SourceCommand()
     {
+        fileStack.push("");
     }
     
     public String getWorkingDirectory()
     {
         return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();
+    }
+    
+    public String getCurrentFile()
+    {
+        return fileStack.peek();
     }
     
     public void pushd(Interp interp, String dirString) throws TclException
@@ -162,10 +169,13 @@ public class SourceCommand implements Command
     {
         try
         {
-            interp.evalFile(file.getAbsolutePath());
+            final String fileString = file.getAbsolutePath();
+            fileStack.push(fileString);
+            interp.evalFile(fileString);
         }
         finally
         {
+            fileStack.pop();
             popd(interp);
         }
     }
@@ -174,6 +184,7 @@ public class SourceCommand implements Command
     {
         try
         {
+            fileStack.push(url.toExternalForm());
             final InputStream in = new BufferedInputStream(url.openStream());
             try
             {
@@ -192,6 +203,7 @@ public class SourceCommand implements Command
         }
         finally
         {
+            fileStack.pop();
             popd(interp);
         }
     }

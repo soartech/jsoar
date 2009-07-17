@@ -41,7 +41,9 @@ import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
@@ -83,6 +85,7 @@ public class ReinforcementLearning
     // made negative to never conflict with impasse constants
     public static final int STATE_NO_CHANGE_IMPASSE_TYPE = -1;
     public static final int OP_NO_CHANGE_IMPASSE_TYPE = -2;
+    private static final SourceLocation NEW_PRODUCTION_SOURCE = new DefaultSourceLocation("*RL*", -1, -1);
 
     // reinforcement learning
     rl_parameter rl_params[] = new rl_parameter[ RL_PARAMS ];
@@ -1113,7 +1116,7 @@ public class ReinforcementLearning
         new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
         // make new production
-        Production new_production = new Production( ProductionType.USER, new_name_symbol, "", cond_top.value, cond_bottom.value, new_action);
+        Production new_production = new Production( ProductionType.USER, NEW_PRODUCTION_SOURCE, new_name_symbol, "", cond_top.value, cond_bottom.value, new_action);
         try
         {
             ((DefaultProductionManager)my_agent.getProductions()).addProduction(new_production, false);

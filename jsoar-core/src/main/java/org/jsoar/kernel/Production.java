@@ -25,6 +25,7 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
@@ -32,6 +33,7 @@ import org.jsoar.util.markers.Marker;
 public class Production
 {
     private final ProductionType type;
+    private final SourceLocation location;
     private final StringSymbol name;
     private final String documentation;
     public Condition condition_list;
@@ -66,15 +68,17 @@ public class Production
      * @param lhs_bottom_in Bottom of LHS conditions
      * @param rhs_top_in Top of RHS actions
      */
-    public Production(ProductionType type, StringSymbol name, String doc,
+    public Production(ProductionType type, SourceLocation location, StringSymbol name, String doc,
                       Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in)
     {
         Arguments.checkNotNull(type, "type");
+        Arguments.checkNotNull(location, "location");
         Arguments.checkNotNull(name, "name");
         Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
         Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
         
         this.type = type;
+        this.location = location;
         this.name = name;
         this.documentation = doc;
         this.p_node = null; // it's not in the Rete yet
@@ -91,7 +95,14 @@ public class Production
         return type;
     }
     
-    
+    /**
+     * @return the location
+     */
+    public SourceLocation getLocation()
+    {
+        return location;
+    }
+
     /**
      * @return the name of this production
      */

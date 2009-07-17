@@ -15,6 +15,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.CLogCommand;
 import org.jsoar.kernel.commands.EchoCommand;
+import org.jsoar.kernel.commands.EditProductionCommand;
 import org.jsoar.kernel.commands.ExciseCommand;
 import org.jsoar.kernel.commands.FiringCountsCommand;
 import org.jsoar.kernel.commands.HelpCommand;
@@ -137,7 +138,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         interp.createCommand("popd", new PopdCommand(sourceCommand));
         interp.createCommand("pwd", new PwdCommand(sourceCommand));
         
-        addCommand("sp", new SpCommand(this.agent));
+        addCommand("sp", new SpCommand(this.agent, this.sourceCommand));
         addCommand("multi-attributes", new MultiAttrCommand(this.agent));
         addCommand("stats", new StatsCommand(this.agent));
         addCommand("learn", new LearnCommand(this.agent));
@@ -162,6 +163,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("init-soar", new InitSoarCommand(this.agent));
         addCommand("preferences", new PreferencesCommand(this.agent));
         addCommand("memories", new MemoriesCommand(this.agent));
+        addCommand("edit-production", new EditProductionCommand(this.agent));
         
         addCommand("set-parser", new SetParserCommand(this.agent));
         addCommand("properties", new PropertiesCommand(this.agent));

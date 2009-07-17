@@ -7,6 +7,9 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
+import org.jsoar.tcl.SourceCommand;
+import org.jsoar.util.DefaultSourceLocation;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.SoarCommand;
 
 /**
@@ -15,10 +18,12 @@ import org.jsoar.util.commands.SoarCommand;
 public final class SpCommand implements SoarCommand
 {
     private final Agent agent;
+    private final SourceCommand sourceCommand;
 
-    public SpCommand(Agent agent)
+    public SpCommand(Agent agent, SourceCommand sourceCommand)
     {
         this.agent = agent;
+        this.sourceCommand = sourceCommand;
     }
 
     @Override
@@ -32,7 +37,8 @@ public final class SpCommand implements SoarCommand
         
         try
         {
-            agent.getProductions().loadProduction(args[1]);
+            final SourceLocation location = new DefaultSourceLocation(sourceCommand.getCurrentFile(), -1, -1);
+            agent.getProductions().loadProduction(args[1], location);
             agent.getPrinter().print("*");
             return "";
         }
