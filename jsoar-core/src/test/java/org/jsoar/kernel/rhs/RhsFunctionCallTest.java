@@ -28,4 +28,11 @@ public class RhsFunctionCallTest
         final RhsFunctionCall f = new RhsFunctionCall(syms.createString("-"), false);
         assertEquals("(-)", String.format("%s", f));
     }
+    
+    @Test public void testDivFunctionNameIsPrintedWithNoPipes()
+    {
+        final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+        final RhsFunctionCall f = new RhsFunctionCall(syms.createString("/"), false);
+        assertEquals("(/)", String.format("%s", f));
+    }
 }
