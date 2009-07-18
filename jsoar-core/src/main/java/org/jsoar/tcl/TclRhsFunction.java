@@ -63,7 +63,6 @@ public class TclRhsFunction extends AbstractRhsFunctionHandler
     @Override
     public boolean mayBeStandalone()
     {
-        // TODO Auto-generated method stub
         return true;
     }    
 }
