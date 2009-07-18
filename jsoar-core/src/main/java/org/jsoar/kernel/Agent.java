@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,6 +96,8 @@ public class Agent extends AbstractAdaptable
 {
     private static final Log logger = LogFactory.getLog(Agent.class);
     
+    private static final AtomicInteger nextName = new AtomicInteger(0);
+    
     private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
     private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
     
@@ -168,7 +171,7 @@ public class Agent extends AbstractAdaptable
     
     public Agent()
     {
-        setName("JSoar Agent " + System.identityHashCode(this));
+        setName("JSoar Agent " + nextName.incrementAndGet());
         
         // Initialize components that rely on adaptables lookup
         decider.initialize();
