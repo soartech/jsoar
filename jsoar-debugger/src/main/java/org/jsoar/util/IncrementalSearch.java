@@ -54,22 +54,36 @@ public class IncrementalSearch implements DocumentListener, ActionListener
     {
         try
         {
-            String query = query_doc.getText(0, query_doc.getLength());
-            Pattern pattern = Pattern.compile(query);
-            Document content_doc = content.getDocument();
-            String body = content_doc.getText(0, content_doc.getLength());
-            matcher = pattern.matcher(body);
+            final String query = query_doc.getText(0, query_doc.getLength());
+            if(query.length() > 0)
+            {
+                final Pattern pattern = Pattern.compile(query);
+                final Document content_doc = content.getDocument();
+                String body = content_doc.getText(0, content_doc.getLength());
+                matcher = pattern.matcher(body);
+            }
+            else
+            {
+                matcher = null;
+            }
+            continueSearch();
         }
         catch (PatternSyntaxException ex)
         {
             matcher = null;
+            onError();
         }
         catch (BadLocationException e)
         {
-            matcher = null;
+            onError();
         }
-        continueSearch();
     }
+    
+    protected void onError() {}
+    
+    protected void onNoMatch() {}
+    
+    protected void onMatch() {}
 
     private void continueSearch()
     {
@@ -77,9 +91,7 @@ public class IncrementalSearch implements DocumentListener, ActionListener
         {
             if (matcher.find())
             {
-                content.getCaret().setDot(matcher.start());
-                content.getCaret().moveDot(matcher.end());
-                content.getCaret().setSelectionVisible(true);
+                handleMatch();
             }
             else
             {
@@ -87,11 +99,25 @@ public class IncrementalSearch implements DocumentListener, ActionListener
                 matcher.reset();
                 if (matcher.find())
                 {
-                    content.getCaret().setDot(matcher.start());
-                    content.getCaret().moveDot(matcher.end());
-                    content.getCaret().setSelectionVisible(true);
+                    handleMatch();
+                }
+                else
+                {
+                    onNoMatch();
                 }
             }
         }
+        else
+        {
+            onNoMatch();
+        }
+    }
+    
+    private void handleMatch()
+    {
+        content.getCaret().setDot(matcher.start());
+        content.getCaret().moveDot(matcher.end());
+        content.getCaret().setSelectionVisible(true);
+        onMatch();
     }
 }
