@@ -124,9 +124,10 @@ public class RhsFunctionCall extends RhsValue
         // they might appear in a production
         // TODO is this special handling for  + and - correct, or is there a better way? What about "/" ??
         final StringSymbol name = getName();
-        if("+".equals(name.getValue()) || "-".equals(name.getValue()))
+        final String nameString = name.getValue();
+        if("+".equals(nameString) || "-".equals(nameString) || "/".equals(nameString))
         {
-            formatter.format("(%s", name.getValue());
+            formatter.format("(%s", nameString);
         }
         else
         {
