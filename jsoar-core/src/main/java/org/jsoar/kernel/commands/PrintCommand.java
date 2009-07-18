@@ -149,6 +149,10 @@ public class PrintCommand implements SoarCommand
             {
             	options.add(Options.EXACT);
             }
+            else if(has(arg, "-F", "--filename"))
+            {
+                options.add(Options.FILE_NAME);
+            }
             else if(arg.startsWith("-"))
             {
                 throw new SoarException("Unknow option " + arg);
@@ -181,6 +185,10 @@ public class PrintCommand implements SoarCommand
         {
             for(Production p : collectProductions())
             {
+                if(options.contains(Options.FILE_NAME))
+                {
+                    agent.getPrinter().print("# sourcefile : %s\n", p.getLocation());
+                }
                 if(options.contains(Options.FULL))
                 {
                     p.print(agent.getPrinter(), options.contains(Options.INTERNAL));
@@ -243,6 +251,10 @@ public class PrintCommand implements SoarCommand
             Production p = agent.getProductions().getProduction(argString);
             if(p != null)
             {
+                if(options.contains(Options.FILE_NAME))
+                {
+                    agent.getPrinter().print("# sourcefile : %s\n", p.getLocation());
+                }
                 p.print(agent.getPrinter(), options.contains(Options.INTERNAL));
             }
             else
@@ -268,14 +280,9 @@ public class PrintCommand implements SoarCommand
                 p.print("%s", prod.action_list.asMakeAction().referent);
             }
         }
-        if (!options.contains(Options.FILE_NAME))
+        if (options.contains(Options.FILE_NAME))
         {
-            p.print("# sourcefile : ");
-            // TODO print file name
-            /*
-             * if (prod->filename) { print_string(agnt, prod->filename); } else
-             * { print_string(agnt, " _unknown_ "); }
-             */
+            p.print("# sourcefile : %s", prod.getLocation());
         }
         p.print("\n");
         if (options.contains(Options.FULL))

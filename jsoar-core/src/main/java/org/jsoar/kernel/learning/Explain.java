@@ -314,9 +314,6 @@ public class Explain
         {
             i++;
             printer.print(" %2d : %s", i, cond);
-            while (printer.getOutputColumn() < printer.getColumnsPerLine() - 40)
-                printer.print(" ");
-
             printer.print(" Ground :%s\n", ground);
             ground = ground.next;
         }

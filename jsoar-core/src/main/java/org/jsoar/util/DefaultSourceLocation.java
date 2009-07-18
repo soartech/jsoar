@@ -52,4 +52,14 @@ public class DefaultSourceLocation implements SourceLocation
         return offset;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return file != null && file.length() > 0 ? file : "*unknown*";
+    }
+
+    
 }

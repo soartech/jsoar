@@ -279,10 +279,6 @@ public abstract class Action
                     {
                         gs.append(String.format(" %s", ma2.referent));
                     }
-                    if (printer.getOutputColumn() + gs.length() >= printer.getColumnsPerLine())
-                    {
-                        printer.print("\n").spaces(indent + 6);
-                    }
                     printer.print(gs.toString());
                 }
             }

@@ -177,9 +177,6 @@ public class Backtracer
         final Printer p = context.getPrinter();
         for (Condition c : list)
         {
-            if (p.getOutputColumn() >= p.getColumnsPerLine() - 20)
-                p.print("\n      ");
-
             p.spaces(indent).print("%s", c);
         }
     }
@@ -194,9 +191,6 @@ public class Backtracer
         final Printer p = context.getPrinter();
         for (Condition c : list)
         {
-            if (p.getOutputColumn() >= p.getColumnsPerLine() - 20)
-                p.print("\n      ");
-
             final PositiveCondition pc = c.asPositiveCondition();
             p.spaces(indent).print("     %s", pc != null ? pc.bt.wme_ : null);
         }
