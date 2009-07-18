@@ -98,7 +98,7 @@ public class ProductionTableModel extends AbstractTableModel
         switch(c)
         {
         case 0: return Production.class;
-        case 1: return Integer.class;
+        case 1: return Long.class;
         case 2: return String.class;
         }
         return super.getColumnClass(c);
@@ -149,7 +149,7 @@ public class ProductionTableModel extends AbstractTableModel
             switch(column)
             {
             case 0: return p;
-            case 1: return p.firing_count;
+            case 1: return p.getFiringCount();
             case 2: return p.getType().getDisplayString();
             }
         }
