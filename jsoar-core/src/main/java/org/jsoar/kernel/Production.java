@@ -6,6 +6,7 @@
 package org.jsoar.kernel;
 
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConditionReorderer;
@@ -41,7 +42,7 @@ public class Production
     public Action action_list;
     public ProductionSupport declared_support = ProductionSupport.UNDECLARED;
     public boolean interrupt = false;
-    public int firing_count = 0;
+    private final AtomicLong firingCount = new AtomicLong(0);
     public boolean trace_firings = false;
     private Rete rete;
     private ReteNode p_node;
@@ -117,6 +118,32 @@ public class Production
     public String getDocumentation()
     {
         return documentation != null ? documentation : "";
+    }
+    
+    /**
+     * @return the current firing count of this production
+     */
+    public long getFiringCount()
+    {
+        return firingCount.get();
+    }
+    
+    /**
+     * Reset the production's firing count to {@code 0}.
+     */
+    public void resetFiringCount()
+    {
+        this.firingCount.set(0);
+    }
+    
+    /**
+     * Increment the production's firing count and return the new count.
+     * 
+     * @return the new firing count
+     */
+    public long incrementFiringCount()
+    {
+        return this.firingCount.incrementAndGet();
     }
         
     /**
@@ -274,7 +301,7 @@ public class Production
     @Override
     public String toString()
     {
-        return name.toString() + " (" + type + ") " + firing_count;
+        return name.toString() + " (" + type + ") " + firingCount;
     }
     
     /**

@@ -1512,7 +1512,7 @@ public class ReinforcementLearning
     public void exciseProduction(Production prod)
     {
         // Remove RL-related pointers to this production (unnecessary if rule never fired).
-        if ( prod.rl_rule && prod.firing_count != 0 ) 
+        if ( prod.rl_rule && prod.getFiringCount() != 0 ) 
             rl_remove_refs_for_prod( prod ); 
     }
     
