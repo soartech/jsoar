@@ -113,8 +113,7 @@ public class Conditions
     {
         while (cond != null)
         {
-            if (printer.getOutputColumn() >= printer.getColumnsPerLine() - 20)
-                printer.print("\n      %s\n", cond);
+            printer.print("%s\n", cond);
             cond = cond.next;
         }
     }
@@ -228,10 +227,6 @@ public class Conditions
                         {
                             gs.append(" +");
                         }
-                    }
-                    if (printer.getOutputColumn() + gs.length() >= printer.getColumnsPerLine())
-                    {
-                        printer.print("\n").spaces(indent + 6);
                     }
                     printer.print(gs.toString());
                 }

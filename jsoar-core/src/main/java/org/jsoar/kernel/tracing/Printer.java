@@ -18,6 +18,11 @@ import org.jsoar.util.NullWriter;
 /**
  * Soar agent print interface
  * 
+ * <p>The following symbols were removed:
+ * <ul>
+ * <li>get_printer_output_column
+ * <li>COLUMNS_PER_LINE
+ * </ul>
  * @author ray
  */
 public class Printer
@@ -175,25 +180,6 @@ public class Printer
         return this;
     }
 
-    /**
-     * <p>COLUMNS_PER_LINE
-     * 
-     * @return columns per line in this printer
-     */
-    public int getColumnsPerLine()
-    {
-        return 80;
-    }
-
-    /**
-     * @return the current output column of the printer
-     */
-    public int getOutputColumn()
-    {
-        // TODO implement get_printer_output_column
-        return 0;
-    }
-    
     /**
      * Append n spaces to the printer
      * 

@@ -192,15 +192,8 @@ public class WorkingMemoryPrinter
      */
     private void neatly_print_wme_augmentation_of_id(Wme w, int indentation)
     {
+        final String buf = String.format(" ^%s %s%s", w.getAttribute(), w.getValue(), w.isAcceptable() ? " +" : "");
 
-        // xml_object( thisAgent, w );
-
-        String buf = String.format(" ^%s %s%s", w.getAttribute(), w.getValue(), w.isAcceptable() ? " +" : "");
-
-        if (printer.getOutputColumn() + buf.length() >= 80)
-        {
-            printer.print("\n").spaces(indentation + 6);
-        }
         printer.print(buf);
     }
 
