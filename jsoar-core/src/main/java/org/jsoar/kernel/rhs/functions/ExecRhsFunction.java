@@ -48,4 +48,12 @@ public class ExecRhsFunction extends AbstractRhsFunctionHandler
         return rhsFunctions.execute(functionName, arguments.subList(1, arguments.size()));
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler#mayBeStandalone()
+     */
+    @Override
+    public boolean mayBeStandalone()
+    {
+        return true;
+    }
 }
