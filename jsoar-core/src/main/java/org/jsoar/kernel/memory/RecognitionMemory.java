@@ -630,7 +630,7 @@ public class RecognitionMemory
         trace.print(Category.VERBOSE, "\n in create_instantiation: %s", inst.prod.getName());
 
         this.production_being_fired = inst.prod;
-        prod.firing_count++; // TODO move into Instantiation constructor
+        prod.incrementFiringCount(); // TODO move into Instantiation constructor
         this.production_firing_count.increment();
 
         // build the instantiated conditions, and bind LHS variables

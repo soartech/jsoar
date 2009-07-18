@@ -90,7 +90,7 @@ public class DefaultProductionManager implements ProductionManager
         // reset_production_firing_counts(thisAgent);
         for (Production p : this.productionsByName.values())
         {
-            p.firing_count = 0;
+            p.resetFiringCount();
         }
     }
     

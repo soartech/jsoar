@@ -65,7 +65,7 @@ public final class FiringCountsCommand implements SoarCommand
         for(int i = 0; i < n && i < productions.size(); ++i)
         {
             final Production p = productions.get(i);
-            printer.startNewLine().print("%5d:  %s", p.firing_count, p.getName());
+            printer.startNewLine().print("%5d:  %s", p.getFiringCount(), p.getName());
         }
     }
     
@@ -87,7 +87,8 @@ public final class FiringCountsCommand implements SoarCommand
             @Override
             public int compare(Production o1, Production o2)
             {
-                return o2.firing_count - o1.firing_count;
+                final long d = o2.getFiringCount() - o1.getFiringCount();
+                return d < 0 ? -1 : (d > 0 ? 1 : 0);
             }});
         printResults(prods, n);
     }
