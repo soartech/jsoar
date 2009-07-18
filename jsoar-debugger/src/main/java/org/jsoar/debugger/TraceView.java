@@ -19,11 +19,9 @@ import java.util.concurrent.Callable;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.flexdock.docking.DockingConstants;
@@ -36,8 +34,7 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
-import org.jsoar.util.IncrementalSearch;
-import org.jsoar.util.SwingTools;
+import org.jsoar.util.IncrementalSearchPanel;
 
 /**
  * @author ray
@@ -50,7 +47,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private final CommandEntryPanel commandPanel;
     private final Provider selectionProvider = new Provider();
 
-    private final JTextField searchField = new JTextField(20);
+    private final IncrementalSearchPanel searchPanel;
 
     private final JTextArea outputWindow = new JTextArea();
     private final Writer outputWriter = new Writer()
@@ -144,15 +141,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         commandPanel = new CommandEntryPanel(debugger);
         bottom.add(commandPanel, BorderLayout.CENTER);
         
-        final JPanel searchPanel = new JPanel(new BorderLayout());
-        final IncrementalSearch searcher = new IncrementalSearch(outputWindow);
-        searchField.setText(getPreferences().get("search", ""));
-        searchField.getDocument().addDocumentListener(searcher);
-        searchField.addActionListener(searcher);
-        SwingTools.addSelectAllOnFocus(searchField);
-
-        searchPanel.add(new JLabel("   Search: "), BorderLayout.WEST);
-        searchPanel.add(searchField, BorderLayout.CENTER);
+        searchPanel = new IncrementalSearchPanel(outputWindow);
+        searchPanel.setSearchText(getPreferences().get("search", ""));
         
         bottom.add(searchPanel, BorderLayout.EAST);
         p.add(bottom, BorderLayout.SOUTH);
@@ -173,7 +163,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
         
         getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
-        getPreferences().put("search", searchField.getText());
+        getPreferences().put("search", searchPanel.getSearchText());
     }
 
     /* (non-Javadoc)
