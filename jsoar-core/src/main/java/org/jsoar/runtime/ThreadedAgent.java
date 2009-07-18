@@ -392,6 +392,7 @@ public class ThreadedAgent extends AbstractAdaptable
     public DebuggerProvider getDebuggerProvider() { return agent.getDebuggerProvider(); }
     public void setDebuggerProvider(DebuggerProvider p) { agent.setDebuggerProvider(p); }
     public void openDebugger() throws SoarException { agent.openDebugger(); }
+    public void openDebuggerAndWait() throws SoarException, InterruptedException { agent.openDebuggerAndWait(); }
     
     
     /**

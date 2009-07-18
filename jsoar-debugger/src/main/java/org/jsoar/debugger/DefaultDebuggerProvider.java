@@ -5,6 +5,8 @@
  */
 package org.jsoar.debugger;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
@@ -49,22 +51,64 @@ public class DefaultDebuggerProvider implements DebuggerProvider
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(new Runnable() { 
-                public void run() 
-                {
-                    try
-                    {
-                        openDebugger(agent);
-                    }
-                    catch (SoarException e)
-                    {
-                        logger.error("Failed to open new debugger", e);
-                    }
-                } 
-            });
-            return;
+            SwingUtilities.invokeLater(getRunnable(agent)); 
         }
-        
+        else
+        {        
+            doIt(agent);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.DebuggerProvider#openDebuggerAndWait(org.jsoar.kernel.Agent)
+     */
+    @Override
+    public void openDebuggerAndWait(Agent agent) throws SoarException, InterruptedException
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            try
+            {
+                SwingUtilities.invokeAndWait(getRunnable(agent));
+            }
+            catch (InvocationTargetException e)
+            {
+                final Throwable cause = e.getCause();
+                if(cause instanceof SoarException)
+                {
+                    throw (SoarException) cause;
+                }
+                else
+                {
+                    throw new SoarException(e);
+                }
+            } 
+        }
+        else
+        {        
+            doIt(agent);
+        }
+    }
+    
+    private Runnable getRunnable(final Agent agent)
+    {
+        return new Runnable() { 
+            public void run() 
+            {
+                try
+                {
+                    doIt(agent);
+                }
+                catch (SoarException e)
+                {
+                    logger.error("Failed to open new debugger", e);
+                }
+            } 
+        };
+    }
+
+    private void doIt(Agent agent) throws SoarException
+    {
         final ThreadedAgent ta = ThreadedAgent.find(agent);
         if(ta == null)
         {
@@ -75,6 +119,6 @@ public class DefaultDebuggerProvider implements DebuggerProvider
         {
             debugger.setConfiguration(config);
         }
+        
     }
-
 }
