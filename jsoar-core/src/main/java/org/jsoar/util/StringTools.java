@@ -5,6 +5,8 @@
  */
 package org.jsoar.util;
 
+import java.util.Collection;
+
 
 /**
  * @author ray
@@ -80,5 +82,21 @@ public class StringTools
         }
         out += '$';
         return out;
+    }
+    
+    public static <T> String join(Collection<T> collection, String delimiter)
+    {
+        final StringBuilder builder = new StringBuilder();
+        boolean first = true;
+        for(T o : collection)
+        {
+            if(!first)
+            {
+                builder.append(delimiter);
+            }
+            builder.append(o);
+            first = false;
+        }
+        return builder.toString();
     }
 }

@@ -42,6 +42,7 @@ alias un unalias
 alias w watch
 alias wmes print -i
 alias varprint print -v -d 100
+alias pf production-find
 
 alias edit edit-production
 
