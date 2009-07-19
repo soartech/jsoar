@@ -28,6 +28,7 @@ import org.jsoar.kernel.commands.MultiAttrCommand;
 import org.jsoar.kernel.commands.OSupportModeCommand;
 import org.jsoar.kernel.commands.PreferencesCommand;
 import org.jsoar.kernel.commands.PrintCommand;
+import org.jsoar.kernel.commands.ProductionFindCommand;
 import org.jsoar.kernel.commands.PropertiesCommand;
 import org.jsoar.kernel.commands.QMemoryCommand;
 import org.jsoar.kernel.commands.ReinforcementLearningCommand;
@@ -164,6 +165,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("preferences", new PreferencesCommand(this.agent));
         addCommand("memories", new MemoriesCommand(this.agent));
         addCommand("edit-production", new EditProductionCommand(this.agent));
+        addCommand("production-find", new ProductionFindCommand(this.agent));
         
         addCommand("set-parser", new SetParserCommand(this.agent));
         addCommand("properties", new PropertiesCommand(this.agent));
