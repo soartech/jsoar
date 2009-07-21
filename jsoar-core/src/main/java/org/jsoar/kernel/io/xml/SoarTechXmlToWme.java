@@ -149,17 +149,28 @@ public class SoarTechXmlToWme implements XmlToWme
         {
             return fromXmlInternal(element, null);
         }
-        else if(SoarTechWmeToXml.DOUBLE.equals(type))
+        
+        final String value;
+        if(element.hasAttribute(SoarTechWmeToXml.VALUE))
         {
-            return syms.createDouble(Double.valueOf(element.getTextContent()));
-        }
-        else if(SoarTechWmeToXml.INTEGER.equals(type))
-        {
-            return syms.createInteger(Integer.valueOf(element.getTextContent()));
+            value = element.getAttribute(SoarTechWmeToXml.VALUE);
         }
         else
         {
-            return syms.createString(element.getTextContent());
+            value = element.getTextContent();
+        }
+        
+        if(SoarTechWmeToXml.DOUBLE.equals(type))
+        {
+            return syms.createDouble(Double.valueOf(value));
+        }
+        else if(SoarTechWmeToXml.INTEGER.equals(type))
+        {
+            return syms.createInteger(Integer.valueOf(value));
+        }
+        else
+        {
+            return syms.createString(value);
         }
     }
     

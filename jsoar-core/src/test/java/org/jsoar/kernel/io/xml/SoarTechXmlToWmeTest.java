@@ -70,4 +70,31 @@ public class SoarTechXmlToWmeTest
         assertSame(location.getValue(), m.attr("where").find(person).getValue());
     }
 
+    @Test
+    public void testValueAttributeIsHandled() throws Exception
+    {
+        final Agent agent = new Agent();
+        
+        agent.initialize();
+        
+        agent.getProperties().set(SoarProperties.WAITSNC, true);
+        agent.getProductions().loadProduction(
+                "testValueAttributeIsHandled (state <s> ^superstate nil ^io.input-link <il>) -->" +
+                "(<il> ^xml (from-st-xml |" +
+                "<ignored>" +
+                "<name value='hello'/>" +
+                "<age type='integer' value='33'/>" +
+                "<weight type='double' value='180.5'/>" +
+                "</ignored>|))");
+        agent.runFor(1, RunType.DECISIONS);
+        
+        final Identifier il = agent.getInputOutput().getInputLink();
+        final MatcherBuilder m = Wmes.matcher(agent);
+        final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
+        assertNotNull(xml);
+        
+        assertEquals("hello", m.attr("name").find(xml).getValue().asString().getValue());
+        assertEquals(33, m.attr("age").find(xml).getValue().asInteger().getValue());
+        assertEquals(180.5, m.attr("weight").find(xml).getValue().asDouble().getValue(), 0.0001);
+    }
 }
