@@ -136,6 +136,14 @@ public class ParseSelectedText
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_Value)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print --exact {* %s %s}", m_Att, m_Value)));
             parent.add(new ExecuteCommandAction(debugger, String.format("print --exact {* %s *}", m_Att)));
+            final JMenu pfMenu = new JMenu("production-find");
+            pfMenu.add(new ExecuteCommandAction(debugger, String.format("pf (<v> %s *)", m_Att)));
+            pfMenu.add(new ExecuteCommandAction(debugger, String.format("pf (<v> %s %s)", m_Att, m_Value)));
+            pfMenu.add(new ExecuteCommandAction(debugger, String.format("pf (<v> ^* %s)", m_Value)));
+            pfMenu.add(new ExecuteCommandAction(debugger, String.format("pf --rhs (<v> %s *)", m_Att)));
+            pfMenu.add(new ExecuteCommandAction(debugger, String.format("pf --rhs (<v> %s %s)", m_Att, m_Value)));
+            pfMenu.add(new ExecuteCommandAction(debugger, String.format("pf --rhs (<v> ^* %s)", m_Value)));
+            parent.add(pfMenu);
 		}
 		
 		public String toString() { return "WME " + m_ID + " " + m_Att + " " + m_Value ; }
