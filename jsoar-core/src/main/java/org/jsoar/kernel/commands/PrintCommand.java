@@ -20,6 +20,8 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.commands.SoarCommand;
 
 /**
+ * http://winter.eecs.umich.edu/soarwiki/Print
+ * 
  * @author ray
  */
 public class PrintCommand implements SoarCommand
@@ -32,6 +34,7 @@ public class PrintCommand implements SoarCommand
     }
     private final Agent agent;
     private final WorkingMemoryPrinter wmp = new WorkingMemoryPrinter();
+    private int defaultDepth = 1;
     
     private final EnumSet<Options> options = EnumSet.noneOf(Options.class);
     private int depth = 1;
@@ -39,6 +42,20 @@ public class PrintCommand implements SoarCommand
     public PrintCommand(Agent agent)
     {
         this.agent = agent;
+    }
+    
+    public void setDefaultDepth(int depth)
+    {
+        if(depth <= 0)
+        {
+            throw new IllegalArgumentException("depth must be greater than 0");
+        }
+        this.defaultDepth = depth;
+    }
+    
+    public int getDefaultDepth()
+    {
+        return this.defaultDepth;
     }
     
     private static boolean has(String arg, String little, String big)
@@ -69,6 +86,8 @@ public class PrintCommand implements SoarCommand
     
     private int processArgs(String[] args) throws SoarException
     {
+        this.depth = defaultDepth;
+        
         int i = 1;
         for(; i < args.length; ++i)
         {

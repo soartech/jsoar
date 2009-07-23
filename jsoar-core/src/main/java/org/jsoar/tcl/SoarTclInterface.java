@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.CLogCommand;
+import org.jsoar.kernel.commands.DefaultWmeDepthCommand;
 import org.jsoar.kernel.commands.EchoCommand;
 import org.jsoar.kernel.commands.EditProductionCommand;
 import org.jsoar.kernel.commands.ExciseCommand;
@@ -156,7 +157,11 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("clog", new CLogCommand(this.agent));
         addCommand("watch", new WatchCommand(this.agent));
         addCommand("rhs-functions", new RhsFunctionsCommand(this.agent));
-        addCommand("print", new PrintCommand(this.agent));
+        
+        final PrintCommand printCommand = new PrintCommand(this.agent);
+        addCommand("print", printCommand);
+        addCommand("default-wme-depth", new DefaultWmeDepthCommand(printCommand));
+        
         addCommand("o-support-mode", new OSupportModeCommand());
         addCommand("soar8", new Soar8Command());
         addCommand("firing-counts", new FiringCountsCommand(this.agent));
