@@ -5,6 +5,9 @@
  */
 package org.jsoar.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * mem.h
@@ -29,9 +32,10 @@ public class HashTable <T extends HashTableItem>
     private int count;      /* number of items in the table */
     private int size;       /* number of buckets */
     private int log2size;           /* log (base 2) of size */
-    private int minimum_log2size;   /* table never shrinks below this size */
+    private final int minimum_log2size;   /* table never shrinks below this size */
     private HashTableItem[] buckets;
-    private HashFunction<T> h;          // call this to hash or rehash an item
+    private final HashFunction<T> h;          // call this to hash or rehash an item
+    private final Class<T> itemClass;
 
     /**
      * mem.cpp:497
@@ -39,7 +43,7 @@ public class HashTable <T extends HashTableItem>
      * @param minimum_log2size
      * @param h
      */
-    public HashTable(int minimum_log2size, HashFunction<T> h)
+    public HashTable(int minimum_log2size, HashFunction<T> h, Class<T> itemClass)
     {
         this.count = 0;
         this.minimum_log2size = minimum_log2size < 1 ? 1 : minimum_log2size;
@@ -47,8 +51,24 @@ public class HashTable <T extends HashTableItem>
         this.log2size = minimum_log2size;
         this.buckets = allocateBuckets(this.size);
         this.h = h;
+        this.itemClass = itemClass;
     }
     
+    /**
+     * @return a list of all items in the hash table
+     */
+    public List<T> getAllItems()
+    {
+        final List<T> result = new ArrayList<T>();
+        for(int i = 0; i < buckets.length; ++i)
+        {
+            for(HashTableItem item = buckets[i]; item != null; item = item.next_in_hash_table)
+            {
+                result.add(itemClass.cast(item));
+            }
+        }
+        return result;
+    }
     public int getLog2Size()
     {
         return log2size;

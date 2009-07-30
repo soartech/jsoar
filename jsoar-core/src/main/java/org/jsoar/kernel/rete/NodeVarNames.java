@@ -50,11 +50,25 @@ class NodeVarNames
         this.bottom_of_subconditions = null;
     }
     
+    static NodeVarNames newInstance(NodeVarNames parent, Object idVars, Object attrVars, Object valueVars)
+    {
+        final NodeVarNames nvn = new NodeVarNames(parent);
+        parent.fields.id_varnames = idVars;
+        parent.fields.attr_varnames = attrVars;
+        parent.fields.value_varnames = valueVars;
+        return nvn;
+    }
+    
     private NodeVarNames(NodeVarNames parent, NodeVarNames bottom_of_subconditions)
     {
         this.parent = parent;
         this.fields = null;
         this.bottom_of_subconditions = bottom_of_subconditions;
+    }
+    
+    static NodeVarNames createForNcc(NodeVarNames parent, NodeVarNames bottom_of_subconditions)
+    {
+        return new NodeVarNames(parent, bottom_of_subconditions);
     }
     
     /**
