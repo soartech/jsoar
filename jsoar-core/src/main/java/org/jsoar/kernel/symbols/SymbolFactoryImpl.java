@@ -6,6 +6,7 @@
 package org.jsoar.kernel.symbols;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +82,49 @@ public class SymbolFactoryImpl implements SymbolFactory
         result.addAll(floatConstants.values());
         result.addAll(javaSyms.values());
         return result;
+    }
+    
+    /**
+     * Returns a list of symbols with the given type
+     * 
+     * @param <T> type of symbol
+     * @param klass klass of desired symbol type
+     * @return list of symbols of the desired type
+     * @throws IllegalArgumentException if the desired type is not a known symbol type
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Symbol> List<T> getSymbols(Class<T> klass)
+    {
+        if(klass.isAssignableFrom(StringSymbolImpl.class)) 
+        {
+            return new ArrayList<T>((Collection<? extends T>) symConstants.values());
+        }
+        else if(klass.isAssignableFrom(IntegerSymbolImpl.class))
+        {
+            return new ArrayList<T>((Collection<? extends T>) intConstants.values());
+        }
+        else if(klass.isAssignableFrom(DoubleSymbol.class))
+        {
+            return new ArrayList<T>((Collection<? extends T>) floatConstants.values());
+        }
+        else if(klass.isAssignableFrom(IdentifierImpl.class))
+        {
+            return new ArrayList<T>((Collection<? extends T>) identifiers.values());
+        }
+        else if(klass.isAssignableFrom(Variable.class))
+        {
+            return new ArrayList<T>((Collection<? extends T>) variables.values());
+        }
+        else if(klass.isAssignableFrom(JavaSymbolImpl.class))
+        {
+            List<T> result = new ArrayList<T>((Collection<? extends T>) javaSyms.values());
+            result.add((T) nullJavaSym);
+            return result;
+        }
+        else
+        {
+            throw new IllegalArgumentException("Expected Symbol implementation class, got '" + klass + "'");
+        }
     }
     
     /**

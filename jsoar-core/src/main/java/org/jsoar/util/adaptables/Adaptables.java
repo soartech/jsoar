@@ -97,4 +97,15 @@ public class Adaptables
         }
         return null;
     }
+    
+    public static <T> T require(Class<?> requiringClass, Object context, Class<T> requiredClass)
+    {
+        final T t = Adaptables.adapt(context, requiredClass);
+        if(t == null)
+        {
+            throw new IllegalStateException(requiringClass.getName() + " requires " + requiredClass.getCanonicalName());
+        }
+        return t;
+    } 
+
 }

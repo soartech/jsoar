@@ -106,13 +106,8 @@ public class OriginalParser extends AbstractAdaptable implements Parser
         }
         
     }    
-    private static <T> T require(ParserContext context, Class<T> klass)
+    private <T> T require(ParserContext context, Class<T> klass)
     {
-        final T t = Adaptables.adapt(context, klass);
-        if(t == null)
-        {
-            throw new IllegalStateException(OriginalParser.class.getName() + " requires " + klass.getCanonicalName());
-        }
-        return t;
+        return Adaptables.require(getClass(), context, klass);
     } 
 }

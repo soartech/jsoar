@@ -105,7 +105,7 @@ public class Rete
         alpha_hash_tables = new ArrayList<HashTable<AlphaMemory>>(16);
         for(int i = 0; i < 16; ++i)
         {
-            alpha_hash_tables.add(new HashTable<AlphaMemory>(0, AlphaMemory.HASH_FUNCTION));
+            alpha_hash_tables.add(new HashTable<AlphaMemory>(0, AlphaMemory.HASH_FUNCTION, AlphaMemory.class));
         }
         
         init_dummy_top_node();
@@ -632,6 +632,21 @@ public class Rete
         return null;
     }
 
+    /**
+     * Returns a list of all alpha memories for use only by {@link ReteNetWriter}
+     * 
+     * @return a list of all alpha memories 
+     */
+    List<AlphaMemory> getAllAlphaMemories()
+    {
+        final List<AlphaMemory> result = new ArrayList<AlphaMemory>();
+        for(HashTable<AlphaMemory> ht : alpha_hash_tables)
+        {
+            result.addAll(ht.getAllItems());
+        }
+        return result;
+    }
+    
     /**
      * Find and share existing alpha memory, or create new one.  Adjusts the 
      * reference count on the alpha memory accordingly.

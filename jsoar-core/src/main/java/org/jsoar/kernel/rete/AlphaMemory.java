@@ -13,7 +13,7 @@ import org.jsoar.util.ListHead;
 import org.jsoar.util.HashTable;
 
 /**
- * rete.cpp:179
+ * rete.cpp:179:alpha_mem_struct
  * 
  * @author ray
  */

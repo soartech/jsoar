@@ -6,14 +6,10 @@
 package org.jsoar.kernel.symbols;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 import java.io.File;
+import java.util.List;
 
 import org.jsoar.util.ByRef;
 import org.junit.After;
@@ -149,5 +145,81 @@ public class SymbolFactoryImplTest
             assertNull(syms.findInteger(i));
             assertNull(syms.findString(Integer.toString(i)));
         }
+    }
+    
+    @Test
+    public void testGetStringSymbols()
+    {
+        final StringSymbolImpl a = syms.createString("a");
+        final StringSymbolImpl b = syms.createString("b");
+        
+        final List<StringSymbol> strings = syms.getSymbols(StringSymbol.class);
+        assertNotNull(strings);
+        assertEquals(2, strings.size());
+        assertTrue(strings.contains(a));
+        assertTrue(strings.contains(b));
+    }
+    
+    @Test
+    public void testGetIntegerSymbols()
+    {
+        final IntegerSymbolImpl a = syms.createInteger(2);
+        final IntegerSymbolImpl b = syms.createInteger(3);
+        
+        final List<IntegerSymbol> values = syms.getSymbols(IntegerSymbol.class);
+        assertNotNull(values);
+        assertEquals(2, values.size());
+        assertTrue(values.contains(a));
+        assertTrue(values.contains(b));
+    }
+    @Test
+    public void testGetDoubleSymbols()
+    {
+        final DoubleSymbolImpl a = syms.createDouble(2.2);
+        final DoubleSymbolImpl b = syms.createDouble(3.3);
+        
+        final List<DoubleSymbol> values = syms.getSymbols(DoubleSymbol.class);
+        assertNotNull(values);
+        assertEquals(2, values.size());
+        assertTrue(values.contains(a));
+        assertTrue(values.contains(b));
+    }
+    @Test
+    public void testGetVariableSymbols()
+    {
+        final Variable a = syms.make_variable("a");
+        final Variable b = syms.make_variable("b");
+        
+        final List<Variable> values = syms.getSymbols(Variable.class);
+        assertNotNull(values);
+        assertEquals(2, values.size());
+        assertTrue(values.contains(a));
+        assertTrue(values.contains(b));
+    }
+    @Test
+    public void testGetJavaSymbols()
+    {
+        final JavaSymbolImpl a = syms.createJavaSymbol(new File("hi"));
+        final JavaSymbolImpl b = syms.createJavaSymbol(new File("bye"));
+        final JavaSymbolImpl n = syms.createJavaSymbol(null);
+        
+        final List<JavaSymbol> values = syms.getSymbols(JavaSymbol.class);
+        assertNotNull(values);
+        assertEquals(3, values.size());
+        assertTrue(values.contains(a));
+        assertTrue(values.contains(b));
+        assertTrue(values.contains(n));
+    }
+    @Test
+    public void testGetIdentifierSymbols()
+    {
+        final IdentifierImpl a = syms.createIdentifier('s');
+        final IdentifierImpl b = syms.createIdentifier('i');
+        
+        final List<Identifier> values = syms.getSymbols(Identifier.class);
+        assertNotNull(values);
+        assertEquals(2, values.size());
+        assertTrue(values.contains(a));
+        assertTrue(values.contains(b));
     }
 }
