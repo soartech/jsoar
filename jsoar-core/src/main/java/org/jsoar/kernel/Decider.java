@@ -590,6 +590,8 @@ public class Decider
             context.getPrinter().print("\n*** Garbage collecting id: %s",id);
         }
 
+        id.unknown_level = null; // From CSoar revision r10938
+
         // Note--for goal/impasse id's, this does not remove the impasse wme's.
         // This is handled by remove_existing_such-and-such...
 
@@ -616,15 +618,13 @@ public class Decider
                 final Preference next_pref = pref.nextOfSlot;
                 recMemory.remove_preference_from_tm(pref);
 
-                /*
-                 * Note: the call to remove_preference_from_slot handles the
-                 * removal of acceptable_preference_wmes
-                 */
+                // Note: the call to remove_preference_from_slot handles the
+                // removal of acceptable_preference_wmes
                 pref = next_pref;
             }
 
             tempMemory.mark_slot_for_possible_removal(s);
-        } /* end of for slots loop */
+        }
     }
 
     /**
@@ -824,7 +824,6 @@ public class Decider
         while (!ids_with_unknown_level.isEmpty())
         {
             final IdentifierImpl id = ids_with_unknown_level.pop();
-            id.unknown_level = null; // AGR 640:  GAP set to NIL because symbol may still have pointers to it
             garbage_collect_id(id);
         }
         this.link_update_mode = LinkUpdateType.UPDATE_LINKS_NORMALLY;
