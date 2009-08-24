@@ -961,7 +961,7 @@ public class Decider
         {
             if (decisionManip.select_get_operator() != null)
             {
-                Preference force_result = decisionManip.select_force(s.getAllPreferences(), !predict);
+                final Preference force_result = decisionManip.select_force(s.getPreferencesByType(PreferenceType.ACCEPTABLE), !predict);
 
                 if (force_result != null)
                 {
