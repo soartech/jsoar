@@ -128,7 +128,7 @@ public class PreferencesCommand implements SoarCommand
             {
                 final String attrArg = nonOpts.get(1);
                 final Symbol attr = Symbols.readAttributeFromString(agent, attrArg);
-                if(attr != null)
+                if(attr == null)
                 {
                     throw new SoarException("'" + attrArg + "' is not a known attribute");
                 }
