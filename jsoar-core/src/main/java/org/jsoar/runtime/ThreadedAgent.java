@@ -5,6 +5,8 @@
  */
 package org.jsoar.runtime;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -152,6 +154,19 @@ public class ThreadedAgent extends AbstractAdaptable
         synchronized (proxies)
         {
             return proxies.get(agent);
+        }
+    }
+    
+    /**
+     * Returns a list of all current threaded agents.
+     * 
+     * @return a list of all current threaded agents
+     */
+    public static List<ThreadedAgent> getAll()
+    {
+        synchronized (proxies)
+        {
+            return new ArrayList<ThreadedAgent>(proxies.values());
         }
     }
     
@@ -445,7 +460,8 @@ public class ThreadedAgent extends AbstractAdaptable
                 {
                     // TODO
                     e.printStackTrace();
-                    agent.getPrinter().error("ERROR: " + e.getCause().getMessage() + "\n");
+                    final Throwable cause = e.getCause();
+                    agent.getPrinter().error((cause != null ? cause.getMessage() : e.getMessage()) + "\n");
                 }
             }});
     }
