@@ -5,10 +5,12 @@
  */
 package org.jsoar.kernel.io.quick;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
@@ -87,6 +89,77 @@ public class DefaultQMemoryTest
         //assertEquals("hi", q.getString("a.b"));
         assertEquals("hi", q.getString("a.b[0]"));
         assertEquals("bye", q.getString("a.b[1]"));
+    }
+    
+    @Test
+    public void testDoesNotFireChangeEventWhenChangingDoubleToSameValue()
+    {
+        QMemory q = DefaultQMemory.create();
+     
+        final AtomicInteger count = new AtomicInteger();
+        q.addListener(new QMemoryListener()
+        {
+            
+            @Override
+            public void onQMemoryChanged()
+            {
+                count.incrementAndGet();
+            }
+        });
+        
+        q.setDouble("A", 3.14);
+        assertEquals(1, count.intValue());
+        q.setDouble("A", 3.14);
+        assertEquals(1, count.intValue());
+        q.setDouble("A", 3.15);
+        assertEquals(2, count.intValue());
+    }
+    
+    @Test
+    public void testDoesNotFireChangeEventWhenChangingStringToSameValue()
+    {
+        QMemory q = DefaultQMemory.create();
+     
+        final AtomicInteger count = new AtomicInteger();
+        q.addListener(new QMemoryListener()
+        {
+            
+            @Override
+            public void onQMemoryChanged()
+            {
+                count.incrementAndGet();
+            }
+        });
+        
+        q.setString("A", "b");
+        assertEquals(1, count.intValue());
+        q.setString("A", "b");
+        assertEquals(1, count.intValue());
+        q.setString("A", "c");
+        assertEquals(2, count.intValue());
+    }
+    
+    @Test
+    public void testDoesNotFireChangeEventWhenChangingIntegerToSameValue()
+    {
+        QMemory q = DefaultQMemory.create();
+     
+        final AtomicInteger count = new AtomicInteger();
+        q.addListener(new QMemoryListener()
+        {
+            @Override
+            public void onQMemoryChanged()
+            {
+                count.incrementAndGet();
+            }
+        });
+        
+        q.setInteger("A", 1);
+        assertEquals(1, count.intValue());
+        q.setInteger("A", 1);
+        assertEquals(1, count.intValue());
+        q.setInteger("A", 2);
+        assertEquals(2, count.intValue());
     }
 
 }

@@ -5,6 +5,8 @@
  */
 package org.jsoar.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
 
 
@@ -98,5 +100,20 @@ public class StringTools
             first = false;
         }
         return builder.toString();
+    }
+    
+    /**
+     * Get the stack trace of an exception as a string
+     * 
+     * @param e the exception
+     * @return the stack trace as a string
+     */
+    public static String getStackTrace(Throwable e)
+    {
+        final StringWriter writer = new StringWriter();
+        final PrintWriter printer = new PrintWriter(writer);
+        e.printStackTrace(printer);
+        printer.flush();
+        return writer.toString();
     }
 }

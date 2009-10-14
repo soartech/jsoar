@@ -189,8 +189,10 @@ public class DefaultQMemory implements QMemory
      */
     public synchronized void setDouble(String path, double doubleVal)
     {
-        getNode(path).setDoubleValue(doubleVal);
-        fireChangeEvent();
+        if(getNode(path).setDoubleValue(doubleVal))
+        {
+            fireChangeEvent();
+        }
     }
 
     /* (non-Javadoc)
@@ -198,8 +200,10 @@ public class DefaultQMemory implements QMemory
      */
     public synchronized void setInteger(String path, int intVal)
     {
-        getNode(path).setIntValue(intVal);
-        fireChangeEvent();
+        if(getNode(path).setIntValue(intVal))
+        {
+            fireChangeEvent();
+        }
     }
 
     /* (non-Javadoc)
@@ -207,8 +211,10 @@ public class DefaultQMemory implements QMemory
      */
     public synchronized void setString(String path, String strVal)
     {
-        getNode(path).setStringValue(strVal);
-        fireChangeEvent();
+        if(getNode(path).setStringValue(strVal))
+        {
+            fireChangeEvent();
+        }
     }
 
     /* (non-Javadoc)

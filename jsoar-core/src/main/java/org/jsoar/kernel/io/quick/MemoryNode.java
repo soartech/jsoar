@@ -54,20 +54,26 @@ class MemoryNode
         return value != null;
     }
 
-    public void setStringValue(String strVal)
+    public boolean setStringValue(String strVal)
     {
         assert(strVal != null);
+        final boolean changed = !strVal.equals(this.value);
         this.value = strVal;
+        return changed;
     }
 
-    public void setIntValue(int intVal)
+    public boolean setIntValue(int intVal)
     {
+        final boolean changed = !isInt() || intVal != getIntValue();
         this.value = intVal;
+        return changed;
     }
 
-    public void setDoubleValue(double doubleVal)
+    public boolean setDoubleValue(double doubleVal)
     {
+        final boolean changed = !isDouble() || doubleVal != getDoubleValue();
         this.value = doubleVal;
+        return changed;
     }
 
     public String getStringValue()
@@ -80,9 +86,11 @@ class MemoryNode
         return value;
     }
     
-    public void setValue(MemoryNode other)
+    public boolean setValue(MemoryNode other)
     {
+        final boolean changed = other != this.value;
         this.value = other.value;
+        return changed;
     }
     
     public int getIntValue()
