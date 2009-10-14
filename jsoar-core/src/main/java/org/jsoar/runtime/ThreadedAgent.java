@@ -10,7 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
@@ -428,8 +432,9 @@ public class ThreadedAgent extends AbstractAdaptable
     }
     
     /**
-     * Execute the given callable in the agent thread, wait for its result and
-     * return it.
+     * Schedule the given callable for execution in the agent thread and return
+     * immediately. This is the correct way to access the agent in a thread-safe
+     * manner without deadlocks.
      * 
      * @param <V> return type
      * @param callable the callable to run
@@ -464,6 +469,31 @@ public class ThreadedAgent extends AbstractAdaptable
                     agent.getPrinter().error((cause != null ? cause.getMessage() : e.getMessage()) + "\n");
                 }
             }});
+    }
+    
+    /**
+     * Execute a callable in the agent thread and wait for its result. 
+     * 
+     * <p>Note that in almost all cases, {@link #execute(Callable, CompletionHandler)} is
+     * what you want. This method is very prone to deadlocks if the thread that is calling
+     * it (e.g. the Swing UI thread) handles events from the agent.  
+     * 
+     * @param <V> the return type
+     * @param callable the callable to run in the agent thread
+     * @param timeout timeout value
+     * @param timeUnit timeout units
+     * @return the return value
+     * @throws InterruptedException if the thread is interrupted while waiting
+     * @throws ExecutionException if there's an unhandled exception in the callable
+     * @throws TimeoutException on timeout
+     */
+    public <V> V executeAndWait(final Callable<V> callable, long timeout, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException
+    {
+        final FutureTask<V> task = new FutureTask<V>(callable);
+        
+        execute(task);
+        
+        return task.get(timeout, timeUnit);
     }
     
     /**

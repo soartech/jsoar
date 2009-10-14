@@ -8,6 +8,7 @@ package org.jsoar.runtime;
 import static org.junit.Assert.*;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jsoar.kernel.RunType;
@@ -35,31 +36,32 @@ public class WaitRhsFunctionTest
     @Test(timeout=10000)
     public void testDoesNotWaitIfAsynchInputIsReadyAndInputPhaseHasntRunYet() throws Exception
     {
+        // Skip first input phase
+        agent.executeAndWait(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception
+            {
+                agent.runFor(2, RunType.PHASES);
+                return null;
+            }}, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        
+        // Now load a production that waits and mark input ready
         this.agent.getProductions().loadProduction("test (state <s> ^superstate nil) --> (wait)");
         this.agent.getInputOutput().asynchronousInputReady();
-        final Object signal = new String("testDoesNotWaitIfAsynchInputIsReadyAndInputPhaseHasntRunYet");
-        agent.execute(new Callable<Void>() {
+        
+        // Now run some more. The agent shouldn't wait because input ready came before input phase
+        
+        agent.executeAndWait(new Callable<Void>() {
 
             @Override
             public Void call() throws Exception
             {
                 agent.runFor(2, RunType.DECISIONS);
                 return null;
-            }}, new CompletionHandler<Void>(){
-
-                @Override
-                public void finish(Void result)
-                {
-                    synchronized(signal)
-                    {
-                        signal.notifyAll();
-                    }
-                }});
+            }}, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         
-        synchronized(signal)
-        {
-            signal.wait();
-        }
+        // Test will timeout on failure
     }
     
     @Test(timeout=10000)
