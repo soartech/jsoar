@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.AfterDecisionCycleEvent;
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
+import org.jsoar.kernel.events.PhaseEvents.AfterInput;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
@@ -64,9 +64,10 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
 {
     private ThreadedAgent agent;
     private RhsFunctionHandler oldHandler;
-    private final AtomicBoolean inputReady = new AtomicBoolean();
+    private boolean inputReady = false;
     private SoarEventListener inputReadyListener;
     private final AsynchronousInputReadyCommand inputReadyCommand = new AsynchronousInputReadyCommand();
+    private SoarEventListener afterInputListener;
     private SoarEventListener afterDecisionCycleListener;
     private WaitInfo requestedWaitInfo = WaitInfo.NOT_WAITING;
     private final AtomicReference<WaitInfo> waitInfo = new AtomicReference<WaitInfo>(WaitInfo.NOT_WAITING);
@@ -122,6 +123,15 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
                         doWait();
                     }});
         
+        this.agent.getEvents().addListener(AfterInput.class, 
+                afterInputListener = new SoarEventListener() {
+
+                    @Override
+                    public void onEvent(SoarEvent event)
+                    {
+                        inputReady = false;
+                    }});
+        
         // Set up "waiting" property
         this.agent.getProperties().setProvider(SoarProperties.WAIT_INFO, waitInfoProp);
         
@@ -134,6 +144,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         if(agent != null)
         {
             agent.getEvents().removeListener(null, inputReadyListener);
+            agent.getEvents().removeListener(null, afterInputListener);
             agent.getEvents().removeListener(null, afterDecisionCycleListener);
             agent.getRhsFunctions().unregisterHandler(getName());
             if(oldHandler != null)
@@ -149,7 +160,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
     {
         if(!requestedWaitInfo.waiting) // no wait requested
         {
-            inputReady.set(false);
+            inputReady = false;
             return;
         }
         
@@ -180,7 +191,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
                 }
                 else
                 {
-                    done = true;
+                    done = true; // timeout
                 }
             }
             catch (InterruptedException e)
@@ -194,7 +205,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         
         synchronized(this)
         {
-            inputReady.set(false);
+            inputReady = false;
             waitInfo.set(WaitInfo.NOT_WAITING);
         }
     }
@@ -202,17 +213,20 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
     private synchronized void setNewInputAvailable()
     {
         // This will break out of the poll below
-        inputReady.set(true);
-        if(waitInfo.get().waiting)
+        if(agent.isAgentThread())
         {
-            WaitRhsFunction.this.agent.execute(inputReadyCommand, null);
+            inputReady = true;
+        }
+        else
+        {
+            agent.execute(inputReadyCommand, null);
         }
     }
     
     private synchronized boolean isDoneWaiting()
     {
         return agent.getAgent().getReasonForStop() != null ||
-               inputReady.get() || 
+               inputReady || 
                Thread.currentThread().isInterrupted();
     }
 
@@ -250,6 +264,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         @Override
         public Void call() throws Exception
         {
+            inputReady = true;
             return null;
         }
         
