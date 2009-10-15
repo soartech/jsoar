@@ -164,10 +164,8 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
             return;
         }
         
-        synchronized(this)
-        {
-            waitInfo.set(requestedWaitInfo);
-        }
+        // Update the wait property
+        waitInfo.set(requestedWaitInfo);
 
         final long start = System.currentTimeMillis();
         final BlockingQueue<Runnable> commands = agent.getCommandQueue();
@@ -203,11 +201,8 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         }
         requestedWaitInfo = WaitInfo.NOT_WAITING; // clear the wait
         
-        synchronized(this)
-        {
-            inputReady = false;
-            waitInfo.set(WaitInfo.NOT_WAITING);
-        }
+        inputReady = false;
+        waitInfo.set(WaitInfo.NOT_WAITING);
     }
     
     private synchronized void setNewInputAvailable()
