@@ -1,0 +1,9 @@
+group agent : layout;
+
+title() ::= <<
+    Agent Working Memory- $env.agent;format="h"$ $env.filterId$
+>>
+body() ::= <<
+    <h1>$env.agent;format="h"$ - Working Memory</h1>
+    $env.wmes:{w|$w$};separator="<br/>"$
+>>
