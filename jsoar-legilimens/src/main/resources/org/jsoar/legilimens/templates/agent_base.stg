@@ -1,0 +1,18 @@
+group agent_base : layout;
+
+title() ::= <<
+    Agent - $env.agent;format="h"$
+>>
+
+header() ::= <<
+<h1>$env.agent;format="h"$</h1>
+$agent_links()$
+>>
+agent_links() ::= <<
+<ul>
+    <li>$link(href={$env.rootRef$/agents},content="All Agents")$
+    <li>$link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/productions},content={$env.agent.productions.productionCount$ productions})$
+    <li>$link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/trace},content="Trace")$
+</ul>
+>>
+

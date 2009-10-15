@@ -1,0 +1,9 @@
+group agent : agent_base;
+
+body() ::= <<
+    $if(env.agent.running)$
+    Running
+    $else$
+    Stopped
+    $endif$
+>>

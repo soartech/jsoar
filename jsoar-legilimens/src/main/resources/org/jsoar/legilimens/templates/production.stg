@@ -1,0 +1,21 @@
+group agents : agent_base;
+
+title() ::= <<
+    Production - $env.agent;format="h"$ - $env.production.name;format="h"$
+>>
+
+header() ::= <<
+    <h1>$agent_link(env.agent)$ - $env.production.name;format="h"$</h1>
+    <div class="firing-count">Fired $env.production.production.firingCount$ times</div>
+    <div class="production-type">$env.production.production.type$</div>
+>>
+body() ::= <<
+    $production(env.production)$
+>>
+
+production(p) ::= <<
+    <div class="production">
+    <h2>$p.name;format="h"$<h2>
+    <pre>$p.code;format="h"$</pre>
+    </div>
+>>
