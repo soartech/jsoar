@@ -5,7 +5,6 @@
  */
 package org.jsoar.legilimens.resources;
 
-import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -15,6 +14,7 @@ import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 /**
@@ -22,6 +22,24 @@ import org.restlet.resource.ServerResource;
  */
 public class BaseResource extends ServerResource
 {
+    private boolean edit;
+    
+    public boolean isEdit()
+    {
+        return edit;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.legilimens.resources.BaseAgentResource#doInit()
+     */
+    @Override
+    protected void doInit() throws ResourceException
+    {
+        super.doInit();
+        
+        edit = "edit".equals(getRequest().getAttributes().get("action"));
+    }
+    
     public LegilimensApplication getLegilimens()
     {
         return (LegilimensApplication) getApplication();
@@ -62,9 +80,16 @@ public class BaseResource extends ServerResource
         {
             return input;
         }
-        final String simpleName = getClass().getSimpleName();
-        System.err.println("Simple name = " + simpleName);
-        final int i = simpleName.indexOf("Resource");
-        return simpleName.substring(0, i).toLowerCase();
+        
+        final String simpleName = getClass().getName();
+        System.err.println("Name = " + simpleName);
+        final String RESOURCE = "Resource";
+        final int resourceStart = simpleName.indexOf(RESOURCE);
+        final int nameStart = simpleName.lastIndexOf('.');
+        final String base = simpleName.substring(nameStart + 1, resourceStart).toLowerCase();
+        final int subStart = simpleName.lastIndexOf('$');
+        final String sub = subStart != -1 ? simpleName.substring(subStart) : "";
+        
+        return base + (sub.isEmpty() ? "" : "_" + sub);
     }
 }

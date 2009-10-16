@@ -1,9 +1,26 @@
-group agent : layout;
+group agent : agent_base;
 
 title() ::= <<
-    Agent Working Memory- $env.agent;format="h"$ $env.filterId$
+    Working Memory - $env.agent;format="h"$ $env.filterId$
 >>
+
+header() ::= <<
+    <h1>$agent_link(env.agent)$ - Working Memory</h1>
+    <h2>$env.filterId$</h2>
+    $agent_links()$
+
+>>
+
 body() ::= <<
-    <h1>$env.agent;format="h"$ - Working Memory</h1>
-    $env.wmes:{w|$w$};separator="<br/>"$
+    <form action="$env.resourceRef$" method="get">
+    Identifier: <input type="text" name="id" value="$env.filterId$">
+    <input TYPE="submit" NAME="name" VALUE="Search">
+    </form>
+    <ul>
+    $env.wmes:{w|<li>$wme(...)$};separator="\n"$
+    </ul>
+>>
+
+wme(w) ::= <<
+(<a href="$env.rootRef$/agents/$env.agent.name;format="a"$/wmes?id=$w.id$">$w.id$</a> ^$w.attribute$ $w.value$)
 >>

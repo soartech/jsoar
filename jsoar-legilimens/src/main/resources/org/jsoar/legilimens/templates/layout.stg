@@ -14,9 +14,11 @@ img(name) ::= <<
 
 title() ::= "Legilimens"
 body() ::= "Default body"
+logo() ::= << 
+$link(href="http://jsoar.googlecode.com", content=img("logo.png"))$
+>>
 
 header() ::= <<
-   $link(href="http://jsoar.googlecode.com", content=img("logo.png"))$
 >>
 
 footer() ::= ""
@@ -24,8 +26,8 @@ footer() ::= ""
 main(env) ::= <<
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-    $layout_head()$
-    $layout_body()$
+$layout_head()$
+$layout_body()$
 </html>
 
 >>
@@ -40,15 +42,16 @@ layout_head() ::= <<
 
 layout_body() ::= <<
 <body>
-    <div id="header">
-    $header()$
-    </div>
-    <div id="container">
-    $body()$
-    </div>
-    <div id="footer>
-    $footer()$
-    </div>
+<div id="header">
+$header()$
+</div>
+<div id="container">
+$body()$
+</div>
+<div id="footer>
+$footer()$
+</div>
+$logo()$
 </body>
 >>
 

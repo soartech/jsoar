@@ -39,6 +39,7 @@ public class CommandsResource extends BaseAgentResource
             @Override
             public String call() throws Exception
             {
+                agent.getPrinter().startNewLine().print(agent.getName() + "> " + command + "\n");
                 return agent.getInterpreter().eval(command);
             }
         };

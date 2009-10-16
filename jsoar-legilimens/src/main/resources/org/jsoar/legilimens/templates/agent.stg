@@ -1,9 +1,23 @@
 group agent : agent_base;
 
 body() ::= <<
+    $command_entry()$
+    Agent is
     $if(env.agent.running)$
     Running
     $else$
     Stopped
     $endif$
+    
+    <h3>Match Set</h3>
+    <ul>
+    $env.agent.agent.matchSet.entries:matchsetEntry()$
+    </ul>
+>>
+
+matchsetEntry(it) ::= <<
+<li>
+$it.type$ - $link(href={$env.resourceRef$/productions/$it.production.name$/},content={$it.production.name;format="h"$})$<br/>
+$it.wmes:{w|$w$};separator="<br/>"$
+</li>
 >>

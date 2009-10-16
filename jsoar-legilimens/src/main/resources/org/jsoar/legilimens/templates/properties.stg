@@ -1,0 +1,29 @@
+group agent : agent_base;
+
+title() ::= <<
+    Agent Properties - $env.agent;format="h"$
+>>
+
+header() ::= <<
+    <h1>$agent_link(env.agent)$ - Properties</h1>
+    $agent_links()$
+>>
+
+body() ::= <<
+<ul>
+    $env.properties:property()$
+<ul>
+>>
+
+property(it) ::= <<
+<li class="property">
+    <div class="property-name">$it.key.name;format="h"$</div>
+    <div class="property-type">$it.key.type;format="h"$</div>
+    <div class="property-value">$it.value;format="h"$</div>
+    $if(it.key.readonly)$
+    <div class="property-readonly">Read-only</div>
+    $else$
+    <div class="property-writable">Writable</div>
+    $endif$
+</li>
+>>
