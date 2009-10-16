@@ -12,7 +12,7 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.StringTemplateGroupLoader;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.jsoar.legilimens.resources.AgentPropertiesResource;
+import org.jsoar.legilimens.resources.PropertiesResource;
 import org.jsoar.legilimens.resources.AgentResource;
 import org.jsoar.legilimens.resources.AgentsResource;
 import org.jsoar.legilimens.resources.CommandsResource;
@@ -80,10 +80,11 @@ public class LegilimensApplication extends Application
         router.attach("/agents/{agentName}", AgentResource.class);
         router.attach("/agents/{agentName}/trace", TraceResource.class);
         router.attach("/agents/{agentName}/commands", CommandsResource.class);
-        router.attach("/agents/{agentName}/properties", AgentPropertiesResource.class);
+        router.attach("/agents/{agentName}/properties", PropertiesResource.class);
         router.attach("/agents/{agentName}/wmes", WmesResource.class);
         router.attach("/agents/{agentName}/productions", ProductionsResource.class);
         router.attach("/agents/{agentName}/productions/{productionName}", ProductionResource.class);
+        router.attach("/agents/{agentName}/productions/{productionName}/{action}", ProductionResource.class);
         
         attachPublicResource(router, "/images");
         attachPublicResource(router, "/javascripts");

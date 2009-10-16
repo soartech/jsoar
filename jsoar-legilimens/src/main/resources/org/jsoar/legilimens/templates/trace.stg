@@ -1,22 +1,21 @@
 group agent : agent_base;
 
 title() ::= <<
-    Agent Trace- $env.agent;format="h"$ $env.filterId$
+    Agent Trace - $env.agent;format="h"$ $env.filterId$
 >>
 
 header() ::= <<
-    <h1>$env.agent;format="h"$ - Trace</h1>
+    <h1>$agent_link(env.agent)$ - Trace</h1>
     $agent_links()$
 >>
 body() ::= <<
+    $command_entry()$
+    <hr>
     <div id="trace" class="trace">
     
     </div>
     
-    <form action="$env.rootRef$/agents/$env.agent.name;format="a"$/commands" method="POST">
-    Command: <input type="text" name="command" value="">
-    <input TYPE="submit" NAME="name" VALUE="Execute">
-    </form>
+
     <script type="text/javascript">
     offset = 0;
     function pollTrace() {

@@ -6,16 +6,39 @@ title() ::= <<
 
 header() ::= <<
     <h1>$agent_link(env.agent)$ - $env.production.name;format="h"$</h1>
+    $agent_links()$
     <div class="firing-count">Fired $env.production.production.firingCount$ times</div>
     <div class="production-type">$env.production.production.type$</div>
 >>
 body() ::= <<
-    $production(env.production)$
+$if(env.resource.edit)$
+$edit(env.production)$
+$else$
+$show(env.production)$
+$endif$
 >>
 
-production(p) ::= <<
-    <div class="production">
-    <h2>$p.name;format="h"$<h2>
-    <pre>$p.code;format="h"$</pre>
-    </div>
+show(p) ::= <<
+<div class="production">
+<h2>$p.name;format="h"$<h2>
+<pre>$p.code;format="h"$</pre>
+</div>
+
+<div class="production-links">
+<ul>
+<li><a href="edit">Edit</a>
+<li><a href="">Excise</a>
+<li><a href="">Reload</a>
+<ul>
+</div>
+>>
+
+edit(p) ::= <<
+<form action="$env.resourceRef.parentRef;format="a"$" method="POST">
+<textarea name="production" rows="30" cols="80">
+$p.code$
+</textarea>
+<input TYPE="submit" NAME="name" VALUE="Save">
+</form>
+<a href="$env.resourceRef.parentRef$">Cancel</a>
 >>

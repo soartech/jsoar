@@ -18,6 +18,15 @@ a img {
   margin-top: 20px;
 }
 
+#header {
+  width: 75%;
+  margin: 0 auto;
+  background-color: #FFF;
+  padding: 20px 40px;
+  border: solid 1px black;
+  margin-top: 20px;
+}
+
 .trace {
     width: 100%; 
     height: 500px; 

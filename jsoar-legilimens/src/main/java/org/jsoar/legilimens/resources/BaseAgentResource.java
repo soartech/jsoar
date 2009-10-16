@@ -62,7 +62,6 @@ public class BaseAgentResource extends BaseResource
     {
         // Override html to do rendering in agent thread
         final LegilimensApplication app = getLegilimens();
-        final AtomicReference<Representation> finalResult = new AtomicReference<Representation>();
         final Callable<Representation> callable = new Callable<Representation>()
         {
 

@@ -8,11 +8,24 @@ header() ::= <<
 <h1>$env.agent;format="h"$</h1>
 $agent_links()$
 >>
+
+command_entry() ::= <<
+<form action="$env.rootRef$/agents/$env.agent.name;format="a"$/commands" method="POST">
+Command: <input type="text" name="command" value="">
+<input TYPE="submit" NAME="name" VALUE="Execute">
+</form>
+>>
+
 agent_links() ::= <<
 <ul>
     <li>$link(href={$env.rootRef$/agents},content="All Agents")$
     <li>$link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/productions},content={$env.agent.productions.productionCount$ productions})$
     <li>$link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/trace},content="Trace")$
+    <li>$link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/properties},content="Properties")$
+    <li>Working Memory - $link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/wmes},content="All")$ 
+                       - $link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/wmes?id=S1},content="S1")$
+                       - $link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/wmes?id=I2},content="I2")$
+                       - $link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/wmes?id=I3},content="I3")$
 </ul>
 >>
 

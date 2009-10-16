@@ -1,8 +1,12 @@
 group agents : layout;
 
-title() ::= "Agents"
-body() ::= <<
+title() ::= "All Agents"
+
+header() ::= <<
 <h1>All Agents</h1>
+>>
+
+body() ::= <<
 <ul>
     $env.agents:{agent|$agent_list_entry(...)$}$
 </ul>
