@@ -8,11 +8,9 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.prefs.Preferences;
-import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -29,17 +27,13 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.selection.TableSelectionProvider;
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
-import org.jsoar.util.StringTools;
 import org.jsoar.util.SwingTools;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 
 /**
  * 
@@ -221,7 +215,7 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
             @Override
             public List<Wme> call() throws Exception
             {
-                return getWmes(id, attr, value);
+                return Wmes.search(debugger.getAgent().getAgent(), id, attr, value);
             }
         };
         
@@ -239,24 +233,4 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(done));
     }
     
-    private List<Wme> getWmes(String id, String attr, String value)
-    {
-        final Agent agent = debugger.getAgent().getAgent();
-        final Pattern idPattern = Pattern.compile(StringTools.createRegexFromGlob(id).toUpperCase());
-        final Pattern attrPattern = Pattern.compile(StringTools.createRegexFromGlob(attr));
-        final Pattern valuePattern = Pattern.compile(StringTools.createRegexFromGlob(value));
-        
-        final Predicate<Wme> predicate = new Predicate<Wme>() {
-
-            @Override
-            public boolean apply(Wme w)
-            {
-                return idPattern.matcher(w.getIdentifier().toString()).matches() &&
-                       attrPattern.matcher(w.getAttribute().toString()).matches() &&
-                       valuePattern.matcher(w.getValue().toString()).matches();
-            }
-            
-        };
-        return new ArrayList<Wme>(Collections2.filter(agent.getAllWmesInRete(), predicate));
-    }
 }

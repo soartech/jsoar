@@ -6,15 +6,17 @@ title() ::= <<
 
 header() ::= <<
     <h1>$agent_link(env.agent)$ - Working Memory</h1>
-    <h2>$env.filterId$</h2>
+    <h2>($env.filterId;filter="h"$ ^$env.filterAttr;filter="h"$ $env.filterValue;filter="h"$)</h2>
     $agent_links()$
 
 >>
 
 body() ::= <<
     <form action="$env.resourceRef$" method="get">
-    Identifier: <input type="text" name="id" value="$env.filterId$">
-    <input TYPE="submit" NAME="name" VALUE="Search">
+    (<input type="text" name="id" value="$env.filterId$" size="4">
+    ^<input type="text" name="attr" value="$env.filterAttr$">
+    <input type="text" name="value" value="$env.filterValue$">)
+    <input TYPE="submit" VALUE="Search">
     </form>
     <ul>
     $env.wmes:{w|<li>$wme(...)$};separator="\n"$

@@ -26,6 +26,13 @@ agent_links() ::= <<
                        - $link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/wmes?id=S1},content="S1")$
                        - $link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/wmes?id=I2},content="I2")$
                        - $link(href={$env.rootRef$/agents/$env.agent.name;format="a"$/wmes?id=I3},content="I3")$
+    <li>$agent_command_link("step")$
+    <li>$agent_command_link("stop")$
+    <li>$agent_command_link("init-soar")$
 </ul>
+>>
+
+agent_command_link(command) ::= <<
+<a href="javascript:runAgentCommand(%22$env.rootRef$/agents/$env.agent.name;format="a"$/commands%22,%22$command$%22)">$command;format="h"$</a>
 >>
 
