@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.symbols.Identifier;
@@ -16,8 +17,10 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.StringTools;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 
 /**
  * {@link Wme} utility routines
@@ -26,6 +29,35 @@ import com.google.common.base.Predicate;
  */
 public class Wmes
 {
+    /**
+     * Search working memory for WMEs that match glob expressions.
+     * 
+     * @param agent the agent
+     * @param id glob expression, or {@code null} for any id
+     * @param attr glob expression, or {@code null} for any attr
+     * @param value glob expression, or {@code null} for any value
+     * @return list of wmes matching all three globs
+     */
+    public static List<Wme> search(Agent agent, String id, String attr, String value)
+    {
+        final Pattern idPattern = Pattern.compile(StringTools.createRegexFromGlob(id).toUpperCase());
+        final Pattern attrPattern = Pattern.compile(StringTools.createRegexFromGlob(attr));
+        final Pattern valuePattern = Pattern.compile(StringTools.createRegexFromGlob(value));
+        
+        final Predicate<Wme> predicate = new Predicate<Wme>() {
+
+            @Override
+            public boolean apply(Wme w)
+            {
+                return idPattern.matcher(w.getIdentifier().toString()).matches() &&
+                       attrPattern.matcher(w.getAttribute().toString()).matches() &&
+                       valuePattern.matcher(w.getValue().toString()).matches();
+            }
+            
+        };
+        return new ArrayList<Wme>(Collections2.filter(agent.getAllWmesInRete(), predicate));
+    }
+
     /**
      * Begin constructing a new WME matcher. This uses a builder pattern. 
      * Chain methods together to construct a predicate the WME you'd like to

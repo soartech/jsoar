@@ -5,11 +5,9 @@
  */
 package org.jsoar.legilimens.resources;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.Wmes;
 import org.restlet.resource.ResourceException;
 
 /**
@@ -18,8 +16,8 @@ import org.restlet.resource.ResourceException;
 public class WmesResource extends BaseAgentResource
 {
     private String id;
-    
-    
+    private String attr;
+    private String value;
 
     /* (non-Javadoc)
      * @see org.jsoar.legilimens.BaseAgentResource#doInit()
@@ -29,8 +27,18 @@ public class WmesResource extends BaseAgentResource
     {
         super.doInit();
         
-        id = getQuery().getFirstValue("id");
+        id = getFilterParam("id");
+        attr = getFilterParam("attr");
+        value = getFilterParam("value");
     }
+    
+    private String getFilterParam(String name)
+    {
+        final String filter = getQuery().getFirstValue(name);
+        
+        return filter != null ? filter : "*";
+    }
+    
 /*
     @Get("html")
     public Representation toHtml()
@@ -46,16 +54,11 @@ public class WmesResource extends BaseAgentResource
     {
         super.setTemplateAttributes(attrs);
         
-        attrs.put("filterId", id);
-        final List<Wme> wmes = new ArrayList<Wme>();
-        for(Wme wme : agent.getAgent().getAllWmesInRete())
-        {
-            if(id == null || id.equals(wme.getIdentifier().toString()))
-            {
-                wmes.add(wme);
-            }
-        }
-        attrs.put("wmes", wmes);
+        attrs.put("filterId", id != null ? id : "*");
+        attrs.put("filterAttr", attr != null ? attr : "*");
+        attrs.put("filterValue", value != null ? value : "*");
+        
+        attrs.put("wmes", Wmes.search(agent.getAgent(), id, attr, value));
     }
     
     
