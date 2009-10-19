@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jsoar.legilimens.LegilimensApplication;
+import org.jsoar.legilimens.templates.TemplateMethods;
 import org.restlet.data.MediaType;
 import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
@@ -67,6 +68,8 @@ public class BaseResource extends ServerResource
         attrs.put("resource", this);
         attrs.put("rootRef", getRootRef());
         attrs.put("resourceRef", getReference());
+        
+        TemplateMethods.installMethods(attrs);
     }
     
     public String getTemplateName(String input)

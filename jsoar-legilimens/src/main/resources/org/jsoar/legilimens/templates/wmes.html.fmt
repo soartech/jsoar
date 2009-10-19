@@ -8,8 +8,22 @@
     ${agent_links}
 </#global>
 
+<#macro id id>
+    <a href="${wmes_url}?id=${id}">${id}</a>
+</#macro>
+
 <#macro wme w>
-(<a href="${wmes_url}?id=${w.identifier}">${w.identifier}</a> ^${w.attribute} ${w.value})
+    <tr>
+        <td><@id w.identifier/></td>
+        <td>^${w.attribute}</td>
+        <td>
+            <#if isIdentifier(w.value)>
+                <@id w.value/>
+            <#else>
+                ${w.value}
+            </#if>
+        </td>
+    </tr>
 </#macro>
 
 <#global body>
@@ -20,11 +34,11 @@
     <input TYPE="submit" VALUE="Search">
     </form>
     
-    <ul>
+    <table>
         <#list wmes as w>
-            <li><@wme w/></li>
+            <@wme w/>
         </#list>
-    </ul>
+    </table>
 </#global>
 
 <#include "/layout.fmt"/>
