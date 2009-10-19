@@ -1,0 +1,19 @@
+<#global title="Legilimens"/>
+<#global header="&nbsp;"/>
+<#global body="&nbsp;"/>
+<#global footer="&nbsp;"/>
+
+<#global images_url="${rootRef}/images"/>
+<#global javascripts_url="${rootRef}/javascripts"/>
+<#global stylesheets_url="${rootRef}/stylesheets"/>
+
+<#macro img name>
+    <img src="${images_url}/${name}"/>
+</#macro>
+
+<#global agents_url="${rootRef}/agents"/>
+
+<#global logo>
+<a href="http://jsoar.googlecode.com"><@img name="logo.png"/></a>
+</#global>
+

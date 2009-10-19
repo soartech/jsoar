@@ -104,5 +104,31 @@ public class ProductionResource extends BaseAgentResource
             printer.flush();
             this.code = writer.toString();
         }
+
+        /**
+         * @return the production
+         */
+        public Production getProduction()
+        {
+            return production;
+        }
+
+        /**
+         * @return the name
+         */
+        public String getName()
+        {
+            return name;
+        }
+
+        /**
+         * @return the code
+         */
+        public String getCode()
+        {
+            return code;
+        }
+        
+        
     }
 }

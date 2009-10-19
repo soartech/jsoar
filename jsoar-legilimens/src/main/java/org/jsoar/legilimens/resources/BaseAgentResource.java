@@ -10,9 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
 
-import org.antlr.stringtemplate.StringTemplate;
 import org.jsoar.legilimens.LegilimensApplication;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.StringTools;
@@ -69,8 +67,7 @@ public class BaseAgentResource extends BaseResource
             public Representation call() throws Exception
             {
                 Application.setCurrent(app);
-                final StringTemplate t = template(templateName);
-                return new StringRepresentation(t.toString(), MediaType.TEXT_HTML);
+                return template(getTemplateName(templateName) + ".html.fmt", MediaType.TEXT_HTML);
             }
         };
         

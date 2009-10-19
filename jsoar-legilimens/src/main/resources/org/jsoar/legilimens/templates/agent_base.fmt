@@ -1,0 +1,53 @@
+<#include "/base.fmt"/>
+
+<#global agent_url="${agents_url}/${agent.name?url}"/>
+<#global commands_url="${agent_url}/commands"/>
+<#global productions_url="${agent_url}/productions"/>
+<#global trace_url="${agent_url}/trace"/>
+<#global properties_url="${agent_url}/properties"/>
+<#global wmes_url="${agent_url}/wmes"/>
+
+<#global title>Agent - ${agent?html}</#global>
+
+
+<#global command_entry>
+<form action="${commands_url}" method="POST">
+Command: <input type="text" name="command" value="">
+<input TYPE="submit" NAME="name" VALUE="Execute">
+</form>
+</#global>
+
+<#macro agent_command_link command>
+<a href="javascript:runAgentCommand(%22${commands_url}%22,%22${command}%22)">${command?html}</a>
+</#macro>
+
+<#macro production_link p>
+<a href="${productions_url}/${p.name?url}">${p.name?html}</a>
+</#macro>
+
+<#macro production_edit_link p>
+<a href="${productions_url}/${p.name?url}/edit">[edit]</a>
+</#macro>
+
+<#global agent_links>
+<ul>
+    <li<#if resource.name=="agents"> class="selected"</#if>><a href="${agents_url}">All Agents</a>
+    <li<#if resource.name=="agent"> class="selected"</#if>><a href="${agent_url}">${agent?html}</a>
+    <li<#if resource.name=="productions"> class="selected"</#if>><a href="${productions_url}">${agent.productions.productionCount} productions</a>
+    <li<#if resource.name=="trace"> class="selected"</#if>><a href="${trace_url}">Trace</a>
+    <li<#if resource.name=="properties"> class="selected"</#if>><a href="${properties_url}">Properties</a>
+    <li<#if resource.name=="wmes"> class="selected"</#if>>Working Memory - <a href="${wmes_url}">All</a> 
+                       - <a href="${wmes_url}?id=S1">S1</a>
+                       - <a href="${wmes_url}?id=I2">I2</a>
+                       - <a href="${wmes_url}?id=S3">I3</a>
+    <li><@agent_command_link command="step"/>
+    <li><@agent_command_link command="stop"/>
+    <li><@agent_command_link command="init-soar"/>
+</ul>
+</#global>
+
+<#global header>
+<h1>${agent?html}</h1>
+${agent_links}
+</#global>
+

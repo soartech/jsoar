@@ -8,8 +8,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-core"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/org.restlet.jar"/>
-	<classpathentry kind="lib" path="lib/antlr-2.7.7.jar"/>
-	<classpathentry kind="lib" path="lib/stringtemplate-3.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/org.freemarker.jar"/>
+	<classpathentry kind="lib" path="lib/org.restlet.ext.freemarker.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -7,21 +7,14 @@ package org.jsoar.legilimens;
 
 import java.util.List;
 
-import org.antlr.stringtemplate.CommonGroupLoader;
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
-import org.antlr.stringtemplate.StringTemplateGroupLoader;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.jsoar.legilimens.resources.PropertiesResource;
 import org.jsoar.legilimens.resources.AgentResource;
 import org.jsoar.legilimens.resources.AgentsResource;
 import org.jsoar.legilimens.resources.CommandsResource;
 import org.jsoar.legilimens.resources.ProductionResource;
 import org.jsoar.legilimens.resources.ProductionsResource;
+import org.jsoar.legilimens.resources.PropertiesResource;
 import org.jsoar.legilimens.resources.TraceResource;
 import org.jsoar.legilimens.resources.WmesResource;
-import org.jsoar.legilimens.templates.HtmlFormatRenderer;
-import org.jsoar.legilimens.templates.TemplateErrorListener;
 import org.jsoar.runtime.ThreadedAgent;
 import org.restlet.Application;
 import org.restlet.Restlet;
@@ -29,17 +22,20 @@ import org.restlet.data.LocalReference;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 
+import freemarker.template.Configuration;
+import freemarker.template.ObjectWrapper;
+
 /**
  * @author ray
  */
 public class LegilimensApplication extends Application
 {
-    private final StringTemplateGroupLoader loader = new CommonGroupLoader("org/jsoar/legilimens/templates", new TemplateErrorListener());
+    private final Configuration fmc = new Configuration();
     
     public LegilimensApplication()
     {
-        StringTemplateGroup.registerGroupLoader(loader);
-
+        fmc.setURLEscapingCharset("UTF-8");
+        fmc.setClassForTemplateLoading(getClass(), "/org/jsoar/legilimens/templates");
     }
     
     public List<ThreadedAgent> getAgents()
@@ -59,16 +55,11 @@ public class LegilimensApplication extends Application
         return null;
     }
 
-    public StringTemplate template(String name)
+    public Configuration getFreeMarker()
     {
-        // first load main language template
-        final StringTemplateGroup templates = StringTemplateGroup.loadGroup(name, DefaultTemplateLexer.class, null);
-        templates.registerRenderer(String.class, new HtmlFormatRenderer());
-        templates.setRefreshInterval(0);  // no caching
-        templates.setRefreshInterval(Integer.MAX_VALUE);  // no refreshing
-        return templates.getInstanceOf("main");
+        return fmc;
     }
-    
+
     /* (non-Javadoc)
      * @see org.restlet.Application#createInboundRoot()
      */

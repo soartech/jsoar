@@ -59,4 +59,15 @@ public class AgentTraceState
     {
         return output.toByteArray();
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return output.size() + " bytes written";
+    }
+    
+    
 }

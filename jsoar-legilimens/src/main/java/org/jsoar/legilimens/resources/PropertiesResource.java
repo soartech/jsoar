@@ -43,6 +43,24 @@ public class PropertiesResource extends BaseAgentResource
             this.key = key;
             this.value = value;
         }
+
+        /**
+         * @return the key
+         */
+        public PropertyKey<?> getKey()
+        {
+            return key;
+        }
+
+        /**
+         * @return the value
+         */
+        public String getValue()
+        {
+            return value.toString();
+        }
+        
+        
     }
     
 }
