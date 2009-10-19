@@ -1,0 +1,26 @@
+<#include "/agent_base.fmt"/>
+
+<#global title="Productions - ${agent?html}"/>
+<#global header>
+    <h1><a href="${agent_url}">${agent?html}</a> - ${agent.productions.productionCount} Productions</h1>
+    ${agent_links}
+</#global>
+
+<#macro production p>
+    <li>
+        <@production_link p/>
+        <@production_edit_link p/>
+        <div class="firing-count">Fired ${p.production.firingCount} times</div>
+        <div class="production-type">${p.production.type}</div>
+    </li>
+</#macro>
+
+<#global body>
+    <ul>
+        <#list productions as p>
+            <@production p=p/>
+        </#list>
+    </ul>
+</#global>
+
+<#include "/layout.fmt"/>

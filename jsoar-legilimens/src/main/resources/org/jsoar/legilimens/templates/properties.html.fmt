@@ -1,0 +1,42 @@
+<#include "/agent_base.fmt"/>
+
+<#global title="Agent Properties - ${agent?html}"/>
+
+<#global header>
+    <h1><a href="${agent_url}">${agent?html}</a> - Properties</h1>
+    ${agent_links}
+</#global>
+
+<#macro property p>
+    <tr>
+        <td>
+            <div class="property-name">${p.key.name?html}</div>
+        </td>
+        <td>
+            <div class="property-type">${p.key.type.name?html}</div>
+        </td>
+        <td>
+            <div class="property-value">${p.value?html}</div>
+        </td>
+        <td>
+            <#if p.key.readonly>
+            <div class="property-readonly">r</div>
+            <#else>
+            <div class="property-writable">rw</div>
+            </#if>
+        </td>
+    </tr>
+</#macro>
+
+<#global body>
+<table>
+    <tr>
+        <th>Name</th><th>Type</th><th>Value</th><th>Flags</th>
+    </tr>
+    <#list properties as p>
+        <@property p=p/>
+    </#list>
+</table>
+</#global>
+
+<#include "/layout.fmt"/>

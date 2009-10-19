@@ -1,0 +1,21 @@
+<#include "/base.fmt"/>
+
+<#macro agent_url agent=agent>${rootRef}/agents/${agent.name?url}</#macro>
+
+<#macro agent_link agent>
+<a href="<@agent_url agent/>">${agent.name?html}</a>
+</#macro>
+
+<#global header>
+<h1>All Agents</h1>
+</#global>
+
+<#global body>
+<ul>
+<#list agents as agent>
+    <li><@agent_link agent=agent/></li>
+</#list>
+</ul>
+</#global>
+
+<#include "/layout.fmt"/>

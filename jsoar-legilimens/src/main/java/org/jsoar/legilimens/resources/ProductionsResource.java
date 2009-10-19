@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.tracing.Printer;
 
 /**
@@ -54,5 +53,31 @@ public class ProductionsResource extends BaseAgentResource
             printer.flush();
             this.code = writer.toString();
         }
+
+        /**
+         * @return the production
+         */
+        public Production getProduction()
+        {
+            return production;
+        }
+
+        /**
+         * @return the name
+         */
+        public String getName()
+        {
+            return name;
+        }
+
+        /**
+         * @return the code
+         */
+        public String getCode()
+        {
+            return code;
+        }
+        
+        
     }
 }

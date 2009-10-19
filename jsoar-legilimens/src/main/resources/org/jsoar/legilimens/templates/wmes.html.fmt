@@ -1,0 +1,30 @@
+<#include "/agent_base.fmt"/>
+
+<#global title="Working Memory - ${agent?html} - ${filterId}"/>
+
+<#global header>
+    <h1><a href="${agent_url}">${agent?html}</a> - Working Memory</h1>
+    <h2>(${filterId?html} ^${filterAttr?html} ${filterValue?html})</h2>
+    ${agent_links}
+</#global>
+
+<#macro wme w>
+(<a href="${wmes_url}?id=${w.identifier}">${w.identifier}</a> ^${w.attribute} ${w.value})
+</#macro>
+
+<#global body>
+    <form action="${resourceRef}" method="get">
+    (<input type="text" name="id" value="${filterId?html}" size="4">
+    ^<input type="text" name="attr" value="${filterAttr?html}">
+    <input type="text" name="value" value="${filterValue?html}">)
+    <input TYPE="submit" VALUE="Search">
+    </form>
+    
+    <ul>
+        <#list wmes as w>
+            <li><@wme w/></li>
+        </#list>
+    </ul>
+</#global>
+
+<#include "/layout.fmt"/>

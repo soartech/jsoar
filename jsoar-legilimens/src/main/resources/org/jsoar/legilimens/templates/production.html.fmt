@@ -1,0 +1,39 @@
+<#include "/agent_base.fmt"/>
+
+<#global title="Production - ${agent?html} - ${production.name?html}"/>
+
+<#global header>
+    <h1><a href="${agent_url}">${agent?html}</a> - ${production.name?html}</h1>
+    ${agent_links}
+    <div class="firing-count">Fired ${production.production.firingCount} times</div>
+    <div class="production-type">${production.production.type}</div>
+</#global>
+
+<#global body>
+
+<#if resource.edit>
+    <form action="${resourceRef.parentRef?url}" method="POST">
+        <textarea name="production" rows="30" cols="80">
+${production.code?html}
+        </textarea>
+        <input TYPE="submit" NAME="name" VALUE="Save">
+    </form>
+    <a href="${resourceRef.parentRef?url}">Cancel</a>
+
+<#else>
+    <div class="production">
+    <h2>${production.name?html}<h2>
+<pre>${production.code?html}</pre>
+    </div>
+    
+    <div class="production-links">
+    <ul>
+        <li><a href="${productions_url}/${production.name?url}/edit">Edit</a></li>
+        <li><a href="">Excise</a></li>
+        <li><a href="">Reload</a></li>
+    <ul>
+</div>
+
+</#if>
+</#global>
+<#include "/layout.fmt"/>

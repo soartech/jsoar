@@ -8,11 +8,10 @@ package org.jsoar.legilimens.resources;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.antlr.stringtemplate.StringTemplate;
 import org.jsoar.legilimens.LegilimensApplication;
 import org.restlet.data.MediaType;
+import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
@@ -53,18 +52,14 @@ public class BaseResource extends ServerResource
     
     public Representation html(String templateName)
     {
-        final StringTemplate t = template(templateName);
-        return new StringRepresentation(t.toString(), MediaType.TEXT_HTML);
+        return template(getTemplateName(templateName) + ".html.fmt", MediaType.TEXT_HTML);
     }
     
-    public final StringTemplate template(String name)
+    public final TemplateRepresentation template(String name, MediaType type)
     {
-        name = getTemplateName(name);
         final Map<String, Object> attrs = new LinkedHashMap<String, Object>();
         setTemplateAttributes(attrs);
-        final StringTemplate t = getLegilimens().template(name);
-        t.setAttribute("env", attrs);
-        return t;
+        return new TemplateRepresentation(name, getLegilimens().getFreeMarker(), attrs, type);
     }
     
     public void setTemplateAttributes(Map<String, Object> attrs)
@@ -74,15 +69,18 @@ public class BaseResource extends ServerResource
         attrs.put("resourceRef", getReference());
     }
     
-    private String getTemplateName(String input)
+    public String getTemplateName(String input)
     {
         if(input != null)
         {
             return input;
         }
-        
+        return getName();
+    }
+    
+    public String getName()
+    {
         final String simpleName = getClass().getName();
-        System.err.println("Name = " + simpleName);
         final String RESOURCE = "Resource";
         final int resourceStart = simpleName.indexOf(RESOURCE);
         final int nameStart = simpleName.lastIndexOf('.');
