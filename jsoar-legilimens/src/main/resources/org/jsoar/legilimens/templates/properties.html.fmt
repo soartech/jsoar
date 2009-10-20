@@ -5,6 +5,7 @@
 <#global header>
     <h1><a href="${agent_url}">${agent?html}</a> - Properties</h1>
     ${agent_links}
+    ${agent_controls}
 </#global>
 
 <#macro property p>

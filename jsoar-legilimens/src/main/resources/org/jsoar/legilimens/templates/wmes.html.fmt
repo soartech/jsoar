@@ -6,6 +6,7 @@
     <h1><a href="${agent_url}">${agent?html}</a> - Working Memory</h1>
     <h2>(${filterId?html} ^${filterAttr?html} ${filterValue?html})</h2>
     ${agent_links}
+    ${agent_controls}
 </#global>
 
 <#macro id id>
@@ -41,4 +42,11 @@
     </table>
 </#global>
 
+<#global footer>
+    ${footer!""}
+    <script type="text/javascript">
+        // refresh the page after a command is executed
+        Legilimens.afterRun = function() { window.location.reload(true); }
+    </script>
+</#global>
 <#include "/layout.fmt"/>
