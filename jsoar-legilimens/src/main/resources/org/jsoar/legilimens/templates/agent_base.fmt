@@ -9,18 +9,6 @@
 
 <#global title>Agent - ${agent?html}</#global>
 
-
-<#global command_entry>
-<form action="${commands_url}" method="POST">
-Command: <input type="text" name="command" value="">
-<input TYPE="submit" NAME="name" VALUE="Execute">
-</form>
-</#global>
-
-<#macro agent_command_link command>
-<a href="javascript:runAgentCommand(%22${commands_url}%22,%22${command}%22)">${command?html}</a>
-</#macro>
-
 <#macro production_link p>
 <a href="${productions_url}/${p.name?url}">${p.name?html}</a>
 </#macro>
@@ -40,14 +28,58 @@ Command: <input type="text" name="command" value="">
                        - <a href="${wmes_url}?id=S1">S1</a>
                        - <a href="${wmes_url}?id=I2">I2</a>
                        - <a href="${wmes_url}?id=S3">I3</a>
-    <li><@agent_command_link command="step"/>
-    <li><@agent_command_link command="stop"/>
-    <li><@agent_command_link command="init-soar"/>
 </ul>
+</#global>
+
+<#global command_entry>
+    <form id="agent_command_form" action="">
+        Command: <input id="agent_command_string" type="text" name="command" value=""/>
+        <input id="agent_command_submit" type="submit" NAME="name" value="Execute"/>
+    </form>
+</#global>
+
+<#macro agent_command_link function name>
+<a href="javascript:Legilimens.${function}();">${name?html}</a>
+</#macro>
+
+<#global agent_controls>
+<div id="agent_controls">
+    ${command_entry}
+    <ul>
+        <li><@agent_command_link function="run" name="run"/>
+        <li><@agent_command_link function="step" name="step"/>
+        <li><@agent_command_link function="stop" name="stop"/>
+        <li><@agent_command_link function="initSoar" name="init-soar"/>
+    </ul>
+</div>
 </#global>
 
 <#global header>
 <h1>${agent?html}</h1>
 ${agent_links}
+${agent_controls}
+</#global>
+
+<#global extra_scripts>
+    ${extra_scripts!""}
+    <script type="text/javascript">
+        Legilimens.agent_url="${agent_url?js_string}";
+        Legilimens.commands_url="${commands_url?js_string}";
+    </script>
+</#global>
+
+<#global footer>
+${footer!""}
+
+<script type="text/javascript">
+$(function() {
+    $("#agent_command_submit").click(function() {
+        var command = $("input#agent_command_string").val();
+        Legilimens.runAgentCommand(command);
+        return false;
+    })
+});
+</script>
+
 </#global>
 

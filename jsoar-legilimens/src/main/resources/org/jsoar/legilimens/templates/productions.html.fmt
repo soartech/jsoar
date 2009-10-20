@@ -4,6 +4,7 @@
 <#global header>
     <h1><a href="${agent_url}">${agent?html}</a> - ${agent.productions.productionCount} Productions</h1>
     ${agent_links}
+    ${agent_controls}
 </#global>
 
 <#macro production p>

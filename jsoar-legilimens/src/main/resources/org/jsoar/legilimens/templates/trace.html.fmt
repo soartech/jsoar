@@ -5,40 +5,50 @@
 <#global header>
     <h1><a href="${agent_url}">${agent?html}</a> - Trace</h1>
     ${agent_links}
+    ${agent_controls}
 </#global>
 
 <#global body>
-    ${command_entry}
-    <hr>
+    <a href="javascript:clearTrace();">Clear</a>
     <div id="trace" class="trace">
     
     </div>
+    <a href="javascript:clearTrace();">Clear</a>
     
 
     <script type="text/javascript">
     offset = 0;
-    function pollTrace() {
+    function pollTrace(oneShot) {
         $.ajax({ 
             url: "${resourceRef}?offset=" + offset, 
             type: "GET", 
             dataType: "text", 
             success: function(content, status) {
-               if(content.length > 0)
-               {
+               if(content.length > 0) {
                    $("<pre></pre>").text(content).appendTo("#trace");
                    offset += content.length;
                    $("#trace").attr({ scrollTop: $("#trace").attr("scrollHeight") });
                }
-               setTimeout("pollTrace()", 1000);
+               if(!oneShot) {
+                   setTimeout("pollTrace()", 1000);
+               }
             }
         });
     }
+    
+    function clearTrace() {
+        $("#trace").html("");
+    }
+    
+    // Immediately refresh trace when a command is executed
+    Legilimens.afterRun = function() { pollTrace(true); };
+    
+    // When the page is loaded, start updating the trace
     $(function() {
-        pollTrace();
+        pollTrace(false);
     });
+    
     </script>
 </#global>
-
-
 
 <#include "/layout.fmt"/>

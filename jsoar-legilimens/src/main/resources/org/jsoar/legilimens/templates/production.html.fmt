@@ -5,6 +5,7 @@
 <#global header>
     <h1><a href="${agent_url}">${agent?html}</a> - ${production.name?html}</h1>
     ${agent_links}
+    ${agent_controls}
     <div class="firing-count">Fired ${production.production.firingCount} times</div>
     <div class="production-type">${production.production.type}</div>
 </#global>
@@ -29,8 +30,10 @@ ${production.code?html}
     <div class="production-links">
     <ul>
         <li><a href="${productions_url}/${production.name?url}/edit">Edit</a></li>
+        <!--
         <li><a href="">Excise</a></li>
         <li><a href="">Reload</a></li>
+        -->
     <ul>
 </div>
 

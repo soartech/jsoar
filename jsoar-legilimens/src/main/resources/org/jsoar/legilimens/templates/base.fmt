@@ -17,3 +17,9 @@
 <a href="http://jsoar.googlecode.com"><@img name="logo.png"/></a>
 </#global>
 
+<#global flash>
+    <div id="flash">
+        ${flash!""}
+    </div> 
+</#global>
+
