@@ -1,13 +1,10 @@
+<#global agent_heading>
+    Working Memory - (${filterId?html} ^${filterAttr?html} ${filterValue?html})
+</#global>
+
 <#include "/agent_base.fmt"/>
 
-<#global title="Working Memory - ${agent?html} - ${filterId}"/>
-
-<#global header>
-    <h1><a href="${agent_url}">${agent?html}</a> - Working Memory</h1>
-    <h2>(${filterId?html} ^${filterAttr?html} ${filterValue?html})</h2>
-    ${agent_links}
-    ${agent_controls}
-</#global>
+<#global title="${title} - ${filterId}"/>
 
 <#macro id id>
     <a href="${wmes_url}?id=${id}">${id}</a>

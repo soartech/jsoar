@@ -1,13 +1,5 @@
 <#include "/agent_base.fmt"/>
 
-<#global title="Trace - ${agent?html}"/>
-
-<#global header>
-    <h1><a href="${agent_url}">${agent?html}</a> - Trace</h1>
-    ${agent_links}
-    ${agent_controls}
-</#global>
-
 <#global body>
     <a href="javascript:clearTrace();">Clear</a>
     <div id="trace" class="trace">

@@ -1,16 +1,14 @@
-<#include "/agent_base.fmt"/>
-
-<#global title="Production - ${agent?html} - ${production.name?html}"/>
-
-<#global header>
-    <h1><a href="${agent_url}">${agent?html}</a> - ${production.name?html}</h1>
-    ${agent_links}
-    ${agent_controls}
-    <div class="firing-count">Fired ${production.production.firingCount} times</div>
-    <div class="production-type">${production.production.type}</div>
+<#global agent_heading>
+    ${production.name?html}
 </#global>
 
+<#include "/agent_base.fmt"/>
+
+<#global title="${title} - ${production.name?html}"/>
+
 <#global body>
+    <div class="firing-count">Fired ${production.production.firingCount} times</div>
+    <div class="production-type">${production.production.type}</div>
 
 <#if resource.edit>
     <form action="${resourceRef.parentRef?url}" method="POST">

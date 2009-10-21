@@ -5,6 +5,7 @@
  */
 package org.jsoar.legilimens.templates;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +33,24 @@ public class TemplateMethods
         }
     }
     
+    private static class CollectionSizeMethod implements TemplateMethodModelEx
+    {
+        /* (non-Javadoc)
+         * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
+         */
+        @Override
+        public Object exec(List args) throws TemplateModelException
+        {
+            final Collection<?> c = (Collection<?>) ((BeanModel) args.get(0)).getWrappedObject(); 
+            return c.size();
+        }
+    }
+    
+    
+    
     public static void installMethods(Map<String, Object> map)
     {
         map.put("isIdentifier", new IsIdentifierMethod());
+        map.put("collectionSize", new CollectionSizeMethod());
     }
 }

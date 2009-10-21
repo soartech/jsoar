@@ -3,11 +3,10 @@
 <#global agent_url="${agents_url}/${agent.name?url}"/>
 <#global commands_url="${agent_url}/commands"/>
 <#global productions_url="${agent_url}/productions"/>
+<#global files_url="${agent_url}/files"/>
 <#global trace_url="${agent_url}/trace"/>
 <#global properties_url="${agent_url}/properties"/>
 <#global wmes_url="${agent_url}/wmes"/>
-
-<#global title>Agent - ${agent?html}</#global>
 
 <#macro production_link p>
 <a href="${productions_url}/${p.name?url}">${p.name?html}</a>
@@ -18,22 +17,27 @@
 </#macro>
 
 <#global agent_links>
-<ul>
-    <li<#if resource.name=="agents"> class="selected"</#if>><a href="${agents_url}">All Agents</a>
-    <li<#if resource.name=="agent"> class="selected"</#if>><a href="${agent_url}">${agent?html}</a>
-    <li<#if resource.name=="productions"> class="selected"</#if>><a href="${productions_url}">${agent.productions.productionCount} productions</a>
-    <li<#if resource.name=="trace"> class="selected"</#if>><a href="${trace_url}">Trace</a>
-    <li<#if resource.name=="properties"> class="selected"</#if>><a href="${properties_url}">Properties</a>
-    <li<#if resource.name=="wmes"> class="selected"</#if>>Working Memory - <a href="${wmes_url}">All</a> 
+<div>
+<ul class="toolbar">
+    <li><a <#if resource.name=="agents"> class="selected"</#if> href="${agents_url}">All Agents</a>
+    <li><a <#if resource.name=="agent"> class="selected"</#if> href="${agent_url}">${agent?html}</a>
+    <li><a <#if resource.name=="productions"> class="selected"</#if> href="${productions_url}">Productions</a>
+    <li><a <#if resource.name=="trace"> class="selected"</#if> href="${trace_url}">Trace</a>
+    <li><a <#if resource.name=="files"> class="selected"</#if> href="${files_url}">Files</a>
+    <li><a <#if resource.name=="properties"> class="selected"</#if> href="${properties_url}">Properties</a>
+    <li><a <#if resource.name=="wmes"> class="selected"</#if> href="${wmes_url}">Memory</a> 
+    <#--
                        - <a href="${wmes_url}?id=S1">S1</a>
                        - <a href="${wmes_url}?id=I2">I2</a>
                        - <a href="${wmes_url}?id=S3">I3</a>
+                       -->
 </ul>
+</div>
 </#global>
 
 <#global command_entry>
     <form id="agent_command_form" action="">
-        Command: <input id="agent_command_string" type="text" name="command" value=""/>
+        <input id="agent_command_string" type="text" name="command" value="" size="50"/>
         <input id="agent_command_submit" type="submit" NAME="name" value="Execute"/>
     </form>
 </#global>
@@ -42,22 +46,37 @@
 <a href="javascript:Legilimens.${function}();">${name?html}</a>
 </#macro>
 
+<#global agent_status>
+    <div id="agent_status">
+        <ul>
+            <li><#if agent.running>Running<#else>Stopped</#if>
+        </ul>
+    </div>
+</#global>
+
 <#global agent_controls>
 <div id="agent_controls">
-    ${command_entry}
-    <ul>
-        <li><@agent_command_link function="run" name="run"/>
-        <li><@agent_command_link function="step" name="step"/>
-        <li><@agent_command_link function="stop" name="stop"/>
-        <li><@agent_command_link function="initSoar" name="init-soar"/>
-    </ul>
+    <div>
+        <ul class="toolbar">
+            <li><@agent_command_link function="run" name="run"/>
+            <li><@agent_command_link function="step" name="step"/>
+            <li><@agent_command_link function="stop" name="stop"/>
+            <li><@agent_command_link function="initSoar" name="init-soar"/>
+            <li>${command_entry}
+        </ul>
+    </div>
 </div>
 </#global>
 
 <#global header>
-<h1>${agent?html}</h1>
-${agent_links}
-${agent_controls}
+    <h1>${agent?html} - ${agent_heading!resource.name?capitalize}</h1>
+    ${agent_links}
+    ${agent_status}
+    ${agent_controls}
+</#global>
+
+<#global title>
+${title} - ${agent?html} - ${resource.name?capitalize}
 </#global>
 
 <#global extra_scripts>

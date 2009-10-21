@@ -1,29 +1,13 @@
+<#global agent_heading="Home"/>
+
 <#include "/agent_base.fmt"/>
 
-<#macro matchset_entry it>
-<li>
-    ${it.type} - <@production_link p=it.production/><br/>
-    <#list it.wmes as w>
-        ${w}<br/>
-    </#list>
-</li>
-</#macro>
-
+<#global title>
+JSoar - ${agent?html} - Home
+</#global>
 
 <#global body>
-    Agent is
-    <#if agent.running>
-        Running
-    <#else>
-        Stopped
-    </#if>
-    
-    <h3>Match Set</h3>
-    <ul>
-        <#list agent.agent.matchSet.entries as it>
-            <@matchset_entry it=it/>
-        </#list>
-    </ul>
+
 </#global>
 
 <#include "/layout.fmt"/>

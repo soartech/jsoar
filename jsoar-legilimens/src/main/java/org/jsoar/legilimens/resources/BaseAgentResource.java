@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.legilimens.LegilimensApplication;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.StringTools;
@@ -50,6 +51,7 @@ public class BaseAgentResource extends BaseResource
     {
         super.setTemplateAttributes(attrs);
         attrs.put("agent", agent);
+        attrs.put("decisionCount", agent.getProperties().get(SoarProperties.D_CYCLE_COUNT));
     }
 
     /* (non-Javadoc)
