@@ -1,0 +1,25 @@
+<#global agent_heading>
+    ${files?size} Files
+</#global>
+
+<#include "/agent_base.fmt"/>
+
+<#macro file f>
+    <li>
+        <#if f.url>
+            <a href="${f.location}">${f.location?html}</a>
+        <#else>
+            ${f.location?html}
+        </#if>
+    </li>
+</#macro>
+
+<#global body>
+    <ul>
+        <#list files as f>
+            <@file f/>
+        </#list>
+    </ul>
+</#global>
+
+<#include "/layout.fmt"/>

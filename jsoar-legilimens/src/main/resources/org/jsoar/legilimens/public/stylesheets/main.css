@@ -1,4 +1,5 @@
-
+ @import url("reset.css");
+ 
 body {
   background-color: #4B7399;
   font-family: Verdana, Helvetica, Arial;
@@ -44,6 +45,31 @@ a img {
     border: solid 1px black;
 }
 
-.selected {
-    background-color: #ffff00	
+
+ul.toolbar {
+	margin-left: 0px;
+	padding-left: 0px;
+	list-style: none;
+	border-bottom: 1px solid #000;
+	overflow: hidden;
+	zoom: 1;
+}
+ul.toolbar li {
+	float: left;
+}
+ul.toolbar a {
+	width: 8em;
+	display: block;
+	border: 1px solid #000;
+	border-bottom: none;
+	padding: 5px;
+	margin-right: 5px;
+	background-color: #EAEAEA;
+	text-decoration: none;
+	color: #333;
+	text-align: center;
+}
+ 
+ul.toolbar a.selected {
+    background-color: #ffff00   
 }

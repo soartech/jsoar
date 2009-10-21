@@ -1,5 +1,7 @@
 <#include "/base.fmt"/>
 
+<#global title="${title} - Agents"/>
+
 <#macro agent_url agent=agent>${rootRef}/agents/${agent.name?url}</#macro>
 
 <#macro agent_link agent>

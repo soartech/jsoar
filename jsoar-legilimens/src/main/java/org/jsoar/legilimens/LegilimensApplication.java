@@ -10,6 +10,7 @@ import java.util.List;
 import org.jsoar.legilimens.resources.AgentResource;
 import org.jsoar.legilimens.resources.AgentsResource;
 import org.jsoar.legilimens.resources.CommandsResource;
+import org.jsoar.legilimens.resources.FilesResource;
 import org.jsoar.legilimens.resources.ProductionResource;
 import org.jsoar.legilimens.resources.ProductionsResource;
 import org.jsoar.legilimens.resources.PropertiesResource;
@@ -23,7 +24,6 @@ import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 
 import freemarker.template.Configuration;
-import freemarker.template.ObjectWrapper;
 
 /**
  * @author ray
@@ -72,6 +72,7 @@ public class LegilimensApplication extends Application
         router.attach("/agents/{agentName}/trace", TraceResource.class);
         router.attach("/agents/{agentName}/commands", CommandsResource.class);
         router.attach("/agents/{agentName}/properties", PropertiesResource.class);
+        router.attach("/agents/{agentName}/files", FilesResource.class);
         router.attach("/agents/{agentName}/wmes", WmesResource.class);
         router.attach("/agents/{agentName}/productions", ProductionsResource.class);
         router.attach("/agents/{agentName}/productions/{productionName}", ProductionResource.class);

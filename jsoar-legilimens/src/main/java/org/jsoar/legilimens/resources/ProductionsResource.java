@@ -18,9 +18,7 @@ import org.jsoar.kernel.tracing.Printer;
  */
 public class ProductionsResource extends BaseAgentResource
 {
-    private String id;
-    
-        /* (non-Javadoc)
+    /* (non-Javadoc)
      * @see org.jsoar.legilimens.resources.BaseAgentResource#setTemplateAttributes(java.util.Map)
      */
     @Override
