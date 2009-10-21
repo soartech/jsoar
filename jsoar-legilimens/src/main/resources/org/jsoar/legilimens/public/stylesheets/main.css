@@ -6,17 +6,12 @@ body {
   font-size: 14px;
 }
 
-a img {
-  border: none;
-}
-
 #container {
   width: 75%;
   margin: 0 auto;
   background-color: #FFF;
   padding: 20px 40px;
-  border: solid 1px black;
-  margin-top: 20px;
+  //border: solid 1px black;
 }
 
 #header {
@@ -24,8 +19,7 @@ a img {
   margin: 0 auto;
   background-color: #FFF;
   padding: 20px 40px;
-  border: solid 1px black;
-  margin-top: 20px;
+  //border: solid 1px black;
 }
 
 #flash {
@@ -64,12 +58,31 @@ ul.toolbar a {
 	border-bottom: none;
 	padding: 5px;
 	margin-right: 5px;
-	background-color: #EAEAEA;
+	background-color: #39f;
 	text-decoration: none;
-	color: #333;
+	color: #444;
 	text-align: center;
+	font-weight: bold
 }
  
 ul.toolbar a.selected {
-    background-color: #ffff00   
+    background-color: #ffff55;  
+}
+
+table tr {
+    border-bottom: 1px solid #000;
+    padding: 5px;
+}
+ 
+table td {
+    padding: 5px;
+}
+
+table th {
+    text-align: left;
+    padding: 5px;
+}
+
+table tr:hover {
+	background-color: #ffff55;
 }

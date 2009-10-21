@@ -22,7 +22,7 @@
 </#macro>
 
 <#global body>
-<table>
+<table class="properties-table">
     <tr>
         <th>Name</th><th>Type</th><th>Value</th><th>Flags</th>
     </tr>

@@ -1,10 +1,8 @@
 <#global agent_heading>
-    Working Memory - (${filterId?html} ^${filterAttr?html} ${filterValue?html})
+    Working Memory
 </#global>
 
 <#include "/agent_base.fmt"/>
-
-<#global title="${title} - ${filterId}"/>
 
 <#macro id id>
     <a href="${wmes_url}?id=${id}">${id}</a>
@@ -37,6 +35,7 @@
             <@wme w/>
         </#list>
     </table>
+    <a href="">Refresh</a>
 </#global>
 
 <#global footer>

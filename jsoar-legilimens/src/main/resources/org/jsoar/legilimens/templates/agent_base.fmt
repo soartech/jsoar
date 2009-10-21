@@ -20,7 +20,7 @@
 <div>
 <ul class="toolbar">
     <li><a <#if resource.name=="agents"> class="selected"</#if> href="${agents_url}">All Agents</a>
-    <li><a <#if resource.name=="agent"> class="selected"</#if> href="${agent_url}">${agent?html}</a>
+    <li><a <#if resource.name=="agent"> class="selected"</#if> href="${agent_url}">Status</a>
     <li><a <#if resource.name=="productions"> class="selected"</#if> href="${productions_url}">Productions</a>
     <li><a <#if resource.name=="trace"> class="selected"</#if> href="${trace_url}">Trace</a>
     <li><a <#if resource.name=="files"> class="selected"</#if> href="${files_url}">Files</a>
@@ -46,22 +46,16 @@
 <a href="javascript:Legilimens.${function}();">${name?html}</a>
 </#macro>
 
-<#global agent_status>
-    <div id="agent_status">
-        <ul>
-            <li><#if agent.running>Running<#else>Stopped</#if>
-        </ul>
-    </div>
-</#global>
-
 <#global agent_controls>
 <div id="agent_controls">
     <div>
         <ul class="toolbar">
+            <#if resource.name=="trace">
             <li><@agent_command_link function="run" name="run"/>
             <li><@agent_command_link function="step" name="step"/>
             <li><@agent_command_link function="stop" name="stop"/>
             <li><@agent_command_link function="initSoar" name="init-soar"/>
+            </#if>
             <li>${command_entry}
         </ul>
     </div>
@@ -69,9 +63,8 @@
 </#global>
 
 <#global header>
-    <h1>${agent?html} - ${agent_heading!resource.name?capitalize}</h1>
+    <h1>${agent?html}</h1>
     ${agent_links}
-    ${agent_status}
     ${agent_controls}
 </#global>
 
@@ -95,6 +88,9 @@ $(function() {
     $("#agent_command_submit").click(function() {
         var command = $("input#agent_command_string").val();
         Legilimens.runAgentCommand(command);
+        <#if resource.name != "trace">
+        window.location = "${trace_url?js_string}";
+        </#if>
         return false;
     })
 });

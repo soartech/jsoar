@@ -1,13 +1,30 @@
-<#global agent_heading="Home"/>
+<#global agent_heading="Status"/>
 
 <#include "/agent_base.fmt"/>
 
 <#global title>
-JSoar - ${agent?html} - Home
+JSoar - ${agent?html} - Status
 </#global>
 
 <#global body>
-
+    <h2>Status of agent '${agent?html}' at ${now?datetime}</h2>
+    <ul>
+        <li>Agent is 
+            <#if agent.running>
+                running with wait status: ${agent_property(agent, "wait_info")?html}
+            <#else>
+                stopped
+            </#if>
+            
+        <#if agent.agent.getReasonForStop()??>
+            <li>Agent stopped because of: ${agent.agent.getReasonForStop()}
+        <#else>
+        </#if>
+        <li>Decisions executed: ${agent_property(agent, "d_cycle_count")?html}.
+        <li>Working memory elements: ${agent.agent.numWmesInRete}
+        <li>
+    </ul>
+    <a href="">Refresh</a>
 </#global>
 
 <#include "/layout.fmt"/>

@@ -5,11 +5,12 @@
  */
 package org.jsoar.legilimens.templates;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.util.properties.PropertyKey;
 
 import freemarker.ext.beans.BeanModel;
 import freemarker.template.TemplateMethodModelEx;
@@ -33,7 +34,7 @@ public class TemplateMethods
         }
     }
     
-    private static class CollectionSizeMethod implements TemplateMethodModelEx
+    private static class GetPropertyMethod implements TemplateMethodModelEx
     {
         /* (non-Javadoc)
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
@@ -41,16 +42,24 @@ public class TemplateMethods
         @Override
         public Object exec(List args) throws TemplateModelException
         {
-            final Collection<?> c = (Collection<?>) ((BeanModel) args.get(0)).getWrappedObject(); 
-            return c.size();
+            final ThreadedAgent agent = (ThreadedAgent) ((BeanModel) args.get(0)).getWrappedObject();
+            final String name = args.get(1).toString();
+            
+            for(PropertyKey<?> key : agent.getProperties().getKeys())
+            {
+                if(name.equals(key.getName()))
+                {
+                    return agent.getProperties().get(key);
+                }
+            }
+            return null;
         }
     }
-    
     
     
     public static void installMethods(Map<String, Object> map)
     {
         map.put("isIdentifier", new IsIdentifierMethod());
-        map.put("collectionSize", new CollectionSizeMethod());
+        map.put("agent_property", new GetPropertyMethod());
     }
 }

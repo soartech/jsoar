@@ -5,6 +5,7 @@
  */
 package org.jsoar.legilimens.resources;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -65,6 +66,7 @@ public class BaseResource extends ServerResource
     
     public void setTemplateAttributes(Map<String, Object> attrs)
     {
+        attrs.put("now", new Date());
         attrs.put("resource", this);
         attrs.put("rootRef", getRootRef());
         attrs.put("resourceRef", getReference());
