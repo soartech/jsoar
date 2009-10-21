@@ -1,20 +1,36 @@
 <#include "/agent_base.fmt"/>
 
 <#macro production p>
-    <li>
-        <@production_link p/>
-        <@production_edit_link p/>
-        <div class="firing-count">Fired ${p.production.firingCount} times</div>
-        <div class="production-type">${p.production.type}</div>
-    </li>
+    <tr>
+        <td><@production_link p/></td>
+        <td>${p.type}</td>
+        <td>${p.firingCount}</td>
+        <td>
+            <#if (p.documentation?length > 0)>
+                ${p.documentation?html}
+            <#else>
+                None
+            </#if>
+        </td>
+        <td><@production_edit_link p/></td>
+    </tr>
 </#macro>
 
 <#global body>
-    <ul>
+    <h2>${productions?size} Productions</h2>
+    
+    <table class="production-table">
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>FC</th>
+            <th>Notes</th>
+            <th>&nbsp;</th>
+        </tr>
         <#list productions as p>
-            <@production p=p/>
+            <@production p/>
         </#list>
-    </ul>
+    </table>
 </#global>
 
 <#include "/layout.fmt"/>

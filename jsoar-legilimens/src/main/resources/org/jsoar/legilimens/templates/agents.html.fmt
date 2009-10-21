@@ -13,11 +13,22 @@
 </#global>
 
 <#global body>
-<ul>
+<table>
+    <tr><th>Name</th><th>Status</th><th>Decisions</th></tr>
 <#list agents as agent>
-    <li><@agent_link agent=agent/></li>
+    <tr>
+        <td><@agent_link agent/></td>
+        <td><#if agent.running>
+                running with wait status: ${agent_property(agent, "wait_info")?html}
+            <#else>
+                stopped
+            </#if>
+        </td>
+        <td>${agent_property(agent, "d_cycle_count")?html}</td>
+    </tr>
 </#list>
-</ul>
+</table>
+<a href="">Refresh</a>
 </#global>
 
 <#include "/layout.fmt"/>

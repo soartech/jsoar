@@ -5,13 +5,13 @@
  */
 package org.jsoar.legilimens.resources;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.tracing.Printer;
 
 /**
  * @author ray
@@ -26,56 +26,20 @@ public class ProductionsResource extends BaseAgentResource
     {
         super.setTemplateAttributes(attrs);
 
-        final List<Wrapper> rules = new ArrayList<Wrapper>();
+        final List<Production> rules = new ArrayList<Production>();
         for(Production p : agent.getProductions().getProductions(null))
         {
-            rules.add(new Wrapper(p));
+            rules.add(p);
         }
+        Collections.sort(rules, new Comparator<Production>()
+        {
+            @Override
+            public int compare(Production o1, Production o2)
+            {
+                return o1.getName().toString().compareToIgnoreCase(o2.getName().toString());
+            }
+        });
         attrs.put("productions", rules);
     }
     
-    public static class Wrapper
-    {
-        public final Production production;
-        public final String name;
-        public final String code;
-        
-        public Wrapper(Production rule)
-        {
-            this.production = rule;
-            
-            this.name = rule.getName().toString();
-            final StringWriter writer = new StringWriter();
-            final Printer printer = new Printer(writer, true);
-            this.production.print(printer, false);
-            printer.flush();
-            this.code = writer.toString();
-        }
-
-        /**
-         * @return the production
-         */
-        public Production getProduction()
-        {
-            return production;
-        }
-
-        /**
-         * @return the name
-         */
-        public String getName()
-        {
-            return name;
-        }
-
-        /**
-         * @return the code
-         */
-        public String getCode()
-        {
-            return code;
-        }
-        
-        
-    }
 }
