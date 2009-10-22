@@ -31,7 +31,7 @@ public class WaitSncCommand extends AbstractToggleCommand
         if(args.length == 1)
         {
             final boolean v = getAgent().getProperties().get(SoarProperties.WAITSNC);
-            return "Current waitsnc setting: --" + (v ? "--enabled" : "--disabled"); 
+            return "Current waitsnc setting: --" + (v ? "enabled" : "disabled"); 
         }
         return super.execute(args);
     }
