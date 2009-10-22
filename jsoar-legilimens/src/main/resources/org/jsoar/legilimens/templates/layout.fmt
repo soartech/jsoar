@@ -9,6 +9,7 @@
         ${extra_scripts!""}
     </head>
 <body>
+${logo}
 ${flash}
 <div id="header">
 ${header}
@@ -18,7 +19,7 @@ ${body}
 </div>
 <div id="footer">
 ${footer}
+<p><em>Generated ${now?datetime}</em></p>
 </div>
-${logo}
 </body>
 </html>

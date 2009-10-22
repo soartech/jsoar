@@ -5,6 +5,7 @@
  */
 package org.jsoar.legilimens.resources;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -51,7 +52,10 @@ public class BaseAgentResource extends BaseResource
     {
         super.setTemplateAttributes(attrs);
         attrs.put("agent", agent);
-        attrs.put("decisionCount", agent.getProperties().get(SoarProperties.D_CYCLE_COUNT));
+        
+        final List<ThreadedAgent> otherAgents = getLegilimens().getAgents();
+        otherAgents.remove(agent);
+        attrs.put("others", otherAgents);
     }
 
     /* (non-Javadoc)

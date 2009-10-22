@@ -22,6 +22,7 @@
 </#macro>
 
 <#global body>
+<h2>${properties?size} properties</h2>
 <table class="properties-table">
     <tr>
         <th>Name</th><th>Type</th><th>Value</th><th>Flags</th>

@@ -9,7 +9,7 @@ var Legilimens = function() {
 		        dataType: "text",
 		        data: "command=" + command,
 		        success: function(data, textStatus) {
-					$('#flash').html("Executed '" + command + "'").show();
+					//$('#flash').html("Executed '" + command + "'").show();
 					if(Legilimens.afterRun != null) {
 						Legilimens.afterRun();
 					}
@@ -21,7 +21,8 @@ var Legilimens = function() {
 		run : function() { this.runAgentCommand("run"); },
 		step : function() { this.runAgentCommand("step"); },
 		stop : function() { this.runAgentCommand("stop"); },
-		initSoar : function() { this.runAgentCommand("init-soar"); }
+		initSoar : function() { this.runAgentCommand("init-soar"); },
+		source : function(url) { this.runAgentCommand("source {" + url + "}"); }
 		
 	};
 }();

@@ -10,21 +10,22 @@ JSoar - ${agent?html} - Status
     <h2>Status of agent '${agent?html}' at ${now?datetime}</h2>
     <ul>
         <li>Agent is 
+            <strong>
             <#if agent.running>
                 running with wait status: ${agent_property(agent, "wait_info")?html}
             <#else>
                 stopped
             </#if>
+            </strong>
             
         <#if agent.agent.getReasonForStop()??>
             <li>Agent stopped because of: ${agent.agent.getReasonForStop()}
         <#else>
         </#if>
-        <li>Decisions executed: ${agent_property(agent, "d_cycle_count")?html}.
+        <li>Decisions executed: ${agent_property(agent, "decision_phases_count")?html}
         <li>Working memory elements: ${agent.agent.numWmesInRete}
         <li>
     </ul>
-    <a href="">Refresh</a>
 </#global>
 
 <#include "/layout.fmt"/>

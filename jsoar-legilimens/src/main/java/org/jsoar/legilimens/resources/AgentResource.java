@@ -11,11 +11,4 @@ package org.jsoar.legilimens.resources;
  */
 public class AgentResource extends BaseAgentResource
 {
-    /*
-    @Get("html")
-    public Representation getHtml()
-    {
-        return html("agent");
-    }
-    */
 }

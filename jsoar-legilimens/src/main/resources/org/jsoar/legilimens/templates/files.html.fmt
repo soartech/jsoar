@@ -8,6 +8,8 @@
     <li>
         <#if f.url>
             <a href="${f.location}">${f.location?html}</a>
+            [<a href="javascript:Legilimens.source('${f.location}');">reload</a>]
+
         <#else>
             ${f.location?html}
         </#if>
@@ -15,6 +17,7 @@
 </#macro>
 
 <#global body>
+    <h2>${files?size} files loaded</h2>
     <ul>
         <#list files as f>
             <@file f/>
