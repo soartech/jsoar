@@ -9,10 +9,14 @@
 </#macro>
 
 <#global header>
-<h1>All Agents</h1>
+<h1>JSoar</h1>
+<ul class="toolbar">
+    <li><a class="selected" href="${agents_url}">All Agents</a>
+</ul>
 </#global>
 
 <#global body>
+<h2>${agents?size} agents found</h2>
 <table>
     <tr><th>Name</th><th>Status</th><th>Decisions</th></tr>
 <#list agents as agent>
@@ -24,7 +28,7 @@
                 stopped
             </#if>
         </td>
-        <td>${agent_property(agent, "d_cycle_count")?html}</td>
+        <td>${agent_property(agent, "decision_phases_count")?html}</td>
     </tr>
 </#list>
 </table>

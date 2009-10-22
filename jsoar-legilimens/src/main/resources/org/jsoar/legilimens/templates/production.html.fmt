@@ -7,12 +7,19 @@
 <#global title="${title} - ${production.name?html}"/>
 
 <#global body>
-    <div class="firing-count">Fired ${production.production.firingCount} times</div>
-    <div class="production-type">${production.production.type}</div>
+    <h2>${production.name?html}</h2>
+    
+    <#if (production.production.documentation?length > 0)>
+        <div class="production-doc">
+                ${production.production.documentation?html}
+        </div>
+    </#if>
+
+    <p>${production.production.type} production, fired ${production.production.firingCount} times.</p>
 
 <#if resource.edit>
     <form action="${resourceRef.parentRef?url}" method="POST">
-        <textarea name="production" rows="30" cols="80">
+        <textarea name="production" rows="20" cols="80">
 ${production.code?html}
         </textarea>
         <input TYPE="submit" NAME="name" VALUE="Save">
@@ -21,7 +28,6 @@ ${production.code?html}
 
 <#else>
     <div class="production">
-    <h2>${production.name?html}<h2>
 <pre>${production.code?html}</pre>
     </div>
     

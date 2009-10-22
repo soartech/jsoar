@@ -23,6 +23,7 @@
 </#macro>
 
 <#global body>
+    <h2>${wmes?size} working memory elements found</h2>
     <form action="${resourceRef}" method="get">
     (<input type="text" name="id" value="${filterId?html}" size="4">
     ^<input type="text" name="attr" value="${filterAttr?html}">
@@ -38,11 +39,5 @@
     <a href="">Refresh</a>
 </#global>
 
-<#global footer>
-    ${footer!""}
-    <script type="text/javascript">
-        // refresh the page after a command is executed
-        Legilimens.afterRun = function() { window.location.reload(true); }
-    </script>
-</#global>
+
 <#include "/layout.fmt"/>

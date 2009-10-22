@@ -12,20 +12,6 @@ import java.util.Map;
  */
 public class AgentsResource extends BaseResource
 {
-/*
-    @Get("txt")
-    public String toString()
-    {
-        return getLegilimens().getAgents().toString();
-    }
-  */  
-    /*
-    @Get("html")
-    public Representation getHtml()
-    {
-        return html("agents");
-    }
-*/
     /* (non-Javadoc)
      * @see org.jsoar.legilimens.BaseResource#setTemplateAttributes(java.util.Map)
      */
@@ -35,6 +21,4 @@ public class AgentsResource extends BaseResource
         super.setTemplateAttributes(attrs);
         attrs.put("agents", getLegilimens().getAgents());
     }
-    
-    
 }

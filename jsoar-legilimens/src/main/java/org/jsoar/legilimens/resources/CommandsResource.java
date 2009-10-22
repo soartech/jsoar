@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.tracing.Printer;
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -39,10 +41,27 @@ public class CommandsResource extends BaseAgentResource
             @Override
             public String call() throws Exception
             {
-                agent.getPrinter().startNewLine().print(agent.getName() + "> " + command + "\n");
-                return agent.getInterpreter().eval(command);
+                final Printer printer = agent.getPrinter();
+                printer.startNewLine().print(agent.getName() + "> " + command + "\n");
+                String result;
+                try
+                {
+                    result = agent.getInterpreter().eval(command);
+                    if(result != null && result.length() != 0)
+                    {
+                        printer.startNewLine().print(result).flush();
+                    }
+                }
+                catch (SoarException e)
+                {
+                    printer.error(e.getMessage() + "\n").flush();
+                    throw e;
+                }
+                printer.flush();
+                return result;
             }
         };
+        
         String result = "";
         try
         {

@@ -1,12 +1,19 @@
 <#include "/agent_base.fmt"/>
 
 <#global body>
-    <a href="javascript:clearTrace();">Clear</a>
+    <h2>Trace</h2>
     <div id="trace" class="trace">
     
     </div>
-    <a href="javascript:clearTrace();">Clear</a>
-    
+    <div>
+        <ul class="toolbar">
+            <li><@agent_command_link function="run" name="run"/>
+            <li><@agent_command_link function="step" name="step"/>
+            <li><@agent_command_link function="stop" name="stop"/>
+            <li><@agent_command_link function="initSoar" name="init-soar"/>
+            <li><a href="javascript:clearTrace();">Clear</a>
+        </ul>
+    </div>
 
     <script type="text/javascript">
     offset = 0;

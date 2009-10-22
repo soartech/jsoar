@@ -21,11 +21,11 @@
 <ul class="toolbar">
     <li><a <#if resource.name=="agents"> class="selected"</#if> href="${agents_url}">All Agents</a>
     <li><a <#if resource.name=="agent"> class="selected"</#if> href="${agent_url}">Status</a>
-    <li><a <#if resource.name=="productions"> class="selected"</#if> href="${productions_url}">Productions</a>
     <li><a <#if resource.name=="trace"> class="selected"</#if> href="${trace_url}">Trace</a>
+    <li><a <#if resource.name=="productions"> class="selected"</#if> href="${productions_url}">Productions</a>
     <li><a <#if resource.name=="files"> class="selected"</#if> href="${files_url}">Files</a>
     <li><a <#if resource.name=="properties"> class="selected"</#if> href="${properties_url}">Properties</a>
-    <li><a <#if resource.name=="wmes"> class="selected"</#if> href="${wmes_url}">Memory</a> 
+    <li><a <#if resource.name=="wmes"> class="selected"</#if> href="${wmes_url}?id=S1">Memory</a> 
     <#--
                        - <a href="${wmes_url}?id=S1">S1</a>
                        - <a href="${wmes_url}?id=I2">I2</a>
@@ -36,36 +36,22 @@
 </#global>
 
 <#global command_entry>
+<div class="command-entry">
     <form id="agent_command_form" action="">
-        <input id="agent_command_string" type="text" name="command" value="" size="50"/>
+        <input id="agent_command_string" class="command-entry-text" type="text" name="command" value="" size="100%"/>
         <input id="agent_command_submit" type="submit" NAME="name" value="Execute"/>
     </form>
+</div>
 </#global>
 
 <#macro agent_command_link function name>
 <a href="javascript:Legilimens.${function}();">${name?html}</a>
 </#macro>
 
-<#global agent_controls>
-<div id="agent_controls">
-    <div>
-        <ul class="toolbar">
-            <#if resource.name=="trace">
-            <li><@agent_command_link function="run" name="run"/>
-            <li><@agent_command_link function="step" name="step"/>
-            <li><@agent_command_link function="stop" name="stop"/>
-            <li><@agent_command_link function="initSoar" name="init-soar"/>
-            </#if>
-            <li>${command_entry}
-        </ul>
-    </div>
-</div>
-</#global>
-
 <#global header>
     <h1>${agent?html}</h1>
     ${agent_links}
-    ${agent_controls}
+    ${command_entry}
 </#global>
 
 <#global title>
@@ -81,6 +67,16 @@ ${title} - ${agent?html} - ${resource.name?capitalize}
 </#global>
 
 <#global footer>
+<p>
+<#if (others?size > 0)>
+<#list others as other>
+    [<a href="${rootRef}/agents/${other?url}">${other?html}</a>]
+</#list>
+<#else>
+No other agents found
+</#if>
+</p>
+
 ${footer!""}
 
 <script type="text/javascript">
@@ -88,11 +84,12 @@ $(function() {
     $("#agent_command_submit").click(function() {
         var command = $("input#agent_command_string").val();
         Legilimens.runAgentCommand(command);
-        <#if resource.name != "trace">
-        window.location = "${trace_url?js_string}";
-        </#if>
         return false;
     })
+    <#if resource.name != "trace">
+        Legilimens.afterRun = function() { window.location = "${trace_url?js_string}"; };
+    </#if>
+
 });
 </script>
 
