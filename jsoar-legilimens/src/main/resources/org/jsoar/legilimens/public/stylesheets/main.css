@@ -80,6 +80,14 @@ div.command-entry {
     border: solid 1px #808080;
 }
 
+ul.link-list {
+    padding: 10px 0px 10px 0px;
+    list-style: none;
+}
+
+ul.link-list li {
+    float: left;
+}
 
 ul.toolbar {
 	margin-left: 0px;
@@ -125,6 +133,8 @@ table td {
 }
 
 table th {
+    color: #fff;
+    background-color: #336699;  
     text-align: left;
     padding: 5px;
 }

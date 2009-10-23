@@ -5,6 +5,8 @@
  */
 package org.jsoar.legilimens.resources;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,11 +25,11 @@ import org.restlet.resource.ServerResource;
  */
 public class BaseResource extends ServerResource
 {
-    private boolean edit;
+    private String action;
     
-    public boolean isEdit()
+    public String getAction()
     {
-        return edit;
+        return action;
     }
     
     /* (non-Javadoc)
@@ -38,7 +40,7 @@ public class BaseResource extends ServerResource
     {
         super.doInit();
         
-        edit = "edit".equals(getRequest().getAttributes().get("action"));
+        action = getPathAttribute("action");
     }
     
     public LegilimensApplication getLegilimens()
@@ -80,11 +82,6 @@ public class BaseResource extends ServerResource
         {
             return input;
         }
-        return getName();
-    }
-    
-    public String getName()
-    {
         final String simpleName = getClass().getName();
         final String RESOURCE = "Resource";
         final int resourceStart = simpleName.indexOf(RESOURCE);
@@ -93,6 +90,39 @@ public class BaseResource extends ServerResource
         final int subStart = simpleName.lastIndexOf('$');
         final String sub = subStart != -1 ? simpleName.substring(subStart) : "";
         
-        return base + (sub.isEmpty() ? "" : "_" + sub);
+        return base + (sub.isEmpty() ? "" : "_" + sub) + (action != null ? "_" + action : "");
+    }
+    
+    /**
+     * Return the name of the resource. Called by templates!
+     * 
+     * @return the name of the resource 
+     */
+    public String getName()
+    {
+        return getTemplateName(null);
+    }
+    
+    /**
+     * Retrieve the value of a path attribute with proper decoding.
+     * 
+     * @param name the name of the attribute
+     * @return the decded value, or {@code null} if not found 
+     */
+    public String getPathAttribute(String name)
+    {
+        final Object value = getRequest().getAttributes().get(name);
+        if(value == null)
+        {
+            return null;
+        }
+        try
+        {
+            return URLDecoder.decode(value.toString(), "UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 }

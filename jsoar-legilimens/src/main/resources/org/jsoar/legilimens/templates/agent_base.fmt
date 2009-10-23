@@ -8,12 +8,18 @@
 <#global properties_url="${agent_url}/properties"/>
 <#global wmes_url="${agent_url}/wmes"/>
 
+<#macro production_url p>${productions_url}/${p.name?url}</#macro>
+
 <#macro production_link p>
-<a href="${productions_url}/${p.name?url}">${p.name?html}</a>
+<a href="<@production_url p/>">${p.name?html}</a>
 </#macro>
 
 <#macro production_edit_link p>
-<a href="${productions_url}/${p.name?url}/edit">[edit]</a>
+<a href="<@production_url p/>/edit">[edit]</a>
+</#macro>
+
+<#macro production_excise_link p>
+<a href="javascript:Legilimens.excise('<@production_url p/>');">[excise]</a>
 </#macro>
 
 <#global agent_links>
@@ -63,19 +69,21 @@ ${title} - ${agent?html} - ${resource.name?capitalize}
     <script type="text/javascript">
         Legilimens.agent_url="${agent_url?js_string}";
         Legilimens.commands_url="${commands_url?js_string}";
+        Legilimens.productions_url="${productions_url?js_string}";
     </script>
 </#global>
 
 <#global footer>
-<p>
+
+<ul class="link-list">
 <#if (others?size > 0)>
-<#list others as other>
-    [<a href="${rootRef}/agents/${other?url}">${other?html}</a>]
-</#list>
+    <#list others as other>
+        <li>[<a href="${rootRef}/agents/${other?url}">${other?html}</a>]</li>
+    </#list>
 <#else>
-No other agents found
+    <li>No other agents found</li>
 </#if>
-</p>
+</ul>
 
 ${footer!""}
 

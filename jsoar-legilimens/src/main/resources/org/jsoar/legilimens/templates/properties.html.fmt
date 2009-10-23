@@ -22,15 +22,18 @@
 </#macro>
 
 <#global body>
-<h2>${properties?size} properties</h2>
-<table class="properties-table">
-    <tr>
-        <th>Name</th><th>Type</th><th>Value</th><th>Flags</th>
-    </tr>
-    <#list properties as p>
-        <@property p=p/>
-    </#list>
-</table>
+    <h2>${properties?size} properties</h2>
+    <table class="properties-table">
+        <tr>
+            <th>Name</th><th>Type</th><th>Value</th><th>Flags</th>
+        </tr>
+        <#list properties as p>
+            <@property p=p/>
+        </#list>
+    </table>
+    <ul class="link-list">
+        <li><a href="">Refresh</a>
+    </ul>
 </#global>
 
 <#include "/layout.fmt"/>

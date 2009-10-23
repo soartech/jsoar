@@ -7,6 +7,7 @@ package org.jsoar.legilimens.resources;
 
 import org.jsoar.legilimens.RestletTools;
 import org.jsoar.legilimens.trace.AgentTraceState;
+import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -54,6 +55,11 @@ public class TraceResource extends BaseAgentResource
         final StringRepresentation rep = new StringRepresentation(new String(bytes, realOffset, realLength));
         
         RestletTools.setResponseHeader(getResponse(), "X-total-bytes", realLength);
+        
+        if(realLength == 0)
+        {
+            getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+        }
         
         return rep;
     }

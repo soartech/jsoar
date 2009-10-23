@@ -11,7 +11,7 @@
 <#macro wme w>
     <tr>
         <td><@id w.identifier/></td>
-        <td>^${w.attribute}</td>
+        <td>${w.attribute}</td>
         <td>
             <#if isIdentifier(w.value)>
                 <@id w.value/>
@@ -19,6 +19,7 @@
                 ${w.value}
             </#if>
         </td>
+        <td>${w.timetag}</td>
     </tr>
 </#macro>
 
@@ -32,11 +33,17 @@
     </form>
     
     <table>
+        <tr>
+            <th>Id</th><th>Attribute</th><th>Value</th><th>Time Tag</th>
+        </tr>
         <#list wmes as w>
             <@wme w/>
         </#list>
     </table>
-    <a href="">Refresh</a>
+    
+    <ul class="link-list">
+        <li><a href="">Refresh</a>
+    </ul>
 </#global>
 
 

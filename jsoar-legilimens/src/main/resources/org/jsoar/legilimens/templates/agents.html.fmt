@@ -13,6 +13,7 @@
 <ul class="toolbar">
     <li><a class="selected" href="${agents_url}">All Agents</a>
 </ul>
+<p/>
 </#global>
 
 <#global body>
@@ -32,7 +33,11 @@
     </tr>
 </#list>
 </table>
-<a href="">Refresh</a>
+
+<ul class="link-list">
+    <li><a href="">Refresh</a>
+</ul>
+
 </#global>
 
 <#include "/layout.fmt"/>

@@ -36,6 +36,8 @@ public class LegilimensApplication extends Application
     {
         fmc.setURLEscapingCharset("UTF-8");
         fmc.setClassForTemplateLoading(getClass(), "/org/jsoar/legilimens/templates");
+        
+        getTunnelService().setEnabled(true);
     }
     
     public List<ThreadedAgent> getAgents()
