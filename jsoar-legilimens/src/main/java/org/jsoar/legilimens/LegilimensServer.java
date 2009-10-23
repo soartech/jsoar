@@ -85,7 +85,7 @@ public class LegilimensServer
     public static void main(String[] args) throws Exception
     {
         createAgent("legilimens", "http://darevay.com/jsoar/waterjugs.soar");
-        createAgent("eyeball", null);
+        createAgent("eye ball", null);
         
         start();
     }

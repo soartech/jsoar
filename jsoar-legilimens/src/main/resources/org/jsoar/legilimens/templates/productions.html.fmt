@@ -3,7 +3,7 @@
 <#macro production p>
     <tr>
         <td><@production_link p/></td>
-        <td>${p.type}</td>
+        <td>${p.type?capitalize}</td>
         <td>${p.firingCount}</td>
         <td>
             <#if (p.documentation?length > 0)>
@@ -12,7 +12,10 @@
                 None
             </#if>
         </td>
-        <td><@production_edit_link p/></td>
+        <td>
+            <@production_edit_link p/>
+            <@production_excise_link p/>
+        </td>
     </tr>
 </#macro>
 
@@ -31,6 +34,9 @@
             <@production p/>
         </#list>
     </table>
+    <ul class="link-list">
+        <li><a href="">Refresh</a>
+    </ul>
 </#global>
 
 <#include "/layout.fmt"/>

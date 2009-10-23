@@ -12,12 +12,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.jsoar.kernel.SoarProperties;
 import org.jsoar.legilimens.LegilimensApplication;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.StringTools;
 import org.restlet.Application;
 import org.restlet.data.MediaType;
+import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
@@ -38,7 +38,7 @@ public class BaseAgentResource extends BaseResource
     {
         super.doInit();
         
-        agentName = getRequest().getAttributes().get("agentName").toString();
+        agentName = getPathAttribute("agentName");
         agent = getLegilimens().getAgent(agentName);
 
         setExisting(agent != null);
@@ -97,6 +97,26 @@ public class BaseAgentResource extends BaseResource
         }
     }    
     
-    
+    protected <T> T executeCallable(Callable<T> callable)
+    {
+        try
+        {
+            return agent.executeAndWait(callable, 10, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException e)
+        {
+            setStatus(Status.SERVER_ERROR_INTERNAL, e, "Interrupted while executing callable");
+            Thread.currentThread().interrupt();
+        }
+        catch (ExecutionException e)
+        {
+            setStatus(Status.SERVER_ERROR_INTERNAL, e, "Error while executing callable: " + e.getMessage());
+        }
+        catch (TimeoutException e)
+        {
+            setStatus(Status.SERVER_ERROR_INTERNAL, e, "Timeout while executing callable");
+        }
+        return null;
+    }
     
 }

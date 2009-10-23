@@ -8,16 +8,12 @@ package org.jsoar.legilimens.resources;
 import java.io.StringWriter;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.tracing.Printer;
 import org.restlet.data.Form;
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.Delete;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
 
@@ -36,7 +32,7 @@ public class ProductionResource extends BaseAgentResource
     {
         super.doInit();
         
-        name = getRequest().getAttributes().get("productionName").toString();
+        name = getPathAttribute("productionName");
         setExisting(agent.getProductions().getProduction(name) != null);
     }
 
@@ -65,26 +61,29 @@ public class ProductionResource extends BaseAgentResource
                 return agent.getInterpreter().eval(production);
             }
         };
-        String result = "";
-        try
-        {
-            result = agent.executeAndWait(callable, 10, TimeUnit.SECONDS);
-        }
-        catch (InterruptedException e)
-        {
-            setStatus(Status.SERVER_ERROR_INTERNAL, e, "Interrupted while editing production");
-            Thread.currentThread().interrupt();
-        }
-        catch (ExecutionException e)
-        {
-            setStatus(Status.SERVER_ERROR_INTERNAL, e, "Error while editing production': " + e.getMessage());
-        }
-        catch (TimeoutException e)
-        {
-            setStatus(Status.SERVER_ERROR_INTERNAL, e, "Timeout while editing production");
-        }
-        //getResponse().redirectSeeOther(getReference());
+        executeCallable(callable);
+        
         return getHtmlRepresentation();
+    }
+    
+    @Delete()
+    public void deleteProduction()
+    {
+        final Callable<Void> callable = new Callable<Void>()
+        {
+
+            @Override
+            public Void call() throws Exception
+            {
+                final Production p = agent.getProductions().getProduction(name);
+                if(p != null)
+                {
+                    agent.getProductions().exciseProduction(p, true);
+                }
+                return null;
+            }
+        };
+        executeCallable(callable);
     }
     
     public static class Wrapper

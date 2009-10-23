@@ -26,6 +26,10 @@ JSoar - ${agent?html} - Status
         <li>Working memory elements: ${agent.agent.numWmesInRete}
         <li>
     </ul>
+
+    <ul class="link-list">
+        <li><a href="">Refresh</a>
+    </ul>
 </#global>
 
 <#include "/layout.fmt"/>

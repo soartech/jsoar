@@ -17,15 +17,16 @@
 
     <p>${production.production.type?capitalize} production, fired ${production.production.firingCount} times.</p>
 
-    <div class="production">
-<pre>${production.code?html}</pre>
-    </div>
+    <form action="<@production_url production/>" method="POST">
+        <textarea name="production" rows="20" cols="80">
+${production.code?html}
+        </textarea>
+        <input TYPE="submit" NAME="name" VALUE="Save">
+    </form>
     
     <ul class="link-list">
-        <li><a href="">[refresh]</a>
-        <li><@production_edit_link production/>
-        <li><@production_excise_link production/>
-    <ul>
+        <li><a href="<@production_url production/>">Cancel</a>
+    </ul>
 
 </#global>
 <#include "/layout.fmt"/>

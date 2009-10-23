@@ -23,6 +23,10 @@
             <@file f/>
         </#list>
     </ul>
+    
+    <ul class="link-list">
+        <li><a href="">Refresh</a>
+    </ul>
 </#global>
 
 <#include "/layout.fmt"/>
