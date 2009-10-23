@@ -23,16 +23,17 @@
          <fileset file="resources/readme.txt"/>
          <filterset>
             <filter token="JSOAR_VERSION" value="${version}"/>
-             <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>
-             <filter token="JSOAR_DEMOS_JAR" value="lib/jsoar-demos-${version}.jar"/>
+            <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>
+            <filter token="JSOAR_DEMOS_JAR" value="lib/jsoar-demos-${version}.jar"/>
          </filterset>
       </copy>
    </target>
 
    <target name="dist" depends="init">
       <ant dir="../jsoar-core" antfile="build.xml"/>
-      <ant dir="../jsoar-debugger" antfile="build.xml"/>
-      <ant dir="../jsoar-sml" antfile="build.xml"/>
+       <ant dir="../jsoar-debugger" antfile="build.xml"/>
+       <ant dir="../jsoar-legilimens" antfile="build.xml"/>
+       <ant dir="../jsoar-sml" antfile="build.xml"/>
        <ant dir="../jsoar-demos" antfile="build.xml"/>
        <ant dir="../jsoar-ruby" antfile="build.xml"/>
     	
@@ -51,6 +52,7 @@
 
       <ant dir="../jsoar-core" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-debugger" antfile="build.xml" target="clean"/>
+       <ant dir="../jsoar-legilimens" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-sml" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-demos" antfile="build.xml" target="clean"/>
    </target>
