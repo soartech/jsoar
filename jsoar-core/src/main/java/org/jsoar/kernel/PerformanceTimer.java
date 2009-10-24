@@ -57,7 +57,7 @@ public class PerformanceTimer
     {
         Agent agent = new Agent();
         agent.getTrace().setEnabled(false);
-        agent.getPrinter().pushWriter(new NullWriter(), false);
+        agent.getPrinter().pushWriter(new NullWriter());
         agent.initialize();
         SoarCommandInterpreter ifc = agent.getInterpreter();
         

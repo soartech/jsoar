@@ -6,7 +6,6 @@
 package org.jsoar.kernel;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -41,6 +40,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.tracing.PrintEventWriter;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
@@ -51,6 +51,7 @@ import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.NullWriter;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommandInterpreter;
@@ -99,7 +100,7 @@ public class Agent extends AbstractAdaptable
     private static final AtomicInteger nextName = new AtomicInteger(0);
     
     private DebuggerProvider debuggerProvider = new DefaultDebuggerProvider();
-    private Printer printer = new Printer(new OutputStreamWriter(System.out), true);
+    private Printer printer = new Printer(new NullWriter());
     
     /**
      * The random number generator used throughout the agent
@@ -172,6 +173,8 @@ public class Agent extends AbstractAdaptable
     public Agent()
     {
         setName("JSoar Agent " + nextName.incrementAndGet());
+        
+        this.printer.addPersistentWriter(new PrintEventWriter(getEvents()));
         
         // Initialize components that rely on adaptables lookup
         decider.initialize();

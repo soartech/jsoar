@@ -281,7 +281,7 @@ public class StructuredPreferencesCommand
         try
         {
             StringWriter s = new StringWriter();
-            ppc.print(agent, new Printer(s, true));
+            ppc.print(agent, new Printer(s));
             r.setPrintResult(s.toString());
         }
         catch (IOException e)

@@ -29,7 +29,7 @@ public class TraceTest
     public void setUp()
     {
         output = new StringWriter();
-        printer = new Printer(output, true);
+        printer = new Printer(output);
         trace = new Trace(printer);
     }
 

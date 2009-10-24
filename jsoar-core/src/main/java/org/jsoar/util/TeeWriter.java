@@ -7,7 +7,8 @@ package org.jsoar.util;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A writer that simultaneously writes to one or more writers.
@@ -16,7 +17,7 @@ import java.util.Arrays;
  */
 public class TeeWriter extends Writer
 {
-    private final Writer[] writers;;
+    private final List<Writer> writers = new ArrayList<Writer>();
     
     /**
      * Construct a new TeeWriter
@@ -25,7 +26,20 @@ public class TeeWriter extends Writer
      */
     public TeeWriter(Writer ... writers)
     {
-        this.writers = Arrays.copyOf(writers, writers.length);
+        for(Writer writer : writers)
+        {
+            this.writers.add(writer);
+        }
+    }
+    
+    public void addWriter(Writer writer)
+    {
+        this.writers.add(writer);
+    }
+    
+    public void removeWriter(Writer writer)
+    {
+        this.writers.remove(writer);
     }
     
     /* (non-Javadoc)

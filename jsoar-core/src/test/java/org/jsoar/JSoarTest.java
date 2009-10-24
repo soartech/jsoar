@@ -79,7 +79,7 @@ public class JSoarTest
         assertNotNull(j);
         assertEquals(type, j.getType());
         StringWriter writer = new StringWriter();
-        j.print(new Printer(writer, false), internal);
+        j.print(new Printer(writer), internal);
         assertEquals(body, writer.toString());
         
     }

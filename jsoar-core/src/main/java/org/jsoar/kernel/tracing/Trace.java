@@ -173,7 +173,7 @@ public class Trace
      */
     public static Trace createStdOutTrace()
     {
-        return new Trace(new Printer(new OutputStreamWriter(System.out), true));
+        return new Trace(new Printer(new OutputStreamWriter(System.out)));
     }
     
     private final Printer printer;

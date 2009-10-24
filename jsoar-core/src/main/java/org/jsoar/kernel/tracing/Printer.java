@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 import org.jsoar.util.NullWriter;
+import org.jsoar.util.TeeWriter;
 
 /**
  * Soar agent print interface
@@ -33,8 +34,11 @@ public class Printer
         Arrays.fill(SPACES, ' ');
     }
     
+    private TeeWriter persistentWriters = new TeeWriter();
+    private PrintWriter persistentPrintWriter = new PrintWriter(persistentWriters, true);
+    
     private Writer internalWriter;
-    private PrintWriter wrappedWriter;
+    private PrintWriter printWriter;
     
     private boolean printWarnings = true;
     
@@ -45,7 +49,7 @@ public class Printer
      */
     public static Printer createStdOutPrinter()
     {
-        return new Printer(new OutputStreamWriter(System.out), true);
+        return new Printer(new OutputStreamWriter(System.out));
     }
     
     /**
@@ -53,20 +57,28 @@ public class Printer
      * 
      * @param writer The writer to write to. If null, then a NullWriter is used
      *          and all output will be dropped.
-     * @param autoFlush
      */
-    public Printer(Writer writer, boolean autoFlush)
+    public Printer(Writer writer)
     {
         this.internalWriter = writer != null ? writer : new NullWriter();
-        this.wrappedWriter = new PrintWriter(internalWriter, autoFlush);
+        this.printWriter = new PrintWriter(internalWriter, true);
     }
     
     /**
+     * Return the current writer. Writing to this is equivalent to calling
+     * {@link #print(String)} and friends. That is, persistent writers will
+     * still be called. 
+     * 
+     * <p>Note that this is not necessarily the same writer as was last passed 
+     * to {@link #pushWriter(Writer)}.
+     * 
      * @return The current writer
      */
     public Writer getWriter()
     {
-        return internalWriter;
+        // Wrap in tee to ensure that persistent writers are still called when
+        // this writer is used.
+        return new TeeWriter(internalWriter, persistentWriters);
     }
     
     /**
@@ -75,15 +87,21 @@ public class Printer
      * 
      * @param writer The new writer to write to. If null, the a NullWriter is
      *      used and all output will be dropped.
-     * @param autoFlush If true, writer will autoflush on prints
      */
-    public void pushWriter(Writer writer, boolean autoFlush)
+    public void pushWriter(Writer writer)
     {
-        wrappedWriter.flush();
-        stack.push(new StackEntry(internalWriter, wrappedWriter));
+        printWriter.flush();
+        persistentPrintWriter.flush();
+        
+        stack.push(new StackEntry(internalWriter, printWriter));
         
         this.internalWriter = writer != null ? writer : new NullWriter();
-        this.wrappedWriter = new PrintWriter(internalWriter, autoFlush);
+        this.printWriter = asPrintWriter(internalWriter);
+    }
+    
+    private PrintWriter asPrintWriter(Writer writer)
+    {
+        return writer instanceof PrintWriter ? (PrintWriter) writer : new PrintWriter(writer, true);
     }
     
     /**
@@ -96,43 +114,69 @@ public class Printer
      */
     public Writer popWriter()
     {
-        wrappedWriter.flush();
+        printWriter.flush();
+        persistentPrintWriter.flush();
         
         final Writer oldInternal = this.internalWriter;
         
         StackEntry e = stack.pop();
         this.internalWriter = e.internal;
-        this.wrappedWriter = e.wrapped;
+        this.printWriter = e.wrapped;
         
         return oldInternal;
     }
     
+    /**
+     * Add a writer that will receive <em>all</em> print output regardless of
+     * push/pop.
+     * 
+     * @param writer the writer to add
+     */
+    public void addPersistentWriter(Writer writer)
+    {
+        this.persistentWriters.addWriter(writer);
+    }
+    
+    /**
+     * Remove a writer previously added with {@link #addPersistentWriter(Writer)}
+     * 
+     * @param writer the writer to remove
+     */
+    public void removePersistenWriter(Writer writer)
+    {
+        this.persistentWriters.addWriter(writer);
+    }
+    
     public Printer print(String output)
     {
-        this.wrappedWriter.print(output);
+        this.printWriter.print(output);
+        this.persistentPrintWriter.print(output);
         return this;
     }
     
     public Printer print(String format, Object ... args)
     {
-        this.wrappedWriter.printf(format, args);
+        this.printWriter.printf(format, args);
+        this.persistentPrintWriter.printf(format, args);
         return this;
     }
     
     public Formatter asFormatter()
     {
-        return new Formatter(this.wrappedWriter);
+        return new Formatter(this.printWriter);
     }
     
     public Printer startNewLine()
     {
-        this.wrappedWriter.append('\n');
+        this.printWriter.append('\n');
+        this.persistentPrintWriter.append('\n');
         return this;
     }
     
     public Printer flush()
     {
-        this.wrappedWriter.flush();
+        this.printWriter.flush();
+        this.persistentPrintWriter.flush();
         return this;
     }
 
@@ -191,7 +235,8 @@ public class Printer
         while(n > 0)
         {
             int c = Math.min(n, SPACES.length);
-            wrappedWriter.write(SPACES, 0, c);
+            printWriter.write(SPACES, 0, c);
+            persistentPrintWriter.write(SPACES, 0, c);
             n -= c;
         }
         return this;
@@ -202,10 +247,6 @@ public class Printer
         final Writer internal;
         final PrintWriter wrapped;
         
-        /**
-         * @param internal
-         * @param wrapped
-         */
         public StackEntry(Writer internal, PrintWriter wrapped)
         {
             this.internal = internal;

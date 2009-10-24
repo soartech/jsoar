@@ -29,13 +29,13 @@ public class PrinterTest
         StringWriter first = new StringWriter();
         StringWriter second = new StringWriter();
         
-        Printer printer = new Printer(first, true);
+        Printer printer = new Printer(first);
         assertSame(first, printer.getWriter());
         printer.print("first");
         assertEquals("first", first.toString());
         assertEquals("", second.toString());
         
-        printer.pushWriter(second, true);
+        printer.pushWriter(second);
         assertSame(second, printer.getWriter());
         printer.print("second");
         assertEquals("first", first.toString());
@@ -52,7 +52,7 @@ public class PrinterTest
     @Test(expected=NoSuchElementException.class)
     public void testPopWriterThrowsNoSuchElementException()
     {
-        Printer printer = new Printer(new StringWriter(), true);
+        Printer printer = new Printer(new StringWriter());
         printer.popWriter();
     }
     
@@ -64,7 +64,7 @@ public class PrinterTest
     {
         StringWriter first = new StringWriter();
         
-        Printer printer = new Printer(first, true);
+        Printer printer = new Printer(first);
         printer.spaces(500);
         String result = first.toString();
         char[] spaceArray = new char[500];
