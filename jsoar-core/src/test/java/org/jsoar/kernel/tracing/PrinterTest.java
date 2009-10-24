@@ -30,20 +30,17 @@ public class PrinterTest
         StringWriter second = new StringWriter();
         
         Printer printer = new Printer(first);
-        assertSame(first, printer.getWriter());
         printer.print("first");
         assertEquals("first", first.toString());
         assertEquals("", second.toString());
         
         printer.pushWriter(second);
-        assertSame(second, printer.getWriter());
         printer.print("second");
         assertEquals("first", first.toString());
         assertEquals("second", second.toString());
         
         Writer popped = printer.popWriter();
         assertSame(second, popped);
-        assertSame(first, printer.getWriter());
         printer.print("first");
         assertEquals("firstfirst", first.toString());
         assertEquals("second", second.toString());
