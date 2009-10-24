@@ -51,6 +51,7 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
+import tcl.lang.TclRuntimeError;
 
 import com.google.common.collect.MapMaker;
 
@@ -208,7 +209,14 @@ public class SoarTclInterface implements SoarCommandInterpreter
         synchronized(interfaces)
         {
             interfaces.remove(agent);
-            interp.dispose();
+            try
+            {
+                interp.dispose();
+            }
+            catch (TclRuntimeError e)
+            {
+                logger.warn("In dispose(): " + e.getMessage());
+            }
             agent.getRhsFunctions().unregisterHandler(tclRhsFunction.getName());
             agent = null;
         }
