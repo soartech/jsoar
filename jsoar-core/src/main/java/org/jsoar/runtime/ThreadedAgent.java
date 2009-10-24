@@ -5,9 +5,7 @@
  */
 package org.jsoar.runtime;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -43,8 +41,6 @@ import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.properties.PropertyProvider;
 
-import com.google.common.collect.MapMaker;
-
 /**
  * A wrapper around a raw {@link Agent} which gives the agent its own thread
  * and provides methods for safely interacting with the agent from other 
@@ -72,8 +68,6 @@ import com.google.common.collect.MapMaker;
 public class ThreadedAgent extends AbstractAdaptable
 {
     private static final Log logger = LogFactory.getLog(ThreadedAgent.class);
-    
-    private final static Map<Agent, ThreadedAgent> proxies = new MapMaker().weakKeys().makeMap();
     
     private final Agent agent;
     private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();
@@ -104,7 +98,7 @@ public class ThreadedAgent extends AbstractAdaptable
      * Create a new {@link Agent} and automatically wrap it with a ThreadedAgent.
      * This method also initializes the agent and starts its thread. 
      * 
-     * <p>This is convenience method equivalent to
+     * <p>This is a convenience method equivalent to
      * <pre>{@code
      * ThreadedAgent agent = ThreadedAgent.create(new Agent()).initialize();
      * }</pre>
@@ -114,35 +108,14 @@ public class ThreadedAgent extends AbstractAdaptable
      * situations can arise if the agent is returned before initialization is
      * complete.
      * 
+     * <p>A {@link ThreadedAgentAttachedEvent} will be fired before the method
+     * returns.
+     * 
      * @return a new, initialized threaded agent
      */
     public static ThreadedAgent create()
     {
-        final Object wait = new String("agent init wait lock");
-        synchronized(wait)
-        {
-            final ThreadedAgent agent = attach(new Agent()).initialize(new CompletionHandler<Void>() {
-
-                @Override
-                public void finish(Void result)
-                {
-                    synchronized(wait)
-                    {
-                        wait.notify();
-                    }
-                }});
-            try
-            {
-                wait.wait();
-            }
-            catch (InterruptedException e)
-            {
-                logger.error("Interrupted waiting for new ThreadedAgent to initialize.", e);
-                Thread.currentThread().interrupt(); // reset interrupt
-            }
-            
-            return agent;
-        }
+        return ThreadedAgentManager.INSTANCE.create();
     }
     
     /**
@@ -155,10 +128,7 @@ public class ThreadedAgent extends AbstractAdaptable
      */
     public static ThreadedAgent find(Agent agent)
     {
-        synchronized (proxies)
-        {
-            return proxies.get(agent);
-        }
+        return ThreadedAgentManager.INSTANCE.find(agent);
     }
     
     /**
@@ -168,10 +138,7 @@ public class ThreadedAgent extends AbstractAdaptable
      */
     public static List<ThreadedAgent> getAll()
     {
-        synchronized (proxies)
-        {
-            return new ArrayList<ThreadedAgent>(proxies.values());
-        }
+        return ThreadedAgentManager.INSTANCE.getAll();
     }
     
     /**
@@ -183,22 +150,24 @@ public class ThreadedAgent extends AbstractAdaptable
      */
     public static ThreadedAgent attach(Agent agent) 
     {
-        synchronized(proxies)
-        {
-            ThreadedAgent ta = proxies.get(agent);
-            if(ta == null)
-            {
-                ta = new ThreadedAgent(agent);
-                proxies.put(agent, ta);
-            }
-            return ta;
-        }
+        return ThreadedAgentManager.INSTANCE.attach(agent);
+    }
+    
+    /**
+     * Returns the event manager used for global ThreadedAgent events such
+     * as {@link ThreadedAgentAttachedEvent}.
+     * 
+     * @return the event manager
+     */
+    public static SoarEventManager getEventManager()
+    {
+        return ThreadedAgentManager.INSTANCE.getEventManager();
     }
     
     /**
      * @param agent the agent to wrap.
      */
-    private ThreadedAgent(Agent agent)
+    ThreadedAgent(Agent agent)
     {
         this.agent = agent;
         agentThread.setName("Agent '" + this.agent + "' thread");
@@ -249,6 +218,7 @@ public class ThreadedAgent extends AbstractAdaptable
      * @param done if not <code>null</code> this handler is called after the 
      * agent is initialized.
      * @return this
+     * @see Agent#initialize()
      */
     public ThreadedAgent initialize(final CompletionHandler<Void> done)
     {
@@ -275,6 +245,9 @@ public class ThreadedAgent extends AbstractAdaptable
      * object may not be used again. The underyling agent remains available for
      * use.
      * 
+     * <p>A {@link ThreadedAgentDetachedEvent} will be fired before the method
+     * returns.
+     * 
      * @see #dispose()
      */
     public void detach()
@@ -288,7 +261,8 @@ public class ThreadedAgent extends AbstractAdaptable
             }
             catch (InterruptedException e)
             {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                logger.error("Interrupted while waiting for agent thread to exit", e);
             }
             waitFunction.detach();
             
@@ -296,15 +270,15 @@ public class ThreadedAgent extends AbstractAdaptable
         }
         finally
         {
-            synchronized(proxies)
-            {
-                proxies.remove(agent);
-            }
+            ThreadedAgentManager.INSTANCE.detach(this);
         }
     }
     
     /**
      * Dispose of this object and the underlying agent.
+     * 
+     * <p>A {@link ThreadedAgentDetachedEvent} will be fired before the method
+     * returns.
      * 
      * @see #detach()
      */
