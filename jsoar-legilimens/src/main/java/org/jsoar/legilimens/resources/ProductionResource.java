@@ -98,7 +98,7 @@ public class ProductionResource extends BaseAgentResource
             
             this.name = rule.getName().toString();
             final StringWriter writer = new StringWriter();
-            final Printer printer = new Printer(writer, true);
+            final Printer printer = new Printer(writer);
             this.production.print(printer, false);
             printer.flush();
             this.code = writer.toString();

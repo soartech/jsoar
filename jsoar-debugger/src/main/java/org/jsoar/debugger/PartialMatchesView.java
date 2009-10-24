@@ -104,7 +104,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     private String safeGetMatchOutput(List<Object> selection)
     {
         final StringWriter writer = new StringWriter();
-        final Printer printer = new Printer(writer, true);
+        final Printer printer = new Printer(writer);
         for(Object o : selection)
         {
             Production p = getProduction(agent.getProductions(), o);

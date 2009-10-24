@@ -124,7 +124,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setText("JSoar " + version + "\nhttp://jsoar.googlecode.com\n\n" +  
                              "Right-click for trace options\n");
         
-        debugger.getAgent().getPrinter().pushWriter(outputWriter, true);
+        debugger.getAgent().getPrinter().pushWriter(outputWriter);
         
         final Trace trace = debugger.getAgent().getTrace();
         trace.disableAll();
