@@ -163,7 +163,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
                 if(p != null)
                 {
                     StringWriter s = new StringWriter();
-                    p.print(new Printer(s, true), false);
+                    p.print(new Printer(s), false);
                     return s.toString();
                 }
                 return "";

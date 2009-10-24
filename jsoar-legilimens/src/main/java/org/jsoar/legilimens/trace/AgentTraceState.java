@@ -7,8 +7,9 @@ package org.jsoar.legilimens.trace;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyProvider;
@@ -18,10 +19,12 @@ import org.jsoar.util.properties.PropertyProvider;
  */
 public class AgentTraceState
 {
+    private static final Log logger = LogFactory.getLog(AgentTraceState.class);
+    
     public static final PropertyKey<AgentTraceState> KEY = PropertyKey.builder("legilimens.trace", AgentTraceState.class).readonly(true).build();
     
-    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    private final Writer writer = new OutputStreamWriter(output);
+    private final ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
+    private final OutputStreamWriter writer = new OutputStreamWriter(output);
     
     public static AgentTraceState attach(ThreadedAgent agent)
     {
@@ -47,7 +50,7 @@ public class AgentTraceState
     
     private AgentTraceState(ThreadedAgent agent)
     {
-        agent.getPrinter().pushWriter(writer, true);
+        agent.getPrinter().addPersistentWriter(writer);
     }
     
     public int getSize()
@@ -68,6 +71,5 @@ public class AgentTraceState
     {
         return output.size() + " bytes written";
     }
-    
-    
+
 }
