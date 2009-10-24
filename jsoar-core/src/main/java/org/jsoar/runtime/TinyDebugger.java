@@ -108,7 +108,7 @@ public class TinyDebugger extends JApplet
     public void init()
     {
         agent = ThreadedAgent.create();
-        agent.getPrinter().pushWriter(outputWriter, true);
+        agent.getPrinter().pushWriter(outputWriter);
         new CycleCountInput(agent.getInputOutput());
         
         agent.getEvents().addListener(AfterDecisionCycleEvent.class, new SoarEventListener() {

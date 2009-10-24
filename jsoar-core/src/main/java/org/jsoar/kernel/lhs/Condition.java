@@ -409,7 +409,7 @@ public abstract class Condition implements Formattable
         this.prev = null;
         
         StringWriter writer = new StringWriter();
-        Conditions.print_condition_list (new Printer(writer, false), this, 0, true);
+        Conditions.print_condition_list (new Printer(writer), this, 0, true);
         
         this.next = old_next;
         this.prev = old_prev;

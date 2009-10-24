@@ -67,14 +67,14 @@ public final class CLogCommand implements SoarCommand
             {
                 Writer w = new OutputStreamWriter(System.out);
                 writerStack.push(null);
-                agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w), true);
+                agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w));
                 return "";
             }
             else if(arg.equals("stderr"))
             {
                 Writer w = new OutputStreamWriter(System.err);
                 writerStack.push(null);
-                agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w), true);
+                agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w));
                 return "";
             }
             else
@@ -83,7 +83,7 @@ public final class CLogCommand implements SoarCommand
                 {
                     Writer w = new FileWriter(arg);
                     writerStack.push(w);
-                    agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w), true);
+                    agent.getPrinter().pushWriter(new TeeWriter(agent.getPrinter().getWriter(), w));
                     return "";
                 }
                 catch (IOException e)
