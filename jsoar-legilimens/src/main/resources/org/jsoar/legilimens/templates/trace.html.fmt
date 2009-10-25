@@ -2,6 +2,7 @@
 
 <#global body>
     <h2>Trace</h2>
+    <p><a href="${trace_url}.txt">Download full trace</a></p>
     <div id="trace" class="trace">
     
     </div>
@@ -16,18 +17,37 @@
     </div>
 
     <script type="text/javascript">
-    offset = 0;
+    
+    pollRequest = null; // XHR for active request
+    offset = 0;         // current trace offset
+    
     function pollTrace(oneShot) {
-        $.ajax({ 
-            url: "${resourceRef}?start=" + offset, 
+        // don't allow simultaneous requests. This can cause the same chunk of 
+        // trace to be retrieved multiple times.
+        if(pollRequest != null) { return; }
+        
+        var param = (offset > 0 ? ("start=" + offset) : ("tail=" + (512 * 1024)));
+        pollRequest = $.ajax({ 
+            url: "${resourceRef}?" + param, 
             type: "GET", 
             dataType: "text", 
             success: function(content, status) {
                if(content.length > 0) {
                    $("<pre></pre>").text(content).appendTo("#trace");
-                   offset += content.length;
                    $("#trace").attr({ scrollTop: $("#trace").attr("scrollHeight") });
                }
+               var end = pollRequest.getResponseHeader("X-trace-end");
+               if(end != null) {
+                    offset = parseInt(end);
+               }
+               if(!oneShot) {
+                   setTimeout("pollTrace()", 1000);
+               }
+               pollRequest = null;
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+               pollRequest = null;
+               // TODO: display error
                if(!oneShot) {
                    setTimeout("pollTrace()", 1000);
                }

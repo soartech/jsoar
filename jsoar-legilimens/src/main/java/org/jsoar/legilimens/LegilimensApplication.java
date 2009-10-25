@@ -38,6 +38,7 @@ public class LegilimensApplication extends Application
         fmc.setClassForTemplateLoading(getClass(), "/org/jsoar/legilimens/templates");
         
         getTunnelService().setEnabled(true);
+        getTunnelService().setExtensionsTunnel(true);
     }
     
     public List<ThreadedAgent> getAgents()
