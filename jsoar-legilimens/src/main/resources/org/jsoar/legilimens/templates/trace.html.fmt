@@ -19,7 +19,7 @@
     offset = 0;
     function pollTrace(oneShot) {
         $.ajax({ 
-            url: "${resourceRef}?offset=" + offset, 
+            url: "${resourceRef}?start=" + offset, 
             type: "GET", 
             dataType: "text", 
             success: function(content, status) {

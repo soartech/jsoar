@@ -10,6 +10,12 @@ package org.jsoar.util;
  */
 public final class Arguments
 {
+    /**
+     * Throw an illegal argument exception if the given argument is {@code null}
+     * 
+     * @param arg the argument to check
+     * @param name the name of the argument to be used in the exception message.
+     */
     public static void checkNotNull(Object arg, String name)
     {
         if(arg == null)
@@ -18,6 +24,13 @@ public final class Arguments
         }
     }
     
+    /**
+     * If the given condition is not true, throw an {@link IllegalArgumentException}
+     * with the given description.
+     * 
+     * @param condition the desired condition
+     * @param description exception message
+     */
     public static void check(boolean condition, String description)
     {
         if(!condition)

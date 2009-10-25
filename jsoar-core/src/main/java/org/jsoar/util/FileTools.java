@@ -22,6 +22,18 @@ import java.net.URL;
 public class FileTools
 {
     /**
+     * Given a name, replaces all characters that are illegal in file names, e.g. ?, *, etc.
+     * 
+     * @param name the name to process
+     * @param replacement the replacement string for illegal chars, e.g. "_"
+     * @return the new string for illegal characters replaced.
+     */
+    public static String replaceIllegalCharacters(String name, String replacement)
+    {
+        return name.replaceAll("[\\?\\[\\]/\\\\=\\+\\<\\>\\:\\;\"\\,\\*\\|]", replacement);
+    }
+    
+    /**
      * Convert the given string to a URL.
      * 
      * @param url the url string

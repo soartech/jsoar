@@ -43,4 +43,19 @@ public class FileToolsTest
         assertEquals("http://www.google.com", url.toExternalForm());
         assertNull(FileTools.asUrl("/not/a/url"));
     }
+    
+    @Test
+    public void testReplaceIllegalChars()
+    {
+        assertEquals("eye _ ball", FileTools.replaceIllegalCharacters("eye ? ball", "_"));
+        assertEquals("__", FileTools.replaceIllegalCharacters("*?", "_"));
+        assertEquals("__", FileTools.replaceIllegalCharacters("<>", "_"));
+        assertEquals("__", FileTools.replaceIllegalCharacters("][", "_"));
+        assertEquals("__", FileTools.replaceIllegalCharacters("\\/", "_"));
+        assertEquals("__", FileTools.replaceIllegalCharacters(":;", "_"));
+        assertEquals("__", FileTools.replaceIllegalCharacters("\",", "_"));
+        assertEquals("__", FileTools.replaceIllegalCharacters("+=", "_"));
+        assertEquals("__", FileTools.replaceIllegalCharacters("|,", "_"));
+        assertEquals("abcdefg.txt", FileTools.replaceIllegalCharacters("abcdefg.txt", "_"));
+    }
 }

@@ -5,8 +5,12 @@
  */
 package org.jsoar.legilimens.resources;
 
+import java.io.IOException;
+import java.nio.CharBuffer;
+
 import org.jsoar.legilimens.RestletTools;
-import org.jsoar.legilimens.trace.AgentTraceState;
+import org.jsoar.legilimens.trace.AgentTraceBuffer;
+import org.jsoar.legilimens.trace.TraceRange;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -18,7 +22,9 @@ import org.restlet.resource.ResourceException;
  */
 public class TraceResource extends BaseAgentResource
 {
-    private int offset;
+    private int tail;
+    private int start;
+    private int max;
     
     /**
      * 
@@ -37,31 +43,54 @@ public class TraceResource extends BaseAgentResource
     {
         super.doInit();
         
-        final String offsetString = getQuery().getFirstValue("offset");
-        offset = offsetString != null ? Integer.parseInt(offsetString) : 0;
+        final String tailString = getQuery().getFirstValue("tail");
+        tail = tailString != null ? Integer.parseInt(tailString) : -1;
+
+        final String startString = getQuery().getFirstValue("start");
+        start = startString != null ? Integer.parseInt(startString) : 0;
+        
+        final String maxString = getQuery().getFirstValue("max");
+        max = maxString != null ? Integer.parseInt(maxString) : -1;
     }
 
 
     @Get("txt")
     public Representation getTextRepresentation()
     {
-        //agent.runFor(1, RunType.DECISIONS);
-        final AgentTraceState state = agent.getProperties().get(AgentTraceState.KEY);
-        final byte[] bytes = state.getBytes();
-        
-        int realOffset = Math.max(0, offset);
-        realOffset = Math.min(bytes.length, realOffset);
-        int realLength = bytes.length - realOffset;
-        final StringRepresentation rep = new StringRepresentation(new String(bytes, realOffset, realLength));
-        
-        RestletTools.setResponseHeader(getResponse(), "X-total-bytes", realLength);
-        
-        if(realLength == 0)
+        final AgentTraceBuffer state = agent.getProperties().get(AgentTraceBuffer.KEY);
+        try
         {
-            getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+            final TraceRange traceRange = getTraceRange(state);
+            
+            final StringRepresentation rep = new StringRepresentation(CharBuffer.wrap(traceRange.getData(), 0, traceRange.getLength()));
+            
+            RestletTools.setResponseHeader(getResponse(), "X-trace-start", traceRange.getStart());
+            RestletTools.setResponseHeader(getResponse(), "X-trace-end", traceRange.getEnd());
+            
+            if(traceRange.getLength() == 0)
+            {
+                getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+            }
+            
+            return rep;
         }
-        
-        return rep;
+        catch(IOException e)
+        {
+            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e, e.getMessage());
+            return new StringRepresentation(e.getMessage());
+        }
+    }
+    
+    private TraceRange getTraceRange(AgentTraceBuffer state) throws IOException
+    {
+        if(tail >= 0)
+        {
+            return state.getTail(tail);
+        }
+        else
+        {
+            return state.getRange(start, max);
+        }
     }
     
 }
