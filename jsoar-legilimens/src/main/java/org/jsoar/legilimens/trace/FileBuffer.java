@@ -40,7 +40,10 @@ class FileBuffer extends Writer
     
     public int getLength()
     {
-        return charsWritten;
+        synchronized(ringBuffer)
+        {
+            return charsWritten;
+        }
     }
     
     public TraceRange getRange(int start, int max) throws IOException
@@ -93,8 +96,11 @@ class FileBuffer extends Writer
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException
     {
-        charsWritten += len;
-        this.ringBuffer.write(cbuf, off, len);
+        synchronized(ringBuffer)
+        {
+            charsWritten += len;
+            this.ringBuffer.write(cbuf, off, len);
+        }
         this.writer.write(cbuf, off, len);
     }
 }

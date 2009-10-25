@@ -6,6 +6,7 @@
 package org.jsoar.legilimens.resources;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,9 @@ public class PropertiesResource extends BaseAgentResource
         super.setTemplateAttributes(attrs);
         
         final List<Property> props = new ArrayList<Property>();
-        for(PropertyKey<?> key : agent.getProperties().getKeys())
+        final List<PropertyKey<?>> keys = agent.getProperties().getKeys();
+        Collections.sort(keys, PropertyKey.NAME_COMPARATOR);
+        for(PropertyKey<?> key : keys)
         {
             final Object value = agent.getProperties().get(key);
             props.add(new Property(key, value));

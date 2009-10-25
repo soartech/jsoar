@@ -5,6 +5,8 @@
  */
 package org.jsoar.util.properties;
 
+import java.util.Comparator;
+
 
 /**
  * A PropertyKey is a unique identifier for a property. It includes 
@@ -20,6 +22,18 @@ public class PropertyKey<T>
     private final T defValue;
     private final boolean boundable;
     private final boolean readonly;
+    
+    /**
+     * A comparator for sorting property keys by name
+     */
+    public static Comparator<PropertyKey<?>> NAME_COMPARATOR = new Comparator<PropertyKey<?>>(){
+
+        @Override
+        public int compare(PropertyKey<?> o1, PropertyKey<?> o2)
+        {
+            return o1.name.compareTo(o2.name);
+        }
+    };
     
     public static class Builder<T>
     {

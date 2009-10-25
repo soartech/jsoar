@@ -7,6 +7,7 @@ package org.jsoar.legilimens.trace;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,8 +41,8 @@ public class AgentTraceBuffer
     private final RingBuffer ringBuffer;
     private final FileBuffer fileBuffer;
     
-    private int ringBufferAccesses = 0;
-    private int permBufferAccesses = 0;
+    private AtomicInteger ringBufferAccesses = new AtomicInteger();
+    private AtomicInteger permBufferAccesses = new AtomicInteger();
     
     public static AgentTraceBuffer attach(Agent agent, int bufferSize) throws IOException
     {
@@ -103,13 +104,16 @@ public class AgentTraceBuffer
      */
     public TraceRange getTail(int max) throws IOException
     {
-        if(max < 0)
+        synchronized(ringBuffer)
         {
-            max = getTraceLength();
+            if(max < 0)
+            {
+                max = getTraceLength();
+            }
+            max = Math.min(max, getTraceLength());
+            
+            return getRange(getTraceLength() - max, max);
         }
-        max = Math.min(max, getTraceLength());
-        
-        return getRange(getTraceLength() - max, max);
     }
     
     /**
@@ -123,31 +127,39 @@ public class AgentTraceBuffer
      */
     public TraceRange getRange(int start, int max) throws IOException
     {
-        if(max < 0)
+        synchronized(ringBuffer)
         {
-            max = getTraceLength();
+            final int traceLength = getTraceLength();
+            
+            // If entire range is in the ring buffer...
+            if(start > traceLength)
+            {
+                logger.error("Request for trace offset " + start + " which is beyond end of trace " + traceLength);
+                return new TraceRange(traceLength, new char[] {});
+            }
+            
+            if(max < 0)
+            {
+                max = traceLength;
+            }
+            final int lengthToEndOfTrace = traceLength - start;
+            max = Math.min(max, lengthToEndOfTrace);
+            
+            if(lengthToEndOfTrace <= ringBuffer.size())
+            {
+                logger.info("Retrieving last " + lengthToEndOfTrace + " chars from ring buffer");
+                ringBufferAccesses.incrementAndGet();
+                final char[] data = ringBuffer.getTail(lengthToEndOfTrace, max);
+                return new TraceRange(start, data);
+            }
         }
-        max = Math.min(max, getTraceLength() - start);
         
-        // If entire range is in the ring buffer...
-        if(start > getTraceLength())
-        {
-            logger.error("Request for trace offset " + start + " which is beyond end of trace " + getTraceLength());
-            return new TraceRange(getTraceLength(), new char[] {});
-        }
-        else if(getTraceLength() - start <= ringBuffer.size())
-        {
-            logger.info("Retrieving last " + (getTraceLength() - start) + " chars from ring buffer");
-            ringBufferAccesses++;
-            final char[] data = ringBuffer.getTail(getTraceLength() - start, max);
-            return new TraceRange(start, data);
-        }
-        else
-        {
-            logger.info("Retrieving " + start + " to " + (start + max) + " from permanent buffer");
-            permBufferAccesses++;
-            return fileBuffer.getRange(start, max);
-        }
+        // Fall back to permanent buffer. This is purposefully outside of the synchronized
+        // block so we don't stop the agent while we do the potentially slow operation of
+        // reading from the file. We're relying on the file system's thread-safety here.
+        logger.info("Retrieving " + start + " to " + (start + max) + " from permanent buffer");
+        permBufferAccesses.incrementAndGet();
+        return fileBuffer.getRange(start, max);
     }
     
     public File getTraceFile()
@@ -168,7 +180,7 @@ public class AgentTraceBuffer
      */
     public int getRingBufferAccesses()
     {
-        return ringBufferAccesses;
+        return ringBufferAccesses.get();
     }
 
     /**
@@ -176,7 +188,7 @@ public class AgentTraceBuffer
      */
     public int getPermBufferAccesses()
     {
-        return permBufferAccesses;
+        return permBufferAccesses.get();
     }
 
     /* (non-Javadoc)
@@ -185,7 +197,7 @@ public class AgentTraceBuffer
     @Override
     public String toString()
     {
-        int total = ringBufferAccesses + permBufferAccesses; 
+        int total = ringBufferAccesses.get() + permBufferAccesses.get(); 
         
         return String.format("%d characters. " + 
              "%d requests, " +
@@ -193,8 +205,8 @@ public class AgentTraceBuffer
             " Ring buffer hit rate = %8.0f%%. " +
             " Ring buffer size = %d." +
             "Perm buffer: %s.", 
-            getTraceLength(), total, ringBufferAccesses, permBufferAccesses, 
-            (ringBufferAccesses / (double) total) * 100.0,
+            getTraceLength(), total, ringBufferAccesses.get(), permBufferAccesses.get(), 
+            (ringBufferAccesses.get() / (double) total) * 100.0,
             ringBuffer.size(), 
             fileBuffer.getFile());
     }
