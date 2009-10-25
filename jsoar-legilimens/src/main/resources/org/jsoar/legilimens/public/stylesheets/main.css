@@ -1,6 +1,7 @@
  @import url("reset.css");
  
 body {
+  color: #454545;
   background-color: #808080;
   font-family: Verdana, Helvetica, Arial;
   font-size: 14px;
@@ -16,6 +17,11 @@ h1 {
 
 h2 {
     font-size: 1.5em;
+    margin-bottom: .5em;
+}
+
+h3 {
+    font-size: 1.25em;
     margin-bottom: .5em;
 }
 
@@ -78,6 +84,24 @@ div.command-entry {
     height: 350px; 
     overflow: auto;
     border: solid 1px #808080;
+}
+
+.recent-trace {
+    padding: 10px 10px 10px 10px;
+    width: 55%;
+    border: solid #808080 1px;
+}
+.recent-trace pre {
+    background-color: #EEEEEE;
+    border-top: solid #808080 1px;
+    border-bottom: solid #808080 1px;
+    margin-bottom: 10px;
+}
+
+.recent-mini-trace pre {
+    background-color: #EEEEEE;
+    margin-bottom: 10px;
+    border: solid #808080 1px;
 }
 
 ul.link-list {

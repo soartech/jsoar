@@ -8,6 +8,7 @@
 
 <#global body>
     <h2>${production.name?html}</h2>
+    <h3>From <a href="${production.production.location.file}">${production.production.location.file?html}</a></h3>
     
     <#if (production.production.documentation?length > 0)>
         <div class="production-doc">

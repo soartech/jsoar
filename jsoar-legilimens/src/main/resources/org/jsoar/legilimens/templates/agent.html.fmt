@@ -24,15 +24,17 @@ JSoar - ${agent?html} - Status
         </#if>
         <li>Decisions executed: ${agent_property(agent, "decision_phases_count")?html}
         <li>Working memory elements: ${agent.agent.numWmesInRete}
-        <li>Recent <a href=${trace_url}>trace output</a>:
-        <div>
-<pre>
-... ${recent_trace(agent, 275)?html}
-</pre>
-        </div>
-        <a href="${trace_url}.txt">Download full trace</a>
+        <li>
         </li>
     </ul>
+    
+    <div class="recent-trace">
+        <h3>Recent <a href=${trace_url}>trace output</a></h3>
+        <pre>
+... ${recent_trace(agent, 275)?html}
+        </pre>
+        <a href="${trace_url}.txt">Download full trace</a>
+    </div>
 
     <ul class="link-list">
         <li><a href="">Refresh</a>

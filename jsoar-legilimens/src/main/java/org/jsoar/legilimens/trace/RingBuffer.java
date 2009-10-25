@@ -27,7 +27,7 @@ class RingBuffer
         return buffer.length;
     }
     
-    public void write(char[] chars, int start, int length)
+    public synchronized void write(char[] chars, int start, int length)
     {
         int end = start + length;
         int available = buffer.length - head;
@@ -42,12 +42,12 @@ class RingBuffer
             available = buffer.length - head;
         }
     }
-    public char[] getTail(int count)
+    public synchronized char[] getTail(int count)
     {
         return getTail(count, -1);
     }
     
-    public char[] getTail(int charsBack, int max)
+    public synchronized char[] getTail(int charsBack, int max)
     {
         if(charsBack < 0)
         {
@@ -83,7 +83,7 @@ class RingBuffer
         }
     }
     
-    int getHead()
+    synchronized int getHead()
     {
         return head;
     }
