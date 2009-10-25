@@ -5,6 +5,7 @@
  */
 package org.jsoar.legilimens;
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
-import org.jsoar.legilimens.trace.AgentTraceState;
+import org.jsoar.legilimens.trace.AgentTraceBuffer;
 import org.jsoar.runtime.ThreadedAgent;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
@@ -85,16 +86,16 @@ public class LegilimensServer
     public static void main(String[] args) throws Exception
     {
         createAgent("legilimens", "http://darevay.com/jsoar/waterjugs.soar");
-        createAgent("eye ball", null);
+        createAgent("eye ? ball", null);
         
         start();
     }
 
-    private static ThreadedAgent createAgent(String name, final String rules) throws InterruptedException, ExecutionException, TimeoutException
+    private static ThreadedAgent createAgent(String name, final String rules) throws InterruptedException, ExecutionException, TimeoutException, IOException
     {
         final ThreadedAgent agent = ThreadedAgent.create();
         agent.setName(name);
-        AgentTraceState.attach(agent);
+        AgentTraceBuffer.attach(agent.getAgent());
         if(rules != null)
         {
             agent.executeAndWait(new Callable<Void>()

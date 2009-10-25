@@ -11,14 +11,14 @@ import java.util.Arrays;
 /**
  * @author ray
  */
-public class RingBuffer
+class RingBuffer
 {
-    private final byte[] buffer;
+    private final char[] buffer;
     private int head; // the next index to write to
     
     public RingBuffer(int size)
     {
-        buffer = new byte[size];
+        buffer = new char[size];
         head = 0;
     }
     
@@ -27,7 +27,7 @@ public class RingBuffer
         return buffer.length;
     }
     
-    public void write(byte[] bytes, int start, int length)
+    public void write(char[] chars, int start, int length)
     {
         int end = start + length;
         int available = buffer.length - head;
@@ -35,39 +35,47 @@ public class RingBuffer
         {
             int toWrite = Math.min(end - start, available);
             
-            System.arraycopy(bytes, start, buffer, head, toWrite);
+            System.arraycopy(chars, start, buffer, head, toWrite);
             
             head = (head + toWrite) % buffer.length;
             start += toWrite;
             available = buffer.length - head;
         }
     }
-    
-    public byte[] getRecentBytes(int count)
+    public char[] getTail(int count)
     {
-        if(count < 0)
+        return getTail(count, -1);
+    }
+    
+    public char[] getTail(int charsBack, int max)
+    {
+        if(charsBack < 0)
         {
             throw new IllegalArgumentException("count must be positive");
         }
-        if(count > buffer.length)
+        if(charsBack > buffer.length)
         {
             throw new IllegalArgumentException("count must be < " + buffer.length);
         }
+        if(max < 0)
+        {
+            max = charsBack;
+        }
         
-        int startPoint = head - count;
+        int startPoint = head - charsBack;
         if(startPoint < 0)
         {
             startPoint += buffer.length;
         }
-        final int endPoint = head;
+        final int endPoint = (startPoint + max) % buffer.length;
         
-        if(startPoint <= endPoint && count != buffer.length)
+        if(startPoint <= endPoint && max != buffer.length)
         {
             return Arrays.copyOfRange(buffer, startPoint, endPoint);
         }
         else
         {
-            final byte[] result = new byte[count];
+            final char[] result = new char[max];
             final int firstLength = buffer.length - startPoint;
             System.arraycopy(buffer, startPoint, result, 0, firstLength);
             System.arraycopy(buffer, 0, result, firstLength, endPoint);
@@ -79,7 +87,7 @@ public class RingBuffer
     {
         return head;
     }
-    byte[] getRawBuffer()
+    char[] getRawBuffer()
     {
         return buffer;
     }
