@@ -63,9 +63,11 @@ public class TraceResource extends BaseAgentResource
             final TraceRange traceRange = getTraceRange(state);
             
             final StringRepresentation rep = new StringRepresentation(CharBuffer.wrap(traceRange.getData(), 0, traceRange.getLength()));
+            rep.setDownloadName("trace.txt");
             
             RestletTools.setResponseHeader(getResponse(), "X-trace-start", traceRange.getStart());
             RestletTools.setResponseHeader(getResponse(), "X-trace-end", traceRange.getEnd());
+            
             
             if(traceRange.getLength() == 0)
             {
