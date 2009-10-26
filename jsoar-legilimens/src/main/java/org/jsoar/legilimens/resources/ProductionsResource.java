@@ -5,19 +5,43 @@
  */
 package org.jsoar.legilimens.resources;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.FileTools;
+import org.restlet.data.MediaType;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 
 /**
  * @author ray
  */
 public class ProductionsResource extends BaseAgentResource
 {
+    private boolean internal;
+    
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.legilimens.resources.BaseAgentResource#doInit()
+     */
+    @Override
+    protected void doInit() throws ResourceException
+    {
+        super.doInit();
+        
+        internal = Boolean.valueOf(getQuery().getFirstValue("internal"));
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.legilimens.resources.BaseAgentResource#setTemplateAttributes(java.util.Map)
      */
@@ -41,5 +65,37 @@ public class ProductionsResource extends BaseAgentResource
         });
         attrs.put("productions", rules);
     }
-    
+ 
+    @Get("txt")
+    public Representation getTextRepresentation()
+    {
+        final Callable<String> callable = new Callable<String>()
+        {
+            @Override
+            public String call() throws Exception
+            {
+                final StringWriter writer = new StringWriter();
+                final Printer printer = new Printer(writer);
+                printer.print("# Generated from JSoar agent at %s\n", new Date());
+                printer.print("# internal = %s\n", internal);
+                for(Production p : agent.getProductions().getProductions(null))
+                {
+                    p.print(printer, internal);
+                    printer.startNewLine();
+                }
+                printer.flush();
+                return writer.toString();
+            }
+        };
+        
+        final String result = executeCallable(callable);
+        if(result == null)
+        {
+            return null;
+        }
+        final StringRepresentation rep = new StringRepresentation(result, MediaType.TEXT_PLAIN);
+        rep.setDownloadName(FileTools.replaceIllegalCharacters(agent.getName(), "_") + ".soar");
+        rep.setDownloadable(true);
+        return rep;
+    }
 }

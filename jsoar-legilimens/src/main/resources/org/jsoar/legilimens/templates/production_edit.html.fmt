@@ -18,7 +18,7 @@
     <p>${production.production.type?capitalize} production, fired ${production.production.firingCount} times.</p>
 
     <form action="<@production_url production/>" method="POST">
-        <textarea name="production" rows="20" cols="80">
+        <textarea name="production" rows="20" cols="80" class="code">
 ${production.code?html}
         </textarea>
         <input TYPE="submit" NAME="name" VALUE="Save">

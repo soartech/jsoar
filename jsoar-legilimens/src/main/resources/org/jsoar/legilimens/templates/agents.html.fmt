@@ -12,32 +12,35 @@
 <h1>JSoar</h1>
 <ul class="toolbar">
     <li><a class="selected" href="${agents_url}">All Agents</a>
+    <#list agents as agent>
+        <li><@agent_link agent/>
+    </#list>
 </ul>
 <p/>
 </#global>
 
 <#global body>
-<h2>${agents?size} agents</h2>
-<table>
-    <tr><th>Name</th><th>Status</th><th>Decisions</th><th>Recent Output</th></tr>
-<#list agents as agent>
-    <tr>
-        <td><@agent_link agent/></td>
-        <td><#if agent.running>
-                running with wait status: ${agent_property(agent, "wait_info")?html}
-            <#else>
-                stopped
-            </#if>
-        </td>
-        <td>${agent_property(agent, "decision_phases_count")?html}</td>
-        <td><div class="recent-mini-trace"><pre> ... ${recent_trace(agent, 64)?html}</pre><a href="<@agent_url agent/>/trace">more...</a></div></td>
-    </tr>
-</#list>
-</table>
-
-<ul class="link-list">
-    <li><a href="">Refresh</a>
-</ul>
+    <h2>${agents?size} agents</h2>
+    <table>
+        <tr><th>Name</th><th>Status</th><th>Decisions</th><th>Recent Output</th></tr>
+    <#list agents as agent>
+        <tr>
+            <td><@agent_link agent/></td>
+            <td><#if agent.running>
+                    running with wait status: ${agent_property(agent, "wait_info")?html}
+                <#else>
+                    stopped
+                </#if>
+            </td>
+            <td>${agent_property(agent, "decision_phases_count")?html}</td>
+            <td><div class="recent-mini-trace"><div class="code"> ... ${recent_trace(agent, 64)?html}</div><a href="<@agent_url agent/>/trace">more...</a></div></td>
+        </tr>
+    </#list>
+    </table>
+    
+    <ul class="link-list">
+        <li><a href="">Refresh</a>
+    </ul>
 
 </#global>
 
