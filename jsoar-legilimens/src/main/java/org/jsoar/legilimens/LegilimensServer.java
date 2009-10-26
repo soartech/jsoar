@@ -11,12 +11,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.legilimens.trace.AgentTraceBuffer;
+import org.jsoar.runtime.LegilimensStarter;
 import org.jsoar.runtime.ThreadedAgent;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
+import org.restlet.routing.VirtualHost;
 
 /**
  * A simple, embedded web application that provides remote debugging for all
@@ -29,6 +33,8 @@ import org.restlet.data.Protocol;
  */
 public class LegilimensServer
 {
+    private static final Log logger = LogFactory.getLog(LegilimensServer.class);
+
     private static final String ROOT_PROPERTY = "jsoar.legilimens.root";
     private static final String DEFAULT_ROOT = "/jsoar";
     private static final String PORT_PROPERTY = "jsoar.legilimens.port";
@@ -56,10 +62,13 @@ public class LegilimensServer
     {
         component = new Component();
         
-        component.getServers().add(Protocol.HTTP, getPort());
-        component.getClients().add(Protocol.CLAP);
+        final int port = getPort();
+        component.getServers().add(Protocol.HTTP, port);
+        component.getClients().add(Protocol.CLAP); // used for static resources on classpath
         
-        component.getDefaultHost().attach(getRoot(), new LegilimensApplication());
+        final VirtualHost host = component.getDefaultHost();
+        final String root = getRoot();
+        host.attach(root, new LegilimensApplication());
         try
         {
             component.start();
@@ -68,6 +77,8 @@ public class LegilimensServer
         {
             throw new RuntimeException("Failed to start server: " + e.getMessage(), e);
         }
+        
+        logger.info("Legilimens web app running at http://localhost:" + port + root + "/");
     }
     
     private String getRoot()
@@ -85,10 +96,13 @@ public class LegilimensServer
      */
     public static void main(String[] args) throws Exception
     {
-        createAgent("legilimens", "http://darevay.com/jsoar/waterjugs.soar");
         createAgent("eye ? ball", null);
         
-        start();
+        // This should cause start() to be called when agents are created below.
+        System.setProperty(LegilimensStarter.AUTO_START_PROPERTY, "true");
+        
+        createAgent("waterjugs", "http://darevay.com/jsoar/waterjugs.soar");
+        createAgent("Towers of Hanoi", "http://darevay.com/jsoar/towers.soar");
     }
 
     private static ThreadedAgent createAgent(String name, final String rules) throws InterruptedException, ExecutionException, TimeoutException, IOException
