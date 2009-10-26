@@ -5,8 +5,11 @@
  */
 package org.jsoar.legilimens;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.legilimens.resources.AgentResource;
 import org.jsoar.legilimens.resources.AgentsResource;
 import org.jsoar.legilimens.resources.CommandsResource;
@@ -16,7 +19,12 @@ import org.jsoar.legilimens.resources.ProductionsResource;
 import org.jsoar.legilimens.resources.PropertiesResource;
 import org.jsoar.legilimens.resources.TraceResource;
 import org.jsoar.legilimens.resources.WmesResource;
+import org.jsoar.legilimens.trace.AgentTraceBuffer;
 import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.runtime.ThreadedAgentAttachedEvent;
+import org.jsoar.runtime.ThreadedAgentDetachedEvent;
+import org.jsoar.util.events.SoarEvent;
+import org.jsoar.util.events.SoarEventListener;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.data.LocalReference;
@@ -30,15 +38,42 @@ import freemarker.template.Configuration;
  */
 public class LegilimensApplication extends Application
 {
+    private static final Log logger = LogFactory.getLog(LegilimensApplication.class);
+
     private final Configuration fmc = new Configuration();
+    private final SoarEventListener attachListener = new SoarEventListener()
+    {
+        @Override
+        public void onEvent(SoarEvent event)
+        {
+            agentAttached(((ThreadedAgentAttachedEvent) event).getAgent());
+        }
+    };
+    private final SoarEventListener detachListener = new SoarEventListener()
+    {
+        @Override
+        public void onEvent(SoarEvent event)
+        {
+            agentDetached(((ThreadedAgentDetachedEvent) event).getAgent());
+        }
+    };
     
     public LegilimensApplication()
     {
+        logger.info("Legilimens application constructed");
+        
         fmc.setURLEscapingCharset("UTF-8");
         fmc.setClassForTemplateLoading(getClass(), "/org/jsoar/legilimens/templates");
         
         getTunnelService().setEnabled(true);
         getTunnelService().setExtensionsTunnel(true);
+        
+        for(ThreadedAgent agent : ThreadedAgent.getAll())
+        {
+            agentAttached(agent);
+        }
+        ThreadedAgent.getEventManager().addListener(ThreadedAgentAttachedEvent.class, attachListener);
+        ThreadedAgent.getEventManager().addListener(ThreadedAgentDetachedEvent.class, detachListener);
     }
     
     public List<ThreadedAgent> getAgents()
@@ -70,6 +105,7 @@ public class LegilimensApplication extends Application
     public Restlet createInboundRoot()
     {
         final Router router = new Router(getContext());
+        router.attach("/", AgentsResource.class);
         router.attach("/agents", AgentsResource.class);
         router.attach("/agents/{agentName}", AgentResource.class);
         router.attach("/agents/{agentName}/trace", TraceResource.class);
@@ -92,6 +128,33 @@ public class LegilimensApplication extends Application
     {
         router.attach(name, new Directory(router.getContext(), 
                 LocalReference.createClapReference(LocalReference.CLAP_THREAD, "/org/jsoar/legilimens/public" + name)));
+    }
+    
+    protected void agentAttached(ThreadedAgent agent)
+    {
+        logger.info("Attaching to agent '" + agent + "' (agent's name may not be accurate if it isn't set yet)");
+        try
+        {
+            AgentTraceBuffer.attach(agent.getAgent());
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to attach trace buffer to agent '" + agent + "': " + e.getMessage(), e);
+        }
+    }
+
+    protected void agentDetached(ThreadedAgent agent)
+    {
+        logger.info("Detaching from agent '" + agent + "'");
+        final AgentTraceBuffer traceBuffer = agent.getProperties().get(AgentTraceBuffer.KEY);
+        try
+        {
+            traceBuffer.detach();
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to detach trace buffer from agent '" + agent + "': " + e.getMessage(), e);
+        }
     }
 
 }

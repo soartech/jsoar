@@ -86,8 +86,12 @@ enum ThreadedAgentManager
                 agents.put(agent, ta);
                 events.fireEvent(new ThreadedAgentAttachedEvent(ta));
             }
+            
+            LegilimensStarter.startIfAutoStartEnabled();
+            
             return ta;
         }
+        
     }
     
     public void detach(ThreadedAgent agent)
