@@ -21,6 +21,7 @@
 
 <#global body>
     <h2>${productions?size} Productions</h2>
+    <p><a href="${productions_url}.txt">Download all productions</a> <a href="${productions_url}.txt?internal=true">(internal)</a></p>
     
     <table class="production-table">
         <tr>

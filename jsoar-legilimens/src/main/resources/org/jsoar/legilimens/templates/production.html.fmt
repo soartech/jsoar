@@ -18,9 +18,7 @@
 
     <p>${production.production.type?capitalize} production, fired ${production.production.firingCount} times.</p>
 
-    <div class="production">
-<pre>${production.code?html}</pre>
-    </div>
+    <div class="production code">${production.code?html}</div>
     
     <ul class="link-list">
         <li><a href="">[refresh]</a>

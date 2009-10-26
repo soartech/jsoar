@@ -3,7 +3,7 @@
 <#global body>
     <h2>Trace</h2>
     <p><a href="${trace_url}.txt">Download full trace</a></p>
-    <div id="trace" class="trace">
+    <div id="trace" class="trace code">
     
     </div>
     <div>
@@ -33,15 +33,14 @@
             dataType: "text", 
             success: function(content, status) {
                if(content.length > 0) {
-                   $("<pre></pre>").text(content).appendTo("#trace");
-                   $("#trace").attr({ scrollTop: $("#trace").attr("scrollHeight") });
+                   $("#trace").append(content).attr({ scrollTop: $("#trace").attr("scrollHeight") });
                }
                var end = pollRequest.getResponseHeader("X-trace-end");
                if(end != null) {
                     offset = parseInt(end);
                }
                if(!oneShot) {
-                   setTimeout("pollTrace()", 1000);
+                   setTimeout("pollTrace(false)", 1000);
                }
                pollRequest = null;
             },
@@ -49,7 +48,7 @@
                pollRequest = null;
                // TODO: display error
                if(!oneShot) {
-                   setTimeout("pollTrace()", 1000);
+                   setTimeout("pollTrace(false)", 1000);
                }
             }
         });

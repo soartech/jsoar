@@ -22,17 +22,18 @@ JSoar - ${agent?html} - Status
             <li>Agent stopped because of: ${agent.agent.getReasonForStop()}
         <#else>
         </#if>
+        <li><a href="${productions_url}">Productions: ${agent.productions.productionCount}</a>
         <li>Decisions executed: ${agent_property(agent, "decision_phases_count")?html}
-        <li>Working memory elements: ${agent.agent.numWmesInRete}
+        <li><a href="${wmes_url}">Working memory elements: ${agent.agent.numWmesInRete}</a>
         <li>
         </li>
     </ul>
     
     <div class="recent-trace">
         <h3>Recent <a href=${trace_url}>trace output</a></h3>
-        <pre>
+        <div class="code">
 ... ${recent_trace(agent, 275)?html}
-        </pre>
+        </div>
         <a href="${trace_url}.txt">Download full trace</a>
     </div>
 
