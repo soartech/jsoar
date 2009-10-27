@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.tracing;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -41,8 +42,27 @@ public class Printer
     private PrintWriter printWriter;
     
     private boolean printWarnings = true;
+    private boolean atStartOfLine = true;
+    private final Writer startOfLineDetector = new Writer() {
+
+        @Override
+        public void close() throws IOException { }
+
+        @Override
+        public void flush() throws IOException { }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) throws IOException
+        {
+            for(int i = off; i < len; ++i)
+            {
+                atStartOfLine = cbuf[i] == '\n';
+            }
+        }
+    };
     
     private final LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
+    
     
     /**
      * @return a default printer that prints to standard output
@@ -62,6 +82,8 @@ public class Printer
     {
         this.internalWriter = writer != null ? writer : new NullWriter();
         this.printWriter = new PrintWriter(internalWriter, true);
+        
+        addPersistentWriter(startOfLineDetector);
     }
     
     /**
@@ -168,8 +190,11 @@ public class Printer
     
     public Printer startNewLine()
     {
-        this.printWriter.append('\n');
-        this.persistentPrintWriter.append('\n');
+        if(!atStartOfLine)
+        {
+            this.printWriter.append('\n');
+            this.persistentPrintWriter.append('\n');
+        }
         return this;
     }
     

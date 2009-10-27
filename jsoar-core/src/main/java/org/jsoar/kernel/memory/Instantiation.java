@@ -89,7 +89,7 @@ public class Instantiation implements Traceable
      */
     public void trace(Formatter formatter, WmeTraceType wtt)
     {
-        formatter.format("%s\n", prod != null ? prod.getName() : "[dummy production]");
+        formatter.format("%s", prod != null ? prod.getName() : "[dummy production]");
 
         if (wtt == WmeTraceType.NONE)
         {
@@ -97,6 +97,7 @@ public class Instantiation implements Traceable
         }
 
         // Note: replaced duplicate loop with call to getBacktraceWmes()
+        formatter.format("\n");
         for (Wme wme : getBacktraceWmes())
         {
             switch (wtt)

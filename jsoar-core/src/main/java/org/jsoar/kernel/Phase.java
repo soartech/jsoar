@@ -89,9 +89,9 @@ public enum Phase
     public void trace(Trace trace, boolean startOfPhase)
     {
         // Only log start of phase. This is what csoar debugger currently does.
-        if(startOfPhase)
+        if(startOfPhase && trace.isEnabled(Category.PHASES))
         {
-            trace.print(Category.PHASES, "--- " + getTraceName(startOfPhase) + " phase ---\n");
+            trace.startNewLine().print("--- " + getTraceName(startOfPhase) + " phase ---");
         }
     }
 

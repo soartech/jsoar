@@ -355,9 +355,8 @@ public class DecisionCycle
             final Writer writer = trace.getPrinter().getWriter();
             try
             {
-                //writer.append("\n");
-                traceFormats.print_lowest_slot_in_context_stack(writer, decider.bottom_goal);
                 writer.append("\n");
+                traceFormats.print_lowest_slot_in_context_stack(writer, decider.bottom_goal);
                 writer.flush();
             }
             catch (IOException e)

@@ -670,7 +670,7 @@ public class RecognitionMemory
         // phases has changed to output by printing the arrow
         if(trace_it && trace.isEnabled(Category.FIRINGS_PREFERENCES))
         {
-            trace.print(" -->\n");
+            trace.startNewLine().print("-->");
         }
 
         // execute the RHS actions, collect the results
@@ -729,9 +729,10 @@ public class RecognitionMemory
         // the o-support info for the preferences we're about to print
         if (trace_it && trace.isEnabled(Category.FIRINGS_PREFERENCES))
         {
+            trace.startNewLine();
             for (Preference pref : inst.preferences_generated)
             {
-                trace.print(" %s", pref);
+                trace.print("%s", pref);
             }
         }
         
@@ -940,10 +941,16 @@ public class RecognitionMemory
                 if (trace_it) {
                     if (!retracted_a_preference) 
                     {
-                        trace.startNewLine().print(inst.prod.getType().getTraceCategory(), "Retracting %s", inst);
-                        trace.print(Category.FIRINGS_PREFERENCES, " -->\n");
+                        trace.startNewLine().print("Retracting %s", inst);
+                        if(trace.isEnabled(Category.FIRINGS_PREFERENCES))
+                        {
+                            trace.startNewLine().print("-->");
+                        }
                     }
-                    trace.print(Category.FIRINGS_PREFERENCES, " %s", pref);
+                    if(trace.isEnabled(Category.FIRINGS_PREFERENCES))
+                    {
+                        trace.startNewLine().print("%s", pref);
+                    }
                 }
                 remove_preference_from_tm(pref);
                 retracted_a_preference = true;
@@ -1252,11 +1259,11 @@ public class RecognitionMemory
                 switch (FIRING_TYPE)
                 {
                 case PE_PRODS:
-                    trace.print("--- Firing Productions (PE) For State At Depth %d ---\n",
+                    trace.startNewLine().print("--- Firing Productions (PE) For State At Depth %d ---",
                             decider.active_level);
                     break;
                 case IE_PRODS:
-                    trace.print("--- Firing Productions (IE) For State At Depth %d ---\n",
+                    trace.startNewLine().print("--- Firing Productions (IE) For State At Depth %d ---",
                             decider.active_level);
                     break;
                 }
