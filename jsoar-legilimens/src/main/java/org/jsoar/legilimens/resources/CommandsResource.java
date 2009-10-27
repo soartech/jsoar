@@ -37,7 +37,7 @@ public class CommandsResource extends BaseAgentResource
             public String call() throws Exception
             {
                 final Printer printer = agent.getPrinter();
-                printer.startNewLine().print(agent.getName() + "> " + command + "\n");
+                printer.startNewLine().print(agent.getName() + "> " + command);
                 String result;
                 try
                 {
@@ -49,7 +49,7 @@ public class CommandsResource extends BaseAgentResource
                 }
                 catch (SoarException e)
                 {
-                    printer.error(e.getMessage() + "\n").flush();
+                    printer.startNewLine().error(e.getMessage()).flush();
                     throw e;
                 }
                 printer.flush();

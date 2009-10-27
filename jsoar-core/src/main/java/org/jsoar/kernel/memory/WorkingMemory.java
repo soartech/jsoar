@@ -261,18 +261,25 @@ public class WorkingMemory
 
         warnIfSameWmeAddedAndRemoved();
         
+        final boolean traceChanges = trace.isEnabled(Category.WM_CHANGES);
         // do tracing and cleanup stuff
         for (ListItem<WmeImpl> w = wmes_to_add.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_add", but filtering seems disabled in CSoar...
-            trace.print(Category.WM_CHANGES, "=>WM: %s", w.item);
+            if(traceChanges)
+            {
+                trace.startNewLine().print("=>WM: %s", w.item);
+            }
             wme_addition_count.increment();
         }
         
         for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             // TODO Originally "filtered_print_wme_remove", but filtering seems disabled in CSoar...
-            trace.print(Category.WM_CHANGES, "<=WM: %s", w.item);
+            if(traceChanges)
+            {
+                trace.startNewLine().print("<=WM: %s", w.item);
+            }
             wme_removal_count.increment();
         }
         

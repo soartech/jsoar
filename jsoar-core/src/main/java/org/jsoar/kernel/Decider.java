@@ -2538,11 +2538,11 @@ public class Decider
                 switch (recMemory.FIRING_TYPE)
                 {
                 case PE_PRODS:
-                    context.getPrinter().print("--- Change Working Memory (PE) ---\n");
+                    context.getPrinter().startNewLine().print("--- Change Working Memory (PE) ---\n");
                     // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_PE);
                     break;
                 case IE_PRODS:
-                    context.getPrinter().print("--- Change Working Memory (IE) ---\n");
+                    context.getPrinter().startNewLine().print("--- Change Working Memory (IE) ---\n");
                     // TODO xml_att_val(thisAgent, kPhase_FiringType, kPhaseFiringType_IE);
                     break;
                 }
