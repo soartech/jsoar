@@ -21,6 +21,7 @@
       <copy todir="${dist}" file="resources/license.txt"/>
       <copy todir="${dist}">
          <fileset file="resources/readme.txt"/>
+         <fileset file="resources/jsoar.bat"/>
          <filterset>
             <filter token="JSOAR_VERSION" value="${version}"/>
             <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>

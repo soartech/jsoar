@@ -4,12 +4,12 @@ http://jsoar.googlecode.com for more information.
 ###############################################################################
 Getting Started
 
-Double-click @JSOAR_DEMOS_JAR@, or run from the command-line:
+Double-click jsoar.bat (or jsoar.sh), or run from the command-line:
 
-    > java -jar @JSOAR_DEMOS_JAR@ 
+    > jsoar 
 
-This will run the jsoar debugger. Now, if you ran @JSOAR_DEMOS_JAR@, you can load 
-some Soar code from the demos directory:
+This will run the JSoar debugger. Now you can load some Soar code from the 
+demos directory:
 
 * Click File->Source File...
 * Select demos/towers-of-hanoi.soar
@@ -18,15 +18,14 @@ A Towers of Hanoi game visualization will be displayed. Now step the agent
 with the run controls at the top of the debugger. Each decision cycle a
 disk will be moved. 
 
-jsoar's performance is pretty good, but it also loves memory, so it's probably
-a good idea to bump up the size of your Java heap:
+This also starts Legilimens, JSoar's web interface. Try opening
+http://localhost:12122/jsoar/agents in your browser and poke around.
 
-    > java -Xmx1024m -jar @JSOAR_DEMOS_JAR@
+JSoar's performance is pretty good, but it also loves memory, so it's probably
+a good idea to bump up the size of your Java heap with the -Xmx option.
     
 Additionally, JSoar performs better over time when using the -server version
-of the JVM. This is only available in the JDK version of the java executable:
-
-    > java -server -Xmx1024m -jar @JSOAR_DEMOS_JAR@
+of the JVM. This is only available in the JDK version of the java executable.
 
 ###############################################################################
 Contents of this distribution:
@@ -37,6 +36,8 @@ Contents of this distribution:
    lib/jsoar-demos-x.x.x.jar - jsoar demos
       
    license.txt - the jsoar BSD license
+   
+   jsoar.bat - runs JSoar debugger for simple experiments
    
    perftimer.bat - a script used to do performance testing on jsoar
    
