@@ -1,0 +1,130 @@
+#!/bin/sh
+
+# ----------------------------------------------------------------------------
+# JSoar Start Up Batch script
+#
+# Required ENV vars:
+# ------------------
+#   JAVA_HOME - location of a JDK home dir
+#
+# Optional ENV vars
+# -----------------
+#   JSOAR_HOME - location of JSoars's installed home dir
+#   JSOAR_OPTS - parameters passed to the Java VM when running JSoar
+#     e.g. to debug JSoar itself, use
+#       set JSOAR_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
+# ----------------------------------------------------------------------------
+
+# OS specific support.  $var _must_ be set to either true or false.
+cygwin=false;
+darwin=false;
+mingw=false
+case "`uname`" in
+  CYGWIN*) cygwin=true ;;
+  MINGW*) mingw=true;;
+  Darwin*) darwin=true 
+           if [ -z "$JAVA_VERSION" ] ; then
+             JAVA_VERSION="CurrentJDK"
+           else
+             echo "Using Java version: $JAVA_VERSION"
+           fi
+           if [ -z "$JAVA_HOME" ] ; then
+             JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/${JAVA_VERSION}/Home
+           fi
+           ;;
+esac
+
+if [ -z "$JAVA_HOME" ] ; then
+  if [ -r /etc/gentoo-release ] ; then
+    JAVA_HOME=`java-config --jre-home`
+  fi
+fi
+
+if [ -z "$JSOAR_HOME" ] ; then
+  ## resolve links - $0 may be a link to jsoar's home
+  PRG="$0"
+
+  # need this for relative symlinks
+  while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+      PRG="$link"
+    else
+      PRG="`dirname "$PRG"`/$link"
+    fi
+  done
+
+  saveddir=`pwd`
+
+  JSOAR_HOME=`dirname "$PRG"`/..
+
+  # make it fully qualified
+  JSOAR_HOME=`cd "$JSOAR_HOME" && pwd`
+
+  cd "$saveddir"
+  # echo Using jsoar at $JSOAR_HOME
+fi
+
+# For Cygwin, ensure paths are in UNIX format before anything is touched
+if $cygwin ; then
+  [ -n "$JSOAR_HOME" ] &&
+    JSOAR_HOME=`cygpath --unix "$JSOAR_HOME"`
+  [ -n "$JAVA_HOME" ] &&
+    JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
+  [ -n "$CLASSPATH" ] &&
+    CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
+fi
+
+# For Migwn, ensure paths are in UNIX format before anything is touched
+if $mingw ; then
+  [ -n "$JSOAR_HOME" ] &&
+    JSOAR_HOME="`(cd "$JSOAR_HOME"; pwd)`"
+  [ -n "$JAVA_HOME" ] &&
+    JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
+  # TODO classpath?
+fi
+
+if [ -z "$JAVACMD" ] ; then
+  if [ -n "$JAVA_HOME"  ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+      # IBM's JDK on AIX uses strange locations for the executables
+      JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+      JAVACMD="$JAVA_HOME/bin/java"
+    fi
+  else
+    JAVACMD="`which java`"
+  fi
+fi
+
+if [ ! -x "$JAVACMD" ] ; then
+  echo "Error: JAVA_HOME is not defined correctly."
+  echo "  We cannot execute $JAVACMD"
+  exit 1
+fi
+
+if [ -z "$JAVA_HOME" ] ; then
+  echo "Warning: JAVA_HOME environment variable is not set."
+fi
+
+JSOAR_DEBUGGER=org.jsoar.debugger.JSoarDebugger
+
+# For Cygwin, switch paths to Windows format before running java
+if $cygwin; then
+  [ -n "$JSOAR_HOME" ] &&
+    JSOAR_HOME=`cygpath --path --windows "$JSOAR_HOME"`
+  [ -n "$JAVA_HOME" ] &&
+    JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
+  [ -n "$HOME" ] &&
+    HOME=`cygpath --path --windows "$HOME"`
+fi
+
+JSOAR_OPTS="$JSOAR_OPTS -Djsoar.legilimens.autoStart=true"
+exec "$JAVACMD" \
+  $JSOAR_OPTS \
+  -classpath "${JSOAR_HOME}/lib/*" \
+  "-Djsoar.home=${JSOAR_HOME}"  \
+  ${JSOAR_DEBUGGER} $*
+# $QUOTED_ARGS
+
