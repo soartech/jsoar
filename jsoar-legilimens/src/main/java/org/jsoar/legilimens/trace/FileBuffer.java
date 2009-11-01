@@ -12,6 +12,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.jsoar.util.FileTools;
 
@@ -28,8 +30,14 @@ class FileBuffer extends Writer
     public FileBuffer(String name, RingBuffer ringBuffer) throws IOException
     {
         this.ringBuffer = ringBuffer;
+        
         final String cleanName = FileTools.replaceIllegalCharacters(name, "_");
-        this.file = File.createTempFile("jsoar.legilimens." + cleanName, ".trace", new File(System.getProperty("user.dir")));
+        
+        final File cd = new File(System.getProperty("user.dir"));
+        final Date now = new Date();
+        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+         
+        this.file = new File(cd, "jsoar.legilimens." + cleanName + "." + format.format(now) + ".trace");
         this.writer = new BufferedWriter(new FileWriter(this.file));
     }
     

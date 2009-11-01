@@ -61,12 +61,20 @@ public class AgentTraceBuffer
         return prop != null ? Integer.parseInt(prop) : 256 * 1024;
     }
     
+    private static boolean getDeleteTraceOnExit()
+    {
+        return Boolean.valueOf(System.getProperty("jsoar.legilimens.trace.deleteOnExit", "true")).booleanValue();
+    }
+    
     private AgentTraceBuffer(Agent agent, int bufferSize) throws IOException
     {
         this.agent = agent;
         this.ringBuffer = new RingBuffer(bufferSize);
         this.fileBuffer = new FileBuffer(agent.getName(), this.ringBuffer);
-        
+        if(getDeleteTraceOnExit())
+        {
+            this.fileBuffer.getFile().deleteOnExit();
+        }
         logger.info("Attaching trace buffer to agent '" + agent + "' with ring buffer size " + bufferSize + " and perm buffer " + this.fileBuffer.getFile());
         
         agent.getPrinter().addPersistentWriter(fileBuffer);
