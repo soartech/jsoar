@@ -4,7 +4,8 @@ rem exits.
 rem Usage: perftimer.bat soarfile
 
 set HERE=%~sp0
-set ARGS=-Xmx1000M -cp "%HERE%lib\*" org.jsoar.kernel.PerformanceTimer
+set JSOAR_HOME=%HERE%..
+set ARGS=-Xmx1000M -cp "%JSOAR_HOME%\lib\*" org.jsoar.kernel.PerformanceTimer
 set SERVER_ARGS=-server -XX:+DoEscapeAnalysis 
 if defined JAVA_HOME (
    if exist "%JAVA_HOME%\bin\javac.exe" (

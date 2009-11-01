@@ -4,12 +4,17 @@ http://jsoar.googlecode.com for more information.
 ###############################################################################
 Getting Started
 
-Double-click jsoar.bat (or jsoar.sh), or run from the command-line:
+Double-click bin/jsoar.bat (or bin/jsoar), or run from the command-line:
 
-    > jsoar 
+    > \path\to\jsoar\bin\jsoar    (Windows)
+    $ /path/to/jsoar/bin/jsoar    (Unix)
 
-This will run the JSoar debugger. Now you can load some Soar code from the 
-demos directory:
+This will run the JSoar debugger. Note, on Unix systems, it may be necessary
+to add the executable permission to the startup script:
+
+    $ chmod +x /path/to/jsoar/bin/jsoar
+
+Now you can load some Soar code from the demos directory:
 
 * Click File->Source File...
 * Select demos/towers-of-hanoi.soar
@@ -37,7 +42,8 @@ Contents of this distribution:
       
    license.txt - the jsoar BSD license
    
-   jsoar.bat - runs JSoar debugger for simple experiments
+   bin/jsoar.bat - runs JSoar debugger for simple experiments in Windows
+   bin/jsoar     - runs JSoar debugger for simple experiments in Unix
    
    perftimer.bat - a script used to do performance testing on jsoar
    

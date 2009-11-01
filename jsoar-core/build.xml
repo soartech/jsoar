@@ -12,7 +12,7 @@
 	
     <target name="dist" depends="jar,licenses,doc" description="generate the distribution">
 		
-        <copy todir="${dist}" >
+        <copy todir="${dist.bin}" >
             <fileset dir="${tools}">
                 <include name="*.bat"/>
             </fileset>

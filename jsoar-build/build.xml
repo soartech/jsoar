@@ -6,6 +6,13 @@
 
    <property name="dist" location="dist" />
    <property name="dist.lib" location="${dist}/lib" />
+   <property name="dist.bin" location="${dist}/bin" />
+	
+    <filterset id="filters">
+       <filter token="JSOAR_VERSION" value="${version}"/>
+       <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>
+       <filter token="JSOAR_DEMOS_JAR" value="lib/jsoar-demos-${version}.jar"/>
+    </filterset>
 
    <target name="init-props" description="Create temporary build directories">
       <tstamp />
@@ -14,20 +21,23 @@
       <property name="dist.zip" location="${ant.project.name}-${version}.zip"/>
    </target>
 
-   <target name="init" depends="init-props" description="Create temporary build directories">
+   <target name="init" depends="init-props" description="Create output directories">
       <mkdir dir="${dist}" />
       <mkdir dir="${dist.lib}" />
+      <mkdir dir="${dist.bin}"/>
 
       <copy todir="${dist}" file="resources/license.txt"/>
       <copy todir="${dist}">
          <fileset file="resources/readme.txt"/>
-         <fileset file="resources/jsoar.bat"/>
-         <filterset>
-            <filter token="JSOAR_VERSION" value="${version}"/>
-            <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>
-            <filter token="JSOAR_DEMOS_JAR" value="lib/jsoar-demos-${version}.jar"/>
-         </filterset>
+      	 <fileset file="resources/license.txt"/>
+      	 <filterset refid="filters"/>
       </copy>
+      <copy todir="${dist.bin}">
+         <fileset file="resources/bin/jsoar.bat"/>
+    	 <fileset file="resources/bin/jsoar"/>
+    	 <filterset refid="filters"/>
+      </copy>
+   	  <chmod file="${dist.bin}/jsoar" perm="+x"/>
    </target>
 
    <target name="dist" depends="init">
@@ -53,7 +63,7 @@
 
       <ant dir="../jsoar-core" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-debugger" antfile="build.xml" target="clean"/>
-       <ant dir="../jsoar-legilimens" antfile="build.xml" target="clean"/>
+      <ant dir="../jsoar-legilimens" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-sml" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-demos" antfile="build.xml" target="clean"/>
    </target>
