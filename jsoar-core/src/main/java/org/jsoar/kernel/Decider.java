@@ -85,6 +85,7 @@ public class Decider
     private static final boolean DEBUG_GDS = Boolean.valueOf(System.getProperty("jsoar.gds.debug", "false"));
     private static final boolean DEBUG_GDS_HIGH = false;
     private static final boolean DEBUG_LINKS = false;
+    private static final boolean NEW_PREFERENCES_SCHEME = Boolean.valueOf(System.getProperty("jsoar.new_preferences_scheme", "true"));
     
     private final Agent context;
     
@@ -1034,113 +1035,105 @@ public class Decider
         }
 
         /* === Better/Worse === */
-        if (s.getPreferencesByType(PreferenceType.BETTER) != null
-                || s.getPreferencesByType(PreferenceType.WORSE) != null)
-        {
-            /* Algorithm to find conflicted set: 
-            conflicted = {}
-            for each (j > k):
-              if j is (candidate or conflicted)
-                 and k is (candidate or conflicted)
-                 and at least one of j,k is a candidate
-                then if (k > j) or (j < k) then
-                  conflicted += j, if not already true
-                  conflicted += k, if not already true
-                  candidate -= j, if not already true
-                  candidate -= k, if not already true
-            for each (j < k):
-              if j is (candidate or conflicted)
-                 and k is (candidate or conflicted)
-                 and at least one of j,k is a candidate
-                 then if (k < j)
-                   then
-                      conflicted += j, if not already true
-                      conflicted += k, if not already true
-                      candidate -= j, if not already true
-                      candidate -= k, if not already true
-            ----------------------- */
-
-            for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
+        if (NEW_PREFERENCES_SCHEME) {
+            if (s.getPreferencesByType(PreferenceType.BETTER) != null
+                    || s.getPreferencesByType(PreferenceType.WORSE) != null)
             {
-                p.value.decider_flag = DeciderFlag.NOTHING;
-                p.referent.decider_flag = DeciderFlag.NOTHING;
-            }
-            for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
-            {
-                p.value.decider_flag = DeciderFlag.NOTHING;
-                p.referent.decider_flag = DeciderFlag.NOTHING;
-            }
-            for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
-            {
-                cand.value.decider_flag = DeciderFlag.CANDIDATE;
-            }
-            for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
-            {
-                final SymbolImpl j = p.value;
-                final SymbolImpl k = p.referent;
-                if (j == k)
-                    continue;
-                if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
+                // new algorithm:
+                // for each j > k:
+                //   if j is (candidate or conflicted) and k is (candidate or conflicted):
+                //     if one of (j, k) is candidate:
+                //       candidate -= k, if not already true
+                //       conflicted += k, if not already true
+                // for each j < k:
+                //   if j is (candidate or conflicted) and k is (candidate or conflicted):
+                //     if one of (j, k) is candidate:
+                //       candidate -= j, if not already true
+                //       conflicted += j, if not already true
+                // if no remaining candidates:
+                //   conflict impasse using conflicted as candidates
+                // else
+                //   pass on candidates to next filter
+                for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
                 {
-                    if (k.decider_flag != DeciderFlag.CONFLICTED)
-                        k.decider_flag = DeciderFlag.FORMER_CANDIDATE;
-                    if ((j.decider_flag != DeciderFlag.CONFLICTED)
-                            || (k.decider_flag != DeciderFlag.CONFLICTED))
+                    p.value.decider_flag = DeciderFlag.NOTHING;
+                    p.referent.decider_flag = DeciderFlag.NOTHING;
+                }
+                for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
+                {
+                    p.value.decider_flag = DeciderFlag.NOTHING;
+                    p.referent.decider_flag = DeciderFlag.NOTHING;
+                }
+                for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
+                {
+                    cand.value.decider_flag = DeciderFlag.CANDIDATE;
+                }
+                for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
+                {
+                    final SymbolImpl j = p.value;
+                    final SymbolImpl k = p.referent;
+                    if (j == k)
+                        continue;
+                    if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
                     {
-                        for (Preference p2 = s.getPreferencesByType(PreferenceType.BETTER); p2 != null; p2 = p2.next)
-                            if ((p2.value == k) && (p2.referent == j))
-                            {
-                                j.decider_flag = DeciderFlag.CONFLICTED;
-                                k.decider_flag = DeciderFlag.CONFLICTED;
-                                break;
-                            }
-                        for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE); p2 != null; p2 = p2.next)
-                            if ((p2.value == j) && (p2.referent == k))
-                            {
-                                j.decider_flag = DeciderFlag.CONFLICTED;
-                                k.decider_flag = DeciderFlag.CONFLICTED;
-                                break;
-                            }
+                        // decide.cpp:1044: changes from old algorithm
+                        if (j.decider_flag == DeciderFlag.CANDIDATE || k.decider_flag == DeciderFlag.CANDIDATE)
+                            k.decider_flag = DeciderFlag.CONFLICTED;
                     }
                 }
-            }
-            for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
-            {
-                final SymbolImpl j = p.value;
-                final SymbolImpl k = p.referent;
-                if (j == k)
-                    continue;
-                if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
+                
+                for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
                 {
-                    if (j.decider_flag != DeciderFlag.CONFLICTED)
-                        j.decider_flag = DeciderFlag.FORMER_CANDIDATE;
-                    if ((j.decider_flag != DeciderFlag.CONFLICTED)
-                            || (k.decider_flag != DeciderFlag.CONFLICTED))
+                    final SymbolImpl j = p.value;
+                    final SymbolImpl k = p.referent;
+                    if (j == k)
+                        continue;
+                    if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
                     {
-                        for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE); p2 != null; p2 = p2.next)
-                            if ((p2.value == k) && (p2.referent == j))
-                            {
-                                j.decider_flag = DeciderFlag.CONFLICTED;
-                                k.decider_flag = DeciderFlag.CONFLICTED;
-                                break;
-                            }
+                        // decide.cpp:1057: changes from old algorithm
+                        if (j.decider_flag == DeciderFlag.CANDIDATE || k.decider_flag == DeciderFlag.CANDIDATE)
+                            j.decider_flag = DeciderFlag.CONFLICTED;
                     }
                 }
-            }
 
-            // now scan through candidates list, look for conflicted stuff
-            Preference cand = null, prev_cand = null;
-            for (cand = candidates; cand != null; cand = cand.next_candidate)
-                if (cand.value.decider_flag == DeciderFlag.CONFLICTED)
-                    break;
-            if (cand != null)
-            {
-                // collect conflicted candidates into new candidates list
+                // now scan through candidates list, look for remaining candidates
+                // decide.cpp:1063: collecting candidates now, not conflicts as in old algorithm
+                Preference cand = null, prev_cand = null;
+                for (cand = candidates; cand != null; cand = cand.next_candidate)
+                {
+                    if (cand.value.decider_flag == DeciderFlag.CANDIDATE)
+                        break;
+                }
+                if (cand == null)
+                {
+                    // collect conflicted candidates into new candidates list
+                    prev_cand = null;
+                    cand = candidates;
+                    while (cand != null)
+                    {
+                        if (cand.value.decider_flag != DeciderFlag.CONFLICTED)
+                        {
+                            if (prev_cand != null)
+                                prev_cand.next_candidate = cand.next_candidate;
+                            else
+                                candidates = cand.next_candidate;
+                        }
+                        else
+                        {
+                            prev_cand = cand;
+                        }
+                        cand = cand.next_candidate;
+                    }
+                    result_candidates.value = candidates;
+                    return ImpasseType.CONFLICT;
+                }
+
+                // non-conflict candidates found, remove conflicts from candidates
                 prev_cand = null;
                 cand = candidates;
                 while (cand != null)
                 {
-                    if (cand.value.decider_flag != DeciderFlag.CONFLICTED)
+                    if (cand.value.decider_flag == DeciderFlag.CONFLICTED)
                     {
                         if (prev_cand != null)
                             prev_cand.next_candidate = cand.next_candidate;
@@ -1153,29 +1146,154 @@ public class Decider
                     }
                     cand = cand.next_candidate;
                 }
-                result_candidates.value = candidates;
-                return ImpasseType.CONFLICT;
             }
-
-            // no conflicts found, remove former_candidates from candidates
-            prev_cand = null;
-            cand = candidates;
-            while (cand != null)
+        } else {
+            // OLD PREFERENCES SCHEME, not enabled by default
+            // !NEW_PREFERENCES_SCHEME
+            // See bugzilla bug 234, changed for 9.0.2 release
+            if (s.getPreferencesByType(PreferenceType.BETTER) != null
+                    || s.getPreferencesByType(PreferenceType.WORSE) != null)
             {
-                if (cand.value.decider_flag == DeciderFlag.FORMER_CANDIDATE)
+                /* Algorithm to find conflicted set: 
+                conflicted = {}
+                for each (j > k):
+                  if j is (candidate or conflicted)
+                     and k is (candidate or conflicted)
+                     and at least one of j,k is a candidate
+                    then if (k > j) or (j < k) then
+                      conflicted += j, if not already true
+                      conflicted += k, if not already true
+                      candidate -= j, if not already true
+                      candidate -= k, if not already true
+                for each (j < k):
+                  if j is (candidate or conflicted)
+                     and k is (candidate or conflicted)
+                     and at least one of j,k is a candidate
+                     then if (k < j)
+                       then
+                          conflicted += j, if not already true
+                          conflicted += k, if not already true
+                          candidate -= j, if not already true
+                          candidate -= k, if not already true
+                ----------------------- */
+
+                for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
                 {
-                    if (prev_cand != null)
-                        prev_cand.next_candidate = cand.next_candidate;
+                    p.value.decider_flag = DeciderFlag.NOTHING;
+                    p.referent.decider_flag = DeciderFlag.NOTHING;
+                }
+                for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
+                {
+                    p.value.decider_flag = DeciderFlag.NOTHING;
+                    p.referent.decider_flag = DeciderFlag.NOTHING;
+                }
+                for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
+                {
+                    cand.value.decider_flag = DeciderFlag.CANDIDATE;
+                }
+                for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
+                {
+                    final SymbolImpl j = p.value;
+                    final SymbolImpl k = p.referent;
+                    if (j == k)
+                        continue;
+                    if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
+                    {
+                        if (k.decider_flag != DeciderFlag.CONFLICTED)
+                            k.decider_flag = DeciderFlag.FORMER_CANDIDATE;
+                        if ((j.decider_flag != DeciderFlag.CONFLICTED)
+                                || (k.decider_flag != DeciderFlag.CONFLICTED))
+                        {
+                            for (Preference p2 = s.getPreferencesByType(PreferenceType.BETTER); p2 != null; p2 = p2.next)
+                                if ((p2.value == k) && (p2.referent == j))
+                                {
+                                    j.decider_flag = DeciderFlag.CONFLICTED;
+                                    k.decider_flag = DeciderFlag.CONFLICTED;
+                                    break;
+                                }
+                            for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE); p2 != null; p2 = p2.next)
+                                if ((p2.value == j) && (p2.referent == k))
+                                {
+                                    j.decider_flag = DeciderFlag.CONFLICTED;
+                                    k.decider_flag = DeciderFlag.CONFLICTED;
+                                    break;
+                                }
+                        }
+                    }
+                }
+                for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
+                {
+                    final SymbolImpl j = p.value;
+                    final SymbolImpl k = p.referent;
+                    if (j == k)
+                        continue;
+                    if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
+                    {
+                        if (j.decider_flag != DeciderFlag.CONFLICTED)
+                            j.decider_flag = DeciderFlag.FORMER_CANDIDATE;
+                        if ((j.decider_flag != DeciderFlag.CONFLICTED)
+                                || (k.decider_flag != DeciderFlag.CONFLICTED))
+                        {
+                            for (Preference p2 = s.getPreferencesByType(PreferenceType.WORSE); p2 != null; p2 = p2.next)
+                                if ((p2.value == k) && (p2.referent == j))
+                                {
+                                    j.decider_flag = DeciderFlag.CONFLICTED;
+                                    k.decider_flag = DeciderFlag.CONFLICTED;
+                                    break;
+                                }
+                        }
+                    }
+                }
+
+                // now scan through candidates list, look for conflicted stuff
+                Preference cand = null, prev_cand = null;
+                for (cand = candidates; cand != null; cand = cand.next_candidate)
+                    if (cand.value.decider_flag == DeciderFlag.CONFLICTED)
+                        break;
+                if (cand != null)
+                {
+                    // collect conflicted candidates into new candidates list
+                    prev_cand = null;
+                    cand = candidates;
+                    while (cand != null)
+                    {
+                        if (cand.value.decider_flag != DeciderFlag.CONFLICTED)
+                        {
+                            if (prev_cand != null)
+                                prev_cand.next_candidate = cand.next_candidate;
+                            else
+                                candidates = cand.next_candidate;
+                        }
+                        else
+                        {
+                            prev_cand = cand;
+                        }
+                        cand = cand.next_candidate;
+                    }
+                    result_candidates.value = candidates;
+                    return ImpasseType.CONFLICT;
+                }
+
+                // no conflicts found, remove former_candidates from candidates
+                prev_cand = null;
+                cand = candidates;
+                while (cand != null)
+                {
+                    if (cand.value.decider_flag == DeciderFlag.FORMER_CANDIDATE)
+                    {
+                        if (prev_cand != null)
+                            prev_cand.next_candidate = cand.next_candidate;
+                        else
+                            candidates = cand.next_candidate;
+                    }
                     else
-                        candidates = cand.next_candidate;
+                    {
+                        prev_cand = cand;
+                    }
+                    cand = cand.next_candidate;
                 }
-                else
-                {
-                    prev_cand = cand;
-                }
-                cand = cand.next_candidate;
             }
-        }
+        } // end of new/old preferences scheme for better/worse, NEW_PREFERENCES_SCHEME
 
         /* === Bests === */
         if (s.getPreferencesByType(PreferenceType.BEST) != null)

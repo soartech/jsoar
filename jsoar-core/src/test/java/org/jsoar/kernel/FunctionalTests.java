@@ -470,4 +470,10 @@ public class FunctionalTests
    		agent.getProductions().loadProduction("test (state <s> ^superstate <d>) -{(<s> ^bar <b>) (<s> -^bar { <> <d>})} -->");
    		agent.getProductions().loadProduction("test (state <s> ^superstate nil) -{(<s> ^bar <d>) (<s> -^bar { <> <d>})} -->");
     }
+    
+    @Test(timeout=10000)
+    public void testPreferenceSemantics() throws Exception
+    {
+        runTest("testPreferenceSemantics", -1);
+    }
 }

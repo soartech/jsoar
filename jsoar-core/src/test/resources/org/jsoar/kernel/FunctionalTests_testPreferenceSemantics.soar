@@ -1,0 +1,768 @@
+
+## condense.pl: extracting from file pref-semantics-test.soar
+
+## condense.pl: extracting from file pref-semantics-test_source.soar
+
+## condense.pl: extracting from file _firstload.soar
+
+## condense.pl: extracting from file all_source.soar
+
+## condense.pl: extracting from file elaborations_source.soar
+
+## condense.pl: extracting from file _all.soar
+sp {elaborate*state*name
+   (state <s> ^superstate.operator.name <name>)
+-->
+   (<s> ^name <name>)
+}
+
+sp {elaborate*state*top-state
+   (state <s> ^superstate.top-state <ts>)
+-->
+   (<s> ^top-state <ts>)
+}
+
+
+## condense.pl: extracting from file top-state.soar
+sp {elaborate*top-state*top-state
+   (state <s> ^superstate nil)
+-->
+   (<s> ^top-state <s>)
+}
+
+
+## condense.pl: extracting from file sequence.soar
+sp {sequence*propose*done
+   (state <s> ^name pref-semantics-test)
+-->
+   (<s> ^operator <op> + <)
+   (<op> ^name done)
+}
+
+sp {sequence*apply*done
+   (state <s> ^name pref-semantics-test
+              ^operator.name done)
+-->
+   (halt)
+}
+
+sp {sequence*monitor*success
+   (state <s> ^name pref-semantics-test
+              ^operator.name done
+             -^<test> failure)
+-->
+   (write | All tests succeeded |)
+   (halt)
+}
+
+sp {sequence*monitor*failure
+   (state <s> ^name pref-semantics-test
+              ^operator.name done
+              ^<test> failure)
+-->
+   (write | Failed test: | <test>)
+   (write (crlf))
+}
+
+sp {sequence*test*fail
+   (state <s> ^superstate <ss>)
+   (<ss> ^superstate <sss>)
+   (<sss> ^name {<name> <> pref-semantics-test}
+          ^top-state <ts>)
+-->
+   (<ts> ^<name> failure)
+   (failed)
+}
+
+
+## condense.pl: extracting from file best-over-conflict.soar
+# A > B, B > A, C >
+
+sp {pref-semantics-test*propose*best-over-conflict
+   (state <s> ^name pref-semantics-test
+             -^best-over-conflict)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name best-over-conflict)
+}
+
+## condense.pl: extracting from file best-over-conflict_source.soar
+
+## condense.pl: extracting from file elaborations.soar
+sp {best-over-conflict*new-scheme*success
+   (state <s> ^superstate <ss>)
+   (<ss> ^name best-over-conflict
+         ^operator.name c
+         ^top-state <ts>)
+-->
+   (<ts> ^best-over-conflict success)
+}
+
+#sp {best-over-conflict*soar-9_0_0*success
+#   (state <s> ^superstate <ss>
+#              ^impasse conflict
+#              ^attribute operator
+#              ^item-count 2)   
+#   (<ss> ^name best-over-conflict
+#         ^top-state <ts>)
+#-->
+#   (<ts> ^best-over-conflict success)
+#}
+
+## condense.pl: extracting from file a.soar
+sp {best-over-conflict*propose*a
+   (state <s> ^name best-over-conflict)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name a)
+}
+
+sp {best-over-conflict*compare*a
+   (state <s> ^name best-over-conflict
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file b.soar
+sp {best-over-conflict*propose*b
+   (state <s> ^name best-over-conflict)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name b)
+}
+
+sp {best-over-conflict*compare*b
+   (state <s> ^name best-over-conflict
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name b)
+   (<op2> ^name a)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file c.soar
+sp {best-over-conflict*propose*c
+   (state <s> ^name best-over-conflict)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name c)
+}
+
+## condense.pl: extracting from file four-acceptable-best.soar
+# A > B, B > A, C > A, D >
+
+sp {pref-semantics-test*propose*four-acceptable-best
+   (state <s> ^name pref-semantics-test
+             -^four-acceptable-best)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name four-acceptable-best)
+}
+
+## condense.pl: extracting from file four-acceptable-best_source.soar
+
+## condense.pl: extracting from file elaborations.soar
+sp {four-acceptable-best*new-scheme*success
+   (state <s> ^superstate <ss>)
+   (<ss> ^name four-acceptable-best
+         ^operator.name d
+         ^top-state <ts>)
+-->
+   (<ts> ^four-acceptable-best success)
+}
+
+## condense.pl: extracting from file a.soar
+sp {four-acceptable-best*propose*a
+   (state <s> ^name four-acceptable-best)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name a)
+}
+
+sp {four-acceptable-best*compare*a
+   (state <s> ^name four-acceptable-best
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file b.soar
+sp {four-acceptable-best*propose*b
+   (state <s> ^name four-acceptable-best)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name b)
+}
+
+sp {four-acceptable-best*compare*b
+   (state <s> ^name four-acceptable-best
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name b)
+   (<op2> ^name a)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file c.soar
+sp {four-acceptable-best*propose*c
+   (state <s> ^name four-acceptable-best)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name c)
+}
+
+sp {four-acceptable-best*compare*c
+   (state <s> ^name four-acceptable-best
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name c)
+   (<op2> ^name a)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file d.soar
+sp {four-acceptable-best*propose*d
+   (state <s> ^name four-acceptable-best)
+-->
+   (<s> ^operator <op> + >)
+   (<op> ^name d)
+}
+
+## condense.pl: extracting from file four-acceptable-worst.soar
+# A > B, B > A, C > A, D <
+
+sp {pref-semantics-test*propose*four-acceptable-worst
+   (state <s> ^name pref-semantics-test
+             -^four-acceptable-worst)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name four-acceptable-worst)
+}
+
+## condense.pl: extracting from file four-acceptable-worst_source.soar
+
+## condense.pl: extracting from file elaborations.soar
+sp {four-acceptable-worst*new-scheme*success
+   (state <s> ^superstate <ss>)
+   (<ss> ^name four-acceptable-worst
+         ^operator.name c
+         ^top-state <ts>)
+-->
+   (<ts> ^four-acceptable-worst success)
+}
+
+## condense.pl: extracting from file a.soar
+sp {four-acceptable-worst*propose*a
+   (state <s> ^name four-acceptable-worst)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name a)
+}
+
+sp {four-acceptable-worst*compare*a
+   (state <s> ^name four-acceptable-worst
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file b.soar
+sp {four-acceptable-worst*propose*b
+   (state <s> ^name four-acceptable-worst)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name b)
+}
+
+sp {four-acceptable-worst*compare*b
+   (state <s> ^name four-acceptable-worst
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name b)
+   (<op2> ^name a)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file c.soar
+sp {four-acceptable-worst*propose*c
+   (state <s> ^name four-acceptable-worst)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name c)
+}
+
+sp {four-acceptable-worst*compare*c
+   (state <s> ^name four-acceptable-worst
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name c)
+   (<op2> ^name a)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file d.soar
+sp {four-acceptable-worst*propose*d
+   (state <s> ^name four-acceptable-worst)
+-->
+   (<s> ^operator <op> + <)
+   (<op> ^name d)
+}
+
+## condense.pl: extracting from file initialize-pref-semantics-test.soar
+sp {propose*initialize-pref-semantics-test
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name initialize-pref-semantics-test)
+}
+
+sp {apply*initialize-pref-semantics-test
+   (state <s> ^operator <op>)
+   (<op> ^name initialize-pref-semantics-test)
+-->
+   (<s> ^name pref-semantics-test)
+}
+
+
+## condense.pl: extracting from file last-better.soar
+# A+ B+ A > B
+
+sp {pref-semantics-test*propose*last-better
+   (state <s> ^name pref-semantics-test
+             -^last-better)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name last-better)
+}
+
+## condense.pl: extracting from file last-better_source.soar
+
+## condense.pl: extracting from file elaborations.soar
+sp {last-better*success
+   (state <s> ^superstate <ss>)
+   (<ss> ^name last-better
+         ^operator.name a
+         ^top-state <ts>)
+-->
+   (<ts> ^last-better success)
+}
+
+## condense.pl: extracting from file a.soar
+sp {last-better*propose*a
+   (state <s> ^name last-better)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name a)
+}
+
+sp {last-better*compare*ab
+   (state <s> ^name last-better
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file b.soar
+sp {last-better*propose*b
+   (state <s> ^name last-better)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name b)
+}
+
+
+## condense.pl: extracting from file simple-conflict.soar
+# A > B, B > A
+sp {pref-semantics-test*propose*simple-conflict
+   (state <s> ^name pref-semantics-test
+             -^simple-conflict)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name simple-conflict)
+}
+
+## condense.pl: extracting from file simple-conflict_source.soar
+
+## condense.pl: extracting from file elaborations.soar
+sp {simple-conflict*success
+   (state <s> ^superstate <ss>
+              ^impasse conflict
+              ^attribute operator
+              ^item-count 2)
+   (<ss> ^name simple-conflict
+         ^top-state <ts>)
+-->
+   (<ts> ^simple-conflict success)
+}
+
+## condense.pl: extracting from file a.soar
+sp {simple-conflict*propose*a
+   (state <s> ^name simple-conflict)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name a)
+}
+
+sp {simple-conflict*compare*a
+   (state <s> ^name simple-conflict
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file b.soar
+sp {simple-conflict*propose*b
+   (state <s> ^name simple-conflict)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name b)
+}
+
+sp {simple-conflict*compare*b
+   (state <s> ^name simple-conflict
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name b)
+   (<op2> ^name a)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file simple-conflict-worse.soar
+# A < B, B < A
+
+sp {pref-semantics-test*propose*simple-conflict-worse
+   (state <s> ^name pref-semantics-test
+             -^simple-conflict-worse)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name simple-conflict-worse)
+}
+
+## condense.pl: extracting from file simple-conflict-worse_source.soar
+
+## condense.pl: extracting from file elaborations.soar
+sp {simple-conflict-worse*success
+   (state <s> ^superstate <ss>
+              ^impasse conflict
+              ^attribute operator
+              ^item-count 2)
+   (<ss> ^name simple-conflict-worse
+         ^top-state <ts>)
+-->
+   (<ts> ^simple-conflict-worse success)
+}
+
+## condense.pl: extracting from file a.soar
+sp {simple-conflict-worse*propose*a
+   (state <s> ^name simple-conflict-worse)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name a)
+}
+
+sp {simple-conflict-worse*compare*a
+   (state <s> ^name simple-conflict-worse
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+## condense.pl: extracting from file b.soar
+sp {simple-conflict-worse*propose*b
+   (state <s> ^name simple-conflict-worse)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name b)
+}
+
+sp {simple-conflict-worse*compare*b
+   (state <s> ^name simple-conflict-worse
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name b)
+   (<op2> ^name a)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+## condense.pl: extracting from file three-way-conflict.soar
+# A > B, B > C, C > A
+
+sp {pref-semantics-test*propose*three-way-conflict
+   (state <s> ^name pref-semantics-test
+             -^three-way-conflict)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name three-way-conflict)
+}
+
+## condense.pl: extracting from file three-way-conflict_source.soar
+
+## condense.pl: extracting from file elaborations.soar
+sp {three-way-conflict*new-scheme*success
+   (state <s> ^superstate <ss>
+              ^impasse conflict
+              ^attribute operator
+              ^item-count 3)
+   (<ss> ^name three-way-conflict
+         ^top-state <ts>)
+-->
+   (<ts> ^three-way-conflict success)
+}
+
+#sp {three-way-conflict*soar-9_0_0*success
+#   (state <s> ^superstate <ss>
+#              ^impasse no-change
+#              ^attribute state)
+#   (<ss> ^name three-way-conflict
+#         ^top-state <ts>)
+#-->
+#   (<ts> ^three-way-conflict success)
+#}
+
+## condense.pl: extracting from file a.soar
+sp {three-way-conflict*propose*a
+   (state <s> ^name three-way-conflict)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name a)
+}
+
+sp {three-way-conflict*compare*a
+   (state <s> ^name three-way-conflict
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file b.soar
+sp {three-way-conflict*propose*b
+   (state <s> ^name three-way-conflict)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name b)
+}
+
+sp {three-way-conflict*compare*b
+   (state <s> ^name three-way-conflict
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name b)
+   (<op2> ^name c)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file c.soar
+sp {three-way-conflict*propose*c
+   (state <s> ^name three-way-conflict)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name c)
+}
+
+sp {three-way-conflict*compare*c
+   (state <s> ^name three-way-conflict
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name c)
+   (<op2> ^name a)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file three-way-two.soar
+# A < B, A < C, B < C, C < B
+
+sp {pref-semantics-test*propose*three-way-two
+   (state <s> ^name pref-semantics-test
+             -^three-way-two)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name three-way-two)
+}
+
+## condense.pl: extracting from file three-way-two_source.soar
+
+## condense.pl: extracting from file elaborations.soar
+sp {three-way-two*new-scheme*success
+   (state <s> ^superstate <ss>
+              ^impasse conflict
+              ^attribute operator
+              ^item-count 3)
+   (<ss> ^name three-way-two
+         ^top-state <ts>)
+-->
+   (<ts> ^three-way-two success)
+}
+
+## condense.pl: extracting from file a.soar
+sp {three-way-two*propose*a
+   (state <s> ^name three-way-two)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name a)
+}
+
+sp {three-way-two*compare*a*one
+   (state <s> ^name three-way-two
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+sp {three-way-two*compare*a*two
+   (state <s> ^name three-way-two
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name c)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+
+## condense.pl: extracting from file b.soar
+sp {three-way-two*propose*b
+   (state <s> ^name three-way-two)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name b)
+}
+
+sp {three-way-two*compare*b
+   (state <s> ^name three-way-two
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name b)
+   (<op2> ^name c)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+## condense.pl: extracting from file c.soar
+sp {three-way-two*propose*c
+   (state <s> ^name three-way-two)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name c)
+}
+
+sp {three-way-two*compare*c
+   (state <s> ^name three-way-two
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name c)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> < <op2>)
+}
+
+## condense.pl: extracting from file worst-over-conflict.soar
+# A > B, B > A, C <
+
+sp {pref-semantics-test*propose*worst-over-conflict
+   (state <s> ^name pref-semantics-test
+             -^worst-over-conflict)
+-->
+   (<s> ^operator <op> + =)
+   (<op> ^name worst-over-conflict)
+}
+
+## condense.pl: extracting from file worst-over-conflict_source.soar
+
+## condense.pl: extracting from file elaborations.soar
+sp {worst-over-conflict*new-scheme*success
+   (state <s> ^superstate <ss>)
+   (<ss> ^name worst-over-conflict
+         ^operator.name c
+         ^top-state <ts>)
+-->
+   (<ts> ^worst-over-conflict success)
+}
+
+#sp {worst-over-conflict*soar-9_0_0*success
+#   (state <s> ^superstate <ss>
+#              ^impasse conflict
+#              ^attribute operator
+#              ^item-count 2)   
+#   (<ss> ^name worst-over-conflict
+#         ^top-state <ts>)
+#-->
+#   (<ts> ^worst-over-conflict success)
+#}
+
+## condense.pl: extracting from file a.soar
+sp {worst-over-conflict*propose*a
+   (state <s> ^name worst-over-conflict)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name a)
+}
+sp {worst-over-conflict*compare*a
+   (state <s> ^name worst-over-conflict
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name a)
+   (<op2> ^name b)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file b.soar
+sp {worst-over-conflict*propose*b
+   (state <s> ^name worst-over-conflict)
+-->
+   (<s> ^operator <op> +)
+   (<op> ^name b)
+}
+
+sp {worst-over-conflict*compare*b
+   (state <s> ^name worst-over-conflict
+              ^operator <op1> +
+                        <op2> +)
+   (<op1> ^name b)
+   (<op2> ^name a)
+-->
+   (<s> ^operator <op1> > <op2>)
+}
+
+## condense.pl: extracting from file c.soar
+sp {worst-over-conflict*propose*c
+   (state <s> ^name worst-over-conflict)
+-->
+   (<s> ^operator <op> + <)
+   (<op> ^name c)
+}
