@@ -8,6 +8,7 @@ package org.jsoar.kernel;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Stack;
 
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutputImpl;
@@ -629,16 +630,15 @@ public class Decider
     }
 
     /**
-     * decide.cpp:549:mark_unknown_level_if_needed
+     * decide.cpp:545:mark_level_unknown_needed
      * 
      * @param sym
      */
-    private void mark_unknown_level_if_needed(SymbolImpl sym)
+    private boolean mark_level_unknown_needed(SymbolImpl sym)
     {
-        IdentifierImpl id = sym.asIdentifier();
-        if (id != null)
-            mark_id_and_tc_as_unknown_level(id);
+        return sym.asIdentifier() != null;
     }
+    
 
     /**
      * Mark an id and its transitive closure as having an unknown level. Ids are
@@ -646,69 +646,98 @@ public class Decider
      * stack level is recorded in level_at_which_marking_started by the caller.
      * The marked ids are added to ids_with_unknown_level.
      * 
-     * decide.cpp:555:mark_id_and_tc_as_unknown_level
+     * decide.cpp:550:mark_id_and_tc_as_unknown_level
      * 
-     * @param id
+     * @param root
      */
-    private void mark_id_and_tc_as_unknown_level(IdentifierImpl id)
+    private void mark_id_and_tc_as_unknown_level(IdentifierImpl root)
     {
-        // if id is already marked, do nothing
-        if (id.tc_number == this.mark_tc_number)
-            return;
-
-        // don't mark anything higher up as disconnected--in order to be higher
-        // up, it must have a link to it up there
-        if (id.level < this.level_at_which_marking_started)
-            return;
-
-        // mark id, so we won't do it again later
-        id.tc_number = this.mark_tc_number;
-
-        // update range of goal stack levels we'll need to walk
-        if (id.level < this.highest_level_anything_could_fall_from)
-            this.highest_level_anything_could_fall_from = id.level;
-        if (id.level > this.lowest_level_anything_could_fall_to)
-            this.lowest_level_anything_could_fall_to = id.level;
-        if (id.could_be_a_link_from_below)
-            this.lowest_level_anything_could_fall_to = LOWEST_POSSIBLE_GOAL_LEVEL;
-
-        // add id to the set of ids with unknown level
-        if (id.unknown_level == null)
-        {
-            id.unknown_level = new ListItem<IdentifierImpl>(id);
-            id.unknown_level.insertAtHead(ids_with_unknown_level);
-        }
-
-        // scan through all preferences and wmes for all slots for this id
-        for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
-            mark_unknown_level_if_needed(w.value);
-        for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
-        {
-            final Slot s = sit.item;
-            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
+        Stack<IdentifierImpl> ids_to_walk = new Stack<IdentifierImpl>();
+        ids_to_walk.push(root);
+        
+        while(!ids_to_walk.isEmpty()) {
+            IdentifierImpl id = ids_to_walk.pop();
+            
+            // if id is already marked, do nothing
+            if (id.tc_number == this.mark_tc_number)
+                continue;
+            
+            // don't mark anything higher up as disconnected--in order to be higher
+            // up, it must have a link to it up there
+            if (id.level < this.level_at_which_marking_started)
+                continue;
+            
+            // mark id, so we won't do it again later
+            id.tc_number = this.mark_tc_number;
+            
+            // update range of goal stack levels we'll need to walk
+            if (id.level < this.highest_level_anything_could_fall_from)
+                this.highest_level_anything_could_fall_from = id.level;
+            if (id.level > this.lowest_level_anything_could_fall_to)
+                this.lowest_level_anything_could_fall_to = id.level;
+            if (id.could_be_a_link_from_below)
+                this.lowest_level_anything_could_fall_to = LOWEST_POSSIBLE_GOAL_LEVEL;
+            
+            // add id to the set of ids with unknown level
+            if (id.unknown_level == null)
             {
-                mark_unknown_level_if_needed(pref.value);
-                if (pref.type.isBinary())
-                    mark_unknown_level_if_needed(pref.referent);
+                id.unknown_level = new ListItem<IdentifierImpl>(id);
+                id.unknown_level.insertAtHead(ids_with_unknown_level);
             }
-            if (s.impasse_id != null)
-                mark_unknown_level_if_needed(s.impasse_id);
-            for (WmeImpl w = s.getWmes(); w != null; w = w.next)
-                mark_unknown_level_if_needed(w.value);
+            
+            // scan through all preferences and wmes for all slots for this id
+            for (WmeImpl w = id.getInputWmes(); w != null; w = w.next) 
+            {
+                if (mark_level_unknown_needed(w.value))
+                {
+                    ids_to_walk.push(w.value.asIdentifier());
+                }
+            }
+            
+            for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+            {
+                final Slot s = sit.item;
+                for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
+                {
+                    if (mark_level_unknown_needed(pref.value))
+                    {
+                        ids_to_walk.push(pref.value.asIdentifier());
+                    }
+                    if (pref.type.isBinary())
+                    {
+                        if (mark_level_unknown_needed(pref.referent))
+                        {
+                            ids_to_walk.push(pref.referent.asIdentifier());
+                        }
+                    }
+                }
+                if (s.impasse_id != null)
+                {
+                    if (mark_level_unknown_needed(s.impasse_id))
+                    {
+                        ids_to_walk.push(s.impasse_id.asIdentifier());
+                    }
+                }
+                for (WmeImpl w = s.getWmes(); w != null; w = w.next)
+                {
+                    if (mark_level_unknown_needed(w.value))
+                    {
+                        ids_to_walk.push(w.value.asIdentifier());
+                    }
+                }
+            } /* end of for slots loop */
         }
     }
 
     /**
-     * decide.cpp:617:update_levels_if_needed
+     * decide.cpp:647:level_update_needed
      * 
      * @param sym
      */
-    private void update_levels_if_needed(SymbolImpl sym)
+    private boolean level_update_needed(SymbolImpl sym)
     {
         IdentifierImpl id = sym.asIdentifier();
-        if (id != null)
-            if (id.tc_number != this.walk_tc_number)
-                walk_and_update_levels(id);
+        return id != null && id.tc_number != this.walk_tc_number;
     }
 
     /**
@@ -717,44 +746,74 @@ public class Decider
      * encounter an id marked as having an unknown level, we update its level
      * and remove it from ids_with_unknown_level.
      * 
-     * decide.cpp:624:walk_and_update_levels
+     * decide.cpp:652:walk_and_update_levels
      * 
-     * @param id
+     * @param root
      */
-    private void walk_and_update_levels(IdentifierImpl id)
+    private void walk_and_update_levels(IdentifierImpl root)
     {
-        // mark id so we don't walk it twice
-        id.tc_number = this.walk_tc_number;
+        Stack<IdentifierImpl> ids_to_walk = new Stack<IdentifierImpl>();
+        ids_to_walk.push(root);
+        
+        while(!ids_to_walk.isEmpty()) {
+            IdentifierImpl id = ids_to_walk.pop();
 
-        // if we already know its level, and it's higher up, then exit
-        if ((id.unknown_level == null) && (id.level < this.walk_level))
-            return;
-
-        // if we didn't know its level before, we do now
-        if (id.unknown_level != null)
-        {
-            id.unknown_level.remove(this.ids_with_unknown_level);
-            id.unknown_level = null;
-            id.level = this.walk_level;
-            id.promotion_level = this.walk_level;
-        }
-
-        // scan through all preferences and wmes for all slots for this id
-        for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
-            update_levels_if_needed(w.value);
-        for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
-        {
-            final Slot s = sit.item;
-            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
+            // mark id so we don't walk it twice
+            id.tc_number = this.walk_tc_number;
+            
+            // if we already know its level, and it's higher up, then exit
+            if ((id.unknown_level == null) && (id.level < this.walk_level))
+                continue;
+            
+            // if we didn't know its level before, we do now
+            if (id.unknown_level != null)
             {
-                update_levels_if_needed(pref.value);
-                if (pref.type.isBinary())
-                    update_levels_if_needed(pref.referent);
+                id.unknown_level.remove(this.ids_with_unknown_level);
+                id.unknown_level = null;
+                id.level = this.walk_level;
+                id.promotion_level = this.walk_level;
             }
-            if (s.impasse_id != null)
-                update_levels_if_needed(s.impasse_id);
-            for (WmeImpl w = s.getWmes(); w != null; w = w.next)
-                update_levels_if_needed(w.value);
+            
+            // scan through all preferences and wmes for all slots for this id
+            for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
+            {
+                if (level_update_needed(w.value))
+                {
+                    ids_to_walk.push(w.value.asIdentifier());
+                }
+            }
+            for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+            {
+                final Slot s = sit.item;
+                for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
+                {
+                    if (level_update_needed(pref.value))
+                    {
+                        ids_to_walk.push(pref.value.asIdentifier());
+                    }
+                    if (pref.type.isBinary())
+                    {
+                        if (level_update_needed(pref.referent))
+                        {
+                            ids_to_walk.push(pref.referent.asIdentifier());
+                        }
+                    }
+                }
+                if (s.impasse_id != null)
+                {
+                    if (level_update_needed(s.impasse_id))
+                    {
+                        ids_to_walk.push(s.impasse_id.asIdentifier());
+                    }
+                }
+                for (WmeImpl w = s.getWmes(); w != null; w = w.next)
+                {
+                    if (level_update_needed(w.value))
+                    {
+                        ids_to_walk.push(w.value.asIdentifier());
+                    }
+                }
+            } /* end of for slots loop */
         }
     }
 
