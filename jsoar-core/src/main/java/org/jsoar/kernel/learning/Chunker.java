@@ -236,6 +236,20 @@ public class Chunker
             }
         }
     }
+    
+    public void removeGoalFromChunkFreeProblemSpaces(IdentifierImpl goal)
+    {
+        final Iterator<IdentifierImpl> it = chunk_free_problem_spaces.iterator();
+        while(it.hasNext())
+        {
+            final IdentifierImpl id = it.next();
+            if(id == goal)
+            {
+                it.remove();
+            }
+        }
+    }
+
     /**
      * <p>chunk.cpp:77:add_results_if_needed
      * 

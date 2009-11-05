@@ -2165,7 +2165,7 @@ public class Decider
      * its subgoals. (If the given goal is the top goal, the entire context
      * stack is removed.)
      * 
-     * <p>decide.cpp:1836:remove_existing_context_and_descendents
+     * <p>decide.cpp:2032:remove_existing_context_and_descendents
      * 
      * @param goal
      */
@@ -2310,10 +2310,11 @@ public class Decider
          * necessary for the assertions here at some point?
          */
         
-        /* We have to remove this state from the list of states to learn in 
+        /* We have to remove this state from the list of states to learn in (NLD: and free cons)
          * jzxu April 24, 2009 */
         // TODO: The fact that we have to access chunker here sucks. Decouple?
         this.chunker.removeGoalFromChunkyProblemSpaces(goal);
+        this.chunker.removeGoalFromChunkFreeProblemSpaces(goal);
         
         post_link_removal(null, goal); // remove the special link
     }
