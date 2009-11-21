@@ -6,15 +6,9 @@
 package org.jsoar.runtime;
 
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.events.AfterDecisionCycleEvent;
 import org.jsoar.kernel.events.AsynchronousInputReadyEvent;
-import org.jsoar.kernel.events.PhaseEvents.AfterInput;
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
@@ -22,9 +16,6 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctions;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.events.SoarEvent;
-import org.jsoar.util.events.SoarEventListener;
-import org.jsoar.util.properties.PropertyProvider;
 
 /**
  * A "wait" RHS function used in conjunction with a {@link ThreadedAgent}.
@@ -62,169 +53,60 @@ import org.jsoar.util.properties.PropertyProvider;
  */
 public class WaitRhsFunction extends AbstractRhsFunctionHandler
 {
+    private WaitManager waitManager;
     private ThreadedAgent agent;
     private RhsFunctionHandler oldHandler;
-    private boolean inputReady = false;
-    private SoarEventListener inputReadyListener;
-    private final AsynchronousInputReadyCommand inputReadyCommand = new AsynchronousInputReadyCommand();
-    private SoarEventListener afterInputListener;
-    private SoarEventListener afterDecisionCycleListener;
-    private WaitInfo requestedWaitInfo = WaitInfo.NOT_WAITING;
-    private final AtomicReference<WaitInfo> waitInfo = new AtomicReference<WaitInfo>(WaitInfo.NOT_WAITING);
-    private final PropertyProvider<WaitInfo> waitInfoProp = new PropertyProvider<WaitInfo>() {
-
-        @Override
-        public WaitInfo get()
-        {
-            return waitInfo.get();
-        }
-
-        @Override
-        public WaitInfo set(WaitInfo value)
-        {
-            throw new IllegalArgumentException("Can't set wait_info property");
-        }};
-        
+    
     
     public WaitRhsFunction()
     {
         super("wait", 0, 1);
     }
     
-    public void attach(ThreadedAgent agent)
+    /**
+     * Register this RHS function using the given {@link WaitManager} and the
+     * agent to which it is already attached.
+     * 
+     * @param waitManager the wait manager
+     * @throws IllegalStateException if attach has already been called before,
+     *      or if the {@code waitManager} is not attached to an agent.
+     */
+    public void attach(WaitManager waitManager)
     {
-        Arguments.checkNotNull(agent, "agent");
-        if(this.agent != null)
+        Arguments.checkNotNull(waitManager, "waitManager");
+        if(this.waitManager != null)
         {
-            throw new IllegalStateException("Already attached to agent");
+            throw new IllegalStateException("Already attached to wait manager");
         }
-        this.agent = agent;
-        
-        // Listen for input ready events
-        this.agent.getEvents().addListener(AsynchronousInputReadyEvent.class, 
-                inputReadyListener = new SoarEventListener() {
-
-                    @Override
-                    public void onEvent(SoarEvent event)
-                    {
-                        setNewInputAvailable();
-                    }});
-        
-        // Listen for end of decision cycle event. This is where we actually do the wait
-        // if one has been requested. Since the next phase will be the input phase,
-        // we don't have to worry about additional waits blocking it and we'll conveniently
-        // go straight to input when an asynch input ready event knocks us out of a wait.
-        this.agent.getEvents().addListener(AfterDecisionCycleEvent.class, 
-                afterDecisionCycleListener = new SoarEventListener() {
-
-                    @Override
-                    public void onEvent(SoarEvent event)
-                    {
-                        doWait();
-                    }});
-        
-        this.agent.getEvents().addListener(AfterInput.class, 
-                afterInputListener = new SoarEventListener() {
-
-                    @Override
-                    public void onEvent(SoarEvent event)
-                    {
-                        inputReady = false;
-                    }});
-        
-        // Set up "waiting" property
-        this.agent.getProperties().setProvider(SoarProperties.WAIT_INFO, waitInfoProp);
+        this.waitManager = waitManager;
+        this.agent = this.waitManager.getAgent();
+        if(this.agent == null)
+        {
+            throw new IllegalStateException("Wait manager is not attached to an agent");
+        }
         
         // Register the RHS function
         this.oldHandler = this.agent.getRhsFunctions().registerHandler(this);
     }
     
+    /**
+     * Remove this RHS function from the agent.
+     */
     public void detach()
     {
-        if(agent != null)
+        if(agent != null )
         {
-            agent.getEvents().removeListener(null, inputReadyListener);
-            agent.getEvents().removeListener(null, afterInputListener);
-            agent.getEvents().removeListener(null, afterDecisionCycleListener);
             agent.getRhsFunctions().unregisterHandler(getName());
             if(oldHandler != null)
             {
                 agent.getRhsFunctions().registerHandler(oldHandler);
                 oldHandler = null;
             }
-            agent = null;
         }
+        agent = null;
+        waitManager = null;
     }
     
-    private void doWait()
-    {
-        if(!requestedWaitInfo.waiting) // no wait requested
-        {
-            inputReady = false;
-            return;
-        }
-        
-        // Update the wait property
-        waitInfo.set(requestedWaitInfo);
-
-        final long start = System.currentTimeMillis();
-        final BlockingQueue<Runnable> commands = agent.getCommandQueue();
-        boolean done = isDoneWaiting();
-        while(!done)
-        {
-            try
-            {
-                final long remaining = requestedWaitInfo.timeout - (System.currentTimeMillis() - start);
-                if(remaining <= 0)
-                {
-                    done = true;
-                }
-                
-                final Runnable command = commands.poll(remaining, TimeUnit.MILLISECONDS);
-                if(command != null)
-                {
-                    command.run();
-                    
-                    done = isDoneWaiting();
-                }
-                else
-                {
-                    done = true; // timeout
-                }
-            }
-            catch (InterruptedException e)
-            {
-                done = true;
-                Thread.currentThread().interrupt(); // Reset the interrupt status for higher levels!
-                break;
-            }
-        }
-        requestedWaitInfo = WaitInfo.NOT_WAITING; // clear the wait
-        
-        inputReady = false;
-        waitInfo.set(WaitInfo.NOT_WAITING);
-    }
-    
-    private synchronized void setNewInputAvailable()
-    {
-        // This will break out of the poll below
-        if(agent.isAgentThread())
-        {
-            inputReady = true;
-        }
-        else
-        {
-            agent.execute(inputReadyCommand, null);
-        }
-    }
-    
-    private synchronized boolean isDoneWaiting()
-    {
-        return agent.getAgent().getReasonForStop() != null ||
-               inputReady || 
-               Thread.currentThread().isInterrupted();
-    }
-
     /* (non-Javadoc)
      * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
      */
@@ -237,10 +119,7 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
         
         // If multiple waits are requested, use the shortest
         final long timeout = arguments.isEmpty() ? Long.MAX_VALUE : arguments.get(0).asInteger().getValue();
-        if(!requestedWaitInfo.waiting || timeout < requestedWaitInfo.timeout)
-        {
-            requestedWaitInfo = new WaitInfo(timeout, context.getProductionBeingFired());
-        }
+        waitManager.requestWait(new WaitInfo(timeout, context.getProductionBeingFired()));
         
         return null;
     }
@@ -252,16 +131,5 @@ public class WaitRhsFunction extends AbstractRhsFunctionHandler
     public boolean mayBeStandalone()
     {
         return true;
-    }
-    
-    private class AsynchronousInputReadyCommand implements Callable<Void>
-    {
-        @Override
-        public Void call() throws Exception
-        {
-            inputReady = true;
-            return null;
-        }
-        
     }
 }

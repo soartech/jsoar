@@ -89,6 +89,7 @@ public class ThreadedAgent extends AbstractAdaptable
     };
     
     private final AgentThread agentThread = new AgentThread();
+    private final WaitManager waitManager = new WaitManager();
     private final WaitRhsFunction waitFunction = new WaitRhsFunction();
     
     private final RunCommand runCommand = new RunCommand(this);
@@ -195,7 +196,8 @@ public class ThreadedAgent extends AbstractAdaptable
                 }                
             }});
         
-        waitFunction.attach(this);
+        waitManager.attach(this);
+        waitFunction.attach(waitManager);
 
         final SoarCommandInterpreter interp = agent.getInterpreter();
         interp.addCommand("run", runCommand);
@@ -265,6 +267,7 @@ public class ThreadedAgent extends AbstractAdaptable
                 logger.error("Interrupted while waiting for agent thread to exit", e);
             }
             waitFunction.detach();
+            waitManager.detach();
             
             // TODO: Unregister run and stop commands.
         }
@@ -486,6 +489,10 @@ public class ThreadedAgent extends AbstractAdaptable
     @Override
     public Object getAdapter(Class<?> klass)
     {
+        if(klass.equals(WaitManager.class))
+        {
+            return waitManager;
+        }
         Object result = agent.getAdapter(klass);
         if(result != null)
         {
