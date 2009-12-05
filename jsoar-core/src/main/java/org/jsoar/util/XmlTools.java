@@ -21,12 +21,19 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -35,7 +42,8 @@ import org.xml.sax.SAXException;
  */
 public class XmlTools
 {
-
+    private static final Log logger = LogFactory.getLog(XmlTools.class);
+    
     /**
      * Construct a new document builder
      * 
@@ -55,19 +63,29 @@ public class XmlTools
         }
     }
     
-    public static Document parse(InputStream is) throws SAXException, IOException {
+    public static Document parse(InputStream is) throws SAXException, IOException 
+    {
         return createDocumentBuilder().parse(is);
     }
 
-    public static Document parse(Reader reader) throws SAXException, IOException {
+    public static Document parse(Reader reader) throws SAXException, IOException 
+    {
         return createDocumentBuilder().parse(new InputSource(reader));
     }
 
-    public static Document parse(String input) throws SAXException, IOException {
+    public static Document parse(String input) throws SAXException, IOException 
+    {
         return parse(new StringReader(input));
     }
     
-    public static void write(Node node, OutputStream out) throws TransformerConfigurationException, TransformerException, IOException 
+    /**
+     * Serialize the node to a stream
+     * 
+     * @param node the node
+     * @param out the output stream
+     * @throws IOException if there is an error writing to the stream
+     */
+    public static void write(Node node, OutputStream out) throws IOException 
     {
         if(node == null) 
         {
@@ -77,34 +95,109 @@ public class XmlTools
         {
             throw new NullPointerException("out must not be null");
         }
-        TransformerFactory xformFactory = TransformerFactory.newInstance();
-        Transformer idTransform = xformFactory.newTransformer();
-        Source input = new DOMSource(node);
-        Result output = new StreamResult(out);
-        idTransform.transform(input, output);
+        try
+        {
+            TransformerFactory xformFactory = TransformerFactory.newInstance();
+            Transformer idTransform = xformFactory.newTransformer();
+            Source input = new DOMSource(node);
+            Result output = new StreamResult(out);
+            idTransform.transform(input, output);
+        }
+        catch (TransformerConfigurationException e)
+        {
+            throw new IllegalStateException(e);
+        }
+        catch (TransformerFactoryConfigurationError e)
+        {
+            throw new IllegalStateException(e);
+        }
+        catch (TransformerException e)
+        {
+            throw new IllegalStateException(e);
+        }
         out.flush();
     }
+    
+    /**
+     * Attempt to pretty-print the given node to the given output stream. If
+     * it can't pretty-print (no Load and Save impl), it will fall back to
+     * non-pretty-printed.
+     * 
+     * @param node the XML node to write
+     * @param out the output stream
+     * @throws IOException
+     */
+    public static void writePretty(Node node, OutputStream out) throws IOException
+    {
+        // Pretty-prints a DOM document to XML using DOM Load and Save's LSSerializer.
+        // Note that the "format-pretty-print" DOM configuration parameter can
+        // only be set in JDK 1.6+.
+        final DOMImplementation domImpl;
+        if(node instanceof Document)
+        {
+            domImpl = ((Document) node).getImplementation();
+        }
+        else
+        {
+            domImpl = node.getOwnerDocument().getImplementation();
+        }
+        if (domImpl.hasFeature("LS", "3.0") && domImpl.hasFeature("Core", "2.0"))
+        {
+            final DOMImplementationLS domImplLS = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
+            final LSSerializer lss = domImplLS.createLSSerializer();
+            if (lss.getDomConfig().canSetParameter("format-pretty-print", true))
+            {
+                lss.getDomConfig().setParameter("format-pretty-print", true);
+                
+                final LSOutput lsOut = domImplLS.createLSOutput();
+                lsOut.setEncoding("UTF-8");
+                lsOut.setByteStream(out);
+                
+                lss.write(node, lsOut);
+            }
+            else
+            {
+                logger.warn("DOMConfiguration 'format-pretty-print' parameter isn't settable. Won't pretty print.");
+                write(node, out);
+            }
+        }
+        else
+        {
+            logger.warn("DOM 3.0 LS and/or DOM 2.0 Core not supported. Won't pretty print.");
+            write(node, out);
+        }
+    }
 
-    public static String toString(Node node) {
+    public static String toString(Node node) 
+    {
         try 
         {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             write(node, out);
             return out.toString();
         } 
-        catch (TransformerConfigurationException ex) 
-        {
-            throw new IllegalStateException(ex);
-        }
-        catch (TransformerException ex) 
-        {
-            throw new IllegalStateException(ex);
-        } 
         catch (IOException ex) 
         {
+            // ByteArrayOutputStream never throws IOException
             throw new IllegalStateException(ex);
         }
     }
+    
+    public static String toPrettyString(Node node) 
+    {
+        try 
+        {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            writePretty(node, out);
+            return out.toString();
+        } 
+        catch (IOException ex) 
+        {
+            // ByteArrayOutputStream never throws IOException
+            throw new IllegalStateException(ex);
+        }
+    }
+    
     public static Element getFirstChild(Element parent)
     {
         return getFirstChild(parent, null);
@@ -153,5 +246,4 @@ public class XmlTools
         }
         return null;
     }
-
 }
