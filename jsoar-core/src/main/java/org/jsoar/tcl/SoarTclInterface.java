@@ -7,6 +7,7 @@ package org.jsoar.tcl;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.logging.Log;
@@ -50,6 +51,7 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
+import tcl.lang.TCL;
 import tcl.lang.TclException;
 import tcl.lang.TclRuntimeError;
 
@@ -134,6 +136,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     {
         this.agent = agent;
         
+        initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
         
         interp.createCommand("source", this.sourceCommand = new SourceCommand());
@@ -194,6 +197,30 @@ public class SoarTclInterface implements SoarCommandInterpreter
         }
     }
     
+    /**
+     * Jacl only puts system properties in the <code>env</code> array. Let's add
+     * environment variables as well..
+     */
+    private void initializeEnv()
+    {
+        for(Map.Entry<String, String> e : System.getenv().entrySet())
+        {
+            try
+            {
+                // Windows env vars are case-insensitive, but Jacl's env implementation,
+                // unlike "real" Tcl doesn't take this into account, so for sanity we'll
+                // make them all upper case.
+                interp.setVar("env", e.getKey().toUpperCase(), e.getValue(), TCL.GLOBAL_ONLY);
+            }
+            catch (TclException ex)
+            {
+                final String message = "Failed to set environment variable '" + e + "': " + interp.getResult();
+                logger.error(message);
+                agent.getPrinter().error(message);
+            }
+        }
+    }
+
     private Command adapt(SoarCommand c)
     {
         return new SoarTclCommandAdapter(c);

@@ -79,6 +79,13 @@ public class SoarTclInterfaceTest
         assertEquals(firstInts, secondInts);
     }
     
+    @Test
+    public void testEnvironmentVariablesAreAvailable() throws Exception
+    {
+        final String path = ifc.eval("global env; set env(PATH)");
+        assertEquals(System.getenv("PATH"), path);
+    }
+    
     public static class TestParser extends AbstractAdaptable implements Parser
     {
         /* (non-Javadoc)
