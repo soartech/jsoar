@@ -27,11 +27,13 @@ import org.jsoar.kernel.commands.RunCommand;
 import org.jsoar.kernel.commands.StopCommand;
 import org.jsoar.kernel.events.RunLoopEvent;
 import org.jsoar.kernel.events.StopEvent;
+import org.jsoar.kernel.events.UncaughtExceptionEvent;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.util.StringTools;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.commands.SoarCommandInterpreter;
@@ -64,6 +66,9 @@ import org.jsoar.util.properties.PropertyProvider;
  * the {@code wait} RHS function.
  * 
  * @author ray
+ * @see UncaughtExceptionEvent
+ * @see StopEvent
+ * @see WaitRhsFunction
  */
 public class ThreadedAgent extends AbstractAdaptable
 {
@@ -440,10 +445,7 @@ public class ThreadedAgent extends AbstractAdaptable
                 }
                 catch (Exception e)
                 {
-                    // TODO
-                    e.printStackTrace();
-                    final Throwable cause = e.getCause();
-                    agent.getPrinter().error((cause != null ? cause.getMessage() : e.getMessage()) + "\n");
+                    processUncaughtException(e);
                 }
             }});
     }
@@ -509,7 +511,23 @@ public class ThreadedAgent extends AbstractAdaptable
     {
         return agent.toString();
     }
-
+    
+    private void processUncaughtException(Exception e)
+    {
+        try
+        {
+            final Throwable cause = e.getCause();
+            logger.error("Agent thread caught unhandled exception", e);
+            agent.getPrinter().error("Agent thread caught unhandled exception: " + 
+                    (cause != null ? cause.getMessage() : e.getMessage()) + "\n" +
+                    StringTools.getStackTrace(e));
+            getEvents().fireEvent(new UncaughtExceptionEvent(agent, e));
+        }
+        catch(Exception otherException)
+        {
+            logger.error("Exception thrown while handling uncaught exception", otherException);
+        }
+    }
 
     private class AgentThread extends Thread
     {
@@ -532,6 +550,10 @@ public class ThreadedAgent extends AbstractAdaptable
                 catch (InterruptedException e)
                 {
                     this.interrupt();
+                }
+                catch(Exception e)
+                {
+                    processUncaughtException(e);
                 }
             }
         }

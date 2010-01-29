@@ -8,10 +8,14 @@ package org.jsoar.runtime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.events.UncaughtExceptionEvent;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.junit.After;
@@ -111,5 +115,69 @@ public class ThreadedAgentTest
         assertNull(gotIt.get());
         agent.dispose();
         assertSame(agent, gotIt.get());
+    }
+    
+    @Test
+    public void testAgentThreadCatchesUncaughtExceptions() throws Exception
+    {
+        final ThreadedAgent agent = ThreadedAgent.create();
+        
+        agent.execute(new Callable<Void>()
+        {
+            @Override
+            public Void call() throws Exception
+            {
+                throw new IllegalStateException("Test exception thrown by testAgentThreadCatchesUnhandledExceptions");
+            }
+        }, null);
+        
+        // If the thread survived, then we should be able to successfully make this call...
+        final String result = agent.executeAndWait(new Callable<String>() {
+
+            @Override
+            public String call() throws Exception
+            {
+                return "success";
+            }}, 10000, TimeUnit.MILLISECONDS);
+        
+        assertEquals("success", result);
+    }
+    
+    @Test(timeout=5000)
+    public void testAgentFiresUncaughtExceptionEventWhenAnExceptionIsUncaught() throws Exception
+    {
+        final ThreadedAgent agent = ThreadedAgent.create();
+        
+        final AtomicBoolean called = new AtomicBoolean();
+        final Object signal = new Object();
+        agent.getEvents().addListener(UncaughtExceptionEvent.class, new SoarEventListener()
+        {
+            @Override
+            public void onEvent(SoarEvent event)
+            {
+                synchronized(signal)
+                {
+                    called.set(true);
+                    signal.notifyAll();
+                }
+            }
+        });
+        
+        agent.execute(new Callable<Void>()
+        {
+            @Override
+            public Void call() throws Exception
+            {
+                throw new IllegalStateException("Test exception thrown by testAgentThreadCatchesUnhandledExceptions");
+            }
+        }, null);
+        
+        synchronized(signal)
+        {
+            while(!called.get())
+            {
+                signal.wait();
+            }
+        }
     }
 }
