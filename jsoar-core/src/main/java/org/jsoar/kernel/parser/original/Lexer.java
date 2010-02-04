@@ -634,7 +634,7 @@ public class Lexer
                     else
                     {
                         printer.print(
-                           "Warning: Possible variable encountered in reading symbolic constant\n" +
+                           "Warning: Possible variable (" + lexeme + ") encountered in reading symbolic constant\n" +
                            " If a constant was intended, surround constant with vertical bars\n");
 
                         // TODO
@@ -654,7 +654,7 @@ public class Lexer
                         if (lexeme.at(lexeme.length() - 2) == '>')
                         {
                             printer.print(
-                               "Warning: Possible disjunctive encountered in reading symbolic constant\n" +
+                               "Warning: Possible disjunctive (" + lexeme + ") encountered in reading symbolic constant\n" +
                                " If a disjunctive was intended, add a space before >>\n" +
                                " If a constant was intended, surround constant with vertical bars\n");
                             
@@ -673,7 +673,7 @@ public class Lexer
                         else
                         {
                             printer.print(
-                               "Warning: Possible variable encountered in reading symbolic constant\n" +
+                               "Warning: Possible variable (" + lexeme + ") encountered in reading symbolic constant\n" +
                                " If a constant was intended, surround constant with vertical bars\n");
                             
                             // TODO
