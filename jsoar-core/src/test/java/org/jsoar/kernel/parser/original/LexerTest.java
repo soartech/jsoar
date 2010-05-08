@@ -40,6 +40,19 @@ public class LexerTest
     }
     
     @Test
+    public void testLexIntegerThatStartsWithPlus() throws Exception
+    {
+        Lexer lexer = createLexer("+123456");
+        
+        lexer.getNextLexeme();
+        Lexeme lexeme = lexer.getCurrentLexeme();
+        assertNotNull(lexeme);
+        
+        assertEquals(LexemeType.INTEGER, lexeme.type);
+        assertEquals(+123456, lexeme.int_val);
+        
+    }    
+    @Test
     public void testLexFloat() throws Exception
     {
         Lexer lexer = createLexer("123.456");

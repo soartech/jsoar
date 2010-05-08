@@ -97,7 +97,7 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
             final PossibleSymbolTypes possible = Lexer.determine_possible_symbol_types_for_string(getValue());
             final boolean hasAngleBracket = getValue().startsWith("<") || getValue().startsWith(">");
             
-            if(!possible.possible_sc || possible.possible_var || possible.possible_ic || possible.possible_fc ||
+            if(!possible.possible_sc || possible.possible_id || possible.possible_var || possible.possible_ic || possible.possible_fc ||
                !possible.rereadable || hasAngleBracket)
             {
                 // BUGBUG if in context where id's could occur, should check

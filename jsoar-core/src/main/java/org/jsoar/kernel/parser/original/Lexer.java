@@ -557,7 +557,14 @@ public class Lexer
             try
             {
                 lexeme.type = LexemeType.INTEGER;
-                lexeme.int_val = Integer.valueOf(lexeme.string);
+                if(lexeme.string.charAt(0) != '+')
+                {
+                    lexeme.int_val = Integer.valueOf(lexeme.string);
+                }
+                else
+                {
+                    lexeme.int_val = Integer.valueOf(lexeme.string.substring(1));
+                }
             }
             catch (NumberFormatException e)
             {
@@ -931,36 +938,25 @@ public class Lexer
         }
 
         /* --- make sure it's entirely constituent characters --- */
+        boolean all_alphanum = true;
         for (int i = 0; i < s.length(); ++i)
         {
-            if (!isConstituentChar(s.charAt(i)))
+            final char c = s.charAt(i);
+            if (!isConstituentChar(c))
             {
                 return p;
             }
+            all_alphanum = all_alphanum && Character.isLetterOrDigit(c);
         }
 
         /* --- check for rereadability --- */
-        boolean rereadability_questionable = false;
-        boolean rereadability_dead = false;
-        for (int i = 0; i < s.length(); i++)
+        if ( all_alphanum ||
+             (s.length() > LENGTH_OF_LONGEST_SPECIAL_LEXEME) ||
+             ((s.length()==1)&&(s.charAt(0)=='*')) )
         {
-            char ch = s.charAt(i);
-            if (Character.isLowerCase(ch) || Character.isDigit(ch))
-                continue; /* these guys are fine */
-            if (Character.isUpperCase(ch))
-            {
-                rereadability_dead = true;
-                break;
-            }
-            rereadability_questionable = true;
-        }
-        if (!rereadability_dead)
-        {
-            if ((!rereadability_questionable) || (s.length() >= LENGTH_OF_LONGEST_SPECIAL_LEXEME)
-                    || ((s.length() == 1) && (s.charAt(0) == '*')))
                 p.rereadable = true;
         }
-        
+
         /* --- any string of constituents could be a sym constant --- */
         p.possible_sc = true;
 
@@ -969,13 +965,17 @@ public class Lexer
         {
             p.possible_var = true;
         }
-        
 
         /* --- check if it's an identifier --- */
-        if (Character.isLetter(s.charAt(0)))
+        // long term identifiers start with @
+        final int idStartIndex = s.charAt(0) == '@' ? 1 : 0;
+
+        /* --- check if it's an identifier --- */
+        final char idStart = s.charAt(idStartIndex);
+        if (s.length() > 1 && Character.isLetter(idStart) && Character.isUpperCase(idStart))
         {
             /* --- is the rest of the string an integer? --- */
-            int i = 1;
+            int i = idStartIndex + 1;
             while (i < s.length() && Character.isDigit(s.charAt(i)))
             {
                 ++i;
