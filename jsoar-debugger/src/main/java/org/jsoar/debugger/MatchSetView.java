@@ -24,7 +24,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXList;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -59,8 +58,6 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         
         this.debugger = debugger;
         this.agent = debugger.getAgent();
-        
-        addAction(DockingConstants.PIN_ACTION);
         
         final JPanel barPanel = new JPanel(new BorderLayout());
         final JToolBar bar = createToolbar();

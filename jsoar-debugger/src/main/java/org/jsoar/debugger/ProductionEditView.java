@@ -23,7 +23,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
@@ -88,8 +87,6 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         
         this.debugger = debugger;
         this.agent = Adaptables.adapt(debugger, ThreadedAgent.class);
-        
-        addAction(DockingConstants.PIN_ACTION);
         
         JPanel p = new JPanel(new BorderLayout());
         SwingTools.addUndoSupport(textArea);

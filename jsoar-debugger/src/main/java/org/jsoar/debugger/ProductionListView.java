@@ -21,7 +21,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.ActionManager;
@@ -64,8 +63,6 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         
         this.agent = Adaptables.adapt(debuggerIn, ThreadedAgent.class);
         this.actionManager = Adaptables.adapt(debuggerIn, ActionManager.class);
-        
-        this.addAction(DockingConstants.PIN_ACTION);
         
         JPanel p = new JPanel(new BorderLayout());
         

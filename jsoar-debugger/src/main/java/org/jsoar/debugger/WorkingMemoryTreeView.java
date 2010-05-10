@@ -30,7 +30,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -88,8 +87,6 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
     {
         super("workingMemory.tree", "Working Memory Tree");
 
-        addAction(DockingConstants.PIN_ACTION);
-        
         this.debugger = debugger;
         this.model = new WorkingMemoryTreeModel(debugger.getAgent(), new ArrayList<Identifier>());
         this.table = new JXTreeTable(this.model);
@@ -118,9 +115,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
                     }
                 }
             }});
-        
-        this.addAction(DockingConstants.PIN_ACTION);
-        
+                
         JPanel p = new JPanel(new BorderLayout());
         p.add(new JScrollPane(table), BorderLayout.CENTER);
         

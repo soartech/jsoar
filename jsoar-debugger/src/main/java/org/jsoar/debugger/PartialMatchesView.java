@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.flexdock.docking.DockingConstants;
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.kernel.Production;
@@ -44,8 +43,6 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         
         this.agent = debugger.getAgent();
         this.selectionManager = debugger.getSelectionManager();
-        
-        addAction(DockingConstants.PIN_ACTION);
         
         JPanel p = new JPanel(new BorderLayout());
         this.textArea.setEditable(false);

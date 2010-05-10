@@ -13,6 +13,7 @@ import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import org.flexdock.docking.DockingConstants;
 import org.flexdock.view.View;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -27,6 +28,8 @@ public abstract class AbstractAdaptableView extends View implements Adaptable
     public AbstractAdaptableView(String persistentId, String title)
     {
         super(persistentId, title);
+        
+        this.addAction(DockingConstants.PIN_ACTION);
     }
     
     

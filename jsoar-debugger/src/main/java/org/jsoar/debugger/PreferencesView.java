@@ -21,7 +21,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
@@ -63,8 +62,6 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         
         this.agent = debuggerIn.getAgent();
         this.selectionManager = debuggerIn.getSelectionManager();
-        
-        addAction(DockingConstants.PIN_ACTION);
         
         this.table.setShowGrid(false);
         this.table.setHighlighters(HighlighterFactory.createAlternateStriping());

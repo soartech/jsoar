@@ -21,7 +21,6 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
@@ -71,8 +70,6 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         super("wmeSearch", "WME Search");
         this.debugger = debuggerIn;
         
-        addAction(DockingConstants.PIN_ACTION);
-                
         final JPanel barPanel = new JPanel(new BorderLayout());
         barPanel.add(description, BorderLayout.WEST);
         final JToolBar bar = createToolbar();

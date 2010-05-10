@@ -24,7 +24,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import org.flexdock.docking.DockingConstants;
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
@@ -131,8 +130,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         trace.setEnabled(Category.LOADING, true);
         trace.setWatchLevel(1);
         
-        this.addAction(DockingConstants.PIN_ACTION);
-
         final JPanel p = new JPanel(new BorderLayout());
         p.add(new JScrollPane(outputWindow), BorderLayout.CENTER);
         

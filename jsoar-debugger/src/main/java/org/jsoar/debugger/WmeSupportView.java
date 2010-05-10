@@ -23,7 +23,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.flexdock.docking.DockingConstants;
 import org.jdesktop.swingx.JXList;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -62,8 +61,6 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         this.debugger = debuggerIn;
         this.selectionManager = debugger.getSelectionManager();
         
-        addAction(DockingConstants.PIN_ACTION);
-                
         JPanel barPanel = new JPanel(new BorderLayout());
         barPanel.add(source, BorderLayout.WEST);
         JToolBar bar = createToolbar();
