@@ -95,13 +95,16 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
         if(rereadable)
         {
             final PossibleSymbolTypes possible = Lexer.determine_possible_symbol_types_for_string(getValue());
-            final boolean hasAngleBracket = getValue().startsWith("<") || getValue().startsWith(">");
             
-            if(!possible.possible_sc || possible.possible_id || possible.possible_var || possible.possible_ic || possible.possible_fc ||
-               !possible.rereadable || hasAngleBracket)
+            // If for any reason, the value could be interpreted as something other than
+            // a string, escape it.
+            if(!possible.possible_sc  || 
+                possible.possible_id  || 
+                possible.possible_var || 
+                possible.possible_ic  || 
+                possible.possible_fc  ||
+               !possible.rereadable)
             {
-                // BUGBUG if in context where id's could occur, should check
-                // possible_id flag here also
                 stringToWrite = StringTools.string_to_escaped_string(getValue(), '|');
             }
             else

@@ -568,7 +568,7 @@ public class Lexer
             }
             catch (NumberFormatException e)
             {
-                printer.print("Error: bad integer '" + lexeme.string + "' (probably too large)\n");
+                printer.print("Error: bad integer '" + lexeme.string + "' (possibly too large)\n");
                 print_location_of_most_recent_lexeme();
                 lexeme.int_val = 0;
                 return false;
@@ -599,8 +599,7 @@ public class Lexer
         {
             try
             {
-                lexeme.id_letter = Character.toUpperCase(lexeme.string
-                        .charAt(0));
+                lexeme.id_letter = Character.toUpperCase(lexeme.string.charAt(0));
                 lexeme.type = LexemeType.IDENTIFIER;
                 lexeme.id_number = Integer.valueOf(lexeme.string.substring(1));
             }

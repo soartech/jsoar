@@ -5,6 +5,10 @@
  */
 package org.jsoar.kernel.parser;
 
+/**
+ * @author ray
+ * @see Lexer#determine_possible_symbol_types_for_string(String)
+ */
 public class PossibleSymbolTypes
 {
     public boolean possible_id;
