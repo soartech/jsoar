@@ -1910,7 +1910,7 @@ public class Decider
                   {
                       // If the goal pointer is non-NIL, then goal is in the stack
                       context.getTrace().print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
-                              "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.getGoal().level, w);
+                              "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.getGoal().getNameNumber(), w);
                       gds_invalid_so_remove_goal(w);
                   }
                }
