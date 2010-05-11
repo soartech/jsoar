@@ -44,8 +44,7 @@ public final class HelpCommand implements SoarCommand
         else 
         {
             String command = args[1];
-            command = Character.toUpperCase(command.charAt(0)) + command.substring(1);
-            url = resources.getString("help.url.base") + "/" + command;
+            url = resources.getString("help.url.base") + "#" + command;
         }
         
         try
