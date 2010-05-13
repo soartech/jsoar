@@ -9,8 +9,8 @@ import javax.swing.SwingUtilities;
 
 import org.flexdock.docking.DockingConstants;
 import org.jsoar.debugger.AbstractAdaptableView;
-import org.jsoar.debugger.JSoarDebuggerPlugin;
 import org.jsoar.debugger.JSoarDebugger;
+import org.jsoar.debugger.JSoarDebuggerPlugin;
 import org.jsoar.debugger.TraceView;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
@@ -33,8 +33,6 @@ public class TowersOfHanoi extends AbstractAdaptableView implements JSoarDebugge
     public TowersOfHanoi()
     {
         super("toh", "Towers of Hanoi");
-        
-        addAction(DockingConstants.PIN_ACTION);
     }
     
     /* (non-Javadoc)
