@@ -261,13 +261,7 @@ public abstract class Condition implements Formattable
         final PositiveCondition pc = cond.asPositiveCondition();
         if (pc != null)
         {
-            PositiveCondition New = new PositiveCondition();
-            New.id_test = Tests.copy(pc.id_test);
-            New.attr_test = Tests.copy(pc.attr_test);
-            New.value_test = Tests.copy(pc.value_test);
-            New.test_for_acceptable_preference = pc.test_for_acceptable_preference;
-            New.bt = pc.bt.copy();
-            return New;
+            return pc.copy();
         }
         final NegativeCondition nc = cond.asNegativeCondition();
         if (nc != null)

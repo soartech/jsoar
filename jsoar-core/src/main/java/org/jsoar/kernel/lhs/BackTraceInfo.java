@@ -30,7 +30,7 @@ public class BackTraceInfo implements Iterable<Preference>
     {
     }
     
-    public BackTraceInfo(BackTraceInfo other)
+    private BackTraceInfo(BackTraceInfo other)
     {
         this.wme_ = other.wme_;
         this.level = other.level;

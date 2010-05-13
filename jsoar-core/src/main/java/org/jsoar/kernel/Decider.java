@@ -1708,14 +1708,14 @@ public class Decider
             throw new IllegalStateException("Internal error: couldn't find acceptable pref wme");
         }
         // make the fake preference
-        Preference pref = new Preference(PreferenceType.ACCEPTABLE, goal,
+        final Preference pref = new Preference(PreferenceType.ACCEPTABLE, goal,
                 predefinedSyms.item_symbol, cand.value, null);
         pref.all_of_goal.insertAtHead(goal.preferences_from_goal);
         pref.on_goal_list = true;
         pref.preference_add_ref();
 
         // make the fake instantiation
-        Instantiation inst = new Instantiation(null, null, null);
+        final Instantiation inst = new Instantiation(null, null, null);
         pref.setInstantiation(inst);
         inst.match_goal = goal;
         inst.match_goal_level = goal.level;
@@ -1724,17 +1724,20 @@ public class Decider
         inst.in_ms = false;
 
         // make the fake condition
-        PositiveCondition cond = new PositiveCondition();
+        final PositiveCondition cond = new PositiveCondition();
 
-        inst.top_of_instantiated_conditions = cond;
-        inst.bottom_of_instantiated_conditions = cond;
-        inst.nots = null;
         cond.id_test = SymbolImpl.makeEqualityTest(ap_wme.id); // make_equality_test
                                                             // (ap_wme->id);
         cond.attr_test = SymbolImpl.makeEqualityTest(ap_wme.attr);
         cond.value_test = SymbolImpl.makeEqualityTest(ap_wme.value);
         cond.test_for_acceptable_preference = true;
-        cond.bt.wme_ = ap_wme;
+        cond.bt().wme_ = ap_wme;
+        cond.bt().level = ap_wme.id.level;
+        
+        inst.top_of_instantiated_conditions = cond;
+        inst.bottom_of_instantiated_conditions = cond;
+        inst.nots = null;
+        
         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
         {
             // (removed in jsoar) ap_wme.wme_add_ref();
@@ -1746,7 +1749,6 @@ public class Decider
              // (removed in jsoar) ap_wme.wme_add_ref();
             }
         }
-        cond.bt.level = ap_wme.id.level;
 
         // return the fake preference
         return pref;
@@ -2878,8 +2880,8 @@ public class Decider
                 // We'll deal with negative instantiations after we get the
                 // positive ones figured out
 
-                WmeImpl wme_matching_this_cond = pc.bt.wme_;
-                int wme_goal_level = pc.bt.level;
+                WmeImpl wme_matching_this_cond = pc.bt().wme_;
+                int wme_goal_level = pc.bt().level;
                 Preference pref_for_this_wme = wme_matching_this_cond.preference;
                 
                 if(DEBUG_GDS)
@@ -3048,14 +3050,14 @@ public class Decider
                                 if (DEBUG_GDS)
                                 {
                                     context.getPrinter().print("here's the wme with no slot:\t %s",
-                                      pref_for_this_wme.inst.top_of_instantiated_conditions.asPositiveCondition().bt.wme_);
+                                      pref_for_this_wme.inst.top_of_instantiated_conditions.asPositiveCondition().bt().wme_);
                                 }
 
                                 // this is the same code as above, just using the 
                                 // differently-named pointer.  it probably should
                                 // be a subroutine
                                 {
-                                    WmeImpl fake_inst_wme_cond = pref_for_this_wme.inst.top_of_instantiated_conditions.asPositiveCondition().bt.wme_;
+                                    WmeImpl fake_inst_wme_cond = pref_for_this_wme.inst.top_of_instantiated_conditions.asPositiveCondition().bt().wme_;
                                     if (fake_inst_wme_cond.gds != null)
                                     {
                                         /* Then we want to check and see if the old GDS

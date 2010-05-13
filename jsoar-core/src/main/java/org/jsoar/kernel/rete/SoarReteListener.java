@@ -166,7 +166,7 @@ public class SoarReteListener implements ReteListener
             {
                 if (current_node.node_type.bnode_is_positive())
                 {
-                    if (current_wme != cond.asPositiveCondition().bt.wme_)
+                    if (current_wme != cond.asPositiveCondition().bt().wme_)
                     {
                         match_found = false;
                         break;

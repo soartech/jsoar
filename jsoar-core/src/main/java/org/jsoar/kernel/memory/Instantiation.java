@@ -129,7 +129,7 @@ public class Instantiation implements Traceable
             PositiveCondition pc = cond.asPositiveCondition();
             if (pc != null)
             {
-                result.add(pc.bt.wme_);
+                result.add(pc.bt().wme_);
             }
         }
         return result;

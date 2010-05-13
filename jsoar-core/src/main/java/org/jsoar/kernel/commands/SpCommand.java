@@ -3,6 +3,8 @@
  */
 package org.jsoar.kernel.commands;
 
+import java.util.Arrays;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.parser.ParserException;
@@ -32,12 +34,12 @@ public final class SpCommand implements SoarCommand
         if(args.length != 2)
         {
             // TODO illegal argument
-            throw new SoarException(String.format("%s body", args[0]));
+            throw new SoarException(String.format("Expected %s body, got %s", args[0], Arrays.asList(args)));
         }
         
         try
         {
-            final SourceLocation location = new DefaultSourceLocation(sourceCommand.getCurrentFile(), -1, -1);
+            final SourceLocation location = new DefaultSourceLocation(sourceCommand != null ? sourceCommand.getCurrentFile() : "", -1, -1);
             agent.getProductions().loadProduction(args[1], location);
             agent.getPrinter().print("*");
             return "";

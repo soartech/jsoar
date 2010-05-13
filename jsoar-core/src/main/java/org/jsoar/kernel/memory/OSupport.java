@@ -277,7 +277,7 @@ public class OSupport
                         PositiveCondition pc = c.asPositiveCondition();
                         if (pc != null)
                         {
-                            w = pc.bt.wme_;
+                            w = pc.bt().wme_;
 
                             if (pass == 0)
                             {

@@ -10,6 +10,7 @@ import java.util.LinkedList;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.PredefinedSymbols;
+import org.jsoar.kernel.lhs.BackTraceInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Instantiation;
@@ -123,9 +124,10 @@ public class Backtracer
      */
     private void add_to_grounds(PositiveCondition cond)
     {
-        if ((cond).bt.wme_.grounds_tc != this.grounds_tc)
+        final BackTraceInfo bt = cond.bt();
+        if (bt.wme_.grounds_tc != this.grounds_tc)
         {
-            (cond).bt.wme_.grounds_tc = this.grounds_tc;
+            bt.wme_.grounds_tc = this.grounds_tc;
             this.grounds.push(cond);
         }
     }
@@ -136,13 +138,14 @@ public class Backtracer
      */
     private void add_to_potentials(PositiveCondition cond)
     {
-        if ((cond).bt.wme_.potentials_tc != this.potentials_tc)
+        final BackTraceInfo bt = cond.bt();
+        if (bt.wme_.potentials_tc != this.potentials_tc)
         {
-            (cond).bt.wme_.potentials_tc = this.potentials_tc;
-            (cond).bt.wme_.chunker_bt_pref = (cond).bt.trace;
+            bt.wme_.potentials_tc = this.potentials_tc;
+            bt.wme_.chunker_bt_pref = bt.trace;
             this.positive_potentials.push(cond);
         }
-        else if ((cond).bt.wme_.chunker_bt_pref != (cond).bt.trace)
+        else if (bt.wme_.chunker_bt_pref != bt.trace)
         {
             this.positive_potentials.push(cond);
         }
@@ -154,13 +157,14 @@ public class Backtracer
      */
     private void add_to_locals(PositiveCondition cond)
     {
-        if ((cond).bt.wme_.locals_tc != this.locals_tc)
+        final BackTraceInfo bt = cond.bt();
+        if (bt.wme_.locals_tc != this.locals_tc)
         {
-            (cond).bt.wme_.locals_tc = this.locals_tc;
-            (cond).bt.wme_.chunker_bt_pref = (cond).bt.trace;
+            bt.wme_.locals_tc = this.locals_tc;
+            bt.wme_.chunker_bt_pref = bt.trace;
             this.locals.push(cond);
         }
-        else if ((cond).bt.wme_.chunker_bt_pref != (cond).bt.trace)
+        else if (bt.wme_.chunker_bt_pref != bt.trace)
         {
             this.locals.push(cond);
         }
@@ -192,7 +196,7 @@ public class Backtracer
         for (Condition c : list)
         {
             final PositiveCondition pc = c.asPositiveCondition();
-            p.spaces(indent).print("     %s", pc != null ? pc.bt.wme_ : null);
+            p.spaces(indent).print("     %s", pc != null ? pc.bt().wme_ : null);
         }
     }
     
@@ -272,16 +276,16 @@ public class Backtracer
 
         for (Condition c = inst.top_of_instantiated_conditions; c != null; c = c.next)
         {
-            PositiveCondition pc = c.asPositiveCondition();
+            final PositiveCondition pc = c.asPositiveCondition();
             if (pc == null)
                 continue;
 
-            IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
+            final IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
 
             if (id.tc_number == tc)
             {
                 // id is already in the TC, so add in the value
-                IdentifierImpl valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
+                final IdentifierImpl valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
                 if (valueId != null)
                 {
                     // if we already saw it before, we're going to have to go
@@ -291,11 +295,11 @@ public class Backtracer
                     valueId.tc_number = tc;
                 }
             }
-            else if ((id.isa_goal) && (pc.bt.level <= grounds_level))
+            else if ((id.isa_goal) && (pc.bt().level <= grounds_level))
             {
                 // id is a higher goal id that was tested: so add id to the TC
                 id.tc_number = tc;
-                IdentifierImpl valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
+                final IdentifierImpl valueId = pc.value_test.asEqualityTest().getReferent().asIdentifier();
                 if (valueId != null)
                 {
                     // if we already saw it before, we're going to have to go
@@ -360,7 +364,7 @@ public class Backtracer
                     if (traceBacktracingOrExplain)
                         grounds_to_print.push(c);
                 }
-                else if (pc.bt.level <= grounds_level)
+                else if (pc.bt().level <= grounds_level)
                 {
                     add_to_potentials(pc);
                     if (traceBacktracingOrExplain)
@@ -435,14 +439,14 @@ public class Backtracer
 
         while (!locals.isEmpty())
         {
-            PositiveCondition cond = locals.pop();
-
+            final PositiveCondition cond = locals.pop();
+            final BackTraceInfo bt = cond.bt();
             if (traceBacktracing)
             {
-                printer.print("\nFor local %s ", cond.bt.wme_);
+                printer.print("\nFor local %s ", bt.wme_);
             }
 
-            Preference bt_pref = Preference.find_clone_for_level(cond.bt.trace, grounds_level + 1);
+            Preference bt_pref = Preference.find_clone_for_level(bt.trace, grounds_level + 1);
             // if it has a trace at this level, backtrace through it
             if (bt_pref != null)
             {
@@ -450,9 +454,9 @@ public class Backtracer
                 backtrace_through_instantiation(bt_pref.inst, grounds_level, cond, 0);
 
                 // check if any prohibit preferences
-                if (cond.bt.hasProhibits())
+                if (bt.hasProhibits())
                 {
-                    for (Preference p : cond.bt)
+                    for (Preference p : bt)
                     {
                         if (traceBacktracing)
                         {
@@ -524,18 +528,19 @@ public class Backtracer
             Iterator<PositiveCondition> it = positive_potentials.iterator();
             while (it.hasNext())
             {
-                PositiveCondition pot = it.next();
+                final PositiveCondition pot = it.next();
                 if (pot.cond_is_in_tc(tc))
                 {
+                    final BackTraceInfo bt = pot.bt();
                     // pot is a grounded potential, move it over to ground set
                     if (traceBacktracing)
                     {
-                        printer.print("\n-->Moving to grounds: %s", pot.bt.wme_);
+                        printer.print("\n-->Moving to grounds: %s", bt.wme_);
                     }
                     it.remove();
-                    if (pot.bt.wme_.grounds_tc != grounds_tc)
+                    if (bt.wme_.grounds_tc != grounds_tc)
                     { /* add pot to grounds */
-                        pot.bt.wme_.grounds_tc = grounds_tc;
+                        bt.wme_.grounds_tc = grounds_tc;
                         grounds.push(pot);
                         pot.add_cond_to_tc(tc, null, null);
                         need_another_pass = true;
@@ -580,8 +585,8 @@ public class Backtracer
         final Iterator<PositiveCondition> it = positive_potentials.iterator();
         while (it.hasNext())
         {
-            PositiveCondition potential = it.next();
-            Preference bt_pref = Preference.find_clone_for_level(potential.bt.trace, grounds_level + 1);
+            final PositiveCondition potential = it.next();
+            final Preference bt_pref = Preference.find_clone_for_level(potential.bt().trace, grounds_level + 1);
             if (bt_pref != null)
             {
                 // Remove potential from positive_potentials and add to
@@ -600,17 +605,18 @@ public class Backtracer
         // backtrace through each one
         while (!pots_to_bt.isEmpty())
         {
-            PositiveCondition potential = pots_to_bt.pop();
+            final PositiveCondition potential = pots_to_bt.pop();
+            final BackTraceInfo bt = potential.bt();
             if (traceBacktracing)
             {
-                printer.print("\nFor ungrounded potential %s ", potential.bt.wme_);
+                printer.print("\nFor ungrounded potential %s ", bt.wme_);
             }
-            Preference bt_pref = Preference.find_clone_for_level(potential.bt.trace, grounds_level + 1);
+            Preference bt_pref = Preference.find_clone_for_level(bt.trace, grounds_level + 1);
 
             backtrace_through_instantiation(bt_pref.inst, grounds_level, potential, 0);
-            if (potential.bt.hasProhibits())
+            if (bt.hasProhibits())
             {
-                for (Preference p : potential.bt)
+                for (Preference p : bt)
                 {
                     if (traceBacktracing)
                     {

@@ -18,7 +18,7 @@ public class PositiveCondition extends ThreeFieldCondition
     /**
      * for top-level positive cond's: used for BT and by the rete
      */
-    public BackTraceInfo bt = new BackTraceInfo();
+    private BackTraceInfo bt;
     
     
     public PositiveCondition()
@@ -31,9 +31,30 @@ public class PositiveCondition extends ThreeFieldCondition
         super(negativeCondition);
     }
 
+    public PositiveCondition copy()
+    {
+        final PositiveCondition result = new PositiveCondition();
+        result.id_test = Tests.copy(id_test);
+        result.attr_test = Tests.copy(attr_test);
+        result.value_test = Tests.copy(value_test);
+        result.test_for_acceptable_preference = test_for_acceptable_preference;
+        result.bt = bt != null ? bt.copy() : null;
+        
+        return result;
+    }
+    
     public NegativeCondition negate()
     {
         return new NegativeCondition(this);
+    }
+    
+    public BackTraceInfo bt() 
+    {
+        if(bt == null)
+        {
+            bt = new BackTraceInfo();
+        }
+        return bt;
     }
     
     /* (non-Javadoc)

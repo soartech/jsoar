@@ -25,6 +25,7 @@ import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
+import org.jsoar.kernel.lhs.BackTraceInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rete.ConditionsAndNots;
@@ -189,22 +190,23 @@ public class RecognitionMemory
     {
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
-            PositiveCondition pc = cond.asPositiveCondition();
+            final PositiveCondition pc = cond.asPositiveCondition();
+            final BackTraceInfo bt = pc != null ? pc.bt() : null;
             if(pc != null)
             {
-                pc.bt.clearProhibits();
+                bt.clearProhibits();
             }
-            if (pc != null && pc.bt.trace != null)
+            if (pc != null && bt.trace != null)
             {
-                if (pc.bt.trace.slot != null)
+                if (bt.trace.slot != null)
                 {
-                    Preference pref = pc.bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
+                    Preference pref = bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
                     while (pref != null)
                     {
                         Preference new_pref = null;
                         if (pref.inst.match_goal_level == inst.match_goal_level && pref.isInTempMemory())
                         {
-                            pc.bt.addProhibit(pref);
+                            bt.addProhibit(pref);
                         }
                         else
                         {
@@ -213,7 +215,7 @@ public class RecognitionMemory
                             {
                                 if (new_pref.isInTempMemory())
                                 {
-                                    pc.bt.addProhibit(new_pref);
+                                    bt.addProhibit(new_pref);
                                 }
                             }
                         }
@@ -243,16 +245,17 @@ public class RecognitionMemory
         int lowest_level_so_far = -1;
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
-            PositiveCondition pc = cond.asPositiveCondition();
+            final PositiveCondition pc = cond.asPositiveCondition();
             if (pc != null)
             {
-                IdentifierImpl id = pc.bt.wme_.id;
+                final BackTraceInfo bt = pc.bt();
+                final IdentifierImpl id = bt.wme_.id;
                 if (id.isa_goal)
                 {
-                    if (pc.bt.level > lowest_level_so_far)
+                    if (bt.level > lowest_level_so_far)
                     {
                         lowest_goal_so_far = id;
-                        lowest_level_so_far = pc.bt.level;
+                        lowest_level_so_far = bt.level;
                     }
                 }
             }
@@ -565,21 +568,22 @@ public class RecognitionMemory
                     }
                 }
                 // if trace is for a lower level, find one for this level
-                if (pc.bt.trace != null)
+                final BackTraceInfo bt = pc.bt();
+                if (bt.trace != null)
                 {
-                    if (pc.bt.trace.inst.match_goal_level > level)
+                    if (bt.trace.inst.match_goal_level > level)
                     {
-                        pc.bt.trace = Preference.find_clone_for_level(pc.bt.trace, level);
+                        bt.trace = Preference.find_clone_for_level(bt.trace, level);
                     }
                     if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                     {
-                        if (pc.bt.trace != null)
-                            pc.bt.trace.preference_add_ref();
+                        if (bt.trace != null)
+                            bt.trace.preference_add_ref();
                     }
                     else
                     {
-                        if ((pc.bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
-                            pc.bt.trace.preference_add_ref();
+                        if ((bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
+                            bt.trace.preference_add_ref();
                     }
                 }
             }
@@ -645,8 +649,9 @@ public class RecognitionMemory
             final PositiveCondition pc = cond.asPositiveCondition();
             if (pc != null)
             {
-                pc.bt.level = pc.bt.wme_.id.level;
-                pc.bt.trace = pc.bt.wme_.preference;
+                final BackTraceInfo bt = pc.bt();
+                bt.level = bt.wme_.id.level;
+                bt.trace = bt.wme_.preference;
             }
         }
 
@@ -849,9 +854,10 @@ public class RecognitionMemory
             final PositiveCondition pc = cond.asPositiveCondition();
             if (pc != null)
             {
-                if (pc.bt.hasProhibits())
+                final BackTraceInfo bt = pc.bt();
+                if (bt.hasProhibits())
                 {
-                    for (Preference pref : pc.bt)
+                    for (Preference pref : bt)
                     {
                         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                         {
@@ -863,16 +869,16 @@ public class RecognitionMemory
                                 pref.preference_remove_ref(this);
                         }
                     }
-                    pc.bt.clearProhibits();
+                    bt.clearProhibits();
                 }
 
                 if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
                 {
-                    // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
-                    if (pc.bt.trace != null)
+                    // (removed in jsoar) pc.bt().wme_.wme_remove_ref(context.workingMemory);
+                    if (bt.trace != null)
                     {
-                        pc.bt.trace.preference_remove_ref(this);
-                        pc.bt.trace = null; // This is very important to avoid memory leaks!
+                        bt.trace.preference_remove_ref(this);
+                        bt.trace = null; // This is very important to avoid memory leaks!
                     }
                 }
                 else
@@ -880,10 +886,10 @@ public class RecognitionMemory
                     if (level > SoarConstants.TOP_GOAL_LEVEL)
                     {
                         // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
-                        if (pc.bt.trace != null)
+                        if (bt.trace != null)
                         {
-                            pc.bt.trace.preference_remove_ref(this);
-                            pc.bt.trace = null; // This is very important to avoid memory leaks!
+                            bt.trace.preference_remove_ref(this);
+                            bt.trace = null; // This is very important to avoid memory leaks!
                         }
                     }
                 }

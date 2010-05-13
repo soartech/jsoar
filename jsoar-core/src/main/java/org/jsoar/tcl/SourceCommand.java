@@ -172,6 +172,7 @@ public class SourceCommand implements Command
             final String fileString = file.getAbsolutePath();
             fileStack.push(fileString);
             interp.evalFile(fileString);
+            interp.cleanupTokens();
         }
         finally
         {

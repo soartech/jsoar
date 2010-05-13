@@ -2379,7 +2379,7 @@ public class Rete
                 pc.attr_test = SymbolImpl.makeEqualityTest(w.attr);
                 pc.value_test = SymbolImpl.makeEqualityTest(w.value);
                 pc.test_for_acceptable_preference = w.acceptable;
-                pc.bt.wme_ = w;
+                pc.bt().wme_ = w;
                 if (node.b_posneg.other_tests != null)
                 { /* don't bother if there are no tests*/
                     result.nots_found_in_production = collect_nots(node.b_posneg.other_tests, w, cond,
@@ -2390,8 +2390,8 @@ public class Rete
             {
                 // Here (because of w != null in test above), the condition can still be 
                 // positive or negative, i.e. just a three-field condition
-                ThreeFieldCondition tfc = cond.asThreeFieldCondition();
-                AlphaMemory am = node.b_posneg.alpha_mem_;
+                final ThreeFieldCondition tfc = cond.asThreeFieldCondition();
+                final AlphaMemory am = node.b_posneg.alpha_mem_;
                 tfc.id_test = SymbolImpl.makeEqualityTest(am.id);
                 tfc.attr_test = SymbolImpl.makeEqualityTest(am.attr);
                 tfc.value_test = SymbolImpl.makeEqualityTest(am.value);
