@@ -21,12 +21,22 @@ import org.jsoar.util.ListHead;
  */
 class NodeVarNames
 {
+    private static final boolean ENABLED = !Boolean.valueOf(System.getProperty("jsoar.discardVarNames", "false"));
+    
     public static class ThreeFieldVarNames
     {
-        Object id_varnames;
-        Object attr_varnames;
-        Object value_varnames;
+        final Object id_varnames;
+        final Object attr_varnames;
+        final Object value_varnames;
         
+        private ThreeFieldVarNames(Object idVarnames, Object attrVarnames,
+                Object valueVarnames)
+        {
+            id_varnames = idVarnames;
+            attr_varnames = attrVarnames;
+            value_varnames = valueVarnames;
+        }
+
         /* (non-Javadoc)
          * @see java.lang.Object#toString()
          */
@@ -43,20 +53,16 @@ class NodeVarNames
     final NodeVarNames bottom_of_subconditions;
     //} data;
     
-    private NodeVarNames(NodeVarNames parent)
+    private NodeVarNames(NodeVarNames parent, Object idVars, Object attrVars, Object valueVars)
     {
         this.parent = parent;
-        this.fields = new ThreeFieldVarNames();
+        this.fields = new ThreeFieldVarNames(idVars, attrVars, valueVars);
         this.bottom_of_subconditions = null;
     }
     
     static NodeVarNames newInstance(NodeVarNames parent, Object idVars, Object attrVars, Object valueVars)
     {
-        final NodeVarNames nvn = new NodeVarNames(parent);
-        parent.fields.id_varnames = idVars;
-        parent.fields.attr_varnames = attrVars;
-        parent.fields.value_varnames = valueVars;
-        return nvn;
+        return new NodeVarNames(parent, idVars, attrVars, valueVars);
     }
     
     private NodeVarNames(NodeVarNames parent, NodeVarNames bottom_of_subconditions)
@@ -80,24 +86,28 @@ class NodeVarNames
      */
     static NodeVarNames make_nvn_for_posneg_cond(ThreeFieldCondition cond, NodeVarNames parent_nvn)
     {
-        NodeVarNames New = new NodeVarNames(parent_nvn);
-        ListHead<Variable> vars_bound = ListHead.newInstance();
+        if(!ENABLED)
+        {
+            return null;
+        }
+        
+        final ListHead<Variable> vars_bound = ListHead.newInstance();
 
         /* --- fill in varnames for id test --- */
-        New.fields.id_varnames = VarNames.add_unbound_varnames_in_test(cond.id_test, null);
+        final Object idVars = VarNames.add_unbound_varnames_in_test(cond.id_test, null);
 
         /* --- add sparse bindings for id, then get attr field varnames --- */
         Rete.bind_variables_in_test(cond.id_test, 0, 0, false, vars_bound);
-        New.fields.attr_varnames = VarNames.add_unbound_varnames_in_test(cond.attr_test, null);
+        final Object attrVars = VarNames.add_unbound_varnames_in_test(cond.attr_test, null);
 
         /* --- add sparse bindings for attr, then get value field varnames --- */
         Rete.bind_variables_in_test(cond.attr_test, 0, 0, false, vars_bound);
-        New.fields.value_varnames = VarNames.add_unbound_varnames_in_test(cond.value_test, null);
+        final Object valueVars = VarNames.add_unbound_varnames_in_test(cond.value_test, null);
 
         /* --- Pop the variable bindings for these conditions --- */
         Rete.pop_bindings_and_deallocate_list_of_variables(vars_bound);
 
-        return New;
+        return newInstance(parent_nvn, idVars, attrVars, valueVars);
     }  
 
     
@@ -110,6 +120,11 @@ class NodeVarNames
      */
     static NodeVarNames get_nvn_for_condition_list(Condition cond_list, NodeVarNames parent_nvn)
     {
+        if(!ENABLED)
+        {
+            return null;
+        }
+        
         NodeVarNames New = null;
         ListHead<Variable> vars = ListHead.newInstance();
 
