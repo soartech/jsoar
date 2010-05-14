@@ -5,8 +5,11 @@
  */
 package org.jsoar.kernel;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
@@ -54,6 +57,7 @@ import org.jsoar.util.Arguments;
 import org.jsoar.util.NullWriter;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.properties.PropertyManager;
@@ -820,5 +824,29 @@ public class Agent extends AbstractAdaptable
     public String toString()
     {
         return getName();
+    }
+    
+    private static Agent agent() throws Exception
+    {
+        final Agent a = new Agent();
+        a.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
+        a.initialize();
+        a.setInterpreter(new DefaultInterpreter(a));
+        a.getInterpreter().source(new File("c:/veteran.soar"));
+        a.getPrinter().flush();
+        return a;
+    }
+    public static void main(String[] args) throws Exception
+    {
+        final List<Agent> agents = new ArrayList<Agent>();
+        for(int i = 0; i < 20; ++i)
+        {
+            System.out.print("\n#" + (i + 1));
+            agents.add(agent());
+        }
+        while(true)
+        {
+            Thread.sleep(1000);
+        }
     }
 }
