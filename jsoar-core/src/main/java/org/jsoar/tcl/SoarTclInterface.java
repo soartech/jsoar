@@ -28,16 +28,20 @@ import org.jsoar.kernel.commands.MaxElaborationsCommand;
 import org.jsoar.kernel.commands.MemoriesCommand;
 import org.jsoar.kernel.commands.MultiAttrCommand;
 import org.jsoar.kernel.commands.OSupportModeCommand;
+import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PreferencesCommand;
 import org.jsoar.kernel.commands.PrintCommand;
 import org.jsoar.kernel.commands.ProductionFindCommand;
 import org.jsoar.kernel.commands.PropertiesCommand;
+import org.jsoar.kernel.commands.PushdCommand;
+import org.jsoar.kernel.commands.PwdCommand;
 import org.jsoar.kernel.commands.QMemoryCommand;
 import org.jsoar.kernel.commands.ReinforcementLearningCommand;
 import org.jsoar.kernel.commands.RhsFunctionsCommand;
 import org.jsoar.kernel.commands.SaveBacktracesCommand;
 import org.jsoar.kernel.commands.SetParserCommand;
 import org.jsoar.kernel.commands.Soar8Command;
+import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.SrandCommand;
 import org.jsoar.kernel.commands.StatsCommand;
@@ -139,10 +143,10 @@ public class SoarTclInterface implements SoarCommandInterpreter
         initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
         
-        interp.createCommand("source", this.sourceCommand = new SourceCommand());
-        interp.createCommand("pushd", new PushdCommand(sourceCommand));
-        interp.createCommand("popd", new PopdCommand(sourceCommand));
-        interp.createCommand("pwd", new PwdCommand(sourceCommand));
+        addCommand("source", this.sourceCommand = new SourceCommand(this));
+        addCommand("pushd", new PushdCommand(sourceCommand));
+        addCommand("popd", new PopdCommand(sourceCommand));
+        addCommand("pwd", new PwdCommand(sourceCommand));
         
         addCommand("sp", new SpCommand(this.agent, this.sourceCommand));
         addCommand("multi-attributes", new MultiAttrCommand(this.agent));
@@ -256,26 +260,12 @@ public class SoarTclInterface implements SoarCommandInterpreter
     
     public void source(File file) throws SoarException
     {
-        try
-        {
-            sourceCommand.source(interp, file.getPath());
-        }
-        catch (TclException e)
-        {
-            throw new SoarTclException(interp);
-        }
+        sourceCommand.source(file.getPath());
     }
     
     public void source(URL url) throws SoarException
     {
-        try
-        {
-            sourceCommand.source(interp, url.toExternalForm());
-        }
-        catch (TclException e)
-        {
-            throw new SoarTclException(interp);
-        }
+        sourceCommand.source(url.toExternalForm());
     }
     
     public String eval(String command) throws SoarException

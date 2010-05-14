@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Dave Ray <daveray@gmail.com>
  */
-package org.jsoar.tcl;
+package org.jsoar.kernel.commands;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,17 +13,13 @@ import java.util.Stack;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
-
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
+import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandInterpreter;
 
 /**
  * @author ray
  */
-public class SourceCommand implements Command
+public class SourceCommand implements SoarCommand
 {
     // This ain't pretty, but it's private and it works
     private static class Entry
@@ -35,12 +31,14 @@ public class SourceCommand implements Command
         public Entry(URL url) { this.url = url; }
     }
     
+    private final SoarCommandInterpreter interp;
     private Entry workingDirectory = new Entry(new File(System.getProperty("user.dir")));
     private Stack<Entry> directoryStack = new Stack<Entry>();
     private Stack<String> fileStack = new Stack<String>();
     
-    public SourceCommand()
+    public SourceCommand(SoarCommandInterpreter interp)
     {
+        this.interp = interp;
         fileStack.push("");
     }
     
@@ -54,7 +52,7 @@ public class SourceCommand implements Command
         return fileStack.peek();
     }
     
-    public void pushd(Interp interp, String dirString) throws TclException
+    public void pushd(String dirString) throws SoarException
     {
         File newDir = new File(dirString);
         URL url = FileTools.asUrl(dirString);
@@ -80,72 +78,67 @@ public class SourceCommand implements Command
             
             if(!newDir.exists())
             {
-                throw new TclException(interp, "Directory '" + newDir  + "' does not exist");
+                throw new SoarException("Directory '" + newDir  + "' does not exist");
             }
             if(!newDir.isDirectory())
             {
-                throw new TclException(interp, "'" + newDir + "' is not a directory");
+                throw new SoarException("'" + newDir + "' is not a directory");
             }
             directoryStack.push(workingDirectory);
             workingDirectory = new Entry(newDir);
         }
     }
     
-    public void popd(Interp interp) throws TclException
+    public void popd() throws SoarException
     {
         if(directoryStack.isEmpty())
         {
-            throw new TclException(interp, "Directory stack is empty");
+            throw new SoarException("Directory stack is empty");
         }
         workingDirectory = directoryStack.pop();
     }
 
-    public void source(Interp interp, String fileString) throws TclException, SoarException
+    public void source(String fileString) throws SoarException
     {
         final URL url = FileTools.asUrl(fileString);
         File file = new File(fileString);
         if(url != null)
         {
-            pushd(interp, getParentUrl(url).toExternalForm());
-            evalUrlAndPop(interp, url);
+            pushd(getParentUrl(url).toExternalForm());
+            evalUrlAndPop(url);
         }
         else if(file.isAbsolute())
         {
-            pushd(interp, file.getParent());
-            evalFileAndPop(interp, file);
+            pushd(file.getParent());
+            evalFileAndPop(file);
         }
         else if(workingDirectory.url != null)
         {
             final URL childUrl = joinUrl(workingDirectory.url, fileString);
-            pushd(interp, getParentUrl(childUrl).toExternalForm());
-            evalUrlAndPop(interp, childUrl);
+            pushd(getParentUrl(childUrl).toExternalForm());
+            evalUrlAndPop(childUrl);
         }
         else 
         {
             file = new File(workingDirectory.file, file.getPath());
-            pushd(interp, file.getParent());
-            evalFileAndPop(interp, file);
+            pushd(file.getParent());
+            evalFileAndPop(file);
         }
     }
     
     /* (non-Javadoc)
-     * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
+     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
-    public void cmdProc(Interp interp, TclObject[] args) throws TclException
+    @Override
+    public String execute(String[] args) throws SoarException
     {
         if(args.length != 2)
         {
-            throw new TclNumArgsException(interp, 0, args, "fileName");
+            throw new SoarException("Expected fileName argument");
         }
         
-        try
-        {
-            source(interp, args[1].toString());
-        }
-        catch (SoarException e)
-        {
-            throw new TclException(interp, e.getMessage());
-        }
+        source(args[1].toString());
+        return "";
     }
     
     private URL getParentUrl(URL url) throws SoarException
@@ -165,23 +158,21 @@ public class SourceCommand implements Command
         return FileTools.asUrl(s.endsWith("/") ? s + child : s + "/" + child);
     }
     
-    private void evalFileAndPop(Interp interp, File file) throws TclException
+    private void evalFileAndPop(File file) throws SoarException
     {
         try
         {
-            final String fileString = file.getAbsolutePath();
-            fileStack.push(fileString);
-            interp.evalFile(fileString);
-            interp.cleanupTokens();
+            fileStack.push(file.getAbsolutePath());
+            interp.source(file);
         }
         finally
         {
             fileStack.pop();
-            popd(interp);
+            popd();
         }
     }
     
-    private void evalUrlAndPop(Interp interp, URL url) throws TclException
+    private void evalUrlAndPop(URL url) throws SoarException
     {
         try
         {
@@ -200,12 +191,12 @@ public class SourceCommand implements Command
         }
         catch (IOException e)
         {
-            throw new TclException(interp, e.getMessage());
+            throw new SoarException(e.getMessage());
         }
         finally
         {
             fileStack.pop();
-            popd(interp);
+            popd();
         }
     }
 }

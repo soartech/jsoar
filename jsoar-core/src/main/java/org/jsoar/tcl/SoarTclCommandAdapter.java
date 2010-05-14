@@ -14,7 +14,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclObject;
 
 /**
- * Adapts from Tcl Command interface to SoarCommand interface.
+ * Adapts from Tcl Command interface to {@link SoarCommand} interface.
  * 
  * @author ray
  */
