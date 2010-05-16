@@ -204,12 +204,12 @@ public class Rete
     public ProductionAddResult add_production_to_rete(Production p, Instantiation refracted_inst,
             boolean warn_on_duplicates, boolean ignore_rhs)
     {
-        Condition lhs_top = p.condition_list;
+        final Condition lhs_top = p.condition_list;
         ProductionAddResult production_addition_result;
 
-        ByRef<ReteNode> bottom_node = ByRef.create(null);
-        ByRef<Integer> bottom_depth = ByRef.create(0);
-        ByRef<ListHead<Variable>> vars_bound = ByRef.create(null);
+        final ByRef<ReteNode> bottom_node = ByRef.create(null);
+        final ByRef<Integer> bottom_depth = ByRef.create(0);
+        final ByRef<ListHead<Variable>> vars_bound = ByRef.create(null);
         // build the network for all the conditions
         ReteBuilder.build_network_for_condition_list(this, lhs_top, 1, dummy_top_node, bottom_node, bottom_depth,
                 vars_bound);
@@ -217,8 +217,8 @@ public class Rete
         // change variable names in RHS to Rete location references or
         // unbound variable indices
 
-        List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>(3);
-        Marker rhs_unbound_vars_tc = DefaultMarker.create();
+        final List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>(3);
+        final Marker rhs_unbound_vars_tc = DefaultMarker.create();
         for (Action a = p.action_list; a != null; a = a.next)
         {
             MakeAction ma = a.asMakeAction();

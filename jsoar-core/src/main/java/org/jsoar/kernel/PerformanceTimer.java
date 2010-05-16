@@ -29,7 +29,6 @@ public class PerformanceTimer
      */
     public static void main(String[] args) throws Exception
     {
-        System.out.println("Blarglgarbl!");
         for(String arg : args)
         {
             if("--raw".equals(arg))

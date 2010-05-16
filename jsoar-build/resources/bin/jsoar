@@ -108,8 +108,6 @@ if [ -z "$JAVA_HOME" ] ; then
   echo "Warning: JAVA_HOME environment variable is not set."
 fi
 
-JSOAR_DEBUGGER=org.jsoar.debugger.JSoarDebugger
-
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   [ -n "$JSOAR_HOME" ] &&
@@ -120,11 +118,18 @@ if $cygwin; then
     HOME=`cygpath --path --windows "$HOME"`
 fi
 
-JSOAR_OPTS="$JSOAR_OPTS -Xmx1024m -Djsoar.legilimens.autoStart=true"
+if [ "x$JSOAR_MAIN" = "x" ]; then
+  JSOAR_MAIN=org.jsoar.debugger.JSoarDebugger
+fi
+
+if [ "x$JSOAR_OPTS" = "x" ]; then
+  JSOAR_OPTS="-Xmx1024m -Djsoar.legilimens.autoStart=true"
+fi
+
 exec "$JAVACMD" \
   $JSOAR_OPTS \
   -classpath "${JSOAR_HOME}/lib/*" \
   "-Djsoar.home=${JSOAR_HOME}"  \
-  ${JSOAR_DEBUGGER} $*
+  ${JSOAR_MAIN} $*
 # $QUOTED_ARGS
 
