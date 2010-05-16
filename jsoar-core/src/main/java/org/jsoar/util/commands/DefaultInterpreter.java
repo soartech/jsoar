@@ -132,6 +132,14 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     }
 
     /* (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#getName()
+     */
+    @Override
+    public String getName()
+    {
+        return "default";
+    }
+    /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommandInterpreter#dispose()
      */
     @Override

@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-demos"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-legilimens"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-sml"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-tcl"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

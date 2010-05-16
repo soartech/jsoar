@@ -1,7 +1,7 @@
 <project name="jsoar" default="dist" basedir=".">
    <!-- Use -Dversion=X.X.X to override the JSoar version number -->
    <property name="soarVersion" value="9.0.1" />
-   <property name="copyright" value="(c) Dave Ray, 2009"/>
+   <property name="copyright" value="(c) Dave Ray, 2010"/>
    <property name="manifest.vendor" value="Dave Ray"/>
 
    <property name="dist" location="dist" />
@@ -43,6 +43,7 @@
    <target name="dist" depends="init">
       <ant dir="../jsoar-core" antfile="build.xml"/>
        <ant dir="../jsoar-debugger" antfile="build.xml"/>
+       <ant dir="../jsoar-tcl" antfile="build.xml"/>
        <ant dir="../jsoar-legilimens" antfile="build.xml"/>
        <ant dir="../jsoar-sml" antfile="build.xml"/>
        <ant dir="../jsoar-demos" antfile="build.xml"/>
@@ -63,6 +64,7 @@
 
       <ant dir="../jsoar-core" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-debugger" antfile="build.xml" target="clean"/>
+      <ant dir="../jsoar-tcl" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-legilimens" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-sml" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-demos" antfile="build.xml" target="clean"/>
@@ -70,7 +72,8 @@
     
     <target name="doc">
        <ant dir="../jsoar-core" antfile="build.xml" target="doc"/>
-       <ant dir="../jsoar-debugger" antfile="build.xml" target="doc"/>
+        <ant dir="../jsoar-debugger" antfile="build.xml" target="doc"/>
+        <ant dir="../jsoar-tcl" antfile="build.xml" target="doc"/>
         <!--
        <ant dir="../jsoar-sml" antfile="build.xml" target="doc"/>
        <ant dir="../jsoar-demos" antfile="build.xml" target="doc"/>

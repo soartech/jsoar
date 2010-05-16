@@ -236,11 +236,15 @@ public class SoarTclInterface implements SoarCommandInterpreter
         return new SoarTclCommandAdapter(c);
     }
     
-    public Interp getInterpreter()
+    /* (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#getName()
+     */
+    @Override
+    public String getName()
     {
-        return interp;
+        return "tcl";
     }
-    
+
     public void dispose()
     {
         synchronized(interfaces)

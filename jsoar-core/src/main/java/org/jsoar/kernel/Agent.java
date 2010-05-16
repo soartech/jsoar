@@ -12,9 +12,11 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -52,13 +54,13 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.tcl.SoarTclInterface;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.NullWriter;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.DefaultInterpreter;
 import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarCommandInterpreterFactory;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.timing.DefaultExecutionTimer;
@@ -316,9 +318,8 @@ public class Agent extends AbstractAdaptable
         {
             if(interp == null)
             {
-                //interp = new DefaultInterpreter(this);
-                interp = SoarTclInterface.findOrCreate(this);
-                logger.info("Current command interpreter is '" + interp.getClass() + "'");
+                interp = createInterpreter(System.getProperty("jsoar.agent.interpreter", "default"));
+                logger.info("Current command interpreter is '" + interp.getName() + "' : '" + interp.getClass() + "'");
                 final String DEFAULT_ALIASES = "/org/jsoar/kernel/commands/aliases";
                 try
                 {
@@ -331,6 +332,22 @@ public class Agent extends AbstractAdaptable
             }
             return interp;
         }
+    }
+    
+    private SoarCommandInterpreter createInterpreter(String name)
+    {
+        final ServiceLoader<SoarCommandInterpreterFactory> loader = ServiceLoader.load(SoarCommandInterpreterFactory.class);
+        for(Iterator<SoarCommandInterpreterFactory> it = loader.iterator(); it.hasNext();)
+        {
+            final SoarCommandInterpreterFactory factory = it.next();
+            if(name == null || name.equals(factory.getName()))
+            {
+                return factory.create(this);
+            }
+        }
+        
+        logger.warn("Could not find interpreter named '" + name + "'. Using default.");
+        return new DefaultInterpreter(this);
     }
     
     /**

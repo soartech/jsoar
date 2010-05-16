@@ -120,8 +120,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setEditable(false);
         
         final JSoarVersion version = JSoarVersion.getInstance();
-        outputWindow.setText("JSoar " + version + "\nhttp://jsoar.googlecode.com\n\n" +  
-                             "Right-click for trace options\n");
+        outputWindow.setText("JSoar " + version + "\n" + 
+                             "http://jsoar.googlecode.com\n" + 
+                             "Current command interpreter is '" + debugger.getAgent().getInterpreter().getName() + "'\n" +
+                             "\nRight-click for trace options\n");
         
         debugger.getAgent().getPrinter().pushWriter(outputWriter);
         

@@ -23,6 +23,11 @@ import org.jsoar.kernel.SoarException;
 public interface SoarCommandInterpreter
 {
     /**
+     * @return a name for this interpreter, e.g. "default", or "tcl"
+     */
+    String getName();
+    
+    /**
      * Dispose of this interpreter, detaching it from the agent. This method
      * is called when a new interpreter is added to the agent. It is also
      * called when {@link Agent#dispose()} is called.

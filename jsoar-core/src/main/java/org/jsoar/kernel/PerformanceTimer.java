@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jsoar.tcl.SoarTclException;
 import org.jsoar.util.NullWriter;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
@@ -64,7 +63,7 @@ public class PerformanceTimer
      * @throws SoarTclException
      * @throws SoarException 
      */
-    private static void doRun(String[] args) throws SoarTclException, SoarException
+    private static void doRun(String[] args) throws SoarException
     {
         Agent agent = new Agent();
         agent.getTrace().setEnabled(false);
