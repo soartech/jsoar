@@ -120,7 +120,7 @@ if $cygwin; then
     HOME=`cygpath --path --windows "$HOME"`
 fi
 
-JSOAR_OPTS="$JSOAR_OPTS -Djsoar.legilimens.autoStart=true"
+JSOAR_OPTS="$JSOAR_OPTS -Xmx1024m -Djsoar.legilimens.autoStart=true"
 exec "$JAVACMD" \
   $JSOAR_OPTS \
   -classpath "${JSOAR_HOME}/lib/*" \

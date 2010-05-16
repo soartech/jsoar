@@ -10,6 +10,6 @@ rem > jsoar [soar files or URLs]
 set HERE=%~sp0
 
 rem Enable Legilimens web interface just for fun
-set JSOAR_OPTS=-Xmx1024m -Djsoar.legilimens.autoStart=true
+set JSOAR_OPTS=%JSOAR_OPTS% -Xmx1024m -Djsoar.legilimens.autoStart=true
 
-java %JSOAR_OPTS% -cp "%HERE%lib\*" org.jsoar.debugger.JSoarDebugger %*
+java %JSOAR_OPTS% -cp "%HERE%..\lib\*" org.jsoar.debugger.JSoarDebugger %*

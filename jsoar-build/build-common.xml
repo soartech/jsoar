@@ -56,25 +56,7 @@
         <delete dir="${target}" />
     </target>
 	
-	<target name="buildinfo">
-		<!-- Run "svnversion" command to get the exact revision. Requires svn on path -->
-		<exec executable="svnversion" spawn="false" dir="." outputproperty="revision"
-			  failifexecutionfails="false"
-			  failonerror="false">
-			<arg line="."/>
-		</exec>
-		
-		<!-- Run "svn info" to get URL. -->
-        <exec executable="svn" spawn="false" dir="." output="${target}/svn.info.xml"
-              failifexecutionfails="false"
-              failonerror="false">
-            <arg line="info"/>
-            <arg line="--xml"/>
-        </exec>
-		
-		<!-- Pull svn.info.xml into properties so we can get URL below -->
-	    <xmlproperty file="${target}/svn.info.xml" keepRoot="false" prefix="svn.info"/>
-		
+	<target name="buildinfo">		
 		<touch file="${target.classes}/${ant.project.name}.buildinfo.properties"/>
 		
 		<!-- Build a build info file with version and SVN revision info -->
@@ -87,8 +69,6 @@
 			       value="now"
 			       pattern="dd/MM/yyyy HH:mm"/>
 			<entry key="${ant.project.name}.buildinfo.builtBy" value="${user.name}"/>
-            <entry key="${ant.project.name}.buildinfo.svn.revision" value="${revision}"/>
-            <entry key="${ant.project.name}.buildinfo.svn.url" value="${svn.info.entry.url}"/>
 		</propertyfile>
 	</target>
 
