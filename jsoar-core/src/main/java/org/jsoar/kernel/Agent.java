@@ -347,6 +347,7 @@ public class Agent extends AbstractAdaptable
                 this.interp.dispose();
             }
             this.interp = interp;
+            logger.info("Current command interpreter is '" + (interp != null ? interp.getClass() : "none") + "'");
         }
     }
     
