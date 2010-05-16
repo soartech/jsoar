@@ -316,7 +316,9 @@ public class Agent extends AbstractAdaptable
         {
             if(interp == null)
             {
+                //interp = new DefaultInterpreter(this);
                 interp = SoarTclInterface.findOrCreate(this);
+                logger.info("Current command interpreter is '" + interp.getClass() + "'");
                 final String DEFAULT_ALIASES = "/org/jsoar/kernel/commands/aliases";
                 try
                 {

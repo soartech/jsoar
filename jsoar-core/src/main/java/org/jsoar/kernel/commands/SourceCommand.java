@@ -3,18 +3,13 @@
  */
 package org.jsoar.kernel.commands;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Stack;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandInterpreter;
 
 /**
  * @author ray
@@ -31,12 +26,12 @@ public class SourceCommand implements SoarCommand
         public Entry(URL url) { this.url = url; }
     }
     
-    private final SoarCommandInterpreter interp;
+    private final SourceCommandAdapter interp;
     private Entry workingDirectory = new Entry(new File(System.getProperty("user.dir")));
     private Stack<Entry> directoryStack = new Stack<Entry>();
     private Stack<String> fileStack = new Stack<String>();
     
-    public SourceCommand(SoarCommandInterpreter interp)
+    public SourceCommand(SourceCommandAdapter interp)
     {
         this.interp = interp;
         fileStack.push("");
@@ -163,7 +158,7 @@ public class SourceCommand implements SoarCommand
         try
         {
             fileStack.push(file.getAbsolutePath());
-            interp.source(file);
+            interp.eval(file);
         }
         finally
         {
@@ -177,21 +172,7 @@ public class SourceCommand implements SoarCommand
         try
         {
             fileStack.push(url.toExternalForm());
-            final InputStream in = new BufferedInputStream(url.openStream());
-            try
-            {
-                final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                FileTools.copy(in, out);
-                interp.eval(out.toString());
-            }
-            finally
-            {
-                in.close();
-            }
-        }
-        catch (IOException e)
-        {
-            throw new SoarException(e.getMessage());
+            interp.eval(url);
         }
         finally
         {

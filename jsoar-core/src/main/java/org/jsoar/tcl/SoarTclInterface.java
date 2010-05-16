@@ -5,7 +5,11 @@
  */
 package org.jsoar.tcl;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -42,6 +46,7 @@ import org.jsoar.kernel.commands.SaveBacktracesCommand;
 import org.jsoar.kernel.commands.SetParserCommand;
 import org.jsoar.kernel.commands.Soar8Command;
 import org.jsoar.kernel.commands.SourceCommand;
+import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.SrandCommand;
 import org.jsoar.kernel.commands.StatsCommand;
@@ -50,6 +55,7 @@ import org.jsoar.kernel.commands.VerboseCommand;
 import org.jsoar.kernel.commands.WaitSncCommand;
 import org.jsoar.kernel.commands.WarningsCommand;
 import org.jsoar.kernel.commands.WatchCommand;
+import org.jsoar.util.FileTools;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
@@ -143,7 +149,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
         
-        addCommand("source", this.sourceCommand = new SourceCommand(this));
+        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter()));
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));
@@ -290,5 +296,48 @@ public class SoarTclInterface implements SoarCommandInterpreter
         interp.createCommand(name, adapt(handler));
     }
     
-    
+    private class MySourceCommandAdapter implements SourceCommandAdapter
+    {
+        @Override
+        public void eval(File file) throws SoarException
+        {
+            try
+            {
+                interp.evalFile(file.getAbsolutePath());
+            }
+            catch (TclException e)
+            {
+                throw new SoarException(interp.getResult().toString());
+            }
+        }
+
+        @Override
+        public void eval(URL url) throws SoarException
+        {
+            try
+            {
+                final InputStream in = new BufferedInputStream(url.openStream());
+                try
+                {
+                    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    FileTools.copy(in, out);
+                    eval(out.toString());
+                }
+                finally
+                {
+                    in.close();
+                }
+            }
+            catch(IOException e)
+            {
+                throw new SoarException(e.getMessage(), e);
+            }
+        }
+
+        @Override
+        public String eval(String code) throws SoarException
+        {
+            return SoarTclInterface.this.eval(code);
+        }
+    }
 }

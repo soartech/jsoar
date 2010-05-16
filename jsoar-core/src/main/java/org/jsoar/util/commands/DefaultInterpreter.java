@@ -10,10 +10,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PushbackReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +51,7 @@ import org.jsoar.kernel.commands.SaveBacktracesCommand;
 import org.jsoar.kernel.commands.SetParserCommand;
 import org.jsoar.kernel.commands.Soar8Command;
 import org.jsoar.kernel.commands.SourceCommand;
+import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.SrandCommand;
 import org.jsoar.kernel.commands.StatsCommand;
@@ -55,7 +60,7 @@ import org.jsoar.kernel.commands.VerboseCommand;
 import org.jsoar.kernel.commands.WaitSncCommand;
 import org.jsoar.kernel.commands.WarningsCommand;
 import org.jsoar.kernel.commands.WatchCommand;
-import org.jsoar.util.ByRef;
+import org.jsoar.util.StringTools;
 
 /**
  * @author ray
@@ -63,6 +68,7 @@ import org.jsoar.util.ByRef;
 public class DefaultInterpreter implements SoarCommandInterpreter
 {
     private final Map<String, SoarCommand> commands = new HashMap<String, SoarCommand>();
+    private final Map<String, List<String>> aliases = new LinkedHashMap<String, List<String>>();
     
     private final Agent agent;
     private final SourceCommand sourceCommand;
@@ -70,7 +76,8 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     public DefaultInterpreter(Agent agent)
     {
         this.agent = agent;
-        addCommand("source", this.sourceCommand = new SourceCommand(this));
+        addCommand("alias", new AliasCommand());
+        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter()));
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));
@@ -139,92 +146,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public String eval(String code) throws SoarException
     {
-        final ByRef<Integer> endIndex = ByRef.create(0);
-        final ByRef<Boolean> doneWithCommand = ByRef.create(false);
-        
-        final List<String> args = new ArrayList<String>();
-        int index = 0;
-        String lastResult = "";
-        while(index < code.length())
-        {
-            final String word = readWord(code, index, endIndex, doneWithCommand);
-            if(word != null)
-            {
-                args.add(word);
-            }
-            if(doneWithCommand.value && !args.isEmpty())
-            {
-                final SoarCommand command = commands.get(args.get(0));
-                lastResult = command.execute(args.toArray(new String[0]));
-                doneWithCommand.value = false;
-                args.clear();
-            }
-            index = endIndex.value;
-        }
-        return lastResult;
-    }
-
-    private String readWord(String input, int index, ByRef<Integer> endIndex, ByRef<Boolean> done)
-    {
-        done.value = false;
-        while(index < input.length() && Character.isWhitespace(input.charAt(index)))
-        {
-            if('\n' == input.charAt(index))
-            {
-                done.value = true;
-                endIndex.value = index + 1;
-                return null;
-            }
-            index++;
-        }
-        if(index >= input.length())
-        {
-            return null;
-        }
-        
-        final int start = index;
-        int braces = 0;
-        while(index < input.length())
-        {
-            final char c = input.charAt(index);
-            if(c == '\n' && braces == 0)
-            {
-                endIndex.value = index + 1;
-                done.value = true;
-                return input.substring(start, index).trim();
-            }
-            else if(c == '\r')
-            {
-                // nothing
-            }
-            else if(c == '\\')
-            {
-                index++;
-            }
-            else if(c == '{')
-            {
-                braces++;
-            }
-            else if(c == '}')
-            {
-                braces--;
-                if(braces == 0)
-                {
-                    endIndex.value = index + 1;
-                    return input.substring(start + 1, index).trim();
-                }
-            }
-            else if(braces == 0 && Character.isWhitespace(c))
-            {
-                endIndex.value = index;
-                return input.substring(start, index).trim();
-            }
-            
-            ++index;
-        }
-        endIndex.value = index;
-        done.value = true;
-        return input.substring(start);
+        return evalAndClose(new StringReader(code), code.length() > 100 ? code.substring(0, 100) : code);
     }
     
     /* (non-Javadoc)
@@ -233,34 +155,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void source(File file) throws SoarException
     {
-        try
-        {
-            final Reader reader = new BufferedReader(new FileReader(file));
-            try
-            {
-                final StringBuilder builder = new StringBuilder();
-                final char[] buffer = new char[1024];
-                int r = reader.read(buffer);
-                while(r >= 0)
-                {
-                    builder.append(buffer, 0, r);
-                    r = reader.read(buffer);
-                }
-                eval(builder.toString());
-            }
-            finally
-            {
-                reader.close();
-            }
-        }
-        catch (FileNotFoundException e)
-        {
-            throw new SoarException(e.getMessage(), e);
-        }
-        catch (IOException e)
-        {
-            throw new SoarException(e.getMessage(), e);
-        }
+        sourceCommand.source(file.getAbsolutePath());
     }
 
     /* (non-Javadoc)
@@ -269,7 +164,151 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     @Override
     public void source(URL url) throws SoarException
     {
-        // TODO Auto-generated method stub
+        sourceCommand.source(url.toExternalForm());
+    }
+    
+    private String evalAndClose(Reader reader, String context) throws SoarException
+    {
+        try
+        {
+            return eval(reader);
+        }
+        catch (IOException e)
+        {
+            throw new SoarException("Error while evaluating '" + context + "': " + e.getMessage(), e);
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                throw new SoarException("Error while closing '" + context + "': " + e.getMessage(), e);
+            }
+        }
+    }
+    
+    private String eval(Reader reader) throws IOException, SoarException
+    {
+        final DefaultInterpreterParser parser = new DefaultInterpreterParser();
+        final PushbackReader pbReader = new PushbackReader(reader);
+        List<String> parsedCommand = parser.parseCommand(pbReader);
+        String lastResult = "";
+        while(!parsedCommand.isEmpty())
+        {
+            lastResult = executeParsedCommand(parsedCommand);
+            
+            parsedCommand = parser.parseCommand(pbReader);
+        }
+        return lastResult;
+    }
+    
+    private String executeParsedCommand(List<String> parsedCommand) throws SoarException
+    {
+        parsedCommand = resolveAliases(parsedCommand);
+        final SoarCommand command = commands.get(parsedCommand.get(0));
+        if(command != null)
+        {
+            return command.execute(parsedCommand.toArray(new String[]{}));
+        }
+        else
+        {
+            throw new SoarException("Unknown comman '" + parsedCommand.get(0) + "' in " + parsedCommand);
+        }
+        
+    }
+    
+    private List<String> resolveAliases(List<String> parsedCommand)
+    {
+        final String first = parsedCommand.get(0);
+        final List<String> alias = aliases.get(first);
+        if(alias == null)
+        {
+            return parsedCommand;
+        }
+        else
+        {
+            final List<String> result = new ArrayList<String>(alias);
+            result.addAll(parsedCommand.subList(1, parsedCommand.size()));
+            return result;
+        }
+    }
+    
+    private class AliasCommand implements SoarCommand
+    {
+        private String aliasToString(String name, List<String> args)
+        {
+            return name + "=" + StringTools.join(args, " ");
+        }
+        
+        @Override
+        public String execute(String[] args) throws SoarException
+        {
+            if(args.length == 1)
+            {
+                final StringBuilder b = new StringBuilder();
+                for(Map.Entry<String, List<String>> e : aliases.entrySet())
+                {
+                    b.append(aliasToString(e.getKey(), e.getValue()));
+                    b.append('\n');
+                }
+                return b.toString();
+            }
+            else if(args.length == 2)
+            {
+                final List<String> aliasArgs = aliases.get(args[1]);
+                if(aliasArgs == null)
+                {
+                    throw new SoarException("Unknown alias '" + args[1] + "'");
+                }
+                return aliasToString(args[1], aliasArgs);
+            }
+            else
+            {
+                final List<String> aliasArgs = new ArrayList<String>(args.length - 2);
+                for(int i = 2; i < args.length; ++i)
+                {
+                    aliasArgs.add(args[i]);
+                }
+                aliases.put(args[1], aliasArgs);
+                return aliasToString(args[1], aliasArgs);
+            }
+        }
+    }
+    private class MySourceCommandAdapter implements SourceCommandAdapter
+    {
+        @Override
+        public void eval(File file) throws SoarException
+        {
+            try
+            {
+                evalAndClose(new BufferedReader(new FileReader(file)), file.getAbsolutePath());
+            }
+            catch (FileNotFoundException e)
+            {
+                throw new SoarException(e.getMessage(), e);
+            }
+        }
 
+        @Override
+        public void eval(URL url) throws SoarException
+        {
+            try
+            {
+                evalAndClose(new BufferedReader(new InputStreamReader(url.openStream())), url.toExternalForm());
+            }
+            catch (IOException e)
+            {
+                throw new SoarException("Failed to open '" + url + "': " + e.getMessage(), e);
+            }
+        }
+
+        @Override
+        public String eval(String code) throws SoarException
+        {
+            return DefaultInterpreter.this.eval(code);
+        }
     }
 }
