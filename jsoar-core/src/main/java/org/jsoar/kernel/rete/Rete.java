@@ -217,7 +217,7 @@ public class Rete
         // change variable names in RHS to Rete location references or
         // unbound variable indices
 
-        List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>();
+        List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>(3);
         Marker rhs_unbound_vars_tc = DefaultMarker.create();
         for (Action a = p.action_list; a != null; a = a.next)
         {
@@ -349,14 +349,13 @@ public class Rete
         if ((p.getType() == ProductionType.CHUNK) && discard_chunk_varnames)
         {
             p.getReteNode().b_p.parents_nvn = null;
-            p.rhs_unbound_variables.clear();
+            p.clearRhsUnboundVariables();
             //deallocate_symbol_list_removing_references (thisAgent, rhs_unbound_vars_for_new_prod);
         }
         else
         {
             p.getReteNode().b_p.parents_nvn = NodeVarNames.get_nvn_for_condition_list(lhs_top, null);
-            p.rhs_unbound_variables.clear();
-            p.rhs_unbound_variables.addAll(rhs_unbound_vars_for_new_prod);
+            p.setRhsUnboundVariables(rhs_unbound_vars_for_new_prod);
         }
 
         return production_addition_result;
@@ -2037,10 +2036,10 @@ public class Rete
         if (doRhs) 
         {
            this.highest_rhs_unboundvar_index = -1;
-           if (!prod.rhs_unbound_variables.isEmpty()) 
+           if (!prod.getRhsUnboundVariables().isEmpty()) 
            {
                int i = 0;
-               for(SymbolImpl c : prod.rhs_unbound_variables)
+               for(SymbolImpl c : prod.getRhsUnboundVariables())
                {
                    this.rhs_variable_bindings[i++] = c;
                    this.highest_rhs_unboundvar_index++;

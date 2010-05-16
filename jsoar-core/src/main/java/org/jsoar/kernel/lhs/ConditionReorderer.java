@@ -763,7 +763,7 @@ public class ConditionReorderer
             {
                 sym = vars.generate_new_variable("dummy-");
                 EqualityTest newTest = SymbolImpl.makeEqualityTest(sym);
-                ct.conjunct_list.push(newTest);
+                ct.conjunct_list.add(0, newTest); //push(newTest);
             }
             // scan through, create saved_test for subtests except equality
             Iterator<Test> it = ct.conjunct_list.iterator();

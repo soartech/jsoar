@@ -664,7 +664,7 @@ public class RecognitionMemory
         // initialize rhs_variable_bindings array with names of variables
         // (if there are any stored on the production -- for chunks there won't be any)
         int index = 0;
-        for (Variable c : prod.rhs_unbound_variables)
+        for (Variable c : prod.getRhsUnboundVariables())
         {
             this.rete.setRhsVariableBinding(index, c);
             index++;

@@ -5,7 +5,8 @@
  */
 package org.jsoar.kernel;
 
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.jsoar.kernel.lhs.Condition;
@@ -33,6 +34,8 @@ import org.jsoar.util.markers.Marker;
 
 public class Production
 {
+    private static final List<Variable> EMPTY_RHS_UNBOUND_VARS_LIST = Collections.emptyList();
+    
     private final ProductionType type;
     private final SourceLocation location;
     private final StringSymbol name;
@@ -47,7 +50,7 @@ public class Production
     private Rete rete;
     private ReteNode p_node;
     public final ListHead<Instantiation> instantiations = ListHead.newInstance();
-    public final LinkedList<Variable> rhs_unbound_variables = new LinkedList<Variable>();
+    private List<Variable> rhs_unbound_variables = null;
     public boolean already_fired = false; /* RPM test workaround for bug #139 */
     public AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;
     private int reference_count = 1;
@@ -266,6 +269,27 @@ public class Production
                 throw new IllegalStateException("Internal error: deallocating prod. that still has inst's");
             }
         }
+    }
+    
+    public List<Variable> getRhsUnboundVariables()
+    {
+        return rhs_unbound_variables != null ? rhs_unbound_variables : EMPTY_RHS_UNBOUND_VARS_LIST;
+    }
+    
+    public void clearRhsUnboundVariables()
+    {
+        rhs_unbound_variables = null;
+    }
+    
+    /**
+     * Set the RHS unbound variables of the production. This method takes
+     * ownership of the passed in list rather than copying it!
+     * 
+     * @param unboundVars List of unbound vars 
+     */
+    public void setRhsUnboundVariables(List<Variable> unboundVars)
+    {
+        rhs_unbound_variables = unboundVars;
     }
     
     /**

@@ -91,12 +91,12 @@ public class Tests
         if (ct == null)
         {
             ct = new ConjunctiveTest();
-            ct.conjunct_list.push(t);
+            ct.conjunct_list.add(0, t); //.push(t);
         }
         // at this point, ct points to the complex test structure for *t
 
         // now add add_me to the conjunct list
-        ct.conjunct_list.push(add_me);
+        ct.conjunct_list.add(0, add_me); //.push(add_me);
         return ct;
     }
 
