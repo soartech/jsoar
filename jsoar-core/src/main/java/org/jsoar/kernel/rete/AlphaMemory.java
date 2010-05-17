@@ -8,9 +8,8 @@ package org.jsoar.kernel.rete;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.HashFunction;
-import org.jsoar.util.HashTableItem;
-import org.jsoar.util.ListHead;
 import org.jsoar.util.HashTable;
+import org.jsoar.util.HashTableItem;
 
 /**
  * rete.cpp:179:alpha_mem_struct
@@ -25,7 +24,7 @@ public class AlphaMemory extends HashTableItem
     final SymbolImpl value;
     final boolean acceptable;             /* does it test for acceptable pref? */
     
-    final ListHead<RightMemory> right_mems = ListHead.newInstance(); // dll of right memory structures
+    RightMemory right_mems = null; // dll of right memory structures
     ReteNode beta_nodes;  /* list of attached beta nodes */
     ReteNode last_beta_node; /* tail of above dll */
     
@@ -112,12 +111,53 @@ public class AlphaMemory extends HashTableItem
         // if (am->id) symbol_remove_ref (thisAgent, am->id);
         // if (am->attr) symbol_remove_ref (thisAgent, am->attr);
         // if (am->value) symbol_remove_ref (thisAgent, am->value);
-        while (!right_mems.isEmpty())
+        while (right_mems != null)
         {
-            rete.remove_wme_from_alpha_mem(right_mems.first.item);
+            rete.remove_wme_from_alpha_mem(right_mems);
         }
     }
 
+    void insertRightMemoryAtHead(RightMemory rm)
+    {
+        if(right_mems == null)
+        {
+            right_mems = rm;
+            rm.next_in_am = null;
+        }
+        else
+        {
+            rm.next_in_am = right_mems;
+            if(right_mems != null)
+            {
+                right_mems.prev_in_am = rm;
+            }
+            right_mems = rm;
+        }
+        rm.prev_in_am = null;
+    }
+    
+    void removeRightMemory(RightMemory rm)
+    {
+        if(rm == right_mems)
+        {
+            right_mems = rm.next_in_am;
+            if(right_mems != null)
+            {
+                right_mems.prev_in_am = null;
+            }
+        }
+        else
+        {
+            rm.prev_in_am.next_in_am = rm.next_in_am;
+            if(rm.next_in_am != null)
+            {
+                rm.next_in_am.prev_in_am = rm.prev_in_am;
+            }
+        }
+        rm.next_in_am = null;
+        rm.prev_in_am = null;
+    }
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */

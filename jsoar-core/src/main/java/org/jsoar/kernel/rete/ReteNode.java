@@ -405,11 +405,11 @@ public class ReteNode
         {
             node.unlink_from_right_mem();
         }
-        if ((am.right_mems.isEmpty()) && !node.node_is_right_unlinked())
+        if (am.right_mems == null && !node.node_is_right_unlinked())
         {
             node.unlink_from_left_mem();
         }
-        if (prefer_left_unlinking && (parent_mem.a_np.tokens == null) && (am.right_mems.isEmpty()))
+        if (prefer_left_unlinking && (parent_mem.a_np.tokens == null) && am.right_mems == null)
         {
             node.relink_to_right_mem();
             node.unlink_from_left_mem();

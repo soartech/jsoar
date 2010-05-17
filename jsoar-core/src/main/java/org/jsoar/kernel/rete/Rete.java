@@ -494,7 +494,7 @@ public class Rete
           
           /* --- for left unlinking, then if the alpha memory just went to
              zero, left unlink any attached Pos or MP nodes --- */
-          if (am.right_mems.isEmpty()) {
+          if (am.right_mems == null) {
               ReteNode next = null;
             for (ReteNode node=am.beta_nodes; node!=null; node=next) {
               next = node.b_posneg.next_from_alpha_mem;
@@ -561,9 +561,8 @@ public class Rete
 
         /* --- add it to dll's for the hash bucket, alpha mem, and wme --- */
         final int hv = am.am_id ^ w.id.hash_id;
-        final ListHead<RightMemory> header = right_ht.right_ht_bucket(hv);
-        rm.in_bucket.insertAtHead(header);
-        rm.in_am.insertAtHead(am.right_mems);
+        right_ht.insertAtHeadOfBucket(hv, rm);
+        am.insertRightMemoryAtHead(rm);
         w.addRightMemory(rm);
     }
     
@@ -582,9 +581,8 @@ public class Rete
 
         /* --- remove it from dll's for the hash bucket, alpha mem, and wme --- */
         final int hv = am.am_id ^ w.id.hash_id;
-        final ListHead<RightMemory> header = right_ht.right_ht_bucket(hv);
-        rm.in_bucket.remove(header);
-        rm.in_am.remove(am.right_mems);
+        right_ht.removeFromBucket(hv, rm);
+        am.removeRightMemory(rm);
         w.removeRightMemory(rm);
     }
 
@@ -687,11 +685,11 @@ public class Rete
         if (more_general_am != null)
         {
             /* --- fill new mem using the existing more general one --- */
-            for (ListItem<RightMemory> rm = more_general_am.right_mems.first; rm != null; rm = rm.next)
+            for (RightMemory rm = more_general_am.right_mems; rm != null; rm = rm.next_in_am)
             {
-                if (am.wme_matches_alpha_mem(rm.item.w))
+                if (am.wme_matches_alpha_mem(rm.w))
                 {
-                    add_wme_to_alpha_mem(rm.item.w, am);
+                    add_wme_to_alpha_mem(rm.w, am);
                 }
             }
         }
@@ -809,9 +807,9 @@ public class Rete
           parent.first_child = child;
           child.next_sibling = null;
           /* to avoid double-counting these right adds */
-          for(ListItem<RightMemory> rm = parent.b_posneg.alpha_mem_.right_mems.first; rm != null; rm = rm.next)
+          for(RightMemory rm = parent.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
           {
-              executeRightAddition(parent, rm.item.w);
+              executeRightAddition(parent, rm.w);
           }
           parent.first_child = saved_parents_first_child;
           child.next_sibling = saved_childs_next_sibling;
@@ -1139,7 +1137,7 @@ public class Rete
         if (node.node_is_right_unlinked())
         {
             node.relink_to_right_mem();
-            if (am.right_mems.isEmpty())
+            if (am.right_mems == null)
             {
                 node.unlink_from_left_mem();
                 return;
@@ -1148,10 +1146,8 @@ public class Rete
 
         // look through right memory for matches
         int right_hv = am.am_id ^ hash_referent.hash_id;
-        for (ListItem<RightMemory> rmIt = right_ht.right_ht_bucket(right_hv).first; rmIt != null; rmIt = rmIt.next)
+        for (RightMemory rm = right_ht.right_ht_bucket(right_hv); rm != null; rm = rm.next_in_bucket)
         {
-            final RightMemory rm = rmIt.item;
-            
             if (rm.am != am)
                 continue;
             /* --- does rm->w match New? --- */
@@ -1191,7 +1187,7 @@ public class Rete
         if (node.node_is_right_unlinked())
         {
             node.relink_to_right_mem();
-            if (node.b_posneg.alpha_mem_.right_mems.isEmpty())
+            if (node.b_posneg.alpha_mem_.right_mems == null)
             {
                 node.unlink_from_left_mem();
                 return;
@@ -1199,9 +1195,8 @@ public class Rete
         }
 
         // look through right memory for matches
-        for (ListItem<RightMemory> rmIt = node.b_posneg.alpha_mem_.right_mems.first; rmIt != null; rmIt = rmIt.next)
+        for (RightMemory rm = node.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
         {
-            final RightMemory rm = rmIt.item; 
             /* --- does rm->w match new? --- */
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
@@ -1268,7 +1263,7 @@ public class Rete
         if (node.node_is_right_unlinked())
         {
             node.relink_to_right_mem();
-            if (am.right_mems.isEmpty())
+            if (am.right_mems == null)
             {
                 node.make_mp_bnode_left_unlinked();
                 return;
@@ -1276,11 +1271,9 @@ public class Rete
         }
 
         /* --- look through right memory for matches --- */
-        int right_hv = am.am_id ^ referent.hash_id;
-        for (ListItem<RightMemory> rmIt = right_ht.right_ht_bucket(right_hv).first; rmIt != null; rmIt = rmIt.next)
+        final int right_hv = am.am_id ^ referent.hash_id;
+        for (RightMemory rm = right_ht.right_ht_bucket(right_hv); rm != null; rm = rm.next_in_bucket)
         {
-            final RightMemory rm = rmIt.item;
-            
             if (rm.am != am)
             {
                 continue;
@@ -1332,7 +1325,7 @@ public class Rete
         if (node.node_is_right_unlinked())
         {
             node.relink_to_right_mem();
-            if (node.b_posneg.alpha_mem_.right_mems.isEmpty())
+            if (node.b_posneg.alpha_mem_.right_mems == null)
             {
                 node.make_mp_bnode_left_unlinked();
                 return;
@@ -1340,10 +1333,8 @@ public class Rete
         }
 
         /* --- look through right memory for matches --- */
-        for (ListItem<RightMemory> rmIt = node.b_posneg.alpha_mem_.right_mems.first; rmIt != null; rmIt = rmIt.next)
+        for (RightMemory rm = node.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
         {
-            final RightMemory rm = rmIt.item;
-            
             /* --- does rm->w match new? --- */
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
@@ -1612,9 +1603,8 @@ public class Rete
         /* --- look through right memory for matches --- */
         AlphaMemory am = node.b_posneg.alpha_mem_;
         int right_hv = am.am_id ^ referent.hash_id;
-        for (ListItem<RightMemory> rmIt = right_ht.right_ht_bucket(right_hv).first; rmIt != null; rmIt = rmIt.next)
+        for (RightMemory rm = right_ht.right_ht_bucket(right_hv); rm != null; rm = rm.next_in_bucket)
         {
-            final RightMemory rm = rmIt.item;
             if (rm.am != am)
             {
                 continue;
@@ -1672,9 +1662,8 @@ public class Rete
         left_ht.insert_token_into_left_ht(New, hv);
 
         /* --- look through right memory for matches --- */
-        for (ListItem<RightMemory> rmIt = node.b_posneg.alpha_mem_.right_mems.first; rmIt != null; rmIt = rmIt.next)
+        for (RightMemory rm = node.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
         {
-            final RightMemory rm = rmIt.item;
             /* --- does rm->w match new? --- */
             boolean failed_a_test = false;
             for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
@@ -2598,7 +2587,7 @@ public class Rete
                         printer.print("\n");
                     }
                     printer.spaces(indent).print("*** Matches for Right ***\n").spaces(indent);
-                    for (RightMemory rm : node.b_posneg.alpha_mem_.right_mems)
+                    for (RightMemory rm = node.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
                     {
                         if (wtt == WmeTraceType.TIMETAG)
                             printer.print("%d", rm.w.timetag);

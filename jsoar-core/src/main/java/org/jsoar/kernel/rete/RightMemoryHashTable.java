@@ -5,10 +5,6 @@
  */
 package org.jsoar.kernel.rete;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jsoar.util.ListHead;
 
 /**
  * @author ray
@@ -20,13 +16,7 @@ public class RightMemoryHashTable
 
     private static final int RIGHT_HT_MASK = RIGHT_HT_SIZE - 1;
     
-    private final List<ListHead<RightMemory>> buckets = new ArrayList<ListHead<RightMemory>>(RIGHT_HT_SIZE);
-    {
-        for(int i = 0; i < RIGHT_HT_SIZE; ++i)
-        {
-            this.buckets.add(ListHead.<RightMemory>newInstance());
-        }
-    }
+    private final RightMemory buckets[] = new RightMemory[RIGHT_HT_SIZE];
     
     /**
      * <p>rete.cpp:683:right_ht_bucket
@@ -34,12 +24,50 @@ public class RightMemoryHashTable
      * @param hv
      * @return the head of the right memory bucket
      */
-    public ListHead<RightMemory> right_ht_bucket(int hv) 
+    RightMemory right_ht_bucket(int hv) 
     {
-        int index = hv & RIGHT_HT_MASK;
-        return buckets.get(index);
+        final int index = hv & RIGHT_HT_MASK;
+        return buckets[index];
         //return (* ( ((token **) thisAgent->left_ht) + ((hv) & LEFT_HT_MASK)));
     }
     
-
+    void insertAtHeadOfBucket(int hv, RightMemory rm)
+    {
+        final int index = hv & RIGHT_HT_MASK;
+        final RightMemory oldHead = buckets[index];
+        if(oldHead == null)
+        {
+            rm.next_in_bucket = null;
+        }
+        else
+        {
+            rm.next_in_bucket = oldHead;
+            oldHead.prev_in_bucket = rm;
+        }
+        rm.prev_in_bucket = null;
+        buckets[index] = rm;
+    }
+    
+    void removeFromBucket(int hv, RightMemory rm)
+    {
+        final int index = hv & RIGHT_HT_MASK;
+        if(rm == buckets[index])
+        {
+            if(rm.next_in_bucket != null)
+            {
+                rm.next_in_bucket.prev_in_bucket = null;
+            }
+            buckets[index] = rm.next_in_bucket;
+        }
+        else
+        {
+            rm.prev_in_bucket.next_in_bucket = rm.next_in_bucket;
+            if(rm.next_in_bucket != null)
+            {
+                rm.next_in_bucket.prev_in_bucket = rm.prev_in_bucket;
+            }
+        }
+        rm.prev_in_bucket = null;
+        rm.next_in_bucket = null;
+    }
 }

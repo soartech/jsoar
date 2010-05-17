@@ -6,7 +6,6 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.util.ListItem;
 
 /**
  * rete.cpp:195
@@ -19,11 +18,11 @@ public class RightMemory
     final AlphaMemory am;               /* the alpha memory */
     
     
-    final ListItem<RightMemory> in_bucket = new ListItem<RightMemory>(this); // hash bucket dll
-    //RightMemory next_in_bucket, prev_in_bucket; /*hash bucket dll*/
+    //final ListItem<RightMemory> in_bucket = new ListItem<RightMemory>(this); // hash bucket dll
+    RightMemory next_in_bucket, prev_in_bucket; /*hash bucket dll*/
     
-    final ListItem<RightMemory> in_am = new ListItem<RightMemory>(this); // rm's in this amem
-    //RightMemory next_in_am, prev_in_am;       /*rm's in this amem*/
+    //final ListItem<RightMemory> in_am = new ListItem<RightMemory>(this); // rm's in this amem
+    RightMemory next_in_am, prev_in_am;       /*rm's in this amem*/
     
     //public final AsListItem<RightMemory> from_wme = new AsListItem<RightMemory>(this); // tree-based remove
     private RightMemory next_from_wme, prev_from_wme; /*tree-based remove*/
