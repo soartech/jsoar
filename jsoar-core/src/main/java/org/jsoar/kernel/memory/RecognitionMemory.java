@@ -593,7 +593,7 @@ public class RecognitionMemory
         {
             for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
             {
-                p.all_of_goal.insertAtHead(inst.match_goal.preferences_from_goal);
+                inst.match_goal.addGoalPreference(p);
                 p.on_goal_list = true;
             }
         }

@@ -1710,7 +1710,7 @@ public class Decider
         // make the fake preference
         final Preference pref = new Preference(PreferenceType.ACCEPTABLE, goal,
                 predefinedSyms.item_symbol, cand.value, null);
-        pref.all_of_goal.insertAtHead(goal.preferences_from_goal);
+        goal.addGoalPreference(pref);
         pref.on_goal_list = true;
         pref.preference_add_ref();
 
@@ -2196,9 +2196,9 @@ public class Decider
         /* --- remove any preferences supported by this goal --- */
         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
         {
-            while (!goal.preferences_from_goal.isEmpty())
+            while (goal.preferences_from_goal != null)
             {
-                Preference p = goal.preferences_from_goal.pop();
+                final Preference p = goal.popGoalPreference();
                 p.on_goal_list = false;
                 
                 if (!p.remove_preference_from_clones(recMemory))
@@ -2215,21 +2215,21 @@ public class Decider
              * cases, but needs testing.
              */
             // Prefs are added to head of dll, so try removing from tail
-            if (!goal.preferences_from_goal.isEmpty())
+            if (goal.preferences_from_goal != null)
             {
-                ListItem<Preference> p = goal.preferences_from_goal.first;
-                while (p.next != null)
-                    p = p.next; // TODO Replace with ListHead.getTail() or something
+                Preference p = goal.preferences_from_goal;
+                while (p.all_of_goal_next != null)
+                    p = p.all_of_goal_next; 
                 while (p != null)
                 {
                     // RPM 10/06 we need to save this because p may be freed by the
                     // end of the loop
-                    final ListItem<Preference> p_next = p.previous; 
-                    p.remove(goal.preferences_from_goal);
-                    p.item.on_goal_list = false;
-                    if (!p.item.remove_preference_from_clones(recMemory))
-                        if (p.item.isInTempMemory())
-                            recMemory.remove_preference_from_tm(p.item);
+                    final Preference p_next = p.all_of_goal_prev; 
+                    goal.removeGoalPreference(p);
+                    p.on_goal_list = false;
+                    if (!p.remove_preference_from_clones(recMemory))
+                        if (p.isInTempMemory())
+                            recMemory.remove_preference_from_tm(p);
                     p = p_next;
                 }
             }

@@ -66,7 +66,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     private WmeImpl impasse_wmes;
     public IdentifierImpl higher_goal, lower_goal;
     public Slot operator_slot;
-    public final ListHead<Preference> preferences_from_goal = ListHead.newInstance();
+    public Preference preferences_from_goal = null;
 
     public SymbolImpl reward_header;        // pointer to reward_link
     public ReinforcementLearningInfo rl_info;           // various Soar-RL information
@@ -249,7 +249,49 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
             id.item.tc_number = null;
         }
     }
+    
+    public void addGoalPreference(Preference pref)
+    {
+        pref.all_of_goal_next = preferences_from_goal;
+        pref.all_of_goal_prev = null;
+        
+        if(preferences_from_goal != null)
+        {
+            preferences_from_goal.all_of_goal_prev = pref;
+        }
+        preferences_from_goal = pref;
+    }
+    
+    public void removeGoalPreference(Preference pref)
+    {
+        if(preferences_from_goal == pref)
+        {
+            preferences_from_goal = pref.all_of_goal_next;
+            if(preferences_from_goal != null)
+            {
+                preferences_from_goal.all_of_goal_prev = null;
+            }
+        }
+        else
+        {
+            pref.all_of_goal_prev.all_of_goal_next = pref.all_of_goal_next;
+            if(pref.all_of_goal_next != null)
+            {
+                pref.all_of_goal_next.all_of_goal_prev = pref.all_of_goal_prev;
+            }
+        }
+        pref.all_of_goal_next = pref.all_of_goal_prev = null;
+    }
 
+    public Preference popGoalPreference()
+    {
+        final Preference head = preferences_from_goal;
+        if(head != null)
+        {
+            removeGoalPreference(head);
+        }
+        return head;
+    }
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolImpl#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */

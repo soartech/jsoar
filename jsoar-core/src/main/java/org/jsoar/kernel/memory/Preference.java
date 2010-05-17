@@ -50,7 +50,9 @@ public class Preference implements Formattable
     public Preference nextOfSlot;
     Preference previousOfSlot;
 
-    public final ListItem<Preference> all_of_goal = new ListItem<Preference>(this); // dll of all pref's from the same match goal
+    // dll of all pref's from the same match goal
+    public Preference all_of_goal_next;
+    public Preference all_of_goal_prev;
     
     // dll (without header) of cloned preferences (created when chunking)
     public Preference next_clone;
@@ -272,7 +274,7 @@ public class Preference implements Formattable
         // remove it from the list of pref's for its match goal
         if (pref.on_goal_list)
         {
-            pref.all_of_goal.remove(pref.inst.match_goal.preferences_from_goal);
+            pref.inst.match_goal.removeGoalPreference(pref);
         }
 
         // remove it from the list of pref's from that instantiation
