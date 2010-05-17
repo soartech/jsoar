@@ -57,7 +57,10 @@ public class Preference implements Formattable
     public Preference prev_clone;
       
     public Instantiation inst;
-    public final ListItem<Preference> inst_next_prev = new ListItem<Preference>(this);
+    //public final ListItem<Preference> inst_next_prev = new ListItem<Preference>(this);
+    public Preference inst_next;
+    Preference inst_prev;
+    
     public Preference next_candidate;
     public Preference next_result;
 
@@ -132,7 +135,7 @@ public class Preference implements Formattable
     {
         assert this.inst == null;
         this.inst = inst;
-        this.inst_next_prev.insertAtHead(inst.preferences_generated);
+        inst.insertGeneratedPreference(this);
     }
     
     /**
@@ -273,7 +276,7 @@ public class Preference implements Formattable
         }
 
         // remove it from the list of pref's from that instantiation
-        pref.inst_next_prev.remove(pref.inst.preferences_generated);
+        pref.inst.removeGeneratedPreferece(pref);
 
         recMemory.possibly_deallocate_instantiation(pref.inst);
 

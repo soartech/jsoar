@@ -19,7 +19,6 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Traceable;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.ListItem;
-import org.jsoar.util.ListHead;
 
 /**
  * 
@@ -37,7 +36,7 @@ public class Instantiation implements Traceable
     public Condition bottom_of_instantiated_conditions;
 
     public NotStruct nots = null;
-    public final ListHead<Preference>  preferences_generated = ListHead.newInstance();    // header for dll of prefs
+    public Preference  preferences_generated = null;    // header for dll of prefs
     public IdentifierImpl match_goal;                   // symbol, or NIL if none
     public int /*goal_stack_level*/ match_goal_level;    // level, or ATTRIBUTE_IMPASSE_LEVEL
     /**
@@ -133,6 +132,38 @@ public class Instantiation implements Traceable
             }
         }
         return result;
+    }
+    
+    public void insertGeneratedPreference(Preference pref)
+    {
+        pref.inst_next = preferences_generated;
+        if(preferences_generated != null)
+        {
+            preferences_generated.inst_prev = pref;
+        }
+        preferences_generated = pref;
+        pref.inst_prev = null;
+    }
+    
+    void removeGeneratedPreferece(Preference pref)
+    {
+        if(pref == preferences_generated)
+        {
+            preferences_generated = pref.inst_next;
+            if(preferences_generated != null)
+            {
+                preferences_generated.inst_prev = null;
+            }
+        }
+        else
+        {
+            pref.inst_prev.inst_next = pref.inst_next;
+            if(pref.inst_next != null)
+            {
+                pref.inst_next.inst_prev = pref.inst_prev;
+            }
+        }
+        pref.inst_next = pref.inst_prev = null;
     }
 
     /* (non-Javadoc)

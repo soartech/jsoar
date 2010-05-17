@@ -591,10 +591,10 @@ public class RecognitionMemory
 
         if (inst.match_goal != null)
         {
-            for (ListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
+            for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
             {
-                p.item.all_of_goal.insertAtHead(inst.match_goal.preferences_from_goal);
-                p.item.on_goal_list = true;
+                p.all_of_goal.insertAtHead(inst.match_goal.preferences_from_goal);
+                p.on_goal_list = true;
             }
         }
         inst.backtrace_number = 0;
@@ -679,7 +679,7 @@ public class RecognitionMemory
         }
 
         // execute the RHS actions, collect the results
-        assert inst.preferences_generated.isEmpty();
+        assert inst.preferences_generated == null;
         boolean need_to_do_support_calculations = false;
         for (Action a = prod.action_list; a != null; a = a.next)
         {
@@ -735,7 +735,7 @@ public class RecognitionMemory
         if (trace_it && trace.isEnabled(Category.FIRINGS_PREFERENCES))
         {
             trace.startNewLine();
-            for (Preference pref : inst.preferences_generated)
+            for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next)
             {
                 trace.print("%s", pref);
             }
@@ -913,7 +913,7 @@ public class RecognitionMemory
      */
     void possibly_deallocate_instantiation(Instantiation inst)
     {
-        if (inst.preferences_generated.isEmpty() && !inst.in_ms)
+        if (inst.preferences_generated == null && !inst.in_ms)
             deallocate_instantiation(inst);
     }
 
@@ -936,12 +936,11 @@ public class RecognitionMemory
         final boolean trace_it = trace.isEnabled(inst.prod.getType().getTraceCategory());
 
         // retract any preferences that are in TM and aren't o-supported
-        ListItem<Preference> prefItem = inst.preferences_generated.first;
+        Preference pref = inst.preferences_generated;
 
-        while (prefItem != null)
+        while (pref != null)
         {
-            final ListItem<Preference> nextItem = prefItem.next;
-            final Preference pref = prefItem.item;
+            final Preference next = pref.inst_next;
             if (pref.isInTempMemory() && !pref.o_supported)
             {
                 if (trace_it) {
@@ -961,7 +960,7 @@ public class RecognitionMemory
                 remove_preference_from_tm(pref);
                 retracted_a_preference = true;
             }
-            prefItem = nextItem;
+            pref = next;
         }
 
         // remove inst from list of instantiations of this production
@@ -1015,14 +1014,14 @@ public class RecognitionMemory
             {
                 next_inst = inst.next;
 
-                ListItem<Preference> pref, next_pref;
-                for (pref = inst.item.preferences_generated.first; pref != null; pref = next_pref)
+                Preference pref, next_pref;
+                for (pref = inst.item.preferences_generated; pref != null; pref = next_pref)
                 {
-                    next_pref = pref.next;
-                    if ((pref.item.type == PreferenceType.REJECT) && (pref.item.o_supported))
+                    next_pref = pref.inst_next;
+                    if ((pref.type == PreferenceType.REJECT) && (pref.o_supported))
                     {
                         // o-reject: just put it in the buffer for later
-                        o_rejects.push(pref.item);
+                        o_rejects.push(pref);
                     }
                 }
             }
@@ -1044,25 +1043,24 @@ public class RecognitionMemory
 
             trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.item.prod.getName());
 
-            ListItem<Preference> pref, next_pref;
-            for (pref = inst.item.preferences_generated.first; pref != null; pref = next_pref)
+            Preference pref, next_pref;
+            for (pref = inst.item.preferences_generated; pref != null; pref = next_pref)
             {
-                // TODO all the pref.items in here are pretty ugly
-                next_pref = pref.next;
-                if ((pref.item.type == PreferenceType.REJECT) && (pref.item.o_supported))
+                next_pref = pref.inst_next;
+                if ((pref.type == PreferenceType.REJECT) && (pref.o_supported))
                 {
                     if (!SoarConstants.O_REJECTS_FIRST)
                     {
                         // o-reject: just put it in the buffer for later
-                        o_rejects.push(pref.item);
+                        o_rejects.push(pref);
                     }
                     // No knowledge retrieval necessary in Operand2
 
                 }
-                else if (inst.item.in_ms || pref.item.o_supported)
+                else if (inst.item.in_ms || pref.o_supported)
                 {
                     // normal case
-                    add_preference_to_tm(pref.item);
+                    add_preference_to_tm(pref);
 
                     // No knowledge retrieval necessary in Operand2
                 }
@@ -1073,15 +1071,15 @@ public class RecognitionMemory
                     // first splice it out of the clones list--otherwise we 
                     // might accidentally deallocate some clone that happens to
                     // have refcount==0 just because it hasn't been asserted yet
-                    if (pref.item.next_clone != null)
-                        pref.item.next_clone.prev_clone = pref.item.prev_clone;
-                    if (pref.item.prev_clone != null)
-                        pref.item.prev_clone.next_clone = pref.item.next_clone;
-                    pref.item.next_clone = pref.item.prev_clone = null;
+                    if (pref.next_clone != null)
+                        pref.next_clone.prev_clone = pref.prev_clone;
+                    if (pref.prev_clone != null)
+                        pref.prev_clone.next_clone = pref.next_clone;
+                    pref.next_clone = pref.prev_clone = null;
 
                     // now add then remove ref--this should result in deallocation
-                    pref.item.preference_add_ref();
-                    pref.item.preference_remove_ref(this);
+                    pref.preference_add_ref();
+                    pref.preference_remove_ref(this);
                 }
             }
         }

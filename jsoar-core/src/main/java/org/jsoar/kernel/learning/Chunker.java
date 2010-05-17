@@ -94,7 +94,7 @@ public class Chunker
     private int results_match_goal_level;
     private Marker results_tc_number;
     private Preference results;
-    private ListHead<Preference> extra_result_prefs_from_instantiation;
+    private Preference extra_result_prefs_from_instantiation;
     public boolean variablize_this_chunk;
     public Marker variablization_tc;
     final ChunkConditionSet negated_set = new ChunkConditionSet();
@@ -339,10 +339,10 @@ public class Chunker
         }
 
         // now scan through extra prefs and look for any with this id
-        for (ListItem<Preference> pref = this.extra_result_prefs_from_instantiation.first; pref != null; pref = pref.next)
+        for (Preference pref = this.extra_result_prefs_from_instantiation; pref != null; pref = pref.inst_next)
         {
-            if (pref.item.id == id)
-                add_pref_to_results(pref.item);
+            if (pref.id == id)
+                add_pref_to_results(pref);
         }
     }
  
@@ -359,10 +359,9 @@ public class Chunker
         this.results = null;
         this.results_match_goal_level = inst.match_goal_level;
         this.results_tc_number = DefaultMarker.create();
-        this.extra_result_prefs_from_instantiation = ListHead.newInstance(inst.preferences_generated);
-        for (ListItem<Preference> it = inst.preferences_generated.first; it != null; it = it.next)
+        this.extra_result_prefs_from_instantiation = inst.preferences_generated;
+        for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next)
         {
-            final Preference pref = it.item;
             if ((pref.id.level < this.results_match_goal_level) && (pref.id.tc_number != this.results_tc_number))
             {
                 add_pref_to_results(pref);
@@ -861,7 +860,7 @@ public class Chunker
      */
     private void make_clones_of_results(Preference results, Instantiation chunk_inst)
     {
-        chunk_inst.preferences_generated.clear();
+        chunk_inst.preferences_generated = null;
         for (Preference result_p = results; result_p != null; result_p = result_p.next_result)
         {
             // copy the preference
@@ -869,7 +868,7 @@ public class Chunker
 
             // put it onto the list for chunk_inst
             p.inst = chunk_inst;
-            p.inst_next_prev.insertAtHead(chunk_inst.preferences_generated);
+            chunk_inst.insertGeneratedPreference(p);
 
             // insert it into the list of clones for this preference
             p.next_clone = result_p;
@@ -908,9 +907,9 @@ public class Chunker
             return (context.getSymbols().generateUniqueString(this.chunk_name_prefix, this.chunk_count));
 
         int lowest_result_level = decider.top_goal.level;
-        for (ListItem<Preference> p = inst.preferences_generated.first; p != null; p = p.next)
-            if (p.item.id.level > lowest_result_level)
-                lowest_result_level = p.item.id.level;
+        for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
+            if (p.id.level > lowest_result_level)
+                lowest_result_level = p.id.level;
 
         IdentifierImpl goal = decider.find_goal_at_goal_stack_level(lowest_result_level);
 
@@ -1049,12 +1048,11 @@ public class Chunker
 
         // if no preference is above the match goal level, exit
         Preference pref = null;
-        for (ListItem<Preference> i = inst.preferences_generated.first; i != null; i = i.next)
+        for (Preference i = inst.preferences_generated; i != null; i = i.inst_next)
         {
-            final Preference temp = i.item;
-            if (temp.id.level < inst.match_goal_level)
+            if (i.id.level < inst.match_goal_level)
             {
-                pref = temp;
+                pref = i;
                 break;
             }
         }

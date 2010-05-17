@@ -352,9 +352,9 @@ public class OSupport
         }
 
         // assign every preference the correct support
-        for (ListItem<Preference> pref = inst.preferences_generated.first; pref != null; pref = pref.next)
+        for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next)
         {
-            pref.item.o_supported = o_support;
+            pref.o_supported = o_support;
         }
 
     }

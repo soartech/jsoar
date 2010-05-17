@@ -1444,7 +1444,7 @@ public class ReinforcementLearning
             {
                 for ( Instantiation inst : prod.instantiations)
                 {
-                    for ( Preference pref : inst.preferences_generated)
+                    for ( Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next)
                     {
                         pref.referent = syms.createDouble(temp);
                     }
