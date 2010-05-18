@@ -42,7 +42,6 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.DefaultSourceLocation;
-import org.jsoar.util.ListHead;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
@@ -1205,20 +1204,20 @@ public class ReinforcementLearning
         //if ( ( data.impasse_type != NONE_IMPASSE_TYPE ) && ( data.impasse_type != OP_NO_CHANGE_IMPASSE_TYPE ) )  
         //  return;
         
-        final ListHead<Slot> slots = goal.reward_header.asIdentifier().slots;
+        final Slot slots = goal.reward_header.asIdentifier().slots;
         double reward = 0.0;
         int reward_count = 0;
 
-        if (!slots.isEmpty())
+        if (slots != null)
         {
-            for (Slot s : slots)
+            for (Slot s = slots; s != null; s = s.next)
             {
                 for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                 {
                     IdentifierImpl id = w.value.asIdentifier();
                     if (id != null)
                     {
-                        for (Slot t : id.slots)
+                        for (Slot t = id.slots; t != null; t = t.next)
                         {
                             for (WmeImpl x = t.getWmes(); x != null; x = x.next )
                             {

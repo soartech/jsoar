@@ -780,7 +780,7 @@ public class TraceFormats
             IdentifierImpl id = object.asIdentifier();
             if (id == null)
                 return;
-            for (Slot s : id.slots)
+            for (Slot s = id.slots; s != null; s = s.next)
                 for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                     add_trace_for_wme(values, w, print_attributes, recursive);
             for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)

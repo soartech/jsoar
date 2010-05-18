@@ -132,7 +132,7 @@ public class PrintPreferencesCommand
         if (object)
         {
             // step thru dll of slots for ID, printing prefs for each one
-            for (Slot s : id.slots)
+            for (Slot s = id.slots; s != null; s = s.next)
             {
                 if (s.attr == predefinedSyms.operator_symbol)
                     printer.print("Preferences for %s ^%s:", s.id, s.attr);

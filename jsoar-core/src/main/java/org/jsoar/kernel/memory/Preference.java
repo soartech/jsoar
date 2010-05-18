@@ -59,7 +59,6 @@ public class Preference implements Formattable
     public Preference prev_clone;
       
     public Instantiation inst;
-    //public final ListItem<Preference> inst_next_prev = new ListItem<Preference>(this);
     public Preference inst_next;
     Preference inst_prev;
     

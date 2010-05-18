@@ -108,9 +108,8 @@ public class OSupport
         {
             add_to_os_tc_if_needed(w.value);
         }
-        for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+        for (Slot s = id.slots; s != null; s = s.next)
         {
-            final Slot s = sit.item;
             if ((!isa_state) || (s.attr != syms.operator_symbol))
             {
                 for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)

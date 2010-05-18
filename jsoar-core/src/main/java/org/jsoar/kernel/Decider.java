@@ -5,10 +5,11 @@
  */
 package org.jsoar.kernel;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Stack;
 
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutputImpl;
@@ -490,15 +491,15 @@ public class Decider
         for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             promote_if_needed(w.value, new_level);
         
-        for (ListItem<Slot> s = id.slots.first; s != null; s = s.next)
+        for (Slot s = id.slots; s != null; s = s.next)
         {
-            for (Preference pref = s.item.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
+            for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
             {
                 promote_if_needed(pref.value, new_level);
                 if (pref.type.isBinary())
                     promote_if_needed(pref.referent, new_level);
             }
-            for (WmeImpl w = s.item.getWmes(); w != null; w = w.next)
+            for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                 promote_if_needed(w.value, new_level);
         }
     }
@@ -601,10 +602,8 @@ public class Decider
         this.workingMemory.remove_wme_list_from_wm(id.getInputWmes(), true);
         id.removeAllInputWmes();
 
-        for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+        for (Slot s = id.slots; s != null; s = s.next)
         {
-            final Slot s = sit.item;
-            
             // remove any existing attribute impasse for the slot
             if (s.impasse_type != ImpasseType.NONE)
                 remove_existing_attribute_impasse_for_slot(s);
@@ -652,7 +651,7 @@ public class Decider
      */
     private void mark_id_and_tc_as_unknown_level(IdentifierImpl root)
     {
-        Stack<IdentifierImpl> ids_to_walk = new Stack<IdentifierImpl>();
+        final Deque<IdentifierImpl> ids_to_walk = new ArrayDeque<IdentifierImpl>();
         ids_to_walk.push(root);
         
         while(!ids_to_walk.isEmpty()) {
@@ -694,9 +693,8 @@ public class Decider
                 }
             }
             
-            for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+            for (Slot s = id.slots; s != null; s = s.next)
             {
-                final Slot s = sit.item;
                 for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
                 {
                     if (mark_level_unknown_needed(pref.value))
@@ -752,7 +750,7 @@ public class Decider
      */
     private void walk_and_update_levels(IdentifierImpl root)
     {
-        Stack<IdentifierImpl> ids_to_walk = new Stack<IdentifierImpl>();
+        Deque<IdentifierImpl> ids_to_walk = new ArrayDeque<IdentifierImpl>();
         ids_to_walk.push(root);
         
         while(!ids_to_walk.isEmpty()) {
@@ -782,9 +780,8 @@ public class Decider
                     ids_to_walk.push(w.value.asIdentifier());
                 }
             }
-            for (ListItem<Slot> sit = id.slots.first; sit != null; sit = sit.next)
+            for (Slot s = id.slots; s != null; s = s.next)
             {
-                final Slot s = sit.item;
                 for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
                 {
                     if (level_update_needed(pref.value))
@@ -3309,9 +3306,8 @@ public class Decider
             
     		// Tell those slots they are changed so that the impasses can be regenerated
     		// bug 1011
-            for (ListItem<Slot> sit = tempMemory.highest_goal_whose_context_changed.slots.first; sit != null; sit = sit.next)
+            for (Slot s = tempMemory.highest_goal_whose_context_changed.slots; s != null; s = s.next)
             {
-                final Slot s = sit.item;
                 if (s.isa_context_slot && s.changed == null)
                 {
                 	s.changed = s; // use non-zero value to indicate change, see definition of slot::changed

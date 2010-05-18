@@ -211,7 +211,7 @@ public class StructuredPreferencesCommand
         final IdentifierImpl id = (IdentifierImpl) idIn;
         final List<ResultEntry> entries = new ArrayList<ResultEntry>();
         // step thru dll of slots for ID, printing prefs for each one
-        for (Slot s : id.slots)
+        for (Slot s = id.slots; s != null; s = s.next)
         {
             for (Preference p = s.getAllPreferences(); p != null; p = p.nextOfSlot)
             {

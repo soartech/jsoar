@@ -238,7 +238,7 @@ private void mark_depths_augs_of_id (SymbolImpl idIn, int depth, Marker tc)
         mark_depths_augs_of_id (w.attr, depth-1, tc);
         mark_depths_augs_of_id (w.value, depth-1, tc);
     }
-    for (Slot s : id.slots) {
+    for (Slot s = id.slots; s != null; s = s.next) {
         for (WmeImpl w=s.getWmes(); w!=null; w=w.next) {
             mark_depths_augs_of_id (w.attr, depth-1, tc);
             mark_depths_augs_of_id (w.value, depth-1, tc);
@@ -296,7 +296,7 @@ private void print_augs_of_id (SymbolImpl idIn,
         list.add(w);
     for (WmeImpl w=id.getInputWmes(); w!=null; w=w.next)
         list.add(w);
-    for (Slot s : id.slots) {
+    for (Slot s = id.slots; s != null; s = s.next) {
         for (WmeImpl w=s.getWmes(); w!=null; w=w.next)
             list.add(w);
         for (WmeImpl w=s.getAcceptablePreferenceWmes(); w!=null; w=w.next)

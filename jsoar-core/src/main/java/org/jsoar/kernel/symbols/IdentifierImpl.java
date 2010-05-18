@@ -51,7 +51,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public int promotion_level;
     public int link_count;
     public ListItem<IdentifierImpl> unknown_level;
-    public final ListHead<Slot> slots = ListHead.newInstance(); // dll of slots for this identifier
+    public Slot slots; // dll of slots for this identifier
     public Marker tc_number; /* used for transitive closures, marking, etc. */
     public SymbolImpl variablization; /* used by the chunker */
 
@@ -250,6 +250,39 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         }
     }
     
+    public void addSlot(Slot slot)
+    {
+        slot.next = slots;
+        slot.prev = null;
+        
+        if(slots != null)
+        {
+            slots.prev = slot;
+        }
+        slots = slot;
+    }
+    
+    public void removeSlot(Slot slot)
+    {
+        if(slot == slots)
+        {
+            slots = slot.next;
+            if(slots != null)
+            {
+                slots.prev = null;
+            }
+        }
+        else
+        {
+            slot.prev.next = slot.next;
+            if(slot.next != null)
+            {
+                slot.next.prev = slot.prev;
+            }
+        }
+        slot.next = slot.prev = null;
+    }
+    
     public void addGoalPreference(Preference pref)
     {
         pref.all_of_goal_next = preferences_from_goal;
@@ -333,19 +366,19 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         private final IdentifierImpl id;
         private boolean didImpasseWmes = false;
         private boolean didInputs = false;
-        private ListItem<Slot> slot;
+        private Slot slot;
         
         public WmeIteratorSet(IdentifierImpl id, EnumSet<WmeType> desired)
         {
             this.id = id;
             this.didImpasseWmes = !desired.contains(WmeType.IMPASSE);
             this.didInputs = !desired.contains(WmeType.INPUT);
-            this.slot = desired.contains(WmeType.NORMAL) ? id.slots.first : null;
+            this.slot = desired.contains(WmeType.NORMAL) ? id.slots : null;
         }
         public WmeIteratorSet(IdentifierImpl id)
         {
             this.id = id;
-            this.slot = id.slots.first;
+            this.slot = id.slots;
         }
         
         /* (non-Javadoc)
@@ -387,7 +420,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
             {
                 throw new NoSuchElementException();
             }
-            Iterator<Wme> r = slot.item.getWmeIterator();
+            Iterator<Wme> r = slot.getWmeIterator();
             slot = slot.next;
             return r;
         }

@@ -14,7 +14,6 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.util.ListItem;
 
 import com.google.common.collect.Iterators;
 
@@ -70,7 +69,8 @@ import com.google.common.collect.Iterators;
  */
 public class Slot
 {
-    public final ListItem<Slot> next_prev = new ListItem<Slot>(this); // dll of slots for this id
+    public Slot next, prev;// dll of slots for id
+    
     public final IdentifierImpl id; 
     public final SymbolImpl attr;
 
@@ -137,7 +137,7 @@ public class Slot
      */
     private Slot(IdentifierImpl id, SymbolImpl attr, StringSymbolImpl operator_symbol)
     {
-        this.next_prev.insertAtHead(id.slots);
+        id.addSlot(this);
 
         /*
          * Context slots are goals and operators; operator slots get created
@@ -174,11 +174,11 @@ public class Slot
         {
             return null; // fixes bug #135 kjh
         } 
-        for (ListItem<Slot> s = id.slots.first; s != null; s = s.next)
+        for (Slot s = id.slots; s != null; s = s.next)
         {
-            if (s.item.attr == attr)
+            if (s.attr == attr)
             {
-                return s.item;
+                return s;
             }
         }
         return null;

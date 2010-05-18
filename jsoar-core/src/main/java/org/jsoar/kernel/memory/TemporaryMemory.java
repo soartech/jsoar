@@ -126,7 +126,7 @@ public class TemporaryMemory
                 ListItem<Slot> changed = (ListItem<Slot>) s.changed;
                 changed.remove(changed_slots);
             }
-            s.next_prev.remove(s.id.slots);
+            s.id.removeSlot(s);
         }
     }
 

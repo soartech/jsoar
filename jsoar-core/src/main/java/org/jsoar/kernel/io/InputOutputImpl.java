@@ -576,9 +576,9 @@ public class InputOutputImpl implements InputOutput
             if (valueAsId != null)
                 add_id_to_output_link_tc(valueAsId);
         }
-        for (ListItem<Slot> s = id.slots.first; s != null; s = s.next)
+        for (Slot s = id.slots; s != null; s = s.next)
         {
-            for (WmeImpl w = s.item.getWmes(); w != null; w = w.next)
+            for (WmeImpl w = s.getWmes(); w != null; w = w.next)
             {
                 IdentifierImpl valueAsId = w.value.asIdentifier();
                 if (valueAsId != null)
@@ -631,8 +631,8 @@ public class InputOutputImpl implements InputOutput
         {
             for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
                 io_wmes.push(w);
-            for (ListItem<Slot> s = id.slots.first; s != null; s = s.next)
-                for (WmeImpl w = s.item.getWmes(); w != null; w = w.next)
+            for (Slot s = id.slots; s != null; s = s.next)
+                for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                     io_wmes.push(w);
         }
         return io_wmes;

@@ -327,10 +327,8 @@ public class Chunker
         for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
             add_results_if_needed(w.value);
         
-        for (ListItem<Slot> it = id.slots.first; it != null; it = it.next)
+        for (Slot s = id.slots; s != null; s = s.next)
         {
-            final Slot s = it.item;
-            
             for (Preference pref = s.getAllPreferences(); pref != null; pref = pref.nextOfSlot)
                 add_pref_to_results(pref);
             
