@@ -479,7 +479,9 @@ import org.jsoar.util.markers.Marker;
         for (mp_node = parent.first_child; mp_node != null; mp_node = mp_node.next_sibling)
         {
             if ((mp_node.node_type == mp_node_type)
-                    && ((!hash_this_node) || ((mp_node.left_hash_loc_field_num == left_hash_loc.value.field_num) && (mp_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up))))
+                    && ((!hash_this_node) || 
+                        ((mp_node.left_hash_loc_field_num == left_hash_loc.value.field_num) && 
+                        (mp_node.left_hash_loc_levels_up == left_hash_loc.value.levels_up))))
             {
                 break;
             }

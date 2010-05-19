@@ -8,7 +8,17 @@ package org.jsoar.kernel.rete;
 import org.jsoar.kernel.Production;
 
 /**
- * rete.cpp:401
+ * Represents a node in the rete network.
+ * 
+ * <p>A node can be a member of several linked lists:
+ * <ul>
+ * <li>Child list of the node's parent. Use {@link #first_child} and {@link #next_sibling}
+ * <li>List of nodes from an {@link AlphaMemory}. Use {@link PosNegNodeData#next_from_alpha_mem} and 
+ *      {@link PosNegNodeData#prev_from_alpha_mem}
+ * </ul>
+ * 
+
+ * <p>rete.cpp:401
  * 
  * @author ray
  */
@@ -74,12 +84,7 @@ public class ReteNode
             b_posneg = new PosNegNodeData();
         }
 
-        // Enforce a and b "unions"
-        assert (a_pos != null && a_np == null) || (a_pos == null && a_np != null);
-        assert (b_p != null && b_cn == null && b_mem == null && b_posneg == null)
-                || (b_p == null && b_cn != null && b_mem == null && b_posneg == null)
-                || (b_p == null && b_cn == null && b_mem != null && b_posneg == null)
-                || (b_p == null && b_cn == null && b_mem == null && b_posneg != null);
+        validateUnions();
     }
     
     private ReteNode(ReteNode other)
@@ -98,6 +103,11 @@ public class ReteNode
         this.b_cn = other.b_cn != null ? other.b_cn.copy() : null;
         this.b_p = other.b_p != null ? other.b_p.copy() : null;
         
+        validateUnions();
+    }
+
+    private void validateUnions()
+    {
         // Enforce a and b "unions"
         assert (a_pos != null && a_np == null) || (a_pos == null && a_np != null);
         assert (b_p != null && b_cn == null && b_mem == null && b_posneg == null)
@@ -314,6 +324,8 @@ public class ReteNode
     /**
      * Scans up the net and finds the first (i.e., nearest) ancestor node
      * that uses a given alpha_mem.  Returns that node, or NIL if none exists.
+     * For the returned node, {@link ReteNodeType#bnode_is_posneg()} will always
+     * be true.
      * 
      * <p>rete.cpp:1824:nearest_ancestor_with_same_am
      * 
@@ -419,19 +431,32 @@ public class ReteNode
     
     /**
      * Split a given MP node into separate M and P nodes, return a pointer
-     * to the new Memory node.
+     * to the new Memory node. 
+     * 
+     * <p>That is, splits an {@link ReteNodeType#MP_BNODE}
+     * or {@link ReteNodeType#UNHASHED_MP_BNODE} node into two nodes:
+     * <ul>
+     * <li>A new {@link ReteNodeType#MEMORY_BNODE} (possibly unhashed) in the
+     * same position as the input node. This node is returned from the method.
+     * 
+     * <li>A new {@link ReteNodeType#POSITIVE_BNODE} (possibly unhashed) as a
+     * child of the memory node. This node inherits the children of the input
+     * node.
+     * </ul>
      *  
      * <p>rete.cpp:1916:split_mp_node
      * 
-     * @param mp_node
-     * @return a new split MP node
+     * @param mp_node the node to split
+     * @return a new memory bnode, possible unhashed.
      */
     static ReteNode split_mp_node(Rete rete, ReteNode mp_node)
     {
-        ReteNodeType mem_node_type = null;
-
+        assert mp_node.node_type == ReteNodeType.MP_BNODE || 
+               mp_node.node_type == ReteNodeType.UNHASHED_MP_BNODE;
+        
         // determine appropriate node types for new M and P nodes
-        ReteNodeType node_type = null;
+        final ReteNodeType mem_node_type;
+        final ReteNodeType node_type;
         if (mp_node.node_type == ReteNodeType.MP_BNODE)
         {
             node_type = ReteNodeType.POSITIVE_BNODE;
@@ -444,49 +469,64 @@ public class ReteNode
         }
 
         // save a copy of the MP data, then kill the MP node
-        ReteNode mp_copy = mp_node.copy();
-        ReteNode parent = mp_node.parent;
+        final ReteNode parent = mp_node.parent;
         mp_node.remove_node_from_parents_list_of_children();
-        // TODO update_stats_for_destroying_node (thisAgent, mp_node); /* clean
-        // up rete stats stuff */
 
-        // the old MP node will get transmogrified into the new Pos node
-        ReteNode pos_node = mp_node;
+        // create the new memory node
+        final ReteNode mem_node = new ReteNode(mem_node_type, mp_node.node_id);
 
-        // create the new M node, transfer the MP node's tokens to it
-        ReteNode mem_node = new ReteNode(mem_node_type, mp_copy.node_id);
-
+        // Insert the memory node in the position of the original MP node
         mem_node.parent = parent;
         mem_node.next_sibling = parent.first_child;
         parent.first_child = mem_node;
-        mem_node.first_child = pos_node;
-        mem_node.left_hash_loc_field_num = mp_copy.left_hash_loc_field_num;
-        mem_node.left_hash_loc_levels_up = mp_copy.left_hash_loc_levels_up;
+        
+        mem_node.left_hash_loc_field_num = mp_node.left_hash_loc_field_num;
+        mem_node.left_hash_loc_levels_up = mp_node.left_hash_loc_levels_up;
 
+        // Transfer the MP node's tokens to new memory node
         mem_node.a_np.tokens = mp_node.a_np.tokens;
         for (Token t = mp_node.a_np.tokens; t != null; t = t.next_of_node)
         {
             t.node = mem_node;
         }
 
+        final boolean mpIsLeftUnlinked = mp_node.mp_bnode_is_left_unlinked();
+        
+        // the old MP node will get transmogrified into the new Pos node
+        final ReteNode pos_node = mp_node; //TODO new ReteNode(node_type, mp_node.node_id);
         // transmogrify the old MP node into the new Pos node
-        // TODO All of this feels yucky
-        // init_new_rete_node_with_type (thisAgent, pos_node, node_type);
         pos_node.node_type = node_type;
         pos_node.a_np = null;
         pos_node.a_pos = new PosNodeData(pos_node);
-        // TODO rete.rete_node_counts[pos_node.node_type.index()]++;
+        
+        // Make the pos node a child of the new memory node
         pos_node.parent = mem_node;
-        pos_node.first_child = mp_copy.first_child;
-        pos_node.next_sibling = null;
-        pos_node.b_posneg = mp_copy.b_posneg;
+        mem_node.first_child = pos_node;
+        
+        // Inherit the children of the input MP node
+        pos_node.first_child = mp_node.first_child;
+        
+        /*
+        TODO: Necessary when "new ReteNode(...)" above is enabled
+        for(ReteNode child = pos_node.first_child; child != null; child = child.next_sibling)
+        {
+            child.parent = pos_node;
+        }
+        */
+        
+        pos_node.next_sibling = null; // The new pos node has no siblings
+        pos_node.b_posneg = mp_node.b_posneg;
         pos_node.relink_to_left_mem(); /* for now, but might undo this below */
 
         // set join node's unlinking status according to mp_copy's
-        if (mp_copy.mp_bnode_is_left_unlinked())
+        if (mpIsLeftUnlinked)
         {
             pos_node.unlink_from_left_mem();
         }
+        
+        // Make sure nothing got screwed up
+        mem_node.validateUnions();
+        pos_node.validateUnions();
 
         return mem_node;
     }
