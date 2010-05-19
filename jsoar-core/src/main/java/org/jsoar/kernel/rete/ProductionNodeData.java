@@ -6,7 +6,6 @@
 package org.jsoar.kernel.rete;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.util.ListHead;
 
 /**
  * data for production nodes only
@@ -22,13 +21,11 @@ public class ProductionNodeData extends ReteNodeData
     
     // TODO: I think both of these fields belong in a Soar-specific sub-class
     // or something to decouple generic rete from Soar.
-    final ListHead<MatchSetChange> tentative_assertions;   // pending MS changes
-    final ListHead<MatchSetChange> tentative_retractions;
+    MatchSetChange tentative_assertions;   // pending MS changes
+    MatchSetChange tentative_retractions;
     
     public ProductionNodeData()
     {
-        this.tentative_assertions = ListHead.newInstance();
-        this.tentative_retractions = ListHead.newInstance();
     }
     
     public ProductionNodeData(ProductionNodeData other)

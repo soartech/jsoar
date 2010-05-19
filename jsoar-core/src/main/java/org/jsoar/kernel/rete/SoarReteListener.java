@@ -40,7 +40,6 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.ListHead;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -61,27 +60,33 @@ public class SoarReteListener implements ReteListener
      * agent.h:733
      * dll of all retractions for removed (ie nil) goals
      */
-    public final ListHead<MatchSetChange> nil_goal_retractions = ListHead.newInstance();
+    public ListHead<MatchSetChange> nil_goal_retractions = ListHead.newInstance();
     
     /**
      * changes to match set
      * 
      * agent.h:231
+     * @see MatchSetChange#next_of_all
      */
-    public final ListHead<MatchSetChange> ms_assertions = ListHead.newInstance();
+    MatchSetChange ms_assertions;
     
     /**
      * agent.h:231
+     * @see MatchSetChange#next_of_all
      */
-    public final ListHead<MatchSetChange> ms_retractions = ListHead.newInstance();
+    public MatchSetChange ms_retractions;
     
     /**
      * changes to match set
      * 
      * agent.h:723
+     * @see MatchSetChange#next_of_all
      */
-    private final ListHead<MatchSetChange> ms_o_assertions = ListHead.newInstance();
-    public final ListHead<MatchSetChange> ms_i_assertions = ListHead.newInstance();
+    private MatchSetChange ms_o_assertions;
+    /**
+     * @see MatchSetChange#next_of_all
+     */
+    public MatchSetChange ms_i_assertions;
 
     /**
      * New waterfall model: postponed assertions that can be restored if they don't fire
@@ -115,12 +120,12 @@ public class SoarReteListener implements ReteListener
     public boolean finishRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
     {
         refracted_inst.inProdList.remove(p.instantiations);
-        final boolean refactedInstMatched = p_node.b_p.tentative_retractions.isEmpty();
+        final boolean refactedInstMatched = p_node.b_p.tentative_retractions == null;
         if (!refactedInstMatched)
         {
-            final MatchSetChange msc = p_node.b_p.tentative_retractions.first.item;
-            p_node.b_p.tentative_retractions.clear();
-            msc.next_prev.remove(ms_retractions);
+            final MatchSetChange msc = p_node.b_p.tentative_retractions;
+            p_node.b_p.tentative_retractions = null;
+            ms_retractions = msc.removeFromAllList(ms_retractions);
 
             if (msc.goal != null)
             {
@@ -154,9 +159,8 @@ public class SoarReteListener implements ReteListener
         // check for match in tentative_retractions
         boolean match_found = false;
         MatchSetChange msc = null;
-        for (ListItem<MatchSetChange> it = node.b_p.tentative_retractions.first; it != null; it = it.next)
+        for (msc = node.b_p.tentative_retractions; msc != null; msc = msc.next_of_node)
         {
-            msc = it.item;
             match_found = true;
             Condition cond = msc.inst.bottom_of_instantiated_conditions;
             Token current_token = tok;
@@ -208,8 +212,8 @@ public class SoarReteListener implements ReteListener
         {
             msc.inst.rete_token = tok;
             msc.inst.rete_wme = w;
-            msc.of_node.remove(node.b_p.tentative_retractions);
-            msc.next_prev.remove(ms_retractions);
+            node.b_p.tentative_retractions = msc.removeFromNodeList(node.b_p.tentative_retractions);
+            ms_retractions = msc.removeFromAllList(ms_retractions);
 
             if (msc.goal != null)
             {
@@ -456,7 +460,7 @@ public class SoarReteListener implements ReteListener
         final Trace trace = context.getTrace();
         if (prod_type == SavedFiringType.PE_PRODS)
         {
-            msc.next_prev.insertAtHead(ms_o_assertions);
+            ms_o_assertions = msc.addToHeadOfAllList(ms_o_assertions);
             msc.in_level.insertAtHead(msc.goal.ms_o_assertions);
             node.b_p.prod.OPERAND_which_assert_list = AssertListType.O_LIST;
 
@@ -466,7 +470,7 @@ public class SoarReteListener implements ReteListener
         }
         else
         {
-            msc.next_prev.insertAtHead(ms_i_assertions);
+            ms_i_assertions = msc.addToHeadOfAllList(ms_i_assertions);
             msc.in_level.insertAtHead(msc.goal.ms_i_assertions);
             node.b_p.prod.OPERAND_which_assert_list = AssertListType.I_LIST;
 
@@ -477,7 +481,7 @@ public class SoarReteListener implements ReteListener
         ///
         // Location for Match Interrupt
 
-        msc.of_node.insertAtHead(node.b_p.tentative_assertions);
+        node.b_p.tentative_assertions = msc.addToHeadOfNodeList(node.b_p.tentative_assertions);
     }
 
     /* (non-Javadoc)
@@ -496,23 +500,23 @@ public class SoarReteListener implements ReteListener
          */
         
         // check for match in tentative_assertions
-        for (MatchSetChange msc : node.b_p.tentative_assertions)
+        for (MatchSetChange msc = node.b_p.tentative_assertions; msc != null; msc = msc.next_of_node)
         {
             if ((msc.tok == tok) && (msc.w == w))
             {
                 // match found in tentative_assertions, so remove it
-                msc.of_node.remove(node.b_p.tentative_assertions);
+                node.b_p.tentative_assertions = msc.removeFromNodeList(node.b_p.tentative_assertions);
 
                 if (node.b_p.prod.OPERAND_which_assert_list == AssertListType.O_LIST)
                 {
-                    msc.next_prev.remove(ms_o_assertions);
+                    ms_o_assertions = msc.removeFromAllList(ms_o_assertions);
                     // msc already defined for the assertion so the goal
                     // should be defined as well.
                     msc.in_level.remove(msc.goal.ms_o_assertions);
                 }
                 else if (node.b_p.prod.OPERAND_which_assert_list == AssertListType.I_LIST)
                 {
-                    msc.next_prev.remove(ms_i_assertions);
+                    ms_i_assertions = msc.removeFromAllList(ms_i_assertions);
                     msc.in_level.remove(msc.goal.ms_i_assertions);
                 }
                 // #ifdef DEBUG_RETE_PNODES
@@ -543,7 +547,7 @@ public class SoarReteListener implements ReteListener
             inst.rete_token = null;
             inst.rete_wme = null;
             MatchSetChange msc = MatchSetChange.createRetraction(node, inst);
-            msc.of_node.insertAtHead(node.b_p.tentative_retractions);
+            node.b_p.tentative_retractions = msc.addToHeadOfNodeList(node.b_p.tentative_retractions);
 
             // Determine what the goal of the msc is and add it to that
             // goal's list of retractions
@@ -584,7 +588,7 @@ public class SoarReteListener implements ReteListener
             }
 
             /* Put on the original retraction list */
-            msc.next_prev.insertAtHead(ms_retractions);
+            ms_retractions = msc.addToHeadOfAllList(ms_retractions);
             if (msc.goal != null)
             { /* Goal exists */
                 msc.in_level.insertAtHead(msc.goal.ms_retractions);
@@ -682,8 +686,8 @@ public class SoarReteListener implements ReteListener
         // #ifdef BUG_139_WORKAROUND
         msc.p_node.b_p.prod.already_fired = false; // RPM workaround for bug #139; mark prod as not fired yet */
         // #endif
-        msc.next_prev.insertAtHead(ms_retractions);
-        msc.of_node.insertAtHead(p_node.b_p.tentative_retractions);
+        ms_retractions = msc.addToHeadOfAllList(ms_retractions);
+        p_node.b_p.tentative_retractions = msc.addToHeadOfNodeList(p_node.b_p.tentative_retractions);
     }
 
     /* (non-Javadoc)
@@ -698,7 +702,7 @@ public class SoarReteListener implements ReteListener
         // At this point, there are no tentative_assertion's. Now set the
         // p_node field of all tentative_retractions to NIL, to indicate that
         // the p_node is being excised
-        for (MatchSetChange msc : p_node.b_p.tentative_retractions)
+        for (MatchSetChange msc = p_node.b_p.tentative_retractions; msc != null; msc = msc.next_of_node)
         {
             msc.p_node = null;
         }
@@ -731,7 +735,7 @@ public class SoarReteListener implements ReteListener
                     return null;
 
                 msc = decider.active_goal.ms_o_assertions.pop();
-                msc.next_prev.remove(ms_o_assertions);
+                ms_o_assertions = msc.removeFromAllList(ms_o_assertions);
             }
             else
             {
@@ -740,9 +744,8 @@ public class SoarReteListener implements ReteListener
                     return null;
 
                 msc = decider.active_goal.ms_i_assertions.pop();
-                msc.next_prev.remove(ms_i_assertions);
+                ms_i_assertions = msc.removeFromAllList(ms_i_assertions);
             }
-
         }
         else
         {
@@ -750,7 +753,7 @@ public class SoarReteListener implements ReteListener
             // assertions.  If there are, then we generate and error message
             // and abort.
 
-            if ((!ms_i_assertions.isEmpty()) || (!ms_o_assertions.isEmpty()))
+            if ((ms_i_assertions != null) || (ms_o_assertions != null))
             {
                 // Commented out 11/2007
                 // laird: I would like us to remove that error message that happens
@@ -769,7 +772,7 @@ public class SoarReteListener implements ReteListener
                          // assertions, just retrurn FALSE to terminate the procedure.
         }
 
-        msc.of_node.remove(msc.p_node.b_p.tentative_assertions);
+        msc.p_node.b_p.tentative_assertions = msc.removeFromNodeList(msc.p_node.b_p.tentative_assertions);
 
         // save the assertion on the postponed list
         postponed_assertions.push(msc);
@@ -790,19 +793,19 @@ public class SoarReteListener implements ReteListener
     		MatchSetChange msc = postponed_assertions.pop();
         	assert msc != null;
         	
-            msc.of_node.insertAtHead(msc.p_node.b_p.tentative_assertions);
+            msc.p_node.b_p.tentative_assertions = msc.addToHeadOfNodeList(msc.p_node.b_p.tentative_assertions);
         	
         	assert decider.active_goal != null;
 
         	if (recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
-                msc.next_prev.insertAtHead(ms_o_assertions);
+                ms_o_assertions = msc.addToHeadOfAllList(ms_o_assertions);
                 decider.active_goal.ms_o_assertions.push(msc);
             }
             else
             {
                 /* IE PRODS */
-                msc.next_prev.insertAtHead(ms_i_assertions);
+                ms_i_assertions = msc.addToHeadOfAllList(ms_i_assertions);
                 decider.active_goal.ms_i_assertions.push(msc);
             }
     	}
@@ -827,11 +830,11 @@ public class SoarReteListener implements ReteListener
         // remove from the Waterfall-specific list */
         final MatchSetChange msc = decider.active_goal.ms_retractions.pop();
         // and remove from the complete retraction list
-        msc.next_prev.remove(ms_retractions);
+        ms_retractions = msc.removeFromAllList(ms_retractions);
 
         if (msc.p_node != null)
         {
-            msc.of_node.remove(msc.p_node.b_p.tentative_retractions);
+            msc.p_node.b_p.tentative_retractions = msc.removeFromNodeList(msc.p_node.b_p.tentative_retractions);
         }
 
         return msc.inst;
@@ -862,11 +865,11 @@ public class SoarReteListener implements ReteListener
         // next and prev set and used in Operand2 exactly as used in Soar 7 --
         // so we have to make sure and delete this retraction from the regular
         // list
-        msc.next_prev.remove(ms_retractions);
+        ms_retractions = msc.removeFromAllList(ms_retractions);
 
         if (msc.p_node != null) 
         {
-            msc.of_node.remove(msc.p_node.b_p.tentative_retractions);
+            msc.p_node.b_p.tentative_retractions = msc.removeFromNodeList(msc.p_node.b_p.tentative_retractions);
         }
         return msc.inst;
     }
@@ -952,10 +955,10 @@ public class SoarReteListener implements ReteListener
         }
     }
     
-    private void printAssertions(ListHead<MatchSetChange> assertions, Printer printer, WmeTraceType wtt)
+    private void printAssertions(MatchSetChange assertions, Printer printer, WmeTraceType wtt)
     {
         MS_trace ms_trace = null;
-        for (MatchSetChange msc : assertions)
+        for (MatchSetChange msc = assertions; msc != null; msc = msc.next_of_all)
         {
             if (wtt != WmeTraceType.NONE)
             {
@@ -989,7 +992,7 @@ public class SoarReteListener implements ReteListener
     private void printRetractions(Printer printer, WmeTraceType wtt)
     {
         MS_trace ms_trace = null;
-        for (MatchSetChange msc : ms_retractions)
+        for (MatchSetChange msc = ms_retractions; msc != null; msc = msc.next_of_all)
         {
             if (wtt != WmeTraceType.NONE)
             {
@@ -1079,10 +1082,10 @@ public class SoarReteListener implements ReteListener
         return new DefaultMatchSetEntry(msc.getProduction(), type, wmes);
     }
     
-    private List<MatchSetEntry> getAssertions(ListHead<MatchSetChange> assertions, EntryType type)
+    private List<MatchSetEntry> getAssertions(MatchSetChange assertions, EntryType type)
     {
         List<MatchSetEntry> entries = new ArrayList<MatchSetEntry>();
-        for(MatchSetChange msc : assertions)
+        for(MatchSetChange msc = assertions; msc != null; msc = msc.next_of_all)
         {
             entries.add(getAssertion(msc, type));
         }
@@ -1097,7 +1100,7 @@ public class SoarReteListener implements ReteListener
     private List<MatchSetEntry> getRetractions()
     {
         List<MatchSetEntry> entries = new ArrayList<MatchSetEntry>();
-        for(MatchSetChange msc : ms_retractions)
+        for(MatchSetChange msc = ms_retractions; msc != null; msc = msc.next_of_all)
         {
             entries.add(getRetraction(msc));
         }

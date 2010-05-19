@@ -18,8 +18,8 @@ import org.jsoar.util.ListItem;
  */
 public class MatchSetChange
 {
-    public final  ListItem<MatchSetChange> next_prev = new ListItem<MatchSetChange>(this); // dll for all p nodes
-    public final ListItem<MatchSetChange> of_node = new ListItem<MatchSetChange>(this); // dll for just this p node
+    MatchSetChange next_of_all, prev_of_all; // for all pnodes
+    MatchSetChange next_of_node, prev_of_node; // for a single p node
     
     public ReteNode p_node; // for retractions, this can be null if the p node has been excised
     public final Token tok; // for assertions only
@@ -163,5 +163,101 @@ public class MatchSetChange
             //        #endif 
             return null;
         }
+    }
+    
+    /**
+     * Insert this MSC at the head of a list of MSC in a node.
+     *  
+     * @param currentHead the current list head
+     * @return the new list head (this)
+     * @see ProductionNodeData#tentative_assertions
+     * @see ProductionNodeData#tentative_retractions
+     */
+    MatchSetChange addToHeadOfNodeList(MatchSetChange currentHead)
+    {
+        next_of_node = currentHead;
+        prev_of_node = null;
+        if(currentHead != null)
+        {
+            currentHead.prev_of_node = this;
+        }
+        return this;
+    }
+    
+    /**
+     * Remove this MSC from a list of MSC in a node.
+     *  
+     * @param currentHead the current list head
+     * @return the new list head
+     * @see ProductionNodeData#tentative_assertions
+     * @see ProductionNodeData#tentative_retractions
+     */
+    MatchSetChange removeFromNodeList(MatchSetChange currentHead)
+    {
+        if(currentHead == this)
+        {
+            currentHead = next_of_node;
+            if(next_of_node != null)
+            {
+                next_of_node.prev_of_node = null;
+            }
+        }
+        else
+        {
+            prev_of_node.next_of_node = this.next_of_node;
+            if(this.next_of_node != null)
+            {
+                this.next_of_node.prev_of_node = this.prev_of_node;
+            }
+        }
+        next_of_node = prev_of_node = null;
+        return currentHead;
+    }
+    
+    /**
+     * Insert this MSC at the head of a global rete MSC list
+     * 
+     * @param currentHead the current list head
+     * @return the new list head (this)
+     * @see SoarReteListener#ms_assertions and friends
+     */
+    MatchSetChange addToHeadOfAllList(MatchSetChange currentHead)
+    {
+        next_of_all = currentHead;
+        prev_of_all = null;
+        if(currentHead != null)
+        {
+            currentHead.prev_of_all = this;
+        }
+        return this;
+    }
+    
+    /**
+     * Remove this MSC from a global rete MSC list
+     * 
+     * @param currentHead the current list head
+     * @return the new list head
+     * @see SoarReteListener#ms_assertions and friends
+     */
+    MatchSetChange removeFromAllList(MatchSetChange currentHead)
+    {
+        if(currentHead == this)
+        {
+            currentHead = next_of_all;
+            if(next_of_all != null)
+            {
+                next_of_all.prev_of_all = null;
+            }
+        }
+        else
+        {
+            prev_of_all.next_of_all = this.next_of_all;
+            if(this.next_of_all != null)
+            {
+                this.next_of_all.prev_of_all = this.prev_of_all;
+            }
+        }
+        next_of_all = prev_of_all = null;
+        return currentHead;
     }
 }

@@ -864,7 +864,7 @@ public class Consistency
         /* We are only checking for i_assertions, not o_assertions, since we don't
          *  want operators to fire in the proposal phases
          */
-        if (!(!this.soarReteListener.ms_retractions.isEmpty() || !this.soarReteListener.ms_i_assertions.isEmpty()))
+        if (!(this.soarReteListener.ms_retractions != null || this.soarReteListener.ms_i_assertions != null))
         {
             if (minor_quiescence_at_goal(decider.bottom_goal))
             {

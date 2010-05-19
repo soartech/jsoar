@@ -10,7 +10,6 @@ import java.util.Formatter;
 
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.util.ListItem;
 
 /**
  * gdatastructs.h:191:preference_struct
