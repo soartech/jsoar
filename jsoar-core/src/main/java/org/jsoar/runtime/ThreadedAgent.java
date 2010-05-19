@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.RunType;
@@ -70,7 +71,7 @@ import org.jsoar.util.properties.PropertyProvider;
  * @see StopEvent
  * @see WaitRhsFunction
  */
-public class ThreadedAgent extends AbstractAdaptable
+public class ThreadedAgent extends AbstractAdaptable implements AgentRunController
 {
     private static final Log logger = LogFactory.getLog(ThreadedAgent.class);
     

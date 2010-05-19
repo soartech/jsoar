@@ -99,7 +99,7 @@ import org.jsoar.util.timing.ExecutionTimer;
  * 
  * @author ray
  */
-public class Agent extends AbstractAdaptable
+public class Agent extends AbstractAdaptable implements AgentRunController
 {
     private static final Log logger = LogFactory.getLog(Agent.class);
     
@@ -848,18 +848,24 @@ public class Agent extends AbstractAdaptable
     
     private static Agent agent() throws Exception
     {
+        //.setProperty("jsoar.agent.interpreter", "tcl");
         final Agent a = new Agent();
         a.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
         a.initialize();
-        a.setInterpreter(new DefaultInterpreter(a));
-        a.getInterpreter().source(new File("c:/veteran.soar"));
+        a.getInterpreter().source(new File("../performance/count-test-single.soar"));
+        //a.getInterpreter().source(new File("../performance/FunctionalTests_testArithmetic.soar"));
+        //a.getInterpreter().source(new File("c:/veteran.soar"));
+        System.out.println("\nLoaded " + a.getProductions().getProductionCount() + " rules");
         a.getPrinter().flush();
+        a.runFor(20000, RunType.DECISIONS);
+        //a.runFor(40000, RunType.FOREVER);
+        
         return a;
     }
     public static void main(String[] args) throws Exception
     {
         final List<Agent> agents = new ArrayList<Agent>();
-        for(int i = 0; i < 20; ++i)
+        for(int i = 0; i < 1; ++i)
         {
             System.out.print("\n#" + (i + 1));
             agents.add(agent());

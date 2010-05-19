@@ -3,9 +3,9 @@
  */
 package org.jsoar.kernel.commands;
 
+import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommand;
 
 /**
@@ -17,11 +17,11 @@ import org.jsoar.util.commands.SoarCommand;
  */
 public final class RunCommand implements SoarCommand
 {
-    private final ThreadedAgent threadedAgent;
+    private final AgentRunController controller;
     
-    public RunCommand(ThreadedAgent threadedAgent)
+    public RunCommand(AgentRunController controller)
     {
-        this.threadedAgent = threadedAgent;
+        this.controller = controller;
     }
     
     private long getCount(int i, String[] args) throws SoarException
@@ -29,7 +29,7 @@ public final class RunCommand implements SoarCommand
         final String arg = args[i];
         if(i + 1 >= args.length)
         {
-            throw new SoarException("No count argument for " + arg + " option");
+            return 1; // default to 1 when no arg is given
         }
         final String countString = args[i+1].toString();
         try
@@ -80,7 +80,7 @@ public final class RunCommand implements SoarCommand
             }
         }
         
-        threadedAgent.runFor(count, type);
+        controller.runFor(count, type);
         return "";
     }
 }

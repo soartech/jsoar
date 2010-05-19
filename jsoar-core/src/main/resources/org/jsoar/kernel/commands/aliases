@@ -26,9 +26,9 @@ alias ps print --stack
 alias topd pwd
 alias pw pwatch
 alias exit quit
-alias step run -d 1
-alias d run -d 1
-alias e run -e 1
+alias step run -d
+alias d run -d
+alias e run -e
 alias rw remove-wme
 alias rn rete-net
 alias sn soarnews
