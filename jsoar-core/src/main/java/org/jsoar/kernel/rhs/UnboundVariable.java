@@ -16,7 +16,7 @@ import org.jsoar.util.markers.Marker;
  * 
  * @author ray
  */
-public class UnboundVariable extends RhsValue
+public class UnboundVariable extends AbstractRhsValue
 {
     private final int index;
 

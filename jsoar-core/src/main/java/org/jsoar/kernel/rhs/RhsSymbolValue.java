@@ -15,11 +15,13 @@ import org.jsoar.util.markers.Marker;
 /**
  * A rhs value that is just a symbol. Objects of this type are immutable.
  * 
- * <p>TODO Memory usage: make this an interface implemented by SymbolImpl
+ * <p>TODO Memory usage: make this an interface implemented by SymbolImpl.
+ * Addendum, 5/2010: FWIW, I tried this and it didn't make much difference
+ * for count-test or long-running blocks world so I backed it out.
  * 
  * @author ray
  */
-public class RhsSymbolValue extends RhsValue
+public class RhsSymbolValue extends AbstractRhsValue
 {
     public final SymbolImpl sym;
     

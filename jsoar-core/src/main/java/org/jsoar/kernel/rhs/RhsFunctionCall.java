@@ -19,7 +19,7 @@ import org.jsoar.util.markers.Marker;
  * 
  * @author ray
  */
-public class RhsFunctionCall extends RhsValue
+public class RhsFunctionCall extends AbstractRhsValue
 {
     private final StringSymbol name;
     private final boolean standalone;

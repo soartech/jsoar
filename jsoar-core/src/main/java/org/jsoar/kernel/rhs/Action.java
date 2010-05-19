@@ -163,13 +163,13 @@ public abstract class Action
                 MakeAction oldMake = (MakeAction) old;
                 MakeAction newMake = new MakeAction();
 
-                newMake.id = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.id, cond, 's');
-                newMake.attr = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.attr, cond, 'a');
+                newMake.id = RhsValues.copy_rhs_value_and_substitute_varnames(rete, oldMake.id, cond, 's');
+                newMake.attr = RhsValues.copy_rhs_value_and_substitute_varnames(rete, oldMake.attr, cond, 'a');
                 char first_letter = newMake.attr.getFirstLetter();
-                newMake.value = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.value, cond, first_letter);
+                newMake.value = RhsValues.copy_rhs_value_and_substitute_varnames(rete, oldMake.value, cond, first_letter);
                 if (old.preference_type.isBinary())
                 {
-                    newMake.referent = RhsValue.copy_rhs_value_and_substitute_varnames(rete, oldMake.referent, cond,
+                    newMake.referent = RhsValues.copy_rhs_value_and_substitute_varnames(rete, oldMake.referent, cond,
                             first_letter);
                 }
 
@@ -179,7 +179,7 @@ public abstract class Action
             else if (old instanceof FunctionAction)
             {
                 FunctionAction oldFunc = (FunctionAction) old;
-                FunctionAction newFunc = new FunctionAction((RhsFunctionCall) RhsValue
+                FunctionAction newFunc = new FunctionAction((RhsFunctionCall) RhsValues
                         .copy_rhs_value_and_substitute_varnames(rete, oldFunc.call, cond, 'v'));
 
                 New = newFunc;

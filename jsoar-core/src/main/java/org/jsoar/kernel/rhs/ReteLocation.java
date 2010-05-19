@@ -20,7 +20,7 @@ import org.jsoar.util.markers.Marker;
  * 
  * @author ray
  */
-public class ReteLocation extends RhsValue
+public class ReteLocation extends AbstractRhsValue
 {
     private final int fieldNum;
     private final int levelsUp;
