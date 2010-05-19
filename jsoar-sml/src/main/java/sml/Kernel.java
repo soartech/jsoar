@@ -145,6 +145,10 @@ public class Kernel extends ClientErrors
         if (!m_bShutdown)
             Shutdown() ;
 
+        for(Agent a : m_AgentMap.values())
+        {
+            a.delete();
+        }
         // When the agent map is deleted, it will delete its contents (the Agent objects)
         // Do this before we delete the connection, in case we need to send things to the kernel
         // during clean up.

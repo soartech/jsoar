@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
@@ -68,6 +68,7 @@ public class Agent extends ClientErrors
     public synchronized void delete()
     {
         this.agent.getEvents().removeListener(null, listener);
+        this.agent.dispose();
         super.delete();
     }
 
@@ -468,19 +469,16 @@ public class Agent extends ClientErrors
     public String ExecuteCommandLine(final String pCommandLine, boolean echoResults, boolean noFilter)
     {
         ClearError();
-        final AtomicReference<String> result = new AtomicReference<String>("");
         final Callable<String> call = new Callable<String>() {
 
             @Override
             public String call() throws Exception
             {
-                result.set(agent.getInterpreter().eval(pCommandLine));
-                return result.get();
+                return agent.getInterpreter().eval(pCommandLine);
             }};
         try
         {
-            execAndWait(call);
-            return result.get();
+            return execAndWait(call);
         }
         catch (SoarException e)
         {
@@ -526,20 +524,11 @@ public class Agent extends ClientErrors
         return true;
     }
     
-    private <T> void execAndWait(Callable<T> call) throws SoarException
+    private <T> T execAndWait(Callable<T> call) throws SoarException
     {
-        final FutureTask<T> task = new FutureTask<T>(call);
-        agent.execute(new Callable<T>() {
-
-            @Override
-            public T call() throws Exception
-            {
-                task.run();
-                return null;
-            }}, null);
         try
         {
-            task.get();
+            return agent.executeAndWait(call, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         }
         catch (InterruptedException e)
         {
@@ -547,6 +536,10 @@ public class Agent extends ClientErrors
             throw new SoarException(e.getMessage(), e);
         }
         catch (ExecutionException e)
+        {
+            throw new SoarException(e.getMessage(), e);
+        }
+        catch (TimeoutException e)
         {
             throw new SoarException(e.getMessage(), e);
         }
