@@ -73,7 +73,7 @@ public class DecisionCycleTest
         agent.getProductions().loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^foo 1)");
         agent.getProductions().loadProduction("test2 (state <s> ^superstate nil ^foo 1) --> (write (crlf) |test2 matched!|)");
         
-        assertTrue(agent.getProductions().getProduction("test2").instantiations.isEmpty());
+        assertTrue(agent.getProductions().getProduction("test2").instantiations == null);
         
         assertEquals(Phase.INPUT, this.decisionCycle.current_phase);
         this.decisionCycle.runFor(1, RunType.PHASES);
@@ -87,7 +87,7 @@ public class DecisionCycleTest
         this.decisionCycle.runFor(1, RunType.PHASES);
         
         // verify that (S1 foo 1) is being added to the rete by checking that test2 fired
-        assertFalse(agent.getProductions().getProduction("test2").instantiations.isEmpty());
+        assertFalse(agent.getProductions().getProduction("test2").instantiations == null);
         
         // Verify that new states are being generates
         final Decider decider = Adaptables.adapt(agent, Decider.class);

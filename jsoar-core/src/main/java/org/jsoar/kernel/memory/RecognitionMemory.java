@@ -53,8 +53,6 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
-import org.jsoar.util.ListHead;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.timing.ExecutionTimers;
@@ -100,8 +98,10 @@ public class RecognitionMemory
     
     /**
      * agent.h:571:newly_created_instantiations
+     * @see Instantiation#insertAtHeadOfProdList(Instantiation)
+     * @see Instantiation#removeFromProdList(Instantiation)
      */
-    public final ListHead<Instantiation> newly_created_instantiations = ListHead.newInstance();
+    public Instantiation newly_created_instantiations;
     
     /**
      * during firing, points to the prod. being fired 
@@ -628,8 +628,8 @@ public class RecognitionMemory
     	// code moved to do_preference_phase
     	assert prod.getType() != ProductionType.JUSTIFICATION;
 
-        Instantiation inst = new Instantiation(prod, tok, w);
-        inst.inProdList.insertAtHead(this.newly_created_instantiations);
+        final Instantiation inst = new Instantiation(prod, tok, w);
+        this.newly_created_instantiations = inst.insertAtHeadOfProdList(this.newly_created_instantiations);
 
         trace.print(Category.VERBOSE, "\n in create_instantiation: %s", inst.prod.getName());
 
@@ -964,7 +964,7 @@ public class RecognitionMemory
         }
 
         // remove inst from list of instantiations of this production
-        inst.inProdList.remove(inst.prod.instantiations);
+        inst.prod.instantiations = inst.removeFromProdList(inst.prod.instantiations);
 
         // if retracting a justification, excise it
         /*
@@ -1009,13 +1009,13 @@ public class RecognitionMemory
         {
             // Do an initial loop to process o-rejects, then re-loop to process
             // normal preferences.
-            ListItem<Instantiation> inst, next_inst;
-            for (inst = this.newly_created_instantiations.first; inst != null; inst = next_inst)
+            Instantiation inst, next_inst;
+            for (inst = this.newly_created_instantiations; inst != null; inst = next_inst)
             {
-                next_inst = inst.next;
+                next_inst = inst.nextInProdList;
 
                 Preference pref, next_pref;
-                for (pref = inst.item.preferences_generated; pref != null; pref = next_pref)
+                for (pref = inst.preferences_generated; pref != null; pref = next_pref)
                 {
                     next_pref = pref.inst_next;
                     if ((pref.type == PreferenceType.REJECT) && (pref.o_supported))
@@ -1032,19 +1032,19 @@ public class RecognitionMemory
             // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
         }
 
-        ListItem<Instantiation> inst, next_inst;
-        for (inst = this.newly_created_instantiations.first; inst != null; inst = next_inst)
+        Instantiation inst, next_inst;
+        for (inst = this.newly_created_instantiations; inst != null; inst = next_inst)
         {
-            next_inst = inst.next;
-            if (inst.item.in_ms)
+            next_inst = inst.nextInProdList;
+            if (inst.in_ms)
             {
-                inst.insertAtHead(inst.item.prod.instantiations);
+                inst.prod.instantiations = inst.insertAtHeadOfProdList(inst.prod.instantiations);
             }
 
-            trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.item.prod.getName());
+            trace.print(Category.VERBOSE, "\n asserting instantiation: %s\n", inst.prod.getName());
 
             Preference pref, next_pref;
-            for (pref = inst.item.preferences_generated; pref != null; pref = next_pref)
+            for (pref = inst.preferences_generated; pref != null; pref = next_pref)
             {
                 next_pref = pref.inst_next;
                 if ((pref.type == PreferenceType.REJECT) && (pref.o_supported))
@@ -1057,7 +1057,7 @@ public class RecognitionMemory
                     // No knowledge retrieval necessary in Operand2
 
                 }
-                else if (inst.item.in_ms || pref.o_supported)
+                else if (inst.in_ms || pref.o_supported)
                 {
                     // normal case
                     add_preference_to_tm(pref);
@@ -1298,7 +1298,7 @@ public class RecognitionMemory
 	        	trace.print(" ---\n");
 	        }
 	        
-	        this.newly_created_instantiations.clear();
+	        this.newly_created_instantiations = null;
 	    	
 	        SoarReteAssertion assertion = null;
 	        boolean assertionsExist = false;

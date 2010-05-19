@@ -30,6 +30,9 @@ public class MakeAction extends Action
         
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.rhs.Action#asMakeAction()
+     */
     public MakeAction asMakeAction()
     {
         return this;

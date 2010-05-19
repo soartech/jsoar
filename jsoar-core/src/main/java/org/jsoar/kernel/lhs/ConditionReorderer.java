@@ -752,7 +752,7 @@ public class ConditionReorderer
             SymbolImpl sym = null;
             for (Test subtest : ct.conjunct_list)
             {
-                EqualityTest eq = subtest.asEqualityTest();
+                final EqualityTest eq = subtest.asEqualityTest();
                 if (eq != null)
                 {
                     sym = eq.getReferent();
@@ -766,14 +766,14 @@ public class ConditionReorderer
                 ct.conjunct_list.add(0, newTest); //push(newTest);
             }
             // scan through, create saved_test for subtests except equality
-            Iterator<Test> it = ct.conjunct_list.iterator();
+            final Iterator<Test> it = ct.conjunct_list.iterator();
             while (it.hasNext())
             {
-                Test subtest = it.next();
+                final Test subtest = it.next();
                 if (subtest.asEqualityTest() == null)
                 {
                     // create saved_test, splice this cons out of conjunct_list
-                    SavedTest saved = new SavedTest(old_sts, sym, subtest.asComplexTest());
+                    final SavedTest saved = new SavedTest(old_sts, sym, subtest.asComplexTest());
 
                     old_sts = saved;
 
@@ -784,9 +784,9 @@ public class ConditionReorderer
         else
         {
             // goal/impasse, disjunction, and non-equality relational tests
-            Variable var = vars.generate_new_variable("dummy-");
-            EqualityTest New = SymbolImpl.makeEqualityTest(var);
-            SavedTest saved = new SavedTest(old_sts, var, t.value.asComplexTest());
+            final Variable var = vars.generate_new_variable("dummy-");
+            final EqualityTest New = SymbolImpl.makeEqualityTest(var);
+            final SavedTest saved = new SavedTest(old_sts, var, t.value.asComplexTest());
 
             old_sts = saved;
             t.value = New;
@@ -1055,13 +1055,13 @@ public class ConditionReorderer
         {
             return;
         }
-        EqualityTest eq = t.asEqualityTest();
+        final EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
         	return;
         }
         
-        ConjunctiveTest ct = t.asConjunctiveTest();
+        final ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
 			// we do need to loop over conjunctive tests, however
@@ -1071,7 +1071,7 @@ public class ConditionReorderer
             }
         }
         
-        RelationalTest rt = t.asRelationalTest();
+        final RelationalTest rt = t.asRelationalTest();
         if (rt != null)
         {
     	    /* --- relational tests other than equality --- */

@@ -379,7 +379,7 @@ public class Tests
             }
             // ignore order of test members in conjunctions, bug 510
             // TODO: consider reorder before comparing
-            List<Test> copy2 = Lists.newLinkedList(c2);
+            final List<Test> copy2 = Lists.newLinkedList(c2);
             for(int i = 0; i < c1.size(); ++i)
             {
             	for(int j = 0; j < copy2.size(); ++j)

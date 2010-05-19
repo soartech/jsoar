@@ -26,7 +26,6 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
-import org.jsoar.util.ListHead;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.markers.DefaultMarker;
@@ -49,7 +48,14 @@ public class Production
     public boolean trace_firings = false;
     private Rete rete;
     private ReteNode p_node;
-    public final ListHead<Instantiation> instantiations = ListHead.newInstance();
+    /**
+     * List of instantiations of this production. Use {@link Instantiation#nextInProdList}
+     * to iterate.
+     * 
+     * @see Instantiation#insertAtHeadOfProdList(Instantiation)
+     * @see Instantiation#removeFromProdList(Instantiation)
+     */
+    public Instantiation instantiations;
     private List<Variable> rhs_unbound_variables = null;
     public boolean already_fired = false; /* RPM test workaround for bug #139 */
     public AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;
@@ -264,7 +270,7 @@ public class Production
         reference_count--;
         if (reference_count == 0)
         {
-            if (!instantiations.isEmpty())
+            if (instantiations != null)
             {
                 throw new IllegalStateException("Internal error: deallocating prod. that still has inst's");
             }

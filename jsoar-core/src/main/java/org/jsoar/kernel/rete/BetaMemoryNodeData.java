@@ -16,26 +16,6 @@ import org.jsoar.util.ListHead;
  */
 public class BetaMemoryNodeData extends ReteNodeData
 {
-    public static String bnode_type_names[/*256*/] =
-    {
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","","",   
-       "","","","","","","","","","","","","","","",""  
-    };
-
     // first pos node child that is left-linked
     final ListHead<ReteNode> first_linked_child;
 
@@ -44,7 +24,7 @@ public class BetaMemoryNodeData extends ReteNodeData
         this.first_linked_child = ListHead.newInstance();
     }
     
-    public BetaMemoryNodeData(BetaMemoryNodeData other)
+    private BetaMemoryNodeData(BetaMemoryNodeData other)
     {
         this.first_linked_child = ListHead.newInstance(other.first_linked_child);
     }

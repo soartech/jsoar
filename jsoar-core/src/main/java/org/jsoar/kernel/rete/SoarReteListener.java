@@ -119,7 +119,7 @@ public class SoarReteListener implements ReteListener
     @Override
     public boolean finishRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
     {
-        refracted_inst.inProdList.remove(p.instantiations);
+        p.instantiations = refracted_inst.removeFromProdList(p.instantiations);
         final boolean refactedInstMatched = p_node.b_p.tentative_retractions == null;
         if (!refactedInstMatched)
         {
@@ -528,7 +528,7 @@ public class SoarReteListener implements ReteListener
 
         // find the instantiation corresponding to this token
         Instantiation inst = null;
-        for (Instantiation instTemp : node.b_p.prod.instantiations)
+        for (Instantiation instTemp = node.b_p.prod.instantiations; instTemp != null; instTemp = instTemp.nextInProdList)
         {
             inst = instTemp;
             if ((inst.rete_token == tok) && (inst.rete_wme == w))
@@ -654,7 +654,7 @@ public class SoarReteListener implements ReteListener
     public void startRefraction(Rete rete, Production p, Instantiation refracted_inst, ReteNode p_node)
     {
         // rete.cpp:3628:add_production_to_rete
-        refracted_inst.inProdList.insertAtHead(p.instantiations);
+        p.instantiations = refracted_inst.insertAtHeadOfProdList(p.instantiations);
         refracted_inst.rete_token = null;
         refracted_inst.rete_wme = null;
         

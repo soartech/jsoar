@@ -18,7 +18,6 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Traceable;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
-import org.jsoar.util.ListItem;
 
 /**
  * 
@@ -29,7 +28,7 @@ import org.jsoar.util.ListItem;
 public class Instantiation implements Traceable
 {
     public final Production prod; 
-    public final ListItem<Instantiation> inProdList = new ListItem<Instantiation>(this); // next/prev, dll of inst's from same prod
+    public Instantiation nextInProdList, prevInProdList; // next/prev, dll of inst's from same prod
     public Token rete_token; // used by rete for retractions (TODO make final?)
     public WmeImpl rete_wme;     // used by rete for retractions (TODO make final?)
     public Condition top_of_instantiated_conditions;
@@ -166,6 +165,55 @@ public class Instantiation implements Traceable
         pref.inst_next = pref.inst_prev = null;
     }
 
+    /**
+     * Insert at the head of a list of instantiations
+     * 
+     * @param currentHead the current head
+     * @return the new head (this)
+     * @see RecognitionMemory#newly_created_instantiations
+     * @see Production#instantiations
+     */
+    public Instantiation insertAtHeadOfProdList(Instantiation currentHead)
+    {
+        this.nextInProdList = currentHead;
+        if(nextInProdList != null)
+        {
+            nextInProdList.prevInProdList = this;
+        }
+        prevInProdList = null;
+        return this;
+    }
+    
+    /**
+     * Remove from a list of instantiations
+     * 
+     * @param currentHead the current head
+     * @return the new head
+     * @see RecognitionMemory#newly_created_instantiations
+     * @see Production#instantiations
+     */
+    public Instantiation removeFromProdList(Instantiation currentHead)
+    {
+        if(this == currentHead)
+        {
+            currentHead = nextInProdList;
+            if(currentHead != null)
+            {
+                currentHead.prevInProdList = null;
+            }
+        }
+        else
+        {
+            prevInProdList.nextInProdList = nextInProdList;
+            if(nextInProdList != null)
+            {
+                nextInProdList.prevInProdList = prevInProdList;
+            }
+        }
+        nextInProdList = prevInProdList = null;
+        return currentHead;
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Traceable#trace(org.jsoar.kernel.Trace, java.util.Formatter, int, int, int)
      */

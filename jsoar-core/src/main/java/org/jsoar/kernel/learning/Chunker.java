@@ -407,7 +407,7 @@ public class Chunker
         if (Tests.isBlank(t))
             return t;
         
-        EqualityTest eq = t.asEqualityTest();
+        final EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
             //eq.sym = variablize_symbol(eq.sym);
@@ -420,7 +420,7 @@ public class Chunker
             return t;
         }
 
-        ConjunctiveTest ct = t.asConjunctiveTest();
+        final ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
             for(ListIterator<Test> it = ct.conjunct_list.listIterator(); it.hasNext();)
@@ -431,7 +431,7 @@ public class Chunker
             return ct;
         }
         // relational tests other than equality
-        RelationalTest rt = t.asRelationalTest();
+        final RelationalTest rt = t.asRelationalTest();
         return rt.withNewReferent(variablize_symbol(rt.referent));
     }
 
@@ -1418,7 +1418,7 @@ public class Chunker
         }
 
         // assert the preferences
-        chunk_inst.inProdList.insertAtHead(recMemory.newly_created_instantiations);
+        recMemory.newly_created_instantiations = chunk_inst.insertAtHeadOfProdList(recMemory.newly_created_instantiations);
 
         if (!maxChunksReached)
             chunk_instantiation(chunk_inst, variablize_this_chunk);
