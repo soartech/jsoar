@@ -22,7 +22,7 @@ public class ReteNode
     /* left_hash_loc_levels_up: 0=current node's alphamem, 1=parent's, etc. */
     int left_hash_loc_levels_up; 
     /* node_id: used for hash function */
-    int node_id;                   
+    /*final*/ int node_id;                   
 
     ReteNode parent;       /* points to parent node */
     ReteNode first_child;  /* used for dll of all children, */
@@ -43,9 +43,10 @@ public class ReteNode
     // } b;
 
       
-    private ReteNode(ReteNodeType type)
+    private ReteNode(ReteNodeType type, int node_id)
     {
         this.node_type = type;
+        this.node_id = node_id;
 
         if (type.bnode_is_positive() && type != ReteNodeType.P_BNODE)
         {
@@ -336,7 +337,7 @@ public class ReteNode
     
     static ReteNode createDummy()
     {
-        return new ReteNode(ReteNodeType.DUMMY_TOP_BNODE);
+        return new ReteNode(ReteNodeType.DUMMY_TOP_BNODE, 0);
     }
     
     /**
@@ -352,7 +353,7 @@ public class ReteNode
      */
     static ReteNode make_new_mem_node(Rete rete, ReteNode parent, ReteNodeType node_type, VarLocation left_hash_loc)
     {
-        ReteNode node = new ReteNode(node_type);
+        ReteNode node = new ReteNode(node_type, rete.get_next_beta_node_id());
 
         node.parent = parent;
         node.next_sibling = parent.first_child;
@@ -361,8 +362,6 @@ public class ReteNode
         /* These hash fields are not used for unhashed node types */
         node.left_hash_loc_field_num = left_hash_loc.field_num;
         node.left_hash_loc_levels_up = left_hash_loc.levels_up;
-
-        node.node_id = rete.get_next_beta_node_id();
 
         /* --- call new node's add_left routine with all the parent's tokens --- */
         rete.update_node_with_matches_from_above(node);
@@ -386,7 +385,7 @@ public class ReteNode
     static ReteNode make_new_positive_node(Rete rete, ReteNode parent_mem, ReteNodeType node_type, AlphaMemory am, ReteTest rt,
             boolean prefer_left_unlinking)
     {
-        ReteNode node = new ReteNode(node_type);
+        ReteNode node = new ReteNode(node_type, 0);
 
         node.parent = parent_mem;
         node.next_sibling = parent_mem.first_child;
@@ -455,7 +454,7 @@ public class ReteNode
         ReteNode pos_node = mp_node;
 
         // create the new M node, transfer the MP node's tokens to it
-        ReteNode mem_node = new ReteNode(mem_node_type);
+        ReteNode mem_node = new ReteNode(mem_node_type, mp_copy.node_id);
 
         mem_node.parent = parent;
         mem_node.next_sibling = parent.first_child;
@@ -463,7 +462,6 @@ public class ReteNode
         mem_node.first_child = pos_node;
         mem_node.left_hash_loc_field_num = mp_copy.left_hash_loc_field_num;
         mem_node.left_hash_loc_levels_up = mp_copy.left_hash_loc_levels_up;
-        mem_node.node_id = mp_copy.node_id;
 
         mem_node.a_np.tokens = mp_node.a_np.tokens;
         for (Token t = mp_node.a_np.tokens; t != null; t = t.next_of_node)
@@ -624,7 +622,7 @@ public class ReteNode
     static ReteNode make_new_negative_node(Rete rete, ReteNode parent, ReteNodeType node_type, VarLocation left_hash_loc,
             AlphaMemory am, ReteTest rt)
     {
-        ReteNode node = new ReteNode(node_type);
+        ReteNode node = new ReteNode(node_type, rete.get_next_beta_node_id());
 
         node.parent = parent;
         node.next_sibling = parent.first_child;
@@ -635,8 +633,6 @@ public class ReteNode
         node.b_posneg.alpha_mem_ = am;
         node.b_posneg.nearest_ancestor_with_same_am = node.nearest_ancestor_with_same_am(am);
         node.relink_to_right_mem();
-
-        node.node_id = rete.get_next_beta_node_id();
 
         // call new node's add_left routine with all the parent's tokens
         rete.update_node_with_matches_from_above(node);
@@ -671,8 +667,8 @@ public class ReteNode
             ncc_subconditions_top_node = node;
         }
 
-        ReteNode node = new ReteNode(ReteNodeType.CN_BNODE);
-        ReteNode partner = new ReteNode(ReteNodeType.CN_PARTNER_BNODE);
+        final ReteNode node = new ReteNode(ReteNodeType.CN_BNODE, rete.get_next_beta_node_id());
+        final ReteNode partner = new ReteNode(ReteNodeType.CN_PARTNER_BNODE, 0);
 
         /*
          * NOTE: for improved efficiency, <node> should be on the parent's
@@ -686,7 +682,6 @@ public class ReteNode
         node.first_child = null;
 
         node.b_cn.partner = partner;
-        node.node_id = rete.get_next_beta_node_id();
 
         partner.parent = bottom_of_subconditions;
         partner.next_sibling = bottom_of_subconditions.first_child;
@@ -721,7 +716,7 @@ public class ReteNode
      */
     static ReteNode make_new_production_node(Rete rete, ReteNode parent, Production new_prod)
     {
-        ReteNode p_node = new ReteNode(ReteNodeType.P_BNODE);
+        ReteNode p_node = new ReteNode(ReteNodeType.P_BNODE, 0);
 
         new_prod.setReteNode(rete, p_node);
         p_node.parent = parent;
@@ -740,7 +735,7 @@ public class ReteNode
      */
     public static ReteNode createMatchesNode(ReteNode parent)
     {
-        ReteNode dummy = new ReteNode(ReteNodeType.DUMMY_MATCHES_BNODE);
+        ReteNode dummy = new ReteNode(ReteNodeType.DUMMY_MATCHES_BNODE, 0);
         dummy.parent = parent;
         return dummy;
     }

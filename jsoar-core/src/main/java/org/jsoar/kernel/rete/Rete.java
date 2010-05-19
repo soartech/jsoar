@@ -1229,7 +1229,7 @@ public class Rete
      */
     private void mp_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
-        SymbolImpl referent = null;
+        final SymbolImpl referent;
         {
             int levels_up = node.left_hash_loc_levels_up;
             if (levels_up == 1)
@@ -1247,10 +1247,10 @@ public class Rete
             }
         }
 
-        int hv = node.node_id ^ referent.hash_id;
+        final int hv = node.node_id ^ referent.hash_id;
 
         /* --- build new left token, add it to the hash table --- */
-        LeftToken New = new LeftToken(node, tok, w, referent);
+        final LeftToken New = new LeftToken(node, tok, w, referent);
         left_ht.insert_token_into_left_ht(New, hv);
 
         if (node.mp_bnode_is_left_unlinked())
@@ -1258,7 +1258,7 @@ public class Rete
             return;
         }
 
-        AlphaMemory am = node.b_posneg.alpha_mem_;
+        final AlphaMemory am = node.b_posneg.alpha_mem_;
 
         if (node.node_is_right_unlinked())
         {
@@ -1477,8 +1477,8 @@ public class Rete
             }
         }
 
-        SymbolImpl referent = w.id;
-        int hv = node.node_id ^ referent.hash_id;
+        final SymbolImpl referent = w.id;
+        final int hv = node.node_id ^ referent.hash_id;
 
         for (LeftToken tok = left_ht.left_ht_bucket(hv); tok != null; tok = tok.next_in_bucket)
         {
@@ -1785,7 +1785,7 @@ public class Rete
      */
     private void cn_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
-        int hv = node.node_id ^ addressOf(tok) ^ addressOf(w);
+        final int hv = node.node_id ^ addressOf(tok) ^ addressOf(w);
 
         // look for a matching left token (since the partner node might have
         // heard about this new token already, in which case it would have done
@@ -1799,7 +1799,7 @@ public class Rete
         }
 
         // build left token, add it to the hash table
-        LeftToken New = new LeftToken(node, tok, w, null);
+        final LeftToken New = new LeftToken(node, tok, w, null);
         left_ht.insert_token_into_left_ht(New, hv);
 
         // pass the new token on to each child node
@@ -1837,7 +1837,7 @@ public class Rete
         }
 
         // look for the matching left token
-        int hv = partner.node_id ^ addressOf(tok) ^ addressOf(w);
+        final int hv = partner.node_id ^ addressOf(tok) ^ addressOf(w);
         LeftToken left = null;
         for (LeftToken tempLeft = left_ht.left_ht_bucket(hv); tempLeft != null; tempLeft = tempLeft.next_in_bucket)
         {
