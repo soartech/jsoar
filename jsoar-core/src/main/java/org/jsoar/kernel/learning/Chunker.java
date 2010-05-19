@@ -17,6 +17,7 @@ import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.Productions;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.events.ProductionAddedEvent;
@@ -899,10 +900,10 @@ public class Chunker
      * @param inst
      * @return
      */
-    private StringSymbol generate_chunk_name_sym_constant(Instantiation inst)
+    private String generate_chunk_name_sym_constant(Instantiation inst)
     {
         if (!this.useLongChunkNames)
-            return (context.getSymbols().generateUniqueString(this.chunk_name_prefix, this.chunk_count));
+            return Productions.generateUniqueName(context.getProductions(), chunk_name_prefix, chunk_count);
 
         int lowest_result_level = decider.top_goal.level;
         for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
@@ -1015,10 +1016,10 @@ public class Chunker
                 name = chunk_name_prefix + "-" + chunk_count + "*d" + this.decisionCycle.d_cycle_count + "*"
                         + impass_name + "*" + chunks_this_d_cycle + "*" + collision_count++;
 
-            } while (syms.findString(name) != null);
+            } while (context.getProductions().getProduction(name) != null);
         }
 
-        return syms.createString(name);
+        return name;
     }
     
     /**
@@ -1218,7 +1219,7 @@ public class Chunker
         }
 
         // get symbol for name of new chunk or justification
-        StringSymbol prod_name = null;
+        String prod_name = null;
         ProductionType prod_type = null;
         boolean print_name = false;
         boolean print_prod = false;
@@ -1240,7 +1241,7 @@ public class Chunker
         }
         else
         {
-            prod_name = context.getSymbols().generateUniqueString("justification-", justification_count);
+            prod_name = Productions.generateUniqueName(context.getProductions(), "justification-", justification_count);
             prod_type = ProductionType.JUSTIFICATION;
             // TODO startNewLine()?
             print_name = trace.isEnabled(Category.JUSTIFICATION_NAMES);
@@ -1377,7 +1378,7 @@ public class Chunker
             if ((rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION)
                     && ((prod_type != ProductionType.JUSTIFICATION) || (rete_addition_result != ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH)))
             {
-                temp_explain_chunk.name = prod_name.getValue();
+                temp_explain_chunk.name = prod_name;
                 this.explain.explain_add_temp_to_chunk_list(temp_explain_chunk);
             }
             else

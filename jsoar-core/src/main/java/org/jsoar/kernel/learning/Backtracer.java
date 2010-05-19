@@ -260,7 +260,7 @@ public class Backtracer
             temp_explain_backtrace.locals = null;
             temp_explain_backtrace.negated = null;
 
-            temp_explain_backtrace.prod_name = inst.prod != null ? inst.prod.getName().getValue() : "Dummy production";
+            temp_explain_backtrace.prod_name = inst.prod != null ? inst.prod.getName() : "Dummy production";
             temp_explain_backtrace.next_backtrace = null;
         }
 

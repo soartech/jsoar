@@ -113,7 +113,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             @Override
             public String getPreferredStringForItem(Object o)
             {
-                return o != null ? ((Production) o).getName().getValue() : null;
+                return o != null ? ((Production) o).getName() : null;
             }});
         
         p.add(north, BorderLayout.NORTH);

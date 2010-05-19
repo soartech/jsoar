@@ -20,7 +20,6 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
@@ -37,7 +36,7 @@ public class Production
     
     private final ProductionType type;
     private final SourceLocation location;
-    private final StringSymbol name;
+    private final String name;
     private final String documentation;
     public Condition condition_list;
     private Condition bottomOfConditionList;
@@ -78,7 +77,7 @@ public class Production
      * @param lhs_bottom_in Bottom of LHS conditions
      * @param rhs_top_in Top of RHS actions
      */
-    public Production(ProductionType type, SourceLocation location, StringSymbol name, String doc,
+    public Production(ProductionType type, SourceLocation location, String name, String doc,
                       Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in)
     {
         Arguments.checkNotNull(type, "type");
@@ -116,7 +115,7 @@ public class Production
     /**
      * @return the name of this production
      */
-    public StringSymbol getName()
+    public String getName()
     {
         return name;
     }

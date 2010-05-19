@@ -35,7 +35,6 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -1072,7 +1071,7 @@ public class ReinforcementLearning
     }
 
 
-    public Symbol rl_build_template_instantiation( Instantiation my_template_instance, Token tok, WmeImpl w )
+    public String rl_build_template_instantiation( Instantiation my_template_instance, Token tok, WmeImpl w )
     {
         Production my_template = my_template_instance.prod;
         MakeAction my_action = my_template.action_list.asMakeAction();
@@ -1081,7 +1080,6 @@ public class ReinforcementLearning
         this.chunker.variablize_this_chunk = true;
 
         // make unique production name
-        StringSymbol new_name_symbol;
         String new_name = "";
         String empty_string = "";
         // String temp_id;
@@ -1089,9 +1087,8 @@ public class ReinforcementLearning
         do
         {
             new_id = rl_next_template_id( );
-            new_name = ( "rl*" + empty_string + my_template.getName().getValue() + "*" + new_id );
-        } while (my_agent.getSymbols().findString(new_name) != null);
-        new_name_symbol = my_agent.getSymbols().createString(new_name);
+            new_name = ( "rl*" + empty_string + my_template.getName() + "*" + new_id );
+        } while (my_agent.getProductions().getProduction(new_name) != null);
         
         // prep conditions
         ByRef<Condition> cond_top = ByRef.create(null);
@@ -1115,7 +1112,7 @@ public class ReinforcementLearning
         new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
         // make new production
-        Production new_production = new Production( ProductionType.USER, NEW_PRODUCTION_SOURCE, new_name_symbol, "", cond_top.value, cond_bottom.value, new_action);
+        Production new_production = new Production( ProductionType.USER, NEW_PRODUCTION_SOURCE, new_name, "", cond_top.value, cond_bottom.value, new_action);
         try
         {
             ((DefaultProductionManager)my_agent.getProductions()).addProduction(new_production, false);
@@ -1138,7 +1135,7 @@ public class ReinforcementLearning
         }
         */
 
-        return new_name_symbol;
+        return new_name;
     }
     
     /**
@@ -1431,7 +1428,7 @@ public class ReinforcementLearning
             // avg: average the update with the existing value
             double delta = update * alpha * iter.getValue();
             my_agent.getTrace().print(Category.RL, "updating RL rule %s from %f to %f",
-                                        prod.getName().getValue(), temp, temp + delta);
+                                        prod.getName(), temp, temp + delta);
             temp += delta;
 
             // Change value of rule
@@ -1485,7 +1482,7 @@ public class ReinforcementLearning
         {
             p.rl_rule = rl_valid_rule( p );  
         }
-        rl_update_template_tracking( p.getName().getValue() );
+        rl_update_template_tracking( p.getName() );
         
         // TODO - parser.cpp
         if ( p.getType() == ProductionType.TEMPLATE )

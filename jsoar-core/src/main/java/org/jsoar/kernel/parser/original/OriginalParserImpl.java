@@ -106,7 +106,7 @@ class OriginalParserImpl
     private final SymbolFactoryImpl syms;
     private final VariableGenerator varGen;
     private int[] placeholder_counter = new int[26];
-    private StringSymbolImpl currentProduction = null;
+    private String currentProduction = null;
     private RhsFunctionManager funcs = null;
     private SourceLocation location = DefaultSourceLocation.UNKNOWN;
     
@@ -1810,13 +1810,13 @@ class OriginalParserImpl
         return all_actions;
     }
 
-    private StringSymbolImpl parseProductionName() throws ParserException, IOException
+    private String parseProductionName() throws ParserException, IOException
     {
         if (currentType()!=LexemeType.SYM_CONSTANT) {
             error("Expected symbol for production name\n");
             throw new IllegalStateException("Unreachable code");
         }
-        StringSymbolImpl name = syms.createString(current().string);
+        final String name = current().string;
         lexer.getNextLexeme();
         
         return name;
@@ -1849,7 +1849,7 @@ class OriginalParserImpl
     {
         reset_placeholder_variable_generator();
 
-        final StringSymbolImpl name = parseProductionName();
+        final String name = parseProductionName();
         currentProduction = name;
 
         // read optional documentation string

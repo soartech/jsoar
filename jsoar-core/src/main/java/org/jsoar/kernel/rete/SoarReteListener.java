@@ -968,7 +968,9 @@ public class SoarReteListener implements ReteListener
             }
             else
             {
-                ms_trace = MS_trace.incrementOrCreate(ms_trace, msc.getProduction().getName(), msc.goal);
+                ms_trace = MS_trace.incrementOrCreate(ms_trace, 
+                        context.getSymbols().createString(msc.getProduction().getName()), // TODO: This seems excessive 
+                        msc.goal);
             }
         }
 
@@ -1004,7 +1006,9 @@ public class SoarReteListener implements ReteListener
             {
                 if (msc.inst.prod != null)
                 {
-                    ms_trace = MS_trace.incrementOrCreate(ms_trace, msc.getProduction().getName(), msc.goal);
+                    ms_trace = MS_trace.incrementOrCreate(ms_trace, 
+                            context.getSymbols().createString(msc.getProduction().getName()), // TODO: This seems excessive 
+                            msc.goal);
                 }
             }
         }

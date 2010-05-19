@@ -54,7 +54,7 @@ public class EditProductionAction extends AbstractDebuggerAction
         ProductionEditView view = Adaptables.adapt(getApplication(), ProductionEditView.class);
         if(view != null)
         {
-            view.editProduction(prods.get(0).getName().getValue());
+            view.editProduction(prods.get(0).getName());
         }
     }
 

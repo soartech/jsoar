@@ -39,7 +39,7 @@ public class Interrupt extends AbstractRhsFunctionHandler
     public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
-        decisionCycle.interrupt(rhsContext.getProductionBeingFired().getName().getValue());
+        decisionCycle.interrupt(rhsContext.getProductionBeingFired().getName());
         return null;
     }
 

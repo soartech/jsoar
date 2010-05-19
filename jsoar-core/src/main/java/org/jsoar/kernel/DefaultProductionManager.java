@@ -27,7 +27,6 @@ import org.jsoar.kernel.rete.ProductionAddResult;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
@@ -68,7 +67,7 @@ public class DefaultProductionManager implements ProductionManager
             productionsByType.put(type, new LinkedHashSet<Production>());
         }
     }
-    private Map<StringSymbol, Production> productionsByName = new HashMap<StringSymbol, Production>();
+    private Map<String, Production> productionsByName = new HashMap<String, Production>();
 
     DefaultProductionManager(Agent context)
     {
@@ -108,8 +107,8 @@ public class DefaultProductionManager implements ProductionManager
              
              // Reorder the production
              p.reorder(this.variableGenerator, 
-                       new ConditionReorderer(this.variableGenerator, context.getTrace(), context.getMultiAttributes(), p.getName().getValue()), 
-                       new ActionReorderer(context.getPrinter(), p.getName().getValue()), 
+                       new ConditionReorderer(this.variableGenerator, context.getTrace(), context.getMultiAttributes(), p.getName()), 
+                       new ActionReorderer(context.getPrinter(), p.getName()), 
                        false);
 
              // Tell RL about the new production
@@ -153,8 +152,7 @@ public class DefaultProductionManager implements ProductionManager
     @Override
     public Production getProduction(String name)
     {
-        StringSymbol sc = context.getSymbols().findString(name);
-        return productionsByName.get(sc);
+        return productionsByName.get(name);
     }
 
     /* (non-Javadoc)
@@ -241,7 +239,7 @@ public class DefaultProductionManager implements ProductionManager
         // Note, in csoar, this test was done in parse_production as soon as the name
         // of the production was known. We do this here so we can eliminate the
         // production field of StringSymbolImpl.
-        Production existing = getProduction(p.getName().getValue());
+        Production existing = getProduction(p.getName());
         if (existing != null) 
         {
             exciseProduction(existing, context.getTrace().isEnabled(Category.LOADING));
@@ -249,8 +247,8 @@ public class DefaultProductionManager implements ProductionManager
 
         // Reorder the production
         p.reorder(this.variableGenerator, 
-                  new ConditionReorderer(this.variableGenerator, context.getTrace(), context.getMultiAttributes(), p.getName().getValue()), 
-                  new ActionReorderer(context.getPrinter(), p.getName().getValue()), 
+                  new ConditionReorderer(this.variableGenerator, context.getTrace(), context.getMultiAttributes(), p.getName()), 
+                  new ActionReorderer(context.getPrinter(), p.getName()), 
                   reorder_nccs);
 
         // Tell RL about the new production

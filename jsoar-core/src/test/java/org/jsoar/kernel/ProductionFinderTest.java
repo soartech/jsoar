@@ -59,11 +59,11 @@ public class ProductionFinderTest
         finder.options().remove(Options.RHS);
         final List<Production> result1 = finder.find("(<c> ^contact.name *)", agent.getProductions().getProductions(null));
         assertEquals(1, result1.size());
-        assertEquals("test1", result1.get(0).getName().getValue());
+        assertEquals("test1", result1.get(0).getName());
         
         final List<Production> result2 = finder.find("(<c> ^contact.threat *yes*)", agent.getProductions().getProductions(null));
         assertEquals(1, result2.size());
-        assertEquals("test2", result2.get(0).getName().getValue());
+        assertEquals("test2", result2.get(0).getName());
         
         assertEquals(2, finder.find("(<s> ^contacts <c>)(<c> ^contact)", agent.getProductions().getProductions(null)).size());
         assertTrue(finder.find("(<s> ^name foo)", agent.getProductions().getProductions(null)).isEmpty());
@@ -78,11 +78,11 @@ public class ProductionFinderTest
         finder.options().remove(Options.LHS);
         final List<Production> result1 = finder.find("(<c> ^contact.name *)", agent.getProductions().getProductions(null));
         assertEquals(1, result1.size());
-        assertEquals("test1", result1.get(0).getName().getValue());
+        assertEquals("test1", result1.get(0).getName());
         
         final List<Production> result2 = finder.find("(<c> ^contact.threat *yes*)", agent.getProductions().getProductions(null));
         assertEquals(1, result2.size());
-        assertEquals("test2", result2.get(0).getName().getValue());
+        assertEquals("test2", result2.get(0).getName());
         
         assertEquals(2, finder.find("(<s> ^contacts <cs>)(<cs> ^contact <c>)", agent.getProductions().getProductions(null)).size());
         assertTrue(finder.find("(<s> ^name foo)", agent.getProductions().getProductions(null)).isEmpty());
