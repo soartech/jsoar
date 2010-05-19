@@ -129,10 +129,10 @@ import org.jsoar.util.markers.Marker;
             return;
         }
 
-        EqualityTest eq = t.asEqualityTest();
+        final EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
-            SymbolImpl referent = eq.getReferent();
+            final SymbolImpl referent = eq.getReferent();
 
             // if constant test and alpha=NIL, install alpha test
             if (referent.asVariable() == null && alpha_constant.value == null)
@@ -152,7 +152,7 @@ import org.jsoar.util.markers.Marker;
             }
 
             // variable: if binding is for current field, do nothing
-            VarLocation where = VarLocation.find(referent.asVariable(), current_depth);
+            final VarLocation where = VarLocation.find(referent.asVariable(), current_depth);
             if (where == null)
             {
                 throw new IllegalStateException("Error: Rete build found test of unbound var: " + referent);
@@ -163,14 +163,14 @@ import org.jsoar.util.markers.Marker;
             }
 
             // else make variable equality test
-            ReteTest new_rt = ReteTest.createVariableTest(ReteTest.RELATIONAL_EQUAL_RETE_TEST, field_num, where);
+            final ReteTest new_rt = ReteTest.createVariableTest(ReteTest.RELATIONAL_EQUAL_RETE_TEST, field_num, where);
             
             new_rt.next = rt.value;
             rt.value = new_rt;
             return;
         }
 
-        RelationalTest relational = t.asRelationalTest();
+        final RelationalTest relational = t.asRelationalTest();
         if (relational != null)
         {
 
@@ -196,7 +196,7 @@ import org.jsoar.util.markers.Marker;
             return;
         }
 
-        DisjunctionTest dt = t.asDisjunctionTest();
+        final DisjunctionTest dt = t.asDisjunctionTest();
         if (dt != null)
         {
             // disjunct list is immutable so it's safe to just pass in
@@ -207,7 +207,7 @@ import org.jsoar.util.markers.Marker;
             return;
         }
 
-        ConjunctiveTest ct = t.asConjunctiveTest();
+        final ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
             for (Test c : ct.conjunct_list)
@@ -217,7 +217,7 @@ import org.jsoar.util.markers.Marker;
             return;
         }
 
-        GoalIdTest gid = t.asGoalIdTest();
+        final GoalIdTest gid = t.asGoalIdTest();
         if (gid != null)
         {
             ReteTest new_rt = ReteTest.createGoalIdTest();
@@ -227,7 +227,7 @@ import org.jsoar.util.markers.Marker;
             return;
         }
 
-        ImpasseIdTest iid = t.asImpasseIdTest();
+        final ImpasseIdTest iid = t.asImpasseIdTest();
         if (iid != null)
         {
             ReteTest new_rt = ReteTest.createImpasseIdTest();
@@ -388,7 +388,7 @@ import org.jsoar.util.markers.Marker;
         Arguments.check(current_depth >= 0, "current_depth >= 0");
         Arguments.checkNotNull(parent, "parent");
         
-        ListHead<Variable> vars_bound_here = ListHead.newInstance();
+        final ListHead<Variable> vars_bound_here = ListHead.newInstance();
 
         // Add sparse variable bindings for this condition
         Rete.bind_variables_in_test(cond.id_test, current_depth, 0, false, vars_bound_here);
@@ -396,12 +396,12 @@ import org.jsoar.util.markers.Marker;
         Rete.bind_variables_in_test(cond.value_test, current_depth, 2, false, vars_bound_here);
 
         // Get Rete tests, alpha constants, and hash location
-        ByRef<SymbolImpl> alpha_id = ByRef.create(null);
-        ByRef<SymbolImpl> alpha_attr = ByRef.create(null);
-        ByRef<SymbolImpl> alpha_value = ByRef.create(null);
-        ByRef<ReteTest> rt = ByRef.create(null);
+        final ByRef<SymbolImpl> alpha_id = ByRef.create(null);
+        final ByRef<SymbolImpl> alpha_attr = ByRef.create(null);
+        final ByRef<SymbolImpl> alpha_value = ByRef.create(null);
+        final ByRef<ReteTest> rt = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.id_test, current_depth, 0, rt, alpha_id);
-        ByRef<VarLocation> left_hash_loc = ByRef.create(null);
+        final ByRef<VarLocation> left_hash_loc = ByRef.create(null);
         boolean hash_this_node = extract_rete_test_to_hash_with(rt, left_hash_loc);
         add_rete_tests_for_test(rete, cond.attr_test, current_depth, 1, rt, alpha_attr);
         add_rete_tests_for_test(rete, cond.value_test, current_depth, 2, rt, alpha_value);
@@ -410,19 +410,22 @@ import org.jsoar.util.markers.Marker;
         Rete.pop_bindings_and_deallocate_list_of_variables(vars_bound_here);
 
         // Get alpha memory
-        AlphaMemory am = rete.find_or_make_alpha_mem(alpha_id.value, alpha_attr.value, alpha_value.value,
+        final AlphaMemory am = rete.find_or_make_alpha_mem(alpha_id.value, alpha_attr.value, alpha_value.value,
                 cond.test_for_acceptable_preference);
 
         /*
-         * Algorithm for adding node: 1. look for matching mem node; if
-         * found then look for matching join node; create new one if no match 2.
-         * no matching mem node: look for mp node with matching mem if found, if
-         * join part matches too, then done else delete mp node, create mem node
-         * and 2 joins if not matching mem node, create new mp node.
+         * Algorithm for adding node: 
+         * 1. look for matching mem node; if found then look for matching join node; 
+         *    create new one if no match 
+         * 2. no matching mem node: 
+         *    look for mp node with matching mem if found, 
+         *    if join part matches too, then done 
+         *    else delete mp node, create mem node and 2 joins 
+         *    if not matching mem node, create new mp node.
          */
 
         // determine desired node types
-        ReteNodeType pos_node_type, mem_node_type, mp_node_type;
+        final ReteNodeType pos_node_type, mem_node_type, mp_node_type;
         if (hash_this_node)
         {
             pos_node_type = ReteNodeType.POSITIVE_BNODE;
@@ -534,28 +537,28 @@ import org.jsoar.util.markers.Marker;
         Rete.bind_variables_in_test(cond.value_test, current_depth, 2, false, vars_bound_here);
 
         /* --- Get Rete tests, alpha constants, and hash location --- */
-        ByRef<SymbolImpl> alpha_id = ByRef.create(null);
-        ByRef<ReteTest> rt = ByRef.create(null);
+        final ByRef<SymbolImpl> alpha_id = ByRef.create(null);
+        final ByRef<ReteTest> rt = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.id_test, current_depth, 0, rt, alpha_id);
         
-        ByRef<VarLocation> left_hash_loc = ByRef.create(null);
+        final ByRef<VarLocation> left_hash_loc = ByRef.create(null);
         boolean hash_this_node = extract_rete_test_to_hash_with(rt, left_hash_loc);
         
-        ByRef<SymbolImpl> alpha_attr = ByRef.create(null);
+        final ByRef<SymbolImpl> alpha_attr = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.attr_test, current_depth, 1, rt, alpha_attr);
         
-        ByRef<SymbolImpl> alpha_value = ByRef.create(null);
+        final ByRef<SymbolImpl> alpha_value = ByRef.create(null);
         add_rete_tests_for_test(rete, cond.value_test, current_depth, 2, rt, alpha_value);
 
         /* --- Pop sparse variable bindings for this condition --- */
         Rete.pop_bindings_and_deallocate_list_of_variables(vars_bound_here);
 
         /* --- Get alpha memory --- */
-        AlphaMemory am = rete.find_or_make_alpha_mem(alpha_id.value, alpha_attr.value, alpha_value.value,
+        final AlphaMemory am = rete.find_or_make_alpha_mem(alpha_id.value, alpha_attr.value, alpha_value.value,
                 cond.test_for_acceptable_preference);
 
         /* --- determine desired node type --- */
-        ReteNodeType node_type = hash_this_node ? ReteNodeType.NEGATIVE_BNODE : ReteNodeType.UNHASHED_NEGATIVE_BNODE;
+        final ReteNodeType node_type = hash_this_node ? ReteNodeType.NEGATIVE_BNODE : ReteNodeType.UNHASHED_NEGATIVE_BNODE;
 
         /* --- look for a matching existing node --- */
         ReteNode node;
@@ -617,9 +620,9 @@ import org.jsoar.util.markers.Marker;
     {
         ReteNode node = parent;
         ReteNode new_node = null;
-        ByRef<ReteNode> subconditions_bottom_node = ByRef.create(null);
+        final ByRef<ReteNode> subconditions_bottom_node = ByRef.create(null);
         int current_depth = depth_of_first_cond;
-        ListHead<Variable> vars_bound = ListHead.newInstance();
+        final ListHead<Variable> vars_bound = ListHead.newInstance();
 
         for (Condition cond = cond_list; cond != null; cond = cond.next)
         {
@@ -723,16 +726,16 @@ import org.jsoar.util.markers.Marker;
     /*package*/ static RhsValue fixup_rhs_value_variable_references(Rete rete, RhsValue rv, int bottom_depth,
             List<Variable> rhs_unbound_vars_for_new_prod, Marker rhs_unbound_vars_tc)
     {
-        RhsSymbolValue rvsym = rv.asSymbolValue();
+        final RhsSymbolValue rvsym = rv.asSymbolValue();
         if (rvsym != null)
         {
-            Variable var = rvsym.getSym().asVariable();
+            final Variable var = rvsym.getSym().asVariable();
             if (var == null)
             {
                 return rv;
             }
             /* --- Found a variable. Is is bound on the LHS? --- */
-            VarLocation var_loc = VarLocation.find(var, bottom_depth + 1);
+            final VarLocation var_loc = VarLocation.find(var, bottom_depth + 1);
             if (var_loc != null)
             {
                 /* --- Yes, replace it with reteloc --- */
@@ -760,10 +763,10 @@ import org.jsoar.util.markers.Marker;
             }
         }
 
-        RhsFunctionCall fc = rv.asFunctionCall();
+        final RhsFunctionCall fc = rv.asFunctionCall();
         if (fc != null)
         {
-            List<RhsValue> args = fc.getArguments();
+            final List<RhsValue> args = fc.getArguments();
             assert args == fc.getArguments(); // just make sure this stays by
                                                 // ref
             for (int i = 0; i < args.size(); ++i)
