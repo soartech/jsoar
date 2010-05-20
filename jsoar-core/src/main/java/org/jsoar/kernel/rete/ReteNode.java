@@ -24,19 +24,15 @@ import org.jsoar.kernel.Production;
  */
 public class ReteNode
 {
-    ReteNodeType node_type;                  /* tells what kind of node this is */
+    ReteNodeType node_type; // tells what kind of node this is
 
-    /* -- used only on hashed nodes -- */
-    /* field_num: 0=id, 1=attr, 2=value */
-    int left_hash_loc_field_num;      
-    /* left_hash_loc_levels_up: 0=current node's alphamem, 1=parent's, etc. */
-    int left_hash_loc_levels_up; 
-    /* node_id: used for hash function */
-    /*final*/ int node_id;                   
+    int left_hash_loc_field_num; // used only on hashed nodes, field_num: 0=id, 1=attr, 2=value 
+    int left_hash_loc_levels_up; // 0=current node's alphamem, 1=parent's, etc.
+    /*final*/ int node_id; // used for hash function                  
 
-    ReteNode parent;       /* points to parent node */
-    ReteNode first_child;  /* used for dll of all children, */
-    ReteNode next_sibling; /*   regardless of unlinking status */
+    ReteNode parent;       // points to parent node
+    ReteNode first_child;  // used for dll of all children
+    ReteNode next_sibling; // regardless of unlinking status
     
     // TODO: Fix this union hack
     // union rete_node_a_union {
