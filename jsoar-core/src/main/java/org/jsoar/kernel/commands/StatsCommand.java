@@ -29,11 +29,50 @@ public final class StatsCommand implements SoarCommand
     @Override
     public String execute(String[] args) throws SoarException
     {
+        boolean system = false;
+        boolean hashes = false;
+        for(int i = 1; i < args.length; ++i)
+        {
+            final String arg = args[i];
+            if("-s".equals(arg) || "--system".equals(arg))
+            {
+                system = true;
+            }
+            else if("-h".equals(arg) || "--hashes".equals(arg))
+            {
+                hashes = true;
+            }
+            else
+            {
+                throw new SoarException("Unknown option or argument '" + arg + "'");
+            }
+        }
+        
+        if(!hashes)
+        {
+            system = true;
+        }
+        
+        if(system)
+        {
+            printSystemStats();
+        }
+        if(hashes)
+        {
+            printHashStats();
+        }
+        return "";
+    }
+
+    private void printSystemStats()
+    {
         final Printer p = agent.getPrinter();
         
         p.startNewLine();
         
-        p.print("jsoar %s on %s at %s%n%n", JSoarVersion.getInstance().getVersion(), System.getenv("HOSTNAME"), Calendar.getInstance().getTime());
+        final JSoarVersion version = JSoarVersion.getInstance();
+        p.print("JSoar %s on %s at %s%n", version.getVersion(), System.getenv("HOSTNAME"), Calendar.getInstance().getTime());
+        p.print("Built on %s by %s%n%n", version.getBuildDate(), version.getBuiltBy());
         p.print("%d productions (%d default, %d user, %d chunks)%n   + %d justifications%n",
                 agent.getProductions().getProductions(null).size(),
                 agent.getProductions().getProductions(ProductionType.DEFAULT).size(),
@@ -86,6 +125,14 @@ public final class StatsCommand implements SoarCommand
                 agent.getNumWmesInRete(), 
                 num_wm_sizes_accumulated != 0 ? ((double) props.get(SoarProperties.CUMULATIVE_WM_SIZE).intValue() / num_wm_sizes_accumulated) : 0.0,
                 props.get(SoarProperties.MAX_WM_SIZE));
-        return "";
     }
+    
+    private void printHashStats()
+    {
+        final Printer p = agent.getPrinter();
+        
+        p.startNewLine();
+        
+    }
+
 }

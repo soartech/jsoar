@@ -71,16 +71,6 @@ public final class JSoarVersion
         return properties.getProperty(PREFIX + ".builtBy", "Unknown");
     }
     
-    public String getSvnRevision()
-    {
-        return properties.getProperty(PREFIX + ".svn.revision", "Unknown");
-    }
-    
-    public String getSvnUrl()
-    {
-        return properties.getProperty(PREFIX + ".svn.url", "Unknown");
-    }
-
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
