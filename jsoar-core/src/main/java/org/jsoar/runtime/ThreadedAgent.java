@@ -381,7 +381,11 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     
     // Convenience methods forwarded to equivalent {@link Agent} methods.
     public String getName() { return agent.getName(); }
-    public void setName(String name) { agent.setName(name); }
+    public void setName(String name) 
+    { 
+        agent.setName(name); 
+        agentThread.setName("Agent '" + this.agent + "' thread");
+    }
     public SoarCommandInterpreter getInterpreter() { return agent.getInterpreter(); }
     public Printer getPrinter() { return agent.getPrinter(); }
     public Trace getTrace() { return agent.getTrace(); }
