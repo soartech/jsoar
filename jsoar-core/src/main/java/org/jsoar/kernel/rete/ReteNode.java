@@ -96,7 +96,7 @@ public class ReteNode
         this.parent = other.parent;
         this.first_child = other.first_child;
         this.next_sibling = other.next_sibling;
-        this.a_pos = other.a_pos != null ? new PosNodeData(other.a_pos) : null;
+        this.a_pos = other.a_pos != null ? other.a_pos.copy() : null;
         this.a_np = other.a_np != null ? other.a_np.copy() : null;
         this.b_posneg = other.b_posneg != null ? other.b_posneg.copy() : null;
         this.b_mem = other.b_mem != null ? other.b_mem.copy() : null;
@@ -522,7 +522,12 @@ public class ReteNode
     
     /**
      * Merge a given Memory node and its one positive join child into an
-     * MP node, returning a pointer to the MP node.
+     * MP node, returning a pointer to the MP node. That is,
+     * 
+     * <p>{@link ReteNodeType#MEMORY_BNODE} + {@link ReteNodeType#POSITIVE_BNODE} becomes
+     * a {@link ReteNodeType#MP_BNODE}.
+     * <p>{@link ReteNodeType#UNHASHED_MEMORY_BNODE} + {@link ReteNodeType#UNHASHED_POSITIVE_BNODE} becomes
+     * a {@link ReteNodeType#UNHASHED_MP_BNODE}.
      * 
      * <p>rete.cpp:1979:merge_into_mp_node
      * 
@@ -531,10 +536,9 @@ public class ReteNode
      */
     static ReteNode merge_into_mp_node(Rete rete, ReteNode mem_node)
     {
-        assert mem_node.node_type == ReteNodeType.MEMORY_BNODE ||
-               mem_node.node_type == ReteNodeType.UNHASHED_MEMORY_BNODE;
         
         final ReteNode pos_node = mem_node.first_child;
+        
         final boolean posNodeIsLeftUnlinked = pos_node.node_is_left_unlinked();
         final ReteNode parent = mem_node.parent;
 
@@ -543,6 +547,9 @@ public class ReteNode
         {
             throw new IllegalArgumentException("Internal error: tried to merge_into_mp_node, but <>1 child");
         }
+        
+        assert (mem_node.node_type == ReteNodeType.MEMORY_BNODE && pos_node.node_type == ReteNodeType.POSITIVE_BNODE) ||
+               (mem_node.node_type == ReteNodeType.UNHASHED_MEMORY_BNODE && pos_node.node_type == ReteNodeType.UNHASHED_POSITIVE_BNODE);
 
         // determine appropriate node type for new MP node
         final ReteNodeType node_type;

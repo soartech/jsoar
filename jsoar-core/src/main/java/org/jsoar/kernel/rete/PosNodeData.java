@@ -26,10 +26,14 @@ public class PosNodeData extends ReteNodeData
         this.from_beta_mem = new ListItem<ReteNode>(node);
     }
     
-    public PosNodeData(PosNodeData other)
+    private PosNodeData(PosNodeData other)
     {
         this.from_beta_mem = new ListItem<ReteNode>(other.from_beta_mem.item);
         this.node_is_left_unlinked = other.node_is_left_unlinked;
     }
     
+    public PosNodeData copy()
+    {
+        return new PosNodeData(this);
+    }
 }

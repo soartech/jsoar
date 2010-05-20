@@ -14,7 +14,10 @@ package org.jsoar.kernel.rete;
  */
 public class ConjunctiveNegationNodeData extends ReteNodeData
 {
-    ReteNode partner;    /* cn, cn_partner point to each other */
+    /**
+     * The partner, always of type {@link ReteNodeType#CN_PARTNER_BNODE}
+     */
+    ReteNode partner;
 
     /**
      * @return a copy of this object
