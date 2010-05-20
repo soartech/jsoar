@@ -40,16 +40,16 @@ public class ReteNode
     
     // TODO: Fix this union hack
     // union rete_node_a_union {
-    PosNodeData a_pos = null;                   /* for pos. nodes */
-    NonPosNodeData a_np = null;                /* for all other nodes */
+    PosNodeData a_pos = null;                   // for pos. nodes
+    NonPosNodeData a_np = null;                 // for all other nodes
     // } a;
     
     // TODO: Fix this union hack
     // union rete_node_b_union {
-    PosNegNodeData b_posneg = null;            /* for pos, neg, mp nodes */
-    BetaMemoryNodeData b_mem = null;          /* for beta memory nodes */
-    ConjunctiveNegationNodeData b_cn = null; /* for cn, cn_partner nodes */
-    public ProductionNodeData b_p = null;                      /* for p nodes */
+    PosNegNodeData b_posneg = null;            // for pos, neg, mp nodes
+    BetaMemoryNodeData b_mem = null;           // for beta memory nodes
+    ConjunctiveNegationNodeData b_cn = null;   // for cn, cn_partner nodes
+    public ProductionNodeData b_p = null;      // for p nodes
     // } b;
 
       
@@ -114,17 +114,6 @@ public class ReteNode
                 || (b_p == null && b_cn != null && b_mem == null && b_posneg == null)
                 || (b_p == null && b_cn == null && b_mem != null && b_posneg == null)
                 || (b_p == null && b_cn == null && b_mem == null && b_posneg != null);
-    }
-      
-    /**
-     * Returns a copy of this node with semantics equivalent to struct
-     * assignment in C.
-     * 
-     * @return A copy of this node
-     */
-    private ReteNode copy()
-    {
-        return new ReteNode(this);
     }
 
     /**
@@ -542,8 +531,12 @@ public class ReteNode
      */
     static ReteNode merge_into_mp_node(Rete rete, ReteNode mem_node)
     {
-        ReteNode pos_node = mem_node.first_child;
-        ReteNode parent = mem_node.parent;
+        assert mem_node.node_type == ReteNodeType.MEMORY_BNODE ||
+               mem_node.node_type == ReteNodeType.UNHASHED_MEMORY_BNODE;
+        
+        final ReteNode pos_node = mem_node.first_child;
+        final boolean posNodeIsLeftUnlinked = pos_node.node_is_left_unlinked();
+        final ReteNode parent = mem_node.parent;
 
         // sanity check: Mem node must have exactly one child
         if (pos_node == null || pos_node.next_sibling != null)
@@ -552,7 +545,7 @@ public class ReteNode
         }
 
         // determine appropriate node type for new MP node
-        ReteNodeType node_type = null;
+        final ReteNodeType node_type;
         if (mem_node.node_type == ReteNodeType.MEMORY_BNODE)
         {
             node_type = ReteNodeType.MP_BNODE;
@@ -562,51 +555,43 @@ public class ReteNode
             node_type = ReteNodeType.UNHASHED_MP_BNODE;
         }
 
-        // save a copy of the Pos data, then kill the Pos node
-        ReteNode pos_copy = pos_node.copy();
-        // TODO update_stats_for_destroying_node (thisAgent, pos_node); /* clean
-        // up rete stats stuff */
-
         // the old Pos node gets transmogrified into the new MP node
-        ReteNode mp_node = pos_node;
-        // init_new_rete_node_with_type (thisAgent, mp_node, node_type);
+        final ReteNode mp_node = pos_node;
         mp_node.node_type = node_type;
-        // TODO rete.rete_node_counts[mp_node.node_type.index()]++;
-        mp_node.b_posneg = pos_copy.b_posneg; // TODO: Should this be .copy()?
+        mp_node.node_id = mem_node.node_id;
+        mp_node.b_posneg = pos_node.b_posneg; // inherit posneg from pos_copy
+        assert mp_node.a_np == null;
+        mp_node.a_pos = null;
+        mp_node.a_np = new NonPosNodeData();
 
         // transfer the Mem node's tokens to the MP node
-        if(mp_node.a_np == null)
-        {
-            // TODO: This is very yucky
-            mp_node.a_pos = null;
-            mp_node.a_np = new NonPosNodeData();
-        }
         mp_node.a_np.tokens = mem_node.a_np.tokens;
         for (Token t = mem_node.a_np.tokens; t != null; t = t.next_of_node)
         {
             t.node = mp_node;
         }
+        
         mp_node.left_hash_loc_field_num = mem_node.left_hash_loc_field_num;
         mp_node.left_hash_loc_levels_up = mem_node.left_hash_loc_levels_up;
-        mp_node.node_id = mem_node.node_id;
-
-        // replace the Mem node with the new MP node
+        
+        // replace the Mem node with the new MP node in the network
         mp_node.parent = parent;
         mp_node.next_sibling = parent.first_child;
         parent.first_child = mp_node;
-        mp_node.first_child = pos_copy.first_child;
+        mp_node.first_child = pos_node.first_child;
 
+        // Now throw away the mem node
         mem_node.remove_node_from_parents_list_of_children();
-        // TODO update_stats_for_destroying_node (thisAgent, mem_node); /* clean
-        // up rete stats stuff */
 
         // set MP node's unlinking status according to pos_copy's
         mp_node.make_mp_bnode_left_linked();
-        if (pos_copy.node_is_left_unlinked())
+        if (posNodeIsLeftUnlinked)
         {
             mp_node.make_mp_bnode_left_unlinked();
         }
 
+        mp_node.validateUnions();
+        
         return mp_node;
     }
     
@@ -640,9 +625,13 @@ public class ReteNode
             pos_node_type = ReteNodeType.UNHASHED_POSITIVE_BNODE;
             mem_node_type = ReteNodeType.UNHASHED_MEMORY_BNODE;
         }
+        // First create the parent memory node
         ReteNode mem_node = make_new_mem_node(rete, parent, mem_node_type, left_hash_loc);
+        // Next create the child positive join node
         @SuppressWarnings("unused")
         ReteNode pos_node = make_new_positive_node(rete, mem_node, pos_node_type, am, rt, prefer_left_unlinking);
+        
+        // Now smash them together into an MP node
         return merge_into_mp_node(rete, mem_node);
     }
     
@@ -756,7 +745,7 @@ public class ReteNode
      */
     static ReteNode make_new_production_node(Rete rete, ReteNode parent, Production new_prod)
     {
-        ReteNode p_node = new ReteNode(ReteNodeType.P_BNODE, 0);
+        final ReteNode p_node = new ReteNode(ReteNodeType.P_BNODE, 0);
 
         new_prod.setReteNode(rete, p_node);
         p_node.parent = parent;
