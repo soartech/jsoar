@@ -45,7 +45,6 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.StringSymbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;

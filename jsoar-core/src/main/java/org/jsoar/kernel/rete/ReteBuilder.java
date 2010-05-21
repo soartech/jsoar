@@ -73,20 +73,20 @@ import org.jsoar.util.markers.Marker;
         Arrays.fill(relational_test_type_to_test_type, ERROR_TEST_TYPE);
 
         /* we don't need ...[equal test] */
-        test_type_to_relational_test_type[RelationalTest.NOT_EQUAL_TEST] = ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST;
-        test_type_to_relational_test_type[RelationalTest.LESS_TEST] = ReteTest.RELATIONAL_LESS_RETE_TEST;
-        test_type_to_relational_test_type[RelationalTest.GREATER_TEST] = ReteTest.RELATIONAL_GREATER_RETE_TEST;
-        test_type_to_relational_test_type[RelationalTest.LESS_OR_EQUAL_TEST] = ReteTest.RELATIONAL_LESS_OR_EQUAL_RETE_TEST;
-        test_type_to_relational_test_type[RelationalTest.GREATER_OR_EQUAL_TEST] = ReteTest.RELATIONAL_GREATER_OR_EQUAL_RETE_TEST;
-        test_type_to_relational_test_type[RelationalTest.SAME_TYPE_TEST] = ReteTest.RELATIONAL_SAME_TYPE_RETE_TEST;
+        test_type_to_relational_test_type[RelationalTest.NOT_EQUAL_TEST] = ReteTest.RELATIONAL_NOT_EQUAL;
+        test_type_to_relational_test_type[RelationalTest.LESS_TEST] = ReteTest.RELATIONAL_LESS;
+        test_type_to_relational_test_type[RelationalTest.GREATER_TEST] = ReteTest.RELATIONAL_GREATER;
+        test_type_to_relational_test_type[RelationalTest.LESS_OR_EQUAL_TEST] = ReteTest.RELATIONAL_LESS_OR_EQUAL;
+        test_type_to_relational_test_type[RelationalTest.GREATER_OR_EQUAL_TEST] = ReteTest.RELATIONAL_GREATER_OR_EQUAL;
+        test_type_to_relational_test_type[RelationalTest.SAME_TYPE_TEST] = ReteTest.RELATIONAL_SAME_TYPE;
 
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_EQUAL_RETE_TEST] = EQUAL_TEST_TYPE;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST] = RelationalTest.NOT_EQUAL_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_LESS_RETE_TEST] = RelationalTest.LESS_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_GREATER_RETE_TEST] = RelationalTest.GREATER_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_LESS_OR_EQUAL_RETE_TEST] = RelationalTest.LESS_OR_EQUAL_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_GREATER_OR_EQUAL_RETE_TEST] = RelationalTest.GREATER_OR_EQUAL_TEST;
-        relational_test_type_to_test_type[ReteTest.RELATIONAL_SAME_TYPE_RETE_TEST] = RelationalTest.SAME_TYPE_TEST;
+        relational_test_type_to_test_type[ReteTest.RELATIONAL_EQUAL] = EQUAL_TEST_TYPE;
+        relational_test_type_to_test_type[ReteTest.RELATIONAL_NOT_EQUAL] = RelationalTest.NOT_EQUAL_TEST;
+        relational_test_type_to_test_type[ReteTest.RELATIONAL_LESS] = RelationalTest.LESS_TEST;
+        relational_test_type_to_test_type[ReteTest.RELATIONAL_GREATER] = RelationalTest.GREATER_TEST;
+        relational_test_type_to_test_type[ReteTest.RELATIONAL_LESS_OR_EQUAL] = RelationalTest.LESS_OR_EQUAL_TEST;
+        relational_test_type_to_test_type[ReteTest.RELATIONAL_GREATER_OR_EQUAL] = RelationalTest.GREATER_OR_EQUAL_TEST;
+        relational_test_type_to_test_type[ReteTest.RELATIONAL_SAME_TYPE] = RelationalTest.SAME_TYPE_TEST;
     }
     
     private ReteBuilder()
@@ -144,7 +144,7 @@ import org.jsoar.util.markers.Marker;
             // if constant, make = constant test
             if (referent.asVariable() == null)
             {
-                ReteTest new_rt = ReteTest.createConstantTest(ReteTest.RELATIONAL_EQUAL_RETE_TEST, field_num, referent);
+                ReteTest new_rt = ReteTest.createConstantTest(ReteTest.RELATIONAL_EQUAL, field_num, referent);
                 
                 new_rt.next = rt.value;
                 rt.value = new_rt;
@@ -163,7 +163,7 @@ import org.jsoar.util.markers.Marker;
             }
 
             // else make variable equality test
-            final ReteTest new_rt = ReteTest.createVariableTest(ReteTest.RELATIONAL_EQUAL_RETE_TEST, field_num, where);
+            final ReteTest new_rt = ReteTest.createVariableTest(ReteTest.RELATIONAL_EQUAL, field_num, where);
             
             new_rt.next = rt.value;
             rt.value = new_rt;
@@ -269,26 +269,26 @@ import org.jsoar.util.markers.Marker;
             return false;
         }
 
-        if (ReteTest.test_is_variable_relational_test(rt1.type))
+        if (rt1.test_is_variable_relational_test())
         {
             return VarLocation.var_locations_equal(rt1.variable_referent, rt2.variable_referent);
         }
 
-        if (ReteTest.test_is_constant_relational_test(rt1.type))
+        if (rt1.test_is_constant_relational_test())
         {
             return (rt1.constant_referent == rt2.constant_referent);
         }
 
-        if (rt1.type == ReteTest.ID_IS_GOAL_RETE_TEST)
+        if (rt1.type == ReteTest.ID_IS_GOAL)
         {
             return true;
         }
-        if (rt1.type == ReteTest.ID_IS_IMPASSE_RETE_TEST)
+        if (rt1.type == ReteTest.ID_IS_IMPASSE)
         {
             return true;
         }
 
-        if (rt1.type == ReteTest.DISJUNCTION_RETE_TEST)
+        if (rt1.type == ReteTest.DISJUNCTION)
         {
             return rt1.disjunction_list.equals(rt2.disjunction_list);
         }
@@ -336,7 +336,7 @@ import org.jsoar.util.markers.Marker;
         ReteTest current = null, prev = null;
         for (current = rt.value; current != null; prev = current, current = current.next)
         {
-            if (current.type == ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST)
+            if (current.type == ReteTest.VARIABLE_RELATIONAL + ReteTest.RELATIONAL_EQUAL)
             {
                 break;
             }

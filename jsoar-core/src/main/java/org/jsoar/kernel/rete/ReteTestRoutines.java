@@ -231,23 +231,23 @@ class ReteTestRoutines
         // rete.cpp:4417:rete_test_routines
         switch(test.type)
         {
-        case ReteTest.DISJUNCTION_RETE_TEST: return disjunction_rete_test_routine(test, left, w);
-        case ReteTest.ID_IS_GOAL_RETE_TEST: return id_is_goal_rete_test_routine(test, left, w);            
-        case ReteTest.ID_IS_IMPASSE_RETE_TEST: return id_is_impasse_rete_test_routine(test, left, w);            
-        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST: return constant_equal_rete_test_routine(test, left, w);            
-        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST: return constant_not_equal_rete_test_routine(test, left, w);           
-        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_RETE_TEST: return constant_less_rete_test_routine(test, left, w);
-        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_RETE_TEST: return constant_greater_rete_test_routine(test, left, w);
-        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_OR_EQUAL_RETE_TEST: return constant_less_or_equal_rete_test_routine(test, left, w);
-        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_OR_EQUAL_RETE_TEST: return constant_greater_or_equal_rete_test_routine(test, left, w);
-        case ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_SAME_TYPE_RETE_TEST: return constant_same_type_rete_test_routine(test, left, w);
-        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_EQUAL_RETE_TEST: return variable_equal_rete_test_routine(test, left, w);
-        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST: return variable_not_equal_rete_test_routine(test, left, w);
-        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_RETE_TEST: return variable_less_rete_test_routine(test, left, w);
-        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_RETE_TEST: return variable_greater_rete_test_routine(test, left, w);
-        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_LESS_OR_EQUAL_RETE_TEST: return variable_less_or_equal_rete_test_routine(test, left, w);
-        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_GREATER_OR_EQUAL_RETE_TEST: return variable_greater_or_equal_rete_test_routine(test, left, w);
-        case ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_SAME_TYPE_RETE_TEST: return variable_same_type_rete_test_routine(test, left, w);
+        case ReteTest.DISJUNCTION: return disjunction_rete_test_routine(test, left, w);
+        case ReteTest.ID_IS_GOAL: return id_is_goal_rete_test_routine(test, left, w);            
+        case ReteTest.ID_IS_IMPASSE: return id_is_impasse_rete_test_routine(test, left, w);            
+        case ReteTest.CONSTANT_RELATIONAL + ReteTest.RELATIONAL_EQUAL: return constant_equal_rete_test_routine(test, left, w);            
+        case ReteTest.CONSTANT_RELATIONAL + ReteTest.RELATIONAL_NOT_EQUAL: return constant_not_equal_rete_test_routine(test, left, w);           
+        case ReteTest.CONSTANT_RELATIONAL + ReteTest.RELATIONAL_LESS: return constant_less_rete_test_routine(test, left, w);
+        case ReteTest.CONSTANT_RELATIONAL + ReteTest.RELATIONAL_GREATER: return constant_greater_rete_test_routine(test, left, w);
+        case ReteTest.CONSTANT_RELATIONAL + ReteTest.RELATIONAL_LESS_OR_EQUAL: return constant_less_or_equal_rete_test_routine(test, left, w);
+        case ReteTest.CONSTANT_RELATIONAL + ReteTest.RELATIONAL_GREATER_OR_EQUAL: return constant_greater_or_equal_rete_test_routine(test, left, w);
+        case ReteTest.CONSTANT_RELATIONAL + ReteTest.RELATIONAL_SAME_TYPE: return constant_same_type_rete_test_routine(test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL + ReteTest.RELATIONAL_EQUAL: return variable_equal_rete_test_routine(test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL + ReteTest.RELATIONAL_NOT_EQUAL: return variable_not_equal_rete_test_routine(test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL + ReteTest.RELATIONAL_LESS: return variable_less_rete_test_routine(test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL + ReteTest.RELATIONAL_GREATER: return variable_greater_rete_test_routine(test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL + ReteTest.RELATIONAL_LESS_OR_EQUAL: return variable_less_or_equal_rete_test_routine(test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL + ReteTest.RELATIONAL_GREATER_OR_EQUAL: return variable_greater_or_equal_rete_test_routine(test, left, w);
+        case ReteTest.VARIABLE_RELATIONAL + ReteTest.RELATIONAL_SAME_TYPE: return variable_same_type_rete_test_routine(test, left, w);
         default:
             throw new IllegalStateException("Unknown Rete test type: " + test.type);
         }

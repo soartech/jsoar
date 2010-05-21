@@ -850,7 +850,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     {
         //.setProperty("jsoar.agent.interpreter", "tcl");
         final Agent a = new Agent();
-        a.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
+        a.getPrinter().pushWriter(new OutputStreamWriter(System.out));
         a.initialize();
         a.getInterpreter().source(new File("../performance/count-test-single.soar"));
         //a.getInterpreter().source(new File("../performance/FunctionalTests_testArithmetic.soar"));

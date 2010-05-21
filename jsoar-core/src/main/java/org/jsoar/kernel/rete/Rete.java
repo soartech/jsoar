@@ -2092,22 +2092,22 @@ public class Rete
         for (ReteTest rt = rtIn; rt != null; rt = rt.next)
         {
             Test New = null;
-            if (rt.type == ReteTest.ID_IS_GOAL_RETE_TEST)
+            if (rt.type == ReteTest.ID_IS_GOAL)
             {
                 New = GoalIdTest.INSTANCE;
             }
-            else if (rt.type == ReteTest.ID_IS_IMPASSE_RETE_TEST)
+            else if (rt.type == ReteTest.ID_IS_IMPASSE)
             {
                 New = ImpasseIdTest.INSTANCE;
             }
-            else if (rt.type == ReteTest.DISJUNCTION_RETE_TEST)
+            else if (rt.type == ReteTest.DISJUNCTION)
             {
                 // disjunction test is immutable so this is safe
                 New = new DisjunctionTest(rt.disjunction_list);
             }
-            else if (ReteTest.test_is_constant_relational_test(rt.type))
+            else if (rt.test_is_constant_relational_test())
             {
-                int test_type = ReteBuilder.relational_test_type_to_test_type[ReteTest.kind_of_relational_test(rt.type)];
+                final int test_type = ReteBuilder.relational_test_type_to_test_type[rt.kind_of_relational_test()];
                 SymbolImpl referent = rt.constant_referent;
                 if (test_type == ReteBuilder.EQUAL_TEST_TYPE)
                 {
@@ -2118,9 +2118,9 @@ public class Rete
                     New = new RelationalTest(test_type, referent);
                 }
             }
-            else if (ReteTest.test_is_variable_relational_test(rt.type))
+            else if (rt.test_is_variable_relational_test())
             {
-                int test_type = ReteBuilder.relational_test_type_to_test_type[ReteTest.kind_of_relational_test(rt.type)];
+                final int test_type = ReteBuilder.relational_test_type_to_test_type[rt.kind_of_relational_test()];
                 if (rt.variable_referent.levels_up == 0)
                 {
                     /* --- before calling var_bound_in_reconstructed_conds, make sure 
@@ -2204,7 +2204,7 @@ public class Rete
         for (; rt != null; rt = rt.next)
         {
 
-            if (!ReteTest.test_is_not_equal_test(rt.type))
+            if (!rt.test_is_not_equal_test())
                 continue;
 
             SymbolImpl right_sym = right_wme.getField(rt.right_field_num);
@@ -2212,7 +2212,7 @@ public class Rete
             if (right_sym.asIdentifier() == null)
                 continue;
 
-            if (rt.type == ReteTest.CONSTANT_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST)
+            if (rt.type == ReteTest.CONSTANT_RELATIONAL + ReteTest.RELATIONAL_NOT_EQUAL)
             {
                 SymbolImpl referent = rt.constant_referent;
                 if (referent.asIdentifier() == null)
@@ -2224,7 +2224,7 @@ public class Rete
                 continue;
             }
 
-            if (rt.type == ReteTest.VARIABLE_RELATIONAL_RETE_TEST + ReteTest.RELATIONAL_NOT_EQUAL_RETE_TEST)
+            if (rt.type == ReteTest.VARIABLE_RELATIONAL + ReteTest.RELATIONAL_NOT_EQUAL)
             {
                 SymbolImpl referent = var_bound_in_reconstructed_conds(cond, rt.variable_referent.field_num,
                         rt.variable_referent.levels_up);
