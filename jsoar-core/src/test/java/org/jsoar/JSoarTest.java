@@ -41,7 +41,7 @@ public class JSoarTest
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
          */
         @Override
-        public void addWme(Identifier id, Symbol attr, Symbol value)
+        public Void addWme(Identifier id, Symbol attr, Symbol value)
         {
             throw new UnsupportedOperationException("This test implementation of RhsFunctionContext doesn't support addWme");
         }

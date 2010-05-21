@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -29,6 +30,75 @@ import com.google.common.collect.Collections2;
  */
 public class Wmes
 {
+    /**
+     * Given an iterator over a list of values, constructs a linked list of WMEs
+     * using {@link Symbols#create(SymbolFactory, Object)} to convert the values. 
+     * 
+     * <p>For example, this code
+     * <pre>{@code
+     * RhsFunctions.createLinkedList(context, Arrays.asList("hi", "bye", 12345, 3.14).iterator());
+     * }</pre>
+     * 
+     * <p>would yield this WM structure:
+     * 
+     * <pre>{@code
+     * ^value |hi|
+     * ^next
+     *    ^value |bye|
+     *    ^next
+     *        ^value 12345
+     *        ^next
+     *            ^value 3.14
+     * }</pre>
+     * 
+     * @param context the RHS function context
+     * @param values iterator over the list of values 
+     * @return the id of the head of the list. If the list is empty, the id will have
+     *      no attributes.
+     */
+    public static Identifier createLinkedList(WmeFactory<?> context, Iterator<?> values)
+    {
+        return createLinkedList(context, values, "next", "value");
+    }
+    
+    /**
+     * Same as {@link #createLinkedList(RhsFunctionContext, Iterator)}, but the name of 
+     * the "value" and "next" attributes in the list can be specified
+     *  
+     * @param context the RHS function context
+     * @param values iterator over the list of values 
+     * @param nextName the name of the next attribute
+     * @param valueName the name of the value attribute
+     * @return the id of the head of the list. If the list is empty, the id will have
+     *      no attributes.
+     */
+    public static Identifier createLinkedList(WmeFactory<?> context, Iterator<?> values, String nextName, String valueName)
+    {
+        final SymbolFactory syms = context.getSymbols();
+        final Symbol nextSym = syms.createString(nextName);
+        final Symbol valueSym = syms.createString(valueName);
+        
+        Identifier head = null;
+        Identifier last = null;
+        while(values.hasNext())
+        {
+            final Object o = values.next();
+            final Identifier current = syms.createIdentifier('N');
+            
+            if(head == null)
+            {
+                head = current;
+            }
+            if(last != null)
+            {
+                context.addWme(last, nextSym, current);
+            }
+            context.addWme(current, valueSym, Symbols.create(syms, o));
+
+            last = current;
+        }
+        return head != null ? head : syms.createIdentifier('N');
+    }
     /**
      * Search working memory for WMEs that match glob expressions.
      * 

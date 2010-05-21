@@ -24,6 +24,7 @@ import org.jsoar.kernel.events.TopStateRemovedEvent;
 import org.jsoar.kernel.events.OutputEvent.OutputMode;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.Identifier;
@@ -90,7 +91,7 @@ import org.jsoar.util.markers.Marker;
  * 
  * @author ray
  */
-public class InputOutputImpl implements InputOutput
+public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
 {
     private static final Log logger = LogFactory.getLog(InputOutputImpl.class);
     
@@ -159,6 +160,25 @@ public class InputOutputImpl implements InputOutput
         this.workingMemory = Adaptables.adapt(context, WorkingMemory.class);
     }
     
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.InputOutput#asWmeFactory()
+     */
+    @Override
+    public WmeFactory<InputWme> asWmeFactory()
+    {
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.memory.WmeFactory#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
+     */
+    @Override
+    public InputWme addWme(Identifier id, Symbol attr, Symbol value)
+    {
+        return addInputWme(id, attr, value);
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.io.InputOutput#getSymbolFactory()
      */

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -34,7 +35,7 @@ public class SoarTechXmlToWme implements XmlToWme
 {
     private static final Log logger = LogFactory.getLog(SoarTechXmlToWme.class);
     
-    private final XmlWmeFactory wmeFactory;
+    private final WmeFactory<?> wmeFactory;
     
     private final Map<String, Symbol> linkMap = new HashMap<String, Symbol>(); 
     private final List<Link> links = new ArrayList<Link>();
@@ -48,7 +49,7 @@ public class SoarTechXmlToWme implements XmlToWme
      */
     public static SoarTechXmlToWme forInput(InputOutput io)
     {
-        return new SoarTechXmlToWme(new InputXmlWmeFactory(io));
+        return new SoarTechXmlToWme(io.asWmeFactory());
     }
     
     /**
@@ -60,7 +61,7 @@ public class SoarTechXmlToWme implements XmlToWme
      */
     public static SoarTechXmlToWme forRhsFunction(RhsFunctionContext rhsContext)
     {
-        return new SoarTechXmlToWme(new RhsFunctionXmlWmeFactory(rhsContext));
+        return new SoarTechXmlToWme(rhsContext);
     }
     
     /**
@@ -69,7 +70,7 @@ public class SoarTechXmlToWme implements XmlToWme
      * 
      * @param wmeFactory the WME factory
      */
-    public SoarTechXmlToWme(XmlWmeFactory wmeFactory)
+    public SoarTechXmlToWme(WmeFactory<?> wmeFactory)
     {
         Arguments.checkNotNull(wmeFactory, "wmeFactory");
         this.wmeFactory = wmeFactory;

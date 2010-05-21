@@ -3,23 +3,21 @@
  *
  * Created on Apr 27, 2009
  */
-package org.jsoar.kernel.io.xml;
+package org.jsoar.kernel.memory;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
- * Interface use by objects that convert XML to working memory. Intended
- * to abstract the difference between constructing a new WME in a RHS
- * function versus on the input-link.
+ * Interface use by objects that need to construct WMEs such as a 
+ * RHS function or input generator
  * 
- * <p>See {@link InputXmlWmeFactory} and {@link RhsFunctionXmlWmeFactory}
- * for basic implementations of this interface
- * 
+ * @param T the return type of {@link #addWme(Identifier, Symbol, Symbol)}.
+ *      Typically {@code Void}, {@code Wme}, or {@code InputWme}
  * @author ray
  */
-public interface XmlWmeFactory
+public interface WmeFactory<T>
 {
     /**
      * @return a symbol factory to use to construct new symbols
@@ -34,6 +32,8 @@ public interface XmlWmeFactory
      * @param id the id of the new WME
      * @param attr the attribute of the new WME
      * @param value the value of the new WME
+     * @returns the new WME, or possibly {@code Void} if the WME is not created
+     *  immediately.
      */
-    void addWme(Identifier id, Symbol attr, Symbol value);
+    T addWme(Identifier id, Symbol attr, Symbol value);
 }

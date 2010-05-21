@@ -6,9 +6,9 @@
 package org.jsoar.kernel.rhs.functions;
 
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 
 /**
  * Context interface passed to all RHS functions when they are executed. This
@@ -18,17 +18,10 @@ import org.jsoar.kernel.symbols.SymbolFactory;
  * @author ray
  * @see RhsFunctionManager
  * @see RhsFunctionHandler
+ * @see WmeFactory
  */
-public interface RhsFunctionContext
+public interface RhsFunctionContext extends WmeFactory<Void>
 {
-    /**
-     * Returns the symbols factory that RHS functions should use to construct
-     * new symbols.
-     * 
-     * @return the agent's symbol factory.
-     */
-    SymbolFactory getSymbols();
-    
     /**
      * Add a WME from the RHS function. The WME is given whatever support and
      * preference type is given to the action containing the RHS function call.
@@ -36,9 +29,11 @@ public interface RhsFunctionContext
      * @param id The identifier of the new WME
      * @param attr The attribute of the new WME
      * @param value The value of the new WME
+     * @return nothing. The actual WME is not created until later
      * @throws IllegalArgumentException if any of the parameters are <code>null</code>.
      */
-    void addWme(Identifier id, Symbol attr, Symbol value);
+    @Override
+    Void addWme(Identifier id, Symbol attr, Symbol value);
     
     /**
      * Returns the production that is currently firing, causing the RHS function

@@ -6,6 +6,7 @@
 package org.jsoar.kernel.io.xml;
 
 import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -28,7 +29,7 @@ import org.w3c.dom.Text;
  */
 public class DefaultXmlToWme implements XmlToWme
 {
-    private final XmlWmeFactory wmeFactory;
+    private final WmeFactory<?> wmeFactory;
     
     /**
      * Construct an XML to WME converter for I/O, i.e. it uses an instance of
@@ -39,7 +40,7 @@ public class DefaultXmlToWme implements XmlToWme
      */
     public static DefaultXmlToWme forInput(InputOutput io)
     {
-        return new DefaultXmlToWme(new InputXmlWmeFactory(io));
+        return new DefaultXmlToWme(io.asWmeFactory());
     }
     
     /**
@@ -51,7 +52,7 @@ public class DefaultXmlToWme implements XmlToWme
      */
     public static DefaultXmlToWme forRhsFunction(RhsFunctionContext rhsContext)
     {
-        return new DefaultXmlToWme(new RhsFunctionXmlWmeFactory(rhsContext));
+        return new DefaultXmlToWme(rhsContext);
     }
     
     /**
@@ -60,7 +61,7 @@ public class DefaultXmlToWme implements XmlToWme
      * 
      * @param wmeFactory the WME factory to use
      */
-    public DefaultXmlToWme(XmlWmeFactory wmeFactory)
+    public DefaultXmlToWme(WmeFactory<?> wmeFactory)
     {
         this.wmeFactory = wmeFactory;
     }

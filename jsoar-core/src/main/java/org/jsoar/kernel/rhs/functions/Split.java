@@ -7,6 +7,7 @@ package org.jsoar.kernel.rhs.functions;
 
 import java.util.List;
 
+import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.symbols.Symbol;
 
 import com.google.common.collect.Iterators;
@@ -50,7 +51,7 @@ public class Split extends AbstractRhsFunctionHandler
         
         final String target = arguments.get(0).toString();
         final String regex = arguments.get(1).toString();
-        return RhsFunctions.createLinkedList(context, Iterators.forArray(target.split(regex, -1)));
+        return Wmes.createLinkedList(context, Iterators.forArray(target.split(regex, -1)));
     }
 
 }

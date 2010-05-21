@@ -1428,7 +1428,7 @@ public class RecognitionMemory
          * @see org.jsoar.kernel.rhs.functions.RhsFunctionContext#addWme(org.jsoar.kernel.symbols.Identifier, org.jsoar.kernel.symbols.Symbol, org.jsoar.kernel.symbols.Symbol)
          */
         @Override
-        public void addWme(Identifier id, Symbol attr, Symbol value)
+        public Void addWme(Identifier id, Symbol attr, Symbol value)
         {
             Arguments.checkNotNull(id, "id");
             Arguments.checkNotNull(attr, "attr");
@@ -1438,6 +1438,7 @@ public class RecognitionMemory
                                           (IdentifierImpl) id, (SymbolImpl) attr, (SymbolImpl) value, 
                                           null);
             rhsFunctionPreferences.add(p);
+            return null; // Void
         }
 
         /* (non-Javadoc)
