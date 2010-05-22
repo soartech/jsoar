@@ -161,7 +161,6 @@
 /instance/org.eclipse.team.cvs.ui/pref_console_show_on_message=true
 /instance/org.eclipse.jdt.core/org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_for=insert
 @org.eclipse.team.cvs.core=3.3.200.I20090430-0408
-/instance/com.vectrace.MercurialEclipse/commitName_C\:\\Documents\ and\ Settings\\ray\\home\\mine\\projects\\jsoar\\jsoar=daveray
 /instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.argumentSuffixes=
 @org.eclipse.ant.ui=3.4.0.v20090520
 /instance/org.eclipse.hyades.execution/CLASSPATH_ORG_ECLIPSE_CORE_COMMANDS=C\:\\Program Files\\eclipse\\plugins\\org.eclipse.core.commands_3.2.0.I20060605-1400.jar;
