@@ -27,3 +27,7 @@ syntax: regexp
 ^jsoar-tcl/target$
 syntax: regexp
 ^jsoar-tcl/bin$
+syntax: regexp
+^jsoar-soar2soar/target$
+syntax: regexp
+^jsoar-soar2soar/bin$
