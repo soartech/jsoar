@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/jsoar-soar2soar/src/main/java/org/jsoar/soar2soar/Soar2Soar.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.jsoar.soar2soar.Soar2Soar"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="1 /Users/nlderbin/Desktop/ignore/Soar-Suite-9.3.0-osx-x86_64/share/soar/Soar2Soar/environments/blocks-world.soar /Users/nlderbin/Desktop/ignore/Soar-Suite-9.3.0-osx-x86_64/share/soar/Soar2Soar/agents/blocks-world.soar"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jsoar-build"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx1024m"/>
+</launchConfiguration>
