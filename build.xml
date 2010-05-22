@@ -14,4 +14,7 @@
    <target name="zip">
       <ant dir="jsoar-build" target="zip"/>
    </target>
+   <target name="doc">
+      <ant dir="jsoar-build" target="doc"/>
+   </target>
 </project>
