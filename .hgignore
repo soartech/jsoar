@@ -1,0 +1,29 @@
+
+syntax: regexp
+^jsoar-build/dist$
+syntax: glob
+jsoar-*.zip
+syntax: regexp
+^jsoar-core/target$
+syntax: regexp
+^jsoar-core/bin$
+syntax: regexp
+^jsoar-debugger/target$
+syntax: regexp
+^jsoar-debugger/bin$
+syntax: regexp
+^jsoar-demos/target$
+syntax: regexp
+^jsoar-demos/bin$
+syntax: regexp
+^jsoar-legilimens/target$
+syntax: regexp
+^jsoar-legilimens/bin$
+syntax: regexp
+^jsoar-sml/target$
+syntax: regexp
+^jsoar-sml/bin$
+syntax: regexp
+^jsoar-tcl/target$
+syntax: regexp
+^jsoar-tcl/bin$
