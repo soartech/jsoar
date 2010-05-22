@@ -3,17 +3,11 @@ package org.jsoar.soar2soar;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.io.TimeInput;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.util.commands.SoarCommands;
 
 public class Soar2Soar {
-	Map<String, ThreadedAgent> agentMap = new HashMap<String, ThreadedAgent>();
 
 	public Soar2Soar(String[] args) throws SoarException, IOException {
 		if (args.length < 1) {
@@ -22,22 +16,10 @@ public class Soar2Soar {
 		}
 
 		int numberOfAgents = Integer.parseInt(args[0]);
-
-		ThreadedAgent env = ThreadedAgent.create();
-		env.setName("env");
-		env.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
-		SoarCommands.source(env.getInterpreter(), args[1]);
-
-		new TimeInput(env.getInputOutput());
-		env.openDebugger();
+		EnvironmentAgent ea = new EnvironmentAgent(args[1]);
 
 		for (int i = 0; i < numberOfAgents; ++i) {
-			ThreadedAgent agent = ThreadedAgent.create();
-			agent.setName("a" + (i + 1)); // a 1
-			agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
-			SoarCommands.source(env.getInterpreter(),
-					args.length > 3 ? args[2 + i] : args[2]);
-			agentMap.put(agent.getName(), agent);
+			ea.createClient(args.length > 3 ? args[2 + i] : args[2]);
 		}
 
 		ThreadedAgent currentAgent = null;
@@ -54,17 +36,20 @@ public class Soar2Soar {
 			line = line.trim();
 			if (line.equals("quit") || line.equals("exit"))
 				break;
-
-			if (line.equals("env"))
-				currentAgent = env;
-			else if (agentMap.containsKey(line))
-				currentAgent = agentMap.get(line);
-			else if (line.equals("root"))
-				currentAgent = null;
-			else {
-				if (currentAgent != null) {
-					currentAgent.getInterpreter().eval(line);
-				}
+			
+			// switch agent
+			ThreadedAgent temp = ea.getThreadedAgent(line);
+			if (temp != null) {
+				currentAgent = temp;
+			} else {
+				if (line.equals("root"))
+					currentAgent = null;
+			}
+			
+			if (currentAgent != null) {
+				currentAgent.getInterpreter().eval(line);
+			} else {
+				// root-level commands
 			}
 		}
 
