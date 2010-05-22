@@ -39,6 +39,9 @@ import org.jsoar.util.events.SoarEventManager;
  */
 public interface InputOutput
 {
+    /**
+     * @return a {@link WmeFactory} interface that creates input wmes.
+     */
     WmeFactory<InputWme> asWmeFactory();
     
     /**
@@ -67,7 +70,10 @@ public interface InputOutput
      * @param attr The attribute of the new WME
      * @param value The value of the new WME
      * @return The newly created WME object
-     * @throws IllegalArgumentException if any of the ids is <code>null</code>
+     * @throws IllegalArgumentException if id, attr, or value is <code>null</code>
+     * @throws IllegalArgumentException if id, attr, or value were not created by
+     *      {@link #getSymbols()}. Use {@link SymbolFactory#importSymbol(Symbol)} for
+     *      this case.
      */
     InputWme addInputWme(Identifier id, Symbol attr, Symbol value);
             

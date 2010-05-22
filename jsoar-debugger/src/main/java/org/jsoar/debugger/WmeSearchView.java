@@ -26,6 +26,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jsoar.debugger.actions.AbstractDebuggerAction;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.selection.TableSelectionProvider;
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.symbols.Identifier;
@@ -35,7 +36,6 @@ import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.SwingTools;
 
 /**
- * 
  * 
  * @author ray
  */
@@ -212,7 +212,8 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
             @Override
             public List<Wme> call() throws Exception
             {
-                return Wmes.search(debugger.getAgent().getAgent(), id, attr, value);
+                final Agent agent = debugger.getAgent().getAgent();
+                return Wmes.search(agent, id, attr, value);
             }
         };
         

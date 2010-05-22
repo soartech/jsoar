@@ -23,9 +23,9 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
     /**
      * @param hash_id
      */
-    StringSymbolImpl(int hash_id, String value)
+    StringSymbolImpl(SymbolFactory factory, int hash_id, String value)
     {
-        super(hash_id);
+        super(factory, hash_id);
         this.value = value;
     }
 
@@ -46,7 +46,15 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
         return this;
     }
     
-    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
+     */
+    @Override
+    Symbol importInto(SymbolFactory factory)
+    {
+        return factory.createString(value);
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)
      */

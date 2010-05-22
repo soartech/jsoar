@@ -23,14 +23,15 @@ import org.jsoar.util.markers.Marker;
  */
 public abstract class SymbolImpl extends EqualityTest implements Symbol
 {
+    final SymbolFactory factory;
     public DeciderFlag decider_flag;
     public WmeImpl decider_wme;
-    public int retesave_symindex;
     public final int hash_id;
     private RhsSymbolValue rhsValue;
     
-    /*package*/ SymbolImpl(int hash_id)
+    /*package*/ SymbolImpl(SymbolFactory factory, int hash_id)
     {
+        this.factory = factory;
         this.hash_id = hash_id;
     }
     
@@ -195,5 +196,8 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return this;
     }
     
+    abstract Symbol importInto(SymbolFactory factory);
+    
+    public boolean belongsTo(SymbolFactory factory) { return this.factory == factory; }
     
 }

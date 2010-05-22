@@ -21,7 +21,8 @@ import org.jsoar.util.Arguments;
 import org.jsoar.util.StringTools;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 /**
  * {@link Wme} utility routines
@@ -99,16 +100,17 @@ public class Wmes
         }
         return head != null ? head : syms.createIdentifier('N');
     }
+    
     /**
      * Search working memory for WMEs that match glob expressions.
      * 
-     * @param agent the agent
+     * @param wmes iterator over wmes to filter
      * @param id glob expression, or {@code null} for any id
      * @param attr glob expression, or {@code null} for any attr
      * @param value glob expression, or {@code null} for any value
-     * @return list of wmes matching all three globs
+     * @return iterator over wmes matching all three globs
      */
-    public static List<Wme> search(Agent agent, String id, String attr, String value)
+    public static Iterator<Wme> search(Iterator<Wme> wmes, String id, String attr, String value)
     {
         final Pattern idPattern = Pattern.compile(StringTools.createRegexFromGlob(id).toUpperCase());
         final Pattern attrPattern = Pattern.compile(StringTools.createRegexFromGlob(attr));
@@ -125,9 +127,24 @@ public class Wmes
             }
             
         };
-        return new ArrayList<Wme>(Collections2.filter(agent.getAllWmesInRete(), predicate));
+        return Iterators.filter(wmes, predicate);
     }
 
+    /**
+     * Convenience version of {@link Wmes#search(Iterator, String, String, String)} 
+     * which searches all WMEs in working memory and returns a list.
+     * 
+     * @param agent the agent
+     * @param id glob expression, or {@code null} for any id
+     * @param attr glob expression, or {@code null} for any attr
+     * @param value glob expression, or {@code null} for any value
+     * @return List of matching WMEs
+     */
+    public static List<Wme> search(Agent agent, String id, String attr, String value)
+    {
+        return Lists.newArrayList(search(agent.getAllWmesInRete().iterator(), id, attr, value));
+    }
+    
     /**
      * Begin constructing a new WME matcher. This uses a builder pattern. 
      * Chain methods together to construct a predicate the WME you'd like to

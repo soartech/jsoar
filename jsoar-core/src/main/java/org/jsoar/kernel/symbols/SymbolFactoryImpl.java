@@ -65,7 +65,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     
     public SymbolFactoryImpl()
     {
-        nullJavaSym = new JavaSymbolImpl(get_next_hash_id(), null);
+        nullJavaSym = new JavaSymbolImpl(this, get_next_hash_id(), null);
         reset();
     }
     
@@ -188,7 +188,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         Variable v = find_variable(name);
         if(v == null)
         {
-            v = new Variable(get_next_hash_id(), name);
+            v = new Variable(this, get_next_hash_id(), name);
             variables.put(v.name, v);
         }
         return v;
@@ -215,7 +215,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
         int name_number = id_counter[name_letter - 'A']++;
         
-        IdentifierImpl id = new IdentifierImpl(get_next_hash_id(), name_letter, name_number);
+        IdentifierImpl id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
         
         id.level = level;
         id.promotion_level = level;
@@ -264,7 +264,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         StringSymbolImpl sym = findString(name);
         if(sym == null)
         {
-            sym = new StringSymbolImpl(get_next_hash_id(), name);
+            sym = new StringSymbolImpl(this, get_next_hash_id(), name);
             symConstants.put(name, sym);
         }
         return sym;
@@ -298,7 +298,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         IntegerSymbolImpl sym = findInteger(value);
         if(sym == null)
         {
-            sym = new IntegerSymbolImpl(get_next_hash_id(), value);
+            sym = new IntegerSymbolImpl(this, get_next_hash_id(), value);
             intConstants.put(value, sym);
         }
         return sym;
@@ -320,7 +320,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         DoubleSymbolImpl sym = findDouble(value);
         if(sym == null)
         {
-            sym = new DoubleSymbolImpl(get_next_hash_id(), value);
+            sym = new DoubleSymbolImpl(this, get_next_hash_id(), value);
             floatConstants.put(value, sym);
         }
         return sym;
@@ -343,7 +343,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         JavaSymbolImpl sym = findJavaSymbol(value);
         if(sym == null)
         {
-            sym = new JavaSymbolImpl(get_next_hash_id(), value);
+            sym = new JavaSymbolImpl(this, get_next_hash_id(), value);
             javaSyms.put(value, sym);
         }
         return sym;
@@ -356,6 +356,24 @@ public class SymbolFactoryImpl implements SymbolFactory
     public JavaSymbolImpl findJavaSymbol(Object value)
     {
         return value != null ? javaSyms.get(value) : nullJavaSym;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#importSymbol(org.jsoar.kernel.symbols.Symbol)
+     */
+    @Override
+    public Symbol importSymbol(Symbol s)
+    {
+        if(s instanceof Identifier)
+        {
+            throw new IllegalArgumentException("Tried to import identifier " + s + " into symbol factory.");
+        }
+        if(s instanceof Variable)
+        {
+            throw new IllegalArgumentException("Tried to import variable " + s + " into symbol factory.");
+        }
+        
+        return ((SymbolImpl) s).importInto(this);
     }
 
     /**

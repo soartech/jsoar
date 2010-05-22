@@ -17,9 +17,9 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
     /**
      * @param hash_id
      */
-    IntegerSymbolImpl(int hash_id, int value)
+    IntegerSymbolImpl(SymbolFactory factory, int hash_id, int value)
     {
-        super(hash_id);
+        super(factory, hash_id);
         this.value = value;
     }
 
@@ -42,6 +42,14 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
         return this;
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
+     */
+    @Override
+    Symbol importInto(SymbolFactory factory)
+    {
+        return factory.createInteger(value);
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)

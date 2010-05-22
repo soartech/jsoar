@@ -32,6 +32,7 @@ import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.events.SoarEvent;
@@ -289,4 +290,28 @@ public class InputOutputImplTest extends JSoarTest
         assertSame(wme2.value, inner2.getAdapter(InputWme.class));
     }
     */
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testAddInputWmeThrowsAnExceptionIfIdComesFromAnotherSymbolFactory()
+    {
+        final SymbolFactory syms = agent.getSymbols();
+        final SymbolFactory other = new SymbolFactoryImpl();
+        agent.getInputOutput().addInputWme(other.createIdentifier('T'), syms.createString("hi"), syms.createInteger(99));
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testAddInputWmeThrowsAnExceptionIfAttributeComesFromAnotherSymbolFactory()
+    {
+        final SymbolFactory syms = agent.getSymbols();
+        final SymbolFactory other = new SymbolFactoryImpl();
+        agent.getInputOutput().addInputWme(syms.createIdentifier('T'), other.createString("hi"), syms.createInteger(99));
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testAddInputWmeThrowsAnExceptionIfValueComesFromAnotherSymbolFactory()
+    {
+        final SymbolFactory syms = agent.getSymbols();
+        final SymbolFactory other = new SymbolFactoryImpl();
+        agent.getInputOutput().addInputWme(syms.createIdentifier('T'), syms.createString("hi"), other.createInteger(99));
+    }
 }

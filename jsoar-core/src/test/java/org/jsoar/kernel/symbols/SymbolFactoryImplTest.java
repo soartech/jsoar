@@ -222,4 +222,65 @@ public class SymbolFactoryImplTest
         assertTrue(values.contains(a));
         assertTrue(values.contains(b));
     }
+    
+    @Test
+    public void testImportReturnsInputUnchangedIfItsAlreadyOwnedByFactory()
+    {
+        final IntegerSymbol s = syms.createInteger(99);
+        assertSame(s, syms.importSymbol(s));
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testImportThrowsAnExceptionForIdentifiers()
+    {
+        final Identifier id = syms.createIdentifier('T');
+        syms.importSymbol(id);
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testImportThrowsAnExceptionForVariables()
+    {
+        final Variable id = syms.make_variable("foo");
+        syms.importSymbol(id);
+    }
+    
+    @Test
+    public void testCanImportStringsAcrossFactories()
+    {
+        final SymbolFactory other = new SymbolFactoryImpl();
+        final StringSymbol i = syms.createString("test");
+        final Symbol s = other.importSymbol(i);
+        assertNotSame(i, s);
+        assertEquals(i.getValue(), s.asString().getValue());
+    }
+    
+    @Test
+    public void testCanImportIntegersAcrossFactories()
+    {
+        final SymbolFactory other = new SymbolFactoryImpl();
+        final IntegerSymbol i = syms.createInteger(12345);
+        final Symbol s = other.importSymbol(i);
+        assertNotSame(i, s);
+        assertEquals(i.getValue(), s.asInteger().getValue());
+    }
+    
+    @Test
+    public void testCanImportDoublesAcrossFactories()
+    {
+        final SymbolFactory other = new SymbolFactoryImpl();
+        final DoubleSymbol i = syms.createDouble(12345.9);
+        final Symbol s = other.importSymbol(i);
+        assertNotSame(i, s);
+        assertEquals(i.getValue(), s.asDouble().getValue(), 0.000001);
+    }
+    
+    @Test
+    public void testCanImportJavaSymbolsAcrossFactories()
+    {
+        final SymbolFactory other = new SymbolFactoryImpl();
+        final JavaSymbol i = syms.createJavaSymbol(new File("."));
+        final Symbol s = other.importSymbol(i);
+        assertNotSame(i, s);
+        assertSame(i.getValue(), s.asJava().getValue());
+    }
 }

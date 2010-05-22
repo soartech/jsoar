@@ -17,9 +17,9 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
     /**
      * @param hash_id
      */
-    DoubleSymbolImpl(int hash_id, double value)
+    DoubleSymbolImpl(SymbolFactory factory, int hash_id, double value)
     {
-        super(hash_id);
+        super(factory, hash_id);
         
         this.value = value;
     }
@@ -36,6 +36,15 @@ public class DoubleSymbolImpl extends SymbolImpl implements DoubleSymbol
     public DoubleSymbolImpl asDouble()
     {
         return this;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
+     */
+    @Override
+    Symbol importInto(SymbolFactory factory)
+    {
+        return factory.createDouble(value);
     }
 
     /* (non-Javadoc)

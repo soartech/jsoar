@@ -6,6 +6,8 @@
 package org.jsoar.kernel;
 
 /**
+ * The various ways of running an agent.
+ * 
  * @author ray
  */
 public enum RunType

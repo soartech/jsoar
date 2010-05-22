@@ -92,9 +92,9 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     /**
      * @param hash_id
      */
-    IdentifierImpl(int hash_id, char name_letter, int name_number)
+    IdentifierImpl(SymbolFactory factory, int hash_id, char name_letter, int name_number)
     {
-        super(hash_id);
+        super(factory, hash_id);
         
         this.name_letter = name_letter;
         this.name_number = name_number;
@@ -341,6 +341,15 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public boolean symbol_is_in_tc(Marker tc)
     {
         return tc_number == tc;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
+     */
+    @Override
+    Symbol importInto(SymbolFactory factory)
+    {
+        throw new IllegalStateException("Cannot import identifiers");
     }
 
     /* (non-Javadoc)

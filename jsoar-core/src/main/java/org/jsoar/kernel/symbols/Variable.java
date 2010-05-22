@@ -38,9 +38,9 @@ public class Variable extends SymbolImpl
      * @param hash_id the variable's hash id
      * @param name the variable name
      */
-    /*package*/ Variable(int hash_id, String name)
+    /*package*/ Variable(SymbolFactory factory, int hash_id, String name)
     {
-        super(hash_id);
+        super(factory, hash_id);
         
         this.name = name;
     }
@@ -154,6 +154,14 @@ public class Variable extends SymbolImpl
         return this;
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
+     */
+    @Override
+    Symbol importInto(SymbolFactory factory)
+    {
+        throw new IllegalStateException("Cannot import variable symbols");
+    }
     
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolImpl#isSameTypeAs(org.jsoar.kernel.symbols.SymbolImpl)

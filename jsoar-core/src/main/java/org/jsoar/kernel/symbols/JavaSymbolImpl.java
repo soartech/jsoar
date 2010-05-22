@@ -17,9 +17,9 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
     /**
      * @param hash_id
      */
-    JavaSymbolImpl(int hash_id, Object value)
+    JavaSymbolImpl(SymbolFactory factory, int hash_id, Object value)
     {
-        super(hash_id);
+        super(factory, hash_id);
         
         this.value = value;
     }
@@ -36,6 +36,15 @@ public class JavaSymbolImpl extends SymbolImpl implements JavaSymbol
     public JavaSymbolImpl asJava()
     {
         return this;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#importInto(org.jsoar.kernel.symbols.SymbolFactory)
+     */
+    @Override
+    Symbol importInto(SymbolFactory factory)
+    {
+        return factory.createJavaSymbol(value);
     }
 
     /* (non-Javadoc)

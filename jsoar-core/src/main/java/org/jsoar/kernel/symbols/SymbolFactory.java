@@ -142,5 +142,19 @@ public interface SymbolFactory
      * @return The symbol, or <code>null</code> if not found
      */
     public JavaSymbol findJavaSymbol(Object value);
+    
+    /**
+     * Import a symbol, possibly from another symbol factory into this factory.
+     * 
+     * <p>Returns a new symbol, owned by this factory, whose value is a copy of
+     * the input symbol. If the symbol is already owned by this factory, it is
+     * returned unchanged. If the symbol is an identifier, an exception is thrown.
+     * If the symbol is a {@link JavaSymbol}, the value is shared.
+     * 
+     * @param s the symbol to import
+     * @return imported symbol 
+     * @throws IllegalArgumentException if the symbol is an identifier
+     */
+    public Symbol importSymbol(Symbol s);
 
 }

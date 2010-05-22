@@ -286,6 +286,15 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         return iw;
     }
 
+    <T extends SymbolImpl> T checkSymbolOwnership(T s)
+    {
+        if(!s.belongsTo(getSymbols()))
+        {
+            throw new IllegalArgumentException("Symbol '" + s + "' is from another symbol factory");
+        }
+        return s;
+    }
+    
     public WmeImpl addInputWmeInternal(Identifier id, Symbol attr, Symbol value)
     {
         Arguments.checkNotNull(id, "id");
@@ -293,8 +302,14 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         Arguments.checkNotNull(value, "value");
 
         // go ahead and add the wme
-        WmeImpl w = this.workingMemory.make_wme((IdentifierImpl) id, (SymbolImpl) attr, (SymbolImpl) value, false);
+        final WmeImpl w = this.workingMemory.make_wme(
+                checkSymbolOwnership((IdentifierImpl) id), 
+                checkSymbolOwnership((SymbolImpl) attr), 
+                checkSymbolOwnership((SymbolImpl) value), 
+                false);
+        
         ((IdentifierImpl) id).addInputWme(w);
+        
         this.workingMemory.add_wme_to_wm(w);
 
         return w;
