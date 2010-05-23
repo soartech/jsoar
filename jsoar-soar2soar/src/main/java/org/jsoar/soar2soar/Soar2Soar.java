@@ -44,13 +44,15 @@ public class Soar2Soar {
 			} else {
 				if (line.equals("root"))
 					currentAgent = null;
+				
+				if (currentAgent != null) {
+					currentAgent.getInterpreter().eval(line);
+				} else {
+					// root-level commands
+				}
 			}
 			
-			if (currentAgent != null) {
-				currentAgent.getInterpreter().eval(line);
-			} else {
-				// root-level commands
-			}
+			
 		}
 
 		// cleanup

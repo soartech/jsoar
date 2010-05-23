@@ -6,9 +6,11 @@ import java.util.Map;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.InputEvent;
+import org.jsoar.kernel.io.InputBuilder;
 import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.io.InputWmes;
 import org.jsoar.kernel.io.TimeInput;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommands;
@@ -19,9 +21,10 @@ import org.jsoar.util.events.SoarEvents;
 public class EnvironmentAgent {
 	private final Map<String, ClientAgent> agentMap = new HashMap<String, ClientAgent>();
 	private final ThreadedAgent env;
-	private InputWme agentsWme;
+	private Identifier agentsId;
 	private InputWme timeWme;
-
+	private Identifier agentsOutId;
+	
 	public EnvironmentAgent(String source) throws SoarException {
 		env = ThreadedAgent.create();
 		env.setName("env");
@@ -34,9 +37,40 @@ public class EnvironmentAgent {
 		SoarEvents.listenForSingleEvent(env.getEvents(), InputEvent.class, new SoarEventListener() {
 			@Override
 			public void onEvent(SoarEvent event) {
-				agentsWme = InputWmes.add(env.getInputOutput(), "agents", Symbols.NEW_ID);
-				InputWme consoleWme = InputWmes.add(env.getInputOutput(), "console", Symbols.NEW_ID);
-				timeWme = InputWmes.add(env.getInputOutput(), consoleWme.getIdentifier(), "time", 0);
+				InputBuilder ilBuilder = InputBuilder.create(env.getInputOutput());
+				InputBuilder olBuilder = InputBuilder.create(env.getInputOutput(), env.getInputOutput().getOutputLink());
+				
+				ilBuilder.push("console")
+				               .add("time", 0).markWme("time").pop()
+				         .push("agents").markId("agents");
+				
+				olBuilder.push("agents").markId("agents");
+				
+				agentsId = ilBuilder.getId("agents");
+				timeWme = ilBuilder.getWme("time");
+				agentsOutId = olBuilder.getId("agents"); 
+				
+				// create structures for each agent
+                for ( ClientAgent ca : agentMap.values() )
+                {
+                	ilBuilder.jump("agents")
+                	               .push("agent")
+                	                     .add("id", ca.getId())
+                	                     .add("name", ca.getName())
+                	                     .push("commands").markId("commands");
+                	
+                	olBuilder.jump("agents")
+                	               .push("agent")
+                	                     .add("id", ca.getId())
+                	                     .add("name", ca.getName())
+                	                     .push("feedback").markId("feedback").pop()
+                	                     .push("input").markId("input");
+                	
+                	ca.setEnvInCommands(ilBuilder.getId("commands"));
+                	ca.setEnvOutFeedback(olBuilder.getId("feedback"));
+                	ca.setEnvOutInput(olBuilder.getId("input"));
+                }
+        
 			}
 		});
 		
@@ -44,14 +78,18 @@ public class EnvironmentAgent {
 	}
 
 	public void createClient(String source) throws SoarException {
-		ClientAgent agent = new ClientAgent("a" + (agentMap.size() + 1), source);
+		int agentId = agentMap.size() + 1;
+		ClientAgent agent = new ClientAgent("a" + agentId, source, agentId);
 		agentMap.put(agent.getName(), agent);
 	}
 	
+	// TODO: create common interface for ClientAgent and EnvironmentAgent
+	//       so can have common eval method cli can use
 	public ThreadedAgent getThreadedAgent(String name) {
 		if (name.equalsIgnoreCase("env"))
 			return env;
 		
-		return agentMap.get(name).getThreadedAgent();
+		ClientAgent clientAgent = agentMap.get(name);
+		return clientAgent != null ? clientAgent.getThreadedAgent() : null;
 	}
 }
