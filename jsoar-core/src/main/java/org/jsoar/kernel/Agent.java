@@ -583,7 +583,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      */
     public void runFor(long n, RunType runType)
     {
-        enusreInitialized();
+        ensureInitialized();
         this.decisionCycle.runFor(n, runType);
         getTrace().flush();
     }
@@ -594,7 +594,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      */
     public void runForever()
     {
-        enusreInitialized();
+        ensureInitialized();
         this.decisionCycle.runForever();
         getTrace().flush();
     }
@@ -605,7 +605,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * 
      * @throws IllegalStateException if agent has not been initialized
      */
-    private void enusreInitialized()
+    private void ensureInitialized()
     {
         if(!initialized)
         {
