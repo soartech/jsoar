@@ -21,8 +21,7 @@ public class ClientAgent
 
     public ClientAgent(String name, String source, int id) throws SoarException
     {
-        agent = ThreadedAgent.create();
-        agent.setName(name); // starts at 1
+        agent = ThreadedAgent.create(name);
         agent
                 .getInterpreter()
                 .eval(

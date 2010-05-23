@@ -31,11 +31,11 @@ enum ThreadedAgentManager
     private final Map<Agent, ThreadedAgent> agents = new MapMaker().weakKeys().makeMap();
     private final SoarEventManager events = new SoarEventManager();
     
-    public ThreadedAgent create()
+    public ThreadedAgent create(String name)
     {
         synchronized(agents)
         {
-            final ThreadedAgent agent = attach(new Agent()).initialize(new CompletionHandler<Void>() {
+            final ThreadedAgent agent = attach(new Agent(name)).initialize(new CompletionHandler<Void>() {
 
                 @Override
                 public void finish(Void result)

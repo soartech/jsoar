@@ -102,6 +102,17 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     private final StopCommand stopCommand = new StopCommand(this);
 
     /**
+     * Create a new threaded agent with a generated name.
+     * 
+     * @return the new agent
+     * @see #create(String)
+     */
+    public static ThreadedAgent create()
+    {
+        return create(null);
+    }
+
+    /**
      * Create a new {@link Agent} and automatically wrap it with a ThreadedAgent.
      * This method also initializes the agent and starts its thread. 
      * 
@@ -118,11 +129,12 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
      * <p>A {@link ThreadedAgentAttachedEvent} will be fired before the method
      * returns.
      * 
+     * @param name the name of the agent. If {@code null} generate a new name.
      * @return a new, initialized threaded agent
      */
-    public static ThreadedAgent create()
+    public static ThreadedAgent create(String name)
     {
-        return ThreadedAgentManager.INSTANCE.create();
+        return ThreadedAgentManager.INSTANCE.create(name);
     }
     
     /**

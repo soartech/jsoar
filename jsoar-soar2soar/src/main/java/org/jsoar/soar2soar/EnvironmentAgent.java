@@ -32,11 +32,9 @@ public class EnvironmentAgent
 
     public EnvironmentAgent(String source) throws SoarException
     {
-        env = ThreadedAgent.create();
-        env.setName("env");
+        env = ThreadedAgent.create("env");
         env.getInterpreter().eval("sp {soar2soar*init (state <s> ^superstate nil) --> (<s> ^soar2soar ready)}");
-        env.getPrinter()
-                .addPersistentWriter(new OutputStreamWriter(System.out));
+        env.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
         SoarCommands.source(env.getInterpreter(), source);
 
         new TimeInput(env.getInputOutput());

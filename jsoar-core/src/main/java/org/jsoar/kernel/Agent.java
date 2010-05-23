@@ -176,9 +176,24 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             consistency,
             debuggerProvider, decider, rl);
     
+    /**
+     * Construct a new agent with a generated name.
+     * 
+     * @see #Agent(String)
+     */
     public Agent()
     {
-        setName("JSoar Agent " + nextName.incrementAndGet());
+        this(null);
+    }
+    
+    /**
+     * Construct a new agent with the given name.
+     * 
+     * @param name the name. If {@code null}, a new name is generated.
+     */
+    public Agent(String name)
+    {
+        setName(name != null ? name : "JSoar Agent " + nextName.incrementAndGet());
         
         this.printer.addPersistentWriter(new PrintEventWriter(getEvents()));
         
