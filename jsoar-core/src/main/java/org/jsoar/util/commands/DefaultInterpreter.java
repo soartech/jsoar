@@ -56,6 +56,7 @@ import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.SrandCommand;
 import org.jsoar.kernel.commands.StatsCommand;
 import org.jsoar.kernel.commands.SymbolsCommand;
+import org.jsoar.kernel.commands.TimersCommand;
 import org.jsoar.kernel.commands.VerboseCommand;
 import org.jsoar.kernel.commands.WaitSncCommand;
 import org.jsoar.kernel.commands.WarningsCommand;
@@ -121,6 +122,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("help", new HelpCommand(this));
         
         addCommand("qmemory", new QMemoryCommand(this.agent));
+        addCommand("timers", new TimersCommand());
     }
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommandInterpreter#addCommand(java.lang.String, org.jsoar.util.commands.SoarCommand)
