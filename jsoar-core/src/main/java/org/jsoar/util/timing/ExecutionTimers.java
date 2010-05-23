@@ -12,7 +12,7 @@ package org.jsoar.util.timing;
  */
 public class ExecutionTimers
 {
-    private static final boolean ENABLED = true;
+    private static boolean enabled = true;
     
     /**
      * Start the given timer if timers are enabled for the application
@@ -21,7 +21,7 @@ public class ExecutionTimers
      */
     public static void start(ExecutionTimer timer)
     {
-        if(ENABLED)
+        if(enabled)
         {
             timer.start();
         }
@@ -34,7 +34,7 @@ public class ExecutionTimers
      */
     public static void pause(ExecutionTimer timer)
     {
-        if(ENABLED)
+        if(enabled)
         {
             timer.pause();
         }
@@ -47,10 +47,15 @@ public class ExecutionTimers
      */
     public static void update(ExecutionTimer timer)
     {
-        if(ENABLED)
+        if(enabled)
         {
             timer.update();
         }
+    }
+
+    public static void setEnabled(boolean enabled)
+    {
+        ExecutionTimers.enabled = enabled;
     }
 
 }

@@ -1,14 +1,26 @@
 package org.jsoar.kernel.commands;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.timing.ExecutionTimers;
 
-public class TimersCommand implements SoarCommand {
+public class TimersCommand extends AbstractToggleCommand {
 
-	@Override
-	public String execute(String[] args) throws SoarException {
-		// TODO implement timers command
-		return "not implemented";
-	}
+    /**
+     * @param agent
+     */
+    public TimersCommand()
+    {
+        super(null);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.tcl.AbstractToggleCommand#execute(org.jsoar.kernel.Agent, boolean)
+     */
+    @Override
+    protected void execute(Agent agent, boolean enable) throws SoarException
+    {
+        ExecutionTimers.setEnabled(enable);
+    }
 
 }
