@@ -11,7 +11,7 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.jsoar.soar2soar.Soar2Soar"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="5 /Users/nlderbin/Desktop/ignore/Soar-Suite-9.3.0-osx-x86_64/share/soar/Soar2Soar/environments/blocks-world.soar /Users/nlderbin/Desktop/ignore/Soar-Suite-9.3.0-osx-x86_64/share/soar/Soar2Soar/agents/blocks-world.soar"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="5 http://soar.googlecode.com/svn/trunk/SoarSuite/Soar2Soar/environments/blocks-world.soar http://soar.googlecode.com/svn/trunk/SoarSuite/Soar2Soar/agents/blocks-world.soar"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jsoar-build"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx1024m"/>
 </launchConfiguration>
