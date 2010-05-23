@@ -225,7 +225,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         }
         else
         {
-            throw new SoarException("Unknown comman '" + parsedCommand.get(0) + "' in " + parsedCommand);
+            throw new SoarException("Unknown command '" + parsedCommand.get(0) + "' in " + parsedCommand);
         }
         
     }
