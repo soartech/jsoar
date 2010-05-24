@@ -83,7 +83,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public final ListHead<MatchSetChange> ms_i_assertions = ListHead.newInstance(); /* dll of i assertions at this level */
     public final ListHead<MatchSetChange> ms_retractions = ListHead.newInstance();  /* dll of retractions at this level */
 
-    /* --- fields used for Soar I/O stuff --- */
+    // fields used for Soar I/O stuff
     private WmeImpl input_wmes;
 
     public int depth; /* used to track depth of print (bug 988) RPM 4/07 */

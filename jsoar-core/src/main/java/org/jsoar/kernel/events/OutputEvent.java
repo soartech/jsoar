@@ -5,16 +5,20 @@
  */
 package org.jsoar.kernel.events;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.io.OutputChange;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
- * Event fired during when new output is available on the input link. The
+ * Event fired when new output is available on the input link. The
  * WMEs on the output link may be handled directly through the iterator
  * returned by {@link #getWmes()}, or may process commands through
  * {@link InputOutput#getPendingCommands()}.
@@ -25,13 +29,16 @@ public class OutputEvent extends AbstractInputOutputEvent
 {
     public static enum OutputMode
     {
+        UNCHANGED_OUTPUT_COMMAND,
         ADDED_OUTPUT_COMMAND,
         MODIFIED_OUTPUT_COMMAND,
         REMOVED_OUTPUT_COMMAND
     }
     
     private final OutputMode mode;
-    private final List<Wme> wmes;
+    private final Set<Wme> wmes;
+    private final Set<Wme> lastOutputSet;
+    private List<OutputChange> changes;
     
     /**
      * Construct a new event
@@ -40,12 +47,13 @@ public class OutputEvent extends AbstractInputOutputEvent
      * @param mode The output mode
      * @param wmes List of output WMEs
      */
-    public OutputEvent(InputOutput io, OutputMode mode, List<Wme> wmes)
+    public OutputEvent(InputOutput io, OutputMode mode, Set<Wme> wmes, Set<Wme> lastOutputSet)
     {
         super(io);
         
         this.mode = mode;
-        this.wmes = Collections.unmodifiableList(wmes);
+        this.wmes = Collections.unmodifiableSet(wmes);
+        this.lastOutputSet = lastOutputSet;
     }
 
     /**
@@ -57,13 +65,33 @@ public class OutputEvent extends AbstractInputOutputEvent
     }
 
     /**
-     * @return the wmes
+     * @return an iterator over all wmes currently on the output-link, 
+     * i.e. all WMEs reachable from {@link InputOutput#getOutputLink()}.
      */
-    public List<Wme> getWmes()
+    public Iterator<Wme> getWmes()
     {
-        return wmes;
+        return wmes.iterator();
     }
     
+    /**
+     * @return an iterator over all WME changes since the last {@link OutputEvent}
+     *  was fired.
+     */
+    public Iterator<OutputChange> getChanges()
+    {
+        // calculate this only on demand since it's not a very common
+        // usage pattern.
+        if(changes == null)
+        {
+            changes = new ArrayList<OutputChange>();
+            if(wmes != lastOutputSet)
+            {
+                calculateAdditions();
+                calculateRemovals();
+            }
+        }
+        return changes.iterator();
+    }
     /**
      * This is a simple utility function for use in users' output functions. 
      * It finds things in an io_wme chain. It takes "outputs" (the io_wme 
@@ -87,5 +115,31 @@ public class OutputEvent extends AbstractInputOutputEvent
                 return iw.getValue();
         return null;
     }
+
+    private void calculateRemovals()
+    {
+        if(lastOutputSet != null)
+        {
+            for(Wme w : lastOutputSet)
+            {
+                if(!wmes.contains(w))
+                {
+                    changes.add(new OutputChange(w, false));
+                }
+            }
+        }
+    }
+
+    private void calculateAdditions()
+    {
+        for(Wme w : wmes)
+        {
+            if(lastOutputSet == null || !lastOutputSet.contains(w))
+            {
+                changes.add(new OutputChange(w, true));
+            }
+        }
+    }
+    
 
 }

@@ -1,0 +1,103 @@
+watch 1
+# changes.soar
+# changes output-link each cycle to test change detection in soar
+# first cycle puts this on the output-link:
+#    ^1 1
+# second cycle removes that and adds this:
+#    ^2 1, ^2 2
+# and so on, up to a max specified by the max parameter
+
+#
+# initialize stuff
+# numbers will have the wmes we're going to match on multiple times to create multiple structures
+# count will have track how many things to match on in numbers, and also let us know when to stop
+# when to stop is specified by the max parameter
+# all changes to the output-link will be under a parent "stuff" wme
+#
+
+sp {changes*propose*init
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name init)
+}
+
+sp {changes*apply*init*create-structures
+   (state <s> ^operator.name init
+              ^io.output-link <ol>)
+-->
+   (<s> ^name changes
+        ^numbers 1
+		^count 1)
+   (<ol> ^stuff <stuff>)
+   (write (crlf) |Add (| <ol> | ^stuff | <stuff> |)| )
+}
+
+sp {changes*apply*init*parameters
+   (state <s> ^operator.name init)
+-->
+   (<s> ^parameters.max 6)
+}
+
+#
+# manipulate output-link
+# for each number <= count, create a wme stuff ^<count> ^<number>
+# increase the count
+# add a new number
+# remove any existing commands whose attribute is less than half the current count (rounded down)
+# halt when count > max (this will prevent the last set of changes from getting through since things will halt before the output phase)
+
+sp {changes*propose*output
+   (state <s> ^name changes
+              ^count <c>)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name output)
+}
+
+sp {changes*apply*output*create-commands
+   (state <s> ^operator.name output
+              ^count <c>
+			  ^numbers {<n> <= <c>}
+			  ^io.output-link.stuff <stuff>)
+-->
+   (<stuff> ^<c> <n>)
+   (write (crlf) |Add (| <stuff> | ^| <c> | | <n> |)|)
+}
+
+sp {changes*apply*output*increase-count-add-number
+   (state <s> ^operator.name output
+              ^count <c>)
+-->
+   (<s> ^count <c> - (+ <c> 1)
+        ^numbers (+ <c> 1))
+}
+
+sp {changes*elaborate*half-count
+   (state <s> ^name changes
+              ^count <c>)
+-->
+   (<s> ^half-count (/ <c> 2))
+}
+
+sp {changes*apply*remove-old-commands
+   (state <s> ^operator
+              ^count <c>
+			  ^half-count <half>
+			  ^io.output-link.stuff <stuff>)
+    (<stuff> ^{<n> < <c>} {<value> < <half>})
+-->
+   (<stuff> ^<n> <value> -)
+   (write (crlf) |Remove (| <stuff> | ^| <n> | | <value> |)|)
+}
+
+sp {changes*halt
+   (state <s> ^name changes
+              ^parameters.max <m>
+			  ^count > <m>)
+-->
+   (write (crlf) |Exceeded max count, done|)
+   (halt)
+}
+

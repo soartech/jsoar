@@ -11,7 +11,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 
 /**
  * @author ray
@@ -199,7 +199,7 @@ public class InputOutputImplTest extends JSoarTest
                 
                 if(oe.getMode() == OutputMode.MODIFIED_OUTPUT_COMMAND)
                 {
-                    outputs.add(new HashSet<Wme>(oe.getWmes()));
+                    outputs.add(Sets.newHashSet(oe.getWmes()));
                 }
             }});
         

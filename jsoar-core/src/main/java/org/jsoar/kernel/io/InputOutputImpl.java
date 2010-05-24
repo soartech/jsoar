@@ -7,7 +7,7 @@ package org.jsoar.kernel.io;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -132,8 +132,9 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     
     private WmeImpl outputLinkWme;
     private OutputLinkStatus outputLinkStatus = OutputLinkStatus.UNINITIALIZED_OL_STATUS;  /* current xxx_OL_STATUS */
-    private LinkedList<IdentifierImpl> ids_in_tc = new LinkedList<IdentifierImpl>(); /* ids in TC(link) */
+    private Set<IdentifierImpl> ids_in_tc = new HashSet<IdentifierImpl>(); /* ids in TC(link) */
     private boolean output_link_changed = false;
+    private Set<Wme> lastOutputSet = null;
     private final Set<Wme> pendingCommands = new HashSet<Wme>();
     private Marker output_link_tc_num;
 
@@ -511,7 +512,8 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
      */
     private void update_for_io_wme_change(WmeImpl w, boolean added)
     {
-        if(outputLinkStatus != OutputLinkStatus.UNINITIALIZED_OL_STATUS && outputLinkWme.value == w.id)
+        if(outputLinkStatus != OutputLinkStatus.UNINITIALIZED_OL_STATUS && 
+           ids_in_tc.contains(w.id))
         {
             if (w.value.asIdentifier() != null)
             {
@@ -520,13 +522,16 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
                         || (outputLinkStatus == OutputLinkStatus.MODIFIED_BUT_SAME_TC_OL_STATUS))
                     outputLinkStatus = OutputLinkStatus.MODIFIED_OL_STATUS;
                 
-                if(added)
+                if(w.id == outputLinkWme.value)
                 {
-                    pendingCommands.add(w);
-                }
-                else
-                {
-                    pendingCommands.remove(w);
+                    if(added)
+                    {
+                        pendingCommands.add(w);
+                    }
+                    else
+                    {
+                        pendingCommands.remove(w);
+                    }
                 }
             }
             else
@@ -602,7 +607,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         id.tc_number = output_link_tc_num;
 
         // add id to output_link's list
-        ids_in_tc.push(id);
+        ids_in_tc.add(id);
 
         // do TC through working memory scan through all wmes for all slots for this id
         for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
@@ -658,17 +663,17 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
      * @param ol
      * @return
      */
-    private LinkedList<Wme> get_io_wmes_for_output_link()
+    private Set<Wme> get_io_wmes_for_output_link()
     {
-        LinkedList<Wme> io_wmes = new LinkedList<Wme>();
-        io_wmes.push(outputLinkWme);
+        LinkedHashSet<Wme> io_wmes = new LinkedHashSet<Wme>();
+        io_wmes.add(outputLinkWme);
         for (IdentifierImpl id : ids_in_tc)
         {
             for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
-                io_wmes.push(w);
+                io_wmes.add(w);
             for (Slot s = id.slots; s != null; s = s.next)
                 for (WmeImpl w = s.getWmes(); w != null; w = w.next)
-                    io_wmes.push(w);
+                    io_wmes.add(w);
         }
         return io_wmes;
     }
@@ -682,7 +687,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
      */
     public void do_output_cycle()
     {
-        LinkedList<Wme> iw_list = null;
+        Set<Wme> iw_list = null;
 
         switch (outputLinkStatus)
         {
@@ -700,7 +705,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             // start_timer (thisAgent, &thisAgent->start_kernel_tv);
             // #endif
 
-            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.ADDED_OUTPUT_COMMAND, iw_list));
+            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.ADDED_OUTPUT_COMMAND, iw_list, lastOutputSet));
 
             // #ifndef NO_TIMING_STUFF
             // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
@@ -708,6 +713,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             // start_timer (thisAgent, &thisAgent->start_phase_tv);
             // #endif
             outputLinkStatus = OutputLinkStatus.UNCHANGED_OL_STATUS;
+            lastOutputSet = iw_list;
             break;
 
         case MODIFIED_BUT_SAME_TC_OL_STATUS:
@@ -720,7 +726,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             // start_timer (thisAgent, &thisAgent->start_kernel_tv);
             // #endif
 
-            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
+            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list, lastOutputSet));
 
             // #ifndef NO_TIMING_STUFF
             // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
@@ -728,6 +734,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             // start_timer (thisAgent, &thisAgent->start_phase_tv);
             // #endif
             outputLinkStatus = OutputLinkStatus.UNCHANGED_OL_STATUS;
+            lastOutputSet = iw_list;
             break;
 
         case MODIFIED_OL_STATUS:
@@ -743,7 +750,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             // start_timer (thisAgent, &thisAgent->start_kernel_tv);
             // #endif
 
-            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list));
+            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.MODIFIED_OUTPUT_COMMAND, iw_list, lastOutputSet));
 
             // #ifndef NO_TIMING_STUFF
             // stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
@@ -751,6 +758,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             // start_timer (thisAgent, &thisAgent->start_phase_tv);
             // #endif
             outputLinkStatus = OutputLinkStatus.UNCHANGED_OL_STATUS;
+            lastOutputSet = iw_list;
             break;
 
         case REMOVED_OL_STATUS:
@@ -764,7 +772,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             //      start_timer (thisAgent, &thisAgent->start_kernel_tv);
             //      #endif
 
-            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.REMOVED_OUTPUT_COMMAND, iw_list));
+            context.getEvents().fireEvent(new OutputEvent(this, OutputMode.REMOVED_OUTPUT_COMMAND, iw_list, lastOutputSet));
 
             //      #ifndef NO_TIMING_STUFF      
             //      stop_timer (thisAgent, &thisAgent->start_kernel_tv, &thisAgent->output_function_cpu_time);
@@ -773,6 +781,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
             //      #endif
             // (removed in jsoar) outputLinkWme.wme_remove_ref(context.workingMemory);
             outputLinkStatus = OutputLinkStatus.UNINITIALIZED_OL_STATUS;
+            lastOutputSet = null;
             break;
         }
     }
