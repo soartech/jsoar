@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.Lexer;
@@ -24,6 +26,9 @@ import org.jsoar.util.Arguments;
  */
 public class Symbols
 {
+    private static final Log logger = LogFactory.getLog(Agent.class);
+    private static final boolean WARN_ON_JAVA_SYMBOLS = Boolean.valueOf(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
+    
     private Symbols() {}
     
     /**
@@ -77,6 +82,16 @@ public class Symbols
         {
             return factory.createInteger(((Number) value).intValue());
         }
+        
+        // Landing here could very well be a bug (passing null, or something 
+        // else by accident. So we print a warning just in case.
+        if(WARN_ON_JAVA_SYMBOLS)
+        {
+            logger.warn("A Java symbol with value '" + value + "' is being created. " + 
+                    "Are you sure this is what you want to do? " + 
+                    "Disable this message with -Djsoar.warnOnJavaSymbols=false.");
+        }
+        
         return factory.createJavaSymbol(value);
     }
     
