@@ -578,9 +578,10 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
     /**
      * Updating Link TC Information
      * 
-     * <p>We make no attempt to do the TC updating intelligently. Whenever the TC changes, we throw away all the old TC
-     * info and recalculate the new TC from scratch. I figure that this part of the system won't get used very
-     * frequently and I hope it won't be a time hog.
+     * <p>We make no attempt to do the TC updating intelligently. Whenever 
+     * the TC changes, we throw away all the old TC info and recalculate 
+     * the new TC from scratch. I figure that this part of the system won't 
+     * get used very frequently and I hope it won't be a time hog.
      * 
      * <p>Remove_output_link_tc_info() and calculate_output_link_tc_info() are the main routines here.
      * 
