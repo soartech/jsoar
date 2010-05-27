@@ -169,7 +169,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * moment. Hopefully, it will become less necessary as the system is cleaned up.
      */
     private final List<Object> adaptables = Arrays.asList((Object) 
-            decisionManip, exploration, io, traceFormats, properties, 
+            printer, trace, decisionManip, exploration, io, traceFormats, properties, 
             chunker, explain, decisionCycle, rete, predefinedSyms, 
             predefinedSyms.getSyms(), decider, printer, rhsFunctions,
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
