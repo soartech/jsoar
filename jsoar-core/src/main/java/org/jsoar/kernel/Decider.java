@@ -1479,49 +1479,7 @@ public class Decider
             return ImpasseType.TIE;
         }
 
-        /* === Parallels === */
-        for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
-            cand.value.decider_flag = DeciderFlag.NOTHING;
-        for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_PARALLEL); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.UNARY_PARALLEL;
-        boolean not_all_parallel = false;
-        for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
-        {
-            // if cand is unary parallel, it's fine
-            if (cand.value.decider_flag == DeciderFlag.UNARY_PARALLEL)
-                continue;
-            // check whether cand is binary parallel to each other candidate
-            for (Preference p = candidates; p != null; p = p.next_candidate)
-            {
-                if (p == cand)
-                    continue;
-                boolean match_found = false;
-                for (Preference p2 = s.getPreferencesByType(PreferenceType.BINARY_PARALLEL); p2 != null; p2 = p2.next)
-                {
-                    if (((p2.value == cand.value) && (p2.referent == p.value))
-                            || ((p2.value == p.value) && (p2.referent == cand.value)))
-                    {
-                        match_found = true;
-                        break;
-                    }
-                }
-                if (!match_found)
-                {
-                    not_all_parallel = true;
-                    break;
-                }
-            } /* end of for p loop */
-            if (not_all_parallel)
-                break;
-        } /* end of for cand loop */
-
         result_candidates.value = candidates;
-
-        if (!not_all_parallel)
-        {
-            // items are all parallel, so return them all
-            return ImpasseType.NONE;
-        }
 
         // otherwise we have a tie
         return ImpasseType.TIE;

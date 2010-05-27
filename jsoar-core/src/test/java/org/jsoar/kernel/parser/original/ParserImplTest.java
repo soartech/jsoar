@@ -298,8 +298,6 @@ public class ParserImplTest extends JSoarTest
         verifyParsePreference(" =  " , PreferenceType.UNARY_INDIFFERENT);
         verifyParsePreference(" < 5 " , PreferenceType.WORSE);
         verifyParsePreference(" < " , PreferenceType.WORST);
-        verifyParsePreference(" & 5 " , PreferenceType.BINARY_PARALLEL);
-        verifyParsePreference(" & " , PreferenceType.UNARY_PARALLEL);
     }
     
     @Test

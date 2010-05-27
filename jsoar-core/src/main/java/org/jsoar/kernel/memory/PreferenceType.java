@@ -43,11 +43,6 @@ public enum PreferenceType
     UNARY_INDIFFERENT('=', false), 
     
     /**
-     * gdatastructs.h:152:UNARY_PARALLEL_PREFERENCE_TYPE
-     */
-    UNARY_PARALLEL('&', false), 
-    
-    /**
      * gdatastructs.h:153:BEST_PREFERENCE_TYPE
      */
     BEST('>', false), 
@@ -61,12 +56,7 @@ public enum PreferenceType
      * gdatastructs.h:155:BINARY_INDIFFERENT_PREFERENCE_TYPE
      */
     BINARY_INDIFFERENT('=', true), 
-    
-    /**
-     * gdatastructs.h:156:BINARY_PARALLEL_PREFERENCE_TYPE
-     */
-    BINARY_PARALLEL('&', true), 
-    
+      
     /**
      * gdatastructs.h:157:BETTER_PREFERENCE_TYPE
      */

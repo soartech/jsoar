@@ -42,9 +42,6 @@ public enum DeciderFlag
     /** decide.cpp:127:ALREADY_EXISTING_WME_DECIDER_FLAG  */
     ALREADY_EXISTING_WME,
     
-    /** decide.cpp:128:UNARY_PARALLEL_DECIDER_FLAG  */
-    UNARY_PARALLEL,
-    
     /** decide.cpp:132:UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG  */
     UNARY_INDIFFERENT_CONSTANT;
 

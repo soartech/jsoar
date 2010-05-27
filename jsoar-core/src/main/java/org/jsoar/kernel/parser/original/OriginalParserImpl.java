@@ -1380,7 +1380,6 @@ class OriginalParserImpl
         case GREATER:   return parseBetterBest();
         case EQUAL:     return parseIndifferent();
         case LESS:      return parseWorseWorst();
-        case AMPERSAND: return parseParallel();
 
         default:
             // if no preference given, make it an acceptable preference
@@ -1402,11 +1401,6 @@ class OriginalParserImpl
         // forced unary preference
         consumeComma();
         return unary;
-    }
-
-    private PreferenceType parseParallel() throws IOException
-    {
-        return parseBinaryOrUnaryPreference(PreferenceType.BINARY_PARALLEL, PreferenceType.UNARY_PARALLEL);
     }
 
     private PreferenceType parseWorseWorst() throws IOException

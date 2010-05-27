@@ -27,11 +27,9 @@ public class PreferenceTypeTest
         assertEquals("prohibit", PreferenceType.PROHIBIT.getDisplayName());
         assertEquals("reconsider", PreferenceType.RECONSIDER.getDisplayName());
         assertEquals("unary indifferent", PreferenceType.UNARY_INDIFFERENT.getDisplayName());
-        assertEquals("unary parallel", PreferenceType.UNARY_PARALLEL.getDisplayName());
         assertEquals("best", PreferenceType.BEST.getDisplayName());
         assertEquals("worst", PreferenceType.WORST.getDisplayName());
         assertEquals("binary indifferent", PreferenceType.BINARY_INDIFFERENT.getDisplayName());
-        assertEquals("binary parallel", PreferenceType.BINARY_PARALLEL.getDisplayName());
         assertEquals("better", PreferenceType.BETTER.getDisplayName());
         assertEquals("worse", PreferenceType.WORSE.getDisplayName());
         assertEquals("numeric indifferent",  PreferenceType.NUMERIC_INDIFFERENT.getDisplayName());
