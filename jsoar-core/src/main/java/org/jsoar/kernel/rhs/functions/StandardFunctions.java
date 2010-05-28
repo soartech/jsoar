@@ -95,7 +95,8 @@ public class StandardFunctions
                 new FromSoarTechXml(),
                 new ToSoarTechXml(),
                 new GetUrl(), 
-                new AcceptRhsFunction()));
+                new AcceptRhsFunction(),
+                new ListRhsFunction()));
     {
         allInternal.addAll(MathFunctions.all);
     }
