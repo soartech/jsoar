@@ -151,7 +151,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
         
-        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter()));
+        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));

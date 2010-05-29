@@ -5,35 +5,64 @@ package org.jsoar.kernel.commands;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Stack;
 
+import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.events.ProductionAddedEvent;
+import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.events.SoarEvent;
+import org.jsoar.util.events.SoarEventListener;
+import org.jsoar.util.events.SoarEventManager;
 
 /**
+ * Implementation of the source command. 
+ * 
+ * <p> Manages the following:
+ * <ul>
+ * <li>The current working directory (pwd)
+ * <li>The directory stack (pushd and popd)
+ * <li>Stats about current top-level source command (productions added, etc)
+ * </ul>
+ * 
  * @author ray
  */
 public class SourceCommand implements SoarCommand
 {
-    // This ain't pretty, but it's private and it works
-    private static class Entry
-    {
-        File file;
-        URL url;
-        
-        public Entry(File file) { this.file = file; }
-        public Entry(URL url) { this.url = url; }
-    }
+    private static enum Options { ALL, DISABLE, VERBOSE };
     
     private final SourceCommandAdapter interp;
-    private Entry workingDirectory = new Entry(new File(System.getProperty("user.dir")));
-    private Stack<Entry> directoryStack = new Stack<Entry>();
+    private DirStackEntry workingDirectory = new DirStackEntry(new File(System.getProperty("user.dir")));
+    private Stack<DirStackEntry> directoryStack = new Stack<DirStackEntry>();
     private Stack<String> fileStack = new Stack<String>();
     
-    public SourceCommand(SourceCommandAdapter interp)
+    private TopLevelState topLevelState;
+    private final SoarEventManager events;
+    private final SoarEventListener eventListener = new SoarEventListener()
+    {
+        @Override
+        public void onEvent(SoarEvent event)
+        {
+            if(event instanceof ProductionAddedEvent)
+            {
+                topLevelState.productionAdded(((ProductionAddedEvent) event).getProduction());
+            }
+            else if(event instanceof ProductionExcisedEvent)
+            {
+                topLevelState.productionExcised(((ProductionExcisedEvent) event).getProduction());
+            }
+        }
+    };
+    
+    public SourceCommand(SourceCommandAdapter interp, SoarEventManager events)
     {
         this.interp = interp;
+        this.events = events;
         fileStack.push("");
     }
     
@@ -55,13 +84,13 @@ public class SourceCommand implements SoarCommand
         {
             // A new URL. Just set that to be the working directory
             directoryStack.push(workingDirectory);
-            workingDirectory = new Entry(url);
+            workingDirectory = new DirStackEntry(url);
         }
         else if(workingDirectory.url != null && !newDir.isAbsolute())
         {
             // Relative path where current directory is a URL.
             directoryStack.push(workingDirectory);
-            workingDirectory = new Entry(joinUrl(workingDirectory.url, dirString));
+            workingDirectory = new DirStackEntry(joinUrl(workingDirectory.url, dirString));
         }
         else 
         {
@@ -80,7 +109,7 @@ public class SourceCommand implements SoarCommand
                 throw new SoarException("'" + newDir + "' is not a directory");
             }
             directoryStack.push(workingDirectory);
-            workingDirectory = new Entry(newDir);
+            workingDirectory = new DirStackEntry(newDir);
         }
     }
     
@@ -127,13 +156,99 @@ public class SourceCommand implements SoarCommand
     @Override
     public String execute(String[] args) throws SoarException
     {
-        if(args.length != 2)
+        if(args.length < 2)
         {
             throw new SoarException("Expected fileName argument");
         }
         
-        source(args[1].toString());
-        return "";
+        final boolean topLevel = topLevelState == null;
+        
+        // Process args to get list of files and options ...
+        final List<String> files = new ArrayList<String>();
+        final EnumSet<Options> opts = EnumSet.noneOf(Options.class);
+        for(int i = 1; i < args.length; ++i)
+        {
+            final String arg = args[i];
+            if(arg.equals("-d") || arg.equals("--disable")) opts.add(Options.DISABLE);
+            else if(arg.equals("-a") || arg.equals("--all")) opts.add(Options.ALL);
+            else if(arg.equals("-v") || arg.endsWith("--verbose")) opts.add(Options.VERBOSE);
+            else if(arg.startsWith("-"))
+            {
+                throw new SoarException("Unknown option '" + arg + "'");
+            }
+            else
+            {
+                files.add(arg);
+            }
+        }
+        
+        // If this is the top source command (user-initiated), set up the 
+        // state info and register for production events
+        if(topLevel)
+        {
+            topLevelState = new TopLevelState();
+            events.addListener(ProductionAddedEvent.class, eventListener);
+            events.addListener(ProductionExcisedEvent.class, eventListener);
+        }
+        try
+        {
+            for(String file : files)
+            {
+                source(file);
+            }
+            return generateResult(topLevel, opts);
+        }
+        finally
+        {
+            // Clean up top-level state
+            if(topLevel)
+            {
+                topLevelState = null;
+                events.removeListener(null, eventListener);
+            }
+        }
+    }
+    
+    private String generateResult(boolean topLevel, EnumSet<Options> opts)
+    {
+        final StringBuilder result = new StringBuilder();
+        if(topLevel)
+        {
+            if(opts.contains(Options.ALL))
+            {
+                for(FileInfo file : topLevelState.files)
+                {
+                    result.append(String.format("%s: %d productions sourced.\n", file.name, file.productionsAdded.size()));
+                    if(opts.contains(Options.VERBOSE) && !file.productionsExcised.isEmpty())
+                    {
+                        result.append("Excised productions:\n");
+                        for(String p : file.productionsExcised)
+                        {
+                            result.append("        " + p + "\n");
+                        }
+                    }
+                }
+            }
+            if(!opts.contains(Options.DISABLE))
+            {
+                result.append(String.format("Total: %d productions sourced. %d productions excised.\n", 
+                                topLevelState.totalProductionsAdded,
+                                topLevelState.totalProductionsExcised));
+            }
+            if(opts.contains(Options.VERBOSE) && !opts.contains(Options.ALL) && topLevelState.totalProductionsExcised != 0)
+            {
+                result.append("Excised productions:\n");
+                for(FileInfo file : topLevelState.files)
+                {
+                    for(String p : file.productionsExcised)
+                    {
+                        result.append("        " + p + "\n");
+                    }
+                }
+            }
+            result.append("Source finished.");
+        }
+        return result.toString();
     }
     
     private URL getParentUrl(URL url) throws SoarException
@@ -158,6 +273,10 @@ public class SourceCommand implements SoarCommand
         try
         {
             fileStack.push(file.getAbsolutePath());
+            if(topLevelState != null)
+            {
+                topLevelState.files.add(new FileInfo(file.getName()));
+            }
             interp.eval(file);
         }
         finally
@@ -172,12 +291,61 @@ public class SourceCommand implements SoarCommand
         try
         {
             fileStack.push(url.toExternalForm());
+            if(topLevelState != null)
+            {
+                topLevelState.files.add(new FileInfo(url.toExternalForm()));
+            }
             interp.eval(url);
         }
         finally
         {
             fileStack.pop();
             popd();
+        }
+    }
+    
+    // This ain't pretty, but it's private and it works
+    private static class DirStackEntry
+    {
+        File file;
+        URL url;
+        
+        public DirStackEntry(File file) { this.file = file; }
+        public DirStackEntry(URL url) { this.url = url; }
+    }
+    
+    private static class FileInfo
+    {
+        final String name;
+        final List<String> productionsAdded = new ArrayList<String>();
+        final List<String> productionsExcised = new ArrayList<String>();
+        
+        public FileInfo(String name)
+        {
+            this.name = name;
+        }
+    }
+    
+    private static class TopLevelState
+    {
+        List<FileInfo> files = new ArrayList<FileInfo>();
+        int totalProductionsAdded = 0;
+        int totalProductionsExcised = 0;
+        int totalProductionsIgnored = 0; // TODO
+        
+        void productionAdded(Production p)
+        {
+            current().productionsAdded.add(p.getName());
+            totalProductionsAdded++;
+        }
+        void productionExcised(Production p)
+        {
+            current().productionsExcised.add(p.getName());
+            totalProductionsExcised++;
+        }
+        private FileInfo current()
+        {
+            return files.get(files.size() - 1);
         }
     }
 }
