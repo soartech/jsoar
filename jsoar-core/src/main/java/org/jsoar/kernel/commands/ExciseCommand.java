@@ -95,7 +95,6 @@ public final class ExciseCommand implements SoarCommand
             agent.initialize();
         }
         
-        agent.getPrinter().startNewLine().print("%d production%s excise.", toExcise.size(), toExcise.size() == 1 ? "" : "s");
-        return "";
+        return String.format("\n%d production%s excised.", toExcise.size(), toExcise.size() == 1 ? "" : "s");
     }
 }
