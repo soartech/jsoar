@@ -476,4 +476,10 @@ public class FunctionalTests
     {
         runTest("testPreferenceSemantics", -1);
     }
+    
+    @Test(timeout=10000)
+    public void testTieImpasse() throws Exception
+    {
+        runTest("testTieImpasse", 1);
+    }
 }

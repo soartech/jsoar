@@ -1,0 +1,27 @@
+sp {propose*operator-one
+   (state <s> ^superstate nil)
+-->
+   (<s> ^operator.name one)
+}
+
+sp {propose*operator-two
+   (state <s> ^superstate nil)
+-->
+   (<s> ^operator.name two)
+}
+
+sp {report*tie*impasse
+   (state <s> ^attribute operator
+              ^choices multiple
+              ^impasse tie
+              ^quiescence t
+              ^type state
+              ^reward-link <rl>
+              ^superstate.superstate nil
+              ^item-count 2
+              ^item.name one
+              ^item.name two)
+-->
+   (succeeded)
+   (write (crlf) |correct tie impasse detected|)
+}
