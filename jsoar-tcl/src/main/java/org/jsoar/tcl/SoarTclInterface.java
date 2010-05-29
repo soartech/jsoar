@@ -53,6 +53,7 @@ import org.jsoar.kernel.commands.StatsCommand;
 import org.jsoar.kernel.commands.SymbolsCommand;
 import org.jsoar.kernel.commands.TimersCommand;
 import org.jsoar.kernel.commands.VerboseCommand;
+import org.jsoar.kernel.commands.VersionCommand;
 import org.jsoar.kernel.commands.WaitSncCommand;
 import org.jsoar.kernel.commands.WarningsCommand;
 import org.jsoar.kernel.commands.WatchCommand;
@@ -195,6 +196,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         
         addCommand("qmemory", new QMemoryCommand(this.agent));
         addCommand("timers", new TimersCommand());
+        addCommand("version", new VersionCommand());
         
         try
         {
