@@ -49,6 +49,7 @@ import org.jsoar.kernel.commands.ReinforcementLearningCommand;
 import org.jsoar.kernel.commands.RhsFunctionsCommand;
 import org.jsoar.kernel.commands.SaveBacktracesCommand;
 import org.jsoar.kernel.commands.SetParserCommand;
+import org.jsoar.kernel.commands.SetStopPhaseCommand;
 import org.jsoar.kernel.commands.Soar8Command;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
@@ -58,6 +59,7 @@ import org.jsoar.kernel.commands.StatsCommand;
 import org.jsoar.kernel.commands.SymbolsCommand;
 import org.jsoar.kernel.commands.TimersCommand;
 import org.jsoar.kernel.commands.VerboseCommand;
+import org.jsoar.kernel.commands.VersionCommand;
 import org.jsoar.kernel.commands.WaitSncCommand;
 import org.jsoar.kernel.commands.WarningsCommand;
 import org.jsoar.kernel.commands.WatchCommand;
@@ -78,7 +80,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     {
         this.agent = agent;
         addCommand("alias", new AliasCommand());
-        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter()));
+        addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));
@@ -120,9 +122,11 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("symbols", new SymbolsCommand(this.agent));
         
         addCommand("help", new HelpCommand(this));
+        addCommand("version", new VersionCommand());
         
         addCommand("qmemory", new QMemoryCommand(this.agent));
         addCommand("timers", new TimersCommand());
+        addCommand("set-stop-phase", new SetStopPhaseCommand(this.agent.getProperties()));
     }
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommandInterpreter#addCommand(java.lang.String, org.jsoar.util.commands.SoarCommand)

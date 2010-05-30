@@ -52,7 +52,7 @@ public class JSoarTest
         @Override
         public Production getProductionBeingFired()
         {
-            throw new UnsupportedOperationException("This test implementation of RhsFunctionContext doesn't support getProductionBeingFired");
+            return null;
         }
         
     };
