@@ -38,6 +38,7 @@ import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.properties.EnumPropertyProvider;
 import org.jsoar.util.properties.IntegerPropertyProvider;
 import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.properties.PropertyManager;
@@ -83,6 +84,8 @@ public class DecisionCycle
      * agent.cpp:146 (init)
      */
     private GoType go_type = GoType.GO_DECISION;
+    
+    private EnumPropertyProvider<Phase> stopPhase = new EnumPropertyProvider<Phase>(SoarProperties.STOP_PHASE);
     
     int e_cycles_this_d_cycle;
     private int run_phase_count;
@@ -161,6 +164,7 @@ public class DecisionCycle
         properties.setProvider(SoarProperties.PE_CYCLE_COUNT, pe_cycle_count);
         properties.setProvider(SoarProperties.INNER_E_CYCLE_COUNT, inner_e_cycle_count);
         properties.setProvider(SoarProperties.MAX_ELABORATIONS, maxElaborations);
+        properties.setProvider(SoarProperties.STOP_PHASE, stopPhase);
         
         this.io = Adaptables.adapt(context, InputOutputImpl.class);
         this.decider = Adaptables.adapt(context, Decider.class);
@@ -918,6 +922,7 @@ public class DecisionCycle
     private void run_for_n_decision_cycles(long n)
     {
         Arguments.check(n >= 0, "n must be non-negative");
+        final Phase stopPhase = this.stopPhase.get(); // save in case this changes during run
 
         startTopLevelTimers();
 
@@ -931,6 +936,11 @@ public class DecisionCycle
         {
             if (n == (d_cycle_count.value.get() - d_cycles_at_start))
                 break;
+            do_one_top_level_phase();
+        }
+        
+        while(!stop_soar && current_phase != stopPhase)
+        {
             do_one_top_level_phase();
         }
         

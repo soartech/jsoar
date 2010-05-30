@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.DebuggerProvider;
+import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
@@ -333,6 +334,24 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     public boolean isRunning()
     {
         return agentRunning.get();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.AgentRunController#getStopPhase()
+     */
+    @Override
+    public Phase getStopPhase()
+    {
+        return agent.getStopPhase();
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.AgentRunController#setStopPhase(org.jsoar.kernel.Phase)
+     */
+    @Override
+    public void setStopPhase(Phase phase)
+    {
+        agent.setStopPhase(phase);
     }
 
     /**

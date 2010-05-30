@@ -10,6 +10,10 @@ package org.jsoar.kernel;
  */
 public interface AgentRunController
 {
+    void setStopPhase(Phase phase);
+    
+    Phase getStopPhase();
+    
     /**
      * Run this agent for the given number of steps with the given step type. 
      * The agent is run in the current thread.
@@ -17,5 +21,5 @@ public interface AgentRunController
      * @param n Number of steps. Ignored if runType is {@link RunType#FOREVER}.
      * @param runType The run type
      */
-    public void runFor(long n, RunType runType);
+    void runFor(long n, RunType runType);
 }

@@ -589,12 +589,26 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         return Arrays.asList(totalCpuTimer, totalKernelTimer);
     }
       
-    /**
-     * Run this agent for the given number of steps with the given step type. 
-     * The agent is run in the current thread.
-     * 
-     * @param n Number of steps. Ignored if runType is {@link RunType#FOREVER}.
-     * @param runType The run type
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.AgentRunController#getStopPhase()
+     */
+    @Override
+    public Phase getStopPhase()
+    {
+        return getProperties().get(SoarProperties.STOP_PHASE);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.AgentRunController#setStopPhase(org.jsoar.kernel.Phase)
+     */
+    @Override
+    public void setStopPhase(Phase phase)
+    {
+        getProperties().set(SoarProperties.STOP_PHASE, phase);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.AgentRunController#runFor(long, org.jsoar.kernel.RunType)
      */
     public void runFor(long n, RunType runType)
     {

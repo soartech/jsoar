@@ -8,6 +8,7 @@ package org.jsoar.kernel.commands;
 import static org.junit.Assert.*;
 
 import org.jsoar.kernel.AgentRunController;
+import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.junit.Before;
@@ -32,6 +33,18 @@ public class RunCommandTest
         {
             this.count = n;
             this.runType = runType;
+        }
+
+        @Override
+        public Phase getStopPhase()
+        {
+            throw new UnsupportedOperationException("getStopPhase not implemented in this test mock");
+        }
+
+        @Override
+        public void setStopPhase(Phase phase)
+        {
+            throw new UnsupportedOperationException("setStopPhase not implemented in this test mock");
         }
     }
     

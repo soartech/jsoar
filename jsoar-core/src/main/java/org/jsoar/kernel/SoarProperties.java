@@ -109,6 +109,11 @@ public class SoarProperties
     public static final PropertyKey<Integer> O_SUPPORT_MODE = PropertyKey.builder("o-support-mode", Integer.class).defaultValue(4).build();
     
     /**
+     * Property containing the current stop phase
+     */
+    public static final PropertyKey<Phase> STOP_PHASE = PropertyKey.builder("stop-phase", Phase.class).defaultValue(Phase.INPUT).build();
+    
+    /**
      * <p>agent.h::d_cycle_count
      * 
      * @see DecisionCycle
