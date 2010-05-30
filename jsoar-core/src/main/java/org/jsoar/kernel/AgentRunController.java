@@ -10,8 +10,26 @@ package org.jsoar.kernel;
  */
 public interface AgentRunController
 {
+    /**
+     * Set the agent's stop phase. When run by decision, the agent will run
+     * N decisions and then run by phase until just <b>before</b> the stop
+     * phase.
+     * 
+     * <p>See <a href="http://code.google.com/p/soar/wiki/CommandLineInterface#set-stop-phase">set-stop-phase command</a>
+     * 
+     * @param phase the phase to stop before
+     * @see SoarProperties#STOP_PHASE
+     */
     void setStopPhase(Phase phase);
     
+    /**
+     * Returns the current stop phase
+     * 
+     * <p>See <a href="http://code.google.com/p/soar/wiki/CommandLineInterface#set-stop-phase">set-stop-phase command</a>
+     * 
+     * @return the current stop phase
+     * @see SoarProperties#STOP_PHASE
+     */
     Phase getStopPhase();
     
     /**

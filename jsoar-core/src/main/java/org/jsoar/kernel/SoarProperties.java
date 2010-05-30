@@ -110,6 +110,8 @@ public class SoarProperties
     
     /**
      * Property containing the current stop phase
+     * 
+     * @see AgentRunController#setStopPhase(Phase)
      */
     public static final PropertyKey<Phase> STOP_PHASE = PropertyKey.builder("stop-phase", Phase.class).defaultValue(Phase.INPUT).build();
     
