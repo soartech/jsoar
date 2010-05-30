@@ -60,6 +60,34 @@ public class RunCommandTest
         execute("run", "-e", "-10");
     }
     
+    @Test(expected=SoarException.class)
+    public void testThrowsExceptionWhenMultipleCountsGiven() throws Exception
+    {
+        execute("run", "5", "-e", "10");
+    }
+    
+    @Test(expected=SoarException.class)
+    public void testThrowsExceptionWhenMultipleRunTypesGiven() throws Exception
+    {
+        execute("run", "-d", "-e");
+    }
+    
+    @Test
+    public void testDefaultsToRunForever() throws Exception
+    {
+        execute("run");
+        verify(1, RunType.FOREVER);
+    }
+    
+    @Test
+    public void testRunForever() throws Exception
+    {
+        execute("run", "-f");
+        verify(1, RunType.FOREVER);
+        execute("run", "--forever");
+        verify(1, RunType.FOREVER);
+    }
+    
     @Test
     public void testCountDefaultsToOneDecisionIfNoIntegerArgumentIsGiven() throws Exception
     {
@@ -93,6 +121,16 @@ public class RunCommandTest
         execute("run", "--decision", "99");
         verify(99, RunType.DECISIONS);
     }
+    
+    @Test
+    public void testCountDecisionsReversed() throws Exception
+    {
+        execute("run", "99", "-d");
+        verify(99, RunType.DECISIONS);
+        execute("run", "99", "--decision");
+        verify(99, RunType.DECISIONS);
+    }
+    
     @Test
     public void testCountElaborations() throws Exception
     {
@@ -101,6 +139,17 @@ public class RunCommandTest
         execute("run", "--elaboration", "100");
         verify(100, RunType.ELABORATIONS);
     }
+    
+    @Test
+    public void testCountElaborationsReversed() throws Exception
+    {
+        execute("run", "100", "-e");
+        verify(100, RunType.ELABORATIONS);
+        execute("run", "100", "--elaboration");
+        verify(100, RunType.ELABORATIONS);
+    }
+
+    
     @Test
     public void testCountPhases() throws Exception
     {
@@ -110,6 +159,32 @@ public class RunCommandTest
         verify(7654321, RunType.PHASES);
     }
    
+    @Test
+    public void testCountPhasesReversed() throws Exception
+    {
+        execute("run", "7654321", "-p");
+        verify(7654321, RunType.PHASES);
+        execute("run", "7654321", "--phase");
+        verify(7654321, RunType.PHASES);
+    }
+    
+    @Test
+    public void testCountOutputMods() throws Exception
+    {
+        execute("run", "-o", "7654321");
+        verify(7654321, RunType.MODIFICATIONS_OF_OUTPUT);
+        execute("run", "--output", "7654321");
+        verify(7654321, RunType.MODIFICATIONS_OF_OUTPUT);
+    }
+    
+    @Test
+    public void testCountOutputModsReversed() throws Exception
+    {
+        execute("run", "7654321", "-o");
+        verify(7654321, RunType.MODIFICATIONS_OF_OUTPUT);
+        execute("run", "7654321", "--output");
+        verify(7654321, RunType.MODIFICATIONS_OF_OUTPUT);
+    }
     
     ////////////////////////////////////////////////////////////////////////
     
