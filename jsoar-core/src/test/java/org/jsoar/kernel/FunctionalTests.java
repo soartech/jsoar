@@ -488,4 +488,16 @@ public class FunctionalTests
     {
         runTest("testConflictImpasse", 1);
     }
+    
+    @Test(timeout=10000)
+    public void testConstraintFailureImpasse() throws Exception
+    {
+        runTest("testConstraintFailureImpasse", 1);
+    }
+    
+    @Test(timeout=10000)
+    public void testOperatorNoChangeImpasse() throws Exception
+    {
+        runTest("testOperatorNoChangeImpasse", 2);
+    }
 }

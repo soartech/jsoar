@@ -1,0 +1,43 @@
+# test for operator no-change impasse between two operators
+# makes sure that the right wmes are created and no others
+# this means the test will need to be updated when support for additional modules is added
+# if those modules add new links to substates
+
+sp {propose*operator-one
+   (state <s> ^superstate nil)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name one)
+}
+
+sp {report*operator-no-change*impasse
+#make sure all wmes that should be here are here and of the correct type
+   (state <s> ^attribute operator
+              ^choices none
+              ^impasse no-change
+              ^quiescence t
+              ^type state
+              ^reward-link {<rl> <=> <s>}
+              ^superstate {<ss> <=> <s>})
+#make sure we're at the right level in the goal stack
+    (<ss> ^superstate nil)
+#make sure there are no wmes with unexpected attributes
+   -(<s> ^{<> attribute 
+           <> choices
+           <> impasse
+           <> quiescence
+           <> type
+           <> reward-link
+           <> superstate})
+#make sure there are no wmes with unexpected values
+    (<s> -^attribute <> operator
+         -^choices <> none
+         -^impasse <> no-change
+         -^quiescence <> t
+         -^type <> state
+         -^reward-link <> <rl>
+         -^superstate <> <ss>)
+-->
+   (succeeded)
+   (write (crlf) |correct operator no-change impasse detected|)
+}
