@@ -506,4 +506,10 @@ public class FunctionalTests
     {
         runTest("testStateNoChangeImpasse", 1);
     }
+    
+    @Test(timeout=10000)
+    public void testInitialState() throws Exception
+    {
+        runTest("testInitialState", 1);
+    }
 }
