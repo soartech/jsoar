@@ -482,4 +482,10 @@ public class FunctionalTests
     {
         runTest("testTieImpasse", 1);
     }
+    
+    @Test(timeout=10000)
+    public void testConflictImpasse() throws Exception
+    {
+        runTest("testConflictImpasse", 1);
+    }
 }

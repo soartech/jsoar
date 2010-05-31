@@ -1,0 +1,72 @@
+sp {propose*operator-one
+   (state <s> ^superstate nil)
+-->
+   (<s> ^operator.name one)
+}
+
+sp {propose*operator-two
+   (state <s> ^superstate nil)
+-->
+   (<s> ^operator.name two)
+}
+
+sp {compare*one-better-than-two
+   (state <s> ^operator <o1> + {<o2> <> <o1>} +)
+   (<o1> ^name one)
+   (<o2> ^name two)
+-->
+   (<s> ^operator <o1> > <o2>)
+}
+
+sp {compare*two-better-than-one
+   (state <s> ^operator <o1> + {<o2> <> <o1>} +)
+   (<o1> ^name one)
+   (<o2> ^name two)
+-->
+   (<s> ^operator <o2> > <o1>)
+}
+
+sp {report*conflict*impasse
+#make sure all wmes that should be here are here and of the correct type
+   (state <s> ^attribute operator
+              ^choices multiple
+              ^impasse conflict
+              ^quiescence t
+              ^type state
+              ^reward-link {<rl> <=> <s>}
+              ^superstate {<ss> <=> <s>}
+              ^item-count 2
+              ^item {<ione> <=> <s>}
+              ^item {<itwo> <=> <s> <> <ione>})
+    (<ione> ^name one)
+    (<itwo> ^name two)
+#make sure we're at the right level in the goal stack
+    (<ss> ^superstate nil)
+#make sure there are no wmes with unexpected attributes
+   -(<s> ^{<> attribute 
+           <> choices
+           <> impasse
+           <> quiescence
+           <> type
+           <> reward-link
+           <> superstate 
+           <> item-count
+           <> item})
+   -(<ione> ^<> name)
+   -(<itwo> ^<> name)
+#make sure there are no wmes with unexpected values
+    (<s> -^attribute <> operator
+         -^choices <> multiple
+         -^impasse <> conflict
+         -^quiescence <> t
+         -^type <> state
+         -^reward-link <> <rl>
+         -^superstate <> <ss>
+         -^item-count <> 2
+         -^item {<> <ione> <> <itwo>})
+   -(<ione> ^name <> one)
+   -(<itwo> ^name <> two)
+-->
+   (succeeded)
+   (write (crlf) |correct conflict impasse detected|)
+}
