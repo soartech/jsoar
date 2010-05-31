@@ -500,4 +500,10 @@ public class FunctionalTests
     {
         runTest("testOperatorNoChangeImpasse", 2);
     }
+    
+    @Test(timeout=10000)
+    public void testStateNoChangeImpasse() throws Exception
+    {
+        runTest("testStateNoChangeImpasse", 1);
+    }
 }
