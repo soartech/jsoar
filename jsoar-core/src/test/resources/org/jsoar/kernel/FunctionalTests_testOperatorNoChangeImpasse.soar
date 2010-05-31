@@ -1,4 +1,4 @@
-# test for operator no-change impasse between two operators
+# test for operator no-change impasse
 # makes sure that the right wmes are created and no others
 # this means the test will need to be updated when support for additional modules is added
 # if those modules add new links to substates
