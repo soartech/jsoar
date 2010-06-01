@@ -20,7 +20,7 @@ sp {propose*operator-two
 sp {report*constraint-failure*impasse
 #make sure all wmes that should be here are here and of the correct type
    (state <s> ^attribute operator
-              ^choices constraint-failure
+              ^choices none
               ^impasse constraint-failure
               ^quiescence t
               ^type state
@@ -47,7 +47,7 @@ sp {report*constraint-failure*impasse
    -(<itwo> ^<> name)
 #make sure there are no wmes with unexpected values
     (<s> -^attribute <> operator
-         -^choices <> constraint-failure
+         -^choices <> none
          -^impasse <> constraint-failure
          -^quiescence <> t
          -^type <> state
