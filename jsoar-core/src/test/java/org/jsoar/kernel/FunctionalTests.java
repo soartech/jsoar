@@ -84,7 +84,15 @@ public class FunctionalTests
                 return oldHalt.execute(rhsContext, arguments);
             }});
         
-        agent.runForever();
+        if(expectedDecisions >= 0)
+        {
+            agent.runFor(expectedDecisions + 1, RunType.DECISIONS);
+        }
+        else
+        {
+            agent.runForever();
+        }
+        
         assertTrue(testName + " functional test did not halt", halted[0]);
         assertFalse(testName + " functional test failed", failed[0]);
         if(expectedDecisions >= 0)
@@ -214,13 +222,13 @@ public class FunctionalTests
         runTest("testWaterJugHierarchy", -1);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testTowersOfHanoi() throws Exception
     {
         runTest("testTowersOfHanoi", 2048);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testTowersOfHanoiFast() throws Exception
     {
         runTest("testTowersOfHanoiFast", 2047);
@@ -232,7 +240,7 @@ public class FunctionalTests
         runTest("testEightPuzzle", -1);
     }
     
-    @Test(/*timeout=10000*/)
+    @Test
     public void testJustifications() throws Exception
     {
         runTest("testJustifications", 2);
@@ -240,7 +248,7 @@ public class FunctionalTests
         assertNull(j);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testChunks() throws Exception
     {
         runTest("testChunks", 2);
@@ -289,13 +297,13 @@ public class FunctionalTests
         runTest("testBlocksWorldLookAhead", -1);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testBlocksWorldLookAhead2() throws Exception
     {
         runTest("testBlocksWorldLookAhead2", 29);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testBlocksWorldLookAheadWithMaxNoChangeBug() throws Exception
     {
         // This tests for a bug in the chunking caused by a bug in add_cond_to_tc()
@@ -396,7 +404,7 @@ public class FunctionalTests
         
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testNegatedConjunctiveChunkLoopBug510() throws Exception
     {
         runTest("testNegatedConjunctiveChunkLoopBug510", 3);
@@ -404,7 +412,7 @@ public class FunctionalTests
         assertEquals(5, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
     }
 
-    @Test(timeout=10000)
+    @Test
     public void testTemplateVariableNameBug1121() throws Exception
     {
         runTest("testTemplateVariableNameBug1121", 1);
@@ -424,7 +432,7 @@ public class FunctionalTests
         assertEquals(19, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testNegatedConjunctiveTestUnbound() throws Exception
     {
     	boolean success;
@@ -477,37 +485,37 @@ public class FunctionalTests
         runTest("testPreferenceSemantics", -1);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testTieImpasse() throws Exception
     {
         runTest("testTieImpasse", 1);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testConflictImpasse() throws Exception
     {
         runTest("testConflictImpasse", 1);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testConstraintFailureImpasse() throws Exception
     {
         runTest("testConstraintFailureImpasse", 1);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testOperatorNoChangeImpasse() throws Exception
     {
         runTest("testOperatorNoChangeImpasse", 2);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testStateNoChangeImpasse() throws Exception
     {
         runTest("testStateNoChangeImpasse", 1);
     }
     
-    @Test(timeout=10000)
+    @Test
     public void testInitialState() throws Exception
     {
         runTest("testInitialState", 1);
