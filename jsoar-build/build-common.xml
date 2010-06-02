@@ -166,7 +166,6 @@
    </target>
     
 	<target name="doc" depends="init" description="Generate API documentation">
-	    <!--
 		<javadoc packagenames="${doc.packagenames}"
 		           sourcepath="${src}"
 		    	   classpathref="compile.libs"
@@ -181,6 +180,5 @@
 		    <bottom><![CDATA[<i>${copyright}</i>]]></bottom>
 		    <tag name="todo" scope="all" description="Todo:"/>
 		</javadoc>
-		-->
 	</target>
 </project>
