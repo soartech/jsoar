@@ -1,22 +1,29 @@
 package org.jsoar.soar2soar;
 
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.InputEvent;
+import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.io.InputBuilder;
 import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.io.InputWmes;
+import org.jsoar.kernel.io.OutputChange;
 import org.jsoar.kernel.io.TimeInput;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommands;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEvents;
+
+import com.google.common.collect.Lists;
 
 public class EnvironmentAgent
 {
@@ -29,6 +36,8 @@ public class EnvironmentAgent
     private InputWme timeWme;
 
     private Identifier agentsOutId;
+    
+    private long timeAtStart;
 
     public EnvironmentAgent(String source) throws SoarException
     {
@@ -57,6 +66,8 @@ public class EnvironmentAgent
                         agentsId = ilBuilder.getId("agents");
                         timeWme = ilBuilder.getWme("time");
                         agentsOutId = olBuilder.getId("agents");
+                        
+                        timeAtStart = System.currentTimeMillis();
 
                         // create structures for each agent
                         for (ClientAgent ca : agentMap.values())
@@ -79,9 +90,60 @@ public class EnvironmentAgent
         
 			}
 		});
+        
+        env.getEvents().addListener(InputEvent.class, new SoarEventListener() {
+
+            @Override
+            public void onEvent(SoarEvent event)
+            {
+                updateInput();
+                
+            }
+            
+        });
+        
+        env.getEvents().addListener(OutputEvent.class, new SoarEventListener() {
+
+            @Override
+            public void onEvent(SoarEvent event)
+            {
+                doOutput((OutputEvent) event);
+                
+            }
+            
+        });
 
 		env.openDebugger();
 	}
+
+    protected void doOutput(OutputEvent event)
+    {
+        ArrayList<OutputChange> changes = Lists.newArrayList(event.getChanges());
+        Collections.sort(changes, new Comparator<OutputChange>() {
+
+            @Override
+            public int compare(OutputChange o1, OutputChange o2)
+            {
+                return o1.getWme().getTimetag() - o2.getWme().getTimetag();
+            }
+            
+        });
+        
+        for ( OutputChange delta : changes) {
+            
+            for ( ClientAgent agent : agentMap.values()) {
+                if ( agent.isMyEnvIdentifier(delta.getWme().getIdentifier())) {
+                    agent.pushInput(delta);
+                }
+            }
+        }
+    }
+
+    protected void updateInput()
+    {
+        InputWmes.update(timeWme, (System.currentTimeMillis()-timeAtStart) / 1000);
+        
+    }
 
     public void createClient(String source) throws SoarException
     {
