@@ -166,12 +166,24 @@ public class JSoarDebugger extends JPanel implements Adaptable
             @Override
             public void propertyChange(PropertyChangeEvent evt)
             {
-                Dockable newDockable = (Dockable) evt.getNewValue();
+                final Dockable newDockable = (Dockable) evt.getNewValue();
                 SelectionProvider provider = Adaptables.adapt(newDockable, SelectionProvider.class);
                 if(provider != null)
                 {
                     selectionManager.setSelectionProvider(provider);
                 }
+                
+                // HACK: For some reason the WM tree briefly gets focus which messes this
+                // up when using a hotkey to switch to the trace view. So invoke later
+                // after everything settles down.
+                SwingUtilities.invokeLater(new Runnable(){
+                    public void run() {
+                        if(newDockable instanceof AbstractAdaptableView)
+                        {
+                            ((AbstractAdaptableView) newDockable).activate();
+                        }
+                    }
+                });
             }});
         
         // Track the agent name in the title bar
@@ -294,7 +306,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         final PreferencesView preferencesView = addView(new PreferencesView(this));
         wmeSupportView.dock(preferencesView);
-        
     }
     
     private <T extends AbstractAdaptableView> T addView(T view)

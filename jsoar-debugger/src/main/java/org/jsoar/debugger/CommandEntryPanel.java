@@ -63,6 +63,10 @@ public class CommandEntryPanel extends JPanel implements Disposable
         }
     }
     
+    public void giveFocus()
+    {
+        field.requestFocusInWindow();
+    }
     
     /* (non-Javadoc)
      * @see org.jsoar.debugger.Disposable#dispose()

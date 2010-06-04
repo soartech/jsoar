@@ -178,6 +178,18 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         return super.getAdapter(klass);
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.AbstractAdaptableView#activate()
+     */
+    @Override
+    public void activate()
+    {
+        if(isActive())
+        {
+            commandPanel.giveFocus();
+        }
+    }
+
     private void updateSelectionOnLeftClick(MouseEvent e)
     {
         int offset = outputWindow.viewToModel(e.getPoint());
