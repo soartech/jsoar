@@ -462,7 +462,14 @@ public class JSoarDebugger extends JPanel implements Adaptable
         int i = 1;
         for(final AbstractAdaptableView view : sortedViews)
         {
-            viewMenu.add(new ShowViewAction(view, "ctrl " + i++));
+            String key = view.getShortcutKey();
+            if(key == null)
+            {   
+                key = "ctrl " + i;
+            }
+            viewMenu.add(new ShowViewAction(view, key));
+            
+            i++;
         }
     }
 

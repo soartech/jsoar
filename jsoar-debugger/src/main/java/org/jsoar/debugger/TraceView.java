@@ -190,6 +190,15 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
+     */
+    @Override
+    public String getShortcutKey()
+    {
+        return "ctrl T";
+    }
+
     private void updateSelectionOnLeftClick(MouseEvent e)
     {
         int offset = outputWindow.viewToModel(e.getPoint());

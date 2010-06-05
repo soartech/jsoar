@@ -148,6 +148,15 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         agent.execute(matchCall, SwingCompletionHandler.newInstance(finish));
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
+     */
+    @Override
+    public String getShortcutKey()
+    {
+        return "ctrl shift M";
+    }
+
     private void tableSelectionChange()
     {
         final MatchSetEntry entry = (MatchSetEntry) entryList.getSelectedValue();

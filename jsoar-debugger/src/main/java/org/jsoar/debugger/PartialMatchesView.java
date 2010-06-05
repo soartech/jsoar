@@ -73,6 +73,15 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         getMatchOutput(new ArrayList<Object>(selectionManager.getSelection()));
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
+     */
+    @Override
+    public String getShortcutKey()
+    {
+        return "ctrl M";
+    }
+
     private void getMatchOutput(final List<Object> selection)
     {
         Callable<String> matchCall = new Callable<String>() {

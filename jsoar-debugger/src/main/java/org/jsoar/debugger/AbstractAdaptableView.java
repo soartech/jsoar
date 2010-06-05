@@ -32,6 +32,11 @@ public abstract class AbstractAdaptableView extends View implements Adaptable
         this.addAction(DockingConstants.PIN_ACTION);
     }
     
+    public String getShortcutKey()
+    {
+        return null;
+    }
+    
     /**
      * Called when the view becomes active 
      */
