@@ -6,6 +6,7 @@ package org.jsoar.kernel.commands;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Stack;
@@ -15,6 +16,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.util.FileTools;
+import org.jsoar.util.StringTools;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
@@ -27,7 +29,7 @@ import org.jsoar.util.events.SoarEventManager;
  * <ul>
  * <li>The current working directory (pwd)
  * <li>The directory stack (pushd and popd)
- * <li>Stats about current top-level source command (productions added, etc)
+ * <li>Stats about current top-level source command (last command, productions added, etc)
  * </ul>
  * 
  * @author ray
@@ -58,6 +60,7 @@ public class SourceCommand implements SoarCommand
             }
         }
     };
+    private String[] lastTopLevelCommand = null;
     
     public SourceCommand(SourceCommandAdapter interp, SoarEventManager events)
     {
@@ -163,6 +166,22 @@ public class SourceCommand implements SoarCommand
         
         final boolean topLevel = topLevelState == null;
         
+        final boolean reload = "-r".equals(args[1]) || "--reload".equals(args[1]);
+        if(topLevel && reload && lastTopLevelCommand != null)
+        {
+            return "Reloaded: " + 
+                   StringTools.join(Arrays.asList(lastTopLevelCommand), " ") + "\n" + 
+                   execute(lastTopLevelCommand);
+        }
+        else if(!topLevel && reload)
+        {
+            throw new SoarException(args[1] + " option only valid at top level");
+        }
+        else if(lastTopLevelCommand == null && reload)
+        {
+            throw new SoarException("No previous file to reload");
+        }
+        
         // Process args to get list of files and options ...
         final List<String> files = new ArrayList<String>();
         final EnumSet<Options> opts = EnumSet.noneOf(Options.class);
@@ -195,6 +214,10 @@ public class SourceCommand implements SoarCommand
             for(String file : files)
             {
                 source(file);
+            }
+            if(topLevel)
+            {
+                lastTopLevelCommand = Arrays.copyOf(args, args.length);
             }
             return generateResult(topLevel, opts);
         }
