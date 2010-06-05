@@ -28,6 +28,7 @@ import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.rete.PartialMatches.Entry;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
@@ -2527,12 +2528,7 @@ public class Rete
      */
     private int ppmi_aux(Printer printer, ReteNode node, ReteNode cutoff, Condition cond, WmeTraceType wtt, int indent)
     {
-
-        // find the number of matches for this condition
-        final Token tokens = get_all_left_tokens_emerging_from_node(node);
-        int matches_at_this_level = 0;
-        for (Token t = tokens; t != null; t = t.next_of_node)
-            matches_at_this_level++;
+        int matches_at_this_level = getMatchCountForNode(node);
 
         // if we're at the cutoff node, we're done
         if (node == cutoff)
@@ -2632,6 +2628,59 @@ public class Rete
         }
     }
 
+    private List<Entry> getPartialMatchesAux(List<Entry> entries, ReteNode node, ReteNode cutoff, Condition cond)
+    {
+        final int matches_at_this_level = getMatchCountForNode(node);
+
+        // if we're at the cutoff node, we're done
+        if (node == cutoff)
+        {
+            return entries;
+        }
+
+        // do stuff higher up
+        final ReteNode parent = node.real_parent_node();
+        getPartialMatchesAux(entries, parent, cutoff, cond.prev);
+
+        final ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+        if (ncc != null)
+        {
+            // recursively print match counts for the NCC subconditions
+            entries.add(new Entry(cond, matches_at_this_level, 
+                    getPartialMatchesAux(new ArrayList<Entry>(), node.b_cn.partner.real_parent_node(), parent, ncc.bottom)));
+        }
+        else
+        {
+            entries.add(new Entry(cond, matches_at_this_level, null));
+        }
+
+        return entries;
+    }
+
+    public PartialMatches getPartialMatches(ReteNode p_node)
+    {
+        final ConditionsAndNots cans = p_node_to_conditions_and_nots(p_node, null, null, false);
+        final List<PartialMatches.Entry> entries = getPartialMatchesAux(new ArrayList<Entry>(), p_node.parent, dummy_top_node , cans.bottom);
+        return new PartialMatches(entries);
+    }
+    
+    /**
+     * Extracted from ppmi_aux method.
+     * 
+     * @param node a rete node
+     * @return the number of matches for in the node (left token count)
+     */
+    private int getMatchCountForNode(ReteNode node)
+    {
+        // find the number of matches for this condition
+        final Token tokens = get_all_left_tokens_emerging_from_node(node);
+        int matches_at_this_level = 0;
+        for (Token t = tokens; t != null; t = t.next_of_node)
+            matches_at_this_level++;
+        return matches_at_this_level;
+    }
+    
+    
     /**
      * Returns a count of the number of tokens currently in use for the given
      * production. The count does not include:

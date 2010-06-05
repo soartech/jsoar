@@ -6,21 +6,20 @@
 package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 
 import org.jsoar.debugger.selection.SelectionListener;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionManager;
-import org.jsoar.kernel.tracing.Printer;
-import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.kernel.rete.PartialMatches;
+import org.jsoar.kernel.rete.PartialMatches.Entry;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
@@ -29,13 +28,13 @@ import org.jsoar.util.adaptables.Adaptables;
 /**
  * @author ray
  */
-public class PartialMatchesView extends AbstractAdaptableView implements SelectionListener
+public class PartialMatchesView extends AbstractAdaptableView implements SelectionListener, Refreshable
 {
     private static final long serialVersionUID = -5150761314645770374L;
 
     private final ThreadedAgent agent;
     private final SelectionManager selectionManager;
-    private JTextArea textArea = new JTextArea();
+    private JTextPane textArea = new JTextPane();
     
     public PartialMatchesView(JSoarDebugger debugger)
     {
@@ -46,6 +45,8 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         
         JPanel p = new JPanel(new BorderLayout());
         this.textArea.setEditable(false);
+        this.textArea.setContentType("text/html");
+
         p.add(new JScrollPane(textArea), BorderLayout.CENTER);
         
         setContentPane(p);
@@ -63,6 +64,15 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         getMatchOutput(new ArrayList<Object>(manager.getSelection()));
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Refreshable#refresh(boolean)
+     */
+    @Override
+    public void refresh(boolean afterInitSoar)
+    {
+        getMatchOutput(new ArrayList<Object>(selectionManager.getSelection()));
+    }
+
     private void getMatchOutput(final List<Object> selection)
     {
         Callable<String> matchCall = new Callable<String>() {
@@ -100,19 +110,78 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     
     private String safeGetMatchOutput(List<Object> selection)
     {
-        final StringWriter writer = new StringWriter();
-        final Printer printer = new Printer(writer);
+        final StringBuilder b = new StringBuilder();
+        b.append("<html>");
         for(Object o : selection)
         {
-            Production p = getProduction(agent.getProductions(), o);
+            final Production p = getProduction(agent.getProductions(), o);
             if(p != null)
             {
-                printer.print("--------------------------------------------\n");
-                printer.print("- matches %s\n", p.getName());
-                p.printPartialMatches(printer, WmeTraceType.FULL);
-                printer.print("\n\n");
+                b.append("<h3>" + escape(p.getName()) + "</h3>");
+                final PartialMatches pm = p.getPartialMatches();
+                final List<Entry> entries = pm.getEntries();
+                formatEntries(b, entries, 0);
+                b.append("<br>");
+                final Entry lastEntry = entries.get(entries.size() - 1);
+                final int total = lastEntry.matches;
+                b.append(String.format("<b><font color='%s'>%d complete match%s.</font><b>", 
+                        total > 0 ? "green" : "red",
+                        total,
+                        total != 1 ? "es" : ""));
             }
+            b.append("<br>");
         }
-        return writer.toString();
+        
+        b.append("</html>");
+        return b.toString();
+    }
+
+    private String escape(String s)
+    {
+        return s.replace("&", "&amp;").replace("<", "&lt;");
+    }
+    
+    private void spaces(StringBuilder b, int level)
+    {
+        for(int i = 0; i < level; i++)
+        {
+            b.append("&nbsp;&nbsp;");
+        }
+    }
+    
+    private void formatPositiveEntry(StringBuilder b, Entry e)
+    {
+        b.append("<font color='" + (e.matches > 0 ? "green" : "red") + "'>");
+        b.append("<b>" + e.matches + "</b> ");
+        b.append(escape(String.format("%s", e.condition)));
+        b.append("</font>");
+    }
+
+    private void formatNegativeEntry(final StringBuilder b, Entry e, int level)
+    {
+        // how about &not; ??
+        b.append("-{<br>");
+        formatEntries(b, e.negatedSubConditions, level+1);
+        spaces(b, level);
+        b.append(String.format("} <b><font color='%s'>%d</font></b>", e.matches > 0 ? "green" : "red", e.matches));
+    }
+    
+    private void formatEntries(final StringBuilder b, final List<Entry> entries, int level)
+    {
+        b.append("<font face='monospace'>");
+        for(Entry e : entries)
+        {
+            spaces(b, level);
+            if(e.negatedSubConditions == null)
+            {
+                formatPositiveEntry(b, e);
+            }
+            else
+            {
+                formatNegativeEntry(b, e, level);
+            }
+            b.append("<br>");
+        }
+        b.append("</font>");
     }
 }

@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -14,6 +15,7 @@ import org.jsoar.kernel.lhs.ConditionReorderer;
 import org.jsoar.kernel.lhs.Conditions;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.rete.ConditionsAndNots;
+import org.jsoar.kernel.rete.PartialMatches;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.ReteNode;
 import org.jsoar.kernel.rhs.Action;
@@ -168,6 +170,20 @@ public class Production
         }
         
         rete.print_partial_match_information(printer, p_node, wtt);
+    }
+    
+    /**
+     * Returns a structured partial matches for this rule
+     * 
+     * @return partial matches
+     */
+    public PartialMatches getPartialMatches()
+    {
+        if(rete == null)
+        {
+            return new PartialMatches(new ArrayList<PartialMatches.Entry>());
+        }
+        return rete.getPartialMatches(p_node);
     }
     
     /**
