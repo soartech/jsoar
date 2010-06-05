@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.concurrent.Callable;
 
 import javax.swing.JFileChooser;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import org.jsoar.debugger.JSoarDebugger;
@@ -30,6 +31,7 @@ public class SourceFileAction extends AbstractDebuggerAction
     {
         super(manager, "Source File ...");
         
+        setAcceleratorKey(KeyStroke.getKeyStroke("ctrl O"));
         lastDir = JSoarDebugger.PREFERENCES.get("lastSourceDir", System.getProperty("user.dir"));
     }
 
