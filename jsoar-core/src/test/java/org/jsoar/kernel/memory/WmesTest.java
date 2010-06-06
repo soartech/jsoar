@@ -62,32 +62,35 @@ public class WmesTest
     }
 
     @Test
-    public void testCreateLinkedListWithEmptyListReturnsEmptyIdentifier()
+    public void testCreateLinkedListWithEmptyListReturnsNil()
     {
-        final Identifier result = Wmes.createLinkedList(factory, Collections.emptyList().iterator());
+        final Symbol result = Wmes.createLinkedList(factory, Collections.emptyList().iterator());
         assertNotNull(result);
         assertEquals(0, factory.triples.size());
+        assertEquals("nil", result.asString().getValue());
     }
     
     @Test
     public void testCreateLinkedListWithOneEntry()
     {
-        final Identifier result = Wmes.createLinkedList(factory, Arrays.asList("first").iterator());
+        final Identifier result = Wmes.createLinkedList(factory, Arrays.asList("first").iterator()).asIdentifier();
         assertNotNull(result);
-        assertEquals(1, factory.triples.size());
+        assertEquals(2, factory.triples.size());
         verifyTriple(0, result, "value", "first");
+        verifyTriple(1, result, "next", "nil");
     }
     
     @Test
     public void testCreateLinkedListWithTwoEntries()
     {
         @SuppressWarnings("unchecked")
-        final Identifier result = Wmes.createLinkedList(factory, Arrays.asList("first", 99).iterator());
+        final Identifier result = Wmes.createLinkedList(factory, Arrays.asList("first", 99).iterator()).asIdentifier();
         assertNotNull(result);
-        assertEquals(3, factory.triples.size());
+        assertEquals(4, factory.triples.size());
         verifyTriple(0, result, "value", "first");
         verifyTriple(1, result, "next", null);
         verifyTriple(2, factory.triples.get(1).value.asIdentifier(), "value", 99);
+        verifyTriple(3, factory.triples.get(1).value.asIdentifier(), "next", "nil");
     }
     
     private void verifyTriple(int index, Identifier id, Object attr, Object value)

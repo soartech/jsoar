@@ -54,8 +54,7 @@ public class ListRhsFunctionTest
                 "--> " +
                 "(<s> ^result (list))");
         agent.getProductions().loadProduction("" +
-                "checkResult (state <s> ^superstate nil ^result <r>) " +
-                "(<r> -^value -^next)" +
+                "checkResult (state <s> ^superstate nil ^result nil) " +
                 "-->" +
                 "(succeeded)");
                 
@@ -84,7 +83,7 @@ public class ListRhsFunctionTest
                 "(<r> ^value a ^next <n1>)" +
                 "(<n1> ^value b ^next <n2>)" +
                 "(<n2> ^value 99 ^next <n3>)" +
-                "(<n3> ^value 3.14 -^next)" +
+                "(<n3> ^value 3.14 ^next nil)" +
                 "-->" +
                 "(succeeded)");
                 

@@ -50,14 +50,18 @@ public class Wmes
      *        ^value 12345
      *        ^next
      *            ^value 3.14
+     *            ^next nil
      * }</pre>
+     * 
+     * The end of the list is marked with {@code ^next nil}. If the list is empty,
+     * just {@code nil} will be returned rather than an {@link Identifier}. 
      * 
      * @param context the RHS function context
      * @param values iterator over the list of values 
      * @return the id of the head of the list. If the list is empty, the id will have
      *      no attributes.
      */
-    public static Identifier createLinkedList(WmeFactory<?> context, Iterator<?> values)
+    public static Symbol createLinkedList(WmeFactory<?> context, Iterator<?> values)
     {
         return createLinkedList(context, values, "next", "value");
     }
@@ -73,7 +77,7 @@ public class Wmes
      * @return the id of the head of the list. If the list is empty, the id will have
      *      no attributes.
      */
-    public static Identifier createLinkedList(WmeFactory<?> context, Iterator<?> values, String nextName, String valueName)
+    public static Symbol createLinkedList(WmeFactory<?> context, Iterator<?> values, String nextName, String valueName)
     {
         final SymbolFactory syms = context.getSymbols();
         final Symbol nextSym = syms.createString(nextName);
@@ -98,7 +102,11 @@ public class Wmes
 
             last = current;
         }
-        return head != null ? head : syms.createIdentifier('N');
+        if(last != null)
+        {
+            context.addWme(last, nextSym, syms.createString("nil"));
+        }
+        return head != null ? head : syms.createString("nil");
     }
     
     /**

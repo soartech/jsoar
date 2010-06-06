@@ -21,7 +21,8 @@ import org.junit.Test;
  */
 public class SplitTest extends JSoarTest
 {
-    @Test public void testSplit() throws Exception
+    @Test 
+    public void testSplit() throws Exception
     {        
         final ByRef<Boolean> succeeded = ByRef.create(false);
         final Agent agent = new Agent();
@@ -44,7 +45,7 @@ public class SplitTest extends JSoarTest
         		"checkResult (state <s> ^superstate nil ^result <r>) " +
         		"(<r> ^value string ^next <n1>)" +
         		"(<n1> ^value to ^next <n2>)" +
-        		"(<n2> ^value split -^next) " +
+        		"(<n2> ^value split ^next nil) " +
         		"-->" +
         		"(succeeded)");
         		
