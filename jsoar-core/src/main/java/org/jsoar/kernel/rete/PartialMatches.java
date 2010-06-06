@@ -74,7 +74,7 @@ public class PartialMatches
     }
     
     /**
-     * @return immutable list of entries
+     * @return immutable list of entries. This list may be empty!
      */
     public List<Entry> getEntries()
     {

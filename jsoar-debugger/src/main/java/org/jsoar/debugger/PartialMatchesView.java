@@ -129,14 +129,21 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
                 b.append("<h3>" + escape(p.getName()) + "</h3>");
                 final PartialMatches pm = p.getPartialMatches();
                 final List<Entry> entries = pm.getEntries();
-                formatEntries(b, entries, 0);
-                b.append("<br>");
-                final Entry lastEntry = entries.get(entries.size() - 1);
-                final int total = lastEntry.matches;
-                b.append(String.format("<b><font color='%s'>%d complete match%s.</font><b>", 
-                        total > 0 ? "green" : "red",
-                        total,
-                        total != 1 ? "es" : ""));
+                if(entries.size() > 0)
+                {
+                    formatEntries(b, entries, 0);
+                    b.append("<br>");
+                    final Entry lastEntry = entries.get(entries.size() - 1);
+                    final int total = lastEntry.matches;
+                    b.append(String.format("<b><font color='%s'>%d complete match%s.</font><b>", 
+                            total > 0 ? "green" : "red",
+                            total,
+                            total != 1 ? "es" : ""));
+                }
+                else
+                {
+                    b.append("No match info available<br>");
+                }
             }
             b.append("<br>");
         }
