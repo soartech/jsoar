@@ -49,31 +49,9 @@ public class FunctionalTests
     
     private final boolean halted[] = { false };
     private final boolean failed[] = { false };
-    
-    // this function assumes some other function has set up the agent
-    private void runTestCore(String testName, int expectedDecisions) throws Exception
-    {
-        if(expectedDecisions >= 0)
-        {
-            agent.runFor(expectedDecisions + 1, RunType.DECISIONS);
-        }
-        else
-        {
-            agent.runForever();
-        }
         
-        assertTrue(testName + " functional test did not halt", halted[0]);
-        assertFalse(testName + " functional test failed", failed[0]);
-        if(expectedDecisions >= 0)
-        {
-            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
-        }
-        
-        ifc.eval("stats");
-        
-    }
-    
-    private void runTest(String testName, int expectedDecisions) throws Exception
+    // sources rules, sets up the agent with common RHS functions
+    private void runTestSetup(String testName) throws SoarException
     {
         sourceTestFile(testName + ".soar");
         
@@ -109,10 +87,36 @@ public class FunctionalTests
                 failed[0] = false;
                 return oldHalt.execute(rhsContext, arguments);
             }});
-    
-        runTestCore(testName, expectedDecisions);
     }
+    
+    // this function assumes some other function has set up the agent (like runTestSetup)
+    private void runTestExecute(String testName, int expectedDecisions) throws Exception
+    {
+        if(expectedDecisions >= 0)
+        {
+            agent.runFor(expectedDecisions + 1, RunType.DECISIONS);
+        }
+        else
+        {
+            agent.runForever();
+        }
         
+        assertTrue(testName + " functional test did not halt", halted[0]);
+        assertFalse(testName + " functional test failed", failed[0]);
+        if(expectedDecisions >= 0)
+        {
+            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
+        }
+        
+        ifc.eval("stats");
+        
+    }
+    private void runTest(String testName, int expectedDecisions) throws Exception
+    {
+        runTestSetup(testName);  
+        runTestExecute(testName, expectedDecisions);
+    }
+    
     /**
      * @throws java.lang.Exception
      */
@@ -305,13 +309,19 @@ public class FunctionalTests
     @Test(timeout=10000)
     public void testBlocksWorldLookAhead() throws Exception
     {
-        runTest("testBlocksWorldLookAhead", -1);
+        String testName = "testBlocksWorldLookAhead";
+        runTestSetup(testName);
+        agent.getRandom().setSeed(1);
+        runTestExecute(testName, 27);
     }
     
     @Test
     public void testBlocksWorldLookAhead2() throws Exception
     {
-        runTest("testBlocksWorldLookAhead2", 29);
+        String testName = "testBlocksWorldLookAhead";
+        runTestSetup(testName);
+        agent.getRandom().setSeed(100000000002L);
+        runTestExecute(testName, 29);
     }
     
     @Test
@@ -374,7 +384,7 @@ public class FunctionalTests
     @Test(timeout=10000)
     public void testBlocksWorldLookAheadRandom() throws Exception
     {
-        runTest("testBlocksWorldLookAheadRandom", -1);
+        runTest("testBlocksWorldLookAhead", -1);
     }
     
     @Test(timeout=30000)
@@ -593,7 +603,7 @@ public class FunctionalTests
         int expectedDecisions = 2048;
         runTest(testName, expectedDecisions);
         testInitSoar();
-        runTestCore(testName, expectedDecisions);
+        runTestExecute(testName, expectedDecisions);
     }
 
 }
