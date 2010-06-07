@@ -162,8 +162,12 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         int index = model.getProductions().indexOf(production);
         if(index != -1)
         {
-            table.getSelectionModel().setSelectionInterval(index, index);
-            table.scrollRowToVisible(index);
+            index = table.convertRowIndexToView(index);
+            if(index != -1)
+            {
+                table.getSelectionModel().setSelectionInterval(index, index);
+                table.scrollRowToVisible(index);
+            }
         }
     }
     
