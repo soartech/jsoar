@@ -95,7 +95,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
             @Override
             public void finish(String result)
             {
-                if(result.length() != 0)
+                if(result != null && result.length() != 0)
                 {
                     textArea.setText(result);
                     textArea.setCaretPosition(0);
@@ -121,6 +121,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
     {
         final StringBuilder b = new StringBuilder();
         b.append("<html>");
+        int count = 0;
         for(Object o : selection)
         {
             final Production p = getProduction(agent.getProductions(), o);
@@ -144,12 +145,13 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
                 {
                     b.append("No match info available<br>");
                 }
+                count++;
             }
             b.append("<br>");
         }
         
         b.append("</html>");
-        return b.toString();
+        return count != 0 ? b.toString() : null;
     }
 
     private String escape(String s)
@@ -165,39 +167,75 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
         }
     }
     
-    private void formatPositiveEntry(StringBuilder b, Entry e)
+    private void formatPositiveEntry(StringBuilder b, Entry e, Entry previous)
     {
+        printEntryLeader(b, e, previous);
         b.append("<font color='" + (e.matches > 0 ? "green" : "red") + "'>");
         b.append("<b>" + e.matches + "</b> ");
         b.append(escape(String.format("%s", e.condition)));
         b.append("</font>");
     }
 
-    private void formatNegativeEntry(final StringBuilder b, Entry e, int level)
+    private void formatNegativeEntry(final StringBuilder b, Entry e, int level, Entry previous)
     {
+        printEntryLeader(b, e, previous);
         // how about &not; ??
         b.append("-{<br>");
         formatEntries(b, e.negatedSubConditions, level+1);
         spaces(b, level);
+        b.append("&nbsp;&nbsp;&nbsp;");
         b.append(String.format("} <b><font color='%s'>%d</font></b>", e.matches > 0 ? "green" : "red", e.matches));
     }
+    
+    private void printEntryLeader(StringBuilder b, Entry e, Entry previous)
+    {
+        final boolean firstNonMatch = e.matches == 0 && (previous == null || previous.matches > 0);
+        if(firstNonMatch)
+        {
+            b.append("<b>" + escape(">> ") + "</b>");
+        }
+        else
+        {
+            b.append("&nbsp;&nbsp;&nbsp;");
+        }
+    }
+
     
     private void formatEntries(final StringBuilder b, final List<Entry> entries, int level)
     {
         b.append("<font face='monospace'>");
+        Entry previous = null;
+        int processed = 0;
         for(Entry e : entries)
         {
             spaces(b, level);
             if(e.negatedSubConditions == null)
             {
-                formatPositiveEntry(b, e);
+                formatPositiveEntry(b, e, previous);
             }
             else
             {
-                formatNegativeEntry(b, e, level);
+                formatNegativeEntry(b, e, level, previous);
             }
             b.append("<br>");
+            
+            previous = e;
+            processed++;
+            
+            // Only print up to the first non-match.
+            // TODO: make this configurable
+            if(e.matches == 0)
+            {
+                break;
+            }
         }
+        
+        if(processed != entries.size())
+        {
+            final int remaining = entries.size() - processed;
+            b.append(String.format("&nbsp;&nbsp;&nbsp;... %d more condition%s ...<br>", remaining, (remaining != 1 ? "s": "")));
+        }
+        
         b.append("</font>");
     }
 }
