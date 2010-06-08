@@ -13,6 +13,7 @@ import java.util.List;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.util.StringTools;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -64,7 +65,9 @@ public class StandardFunctions
         @Override
         public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
-            context.getPrinter().error("Failure %s", arguments);
+            context.getPrinter().error("Failed: %s: %s", 
+                    rhsContext.getProductionBeingFired().getName(), 
+                    StringTools.join(arguments, ", "));
             return context.getRhsFunctions().getHandler("halt").execute(rhsContext, arguments);
         }
         
@@ -78,7 +81,9 @@ public class StandardFunctions
         @Override
         public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
         {
-            context.getPrinter().error("Succeeded %s", arguments);
+            context.getPrinter().print("Succeeded: %s: %s", 
+                    rhsContext.getProductionBeingFired().getName(), 
+                    StringTools.join(arguments, ", "));
             return context.getRhsFunctions().getHandler("halt").execute(rhsContext, arguments);
         }
         
