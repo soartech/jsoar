@@ -24,6 +24,7 @@ public final class EchoCommand implements SoarCommand
     public String execute(String[] args) throws SoarException
     {
         boolean noNewLine = false;
+        agent.getPrinter().startNewLine();
         for(int i = 1; i < args.length; ++i)
         {
             final String argString = args[i].toString();
