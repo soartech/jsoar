@@ -26,7 +26,6 @@ public abstract class Action
     public Action next;
     public PreferenceType preference_type;
     public ActionSupport support = ActionSupport.UNKNOWN_SUPPORT;
-    public boolean already_in_tc;  /* used only by compile-time o-support calcs */
     
     public static void addAllVariables(Action head, Marker tc_number, ListHead<Variable> var_list)
     {
