@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.CLogCommand;
+import org.jsoar.kernel.commands.DebuggerCommand;
 import org.jsoar.kernel.commands.DefaultWmeDepthCommand;
 import org.jsoar.kernel.commands.EchoCommand;
 import org.jsoar.kernel.commands.EditProductionCommand;
@@ -199,7 +200,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("timers", new TimersCommand());
         addCommand("version", new VersionCommand());
         addCommand("set-stop-phase", new SetStopPhaseCommand(this.agent.getProperties()));
-        
+        addCommand("debugger", new DebuggerCommand(agent));
+
         try
         {
             interp.evalResource(DEFAULT_TCL_CODE);

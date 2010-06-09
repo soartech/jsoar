@@ -55,11 +55,7 @@ public class Soar2Soar
 
                 if (currentAgent != null)
                 {
-                    if (line.equals("debugger")) {
-                    	currentAgent.getAgent().openDebugger();
-                    } else {
-                    	currentAgent.getInterpreter().eval(line);
-                    }
+                	currentAgent.getInterpreter().eval(line);
                 }
                 else
                 {

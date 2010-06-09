@@ -24,6 +24,7 @@ import java.util.Map;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.CLogCommand;
+import org.jsoar.kernel.commands.DebuggerCommand;
 import org.jsoar.kernel.commands.DefaultWmeDepthCommand;
 import org.jsoar.kernel.commands.EchoCommand;
 import org.jsoar.kernel.commands.EditProductionCommand;
@@ -127,6 +128,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("qmemory", new QMemoryCommand(this.agent));
         addCommand("timers", new TimersCommand());
         addCommand("set-stop-phase", new SetStopPhaseCommand(this.agent.getProperties()));
+        addCommand("debugger", new DebuggerCommand(agent));
     }
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommandInterpreter#addCommand(java.lang.String, org.jsoar.util.commands.SoarCommand)
