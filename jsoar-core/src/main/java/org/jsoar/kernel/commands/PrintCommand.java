@@ -222,7 +222,7 @@ public class PrintCommand implements SoarCommand
                     agent.getPrinter().print("%s   ", p.getName());
                     if(p.rl_rule)
                     {
-                        agent.getPrinter().print("%d   %s", p.rl_update_count, p.action_list.asMakeAction().referent);
+                        agent.getPrinter().print("%f   %s", p.rl_update_count, p.action_list.asMakeAction().referent);
                     }
                 }
                 agent.getPrinter().print("\n");
