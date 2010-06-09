@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Queue;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.InputEvent;
@@ -16,7 +17,12 @@ import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.io.InputWmes;
 import org.jsoar.kernel.io.OutputChange;
 import org.jsoar.kernel.io.TimeInput;
+import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.DummyWme;
+import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommands;
 import org.jsoar.util.events.SoarEvent;
@@ -112,8 +118,6 @@ public class EnvironmentAgent
             }
             
         });
-
-		env.openDebugger();
 	}
 
     protected void doOutput(OutputEvent event)
@@ -134,6 +138,18 @@ public class EnvironmentAgent
             for ( ClientAgent agent : agentMap.values()) {
                 if ( agent.isMyEnvIdentifier(delta.getWme().getIdentifier())) {
                     agent.pushInput(delta);
+                } else {
+                	if (delta.getWme().getIdentifier()==agent.getEnvOutFeedback()) {
+                		Identifier addWme = delta.getWme().getValue().asIdentifier();
+                		
+                		Wme idWme = Wmes.matcher(env.getAgent()).attr("id").find(addWme);
+                		Wme attrWme = Wmes.matcher(env.getAgent()).attr("attr").find(addWme);
+                		Wme valueWme = Wmes.matcher(env.getAgent()).attr("value").find(addWme);
+                		
+                		Identifier convertedId = agent.getClientToEnv().inverse().get(idWme.getValue().asIdentifier());
+                		
+                		agent.pushFeedback(new DummyWme(convertedId, attrWme.getValue(), valueWme.getValue()));
+                	}
                 }
             }
         }
@@ -143,9 +159,52 @@ public class EnvironmentAgent
     {
         InputWmes.update(timeWme, (System.currentTimeMillis()-timeAtStart) / 1000);
         
+    	for (ClientAgent agent : agentMap.values()) {
+    		processAgentCommands(agent);
+    	}
     }
 
-    public void createClient(String source) throws SoarException
+    private void processAgentCommands(ClientAgent agentContainer) {
+		    	
+    	Map<Identifier, Identifier> clientToEnv = agentContainer.getClientToEnv();
+    	Queue<OutputChange> pendingOutputs = agentContainer.getPendingOutputs();
+    	Map<Wme, InputWme> clientToEnvWmes = agentContainer.getClientToEnvWmes();
+    	
+    	while (!pendingOutputs.isEmpty()) {
+            OutputChange delta = pendingOutputs.poll();
+            if (delta != null) {
+                if (delta.isAdded()) {
+                    
+                    SymbolFactory syms = env.getSymbols();
+                    Symbol myAttr = syms.importSymbol(delta.getWme().getAttribute());
+                    Symbol myValue = null;
+                    if (delta.getWme().getValue().asIdentifier()==null) {
+                        myValue = syms.importSymbol(delta.getWme().getValue());
+                    } else {
+                        Identifier convertedId = clientToEnv.get(delta.getWme().getValue().asIdentifier());
+                        
+                        if (convertedId==null) {
+                            convertedId = syms.createIdentifier(delta.getWme().getValue().asIdentifier().getNameLetter());
+                            clientToEnv.put(delta.getWme().getValue().asIdentifier(), convertedId);
+                            
+                        }
+                        
+                        myValue = convertedId;
+                    }
+                    
+                    clientToEnvWmes.put(delta.getWme(), env.getInputOutput().addInputWme(clientToEnv.get(delta.getWme().getIdentifier()), myAttr, myValue));
+                    
+                    
+                } else {
+                    
+                	clientToEnvWmes.remove(delta.getWme()).remove();
+                    
+                }
+            }
+        }
+	}
+
+	public void createClient(String source) throws SoarException
     {
         int agentId = agentMap.size() + 1;
         ClientAgent agent = new ClientAgent("a" + agentId, source, agentId);
