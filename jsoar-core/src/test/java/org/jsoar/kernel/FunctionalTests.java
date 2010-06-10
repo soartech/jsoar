@@ -605,5 +605,11 @@ public class FunctionalTests
         testInitSoar();
         runTestExecute(testName, expectedDecisions);
     }
+    
+    @Test
+    public void testORejectsFirst() throws Exception
+    {
+        runTest("testORejectsFirst", 1);
+    }
 
 }
