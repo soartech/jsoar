@@ -744,7 +744,6 @@ public class Lexer
                 continue;
             }
 
-            // #ifdef USE_TCL
             if (current_char == ';')
             {
                 /* --- skip the semi-colon, forces newline in TCL --- */
