@@ -158,8 +158,7 @@ public class ReteTest
     /**
      * <p>rete.cpp:220:test_is_constant_relational_test
      * 
-     * @param x
-     * @return true if is a constant relational test
+     * @return true if this is a constant relational test
      */
     public boolean test_is_constant_relational_test()
     {
@@ -169,8 +168,7 @@ public class ReteTest
     /**
      * <p>rete.cpp:225:test_is_variable_relational_test
      * 
-     * @param x
-     * @return true if x is a variable relational test
+     * @return true if this is a variable relational test
      */
     public boolean test_is_variable_relational_test()
     {
@@ -180,8 +178,7 @@ public class ReteTest
     /**
      * <p>rete.cpp:242:kind_of_relational_test
      * 
-     * @param x
-     * @return if x is any kind of relational test
+     * @return if this is any kind of relational test
      */
     public int kind_of_relational_test()
     {
@@ -191,8 +188,7 @@ public class ReteTest
     /**
      * <p>rete.cpp:247:test_is_not_equal_test
      * 
-     * @param x
-     * @return trie if x is a not-equal test
+     * @return true if this is a not-equal test
      */
     public boolean test_is_not_equal_test()
     {
