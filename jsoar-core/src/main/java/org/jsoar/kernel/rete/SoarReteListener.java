@@ -187,8 +187,6 @@ public class SoarReteListener implements ReteListener
             }
         }
 
-        // #ifdef BUG_139_WORKAROUND
-        // test workaround for bug #139: don't rematch justifications; let them be removed
         /*
          * note that the justification is added to the retraction list when it
          * is first created, so we let it match the first time, but not after
@@ -205,7 +203,6 @@ public class SoarReteListener implements ReteListener
                 node.b_p.prod.already_fired = true;
             }
         }
-        // #endif
 
         // if match found tentative_retractions, remove it
         if (match_found)
@@ -632,17 +629,10 @@ public class SoarReteListener implements ReteListener
 
         context.getTrace().print(Category.VERBOSE, "\n%s: ", node.b_p.prod.getName());
         
-        //#ifdef BUG_139_WORKAROUND
         if (node.b_p.prod.getType() == ProductionType.JUSTIFICATION)
         {
-            // TODO Warning
-            //#ifdef BUG_139_WORKAROUND_WARNING
-            //        print(thisAgent, "\nWarning: can't find an existing inst to retract (BUG 139 WORKAROUND)\n");
-            //        xml_generate_warning(thisAgent, "Warning: can't find an existing inst to retract (BUG 139 WORKAROUND)");
-            //#endif
             return;
         }
-        //#endif
 
         throw new IllegalStateException("Internal error: can't find existing instantiation to retract");
     }
@@ -683,9 +673,8 @@ public class SoarReteListener implements ReteListener
         // #endif
         msc.in_level.insertAtHead(nil_goal_retractions);
 
-        // #ifdef BUG_139_WORKAROUND
-        msc.p_node.b_p.prod.already_fired = false; // RPM workaround for bug #139; mark prod as not fired yet */
-        // #endif
+        msc.p_node.b_p.prod.already_fired = false; // mark prod as not fired yet
+
         ms_retractions = msc.addToHeadOfAllList(ms_retractions);
         p_node.b_p.tentative_retractions = msc.addToHeadOfNodeList(p_node.b_p.tentative_retractions);
     }

@@ -406,7 +406,7 @@ public class RecognitionMemory
         FunctionAction fa = a.asFunctionAction();
         if (fa != null)
         {
-    		instantiate_rhs_value(fa.getCall(), -1, 'v', tok, w);
+            instantiate_rhs_value(fa.getCall(), -1, 'v', tok, w);
             return null;
         }
 
@@ -453,7 +453,7 @@ public class RecognitionMemory
                 && (!(id.isa_goal && (attr == predefinedSyms.operator_symbol))))
         {
             context.getPrinter().error("attribute preference" +
-            		" other than +/- for %s ^%s -- ignoring it.", id, attr);
+                    " other than +/- for %s ^%s -- ignoring it.", id, attr);
             return null;
         }
         
@@ -625,8 +625,8 @@ public class RecognitionMemory
         final Trace trace = context.getTrace();
         
         // RPM workaround for bug #139: don't fire justifications
-    	// code moved to do_preference_phase
-    	assert prod.getType() != ProductionType.JUSTIFICATION;
+        // code moved to do_preference_phase
+        assert prod.getType() != ProductionType.JUSTIFICATION;
 
         final Instantiation inst = new Instantiation(prod, tok, w);
         this.newly_created_instantiations = inst.insertAtHeadOfProdList(this.newly_created_instantiations);
@@ -767,29 +767,29 @@ public class RecognitionMemory
     {
         if (decider.active_level == decider.highest_active_level)
         {
-        	return true;
+            return true;
         }
         
         if (prod.getType() == ProductionType.TEMPLATE)
         {
-        	return true;
+            return true;
         }
 
         // Scan RHS identifiers for their levels, don't fire those at or higher than the change level
         for (Action a = prod.action_list; a != null; a = a.next)
         {
-        	// These next three calls get the identifier which has the level,
-        	// skipping anything that isn't an identifier.
-        	MakeAction ma = a.asMakeAction();
+            // These next three calls get the identifier which has the level,
+            // skipping anything that isn't an identifier.
+            MakeAction ma = a.asMakeAction();
             if (ma == null)
             {
-            	continue;
+                continue;
             }
             
             // Skip unbound variables
             if (ma.id.asUnboundVariable() != null)
             {
-            	continue;
+                continue;
             }
             
             // Get the symbol or determine that it is a function call
@@ -797,19 +797,19 @@ public class RecognitionMemory
             RhsSymbolValue rsv = ma.id.asSymbolValue();
             if (rsv != null)
             {
-            	idSym = rsv.getSym();
+                idSym = rsv.getSym();
             } 
             else
             {
                 ReteLocation rl = ma.id.asReteLocation();
                 if (rl != null)
                 {
-                	idSym = rl.lookupSymbol(tok, w);
+                    idSym = rl.lookupSymbol(tok, w);
                 }
                 else
                 {
-                	// It's a function call, skip it.
-                	continue;
+                    // It's a function call, skip it.
+                    continue;
                 }
             }
             assert idSym != null;
@@ -817,15 +817,15 @@ public class RecognitionMemory
             IdentifierImpl id = idSym.asIdentifier();
             if (id == null)
             {
-            	continue;
+                continue;
             }
             
             if (id.level <= decider.change_level)
             {
-            	context.getTrace().print(Category.WATERFALL, "*** Waterfall: aborting firing because (%s * *)" +
-            			" level %d is on or higher (lower int) than change level %d\n", 
-            			id, id.level, decider.change_level);
-            	return false;
+                context.getTrace().print(Category.WATERFALL, "*** Waterfall: aborting firing because (%s * *)" +
+                        " level %d is on or higher (lower int) than change level %d\n", 
+                        id, id.level, decider.change_level);
+                return false;
             }
         }
 
@@ -1005,34 +1005,31 @@ public class RecognitionMemory
 
         trace.print(Category.VERBOSE, "\n in assert_new_preferences:");
 
-        if (SoarConstants.O_REJECTS_FIRST)
+        
+        // Do an initial loop to process o-rejects, then re-loop to process
+        // normal preferences.
+        Instantiation inst, next_inst;
+        for (inst = this.newly_created_instantiations; inst != null; inst = next_inst)
         {
-            // Do an initial loop to process o-rejects, then re-loop to process
-            // normal preferences.
-            Instantiation inst, next_inst;
-            for (inst = this.newly_created_instantiations; inst != null; inst = next_inst)
-            {
-                next_inst = inst.nextInProdList;
+            next_inst = inst.nextInProdList;
 
-                Preference pref, next_pref;
-                for (pref = inst.preferences_generated; pref != null; pref = next_pref)
+            Preference pref, next_pref;
+            for (pref = inst.preferences_generated; pref != null; pref = next_pref)
+            {
+                next_pref = pref.inst_next;
+                if ((pref.type == PreferenceType.REJECT) && (pref.o_supported))
                 {
-                    next_pref = pref.inst_next;
-                    if ((pref.type == PreferenceType.REJECT) && (pref.o_supported))
-                    {
-                        // o-reject: just put it in the buffer for later
-                        o_rejects.push(pref);
-                    }
+                    // o-reject: just put it in the buffer for later
+                    o_rejects.push(pref);
                 }
             }
-
-            if (!o_rejects.isEmpty())
-                process_o_rejects_and_deallocate_them(o_rejects);
-            
-            // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
         }
 
-        Instantiation inst, next_inst;
+        if (!o_rejects.isEmpty())
+            process_o_rejects_and_deallocate_them(o_rejects);
+        
+        // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
+
         for (inst = this.newly_created_instantiations; inst != null; inst = next_inst)
         {
             next_inst = inst.nextInProdList;
@@ -1047,17 +1044,10 @@ public class RecognitionMemory
             for (pref = inst.preferences_generated; pref != null; pref = next_pref)
             {
                 next_pref = pref.inst_next;
-                if ((pref.type == PreferenceType.REJECT) && (pref.o_supported))
-                {
-                    if (!SoarConstants.O_REJECTS_FIRST)
-                    {
-                        // o-reject: just put it in the buffer for later
-                        o_rejects.push(pref);
-                    }
-                    // No knowledge retrieval necessary in Operand2
-
-                }
-                else if (inst.in_ms || pref.o_supported)
+                
+                // TODO: not sure if the expressions before the && in this if statement are actually necessary (all tests still seem to pass if they are removed)
+                if ( (pref.type != PreferenceType.REJECT || !pref.o_supported) 
+                        && (inst.in_ms || pref.o_supported) )
                 {
                     // normal case
                     add_preference_to_tm(pref);
@@ -1082,12 +1072,6 @@ public class RecognitionMemory
                     pref.preference_remove_ref(this);
                 }
             }
-        }
-
-        if (!SoarConstants.O_REJECTS_FIRST)
-        {
-            if (!o_rejects.isEmpty())
-                process_o_rejects_and_deallocate_them(o_rejects);
         }
     }
     
@@ -1284,103 +1268,103 @@ public class RecognitionMemory
         // FIXME: should not do this inner elaboration loop for soar 7 mode.
         for (;;)
         {
-        	// Inner elaboration loop
-        	decider.change_level = decider.next_change_level;
-        	
-	        if (trace.isEnabled(Category.WATERFALL))
-	        {
-	        	trace.print("--- Inner Elaboration Phase, active level: %d",
-	        			decider.active_level);
-	        	if (decider.active_goal != null)
-	        	{
-		        	trace.print(" (%s)", decider.active_goal);
-	        	}
-	        	trace.print(" ---\n");
-	        }
-	        
-	        this.newly_created_instantiations = null;
-	    	
-	        SoarReteAssertion assertion = null;
-	        boolean assertionsExist = false;
-	        while ((assertion = this.soarReteListener.postpone_assertion()) != null)
-	        {
-	        	assertionsExist = true;
-	        	
-	            if(this.chunker.isMaxChunksReached()) 
-	            {
-	            	this.soarReteListener.consume_last_postponed_assertion();
-	                this.decisionCycle.halt("Max chunks reached");
-	                return;
-	            }
-	            
-	            if (assertion.production.getType() == ProductionType.JUSTIFICATION)
-	            {
-	            	this.soarReteListener.consume_last_postponed_assertion();
-
-	            	// don't fire justifications
-	            	continue;
-	            }
-	            
-	            if (shouldCreateInstantiation(assertion.production, assertion.token, assertion.wme))
-	            {
-	            	this.soarReteListener.consume_last_postponed_assertion();
-	            	create_instantiation(assertion.production, assertion.token, assertion.wme, top_goal);
-	            }
-	        }
-	        
-	        // New waterfall model: something fired or is pending to fire at this level, 
-	        // so this active level becomes the next change level.
-	        if (assertionsExist)
-	        {
-	            if (decider.active_level > decider.next_change_level) 
-	            {
-	            	decider.next_change_level = decider.active_level;
-	            }
-	        }
-	        
-	        // New waterfall model: push unfired matches back on to the assertion lists
-	        this.soarReteListener.restore_postponed_assertions();
-	        
-	        assert_new_preferences();
-	
-	        // update accounting
-	        this.decisionCycle.inner_e_cycle_count.increment();
-	        
-	        if (decider.active_goal == null)
-	        {
-	        	trace.print(Category.WATERFALL, " inner preference loop doesn't have active goal.\n");
-	        	break;
-	        }
-	        
-	        if (decider.active_goal.lower_goal == null)
-	        {
-	        	trace.print(Category.WATERFALL, " inner preference loop at bottom goal.\n");
-	        	break;
-	        }
-	        
-	        try
-	        {
-	            if (this.decisionCycle.current_phase == Phase.APPLY)
-	            {
-	    	        decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.lower_goal);
-	            }
-	            else if (this.decisionCycle.current_phase == Phase.PROPOSE)
-	            {
-	            	// PROPOSE
-	            	decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.lower_goal);
-	            } 
-	        } 
-	        catch (IllegalStateException e)
-	        {
-	        	// FIXME: highest_active_goal_x functions are intended to be used only when it is
-	        	// guaranteed that the agent is not at quiescence.
-	        	decider.active_goal = null;
-	        	trace.print(Category.WATERFALL, " inner preference loop finished but not at quiescence.\n");
-	        	break;
-	        }
+            // Inner elaboration loop
+            decider.change_level = decider.next_change_level;
             
-	        assert decider.active_goal != null;
-        	decider.active_level = decider.active_goal.level;
+            if (trace.isEnabled(Category.WATERFALL))
+            {
+                trace.print("--- Inner Elaboration Phase, active level: %d",
+                        decider.active_level);
+                if (decider.active_goal != null)
+                {
+                    trace.print(" (%s)", decider.active_goal);
+                }
+                trace.print(" ---\n");
+            }
+            
+            this.newly_created_instantiations = null;
+            
+            SoarReteAssertion assertion = null;
+            boolean assertionsExist = false;
+            while ((assertion = this.soarReteListener.postpone_assertion()) != null)
+            {
+                assertionsExist = true;
+                
+                if(this.chunker.isMaxChunksReached()) 
+                {
+                    this.soarReteListener.consume_last_postponed_assertion();
+                    this.decisionCycle.halt("Max chunks reached");
+                    return;
+                }
+                
+                if (assertion.production.getType() == ProductionType.JUSTIFICATION)
+                {
+                    this.soarReteListener.consume_last_postponed_assertion();
+
+                    // don't fire justifications
+                    continue;
+                }
+                
+                if (shouldCreateInstantiation(assertion.production, assertion.token, assertion.wme))
+                {
+                    this.soarReteListener.consume_last_postponed_assertion();
+                    create_instantiation(assertion.production, assertion.token, assertion.wme, top_goal);
+                }
+            }
+            
+            // New waterfall model: something fired or is pending to fire at this level, 
+            // so this active level becomes the next change level.
+            if (assertionsExist)
+            {
+                if (decider.active_level > decider.next_change_level) 
+                {
+                    decider.next_change_level = decider.active_level;
+                }
+            }
+            
+            // New waterfall model: push unfired matches back on to the assertion lists
+            this.soarReteListener.restore_postponed_assertions();
+            
+            assert_new_preferences();
+    
+            // update accounting
+            this.decisionCycle.inner_e_cycle_count.increment();
+            
+            if (decider.active_goal == null)
+            {
+                trace.print(Category.WATERFALL, " inner preference loop doesn't have active goal.\n");
+                break;
+            }
+            
+            if (decider.active_goal.lower_goal == null)
+            {
+                trace.print(Category.WATERFALL, " inner preference loop at bottom goal.\n");
+                break;
+            }
+            
+            try
+            {
+                if (this.decisionCycle.current_phase == Phase.APPLY)
+                {
+                    decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.lower_goal);
+                }
+                else if (this.decisionCycle.current_phase == Phase.PROPOSE)
+                {
+                    // PROPOSE
+                    decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.lower_goal);
+                } 
+            } 
+            catch (IllegalStateException e)
+            {
+                // FIXME: highest_active_goal_x functions are intended to be used only when it is
+                // guaranteed that the agent is not at quiescence.
+                decider.active_goal = null;
+                trace.print(Category.WATERFALL, " inner preference loop finished but not at quiescence.\n");
+                break;
+            }
+            
+            assert decider.active_goal != null;
+            decider.active_level = decider.active_goal.level;
         } // inner elaboration loop/cycle end
 
         // Restore previous active level.

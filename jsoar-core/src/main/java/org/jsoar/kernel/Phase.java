@@ -6,16 +6,12 @@ import org.jsoar.kernel.events.PhaseEvents.AfterApply;
 import org.jsoar.kernel.events.PhaseEvents.AfterDecision;
 import org.jsoar.kernel.events.PhaseEvents.AfterInput;
 import org.jsoar.kernel.events.PhaseEvents.AfterOutput;
-import org.jsoar.kernel.events.PhaseEvents.AfterPreference;
 import org.jsoar.kernel.events.PhaseEvents.AfterPropose;
-import org.jsoar.kernel.events.PhaseEvents.AfterWorkingMemory;
 import org.jsoar.kernel.events.PhaseEvents.BeforeApply;
 import org.jsoar.kernel.events.PhaseEvents.BeforeDecision;
 import org.jsoar.kernel.events.PhaseEvents.BeforeInput;
 import org.jsoar.kernel.events.PhaseEvents.BeforeOutput;
-import org.jsoar.kernel.events.PhaseEvents.BeforePreference;
 import org.jsoar.kernel.events.PhaseEvents.BeforePropose;
-import org.jsoar.kernel.events.PhaseEvents.BeforeWorkingMemory;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 
@@ -49,17 +45,7 @@ public enum Phase
     /**
      * init_soar.h:127:OUTPUT_PHASE
      */
-    OUTPUT ("output", BeforeOutput.class, AfterOutput.class),
-    
-    /**
-     * init_soar.h:127:PREFERENCE_PHASE
-     */
-    PREFERENCE ("preference", BeforePreference.class, AfterPreference.class), 
-    
-    /**
-     * init_soar.h:127:WM_PHASE
-     */
-    WM ("working memory", BeforeWorkingMemory.class, AfterWorkingMemory.class);
+    OUTPUT ("output", BeforeOutput.class, AfterOutput.class);
         
     private final String traceName;
     private final String traceEndName;

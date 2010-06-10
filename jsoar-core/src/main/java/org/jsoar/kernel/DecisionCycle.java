@@ -265,8 +265,6 @@ public class DecisionCycle
         {
         case INPUT:       doInputPhase();         break;
         case PROPOSE:     doProposePhase();       break;
-        case PREFERENCE:  doPreferencePhase();    break;
-        case WM:          doWorkingMemoryPhase(); break;
         case APPLY:       doApplyPhase();         break; 
         case OUTPUT:      doOutputPhase();        break;
         case DECISION:    doDecisionPhase();      break;
@@ -552,40 +550,6 @@ public class DecisionCycle
     }
 
     /**
-     * extracted from do_one_top_level_phase(), switch case WM_PHASE
-     */
-    private void doWorkingMemoryPhase()
-    {
-        assert current_phase == Phase.WM;
-        
-        // starting with 8.6.0, WM_PHASE is only Soar 7 mode; see PROPOSE and APPLY
-        // needs to be updated for gSKI interface, and gSKI needs to accommodate Soar 7
-
-        /*  we need to tell gSKI WM Phase beginning... */
-
-        // #ifndef NO_TIMING_STUFF
-        // start_timer (thisAgent, &thisAgent->start_phase_tv);
-        // #endif
-        beforePhase(Phase.WM);
-        decider.do_working_memory_phase();
-
-        this.run_elaboration_count++; // All phases count as a run elaboration
-        
-        afterPhase(Phase.WM);
-
-        current_phase = Phase.OUTPUT;
-
-        // #ifndef NO_TIMING_STUFF
-        // stop_timer (thisAgent, &thisAgent->start_phase_tv,
-        // &thisAgent->decision_cycle_phase_timers[WM_PHASE]);
-        // #endif
-
-        afterElaboration();
-        
-        // END of Soar7 WM PHASE    
-    }
-
-    /**
      * extracted from do_one_top_level_phase(), switch case PROPOSE_PHASE
      */
     private void doProposePhase()
@@ -707,13 +671,6 @@ public class DecisionCycle
             context.getEvents().fireEvent(beforeDecisionCycleEvent);
         }
 
-        // #ifdef REAL_TIME_BEHAVIOR /* RM Jones */
-        // test_for_input_delay(thisAgent);
-        // #endif
-        // #ifdef ATTENTION_LAPSE /* RM Jones */
-        // determine_lapsing(thisAgent);
-        // #endif
-
         beforePhase(Phase.INPUT);
 
         io.do_input_cycle();
@@ -729,37 +686,6 @@ public class DecisionCycle
         // #endif
 
         current_phase = Phase.PROPOSE;
-    }
-
-    /**
-     * extracted from do_one_top_level_phase, switch case PREFERENCE_PHASE
-     */
-    private void doPreferencePhase()
-    {
-        assert current_phase == Phase.PREFERENCE;
-        
-        // starting with 8.6.0, PREFERENCE_PHASE is only Soar 7 mode -- applyPhase not valid here
-        // needs to be updated for gSKI interface, and gSKI needs to accommodate Soar 7
-
-        beforeElaboration();
-
-        // #ifndef NO_TIMING_STUFF
-        // start_timer (thisAgent, &thisAgent->start_phase_tv);
-        // #endif
-        beforePhase(Phase.PREFERENCE);
-        recMemory.do_preference_phase(decider.top_goal);
-
-        this.run_elaboration_count++; // All phases count as a run elaboration
-        
-        afterPhase(Phase.PREFERENCE);
-
-        current_phase = Phase.WM;
-
-        // #ifndef NO_TIMING_STUFF
-        // stop_timer (thisAgent, &thisAgent->start_phase_tv, &thisAgent->decision_cycle_phase_timers[PREFERENCE_PHASE]);
-        // #endif
-        
-        // END of Soar7 PREFERENCE PHASE
     }
 
     /**

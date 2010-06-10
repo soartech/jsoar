@@ -1,0 +1,31 @@
+# This tests that when a wme is added and removed at the same time, that it stays in working memory
+# This used to be optional (the option was called O_REJECTS_FIRST, which is a bit of a misnomer, but whatever)
+
+sp {propose*test
+   (state <s> ^superstate nil
+             -^complete true)
+-->
+   (<s> ^operator.name test)
+}
+
+sp {apply*test*one
+   (state <s> ^operator.name test)
+-->
+   (<s> ^flag true)
+}
+
+sp {apply*test*two
+   (state <s> ^operator.name test
+              ^flag <x>)
+-->
+   (<s> ^flag <x> - true
+        ^complete true)
+}
+
+sp {success
+   (state <s> ^complete true
+              ^flag true)
+-->
+   (write (crlf) |test succeeded|)
+   (succeeded)
+}
