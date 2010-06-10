@@ -13,9 +13,7 @@ public enum smlPhase {
   sml_PROPOSAL_PHASE,
   sml_DECISION_PHASE,
   sml_APPLY_PHASE,
-  sml_OUTPUT_PHASE,
-  sml_PREFERENCE_PHASE,
-  sml_WM_PHASE;
+  sml_OUTPUT_PHASE;
 
   public final int swigValue() {
     return swigValue;

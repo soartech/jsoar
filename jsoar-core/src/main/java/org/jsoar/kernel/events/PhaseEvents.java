@@ -34,9 +34,7 @@ public class PhaseEvents
         events.put(Phase.DECISION, new BeforeDecision(agent));
         events.put(Phase.INPUT, new BeforeInput(agent));
         events.put(Phase.OUTPUT, new BeforeOutput(agent));
-        events.put(Phase.PREFERENCE, new BeforePreference(agent));
         events.put(Phase.PROPOSE, new BeforePropose(agent));
-        events.put(Phase.WM, new BeforeWorkingMemory(agent));
         
         assert events.size() == Phase.values().length;
         
@@ -56,9 +54,7 @@ public class PhaseEvents
         events.put(Phase.DECISION, new AfterDecision(agent));
         events.put(Phase.INPUT, new AfterInput(agent));
         events.put(Phase.OUTPUT, new AfterOutput(agent));
-        events.put(Phase.PREFERENCE, new AfterPreference(agent));
         events.put(Phase.PROPOSE, new AfterPropose(agent));
-        events.put(Phase.WM, new AfterWorkingMemory(agent));
         
         assert events.size() == Phase.values().length;
         
@@ -92,34 +88,6 @@ public class PhaseEvents
         public AfterOutput(Agent agent)
         {
             super(agent, Phase.OUTPUT, false);
-        }
-    }
-    public static class BeforePreference extends AbstractPhaseEvent
-    {
-        public BeforePreference(Agent agent)
-        {
-            super(agent, Phase.PREFERENCE, true);
-        }
-    }
-    public static class AfterPreference extends AbstractPhaseEvent
-    {
-        public AfterPreference(Agent agent)
-        {
-            super(agent, Phase.PREFERENCE, false);
-        }
-    }
-    public static class BeforeWorkingMemory extends AbstractPhaseEvent
-    {
-        public BeforeWorkingMemory(Agent agent)
-        {
-            super(agent, Phase.WM, true);
-        }
-    }
-    public static class AfterWorkingMemory extends AbstractPhaseEvent
-    {
-        public AfterWorkingMemory(Agent agent)
-        {
-            super(agent, Phase.WM, false);
         }
     }
     public static class BeforeApply extends AbstractPhaseEvent

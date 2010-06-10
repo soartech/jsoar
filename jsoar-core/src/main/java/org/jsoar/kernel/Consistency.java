@@ -688,7 +688,6 @@ public class Consistency
             #endif
             */
             recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
-            // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
         case NEW_DECISION:
@@ -699,7 +698,6 @@ public class Consistency
             */
             recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
             /* in APPLY phases, we can test for ONC here, check ms_o_assertions */
-            // KJC: thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
         case LOWER_LEVEL:
@@ -763,7 +761,6 @@ public class Consistency
 
             /* else: just do a preference phases */
             recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
-            // KJC: thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
         case SAME_LEVEL:
@@ -786,7 +783,6 @@ public class Consistency
                 }
             }
             recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
-            // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
         case HIGHER_LEVEL:
@@ -827,7 +823,6 @@ public class Consistency
 
             /* If the decision is consistent, then just start processing at this level */
             recMemory.FIRING_TYPE = active_production_type_at_goal(decider.active_goal);
-            //thisAgent->current_phase = PREFERENCE_PHASE;
             break;
         }
 
@@ -940,7 +935,6 @@ public class Consistency
             #endif
             */
             recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
-            // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
         case NEW_DECISION:
@@ -950,7 +944,6 @@ public class Consistency
             #endif
             */
             recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
-            // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
         case LOWER_LEVEL:
@@ -968,7 +961,6 @@ public class Consistency
             }
             /* else: just do a preference phases */
             recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
-            // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
         case SAME_LEVEL:
@@ -978,7 +970,6 @@ public class Consistency
             #endif
             */
             recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
-            // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
 
         case HIGHER_LEVEL:
@@ -1022,7 +1013,6 @@ public class Consistency
                at this level */
 
             recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
-            // thisAgent->current_phase = PREFERENCE_PHASE;
             break;
         }
     }
