@@ -67,7 +67,7 @@ public class Wmes
     }
     
     /**
-     * Same as {@link #createLinkedList(RhsFunctionContext, Iterator)}, but the name of 
+     * Same as {@link #createLinkedList(WmeFactory, Iterator)}, but the name of 
      * the "value" and "next" attributes in the list can be specified
      *  
      * @param context the RHS function context
