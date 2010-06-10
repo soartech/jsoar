@@ -1,16 +1,13 @@
 package org.jsoar.soar2soar;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.jsoar.kernel.SoarException;
 import org.jsoar.runtime.ThreadedAgent;
 
 public class Soar2Soar
 {
-
-    public Soar2Soar(String[] args) throws SoarException, IOException
+    public Soar2Soar(String[] args) throws Exception
     {
         if (args.length < 1)
         {
@@ -18,8 +15,8 @@ public class Soar2Soar
             System.exit(1);
         }
 
-        int numberOfAgents = Integer.parseInt(args[0]);
-        EnvironmentAgent ea = new EnvironmentAgent(args[1]);
+        final int numberOfAgents = Integer.parseInt(args[0]);
+        final EnvironmentAgent ea = new EnvironmentAgent(args[1]);
 
         for (int i = 0; i < numberOfAgents; ++i)
         {
@@ -29,15 +26,18 @@ public class Soar2Soar
         ThreadedAgent currentAgent = null;
         while (true)
         {
-            String prompt = currentAgent == null ? "root" : currentAgent
-                    .getName();
+            final String prompt = currentAgent == null ? "root" : currentAgent.getName();
             System.out.print(prompt + "> ");
             System.out.flush();
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    System.in));
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
             String line = br.readLine();
+            if(line == null)
+            {
+                break;
+            }
+            
             line = line.trim();
             if (line.equals("quit") || line.equals("exit"))
                 break;
@@ -77,7 +77,7 @@ public class Soar2Soar
                         + " <# agents> [environment source] [a1 source] [a2 source] ...");
     }
 
-    public static void main(String[] args) throws SoarException, IOException
+    public static void main(String[] args) throws Exception
     {
         new Soar2Soar(args);
     }

@@ -1,13 +1,14 @@
 package org.jsoar.soar2soar;
 
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.InputEvent;
@@ -25,171 +26,175 @@ import org.jsoar.util.events.SoarEventListener;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
 
 public class ClientAgent
 {
     private final ThreadedAgent agent;
-
     private final int id;
-
-    private Identifier envInCommands;
-
     private Identifier envOutFeedback;
-
-    private Identifier envOutInput;
+    private final Map<Identifier, Identifier> envToClient = new HashMap<Identifier, Identifier>();
+	private final BiMap<Identifier, Identifier> clientToEnv = HashBiMap.create();
+    private final Map<Wme, InputWme> envToClientWmes = new HashMap<Wme, InputWme>();
+    private final Map<Wme, InputWme> clientToEnvWmes = new HashMap<Wme, InputWme>();
+    private final Queue<OutputChange> pendingInputs = new LinkedBlockingQueue<OutputChange>();
+    private final Queue<OutputChange> pendingOutputs = new LinkedBlockingQueue<OutputChange>();
+    private final Queue<Wme> pendingFeedback = new LinkedBlockingQueue<Wme>();
     
-    private Map<Identifier, Identifier> envToClient = new HashMap<Identifier, Identifier>();
-    public BiMap<Identifier, Identifier> getClientToEnv() {
-		return clientToEnv;
-	}
-
-	public Queue<OutputChange> getPendingOutputs() {
-		return pendingOutputs;
-	}
-
-	private BiMap<Identifier, Identifier> clientToEnv = HashBiMap.create();
-    private Map<Wme, InputWme> envToClientWmes = new HashMap<Wme, InputWme>();
-    private Map<Wme, InputWme> clientToEnvWmes = new HashMap<Wme, InputWme>();
-    private Queue<OutputChange> pendingInputs = new LinkedBlockingQueue<OutputChange>();
-    private Queue<OutputChange> pendingOutputs = new LinkedBlockingQueue<OutputChange>();
-    private Queue<Wme> pendingFeedback = new LinkedBlockingQueue<Wme>();
-    
-    public boolean isMyEnvIdentifier(Identifier candidate) {
-        return envToClient.containsKey(candidate);
-    }
-    
-    public boolean isEnvIdentifier(Identifier candidate) {
-    	return clientToEnv.containsKey(candidate);
-    }
-    
-    public void pushInput(OutputChange delta) {
-        pendingInputs.add(delta);
-        
-        final Identifier deltaValueAsId = delta.getWme().getValue().asIdentifier();
-        if (delta.isAdded() && deltaValueAsId!=null) {
-            if (!envToClient.containsKey(deltaValueAsId)) {
-                envToClient.put(deltaValueAsId, null);
-            }
-        }
-    }
-    
-    public void pushFeedback(Wme delta) {
-    	pendingFeedback.add(delta);
-    }
-    
-    public void pushOutput(OutputChange delta) {
-        pendingOutputs.add(delta);
-        
-        final Identifier deltaValueAsId = delta.getWme().getValue().asIdentifier();
-        if (delta.isAdded() && deltaValueAsId!=null) {
-            if (!clientToEnv.containsKey(deltaValueAsId)) {
-                clientToEnv.put(deltaValueAsId, null);
-            }
-        }
-    }
-
-    public ClientAgent(String name, String source, int id) throws SoarException
+    public ClientAgent(String name, final String source, int id) throws SoarException, InterruptedException, ExecutionException, TimeoutException
     {
-        agent = ThreadedAgent.create(name);
-        agent
-                .getInterpreter()
-                .eval(
-                        "sp {soar2soar*init (state <s> ^superstate nil) --> (<s> ^soar2soar ready)}");
-        agent.getPrinter().addPersistentWriter(
-                new OutputStreamWriter(System.out));
-        SoarCommands.source(agent.getInterpreter(), source);
         this.id = id;
+        agent = ThreadedAgent.create(name);
+        agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
+        
+        // It's best to source files and initialize the agent in the agent thread!
+        agent.executeAndWait(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception
+            {
+                SoarCommands.source(agent.getInterpreter(), getClass().getResource("env.defaults.soar"));
+                SoarCommands.source(agent.getInterpreter(), source);
+                return null;
+            }
+        }, 20, TimeUnit.SECONDS);
         
         agent.getEvents().addListener(InputEvent.class, new SoarEventListener()
         {
-            
             @Override
             public void onEvent(SoarEvent event)
             {
                 doInput();
-                
             }
         });
         
         agent.getEvents().addListener(OutputEvent.class, new SoarEventListener()
         {
-
-			@Override
-			public void onEvent(SoarEvent event) {
-				// TODO Auto-generated method stub
-				doOutput((OutputEvent) event);
-			}
-        	
+            @Override
+            public void onEvent(SoarEvent event) 
+            {
+                doOutput((OutputEvent) event);
+            }
         });
     }
-
-    
-
-	protected void doOutput(OutputEvent event) {
-		// TODO Auto-generated method stub
-		
-		ArrayList<OutputChange> changes = Lists.newArrayList(event.getChanges());
-        Collections.sort(changes, new Comparator<OutputChange>() {
-
-            @Override
-            public int compare(OutputChange o1, OutputChange o2)
-            {
-                return o1.getWme().getTimetag() - o2.getWme().getTimetag();
-            }
-            
-        });
         
-        for (OutputChange delta : changes) {
-            
-        	if (isEnvIdentifier(delta.getWme().getIdentifier())) {
-        		pushOutput(delta);
-        	}
-        	
+    public BiMap<Identifier, Identifier> getClientToEnv() 
+    {
+        return clientToEnv;
+    }
+
+    public Queue<OutputChange> getPendingOutputs() 
+    {
+        return pendingOutputs;
+    }
+
+    private boolean isMyEnvIdentifier(Identifier candidate) 
+    {
+        return envToClient.containsKey(candidate);
+    }
+    
+    private boolean isEnvIdentifier(Identifier candidate) 
+    {
+    	return clientToEnv.containsKey(candidate);
+    }
+    
+    public void tryToPushInput(OutputChange delta) 
+    {
+        if(!isMyEnvIdentifier(delta.getWme().getIdentifier()))
+        {
+            return;
+        }
+        
+        pendingInputs.add(delta);
+        
+        final Identifier deltaValueAsId = delta.getWme().getValue().asIdentifier();
+        if (delta.isAdded() && deltaValueAsId!=null) 
+        {
+            if (!envToClient.containsKey(deltaValueAsId)) 
+            {
+                envToClient.put(deltaValueAsId, null);
+            }
+        }
+    }
+    
+    public void pushFeedback(Wme delta)
+    {
+    	pendingFeedback.add(delta);
+    }
+    
+    private void tryToPushOutputToEnvironment(OutputChange delta) 
+    {
+        if (!isEnvIdentifier(delta.getWme().getIdentifier())) 
+        {
+            return;
+        }
+        
+        pendingOutputs.add(delta);
+        
+        final Identifier deltaValueAsId = delta.getWme().getValue().asIdentifier();
+        if (delta.isAdded() && deltaValueAsId!=null) 
+        {
+            if (!clientToEnv.containsKey(deltaValueAsId)) 
+            {
+                clientToEnv.put(deltaValueAsId, null);
+            }
+        }
+    }
+
+	private synchronized void doOutput(OutputEvent event) 
+	{
+        for (OutputChange delta : OutputChange.sortByTimeTag(event.getChanges())) 
+        {
+            tryToPushOutputToEnvironment(delta);
         }
 	}
 
-	protected void doInput()
+	private synchronized void doInput()
     {
-        while (!pendingInputs.isEmpty()) {
-            OutputChange delta = pendingInputs.poll();
-            if (delta != null) {
-                if (delta.isAdded()) {
-                    
-                    SymbolFactory syms = agent.getSymbols();
-                    Symbol myAttr = syms.importSymbol(delta.getWme().getAttribute());
+        final SymbolFactory syms = agent.getSymbols();
+        while (!pendingInputs.isEmpty()) 
+        {
+            final OutputChange delta = pendingInputs.poll();
+            if (delta != null) 
+            {
+                final Wme deltaWme = delta.getWme();
+                if (delta.isAdded()) 
+                {
+                    final Symbol deltaValue = deltaWme.getValue();
+                    final Symbol myAttr = syms.importSymbol(deltaWme.getAttribute());
                     Symbol myValue = null;
-                    if (delta.getWme().getValue().asIdentifier()==null) {
-                        myValue = syms.importSymbol(delta.getWme().getValue());
-                    } else {
-                        Identifier convertedId = envToClient.get(delta.getWme().getValue().asIdentifier());
+                    if (deltaValue.asIdentifier() == null) 
+                    {
+                        myValue = syms.importSymbol(deltaWme.getValue());
+                    } 
+                    else 
+                    {
+                        Identifier convertedId = envToClient.get(deltaValue.asIdentifier());
                         
-                        if (convertedId==null) {
-                            convertedId = syms.createIdentifier(delta.getWme().getValue().asIdentifier().getNameLetter());
-                            envToClient.put(delta.getWme().getValue().asIdentifier(), convertedId);
-                            
+                        if (convertedId==null) 
+                        {
+                            convertedId = syms.createIdentifier(deltaValue.asIdentifier().getNameLetter());
+                            envToClient.put(deltaValue.asIdentifier(), convertedId);
                         }
                         
                         myValue = convertedId;
                     }
                     
-                    envToClientWmes.put(delta.getWme(), agent.getInputOutput().addInputWme(envToClient.get(delta.getWme().getIdentifier()), myAttr, myValue));
+                    envToClientWmes.put(deltaWme, agent.getInputOutput().addInputWme(envToClient.get(deltaWme.getIdentifier()), myAttr, myValue));
                     
-                    
-                } else {
-                    
-                    envToClientWmes.remove(delta.getWme()).remove();
-                    
+                } 
+                else 
+                {
+                    envToClientWmes.remove(deltaWme).remove();
                 }
             }
         }
         
-        while (!pendingFeedback.isEmpty()) {
-        	Wme delta = pendingFeedback.poll();
-        	if (delta!=null) {
-        		SymbolFactory syms = agent.getSymbols();
-                Symbol myAttr = syms.importSymbol(delta.getAttribute());
-                Symbol myValue = syms.importSymbol(delta.getValue());
+        while (!pendingFeedback.isEmpty()) 
+        {
+        	final Wme delta = pendingFeedback.poll();
+        	if (delta != null) 
+        	{
+                final Symbol myAttr = syms.importSymbol(delta.getAttribute());
+                final Symbol myValue = syms.importSymbol(delta.getValue());
                 
                 agent.getInputOutput().addInputWme(delta.getIdentifier(), myAttr, myValue);
         	}
@@ -202,7 +207,8 @@ public class ClientAgent
         return agent.getName();
     }
 
-    public Map<Wme, InputWme> getClientToEnvWmes() {
+    public Map<Wme, InputWme> getClientToEnvWmes() 
+    {
 		return clientToEnvWmes;
 	}
 
@@ -211,15 +217,8 @@ public class ClientAgent
         return agent;
     }
 
-    public Identifier getEnvInCommands()
-    {
-        return envInCommands;
-    }
-
     public void setEnvInCommands(Identifier envInCommands)
     {
-        this.envInCommands = envInCommands;
-        
         clientToEnv.put(agent.getInputOutput().getOutputLink(), envInCommands);
     }
 
@@ -233,15 +232,8 @@ public class ClientAgent
         this.envOutFeedback = envOutFeedback;
     }
 
-    public Identifier getEnvOutInput()
-    {
-        return envOutInput;
-    }
-
     public void setEnvOutInput(Identifier envOutInput)
     {
-        this.envOutInput = envOutInput;
-        
         envToClient.put(envOutInput, agent.getInputOutput().getInputLink());
     }
 

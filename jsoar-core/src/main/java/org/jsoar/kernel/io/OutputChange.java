@@ -5,15 +5,50 @@
  */
 package org.jsoar.kernel.io;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+
+import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.memory.Wme;
 
+import com.google.common.collect.Lists;
+
 /**
+ * Represents a change on the output link of an agent. It is either a WME
+ * being added or removed. Instances of this class are immutable.
+ * 
+ * @see OutputEvent
  * @author ray
  */
 public class OutputChange
 {
     private final Wme wme;
     private final boolean added;
+    
+    /**
+     * OutputChanges provided by {@link OutputEvent#getChanges()} are not sorted,
+     * i.e. they are in arbitrary order. This method sorts the changes by timetag.
+     * 
+     * @param changeIt Iterator over a set of changes
+     * @return Sorted list of changes
+     */
+    public static List<OutputChange> sortByTimeTag(Iterator<OutputChange> changeIt)
+    {
+        final ArrayList<OutputChange> changes = Lists.newArrayList(changeIt);
+        Collections.sort(changes, new Comparator<OutputChange>() {
+
+            @Override
+            public int compare(OutputChange o1, OutputChange o2)
+            {
+                return o1.getWme().getTimetag() - o2.getWme().getTimetag();
+            }
+            
+        });
+        return changes;
+    }
     
     public OutputChange(Wme wme, boolean added)
     {
