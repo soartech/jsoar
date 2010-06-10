@@ -69,6 +69,14 @@ public class Soar2Soar
                 	currentAgent.getInterpreter().eval(line);
                 }
                 // root-level commands
+                else if(line.equals("ls"))
+                {
+                    System.out.println(ea.getAgent().getName());
+                    for(ThreadedAgent client : clientAgents)
+                    {
+                        System.out.println(client.getName());
+                    }
+                }
                 else if(line.startsWith("run"))
                 {
                     doRunCommand(controller, line);
@@ -76,6 +84,18 @@ public class Soar2Soar
                 else if(line.startsWith("stop"))
                 {
                     controller.stop();
+                }
+                else
+                {
+                    System.out.println(
+                            "Soar2Soar command interface\n" +
+                            "       root               - return to root prompt\n" +
+                    		"       <agent-name> - switch to agent prompt\n" +
+                    		"       ls           - list names of all agents\n" +
+                    		"       run          - Apply a Soar run command to all agents\n" +
+                    		"       stop         - Stop all agents\n" +
+                    		"agent> debugger    - open debugger for agent\n" +
+                    		"agent> Other Soar commands ...");
                 }
             }
         }

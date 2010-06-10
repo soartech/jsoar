@@ -13,6 +13,7 @@
 #   JSOAR_OPTS - parameters passed to the Java VM when running JSoar
 #     e.g. to debug JSoar itself, use
 #       set JSOAR_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
+#   JSOAR_MAIN - The main main to run. Defaults to JSoarDebugger
 # ----------------------------------------------------------------------------
 
 # OS specific support.  $var _must_ be set to either true or false.
@@ -123,7 +124,7 @@ if [ "x$JSOAR_MAIN" = "x" ]; then
 fi
 
 if [ "x$JSOAR_OPTS" = "x" ]; then
-  JSOAR_OPTS="-Xmx1024m -Djsoar.legilimens.autoStart=true"
+  JSOAR_OPTS="-Xmx1024m"
 fi
 
 exec "$JAVACMD" \
