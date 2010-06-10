@@ -671,13 +671,6 @@ public class DecisionCycle
             context.getEvents().fireEvent(beforeDecisionCycleEvent);
         }
 
-        // #ifdef REAL_TIME_BEHAVIOR /* RM Jones */
-        // test_for_input_delay(thisAgent);
-        // #endif
-        // #ifdef ATTENTION_LAPSE /* RM Jones */
-        // determine_lapsing(thisAgent);
-        // #endif
-
         beforePhase(Phase.INPUT);
 
         io.do_input_cycle();
