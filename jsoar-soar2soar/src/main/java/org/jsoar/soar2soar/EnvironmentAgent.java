@@ -1,6 +1,7 @@
 package org.jsoar.soar2soar;
 
 import java.io.OutputStreamWriter;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -227,7 +228,17 @@ public class EnvironmentAgent
         agentMap.put(agent.getName(), agent);
         return agent;
     }
+	
+	public ThreadedAgent getAgent()
+	{
+	    return env;
+	}
 
+	public Collection<ClientAgent> getClients()
+	{
+	    return agentMap.values();
+	}
+	
     // TODO: create common interface for ClientAgent and EnvironmentAgent
     // so can have common eval method cli can use
     public ThreadedAgent getThreadedAgent(String name)
@@ -236,6 +247,6 @@ public class EnvironmentAgent
             return env;
 
         ClientAgent clientAgent = agentMap.get(name);
-        return clientAgent != null ? clientAgent.getThreadedAgent() : null;
+        return clientAgent != null ? clientAgent.getAgent() : null;
     }
 }

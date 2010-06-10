@@ -212,7 +212,7 @@ public class ClientAgent
 		return clientToEnvWmes;
 	}
 
-	public ThreadedAgent getThreadedAgent()
+	public ThreadedAgent getAgent()
     {
         return agent;
     }
