@@ -8,185 +8,26 @@ package org.jsoar.kernel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
-import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
-import org.jsoar.kernel.rhs.functions.RhsFunctionException;
-import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
-import org.jsoar.kernel.rhs.functions.RhsFunctions;
-import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.timing.ExecutionTimer;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author ray
  */
-public class FunctionalTests
+public class FunctionalTests extends FunctionalTestHarness
 {
-    private Agent agent;
-    private SoarCommandInterpreter ifc;
-
-    private void sourceTestFile(String name) throws SoarException
-    {
-        ifc.source(FunctionalTests.class.getResource("/" + FunctionalTests.class.getName().replace('.', '/')  + "_" + name));
-    }
-    
-    private final boolean halted[] = { false };
-    private final boolean failed[] = { false };
-        
-    // sources rules, sets up the agent with common RHS functions
-    private void runTestSetup(String testName) throws SoarException
-    {
-        sourceTestFile(testName + ".soar");
-        
-        agent.getTrace().disableAll();
-        //agent.trace.setEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM, true);
-        //agent.trace.setEnabled(false);
-        final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
-        assertNotNull(oldHalt);     
-        
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("halt") {
-
-            @Override
-            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
-            {
-                halted[0] = true;
-                return oldHalt.execute(rhsContext, arguments);
-            }});
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("failed") {
-
-            @Override
-            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
-            {
-                halted[0] = true;
-                failed[0] = true;
-                return oldHalt.execute(rhsContext, arguments);
-            }});
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("succeeded") {
-
-            @Override
-            public Symbol execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
-            {
-                halted[0] = true;
-                failed[0] = false;
-                return oldHalt.execute(rhsContext, arguments);
-            }});
-    }
-    
-    // this function assumes some other function has set up the agent (like runTestSetup)
-    private void runTestExecute(String testName, int expectedDecisions) throws Exception
-    {
-        if(expectedDecisions >= 0)
-        {
-            agent.runFor(expectedDecisions + 1, RunType.DECISIONS);
-        }
-        else
-        {
-            agent.runForever();
-        }
-        
-        assertTrue(testName + " functional test did not halt", halted[0]);
-        assertFalse(testName + " functional test failed", failed[0]);
-        if(expectedDecisions >= 0)
-        {
-            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
-        }
-        
-        ifc.eval("stats");
-        
-    }
-    private void runTest(String testName, int expectedDecisions) throws Exception
-    {
-        runTestSetup(testName);  
-        runTestExecute(testName, expectedDecisions);
-    }
-    
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception
-    {
-        agent = new Agent();
-        agent.getTrace().enableAll();
-        ifc = agent.getInterpreter();
-        agent.initialize();
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception
-    {
-        agent.getPrinter().flush();
-        ifc.dispose();
-    }
-
     @Test
     public void testBasicElaborationAndMatch() throws Exception
     {
-        sourceTestFile("testBasicElaborationAndMatch.soar");
-        
-        final Set<String> matches = new HashSet<String>();
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("matched") {
-
-            @Override
-            public SymbolImpl execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
-            {
-                RhsFunctions.checkArgumentCount(getName(), arguments, 2, 2);
-                
-                matches.add(arguments.get(0).toString() + "_" + arguments.get(1).toString());
-                return null;
-            }});
-        
-        agent.runFor(1, RunType.DECISIONS);
-        
-        assertTrue(matches.contains("J1_0"));
-        assertTrue(matches.contains("J2_1"));
-        assertEquals(2, matches.size());
-        
-    }
-    
-    @Test
-    public void testBasicElaborationAndMatch2() throws Exception
-    {
-        sourceTestFile("testBasicElaborationAndMatch2.soar");
-        
-        final Set<String> matches = new HashSet<String>();
-        agent.getRhsFunctions().registerHandler(new AbstractRhsFunctionHandler("matched") {
-
-            @Override
-            public SymbolImpl execute(RhsFunctionContext rhsContext, List<Symbol> arguments) throws RhsFunctionException
-            {
-                RhsFunctions.checkArgumentCount(getName(), arguments, 1, 1);
-                
-                matches.add(arguments.get(0).toString());
-                return null;
-            }});
-        
-        agent.runFor(1, RunType.DECISIONS);
-        
-        assertTrue(matches.contains("monitor*contents"));
-        assertTrue(matches.contains("elaborate*free"));
-        assertEquals(2, matches.size());
-        
+        runTest("testBasicElaborationAndMatch", 1);
     }
     
     @Test
@@ -290,7 +131,7 @@ public class FunctionalTests
     @Test(timeout=10000)
     public void testChunks2WithLearning() throws Exception
     {
-        ifc.eval("learn --on");
+        agent.getInterpreter().eval("learn --on");
         runTest("testChunks2", -1);
     }
     
