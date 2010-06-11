@@ -1718,9 +1718,7 @@ public class Decider
                   if (w.gds.getGoal() != null)
                   {
                       // If the goal pointer is non-NIL, then goal is in the stack
-                      context.getTrace().print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
-                              "\nRemoving state S%d because element in GDS changed. WME: %s", w.gds.getGoal().getNameNumber(), w);
-                      gds_invalid_so_remove_goal(w);
+                      gds_invalid_so_remove_goal(w, "Decider");
                   }
                }
                this.workingMemory.remove_wme_from_wm (w);
@@ -3077,8 +3075,15 @@ public class Decider
      * 
      * @param w
      */
-    public void gds_invalid_so_remove_goal(WmeImpl w)
+    public void gds_invalid_so_remove_goal(WmeImpl w, String traceContext)
     {
+        // This trace was original copied in al the places where this method
+        // was called.
+        context.getTrace().print(EnumSet.of(Category.GDS, Category.WM_CHANGES, Category.VERBOSE), 
+                "%n%s: Removing state %s because element in GDS changed. WME: %s",
+                traceContext, 
+                w.gds.getGoal(), w);
+        
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
         // start_timer(thisAgent, &thisAgent->start_gds_tv);

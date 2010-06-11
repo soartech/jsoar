@@ -35,7 +35,6 @@ public class Trace
         
         /** gsysparam.h:93:TRACE_PHASES_SYSPARAM */
         PHASES(2),
-
         
         /** gsysparam.h:97:TRACE_FIRINGS_OF_USER_PRODS_SYSPARAM */
         FIRINGS_OF_USER_PRODS(3),
@@ -87,7 +86,10 @@ public class Trace
         RL(-1),
         
         /** New in jsoar for debugging waterfall */
-        WATERFALL(-1);
+        WATERFALL(-1),
+        
+        /** New in JSoar for GDS goal removals and other info */
+        GDS(-1);
         
         private final boolean defaultSetting;
         private final int watchLevel;

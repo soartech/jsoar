@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.modules;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 import org.jsoar.kernel.Decider;
@@ -21,8 +20,6 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.tracing.Trace;
-import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
@@ -36,7 +33,6 @@ public class SoarModule
 {
     private PredefinedSymbols syms;
     private WorkingMemory wm;
-    private Trace trace;
     private Decider decider;
     
     public SoarModule()
@@ -48,7 +44,6 @@ public class SoarModule
     {
         syms = Adaptables.require(getClass(), context, PredefinedSymbols.class);
         wm = Adaptables.require(getClass(), context, WorkingMemory.class);
-        trace = Adaptables.require(getClass(), context, Trace.class);
         decider = Adaptables.require(getClass(), context, Decider.class);
     }
     
@@ -87,9 +82,7 @@ public class SoarModule
             {
                 if ( w.gds.getGoal() != null )
                 {      
-                    trace.print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), 
-                            "remove_module_wme: Removing state S%d because element in GDS changed. WME: %s", w.gds.getGoal().level, w);
-                    decider.gds_invalid_so_remove_goal(w);
+                    decider.gds_invalid_so_remove_goal(w, "remove_module_wme");
                     
                     /* NOTE: the call to remove_wme_from_wm will take care of checking if GDS should be removed */
                 }

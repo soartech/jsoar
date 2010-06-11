@@ -33,7 +33,6 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
@@ -353,12 +352,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         {
             if (w.gds.getGoal() != null)
             {
-                // TODO verbose trace wm changes in verbose as well
-                context.getTrace().print(Category.WM_CHANGES, 
-                        "remove_input_wme: Removing state S%d because element in GDS changed. WME: %s\n", 
-                        w.gds.getGoal().level, w);
-
-                decider.gds_invalid_so_remove_goal(w);
+                decider.gds_invalid_so_remove_goal(w, "remove_input_wme");
                 
                 // NOTE: the call to remove_wme_from_wm will take care
                 // of checking if GDS should be removed
