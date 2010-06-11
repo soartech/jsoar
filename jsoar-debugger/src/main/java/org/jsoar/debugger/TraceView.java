@@ -123,7 +123,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setText("JSoar " + version + "\n" + 
                              "http://jsoar.googlecode.com\n" + 
                              "Current command interpreter is '" + debugger.getAgent().getInterpreter().getName() + "'\n" +
-                             "\nRight-click for trace options\n");
+                             "\nRight-click for trace options (or use watch command)\n");
         
         debugger.getAgent().getPrinter().pushWriter(outputWriter);
         
