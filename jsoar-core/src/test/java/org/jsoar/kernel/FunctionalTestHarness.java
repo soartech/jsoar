@@ -10,6 +10,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URL;
 import java.util.List;
 
 import org.jsoar.kernel.rhs.functions.AbstractRhsFunctionHandler;
@@ -30,7 +31,10 @@ public class FunctionalTestHarness
     // sources rules
     protected void runTestSetup(String testName) throws SoarException
     {
-        agent.getInterpreter().source(getClass().getResource(getClass().getSimpleName() + "_" + testName + ".soar"));
+        String sourceName = getClass().getSimpleName() + "_" + testName + ".soar";
+        URL sourceUrl = getClass().getResource(sourceName);
+        assertNotNull("Could not find test file " + sourceName, sourceUrl);
+        agent.getInterpreter().source(sourceUrl);
     }
     
     // this function assumes some other function has set up the agent (like runTestSetup)
