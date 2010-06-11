@@ -101,7 +101,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("save-backtraces", new SaveBacktracesCommand(this.agent));
         addCommand("echo", new EchoCommand(this.agent));
         addCommand("clog", new CLogCommand(this.agent));
-        addCommand("watch", new WatchCommand(this.agent));
+        addCommand("watch", new WatchCommand(this.agent.getTrace()));
         addCommand("rhs-functions", new RhsFunctionsCommand(this.agent));
         
         final PrintCommand printCommand = new PrintCommand(this.agent);
