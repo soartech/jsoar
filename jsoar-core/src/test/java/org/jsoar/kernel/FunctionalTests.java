@@ -17,13 +17,7 @@ import org.junit.Test;
  * @author ray
  */
 public class FunctionalTests extends FunctionalTestHarness
-{
-    @Test
-    public void testBasicElaborationAndMatch() throws Exception
-    {
-        runTest("testBasicElaborationAndMatch", 1);
-    }
-    
+{    
     @Test
     public void testTowersOfHanoiProductionThatCrashesRete() throws Exception
     {
@@ -142,11 +136,5 @@ public class FunctionalTests extends FunctionalTestHarness
         assertEquals(115136, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
         assertEquals(40039, agent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
         assertEquals(120146, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
-    }
-
-    @Test
-    public void testInitialState() throws Exception
-    {
-        runTest("testInitialState", 1);
     }
 }
