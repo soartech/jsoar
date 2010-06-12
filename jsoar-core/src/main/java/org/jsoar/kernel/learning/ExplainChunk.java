@@ -68,7 +68,7 @@ public class ExplainChunk
         while (prod != null)
         {
             printer.print("Backtrace production : %s\n", prod.prod_name);
-            printer.print("Result : %d\n", prod.result);
+            printer.print("Result : %s\n", prod.result);
             if (prod.trace_cond != null)
             {
                 printer.print("Trace condition : %s", prod.trace_cond);

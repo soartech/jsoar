@@ -164,7 +164,7 @@ public class Explain
      * 
      * @param chunk_name
      */
-    private void explain_trace_named_chunk(String chunk_name)
+    public void explain_trace_named_chunk(String chunk_name)
     {
         ExplainChunk chunk = find_chunk(explain_chunk_list, chunk_name);
         if (chunk != null)

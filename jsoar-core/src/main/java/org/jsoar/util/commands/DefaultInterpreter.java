@@ -29,6 +29,7 @@ import org.jsoar.kernel.commands.DefaultWmeDepthCommand;
 import org.jsoar.kernel.commands.EchoCommand;
 import org.jsoar.kernel.commands.EditProductionCommand;
 import org.jsoar.kernel.commands.ExciseCommand;
+import org.jsoar.kernel.commands.ExplainBacktracesCommand;
 import org.jsoar.kernel.commands.FiringCountsCommand;
 import org.jsoar.kernel.commands.HelpCommand;
 import org.jsoar.kernel.commands.InitSoarCommand;
@@ -99,6 +100,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("warnings", new WarningsCommand(this.agent));
         addCommand("verbose", new VerboseCommand(this.agent));
         addCommand("save-backtraces", new SaveBacktracesCommand(this.agent));
+        addCommand("explain-backtraces", new ExplainBacktracesCommand(this.agent));
         addCommand("echo", new EchoCommand(this.agent));
         addCommand("clog", new CLogCommand(this.agent));
         addCommand("watch", new WatchCommand(this.agent.getTrace()));
