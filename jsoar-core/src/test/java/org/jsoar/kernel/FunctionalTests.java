@@ -10,8 +10,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.jsoar.JSoarTest;
-import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.Test;
 
@@ -55,7 +53,6 @@ public class FunctionalTests extends FunctionalTestHarness
         agent.runFor(1, RunType.DECISIONS);
         final DecisionCycle dc = Adaptables.adapt(agent, DecisionCycle.class);
         assertFalse(dc.isHitMaxElaborations());
-        
     }    
     
     @Test(timeout=5000)
@@ -122,63 +119,6 @@ public class FunctionalTests extends FunctionalTestHarness
         runTestExecute(testName, 29);
     }
     
-    @Test
-    public void testBlocksWorldLookAheadWithMaxNoChangeBug() throws Exception
-    {
-        // This tests for a bug in the chunking caused by a bug in add_cond_to_tc()
-        // where the id and attr test for positive conditions were added to the tc
-        // rather than id and *value*. The first chunk constructed was incorrect
-        runTest("testBlocksWorldLookAheadWithMaxNoChangeBug", 15);
-        assertEquals(72, agent.getProductions().getProductions(ProductionType.DEFAULT).size());
-        assertEquals(15, agent.getProductions().getProductions(ProductionType.USER).size());
-        assertEquals(4, agent.getProductions().getProductions(ProductionType.CHUNK).size());
-        
-        // Make sure the chunk was built correctly.
-        JSoarTest.verifyProduction(agent, 
-                "chunk-1*d10*opnochange*1", 
-                ProductionType.CHUNK,
-                "sp {chunk-1*d10*opnochange*1\n" +
-                "    :chunk\n" +
-                "    (state <s1> ^operator <o1>)\n" +
-                "    (<o1> -^default-desired-copy yes)\n" +
-                "    (<o1> ^name evaluate-operator)\n" +
-                "    (<o1> ^superproblem-space <s2>)\n" +
-                "    (<s2> ^name move-blocks)\n" +
-                "    (<o1> ^evaluation <e1>)\n" +
-                "    (<s1> ^evaluation <e1>)\n" +
-                "    (<o1> ^superstate <s3>)\n" +
-                "    (<s3> ^name blocks-world)\n" +
-                "    (<s3> ^object <o2>)\n" +
-                "    (<o2> ^type block)\n" +
-                "    (<e1> ^desired <d1>)\n" +
-                "    (<o1> ^superoperator <s4>)\n" +
-                "    (<s4> ^moving-block { <m1> <> <o2> })\n" +
-                "    (<s3> ^object <m1>)\n" +
-                "    (<s4> ^destination <d2>)\n" +
-                "    (<s3> ^ontop <o3>)\n" +
-                "    (<o3> ^top-block <o2>)\n" +
-                "    (<o3> ^bottom-block { <b1> <> <d2> <> <m1> })\n" +
-                "    (<s3> ^ontop <o4>)\n" +
-                "    (<o4> ^top-block <m1>)\n" +
-                "    (<o4> ^bottom-block <b1>)\n" +
-                "    (<s3> ^ontop <o5>)\n" +
-                "    (<o5> ^top-block <d2>)\n" +
-                "    (<o5> ^bottom-block <b1>)\n" +
-                "    (<d1> ^ontop <o6>)\n" +
-                "    (<o6> ^top-block <o2>)\n" +
-                "    (<o6> ^bottom-block <m1>)\n" +
-                "    (<d1> ^ontop { <o7> <> <o6> })\n" +
-                "    (<o7> ^top-block <m1>)\n" +
-                "    (<o7> ^bottom-block <d2>)\n" +
-                "    (<d1> ^ontop { <o8> <> <o7> <> <o6> })\n" +
-                "    (<o8> ^top-block <d2>)\n" +
-                "    (<o8> ^bottom-block <b1>)\n" +
-                "    -->\n" +
-                "    (<e1> ^symbolic-value success +)\n" +
-                "}\n", true);
-
-    }
-    
     @Test(timeout=10000)
     public void testBlocksWorldLookAheadRandom() throws Exception
     {
@@ -204,72 +144,6 @@ public class FunctionalTests extends FunctionalTestHarness
         assertEquals(120146, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
     }
 
-    @Test 
-    public void testForBadBug517Fix() throws Exception
-    {
-        // Original fix for bug 517 (ca. r299) caused a bug in the following production.
-        // This tests against the regression.
-        agent.getProductions().loadProduction("test (state <s> ^a <val> -^a {<val> < 1}) -->");
-        JSoarTest.verifyProduction(agent, 
-            "test", 
-            ProductionType.USER,
-            "sp {test\n"+
-            "    (state <s> ^a <val>)\n" +
-            "    (<s> -^a { <val> < 1 })\n"+
-            "    -->\n"+
-            "    \n"+
-            "}\n", 
-            true);
-        
-    }
-    
-    @Test
-    public void testNegatedConjunctiveTestUnbound() throws Exception
-    {
-    	boolean success;
-    	
-    	// these should all fail in reorder
-    	success = false;
-    	try {
-    		agent.getProductions().loadProduction("test (state <s> ^superstate nil -^foo { <> <bad> }) -->");
-    	} catch (ReordererException e) {
-    		// <bad> is unbound referent in value test
-    		success = true;
-    	}
-    	assertTrue(success);
-    	
-    	success = false;
-    	try {
-    		agent.getProductions().loadProduction("test (state <s> ^superstate nil -^{ <> <bad> } <s>) -->");
-    	} catch (ReordererException e) {
-    		// <bad> is unbound referent in attr test
-    		success = true;
-    	}
-    	assertTrue(success);
-    	
-    	success = false;
-    	try {
-    		agent.getProductions().loadProduction("test (state <s> ^superstate nil -^foo { <> <b> }) -{(<s> ^bar <b>) (<s> -^bar { <> <b>})} -->");
-    	} catch (ReordererException e) {
-    		// <b> is unbound referent in test, defined in ncc out of scope
-    		success = true;
-    	}
-    	assertTrue(success);
-    	
-    	success = false;
-    	try {
-    		agent.getProductions().loadProduction("test  (state <s> ^superstate <d> -^foo { <> <b> }) -{(<s> ^bar <b>) (<s> -^bar { <> <d>})} -->");
-    	} catch (ReordererException e) {
-    		// <d> is unbound referent in value test in ncc
-    		success = true;
-    	}
-    	assertTrue(success);
-    	
-    	// these should succeed
-   		agent.getProductions().loadProduction("test (state <s> ^superstate <d>) -{(<s> ^bar <b>) (<s> -^bar { <> <d>})} -->");
-   		agent.getProductions().loadProduction("test (state <s> ^superstate nil) -{(<s> ^bar <d>) (<s> -^bar { <> <d>})} -->");
-    }
-        
     @Test
     public void testInitialState() throws Exception
     {
