@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.learning;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
@@ -317,6 +319,22 @@ public class Explain
             printer.print(" Ground :%s\n", ground);
             ground = ground.next;
         }
+    }
+    /**
+     * New for JSoar to support testing and structured uses of explanations
+     * 
+     * @return List of explanations for chunks.
+     */
+    public List<ExplainChunk> getChunkExplanations()
+    {
+        final List<ExplainChunk> result = new ArrayList<ExplainChunk>();
+        ExplainChunk c = explain_chunk_list;
+        while(c != null)
+        {
+            result.add(c);
+            c = c.next_chunk;
+        }
+        return result;
     }
 
     /**
