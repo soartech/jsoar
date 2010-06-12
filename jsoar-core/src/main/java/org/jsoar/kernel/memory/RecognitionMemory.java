@@ -1045,9 +1045,7 @@ public class RecognitionMemory
             {
                 next_pref = pref.inst_next;
                 
-                // TODO: not sure if the expressions before the && in this if statement are actually necessary (all tests still seem to pass if they are removed)
-                if ( (pref.type != PreferenceType.REJECT || !pref.o_supported) 
-                        && (inst.in_ms || pref.o_supported) )
+                if ( inst.in_ms || pref.o_supported )
                 {
                     // normal case
                     add_preference_to_tm(pref);
