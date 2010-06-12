@@ -82,4 +82,13 @@ public class InitSoarTests extends FunctionalTestHarness
         testInitSoar();
         runTestExecute(testName, expectedDecisions);
     }
+    
+    @Test
+    public void testBlocksWorldOperatorSubgoalingInit() throws Exception
+    {
+        String testName = "testBlocksWorldOperatorSubgoalingInit";
+        runTest(testName, 5);
+        testInitSoar();
+        runTestExecute(testName, 3);
+    }
 }
