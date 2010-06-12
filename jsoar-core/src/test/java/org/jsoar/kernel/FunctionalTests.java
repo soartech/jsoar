@@ -59,7 +59,7 @@ public class FunctionalTests extends FunctionalTestHarness
     @Test(timeout=10000)
     public void testBlocksWorldOperatorSubgoaling() throws Exception
     {
-        runTest("testBlocksWorldOperatorSubgoaling", -1);
+        runTest("testBlocksWorldOperatorSubgoaling", 5);
     }
     
     @Test(timeout=10000)
@@ -96,10 +96,9 @@ public class FunctionalTests extends FunctionalTestHarness
     @Test(timeout=80000)
     public void testCountTest() throws Exception
     {
-        runTest("testCountTest", -1);
+        runTest("testCountTest", 45047);
         assertEquals(42, agent.getProductions().getProductions(ProductionType.USER).size());
         assertEquals(15012, agent.getProductions().getProductions(ProductionType.CHUNK).size());
-        assertEquals(45047, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue());
         assertEquals(115136, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
         assertEquals(40039, agent.getProperties().get(SoarProperties.PE_CYCLE_COUNT).intValue());
         assertEquals(120146, agent.getProperties().get(SoarProperties.INNER_E_CYCLE_COUNT).intValue());
