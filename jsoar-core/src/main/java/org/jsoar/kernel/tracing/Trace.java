@@ -89,7 +89,7 @@ public class Trace
         WATERFALL(-1),
         
         /** New in JSoar for GDS goal removals and other info */
-        GDS(-1);
+        GDS(1);
         
         private final boolean defaultSetting;
         private final int watchLevel;
