@@ -4,6 +4,8 @@
 package org.jsoar.kernel.commands;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -308,9 +310,11 @@ public class SourceCommand implements SoarCommand
             popd();
         }
     }
-    
-    private void evalUrlAndPop(URL url) throws SoarException
+        
+    private void evalUrlAndPop(URL urlIn) throws SoarException
     {
+        final URL url = normalizeUrl(urlIn);
+        
         try
         {
             fileStack.push(url.toExternalForm());
@@ -324,6 +328,30 @@ public class SourceCommand implements SoarCommand
         {
             fileStack.pop();
             popd();
+        }
+    }
+
+    /**
+     * Make sure an URL is normalized, i.e. does not contain any .. or .
+     * path components.
+     * 
+     * @param url the url to normalize
+     * @return normalized URL
+     * @throws SoarException if there are any problems with the URL
+     */
+    private URL normalizeUrl(URL url) throws SoarException
+    {
+        try
+        {
+            return url.toURI().normalize().toURL();
+        }
+        catch (MalformedURLException e)
+        {
+            throw new SoarException(e.getMessage(), e);
+        }
+        catch (URISyntaxException e)
+        {
+            throw new SoarException(e.getMessage(), e);
         }
     }
     
