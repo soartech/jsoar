@@ -11,11 +11,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.jsoar.JSoarTest;
-import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.properties.PropertyManager;
-import org.jsoar.util.timing.ExecutionTimer;
 import org.junit.Test;
 
 /**
@@ -224,13 +221,6 @@ public class FunctionalTests extends FunctionalTestHarness
             "}\n", 
             true);
         
-    }
-
-    @Test
-    public void testTemplateVariableNameBug1121() throws Exception
-    {
-        runTest("testTemplateVariableNameBug1121", 1);
-        assertEquals(4, agent.getProperties().get(SoarProperties.E_CYCLE_COUNT).intValue());
     }
     
     @Test
