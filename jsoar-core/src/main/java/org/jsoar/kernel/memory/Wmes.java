@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
