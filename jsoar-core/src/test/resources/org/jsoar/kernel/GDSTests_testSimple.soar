@@ -1,0 +1,73 @@
+# this test triggers a GDS state removal by doing the following: 
+# create a wme on the top state
+# go into a substate
+# create an o-supported wme in the substate that depends on the top-state wme
+# remove the top-state wme
+
+# create the top-state wme (^in gds)
+sp {propose*init
+(state <s> ^superstate nil
+          -^init done)
+-->
+(<s> ^operator.name init)
+}
+
+sp {apply*init
+(state <s> ^operator.name init)
+-->
+(<s> ^in gds
+     ^init done)
+}
+
+# create substate. Note that it only depends on ^init done, because we want to
+# make sure that the state goes away because ^in gds is in the GDS, not because
+# this proposal unmatched
+sp {propose*create-substate
+(state <s> ^init done)
+-->
+(<s> ^operator.name create-substate)
+}
+
+# create wme (^put-in gds) in substate that depends on ^in gds
+sp {propose*create-put-in-gds
+(state <s> ^superstate <ss>
+-^put-in gds)
+(<ss> ^operator.name create-substate
+^in gds)
+-->
+(<s> ^operator.name create-put-in-gds)
+}
+
+sp {apply*create-put-in-gds
+(state <s> ^operator.name create-put-in-gds)
+-->
+(<s> ^put-in gds)
+}
+
+# trigger GDS state removal by removing ^in gds
+sp {propose*trigger-gds
+(state <s> ^superstate <ss>
+^put-in gds)
+(<ss> ^operator.name create-substate
+^in gds)
+-->
+(<s> ^operator.name trigger-gds)
+}
+
+sp {apply*trigger-gds
+(state <s> ^operator.name trigger-gds
+^superstate <ss>)
+(<ss> ^in gds)
+-->
+(<ss> ^in gds -)
+}
+
+# test that state was removed when ^in-gds was removed
+sp {success
+(state <s> ^init done
+-^in gds)
+-(state <ss> ^superstate <s>)
+-->
+(write (crlf) |gds properly triggered|)
+(succeeded)
+}
