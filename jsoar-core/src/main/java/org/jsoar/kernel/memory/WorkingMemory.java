@@ -175,19 +175,12 @@ public class WorkingMemory
         w.preference = null;
         w.chunker_bt_pref = null;
 
-        /*
-         * When we remove a WME, we always have to determine if it's on a GDS,
-         * and, if so, after removing the WME, if there are no longer any WMEs
-         * on the GDS, then we can free the GDS memory
-         */
+        // When we remove a WME, we always have to determine if it's on a GDS,
+        // and, if so, after removing the WME, if there are no longer any WMEs
+        // on the GDS, then we can free the GDS memory
         if (w.gds != null)
         {
             w.gds.removeWme(w);
-
-            if (w.gds.getWmes() == null)
-            {
-                w.gds = null;
-            }
         }
     }
 

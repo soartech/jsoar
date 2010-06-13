@@ -2652,8 +2652,6 @@ public class Decider
      */
     private void add_wme_to_gds(GoalDependencySet gds, WmeImpl wme_to_add)
     {
-        // Set the correct GDS for this wme (wme's point to their gds)
-        wme_to_add.gds = gds;
         gds.addWme(wme_to_add);
 
         context.getTrace().print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
@@ -2726,21 +2724,6 @@ public class Decider
                             // is no longer around
                             wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
-                            // TODO I don't thinks this is an issue in Java
-                            // We have to check for GDS removal anytime we take a
-                            // WME off the GDS wme list, not just when a WME is
-                            // removed from memory.
-                            if (wme_matching_this_cond.gds.getWmes() == null)
-                            {
-                                wme_matching_this_cond.gds = null;
-                                // free_memory(thisAgent, wme_matching_this_cond->gds, MISCELLANEOUS_MEM_USAGE);
-
-                                if (DEBUG_GDS)
-                                {
-                                    context.getPrinter().print("\n  REMOVING GDS FROM MEMORY.");
-                                }
-                            }
-
                             /* JC ADDED: Separate adding wme to GDS as a function */
                             add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
 
@@ -2760,19 +2743,6 @@ public class Decider
                             // 4. Update WME pointer to new GDS list
 
                             wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
-
-                            // TODO I don't think this is necessary in Java
-                            if (wme_matching_this_cond.gds.getWmes() == null)
-                            {
-                                wme_matching_this_cond.gds = null;
-                                // free_memory(thisAgent, wme_matching_this_cond->gds, MISCELLANEOUS_MEM_USAGE);
-
-                                if (DEBUG_GDS)
-                                {
-                                    context.getPrinter().print("\n  REMOVING GDS FROM MEMORY.");
-                                }
-
-                            }
 
                             add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
 
@@ -2873,22 +2843,6 @@ public class Decider
                                             * the GDS is no longer around */
                                             fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
 
-                                            // TODO I don't think this is necessary in Java 
-                                            /* We have to check for GDS removal anytime we take
-                                            * a WME off the GDS wme list, not just when a WME
-                                            * is removed from memory. */
-                                            if (fake_inst_wme_cond.gds.getWmes() == null)
-                                            {
-                                                fake_inst_wme_cond.gds = null;
-                                                // free_memory(thisAgent, fake_inst_wme_cond->gds,
-                                                // MISCELLANEOUS_MEM_USAGE);
-                                                if (DEBUG_GDS)
-                                                {
-                                                    context.getPrinter().print("\n  REMOVING GDS FROM MEMORY.");
-                                                }
-                                            }
-
-                                            /* JC ADDED: Separate adding wme to GDS as a function */
                                             add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
 
                                             if (DEBUG_GDS)
@@ -2909,18 +2863,6 @@ public class Decider
 
                                             fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
                                             
-                                            // TODO I don't think this is necessary in Java
-                                            if (fake_inst_wme_cond.gds.getWmes() == null)
-                                            {
-                                                fake_inst_wme_cond.gds = null;
-                                                // free_memory(thisAgent, fake_inst_wme_cond->gds,
-                                                // MISCELLANEOUS_MEM_USAGE);
-                                                if (DEBUG_GDS)
-                                                {
-                                                    context.getPrinter().print("\n  REMOVING GDS FROM MEMORY.");
-                                                }
-                                            }
-
                                             add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
 
                                             if (DEBUG_GDS)

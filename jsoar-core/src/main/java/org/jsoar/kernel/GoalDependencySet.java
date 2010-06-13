@@ -5,6 +5,10 @@
  */
 package org.jsoar.kernel;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.Arguments;
@@ -86,28 +90,83 @@ public class GoalDependencySet
      * @return Head of the list of WMEs in this GDS.
      * @see WmeImpl#addToGds(WmeImpl)
      */
-    public WmeImpl getWmes()
+    public List<Wme> getWmes()
     {
-        return wmes;
+        final List<Wme> result = new ArrayList<Wme>();
+        for(WmeImpl w = wmes; w != null; w = w.gds_next)
+        {
+            result.add(w);
+        }
+        return result;
+    }
+    
+    /**
+     * @return true if this GDS is empty
+     */
+    public boolean isEmpty()
+    {
+        return wmes == null;
     }
     
     /**
      * Add a WME to the head of this GDS's WME list
      * 
+     * <p>decide.cpp:2562:add_wme_to_gds
+     * 
      * @param w The wme
      */
     public void addWme(WmeImpl w)
     {
-        wmes = w.addToGds(wmes);
+        // Set the correct GDS for this wme (wme's point to their gds)
+        w.gds = this;
+        
+        w.gds_next = wmes;
+        w.gds_prev = null;
+        if(wmes != null)
+        {
+            wmes.gds_prev = w;
+        }
+        wmes = w;
     }
     
     /**
      * Remove a WME from the list of WMEs in this GDS
      * 
+     * <p>decide.cpp:elaborate_gds
+     * <p>wmem.cpp:135:remove_wme_from_wm
+     * 
      * @param w The wme to remove
+     * @throws IllegalArgumentException if w is not part of this GDS
      */
     public void removeWme(WmeImpl w)
     {
-        wmes = w.removeFromGds(wmes);
+        if(w.gds != this)
+        {
+            throw new IllegalArgumentException(String.format("%s is not a member of GDS %s", w, goal));
+        }
+        
+        if(w.gds_next != null)
+        {
+            w.gds_next.gds_prev = w.gds_prev;
+        }
+        if(w.gds_prev != null)
+        {
+            w.gds_prev.gds_next = w.gds_next;
+        }
+        else
+        {
+            wmes = w.gds_next;
+        }
+        w.gds_next = null;
+        w.gds_prev = null;
+        
+        // We have to check for GDS removal anytime we take a
+        // WME off the GDS wme list, not just when a WME is
+        // removed from memory.
+        // TODO: Is this even necessary in JSoar??
+        if(wmes == null)
+        {
+            w.gds = null;
+        }
     }
 }

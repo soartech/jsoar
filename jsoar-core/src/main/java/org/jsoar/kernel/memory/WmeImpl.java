@@ -130,7 +130,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public Preference chunker_bt_pref;
     
     public GoalDependencySet gds;
-    private WmeImpl gds_next, gds_prev; // part of dll of wmes in gds
+    public WmeImpl gds_next, gds_prev; // part of dll of wmes in gds
     
     /**
      * @param id
@@ -231,38 +231,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         
         return head;
     }
-    
-    public WmeImpl addToGds(WmeImpl head)
-    {
-        gds_next = head;
-        gds_prev = null;
-        if(head != null)
-        {
-            head.gds_prev = this;
-        }
-        return this;
-    }
-    
-    public WmeImpl removeFromGds(WmeImpl head)
-    {
-        if(gds_next != null)
-        {
-            gds_next.gds_prev = gds_prev;
-        }
-        if(gds_prev != null)
-        {
-            gds_prev.gds_next = gds_next;
-        }
-        else
-        {
-            head = gds_next;
-        }
-        gds_next = null;
-        gds_prev = null;
         
-        return head;
-    }    
-    
     /**
      * @return An iterator over the {@link #next} pointer starting at this WME
      */
