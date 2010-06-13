@@ -7,6 +7,11 @@ package org.jsoar.kernel;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.SymbolFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +48,22 @@ public class AgentTest
         agent.setStopPhase(Phase.DECISION);
         assertEquals(Phase.DECISION, agent.getStopPhase());
         assertEquals(Phase.DECISION, agent.getProperties().get(SoarProperties.STOP_PHASE));
+    }
+    
+    @Test
+    public void testGetGoalStack()
+    {
+        agent.runFor(3, RunType.DECISIONS);
+        // We start with S1. Running three steps, gives three new states, S2, S3, S4
+        final List<Identifier> gs = agent.getGoalStack();
+        assertNotNull(gs);
+        assertEquals(4, gs.size());
+        final SymbolFactory syms = agent.getSymbols();
+        assertEquals(Arrays.asList(syms.findIdentifier('S', 1), 
+                                   syms.findIdentifier('S', 2), 
+                                   syms.findIdentifier('S', 3), 
+                                   syms.findIdentifier('S', 4)),
+                     gs);
     }
 
 }

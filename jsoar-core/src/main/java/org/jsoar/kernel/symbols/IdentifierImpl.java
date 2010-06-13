@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.jsoar.kernel.GoalDependencySet;
+import org.jsoar.kernel.GoalDependencySetImpl;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
 import org.jsoar.kernel.memory.Preference;
@@ -71,7 +72,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public SymbolImpl reward_header;        // pointer to reward_link
     public ReinforcementLearningInfo rl_info;           // various Soar-RL information
 
-    public GoalDependencySet gds; // pointer to a goal's dependency set
+    public GoalDependencySetImpl gds; // pointer to a goal's dependency set
 
     /**
      * FIRING_TYPE that must be restored if Waterfall processing returns to this
@@ -370,6 +371,20 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         formatter.format(name_letter + Integer.toString(name_number));
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.SymbolImpl#getAdapter(java.lang.Class)
+     */
+    @Override
+    public Object getAdapter(Class<?> klass)
+    {
+        if(GoalDependencySet.class.equals(klass))
+        {
+            return gds;
+        }
+                
+        return super.getAdapter(klass);
+    }
+
     private static class WmeIteratorSet implements Iterator<Iterator<Wme>>
     {
         private final IdentifierImpl id;

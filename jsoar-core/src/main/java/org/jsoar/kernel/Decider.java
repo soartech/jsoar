@@ -28,6 +28,7 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.rete.SoarReteListener;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
@@ -209,6 +210,16 @@ public class Decider
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
+    }
+    
+    public List<Identifier> getGoalStack()
+    {
+        final List<Identifier> result = new ArrayList<Identifier>();
+        for (IdentifierImpl g = top_goal; g != null; g = g.lower_goal)
+        {
+            result.add(g);
+        }
+        return result;
     }
     
     /**
@@ -2650,7 +2661,7 @@ public class Decider
      * @param gds
      * @param wme_to_add
      */
-    private void add_wme_to_gds(GoalDependencySet gds, WmeImpl wme_to_add)
+    private void add_wme_to_gds(GoalDependencySetImpl gds, WmeImpl wme_to_add)
     {
         gds.addWme(wme_to_add);
 
@@ -3118,7 +3129,7 @@ public class Decider
      */
     private void create_gds_for_goal(IdentifierImpl goal)
     {
-        goal.gds = new GoalDependencySet(goal);
+        goal.gds = new GoalDependencySetImpl(goal);
         if (DEBUG_GDS)
         {
             context.getPrinter().print("\nCreated GDS for goal [%s].\n", goal);

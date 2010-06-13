@@ -14,12 +14,11 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.util.adaptables.AbstractAdaptable;
 
 /**
  * @author ray
  */
-class InputWmeImpl extends AbstractAdaptable implements InputWme
+class InputWmeImpl implements InputWme
 {
     private final InputOutputImpl io;
     private final AtomicReference<WmeImpl> inner = new AtomicReference<WmeImpl>();
@@ -152,6 +151,15 @@ class InputWmeImpl extends AbstractAdaptable implements InputWme
             int precision)
     {
         inner.get().formatTo(formatter, flags, width, precision);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
+     */
+    @Override
+    public Object getAdapter(Class<?> klass)
+    {
+        return inner.get().getAdapter(klass);
     }
 
 }

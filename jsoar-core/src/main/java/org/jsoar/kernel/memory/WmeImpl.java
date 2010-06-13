@@ -10,6 +10,7 @@ import java.util.Formatter;
 import java.util.Iterator;
 
 import org.jsoar.kernel.GoalDependencySet;
+import org.jsoar.kernel.GoalDependencySetImpl;
 import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.rete.RightMemory;
 import org.jsoar.kernel.rete.Token;
@@ -129,7 +130,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     
     public Preference chunker_bt_pref;
     
-    public GoalDependencySet gds;
+    public GoalDependencySetImpl gds;
     public WmeImpl gds_next, gds_prev; // part of dll of wmes in gds
     
     /**
@@ -369,6 +370,10 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         if(InputWme.class.equals(klass))
         {
             return outerInputWme;
+        }
+        else if(GoalDependencySet.class.equals(klass))
+        {
+            return gds;
         }
         return super.getAdapter(klass);
     }

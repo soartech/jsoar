@@ -12,10 +12,13 @@ import java.util.List;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.GoalDependencySet;
+import org.jsoar.kernel.GoalDependencySetImpl;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.memory.Wmes.MatcherBuilder;
+import org.jsoar.util.adaptables.Adaptables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,4 +87,13 @@ public class IdentifierImplTest extends JSoarTest
         assertNotNull(m.reset().attr("d").value(4).find(kids));
     }
 
+    @Test
+    public void testIsAdaptableToGoalDependencySet()
+    {
+        final IdentifierImpl id = syms.createIdentifier('S');
+        assertNull(Adaptables.adapt(id, GoalDependencySet.class));
+        id.gds = new GoalDependencySetImpl(id);
+        assertSame(id.gds, Adaptables.adapt(id, GoalDependencySet.class));
+        
+    }
 }

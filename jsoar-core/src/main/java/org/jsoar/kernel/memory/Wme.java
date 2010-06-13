@@ -8,12 +8,22 @@ package org.jsoar.kernel.memory;
 import java.util.Formattable;
 import java.util.Iterator;
 
+import org.jsoar.kernel.GoalDependencySet;
+import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.io.InputWme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.util.adaptables.Adaptable;
 
 /**
- * Public interface for a working memory element for use by I/O code.
+ * Public interface for a working memory element.
+ * 
+ * <p>Instances of this class may be adaptable to:
+ * <ul>
+ * <li>{@link InputWme} if the WME was created on the input-link by
+ *  environment code, i.e. {@link InputOutput#addInputWme(Identifier, Symbol, Symbol)}
+ * <li>{@link GoalDependencySet} if the WME is part of a GDS.
+ * </ul>
  * 
  * @author ray
  * @see Wmes

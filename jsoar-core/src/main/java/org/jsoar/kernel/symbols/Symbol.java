@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.symbols;
 
+import org.jsoar.util.adaptables.Adaptable;
+
 
 /**
  * Base interface for Soar symbols.
@@ -12,7 +14,7 @@ package org.jsoar.kernel.symbols;
  * @author ray
  * @see Symbols
  */
-public interface Symbol
+public interface Symbol extends Adaptable
 {
     /**
      * Convert this symbol to a {@link DoubleSymbol}

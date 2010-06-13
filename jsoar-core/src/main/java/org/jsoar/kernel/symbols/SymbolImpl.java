@@ -10,6 +10,7 @@ import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.Marker;
 
 /**
@@ -196,6 +197,14 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return this;
     }
     
+    /* (non-Javadoc)
+     * @see com.soartech.simjr.Adaptable#getAdapter(java.lang.Class)
+     */
+    public Object getAdapter(Class<?> klass)
+    {
+        return Adaptables.adapt(this, klass, false);
+    }
+
     abstract Symbol importInto(SymbolFactory factory);
     
     public boolean belongsTo(SymbolFactory factory) { return this.factory == factory; }
