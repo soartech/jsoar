@@ -17,11 +17,11 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 
 /**
- * http://winter.eecs.umich.edu/soarwiki/Run
+ * http://code.google.com/p/soar/wiki/CommandLineInterface#gds-print
  * 
- * <p>Simple implementation of stop-soar command. Must be manually installed.
+ * <p>Implementation of print-gds command.
  * 
- * @author ray
+ * @author marinier
  */
 public final class GdsPrintCommand implements SoarCommand
 {
@@ -42,23 +42,23 @@ public final class GdsPrintCommand implements SoarCommand
         //  the wme-only list, which is in bottom-to-top order by goal
         //  the goal list, which is in top-to-bottom order by goal
         
-        List<Identifier> goalsTopToBottom = agent.getGoalStack();
-        List<Identifier> goalsBottomtoTop = new ArrayList<Identifier>(goalsTopToBottom);
+        final List<Identifier> goalsTopToBottom = agent.getGoalStack();
+        final List<Identifier> goalsBottomtoTop = new ArrayList<Identifier>(goalsTopToBottom);
         Collections.reverse(goalsBottomtoTop);
         
         // list wmes from goals in bottom-to-top order
-        for(Identifier goal : goalsBottomtoTop)
+        for(final Identifier goal : goalsBottomtoTop)
         {
-            GoalDependencySet gds = Adaptables.adapt(goal, GoalDependencySet.class);
+            final GoalDependencySet gds = Adaptables.adapt(goal, GoalDependencySet.class);
             if(gds == null)
             {
                 continue;
             }
             
-            Iterator<Wme> itr = gds.getWmes();
+            final Iterator<Wme> itr = gds.getWmes();
             while(itr.hasNext())
             {
-                Wme w = itr.next();
+                final Wme w = itr.next();
                 result += "  For Goal  " + goal.toString() + "  " + w.toString() + "\n";
             }
         }
@@ -66,10 +66,10 @@ public final class GdsPrintCommand implements SoarCommand
         result += "************************************************************\n";
         
         // list goals with wmes in top-to-bottom order
-        for(Identifier goal : goalsTopToBottom)
+        for(final Identifier goal : goalsTopToBottom)
         {
             result += "  For Goal  " + goal.toString();
-            GoalDependencySet gds = Adaptables.adapt(goal, GoalDependencySet.class);
+            final GoalDependencySet gds = Adaptables.adapt(goal, GoalDependencySet.class);
             if(gds == null)
             {
                 result += "  : No GDS for this goal.\n";
@@ -78,10 +78,10 @@ public final class GdsPrintCommand implements SoarCommand
             
             result += "\n";
             
-            Iterator<Wme> itr = gds.getWmes();
+            final Iterator<Wme> itr = gds.getWmes();
             while(itr.hasNext())
             {
-                Wme w = itr.next();
+                final Wme w = itr.next();
                 result += "                " + w.toString() + "\n";
             }
         }
