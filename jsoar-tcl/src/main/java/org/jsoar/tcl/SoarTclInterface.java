@@ -26,6 +26,7 @@ import org.jsoar.kernel.commands.EditProductionCommand;
 import org.jsoar.kernel.commands.ExciseCommand;
 import org.jsoar.kernel.commands.ExplainBacktracesCommand;
 import org.jsoar.kernel.commands.FiringCountsCommand;
+import org.jsoar.kernel.commands.GdsPrintCommand;
 import org.jsoar.kernel.commands.HelpCommand;
 import org.jsoar.kernel.commands.InitSoarCommand;
 import org.jsoar.kernel.commands.LearnCommand;
@@ -203,6 +204,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("version", new VersionCommand());
         addCommand("set-stop-phase", new SetStopPhaseCommand(this.agent.getProperties()));
         addCommand("debugger", new DebuggerCommand(agent));
+
+        addCommand("gds-print", new GdsPrintCommand(this.agent));
 
         try
         {
