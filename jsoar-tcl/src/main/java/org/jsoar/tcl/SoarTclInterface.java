@@ -18,49 +18,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.CLogCommand;
-import org.jsoar.kernel.commands.DebuggerCommand;
-import org.jsoar.kernel.commands.DefaultWmeDepthCommand;
-import org.jsoar.kernel.commands.EchoCommand;
-import org.jsoar.kernel.commands.EditProductionCommand;
-import org.jsoar.kernel.commands.ExciseCommand;
-import org.jsoar.kernel.commands.ExplainBacktracesCommand;
-import org.jsoar.kernel.commands.FiringCountsCommand;
-import org.jsoar.kernel.commands.GdsPrintCommand;
-import org.jsoar.kernel.commands.HelpCommand;
-import org.jsoar.kernel.commands.InitSoarCommand;
-import org.jsoar.kernel.commands.LearnCommand;
-import org.jsoar.kernel.commands.MatchesCommand;
-import org.jsoar.kernel.commands.MaxElaborationsCommand;
-import org.jsoar.kernel.commands.MemoriesCommand;
-import org.jsoar.kernel.commands.MultiAttrCommand;
-import org.jsoar.kernel.commands.OSupportModeCommand;
 import org.jsoar.kernel.commands.PopdCommand;
-import org.jsoar.kernel.commands.PreferencesCommand;
-import org.jsoar.kernel.commands.PrintCommand;
-import org.jsoar.kernel.commands.ProductionFindCommand;
-import org.jsoar.kernel.commands.PropertiesCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
-import org.jsoar.kernel.commands.QMemoryCommand;
-import org.jsoar.kernel.commands.ReinforcementLearningCommand;
-import org.jsoar.kernel.commands.RhsFunctionsCommand;
-import org.jsoar.kernel.commands.SaveBacktracesCommand;
-import org.jsoar.kernel.commands.SetParserCommand;
-import org.jsoar.kernel.commands.SetStopPhaseCommand;
-import org.jsoar.kernel.commands.Soar8Command;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.SpCommand;
-import org.jsoar.kernel.commands.SrandCommand;
-import org.jsoar.kernel.commands.StatsCommand;
-import org.jsoar.kernel.commands.SymbolsCommand;
-import org.jsoar.kernel.commands.TimersCommand;
-import org.jsoar.kernel.commands.VerboseCommand;
-import org.jsoar.kernel.commands.VersionCommand;
-import org.jsoar.kernel.commands.WaitSncCommand;
-import org.jsoar.kernel.commands.WarningsCommand;
-import org.jsoar.kernel.commands.WatchCommand;
+import org.jsoar.kernel.commands.StandardCommands;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
@@ -155,58 +119,16 @@ public class SoarTclInterface implements SoarCommandInterpreter
         initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
         
+        // Interpreter-specific handlers
         addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));
-        
         addCommand("sp", new SpCommand(this.agent, this.sourceCommand));
-        addCommand("multi-attributes", new MultiAttrCommand(this.agent));
-        addCommand("stats", new StatsCommand(this.agent));
-        addCommand("learn", new LearnCommand(this.agent));
-        addCommand("rl", new ReinforcementLearningCommand(this.agent));
-        addCommand("srand", new SrandCommand(this.agent));
-        addCommand("max-elaborations", new MaxElaborationsCommand(this.agent));
-        addCommand("matches", new MatchesCommand(this.agent));
-        addCommand("waitsnc", new WaitSncCommand(this.agent));
-        addCommand("init-soar", new InitSoarCommand(this.agent));
-        addCommand("warnings", new WarningsCommand(this.agent));
-        addCommand("verbose", new VerboseCommand(this.agent));
-        addCommand("save-backtraces", new SaveBacktracesCommand(this.agent));
-        addCommand("explain-backtraces", new ExplainBacktracesCommand(this.agent));
-        addCommand("echo", new EchoCommand(this.agent));
-        addCommand("clog", new CLogCommand(this.agent));
-        addCommand("watch", new WatchCommand(this.agent.getTrace()));
-        addCommand("rhs-functions", new RhsFunctionsCommand(this.agent));
-        
-        final PrintCommand printCommand = new PrintCommand(this.agent);
-        addCommand("print", printCommand);
-        addCommand("default-wme-depth", new DefaultWmeDepthCommand(printCommand));
-        
-        addCommand("o-support-mode", new OSupportModeCommand());
-        addCommand("soar8", new Soar8Command());
-        addCommand("firing-counts", new FiringCountsCommand(this.agent));
-        addCommand("excise", new ExciseCommand(this.agent));
-        addCommand("init-soar", new InitSoarCommand(this.agent));
-        addCommand("preferences", new PreferencesCommand(this.agent));
-        addCommand("memories", new MemoriesCommand(this.agent));
-        addCommand("edit-production", new EditProductionCommand(this.agent));
-        addCommand("production-find", new ProductionFindCommand(this.agent));
-        
-        addCommand("set-parser", new SetParserCommand(this.agent));
-        addCommand("properties", new PropertiesCommand(this.agent));
-        addCommand("symbols", new SymbolsCommand(this.agent));
-        
-        addCommand("help", new HelpCommand(this));
-        
-        addCommand("qmemory", new QMemoryCommand(this.agent));
-        addCommand("timers", new TimersCommand());
-        addCommand("version", new VersionCommand());
-        addCommand("set-stop-phase", new SetStopPhaseCommand(this.agent.getProperties()));
-        addCommand("debugger", new DebuggerCommand(agent));
 
-        addCommand("gds-print", new GdsPrintCommand(this.agent));
-
+        // Load general handlers
+        StandardCommands.addToInterpreter(agent, this);
+        
         try
         {
             interp.evalResource(DEFAULT_TCL_CODE);
