@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.Production;
 
 /**
@@ -20,16 +19,32 @@ import org.jsoar.kernel.Production;
 public class ReinforcementLearningInfo
 {
     // Initial values from decide.cpp:2092:decide_context_slot
-    public final Map<Production, Double> eligibility_traces = new HashMap<Production, Double>();
-    public final LinkedList<Production> prev_op_rl_rules = new LinkedList<Production>();
-    double previous_q = 0.0;
-    double reward = 0.0;
-    int reward_age = 0;    // the number of steps since a cycle containing rl rules
-    int num_prev_op_rl_rules = 0;
-    int step = 0;          // the number of steps the current operator has been installed at the goal
-    public ImpasseType impasse_type = ImpasseType.NONE;    // if this goal is an impasse, what type
     
-    long hrl_age;
+    /**
+     * traces associated with productions
+     */
+    public final Map<Production, Double> eligibility_traces = new HashMap<Production, Double>();
+    /**
+     * rl rules associated with the previous operator
+     */
+    public final LinkedList<Production> prev_op_rl_rules = new LinkedList<Production>();
+    
+    /**
+     * q-value of the previous state
+     */
+    double previous_q = 0.0;
+    /**
+     * accumulated discounted reward
+     */
+    double reward = 0.0;
+    
+    /**
+     * the number of steps since a cycle containing rl rules
+     */
     long gap_age;
+    /**
+     * the number of steps in a subgoal
+     */
+    long hrl_age;
 
 }

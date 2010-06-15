@@ -40,10 +40,12 @@ import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
+import org.jsoar.kernel.rhs.functions.RhsFunctions;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.DefaultSourceLocation;
@@ -68,23 +70,7 @@ public class ReinforcementLearning
     
     public static final int RL_TE_ON = 1;
     public static final int RL_TE_OFF = 2;
-    
-    // names of params
-    public static final int RL_PARAM_LEARNING                  = 0;
-    public static final int RL_PARAM_DISCOUNT_RATE             = 1;
-    public static final int RL_PARAM_LEARNING_RATE             = 2;
-    public static final int RL_PARAM_LEARNING_POLICY           = 3;
-    public static final int RL_PARAM_ET_DECAY_RATE             = 4;
-    public static final int RL_PARAM_ET_TOLERANCE              = 5;
-    public static final int RL_PARAM_TEMPORAL_EXTENSION        = 6;
-    public static final int RL_PARAMS                          = 7; // must be 1+ last rl param
-    
-    // names of stats
-    public static final int RL_STAT_UPDATE_ERROR               = 0;
-    public static final int RL_STAT_TOTAL_REWARD               = 1;
-    public static final int RL_STAT_GLOBAL_REWARD              = 2;
-    public static final int RL_STATS                           = 3; // must be 1+ last rl stat
-    
+        
     // more specific forms of no change impasse types
     // made negative to never conflict with impasse constants
     public static final int STATE_NO_CHANGE_IMPASSE_TYPE = -1;
@@ -92,8 +78,6 @@ public class ReinforcementLearning
     private static final SourceLocation NEW_PRODUCTION_SOURCE = new DefaultSourceLocation("*RL*", -1, -1);
 
     // reinforcement learning
-    rl_parameter rl_params[] = new rl_parameter[ RL_PARAMS ];
-    rl_stat rl_stats[] = new rl_stat[ RL_STATS ];
     int rl_template_count;
     boolean rl_first_switch;
 
@@ -103,7 +87,6 @@ public class ReinforcementLearning
     private Chunker chunker;
     private RecognitionMemory recMemory;
     private Rete rete; // TODO init
-    private VariableGenerator vars; // TODO init
     private PredefinedSymbols preSyms; // TODO init
     
     private boolean enabled = false;
@@ -119,39 +102,14 @@ public class ReinforcementLearning
     {
         this.my_agent = context;
         
-        // rl initialization
-        // agent.cpp:311:create_agent
-        rl_params[ RL_PARAM_LEARNING ] = rl_add_parameter( "learning", RL_LEARNING_OFF,
-                    new StringParameterValFunc() { public boolean execute(int in) { return  rl_validate_learning(in); }}, 
-                    new StringParameterToString() { public String execute(int in) { return rl_convert_learning(in); } },
-                    new StringParameterFromString() { public int execute(String in) { return rl_convert_learning(in); }});
-        rl_params[ RL_PARAM_DISCOUNT_RATE ] = rl_add_parameter( "discount-rate", 0.9,
-                    new NumberParameterValFunc() { public boolean execute(double in) { return rl_validate_discount(in); } }  );  
-        rl_params[ RL_PARAM_LEARNING_RATE ] = rl_add_parameter( "learning-rate", 0.3, 
-                new NumberParameterValFunc() { public boolean execute(double in) { return rl_validate_learning_rate(in); } });
-        rl_params[ RL_PARAM_LEARNING_POLICY ] = rl_add_parameter( "learning-policy", RL_LEARNING_SARSA, 
-                new StringParameterValFunc() { public boolean execute(int in) { return  rl_validate_learning_policy(in); }}, 
-                new StringParameterToString() { public String execute(int in) { return rl_convert_learning_policy(in); } },
-                new StringParameterFromString() { public int execute(String in) { return rl_convert_learning_policy(in); }}
-        );
-        rl_params[ RL_PARAM_ET_DECAY_RATE ] = rl_add_parameter( "eligibility-trace-decay-rate", 0, 
-                new NumberParameterValFunc() { public boolean execute(double in) { return rl_validate_decay_rate(in); } });
-        rl_params[ RL_PARAM_ET_TOLERANCE ] = rl_add_parameter( "eligibility-trace-tolerance", 0.001, 
-                new NumberParameterValFunc() { public boolean execute(double in) { return rl_validate_trace_tolerance(in); } });
-        rl_params[ RL_PARAM_TEMPORAL_EXTENSION ] = rl_add_parameter( "temporal-extension", RL_TE_ON, 
-                new StringParameterValFunc() { public boolean execute(int in) { return  rl_validate_te_enabled(in); }}, 
-                new StringParameterToString() { public String execute(int in) { return rl_convert_te_enabled(in); } },
-                new StringParameterFromString() { public int execute(String in) { return rl_convert_te_enabled(in); }});
-
-        rl_stats[ RL_STAT_UPDATE_ERROR ] = rl_add_stat( "update-error" );
-        rl_stats[ RL_STAT_TOTAL_REWARD ] = rl_add_stat( "total-reward" );
-        rl_stats[ RL_STAT_GLOBAL_REWARD ] = rl_add_stat( "global-reward" );
-
-        rl_initialize_template_tracking( );
-        
-        rl_first_switch = true;
-
     }
+    
+    /* 
+     * reinforcement_learning.cpp:688:rl_reset_data
+     * 
+     * Not actually used in reinforcement_learning.cpp.
+     */
+
     
     public void initialize()
     {
@@ -159,648 +117,23 @@ public class ReinforcementLearning
         this.exploration = Adaptables.adapt(my_agent, Exploration.class);
         this.chunker = Adaptables.adapt(my_agent, Chunker.class);
         this.recMemory = Adaptables.adapt(my_agent, RecognitionMemory.class);
+        this.rete = Adaptables.adapt(my_agent, Rete.class);
+        this.preSyms = Adaptables.adapt(my_agent, PredefinedSymbols.class);
+        
+        // rl initialization
+        // agent.cpp:328:create_soar_agent
+        // TODO init params
+        // TODO init stats
+        rl_initialize_template_tracking();
+        
+        rl_first_switch = true;
+
     }
     
-    /**
-     * reinforcement_learning.cpp:90:rl_reset_stats
-     */
-    public void rl_reset_stats()
-    {
-        for ( int i=0; i<RL_STATS; i++ )
-            rl_stats[ i ].value = 0;
-    } 
     
     /**
-     * reinforcement_learning.cpp:158:rl_remove_refs_for_prod
+     * reinforcement_learning.cpp:131:rl_enabled
      * (9.3.0)
-     * @param prod
-     */
-    void rl_remove_refs_for_prod(Production prod )
-    {
-        for ( IdentifierImpl state = decider.top_state; state != null; state = state.lower_goal )
-        {
-            state.rl_info.eligibility_traces.remove( prod );
-            
-            ListIterator<Production> it =  state.rl_info.prev_op_rl_rules.listIterator();
-            while(it.hasNext())
-            {
-                Production c = it.next();
-                if(c == prod)
-                {
-                    it.set(null);
-                }
-            }
-        }
-    }
-    
-    /**
-     * reinforcement_learning.cpp:114:rl_add_parameter
-     * 
-     * @param name
-     * @param value
-     * @param val_func
-     * @return
-     */
-    rl_parameter rl_add_parameter( String name, double value, NumberParameterValFunc val_func)
-    {
-        // new parameter entry
-        rl_parameter newbie = new rl_parameter();
-        newbie.number_param = new rl_number_parameter();
-        newbie.number_param.value = value;
-        newbie.number_param.val_func = val_func;
-        newbie.type = rl_param_type.rl_param_number;
-        newbie.name = name;
-        
-        return newbie;
-    }
-    
-    /**
-     * reinforcement_learning.cpp:127:rl_add_parameter
-     * 
-     * @param name
-     * @param value
-     * @param val_func
-     * @param to_str
-     * @param from_str
-     * @return
-     */
-    rl_parameter rl_add_parameter( String name, int value, StringParameterValFunc val_func, StringParameterToString to_str,
-                                   StringParameterFromString from_str)
-    {
-        // new parameter entry
-        rl_parameter newbie = new rl_parameter();
-        newbie.string_param = new rl_string_parameter();
-        newbie.string_param.val_func = val_func;
-        newbie.string_param.to_str = to_str;
-        newbie.string_param.from_str = from_str;
-        newbie.string_param.value = value;
-        newbie.type = rl_param_type.rl_param_string;
-        newbie.name = name;
-        
-        return newbie;
-    }
-    
-    /**
-     * reinforcement_learning.cpp:144:rl_convert_parameter
-     * 
-     * @param param
-     * @return
-     */
-    String rl_convert_parameter(int param )
-    {
-        if ( ( param < 0 ) || ( param >= RL_PARAMS ) )
-            return null;
-
-        return rl_params[ param ].name;
-    }
-
-    /**
-     * reinforcement_learning.cpp:153:rl_convert_parameter
-     * 
-     * @param name
-     * @return
-     */
-    int rl_convert_parameter(String name )
-    {
-        for ( int i=0; i<RL_PARAMS; i++ )
-            if ( name.equals(rl_params[ i ].name ))
-                return i;
-
-        return RL_PARAMS;
-    }
-    
-    /**
-     * reinforcement_learning.cpp:165:rl_valid_parameter
-     * 
-     * @param name
-     * @return
-     */
-    boolean rl_valid_parameter(String name )
-    {
-        return ( rl_convert_parameter(name ) != RL_PARAMS );
-    }
-
-    /**
-     * reinforcement_learning.cpp:170:rl_valid_parameter
-     * 
-     * @param param
-     * @return
-     */
-    boolean rl_valid_parameter(int param )
-    {
-        return ( rl_convert_parameter( param ) != null );
-    } 
-    
-    /**
-     * reinforcement_learning.cpp:178:rl_get_parameter_type
-     * 
-     * @param name
-     * @return
-     */
-    rl_param_type rl_get_parameter_type(String name )
-    {
-        int param = rl_convert_parameter( name );
-        if ( param == RL_PARAMS )
-            return rl_param_type.rl_param_invalid;
-        
-        return rl_params[ param ].type;
-    }
-
-    /**
-     * reinforcement_learning.cpp:187:rl_get_parameter_type
-     * 
-     * @param param
-     * @return
-     */
-    rl_param_type rl_get_parameter_type(int param )
-    {
-        if ( !rl_valid_parameter( param ) )
-            return rl_param_type.rl_param_invalid;
-
-        return rl_params[ param ].type;
-    }    
-
-    int rl_get_parameter( String name, double test)
-    {
-        int param = rl_convert_parameter(name );
-        if ( param == RL_PARAMS )
-            return 0;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_string )
-            return 0;
-        
-        return rl_params[ param ].string_param.value;
-    }
-
-    String rl_get_parameter( String name, String  test)
-    {
-        int param = rl_convert_parameter( name );
-        if ( param == RL_PARAMS )
-            return null;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_string )
-            return null;
-        
-        return rl_params[ param ].string_param.to_str.execute( rl_params[ param ].string_param.value );
-    }
-
-    double rl_get_parameter( String name )
-    {
-        int param = rl_convert_parameter( name );
-        if ( param == RL_PARAMS )
-            return 0;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_number )
-            return 0;
-        
-        return rl_params[ param ].number_param.value;
-    }
-
-    //
-
-    public int rl_get_parameter( int param, double test)
-    {
-        if ( !rl_valid_parameter( param ) )
-            return 0;
-
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_string )
-            return 0;
-        
-        return rl_params[ param ].string_param.value;
-    }
-
-    String rl_get_parameter( int param, String  test)
-    {
-        if ( !rl_valid_parameter( param ) )
-            return null;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_string )
-            return null;
-        
-        return rl_params[ param ].string_param.to_str.execute( rl_params[ param ].string_param.value );
-    }
-
-    double rl_get_parameter( int param )
-    {
-        if ( !rl_valid_parameter( param ) )
-            return 0;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_number )
-            return 0;
-        
-        return rl_params[ param ].number_param.value;
-    }    
-    
-    /// rl_valid_parameter_value
-    boolean rl_valid_parameter_value( String name, double new_val )
-    {
-        int param = rl_convert_parameter( name );
-        if ( param == RL_PARAMS )
-            return false;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_number )
-            return false;
-        
-        return rl_params[ param ].number_param.val_func.execute( new_val );
-    }
-
-    boolean rl_valid_parameter_value( String name, String new_val )
-    {
-        int param = rl_convert_parameter( name );
-        if ( param == RL_PARAMS )
-            return false;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_string )
-            return false;
-        
-        return rl_params[ param ].string_param.val_func.execute( rl_params[ param ].string_param.from_str.execute( new_val ) );
-    }
-
-    boolean rl_valid_parameter_value( String name, int new_val )
-    {
-        int param = rl_convert_parameter( name );
-        if ( param == RL_PARAMS )
-            return false;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_string )
-            return false;
-        
-        return rl_params[ param ].string_param.val_func.execute( new_val );
-    }
-
-    //
-
-    boolean rl_valid_parameter_value( int param, double new_val )
-    {
-        if ( !rl_valid_parameter( param ) )
-            return false;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_number )
-            return false;
-        
-        return rl_params[ param ].number_param.val_func.execute( new_val );
-    }
-
-    boolean rl_valid_parameter_value( int param, String new_val )
-    {
-        if ( !rl_valid_parameter( param ) )
-            return false;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_string )
-            return false;
-        
-        return rl_params[ param ].string_param.val_func.execute( rl_params[ param ].string_param.from_str.execute( new_val ) );
-    }
-
-    boolean rl_valid_parameter_value( int param, int new_val )
-    {
-        if ( !rl_valid_parameter( param ) )
-            return false;
-        
-        if ( rl_get_parameter_type( param ) != rl_param_type.rl_param_string )
-            return false;
-        
-        return rl_params[ param ].string_param.val_func.execute( new_val );
-    }
-    
-    boolean rl_set_parameter(String name, double new_val )
-    {
-        int param = rl_convert_parameter(name );
-        if ( param == RL_PARAMS )
-            return false;
-        
-        if ( !rl_valid_parameter_value(param, new_val ) )
-            return false;
-        
-        rl_params[ param ].number_param.value = new_val;
-
-        return true;
-    }
-
-    boolean rl_set_parameter(String name, String new_val )
-    {
-        int param = rl_convert_parameter(name );
-        if ( param == RL_PARAMS )
-            return false;
-        
-        if ( !rl_valid_parameter_value(param, new_val ) )
-            return false;
-
-        int converted_val = rl_params[ param ].string_param.from_str.execute( new_val );
-
-        // learning special case
-        if ( param == RL_PARAM_LEARNING )
-        {
-            enabled = converted_val != 0;
-            
-            if ( ( converted_val == RL_LEARNING_ON ) && rl_first_switch )
-            {
-                rl_first_switch = false;
-                exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
-                
-                String msg = "Exploration Mode changed to epsilon-greedy";
-                my_agent.getPrinter().print( msg );
-                //xml_generate_message(const_cast<char *>( msg ) );
-            }
-        }
-        
-        rl_params[ param ].string_param.value = converted_val;
-
-        return true;
-    }
-
-    boolean rl_set_parameter(String name, int new_val )
-    {
-        int param = rl_convert_parameter(name );
-        if ( param == RL_PARAMS )
-            return false;
-        
-        if ( !rl_valid_parameter_value(param, new_val ) )
-            return false;
-
-        // learning special case
-        if ( param == RL_PARAM_LEARNING )
-        {
-            enabled = new_val != 0;
-            
-            if ( ( new_val == RL_LEARNING_ON ) && rl_first_switch )
-            {
-                rl_first_switch = false;
-                exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
-                
-                String msg = "Exploration Mode changed to epsilon-greedy";
-                my_agent.getPrinter().print(msg);
-                //xml_generate_message(const_cast<char *>( msg ) );
-            }
-        }
-        
-        rl_params[ param ].string_param.value = new_val;
-
-        return true;
-    }
-
-    //
-
-    boolean rl_set_parameter(int param, double new_val )
-    {
-        if ( !rl_valid_parameter_value(param, new_val ) )
-            return false;
-        
-        rl_params[ param ].number_param.value = new_val;
-
-        return true;
-    }
-
-    boolean rl_set_parameter(int param, String new_val )
-    {
-        if ( !rl_valid_parameter_value(param, new_val ) )
-            return false;
-
-        int converted_val = rl_params[ param ].string_param.from_str.execute( new_val );
-
-        // learning special case
-        if ( param == RL_PARAM_LEARNING )
-        {
-            enabled = converted_val != 0;
-            
-            if ( ( converted_val == RL_LEARNING_ON ) && rl_first_switch )
-            {
-                rl_first_switch = false;
-                exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
-                
-                String msg = "Exploration Mode changed to epsilon-greedy";
-                my_agent.getPrinter().print(msg);
-                //xml_generate_message(const_cast<char *>( msg ) );
-            }
-        }
-        
-        rl_params[ param ].string_param.value = converted_val;
-
-        return true;
-    }
-
-    public boolean rl_set_parameter(int param, int new_val )
-    {   
-        if ( !rl_valid_parameter_value(param, new_val ) )
-            return false;
-
-        // learning special case
-        if ( param == RL_PARAM_LEARNING )
-        {
-            enabled = new_val != 0;
-            
-            if ( ( new_val == RL_LEARNING_ON ) && rl_first_switch )
-            {
-                rl_first_switch = false;
-                exploration.exploration_set_policy(Exploration.Policy.USER_SELECT_E_GREEDY );
-                
-                String msg = "Exploration Mode changed to epsilon-greedy";
-                my_agent.getPrinter().print(msg);
-                //xml_generate_message(const_cast<char *>( msg ) );
-            }
-        }
-        
-        rl_params[ param ].string_param.value = new_val;
-
-        return true;
-    }   
-    
-    /**
-     * reinforcement_learning.cpp:495:rl_validate_learning
-     * 
-     * @param new_val
-     * @return
-     */
-    boolean rl_validate_learning( int new_val )
-    {
-        return ( ( new_val == RL_LEARNING_ON ) || ( new_val == RL_LEARNING_OFF ) );
-    }
-    
-    /**
-     * reinforcement_learning.cpp:503:rl_convert_learning
-     * 
-     * @param val
-     * @return
-     */
-    String rl_convert_learning( int val )
-    {
-        String return_val = null;
-        
-        switch ( val )
-        {
-            case RL_LEARNING_ON:
-                return_val = "on";
-                break;
-                
-            case RL_LEARNING_OFF:
-                return_val = "off";
-                break;
-        }
-        
-        return return_val;
-    }  
-    
-    /**
-     * reinforcement_learning.cpp:521:rl_convert_learning
-     * 
-     * @param val
-     * @return
-     */
-    int rl_convert_learning( String val )
-    {
-        int return_val = 0;
-        
-        if ("on".equals(val))
-            return_val = RL_LEARNING_ON;
-        else if ("off".equals(val))
-            return_val = RL_LEARNING_OFF;
-        
-        return return_val;
-    }    
-    
-    /**
-     * reinforcement_learning.cpp:543:rl_validate_discount
-     * 
-     * @param new_val
-     * @return
-     */
-    static boolean rl_validate_discount( double new_val )
-    {
-        return ( ( new_val >= 0 ) && ( new_val <= 1 ) );
-    }
-    static boolean rl_validate_learning_rate( double new_val )
-    {
-        return ( ( new_val >= 0 ) && ( new_val <= 1 ) );
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // learning policy
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /***************************************************************************
-     * Function     : rl_validate_learning_policy
-     **************************************************************************/
-    static boolean rl_validate_learning_policy( int new_val )
-    {
-        return ( ( new_val == RL_LEARNING_SARSA ) || ( new_val == RL_LEARNING_Q ) );
-    }
-
-    /***************************************************************************
-     * Function     : rl_convert_learning_policy
-     **************************************************************************/
-    static String rl_convert_learning_policy( int val )
-    {
-        String return_val = null;
-        
-        switch ( val )
-        {
-            case RL_LEARNING_SARSA:
-                return_val = "sarsa";
-                break;
-                
-            case RL_LEARNING_Q:
-                return_val = "q-learning";
-                break;
-        }
-        
-        return return_val;
-    }
-
-    static int rl_convert_learning_policy( String val )
-    {
-        int return_val = 0;
-        
-        if ("sarsa".equals(val))
-            return_val = RL_LEARNING_SARSA;
-        else if ("q-learning".equals(val))
-            return_val = RL_LEARNING_Q;
-        
-        return return_val;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // eligibility trace decay rate
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /***************************************************************************
-     * Function     : rl_validate_decay_rate
-     **************************************************************************/
-    static boolean rl_validate_decay_rate( double new_val )
-    {
-        return ( ( new_val >= 0 ) && ( new_val <= 1 ) );
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // eligibility trace tolerance
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /***************************************************************************
-     * Function     : rl_validate_trace_tolerance
-     **************************************************************************/
-    static boolean rl_validate_trace_tolerance( double new_val )
-    {
-        return ( new_val > 0 );
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // temporal-extension
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /***************************************************************************
-     * Function     : rl_validate_te_enabled
-     **************************************************************************/
-    static boolean rl_validate_te_enabled( int new_val )
-    {
-        return ( ( new_val == RL_TE_ON ) || ( new_val == RL_TE_OFF ) );
-    }
-
-    /***************************************************************************
-     * Function     : rl_convert_te_enabled
-     **************************************************************************/
-    static String rl_convert_te_enabled( int val )
-    {
-        String return_val = null;
-        
-        switch ( val )
-        {
-            case RL_TE_ON:
-                return_val = "on";
-                break;
-                
-            case RL_TE_OFF:
-                return_val = "off";
-                break;
-        }
-        
-        return return_val;
-    }
-
-    static int rl_convert_te_enabled( String val )
-    {
-        int return_val = 0;
-        
-        if ("on".equals(val))
-            return_val = RL_TE_ON;
-        else if ("off".equals(val))
-            return_val = RL_TE_OFF;
-        
-        return return_val;
-    }
-    
-    /**
-     * reinforcement_learning.cpp:695:rl_enabled
      * 
      * @return true if RL is enabled
      */
@@ -808,94 +141,30 @@ public class ReinforcementLearning
     {
         return enabled;
     }
-
-    rl_stat rl_add_stat( String name )
-    {
-        // new stat entry
-        rl_stat newbie = new rl_stat();
-        newbie.name = name;
-        newbie.value = 0;
-        
-        return newbie;
-    }
-
-    /***************************************************************************
-     * Function     : rl_convert_stat
-     **************************************************************************/
-    int  rl_convert_stat( String name )
-    {
-        for ( int i=0; i<RL_STATS; i++ )
-            if ( name.equals(rl_stats[ i ].name ) )
-                return i;
-
-        return RL_STATS;
-    }
-
-    String rl_convert_stat( int  stat )
-    {
-        if ( ( stat < 0 ) || ( stat >= RL_STATS ) )
-            return null;
-
-        return rl_stats[ stat ].name;
-    }
-
-    /***************************************************************************
-     * Function     : rl_valid_stat
-     **************************************************************************/
-    boolean rl_valid_stat( String name )
-    {
-        return ( rl_convert_stat(name ) != RL_STATS );
-    }
-
-    boolean rl_valid_stat( int  stat )
-    {
-        return ( rl_convert_stat(stat ) != null );
-    }
-
-    /***************************************************************************
-     * Function     : rl_get_stat
-     **************************************************************************/
-    double rl_get_stat( String name )
-    {
-        int  stat = rl_convert_stat(name );
-        if ( stat == RL_STATS )
-            return 0;
-
-        return rl_stats[ stat ].value;
-    }
-
-    double rl_get_stat( int  stat )
-    {
-        if ( !rl_valid_stat(stat ) )
-            return 0;
-
-        return rl_stats[ stat ].value;
-    }
-
-    /***************************************************************************
-     * Function     : rl_set_stat
-     **************************************************************************/
-    boolean rl_set_stat( String name, double new_val )
-    {
-        int  stat = rl_convert_stat(name );
-        if ( stat == RL_STATS )
-            return false;
-        
-        rl_stats[ stat ].value = new_val;
-        
-        return true;
-    }
-
-    boolean rl_set_stat( int  stat, double new_val )
-    {
-        if ( !rl_valid_stat(stat ) )
-            return false;
-        
-        rl_stats[ stat ].value = new_val;
-        
-        return true;
-    }
     
+    /**
+     * reinforcement_learning.cpp:158:rl_remove_refs_for_prod
+     * (9.3.0)
+     * @param prod
+     */
+    private void rl_remove_refs_for_prod(Production prod )
+    {
+        for ( IdentifierImpl state = decider.top_state; state != null; state = state.lower_goal )
+        {
+            state.rl_info.eligibility_traces.remove( prod );
+            
+            final ListIterator<Production> it =  state.rl_info.prev_op_rl_rules.listIterator();
+            while(it.hasNext())
+            {
+                final Production c = it.next();
+                if(c == prod)
+                {
+                    it.set(null);
+                }
+            }
+        }
+    }
+
     /**
      * reinforcement_learning.cpp:180:rl_valid_template
      * (9.3.0)
@@ -985,7 +254,7 @@ public class ReinforcementLearning
      * @param prod_name
      * @return
      */
-    static int rl_get_template_id( String prod_name )
+    private static int rl_get_template_id( String prod_name )
     {
         String temp = prod_name;
         
@@ -1022,7 +291,7 @@ public class ReinforcementLearning
      * reinforcement_learning.cpp:263:rl_initialize_template_tracking
      * (9.3.0)
      */
-    void rl_initialize_template_tracking()
+    public void rl_initialize_template_tracking()
     {
         rl_template_count = 1;
     }
@@ -1034,7 +303,7 @@ public class ReinforcementLearning
      * 9.3.0
      * @param rule_name
      */
-    void rl_update_template_tracking(String rule_name )
+    private void rl_update_template_tracking(String rule_name )
     {
         int new_id = rl_get_template_id( rule_name );
 
@@ -1049,7 +318,7 @@ public class ReinforcementLearning
      * 9.3.0
      * @return
      */
-    int rl_next_template_id( )
+    private int rl_next_template_id( )
     {
         return (rl_template_count++);
     }
@@ -1060,7 +329,7 @@ public class ReinforcementLearning
      * reinforcement_learning.cpp:278:rl_revert_template_id
      * 9.3.0
      */
-    void rl_revert_template_id( )
+    private void rl_revert_template_id( )
     {
         rl_template_count--;
     }
@@ -1224,7 +493,7 @@ public class ReinforcementLearning
             boolean chunk_var = chunker.variablize_this_chunk;
             chunker.variablize_this_chunk = true;
 
-            final SymbolFactoryImpl syms = vars.getSyms();
+            final SymbolFactoryImpl syms = rete.variableGenerator.getSyms();
             // make unique production name
             String new_name = "";
             do
@@ -1240,7 +509,7 @@ public class ReinforcementLearning
             
             Condition.copy_condition_list(my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
             rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
-            vars.reset(cond_top.value, null);
+            rete.variableGenerator.reset(cond_top.value, null);
             chunker.variablization_tc = DefaultMarker.create();
             chunker.variablize_condition_list( cond_top.value );
             chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
@@ -1257,7 +526,7 @@ public class ReinforcementLearning
             new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
             // make new production
-            Production new_production = new Production( ProductionType.USER, new DefaultSourceLocation("RL", 0, 0), 
+            Production new_production = new Production( ProductionType.USER, NEW_PRODUCTION_SOURCE, 
                                                         new_name_symbol.toString(), null,
                                                         cond_top.value, 
                                                         cond_bottom.value,
@@ -1297,7 +566,9 @@ public class ReinforcementLearning
     }
     
     /**
-     * reinforcement_learning.cpp:495:rl_make_simple_action
+     * creates an action for a template instantiation
+     * 
+     * <p>reinforcement_learning.cpp:495:rl_make_simple_action
      * (9.3.0)
      * 
      * @param id_sym
@@ -1306,7 +577,7 @@ public class ReinforcementLearning
      * @param ref_sym
      * @return
      */
-    MakeAction rl_make_simple_action( IdentifierImpl id_sym, SymbolImpl attr_sym, SymbolImpl val_sym, SymbolImpl ref_sym )
+    private MakeAction rl_make_simple_action( IdentifierImpl id_sym, SymbolImpl attr_sym, SymbolImpl val_sym, SymbolImpl ref_sym )
     {
         MakeAction rhs = new MakeAction();
 
@@ -1331,7 +602,7 @@ public class ReinforcementLearning
      * (9.3.0)
      * @param all_conds
      */
-    void rl_add_goal_or_impasse_tests_to_conds( Condition all_conds )
+    private void rl_add_goal_or_impasse_tests_to_conds( Condition all_conds )
     {
         // mark each id as we add a test for it, so we don't add a test for the same id in two different places
         Marker tc = DefaultMarker.create();
@@ -1419,7 +690,9 @@ public class ReinforcementLearning
     }
     
     /**
-     * reinforcement_learning:617:rl_tabulate_reward_values
+     * gathers reward for all states
+     * 
+     * <p>reinforcement_learning:617:rl_tabulate_reward_values
      * (9.3.0)
      */
     public void rl_tabulate_reward_values()
@@ -1433,19 +706,6 @@ public class ReinforcementLearning
         }
     }
     
-    /**
-     * reinforcement_learning.cpp:1115:rl_discount_reward
-     * 
-     * @param reward the current reward
-     * @param step the step
-     * @return discounted reward
-     */
-    double rl_discount_reward( double reward, int step )
-    {
-        double rate = rl_get_parameter( RL_PARAM_DISCOUNT_RATE );
-
-        return ( reward * Math.pow( rate, (double) step ) );
-    }
     
     /**
      * stores rl info for a state w.r.t. a selected operator
@@ -1462,7 +722,7 @@ public class ReinforcementLearning
         Symbol op = cand.value;
         data.previous_q = cand.numeric_value;
 
-        boolean using_gaps = ( rl_get_parameter( RL_PARAM_TEMPORAL_EXTENSION, RL_RETURN_LONG ) == RL_TE_ON );
+        boolean using_gaps = false; // TODO ( my_agent->rl_params->temporal_extension->get_value() == soar_module::on );
         
         // Make list of just-fired prods
         int just_fired = 0;
@@ -1511,135 +771,171 @@ public class ReinforcementLearning
             }
         }
     }
+    
+    public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goal)
+    {
+        rl_perform_update(op_value, op_rl, goal, true);
+    }
 
     /**
-     * reinforcement_learning.cpp:1193:rl_perform_update
+     * performs the rl update at a state
+     * 
+     * <p>reinforcement_learning.cpp:688:rl_perform_update
+     * (9.3.0)
      * 
      * @param op_value operator value
      * @param goal the goal
      */
-    public void rl_perform_update(double op_value, IdentifierImpl goal)
-    {
-        ReinforcementLearningInfo data = goal.rl_info;
+public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goal, boolean update_efr )
+{
+    final boolean using_gaps = false; // TODO ( my_agent->rl_params->temporal_extension->get_value() == soar_module::on );
 
-        boolean using_gaps = ( rl_get_parameter( RL_PARAM_TEMPORAL_EXTENSION, RL_RETURN_LONG ) == RL_TE_ON );
+    if ( !using_gaps || op_rl )
+    {    
+        final ReinforcementLearningInfo data = goal.rl_info;
+        
+        if (!data.prev_op_rl_rules.isEmpty())
+        {           
+            final double alpha = 0.0; // TODO my_agent->rl_params->learning_rate->get_value();
+            final double lambda = 0.0; // TODO my_agent->rl_params->et_decay_rate->get_value();
+            final double gamma = 0.0; // TODO my_agent->rl_params->discount_rate->get_value();
+            final double tolerance = 0.0; // TODO my_agent->rl_params->et_tolerance->get_value();
 
-        double alpha = rl_get_parameter( RL_PARAM_LEARNING_RATE );
-        double lambda = rl_get_parameter(RL_PARAM_ET_DECAY_RATE );
-        double gamma = rl_get_parameter(RL_PARAM_DISCOUNT_RATE );
-        double tolerance = rl_get_parameter(RL_PARAM_ET_TOLERANCE );
+            // if temporal_discount is off, don't discount for gaps
+            long effective_age = data.hrl_age + 1;
+            if (false /* TODO my_agent->rl_params->temporal_discount->get_value() == soar_module::on */) {
+                effective_age += data.gap_age;
+            }
+ 
+            double discount = Math.pow( gamma, (double) effective_age);
 
-        // compute TD update, set stat
-        double update = data.reward;
-
-        if ( using_gaps )
-            update *= Math.pow( gamma, (double) data.reward_age );
-
-        update += ( Math.pow( gamma, (double) data.step ) * op_value );
-        update -= data.previous_q;
-        rl_set_stat( RL_STAT_UPDATE_ERROR, (double) ( -update ) );
-
-        // Iterate through eligibility_traces, decay traces. If less than TOLERANCE, remove from map.
-        if ( lambda == 0 )
-        {
-            if ( !data.eligibility_traces.isEmpty() )
-                data.eligibility_traces.clear();
-        }
-        else
-        {
-            Iterator<Map.Entry<Production, Double>> it = data.eligibility_traces.entrySet().iterator();
-            while(it.hasNext())
+            // notify of gap closure
+            if ( data.gap_age != 0 && using_gaps && my_agent.getTrace().isEnabled(Category.RL))
             {
-                Map.Entry<Production, Double> e = it.next();
-                e.setValue(e.getValue() * lambda);
-                e.setValue(e.getValue() * Math.pow(gamma, data.step));
-                if(e.getValue() < tolerance)
+                my_agent.getTrace().print("gap ended (%s)", goal);
+            }           
+
+            // Iterate through eligibility_traces, decay traces. If less than TOLERANCE, remove from map.
+            if ( lambda == 0.0 )
+            {
+                if ( !data.eligibility_traces.isEmpty() )
                 {
-                    it.remove();
+                    data.eligibility_traces.clear();
                 }
             }
-        }
-        
-        // Update trace for just fired prods
-        if ( data.num_prev_op_rl_rules != 0)
-        {
-            double trace_increment = ( 1.0 / data.num_prev_op_rl_rules );
-            
-            for (Production c : data.prev_op_rl_rules)
+            else
             {
-                if ( c != null )
+                for(Iterator<Map.Entry<Production, Double>> it = data.eligibility_traces.entrySet().iterator(); it.hasNext();)
                 {
-                    Double iter = data.eligibility_traces.get(c);
-                    if(iter != null)
+                    final Map.Entry<Production, Double> e = it.next();
+                    e.setValue(e.getValue() * lambda);
+                    e.setValue(e.getValue() * discount);
+                    if(e.getValue() < tolerance)
                     {
-                        iter += trace_increment;
-                        data.eligibility_traces.put(c, iter);
+                        it.remove();
+                    }
+                }
+            }
+            
+            // Update trace for just fired prods
+            double sum_old_ecr = 0.0;
+            double sum_old_efr = 0.0;
+            if (!data.prev_op_rl_rules.isEmpty())
+            {
+                final double trace_increment = ( 1.0 / (double)( data.prev_op_rl_rules.size() ) );
+                
+                for(Production p : data.prev_op_rl_rules)
+                {
+                    if(p != null)
+                    {
+                        sum_old_ecr += p.rl_ecr;
+                        sum_old_efr += p.rl_efr;
+                        
+                        final Double old = data.eligibility_traces.get(p);
+                        if(old != null)
+                        {
+                            data.eligibility_traces.put(p, old + trace_increment);
+                        }
+                        else
+                        {
+                            data.eligibility_traces.put(p, trace_increment);
+                        }
+                    }
+                }
+            }
+            
+            // For each prod with a trace, perform update
+            {
+                double old_ecr, old_efr;
+                double delta_ecr, delta_efr;
+                double new_combined, new_ecr, new_efr;
+                
+                for(Map.Entry<Production, Double> iter : data.eligibility_traces.entrySet())
+                {   
+                    Production prod = iter.getKey();
+
+                    // get old vals
+                    old_ecr = prod.rl_ecr;
+                    old_efr = prod.rl_efr;
+                    
+                    // calculate updates
+                    delta_ecr = ( alpha * iter.getValue() * ( data.reward - sum_old_ecr ) );
+                    
+                    if ( update_efr )
+                    {
+                        delta_efr = ( alpha * iter.getValue() * ( ( discount * op_value ) - sum_old_efr ) );
                     }
                     else
                     {
-                        data.eligibility_traces.put(c, trace_increment);
-                    }
-                }
-            }
-        }
-        
-        final SymbolFactoryImpl syms = (SymbolFactoryImpl) my_agent.getSymbols();
-        
-        // For each prod in map, add alpha*delta*trace to value
-        for (Map.Entry<Production, Double> iter : data.eligibility_traces.entrySet())
-        {   
-            Production prod = iter.getKey();
-            Symbol referent = prod.action_list.asMakeAction().referent.asSymbolValue().getSym();
-            double temp = 0.0;
-            if(referent.asInteger() != null)
-            {
-                temp = referent.asInteger().getValue();
-            }
-            else if(referent.asDouble() != null)
-            {
-                temp = referent.asDouble().getValue();
-            }
+                        delta_efr = 0.0;
+                    }                   
 
-            // update is applied depending upon type of accumulation mode
-            // sum: add the update to the existing value
-            // avg: average the update with the existing value
-            double delta = update * alpha * iter.getValue();
-            my_agent.getTrace().print(Category.RL, "updating RL rule %s from %f to %f",
-                                        prod.getName(), temp, temp + delta);
-            temp += delta;
-
-            // Change value of rule
-            prod.action_list.asMakeAction().referent = syms.createDouble(temp).toRhsValue();
-            prod.rl_update_count += 1;
-
-            // Change value of preferences generated by current instantiations of this rule
-            if ( prod.instantiations != null )
-            {
-                for ( Instantiation inst = prod.instantiations; inst != null; inst = inst.nextInProdList)
-                {
-                    for ( Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next)
+                    // calculate new vals
+                    new_ecr = ( old_ecr + delta_ecr );
+                    new_efr = ( old_efr + delta_efr );
+                    new_combined = ( new_ecr + new_efr );
+                    
+                    // print as necessary
+                    if (my_agent.getTrace().isEnabled(Category.RL)) 
                     {
-                        pref.referent = syms.createDouble(temp);
+                        my_agent.getTrace().print("RL update " + prod.getName() + " "
+                           + old_ecr + " " + old_efr + " " + old_ecr + old_efr + " -> "
+                           + new_ecr + " " + new_efr + " " + new_combined + "\n");
+                    }
+
+                    // Change value of rule
+                    prod.action_list.asMakeAction().referent = rete.variableGenerator.getSyms().createDouble(new_combined).toRhsValue();
+                    prod.rl_update_count += 1;
+                    prod.rl_ecr = new_ecr;
+                    prod.rl_efr = new_efr;
+
+                    // Change value of preferences generated by current instantiations of this rule
+                    for (Instantiation inst = prod.instantiations; inst != null; inst = inst.nextInProdList)
+                    {
+                        for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next )
+                        {
+                            pref.referent = rete.variableGenerator.getSyms().createDouble(new_combined);
+                        }
                     }
                 }
-            }   
+            }
         }
 
+        data.gap_age = 0;
+        data.hrl_age = 0;
         data.reward = 0.0;
-        data.step = 0;
-        data.impasse_type = ImpasseType.NONE;
     }
+}
     
+    /**
+     * <p>reinforcement_learning.cpp:850:rl_perform_update
+     * (9.3.0)
+     * 
+     * @param goal
+     */
     public static void rl_watkins_clear(IdentifierImpl goal )
     {
-        ReinforcementLearningInfo data = goal.rl_info;
-        // rl_et_map::iterator iter;
-        
-        // Iterate through eligibility_traces, remove traces
-        // TODO: Why not clear?
-//        for ( iter = data->eligibility_traces->begin(); iter != data->eligibility_traces->end(); )
-//            data->eligibility_traces->erase( iter++ );
-        data.eligibility_traces.clear();
+        goal.rl_info.eligibility_traces.clear();
     }
     
 
@@ -1653,15 +949,21 @@ public class ReinforcementLearning
     public void addProduction(Production p)
     {
         // Soar-RL stuff
+        // From production.cpp:make_production
         p.rl_update_count = 0;
         p.rl_rule = false;
-        if ( ( p.getType() != ProductionType.JUSTIFICATION ) && ( p.getType() != ProductionType.TEMPLATE ) ) 
+        if (p.getType() != ProductionType.JUSTIFICATION && p.getType() != ProductionType.TEMPLATE) 
         {
             p.rl_rule = rl_valid_rule( p );  
+            if(p.rl_rule)
+            {
+                p.rl_efr = Symbols.asDouble(p.action_list.asMakeAction().referent.asSymbolValue().getSym());
+            }
         }
+        
         rl_update_template_tracking( p.getName() );
         
-        // TODO - parser.cpp
+        // From parser.cpp:parse_production
         if ( p.getType() == ProductionType.TEMPLATE )
         {
             if ( !rl_valid_template( p ) )

@@ -68,6 +68,8 @@ public class Preference implements Formattable
     public double numeric_value = 0.0;
     
     boolean deallocated = false;
+    
+    public boolean rl_contribution = false; // RL-9.3.0 (false in make_preference)
 
     /**
      * Make_preference() creates a new preference structure of the given type

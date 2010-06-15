@@ -31,10 +31,12 @@ public final class ReinforcementLearningCommand implements SoarCommand
         }
         
         // TODO reinforcement learning: Obviously, this implementation is insufficient
+        /*
         final ReinforcementLearning rl = Adaptables.adapt(agent, ReinforcementLearning.class);
         rl.rl_set_parameter(ReinforcementLearning.RL_PARAM_LEARNING, 
                 "on".equals(args[3].toString()) ? ReinforcementLearning.RL_LEARNING_ON :
                     ReinforcementLearning.RL_LEARNING_ON );
+                    */
         return "";
     }
 }

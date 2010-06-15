@@ -939,7 +939,7 @@ public class Decider
      * 
      * @return
      */
-    private ImpasseType require_preference_semantics(Slot s, ByRef<Preference> result_candidates)
+    private ImpasseType require_preference_semantics(Slot s, ByRef<Preference> result_candidates, boolean consistency)
     {
         // collect set of required items into candidates list
         for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next)
@@ -969,10 +969,11 @@ public class Decider
                 return ImpasseType.CONSTRAINT_FAILURE;
 
         // the lone require is the winner
-        if (candidates != null && rl.rl_enabled())
+        if (!consistency && candidates != null && rl.rl_enabled())
         {
+            rl.rl_tabulate_reward_values();
             exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
-            rl.rl_perform_update( candidates.numeric_value, s.id );
+            rl.rl_perform_update( candidates.numeric_value, candidates.rl_contribution, s.id );
         }
 
         return ImpasseType.NONE;
@@ -1032,12 +1033,14 @@ public class Decider
 
                 if (force_result != null)
                 {
+                    force_result.next_candidate = null;
                     result_candidates.value = force_result;
 
                     if (!predict && rl.rl_enabled())
                     {
+                        rl.rl_tabulate_reward_values();
                         exploration.exploration_compute_value_of_candidate( force_result, s, 0 );
-                        rl.rl_perform_update( force_result.numeric_value, s.id );
+                        rl.rl_perform_update( force_result.numeric_value, force_result.rl_contribution, s.id );
                     }
 
                     return ImpasseType.NONE;
@@ -1052,7 +1055,7 @@ public class Decider
         /* === Requires === */
         if (s.getPreferencesByType(PreferenceType.REQUIRE) != null)
         {
-            return require_preference_semantics(s, result_candidates);
+            return require_preference_semantics(s, result_candidates, consistency);
         }
 
         /* === Acceptables, Prohibits, Rejects === */
@@ -1093,8 +1096,9 @@ public class Decider
             if (!consistency && rl.rl_enabled() && candidates != null)
             {
                 // perform update here for just one candidate
+                rl.rl_tabulate_reward_values();
                 exploration.exploration_compute_value_of_candidate(candidates, s, 0);
-                rl.rl_perform_update( candidates.numeric_value, s.id );
+                rl.rl_perform_update( candidates.numeric_value, candidates.rl_contribution, s.id );
             }
 
             return ImpasseType.NONE;
@@ -1266,8 +1270,9 @@ public class Decider
             if (!consistency && rl.rl_enabled() && candidates != null)
             {
                 // perform update here for just one candidate
+                rl.rl_tabulate_reward_values();
                 exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
-                rl.rl_perform_update( candidates.numeric_value, s.id );
+                rl.rl_perform_update( candidates.numeric_value, candidates.rl_contribution, s.id );
             }
 
             return ImpasseType.NONE;
@@ -1469,7 +1474,6 @@ public class Decider
      * decide.cpp:1307:remove_existing_attribute_impasse_for_slot
      * 
      * @param s
-     * @param impasse_type
      */
     private void remove_existing_attribute_impasse_for_slot(Slot s)
     {
@@ -1996,6 +2000,12 @@ public class Decider
         // TODO callback POP_CONTEXT_STACK_CALLBACK
         // invoke callback routine
         // soar_invoke_callbacks(thisAgent, POP_CONTEXT_STACK_CALLBACK, (soar_call_data) goal);
+        
+        if ( ( goal != top_goal ) && rl.rl_enabled() )
+        {
+            rl.rl_tabulate_reward_value_for_goal( goal );
+            rl.rl_perform_update( 0, true, goal, false ); // this update only sees reward - there is no next state
+        }
 
         /* --- disconnect this goal from the goal stack --- */
         if (goal == top_goal)
@@ -2054,10 +2064,10 @@ public class Decider
         remove_wmes_for_context_slot(goal.operator_slot);
         update_impasse_items(goal, null); // causes items & fake pref's to go away
 
-        if (rl.rl_enabled())
+        if (goal != top_goal && rl.rl_enabled())
         {
             rl.rl_tabulate_reward_value_for_goal( goal );
-            rl.rl_perform_update( 0, goal ); // this update only sees reward - there is no next state
+            rl.rl_perform_update( 0, true, goal, false); // this update only sees reward - there is no next state
         }
 
         this.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
@@ -2402,14 +2412,6 @@ public class Decider
 
             return true;
         }
-
-        // TODO move to rl_info
-        if (impasse_type != ImpasseType.NO_CHANGE)
-            goal.rl_info.impasse_type = impasse_type;
-        else if (s.getWmes() != null)
-            goal.rl_info.impasse_type = ImpasseType.OP_NO_CHANGE;
-        else
-            goal.rl_info.impasse_type = ImpasseType.STATE_NO_CHANGE;
 
         // no winner; if an impasse of the right type already existed, just
         // update the ^item set on it

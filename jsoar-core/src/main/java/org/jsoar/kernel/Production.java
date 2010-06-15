@@ -71,8 +71,8 @@ public class Production
     public double rl_update_count;       /* number of (potentially fractional) updates to this rule */
     public Condition rl_template_conds;  // RL-9.3.0
     public Set<Map<SymbolImpl, SymbolImpl>> rl_template_instantiations; // RL-9.3.0
-    public double rl_ecr;
-    public double rl_efr;
+    public double rl_ecr; // RL-9.3.0
+    public double rl_efr; // RL-9.3.0
     
     /**
      * Function introduced while trying to tease apart production construction

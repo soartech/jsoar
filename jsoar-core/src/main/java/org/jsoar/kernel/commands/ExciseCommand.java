@@ -11,6 +11,8 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.learning.rl.ReinforcementLearning;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 
 /**
@@ -33,6 +35,7 @@ public final class ExciseCommand implements SoarCommand
         final Set<Production> toExcise = new LinkedHashSet<Production>();
         final ProductionManager pm = agent.getProductions();
         boolean doInit = false;
+        boolean rl = false;
         for(int i = 1; i < args.length; ++i)
         {
             final String arg = args[i];
@@ -51,13 +54,11 @@ public final class ExciseCommand implements SoarCommand
             }
             else if("-r".equals(arg) || "--rl".equals(arg))
             {
-                for(Production p : pm.getProductions(ProductionType.DEFAULT))
-                {
-                    if(p.rl_rule)
-                    {
-                        toExcise.add(p);
-                    }
-                }
+                // cli_excise.cpp:DoExcise
+                toExcise.addAll(pm.getProductions(ProductionType.DEFAULT));
+                toExcise.addAll(pm.getProductions(ProductionType.USER));
+                toExcise.addAll(pm.getProductions(ProductionType.CHUNK));
+                rl = true;
             }
             else if("-t".equals(arg) || "--task".equals(arg))
             {
@@ -86,7 +87,16 @@ public final class ExciseCommand implements SoarCommand
 
         for(Production p : toExcise)
         {
-            pm.exciseProduction(p, false);
+            if(!rl ||  (rl && p.rl_rule))
+            {
+                pm.exciseProduction(p, false);
+            }
+        }
+        
+        if(rl)
+        {
+            // cli_excise.cpp:DoExcise
+            Adaptables.adapt(agent, ReinforcementLearning.class).rl_initialize_template_tracking();
         }
         
         // If -a is given, we do an init-soar as well

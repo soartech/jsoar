@@ -400,20 +400,29 @@ public class Exploration
      */
     public Preference exploration_choose_according_to_policy(Slot s, Preference candidates)
     {
-        double top_value = candidates.numeric_value;
         Policy exploration_policy = exploration_get_policy();
 
         // get preference values for each candidate
         for ( Preference cand = candidates; cand != null; cand = cand.next_candidate )
             exploration_compute_value_of_candidate( cand, s, 0.0);
 
+        final boolean my_rl_enabled = rl.rl_enabled();
+        double top_value = candidates.numeric_value;
+        boolean top_rl = candidates.rl_contribution;
+        
+        // TODO RL const rl_param_container::learning_choices my_learning_policy = my_rl_enabled ? my_agent->rl_params->learning_policy->get_value() : rl_param_container::q;
         // should find highest valued candidate in q-learning
-        if (rl.rl_enabled() && 
-            rl.rl_get_parameter(ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_Q)
+        if (my_rl_enabled && 
+            false /* TODO my_learning_policy == ReinforcementLearning.RL_LEARNING_Q */)
         {
             for ( Preference cand=candidates; cand!=null; cand=cand.next_candidate )
+            {
                 if ( cand.numeric_value > top_value )
+                {
                     top_value = cand.numeric_value;
+                    top_rl = cand.rl_contribution;
+                }
+            }
         }
         
         Preference return_val = null;
@@ -445,14 +454,22 @@ public class Exploration
         }
 
         // should perform update here for chosen candidate in sarsa
-        if ( rl.rl_enabled() && ( rl.rl_get_parameter( ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_SARSA ) )
-            rl.rl_perform_update( return_val.numeric_value, s.id );
-        else if ( rl.rl_enabled() && ( rl.rl_get_parameter( ReinforcementLearning.RL_PARAM_LEARNING_POLICY, ReinforcementLearning.RL_RETURN_LONG ) == ReinforcementLearning.RL_LEARNING_Q ) )
+        // should perform update here for chosen candidate in sarsa 
+        if ( my_rl_enabled )
         {
-            if ( return_val.numeric_value != top_value )
-                ReinforcementLearning.rl_watkins_clear( s.id );
+            rl.rl_tabulate_reward_values();
 
-            rl.rl_perform_update( top_value, s.id );
+            if (true /*TODO my_learning_policy == rl_param_container::sarsa */)
+            {
+                rl.rl_perform_update(return_val.numeric_value, return_val.rl_contribution, s.id );
+            }
+            else if (true /*TODO my_learning_policy == rl_param_container::q */)
+            {
+                rl.rl_perform_update(top_value, top_rl, s.id );
+
+                if ( return_val.numeric_value != top_value )
+                    ReinforcementLearning.rl_watkins_clear(s.id);
+            }
         }
         
         return return_val;    
@@ -694,6 +711,7 @@ public class Exploration
         // initialize candidate values
         cand.total_preferences_for_candidate = 0;
         cand.numeric_value = 0;
+        cand.rl_contribution = false;
         
         // all numeric indifferents
         for (Preference pref = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); 
@@ -703,6 +721,11 @@ public class Exploration
             {
                 cand.total_preferences_for_candidate += 1;
                 cand.numeric_value += get_number_from_symbol( pref.referent );
+                
+                if(pref.inst.prod.rl_rule)
+                {
+                    cand.rl_contribution = true;
+                }
             }
         }
 
