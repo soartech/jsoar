@@ -81,6 +81,7 @@ public class InitSoarTests extends FunctionalTestHarness
         runTest(testName, expectedDecisions);
         testInitSoar();
         runTestExecute(testName, expectedDecisions);
+        testInitSoar();
     }
     
     @Test
@@ -90,5 +91,16 @@ public class InitSoarTests extends FunctionalTestHarness
         runTest(testName, 5);
         testInitSoar();
         runTestExecute(testName, 3);
+        testInitSoar();
+    }
+    
+    @Test
+    public void testCountTestInit() throws Exception
+    {
+        String testName = "testCountTestInit";
+        runTest(testName, 45047);
+        testInitSoar();
+        runTestExecute(testName, 25032);
+        testInitSoar();
     }
 }
