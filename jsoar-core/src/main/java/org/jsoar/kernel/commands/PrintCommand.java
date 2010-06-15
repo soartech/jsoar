@@ -183,7 +183,7 @@ public class PrintCommand implements SoarCommand
         }
         
         // New in Soar 9.3: if no args or options given, print all prods
-        if(i == 1)
+        if(args.length == 1)
         {
             options.add(Options.ALL);
         }
