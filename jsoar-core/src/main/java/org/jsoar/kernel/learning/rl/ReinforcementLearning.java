@@ -493,7 +493,7 @@ public class ReinforcementLearning
             boolean chunk_var = chunker.variablize_this_chunk;
             chunker.variablize_this_chunk = true;
 
-            final SymbolFactoryImpl syms = rete.variableGenerator.getSyms();
+            final SymbolFactoryImpl syms = chunker.variableGenerator.getSyms();
             // make unique production name
             String new_name = "";
             do
@@ -509,7 +509,7 @@ public class ReinforcementLearning
             
             Condition.copy_condition_list(my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
             rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
-            rete.variableGenerator.reset(cond_top.value, null);
+            chunker.variableGenerator.reset(cond_top.value, null);
             chunker.variablization_tc = DefaultMarker.create();
             chunker.variablize_condition_list( cond_top.value );
             chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
@@ -904,7 +904,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                     }
 
                     // Change value of rule
-                    prod.action_list.asMakeAction().referent = rete.variableGenerator.getSyms().createDouble(new_combined).toRhsValue();
+                    prod.action_list.asMakeAction().referent = chunker.variableGenerator.getSyms().createDouble(new_combined).toRhsValue();
                     prod.rl_update_count += 1;
                     prod.rl_ecr = new_ecr;
                     prod.rl_efr = new_efr;
@@ -914,7 +914,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                     {
                         for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next )
                         {
-                            pref.referent = rete.variableGenerator.getSyms().createDouble(new_combined);
+                            pref.referent = chunker.variableGenerator.getSyms().createDouble(new_combined);
                         }
                     }
                 }
