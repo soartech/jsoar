@@ -28,5 +28,8 @@ public class ReinforcementLearningInfo
     int num_prev_op_rl_rules = 0;
     int step = 0;          // the number of steps the current operator has been installed at the goal
     public ImpasseType impasse_type = ImpasseType.NONE;    // if this goal is an impasse, what type
+    
+    long hrl_age;
+    long gap_age;
 
 }

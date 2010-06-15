@@ -5,16 +5,19 @@
  */
 package org.jsoar.kernel.learning.rl;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
-import org.jsoar.kernel.DefaultProductionManager;
 import org.jsoar.kernel.ImpasseType;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.lhs.Condition;
@@ -23,16 +26,19 @@ import org.jsoar.kernel.lhs.ImpasseIdTest;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.Tests;
+import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.rete.ConditionsAndNots;
+import org.jsoar.kernel.rete.ProductionAddResult;
+import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
-import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -96,9 +102,16 @@ public class ReinforcementLearning
     private Exploration exploration;
     private Chunker chunker;
     private RecognitionMemory recMemory;
+    private Rete rete; // TODO init
+    private VariableGenerator vars; // TODO init
+    private PredefinedSymbols preSyms; // TODO init
     
     private boolean enabled = false;
     
+    IdentifierImpl rl_sym_reward_link;
+    SymbolImpl rl_sym_reward;
+    SymbolImpl rl_sym_value;
+
     /**
      * @param context
      */
@@ -147,53 +160,6 @@ public class ReinforcementLearning
         this.chunker = Adaptables.adapt(my_agent, Chunker.class);
         this.recMemory = Adaptables.adapt(my_agent, RecognitionMemory.class);
     }
-
-    /**
-     * reinforcement_learning.cpp:43:rl_clean_parameters
-     */
-    void rl_clean_parameters()
-    {
-        for ( int i=0; i<RL_PARAMS; i++ )
-        {
-            rl_params[i] = null;
-        }
-    }
-    
-    /**
-     * reinforcement_learning.cpp:55:rl_clean_stats
-     */
-    void rl_clean_stats()
-    {
-        for ( int i=0; i<RL_STATS; i++ )
-        {
-            rl_stats[ i ] = null;
-        }
-    }
-    
-    /**
-     * reinforcement_learning.cpp:64:rl_reset_data
-     */
-    public void rl_reset_data()
-    {
-        IdentifierImpl goal = decider.top_goal;
-        while( goal != null)
-        {
-            ReinforcementLearningInfo data = goal.rl_info;
-
-            data.eligibility_traces.clear(); 
-            
-            data.prev_op_rl_rules.clear();
-            data.num_prev_op_rl_rules = 0;
-
-            data.previous_q = 0;
-            data.reward = 0;
-            data.step = 0;
-            data.reward_age = 0;
-            data.impasse_type = ImpasseType.NONE;
-            
-            goal = goal.lower_goal;
-        }
-    } 
     
     /**
      * reinforcement_learning.cpp:90:rl_reset_stats
@@ -205,8 +171,8 @@ public class ReinforcementLearning
     } 
     
     /**
-     * reinforcement_learning.cpp:99:rl_remove_refs_for_prod
-     * 
+     * reinforcement_learning.cpp:158:rl_remove_refs_for_prod
+     * (9.3.0)
      * @param prod
      */
     void rl_remove_refs_for_prod(Production prod )
@@ -931,8 +897,8 @@ public class ReinforcementLearning
     }
     
     /**
-     * reinforcement_learning.cpp:793:rl_valid_template
-     * 
+     * reinforcement_learning.cpp:180:rl_valid_template
+     * (9.3.0)
      * @param prod
      * @return
      */
@@ -966,8 +932,8 @@ public class ReinforcementLearning
     }
     
     /**
-     * reinforcement_learning.cpp:822:rl_valid_rule
-     * 
+     * reinforcement_learning.cpp:207:rl_valid_rule
+     * (9.3.0)
      * @param prod
      * @return
      */
@@ -1009,6 +975,16 @@ public class ReinforcementLearning
         return true;
     }
     
+    /**
+     * reinforcement_learning.cpp:230:rl_get_template_id
+     * 
+     * gets the auto-assigned id of a template instantiation
+     * 
+     * (9.3.0)
+     * 
+     * @param prod_name
+     * @return
+     */
     static int rl_get_template_id( String prod_name )
     {
         String temp = prod_name;
@@ -1038,14 +1014,26 @@ public class ReinforcementLearning
         // convert id
         return Integer.parseInt(id_str);
     }
+    
+    
+    /**
+     * initializes the max rl template counter
+     * 
+     * reinforcement_learning.cpp:263:rl_initialize_template_tracking
+     * (9.3.0)
+     */
     void rl_initialize_template_tracking()
     {
         rl_template_count = 1;
     }
 
-    /***************************************************************************
-     * Function     : rl_update_template_tracking
-     **************************************************************************/
+    /**
+     * updates rl template counter for a rule
+     * 
+     * reinforcement_learning.cpp:269:rl_update_template_tracking
+     * 9.3.0
+     * @param rule_name
+     */
     void rl_update_template_tracking(String rule_name )
     {
         int new_id = rl_get_template_id( rule_name );
@@ -1054,92 +1042,263 @@ public class ReinforcementLearning
             rl_template_count = ( new_id + 1 );
     }
 
-    /***************************************************************************
-     * Function     : rl_next_template_id
-     **************************************************************************/
+    /**
+     * gets the next template-assigned id
+     * 
+     * reinforcement_learning.cpp:278:rl_next_template_id
+     * 9.3.0
+     * @return
+     */
     int rl_next_template_id( )
     {
         return (rl_template_count++);
     }
 
-    /***************************************************************************
-     * Function     : rl_revert_template_id
-     **************************************************************************/
+    /**
+     * gives back a template-assigned id (on auto-retract)
+     * 
+     * reinforcement_learning.cpp:278:rl_revert_template_id
+     * 9.3.0
+     */
     void rl_revert_template_id( )
     {
         rl_template_count--;
     }
-
-
-    public String rl_build_template_instantiation( Instantiation my_template_instance, Token tok, WmeImpl w )
+    
+    /**
+     * reinforcement_learning.cpp:289:rl_get_symbol_constant
+     * 9.3.0
+     * 
+     * @param p_sym
+     * @param i_sym
+     * @param constants
+     */
+    static void rl_get_symbol_constant( SymbolImpl p_sym, SymbolImpl i_sym, Map<SymbolImpl, SymbolImpl> constants )
     {
-        Production my_template = my_template_instance.prod;
-        MakeAction my_action = my_template.action_list.asMakeAction();
-
-        boolean chunk_var = this.chunker.variablize_this_chunk;
-        this.chunker.variablize_this_chunk = true;
-
-        // make unique production name
-        String new_name = "";
-        String empty_string = "";
-        // String temp_id;
-        int new_id = 0;
-        do
+        if(p_sym.asVariable() != null && (i_sym.asIdentifier() == null /*TODO|| i_sym->id.smem_lti != NIL */))
         {
-            new_id = rl_next_template_id( );
-            new_name = ( "rl*" + empty_string + my_template.getName() + "*" + new_id );
-        } while (my_agent.getProductions().getProduction(new_name) != null);
+            constants.put(p_sym, i_sym);
+        }
+    }
+
+    /**
+     * reinforcement_learning.cpp:297:rl_get_test_constant
+     * 9.3.0
+     * 
+     * @param p_test
+     * @param i_test
+     * @param constants
+     */
+    static void rl_get_test_constant( Test p_test, Test i_test, Map<SymbolImpl, SymbolImpl> constants )
+    {
+        if (Tests.isBlank(p_test))
+        {
+            return;
+        }
         
-        // prep conditions
-        ByRef<Condition> cond_top = ByRef.create(null);
-        ByRef<Condition> cond_bottom = ByRef.create(null);
-        Condition.copy_condition_list( my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
-        rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
-        this.chunker.variableGenerator.reset( cond_top.value, null );
-        this.chunker.variablization_tc = DefaultMarker.create();
-        this.chunker.variablize_condition_list( cond_top.value );
-        this.chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
-
-        // get the preference value
-        IdentifierImpl id = recMemory.instantiate_rhs_value( my_action.id, -1, 's', tok, w ).asIdentifier();
-        SymbolImpl attr = recMemory.instantiate_rhs_value( my_action.attr, id.level, 'a', tok, w );
-        char first_letter = attr.getFirstLetter();
-        SymbolImpl value = recMemory.instantiate_rhs_value( my_action.value, id.level, first_letter, tok, w );
-        SymbolImpl referent = recMemory.instantiate_rhs_value( my_action.referent, id.level, first_letter, tok, w );
-
-        // make new action list
-        MakeAction new_action = rl_make_simple_action( id, attr, value, referent );
-        new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
-
-        // make new production
-        Production new_production = new Production( ProductionType.USER, NEW_PRODUCTION_SOURCE, new_name, "", cond_top.value, cond_bottom.value, new_action);
-        try
-        {
-            ((DefaultProductionManager)my_agent.getProductions()).addProduction(new_production, false);
+        if (p_test.asEqualityTest() != null)
+        {       
+            rl_get_symbol_constant(p_test.asEqualityTest().getReferent(), i_test.asEqualityTest().getReferent(), constants);
+            
+            // rl_get_symbol_constant( *(reinterpret_cast<Symbol**>( p_test )), *(reinterpret_cast<Symbol**>( i_test )), constants );
+            return;
         }
-        catch (ReordererException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        this.chunker.variablize_this_chunk = chunk_var; // restored to original value
-
+        
+        
+        // complex test stuff
+        // NLD: If the code below is uncommented, it accesses bad memory on the first
+        //      id test and segfaults.  I'm honestly unsure why (perhaps something
+        //      about state test?).  Most of this code was copied/adapted from
+        //      the variablize_test code in production.cpp.
         /*
-        // attempt to add to rete, remove if duplicate
-        if ( add_production_to_rete(new_production, cond_top, NULL, FALSE, TRUE ) == DUPLICATE_PRODUCTION )
         {
-            excise_production(new_production, false );
-            rl_revert_template_id( );
+            complex_test* p_ct = complex_test_from_test( *p_test );
+            complex_test* i_ct = complex_test_from_test( *i_test ); 
 
-            new_name_symbol = null;
+            if ( ( p_ct->type == GOAL_ID_TEST ) || ( p_ct->type == IMPASSE_ID_TEST ) || ( p_ct->type == DISJUNCTION_TEST ) )
+            {
+                return;
+            }
+            else if ( p_ct->type == CONJUNCTIVE_TEST )
+            {
+                cons* p_c=p_ct->data.conjunct_list;
+                cons* i_c=i_ct->data.conjunct_list;
+
+                while ( p_c )
+                {
+                    rl_get_test_constant( reinterpret_cast<test*>( &( p_c->first ) ), reinterpret_cast<test*>( &( i_c->first ) ), constants );
+                    
+                    p_c = p_c->rest;
+                    i_c = i_c->rest;
+                }
+
+                return;
+            }
+            else
+            {
+                rl_get_symbol_constant( p_ct->data.referent, i_ct->data.referent, constants );
+
+                return;
+            }
         }
         */
-
-        return new_name;
     }
     
     /**
-     * reinforcement_learning.cpp:992:rl_make_simple_action
+     * reinforcement_learning.cpp:351:rl_get_template_constants
+     * 9.3.0
+     * 
+     * @param p_conds
+     * @param i_conds
+     * @param constants
+     */
+    void rl_get_template_constants( Condition p_conds, Condition i_conds, Map<SymbolImpl, SymbolImpl> constants )
+    {
+        Condition p_cond = p_conds;
+        Condition i_cond = i_conds;
+
+        while ( p_cond != null )
+        {
+            final ThreeFieldCondition tfc = p_cond.asThreeFieldCondition();
+            if ( tfc != null /* positive || negative */ )
+            {
+                rl_get_test_constant( tfc.id_test, i_cond.asThreeFieldCondition().id_test, constants );
+                rl_get_test_constant( tfc.attr_test, i_cond.asThreeFieldCondition().attr_test, constants );
+                rl_get_test_constant( tfc.value_test, i_cond.asThreeFieldCondition().value_test, constants );
+            }
+            else if (p_cond.asConjunctiveNegationCondition() != null)
+            {
+                rl_get_template_constants(p_cond.asConjunctiveNegationCondition().top, 
+                                          i_cond.asConjunctiveNegationCondition().top, constants );
+            }
+            
+            p_cond = p_cond.next;
+            i_cond = i_cond.next;
+        }
+    }    
+
+    /**
+     * reinforcement_learning.cpp:375:rl_build_template_instantiation
+     * 9.3.0
+     * 
+     * @param my_template_instance
+     * @param tok
+     * @param w
+     * @return
+     */
+    public SymbolImpl rl_build_template_instantiation( Instantiation my_template_instance, Token tok, WmeImpl w )
+    {
+    SymbolImpl return_val = null;
+    
+    // initialize production conditions
+    if ( my_template_instance.prod.rl_template_conds == null )
+    {
+        ConditionsAndNots cans = 
+        rete.p_node_to_conditions_and_nots(my_template_instance.prod.getReteNode(), null, null, false);
+
+        my_template_instance.prod.rl_template_conds = cans.top;
+    }
+
+    // initialize production instantiation set
+    if ( my_template_instance.prod.rl_template_instantiations == null)
+    {
+        my_template_instance.prod.rl_template_instantiations = new HashSet<Map<SymbolImpl, SymbolImpl>>();
+    }
+
+    // get constants
+    Map<SymbolImpl, SymbolImpl> constant_map = new HashMap<SymbolImpl, SymbolImpl>();
+    {   
+        rl_get_template_constants(my_template_instance.prod.rl_template_conds, 
+                                  my_template_instance.top_of_instantiated_conditions, 
+                                  constant_map);        
+    }
+
+    // try to insert into instantiation set
+    //if ( !constant_map.empty() )
+    {
+        if ( my_template_instance.prod.rl_template_instantiations.add(constant_map))
+        {
+            Production my_template = my_template_instance.prod;
+            Action my_action = my_template.action_list;
+
+            boolean chunk_var = chunker.variablize_this_chunk;
+            chunker.variablize_this_chunk = true;
+
+            final SymbolFactoryImpl syms = vars.getSyms();
+            // make unique production name
+            String new_name = "";
+            do
+            {
+                final int new_id = rl_next_template_id();
+                new_name = "rl*" + my_template.getName() + "*" + new_id;
+            } while (syms.findString(new_name) != null);
+            SymbolImpl new_name_symbol = syms.createString(new_name);
+            
+            // prep conditions
+            final ByRef<Condition> cond_top = ByRef.create(null);
+            final ByRef<Condition> cond_bottom = ByRef.create(null);
+            
+            Condition.copy_condition_list(my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
+            rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
+            vars.reset(cond_top.value, null);
+            chunker.variablization_tc = DefaultMarker.create();
+            chunker.variablize_condition_list( cond_top.value );
+            chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
+
+            // get the preference value
+            IdentifierImpl id = recMemory.instantiate_rhs_value( my_action.asMakeAction().id, -1, 's', tok, w ).asIdentifier();
+            SymbolImpl attr = recMemory.instantiate_rhs_value( my_action.asMakeAction().attr, id.level, 'a', tok, w );
+            char first_letter = attr.getFirstLetter();
+            SymbolImpl value = recMemory.instantiate_rhs_value(my_action.asMakeAction().value, id.level, first_letter, tok, w );
+            SymbolImpl referent = recMemory.instantiate_rhs_value(my_action.asMakeAction().referent, id.level, first_letter, tok, w );
+
+            // make new action list
+            Action new_action = rl_make_simple_action(id, attr, value, referent);
+            new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
+
+            // make new production
+            Production new_production = new Production( ProductionType.USER, new DefaultSourceLocation("RL", 0, 0), 
+                                                        new_name_symbol.toString(), null,
+                                                        cond_top.value, 
+                                                        cond_bottom.value,
+                                                        new_action );
+            chunker.variablize_this_chunk = chunk_var; // restored to original value
+
+            // set initial expected reward values
+            {
+                double init_value = 0.0;
+                if (referent.asInteger() != null)
+                {
+                    init_value = referent.asInteger().getValue();
+                }
+                else if (referent.asDouble() != null)
+                {
+                    init_value = referent.asDouble().getValue();
+                }
+
+                new_production.rl_ecr = 0.0;
+                new_production.rl_efr = init_value;
+            }
+
+            // attempt to add to rete, remove if duplicate
+            if ( rete.add_production_to_rete( new_production, null, false, true) == ProductionAddResult.DUPLICATE_PRODUCTION )
+            {
+                my_agent.getProductions().exciseProduction(new_production, false);
+                rl_revert_template_id();
+
+                new_name_symbol = null;
+            }
+
+            return_val = new_name_symbol;
+        }
+    }
+
+    return return_val;
+    }
+    
+    /**
+     * reinforcement_learning.cpp:495:rl_make_simple_action
+     * (9.3.0)
      * 
      * @param id_sym
      * @param attr_sym
@@ -1166,6 +1325,12 @@ public class ReinforcementLearning
         return rhs;
     }
     
+    /**
+     * reinforcement_learning.cpp:531:rl_add_goal_or_impasse_tests_to_conds
+     * 
+     * (9.3.0)
+     * @param all_conds
+     */
     void rl_add_goal_or_impasse_tests_to_conds( Condition all_conds )
     {
         // mark each id as we add a test for it, so we don't add a test for the same id in two different places
@@ -1189,65 +1354,73 @@ public class ReinforcementLearning
     }
     
     /**
-     * reinforcement_learning.cpp:1060:rl_tabulate_reward_value_for_goal
+     * gathers discounted reward for a state
+     * 
+     * <p>reinforcement_learning.cpp:562:rl_tabulate_reward_value_for_goal
+     * (9.3.0)
+     * 
      * @param goal
      */
     public void rl_tabulate_reward_value_for_goal(IdentifierImpl goal )
     {
-        ReinforcementLearningInfo data = goal.rl_info;
+        final ReinforcementLearningInfo data = goal.rl_info;
 
-        // Only count rewards at top state... 
-        // or for op no-change impasses.
-        //if ( ( data.impasse_type != NONE_IMPASSE_TYPE ) && ( data.impasse_type != OP_NO_CHANGE_IMPASSE_TYPE ) )  
-        //  return;
+    if ( !data.prev_op_rl_rules.isEmpty() )
+    {
+        final Slot s = Slot.make_slot(goal.reward_header, rl_sym_reward, preSyms.operator_symbol );
         
-        final Slot slots = goal.reward_header.asIdentifier().slots;
         double reward = 0.0;
-        int reward_count = 0;
+        double discount_rate = 0.0; // TODO rl_params->discount_rate->get_value();
 
-        if (slots != null)
-        {
-            for (Slot s = slots; s != null; s = s.next)
+        if ( s != null)
+        {           
+            for (WmeImpl w=s.getWmes(); w != null; w=w.next )
             {
-                for (WmeImpl w = s.getWmes(); w != null; w = w.next)
+                if (w.value.asIdentifier() != null)
                 {
-                    IdentifierImpl id = w.value.asIdentifier();
-                    if (id != null)
+                    final Slot t = Slot.make_slot( w.value.asIdentifier(), rl_sym_value, preSyms.operator_symbol );
+                    if (t != null)
                     {
-                        for (Slot t = id.slots; t != null; t = t.next)
+                        for (WmeImpl x=t.getWmes(); x != null; x=x.next )
                         {
-                            for (WmeImpl x = t.getWmes(); x != null; x = x.next )
+                            if(x.value.asDouble() != null)
                             {
-                                Symbol value = x.value;
-                                if(value.asInteger() != null)
-                                {
-                                    reward = reward + value.asInteger().getValue();
-                                    reward_count++;
-                                }
-                                else if(value.asDouble() != null)
-                                {
-                                    reward = reward + value.asDouble().getValue();
-                                    reward_count++;
-                                }
+                                reward += x.value.asDouble().getValue();
+                            }
+                            else if(x.value.asInteger() != null)
+                            {
+                                reward += x.value.asInteger().getValue();
                             }
                         }
                     }
                 }
             }
             
-            data.reward += rl_discount_reward( reward, data.step );
+            // if temporal_discount is off, don't discount for gaps
+            long /*unsigned int*/ effective_age = data.hrl_age;
+            if (false /* TODO my_agent->rl_params->temporal_discount->get_value() == soar_module::on*/) {
+                effective_age += data.gap_age;
+            }
+
+            data.reward += ( reward * Math.pow( discount_rate, (double) effective_age) );
         }
 
         // update stats
-        double global_reward = rl_get_stat( RL_STAT_GLOBAL_REWARD );
-        rl_set_stat( RL_STAT_TOTAL_REWARD, reward );
-        rl_set_stat( RL_STAT_GLOBAL_REWARD, ( global_reward + reward ) );
+        final double global_reward = 0.0; // TODO my_agent->rl_stats->global_reward->get_value();
+        // TODO my_agent->rl_stats->total_reward->set_value( reward );
+        // TODO my_agent->rl_stats->global_reward->set_value( global_reward + reward );
 
-        data.step++;
+        if ( ( goal != decider.bottom_goal ) && (true /* TODO my_agent->rl_params->hrl_discount->get_value() == soar_module::on */ ) )
+        {
+            data.hrl_age++;
+        }
+    }
+
     }
     
     /**
-     * reinforcement_learning:1101:rl_tabulate_reward_values()
+     * reinforcement_learning:617:rl_tabulate_reward_values
+     * (9.3.0)
      */
     public void rl_tabulate_reward_values()
     {
@@ -1275,7 +1448,10 @@ public class ReinforcementLearning
     }
     
     /**
-     * reinforcement_learning.cpp:1125:rl_store_data
+     * stores rl info for a state w.r.t. a selected operator
+     * 
+     * <p>reinforcement_learning.cpp:629:rl_store_data
+     * (9.3.0)
      * 
      * @param goal the goal
      * @param cand the candidate preference
@@ -1291,47 +1467,48 @@ public class ReinforcementLearning
         // Make list of just-fired prods
         int just_fired = 0;
         for ( Preference pref = goal.operator_slot.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); pref != null; pref = pref.next )
-            if ( ( op == pref.value ) && pref.inst.prod.rl_rule)
-                if ( pref.inst.prod.rl_rule) 
+        {
+            if ( op == pref.value && pref.inst.prod.rl_rule)
+            {
+                if ( just_fired == 0 && !data.prev_op_rl_rules.isEmpty())
                 {
-                    if ( just_fired == 0)
-                    {
-                        data.prev_op_rl_rules.clear();
-                        // TODO should num_prev_op_rl_rules be set to 0 here?
-                    }
-                    
-                    data.prev_op_rl_rules.push(pref.inst.prod);
-                    just_fired++;
+                    data.prev_op_rl_rules.clear();
                 }
+                
+                data.prev_op_rl_rules.push(pref.inst.prod);
+                just_fired++;
+            }
+        }
 
         if ( just_fired != 0)
         {
-            if ( data.reward_age != 0 )
-            {
-                my_agent.getTrace().print(Category.RL, "gap ended (%s)", goal);
-                
-                //xml_generate_warning(buf );
-            }
-            
-            data.reward_age = 0;
-            data.num_prev_op_rl_rules = just_fired;
+            data.previous_q = cand.numeric_value;
         }
         else
         {
-            if ( data.reward_age == 0 )
+            if (my_agent.getTrace().isEnabled(Category.RL) && 
+                using_gaps &&
+                data.gap_age == 0 &&
+                !data.prev_op_rl_rules.isEmpty())
             {
                 my_agent.getTrace().print(Category.RL, "gap started (%s)", goal);
-                
-                //xml_generate_warning(buf );
             }
             
             if ( !using_gaps )
             {
-                data.prev_op_rl_rules.clear();
-                data.num_prev_op_rl_rules = 0;
+                if(!data.prev_op_rl_rules.isEmpty())
+                {
+                    data.prev_op_rl_rules.clear();
+                }
+                data.previous_q = cand.numeric_value;
             }
-            
-            data.reward_age++;
+            else
+            {
+                if(!data.prev_op_rl_rules.isEmpty())
+                {
+                    data.gap_age++;
+                }
+            }
         }
     }
 

@@ -820,7 +820,6 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         boolean traceState = trace.isEnabled();
         trace.setEnabled(false);
 
-        rl.rl_reset_data();
         decider.clear_goal_stack();
         io.do_input_cycle(); // tell input functions that the top state is gone
         io.do_output_cycle(); // tell output functions that output commands are gone
