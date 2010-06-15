@@ -403,36 +403,37 @@ public class RecognitionMemory
     {
         rhsFunctionPreferenceType = a.preference_type;
         
-        FunctionAction fa = a.asFunctionAction();
+        final FunctionAction fa = a.asFunctionAction();
         if (fa != null)
         {
             instantiate_rhs_value(fa.getCall(), -1, 'v', tok, w);
             return null;
         }
 
-        MakeAction ma = a.asMakeAction();
+        final MakeAction ma = a.asMakeAction();
 
-        SymbolImpl idSym = instantiate_rhs_value(ma.id, -1, 's', tok, w);
+        final SymbolImpl idSym = instantiate_rhs_value(ma.id, -1, 's', tok, w);
         if (idSym == null)
         {
             return null; // goto abort_execute_action;
         }
-        IdentifierImpl id = idSym.asIdentifier();
+        
+        final IdentifierImpl id = idSym.asIdentifier();
         if (id == null)
         {
-            context.getPrinter().error("RHS makes a preference for %s (not an identifier)\n", id);
+            context.getPrinter().error("[%s] RHS makes a preference for %s (not an identifier)\n", production_being_fired, idSym);
             return null; // goto abort_execute_action;
         }
 
-        SymbolImpl attr = instantiate_rhs_value(ma.attr, id.level, 'a', tok, w);
+        final SymbolImpl attr = instantiate_rhs_value(ma.attr, id.level, 'a', tok, w);
         if (attr == null)
         {
             return null;
         }
         
-        char first_letter = attr.getFirstLetter();
+        final char first_letter = attr.getFirstLetter();
 
-        SymbolImpl value = instantiate_rhs_value(ma.value, id.level, first_letter, tok, w);
+        final SymbolImpl value = instantiate_rhs_value(ma.value, id.level, first_letter, tok, w);
         if (value == null)
         {
             return null; // goto abort_execute_action;
@@ -448,12 +449,11 @@ public class RecognitionMemory
             }
         }
 
-        /* --- RBD 4/17/95 added stuff to handle attribute_preferences_mode --- */
-        if (((a.preference_type != PreferenceType.ACCEPTABLE) && (a.preference_type != PreferenceType.REJECT))
-                && (!(id.isa_goal && (attr == predefinedSyms.operator_symbol))))
+        if (a.preference_type != PreferenceType.ACCEPTABLE && 
+            a.preference_type != PreferenceType.REJECT     && 
+            !(id.isa_goal && attr == predefinedSyms.operator_symbol))
         {
-            context.getPrinter().error("attribute preference" +
-                    " other than +/- for %s ^%s -- ignoring it.", id, attr);
+            context.getPrinter().error("[%s] attribute preference other than +/- for %s ^%s -- ignoring it.", production_being_fired, id, attr);
             return null;
         }
         
