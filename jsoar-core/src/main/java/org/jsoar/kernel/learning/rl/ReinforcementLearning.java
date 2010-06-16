@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.learning.rl;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,12 +57,34 @@ import org.jsoar.util.properties.DefaultPropertyProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
+import com.google.common.collect.Lists;
+
 /**
  * @author ray
  */
 public class ReinforcementLearning
 {
-    public static final PropertyKey<Boolean> LEARNING = PropertyKey.builder("rl-learning", Boolean.class).defaultValue(false).build();
+    private static final String RL_PREFIX = "rl.";
+    
+    private static <T> PropertyKey.Builder<T> key(String name, Class<T> type)
+    {
+        return PropertyKey.builder(RL_PREFIX + name, type);
+    }
+    
+    /**
+     * Retrieve a proeprty key for an RL property. Appropriately adds necessary
+     * prefixes to the name to find the right key.
+     * 
+     * @param props the property manager
+     * @param name the name of the property.
+     * @return the key, or {@code null} if not found.
+     */
+    public static PropertyKey<?> getProperty(PropertyManager props, String name)
+    {
+        return props.getKey(RL_PREFIX + name);
+    }
+    
+    public static final PropertyKey<Boolean> LEARNING = key("learning", Boolean.class).defaultValue(false).build();
     private final BooleanPropertyProvider learning = new BooleanPropertyProvider(LEARNING) {
 
         /* (non-Javadoc)
@@ -78,35 +101,34 @@ public class ReinforcementLearning
             }
             return super.set(value);
         }
-        
     };
     
-    public static final PropertyKey<Double> DISCOUNT_RATE = PropertyKey.builder("rl-discount-rate", Double.class).defaultValue(0.9).build();
+    public static final PropertyKey<Double> DISCOUNT_RATE = key("discount-rate", Double.class).defaultValue(0.9).build();
     private final DefaultPropertyProvider<Double> discount_rate = new DefaultPropertyProvider<Double>(DISCOUNT_RATE);
     
-    public static final PropertyKey<Double> LEARNING_RATE = PropertyKey.builder("rl-learning-rate", Double.class).defaultValue(0.3).build();
+    public static final PropertyKey<Double> LEARNING_RATE = key("learning-rate", Double.class).defaultValue(0.3).build();
     private final DefaultPropertyProvider<Double> learning_rate = new DefaultPropertyProvider<Double>(LEARNING_RATE);
 
-    public static final PropertyKey<LearningChoices> LEARNING_POLICY = PropertyKey.builder("rl-learning-policy", LearningChoices.class).defaultValue(LearningChoices.SARSA).build();
+    public static final PropertyKey<LearningChoices> LEARNING_POLICY = key("learning-policy", LearningChoices.class).defaultValue(LearningChoices.SARSA).build();
     private final DefaultPropertyProvider<LearningChoices> learning_policy = new DefaultPropertyProvider<LearningChoices>(LEARNING_POLICY);
     
-    public static final PropertyKey<Double> ET_DECAY_RATE = PropertyKey.builder("rl-eligibility-trace-decay-rate", Double.class).defaultValue(0.0).build();
+    public static final PropertyKey<Double> ET_DECAY_RATE = key("eligibility-trace-decay-rate", Double.class).defaultValue(0.0).build();
     private final DefaultPropertyProvider<Double> et_decay_rate = new DefaultPropertyProvider<Double>(ET_DECAY_RATE);
     
-    public static final PropertyKey<Double> ET_TOLERANCE = PropertyKey.builder("rl-eligibility-trace-tolerance", Double.class).defaultValue(0.001).build();
+    public static final PropertyKey<Double> ET_TOLERANCE = key("eligibility-trace-tolerance", Double.class).defaultValue(0.001).build();
     private final DefaultPropertyProvider<Double> et_tolerance = new DefaultPropertyProvider<Double>(ET_TOLERANCE);
 
-    public static final PropertyKey<Boolean> TEMPORAL_EXTENSION = PropertyKey.builder("rl-temporal-extension", Boolean.class).defaultValue(true).build();
+    public static final PropertyKey<Boolean> TEMPORAL_EXTENSION = key("temporal-extension", Boolean.class).defaultValue(true).build();
     private final BooleanPropertyProvider temporal_extension = new BooleanPropertyProvider(TEMPORAL_EXTENSION);
 
-    public static final PropertyKey<Boolean> HRL_DISCOUNT = PropertyKey.builder("rl-hrl-discount", Boolean.class).defaultValue(true).build();
+    public static final PropertyKey<Boolean> HRL_DISCOUNT = key("hrl-discount", Boolean.class).defaultValue(true).build();
     private final BooleanPropertyProvider hrl_discount = new BooleanPropertyProvider(HRL_DISCOUNT);
 
-    public static final PropertyKey<Boolean> TEMPORAL_DISCOUNT = PropertyKey.builder("rl-temporal-discount", Boolean.class).defaultValue(true).build();
+    public static final PropertyKey<Boolean> TEMPORAL_DISCOUNT = key("temporal-discount", Boolean.class).defaultValue(true).build();
     private final BooleanPropertyProvider temporal_discount = new BooleanPropertyProvider(TEMPORAL_DISCOUNT);
     ////////
     private static final SourceLocation NEW_PRODUCTION_SOURCE = new DefaultSourceLocation("*RL*", -1, -1);
-
+    
     // reinforcement learning
     private int rl_template_count;
     private boolean rl_first_switch;

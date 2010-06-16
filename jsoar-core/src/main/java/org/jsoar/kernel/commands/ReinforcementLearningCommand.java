@@ -7,6 +7,8 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.properties.PropertyKey;
+import org.jsoar.util.properties.PropertyManager;
 
 /**
  * @author ray
@@ -23,31 +25,58 @@ public final class ReinforcementLearningCommand implements SoarCommand
     @Override
     public String execute(String[] args) throws SoarException
     {
-        if(args.length != 4)
+        if(args.length == 1)
         {
-            // TODO illegal arguments
-            throw new SoarException(String.format("%s --set learning [on|off]", args[0]));
+            // TODO print all params
+            
+            return "Not implemented yet. Use 'properties' command.";
         }
-        final String param = args[2]; 
-        final String value = args[3];
-        if("learning".equals(param))
+        
+        if(args.length < 3 || args.length > 4)
         {
-            agent.getProperties().set(ReinforcementLearning.LEARNING, "on".equals(value.toString()));
+            throw new SoarException(String.format("%s --set name value, or %s --get name", args[0], args[0]));
         }
-        else if("learning-rate".equals(param))
+        
+        final String param = args[2];
+        final PropertyKey<?> key = ReinforcementLearning.getProperty(agent.getProperties(), param);
+        if(key == null)
         {
-            agent.getProperties().set(ReinforcementLearning.LEARNING_RATE, Double.valueOf(value));
+            throw new SoarException("Unknown RL parameter " + param);
         }
-        else if("discount-rate".equals(param))
+        
+        final String op = args[1];
+        if(args.length == 3 && op.equals("--get"))
         {
-            agent.getProperties().set(ReinforcementLearning.DISCOUNT_RATE, Double.valueOf(value));
+            return agent.getProperties().get(key).toString();
+        }
+        else if(args.length == 4 && op.equals("--set"))
+        {
+            final String value = args[3];
+            set(key, value);
+            return value;
         }
         else
         {
-            throw new SoarException("Unknown RL parameter " + args[2]);
+            throw new SoarException(String.format("%s --set name value, or %s --get name", args[0], args[0]));
         }
-        
-        // TODO reinforcement learning: Obviously, this implementation is insufficient
-        return "";
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void set(PropertyKey<?> key, String value) throws SoarException
+    {
+        // TODO generalize this and add parameter checking.
+        final PropertyManager  props = agent.getProperties();
+        if(Double.class.equals(key.getType()))
+        {
+            props.set((PropertyKey<Double>) key, Double.valueOf(value));
+        }
+        else if(Boolean.class.equals(key.getType()))
+        {
+            props.set((PropertyKey<Boolean>) key, "on".equals(value));
+        }
+        else
+        {
+            throw new SoarException("Don't know how to set RL parameter '" + key + "' to value '" + value + "'");
+        }
     }
 }

@@ -135,4 +135,17 @@ public class PropertyManagerTest
         assertEquals(1, key2Count[0]);
     }
 
+    @Test
+    public void testCanGetAKeyByName()
+    {
+        final PropertyKey<String> KEY = PropertyKey.builder("test", String.class).defaultValue("default").build();
+        final PropertyKey<Integer> KEY2 = PropertyKey.builder("test2", Integer.class).defaultValue(666).build();
+        final PropertyManager pm = new PropertyManager();
+        pm.set(KEY, "foo");
+        pm.set(KEY2, 99);
+        
+        assertSame(KEY, pm.getKey("test"));
+        assertSame(KEY2, pm.getKey("test2"));
+        
+    }
 }
