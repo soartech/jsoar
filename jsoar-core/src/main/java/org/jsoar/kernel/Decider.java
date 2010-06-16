@@ -26,6 +26,7 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.TemporaryMemory;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.symbols.Identifier;
@@ -1025,7 +1026,7 @@ public class Decider
 
         // if this is the true decision slot and selection has been made,
         // attempt force selection
-        if (!s.isa_context_slot)
+        if (!s.isa_context_slot && !consistency)
         {
             if (decisionManip.select_get_operator() != null)
             {
@@ -1417,10 +1418,12 @@ public class Decider
             add_impasse_wme(id, predefined.superstate_symbol, object, null);
 
             id.reward_header = predefined.getSyms().make_new_identifier('R', level);
-            io.addInputWmeInternal(id, predefined.reward_link_symbol, id.reward_header);
+            SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.reward_header);
         }
         else
+        {
             add_impasse_wme(id, predefined.object_symbol, object, null);
+        }
 
         if (attr != null)
             add_impasse_wme(id, predefined.attribute_symbol, attr, null);
@@ -2064,12 +2067,6 @@ public class Decider
         remove_wmes_for_context_slot(goal.operator_slot);
         update_impasse_items(goal, null); // causes items & fake pref's to go away
 
-        if (goal != top_goal && rl.rl_enabled())
-        {
-            rl.rl_tabulate_reward_value_for_goal( goal );
-            rl.rl_perform_update( 0, true, goal, false); // this update only sees reward - there is no next state
-        }
-
         this.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
         goal.removeAllImpasseWmes();
         
@@ -2125,10 +2122,8 @@ public class Decider
             }
         }
 
-        //  delete goal->id.rl_info->eligibility_traces;
-        goal.rl_info.eligibility_traces.clear();
-        //  free_list( thisAgent, goal->id.rl_info->prev_op_rl_rules );
-        goal.rl_info.prev_op_rl_rules.clear();
+        // decide.cpp:remove_existing_context_and_descendents_rl
+        goal.rl_info = null;
 
         /* REW: BUG
          * Tentative assertions can exist for removed goals.  However, it looks
@@ -2146,7 +2141,17 @@ public class Decider
         
         post_link_removal(null, goal); // remove the special link
     }
-
+    
+    /**
+     * <p>decide.cpp:2215:create_new_context_rl (9.3.0)
+     * @param id
+     */
+    private void create_new_context_rl(IdentifierImpl id ) 
+    {
+        id.rl_info = new ReinforcementLearningInfo();
+        // everything else set by ReinforcementLearningInfo constructor
+    }
+     
     /**
      * This routine creates a new goal context (becoming the new bottom goal)
      * below the current bottom goal. If there is no current bottom goal, this
@@ -2198,11 +2203,10 @@ public class Decider
         }
 
         id.isa_goal = true;
-        id.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol,
-                predefinedSyms.operator_symbol);
+        id.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
         id.allow_bottom_up_chunks = true;
 
-        id.rl_info = new ReinforcementLearningInfo();
+        create_new_context_rl(id);
 
         /* --- invoke callback routine --- */
         // TODO callback CREATE_NEW_CONTEXT_CALLBACK
@@ -2559,9 +2563,6 @@ public class Decider
      */
     public void do_decision_phase(boolean predict /*=false*/)
     {
-        if (!predict && rl.rl_enabled())
-            rl.rl_tabulate_reward_values();
-
         decisionManip.predict_srand_restore_snapshot(!predict);
 
         /* phases printing moved to init_soar: do_one_top_level_phase */

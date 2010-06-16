@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.exploration.ExplorationParameter.ReductionPolicy;
+import org.jsoar.kernel.learning.rl.LearningChoices;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
@@ -407,13 +408,13 @@ public class Exploration
             exploration_compute_value_of_candidate( cand, s, 0.0);
 
         final boolean my_rl_enabled = rl.rl_enabled();
+        final LearningChoices my_learning_policy = my_rl_enabled ? context.getProperties().get(ReinforcementLearning.LEARNING_POLICY) : LearningChoices.Q;
         double top_value = candidates.numeric_value;
         boolean top_rl = candidates.rl_contribution;
         
-        // TODO RL const rl_param_container::learning_choices my_learning_policy = my_rl_enabled ? my_agent->rl_params->learning_policy->get_value() : rl_param_container::q;
         // should find highest valued candidate in q-learning
         if (my_rl_enabled && 
-            false /* TODO my_learning_policy == ReinforcementLearning.RL_LEARNING_Q */)
+            my_learning_policy == LearningChoices.Q)
         {
             for ( Preference cand=candidates; cand!=null; cand=cand.next_candidate )
             {
@@ -459,11 +460,11 @@ public class Exploration
         {
             rl.rl_tabulate_reward_values();
 
-            if (true /*TODO my_learning_policy == rl_param_container::sarsa */)
+            if (my_learning_policy == LearningChoices.SARSA)
             {
                 rl.rl_perform_update(return_val.numeric_value, return_val.rl_contribution, s.id );
             }
-            else if (true /*TODO my_learning_policy == rl_param_container::q */)
+            else if (my_learning_policy == LearningChoices.Q)
             {
                 rl.rl_perform_update(top_value, top_rl, s.id );
 
@@ -636,13 +637,6 @@ public class Exploration
             for (Preference cand = candidates; cand != null; cand = cand.next_candidate )
             {
                 trace.print("\n Candidate %s:  Value (Sum) = %f", cand.value , cand.numeric_value );
-                /*
-                xml_begin_tag( my_agent, kTagCandidate );
-                xml_att_val( my_agent, kCandidateName, cand->value );
-                xml_att_val( my_agent, kCandidateType, kCandidateTypeSum );
-                xml_att_val( my_agent, kCandidateValue, cand->numeric_value );
-                xml_end_tag( my_agent, kTagCandidate );
-                */
             }
         }
 
