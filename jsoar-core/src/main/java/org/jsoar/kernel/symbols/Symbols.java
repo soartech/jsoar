@@ -241,4 +241,26 @@ public class Symbols
             return null;
         } 
     }
+    
+    /**
+     * utilities.cpp:361:get_number_from_symbol
+     * 
+     * @param sym
+     * @return
+     */
+    public static double asDouble(Symbol sym)
+    {
+        final IntegerSymbol ic = sym.asInteger();
+        if(ic != null)
+        {
+            return ic.getValue();
+        }
+        final DoubleSymbol d = sym.asDouble();
+        if(d != null)
+        {
+            return d.getValue();
+        }
+        return 0.0;
+    }
+
 }

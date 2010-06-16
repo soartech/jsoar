@@ -69,7 +69,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public Slot operator_slot;
     public Preference preferences_from_goal = null;
 
-    public SymbolImpl reward_header;        // pointer to reward_link
+    public IdentifierImpl reward_header;        // pointer to reward_link
     public ReinforcementLearningInfo rl_info;           // various Soar-RL information
 
     public GoalDependencySetImpl gds; // pointer to a goal's dependency set

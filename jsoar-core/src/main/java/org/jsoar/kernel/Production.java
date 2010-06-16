@@ -8,6 +8,8 @@ package org.jsoar.kernel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.jsoar.kernel.lhs.Condition;
@@ -22,6 +24,7 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.ReordererException;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
@@ -66,8 +69,11 @@ public class Production
     
     public boolean rl_rule = false;                 /* if true, is a Soar-RL rule */
     public double rl_update_count;       /* number of (potentially fractional) updates to this rule */
+    public Condition rl_template_conds;  // RL-9.3.0
+    public Set<Map<SymbolImpl, SymbolImpl>> rl_template_instantiations; // RL-9.3.0
+    public double rl_ecr; // RL-9.3.0
+    public double rl_efr; // RL-9.3.0
     
-
     /**
      * Function introduced while trying to tease apart production construction
      * 
