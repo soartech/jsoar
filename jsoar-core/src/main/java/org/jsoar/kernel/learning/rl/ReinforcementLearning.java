@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.learning.rl;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,6 +38,7 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -56,8 +56,6 @@ import org.jsoar.util.properties.BooleanPropertyProvider;
 import org.jsoar.util.properties.DefaultPropertyProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
-
-import com.google.common.collect.Lists;
 
 /**
  * @author ray
@@ -95,6 +93,8 @@ public class ReinforcementLearning
         {
             if(value && rl_first_switch)
             {
+                // The first time we switch on RL, set up sane settings. After
+                // that, it's the user's problem.
                 rl_first_switch = false;
                 exploration.exploration_set_policy(Policy.USER_SELECT_E_GREEDY);
                 my_agent.getTrace().startNewLine().print("Exploration Mode changed to epsilon-greedy").flush();
@@ -608,15 +608,22 @@ public class ReinforcementLearning
                 new_production.rl_efr = init_value;
             }
 
-            // attempt to add to rete, remove if duplicate
-            addProduction(new_production);
-            if ( rete.add_production_to_rete( new_production, null, false, true) == ProductionAddResult.DUPLICATE_PRODUCTION )
+            try
             {
-                my_agent.getProductions().exciseProduction(new_production, false);
-                rl_revert_template_id();
-
-                new_name_symbol = null;
+                // attempt to add to rete, remove if duplicate
+                if(my_agent.getProductions().addProduction(new_production, false) ==
+                    ProductionAddResult.DUPLICATE_PRODUCTION)
+                {
+                    rl_revert_template_id();
+                    new_name_symbol = null;
+                }
             }
+            catch (ReordererException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            this.chunker.variablize_this_chunk = chunk_var; // restored to original value
 
             return_val = new_name_symbol;
         }

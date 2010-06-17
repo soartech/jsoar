@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.parser.ParserException;
+import org.jsoar.kernel.rete.ProductionAddResult;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.util.SourceLocation;
 
@@ -100,7 +101,7 @@ public interface ProductionManager
      * @throws IllegalArgumentException if p is a chunk or justification or if
      *      p (actual instance, not name) has already been added
      */
-    public void addProduction(Production p, boolean reorder_nccs) throws ReordererException;
+    public ProductionAddResult addProduction(Production p, boolean reorder_nccs) throws ReordererException;
     
     /**
      * 
