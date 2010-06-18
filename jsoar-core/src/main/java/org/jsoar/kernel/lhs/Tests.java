@@ -20,6 +20,8 @@ import com.google.common.collect.Lists;
 /**
  * Various utility methods for working with Test objects.
  * 
+ * For test_is_blank_or_equality_test, just use {@link Test#asEqualityTest()}.
+ * 
  * @author ray
  */
 public class Tests
@@ -519,6 +521,12 @@ public class Tests
         return t != null ? t.copy() : null;
     }
 
+    /**
+     * test_is_blank_test
+     * 
+     * @param t
+     * @return
+     */
     public static boolean isBlank(Test t)
     {
         return t == null;

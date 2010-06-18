@@ -76,6 +76,8 @@ public class MainPanel extends JPanel
         
         bar.add(new AbstractAction("Run") {
 
+            private static final long serialVersionUID = -139687130503326330L;
+
             @Override
             public void actionPerformed(ActionEvent e)
             {
@@ -84,12 +86,16 @@ public class MainPanel extends JPanel
         
         bar.add(new AbstractAction("Pause") {
 
+            private static final long serialVersionUID = -1100256461140715756L;
+
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 stop();
             }});
         bar.add(new AbstractAction("Fit") {
+
+            private static final long serialVersionUID = 6423267961582949320L;
 
             @Override
             public void actionPerformed(ActionEvent e)
@@ -111,6 +117,8 @@ public class MainPanel extends JPanel
         
         bar.add(new AbstractAction("Paste World") {
 
+            private static final long serialVersionUID = -2328953530526643612L;
+
             @Override
             public void actionPerformed(ActionEvent e)
             {
@@ -118,6 +126,8 @@ public class MainPanel extends JPanel
             }});
         
         bar.add(new AbstractAction("Debug") {
+
+            private static final long serialVersionUID = -8516939880295829579L;
 
             @Override
             public void actionPerformed(ActionEvent e)

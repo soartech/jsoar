@@ -55,9 +55,9 @@ public class SoarModule
      * @param value
      * @return
      */
-    public WmeImpl add_module_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value )
+    public static WmeImpl add_module_wme(WorkingMemory wm, IdentifierImpl id, SymbolImpl attr, SymbolImpl value )
     {
-        final Slot my_slot = Slot.make_slot(id, attr, syms.operator_symbol);
+        final Slot my_slot = Slot.make_slot(id, attr, null);
         final WmeImpl w = wm.make_wme(id, attr, value, false); 
         my_slot.addWme(w);
         wm.add_wme_to_wm(w);

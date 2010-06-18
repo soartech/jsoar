@@ -133,7 +133,8 @@ public class Slot
      * 
      * @param id the slot identifier
      * @param attr the slot attribute
-     * @param operator_symbol the operator symbol from {@link PredefinedSymbols}
+     * @param operator_symbol the operator symbol from {@link PredefinedSymbols}. May be null
+     *          if you know that {@code attr} is not "operator". TODO get rid of this param
      */
     private Slot(IdentifierImpl id, SymbolImpl attr, StringSymbolImpl operator_symbol)
     {

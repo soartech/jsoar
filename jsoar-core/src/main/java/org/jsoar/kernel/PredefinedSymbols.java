@@ -7,6 +7,7 @@ package org.jsoar.kernel;
 
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 
 /**
@@ -38,7 +39,6 @@ public class PredefinedSymbols
     final StringSymbolImpl tie_symbol;
     final StringSymbolImpl item_symbol;
     final StringSymbolImpl type_symbol;
-    final StringSymbolImpl reward_link_symbol;
 
     // Symbols used in Decider and Backtracer
     public final StringSymbolImpl quiescence_symbol;
@@ -64,6 +64,11 @@ public class PredefinedSymbols
     public final StringSymbolImpl io_symbol;
     public final StringSymbolImpl input_link_symbol;
     public final StringSymbolImpl output_link_symbol;
+
+    // RL symbols
+    public final StringSymbolImpl rl_sym_reward_link;
+    public final SymbolImpl rl_sym_reward;
+    public final SymbolImpl rl_sym_value;
 
     public PredefinedSymbols(SymbolFactoryImpl syms)
     {
@@ -109,8 +114,9 @@ public class PredefinedSymbols
         input_link_symbol = syms.createString("input-link");
         output_link_symbol = syms.createString("output-link");
 
-        reward_link_symbol = syms.createString("reward-link" );
-        
+        rl_sym_reward_link = syms.createString("reward-link" );
+        rl_sym_reward = syms.createString("reward");
+        rl_sym_value = syms.createString("value");
     }
     
     /**

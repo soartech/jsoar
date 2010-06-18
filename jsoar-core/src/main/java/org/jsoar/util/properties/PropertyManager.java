@@ -104,6 +104,24 @@ public class PropertyManager
     }
     
     /**
+     * Retrieve the first key with the given name
+     * 
+     * @param name the name of the desired key
+     * @return the key
+     */
+    public PropertyKey<?> getKey(String name)
+    {
+        for(PropertyKey<?> key : properties.keySet())
+        {
+            if(name.equals(key.getName()))
+            {
+                return key;
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Set the value of a property. A property changed event will be 
      * fired. A default property provider will be created if one has
      * not already been set.  If the property is readonly, an exception will be

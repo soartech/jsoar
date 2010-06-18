@@ -224,7 +224,7 @@ public class DefaultProductionManager implements ProductionManager
     /* (non-Javadoc)
      * @see org.jsoar.kernel.ProductionManager#addProduction(org.jsoar.kernel.Production, boolean)
      */
-    public void addProduction(Production p, boolean reorder_nccs) throws ReordererException
+    public ProductionAddResult addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
         if(productionsByName.values().contains(p))
         {
@@ -261,13 +261,15 @@ public class DefaultProductionManager implements ProductionManager
         if (result==ProductionAddResult.DUPLICATE_PRODUCTION) 
         {
             exciseProduction (p, false);
-            return;
+            return result;
         }
         
         productionsByType.get(p.getType()).add(p);
         productionsByName.put(p.getName(), p);
         
         context.getEvents().fireEvent(new ProductionAddedEvent(context, p));
+        
+        return result;
     }
 
     /* (non-Javadoc)

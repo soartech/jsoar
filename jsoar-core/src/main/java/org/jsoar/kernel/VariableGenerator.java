@@ -56,6 +56,12 @@ public class VariableGenerator
         return syms;
     }
 
+    /**
+     * reset_variable_generator
+     * 
+     * @param conds_with_vars_to_avoid
+     * @param actions_with_vars_to_avoid
+     */
     public void reset(Condition conds_with_vars_to_avoid,
             Action actions_with_vars_to_avoid)
     {
