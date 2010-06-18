@@ -250,6 +250,60 @@ public class Wmes
         return result;
     }
     
+    /**
+     * compare two collections of wmes by value
+     * if ignoreIdentifers, then doesn't check identifiers for equality
+     * this is useful, e.g., if testing a set of wmes produced by Soar against an expected set, 
+     *   but the ids might be different due to implementation detail changes
+     * return true if "equal"
+     * return false if not
+     */
+    public static boolean equal(final Collection<Wme> c1, final Collection<Wme> c2, final boolean ignoreIdentifiers)
+    {
+        if(c1.size() != c2.size())
+        {
+            return false;
+        }
+        
+        for(Wme w1 : c1)
+        {
+            boolean foundMatch = false;
+            for(Wme w2 : c2)
+            {        
+                if(!ignoreIdentifiers && w1.getIdentifier() != w2.getIdentifier())
+                {
+                    continue;
+                }
+                
+                if(!ignoreIdentifiers || w1.getAttribute().asIdentifier() == null)
+                {
+                    if(w1.getAttribute() != w2.getAttribute())
+                    {
+                        continue;
+                    }
+                }
+                
+                if(!ignoreIdentifiers || w1.getValue().asIdentifier() == null)
+                {
+                    if(w1.getValue() != w2.getValue())
+                    {
+                        continue;
+                    }
+                }
+                foundMatch = true;
+                break;
+            }
+            
+            if(!foundMatch)
+            {
+                return false;
+            }
+        }
+        
+        // if get here, must be a perfect match
+        return true;
+    }
+    
     public static class MatcherBuilder
     {
         private final SymbolFactory syms;
