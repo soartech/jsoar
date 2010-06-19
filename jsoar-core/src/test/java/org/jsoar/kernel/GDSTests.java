@@ -47,6 +47,20 @@ public class GDSTests extends FunctionalTestHarness
     }
     
     @Test
+    public void testDoubleSupport() throws Exception
+    {
+        runTest("testDoubleSupport", 5);
+        assertEquals(2, agent.getGoalStack().size());
+        
+        List<Identifier> goals = agent.getGoalStack();
+        GoalDependencySet gds = Adaptables.adapt(goals.get(0), GoalDependencySet.class);
+        assertTrue("Expected GDS for top state to be empty", gds == null);
+        
+        gds = Adaptables.adapt(goals.get(1), GoalDependencySet.class);
+        assertTrue("Expected GDS for substate to be non-empty", gds != null);
+    }
+    
+    @Test
     public void testMultilevel1() throws Exception
     {
         runTest("testMultilevel1", 5);
