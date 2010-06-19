@@ -51,6 +51,19 @@ public class GDSTests extends FunctionalTestHarness
     {
         runTest("testMultilevel1", 5);
         
+        testMultilevel();
+    }
+
+    @Test
+    public void testMultilevel2() throws Exception
+    {
+        runTest("testMultilevel2", 5);
+        
+        testMultilevel();
+    }
+    
+    private void testMultilevel()
+    {
         List<Identifier> goals = agent.getGoalStack();
         assertTrue("Unexpected number of states", goals.size() == 3);
         
