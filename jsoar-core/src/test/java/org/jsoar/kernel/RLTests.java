@@ -91,6 +91,16 @@ public class RLTests extends FunctionalTestHarness
 
     }
     
+    /*
+     * Check expected RL values against actual RL values for a set of RL rules that share a common prefix
+     * This assumes that the RL rules to be checked are named in this form: [prefix][integer] 
+     * E.g., my*rl*rule*1, my*rl*rule*2, etc. where prefix = "my*rl*rule*" (template rules generate RL rules in this form)
+     * The expected values are provided in an array ordered so the indexes match up with the rule numbers
+     * E.g., my*rl*rule*1's expected value is at index 0
+     * Performs an exact match on double values (no error). 
+     * (Could be a problem if comparing vaues reported by csoar to those reported by jsoar.)
+     * Returns true if matches, false if not
+     */
     private boolean checkExpectedValues(String rulePrefix, double[] expectedValues)
     {
         boolean result = true;
