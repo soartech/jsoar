@@ -16,6 +16,8 @@ import org.junit.Test;
  */
 public class RLTests extends FunctionalTestHarness
 {
+    private static final double tolerance = 0.0000001;
+
     @Test
     public void testTemplateVariableNameBug1121() throws Exception
     {
@@ -97,8 +99,7 @@ public class RLTests extends FunctionalTestHarness
      * E.g., my*rl*rule*1, my*rl*rule*2, etc. where prefix = "my*rl*rule*" (template rules generate RL rules in this form)
      * The expected values are provided in an array ordered so the indexes match up with the rule numbers
      * E.g., my*rl*rule*1's expected value is at index 0
-     * Performs an exact match on double values (no error). 
-     * (Could be a problem if comparing vaues reported by csoar to those reported by jsoar.)
+     * Performs an inexact match on double values (tests values within small tolerance).
      * Returns true if matches, false if not
      */
     private boolean checkExpectedValues(String rulePrefix, double[] expectedValues)
@@ -112,7 +113,7 @@ public class RLTests extends FunctionalTestHarness
                 int index = Integer.valueOf(p.getName().substring(startOfIndex)) - 1;
                 double value = Double.valueOf(p.action_list.asMakeAction().referent.toString());
                 
-                if(expectedValues[index] != value)
+                if(Math.abs(expectedValues[index] - value) > tolerance)
                 {
                     result = false;
                     break;
