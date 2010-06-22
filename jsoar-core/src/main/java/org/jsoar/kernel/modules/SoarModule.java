@@ -82,7 +82,7 @@ public class SoarModule
             {
                 if ( w.gds.getGoal() != null )
                 {      
-                    decider.gds_invalid_so_remove_goal(w, "remove_module_wme");
+                    decider.gds_invalid_so_remove_goal(w, "While removing a module WME");
                     
                     /* NOTE: the call to remove_wme_from_wm will take care of checking if GDS should be removed */
                 }

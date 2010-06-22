@@ -352,7 +352,7 @@ public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
         {
             if (w.gds.getGoal() != null)
             {
-                decider.gds_invalid_so_remove_goal(w, "remove_input_wme");
+                decider.gds_invalid_so_remove_goal(w, "While removing an input WME");
                 
                 // NOTE: the call to remove_wme_from_wm will take care
                 // of checking if GDS should be removed

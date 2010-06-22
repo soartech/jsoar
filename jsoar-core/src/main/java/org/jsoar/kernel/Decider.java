@@ -1736,7 +1736,7 @@ public class Decider
                   if (w.gds.getGoal() != null)
                   {
                       // If the goal pointer is non-NIL, then goal is in the stack
-                      gds_invalid_so_remove_goal(w, "Decider");
+                      gds_invalid_so_remove_goal(w, "While deciding non-context slot");
                   }
                }
                this.workingMemory.remove_wme_from_wm (w);
@@ -3029,15 +3029,17 @@ public class Decider
      * 
      * <p>decide.cpp:3040:gds_invalid_so_remove_goal
      * 
-     * @param w
+     * @param w the WME whose removal invalidated the GDS
+     * @param traceContext a string, possibly {@code null} indicating the 
+     *      context in which the WME was removed. 
      */
     public void gds_invalid_so_remove_goal(WmeImpl w, String traceContext)
     {
         // This trace was original copied in al the places where this method
         // was called.
-        context.getTrace().print(EnumSet.of(Category.GDS, Category.WM_CHANGES, Category.VERBOSE), 
-                "%n%s: Removing state %s because element in GDS changed. WME: %s",
-                traceContext, 
+        context.getTrace().print(EnumSet.of(Category.GDS, Category.VERBOSE), 
+                "%n%sRemoving state %s because element in GDS changed. WME: %s",
+                traceContext != null ? traceContext + ": " : "", 
                 w.gds.getGoal(), w);
         
         // #ifndef NO_TIMING_STUFF

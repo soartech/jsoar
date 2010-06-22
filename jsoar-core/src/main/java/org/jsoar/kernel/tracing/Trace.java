@@ -88,8 +88,8 @@ public class Trace
         /** New in jsoar for debugging waterfall */
         WATERFALL(-1),
         
-        /** New in JSoar for GDS goal removals and other info */
-        GDS(1);
+        /** New in JSoar for GDS goal removals and other info (TRACE_GDS_SYSPARAM) */
+        GDS(2);
         
         private final boolean defaultSetting;
         private final int watchLevel;
