@@ -8,9 +8,13 @@ package org.jsoar.kernel.memory;
 import java.util.FormattableFlags;
 import java.util.Formatter;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 
 import com.google.common.collect.Iterators;
@@ -30,6 +34,28 @@ public class DummyWme extends AbstractAdaptable implements Wme
     final private Symbol attr;
     final private Symbol value;
 
+    public static DummyWme create(SymbolFactory syms, Object id, Object attr, Object value)
+    {
+        return new DummyWme((Identifier) Symbols.create(syms, id), 
+                            Symbols.create(syms, attr),
+                            Symbols.create(syms, value));
+    }
+    
+    public static Set<Wme> create(SymbolFactory syms, Object... wmes)
+    {
+        if(wmes.length % 3 != 0)
+        {
+            throw new IllegalArgumentException("wmes must be a multiple of 3");
+        }
+                
+        final Set<Wme> result = new LinkedHashSet<Wme>();
+        for(int i = 0; i < wmes.length; i += 3)
+        {
+            result.add(DummyWme.create(syms, wmes[i], wmes[i+1], wmes[i+2]));
+        }
+        return result;
+    }
+    
     public DummyWme(Identifier id, Symbol attr, Symbol value)
     {
         this.id = id;

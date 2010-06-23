@@ -9,7 +9,6 @@ package org.jsoar.kernel;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,8 +18,11 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author ray
@@ -76,6 +78,9 @@ public class GDSTests extends FunctionalTestHarness
         testMultilevel();
     }
     
+    /**
+     * 
+     */
     private void testMultilevel()
     {
         List<Identifier> goals = agent.getGoalStack();
@@ -100,23 +105,18 @@ public class GDSTests extends FunctionalTestHarness
 //      (18: S1 ^c c)
 //      (23: S3 ^superstate S1)
         
-        Set<Wme> expected = new LinkedHashSet<Wme>();
-        expected.add(new DummyWme(sf.createIdentifier('P'), sf.createString("name"), sf.createString("top")));
-        expected.add(new DummyWme(sf.createIdentifier('S'), sf.createString("problem-space"), sf.createIdentifier('P')));
-        expected.add(new DummyWme(sf.createIdentifier('S'), sf.createString("attribute"), sf.createString("operator")));
-        expected.add(new DummyWme(sf.createIdentifier('S'), sf.createString("impasse"), sf.createString("no-change")));
-        expected.add(new DummyWme(sf.createIdentifier('S'), sf.createString("a"), sf.createString("a")));
-        expected.add(new DummyWme(sf.createIdentifier('S'), sf.createString("b"), sf.createString("b")));
-        expected.add(new DummyWme(sf.createIdentifier('S'), sf.createString("c"), sf.createString("c")));
-        expected.add(new DummyWme(sf.createIdentifier('S'), sf.createString("superstate"), sf.createIdentifier('S')));
+        Set<Wme> expected = DummyWme.create(sf, 
+                Symbols.NEW_ID, "name", "top",
+                Symbols.NEW_ID, "problem-space", Symbols.NEW_ID,
+                Symbols.NEW_ID, "attribute", "operator",
+                Symbols.NEW_ID, "impasse", "no-change",
+                Symbols.NEW_ID, "a", "a",
+                Symbols.NEW_ID, "b", "b",
+                Symbols.NEW_ID, "c", "c",
+                Symbols.NEW_ID, "superstate", Symbols.NEW_ID);
         
         // TODO: would be nice if I didn't have to construct the collection
-        Set<Wme> actual = new LinkedHashSet<Wme>();
-        final Iterator<Wme> itr = gds.getWmes();
-        while(itr.hasNext())
-        {
-            actual.add(itr.next());
-        }
+        final Set<Wme> actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
         
         // TODO: would be nice if this actually reported which wme didn't match
         assertTrue("Actual wmes don't match expected wmes", Wmes.equal(actual, expected, true));
@@ -145,12 +145,7 @@ public class GDSTests extends FunctionalTestHarness
         expected2.add(new DummyWme(sf.createIdentifier('S'), sf.createString("superstate"), sf.createIdentifier('S')));
         
         // TODO: would be nice if didn't have to construct the collection
-        Set<Wme> actual2 = new LinkedHashSet<Wme>();
-        final Iterator<Wme> itr2 = gds.getWmes();
-        while(itr2.hasNext())
-        {
-            actual2.add(itr2.next());
-        }
+        final Set<Wme> actual2 = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
         
         // TODO: would be nice if this actually reported which wme didn't match
         assertTrue("Actual wmes don't match expected wmes", Wmes.equal(actual2, expected2, true));
