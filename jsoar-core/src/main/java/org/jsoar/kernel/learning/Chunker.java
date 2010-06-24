@@ -1032,7 +1032,7 @@ public class Chunker
      * @param inst
      * @param allow_variablization
      */
-    public void chunk_instantiation(Instantiation inst, boolean allow_variablization)
+    public void chunk_instantiation(Instantiation inst, boolean allow_variablization, ByRef<Instantiation> custom_inst_list)
     {
         // if it only matched an attribute impasse, don't chunk
         if (inst.match_goal == null)
@@ -1222,6 +1222,9 @@ public class Chunker
         ProductionType prod_type = null;
         boolean print_name = false;
         boolean print_prod = false;
+        
+        // TODO: SMEM Check for LTI validity
+        
         if (this.variablize_this_chunk)
         {
             this.chunks_this_d_cycle++;
@@ -1418,10 +1421,10 @@ public class Chunker
         }
 
         // assert the preferences
-        recMemory.newly_created_instantiations = chunk_inst.insertAtHeadOfProdList(recMemory.newly_created_instantiations);
+        custom_inst_list.value = chunk_inst.insertAtHeadOfProdList(custom_inst_list.value);
 
         if (!maxChunksReached)
-            chunk_instantiation(chunk_inst, variablize_this_chunk);
+            chunk_instantiation(chunk_inst, variablize_this_chunk, custom_inst_list);
 
         //#ifndef NO_TIMING_STUFF
         //#ifdef DETAILED_TIMING_STATS

@@ -138,6 +138,8 @@ public class SymbolFactoryImpl implements SymbolFactory
         // collectors picks up symbols when it gets a chance. So, if we're 
         // reinitializing, it should be fine to throw out all the existing ids
         // and start over.
+        
+        // TODO: SMEM - Only clear non-LTIs?
         identifiers.clear();
                 
         for(int i = 0; i < id_counter.length; ++i)

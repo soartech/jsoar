@@ -53,6 +53,7 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.timing.ExecutionTimers;
@@ -746,7 +747,9 @@ public class RecognitionMemory
         this.production_being_fired = null;
 
         // build chunks/justifications if necessary
-        this.chunker.chunk_instantiation(inst, this.chunker.isLearningOn());
+        final ByRef<Instantiation> new_created_byref = ByRef.create(newly_created_instantiations);
+        this.chunker.chunk_instantiation(inst, this.chunker.isLearningOn(), new_created_byref);
+        newly_created_instantiations = new_created_byref.value;
 
         // TODO callback FIRING_CALLBACK
         //   if (!thisAgent->system_halted) {
@@ -1124,11 +1127,13 @@ public class RecognitionMemory
      * Add_preference_to_tm() adds a given preference to preference memory (and
      * hence temporary memory). 
      * 
-     * prefmem.cpp:203:add_preference_to_tm
+     * <p>prefmem.cpp:203:add_preference_to_tm
+     * 
+     * TODO I wish this was private, but smem and epmem use it.
      * 
      * @param pref
      */
-    private void add_preference_to_tm(Preference pref)
+    public void add_preference_to_tm(Preference pref)
     {
         // #ifdef DEBUG_PREFS
         // print (thisAgent, "\nAdd preference at 0x%8x: ",(unsigned long)pref);

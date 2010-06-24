@@ -102,7 +102,7 @@ public class SoarModule
      * @param conditions
      * @return
      */
-    public Preference make_fake_preference(IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value, Set<WmeImpl> conditions )
+    public static Preference make_fake_preference(IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value, Set<WmeImpl> conditions )
     {
         // make fake preference
         final Preference pref = new Preference(PreferenceType.ACCEPTABLE, id, attr, value, null);
