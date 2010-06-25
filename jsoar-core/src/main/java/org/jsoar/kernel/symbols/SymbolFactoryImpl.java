@@ -175,6 +175,23 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
+     * Added to support SMEM. If the current index for the given letter is less than the
+     * max value given, bump it up to max plus one.
+     * 
+     * <p> semantic_memory.cpp:1082:smem_reset_id_counters
+     * 
+     * @param name_letter_index
+     * @param letter_max
+     */
+    public void resetIdNumber(int name_letter_index, long letter_max)
+    {
+        if(id_counter[name_letter_index] <= letter_max)
+        {
+            id_counter[name_letter_index] = (int) letter_max + 1; // TODO SMEM make name numbers long
+        }
+    }
+    
+    /**
      * <p>symtab.cpp:195:find_variable
      * 
      * @param name

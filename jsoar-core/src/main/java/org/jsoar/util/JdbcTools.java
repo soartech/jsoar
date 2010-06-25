@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -70,6 +72,27 @@ public class JdbcTools
         finally
         {
             is.close();
+        }
+    }
+    
+    public static long insertAndGetRowId(PreparedStatement s) throws SQLException
+    {
+        s.executeUpdate();
+        final ResultSet keySet = s.getGeneratedKeys();
+        try
+        {
+            if(keySet.next())
+            {
+                return keySet.getLong(1);
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        finally
+        {
+            keySet.close();
         }
     }
 }

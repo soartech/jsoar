@@ -39,7 +39,7 @@ import com.google.common.collect.Iterators;
  */
 public class IdentifierImpl extends SymbolImpl implements Identifier
 {
-    private final int name_number;
+    private final int name_number; // TODO make this a long
     private final char name_letter;
     
     public boolean isa_goal;

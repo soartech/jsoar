@@ -73,5 +73,35 @@ public class JdbcToolsTest
             conn.close();
         }
     }
+    
+    @Test
+    public void testCanGetLastInsertedRowId() throws Exception
+    {
+        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+        try
+        {
+            Statement stat = conn.createStatement();
+            stat.executeUpdate("drop table if exists people;");
+            stat.executeUpdate("create table people (name, occupation);");
+            
+            final PreparedStatement prep = conn.prepareStatement("insert into people values (?, ?);");
+            prep.setString(1, "foo");
+            prep.setString(2, "bar");
+            assertEquals(1, JdbcTools.insertAndGetRowId(prep));
+            
+            prep.setString(1, "yum");
+            prep.setString(2, "bar");
+            assertEquals(2, JdbcTools.insertAndGetRowId(prep));
+            
+            prep.setString(1, "baz");
+            prep.setString(2, "bar");
+            assertEquals(3, JdbcTools.insertAndGetRowId(prep));
+        }
+        finally
+        {
+            conn.close();
+        }
+            
+    }
 
 }

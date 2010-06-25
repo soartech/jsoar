@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.smem;
 
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -30,17 +31,24 @@ public interface SemanticMemory
     void smem_attach();
     
     /**
-     * semantic_memory.h:smem_valid_production
+     * make sure ltis in actions are grounded
+     * 
+     * <p>semantic_memory.h:smem_valid_production
      */
     boolean smem_valid_production(Condition lhs_top, Action rhs_top);
     
     /**
-     * semantic_memory.h:smem_lti_get_id
+     * gets the lti id for an existing lti letter/number pair (or NIL if failure)
+     * 
+     * <p>semantic_memory.h:smem_lti_get_id
+     * @throws SoarException 
      */
-    long /*smem_lti_id*/ smem_lti_get_id(char name_letter, long name_number);
+    long /*smem_lti_id*/ smem_lti_get_id(char name_letter, long name_number) throws SoarException;
     
     /**
-     * semantic_memory.h:smem_lti_soar_make
+     * returns a reference to an lti
+     * 
+     * <p>semantic_memory.h:smem_lti_soar_make
      */
     IdentifierImpl smem_lti_soar_make(/*smem_lti_id*/ long lti, char name_letter, long name_number, /*goal_stack_level*/ int level);
     
@@ -51,8 +59,9 @@ public interface SemanticMemory
     
     /**
      * semantic_memory.h:smem_reset_id_counters
+     * @throws SoarException 
      */
-    void smem_reset_id_counters();
+    void smem_reset_id_counters() throws SoarException;
     
     /**
      * semantic_memory.h:smem_close
