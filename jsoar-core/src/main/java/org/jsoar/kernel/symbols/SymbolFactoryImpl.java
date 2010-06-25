@@ -183,12 +183,18 @@ public class SymbolFactoryImpl implements SymbolFactory
      * @param name_letter_index
      * @param letter_max
      */
-    public void resetIdNumber(int name_letter_index, long letter_max)
+    public void resetIdNumber(char name_letter, long letter_max)
     {
+        final int name_letter_index = name_letter - 'A'; 
         if(id_counter[name_letter_index] <= letter_max)
         {
             id_counter[name_letter_index] = (int) letter_max + 1; // TODO SMEM make name numbers long
         }
+    }
+    
+    public long getIdNumber(char name_letter)
+    {
+        return id_counter[name_letter - 'A'];
     }
     
     /**

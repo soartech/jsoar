@@ -43,6 +43,8 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
+import org.jsoar.util.adaptables.Adaptable;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.Marker;
 
 /**
@@ -76,7 +78,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     private static final long SMEM_ACT_MAX = (0-1)/ 2; // TODO???
 
-    private final Agent agent;
+    private SymbolFactoryImpl symbols;
     private RecognitionMemory recMem;
     private Chunker chunker;
     
@@ -91,15 +93,21 @@ public class DefaultSemanticMemory implements SemanticMemory
     /** agent.h:smem_max_cycle */
     private /*intptr_t*/ long smem_max_cycle;
     
-    private final SemanticMemorySymbols syms;
+    private final SemanticMemorySymbols predefinedSyms;
     
     private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, SemanticMemoryStateInfo>();
     
     public DefaultSemanticMemory(Agent agent)
     {
-        this.agent = agent;
+        this(agent, null);
+    }
+    
+    public DefaultSemanticMemory(Adaptable context, SemanticMemoryDatabase db)
+    {
+        this.db = db;
         
-        this.syms = new SemanticMemorySymbols(agent.getSymbols());
+        this.symbols = Adaptables.require(DefaultSemanticMemory.class, context, SymbolFactoryImpl.class);
+        this.predefinedSyms = new SemanticMemorySymbols(this.symbols);
     }
 
     private SemanticMemoryStateInfo smem_info(IdentifierImpl state)
@@ -250,18 +258,16 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     private Symbol smem_statement_to_symbol( ResultSet q, int type_field, int val_field ) throws SQLException
     {
-        final SymbolFactory syms = agent.getSymbols();
-        
         switch (q.getInt( type_field ) )
         {
             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                return syms.createString(q.getString(val_field));
+                return symbols.createString(q.getString(val_field));
 
             case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                return syms.createInteger(q.getInt(val_field));
+                return symbols.createInteger(q.getInt(val_field));
 
             case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                return syms.createDouble(q.getDouble(val_field));
+                return symbols.createDouble(q.getDouble(val_field));
 
             default:
                 return null;
@@ -661,7 +667,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param lti
      * @throws SQLException
      */
-    private void smem_lti_activate(/*smem_lti_id*/ long lti ) throws SQLException
+    void smem_lti_activate(/*smem_lti_id*/ long lti ) throws SQLException
     {
         ////////////////////////////////////////////////////////////////////////////
         // TODO SMEM Timers: my_agent->smem_timers->act->start();
@@ -723,7 +729,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 if (rs.next())
                 {
-                    return_val = rs.getLong(0);
+                    return_val = rs.getLong(0 + 1);
                 }
             }
             finally
@@ -751,7 +757,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @return
      * @throws SQLException
      */
-    private /*smem_lti_id*/ long smem_lti_add_id(char name_letter, long name_number) throws SQLException
+    long /*smem_lti_id*/ smem_lti_add_id(char name_letter, long name_number) throws SQLException
     {
         /*smem_lti_id*/ long return_val = 0;
 
@@ -807,15 +813,14 @@ public class DefaultSemanticMemory implements SemanticMemory
     public IdentifierImpl smem_lti_soar_make(/*smem_lti_id*/ long lti, char name_letter, long name_number, /*goal_stack_level*/ int level )
     {
         // semantic_memory.cpp:1053:smem_lti_soar_make
-        final SymbolFactoryImpl factory = (SymbolFactoryImpl) agent.getSymbols();
 
         // try to find existing
-        IdentifierImpl return_val = factory.findIdentifier(name_letter, (int) name_number); // TODO SMEM make name_number long
+        IdentifierImpl return_val = symbols.findIdentifier(name_letter, (int) name_number); // TODO SMEM make name_number long
 
         // otherwise create
         if ( return_val == null )
         {
-            return_val = factory.make_new_identifier(name_letter, level);
+            return_val = symbols.make_new_identifier(name_letter, level);
         }
         else
         {
@@ -842,8 +847,6 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         if(db != null /*my_agent->smem_db->get_status() == soar_module::connected*/ )
         {
-            final SymbolFactoryImpl factory = (SymbolFactoryImpl) agent.getSymbols();
-            
             try
             {
                 final ResultSet rs = db.lti_max.executeQuery();
@@ -852,13 +855,13 @@ public class DefaultSemanticMemory implements SemanticMemory
                     while (rs.next())
                     {
                         // letter, max
-                        long name_letter = rs.getLong(0);
-                        long letter_max = rs.getLong(1);
+                        final long name_letter = rs.getLong(0 + 1);
+                        final long letter_max = rs.getLong(1 + 1);
    
                         // shift to alphabet
-                        name_letter -= (long)( 'A' );
+                        // name_letter -= (long)( 'A' );
    
-                        factory.resetIdNumber((int) name_letter, letter_max);
+                        symbols.resetIdNumber((char) name_letter, letter_max);
                     }
                 }
                 finally
