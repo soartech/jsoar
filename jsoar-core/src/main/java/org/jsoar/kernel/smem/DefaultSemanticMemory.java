@@ -51,13 +51,40 @@ import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
 /**
- * smem_slot == List<smem_chunk_value> 
- * smem_slot_map == Map<SymbolImpl, List<smem_chunk_value>>
- * smem_str_to_chunk_map == Map<String, smem_chunk>
- * smem_sym_to_chunk_map = Map<SymbolImpl, smem_chunk>
- * smem_lti_set = Set<Long>
- * smem_weighted_cue_list = LinkedList<WeightedCueElement>
+ * Default implementation of {@link SemanticMemory}
  * 
+ * <h2>Variance from CSoar Implementation</h2>
+ * <p>The smem_data_struct that was added to every identifier in CSoar is instead maintained 
+ * in a map from id to {@link SemanticMemoryStateInfo} in this class. This structure is never
+ * accessed outside of SMem or in a way that would make a map too slow.
+ * 
+ * <h2>Notes on soardb/sqlite to JDBC conversion</h2>
+ * <ul>
+ * <li>When retrieving column values (e.g. {@code sqlite3_column_int}), columns are 
+ * 0-based. In JDBC, they are 1-based. So all column retrievals (in the initial port)
+ * have the original index and {@code + 1}. For example, {@code rs.getLong(2 + 1)}.
+ * <li>soardb tries to store ints as 32 or 64 bits depending on the platform. In this port,
+ * we're just using long (64 bits) everywhere. So {@code column_int()} maps to 
+ * {@code ResultSet.getLong()}.
+ * </ul> 
+ * <h2>Typedef mappings</h2>
+ * <ul>
+ * <li>uintptr_t == long
+ * <li>intptr_t == long
+ * <li>smem_hash_id == long
+ * <li>smem_lti_id == long
+ * <li>goal_stack_level == int
+ * <li>smem_lti_set = {@code Set<Long>}
+ * <li>smem_wme_list == {@code List<WmeImpl>}
+ * <li>smem_slot == {@code List<smem_chunk_value> }
+ * <li>smem_slot_map == {@code Map<SymbolImpl, List<smem_chunk_value>>}
+ * <li>smem_str_to_chunk_map == {@code Map<String, smem_chunk>}
+ * <li>smem_sym_to_chunk_map = {@code Map<SymbolImpl, smem_chunk>}
+ * <li>smem_lti_set = {@code Set<Long>}
+ * <li>smem_weighted_cue_list = {@code LinkedList<WeightedCueElement>}
+ * <li>smem_prioritized_activated_lti_queue = {@code PriorityQueue<ActivatedLti>}
+ * <li>tc_number = {@code Marker}
+ * </ul>
  * @author ray
  */
 public class DefaultSemanticMemory implements SemanticMemory
@@ -399,7 +426,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             if(rs.next())
             {
-                variable_value.value = rs.getLong(0);
+                variable_value.value = rs.getLong(0 + 1);
                 return true;
             }
             else
@@ -478,7 +505,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 {
                     if (rs.next())
                     {
-                        return_val = rs.getLong(0);
+                        return_val = rs.getLong(0 + 1);
                     }
                 }
                 finally
@@ -696,7 +723,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         try
         {
             rs.next();
-            lti_child_ct = rs.getLong(0);
+            lti_child_ct = rs.getLong(0 + 1);
         }
         finally { rs.close(); }
 
@@ -1867,4 +1894,6 @@ public class DefaultSemanticMemory implements SemanticMemory
             state = state.lower_goal;
         }
     }
+    
+
 }
