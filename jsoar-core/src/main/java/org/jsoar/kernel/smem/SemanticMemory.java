@@ -53,7 +53,9 @@ public interface SemanticMemory
     IdentifierImpl smem_lti_soar_make(/*smem_lti_id*/ long lti, char name_letter, long name_number, /*goal_stack_level*/ int level);
     
     /**
-     * semantic_memory.h:smem_reset
+     * Performs cleanup when a state is removed
+     * 
+     * <p>semantic_memory.h:smem_reset
      */
     void smem_reset(IdentifierImpl state);
     

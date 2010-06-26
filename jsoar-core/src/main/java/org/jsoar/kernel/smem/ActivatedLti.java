@@ -19,8 +19,8 @@ class ActivatedLti implements Comparable<ActivatedLti>
         return new PriorityQueue<ActivatedLti>();
     }
     
-    private final /*intptr_t*/ long first;
-    private final /*smem_lti_id*/ long second;
+    final /*intptr_t*/ long first;
+    final /*smem_lti_id*/ long second;
     
     public ActivatedLti(long first, long second)
     {

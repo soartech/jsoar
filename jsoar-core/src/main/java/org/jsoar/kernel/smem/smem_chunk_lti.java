@@ -5,12 +5,12 @@
  */
 package org.jsoar.kernel.smem;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * semantic_memory.h:323:smem_chunk_struct
@@ -18,7 +18,7 @@ import org.jsoar.kernel.symbols.Symbol;
  * 
  * @author ray
  */
-public class smem_chunk_lti
+public class smem_chunk_lti implements smem_chunk_value
 {
     IdentifierImpl soar_id;
     /*smem_lti_id*/ long lti_id;
@@ -26,5 +26,25 @@ public class smem_chunk_lti
     char lti_letter;
     /*uint64_t*/ long lti_number;
 
-    /*smem_slot_map*/ final Map<Symbol, List<smem_chunk_value>> slots = new HashMap<Symbol, List<smem_chunk_value>>();
+    /*smem_slot_map*/ Map<Symbol, List<smem_chunk_value>> slots;
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.smem_chunk_value#asConstant()
+     */
+    @Override
+    public SymbolImpl asConstant()
+    {
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.smem_chunk_value#asLti()
+     */
+    @Override
+    public smem_chunk_lti asLti()
+    {
+        return this;
+    }
+    
+    
 }

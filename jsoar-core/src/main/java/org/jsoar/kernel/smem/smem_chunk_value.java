@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.smem;
 
-import com.sun.java_cup.internal.runtime.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * @author ray
@@ -13,5 +13,5 @@ import com.sun.java_cup.internal.runtime.Symbol;
 public interface smem_chunk_value
 {
     smem_chunk_lti asLti();
-    Symbol asConstant();
+    SymbolImpl asConstant();
 }

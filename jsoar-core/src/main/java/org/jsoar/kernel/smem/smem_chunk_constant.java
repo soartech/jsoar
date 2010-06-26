@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.smem;
 
-import com.sun.java_cup.internal.runtime.Symbol;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * <p>semantic_memory.h:334:smem_chunk_value_constant
@@ -14,15 +14,15 @@ import com.sun.java_cup.internal.runtime.Symbol;
  */
 public class smem_chunk_constant implements smem_chunk_value
 {
-    private final Symbol val_value; 
+    private final SymbolImpl val_value; 
 
-    public smem_chunk_constant(Symbol valValue)
+    public smem_chunk_constant(SymbolImpl valValue)
     {
         val_value = valValue;
     }
 
     @Override
-    public Symbol asConstant()
+    public SymbolImpl asConstant()
     {
         return val_value;
     }

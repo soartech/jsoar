@@ -11,12 +11,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.lhs.Condition;
@@ -37,7 +40,6 @@ import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Symbols;
@@ -45,12 +47,17 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
 /**
  * smem_slot == List<smem_chunk_value> 
  * smem_slot_map == Map<SymbolImpl, List<smem_chunk_value>>
-
+ * smem_str_to_chunk_map == Map<String, smem_chunk>
+ * smem_sym_to_chunk_map = Map<SymbolImpl, smem_chunk>
+ * smem_lti_set = Set<Long>
+ * smem_weighted_cue_list = LinkedList<WeightedCueElement>
+ * 
  * @author ray
  */
 public class DefaultSemanticMemory implements SemanticMemory
@@ -81,6 +88,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     private SymbolFactoryImpl symbols;
     private RecognitionMemory recMem;
     private Chunker chunker;
+    private Decider decider;
     
     private SemanticMemoryDatabase db;
     
@@ -143,13 +151,11 @@ public class DefaultSemanticMemory implements SemanticMemory
         
     }
 
-    @Override
-    public void smem_reset(IdentifierImpl state)
+    private List<WmeImpl> smem_get_direct_augs_of_id( SymbolImpl sym)
     {
-        // TODO Auto-generated method stub
-        
+        return smem_get_direct_augs_of_id(sym, null);
     }
-
+    
     /**
      * semantic_memory.cpp:481:smem_get_direct_augs_of_id
      * 
@@ -256,18 +262,18 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @return
      * @throws SQLException
      */
-    private Symbol smem_statement_to_symbol( ResultSet q, int type_field, int val_field ) throws SQLException
+    private SymbolImpl smem_statement_to_symbol( ResultSet q, int type_field, int val_field ) throws SQLException
     {
         switch (q.getInt( type_field ) )
         {
             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                return symbols.createString(q.getString(val_field));
+                return symbols.createString(q.getString(val_field + 1));
 
             case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                return symbols.createInteger(q.getInt(val_field));
+                return symbols.createInteger(q.getInt(val_field + 1));
 
             case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                return symbols.createDouble(q.getDouble(val_field));
+                return symbols.createDouble(q.getDouble(val_field + 1));
 
             default:
                 return null;
@@ -350,6 +356,17 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
         }
     }
+    
+    private void smem_add_retrieved_wme(IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value )
+    {
+        _smem_add_wme( state, id, attr, value, false );
+    }
+
+    private void smem_add_meta_wme( IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value )
+    {
+        _smem_add_wme( state, id, attr, value, true );
+    }
+
     
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -698,7 +715,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             db.act_set.execute( /*soar_module::op_reinit*/ );
         }
 
-        //my_agent->smem_stmts->act_lti_child_ct_get->reinitialize();
+        //db.act_lti_child_ct_get->reinitialize();
 
         ////////////////////////////////////////////////////////////////////////////
         // TODO SMEM Timers: my_agent->smem_timers->act->stop();
@@ -742,7 +759,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             throw new SoarException(e.getMessage(), e);
         }
 
-        //my_agent->smem_stmts->lti_get->reinitialize();
+        //db.lti_get->reinitialize();
 
         return return_val;
     }
@@ -799,8 +816,9 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 id.smem_lti = smem_lti_add_id( id.getNameLetter(), id.getNameNumber() );
 
-                id.smem_time_id = 0; // TODO SMEM stats: my_agent->epmem_stats->time->get_value();
-                id.id_smem_valid = 0; // TODO SMEM WAH? my_agent->epmem_validation;
+                // TODO SMEM Uncomment and port these lines when epmem is working
+                // id.smem_time_id = my_agent->epmem_stats->time->get_value();
+                // id.id_smem_valid = my_agent->epmem_validation;
             }
         }
 
@@ -874,7 +892,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 throw new SoarException(e.getMessage(), e);
             }
 
-            // my_agent->smem_stmts->lti_max->reinitialize();
+            // db.lti_max->reinitialize();
         }
     }
     
@@ -894,5 +912,959 @@ public class DefaultSemanticMemory implements SemanticMemory
             slots.put(attr, s);
         }
         return s;
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:1128:smem_disconnect_chunk
+     * 
+     * @param parent_id
+     * @throws SQLException
+     */
+    void smem_disconnect_chunk(/*smem_lti_id*/ long parent_id ) throws SQLException
+    {
+        // adjust attribute counts
+        {
+            long counter = 0;
+            
+            // get all old counts
+            db.web_attr_ct.setLong( 1, parent_id );
+            final ResultSet webAttrCounts = db.web_attr_ct.executeQuery();
+            try
+            {
+                while (webAttrCounts.next())
+                {
+                    counter += webAttrCounts.getLong( 1 + 1);
+                    
+                    // adjust in opposite direction ( adjust, attribute )
+                    db.ct_attr_update.setLong( 1, -( webAttrCounts.getLong( 1 + 1) ) );
+                    db.ct_attr_update.setLong( 2, webAttrCounts.getLong( 0 + 1 ) );
+                    db.ct_attr_update.executeUpdate( /*soar_module::op_reinit*/ );
+                }
+            }
+            finally
+            {
+                webAttrCounts.close();
+            }
+            //db.web_attr_ct->reinitialize();
+
+            // TODO SMEM stats: my_agent->smem_stats->slots->set_value( my_agent->smem_stats->slots->get_value() - counter );
+        }
+
+        // adjust const counts
+        {
+            // get all old counts
+            db.web_const_ct.setLong( 1, parent_id );
+            final ResultSet webConstCounts = db.web_const_ct.executeQuery();
+            try
+            {
+                while ( webConstCounts.next() )
+                {
+                    // adjust in opposite direction ( adjust, attribute, const )
+                    db.ct_const_update.setLong( 1, -( webConstCounts.getLong( 2 + 1 ) ) );
+                    db.ct_const_update.setLong( 2, webConstCounts.getLong( 0 + 1 ) );
+                    db.ct_const_update.setLong( 3, webConstCounts.getLong( 1 + 1 ) );
+                    db.ct_const_update.executeUpdate( /*soar_module::op_reinit*/ );
+                }
+            }
+            finally
+            {
+                webConstCounts.close();
+            }
+            //db.web_const_ct->reinitialize();
+        }
+
+        // adjust lti counts
+        {
+            // get all old counts
+            db.web_lti_ct.setLong( 1, parent_id );
+            final ResultSet webLtiCounts = db.web_lti_ct.executeQuery();
+            try
+            {
+                while ( webLtiCounts.next() )
+                {
+                    // adjust in opposite direction ( adjust, attribute, lti )
+                    db.ct_lti_update.setLong( 1, -( webLtiCounts.getLong( 2 + 1 ) ) );
+                    db.ct_lti_update.setLong( 2, webLtiCounts.getLong( 0 + 1) );
+                    db.ct_lti_update.setLong( 3, webLtiCounts.getLong( 1 + 1) );
+                    db.ct_lti_update.executeUpdate( /*soar_module::op_reinit*/ );
+                }
+            }
+            finally
+            {
+                webLtiCounts.close();
+            }
+
+            //db.web_lti_ct->reinitialize();
+        }
+
+        // disconnect
+        {
+            db.web_truncate.setLong( 1, parent_id );
+            db.web_truncate.executeUpdate( /*soar_module::op_reinit*/ );
+        }
+    }
+
+    /**
+     * <p>semantic_memory.cpp:1187:smem_store_chunk
+     * 
+     * @param parent_id
+     * @param children
+     * @throws SQLException
+     */
+    void smem_store_chunk(/*smem_lti_id*/ long parent_id, Map<SymbolImpl, List<smem_chunk_value>> children) throws SQLException
+    {
+        smem_store_chunk(parent_id, children, true);
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:1187:smem_store_chunk
+     * 
+     * @param parent_id
+     * @param children
+     * @param remove_old_children
+     * @throws SQLException
+     */
+    void smem_store_chunk(/*smem_lti_id*/ long parent_id, Map<SymbolImpl, List<smem_chunk_value>> children, boolean remove_old_children /*= true*/ ) throws SQLException
+    {
+        long /*smem_hash_id*/ attr_hash = 0;
+        long /*smem_hash_id*/ value_hash = 0;
+        long /*smem_lti_id*/ value_lti = 0;
+
+        Map</*smem_hash_id*/ Long, Long> attr_ct_adjust= new HashMap<Long, Long>();
+        Map</*smem_hash_id*/ Long, Map</*smem_hash_id*/ Long, Long> > const_ct_adjust = new HashMap<Long, Map<Long,Long>>();
+        Map</*smem_hash_id*/ Long, Map</*smem_lti_id*/ Long, Long> > lti_ct_adjust = new HashMap<Long, Map<Long,Long>>();
+        long stat_adjust = 0;
+
+        long next_act_cycle = smem_max_cycle++;
+        
+        // clear web, adjust counts
+        long child_ct = 0;
+        if ( remove_old_children )
+        {
+            smem_disconnect_chunk( parent_id );
+        }
+        else
+        {
+            db.act_lti_child_ct_get.setLong( 1, parent_id );
+            final ResultSet rs = db.act_lti_child_ct_get.executeQuery();
+            try
+            {
+                child_ct = rs.getLong(0 + 1);
+            }
+            finally
+            {
+                rs.close();
+            }
+
+            // db.act_lti_child_ct_get->reinitialize();
+        }
+
+        // already above threshold?
+        long thresh = 0; // TODO SMEM Params: static_cast<unsigned long>( my_agent->smem_params->thresh->get_value() );
+        boolean before_above = ( child_ct >= thresh );
+
+        // get final count
+        {
+            for(Map.Entry<SymbolImpl, List<smem_chunk_value>> s : children.entrySet())
+            {
+                for(smem_chunk_value v : s.getValue())
+                {
+                    child_ct++; // TODO SMEM Just add size()?
+                }
+            }
+        }
+
+        // above threshold now?
+        boolean after_above = ( child_ct >= thresh );
+        long web_act_cycle = ( ( after_above )?( SMEM_ACT_MAX ):( next_act_cycle ) );
+
+        // if didn't clear and wasn't already above, need to update kids
+        if ( ( !remove_old_children ) && ( !before_above ) )
+        {
+            db.act_set.setLong( 1, web_act_cycle );
+            db.act_set.setLong( 2, parent_id );
+            db.act_set.executeUpdate( /*soar_module::op_reinit*/ );
+        }
+
+        // if above threshold, update parent activation
+        if ( after_above )
+        {
+            db.act_lti_set.setLong( 1, next_act_cycle );
+            db.act_lti_set.setLong( 2, parent_id );
+            db.act_lti_set.executeUpdate( /*soar_module::op_reinit*/ );
+        }
+
+        // for all slots
+        for (Map.Entry<SymbolImpl, List<smem_chunk_value>> s : children.entrySet())
+        {
+            // get attribute hash and contribute to count adjustment
+            attr_hash = smem_temporal_hash( s.getKey() );
+            final Long countForAttrHash = attr_ct_adjust.get(attr_hash);
+            attr_ct_adjust.put(attr_hash, countForAttrHash != null ? countForAttrHash + 1 : 0 + 1);
+            stat_adjust++;
+
+            // for all values in the slot
+            for (smem_chunk_value v : s.getValue())
+            {           
+                // most handling is specific to constant vs. identifier
+                final SymbolImpl constant = v.asConstant();
+                if ( constant != null )
+                {
+                    value_hash = smem_temporal_hash( constant );
+
+                    // parent_id, attr, val_const, val_lti, act_cycle
+                    db.web_add.setLong( 1, parent_id );
+                    db.web_add.setLong( 2, attr_hash );
+                    db.web_add.setLong( 3, value_hash );
+                    db.web_add.setNull( 4, java.sql.Types.NULL); //db.web_add->bind_null( 4 );
+                    db.web_add.setLong( 5, web_act_cycle );
+                    db.web_add.executeUpdate( /*soar_module::op_reinit*/ );
+
+                    // TODO SMEM clean this up
+                    Map<Long, Long> forHash = const_ct_adjust.get(attr_hash);
+                    if(forHash == null)
+                    {
+                        forHash = new HashMap<Long, Long>();
+                        const_ct_adjust.put(attr_hash, forHash);
+                    }
+                    final Long countForValueHash = forHash.get(value_hash);
+                    forHash.put(value_hash, countForValueHash != null ? countForValueHash + 1 : 0 + 1);
+                    //const_ct_adjust[ attr_hash ][ value_hash ]++;
+                }
+                else
+                {
+                    value_lti = v.asLti().lti_id; // (*v)->val_lti.val_value->lti_id;
+                    if ( value_lti == 0 )
+                    {
+                        value_lti = smem_lti_add_id( v.asLti().lti_letter, v.asLti().lti_number );
+                        v.asLti().lti_id = value_lti;
+
+                        if ( v.asLti().soar_id != null )
+                        {
+                            v.asLti().soar_id.smem_lti = value_lti;
+
+                            // TODO SMEM uncomment and implement when epmem is implemented
+                            // v.asLti().soar_id.smem_time_id = my_agent->epmem_stats->time->get_value();
+                            // v.asLti().soar_id.smem_valid = my_agent->epmem_validation;
+                        }
+                    }
+
+                    // parent_id, attr, val_const, val_lti, act_cycle
+                    db.web_add.setLong( 1, parent_id );
+                    db.web_add.setLong( 2, attr_hash );
+                    db.web_add.setNull(3, java.sql.Types.NULL); // db.web_add->bind_null( 3 );
+                    db.web_add.setLong( 4, value_lti );
+                    db.web_add.setLong( 5, web_act_cycle );
+                    db.web_add.executeUpdate( /*soar_module::op_reinit*/ );
+
+                    // add to counts
+                    // TODO SMEM clean this up
+                    Map<Long, Long> forHash = lti_ct_adjust.get(attr_hash);
+                    if(forHash == null)
+                    {
+                        forHash = new HashMap<Long, Long>();
+                        lti_ct_adjust.put(attr_hash, forHash);
+                    }
+                    final Long countForValueHash = forHash.get(value_lti);
+                    forHash.put(value_lti, countForValueHash != null ? countForValueHash + 1 : 0 + 1);
+                    
+                    //lti_ct_adjust[ attr_hash ][ value_lti ]++;
+                }
+            }
+        }
+
+        // update stat
+        {
+            // TODO SMEM Stats: my_agent->smem_stats->slots->set_value( my_agent->smem_stats->slots->get_value() + stat_adjust );
+        }
+
+        // update attribute counts
+        {
+            for(Map.Entry<Long, Long> p : attr_ct_adjust.entrySet())
+            {
+                // make sure counter exists (attr)
+                db.ct_attr_add.setLong( 1, p.getKey() );
+                db.ct_attr_add.executeUpdate( /*soar_module::op_reinit*/ );
+
+                // adjust count (adjustment, attr)
+                db.ct_attr_update.setLong( 1, p.getValue() );
+                db.ct_attr_update.setLong( 2, p.getKey() );
+                db.ct_attr_update.executeUpdate( /*soar_module::op_reinit*/ );
+            }
+        }
+
+        // update constant counts
+        {
+            for(Map.Entry<Long, Map<Long, Long>> p1 : const_ct_adjust.entrySet())
+            {
+                for(Map.Entry<Long, Long> p2 : p1.getValue().entrySet())
+                {
+                    // make sure counter exists (attr, val)
+                    db.ct_const_add.setLong( 1, p1.getKey() );
+                    db.ct_const_add.setLong( 2, p2.getKey() );
+                    db.ct_const_add.executeUpdate( /*soar_module::op_reinit*/ );
+
+                    // adjust count (adjustment, attr, val)
+                    db.ct_const_update.setLong( 1, p2.getValue() );
+                    db.ct_const_update.setLong( 2, p1.getKey() );
+                    db.ct_const_update.setLong( 3, p2.getKey() );
+                    db.ct_const_update.executeUpdate( /*soar_module::op_reinit*/ );
+                }
+            }
+        }
+
+        // update lti counts
+        {
+            for(Map.Entry<Long, Map<Long, Long>> p1 : lti_ct_adjust.entrySet())
+            {
+                for(Map.Entry<Long, Long> p2 : p1.getValue().entrySet())
+                {
+                    // make sure counter exists (attr, lti)
+                    db.ct_lti_add.setLong( 1, p1.getKey() );
+                    db.ct_lti_add.setLong( 2, p2.getKey() );
+                    db.ct_lti_add.executeUpdate( /*soar_module::op_reinit*/ );
+
+                    // adjust count (adjustment, attr, lti)
+                    db.ct_lti_update.setLong( 1, p2.getValue() );
+                    db.ct_lti_update.setLong( 2, p1.getKey() );
+                    db.ct_lti_update.setLong( 3, p2.getKey() );
+                    db.ct_lti_update.executeUpdate( /*soar_module::op_reinit*/ );
+                }
+            }
+        }
+
+        // update child count
+        {
+            db.act_lti_child_ct_set.setLong( 1, child_ct );
+            db.act_lti_child_ct_set.setLong( 2, parent_id );
+            db.act_lti_child_ct_set.executeUpdate( /*soar_module::op_reinit*/ );
+        }
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:1387:smem_soar_store
+     * 
+     * @param id
+     * @param store_type
+     * @throws SQLException
+     * @throws SoarException
+     */
+    void smem_soar_store(IdentifierImpl id, smem_storage_type store_type) throws SQLException, SoarException
+    {
+        smem_soar_store(id, store_type, null);
+    }
+
+    /**
+     * <p>semantic_memory.cpp:1387:smem_soar_store
+     * 
+     * @param id
+     * @param store_type
+     * @param tc
+     * @throws SQLException
+     * @throws SoarException
+     */
+    void smem_soar_store(IdentifierImpl id, smem_storage_type store_type /*= store_level*/, /*tc_number*/ Marker tc /*= null*/) throws SQLException, SoarException
+    {
+        // transitive closure only matters for recursive storage
+        if ( ( store_type == smem_storage_type.store_recursive ) && ( tc == null ) )
+        {
+            tc = DefaultMarker.create();
+        }
+
+        // get level
+        final List<WmeImpl> children = smem_get_direct_augs_of_id( id, tc );
+
+        // encode this level
+        {
+            final Map<SymbolImpl, smem_chunk_value> sym_to_chunk = new HashMap<SymbolImpl, smem_chunk_value>();
+            //smem_chunk **c;
+
+            Map<SymbolImpl, List<smem_chunk_value>> slots = new HashMap<SymbolImpl, List<smem_chunk_value>>();
+
+            for (WmeImpl w : children)
+            {
+                // get slot
+                final List<smem_chunk_value> s = smem_make_slot( slots , w.attr );
+
+                // create value, per type
+                final smem_chunk_value v;
+                if ( smem_symbol_is_constant( w.value ) )
+                {
+                    v = new smem_chunk_constant(w.value);
+                }
+                else
+                {
+                    // try to find existing chunk
+                    smem_chunk_value c = sym_to_chunk.get(w.value);
+                    // if doesn't exist, add; else use existing
+                    if(c == null)
+                    {
+                        final smem_chunk_lti lti = new smem_chunk_lti();
+                        lti.lti_id = w.value.asIdentifier().smem_lti;
+                        lti.lti_letter = w.value.asIdentifier().getNameLetter();
+                        lti.lti_number = w.value.asIdentifier().getNameNumber();
+                        lti.slots = null;
+                        lti.soar_id = w.value.asIdentifier();
+                        
+                        c = lti;
+                    }
+                    v = c;
+                }
+
+                // add value to slot
+                s.add( v );
+            }
+
+            smem_store_chunk( smem_lti_soar_add( id ), slots);
+
+            // clean up
+            /*
+            {
+                // de-allocate slots
+                for ( s_p=slots.begin(); s_p!=slots.end(); s_p++ )
+                {
+                    for ( v_p=s_p->second->begin(); v_p!=s_p->second->end(); v_p++ )
+                    {
+                        delete (*v_p);
+                    }
+
+                    delete s_p->second;
+                }
+
+                // de-allocate chunks
+                for ( c_p=sym_to_chunk.begin(); c_p!=sym_to_chunk.end(); c_p++ )
+                {
+                    delete c_p->second;
+                }
+            }
+            */
+        }
+
+        // recurse as necessary
+        if ( store_type == smem_storage_type.store_recursive )
+        {
+            for (WmeImpl w : children)
+            {
+                if ( !smem_symbol_is_constant( w.value ) )
+                {
+                    smem_soar_store( w.value.asIdentifier(), store_type, tc );
+                }
+            }
+        }
+
+        // clean up child wme list
+        //delete children;
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:1494:smem_install_memory
+     * 
+     * @param state
+     * @param parent_id
+     * @throws SQLException
+     */
+    void smem_install_memory(IdentifierImpl state, long /*smem_lti_id*/ parent_id) throws SQLException
+    {
+        smem_install_memory(state, parent_id, null);
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:1494:smem_install_memory
+     * 
+     * @param state
+     * @param parent_id
+     * @param lti
+     * @throws SQLException
+     */
+    void smem_install_memory(IdentifierImpl state, long /*smem_lti_id*/ parent_id, IdentifierImpl lti /*= NIL*/ ) throws SQLException
+    {
+        ////////////////////////////////////////////////////////////////////////////
+        // TODO SMEM Timers: my_agent->smem_timers->ncb_retrieval->start();
+        ////////////////////////////////////////////////////////////////////////////
+
+        // get the ^result header for this state
+        final SemanticMemoryStateInfo info = smem_info(state);
+        final IdentifierImpl result_header = info.smem_result_header;
+
+        // get identifier if not known
+        boolean lti_created_here = false;
+        if ( lti == null )
+        {
+            db.lti_letter_num.setLong(1, parent_id);
+            final ResultSet rs = db.lti_letter_num.executeQuery();
+            try
+            {
+                lti = smem_lti_soar_make( parent_id, 
+                        (char) rs.getLong(0 + 1), 
+                        rs.getLong(1 + 1), 
+                        result_header.level );
+            }
+            finally
+            {
+                rs.close();
+            }
+            lti_created_here = true;
+        }
+
+        // activate lti
+        smem_lti_activate(parent_id);
+
+        // point retrieved to lti
+        smem_add_meta_wme(state, result_header, predefinedSyms.smem_sym_retrieved, lti );
+        if ( lti_created_here )
+        {
+            // if the identifier was created above we need to
+            // remove a single ref count AFTER the wme
+            // is added (such as to not deallocate the symbol
+            // prematurely)
+            // Not needed in JSoar
+            // symbol_remove_ref( my_agent, lti );
+        }   
+
+        // if no children, then retrieve children
+        if ( ( lti.getImpasseWmes() == null ) &&
+             ( lti.getInputWmes() == null ) &&
+             ( lti.slots == null ) )
+        {
+            // get direct children: attr_const, attr_type, value_const, value_type, value_letter, value_num, value_lti
+            db.web_expand.setLong( 1, parent_id );
+            final ResultSet rs = db.web_expand.executeQuery();
+            while (rs.next())
+            {
+                // make the identifier symbol irrespective of value type
+                final SymbolImpl attr_sym = smem_statement_to_symbol( rs, 1, 0 );
+
+                // identifier vs. constant
+                final SymbolImpl value_sym;
+                if(rs.getMetaData().getColumnType(2 + 1) == java.sql.Types.NULL)
+                {
+                    value_sym = smem_lti_soar_make(rs.getLong(6 + 1), 
+                                                   (char) rs.getLong(4 + 1), 
+                                                   rs.getLong(5 + 1), 
+                                                   lti.level );
+                }
+                else
+                {
+                    value_sym = smem_statement_to_symbol( rs, 3, 2 );
+                }
+
+                // add wme
+                smem_add_retrieved_wme( state, lti, attr_sym, value_sym );
+
+                // deal with ref counts - attribute/values are always created in this function
+                // (thus an extra ref count is set before adding a wme)
+                // Not needed in JSoar
+                //symbol_remove_ref( my_agent, attr_sym );
+                //symbol_remove_ref( my_agent, value_sym );
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        // TODO SMEM Timers: my_agent->smem_timers->ncb_retrieval->stop();
+        ////////////////////////////////////////////////////////////////////////////
+    }
+
+    /**
+     * <p>semantic_memory.cpp:1582:smem_process_query
+     * 
+     * @param state
+     * @param query
+     * @param prohibit
+     * @return
+     * @throws SQLException
+     */
+    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, 
+            Set<Long> /*smem_lti_set*/ prohibit) throws SQLException
+    {
+        return smem_process_query(state, query, prohibit, smem_query_levels.qry_full);
+    }
+
+    /**
+     * <p>semantic_memory.cpp:1582:smem_process_query
+     * 
+     * @param state
+     * @param query
+     * @param prohibit
+     * @param query_level
+     * @return
+     * @throws SQLException
+     */
+    long /*smem_lti_id*/ smem_process_query(IdentifierImpl state, IdentifierImpl query, 
+            Set<Long> /*smem_lti_set*/ prohibit, 
+            smem_query_levels query_level /*= qry_full*/ ) throws SQLException
+    {   
+        final SemanticMemoryStateInfo smem_info = smem_info(state);
+        final LinkedList<WeightedCueElement> weighted_cue = new LinkedList<WeightedCueElement>();    
+        boolean good_cue = true;
+
+        long /*smem_lti_id*/ king_id = 0;
+
+        ////////////////////////////////////////////////////////////////////////////
+        // TODO SMEM Timers: my_agent->smem_timers->query->start();
+        ////////////////////////////////////////////////////////////////////////////
+
+        // prepare query stats
+        {
+            final PriorityQueue<WeightedCueElement> weighted_pq = WeightedCueElement.newPriorityQueue();
+            
+            final List<WmeImpl> cue = smem_get_direct_augs_of_id( query );
+
+            smem_cue_element_type element_type = smem_cue_element_type.attr_t;
+
+            for (WmeImpl w : cue)
+            {
+                smem_info.cue_wmes.add( w );
+
+                if ( good_cue )
+                {
+                    // we only have to do hard work if
+                    final long attr_hash = smem_temporal_hash( w.attr, false );
+                    if ( attr_hash != 0 )
+                    {
+                        long value_lti = 0;
+                        long value_hash = 0;
+                        PreparedStatement q = null;
+                        if ( smem_symbol_is_constant( w.value ) )
+                        {
+                            value_lti = 0;
+                            value_hash = smem_temporal_hash( w.value, false );
+
+                            if ( value_hash != 0 )
+                            {
+                                q = db.ct_const_get;
+                                q.setLong( 1, attr_hash );
+                                q.setLong( 2, value_hash );
+
+                                element_type = smem_cue_element_type.value_const_t;
+                            }
+                            else
+                            {
+                                good_cue = false;
+                            }
+                        }
+                        else
+                        {
+                            value_lti = w.value.asIdentifier().smem_lti;
+                            value_hash = 0;
+
+                            if ( value_lti == 0 )
+                            {
+                                q = db.ct_attr_get;
+                                q.setLong( 1, attr_hash );
+
+                                element_type = smem_cue_element_type.attr_t;
+                            }
+                            else
+                            {
+                                q = db.ct_lti_get;
+                                q.setLong( 1, attr_hash );
+                                q.setLong( 2, value_lti );
+
+                                element_type = smem_cue_element_type.value_lti_t;
+                            }
+                        }
+
+                        if ( good_cue )
+                        {
+                            final ResultSet rs = q.executeQuery();
+                            try
+                            {
+                                if ( rs.next() )
+                                {
+                                    final WeightedCueElement new_cue_element = new WeightedCueElement();
+    
+                                    new_cue_element.weight = rs.getLong( 0 + 1);
+                                    new_cue_element.attr_hash = attr_hash;
+                                    new_cue_element.value_hash = value_hash;
+                                    new_cue_element.value_lti = value_lti;
+                                    new_cue_element.cue_element = w;
+    
+                                    new_cue_element.element_type = element_type;
+    
+                                    weighted_pq.add( new_cue_element );
+                                }
+                                else
+                                {
+                                    good_cue = false;
+                                }
+                            }
+                            finally
+                            {
+                                rs.close();
+                            }
+
+                            //q->reinitialize();
+                        }
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+            }
+
+            // if valid cue, transfer priority queue to list
+            if ( good_cue )
+            {
+                while ( !weighted_pq.isEmpty() )
+                {
+                    weighted_cue.add( weighted_pq.remove() ); // top()/pop()
+                }
+            }
+            // else deallocate priority queue contents
+            else
+            {
+                while ( !weighted_pq.isEmpty() )
+                {
+                    weighted_pq.remove(); // top()/pop()
+                }
+            }
+
+            // clean cue irrespective of validity
+            //delete cue;
+        }
+
+        // only search if the cue was valid
+        if ( good_cue && !weighted_cue.isEmpty() )
+        {
+            final WeightedCueElement first_element = weighted_cue.iterator().next();
+
+            PreparedStatement q = null;
+            PreparedStatement q2 = null;
+
+            long /*smem_lti_id*/ cand;
+            boolean good_cand;
+            
+            // setup first query, which is sorted on activation already
+            {
+                if ( first_element.element_type == smem_cue_element_type.attr_t )
+                {
+                    // attr=?
+                    q = db.web_attr_all;
+                }
+                else if ( first_element.element_type == smem_cue_element_type.value_const_t )
+                {
+                    // attr=? AND val_const=?
+                    q = db.web_const_all;
+                    q.setLong( 2, first_element.value_hash );
+                }
+                else if ( first_element.element_type == smem_cue_element_type.value_lti_t )
+                {
+                    // attr=? AND val_lti=?
+                    q = db.web_lti_all;
+                    q.setLong( 2, first_element.value_lti );
+                }
+
+                // all require hash as first parameter
+                q.setLong( 1, first_element.attr_hash );
+            }
+
+            final ResultSet qrs = q.executeQuery();
+            try
+            {
+            if ( qrs.next() )
+            {
+                final PriorityQueue<ActivatedLti> plentiful_parents = ActivatedLti.newPriorityQueue();
+                boolean more_rows = true;
+                boolean use_db = false;
+
+                while ( more_rows && ( qrs.getLong( 1 + 1 ) == SMEM_ACT_MAX ) )
+                {
+                    db.act_lti_get.setLong( 1, qrs.getLong( 0 + 1 ) );
+                    final ResultSet actLtiGetRs = db.act_lti_get.executeQuery();
+                    try
+                    {
+                        plentiful_parents.add(new ActivatedLti(actLtiGetRs.getLong( 0 + 1 ), 
+                                                               qrs.getLong( 0 + 1 ) ) );
+                    }
+                    finally
+                    {
+                        actLtiGetRs.close();
+                    }
+                    //my_agent->smem_stmts->act_lti_get->reinitialize();
+
+                    more_rows = qrs.next(); //( q->execute() == soar_module::row );
+                }
+
+                while ( ( king_id == 0 ) && ( ( more_rows ) || ( !plentiful_parents.isEmpty() ) ) )
+                {
+                    // choose next candidate (db vs. priority queue)
+                    {               
+                        use_db = false;
+                        
+                        if ( !more_rows )
+                        {
+                            use_db = false;
+                        }
+                        else if ( plentiful_parents.isEmpty() )
+                        {
+                            use_db = true;
+                        }
+                        else
+                        {
+                            use_db = ( qrs.getLong( 1 + 1) >  plentiful_parents.peek().first );                       
+                        }
+
+                        if ( use_db )
+                        {
+                            cand = qrs.getLong( 0 + 1 );
+                            more_rows = qrs.next(); // ( q->execute() == soar_module::row );
+                        }
+                        else
+                        {
+                            cand = plentiful_parents.remove().second; // top()/pop()
+                        }
+                    }
+
+                    // if not prohibited, submit to the remaining cue elements
+                    if (!prohibit.contains(cand))
+                    {
+                        good_cand = true;
+
+                        final Iterator<WeightedCueElement> it = weighted_cue.iterator();
+                        it.next(); // skip first element
+                        for ( ; ( ( good_cand ) && ( it.hasNext() ) );  )
+                        {
+                            final WeightedCueElement next_element = it.next();
+                            if ( next_element.element_type == smem_cue_element_type.attr_t )
+                            {
+                                // parent=? AND attr=?
+                                q2 = db.web_attr_child;
+                            }
+                            else if ( next_element.element_type == smem_cue_element_type.value_const_t )
+                            {
+                                // parent=? AND attr=? AND val_const=?
+                                q2 = db.web_const_child;
+                                q2.setLong( 3, next_element.value_hash );
+                            }
+                            else if ( next_element.element_type == smem_cue_element_type.value_lti_t )
+                            {
+                                // parent=? AND attr=? AND val_lti=?
+                                q2 = db.web_lti_child;
+                                q2.setLong( 3, next_element.value_lti );
+                            }
+
+                            // all require own id, attribute
+                            q2.setLong( 1, cand );
+                            q2.setLong( 2, next_element.attr_hash );
+
+                            final ResultSet q2rs = q2.executeQuery();
+                            try
+                            {
+                                good_cand = q2rs.next(); //( q2->execute( soar_module::op_reinit ) == soar_module::row );
+                            }
+                            finally
+                            {
+                                q2rs.close();
+                            }
+                        }
+
+                        if ( good_cand )
+                        {
+                            king_id = cand;
+                        }
+                    }
+                }
+            }
+            }
+            finally
+            {
+                qrs.close();
+            }
+            //q->reinitialize();      
+
+            // clean weighted cue
+            // Not needed in JSoar
+//            for ( next_element=weighted_cue.begin(); next_element!=weighted_cue.end(); next_element++ )
+//            {
+//                delete (*next_element);
+//            }
+        }
+
+        // reconstruction depends upon level
+        if ( query_level == smem_query_levels.qry_full )
+        {
+            // produce results
+            if ( king_id != 0 )
+            {
+                // success!
+                smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_success, query );
+
+                ////////////////////////////////////////////////////////////////////////////
+                // TODO SMEM Timers: my_agent->smem_timers->query->stop();
+                ////////////////////////////////////////////////////////////////////////////
+
+                smem_install_memory( state, king_id );
+            }
+            else
+            {
+                smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_failure, query );
+
+                ////////////////////////////////////////////////////////////////////////////
+                // TODO SMEM Timers: my_agent->smem_timers->query->stop();
+                ////////////////////////////////////////////////////////////////////////////
+            }
+        }
+        else
+        {
+            ////////////////////////////////////////////////////////////////////////////
+            // TODO SMEM Timers: my_agent->smem_timers->query->stop();
+            ////////////////////////////////////////////////////////////////////////////
+        }
+
+        return king_id;
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:1892:smem_clear_result
+     * 
+     * @param state
+     */
+    void smem_clear_result( IdentifierImpl state )
+    {
+        final SemanticMemoryStateInfo smem_info = smem_info(state);
+        while ( !smem_info.smem_wmes.isEmpty())
+        {
+            final Preference pref = smem_info.smem_wmes.remove(); // top()/pop()
+
+            if ( pref.isInTempMemory() )
+            {
+                recMem.remove_preference_from_tm( pref );
+            }
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.SemanticMemory#smem_reset(org.jsoar.kernel.symbols.IdentifierImpl)
+     */
+    @Override
+    public void smem_reset(IdentifierImpl state )
+    {
+        // semantic_memory.cpp:1913:smem_reset
+        if ( state == null )
+        {
+            state = decider.top_goal;
+        }
+
+        while( state != null )
+        {
+            final SemanticMemoryStateInfo data = smem_info(state);
+            
+            data.last_cmd_time[0] = 0;
+            data.last_cmd_time[1] = 0;
+            data.last_cmd_count[0] = 0;
+            data.last_cmd_count[1] = 0;
+
+            data.cue_wmes.clear();
+            
+            // this will be called after prefs from goal are already removed,
+            // so just clear out result stack
+            while ( !data.smem_wmes.isEmpty() )
+            {
+                data.smem_wmes.pop();
+            }       
+
+            state = state.lower_goal;
+        }
     }
 }

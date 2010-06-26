@@ -6,7 +6,8 @@
 package org.jsoar.kernel.smem;
 
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * Standard symbols used by smem.
@@ -21,10 +22,10 @@ class SemanticMemorySymbols
     public final Symbol smem_sym_cmd;
     public final Symbol smem_sym_result;
 
-    public final Symbol smem_sym_retrieved;
+    public final SymbolImpl smem_sym_retrieved;
     public final Symbol smem_sym_status;
-    public final Symbol smem_sym_success;
-    public final Symbol smem_sym_failure;
+    public final SymbolImpl smem_sym_success;
+    public final SymbolImpl smem_sym_failure;
     public final Symbol smem_sym_bad_cmd;
 
     public final Symbol smem_sym_retrieve;
@@ -32,7 +33,7 @@ class SemanticMemorySymbols
     public final Symbol smem_sym_prohibit;
     public final Symbol smem_sym_store;
     
-    public SemanticMemorySymbols(SymbolFactory syms)
+    public SemanticMemorySymbols(SymbolFactoryImpl syms)
     {
         // symtab.cpp:create_predefined_symbols
         smem_sym = syms.createString( "smem" );
