@@ -135,9 +135,9 @@ public class DefaultSemanticMemory implements SemanticMemory
     
     private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, SemanticMemoryStateInfo>();
     
-    public DefaultSemanticMemory(Agent agent)
+    public DefaultSemanticMemory(Adaptable context)
     {
-        this(agent, null);
+        this(context, null);
     }
     
     public DefaultSemanticMemory(Adaptable context, SemanticMemoryDatabase db)
@@ -148,6 +148,11 @@ public class DefaultSemanticMemory implements SemanticMemory
         this.predefinedSyms = new SemanticMemorySymbols(this.symbols);
     }
 
+    SemanticMemoryDatabase getDatabase()
+    {
+        return db;
+    }
+    
     private SemanticMemoryStateInfo smem_info(IdentifierImpl state)
     {
         return stateInfos.get(state);

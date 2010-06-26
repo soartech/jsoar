@@ -77,4 +77,14 @@ public class DefaultSemanticMemoryTest
             expected_number++;
         }
     }
+    
+    @Test
+    public void testCanInitializeTheDatabase() throws Exception
+    {
+        final DefaultSemanticMemory smem = new DefaultSemanticMemory(context);
+        assertNull(smem.getDatabase());
+        smem.smem_attach();
+        assertNotNull(smem.getDatabase());
+        assertFalse(smem.getDatabase().getConnection().isClosed());
+    }
 }
