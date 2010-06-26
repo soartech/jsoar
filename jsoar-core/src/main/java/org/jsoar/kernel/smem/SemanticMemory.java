@@ -27,8 +27,9 @@ public interface SemanticMemory
     
     /**
      * semantic_memory.h:SMEM_LTI_UNKNOWN_LEVEL
+     * @throws SoarException 
      */
-    void smem_attach();
+    void smem_attach() throws SoarException;
     
     /**
      * make sure ltis in actions are grounded
@@ -66,9 +67,12 @@ public interface SemanticMemory
     void smem_reset_id_counters() throws SoarException;
     
     /**
+     * Performs cleanup operations when the database needs to be closed (end soar, manual close, etc)
+     * 
      * semantic_memory.h:smem_close
+     * @throws SoarException 
      */
-    void smem_close();
+    void smem_close() throws SoarException;
     
     /**
      * semantic_memory.h:smem_go

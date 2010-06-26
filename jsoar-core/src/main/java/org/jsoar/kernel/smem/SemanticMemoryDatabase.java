@@ -80,6 +80,11 @@ class SemanticMemoryDatabase
         this.db = db;
     }
 
+    Connection getConnection()
+    {
+        return this.db;
+    }
+    
     void structure() throws SoarException, IOException
     {
         final InputStream is = SemanticMemoryDatabase.class.getResourceAsStream("structures.sql");

@@ -5,9 +5,12 @@
  */
 package org.jsoar.kernel.smem;
 
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -150,20 +153,6 @@ public class DefaultSemanticMemory implements SemanticMemory
         return stateInfos.get(state);
     }
     
-    @Override
-    public void smem_attach()
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void smem_close()
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
     @Override
     public boolean smem_enabled()
     {
@@ -1895,5 +1884,259 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
     }
     
+    /**
+     * Opens the SQLite database and performs all initialization required for
+     * the current mode
+     * 
+     * <p>semantic_memory.cpp:1952:smem_init_db
+     * 
+     * @throws SoarException
+     * @throws SQLException
+     * @throws IOException
+     */
+    void smem_init_db() throws SoarException, SQLException, IOException
+    {
+        smem_init_db(false);
+    }
 
+    /**
+     * Opens the SQLite database and performs all initialization required for
+     * the current mode
+     * 
+     * The readonly param should only be used in experimentation where you don't
+     * want to alter previous database state.
+     * 
+     * <p>semantic_memory.cpp:1952:smem_init_db
+     * 
+     * @param readonly
+     * @throws SoarException
+     * @throws SQLException
+     * @throws IOException
+     */
+    void smem_init_db(boolean readonly /*= false*/ ) throws SoarException, SQLException, IOException
+    {
+        if (db != null /* my_agent->smem_db->get_status() != soar_module::disconnected */ )
+        {
+            return;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        // TODO SMEM Timers my_agent->smem_timers->init->start();
+        ////////////////////////////////////////////////////////////////////////////
+        final String db_path;
+        if (true /* TODO SMEM Params: my_agent->smem_params->database->get_value() == smem_param_container::memory*/ )
+        {
+            db_path = ":memory:";
+        }
+        else
+        {
+            db_path = ""; // my_agent->smem_params->path->get_value();
+        }
+        
+        // attempt connection
+        final Connection connection = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite:" + db_path);
+        try
+        {
+            db = new SemanticMemoryDatabase(connection);
+        }
+        catch(SoarException e)
+        {
+            connection.close();
+            throw e;
+        }
+
+        // temporary queries for one-time init actions
+
+        // apply performance options
+        {
+            // cache
+            {
+                final int cacheSize = 5000;
+                // TODO SMEM Params: cache size
+                /*
+                switch ( my_agent->smem_params->cache->get_value() )
+                {
+                    // 5MB cache
+                    case ( smem_param_container::cache_S ):
+                        temp_q = new soar_module::sqlite_statement( my_agent->smem_db, "PRAGMA cache_size = 5000" );
+                        break;
+
+                    // 20MB cache
+                    case ( smem_param_container::cache_M ):
+                        temp_q = new soar_module::sqlite_statement( my_agent->smem_db, "PRAGMA cache_size = 20000" );
+                        break;
+
+                    // 100MB cache
+                    case ( smem_param_container::cache_L ):
+                        temp_q = new soar_module::sqlite_statement( my_agent->smem_db, "PRAGMA cache_size = 100000" );
+                        break;
+                }
+                */
+                final Statement s = db.getConnection().createStatement();
+                s.execute("PRAGMA cache_size = " + cacheSize);
+            }
+
+            // optimization
+            if (false /* TODO SMEM Params: my_agent->smem_params->opt->get_value() == smem_param_container::opt_speed */)
+            {
+                // synchronous - don't wait for writes to complete (can corrupt the db in case unexpected crash during transaction)
+                final Statement s = db.getConnection().createStatement();
+                s.execute("PRAGMA synchronous = OFF" );
+
+                // journal_mode - no atomic transactions (can result in database corruption if crash during transaction)
+                s.execute("PRAGMA journal_mode = OFF" );
+                
+                // locking_mode - no one else can view the database after our first write
+                s.execute("PRAGMA locking_mode = EXCLUSIVE" );
+            }
+        }
+
+        // update validation count
+        smem_validation++;
+
+        // setup common structures/queries
+        db.structure();
+        db.prepare();
+
+        // reset identifier counters
+        smem_reset_id_counters();
+
+        db.begin.executeUpdate( /*soar_module::op_reinit*/ );
+
+        if ( !readonly )
+        {
+            final ByRef<Long> tempMaxCycle = ByRef.create(smem_max_cycle);
+            if ( !smem_variable_get( smem_variable_key.var_max_cycle, tempMaxCycle ) )
+            {
+                smem_max_cycle = 1;
+            }
+            else
+            {
+                smem_max_cycle = tempMaxCycle.value;
+            }
+
+            {
+                ByRef<Long> temp = ByRef.create(0L);
+
+                // threshold
+                if ( smem_variable_get(smem_variable_key.var_act_thresh, temp ) )
+                {
+                    // TODO SMEM Params: my_agent->smem_params->thresh->set_value( static_cast<long>( temp ) );
+                }
+                else
+                {
+                    smem_variable_set(smem_variable_key.var_act_thresh, 0L /* TODO SMEM Params: static_cast<intptr_t>( my_agent->smem_params->thresh->get_value() )*/ );
+                }
+
+                // nodes
+                if ( smem_variable_get(smem_variable_key.var_num_nodes, temp ) )
+                {
+                 // TODO SMEM Params: my_agent->smem_stats->chunks->set_value( temp );
+                }
+                else
+                {
+                 // TODO SMEM Params: my_agent->smem_stats->chunks->set_value( 0 );
+                }
+
+                // edges
+                if ( smem_variable_get(smem_variable_key.var_num_edges, temp ) )
+                {
+                 // TODO SMEM Params: my_agent->smem_stats->slots->set_value( temp );
+                }
+                else
+                {
+                 // TODO SMEM Params: my_agent->smem_stats->slots->set_value( 0 );
+                }
+            }
+        }
+
+        db.commit.executeUpdate( /*soar_module::op_reinit*/ );
+
+        // if lazy commit, then we encapsulate the entire lifetime of the agent in a single transaction
+        if (false /* TODO SMEM Params: my_agent->smem_params->lazy_commit->get_value() == soar_module::on */)
+        {
+            db.begin.executeUpdate( /*soar_module::op_reinit*/ );
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        // TODO SMEM Timers: my_agent->smem_timers->init->stop();
+        // TODO SMEM Timers: do this in finally for exception handling above
+        ////////////////////////////////////////////////////////////////////////////
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.SemanticMemory#smem_attach()
+     */
+    @Override
+    public void smem_attach() throws SoarException
+    {
+        // semantic_memory.cpp:2112:smem_attach
+        if (db == null)
+        {
+            try
+            {
+                smem_init_db();
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException("While attaching SMEM: " + e.getMessage(), e);
+            }
+            catch (IOException e)
+            {
+                throw new SoarException("While attaching SMEM: " + e.getMessage(), e);
+            }
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.SemanticMemory#smem_close()
+     */
+    @Override
+    public void smem_close() throws SoarException
+    {
+        // semantic_memory.cpp:2126:smem_close
+        if (db != null)
+        {
+            try
+            {
+                // store max cycle for future use of the smem database
+                smem_variable_set( smem_variable_key.var_max_cycle, smem_max_cycle );
+
+                // store num nodes/edges for future use of the smem database
+                // TODO SMEM Stats: smem_variable_set( smem_variable_key.var_num_nodes, my_agent->smem_stats->chunks->get_value() );
+                // TODO SMEM Stats: smem_variable_set( smem_variable_key.var_num_edges, my_agent->smem_stats->slots->get_value() );
+
+                // if lazy, commit
+                if (false /* TODO SMEM Params: my_agent->smem_params->lazy_commit->get_value() == soar_module::on */)
+                {
+                    db.commit.executeUpdate( /*soar_module::op_reinit*/ );
+                }
+
+                // close the database
+                db.getConnection().close();
+                db = null;
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException("While closing SMEM: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * <p>semantic_memory.cpp:2158:smem_deallocate_chunk
+     */
+    void smem_deallocate_chunk(smem_chunk_value chunk)
+    {
+        smem_deallocate_chunk(chunk, true);
+    }
+
+    /**
+     * <p>semantic_memory.cpp:2158:smem_deallocate_chunk
+     */
+    void smem_deallocate_chunk(smem_chunk_value chunk, boolean free_chunk /*= true*/ )
+    {
+        // Nothing to do in JSoar. Yay!
+    }
+    
 }
