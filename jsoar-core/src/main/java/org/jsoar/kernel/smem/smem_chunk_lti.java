@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
@@ -26,7 +25,7 @@ public class smem_chunk_lti implements smem_chunk_value
     char lti_letter;
     /*uint64_t*/ long lti_number;
 
-    /*smem_slot_map*/ Map<Symbol, List<smem_chunk_value>> slots;
+    /*smem_slot_map*/ Map<SymbolImpl, List<smem_chunk_value>> slots;
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.smem.smem_chunk_value#asConstant()

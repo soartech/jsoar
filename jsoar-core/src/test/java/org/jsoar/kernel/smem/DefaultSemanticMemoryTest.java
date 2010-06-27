@@ -6,10 +6,6 @@
 package org.jsoar.kernel.smem;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.sql.Connection;
 
@@ -23,6 +19,8 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.sun.jmx.snmp.defaults.DefaultPaths;
 
 public class DefaultSemanticMemoryTest
 {
@@ -115,12 +113,12 @@ public class DefaultSemanticMemoryTest
     public void testCanParseAnLtiNameForNonIdentifierLexeme()
     {
         final Lexeme lexeme = new Lexeme();
-        lexeme.type = LexemeType.SYM_CONSTANT;
-        lexeme.string = "yumyum";
+        lexeme.type = LexemeType.VARIABLE;
+        lexeme.string = "<yumyum>";
         
         final ParsedLtiName parsed = DefaultSemanticMemory.smem_parse_lti_name(lexeme);
         assertNotNull(parsed);
-        assertEquals("yumyum", parsed.value);
+        assertEquals("<yumyum>", parsed.value);
         assertEquals('Y', parsed.id_letter);
         assertEquals(0, parsed.id_number);
     }
@@ -160,5 +158,20 @@ public class DefaultSemanticMemoryTest
         final SymbolImpl result = DefaultSemanticMemory.smem_parse_constant_attr(syms, lexeme);
         assertNotNull(result);
         assertSame(syms.findDouble(3.14159), result);
+    }
+    
+    @Test
+    public void testCanParseAChunk() throws Exception
+    {
+        final DefaultSemanticMemory smem = new DefaultSemanticMemory(context);
+        
+        smem.smem_parse_chunks("{" +
+        		"(<arithmetic> ^add10-facts <a01> <a02> <a03>)\r\n" + 
+        		"(<a01> ^digit1 1 ^digit-10 11)\r\n" + 
+        		"(<a02> ^digit1 2 ^digit-10 12)\r\n" + 
+        		"(<a03> ^digit1 3 ^digit-10 13)" +
+        		"}");
+        
+        // TODO SMEM validate smem_parse_chunks
     }
 }

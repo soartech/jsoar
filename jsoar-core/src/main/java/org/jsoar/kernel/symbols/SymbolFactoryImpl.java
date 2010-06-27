@@ -197,6 +197,11 @@ public class SymbolFactoryImpl implements SymbolFactory
         return id_counter[name_letter - 'A'];
     }
     
+    public long incrementIdNumber(char name_letter)
+    {
+        return id_counter[name_letter - 'A']++;
+    }
+    
     /**
      * <p>symtab.cpp:195:find_variable
      * 
