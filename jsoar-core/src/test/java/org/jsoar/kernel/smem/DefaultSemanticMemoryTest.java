@@ -6,10 +6,17 @@
 package org.jsoar.kernel.smem;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.sql.Connection;
 
+import org.jsoar.kernel.parser.original.Lexeme;
+import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.AdaptableContainer;
 import org.jsoar.util.adaptables.Adaptables;
@@ -86,5 +93,72 @@ public class DefaultSemanticMemoryTest
         smem.smem_attach();
         assertNotNull(smem.getDatabase());
         assertFalse(smem.getDatabase().getConnection().isClosed());
+    }
+    
+    @Test
+    public void testCanParseAnLtiNameForIdentifierLexeme()
+    {
+        final Lexeme lexeme = new Lexeme();
+        lexeme.type = LexemeType.IDENTIFIER;
+        lexeme.string = "Z99";
+        lexeme.id_letter = 'Z';
+        lexeme.id_number = 99;
+        
+        final ParsedLtiName parsed = DefaultSemanticMemory.smem_parse_lti_name(lexeme);
+        assertNotNull(parsed);
+        assertEquals("Z99", parsed.value);
+        assertEquals('Z', parsed.id_letter);
+        assertEquals(99, parsed.id_number);
+    }
+    
+    @Test
+    public void testCanParseAnLtiNameForNonIdentifierLexeme()
+    {
+        final Lexeme lexeme = new Lexeme();
+        lexeme.type = LexemeType.SYM_CONSTANT;
+        lexeme.string = "yumyum";
+        
+        final ParsedLtiName parsed = DefaultSemanticMemory.smem_parse_lti_name(lexeme);
+        assertNotNull(parsed);
+        assertEquals("yumyum", parsed.value);
+        assertEquals('Y', parsed.id_letter);
+        assertEquals(0, parsed.id_number);
+    }
+    
+    @Test
+    public void testCanParseAStringConstant()
+    {
+        final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+        final Lexeme lexeme = new Lexeme();
+        lexeme.type = LexemeType.SYM_CONSTANT;
+        lexeme.string = "yumyum";
+        
+        final SymbolImpl result = DefaultSemanticMemory.smem_parse_constant_attr(syms, lexeme);
+        assertNotNull(result);
+        assertSame(syms.findString("yumyum"), result);
+    }
+    @Test
+    public void testCanParseAnIntegerConstant()
+    {
+        final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+        final Lexeme lexeme = new Lexeme();
+        lexeme.type = LexemeType.INTEGER;
+        lexeme.int_val = 456;
+        
+        final SymbolImpl result = DefaultSemanticMemory.smem_parse_constant_attr(syms, lexeme);
+        assertNotNull(result);
+        assertSame(syms.findInteger(456), result);
+    }
+    @Test
+    public void testCanParseADoubleConstant()
+    {
+        final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+        final Lexeme lexeme = new Lexeme();
+        lexeme.type = LexemeType.FLOAT;
+        lexeme.float_val = 3.14159;
+        
+        final SymbolImpl result = DefaultSemanticMemory.smem_parse_constant_attr(syms, lexeme);
+        assertNotNull(result);
+        assertSame(syms.findDouble(3.14159), result);
     }
 }

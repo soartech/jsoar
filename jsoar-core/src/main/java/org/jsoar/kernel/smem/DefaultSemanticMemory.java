@@ -37,6 +37,8 @@ import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.modules.SoarModule;
+import org.jsoar.kernel.parser.original.Lexeme;
+import org.jsoar.kernel.parser.original.LexemeType;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
@@ -2144,4 +2146,54 @@ public class DefaultSemanticMemory implements SemanticMemory
         // Nothing to do in JSoar. Yay!
     }
     
+    /**
+     * <p>semantic_memory.cpp:2217:smem_parse_lti_name
+     * 
+     * @param lexeme
+     * @return
+     */
+    static ParsedLtiName smem_parse_lti_name(Lexeme lexeme)
+    {
+        if ( lexeme.type == LexemeType.IDENTIFIER )
+        {
+            return new ParsedLtiName(String.format("%c%d", lexeme.id_letter, lexeme.id_number), 
+                                     lexeme.id_letter, lexeme.id_number);
+        }
+        else
+        {
+            return new ParsedLtiName(lexeme.string, Character.toUpperCase(lexeme.string.charAt(0)), 0);
+        }
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:2243:smem_parse_constant_attr
+     * 
+     * @param syms
+     * @param lexeme
+     * @return
+     */
+    static SymbolImpl smem_parse_constant_attr( SymbolFactoryImpl syms, Lexeme lexeme )
+    {
+        final SymbolImpl return_val;
+
+        if ( ( lexeme.type == LexemeType.SYM_CONSTANT ) )
+        {
+            return_val = syms.createString(lexeme.string);
+        }
+        else if ( lexeme.type == LexemeType.INTEGER)
+        {
+            return_val = syms.createInteger(lexeme.int_val);
+        }
+        else if ( lexeme.type == LexemeType.FLOAT)
+        {
+            return_val = syms.createDouble(lexeme.float_val);
+        }
+        else
+        {
+            return_val = null;
+        }
+
+        return return_val;
+    }
+
 }
