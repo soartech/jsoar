@@ -6,6 +6,7 @@
 package org.jsoar.kernel.smem;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.sql.Connection;
@@ -13,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 
 import org.jsoar.kernel.Decider;
@@ -169,13 +172,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     {
         // TODO Auto-generated method stub
         return false;
-    }
-
-    @Override
-    public void smem_go(boolean storeOnly)
-    {
-        // TODO Auto-generated method stub
-        
     }
 
     private List<WmeImpl> smem_get_direct_augs_of_id( SymbolImpl sym)
@@ -1266,6 +1262,18 @@ public class DefaultSemanticMemory implements SemanticMemory
             db.act_lti_child_ct_set.setLong( 2, parent_id );
             db.act_lti_child_ct_set.executeUpdate( /*soar_module::op_reinit*/ );
         }
+    }
+
+    /**
+     * <p>semantic_memory.cpp:1387:smem_soar_store
+     * 
+     * @param id
+     * @throws SQLException
+     * @throws SoarException
+     */
+    void smem_soar_store(IdentifierImpl id) throws SQLException, SoarException
+    {
+        smem_soar_store(id, smem_storage_type.store_level);
     }
     
     /**
@@ -2594,4 +2602,863 @@ public class DefaultSemanticMemory implements SemanticMemory
         return return_val;
     }
 
+    private static enum path_type { blank_slate, cmd_bad, cmd_retrieve, cmd_query, cmd_store }
+    
+    /**
+     * <p>semantic_memory.cpp:2702:smem_respond_to_cmd
+     * 
+     * @param store_only
+     * @throws SQLException
+     * @throws SoarException
+     */
+    void smem_respond_to_cmd( boolean store_only ) throws SQLException, SoarException
+    {
+        // start at the bottom and work our way up
+        // (could go in the opposite direction as well)
+        IdentifierImpl state = decider.bottom_goal;
+
+        List<WmeImpl> wmes = new LinkedList<WmeImpl>();
+        List<WmeImpl> cmds = null;
+
+        IdentifierImpl query;
+        IdentifierImpl retrieve;
+        List<IdentifierImpl> prohibit = new LinkedList<IdentifierImpl>();
+        List<IdentifierImpl> store = new LinkedList<IdentifierImpl>();
+
+        path_type path = path_type.blank_slate;
+
+        final int time_slot = ( ( store_only )?(1):(0) );
+        long wme_count = 0;
+        boolean new_cue = false;
+
+        Marker tc; 
+
+        IdentifierImpl parent_sym = null;
+        final Queue<IdentifierImpl> syms = new ArrayDeque<IdentifierImpl>(); 
+
+        int parent_level = 0;
+        final Queue<Integer> levels = new ArrayDeque<Integer>();
+
+        while ( state != null )
+        {
+            final SemanticMemoryStateInfo smem_info = smem_info(state);
+            ////////////////////////////////////////////////////////////////////////////
+            // TODO SMEM Timers: my_agent->smem_timers->api->start();
+            ////////////////////////////////////////////////////////////////////////////
+
+            // make sure this state has had some sort of change to the cmd
+            // NOTE: we only care one-level deep!
+            new_cue = false;
+            wme_count = 0;
+            cmds = null;
+            {
+                tc = DefaultMarker.create(); // get_new_tc_number( my_agent );
+
+                // initialize BFS at command
+                syms.add( smem_info.smem_cmd_header ); // push
+                levels.add( 0 ); // push(0)           
+
+                while ( !syms.isEmpty() )
+                {
+                    // get state
+                    parent_sym = syms.remove(); // front()/pop()
+
+                    parent_level = levels.remove(); // front()/pop()
+
+                    // get children of the current identifier
+                    wmes = smem_get_direct_augs_of_id( parent_sym, tc );
+                    {
+                        for (WmeImpl w_p : wmes)
+                        {
+                            if ( ( ( store_only ) && ( ( parent_level != 0 ) || ( ( w_p.attr != predefinedSyms.smem_sym_query ) && ( w_p.attr != predefinedSyms.smem_sym_retrieve ) ) ) ) || 
+                                 ( ( !store_only ) && ( ( parent_level != 0 ) || ( w_p.attr != predefinedSyms.smem_sym_store ) ) ) )
+                            {                       
+                                wme_count++;
+
+                                if ( w_p.timetag > smem_info.last_cmd_time[ time_slot ] )
+                                {
+                                    new_cue = true;
+                                    smem_info.last_cmd_time[ time_slot ] = w_p.timetag;
+                                }
+
+                                if ( ( w_p.value.asIdentifier() != null ) &&
+                                     ( parent_level == 0 ) &&
+                                     ( ( w_p.attr == predefinedSyms.smem_sym_query ) || ( w_p.attr == predefinedSyms.smem_sym_store ) ) )                              
+                                {
+                                    syms.add( w_p.value.asIdentifier() ); // push
+                                    levels.add( parent_level + 1 ); // push
+                                }
+                            }
+                        }
+
+                        // free space from aug list
+                        if ( cmds == null )
+                        {
+                            cmds = wmes;
+                        }
+                        else
+                        {
+                            wmes = null; // delete wmes;
+                        }
+                    }
+                }
+
+                // see if any WMEs were removed         
+                if ( smem_info.last_cmd_count[ time_slot ] != wme_count )
+                {
+                    new_cue = true;
+                    smem_info.last_cmd_count[ time_slot ] = wme_count;
+                }
+                
+
+                if ( new_cue )
+                {
+                    // clear old cue
+                    smem_info.cue_wmes.clear();
+
+                    // clear old results
+                    smem_clear_result( state );
+
+                    // change is afoot!
+                    smem_made_changes = true;
+                }
+            }       
+
+            // a command is issued if the cue is new
+            // and there is something on the cue
+            if ( new_cue && wme_count != 0)
+            {
+                // initialize command vars
+                retrieve = null;
+                query = null;
+                store.clear();
+                prohibit.clear();
+                path = path_type.blank_slate;
+
+                // process top-level symbols
+                for (WmeImpl w_p : cmds )
+                {
+                    smem_info.cue_wmes.add( w_p );
+
+                    if ( path != path_type.cmd_bad )
+                    {
+                        // collect information about known commands
+                        if ( w_p.attr == predefinedSyms.smem_sym_retrieve )
+                        {
+                            if ( ( w_p.value.asIdentifier() != null ) &&
+                                 ( path == path_type.blank_slate ) )
+                            {
+                                retrieve = w_p.value.asIdentifier();
+                                path = path_type.cmd_retrieve;
+                            }
+                            else
+                            {
+                                path = path_type.cmd_bad;
+                            }
+                        }
+                        else if ( w_p.attr == predefinedSyms.smem_sym_query )
+                        {
+                            if ( ( w_p.value.asIdentifier() != null ) &&
+                                 ( ( path == path_type.blank_slate ) || ( path == path_type.cmd_query ) ) &&
+                                 ( query == null ) )
+
+                            {
+                                query = w_p.value.asIdentifier();
+                                path = path_type.cmd_query;
+                            }
+                            else
+                            {
+                                path = path_type.cmd_bad;
+                            }
+                        }
+                        else if ( w_p.attr == predefinedSyms.smem_sym_prohibit )
+                        {
+                            if ( ( w_p.value.asIdentifier() != null ) &&
+                                 ( ( path == path_type.blank_slate ) || ( path == path_type.cmd_query ) ) &&
+                                 ( w_p.value.asIdentifier().smem_lti != 0 ) )
+                            {
+                                prohibit.add( w_p.value.asIdentifier() ); //push_back
+                                path = path_type.cmd_query;
+                            }
+                            else
+                            {
+                                path = path_type.cmd_bad;
+                            }
+                        }
+                        else if ( w_p.attr == predefinedSyms.smem_sym_store )
+                        {
+                            if ( ( w_p.value.asIdentifier() != null ) &&
+                                 ( ( path == path_type.blank_slate ) || ( path == path_type.cmd_store ) ) )
+                            {
+                                store.add( w_p.value.asIdentifier() );
+                                path = path_type.cmd_store;
+                            }
+                            else
+                            {
+                                path = path_type.cmd_bad;
+                            }
+                        }
+                        else
+                        {
+                            path = path_type.cmd_bad;
+                        }
+                    }
+                }
+
+                // if on path 3 must have query/neg-query
+                if ( ( path == path_type.cmd_query ) && ( query == null ) )
+                {
+                    path = path_type.cmd_bad;
+                }
+
+                // must be on a path
+                if ( path == path_type.blank_slate )
+                {
+                    path = path_type.cmd_bad;
+                }
+
+                ////////////////////////////////////////////////////////////////////////////
+                // TODO SMEM Timers: my_agent->smem_timers->api->stop();
+                ////////////////////////////////////////////////////////////////////////////
+
+                // process command
+                if ( path != path_type.cmd_bad )
+                {
+                    // performing any command requires an initialized database
+                    smem_attach( );
+
+                    // retrieve
+                    if ( path == path_type.cmd_retrieve )
+                    {
+                        if ( retrieve.smem_lti == 0 )
+                        {
+                            // retrieve is not pointing to an lti!
+                            smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_failure, retrieve );
+                        }
+                        else
+                        {
+                            // status: success
+                            smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_success, retrieve );
+
+                            // install memory directly onto the retrieve identifier
+                            smem_install_memory( state, retrieve.smem_lti, retrieve );
+
+                            // add one to the expansions stat
+                            // TODO SMEM Stats: my_agent->smem_stats->expansions->set_value( my_agent->smem_stats->expansions->get_value() + 1 );
+                        }
+                    }
+                    // query
+                    else if ( path == path_type.cmd_query )
+                    {
+                        final Set<Long> /*smem_lti_set*/ prohibit_lti = new HashSet<Long>();
+
+                        for (IdentifierImpl sym_p : prohibit)
+                        {
+                            prohibit_lti.add( sym_p.smem_lti );
+                        }
+
+                        smem_process_query( state, query, prohibit_lti );
+
+                        // add one to the cbr stat
+                        // TODO SMEM Stats: my_agent->smem_stats->cbr->set_value( my_agent->smem_stats->cbr->get_value() + 1 );
+                    }
+                    else if ( path == path_type.cmd_store )
+                    {
+                        ////////////////////////////////////////////////////////////////////////////
+                        // TODO SMEM Timers: my_agent->smem_timers->storage->start();
+                        ////////////////////////////////////////////////////////////////////////////
+
+                        // start transaction (if not lazy)
+                        if (true /* TODO SMEM Params: my_agent->smem_params->lazy_commit->get_value() == soar_module::off */)
+                        {
+                            db.begin.executeUpdate( /*soar_module::op_reinit*/ );
+                        }
+
+                        for (IdentifierImpl sym_p : store )
+                        {
+                            smem_soar_store( sym_p );
+
+                            // status: success
+                            smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_success, sym_p );
+
+                            // add one to the store stat
+                            // TODO SMEM Stats: my_agent->smem_stats->stores->set_value( my_agent->smem_stats->stores->get_value() + 1 );
+                        }
+
+                        // commit transaction (if not lazy)
+                        if (true /* TODO SMEM Params: my_agent->smem_params->lazy_commit->get_value() == soar_module::off */)
+                        {
+                            db.commit.executeUpdate( /*soar_module::op_reinit*/ );
+                        }
+
+                        ////////////////////////////////////////////////////////////////////////////
+                        // TODO SMEM Timers: my_agent->smem_timers->storage->stop();
+                        ////////////////////////////////////////////////////////////////////////////
+                    }
+                }
+                else
+                {
+                    smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_bad_cmd, smem_info.smem_cmd_header );
+                }
+            }
+            else
+            {
+                ////////////////////////////////////////////////////////////////////////////
+                // TODO SMEM Timers: my_agent->smem_timers->api->stop();
+                ////////////////////////////////////////////////////////////////////////////
+            }
+
+            // free space from aug list
+            cmds = null; //delete cmds;
+
+            state = state.higher_goal;
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.SemanticMemory#smem_go(boolean)
+     */
+    @Override
+    public void smem_go( boolean store_only )
+    {
+        // semantic_memory.cpp:3011:smem_go
+        
+        // after we are done we will perform a wm phase
+        // if any adds/removes
+        smem_made_changes = false;
+        
+        // TODO SMEM Timers: my_agent->smem_timers->total->start();
+
+//    #ifndef SMEM_EXPERIMENT
+
+        try
+        {
+            smem_respond_to_cmd( store_only );
+        }
+        catch (SQLException e)
+        {
+            // TODO SMEM error
+            throw new RuntimeException(e);
+        }
+        catch (SoarException e)
+        {
+            // TODO SMEM error
+            throw new RuntimeException(e);
+        }
+
+//    #else // SMEM_EXPERIMENT
+
+//    #endif // SMEM_EXPERIMENT
+
+        // TODO SMEM Timers: my_agent->smem_timers->total->stop();
+
+        if ( smem_made_changes )
+        {
+            decider.do_working_memory_phase( );
+        }
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:3042:smem_visualize_store
+     * 
+     * @param return_val
+     * @throws SoarException
+     * @throws SQLException
+     */
+    void smem_visualize_store( PrintWriter return_val ) throws SoarException
+    {
+        try
+        {
+            smem_visualize_store_safe(return_val);
+        }
+        catch (SQLException e)
+        {
+            throw new SoarException(e);
+        }
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:3042:smem_visualize_store
+     * 
+     * @param return_val
+     * @throws SoarException
+     * @throws SQLException
+     */
+    private void smem_visualize_store_safe( PrintWriter return_val ) throws SoarException, SQLException
+    {
+        // vizualizing the store requires an open semantic database
+        smem_attach( );
+
+        // header
+        return_val.append( "digraph smem {" );
+        return_val.append( "\n" );
+
+        // LTIs
+        return_val.append( "node [ shape = doublecircle ];" );
+        return_val.append( "\n" );
+
+        final Map< Long, String > lti_names = new HashMap<Long, String>();
+        {
+            // id, letter, number
+            {
+                final ResultSet q = db.vis_lti.executeQuery();
+                try
+                {
+                    while ( q.next() )
+                    {
+                        final long lti_id = q.getLong( 0 + 1 );
+                        final char lti_letter = (char) q.getLong( 1 + 1);
+                        final long lti_number = q.getLong( 2 + 1 );
+        
+                        final String lti_name = String.format("%c%d", lti_letter, lti_number);
+                        lti_names.put(lti_id, lti_name);
+        
+                        return_val.append( lti_name );
+                        return_val.append( " " );
+                    }
+                }
+                finally
+                {
+                    q.close();
+                }
+            }
+
+            if ( !lti_names.isEmpty() )
+            {
+                // terminal nodes first
+                {
+                    final Map< Long, List<String> > lti_terminals = new HashMap<Long, List<String>>();
+
+                    List<String> my_terminals = null;
+
+                    return_val.append( ";" );
+                    return_val.append( "\n" );
+
+                    // proceed to terminal nodes
+                    return_val.append( "node [ shape = plaintext ];" );
+                    return_val.append( "\n" );
+
+                    {
+                        // parent_id, attr_type, attr_val, val_type, val_val
+                        final ResultSet q = db.vis_value_const.executeQuery();
+                        try
+                        {
+                            while ( q.next() )
+                            {
+                                final long lti_id = q.getLong( 0 + 1 );
+                                my_terminals = lti_terminals.get(lti_id);
+                                if(my_terminals == null)
+                                {
+                                    lti_terminals.put(lti_id, my_terminals = new ArrayList<String>());
+                                }
+                                
+                                final String lti_name = lti_names.get(lti_id); // TODO is this safe?
+        
+                                // parent prefix
+                                return_val.append( lti_name );
+                                return_val.append( "_" );
+        
+                                // terminal count
+                                final int terminal_num = my_terminals.size();
+                                return_val.append( Integer.toString(terminal_num) );
+        
+                                // prepare for value
+                                return_val.append( " [ label = \"" );
+        
+                                // output value
+                                {
+                                    switch ( (int) q.getLong( 3 + 1 ) )
+                                    {
+                                        case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                            return_val.append( q.getString( 4 + 1 ) );
+                                            break;
+        
+                                        case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                            return_val.append(Long.toString(q.getLong( 4 + 1 )));
+                                            break;
+        
+                                        case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                            return_val.append(Double.toString(q.getDouble( 4 + 1 )));
+                                            break;
+        
+                                        default:
+                                            // print nothing
+                                            break;
+                                    }
+                                }
+        
+                                // store terminal (attribute for edge label)
+                                {
+                                    switch ( (int) q.getLong( 1 + 1 ) )
+                                    {
+                                        case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                            my_terminals.add( q.getString( 2 + 1 ) );
+                                            break;
+        
+                                        case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                            my_terminals.add(Long.toString(q.getLong( 2 + 1 )));
+                                            break;
+        
+                                        case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                            my_terminals.add(Double.toString(q.getDouble( 2 + 1 )));
+                                            break;
+        
+                                        default:
+                                            my_terminals.add(""); // temp_str.clear();
+                                            break;
+                                    }
+                                }
+        
+                                // footer
+                                return_val.append( "\" ];" );
+                                return_val.append( "\n" );
+                            }
+                        }
+                        finally
+                        {
+                            q.close();
+                        }
+                    }
+
+                    // output edges
+                    {
+                        for (Map.Entry<Long, String> n_p : lti_names.entrySet())
+                        {
+                            final List<String> t_p = lti_terminals.get( n_p.getKey() );
+
+                            if ( t_p != null )
+                            {
+                                int terminal_counter = 0;
+
+                                for (String a_p : t_p)
+                                {
+                                    return_val.append( n_p.getValue() );
+                                    return_val.append( " -> " );
+                                    return_val.append( n_p.getValue() );
+                                    return_val.append( "_" );
+
+                                    return_val.append( Integer.toString(terminal_counter) );
+                                    return_val.append( " [ label=\"" );
+
+                                    return_val.append( a_p );
+
+                                    return_val.append( "\" ];" );
+                                    return_val.append( "\n" );
+
+                                    terminal_counter++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // then links to other LTIs
+                {
+                    // parent_id, attr_type, attr_val, val_lti
+                    {
+                    final ResultSet q = db.vis_value_lti.executeQuery();
+                    try
+                    {
+                        while ( q.next() )
+                        {
+                            // source
+                            long lti_id = q.getLong( 0 + 1 );
+                            String lti_name = lti_names.get(lti_id); // TODO SMEM is this safe?
+                            return_val.append( lti_name );
+                            return_val.append( " -> " );
+    
+                            // destination
+                            lti_id = q.getLong( 3 + 1 );
+                            lti_name = lti_names.get(lti_id); // TODO SMEM is this safe?
+                            return_val.append( lti_name );
+                            return_val.append( " [ label =\"" );
+    
+                            // output attribute
+                            {
+                                switch ( (int) q.getLong( 1 + 1) )
+                                {
+                                    case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                        return_val.append( q.getString( 2 + 1 ) );
+                                        break;
+    
+                                    case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                        return_val.append(Long.toString(q.getLong( 2 + 1 )));
+                                        break;
+    
+                                    case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                        return_val.append(Double.toString(q.getDouble( 2 + 1 )));
+                                        break;
+    
+                                    default:
+                                        return_val.append("");
+                                        break;
+                                }
+                            }
+    
+                            // footer
+                            return_val.append( "\" ];" );
+                            return_val.append( "\n" );
+                        }
+                    }
+                    finally
+                    {
+                        q.close();
+                    }
+                    }
+                }
+            }
+        }
+
+        // footer
+        return_val.append( "}" );
+        return_val.append( "\n" );
+    }
+
+    /**
+     * <p>semantic_memory.cpp:3277:smem_visualize_lti
+     * 
+     * @param lti_id
+     * @param depth
+     * @param return_val
+     * @throws SQLException
+     */
+    void smem_visualize_lti( long /*smem_lti_id*/ lti_id, long depth, PrintWriter return_val ) throws SoarException
+    {
+        try
+        {
+            smem_visualize_lti_safe(lti_id, depth, return_val);
+        }
+        catch (SQLException e)
+        {
+            throw new SoarException(e);
+        }
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:3277:smem_visualize_lti
+     * 
+     * @param lti_id
+     * @param depth
+     * @param return_val
+     * @throws SQLException
+     */
+    private void smem_visualize_lti_safe( long /*smem_lti_id*/ lti_id, long depth, PrintWriter return_val ) throws SQLException
+    {
+        final Queue<smem_vis_lti> bfs = new ArrayDeque<smem_vis_lti>();
+
+        final Set<Long /*smem_lti_id*/> close_list = new HashSet<Long>();
+
+        // header
+        return_val.append( "digraph smem_lti {" );
+        return_val.append( "\n" );
+
+        // root
+        {
+            final smem_vis_lti new_lti = new smem_vis_lti();
+            new_lti.lti_id = lti_id;
+            new_lti.level = 0;
+
+            // fake former linkage
+            {
+                // get just this lti
+                db.lti_letter_num.setLong( 1, lti_id );
+                final ResultSet lti_q = db.lti_letter_num.executeQuery();
+
+                try
+                {
+                    // letter
+                    new_lti.lti_name = String.format("%c%d", (char) lti_q.getLong(0 + 1), lti_q.getLong(1 + 1));
+                }
+                finally
+                {
+                    lti_q.close();
+                }
+
+                // output without linkage
+                return_val.append( "node [ shape = doublecircle ];" );
+                return_val.append( "\n" );
+
+                return_val.append( new_lti.lti_name );
+                return_val.append( ";" );
+                return_val.append( "\n" );
+            }
+
+            bfs.add( new_lti );
+
+            close_list.add( lti_id );
+        }
+
+        // optionally depth-limited breadth-first-search of children
+        while ( !bfs.isEmpty() )
+        {
+            final smem_vis_lti parent_lti = bfs.remove(); // front()/pop()
+
+            long child_counter = 0;
+
+            // get direct children: attr_const, attr_type, value_const, value_type, value_letter, value_num, value_lti
+            db.web_expand.setLong( 1, parent_lti.lti_id );
+            final ResultSet expand_q = db.web_expand.executeQuery();
+            try
+            {
+                while ( expand_q.next() )
+                {
+                    // identifier vs. constant
+                    if ( expand_q.getMetaData().getColumnType(2 + 1) == java.sql.Types.NULL )
+                    {
+                        final smem_vis_lti new_lti = new smem_vis_lti();
+                        new_lti.lti_id = expand_q.getLong( 6 );
+                        new_lti.level = ( parent_lti.level + 1 );
+    
+                        // add node
+                        {
+                            // letter
+                            new_lti.lti_name = String.format("%c%d", (char) expand_q.getLong(4 + 1), expand_q.getLong(5 + 1));
+    
+                            // output node
+                            return_val.append( "node [ shape = doublecircle ];" );
+                            return_val.append( "\n" );
+    
+                            return_val.append( new_lti.lti_name );
+                            return_val.append( ";" );
+                            return_val.append( "\n" );
+                        }
+    
+    
+                        // add linkage
+                        {
+                            // get attribute
+                            final String temp_str;
+                            switch ( (int) expand_q.getLong( 1 + 1 ) )
+                            {
+                                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                    temp_str = expand_q.getString( 0 + 1 );
+                                    break;
+    
+                                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                    temp_str = Long.toString(expand_q.getLong(0 + 1));
+                                    break;
+    
+                                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                    temp_str = Double.toString(expand_q.getDouble(0 + 1));
+                                    break;
+    
+                                default:
+                                    temp_str = "";
+                                    break;
+                            }
+    
+                            // output linkage
+                            return_val.append( parent_lti.lti_name );
+                            return_val.append( " -> " );
+                            return_val.append( new_lti.lti_name );
+                            return_val.append( " [ label = \"" );
+                            return_val.append( temp_str );
+                            return_val.append( "\" ];" );
+                            return_val.append( "\n" );
+                        }
+    
+                        // add to bfs (if still in depth limit)
+                        if ( ( depth == 0 ) || ( new_lti.level < depth ) )
+                        {
+                            // prevent looping
+                            if ( !close_list.contains(new_lti.lti_id) )
+                            {
+                                close_list.add( new_lti.lti_id );                       
+                                bfs.add( new_lti );
+                            }
+                            else
+                            {
+                                // delete new_lti;
+                            }               
+                        }
+                        else
+                        {
+                            // delete new_lti;
+                        }
+                    }
+                    else
+                    {
+                        // get node name
+                        final String node_name = String.format("%s_%d", parent_lti.lti_name, child_counter);
+                        // add value node
+                        {
+    
+                            // get value
+                            final String temp_str;
+                            switch ( (int) expand_q.getLong( 3 + 1 ) )
+                            {
+                                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                    temp_str = expand_q.getString( 2 + 1 );
+                                    break;
+    
+                                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                    temp_str = Long.toString(expand_q.getLong( 2 + 1 ));
+                                    break;
+    
+                                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                    temp_str = Double.toString(expand_q.getDouble( 2 + 1 ));
+                                    break;
+    
+                                default:
+                                    temp_str = "";
+                                    break;
+                            }
+    
+                            // output node
+                            return_val.append( "node [ shape = plaintext ];" );
+                            return_val.append( "\n" );
+                            return_val.append( node_name );
+                            return_val.append( " [ label=\"" );
+                            return_val.append( temp_str );
+                            return_val.append( "\" ];" );
+                            return_val.append( "\n" );
+                        }
+    
+                        // add linkage
+                        {
+                            // get attribute
+                            final String temp_str;
+                            switch ( (int) expand_q.getLong( 1 + 1 ) )
+                            {
+                                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                    temp_str = expand_q.getString( 0 + 1 );
+                                    break;
+    
+                                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                    temp_str = Long.toString(expand_q.getLong( 0 + 1 ));
+                                    break;
+    
+                                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                    temp_str = Double.toString(expand_q.getDouble( 0 + 1));
+                                    break;
+    
+                                default:
+                                    temp_str = "";
+                                    break;
+                            }
+    
+                            // output linkage
+                            return_val.append( parent_lti.lti_name );
+                            return_val.append( " -> " );
+                            return_val.append( node_name );
+                            return_val.append( " [ label = \"" );
+                            return_val.append( temp_str );
+                            return_val.append( "\" ];" );
+                            return_val.append( "\n" );
+                        }
+    
+                        child_counter++;
+                    }
+                }
+            }
+            finally
+            {
+                expand_q.close();
+            }
+        }
+
+        // footer
+        return_val.append( "}" );
+        return_val.append( "\n" );
+    }
 }
