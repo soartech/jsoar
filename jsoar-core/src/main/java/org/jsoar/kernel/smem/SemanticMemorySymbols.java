@@ -26,7 +26,7 @@ class SemanticMemorySymbols
     public final Symbol smem_sym_status;
     public final SymbolImpl smem_sym_success;
     public final SymbolImpl smem_sym_failure;
-    public final Symbol smem_sym_bad_cmd;
+    public final SymbolImpl smem_sym_bad_cmd;
 
     public final Symbol smem_sym_retrieve;
     public final Symbol smem_sym_query;
