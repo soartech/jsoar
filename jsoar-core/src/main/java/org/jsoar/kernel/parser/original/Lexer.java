@@ -970,7 +970,7 @@ public class Lexer
 
         /* --- check if it's an identifier --- */
         final char idStart = s.charAt(idStartIndex);
-        if (s.length() > 1 && Character.isLetter(idStart) && Character.isUpperCase(idStart))
+        if (s.length() > 1 && Character.isLetter(idStart))
         {
             /* --- is the rest of the string an integer? --- */
             int i = idStartIndex + 1;
