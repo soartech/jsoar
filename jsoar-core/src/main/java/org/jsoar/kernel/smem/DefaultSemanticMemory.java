@@ -58,6 +58,7 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
@@ -155,6 +156,16 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         this.symbols = Adaptables.require(DefaultSemanticMemory.class, context, SymbolFactoryImpl.class);
         this.predefinedSyms = new SemanticMemorySymbols(this.symbols);
+    }
+
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.SemanticMemory#getCommand()
+     */
+    @Override
+    public SoarCommand getCommand()
+    {
+        return new DefaultSemanticMemoryCommand(this);
     }
 
     SemanticMemoryDatabase getDatabase()
@@ -723,7 +734,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
         finally { rs.close(); }
 
-        if ( lti_child_ct >= 0 /* TODO SMEM params: my_agent->smem_params->thresh->get_value()*/ )
+        if ( lti_child_ct >= 100 /* TODO SMEM params: my_agent->smem_params->thresh->get_value()*/ )
         {
             // cycle=? WHERE lti=?
             db.act_lti_set.setLong( 1, smem_max_cycle++);
@@ -1083,7 +1094,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
 
         // already above threshold?
-        long thresh = 0; // TODO SMEM Params: static_cast<unsigned long>( my_agent->smem_params->thresh->get_value() );
+        long thresh = 100; // TODO SMEM Params: static_cast<unsigned long>( my_agent->smem_params->thresh->get_value() );
         boolean before_above = ( child_ct >= thresh );
 
         // get final count
@@ -2044,7 +2055,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 }
                 else
                 {
-                    smem_variable_set(smem_variable_key.var_act_thresh, 0L /* TODO SMEM Params: static_cast<intptr_t>( my_agent->smem_params->thresh->get_value() )*/ );
+                    smem_variable_set(smem_variable_key.var_act_thresh, 100L /* TODO SMEM Params: static_cast<intptr_t>( my_agent->smem_params->thresh->get_value() )*/ );
                 }
 
                 // nodes
@@ -2320,6 +2331,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                             smem_chunk_value chunk_value = null;
                             do
                             {
+                                chunk_value = null;
                                 // value by type
                                 if ( ( lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT ) )
                                 {
@@ -2473,10 +2485,33 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param chunkString
      * @return
      * @throws SoarException
+     */
+    boolean smem_parse_chunks( String chunkString ) throws SoarException
+    {
+        try
+        {
+            return smem_parse_chunks_safe(chunkString);
+        }
+        catch (IOException e)
+        {
+            throw new SoarException(e);
+        }
+        catch (SQLException e)
+        {
+            throw new SoarException(e);
+        }
+    }
+    
+    /**
+     * <p>semantic_memory.cpp:2564:smem_parse_chunks
+     * 
+     * @param chunkString
+     * @return
+     * @throws SoarException
      * @throws IOException
      * @throws SQLException
      */
-    boolean smem_parse_chunks( String chunkString ) throws SoarException, IOException, SQLException
+    private boolean smem_parse_chunks_safe( String chunkString ) throws SoarException, IOException, SQLException
     {
         boolean return_val = false;
         long clause_count = 0;

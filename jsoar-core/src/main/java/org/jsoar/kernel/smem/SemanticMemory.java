@@ -9,6 +9,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
@@ -78,4 +79,9 @@ public interface SemanticMemory
      * semantic_memory.h:smem_go
      */
     void smem_go(boolean store_only);
+    
+    /**
+     * @return the implementation of the smem command
+     */
+    SoarCommand getCommand();
 }

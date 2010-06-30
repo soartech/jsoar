@@ -7,6 +7,7 @@ package org.jsoar.kernel.smem;
 
 import static org.junit.Assert.*;
 
+import java.io.PrintWriter;
 import java.sql.Connection;
 
 import org.jsoar.kernel.parser.original.Lexeme;
@@ -173,5 +174,9 @@ public class DefaultSemanticMemoryTest
         		"}");
         
         // TODO SMEM validate smem_parse_chunks
+        
+        final PrintWriter pw = new PrintWriter(System.out);
+        smem.smem_visualize_store(pw);
+        pw.flush();
     }
 }
