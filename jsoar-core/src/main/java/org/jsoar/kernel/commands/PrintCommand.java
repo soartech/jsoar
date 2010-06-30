@@ -14,6 +14,7 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WorkingMemoryPrinter;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
@@ -29,7 +30,8 @@ public class PrintCommand implements SoarCommand
 {
     private static enum Options
     {
-        ALL, CHUNKS, DEFAULTS, DEPTH, EXACT, FILE_NAME, FULL, INTERNAL, JUSTIFICATIONS, 
+        // EXACT is implied by the way the printer is implemented.
+        ALL, CHUNKS, DEFAULTS, DEPTH, FILE_NAME, FULL, INTERNAL, JUSTIFICATIONS, 
         NAME, OPERATORS, RL, STACK, STATES, TEMPLATE, TREE, USER, VARPRINT;
     }
     
@@ -119,10 +121,6 @@ public class PrintCommand implements SoarCommand
                     throw new SoarException("Invalid --depth value: " + args[i]);
                 }
             }
-            else if(has(arg, "-e", "--exact"))
-            {
-                options.add(Options.EXACT);
-            }
             else if(has(arg, "-F", "--filename"))
             {
                 options.add(Options.FILE_NAME);
@@ -210,30 +208,32 @@ public class PrintCommand implements SoarCommand
             return "";
         }
         
-        // Cache options
-        boolean intern = options.contains(Options.INTERNAL);
-        boolean tree = options.contains(Options.TREE);
-        boolean exact = options.contains(Options.EXACT);
-        
-        if (exact && (options.contains(Options.DEPTH) || tree))
-            throw new SoarException("No depth/tree flags allowed when printing exact.");
-        
         // Should only be zero or one arg
-        String argString = firstNonOption < args.length ? args[firstNonOption] : null;
+        String argString = null;
+        if (firstNonOption < args.length)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; firstNonOption + i < args.length; ++i)
+            {
+                if (i != 0)
+                    sb.append(" ");
+                sb.append(args[firstNonOption + i]);
+            }
+            argString = sb.toString();
+        }
+        
         if (argString != null)
         {
-            // Default with arg is full print
-            if (!options.contains(Options.NAME))
-                options.add(Options.FULL);
-
+            // symbol? pattern?
             Symbol arg = agent.readIdentifierOrContextVariable(argString);
-            if(arg != null || exact)
+            if(arg != null || argString.charAt(0) == '(')
             {
                 agent.getPrinter().startNewLine();
+                wmp.setInternal(options.contains(Options.INTERNAL));
+                
+                // these are ignored if pattern
                 wmp.setDepth(depth);
-                wmp.setInternal(intern);
-                wmp.setTree(tree);
-                wmp.setExact(exact);
+                wmp.setTree(options.contains(Options.TREE));
                 
                 try {
                     wmp.print(agent, agent.getPrinter(), arg, argString);
@@ -242,47 +242,70 @@ public class PrintCommand implements SoarCommand
                 }
 
                 agent.getPrinter().flush();
-            }
-            else
-            {
-                agent.getPrinter().startNewLine();
-                Production p = agent.getProductions().getProduction(argString);
-                if(p != null)
-                    do_print_for_production(p);
-                else
-                    agent.getPrinter().print("No production '" + argString + "'");
-                agent.getPrinter().flush();
-            }
-            return "";
-        }
-        else
-        {
-            if (options.contains(Options.ALL))
-            {
-                options.add(Options.CHUNKS);
-                options.add(Options.DEFAULTS);
-                options.add(Options.JUSTIFICATIONS);
-                options.add(Options.USER);
-                options.add(Options.TEMPLATE);
+                return "";
             }
             
-            agent.getPrinter().startNewLine();
-            for(Production p : collectProductions())
+            // timetag?
+            try 
             {
-                do_print_for_production(p);
-            }
-            
-            if(options.contains(Options.RL))
-            {
-                for(Production p : agent.getProductions().getProductions(null))
+                int tt = Integer.parseInt(argString);
+                // TODO: make this less naive
+                for (Wme wme : agent.getAllWmesInRete())
                 {
-                    if (p.rl_rule)
-                        do_print_for_production(p);
+                    if (wme.getTimetag() == tt)
+                    {
+                        agent.getPrinter().startNewLine();
+                        agent.getPrinter().print(wme.toString());
+                        agent.getPrinter().flush();
+                        return "";
+                    }
                 }
+                throw new SoarException("No wme " + tt + " in working memory.");
+            } 
+            catch (NumberFormatException ignored)
+            {
             }
+            
+            // production?
+            // Default with arg is full print (productions)
+            if (!options.contains(Options.NAME))
+                options.add(Options.FULL);
+
+            agent.getPrinter().startNewLine();
+            Production p = agent.getProductions().getProduction(argString);
+            if(p != null)
+                do_print_for_production(p);
+            else
+                agent.getPrinter().print("No production named " + argString);
             agent.getPrinter().flush();
             return "";
         }
+        
+        if (options.contains(Options.ALL))
+        {
+            options.add(Options.CHUNKS);
+            options.add(Options.DEFAULTS);
+            options.add(Options.JUSTIFICATIONS);
+            options.add(Options.USER);
+            options.add(Options.TEMPLATE);
+        }
+        
+        agent.getPrinter().startNewLine();
+        for(Production p : collectProductions())
+        {
+            do_print_for_production(p);
+        }
+        
+        if(options.contains(Options.RL))
+        {
+            for(Production p : agent.getProductions().getProductions(null))
+            {
+                if (p.rl_rule)
+                    do_print_for_production(p);
+            }
+        }
+        agent.getPrinter().flush();
+        return "";
     }
     
     private void do_print_for_production(Production prod)
@@ -316,4 +339,5 @@ public class PrintCommand implements SoarCommand
         }
         p.print("\n");
     }
+    
 }
