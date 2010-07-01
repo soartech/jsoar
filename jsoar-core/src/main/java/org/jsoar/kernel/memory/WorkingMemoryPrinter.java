@@ -41,49 +41,61 @@ public class WorkingMemoryPrinter
      * @param idIn
      * @param pattern
      */
-    public void print(Agent agent, Printer printer, Symbol idIn, String pattern) throws Exception
+    public void print(Agent agent, Printer printer, Symbol idIn, String pattern)
+            throws Exception
     {
         Arguments.checkNotNull(agent, "agent");
         Arguments.checkNotNull(printer, "printer");
 
         this.printer = printer;
 
-        if(exact) {
-            List<Wme> wmes = Wmes.filter(agent.getAllWmesInRete().iterator(), WorkingMemoryPatternReader.getPredicate(agent, pattern));
-            if(internal) {
-                for(Wme w : wmes) {
+        if (exact || idIn == null)
+        {
+            // for wme patterns
+            if (pattern.length() > 2 && pattern.charAt(0) == '(' && pattern.charAt(pattern.length() - 1) == ')')
+                pattern = pattern.substring(1, pattern.length() - 1);
+            
+            List<Wme> wmes = Wmes.filter(agent.getAllWmesInRete().iterator(),
+                    WorkingMemoryPatternReader.getPredicate(agent, pattern));
+            if (internal)
+            {
+                for (Wme w : wmes)
                     printer.print("%s", w);
-                }
             }
             else
             {
-                // create a map of id -> wme so we can print out wmes with the same id together
-                Map<Symbol,List<Wme>> objects = new HashMap<Symbol, List<Wme>>();
-                for(Wme w : wmes) {
-                    if(!objects.containsKey(w.getIdentifier())) {
+                // create a map of id -> wme so we can print out wmes with the
+                // same id together
+                Map<Symbol, List<Wme>> objects = new HashMap<Symbol, List<Wme>>();
+                for (Wme w : wmes)
+                {
+                    if (!objects.containsKey(w.getIdentifier()))
+                    {
                         objects.put(w.getIdentifier(), new ArrayList<Wme>());
                     }
                     List<Wme> l = objects.get(w.getIdentifier());
                     l.add(w);
                 }
-                
-                // for each id, print the id and the attr/value pairs of the wmes with that id
-                for(Symbol id : objects.keySet()) {
+
+                // for each id, print the id and the attr/value pairs of the
+                // wmes with that id
+                for (Symbol id : objects.keySet())
+                {
                     printer.print("(%s", id);
-                    for(Wme w : objects.get(id)) {
+                    for (Wme w : objects.get(id))
+                    {
                         printer.print(" ^%s %s", w.getAttribute(), w.getValue());
-                        if(w.isAcceptable()) {
+                        if (w.isAcceptable())
                             printer.print(" +");
-                        }
                     }
                     printer.print(")\n");
                 }
             }
         }
-        else {
-            Arguments.checkNotNull(idIn, "id");
+        else
+        {
             IdentifierImpl id = (IdentifierImpl) idIn;
-            
+
             // RPM 4/07: first mark the nodes with their shallowest depth
             // then print them at their shallowest depth
             Marker tc = DefaultMarker.create();
