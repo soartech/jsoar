@@ -443,9 +443,13 @@ public class OptionProcessor<E>
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
      */
     public boolean has(E option)
     {
+        if (option == null)
+            throw new NullPointerException("Option key is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
@@ -481,9 +485,13 @@ public class OptionProcessor<E>
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
      */
     public void unset(E option)
     {
+        if (option == null)
+            throw new NullPointerException("Option key is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
@@ -504,9 +512,13 @@ public class OptionProcessor<E>
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
      */
     public void set(E option, String argument)
     {
+        if (option == null)
+            throw new NullPointerException("Option key is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
@@ -522,9 +534,13 @@ public class OptionProcessor<E>
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
      */
     public String getArgument(E option)
     {
+        if (option == null)
+            throw new NullPointerException("Option key is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");

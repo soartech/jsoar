@@ -628,4 +628,44 @@ public class OptionProcessorTest
         op.newOption(Options.alpha, "alpha").register();
         op.set(Options.alpha, null);
     }
+    
+    @Test(expected=NullPointerException.class)
+    public void testHasNull() throws SoarException
+    {
+        op.newOption(Options.alpha, "alpha").register();
+        op.process(Lists.newArrayList("command"));
+        op.has(null);
+    }
+    
+    @Test(expected=NullPointerException.class)
+    public void testGetNull() throws SoarException
+    {
+        op.newOption(Options.alpha, "alpha").register();
+        op.process(Lists.newArrayList("command"));
+        op.getArgument(null);
+    }
+    
+    @Test(expected=NullPointerException.class)
+    public void testSetNull() throws SoarException
+    {
+        op.newOption(Options.alpha, "alpha").register();
+        op.process(Lists.newArrayList("command"));
+        op.set(null);
+    }
+    
+    @Test(expected=NullPointerException.class)
+    public void testSetArgNull() throws SoarException
+    {
+        op.newOption(Options.alpha, "alpha").register();
+        op.process(Lists.newArrayList("command"));
+        op.set(null, null); // the second null here is legal
+    }
+    
+    @Test(expected=NullPointerException.class)
+    public void testUnsetNull() throws SoarException
+    {
+        op.newOption(Options.alpha, "alpha").register();
+        op.process(Lists.newArrayList("command"));
+        op.unset(null);
+    }
 }
