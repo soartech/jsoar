@@ -48,6 +48,7 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -61,6 +62,7 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
+import org.jsoar.util.properties.PropertyManager;
 
 /**
  * Default implementation of {@link SemanticMemory}
@@ -125,6 +127,8 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     private static final long SMEM_ACT_MAX = (0-1)/ 2; // TODO???
 
+    private Adaptable context;
+    private DefaultSemanticMemoryParams params;
     private SymbolFactoryImpl symbols;
     private RecognitionMemory recMem;
     private Chunker chunker;
@@ -141,7 +145,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     /** agent.h:smem_max_cycle */
     private /*intptr_t*/ long smem_max_cycle;
     
-    private final SemanticMemorySymbols predefinedSyms;
+    private SemanticMemorySymbols predefinedSyms;
     
     private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, SemanticMemoryStateInfo>();
     
@@ -152,12 +156,20 @@ public class DefaultSemanticMemory implements SemanticMemory
     
     public DefaultSemanticMemory(Adaptable context, SemanticMemoryDatabase db)
     {
+        this.context = context;
         this.db = db;
+    }
+
+    public void initialize()
+    {
         
         this.symbols = Adaptables.require(DefaultSemanticMemory.class, context, SymbolFactoryImpl.class);
         this.predefinedSyms = new SemanticMemorySymbols(this.symbols);
+        
+        final PropertyManager properties = Adaptables.require(DefaultSemanticMemory.class, context, PropertyManager.class);
+        params = new DefaultSemanticMemoryParams(properties);
+        
     }
-
     
     /* (non-Javadoc)
      * @see org.jsoar.kernel.smem.SemanticMemory#getCommand()
@@ -734,7 +746,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
         finally { rs.close(); }
 
-        if ( lti_child_ct >= 100 /* TODO SMEM params: my_agent->smem_params->thresh->get_value()*/ )
+        if ( lti_child_ct >= params.thresh.get())
         {
             // cycle=? WHERE lti=?
             db.act_lti_set.setLong( 1, smem_max_cycle++);
@@ -1094,7 +1106,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
 
         // already above threshold?
-        long thresh = 100; // TODO SMEM Params: static_cast<unsigned long>( my_agent->smem_params->thresh->get_value() );
+        long thresh = params.thresh.get();
         boolean before_above = ( child_ct >= thresh );
 
         // get final count
@@ -1953,18 +1965,10 @@ public class DefaultSemanticMemory implements SemanticMemory
         ////////////////////////////////////////////////////////////////////////////
         // TODO SMEM Timers my_agent->smem_timers->init->start();
         ////////////////////////////////////////////////////////////////////////////
-        final String db_path;
-        if (true /* TODO SMEM Params: my_agent->smem_params->database->get_value() == smem_param_container::memory*/ )
-        {
-            db_path = ":memory:";
-        }
-        else
-        {
-            db_path = ""; // my_agent->smem_params->path->get_value();
-        }
         
         // attempt connection
-        final Connection connection = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite:" + db_path);
+        final Connection connection = JdbcTools.connect(params.driver.get(), 
+                                                        params.path.get());
         try
         {
             db = new SemanticMemoryDatabase(connection);
@@ -1981,43 +1985,44 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             // cache
             {
-                final int cacheSize = 5000;
-                // TODO SMEM Params: cache size
-                /*
-                switch ( my_agent->smem_params->cache->get_value() )
+                final int cacheSize;
+                switch(params.cache.get())
                 {
-                    // 5MB cache
-                    case ( smem_param_container::cache_S ):
-                        temp_q = new soar_module::sqlite_statement( my_agent->smem_db, "PRAGMA cache_size = 5000" );
-                        break;
-
-                    // 20MB cache
-                    case ( smem_param_container::cache_M ):
-                        temp_q = new soar_module::sqlite_statement( my_agent->smem_db, "PRAGMA cache_size = 20000" );
-                        break;
-
-                    // 100MB cache
-                    case ( smem_param_container::cache_L ):
-                        temp_q = new soar_module::sqlite_statement( my_agent->smem_db, "PRAGMA cache_size = 100000" );
-                        break;
+                case small:  cacheSize = 5000;  break;   // 5MB cache
+                case medium: cacheSize = 20000; break; // 20MB cache
+                case large:  
+                default:     cacheSize = 100000; // 100MB cache
                 }
-                */
                 final Statement s = db.getConnection().createStatement();
-                s.execute("PRAGMA cache_size = " + cacheSize);
+                try
+                {
+                    s.execute("PRAGMA cache_size = " + cacheSize);
+                }
+                finally
+                {
+                    s.close();
+                }
             }
 
             // optimization
-            if (false /* TODO SMEM Params: my_agent->smem_params->opt->get_value() == smem_param_container::opt_speed */)
+            if (params.optimization.get() == Optimization.performance)
             {
                 // synchronous - don't wait for writes to complete (can corrupt the db in case unexpected crash during transaction)
                 final Statement s = db.getConnection().createStatement();
-                s.execute("PRAGMA synchronous = OFF" );
-
-                // journal_mode - no atomic transactions (can result in database corruption if crash during transaction)
-                s.execute("PRAGMA journal_mode = OFF" );
-                
-                // locking_mode - no one else can view the database after our first write
-                s.execute("PRAGMA locking_mode = EXCLUSIVE" );
+                try
+                {
+                    s.execute("PRAGMA synchronous = OFF" );
+    
+                    // journal_mode - no atomic transactions (can result in database corruption if crash during transaction)
+                    s.execute("PRAGMA journal_mode = OFF" );
+                    
+                    // locking_mode - no one else can view the database after our first write
+                    s.execute("PRAGMA locking_mode = EXCLUSIVE" );
+                }
+                finally
+                {
+                    s.close();
+                }
             }
         }
 
@@ -2051,31 +2056,31 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // threshold
                 if ( smem_variable_get(smem_variable_key.var_act_thresh, temp ) )
                 {
-                    // TODO SMEM Params: my_agent->smem_params->thresh->set_value( static_cast<long>( temp ) );
+                    params.thresh.set(temp.value);
                 }
                 else
                 {
-                    smem_variable_set(smem_variable_key.var_act_thresh, 100L /* TODO SMEM Params: static_cast<intptr_t>( my_agent->smem_params->thresh->get_value() )*/ );
+                    smem_variable_set(smem_variable_key.var_act_thresh, params.thresh.get());
                 }
 
                 // nodes
                 if ( smem_variable_get(smem_variable_key.var_num_nodes, temp ) )
                 {
-                 // TODO SMEM Params: my_agent->smem_stats->chunks->set_value( temp );
+                 // TODO SMEM Stats: my_agent->smem_stats->chunks->set_value( temp );
                 }
                 else
                 {
-                 // TODO SMEM Params: my_agent->smem_stats->chunks->set_value( 0 );
+                 // TODO SMEM Stats: my_agent->smem_stats->chunks->set_value( 0 );
                 }
 
                 // edges
                 if ( smem_variable_get(smem_variable_key.var_num_edges, temp ) )
                 {
-                 // TODO SMEM Params: my_agent->smem_stats->slots->set_value( temp );
+                 // TODO SMEM Stats: my_agent->smem_stats->slots->set_value( temp );
                 }
                 else
                 {
-                 // TODO SMEM Params: my_agent->smem_stats->slots->set_value( 0 );
+                 // TODO SMEM Stats: my_agent->smem_stats->slots->set_value( 0 );
                 }
             }
         }
@@ -2083,7 +2088,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         db.commit.executeUpdate( /*soar_module::op_reinit*/ );
 
         // if lazy commit, then we encapsulate the entire lifetime of the agent in a single transaction
-        if (false /* TODO SMEM Params: my_agent->smem_params->lazy_commit->get_value() == soar_module::on */)
+        if (params.lazy_commit.get())
         {
             db.begin.executeUpdate( /*soar_module::op_reinit*/ );
         }
@@ -2137,7 +2142,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // TODO SMEM Stats: smem_variable_set( smem_variable_key.var_num_edges, my_agent->smem_stats->slots->get_value() );
 
                 // if lazy, commit
-                if (false /* TODO SMEM Params: my_agent->smem_params->lazy_commit->get_value() == soar_module::on */)
+                if (params.lazy_commit.get())
                 {
                     db.commit.executeUpdate( /*soar_module::op_reinit*/ );
                 }
@@ -2904,7 +2909,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         ////////////////////////////////////////////////////////////////////////////
 
                         // start transaction (if not lazy)
-                        if (true /* TODO SMEM Params: my_agent->smem_params->lazy_commit->get_value() == soar_module::off */)
+                        if (!params.lazy_commit.get())
                         {
                             db.begin.executeUpdate( /*soar_module::op_reinit*/ );
                         }
@@ -2921,7 +2926,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         }
 
                         // commit transaction (if not lazy)
-                        if (true /* TODO SMEM Params: my_agent->smem_params->lazy_commit->get_value() == soar_module::off */)
+                        if (!params.lazy_commit.get())
                         {
                             db.commit.executeUpdate( /*soar_module::op_reinit*/ );
                         }
