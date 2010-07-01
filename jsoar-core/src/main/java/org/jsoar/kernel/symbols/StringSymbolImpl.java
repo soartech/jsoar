@@ -107,7 +107,7 @@ public class StringSymbolImpl extends SymbolImpl implements StringSymbol
             // If for any reason, the value could be interpreted as something other than
             // a string, escape it.
             if(!possible.possible_sc  || 
-                possible.possible_id  || 
+               (possible.possible_id && Character.isUpperCase(getValue().charAt(0))) || 
                 possible.possible_var || 
                 possible.possible_ic  || 
                 possible.possible_fc  ||
