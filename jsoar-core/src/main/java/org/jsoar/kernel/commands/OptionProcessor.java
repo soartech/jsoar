@@ -8,8 +8,6 @@ import java.util.Map;
 
 import org.jsoar.kernel.SoarException;
 
-import com.google.common.collect.Lists;
-
 /**
  * Option processor utility for Soar command line interface. Very similar to
  * csoar option processor. Intended usage: create, register options, loop:
@@ -447,6 +445,67 @@ public class OptionProcessor<E>
             throw new IllegalStateException(
                     "Call process() before testing for options.");
         return arguments.containsKey(option);
+    }
+
+    /**
+     * Manually set an option as if it had been encountered during process.
+     * 
+     * Caution: This doesn't enforce optional/required arguments!
+     * 
+     * TODO: tests
+     * 
+     * @param option
+     *            The option to set.
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     */
+    public void set(E option)
+    {
+        set(option, null);
+    }
+
+    /**
+     * Manually unset an option as if it had never been encountered during
+     * process.
+     * 
+     * TODO: tests
+     * 
+     * @param option
+     *            The option to unset.
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     */
+    public void unset(E option)
+    {
+        if (arguments == null)
+            throw new IllegalStateException(
+                    "Call process() before testing for options.");
+        arguments.remove(option);
+    }
+
+    /**
+     * Manually set an option and its argument.
+     * 
+     * Caution: This doesn't enforce optional/required arguments!
+     * 
+     * TODO: tests
+     * 
+     * @param option
+     *            The option to set.
+     * @param argument
+     *            The option's argument, or null
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     */
+    public void set(E option, String argument)
+    {
+        if (arguments == null)
+            throw new IllegalStateException(
+                    "Call process() before testing for options.");
+        arguments.put(option, argument);
     }
 
     /**
