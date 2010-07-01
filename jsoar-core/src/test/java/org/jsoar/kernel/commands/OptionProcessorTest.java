@@ -571,4 +571,61 @@ public class OptionProcessorTest
         assertArrayEquals(expected, nonOpt.toArray());
 
     }
+    
+    @Test
+    public void testManualSetUnset() throws SoarException
+    {
+        op.newOption(Options.alpha, "alpha").setOptionalArg().register();
+        op.newOption(Options.bravo, "bravo").register();
+        op.process(Lists.newArrayList("command"));
+
+        assertFalse(op.has(Options.alpha));
+        assertFalse(op.has(Options.bravo));
+
+        op.set(Options.alpha);
+
+        assertTrue(op.has(Options.alpha));
+        assertFalse(op.has(Options.bravo));
+
+        op.unset(Options.alpha);
+        op.set(Options.bravo);
+
+        assertFalse(op.has(Options.alpha));
+        assertTrue(op.has(Options.bravo));
+        assertNull(op.getArgument(Options.bravo));
+        
+        op.set(Options.bravo, "arg"); // ignores fact this option takes no arg
+
+        assertFalse(op.has(Options.alpha));
+        assertTrue(op.has(Options.bravo));
+        assertEquals("arg", op.getArgument(Options.bravo));
+        
+        op.unset(Options.bravo);
+        op.set(Options.bravo, null);
+
+        assertFalse(op.has(Options.alpha));
+        assertTrue(op.has(Options.bravo));
+        assertNull(op.getArgument(Options.bravo));
+    }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testManualOrderException1()
+    {
+        op.newOption(Options.alpha, "alpha").register();
+        op.set(Options.alpha);
+    }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testManualOrderException2()
+    {
+        op.newOption(Options.alpha, "alpha").register();
+        op.unset(Options.alpha);
+    }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testManualOrderException3()
+    {
+        op.newOption(Options.alpha, "alpha").register();
+        op.set(Options.alpha, null);
+    }
 }
