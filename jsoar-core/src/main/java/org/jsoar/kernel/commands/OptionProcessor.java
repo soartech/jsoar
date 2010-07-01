@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2010  Jonathan Voigt <voigtjr@gmail.com>
+ *
+ * Created on June 29, 2010
+ */
 package org.jsoar.kernel.commands;
 
 import java.util.ArrayList;
@@ -28,7 +33,7 @@ import org.jsoar.kernel.SoarException;
  * TODO: potentially allow --option=arg and -o=arg syntax (right now the equal
  * is not dropped)
  * 
- * @author Jonathan Voigt <voigtjr@gmail.com>
+ * @author voigtjr
  * 
  * @param <E>
  *            user-defined option reference object
