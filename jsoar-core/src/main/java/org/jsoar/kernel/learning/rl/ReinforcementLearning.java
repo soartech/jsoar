@@ -70,7 +70,7 @@ public class ReinforcementLearning
     }
     
     /**
-     * Retrieve a proeprty key for an RL property. Appropriately adds necessary
+     * Retrieve a property key for an RL property. Appropriately adds necessary
      * prefixes to the name to find the right key.
      * 
      * @param props the property manager
