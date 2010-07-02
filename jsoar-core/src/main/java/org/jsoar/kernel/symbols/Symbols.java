@@ -289,4 +289,33 @@ public class Symbols
         return 0.0;
     }
 
+    public static boolean equalByValue(Symbol s1, Symbol s2)
+    {
+        Identifier i1 = s1.asIdentifier();
+        Identifier i2 = s2.asIdentifier();
+
+        // both are ids, so compare them
+        if (i1 != null && i2 != null)
+        {
+            if (i1.getNameLetter() == i2.getNameLetter()
+                    && i1.getNameNumber() == i2.getNameNumber())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        // one is an id and the other is not, so they are not equal
+        else if (i1 != null || i2 != null)
+        {
+            return false;
+        }
+        else
+        {
+            return Symbols.valueOf(s1).equals(Symbols.valueOf(s2));
+        }
+        
+    }
 }

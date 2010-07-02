@@ -270,28 +270,11 @@ public class Wmes
             boolean foundMatch = false;
             for(Wme w2 : c2)
             {        
-                if(!ignoreIdentifiers && w1.getIdentifier() != w2.getIdentifier())
+                if (equal(w1, w2, ignoreIdentifiers))
                 {
-                    continue;
+                    foundMatch = true;
+                    break;
                 }
-                
-                if(!ignoreIdentifiers || w1.getAttribute().asIdentifier() == null)
-                {
-                    if(w1.getAttribute() != w2.getAttribute())
-                    {
-                        continue;
-                    }
-                }
-                
-                if(!ignoreIdentifiers || w1.getValue().asIdentifier() == null)
-                {
-                    if(w1.getValue() != w2.getValue())
-                    {
-                        continue;
-                    }
-                }
-                foundMatch = true;
-                break;
             }
             
             if(!foundMatch)
@@ -302,6 +285,38 @@ public class Wmes
         
         // if get here, must be a perfect match
         return true;
+    }
+    
+    public static boolean equal(Wme w1, Wme w2, boolean ignoreIdentifiers)
+    {
+        if(!ignoreIdentifiers && w1.getIdentifier() != w2.getIdentifier())
+        {
+            return false;
+        }
+        
+        if(!ignoreIdentifiers || w1.getAttribute().asIdentifier() == null)
+        {
+            if(w1.getAttribute() != w2.getAttribute())
+            {
+                return false;
+            }
+        }
+        
+        if(!ignoreIdentifiers || w1.getValue().asIdentifier() == null)
+        {
+            if(w1.getValue() != w2.getValue())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean equalByValue(Wme w1, Wme w2)
+    {
+        return (Symbols.equalByValue(w1.getIdentifier(), w2.getIdentifier())
+                && Symbols.equalByValue(w1.getAttribute(), w2.getAttribute())
+                && Symbols.equalByValue(w1.getValue(), w2.getValue()));
     }
     
     public static class MatcherBuilder
