@@ -1487,34 +1487,42 @@ public class DefaultSemanticMemory implements SemanticMemory
             // get direct children: attr_const, attr_type, value_const, value_type, value_letter, value_num, value_lti
             db.web_expand.setLong( 1, parent_id );
             final ResultSet rs = db.web_expand.executeQuery();
-            while (rs.next())
+            try
             {
-                // make the identifier symbol irrespective of value type
-                final SymbolImpl attr_sym = smem_statement_to_symbol( rs, 1, 0 );
-
-                // identifier vs. constant
-                final SymbolImpl value_sym;
-                if(rs.getMetaData().getColumnType(2 + 1) == java.sql.Types.NULL)
+                while (rs.next())
                 {
-                    value_sym = smem_lti_soar_make(rs.getLong(6 + 1), 
-                                                   (char) rs.getLong(4 + 1), 
-                                                   rs.getLong(5 + 1), 
-                                                   lti.level );
+                    // make the identifier symbol irrespective of value type
+                    final SymbolImpl attr_sym = smem_statement_to_symbol( rs, 1, 0 );
+    
+                    // identifier vs. constant
+                    final SymbolImpl value_sym;
+                    if(rs.getMetaData().getColumnType(2 + 1) == java.sql.Types.NULL)
+                    {
+                        value_sym = smem_lti_soar_make(rs.getLong(6 + 1), 
+                                                       (char) rs.getLong(4 + 1), 
+                                                       rs.getLong(5 + 1), 
+                                                       lti.level );
+                    }
+                    else
+                    {
+                        value_sym = smem_statement_to_symbol( rs, 3, 2 );
+                    }
+    
+                    // add wme
+                    smem_add_retrieved_wme( state, lti, attr_sym, value_sym );
+    
+                    // deal with ref counts - attribute/values are always created in this function
+                    // (thus an extra ref count is set before adding a wme)
+                    // Not needed in JSoar
+                    //symbol_remove_ref( my_agent, attr_sym );
+                    //symbol_remove_ref( my_agent, value_sym );
                 }
-                else
-                {
-                    value_sym = smem_statement_to_symbol( rs, 3, 2 );
-                }
-
-                // add wme
-                smem_add_retrieved_wme( state, lti, attr_sym, value_sym );
-
-                // deal with ref counts - attribute/values are always created in this function
-                // (thus an extra ref count is set before adding a wme)
-                // Not needed in JSoar
-                //symbol_remove_ref( my_agent, attr_sym );
-                //symbol_remove_ref( my_agent, value_sym );
             }
+            finally
+            {
+                rs.close();
+            }
+            
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -1720,110 +1728,110 @@ public class DefaultSemanticMemory implements SemanticMemory
             final ResultSet qrs = q.executeQuery();
             try
             {
-            if ( qrs.next() )
-            {
-                final PriorityQueue<ActivatedLti> plentiful_parents = ActivatedLti.newPriorityQueue();
-                boolean more_rows = true;
-                boolean use_db = false;
-
-                while ( more_rows && ( qrs.getLong( 1 + 1 ) == SMEM_ACT_MAX ) )
+                if ( qrs.next() )
                 {
-                    db.act_lti_get.setLong( 1, qrs.getLong( 0 + 1 ) );
-                    final ResultSet actLtiGetRs = db.act_lti_get.executeQuery();
-                    try
+                    final PriorityQueue<ActivatedLti> plentiful_parents = ActivatedLti.newPriorityQueue();
+                    boolean more_rows = true;
+                    boolean use_db = false;
+    
+                    while ( more_rows && ( qrs.getLong( 1 + 1 ) == SMEM_ACT_MAX ) )
                     {
-                        plentiful_parents.add(new ActivatedLti(actLtiGetRs.getLong( 0 + 1 ), 
-                                                               qrs.getLong( 0 + 1 ) ) );
-                    }
-                    finally
-                    {
-                        actLtiGetRs.close();
-                    }
-                    //my_agent->smem_stmts->act_lti_get->reinitialize();
-
-                    more_rows = qrs.next(); //( q->execute() == soar_module::row );
-                }
-
-                while ( ( king_id == 0 ) && ( ( more_rows ) || ( !plentiful_parents.isEmpty() ) ) )
-                {
-                    // choose next candidate (db vs. priority queue)
-                    {               
-                        use_db = false;
-                        
-                        if ( !more_rows )
+                        db.act_lti_get.setLong( 1, qrs.getLong( 0 + 1 ) );
+                        final ResultSet actLtiGetRs = db.act_lti_get.executeQuery();
+                        try
                         {
+                            plentiful_parents.add(new ActivatedLti(actLtiGetRs.getLong( 0 + 1 ), 
+                                                                   qrs.getLong( 0 + 1 ) ) );
+                        }
+                        finally
+                        {
+                            actLtiGetRs.close();
+                        }
+                        //my_agent->smem_stmts->act_lti_get->reinitialize();
+    
+                        more_rows = qrs.next(); //( q->execute() == soar_module::row );
+                    }
+    
+                    while ( ( king_id == 0 ) && ( ( more_rows ) || ( !plentiful_parents.isEmpty() ) ) )
+                    {
+                        // choose next candidate (db vs. priority queue)
+                        {               
                             use_db = false;
-                        }
-                        else if ( plentiful_parents.isEmpty() )
-                        {
-                            use_db = true;
-                        }
-                        else
-                        {
-                            use_db = ( qrs.getLong( 1 + 1) >  plentiful_parents.peek().first );                       
-                        }
-
-                        if ( use_db )
-                        {
-                            cand = qrs.getLong( 0 + 1 );
-                            more_rows = qrs.next(); // ( q->execute() == soar_module::row );
-                        }
-                        else
-                        {
-                            cand = plentiful_parents.remove().second; // top()/pop()
-                        }
-                    }
-
-                    // if not prohibited, submit to the remaining cue elements
-                    if (!prohibit.contains(cand))
-                    {
-                        good_cand = true;
-
-                        final Iterator<WeightedCueElement> it = weighted_cue.iterator();
-                        it.next(); // skip first element
-                        for ( ; ( ( good_cand ) && ( it.hasNext() ) );  )
-                        {
-                            final WeightedCueElement next_element = it.next();
-                            if ( next_element.element_type == smem_cue_element_type.attr_t )
+                            
+                            if ( !more_rows )
                             {
-                                // parent=? AND attr=?
-                                q2 = db.web_attr_child;
+                                use_db = false;
                             }
-                            else if ( next_element.element_type == smem_cue_element_type.value_const_t )
+                            else if ( plentiful_parents.isEmpty() )
                             {
-                                // parent=? AND attr=? AND val_const=?
-                                q2 = db.web_const_child;
-                                q2.setLong( 3, next_element.value_hash );
+                                use_db = true;
                             }
-                            else if ( next_element.element_type == smem_cue_element_type.value_lti_t )
+                            else
                             {
-                                // parent=? AND attr=? AND val_lti=?
-                                q2 = db.web_lti_child;
-                                q2.setLong( 3, next_element.value_lti );
+                                use_db = ( qrs.getLong( 1 + 1) >  plentiful_parents.peek().first );                       
                             }
-
-                            // all require own id, attribute
-                            q2.setLong( 1, cand );
-                            q2.setLong( 2, next_element.attr_hash );
-
-                            final ResultSet q2rs = q2.executeQuery();
-                            try
+    
+                            if ( use_db )
                             {
-                                good_cand = q2rs.next(); //( q2->execute( soar_module::op_reinit ) == soar_module::row );
+                                cand = qrs.getLong( 0 + 1 );
+                                more_rows = qrs.next(); // ( q->execute() == soar_module::row );
                             }
-                            finally
+                            else
                             {
-                                q2rs.close();
+                                cand = plentiful_parents.remove().second; // top()/pop()
                             }
                         }
-
-                        if ( good_cand )
+    
+                        // if not prohibited, submit to the remaining cue elements
+                        if (!prohibit.contains(cand))
                         {
-                            king_id = cand;
+                            good_cand = true;
+    
+                            final Iterator<WeightedCueElement> it = weighted_cue.iterator();
+                            it.next(); // skip first element
+                            for ( ; ( ( good_cand ) && ( it.hasNext() ) );  )
+                            {
+                                final WeightedCueElement next_element = it.next();
+                                if ( next_element.element_type == smem_cue_element_type.attr_t )
+                                {
+                                    // parent=? AND attr=?
+                                    q2 = db.web_attr_child;
+                                }
+                                else if ( next_element.element_type == smem_cue_element_type.value_const_t )
+                                {
+                                    // parent=? AND attr=? AND val_const=?
+                                    q2 = db.web_const_child;
+                                    q2.setLong( 3, next_element.value_hash );
+                                }
+                                else if ( next_element.element_type == smem_cue_element_type.value_lti_t )
+                                {
+                                    // parent=? AND attr=? AND val_lti=?
+                                    q2 = db.web_lti_child;
+                                    q2.setLong( 3, next_element.value_lti );
+                                }
+    
+                                // all require own id, attribute
+                                q2.setLong( 1, cand );
+                                q2.setLong( 2, next_element.attr_hash );
+    
+                                final ResultSet q2rs = q2.executeQuery();
+                                try
+                                {
+                                    good_cand = q2rs.next(); //( q2->execute( soar_module::op_reinit ) == soar_module::row );
+                                }
+                                finally
+                                {
+                                    q2rs.close();
+                                }
+                            }
+    
+                            if ( good_cand )
+                            {
+                                king_id = cand;
+                            }
                         }
                     }
                 }
-            }
             }
             finally
             {
