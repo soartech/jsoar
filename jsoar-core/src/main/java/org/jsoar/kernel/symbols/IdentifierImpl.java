@@ -371,7 +371,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format(name_letter + Integer.toString(name_number));
+        formatter.format((smem_lti != 0 ? "@" : "") + name_letter + Integer.toString(name_number));
     }
     
     /* (non-Javadoc)

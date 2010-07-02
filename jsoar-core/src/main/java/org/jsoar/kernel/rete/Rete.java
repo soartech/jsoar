@@ -35,7 +35,6 @@ import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
-import org.jsoar.kernel.symbols.VariableGenerator;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
@@ -475,6 +474,7 @@ public class Rete
           add_wme_to_aht (alpha_hash_tables.get(7),  xor_op(hi,ha,hv), w);
         }
         
+        // TODO EPMEM update id ref counts
     }
     
     /**
@@ -486,6 +486,8 @@ public class Rete
      */
     public void remove_wme_from_rete (WmeImpl w)
     {
+        // TODO EPMEM update epmem when wme removed from rete
+        
         /* --- remove w from all_wmes_in_rete --- */
         all_wmes_in_rete.remove(w);
         //w.in_rete.remove(all_wmes_in_rete);

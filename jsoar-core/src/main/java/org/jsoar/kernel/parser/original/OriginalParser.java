@@ -16,7 +16,6 @@ import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
-import org.jsoar.kernel.symbols.VariableGenerator;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;

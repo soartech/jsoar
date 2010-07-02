@@ -33,19 +33,19 @@ public class SemanticMemoryStateInfo
     public final Set<WmeImpl> cue_wmes = new HashSet<WmeImpl>();                     // wmes in last cue
     public final Deque<Preference> smem_wmes = new ArrayDeque<Preference>(); // wmes in last smem
     
-    public final IdentifierImpl smem_header = null; 
-    public final IdentifierImpl smem_cmd_header = null;
-    public final IdentifierImpl smem_result_header = null;
+    public final IdentifierImpl smem_header; 
+    public final IdentifierImpl smem_cmd_header;
+    public final IdentifierImpl smem_result_header;
     
     public SemanticMemoryStateInfo(DefaultSemanticMemory smem, WorkingMemory wm, IdentifierImpl id)
     {
         // decide.cpp:create_new_impasse
         // TODO SMEM enable when SMEM works
-//        smem_header = smem.symbols.make_new_identifier( 'S', id.level );      
-//        SoarModule.add_module_wme(wm, id, smem.predefinedSyms.smem_sym, smem_header );
-//        smem_cmd_header = smem.symbols.make_new_identifier( 'C', id.level );
-//        SoarModule.add_module_wme(wm, smem_header, smem.predefinedSyms.smem_sym_cmd, smem_cmd_header );  
-//        smem_result_header = smem.symbols.make_new_identifier( 'R', id.level );
-//        SoarModule.add_module_wme(wm, smem_header, smem.predefinedSyms.smem_sym_result, smem_result_header );
+        smem_header = null; //smem.symbols.make_new_identifier( 'S', id.level );      
+        //SoarModule.add_module_wme(wm, id, smem.predefinedSyms.smem_sym, smem_header );
+        smem_cmd_header = null; //smem.symbols.make_new_identifier( 'C', id.level );
+        //SoarModule.add_module_wme(wm, smem_header, smem.predefinedSyms.smem_sym_cmd, smem_cmd_header );  
+        smem_result_header = null; //smem.symbols.make_new_identifier( 'R', id.level );
+        //SoarModule.add_module_wme(wm, smem_header, smem.predefinedSyms.smem_sym_result, smem_result_header );
     }
 }

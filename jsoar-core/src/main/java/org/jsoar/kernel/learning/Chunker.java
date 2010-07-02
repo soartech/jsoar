@@ -377,12 +377,23 @@ public class Chunker
      */
     public SymbolImpl variablize_symbol(SymbolImpl sym)
     {
-        IdentifierImpl id = sym.asIdentifier();
-        if (id == null)
+        // only variablize identifiers
+        final IdentifierImpl id = sym.asIdentifier(); 
+        if (id == null)                         
             return sym;
+        
+        // don't variablize (justifications)
         if (!this.variablize_this_chunk)
             return sym;
-
+        
+        // don't variablize lti (long term identifiers)
+        if(id.smem_lti != 0)
+        {
+            id.tc_number = variablization_tc;
+            id.variablization = sym;
+            return sym;
+        }
+        
         if (id.tc_number == this.variablization_tc)
         {
             // it's already been variablized, so use the existing variable

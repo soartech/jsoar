@@ -405,7 +405,7 @@ public class ReinforcementLearning
      */
     static void rl_get_symbol_constant( SymbolImpl p_sym, SymbolImpl i_sym, Map<SymbolImpl, SymbolImpl> constants )
     {
-        if(p_sym.asVariable() != null && (i_sym.asIdentifier() == null /*TODO|| i_sym->id.smem_lti != NIL */))
+        if(p_sym.asVariable() != null && (i_sym.asIdentifier() == null || i_sym.asIdentifier().smem_lti != 0))
         {
             constants.put(p_sym, i_sym);
         }

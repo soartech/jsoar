@@ -43,6 +43,7 @@ import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.rhs.UnboundVariable;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
+import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -303,7 +304,16 @@ public class RecognitionMemory
         final RhsSymbolValue rsv = rv.asSymbolValue();
         if (rsv != null)
         {
-            return rsv.getSym();
+            final SymbolImpl result = rsv.getSym();
+            
+            // See recmem.cpp:instantiate_rhs_value() for long-winded explanation of the following
+            final IdentifierImpl resultAsId = result.asIdentifier();
+            if(resultAsId != null && resultAsId.smem_lti != 0 && resultAsId.level == SemanticMemory.LTI_UNKNOWN_LEVEL)
+            {
+                resultAsId.level = new_id_level;
+                resultAsId.promotion_level = new_id_level;
+            }
+            return result;
         }
 
         final UnboundVariable uv = rv.asUnboundVariable();
