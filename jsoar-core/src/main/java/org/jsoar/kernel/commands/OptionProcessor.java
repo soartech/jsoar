@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2010  Jonathan Voigt <voigtjr@gmail.com>
+ *
+ * Created on June 29, 2010
+ */
 package org.jsoar.kernel.commands;
 
 import java.util.ArrayList;
@@ -6,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
+import org.jsoar.kernel.SoarException;
 
 /**
  * Option processor utility for Soar command line interface. Very similar to
@@ -17,21 +22,15 @@ import com.google.common.collect.Lists;
  * Long options should be all lower-case letters and dashes. Short options
  * should be a single upper- or lower- case letter.
  * 
- * TODO: Other exception types instead of RuntimeException
- * 
- * TODO: tests!!!!!!!!!!
- * 
- * TODO: upper/lower-case enforcement
+ * TODO: SoarException probably the wrong exception to use since this has
+ * nothing (really) to do with Soar
  * 
  * TODO: partial matches on long options
  * 
  * TODO: potentially rewrite using buffers or something to avoid so many string
  * objects
  * 
- * TODO: potentially allow --option=arg and -o=arg syntax (right now the equal
- * is not dropped)
- * 
- * @author Jonathan Voigt <voigtjr@gmail.com>
+ * @author voigtjr
  * 
  * @param <E>
  *            user-defined option reference object
@@ -50,6 +49,211 @@ public class OptionProcessor<E>
         return new OptionProcessor<E>();
     }
 
+    public class OptionBuilder
+    {
+        private final E key;
+
+        private final String longOption;
+
+        private String shortOption;
+
+        private ArgType type = ArgType.NONE;
+
+        private boolean registered = false;
+
+        /**
+         * Starts building a new option. Call using newOption(). Must call
+         * register() before this option will work.
+         * 
+         * By default the short option will be the first character of the long
+         * option. To make a short option with a capital letter, capitalize the
+         * first character of the long option, or call setShortOption later. The
+         * long option will be forced to lower-case after setting the short
+         * option.
+         * 
+         * @param key
+         *            User key to refer to this option later.
+         * @param longOption
+         *            Long option, omit initial dashes, will be forced to
+         *            lower-case after first char is used for short option.
+         * @throws NullPointerException
+         *             If any arguments are null.
+         * @throws IllegalArgumentException
+         *             If arguments have bad content.
+         */
+        private OptionBuilder(E key, String longOption)
+        {
+            if (key == null)
+                throw new NullPointerException("key must not be null.");
+
+            if (longOption == null)
+                throw new NullPointerException("longOption must not be null.");
+
+            if (longOption.isEmpty())
+                throw new IllegalArgumentException(
+                        "Long option is empty string.");
+
+            if (longOption.matches("[^a-z-]+"))
+                throw new IllegalArgumentException(
+                        "Illegal characters in long option.");
+
+            if (longOption.charAt(0) == '-')
+                throw new IllegalArgumentException(
+                        "Long option can't start with dash.");
+
+            this.key = key;
+            setShortOption(longOption.substring(0, 1));
+
+            longOption = longOption.toLowerCase();
+            this.longOption = longOption;
+        }
+
+        /**
+         * Set the short option. The default for this is the first character of
+         * the long option. Must be a letter.
+         * 
+         * @param shortOption
+         * @return The builder.
+         * @throws IllegalArgumentException
+         *             If argument has bad content.
+         * @throws IllegalStateException
+         *             If option is already registered.
+         */
+        public OptionBuilder setShortOption(String shortOption)
+        {
+            if (registered)
+                throw new IllegalStateException("Already registered.");
+
+            if (shortOption.length() != 1
+                    || !Character.isLetter(shortOption.charAt(0)))
+                throw new IllegalArgumentException(
+                        "Short option is not a single letter.");
+            this.shortOption = shortOption;
+            return this;
+        }
+
+        /**
+         * Mark this option as having no argument. This is the default.
+         * 
+         * @return The builder.
+         * @throws IllegalStateException
+         *             If option is already registered.
+         */
+        public OptionBuilder setNoArg()
+        {
+            if (registered)
+                throw new IllegalStateException("Already registered.");
+
+            type = ArgType.NONE;
+            return this;
+        }
+
+        /**
+         * Mark this option as having an optional argument.
+         * 
+         * This option will consume the next option on the line, if any. When
+         * using short options, the argument can be placed with the short
+         * option: -aone could be equivalent to -a one
+         * 
+         * @return The builder.
+         * @throws IllegalStateException
+         *             If option is already registered.
+         */
+        public OptionBuilder setOptionalArg()
+        {
+            if (registered)
+                throw new IllegalStateException("Already registered.");
+
+            type = ArgType.OPTIONAL;
+            return this;
+        }
+
+        /**
+         * Mark this option as having a required argument. This option must be
+         * followed by an argument.
+         * 
+         * This option will consume the next option on the line, if any. When
+         * using short options, the argument can be placed with the short
+         * option: -aone could be equivalent to -a one
+         * 
+         * @return The builder.
+         * @throws IllegalStateException
+         *             If option is already registered.
+         */
+        public OptionBuilder setRequiredArg()
+        {
+            if (registered)
+                throw new IllegalStateException("Already registered.");
+
+            type = ArgType.REQUIRED;
+            return this;
+        }
+
+        /**
+         * Register the option with the option manager.
+         * 
+         * @throws IllegalStateException
+         *             If option is already registered.
+         * @throws IllegalArgumentException
+         *             If there is another option with the short or long option
+         *             name already registered.
+         */
+        public void register()
+        {
+            if (registered)
+                throw new IllegalStateException("Already registered.");
+
+            arguments = null;
+
+            Option prev = shortOptions.put(shortOption, new Option(key, type));
+            if (prev != null)
+                throw new IllegalArgumentException(
+                        "Already have a short option using -" + shortOption
+                                + ": " + prev.key);
+            prev = longOptions.put(longOption, new Option(key, type));
+            if (prev != null)
+            {
+                shortOptions.remove(shortOption);
+                throw new IllegalArgumentException(
+                        "Already have a long option using --" + longOption
+                                + ": " + prev.key);
+            }
+            registered = true;
+        }
+    }
+
+    /**
+     * Create a new option builder associating the passed key with the passed
+     * long option. Call register() on returned builder object to register it
+     * with the associated option processor. The short option defaults to the
+     * first letter of the long option. To use an upper-case letter in the short
+     * option, pass a long option with an upper-case first letter--the long
+     * option will be forced to lower-case after.
+     * 
+     * Set a custom short option by calling setShortOption on the returned
+     * builder. Useful for commands with more than two long options that start
+     * with the same letter.
+     * 
+     * Argument type defaults to none, call setOptionalArg or setRequiredArg to
+     * change.
+     * 
+     * @param key
+     *            User-supplied and user-defined index for this option and its
+     *            argument in the future.
+     * @param longOption
+     *            The long option for this argument.
+     * @return Option builder, call register() on this to complete registration
+     *         of command.
+     * @throws NullPointerException
+     *             If any arguments are null.
+     * @throws IllegalArgumentException
+     *             If arguments have bad content.
+     */
+    public OptionBuilder newOption(E key, String longOption)
+    {
+        return new OptionBuilder(key, longOption);
+    }
+
     /**
      * Argument type, denotes whether or not the option takes an argument or
      * not, or if it is optional.
@@ -57,27 +261,27 @@ public class OptionProcessor<E>
      * @author voigtjr
      * 
      */
-    public enum ArgType
+    private enum ArgType
     {
         NONE, REQUIRED, OPTIONAL,
     }
 
     private class Option
     {
-        Option(E option, ArgType type)
+        Option(E key, ArgType type)
         {
-            this.option = option;
+            this.key = key;
             this.type = type;
         }
 
-        E option;
+        E key;
 
         ArgType type;
 
         @Override
         public String toString()
         {
-            return option.toString() + "(" + type.toString() + ")";
+            return key.toString() + "(" + type.toString() + ")";
         }
     }
 
@@ -85,74 +289,7 @@ public class OptionProcessor<E>
 
     private final Map<String, Option> longOptions = new HashMap<String, Option>();
 
-    private final Map<E, String> arguments = new HashMap<E, String>();
-
-    /**
-     * Registers an option that does not have an argument, and uses the first
-     * character of the long option as its short option.
-     * 
-     * @param option
-     *            User key to refer to this option later.
-     * @param longOption
-     *            Long option, lower-case, omit initial dashes.
-     * @throws IllegalArgumentException
-     *             If there is an option name collision.
-     */
-    public void registerOption(E option, String longOption)
-            throws IllegalArgumentException
-    {
-        registerOption(option, longOption, longOption.substring(0, 1));
-    }
-
-    /**
-     * Registers an option that does not have an argument.
-     * 
-     * @param option
-     *            User key to refer to this option later.
-     * @param longOption
-     *            Long option, lower-case, omit initial dashes.
-     * @param shortOption
-     *            Short option (one letter), no dash.
-     * @throws IllegalArgumentException
-     *             If there is an option name collision.
-     */
-    public void registerOption(E option, String longOption, String shortOption)
-            throws IllegalArgumentException
-    {
-        registerOption(option, longOption, shortOption, ArgType.NONE);
-    }
-
-    /**
-     * Register an option. TODO: case and dash enforcement
-     * 
-     * @param option
-     *            User key to refer to this option later.
-     * @param longOption
-     *            Long option, lower-case, omit initial dashes.
-     * @param shortOption
-     *            Short option (one letter), no dash.
-     * @param type
-     *            Specify if the option takes an argument or not.
-     * @throws IllegalArgumentException
-     *             If there is an option name collision.
-     */
-    public void registerOption(E option, String longOption, String shortOption,
-            ArgType type) throws IllegalArgumentException
-    {
-        Option prev = shortOptions.put(shortOption, new Option(option, type));
-        if (prev != null)
-            throw new IllegalArgumentException(
-                    "Already have a short option using -" + shortOption + ": "
-                            + prev.option);
-        prev = longOptions.put(longOption, new Option(option, type));
-        if (prev != null)
-        {
-            shortOptions.remove(shortOption);
-            throw new IllegalArgumentException(
-                    "Already have a long option using --" + longOption + ": "
-                            + prev.option);
-        }
-    }
+    private Map<E, String> arguments = new HashMap<E, String>();
 
     /**
      * Evaluate a command line. Assumes first arg is command name (ignored).
@@ -177,16 +314,17 @@ public class OptionProcessor<E>
      * Non-option arguments are collected and returned in a new list in the same
      * order they are encountered.
      * 
-     * TODO: more documentation, examples
-     * 
      * @param args
      *            Command line, first arg is command name (ignored).
      * @return Only non-option arguments in same order as on the original
      *         command line.
+     * @throws SoarException
+     *             If there is an unknown option on the command line, or a
+     *             missing required argument.
      */
-    public List<String> process(List<String> args)
+    public List<String> process(List<String> args) throws SoarException
     {
-        arguments.clear();
+        arguments = new HashMap<E, String>();
 
         List<String> nonOptionArgs = new ArrayList<String>();
 
@@ -214,7 +352,7 @@ public class OptionProcessor<E>
                     {
                         Option option = resolveLongOption(arg.substring(2));
                         if (option == null)
-                            throw new RuntimeException("Unknown option: " + arg);
+                            throw new SoarException("Unknown option: " + arg);
 
                         processOption(option, arg, iter);
                     }
@@ -228,7 +366,7 @@ public class OptionProcessor<E>
                         {
                             Option option = resolveShortOption(arg.substring(i));
                             if (option == null)
-                                throw new RuntimeException("Unknown option: "
+                                throw new SoarException("Unknown option: "
                                         + arg);
 
                             boolean consumedArg = processOption(option, arg,
@@ -247,17 +385,17 @@ public class OptionProcessor<E>
     }
 
     private boolean processOption(Option option, String arg,
-            Iterator<String> iter)
+            Iterator<String> iter) throws SoarException
     {
         return processOption(option, arg, iter, -1);
     }
 
     private boolean processOption(Option option, String arg,
-            Iterator<String> iter, int at)
+            Iterator<String> iter, int at) throws SoarException
     {
         boolean consumedArg = false;
         if (option.type == ArgType.NONE)
-            arguments.put(option.option, null);
+            arguments.put(option.key, null);
         else
         {
             consumedArg = true;
@@ -277,10 +415,9 @@ public class OptionProcessor<E>
 
             if (option.type == ArgType.REQUIRED)
                 if (optArg == null)
-                    throw new RuntimeException("Option requires argument: "
-                            + arg);
+                    throw new SoarException("Option requires argument: " + arg);
 
-            arguments.put(option.option, optArg);
+            arguments.put(option.key, optArg);
         }
         return consumedArg;
     }
@@ -308,58 +445,122 @@ public class OptionProcessor<E>
 
     private Option resolveLongOption(String arg)
     {
-        return longOptions.get(arg);
+        return longOptions.get(arg.toLowerCase());
     }
 
-    private Option resolveShortOption(String arg)
+    private Option resolveShortOption(String arg) throws SoarException
     {
         if (!Character.isLetter(arg.charAt(0)))
-            throw new RuntimeException("Short option is not a letter: "
+            throw new SoarException("Short option is not a letter: "
                     + arg.charAt(0));
         return shortOptions.get(arg.substring(0, 1));
     }
 
     /**
-     * Test to see if the most recent invocation of process uncovered the given option.
+     * Test to see if the most recent invocation of process uncovered the given
+     * option.
      * 
-     * @param option Option to test for.
+     * @param key
+     *            Key for option to test.
      * @return True if it was successfully encountered.
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
      */
-    public boolean has(E option)
+    public boolean has(E key)
     {
-        return arguments.containsKey(option);
+        if (key == null)
+            throw new NullPointerException("Key is null.");
+        if (arguments == null)
+            throw new IllegalStateException(
+                    "Call process() before testing for options.");
+        return arguments.containsKey(key);
+    }
+
+    /**
+     * Manually set an option as if it had been encountered during process.
+     * 
+     * Caution: This doesn't enforce optional/required arguments!
+     * 
+     * @param key
+     *            The key for the option to set.
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     */
+    public void set(E key)
+    {
+        set(key, null);
+    }
+
+    /**
+     * Manually unset an option as if it had never been encountered during
+     * process.
+     * 
+     * @param key
+     *            The key for the option to unset.
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
+     */
+    public void unset(E key)
+    {
+        if (key == null)
+            throw new NullPointerException("Key is null.");
+        if (arguments == null)
+            throw new IllegalStateException(
+                    "Call process() before testing for options.");
+        arguments.remove(key);
+    }
+
+    /**
+     * Manually set an option and its argument.
+     * 
+     * Caution: This doesn't enforce optional/required arguments!
+     * 
+     * @param key
+     *            The key for the option to set.
+     * @param argument
+     *            The option's argument, or null
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
+     */
+    public void set(E key, String argument)
+    {
+        if (key == null)
+            throw new NullPointerException("Key is null.");
+        if (arguments == null)
+            throw new IllegalStateException(
+                    "Call process() before testing for options.");
+        arguments.put(key, argument);
     }
 
     /**
      * Get an option's argument.
      * 
-     * @param option Option who's argument needs retrieval
+     * @param key
+     *            Key for option who's argument needs retrieval
      * @return The option's argument as a string.
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
      */
-    public String getArgument(E option)
+    public String getArgument(E key)
     {
-        return arguments.get(option);
+        if (key == null)
+            throw new NullPointerException("Key is null.");
+        if (arguments == null)
+            throw new IllegalStateException(
+                    "Call process() before testing for options.");
+        return arguments.get(key);
     }
-
-    public static void main(String[] args)
-    {
-        // quick sanity test
-        OptionProcessor<String> op = OptionProcessor.create();
-        op.registerOption("no", "no");
-        op.registerOption("required", "required", "r", ArgType.REQUIRED);
-        op.registerOption("optional", "optional", "o", ArgType.OPTIONAL);
-
-        // watch op.arguments in debugger as you step through these lines
-        op.process(Lists.newArrayList("awesome"));
-        op.process(Lists.newArrayList("awesome", "-n"));
-        op.process(Lists.newArrayList("awesome", "-n", "-o"));
-        op.process(Lists.newArrayList("awesome", "-no"));
-        op.process(Lists.newArrayList("awesome", "-nor"));
-        op.process(Lists.newArrayList("awesome", "-o"));
-        op.process(Lists.newArrayList("awesome", "-o", "1"));
-        op.process(Lists.newArrayList("awesome", "-r", "2"));
-        op.process(Lists.newArrayList("awesome", "-2"));
-        op.process(Lists.newArrayList("awesome", "-2.56"));
-    }
-
 }

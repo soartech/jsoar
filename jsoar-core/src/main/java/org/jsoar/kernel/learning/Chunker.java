@@ -1223,7 +1223,7 @@ public class Chunker
         boolean print_name = false;
         boolean print_prod = false;
         
-        // TODO: SMEM Check for LTI validity
+        // TODO SMEM Check for LTI validity
         
         if (this.variablize_this_chunk)
         {

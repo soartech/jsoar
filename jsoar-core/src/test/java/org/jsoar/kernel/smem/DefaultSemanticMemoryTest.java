@@ -17,11 +17,10 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.AdaptableContainer;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.properties.PropertyManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.sun.jmx.snmp.defaults.DefaultPaths;
 
 public class DefaultSemanticMemoryTest
 {
@@ -32,12 +31,13 @@ public class DefaultSemanticMemoryTest
     @Before
     public void setUp() throws Exception
     {
-        context = AdaptableContainer.from(new SymbolFactoryImpl());
+        context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager());
         conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
         final SemanticMemoryDatabase db = new SemanticMemoryDatabase(conn);
         db.structure();
         db.prepare();
         smem = new DefaultSemanticMemory(context, db);
+        smem.initialize();
     }
 
     @After
@@ -88,6 +88,7 @@ public class DefaultSemanticMemoryTest
     public void testCanInitializeTheDatabase() throws Exception
     {
         final DefaultSemanticMemory smem = new DefaultSemanticMemory(context);
+        smem.initialize();
         assertNull(smem.getDatabase());
         smem.smem_attach();
         assertNotNull(smem.getDatabase());
@@ -165,6 +166,7 @@ public class DefaultSemanticMemoryTest
     public void testCanParseAChunk() throws Exception
     {
         final DefaultSemanticMemory smem = new DefaultSemanticMemory(context);
+        smem.initialize();
         
         smem.smem_parse_chunks("{" +
         		"(<arithmetic> ^add10-facts <a01> <a02> <a03>)\r\n" + 

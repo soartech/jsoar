@@ -49,21 +49,28 @@ public class JdbcTools
         try
         {
             final Statement s = db.createStatement();
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String line = reader.readLine();
-            while(line != null)
+            try
             {
-                line = line.trim();
-                if(!line.isEmpty() && !line.startsWith("#"))
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                String line = reader.readLine();
+                while(line != null)
                 {
-                    s.addBatch(line);
+                    line = line.trim();
+                    if(!line.isEmpty() && !line.startsWith("#"))
+                    {
+                        s.addBatch(line);
+                    }
+                    
+                    line = reader.readLine();
                 }
-                
-                line = reader.readLine();
+                db.setAutoCommit(false);
+                s.executeBatch();
+                db.setAutoCommit(true);
             }
-            db.setAutoCommit(false);
-            s.executeBatch();
-            db.setAutoCommit(true);
+            finally
+            {
+                s.close();
+            }
         }
         catch (SQLException e)
         {
