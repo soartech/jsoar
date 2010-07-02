@@ -174,6 +174,6 @@ public class GDSTests extends FunctionalTestHarness
         String s = matcher.getMatches(p).toString();
         
         // TODO: would be nice if this actually reported which wme didn't match
-        assertTrue(matcher.isMatching("expectedGDS"));
+        assertTrue("expectedGDS didn't match: " + s, matcher.isMatching("expectedGDS"));
     }
 }
