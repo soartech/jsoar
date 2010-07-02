@@ -39,6 +39,7 @@ sp {report*conflict*impasse
               ^quiescence t
               ^type state
               ^reward-link {<rl> <=> <s>}
+              ^smem {<sm> <=> <s>}
               ^superstate {<ss> <=> <s>}
               ^item-count 2
               ^item {<ione> <=> <s>}
@@ -54,6 +55,7 @@ sp {report*conflict*impasse
            <> quiescence
            <> type
            <> reward-link
+           <> smem
            <> superstate 
            <> item-count
            <> item})
@@ -66,6 +68,7 @@ sp {report*conflict*impasse
          -^quiescence <> t
          -^type <> state
          -^reward-link <> <rl>
+         -^smem <> <sm>
          -^superstate <> <ss>
          -^item-count <> 2
          -^item {<> <ione> <> <itwo>})

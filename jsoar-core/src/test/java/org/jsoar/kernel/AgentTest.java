@@ -60,9 +60,9 @@ public class AgentTest
         assertEquals(4, gs.size());
         final SymbolFactory syms = agent.getSymbols();
         assertEquals(Arrays.asList(syms.findIdentifier('S', 1), 
-                                   syms.findIdentifier('S', 2), 
                                    syms.findIdentifier('S', 3), 
-                                   syms.findIdentifier('S', 4)),
+                                   syms.findIdentifier('S', 5), 
+                                   syms.findIdentifier('S', 7)),
                      gs);
     }
 

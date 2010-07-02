@@ -62,8 +62,8 @@ public class DecisionCycleTest
             assertEquals(Phase.OUTPUT, this.decisionCycle.current_phase);
             this.decisionCycle.runFor(1, RunType.PHASES);
             
-            // Verify that new states are being generates
-            assertEquals("S" + (i + 1), decider.bottom_goal.toString());
+            // Verify that new states are being generated
+            assertEquals("S" + (1 + 2*i), decider.bottom_goal.toString());
         }
     }
     
@@ -91,7 +91,7 @@ public class DecisionCycleTest
         
         // Verify that new states are being generates
         final Decider decider = Adaptables.adapt(agent, Decider.class);
-        assertEquals("S2", decider.bottom_goal.toString());
+        assertEquals("S3", decider.bottom_goal.toString());
     }
     
     @Test
@@ -120,10 +120,10 @@ public class DecisionCycleTest
             assertEquals(Phase.OUTPUT, this.decisionCycle.current_phase);
             this.decisionCycle.runFor(1, RunType.PHASES);
             
-            // Verify that one state-no-change occurs, producting S2, but no further
+            // Verify that one state-no-change occurs, producing S3, but no further
             // states are generated. Also verify that the current operator.
             final Decider decider = Adaptables.adapt(agent, Decider.class);
-            assertEquals("S2", decider.bottom_goal.toString());
+            assertEquals("S3", decider.bottom_goal.toString());
             validateLastOperator(i);
         }
     }
