@@ -283,7 +283,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      * @see org.jsoar.kernel.symbols.SymbolFactory#findOrcreateIdentifier(char, int)
      */
     @Override
-    public Identifier findOrCreateIdentifier(char nameLetter, int nameNumber)
+    public IdentifierImpl findOrCreateIdentifier(char nameLetter, int nameNumber)
     {
         IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
 
