@@ -344,7 +344,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     private SymbolImpl smem_statement_to_symbol( ResultSet q, int type_field, int val_field ) throws SQLException
     {
-        switch (q.getInt( type_field ) )
+        switch (q.getInt( type_field + 1) )
         {
             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
                 return symbols.createString(q.getString(val_field + 1));

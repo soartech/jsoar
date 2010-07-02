@@ -416,7 +416,7 @@ public class DecisionCycle
         
         if (smem.smem_enabled())
         {
-            smem.smem_go(true);
+            smem.smem_go(false);
         }
 
         // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)
