@@ -81,6 +81,11 @@ public interface SemanticMemory
     void smem_go(boolean store_only);
     
     /**
+     * smem_stats->reset()
+     */
+    void resetStatistics();
+    
+    /**
      * @return the implementation of the smem command
      */
     SoarCommand getCommand();

@@ -129,6 +129,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
     private Adaptable context;
     private DefaultSemanticMemoryParams params;
+    private DefaultSemanticMemoryStats stats;
     private SymbolFactoryImpl symbols;
     private RecognitionMemory recMem;
     private Chunker chunker;
@@ -168,9 +169,18 @@ public class DefaultSemanticMemory implements SemanticMemory
         
         final PropertyManager properties = Adaptables.require(DefaultSemanticMemory.class, context, PropertyManager.class);
         params = new DefaultSemanticMemoryParams(properties);
-        
+        stats = new DefaultSemanticMemoryStats(properties);
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.SemanticMemory#resetStatistics()
+     */
+    @Override
+    public void resetStatistics()
+    {
+        stats.reset();
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.smem.SemanticMemory#getCommand()
      */
@@ -833,7 +843,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         return_val = JdbcTools.insertAndGetRowId(db.lti_add);
 
         // increment stat
-        // TODO SMEM Stats: my_agent->smem_stats->chunks->set_value( my_agent->smem_stats->chunks->get_value() + 1 );
+        stats.nodes.set(stats.nodes.get() + 1); // smem_stats->chunks in CSoar
 
         return return_val;
     }
@@ -993,7 +1003,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             //db.web_attr_ct->reinitialize();
 
-            // TODO SMEM stats: my_agent->smem_stats->slots->set_value( my_agent->smem_stats->slots->get_value() - counter );
+            stats.edges.set(stats.edges.get() - counter); // smem_stats->slots in CSoar
         }
 
         // adjust const counts
@@ -1221,7 +1231,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         // update stat
         {
-            // TODO SMEM Stats: my_agent->smem_stats->slots->set_value( my_agent->smem_stats->slots->get_value() + stat_adjust );
+            stats.edges.set(stats.edges.get() + stat_adjust); // smem_stats->slots in CSoar
         }
 
         // update attribute counts
@@ -2074,21 +2084,21 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // nodes
                 if ( smem_variable_get(smem_variable_key.var_num_nodes, temp ) )
                 {
-                 // TODO SMEM Stats: my_agent->smem_stats->chunks->set_value( temp );
+                    stats.nodes.set(temp.value);
                 }
                 else
                 {
-                 // TODO SMEM Stats: my_agent->smem_stats->chunks->set_value( 0 );
+                    stats.nodes.set(0L);
                 }
 
                 // edges
                 if ( smem_variable_get(smem_variable_key.var_num_edges, temp ) )
                 {
-                 // TODO SMEM Stats: my_agent->smem_stats->slots->set_value( temp );
+                    stats.edges.set(temp.value);
                 }
                 else
                 {
-                 // TODO SMEM Stats: my_agent->smem_stats->slots->set_value( 0 );
+                    stats.edges.set(0L);
                 }
             }
         }
@@ -2146,8 +2156,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                 smem_variable_set( smem_variable_key.var_max_cycle, smem_max_cycle );
 
                 // store num nodes/edges for future use of the smem database
-                // TODO SMEM Stats: smem_variable_set( smem_variable_key.var_num_nodes, my_agent->smem_stats->chunks->get_value() );
-                // TODO SMEM Stats: smem_variable_set( smem_variable_key.var_num_edges, my_agent->smem_stats->slots->get_value() );
+                smem_variable_set( smem_variable_key.var_num_nodes, stats.nodes.get() );
+                smem_variable_set( smem_variable_key.var_num_edges, stats.edges.get() );
 
                 // if lazy, commit
                 if (params.lazy_commit.get())
@@ -2892,7 +2902,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                             smem_install_memory( state, retrieve.smem_lti, retrieve );
 
                             // add one to the expansions stat
-                            // TODO SMEM Stats: my_agent->smem_stats->expansions->set_value( my_agent->smem_stats->expansions->get_value() + 1 );
+                            stats.retrieves.set(stats.retrieves.get() + 1);
                         }
                     }
                     // query
@@ -2908,7 +2918,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         smem_process_query( state, query, prohibit_lti );
 
                         // add one to the cbr stat
-                        // TODO SMEM Stats: my_agent->smem_stats->cbr->set_value( my_agent->smem_stats->cbr->get_value() + 1 );
+                        stats.queries.set(stats.queries.get() + 1);
                     }
                     else if ( path == path_type.cmd_store )
                     {
@@ -2930,7 +2940,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                             smem_add_meta_wme( state, smem_info.smem_result_header, predefinedSyms.smem_sym_success, sym_p );
 
                             // add one to the store stat
-                            // TODO SMEM Stats: my_agent->smem_stats->stores->set_value( my_agent->smem_stats->stores->get_value() + 1 );
+                            stats.stores.set(stats.stores.get() + 1);
                         }
 
                         // commit transaction (if not lazy)

@@ -12,6 +12,8 @@ import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
+ * <p>semantic_memory.h:44:smem_param_container
+ * 
  * @author ray
  */
 class DefaultSemanticMemoryParams
@@ -21,7 +23,7 @@ class DefaultSemanticMemoryParams
         small, medium, large;
     }
     
-    private static final String PREFIX = "smem.";
+    private static final String PREFIX = "smem.params.";
     
     private static <T> PropertyKey.Builder<T> key(String name, Class<T> type)
     {
@@ -44,7 +46,7 @@ class DefaultSemanticMemoryParams
     final EnumPropertyProvider<Optimization> optimization = new EnumPropertyProvider<Optimization>(OPTIMIZATION);
     
     static final PropertyKey<Long> THRESH = key("thresh", Long.class).defaultValue(100L).build();
-    final DefaultPropertyProvider<Long> thresh = new DefaultPropertyProvider(THRESH);
+    final DefaultPropertyProvider<Long> thresh = new DefaultPropertyProvider<Long>(THRESH);
     
     public DefaultSemanticMemoryParams(PropertyManager properties)
     {
