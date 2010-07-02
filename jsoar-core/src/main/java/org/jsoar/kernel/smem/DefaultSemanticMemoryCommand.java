@@ -46,7 +46,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
             }
             else if("-s".equals(arg) || "--set".equals(arg))
             {
-                return doSmem(i, args);
+                return doSet(i, args);
             }
             else if("-S".equals(arg) || "--stats".equals(arg))
             {
@@ -81,6 +81,22 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         // Braces are stripped by the interpreter, so put them back
         smem.smem_parse_chunks("{" + args[i+1] + "}");
         return "";
+    }
+
+    private String doSet(int i, String[] args) throws SoarException
+    {
+        if(i + 2 >= args.length)
+        {
+            throw new SoarException("Invalid arguments for " + args[i] + " option");
+        }
+        final String name = args[i+1];
+        final String value = args[i+2];
+        if(name.equals("learning"))
+        {
+            smem.getParams().getProperties().set(DefaultSemanticMemoryParams.LEARNING, "on".equals(value));
+        }
+        
+        return null;
     }
 
     private String doInit(int i, String[] args)

@@ -19,7 +19,6 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.Productions;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.events.ProductionAddedEvent;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.Conditions;
@@ -44,6 +43,7 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReordererException;
+import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -71,7 +71,6 @@ public class Chunker
 {
     private static final SourceLocation NEW_PRODUCTION_SOURCE = new DefaultSourceLocation("*chunker*", -1, -1);
     private final Agent context;
-    public final VariableGenerator variableGenerator;
     private Decider decider;
     private Backtracer backtrace;
     private PredefinedSymbols predefinedSyms;
@@ -179,7 +178,6 @@ public class Chunker
     public Chunker(Agent context)
     {
         this.context = context;
-        this.variableGenerator = new VariableGenerator((SymbolFactoryImpl) this.context.getSymbols());
         
         this.context.getProperties().setProvider(SoarProperties.LEARNING_ON, learningOn);
     }
@@ -393,7 +391,7 @@ public class Chunker
 
         // need to create a new variable
         id.tc_number = this.variablization_tc;
-        Variable var = this.variableGenerator.generate_new_variable(Character.toString(id.getNameLetter()));
+        Variable var = ((SymbolFactoryImpl) this.context.getSymbols()).getVariableGenerator().generate_new_variable(Character.toString(id.getNameLetter()));
         id.variablization = var;
         return var;
     }
@@ -1223,7 +1221,26 @@ public class Chunker
         boolean print_name = false;
         boolean print_prod = false;
         
-        // TODO SMEM Check for LTI validity
+        // SMEM Check for LTI validity
+        if ( this.variablize_this_chunk )
+        {
+            if ( top_cc.value != null )
+            {
+                // need a temporary copy of the actions
+                variablization_tc = DefaultMarker.create();
+                final Action rhs = copy_and_variablize_result_list(results);
+
+                if ( !DefaultSemanticMemory.smem_valid_production( top_cc.value.variablized_cond, rhs ) )
+                {
+                    this.variablize_this_chunk = false;
+
+                    trace.print(Category.BACKTRACING, "\nWarning: LTI validation failed, creating justification instead.");
+                }
+
+                // remove temporary copy
+                // deallocate_action_list (thisAgent, rhs);
+            }
+        }
         
         if (this.variablize_this_chunk)
         {
@@ -1268,7 +1285,7 @@ public class Chunker
         // variablize it
         Condition lhs_top = top_cc.value.variablized_cond;
         Condition lhs_bottom = bottom_cc.value.variablized_cond;
-        this.variableGenerator.reset(lhs_top, null);
+        this.predefinedSyms.getSyms().getVariableGenerator().reset(lhs_top, null);
         this.variablization_tc = DefaultMarker.create();
         variablize_condition_list(lhs_top);
         variablize_nots_and_insert_into_conditions(nots, lhs_top);

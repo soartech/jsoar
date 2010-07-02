@@ -6,8 +6,7 @@
 package org.jsoar.kernel.smem;
 
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.lhs.Condition;
-import org.jsoar.kernel.rhs.Action;
+import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.commands.SoarCommand;
 
@@ -33,13 +32,6 @@ public interface SemanticMemory
     void smem_attach() throws SoarException;
     
     /**
-     * make sure ltis in actions are grounded
-     * 
-     * <p>semantic_memory.h:smem_valid_production
-     */
-    boolean smem_valid_production(Condition lhs_top, Action rhs_top);
-    
-    /**
      * gets the lti id for an existing lti letter/number pair (or NIL if failure)
      * 
      * <p>semantic_memory.h:smem_lti_get_id
@@ -55,7 +47,7 @@ public interface SemanticMemory
     IdentifierImpl smem_lti_soar_make(/*smem_lti_id*/ long lti, char name_letter, long name_number, /*goal_stack_level*/ int level);
     
     /**
-     * Performs cleanup when a state is removed
+     * Performs cleanup when a state is removed.
      * 
      * <p>semantic_memory.h:smem_reset
      */
@@ -89,4 +81,12 @@ public interface SemanticMemory
      * @return the implementation of the smem command
      */
     SoarCommand getCommand();
+
+    /**
+     * Attaches smem_info to the given identifier. This code is factored out of
+     * decide.cpp:create_new_context()
+     * 
+     * @param id the new context to initialize
+     */
+    void initializeNewContext(WorkingMemory wm, IdentifierImpl id);
 }

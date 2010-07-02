@@ -7,6 +7,7 @@ package org.jsoar.kernel.symbols;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -63,10 +64,17 @@ public class SymbolFactoryImpl implements SymbolFactory
     private final JavaSymbolImpl nullJavaSym;
     private int current_symbol_hash_id = 0; 
     
+    private final VariableGenerator vars = new VariableGenerator(this);
+    
     public SymbolFactoryImpl()
     {
         nullJavaSym = new JavaSymbolImpl(this, get_next_hash_id(), null);
         reset();
+    }
+    
+    public VariableGenerator getVariableGenerator()
+    {
+        return vars;
     }
     
     /**
@@ -135,17 +143,26 @@ public class SymbolFactoryImpl implements SymbolFactory
         // Note: In csoar, a warning was printed if any identifiers remained in
         // the cache. This was an indication of a memory leak since ids should
         // have been cleaned up during re-initialization. In Java, the garbage
-        // collectors picks up symbols when it gets a chance. So, if we're 
+        // collector picks up symbols when it gets a chance. So, if we're 
         // reinitializing, it should be fine to throw out all the existing ids
         // and start over.
         
-        // TODO SMEM - Only clear non-LTIs?
-        identifiers.clear();
+        // SMEM - only clear non LTIs
+        for(final Iterator<IdentifierImpl> it = identifiers.values().iterator(); it.hasNext();)
+        {
+            final IdentifierImpl id = it.next();
+            if(id.smem_lti == 0)
+            {
+                it.remove();
+            }
+        }
                 
         for(int i = 0; i < id_counter.length; ++i)
         {
             id_counter[i] = 1;
         }
+        
+        // SMEM - id counters are reset externally to this call.
     }
     
     /**

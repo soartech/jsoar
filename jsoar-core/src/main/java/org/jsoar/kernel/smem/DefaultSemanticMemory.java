@@ -40,6 +40,7 @@ import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.LexemeType;
@@ -130,7 +131,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     private Adaptable context;
     private DefaultSemanticMemoryParams params;
     private DefaultSemanticMemoryStats stats;
-    private SymbolFactoryImpl symbols;
+    /*private*/ SymbolFactoryImpl symbols;
     private RecognitionMemory recMem;
     private Chunker chunker;
     private Decider decider;
@@ -146,7 +147,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     /** agent.h:smem_max_cycle */
     private /*intptr_t*/ long smem_max_cycle;
     
-    private SemanticMemorySymbols predefinedSyms;
+    /*private*/ SemanticMemorySymbols predefinedSyms;
     
     private Map<IdentifierImpl, SemanticMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, SemanticMemoryStateInfo>();
     
@@ -163,9 +164,12 @@ public class DefaultSemanticMemory implements SemanticMemory
 
     public void initialize()
     {
-        
         this.symbols = Adaptables.require(DefaultSemanticMemory.class, context, SymbolFactoryImpl.class);
         this.predefinedSyms = new SemanticMemorySymbols(this.symbols);
+        
+        this.chunker = Adaptables.adapt(context, Chunker.class);
+        this.decider = Adaptables.adapt(context, Decider.class);
+        this.recMem = Adaptables.adapt(context, RecognitionMemory.class);
         
         final PropertyManager properties = Adaptables.require(DefaultSemanticMemory.class, context, PropertyManager.class);
         params = new DefaultSemanticMemoryParams(properties);
@@ -179,6 +183,17 @@ public class DefaultSemanticMemory implements SemanticMemory
     public void resetStatistics()
     {
         stats.reset();
+    }
+    
+    
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.SemanticMemory#attachToNewContext(org.jsoar.kernel.symbols.IdentifierImpl)
+     */
+    @Override
+    public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
+    {
+        final SemanticMemoryStateInfo info = stateInfos.put(id, new SemanticMemoryStateInfo(this, wm, id));
     }
 
     /* (non-Javadoc)
@@ -195,6 +210,16 @@ public class DefaultSemanticMemory implements SemanticMemory
         return db;
     }
     
+    DefaultSemanticMemoryParams getParams()
+    {
+        return params;
+    }
+    
+    DefaultSemanticMemoryStats getStats()
+    {
+        return stats;
+    }
+    
     private SemanticMemoryStateInfo smem_info(IdentifierImpl state)
     {
         return stateInfos.get(state);
@@ -203,8 +228,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     @Override
     public boolean smem_enabled()
     {
-        // TODO Auto-generated method stub
-        return false;
+        return params.learning.get();
     }
 
     private List<WmeImpl> smem_get_direct_augs_of_id( SymbolImpl sym)
@@ -573,7 +597,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param t
      * @param valid_ltis
      */
-    private void _smem_lti_from_test( Test t, Set<IdentifierImpl> valid_ltis )
+    private static void _smem_lti_from_test( Test t, Set<IdentifierImpl> valid_ltis )
     {
         if(Tests.isBlank(t)) return;
         
@@ -610,7 +634,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param rv
      * @param valid_ltis
      */
-    private void _smem_lti_from_rhs_value( RhsValue rv, Set<IdentifierImpl> valid_ltis )
+    private static void _smem_lti_from_rhs_value( RhsValue rv, Set<IdentifierImpl> valid_ltis )
     {
         final RhsSymbolValue rsv = rv.asSymbolValue();
         if ( rsv != null )
@@ -630,13 +654,14 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
     }
     
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.smem.SemanticMemory#smem_valid_production(org.jsoar.kernel.lhs.Condition, org.jsoar.kernel.rhs.Action)
+    /**
+     * make sure ltis in actions are grounded
+     * 
+     * <p>semantic_memory.h:smem_valid_production
+     * <p>semantic_memory.cpp:844:smem_valid_production
      */
-    @Override
-    public boolean smem_valid_production(Condition lhs_top, Action rhs_top)
+    public static boolean smem_valid_production(Condition lhs_top, Action rhs_top)
     {
-        // semantic_memory.cpp:844:smem_valid_production
         boolean return_val = true;
         
         final Set<IdentifierImpl> valid_ltis = new HashSet<IdentifierImpl>();
@@ -1924,8 +1949,9 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         while( state != null )
         {
-            final SemanticMemoryStateInfo data = smem_info(state);
-            
+            final SemanticMemoryStateInfo data = stateInfos.remove(state);
+
+            // TODO The line above should be sufficient. Nothing else should be necessary. 
             data.last_cmd_time[0] = 0;
             data.last_cmd_time[1] = 0;
             data.last_cmd_count[0] = 0;

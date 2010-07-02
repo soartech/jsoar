@@ -134,6 +134,7 @@ public class ReinforcementLearning
     private boolean rl_first_switch;
 
     private final Agent my_agent;
+    private SymbolFactoryImpl syms;
     private Decider decider;
     private Chunker chunker;
     private RecognitionMemory recMemory;
@@ -161,6 +162,7 @@ public class ReinforcementLearning
      */
     public void initialize()
     {
+        this.syms      = Adaptables.require(getClass(), my_agent, SymbolFactoryImpl.class);
         this.decider   = Adaptables.require(getClass(), my_agent, Decider.class);
         this.chunker   = Adaptables.require(getClass(), my_agent, Chunker.class);
         this.recMemory = Adaptables.require(getClass(), my_agent, RecognitionMemory.class);
@@ -552,7 +554,6 @@ public class ReinforcementLearning
             boolean chunk_var = chunker.variablize_this_chunk;
             chunker.variablize_this_chunk = true;
 
-            final SymbolFactoryImpl syms = chunker.variableGenerator.getSyms();
             // make unique production name
             String new_name = "";
             do
@@ -568,7 +569,7 @@ public class ReinforcementLearning
             
             Condition.copy_condition_list(my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
             rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
-            chunker.variableGenerator.reset(cond_top.value, null);
+            syms.getVariableGenerator().reset(cond_top.value, null);
             chunker.variablization_tc = DefaultMarker.create();
             chunker.variablize_condition_list( cond_top.value );
             chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
@@ -972,7 +973,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                     }
 
                     // Change value of rule
-                    prod.action_list.asMakeAction().referent = chunker.variableGenerator.getSyms().createDouble(new_combined).toRhsValue();
+                    prod.action_list.asMakeAction().referent = syms.createDouble(new_combined).toRhsValue();
                     prod.rl_update_count += 1;
                     prod.rl_ecr = new_ecr;
                     prod.rl_efr = new_efr;
@@ -982,7 +983,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                     {
                         for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next )
                         {
-                            pref.referent = chunker.variableGenerator.getSyms().createDouble(new_combined);
+                            pref.referent = syms.createDouble(new_combined);
                         }
                     }
                 }

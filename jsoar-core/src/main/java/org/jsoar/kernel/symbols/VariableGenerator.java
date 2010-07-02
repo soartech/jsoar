@@ -3,12 +3,10 @@
  *
  * Created on Aug 18, 2008
  */
-package org.jsoar.kernel;
+package org.jsoar.kernel.symbols;
 
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.rhs.Action;
-import org.jsoar.kernel.symbols.SymbolFactoryImpl;
-import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.markers.DefaultMarker;
@@ -43,7 +41,7 @@ public class VariableGenerator
     /**
      * @param syms
      */
-    public VariableGenerator(SymbolFactoryImpl syms)
+    VariableGenerator(SymbolFactoryImpl syms)
     {
         this.syms = syms;
     }

@@ -29,7 +29,9 @@ class DefaultSemanticMemoryParams
     {
         return PropertyKey.builder(PREFIX + name, type);
     }
-
+    static final PropertyKey<Boolean> LEARNING = key("learning", Boolean.class).defaultValue(false).build();
+    final BooleanPropertyProvider learning = new BooleanPropertyProvider(LEARNING);
+    
     static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqlite.JDBC").build();
     final DefaultPropertyProvider<String> driver = new DefaultPropertyProvider<String>(DRIVER);
 
@@ -48,8 +50,13 @@ class DefaultSemanticMemoryParams
     static final PropertyKey<Long> THRESH = key("thresh", Long.class).defaultValue(100L).build();
     final DefaultPropertyProvider<Long> thresh = new DefaultPropertyProvider<Long>(THRESH);
     
+    private final PropertyManager properties;
+    
     public DefaultSemanticMemoryParams(PropertyManager properties)
     {
+        this.properties = properties;
+        
+        properties.setProvider(LEARNING, learning);
         properties.setProvider(DRIVER, driver);
         properties.setProvider(PATH, path);
         
@@ -57,6 +64,11 @@ class DefaultSemanticMemoryParams
         properties.setProvider(CACHE, cache);
         properties.setProvider(OPTIMIZATION, optimization);
         properties.setProvider(THRESH, thresh);
+    }
+    
+    public PropertyManager getProperties()
+    {
+        return properties;
     }
 
 }

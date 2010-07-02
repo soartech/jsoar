@@ -18,9 +18,9 @@ import org.jsoar.kernel.symbols.SymbolImpl;
  */
 class SemanticMemorySymbols
 {
-    public final Symbol smem_sym;
-    public final Symbol smem_sym_cmd;
-    public final Symbol smem_sym_result;
+    public final SymbolImpl smem_sym;
+    public final SymbolImpl smem_sym_cmd;
+    public final SymbolImpl smem_sym_result;
 
     public final SymbolImpl smem_sym_retrieved;
     public final Symbol smem_sym_status;

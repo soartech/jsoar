@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.DisjunctionTest;
@@ -35,6 +34,7 @@ import org.jsoar.kernel.symbols.IntegerSymbolImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.symbols.VariableGenerator;
 import org.jsoar.kernel.tracing.Printer;
 import org.junit.Test;
 
@@ -74,7 +74,7 @@ public class ParserImplTest extends JSoarTest
     {
         Lexer lexer = new Lexer(Printer.createStdOutPrinter(), new StringReader(input));
         
-        OriginalParserImpl parser = new OriginalParserImpl(new VariableGenerator(syms), lexer);
+        OriginalParserImpl parser = new OriginalParserImpl(syms.getVariableGenerator(), lexer);
         lexer.getNextLexeme();
         return parser;
     }

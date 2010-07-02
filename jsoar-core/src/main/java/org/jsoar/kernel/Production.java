@@ -26,6 +26,7 @@ import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.symbols.VariableGenerator;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.Arguments;

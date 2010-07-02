@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.Reader;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.parser.Parser;
 import org.jsoar.kernel.parser.ParserContext;
@@ -17,6 +16,7 @@ import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.VariableGenerator;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
@@ -37,14 +37,13 @@ public class OriginalParser extends AbstractAdaptable implements Parser
     {
         final Printer printer = require(context, Printer.class);
         final SymbolFactoryImpl syms = require(context, SymbolFactoryImpl.class);
-        final VariableGenerator vg = new VariableGenerator(syms);
         final RhsFunctionManager rhsFunctions = require(context, RhsFunctionManager.class);
         final SourceLocation source = Adaptables.adapt(context, SourceLocation.class);
         
         try
         {
             Lexer lexer = new Lexer(printer, reader);
-            OriginalParserImpl parser = new OriginalParserImpl(vg, lexer);
+            OriginalParserImpl parser = new OriginalParserImpl(syms.getVariableGenerator(), lexer);
             parser.setRhsFunctions(rhsFunctions);
             parser.setSourceLocation(source != null ? source : DefaultSourceLocation.UNKNOWN);
             
@@ -61,14 +60,13 @@ public class OriginalParser extends AbstractAdaptable implements Parser
     {
         final Printer printer = require(context, Printer.class);
         final SymbolFactoryImpl syms = require(context, SymbolFactoryImpl.class);
-        final VariableGenerator vg = new VariableGenerator(syms);
         final RhsFunctionManager rhsFunctions = require(context, RhsFunctionManager.class);
         final SourceLocation source = Adaptables.adapt(context, SourceLocation.class);
         
         try
         {
             Lexer lexer = new Lexer(printer, reader);
-            OriginalParserImpl parser = new OriginalParserImpl(vg, lexer);
+            OriginalParserImpl parser = new OriginalParserImpl(syms.getVariableGenerator(), lexer);
             parser.setRhsFunctions(rhsFunctions);
             parser.setSourceLocation(source != null ? source : DefaultSourceLocation.UNKNOWN);
             
@@ -86,14 +84,13 @@ public class OriginalParser extends AbstractAdaptable implements Parser
     {
         final Printer printer = require(context, Printer.class);
         final SymbolFactoryImpl syms = require(context, SymbolFactoryImpl.class);
-        final VariableGenerator vg = new VariableGenerator(syms);
         final RhsFunctionManager rhsFunctions = require(context, RhsFunctionManager.class);
         final SourceLocation source = Adaptables.adapt(context, SourceLocation.class);
         
         try
         {
             Lexer lexer = new Lexer(printer, reader);
-            OriginalParserImpl parser = new OriginalParserImpl(vg, lexer);
+            OriginalParserImpl parser = new OriginalParserImpl(syms.getVariableGenerator(), lexer);
             parser.setRhsFunctions(rhsFunctions);
             parser.setSourceLocation(source != null ? source : DefaultSourceLocation.UNKNOWN);
             
