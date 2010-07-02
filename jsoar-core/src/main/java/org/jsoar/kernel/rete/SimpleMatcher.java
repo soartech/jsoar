@@ -129,7 +129,7 @@ public class SimpleMatcher
      */
     public void addWme(Wme w)
     {
-        final IdentifierImpl id = (IdentifierImpl) syms.findOrCreateIdentifier(w.getIdentifier().getNameLetter(), w.getIdentifier().getNameNumber());
+        final IdentifierImpl id = (IdentifierImpl) syms.findOrCreateIdentifierExact(w.getIdentifier().getNameLetter(), w.getIdentifier().getNameNumber());
         final SymbolImpl attr = copySymbol(syms, w.getAttribute());
         final SymbolImpl value = copySymbol(syms, w.getValue());;
         final WmeImpl wme = new WmeImpl(id, attr, value, false, 0);
@@ -159,10 +159,12 @@ public class SimpleMatcher
      */
     public void removeAllWmes()
     {
-        int numWmes = rete.getAllWmes().size();
-        for(int i=0; i<numWmes; ++i)
+        // need to make a copy since remove_wme_from_rete will destructively modify the collection returned by rete.getAllWmes
+        Set<WmeImpl> wmes = new HashSet<WmeImpl>(rete.getAllWmes());
+
+        for(WmeImpl w : wmes)
         {
-            rete.remove_wme_from_rete(rete.getAllWmes().iterator().next());
+            rete.remove_wme_from_rete(w);
         }
     }
     
@@ -219,7 +221,7 @@ public class SimpleMatcher
 
         if(sId != null)
         {
-            copySym = syms.findOrCreateIdentifier(sId.getNameLetter(), sId.getNameNumber());
+            copySym = syms.findOrCreateIdentifierExact(sId.getNameLetter(), sId.getNameNumber());
         }
         else
         {

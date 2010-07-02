@@ -271,6 +271,31 @@ public class SymbolFactoryImpl implements SymbolFactory
         return id;
     }
     
+    /**
+     * This version creates an id with a specific number. NOTE: it does not check if an id with that number already exists. 
+     * This should only be called indirectly via other methods that do check (e.g., findOrCreateIdentifierExact) 
+     * 
+     * @param name_letter the name letter
+     * @param name_number the name number
+     * @param level the goal stack level of the id
+     * @return the new identifier
+     */
+    private IdentifierImpl make_new_identifier_exact(char name_letter, int name_number, int /*goal_stack_level*/ level)
+    {
+        name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
+        if(name_number >= id_counter[name_letter - 'A'])
+        {
+            id_counter[name_letter - 'A'] = name_number + 1;
+        }
+        IdentifierImpl id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
+        
+        id.level = level;
+        id.promotion_level = level;
+        
+        identifiers.put(new IdKey(id.getNameLetter(), id.getNameNumber()), id);
+        return id;
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolFactory#createIdentifier(char)
      */
@@ -290,6 +315,22 @@ public class SymbolFactoryImpl implements SymbolFactory
         if (id == null)
         {
             id = createIdentifier(nameLetter);
+        }
+
+        return id;
+    }
+    
+    /* 
+     * If the id gets created, this version creates an id with the actual number specified, 
+     * as opposed to using the next available number
+     */
+    public IdentifierImpl findOrCreateIdentifierExact(char nameLetter, int nameNumber)
+    {
+        IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
+
+        if (id == null)
+        {
+            id = make_new_identifier_exact(nameLetter, nameNumber, SoarConstants.TOP_GOAL_LEVEL);
         }
 
         return id;

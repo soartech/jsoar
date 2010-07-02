@@ -136,8 +136,11 @@ public class GDSTests extends FunctionalTestHarness
             matcher.addWme(actualWme);
         }
         
+        // for debugging
+        String s = matcher.getMatches("expectedGDS").toString();
+        
         // TODO: would be nice if this actually reported which wme didn't match
-        assertTrue(matcher.isMatching("expectedGDS"));
+        assertTrue("expectedGDS didn't match: " + s, matcher.isMatching("expectedGDS"));
         
         // reset matcher
         matcher.removeAllProductions();
@@ -157,7 +160,7 @@ public class GDSTests extends FunctionalTestHarness
         assertTrue("Expected third goal have non-empty GDS", gds != null);
         actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
         
-        Production p = matcher.addProduction("expectedGDS \n" +
+        matcher.addProduction("expectedGDS \n" +
                 "(<s5> ^impasse no-change ^superstate <s3>) \n" +
                 "(<s3> ^problem-space <p2> ^operator <o2> ^d d ^e e) \n" +
                 "(<p2> ^name second) \n" +
@@ -171,7 +174,7 @@ public class GDSTests extends FunctionalTestHarness
         }
         
         // for debugging
-        String s = matcher.getMatches(p).toString();
+        s = matcher.getMatches("expectedGDS").toString();
         
         // TODO: would be nice if this actually reported which wme didn't match
         assertTrue("expectedGDS didn't match: " + s, matcher.isMatching("expectedGDS"));
