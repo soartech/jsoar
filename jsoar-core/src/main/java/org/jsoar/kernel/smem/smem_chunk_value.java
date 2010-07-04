@@ -10,7 +10,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 /**
  * @author ray
  */
-public interface smem_chunk_value
+interface smem_chunk_value
 {
     smem_chunk_lti asLti();
     SymbolImpl asConstant();

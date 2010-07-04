@@ -10,6 +10,7 @@ import java.io.StringWriter;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.properties.PropertyKey;
 
 /**
  * @author ray
@@ -29,47 +30,48 @@ class DefaultSemanticMemoryCommand implements SoarCommand
     @Override
     public String execute(String[] args) throws SoarException
     {
-        for(int i = 1; i < args.length; i++)
+        if(args.length == 1)
         {
-            final String arg = args[i];
-            if("-a".equals(arg) || "--add".equals(arg))
-            {
-                return doAdd(i, args);
-            }
-            else if("-g".equals(arg) || "--get".equals(arg))
-            {
-                return doInit(i, args);
-            }
-            else if("-i".equals(arg) || "--init".equals(arg))
-            {
-                return doInit(i, args);
-            }
-            else if("-s".equals(arg) || "--set".equals(arg))
-            {
-                return doSet(i, args);
-            }
-            else if("-S".equals(arg) || "--stats".equals(arg))
-            {
-                return doStats(i, args);
-            }
-            else if("-t".equals(arg) || "--timers".equals(arg))
-            {
-                return doTimers(i, args);
-            }
-            else if("-v".equals(arg) || "--viz".equals(arg))
-            {
-                return doViz(i, args);
-            }
-            else if(arg.startsWith("-"))
-            {
-                throw new SoarException("Unknown option " + arg);
-            }
-            else
-            {
-               return doSmem(i, args);
-            }
+            return doSmem();
         }
-        return null;
+        
+        final String arg = args[1];
+        if("-a".equals(arg) || "--add".equals(arg))
+        {
+            return doAdd(1, args);
+        }
+        else if("-g".equals(arg) || "--get".equals(arg))
+        {
+            return doGet(1, args);
+        }
+        else if("-i".equals(arg) || "--init".equals(arg))
+        {
+            return doInit(1, args);
+        }
+        else if("-s".equals(arg) || "--set".equals(arg))
+        {
+            return doSet(1, args);
+        }
+        else if("-S".equals(arg) || "--stats".equals(arg))
+        {
+            return doStats(1, args);
+        }
+        else if("-t".equals(arg) || "--timers".equals(arg))
+        {
+            return doTimers(1, args);
+        }
+        else if("-v".equals(arg) || "--viz".equals(arg))
+        {
+            return doViz(1, args);
+        }
+        else if(arg.startsWith("-"))
+        {
+            throw new SoarException("Unknown option " + arg);
+        }
+        else
+        {
+            throw new SoarException("Unknown argument " + arg);
+        }
     }
 
     private String doAdd(int i, String[] args) throws SoarException
@@ -81,6 +83,18 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         // Braces are stripped by the interpreter, so put them back
         smem.smem_parse_chunks("{" + args[i+1] + "}");
         return "";
+    }
+    
+    private String doGet(int i, String[] args) throws SoarException
+    {
+        if(i + 1 >= args.length)
+        {
+            throw new SoarException("Invalid arguments for " + args[i] + " option");
+        }
+        final String name = args[i+1];
+        final PropertyKey<?> key = DefaultSemanticMemoryParams.getProperty(smem.getParams().getProperties(), name);
+        
+        return smem.getParams().getProperties().get(key).toString();
     }
 
     private String doSet(int i, String[] args) throws SoarException
@@ -131,10 +145,29 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         throw new SoarException("smem --viz with args not implemented yet");
     }
 
-    private String doSmem(int i, String[] args)
+    private String doSmem()
     {
-        // TODO Auto-generated method stub
-        return null;
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        
+        final DefaultSemanticMemoryParams p = smem.getParams();
+        pw.printf("SMem learning: %s%n", p.learning.get() ? "on" : "off");
+        pw.println();
+        pw.println("Storage");
+        pw.println("-------");
+        pw.printf("driver: %s%n", p.driver);
+        pw.printf("path: %s%n", p.path);
+        pw.printf("lazy-commit: %s%n", p.lazy_commit.get() ? "on" : "off");
+        pw.println();
+        pw.println("Performance");
+        pw.println("-----------");
+        pw.printf("thresh: %d%n", p.thresh.get());
+        pw.printf("cache: %s%n", p.cache);
+        pw.printf("optimization: %s%n", p.optimization);
+        // TODO SMEM timers params
+        
+        pw.flush();
+        return sw.toString();
     }
 
 }

@@ -10,7 +10,7 @@ package org.jsoar.kernel.smem;
  * 
  * @author ray
  */
-public class smem_vis_lti
+class smem_vis_lti
 {
     /*smem_lti_id*/ long lti_id;
     String lti_name;

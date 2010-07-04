@@ -17,7 +17,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
  * 
  * @author ray
  */
-public class smem_chunk_lti implements smem_chunk_value
+class smem_chunk_lti implements smem_chunk_value
 {
     IdentifierImpl soar_id;
     /*smem_lti_id*/ long lti_id;

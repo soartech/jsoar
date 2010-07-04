@@ -12,7 +12,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
  * 
  * @author ray
  */
-public class smem_chunk_constant implements smem_chunk_value
+class smem_chunk_constant implements smem_chunk_value
 {
     private final SymbolImpl val_value; 
 

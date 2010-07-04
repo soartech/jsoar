@@ -25,6 +25,19 @@ class DefaultSemanticMemoryParams
     
     private static final String PREFIX = "smem.params.";
     
+    /**
+     * Retrieve a property key for an SMEM property. Appropriately adds necessary
+     * prefixes to the name to find the right key.
+     * 
+     * @param props the property manager
+     * @param name the name of the property.
+     * @return the key, or {@code null} if not found.
+     */
+    public static PropertyKey<?> getProperty(PropertyManager props, String name)
+    {
+        return props.getKey(PREFIX + name);
+    }
+    
     private static <T> PropertyKey.Builder<T> key(String name, Class<T> type)
     {
         return PropertyKey.builder(PREFIX + name, type);
