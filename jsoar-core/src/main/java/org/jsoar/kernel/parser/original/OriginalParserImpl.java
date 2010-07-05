@@ -15,6 +15,7 @@ import java.util.ListIterator;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -38,6 +39,8 @@ import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
+import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.LongTermIdentifierSource;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -109,6 +112,7 @@ class OriginalParserImpl
     private String currentProduction = null;
     private RhsFunctionManager funcs = null;
     private SourceLocation location = DefaultSourceLocation.UNKNOWN;
+    private LongTermIdentifierSource ltis = new DefaultLtiSource();
     
     public OriginalParserImpl(VariableGenerator varGen, Lexer lexer)
     {
@@ -135,6 +139,11 @@ class OriginalParserImpl
     public void setSourceLocation(SourceLocation location)
     {
         this.location  = location;
+    }
+
+    public void setLongTermIdSource(LongTermIdentifierSource ltis)
+    {
+        this.ltis = ltis != null ? ltis : new DefaultLtiSource();
     }
     
     public Lexer getLexer()
@@ -190,7 +199,14 @@ class OriginalParserImpl
         return current().type;
     }
     
-    private SymbolImpl make_symbol_for_current_lexeme () 
+    /**
+     * parser.cpp:make_symbol_for_current_lexeme
+     * 
+     * @param idLti
+     * @return
+     * @throws ParserException
+     */
+    private SymbolImpl make_symbol_for_current_lexeme (boolean idLti) throws ParserException 
     {
         switch (currentType()) 
         {
@@ -199,11 +215,74 @@ class OriginalParserImpl
         case INTEGER:  return syms.createInteger (current().int_val);
         case FLOAT:  return syms.createDouble (current().float_val);
         
-        case IDENTIFIER: throw new IllegalStateException("Internal error:  ID found in make_symbol_for_current_lexeme");
+        case IDENTIFIER: 
+        {
+            if(!idLti)
+            {
+                throw new IllegalStateException("Internal error:  ID found in make_symbol_for_current_lexeme");
+            }
+            else
+            {
+                return getLongTermIdForCurrentLexeme();
+            }
+        }
         default: throw new IllegalStateException("bad lexeme type in make_symbol_for_current_lexeme: " + current());
         }
     }
+    
+    /**
+     * Extracted duplicate code from parse_rhs_action and make_symbol_from_current_lexeme()
+     * 
+     * @return a LTI for the current lexeme which must be of type LexemeType.IDENTIFIER. 
+     * @throws ParserException
+     */
+    private IdentifierImpl getLongTermIdForCurrentLexeme() throws ParserException
+    {
+        assert currentType() == LexemeType.IDENTIFIER;
+        
+        try
+        {
+            final long lti_id = ltis.smem_lti_get_id( current().id_letter, current().id_number );
 
+            if ( lti_id == 0 ) 
+            {
+                throw new ParserException("Internal error: invalid long-term identifier found: " + current().string);
+            }
+            else 
+            {
+                return ltis.smem_lti_soar_make( lti_id, current().id_letter, current().id_number, 
+                                               LongTermIdentifierSource.LTI_UNKNOWN_LEVEL );
+            }
+        }
+        catch (SoarException e)
+        {
+            throw new ParserException("While retrieving long-term identifier '" + current().string + "': " + e.getMessage(), e);
+        }
+    }
+
+    
+    /**
+     * parser.cpp:1800:parse_lti
+     * 
+     * @return true if the current lexeme is an LTI
+     * @throws IOException
+     */
+    private boolean parse_lti() throws IOException {
+        switch(currentType()) {
+        case AT:
+            {
+                final boolean saved = lexer.isAllowIds();
+                lexer.setAllowIds(true);
+                lexer.getNextLexeme();
+                lexer.setAllowIds(saved);
+            }
+            return true;
+
+        default:
+            break;
+        }
+        return false;
+    }
     /**
      * In attribute paths (and some other places) we need to create dummy
      * variables. But we need to make sure these dummy variables don't
@@ -433,6 +512,8 @@ class OriginalParserImpl
             break;
         }
 
+        final boolean id_lti = parse_lti();
+        
         // read variable or constant
         switch (currentType())
         {
@@ -440,8 +521,9 @@ class OriginalParserImpl
         case INTEGER:
         case FLOAT:
         case VARIABLE:
+        case IDENTIFIER:
         {
-            SymbolImpl referent = make_symbol_for_current_lexeme();
+            SymbolImpl referent = make_symbol_for_current_lexeme(id_lti);
             lexer.getNextLexeme();
             return use_equality_test ? SymbolImpl.makeEqualityTest(referent) : new RelationalTest(test_type, referent);
         }
@@ -479,7 +561,7 @@ class OriginalParserImpl
             case SYM_CONSTANT:
             case INTEGER:
             case FLOAT:
-                disjuncts.add(make_symbol_for_current_lexeme());
+                disjuncts.add(make_symbol_for_current_lexeme(false));
                 lexer.getNextLexeme();
                 break;
             default:
@@ -1316,12 +1398,16 @@ class OriginalParserImpl
             lexer.getNextLexeme();
             return parse_function_call_after_lparen(false);
         }
+        
+        final boolean id_lti = parse_lti();
+
         if ((currentType() == LexemeType.SYM_CONSTANT)
                 || (currentType() == LexemeType.INTEGER)
                 || (currentType() == LexemeType.FLOAT)
-                || (currentType() == LexemeType.VARIABLE))
+                || (currentType() == LexemeType.VARIABLE)
+                || (currentType() == LexemeType.IDENTIFIER))
         {
-            RhsValue rv = make_symbol_for_current_lexeme().toRhsValue();
+            RhsValue rv = make_symbol_for_current_lexeme(id_lti).toRhsValue();
             lexer.getNextLexeme();
             return rv;
         }
@@ -1747,7 +1833,9 @@ class OriginalParserImpl
     {
         expect(LexemeType.L_PAREN, "to begin RHS action");
         
-        if (currentType() != LexemeType.VARIABLE)
+        final boolean id_lti = parse_lti();
+
+        if (currentType() != LexemeType.VARIABLE && currentType() != LexemeType.IDENTIFIER)
         {
             // the action is a function call
             RhsFunctionCall funcall_value = parse_function_call_after_lparen(true);
@@ -1759,7 +1847,17 @@ class OriginalParserImpl
         }
         
         // the action is a regular make action
-        Variable var = syms.make_variable(current().string);
+        final SymbolImpl var;
+        if(id_lti)
+        {
+            var = getLongTermIdForCurrentLexeme();
+        }
+        else
+        {
+            var = syms.make_variable(current().string);
+        }
+        
+        
         lexer.getNextLexeme();
         Action all_actions = null;
         Action last = null;
@@ -1957,5 +2055,29 @@ class OriginalParserImpl
             current = next;
         }
         return prev;
+    }
+    
+    private static class DefaultLtiSource implements LongTermIdentifierSource
+    {
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.symbols.LongTermIdentifierSource#smem_lti_get_id(char, long)
+         */
+        @Override
+        public long smem_lti_get_id(char nameLetter, long nameNumber)
+                throws SoarException
+        {
+            throw new IllegalStateException("Long term identifiers are not supported by this parser.");
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.symbols.LongTermIdentifierSource#smem_lti_soar_make(long, char, long, int)
+         */
+        @Override
+        public IdentifierImpl smem_lti_soar_make(long lti, char nameLetter,
+                long nameNumber, int level)
+        {
+            throw new IllegalStateException("Long term identifiers are not supported by this parser.");
+        }
+        
     }
 }

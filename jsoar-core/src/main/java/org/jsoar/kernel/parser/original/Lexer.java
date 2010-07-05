@@ -889,9 +889,24 @@ public class Lexer
      * ======================================================================
      */
 
+    /**
+     * lexer.cpp:set_lexer_allow_ids
+     * 
+     * @param allow_identifiers
+     */
     public void setAllowIds(boolean allow_identifiers)
     {
         this.allow_ids = allow_identifiers;
+    }
+    
+    /**
+     * lexer.cpp:get_lexer_allow_ids
+     * 
+     * @return
+     */
+    public boolean isAllowIds()
+    {
+        return this.allow_ids;
     }
     
     /**

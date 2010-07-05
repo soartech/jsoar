@@ -8,20 +8,16 @@ package org.jsoar.kernel.smem;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.LongTermIdentifierSource;
 import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
  */
-public interface SemanticMemory
+public interface SemanticMemory extends LongTermIdentifierSource
 {
     /**
-     * semantic_memory.h:239:SMEM_LTI_UNKNOWN_LEVEL
-     */
-    public static final int LTI_UNKNOWN_LEVEL = 0;
-    
-    /**
-     * semantic_memory.h:SMEM_LTI_UNKNOWN_LEVEL
+     * semantic_memory.h:smem_enabled
      */
     boolean smem_enabled();
     

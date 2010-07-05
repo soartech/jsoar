@@ -15,6 +15,7 @@ import org.jsoar.kernel.parser.ParserContext;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
+import org.jsoar.kernel.symbols.LongTermIdentifierSource;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.DefaultSourceLocation;
@@ -85,6 +86,7 @@ public class OriginalParser extends AbstractAdaptable implements Parser
         final SymbolFactoryImpl syms = require(context, SymbolFactoryImpl.class);
         final RhsFunctionManager rhsFunctions = require(context, RhsFunctionManager.class);
         final SourceLocation source = Adaptables.adapt(context, SourceLocation.class);
+        final LongTermIdentifierSource ltis = Adaptables.adapt(context, LongTermIdentifierSource.class);
         
         try
         {
@@ -92,6 +94,7 @@ public class OriginalParser extends AbstractAdaptable implements Parser
             OriginalParserImpl parser = new OriginalParserImpl(syms.getVariableGenerator(), lexer);
             parser.setRhsFunctions(rhsFunctions);
             parser.setSourceLocation(source != null ? source : DefaultSourceLocation.UNKNOWN);
+            parser.setLongTermIdSource(ltis);
             
             lexer.getNextLexeme();
             return parser.parse_rhs();
