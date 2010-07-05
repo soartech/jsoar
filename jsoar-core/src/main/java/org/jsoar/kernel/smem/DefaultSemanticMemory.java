@@ -989,7 +989,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         List<smem_chunk_value> s = slots.get(attr);
         if(s == null)
         {
-            s = new LinkedList<smem_chunk_value>();
+            s = new ArrayList<smem_chunk_value>();
             slots.put(attr, s);
         }
         return s;
@@ -1111,12 +1111,11 @@ public class DefaultSemanticMemory implements SemanticMemory
         long /*smem_hash_id*/ value_hash = 0;
         long /*smem_lti_id*/ value_lti = 0;
 
-        Map</*smem_hash_id*/ Long, Long> attr_ct_adjust= new HashMap<Long, Long>();
-        Map</*smem_hash_id*/ Long, Map</*smem_hash_id*/ Long, Long> > const_ct_adjust = new HashMap<Long, Map<Long,Long>>();
-        Map</*smem_hash_id*/ Long, Map</*smem_lti_id*/ Long, Long> > lti_ct_adjust = new HashMap<Long, Map<Long,Long>>();
-        long stat_adjust = 0;
+        final Map</*smem_hash_id*/ Long, Long> attr_ct_adjust = new HashMap<Long, Long>();
+        final Map</*smem_hash_id*/ Long, Map</*smem_hash_id*/ Long, Long> > const_ct_adjust = new HashMap<Long, Map<Long,Long>>();
+        final Map</*smem_hash_id*/ Long, Map</*smem_lti_id*/ Long, Long> > lti_ct_adjust = new HashMap<Long, Map<Long,Long>>();
 
-        long next_act_cycle = smem_max_cycle++;
+        final long next_act_cycle = smem_max_cycle++;
         
         // clear web, adjust counts
         long child_ct = 0;
@@ -1141,8 +1140,8 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
 
         // already above threshold?
-        long thresh = params.thresh.get();
-        boolean before_above = ( child_ct >= thresh );
+        final long thresh = params.thresh.get();
+        final boolean before_above = ( child_ct >= thresh );
 
         // get final count
         {
@@ -1157,8 +1156,8 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
 
         // above threshold now?
-        boolean after_above = ( child_ct >= thresh );
-        long web_act_cycle = ( ( after_above )?( SMEM_ACT_MAX ):( next_act_cycle ) );
+        final boolean after_above = ( child_ct >= thresh );
+        final long web_act_cycle = ( ( after_above )?( SMEM_ACT_MAX ):( next_act_cycle ) );
 
         // if didn't clear and wasn't already above, need to update kids
         if ( ( !remove_old_children ) && ( !before_above ) )
@@ -1176,6 +1175,8 @@ public class DefaultSemanticMemory implements SemanticMemory
             db.act_lti_set.executeUpdate( /*soar_module::op_reinit*/ );
         }
 
+        long stat_adjust = 0;
+        
         // for all slots
         for (Map.Entry<SymbolImpl, List<smem_chunk_value>> s : children.entrySet())
         {
@@ -2012,8 +2013,8 @@ public class DefaultSemanticMemory implements SemanticMemory
         ////////////////////////////////////////////////////////////////////////////
         
         // attempt connection
-        final Connection connection = JdbcTools.connect(params.driver.get(), 
-                                                        params.path.get());
+        final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
+        final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         try
         {
             db = new SemanticMemoryDatabase(connection);
@@ -2436,7 +2437,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                             chunks.put(temp_key2.value, chunk_value);
 
                                             // possibly a newbie (could be a self-loop)
-                                            newbies.add( chunk_value.asLti() );
+                                            newbies.add( temp_chunk );
                                         }
                                     }
                                 }

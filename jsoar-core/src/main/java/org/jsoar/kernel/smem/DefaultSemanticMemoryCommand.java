@@ -132,6 +132,10 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             props.set(DefaultSemanticMemoryParams.DRIVER, value);
         }
+        else if(name.equals("protocol"))
+        {
+            props.set(DefaultSemanticMemoryParams.PROTOCOL, value);
+        }
         else if(name.equals("path"))
         {
             props.set(DefaultSemanticMemoryParams.PATH, value);
@@ -246,6 +250,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         pw.println("Storage");
         pw.println("-------");
         pw.printf("driver: %s%n", p.driver);
+        pw.printf("protocol: %s%n", p.protocol);
         pw.printf("path: %s%n", p.path);
         pw.printf("lazy-commit: %s%n", p.lazy_commit.get() ? "on" : "off");
         pw.println();

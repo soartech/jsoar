@@ -47,8 +47,11 @@ class DefaultSemanticMemoryParams
     
     static final PropertyKey<String> DRIVER = key("driver", String.class).defaultValue("org.sqlite.JDBC").build();
     final DefaultPropertyProvider<String> driver = new DefaultPropertyProvider<String>(DRIVER);
+    
+    static final PropertyKey<String> PROTOCOL = key("protocol", String.class).defaultValue("jdbc:sqlite").build();
+    final DefaultPropertyProvider<String> protocol = new DefaultPropertyProvider<String>(PROTOCOL);
 
-    static final PropertyKey<String> PATH = key("path", String.class).defaultValue("jdbc:sqlite::memory:").build();
+    static final PropertyKey<String> PATH = key("path", String.class).defaultValue(":memory:").build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
     static final PropertyKey<Boolean> LAZY_COMMIT = key("lazy-commit", Boolean.class).defaultValue(true).build();
@@ -71,6 +74,7 @@ class DefaultSemanticMemoryParams
         
         properties.setProvider(LEARNING, learning);
         properties.setProvider(DRIVER, driver);
+        properties.setProvider(PROTOCOL, protocol);
         properties.setProvider(PATH, path);
         
         properties.setProvider(LAZY_COMMIT, lazy_commit);
