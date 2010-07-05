@@ -6,35 +6,15 @@
 package org.jsoar.kernel;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import java.io.StringReader;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jsoar.kernel.memory.DummyWme;
-import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.memory.Wmes;
-import org.jsoar.kernel.parser.ParserContext;
-import org.jsoar.kernel.parser.original.OriginalParser;
-import org.jsoar.kernel.rete.Rete;
-import org.jsoar.kernel.rete.ReteListener;
-import org.jsoar.kernel.rete.ReteNode;
 import org.jsoar.kernel.rete.SimpleMatcher;
-import org.jsoar.kernel.rete.Token;
-import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
-import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.symbols.Identifier;
-import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.kernel.symbols.SymbolFactory;
-import org.jsoar.kernel.symbols.SymbolFactoryImpl;
-import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.Test;
 
