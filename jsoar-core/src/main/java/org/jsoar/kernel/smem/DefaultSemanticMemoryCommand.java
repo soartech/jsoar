@@ -7,21 +7,31 @@ package org.jsoar.kernel.smem;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 
+import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Cache;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
+import org.jsoar.util.adaptables.Adaptable;
+import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.properties.PropertyKey;
+import org.jsoar.util.properties.PropertyManager;
 
 /**
  * @author ray
  */
 class DefaultSemanticMemoryCommand implements SoarCommand
 {
+    private final Adaptable context;
     private final DefaultSemanticMemory smem;
     
-    public DefaultSemanticMemoryCommand(DefaultSemanticMemory smem)
+    public DefaultSemanticMemoryCommand(Adaptable context)
     {
-        this.smem = smem;
+        this.context = context;
+        this.smem = Adaptables.require(getClass(), context, DefaultSemanticMemory.class);
     }
 
     /* (non-Javadoc)
@@ -93,7 +103,10 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         }
         final String name = args[i+1];
         final PropertyKey<?> key = DefaultSemanticMemoryParams.getProperty(smem.getParams().getProperties(), name);
-        
+        if(key == null)
+        {
+            throw new SoarException("Unknown parameter '" + name + "'");
+        }
         return smem.getParams().getProperties().get(key).toString();
     }
 
@@ -105,24 +118,101 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         }
         final String name = args[i+1];
         final String value = args[i+2];
+        final PropertyManager props = smem.getParams().getProperties();
         if(name.equals("learning"))
         {
-            smem.getParams().getProperties().set(DefaultSemanticMemoryParams.LEARNING, "on".equals(value));
+            props.set(DefaultSemanticMemoryParams.LEARNING, "on".equals(value));
+        }
+        else if(smem.getDatabase() != null)
+        {
+            // TODO: This check should be done in the property system
+            throw new SoarException("This parameter is protected while the semantic memory database is open");
+        }
+        else if(name.equals("driver"))
+        {
+            props.set(DefaultSemanticMemoryParams.DRIVER, value);
+        }
+        else if(name.equals("path"))
+        {
+            props.set(DefaultSemanticMemoryParams.PATH, value);
+        }
+        else if(name.equals("lazy-commit"))
+        {
+            props.set(DefaultSemanticMemoryParams.LAZY_COMMIT, "on".equals(value));
+        }
+        else if(name.equals("cache"))
+        {
+            props.set(DefaultSemanticMemoryParams.CACHE, Cache.valueOf(value));
+        }
+        else if(name.equals("optimization"))
+        {
+            props.set(DefaultSemanticMemoryParams.OPTIMIZATION, Optimization.valueOf(value));
+        }
+        else if(name.equals("thresh"))
+        {
+            props.set(DefaultSemanticMemoryParams.THRESH, Long.valueOf(value));
+        }
+        else
+        {
+            throw new SoarException("Unknown parameter '" + name + "'");
         }
         
-        return null;
+        return "";
     }
 
-    private String doInit(int i, String[] args)
+    private String doInit(int i, String[] args) throws SoarException
     {
-        // TODO Auto-generated method stub
-        return null;
+        // Because of LTIs, re-initializing requires all other memories to be reinitialized.        
+        
+        // epmem - close before working/production memories to get re-init benefits
+        // TODO EPMEM this->DoCommandInternal( "epmem --close" );
+        
+        // smem - close before working/production memories to prevent id counter mess-ups
+        smem.smem_close();
+
+        // production memory (automatic init-soar clears working memory as a result) 
+        //this->DoCommandInternal( "excise --all" );
+        
+        // Excise all just removes all rules and does init-soar
+        final Agent agent = Adaptables.require(getClass(), context, Agent.class);
+        for(Production p : new ArrayList<Production>(agent.getProductions().getProductions(null)))
+        {
+            agent.getProductions().exciseProduction(p, false);
+        }
+        agent.initialize();
+        
+        return "";
     }
 
-    private String doStats(int i, String[] args)
+    private String doStats(int i, String[] args) throws SoarException
     {
-        // TODO Auto-generated method stub
-        return null;
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        
+        final DefaultSemanticMemoryStats p = smem.getStats();
+        if(args.length == i + 1)
+        {
+            pw.printf("Memory Usage: %d%n", p.mem_usage.get());
+            pw.printf("Memory Highwater: %d%n", p.mem_high.get());
+            pw.printf("Retrieves: %d%n", p.retrieves.get());
+            pw.printf("Queries: %d%n", p.queries.get());
+            pw.printf("Stores: %d%n", p.stores.get());
+            pw.printf("Nodes: %d%n", p.nodes.get());
+            pw.printf("Edges: %d%n", p.edges.get());
+        }
+        else
+        {
+            final String name = args[i+1];
+            final PropertyKey<?> key = DefaultSemanticMemoryStats.getProperty(smem.getParams().getProperties(), name);
+            if(key == null)
+            {
+                throw new SoarException("Unknown stat '" + name + "'");
+            }
+            pw.printf("%s%n", smem.getParams().getProperties().get(key).toString());
+        }
+        
+        pw.flush();
+        return sw.toString();
     }
 
     private String doTimers(int i, String[] args)

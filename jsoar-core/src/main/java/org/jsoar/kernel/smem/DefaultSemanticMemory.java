@@ -193,7 +193,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     @Override
     public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
     {
-        final SemanticMemoryStateInfo info = stateInfos.put(id, new SemanticMemoryStateInfo(this, wm, id));
+        stateInfos.put(id, new SemanticMemoryStateInfo(this, wm, id));
     }
 
     /* (non-Javadoc)
@@ -202,7 +202,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     @Override
     public SoarCommand getCommand()
     {
-        return new DefaultSemanticMemoryCommand(this);
+        return new DefaultSemanticMemoryCommand(context);
     }
 
     SemanticMemoryDatabase getDatabase()
@@ -1148,10 +1148,11 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             for(Map.Entry<SymbolImpl, List<smem_chunk_value>> s : children.entrySet())
             {
-                for(smem_chunk_value v : s.getValue())
-                {
-                    child_ct++; // TODO SMEM Just add size()?
-                }
+//                for(smem_chunk_value v : s.getValue())
+//                {
+//                    child_ct++; // TODO SMEM Just add size()?
+//                }
+                child_ct += s.getValue().size();
             }
         }
 
