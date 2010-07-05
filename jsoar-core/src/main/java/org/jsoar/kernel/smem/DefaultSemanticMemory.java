@@ -1374,7 +1374,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             final Map<SymbolImpl, smem_chunk_value> sym_to_chunk = new HashMap<SymbolImpl, smem_chunk_value>();
             //smem_chunk **c;
 
-            Map<SymbolImpl, List<smem_chunk_value>> slots = new HashMap<SymbolImpl, List<smem_chunk_value>>();
+            final Map<SymbolImpl, List<smem_chunk_value>> slots = new HashMap<SymbolImpl, List<smem_chunk_value>>();
 
             for (WmeImpl w : children)
             {
@@ -1508,10 +1508,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         smem_add_meta_wme(state, result_header, predefinedSyms.smem_sym_retrieved, lti );
         if ( lti_created_here )
         {
-            // if the identifier was created above we need to
-            // remove a single ref count AFTER the wme
-            // is added (such as to not deallocate the symbol
-            // prematurely)
+            // if the identifier was created above we need to remove a single 
+            // ref count AFTER the wme is added (such as to not deallocate the 
+            // symbol prematurely)
             // Not needed in JSoar
             // symbol_remove_ref( my_agent, lti );
         }   
@@ -1960,14 +1959,10 @@ public class DefaultSemanticMemory implements SemanticMemory
             data.last_cmd_count[1] = 0;
 
             data.cue_wmes.clear();
-            
             // this will be called after prefs from goal are already removed,
             // so just clear out result stack
-            while ( !data.smem_wmes.isEmpty() )
-            {
-                data.smem_wmes.pop();
-            }       
-
+            data.smem_wmes.clear();
+            
             state = state.lower_goal;
         }
     }
@@ -2039,6 +2034,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 case large:  
                 default:     cacheSize = 100000; // 100MB cache
                 }
+                
                 final Statement s = db.getConnection().createStatement();
                 try
                 {
@@ -2097,7 +2093,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
 
             {
-                ByRef<Long> temp = ByRef.create(0L);
+                final ByRef<Long> temp = ByRef.create(0L);
 
                 // threshold
                 if ( smem_variable_get(smem_variable_key.var_act_thresh, temp ) )
