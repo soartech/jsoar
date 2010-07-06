@@ -48,6 +48,11 @@
          <path id="test.libs">
             <path refid="compile.libs" />
             <pathelement location="../jsoar-build/lib/build/junit-4.4.jar" />
+         	
+         	<!-- TODO move this to jsoar-core/build.xml somehow -->
+            <fileset dir="${lib}/db" erroronmissingdir="false">
+                  <include name="*.jar" />
+            </fileset>
          </path>
 	
     </target>
@@ -107,7 +112,8 @@
 	
     <target name="test" depends="compile-tests" description="Run unit tests">
         <junit printsummary="on" haltonfailure="yes" fork="yes" forkmode="perBatch" showoutput="true">
-        	   <jvmarg value="-Xmx1000M"/>
+     	   <jvmarg value="-Xmx1024M"/>
+     	   <jvmarg value="-ea"/>
 
             <classpath>
                 <pathelement path="${target.classes}" />

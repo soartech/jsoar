@@ -11,6 +11,13 @@
     <property name="jar.main.class" value="org.jsoar.debugger.JSoarDebugger"/>
 	
     <target name="dist" depends="jar,licenses,doc" description="generate the distribution">
+    	
+    	<!-- Copy database drivers to dist lib -->
+        <copy todir="${dist.lib}" >
+            <fileset dir="${lib}/db">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
 		
         <copy todir="${dist.bin}" >
             <fileset dir="${tools}">

@@ -86,7 +86,7 @@ public class FunctionalTests extends FunctionalTestHarness
         runTest("testBlocksWorldLookAhead", -1);
     }
     
-    @Test(timeout=30000)
+    @Test(timeout=80000)
     public void testArithmetic() throws Exception
     {
         runTest("testArithmetic", -1);
