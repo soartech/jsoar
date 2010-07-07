@@ -17,6 +17,7 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WorkingMemoryPrinter;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.util.commands.OptionProcessor;
 import org.jsoar.util.commands.SoarCommand;
 
 import com.google.common.collect.Lists;

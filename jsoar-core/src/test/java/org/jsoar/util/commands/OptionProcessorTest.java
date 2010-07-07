@@ -1,4 +1,4 @@
-package org.jsoar.kernel.commands;
+package org.jsoar.util.commands;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.commands.OptionProcessor.OptionBuilder;
+import org.jsoar.util.commands.OptionProcessor;
+import org.jsoar.util.commands.OptionProcessor.OptionBuilder;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -3,7 +3,7 @@
  *
  * Created on June 29, 2010
  */
-package org.jsoar.kernel.commands;
+package org.jsoar.util.commands;
 
 import java.util.ArrayList;
 import java.util.HashMap;
