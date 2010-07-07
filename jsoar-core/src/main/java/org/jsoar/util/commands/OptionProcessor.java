@@ -14,20 +14,20 @@ import java.util.Map;
 import org.jsoar.kernel.SoarException;
 
 /**
- * Option processor utility for Soar command line interface. Very similar to
+ * <p>Option processor utility for Soar command line interface. Very similar to
  * csoar option processor. Intended usage: create, register options, loop:
  * process lines, has, getArgument. Each call to process lines resets the
  * internal state but does not unregister options.
  * 
- * Long options should be all lower-case letters and dashes. Short options
+ * <p>Long options should be all lower-case letters and dashes. Short options
  * should be a single upper- or lower- case letter.
  * 
- * TODO: SoarException probably the wrong exception to use since this has
+ * <p>TODO: SoarException probably the wrong exception to use since this has
  * nothing (really) to do with Soar
  * 
- * TODO: partial matches on long options
+ * <p>TODO: partial matches on long options
  * 
- * TODO: potentially rewrite using buffers or something to avoid so many string
+ * <p>TODO: potentially rewrite using buffers or something to avoid so many string
  * objects
  * 
  * @author voigtjr
@@ -38,7 +38,7 @@ import org.jsoar.kernel.SoarException;
 public class OptionProcessor<E>
 {
     /**
-     * Factory method.
+     * <p>Factory method.
      * 
      * @param <E>
      *            user-defined option reference object
@@ -62,10 +62,10 @@ public class OptionProcessor<E>
         private boolean registered = false;
 
         /**
-         * Starts building a new option. Call using newOption(). Must call
+         * <p>Starts building a new option. Call using newOption(). Must call
          * register() before this option will work.
          * 
-         * By default the short option will be the first character of the long
+         * <p>By default the short option will be the first character of the long
          * option. To make a short option with a capital letter, capitalize the
          * first character of the long option, or call setShortOption later. The
          * long option will be forced to lower-case after setting the short
@@ -109,7 +109,7 @@ public class OptionProcessor<E>
         }
 
         /**
-         * Set the short option. The default for this is the first character of
+         * <p>Set the short option. The default for this is the first character of
          * the long option. Must be a letter.
          * 
          * @param shortOption
@@ -132,7 +132,7 @@ public class OptionProcessor<E>
         }
 
         /**
-         * Mark this option as having no argument. This is the default.
+         * <p>Mark this option as having no argument. This is the default.
          * 
          * @return The builder.
          * @throws IllegalStateException
@@ -148,9 +148,9 @@ public class OptionProcessor<E>
         }
 
         /**
-         * Mark this option as having an optional argument.
+         * <p>Mark this option as having an optional argument.
          * 
-         * This option will consume the next option on the line, if any. When
+         * <p>This option will consume the next option on the line, if any. When
          * using short options, the argument can be placed with the short
          * option: -aone could be equivalent to -a one
          * 
@@ -168,10 +168,10 @@ public class OptionProcessor<E>
         }
 
         /**
-         * Mark this option as having a required argument. This option must be
+         * <p>Mark this option as having a required argument. This option must be
          * followed by an argument.
          * 
-         * This option will consume the next option on the line, if any. When
+         * <p>This option will consume the next option on the line, if any. When
          * using short options, the argument can be placed with the short
          * option: -aone could be equivalent to -a one
          * 
@@ -189,7 +189,7 @@ public class OptionProcessor<E>
         }
 
         /**
-         * Register the option with the option manager.
+         * <p>Register the option with the option manager.
          * 
          * @throws IllegalStateException
          *             If option is already registered.
@@ -222,18 +222,18 @@ public class OptionProcessor<E>
     }
 
     /**
-     * Create a new option builder associating the passed key with the passed
+     * <p>Create a new option builder associating the passed key with the passed
      * long option. Call register() on returned builder object to register it
      * with the associated option processor. The short option defaults to the
      * first letter of the long option. To use an upper-case letter in the short
      * option, pass a long option with an upper-case first letter--the long
      * option will be forced to lower-case after.
      * 
-     * Set a custom short option by calling setShortOption on the returned
+     * <p>Set a custom short option by calling setShortOption on the returned
      * builder. Useful for commands with more than two long options that start
      * with the same letter.
      * 
-     * Argument type defaults to none, call setOptionalArg or setRequiredArg to
+     * <p>Argument type defaults to none, call setOptionalArg or setRequiredArg to
      * change.
      * 
      * @param key
@@ -254,7 +254,7 @@ public class OptionProcessor<E>
     }
 
     /**
-     * Argument type, denotes whether or not the option takes an argument or
+     * <p>Argument type, denotes whether or not the option takes an argument or
      * not, or if it is optional.
      * 
      * @author voigtjr
@@ -291,26 +291,26 @@ public class OptionProcessor<E>
     private Map<E, String> arguments = new HashMap<E, String>();
 
     /**
-     * Evaluate a command line. Assumes first arg is command name (ignored).
+     * <p>Evaluate a command line. Assumes first arg is command name (ignored).
      * 
-     * Short options are preceded by one dash and may be combined together.
+     * <p>Short options are preceded by one dash and may be combined together.
      * "-fo" is equivalent to "-f -o". If an option takes an argument, the rest
      * of the token is checked and used before checking for and using the next
      * argument. For example, if "-f" takes an argument, "-fo" means "o" is the
      * argument for "-f" and is equivalent to "-f o"
      * 
-     * Long options are preceded by two dashes and must be by themselves. The
+     * <p>Long options are preceded by two dashes and must be by themselves. The
      * next argument is used for the option argument if the option takes an
      * argument.
      * 
-     * Optional arguments are tricky and could be implemented a few ways. This
+     * <p>Optional arguments are tricky and could be implemented a few ways. This
      * implementation assumes that if there is any argument following an
      * argument with an optional argument, that it is that option's argument.
      * For example, if --foo takes an optional argument, then "--foo --bar" will
      * mean that "--bar" is interpreted as an argument to the "--foo" option,
      * and not its own option.
      * 
-     * Non-option arguments are collected and returned in a new list in the same
+     * <p>Non-option arguments are collected and returned in a new list in the same
      * order they are encountered.
      * 
      * @param args
@@ -456,7 +456,7 @@ public class OptionProcessor<E>
     }
 
     /**
-     * Test to see if the most recent invocation of process uncovered the given
+     * <p>Test to see if the most recent invocation of process uncovered the given
      * option.
      * 
      * @param key
@@ -479,7 +479,7 @@ public class OptionProcessor<E>
     }
 
     /**
-     * Manually set an option as if it had been encountered during process.
+     * <p>Manually set an option as if it had been encountered during process.
      * 
      * Caution: This doesn't enforce optional/required arguments!
      * 
@@ -495,7 +495,7 @@ public class OptionProcessor<E>
     }
 
     /**
-     * Manually unset an option as if it had never been encountered during
+     * <p>Manually unset an option as if it had never been encountered during
      * process.
      * 
      * @param key
@@ -517,9 +517,9 @@ public class OptionProcessor<E>
     }
 
     /**
-     * Manually set an option and its argument.
+     * <p>Manually set an option and its argument.
      * 
-     * Caution: This doesn't enforce optional/required arguments!
+     * <p>Caution: This doesn't enforce optional/required arguments!
      * 
      * @param key
      *            The key for the option to set.
@@ -542,7 +542,7 @@ public class OptionProcessor<E>
     }
 
     /**
-     * Get an option's argument.
+     * <p>Get an option's argument.
      * 
      * @param key
      *            Key for option who's argument needs retrieval
