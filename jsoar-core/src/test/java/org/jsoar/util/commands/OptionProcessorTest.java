@@ -661,4 +661,59 @@ public class OptionProcessorTest
         op.process(Lists.newArrayList("command", "--alpha"));
         assertTrue(op.has("ALPHA"));
     }
+    
+    @Test
+    public void testGetInteger() throws SoarException
+    {
+        op.newOption(alpha).requiredArg().register();
+        op.process(Lists.newArrayList("command", "--alpha", "1"));
+        assertTrue(op.has(alpha));
+        assertEquals(1, op.getInteger(alpha));
+    }
+    
+    @Test
+    public void testGetDouble() throws SoarException
+    {
+        op.newOption(alpha).requiredArg().register();
+        op.process(Lists.newArrayList("command", "--alpha", "1.0"));
+        assertTrue(op.has(alpha));
+        assertEquals(1.0, op.getDouble(alpha), 0); // 1.0 is representable exactly
+    }
+    
+    @Test
+    public void testGetFloat() throws SoarException
+    {
+        op.newOption(alpha).requiredArg().register();
+        op.process(Lists.newArrayList("command", "--alpha", "1.0"));
+        assertTrue(op.has(alpha));
+        assertEquals(1.0, op.getFloat(alpha), 0); // 1.0 is representable exactly
+    }
+    
+    @Test(expected=SoarException.class)
+    public void testGetBadInteger() throws SoarException
+    {
+        op.newOption(alpha).requiredArg().register();
+        op.process(Lists.newArrayList("command", "--alpha", "1.0"));
+        assertTrue(op.has(alpha));
+        op.getInteger(alpha);
+    }
+    
+    @Test(expected=SoarException.class)
+    public void testGetBadDouble() throws SoarException
+    {
+        op.newOption(alpha).requiredArg().register();
+        op.process(Lists.newArrayList("command", "--alpha", "a"));
+        assertTrue(op.has(alpha));
+        op.getDouble(alpha);
+    }
+    
+    @Test(expected=SoarException.class)
+    public void testGetBadFloat() throws SoarException
+    {
+        op.newOption(alpha).requiredArg().register();
+        op.process(Lists.newArrayList("command", "--alpha", "a"));
+        assertTrue(op.has(alpha));
+        op.getFloat(alpha);
+    }
+    
 }
