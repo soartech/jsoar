@@ -105,17 +105,10 @@ public class PrintCommand implements SoarCommand
         
         if (options.has(Options.DEPTH))
         {
-            try
+            depth = Integer.parseInt(options.get(Options.DEPTH));
+            if(depth < 0)
             {
-                depth = Integer.parseInt(options.getArgument(Options.DEPTH));
-                if(depth < 0)
-                {
-                    throw new SoarException("--depth must be positive");
-                }
-            }
-            catch(NumberFormatException e)
-            {
-                throw new SoarException("Invalid --depth value: " + options.getArgument(Options.DEPTH));
+                throw new SoarException("--depth must be positive");
             }
         }
         

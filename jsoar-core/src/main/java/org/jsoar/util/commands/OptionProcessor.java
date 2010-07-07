@@ -542,7 +542,7 @@ public class OptionProcessor<E>
     }
 
     /**
-     * <p>Get an option's argument.
+     * <p>Get an option's argument as a String.
      * 
      * @param key
      *            Key for option who's argument needs retrieval
@@ -553,7 +553,7 @@ public class OptionProcessor<E>
      * @throws NullPointerException
      *             If option is null.
      */
-    public String getArgument(E key)
+    public String get(E key)
     {
         if (key == null)
             throw new NullPointerException("Key is null.");
@@ -561,5 +561,86 @@ public class OptionProcessor<E>
             throw new IllegalStateException(
                     "Call process() before testing for options.");
         return arguments.get(key);
+    }
+    
+    /**
+     * <p>Get an option's argument as an integer.
+     * 
+     * @param key
+     *            Key for option who's argument needs retrieval
+     * @return The option's argument as a string.
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
+     * @throws SoarException
+     *             If argument is not an integer.
+     */
+    public int getInteger(E key) throws SoarException
+    {
+        String arg = get(key);
+        try
+        {
+            return Integer.parseInt(arg);
+        }
+        catch(NumberFormatException e)
+        {
+            throw new SoarException("Invalid integer value: " + arg);
+        }
+    }
+
+    /**
+     * <p>Get an option's argument as a double.
+     * 
+     * @param key
+     *            Key for option who's argument needs retrieval
+     * @return The option's argument as a string.
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
+     * @throws SoarException
+     *             If argument is not a double.
+     */
+    public double getDouble(E key) throws SoarException
+    {
+        String arg = get(key);
+        try
+        {
+            return Double.parseDouble(arg);
+        }
+        catch(NumberFormatException e)
+        {
+            throw new SoarException("Invalid double value: " + arg);
+        }
+    }
+
+    /**
+     * <p>Get an option's argument as a float.
+     * 
+     * @param key
+     *            Key for option who's argument needs retrieval
+     * @return The option's argument as a string.
+     * @throws IllegalStateException
+     *             If process() not called between registering options and
+     *             calling this function.
+     * @throws NullPointerException
+     *             If option is null.
+     * @throws SoarException
+     *             If argument is not a float.
+     */
+    public float getFloat(E key) throws SoarException
+    {
+        String arg = get(key);
+        try
+        {
+            return Float.parseFloat(arg);
+        }
+        catch(NumberFormatException e)
+        {
+            throw new SoarException("Invalid float value: " + arg);
+        }
     }
 }

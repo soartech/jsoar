@@ -238,7 +238,7 @@ public class OptionProcessorTest
     public void testCheckArgOutOfOrder()
     {
         op.newOption(Options.alpha, "alpha").register();
-        op.getArgument(Options.alpha);
+        op.get(Options.alpha);
     }
 
     @Test
@@ -391,11 +391,11 @@ public class OptionProcessorTest
 
         op.process(Lists.newArrayList("command", "-a"));
         assertTrue(op.has(Options.alpha));
-        assertNull(op.getArgument(Options.alpha));
+        assertNull(op.get(Options.alpha));
 
         op.process(Lists.newArrayList("command", "-a", "arg"));
         assertTrue(op.has(Options.alpha));
-        assertEquals("arg", op.getArgument(Options.alpha));
+        assertEquals("arg", op.get(Options.alpha));
     }
 
     @Test
@@ -405,7 +405,7 @@ public class OptionProcessorTest
 
         op.process(Lists.newArrayList("command", "-a", "arg"));
         assertTrue(op.has(Options.alpha));
-        assertEquals("arg", op.getArgument(Options.alpha));
+        assertEquals("arg", op.get(Options.alpha));
     }
 
     @Test(expected = SoarException.class)
@@ -431,17 +431,17 @@ public class OptionProcessorTest
 
         op.process(Lists.newArrayList("command", "-ab"));
         assertTrue(op.has(Options.alpha));
-        assertEquals("b", op.getArgument(Options.alpha));
+        assertEquals("b", op.get(Options.alpha));
         assertFalse(op.has(Options.bravo));
 
         op.process(Lists.newArrayList("command", "-a", "-b"));
         assertTrue(op.has(Options.alpha));
-        assertEquals("-b", op.getArgument(Options.alpha));
+        assertEquals("-b", op.get(Options.alpha));
         assertFalse(op.has(Options.bravo));
 
         op.process(Lists.newArrayList("command", "-b", "-a"));
         assertTrue(op.has(Options.bravo));
-        assertEquals("-a", op.getArgument(Options.bravo));
+        assertEquals("-a", op.get(Options.bravo));
         assertFalse(op.has(Options.alpha));
     }
 
@@ -462,10 +462,10 @@ public class OptionProcessorTest
         assertTrue(op.has(Options.charlie));
         assertTrue(op.has(Options.delta));
 
-        assertNull(op.getArgument(Options.alpha));
-        assertEquals("2", op.getArgument(Options.bravo));
-        assertEquals("3", op.getArgument(Options.charlie));
-        assertEquals("5", op.getArgument(Options.delta));
+        assertNull(op.get(Options.alpha));
+        assertEquals("2", op.get(Options.bravo));
+        assertEquals("3", op.get(Options.charlie));
+        assertEquals("5", op.get(Options.delta));
 
         assertArrayEquals(expected, nonOpt.toArray());
     }
@@ -485,9 +485,9 @@ public class OptionProcessorTest
         assertTrue(op.has(Options.bravo));
         assertTrue(op.has(Options.charlie));
 
-        assertNull(op.getArgument(Options.alpha));
-        assertEquals("1", op.getArgument(Options.bravo));
-        assertEquals("2", op.getArgument(Options.charlie));
+        assertNull(op.get(Options.alpha));
+        assertEquals("1", op.get(Options.bravo));
+        assertEquals("2", op.get(Options.charlie));
 
         assertArrayEquals(expected, nonOpt.toArray());
     }
@@ -519,7 +519,7 @@ public class OptionProcessorTest
         String[] expected = new String[] { "3" };
 
         assertTrue(op.has(Options.alpha));
-        assertEquals("--", op.getArgument(Options.alpha));
+        assertEquals("--", op.get(Options.alpha));
         assertTrue(op.has(Options.bravo));
 
         assertArrayEquals(expected, nonOpt.toArray());
@@ -536,7 +536,7 @@ public class OptionProcessorTest
         String[] expected = new String[] { "-2", "3" };
 
         assertTrue(op.has(Options.alpha));
-        assertEquals("-1", op.getArgument(Options.alpha));
+        assertEquals("-1", op.get(Options.alpha));
         assertFalse(op.has(Options.bravo));
 
         assertArrayEquals(expected, nonOpt.toArray());
@@ -554,7 +554,7 @@ public class OptionProcessorTest
         String[] expected = new String[] { "-2.676", "3" };
 
         assertTrue(op.has(Options.alpha));
-        assertEquals("-1.43", op.getArgument(Options.alpha));
+        assertEquals("-1.43", op.get(Options.alpha));
         assertFalse(op.has(Options.bravo));
 
         assertArrayEquals(expected, nonOpt.toArray());
@@ -581,20 +581,20 @@ public class OptionProcessorTest
 
         assertFalse(op.has(Options.alpha));
         assertTrue(op.has(Options.bravo));
-        assertNull(op.getArgument(Options.bravo));
+        assertNull(op.get(Options.bravo));
         
         op.set(Options.bravo, "arg"); // ignores fact this option takes no arg
 
         assertFalse(op.has(Options.alpha));
         assertTrue(op.has(Options.bravo));
-        assertEquals("arg", op.getArgument(Options.bravo));
+        assertEquals("arg", op.get(Options.bravo));
         
         op.unset(Options.bravo);
         op.set(Options.bravo, null);
 
         assertFalse(op.has(Options.alpha));
         assertTrue(op.has(Options.bravo));
-        assertNull(op.getArgument(Options.bravo));
+        assertNull(op.get(Options.bravo));
     }
     
     @Test(expected=IllegalStateException.class)
@@ -631,7 +631,7 @@ public class OptionProcessorTest
     {
         op.newOption(Options.alpha, "alpha").register();
         op.process(Lists.newArrayList("command"));
-        op.getArgument(null);
+        op.get(null);
     }
     
     @Test(expected=NullPointerException.class)
