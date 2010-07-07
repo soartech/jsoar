@@ -44,12 +44,6 @@ public class OptionProcessorTest
         op.newOption(Options.alpha, null).register();
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testRegisterNullShort()
-    {
-        op.newOption(Options.alpha, "alpha").setShortOption(null).register();
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterTwiceLong()
     {
@@ -60,65 +54,65 @@ public class OptionProcessorTest
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterTwiceLongDiffShort()
     {
-        op.newOption(Options.alpha, "alpha").setShortOption("a").register();
-        op.newOption(Options.alpha, "alpha").setShortOption("A").register();
+        op.newOption(Options.alpha, "alpha").shortOption('a').register();
+        op.newOption(Options.alpha, "alpha").shortOption('A').register();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterTwiceShort()
     {
-        op.newOption(Options.alpha, "alpha").setShortOption("a").register();
-        op.newOption(Options.beta, "beta").setShortOption("a").register();
+        op.newOption(Options.alpha, "alpha").shortOption('a').register();
+        op.newOption(Options.beta, "beta").shortOption('a').register();
     }
 
     @Test
     public void testRegisterSameOption()
     {
-        op.newOption(Options.alpha, "alpha").setShortOption("a").register();
-        op.newOption(Options.alpha, "beta").setShortOption("b").register();
+        op.newOption(Options.alpha, "alpha").shortOption('a').register();
+        op.newOption(Options.alpha, "beta").shortOption('b').register();
     }
 
     @SuppressWarnings("unchecked")
     @Test(expected=IllegalStateException.class)
     public void testRegisterPostmod1()
     {
-        OptionBuilder b = op.newOption(Options.alpha, "alpha").setShortOption("a");
+        OptionBuilder b = op.newOption(Options.alpha, "alpha").shortOption('a');
         b.register();
-        b.setShortOption("a");
+        b.shortOption('a');
     }
 
     @SuppressWarnings("unchecked")
     @Test(expected=IllegalStateException.class)
     public void testRegisterPostmod2()
     {
-        OptionBuilder b = op.newOption(Options.alpha, "alpha").setShortOption("a");
+        OptionBuilder b = op.newOption(Options.alpha, "alpha").shortOption('a');
         b.register();
-        b.setNoArg();
+        b.noArg();
     }
 
     @SuppressWarnings("unchecked")
     @Test(expected=IllegalStateException.class)
     public void testRegisterPostmod3()
     {
-        OptionBuilder b = op.newOption(Options.alpha, "alpha").setShortOption("a");
+        OptionBuilder b = op.newOption(Options.alpha, "alpha").shortOption('a');
         b.register();
-        b.setOptionalArg();
+        b.optionalArg();
     }
 
     @SuppressWarnings("unchecked")
     @Test(expected=IllegalStateException.class)
     public void testRegisterPostmod4()
     {
-        OptionBuilder b = op.newOption(Options.alpha, "alpha").setShortOption("a");
+        OptionBuilder b = op.newOption(Options.alpha, "alpha").shortOption('a');
         b.register();
-        b.setRequiredArg();
+        b.requiredArg();
     }
 
     @SuppressWarnings("unchecked")
     @Test(expected=IllegalStateException.class)
     public void testRegisterTwice()
     {
-        OptionBuilder b = op.newOption(Options.alpha, "alpha").setShortOption("a");
+        OptionBuilder b = op.newOption(Options.alpha, "alpha").shortOption('a');
         b.register();
         b.register();
     }
@@ -126,8 +120,8 @@ public class OptionProcessorTest
     @Test(expected = IllegalArgumentException.class)
     public void testRegisterTwiceLongDifferentType()
     {
-        op.newOption(Options.beta, "beta").setNoArg().register();
-        op.newOption(Options.beta, "beta").setOptionalArg().register();
+        op.newOption(Options.beta, "beta").noArg().register();
+        op.newOption(Options.beta, "beta").optionalArg().register();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -140,12 +134,6 @@ public class OptionProcessorTest
     public void testRegisterEmptyLong()
     {
         op.newOption(Options.alpha, "").register();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testRegisterEmptyShort()
-    {
-        op.newOption(Options.alpha, "alpha").setShortOption("").register();
     }
 
     @Test
@@ -166,8 +154,8 @@ public class OptionProcessorTest
                 }
                 try
                 {
-                    op.newOption(Options.alpha, "alpha").setShortOption(
-                            String.valueOf(i)).register();
+                    op.newOption(Options.alpha, "alpha").shortOption(
+                            Character.valueOf(i)).register();
                     throw new AssertionError(
                             "Should have rejected short option " + i);
                 }
@@ -205,21 +193,21 @@ public class OptionProcessorTest
     @Test
     public void testRegisterLegalOptions() throws SoarException
     {
-        verifySingleOption(Options.alpha, "alpha", null, "alpha", "a");
-        verifySingleOption(Options.accent, "Accent", null, "accent", "A");
-        verifySingleOption(Options.beta, "beta", "b", "beta", "b");
-        verifySingleOption(Options.bravo, "bravo", "B", "bravo", "B");
-        verifySingleOption(Options.echo, "echo-", null, "echo-", "e");
-        verifySingleOption(Options.fox_trot, "fox-trot", null, "fox-trot", "f");
+        verifySingleOption(Options.alpha, "alpha", null, "alpha", 'a');
+        verifySingleOption(Options.accent, "Accent", null, "accent", 'A');
+        verifySingleOption(Options.beta, "beta", 'b', "beta", 'b');
+        verifySingleOption(Options.bravo, "bravo", 'B', "bravo", 'B');
+        verifySingleOption(Options.echo, "echo-", null, "echo-", 'e');
+        verifySingleOption(Options.fox_trot, "fox-trot", null, "fox-trot", 'f');
     }
 
-    public void verifySingleOption(Options option, String lReg, String sReg,
-            String lExpect, String sExpect) throws SoarException
+    public void verifySingleOption(Options option, String lReg, Character sReg,
+            String lExpect, char sExpect) throws SoarException
     {
         if (sReg == null)
             op.newOption(option, lReg).register();
         else
-            op.newOption(option, lReg).setShortOption(sReg).register();
+            op.newOption(option, lReg).shortOption(sReg).register();
 
         op.process(Lists.newArrayList("command", "asdf"));
         assertFalse(op.has(option));
@@ -399,7 +387,7 @@ public class OptionProcessorTest
     @Test
     public void testOptionalArg() throws SoarException
     {
-        op.newOption(Options.alpha, "alpha").setOptionalArg().register();
+        op.newOption(Options.alpha, "alpha").optionalArg().register();
 
         op.process(Lists.newArrayList("command", "-a"));
         assertTrue(op.has(Options.alpha));
@@ -413,7 +401,7 @@ public class OptionProcessorTest
     @Test
     public void testRequiredArg() throws SoarException
     {
-        op.newOption(Options.alpha, "alpha").setRequiredArg().register();
+        op.newOption(Options.alpha, "alpha").requiredArg().register();
 
         op.process(Lists.newArrayList("command", "-a", "arg"));
         assertTrue(op.has(Options.alpha));
@@ -423,7 +411,7 @@ public class OptionProcessorTest
     @Test(expected = SoarException.class)
     public void testMissingRequired() throws SoarException
     {
-        op.newOption(Options.alpha, "alpha").setRequiredArg().register();
+        op.newOption(Options.alpha, "alpha").requiredArg().register();
         op.process(Lists.newArrayList("command", "-a"));
     }
 
@@ -431,15 +419,15 @@ public class OptionProcessorTest
     public void testMissingRequiredTwo() throws SoarException
     {
         op.newOption(Options.alpha, "alpha").register();
-        op.newOption(Options.bravo, "bravo").setRequiredArg().register();
+        op.newOption(Options.bravo, "bravo").requiredArg().register();
         op.process(Lists.newArrayList("command", "-ab"));
     }
 
     @Test
     public void testArgConsumesOption() throws SoarException
     {
-        op.newOption(Options.alpha, "alpha").setOptionalArg().register();
-        op.newOption(Options.bravo, "bravo").setRequiredArg().register();
+        op.newOption(Options.alpha, "alpha").optionalArg().register();
+        op.newOption(Options.bravo, "bravo").requiredArg().register();
 
         op.process(Lists.newArrayList("command", "-ab"));
         assertTrue(op.has(Options.alpha));
@@ -461,9 +449,9 @@ public class OptionProcessorTest
     public void testMixed() throws SoarException
     {
         op.newOption(Options.alpha, "alpha").register();
-        op.newOption(Options.bravo, "bravo").setOptionalArg().register();
-        op.newOption(Options.charlie, "charlie").setRequiredArg().register();
-        op.newOption(Options.delta, "delta").setRequiredArg().register();
+        op.newOption(Options.bravo, "bravo").optionalArg().register();
+        op.newOption(Options.charlie, "charlie").requiredArg().register();
+        op.newOption(Options.delta, "delta").requiredArg().register();
 
         List<String> nonOpt = op.process(Lists.newArrayList("command", "0",
                 "-a", "1", "-b", "2", "-c", "3", "4", "-d", "5", "6"));
@@ -486,8 +474,8 @@ public class OptionProcessorTest
     public void testRepeated() throws SoarException
     {
         op.newOption(Options.alpha, "alpha").register();
-        op.newOption(Options.bravo, "bravo").setOptionalArg().register();
-        op.newOption(Options.charlie, "charlie").setRequiredArg().register();
+        op.newOption(Options.bravo, "bravo").optionalArg().register();
+        op.newOption(Options.charlie, "charlie").requiredArg().register();
 
         List<String> nonOpt = op.process(Lists.newArrayList("command", "-a",
                 "-a", "-b", "-b", "-b", "1", "-c", "-c", "-c", "2", "3"));
@@ -523,7 +511,7 @@ public class OptionProcessorTest
     @Test
     public void testOptionArgConsumesStopOption() throws SoarException
     {
-        op.newOption(Options.alpha, "alpha").setOptionalArg().register();
+        op.newOption(Options.alpha, "alpha").optionalArg().register();
         op.newOption(Options.bravo, "bravo").register();
 
         List<String> nonOpt = op.process(Lists.newArrayList("command", "-a",
@@ -540,7 +528,7 @@ public class OptionProcessorTest
     @Test
     public void testIgnoreNegativeInteger() throws SoarException
     {
-        op.newOption(Options.alpha, "alpha").setOptionalArg().register();
+        op.newOption(Options.alpha, "alpha").optionalArg().register();
         op.newOption(Options.bravo, "bravo").register();
 
         List<String> nonOpt = op.process(Lists.newArrayList("command", "-a",
@@ -558,7 +546,7 @@ public class OptionProcessorTest
     @Test
     public void testIgnoreNegativeDouble() throws SoarException
     {
-        op.newOption(Options.alpha, "alpha").setOptionalArg().register();
+        op.newOption(Options.alpha, "alpha").optionalArg().register();
         op.newOption(Options.bravo, "bravo").register();
 
         List<String> nonOpt = op.process(Lists.newArrayList("command", "-a",
@@ -576,7 +564,7 @@ public class OptionProcessorTest
     @Test
     public void testManualSetUnset() throws SoarException
     {
-        op.newOption(Options.alpha, "alpha").setOptionalArg().register();
+        op.newOption(Options.alpha, "alpha").optionalArg().register();
         op.newOption(Options.bravo, "bravo").register();
         op.process(Lists.newArrayList("command"));
 

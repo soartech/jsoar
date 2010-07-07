@@ -55,7 +55,7 @@ public class OptionProcessor<E>
 
         private final String longOption;
 
-        private String shortOption;
+        private char shortOption;
 
         private ArgType type = ArgType.NONE;
 
@@ -102,7 +102,7 @@ public class OptionProcessor<E>
                         "Long option can't start with dash.");
 
             this.key = key;
-            setShortOption(longOption.substring(0, 1));
+            shortOption(longOption.charAt(0));
 
             longOption = longOption.toLowerCase();
             this.longOption = longOption;
@@ -119,13 +119,12 @@ public class OptionProcessor<E>
          * @throws IllegalStateException
          *             If option is already registered.
          */
-        public OptionBuilder setShortOption(String shortOption)
+        public OptionBuilder shortOption(char shortOption)
         {
             if (registered)
                 throw new IllegalStateException("Already registered.");
 
-            if (shortOption.length() != 1
-                    || !Character.isLetter(shortOption.charAt(0)))
+            if (!Character.isLetter(shortOption))
                 throw new IllegalArgumentException(
                         "Short option is not a single letter.");
             this.shortOption = shortOption;
@@ -139,7 +138,7 @@ public class OptionProcessor<E>
          * @throws IllegalStateException
          *             If option is already registered.
          */
-        public OptionBuilder setNoArg()
+        public OptionBuilder noArg()
         {
             if (registered)
                 throw new IllegalStateException("Already registered.");
@@ -159,7 +158,7 @@ public class OptionProcessor<E>
          * @throws IllegalStateException
          *             If option is already registered.
          */
-        public OptionBuilder setOptionalArg()
+        public OptionBuilder optionalArg()
         {
             if (registered)
                 throw new IllegalStateException("Already registered.");
@@ -180,7 +179,7 @@ public class OptionProcessor<E>
          * @throws IllegalStateException
          *             If option is already registered.
          */
-        public OptionBuilder setRequiredArg()
+        public OptionBuilder requiredArg()
         {
             if (registered)
                 throw new IllegalStateException("Already registered.");
@@ -285,7 +284,7 @@ public class OptionProcessor<E>
         }
     }
 
-    private final Map<String, Option> shortOptions = new HashMap<String, Option>();
+    private final Map<Character, Option> shortOptions = new HashMap<Character, Option>();
 
     private final Map<String, Option> longOptions = new HashMap<String, Option>();
 
@@ -364,7 +363,7 @@ public class OptionProcessor<E>
                     {
                         for (int i = 1; i < arg.length(); ++i)
                         {
-                            Option option = resolveShortOption(arg.substring(i));
+                            Option option = resolveShortOption(arg.charAt(i));
                             if (option == null)
                                 throw new SoarException("Unknown option: "
                                         + arg);
@@ -448,12 +447,12 @@ public class OptionProcessor<E>
         return longOptions.get(arg.toLowerCase());
     }
 
-    private Option resolveShortOption(String arg) throws SoarException
+    private Option resolveShortOption(char arg) throws SoarException
     {
-        if (!Character.isLetter(arg.charAt(0)))
+        if (!Character.isLetter(arg))
             throw new SoarException("Short option is not a letter: "
-                    + arg.charAt(0));
-        return shortOptions.get(arg.substring(0, 1));
+                    + arg);
+        return shortOptions.get(arg);
     }
 
     /**

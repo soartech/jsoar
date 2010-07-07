@@ -51,7 +51,7 @@ public class PrintCommand implements SoarCommand
         options.newOption(Options.ALL, "all").register();
         options.newOption(Options.CHUNKS, "chunks").register();
         options.newOption(Options.DEFAULTS, "Defaults").register();
-        options.newOption(Options.DEPTH, "depth").setRequiredArg().register();
+        options.newOption(Options.DEPTH, "depth").requiredArg().register();
         options.newOption(Options.FILE_NAME, "Filename").register();
         options.newOption(Options.FULL, "full").register();
         options.newOption(Options.INTERNAL, "internal").register();
