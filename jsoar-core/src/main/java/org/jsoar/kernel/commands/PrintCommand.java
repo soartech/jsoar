@@ -30,41 +30,52 @@ import com.google.common.collect.Lists;
  */
 public class PrintCommand implements SoarCommand
 {
-    private static enum Options
-    {
-        // EXACT is implied by the way the printer is implemented.
-        ALL, CHUNKS, DEFAULTS, DEPTH, FILE_NAME, FULL, INTERNAL, JUSTIFICATIONS, 
-        NAME, OPERATORS, RL, STACK, STATES, TEMPLATE, TREE, USER, VARPRINT;
-    }
-    
     private final Agent agent;
     private final WorkingMemoryPrinter wmp = new WorkingMemoryPrinter();
+    private final OptionProcessor options = OptionProcessor.create();
+
     private int defaultDepth = 1;
-    private final OptionProcessor<Options> options = OptionProcessor.create();
-    
     private int depth = 1;
     
+    private final String ALL = "all";
+    private final String CHUNKS = "chunks";
+    private final String DEFAULTS = "Defaults";
+    private final String DEPTH = "depth";
+    private final String FILE_NAME = "Filename";
+    private final String FULL = "full";
+    private final String INTERNAL = "internal";
+    private final String JUSTIFICATIONS = "justifications";
+    private final String NAME = "name";
+    private final String OPERATORS = "operators";
+    private final String RL = "rl";
+    private final String STACK = "stack";
+    private final String STATES = "States";
+    private final String TEMPLATE = "Template";
+    private final String TREE = "tree";
+    private final String USER = "user";
+    private final String VARPRINT = "varprint";
+
     public PrintCommand(Agent agent)
     {
         this.agent = agent;
         
-        options.newOption(Options.ALL, "all").register();
-        options.newOption(Options.CHUNKS, "chunks").register();
-        options.newOption(Options.DEFAULTS, "Defaults").register();
-        options.newOption(Options.DEPTH, "depth").requiredArg().register();
-        options.newOption(Options.FILE_NAME, "Filename").register();
-        options.newOption(Options.FULL, "full").register();
-        options.newOption(Options.INTERNAL, "internal").register();
-        options.newOption(Options.JUSTIFICATIONS, "justifications").register();
-        options.newOption(Options.NAME, "name").register();
-        options.newOption(Options.OPERATORS, "operators").register();
-        options.newOption(Options.RL, "rl").register();
-        options.newOption(Options.STACK, "stack").register();
-        options.newOption(Options.STATES, "States").register();
-        options.newOption(Options.TEMPLATE, "Template").register();
-        options.newOption(Options.TREE, "tree").register();
-        options.newOption(Options.USER, "user").register();
-        options.newOption(Options.VARPRINT, "varprint").register();
+        options.newOption(ALL).register();
+        options.newOption(CHUNKS).register();
+        options.newOption(DEFAULTS).register();
+        options.newOption(DEPTH).requiredArg().register();
+        options.newOption(FILE_NAME).register();
+        options.newOption(FULL).register();
+        options.newOption(INTERNAL).register();
+        options.newOption(JUSTIFICATIONS).register();
+        options.newOption(NAME).register();
+        options.newOption(OPERATORS).register();
+        options.newOption(RL).register();
+        options.newOption(STACK).register();
+        options.newOption(STATES).register();
+        options.newOption(TEMPLATE).register();
+        options.newOption(TREE).register();
+        options.newOption(USER).register();
+        options.newOption(VARPRINT).register();
     }
     
     public void setDefaultDepth(int depth)
@@ -86,11 +97,11 @@ public class PrintCommand implements SoarCommand
         final ProductionManager pm = agent.getProductions();
         final List<Production> result = new ArrayList<Production>();
         
-        if(options.has(Options.CHUNKS)) result.addAll(pm.getProductions(ProductionType.CHUNK));
-        if(options.has(Options.USER)) result.addAll(pm.getProductions(ProductionType.USER));
-        if(options.has(Options.DEFAULTS)) result.addAll(pm.getProductions(ProductionType.DEFAULT));
-        if(options.has(Options.TEMPLATE)) result.addAll(pm.getProductions(ProductionType.TEMPLATE));
-        if(options.has(Options.JUSTIFICATIONS)) result.addAll(pm.getProductions(ProductionType.JUSTIFICATION));
+        if(options.has(CHUNKS)) result.addAll(pm.getProductions(ProductionType.CHUNK));
+        if(options.has(USER)) result.addAll(pm.getProductions(ProductionType.USER));
+        if(options.has(DEFAULTS)) result.addAll(pm.getProductions(ProductionType.DEFAULT));
+        if(options.has(TEMPLATE)) result.addAll(pm.getProductions(ProductionType.TEMPLATE));
+        if(options.has(JUSTIFICATIONS)) result.addAll(pm.getProductions(ProductionType.JUSTIFICATION));
 
         return result;
     }
@@ -103,25 +114,23 @@ public class PrintCommand implements SoarCommand
         this.depth = defaultDepth;
         List<String> nonOpts = options.process(Lists.newArrayList(args));
         
-        if (options.has(Options.DEPTH))
+        if (options.has(DEPTH))
         {
-            depth = Integer.parseInt(options.get(Options.DEPTH));
+            depth = Integer.parseInt(options.get(DEPTH));
             if(depth < 0)
-            {
                 throw new SoarException("--depth must be positive");
-            }
         }
         
-        if (options.has(Options.VARPRINT))
+        if (options.has(VARPRINT))
             throw new SoarException("--varprint not implemented yet");
         
         // New in Soar 8.6.3: if no args or options given, print all prods
         if(args.length == 1)
-            options.set(Options.ALL);
+            options.set(ALL);
 
-        if(options.has(Options.STACK))
+        if(options.has(STACK))
         {
-            agent.printStackTrace(options.has(Options.STATES), options.has(Options.OPERATORS));
+            agent.printStackTrace(options.has(STATES), options.has(OPERATORS));
             agent.getPrinter().print("\n").flush();
             return "";
         }
@@ -145,11 +154,11 @@ public class PrintCommand implements SoarCommand
             if(arg != null || argString.charAt(0) == '(')
             {
                 agent.getPrinter().startNewLine();
-                wmp.setInternal(options.has(Options.INTERNAL));
+                wmp.setInternal(options.has(INTERNAL));
                 
                 // these are ignored if pattern
                 wmp.setDepth(depth);
-                wmp.setTree(options.has(Options.TREE));
+                wmp.setTree(options.has(TREE));
                 
                 try {
                     wmp.print(agent, agent.getPrinter(), arg, argString);
@@ -184,8 +193,8 @@ public class PrintCommand implements SoarCommand
             
             // production?
             // Default with arg is full print (productions)
-            if (!options.has(Options.NAME))
-                options.set(Options.FULL);
+            if (!options.has(NAME))
+                options.set(FULL);
 
             agent.getPrinter().startNewLine();
             Production p = agent.getProductions().getProduction(argString);
@@ -197,13 +206,13 @@ public class PrintCommand implements SoarCommand
             return "";
         }
         
-        if (options.has(Options.ALL))
+        if (options.has(ALL))
         {
-            options.set(Options.CHUNKS);
-            options.set(Options.DEFAULTS);
-            options.set(Options.JUSTIFICATIONS);
-            options.set(Options.USER);
-            options.set(Options.TEMPLATE);
+            options.set(CHUNKS);
+            options.set(DEFAULTS);
+            options.set(JUSTIFICATIONS);
+            options.set(USER);
+            options.set(TEMPLATE);
         }
         
         agent.getPrinter().startNewLine();
@@ -212,7 +221,7 @@ public class PrintCommand implements SoarCommand
             do_print_for_production(p);
         }
         
-        if(options.has(Options.RL))
+        if(options.has(RL))
         {
             for(Production p : agent.getProductions().getProductions(null))
             {
@@ -228,21 +237,21 @@ public class PrintCommand implements SoarCommand
     {
         final Printer p = agent.getPrinter();
         
-        if (options.has(Options.FILE_NAME))
+        if (options.has(FILE_NAME))
         {
-            if (options.has(Options.FULL))
+            if (options.has(FULL))
                 p.print("# source file: ", prod.getLocation());
             
             p.print("%s", prod.getLocation());
 
-            if (options.has(Options.FULL))
+            if (options.has(FULL))
                 p.print("\n");
             else
                 p.print(": ");
         }
 
-        if (options.has(Options.FULL))
-            prod.print(p, options.has(Options.INTERNAL));
+        if (options.has(FULL))
+            prod.print(p, options.has(INTERNAL));
         else
         {
             p.print("%s ", prod.getName());

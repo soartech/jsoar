@@ -31,28 +31,21 @@ import org.jsoar.kernel.SoarException;
  * objects
  * 
  * @author voigtjr
- * 
- * @param <E>
- *            user-defined option reference object
  */
-public class OptionProcessor<E>
+public class OptionProcessor
 {
     /**
      * <p>Factory method.
      * 
-     * @param <E>
-     *            user-defined option reference object
      * @return New option processor instance.
      */
-    public static <E> OptionProcessor<E> create()
+    public static OptionProcessor create()
     {
-        return new OptionProcessor<E>();
+        return new OptionProcessor();
     }
 
     public class OptionBuilder
     {
-        private final E key;
-
         private final String longOption;
 
         private char shortOption;
@@ -71,8 +64,6 @@ public class OptionProcessor<E>
          * long option will be forced to lower-case after setting the short
          * option.
          * 
-         * @param key
-         *            User key to refer to this option later.
          * @param longOption
          *            Long option, omit initial dashes, will be forced to
          *            lower-case after first char is used for short option.
@@ -81,11 +72,8 @@ public class OptionProcessor<E>
          * @throws IllegalArgumentException
          *             If arguments have bad content.
          */
-        private OptionBuilder(E key, String longOption)
+        private OptionBuilder(String longOption)
         {
-            if (key == null)
-                throw new NullPointerException("key must not be null.");
-
             if (longOption == null)
                 throw new NullPointerException("longOption must not be null.");
 
@@ -101,11 +89,9 @@ public class OptionProcessor<E>
                 throw new IllegalArgumentException(
                         "Long option can't start with dash.");
 
-            this.key = key;
             shortOption(longOption.charAt(0));
 
-            longOption = longOption.toLowerCase();
-            this.longOption = longOption;
+            this.longOption = longOption.toLowerCase();
         }
 
         /**
@@ -204,18 +190,18 @@ public class OptionProcessor<E>
 
             arguments = null;
 
-            Option prev = shortOptions.put(shortOption, new Option(key, type));
+            Option prev = shortOptions.put(shortOption, new Option(longOption, type));
             if (prev != null)
                 throw new IllegalArgumentException(
                         "Already have a short option using -" + shortOption
-                                + ": " + prev.key);
-            prev = longOptions.put(longOption, new Option(key, type));
+                                + ": " + prev.longOption);
+            prev = longOptions.put(longOption, new Option(longOption, type));
             if (prev != null)
             {
                 shortOptions.remove(shortOption);
                 throw new IllegalArgumentException(
                         "Already have a long option using --" + longOption
-                                + ": " + prev.key);
+                                + ": " + prev.longOption);
             }
             registered = true;
         }
@@ -236,9 +222,6 @@ public class OptionProcessor<E>
      * <p>Argument type defaults to none, call setOptionalArg or setRequiredArg to
      * change.
      * 
-     * @param key
-     *            User-supplied and user-defined index for this option and its
-     *            argument in the future.
      * @param longOption
      *            The long option for this argument.
      * @return Option builder, call register() on this to complete registration
@@ -248,9 +231,9 @@ public class OptionProcessor<E>
      * @throws IllegalArgumentException
      *             If arguments have bad content.
      */
-    public OptionBuilder newOption(E key, String longOption)
+    public OptionBuilder newOption(String longOption)
     {
-        return new OptionBuilder(key, longOption);
+        return new OptionBuilder(longOption);
     }
 
     /**
@@ -267,20 +250,20 @@ public class OptionProcessor<E>
 
     private class Option
     {
-        Option(E key, ArgType type)
+        Option(String longOption, ArgType type)
         {
-            this.key = key;
+            this.longOption = longOption;
             this.type = type;
         }
 
-        E key;
+        String longOption;
 
         ArgType type;
 
         @Override
         public String toString()
         {
-            return key.toString() + "(" + type.toString() + ")";
+            return longOption.toString() + "(" + type.toString() + ")";
         }
     }
 
@@ -288,7 +271,10 @@ public class OptionProcessor<E>
 
     private final Map<String, Option> longOptions = new HashMap<String, Option>();
 
-    private Map<E, String> arguments = new HashMap<E, String>();
+    /**
+     * Map from long option to argument. Null values permitted (no argument).
+     */
+    private Map<String, String> arguments = new HashMap<String, String>();
 
     /**
      * <p>Evaluate a command line. Assumes first arg is command name (ignored).
@@ -323,7 +309,7 @@ public class OptionProcessor<E>
      */
     public List<String> process(List<String> args) throws SoarException
     {
-        arguments = new HashMap<E, String>();
+        arguments = new HashMap<String, String>();
 
         List<String> nonOptionArgs = new ArrayList<String>();
 
@@ -394,7 +380,7 @@ public class OptionProcessor<E>
     {
         boolean consumedArg = false;
         if (option.type == ArgType.NONE)
-            arguments.put(option.key, null);
+            arguments.put(option.longOption, null);
         else
         {
             consumedArg = true;
@@ -416,7 +402,7 @@ public class OptionProcessor<E>
                 if (optArg == null)
                     throw new SoarException("Option requires argument: " + arg);
 
-            arguments.put(option.key, optArg);
+            arguments.put(option.longOption, optArg);
         }
         return consumedArg;
     }
@@ -459,8 +445,8 @@ public class OptionProcessor<E>
      * <p>Test to see if the most recent invocation of process uncovered the given
      * option.
      * 
-     * @param key
-     *            Key for option to test.
+     * @param longOption
+     *            Long option to test.
      * @return True if it was successfully encountered.
      * @throws IllegalStateException
      *             If process() not called between registering options and
@@ -468,14 +454,14 @@ public class OptionProcessor<E>
      * @throws NullPointerException
      *             If option is null.
      */
-    public boolean has(E key)
+    public boolean has(String longOption)
     {
-        if (key == null)
-            throw new NullPointerException("Key is null.");
+        if (longOption == null)
+            throw new NullPointerException("Long option is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
-        return arguments.containsKey(key);
+        return arguments.containsKey(longOption.toLowerCase());
     }
 
     /**
@@ -483,37 +469,37 @@ public class OptionProcessor<E>
      * 
      * Caution: This doesn't enforce optional/required arguments!
      * 
-     * @param key
-     *            The key for the option to set.
+     * @param longOption
+     *            The long option to set.
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
      */
-    public void set(E key)
+    public void set(String longOption)
     {
-        set(key, null);
+        set(longOption, null);
     }
 
     /**
      * <p>Manually unset an option as if it had never been encountered during
      * process.
      * 
-     * @param key
-     *            The key for the option to unset.
+     * @param longOption
+     *            The long option to unset.
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
      * @throws NullPointerException
-     *             If option is null.
+     *             If long option is null.
      */
-    public void unset(E key)
+    public void unset(String longOption)
     {
-        if (key == null)
-            throw new NullPointerException("Key is null.");
+        if (longOption == null)
+            throw new NullPointerException("Long option is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
-        arguments.remove(key);
+        arguments.remove(longOption.toLowerCase());
     }
 
     /**
@@ -521,65 +507,65 @@ public class OptionProcessor<E>
      * 
      * <p>Caution: This doesn't enforce optional/required arguments!
      * 
-     * @param key
-     *            The key for the option to set.
+     * @param longOption
+     *            The long option to set.
      * @param argument
      *            The option's argument, or null
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
      * @throws NullPointerException
-     *             If option is null.
+     *             If long option is null.
      */
-    public void set(E key, String argument)
+    public void set(String longOption, String argument)
     {
-        if (key == null)
-            throw new NullPointerException("Key is null.");
+        if (longOption == null)
+            throw new NullPointerException("Long option is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
-        arguments.put(key, argument);
+        arguments.put(longOption.toLowerCase(), argument);
     }
 
     /**
      * <p>Get an option's argument as a String.
      * 
-     * @param key
-     *            Key for option who's argument needs retrieval
+     * @param longOption
+     *            Long option who's argument needs retrieval
      * @return The option's argument as a string.
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
      * @throws NullPointerException
-     *             If option is null.
+     *             If long option is null.
      */
-    public String get(E key)
+    public String get(String longOption)
     {
-        if (key == null)
-            throw new NullPointerException("Key is null.");
+        if (longOption == null)
+            throw new NullPointerException("Long option is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
-        return arguments.get(key);
+        return arguments.get(longOption.toLowerCase());
     }
     
     /**
      * <p>Get an option's argument as an integer.
      * 
-     * @param key
-     *            Key for option who's argument needs retrieval
+     * @param longOption
+     *            Long option who's argument needs retrieval
      * @return The option's argument as a string.
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
      * @throws NullPointerException
-     *             If option is null.
+     *             If long option is null.
      * @throws SoarException
      *             If argument is not an integer.
      */
-    public int getInteger(E key) throws SoarException
+    public int getInteger(String longOption) throws SoarException
     {
-        String arg = get(key);
+        String arg = get(longOption);
         try
         {
             return Integer.parseInt(arg);
@@ -593,20 +579,20 @@ public class OptionProcessor<E>
     /**
      * <p>Get an option's argument as a double.
      * 
-     * @param key
-     *            Key for option who's argument needs retrieval
+     * @param longOption
+     *            Long option who's argument needs retrieval
      * @return The option's argument as a string.
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
      * @throws NullPointerException
-     *             If option is null.
+     *             If long option is null.
      * @throws SoarException
      *             If argument is not a double.
      */
-    public double getDouble(E key) throws SoarException
+    public double getDouble(String longOption) throws SoarException
     {
-        String arg = get(key);
+        String arg = get(longOption);
         try
         {
             return Double.parseDouble(arg);
@@ -620,20 +606,20 @@ public class OptionProcessor<E>
     /**
      * <p>Get an option's argument as a float.
      * 
-     * @param key
-     *            Key for option who's argument needs retrieval
+     * @param longOption
+     *            Long option who's argument needs retrieval
      * @return The option's argument as a string.
      * @throws IllegalStateException
      *             If process() not called between registering options and
      *             calling this function.
      * @throws NullPointerException
-     *             If option is null.
+     *             If long option is null.
      * @throws SoarException
      *             If argument is not a float.
      */
-    public float getFloat(E key) throws SoarException
+    public float getFloat(String longOption) throws SoarException
     {
-        String arg = get(key);
+        String arg = get(longOption);
         try
         {
             return Float.parseFloat(arg);
