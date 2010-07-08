@@ -6,6 +6,7 @@
 package org.jsoar.kernel.smem;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -26,6 +27,8 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.Chunker;
@@ -105,6 +108,8 @@ import org.jsoar.util.properties.PropertyManager;
  */
 public class DefaultSemanticMemory implements SemanticMemory
 {
+    private static final Log logger = LogFactory.getLog(DefaultSemanticMemory.class);
+
     /**
      * semantic_memory.h:232:smem_variable_key
      */
@@ -2025,7 +2030,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         // apply performance options
         {
             // cache
+            if(params.protocol.equals("jdbc:sqlite"))
             {
+                // TODO: Generalize this. Move to a resource somehow.
                 final int cacheSize;
                 switch(params.cache.get())
                 {
@@ -2049,21 +2056,23 @@ public class DefaultSemanticMemory implements SemanticMemory
             // optimization
             if (params.optimization.get() == Optimization.performance)
             {
-                // synchronous - don't wait for writes to complete (can corrupt the db in case unexpected crash during transaction)
-                final Statement s = db.getConnection().createStatement();
-                try
+                final String perfResource = params.protocol.get().replace(':', '.') + ".performance.sql";
+                final InputStream perfStream = getClass().getResourceAsStream(perfResource);
+                if(perfStream != null)
                 {
-                    s.execute("PRAGMA synchronous = OFF" );
-    
-                    // journal_mode - no atomic transactions (can result in database corruption if crash during transaction)
-                    s.execute("PRAGMA journal_mode = OFF" );
-                    
-                    // locking_mode - no one else can view the database after our first write
-                    s.execute("PRAGMA locking_mode = EXCLUSIVE" );
+                    logger.info("Applying performance settings from '" + getClass().getCanonicalName() + "." + perfResource + "'.");
+                    try
+                    {
+                        JdbcTools.executeSql(db.getConnection(), perfStream);
+                    }
+                    finally
+                    {
+                        perfStream.close();
+                    }
                 }
-                finally
+                else
                 {
-                    s.close();
+                    logger.warn("Could not find performance resource at '" + getClass().getCanonicalName() + "." + perfResource + "'. No performance settings applied.");
                 }
             }
         }
