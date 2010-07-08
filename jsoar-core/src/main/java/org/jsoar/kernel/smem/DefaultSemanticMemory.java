@@ -1131,18 +1131,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
         else
         {
-            db.act_lti_child_ct_get.setLong( 1, parent_id );
-            final ResultSet rs = db.act_lti_child_ct_get.executeQuery();
-            try
-            {
-                child_ct = rs.getLong(0 + 1);
-            }
-            finally
-            {
-                rs.close();
-            }
-
-            // db.act_lti_child_ct_get->reinitialize();
+            child_ct = getChildCount(parent_id);
         }
 
         // already above threshold?
@@ -1241,7 +1230,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     // parent_id, attr, val_const, val_lti, act_cycle
                     db.web_add.setLong( 1, parent_id );
                     db.web_add.setLong( 2, attr_hash );
-                    db.web_add.setNull(3, java.sql.Types.NULL); // db.web_add->bind_null( 3 );
+                    db.web_add.setNull( 3, java.sql.Types.NULL ); // db.web_add->bind_null( 3 );
                     db.web_add.setLong( 4, value_lti );
                     db.web_add.setLong( 5, web_act_cycle );
                     db.web_add.executeUpdate( /*soar_module::op_reinit*/ );
@@ -1328,6 +1317,31 @@ public class DefaultSemanticMemory implements SemanticMemory
             db.act_lti_child_ct_set.setLong( 2, parent_id );
             db.act_lti_child_ct_set.executeUpdate( /*soar_module::op_reinit*/ );
         }
+    }
+
+    /**
+     * Get the child cound for an id from the database. Extracted from smem_store_chunk().
+     * 
+     * <p>semantic_memory.cpp:1187:smem_store_chunk
+     * 
+     * @param parent_id the parent identifier
+     * @return the child cound
+     * @throws SQLException
+     */
+    private long getChildCount(long parent_id) throws SQLException
+    {
+        db.act_lti_child_ct_get.setLong( 1, parent_id );
+        final ResultSet rs = db.act_lti_child_ct_get.executeQuery();
+        try
+        {
+           return rs.getLong(0 + 1);
+        }
+        finally
+        {
+            rs.close();
+        }
+
+        // db.act_lti_child_ct_get->reinitialize();
     }
 
     /**
@@ -2030,55 +2044,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         // temporary queries for one-time init actions
 
-        // apply performance options
-        {
-            // cache
-            if(params.protocol.equals("jdbc:sqlite"))
-            {
-                // TODO: Generalize this. Move to a resource somehow.
-                final int cacheSize;
-                switch(params.cache.get())
-                {
-                case small:  cacheSize = 5000;  break;   // 5MB cache
-                case medium: cacheSize = 20000; break; // 20MB cache
-                case large:  
-                default:     cacheSize = 100000; // 100MB cache
-                }
-                
-                final Statement s = db.getConnection().createStatement();
-                try
-                {
-                    s.execute("PRAGMA cache_size = " + cacheSize);
-                }
-                finally
-                {
-                    s.close();
-                }
-            }
-
-            // optimization
-            if (params.optimization.get() == Optimization.performance)
-            {
-                final String perfResource = params.protocol.get().replace(':', '.') + ".performance.sql";
-                final InputStream perfStream = getClass().getResourceAsStream(perfResource);
-                if(perfStream != null)
-                {
-                    logger.info("Applying performance settings from '" + getClass().getCanonicalName() + "." + perfResource + "'.");
-                    try
-                    {
-                        JdbcTools.executeSql(db.getConnection(), perfStream);
-                    }
-                    finally
-                    {
-                        perfStream.close();
-                    }
-                }
-                else
-                {
-                    logger.warn("Could not find performance resource at '" + getClass().getCanonicalName() + "." + perfResource + "'. No performance settings applied.");
-                }
-            }
-        }
+        applyDatabasePerformanceOptions();
 
         // update validation count
         smem_validation++;
@@ -2151,6 +2117,67 @@ public class DefaultSemanticMemory implements SemanticMemory
         // TODO SMEM Timers: my_agent->smem_timers->init->stop();
         // TODO SMEM Timers: do this in finally for exception handling above
         ////////////////////////////////////////////////////////////////////////////
+    }
+
+    /**
+     * Extracted from smem_init_db(). Take performance settings and apply then
+     * to the current database.
+     * 
+     * <p>semantic_memory.cpp:1952:smem_init_db
+     * 
+     * @throws SQLException
+     * @throws SoarException
+     * @throws IOException
+     */
+    private void applyDatabasePerformanceOptions() throws SQLException,
+            SoarException, IOException
+    {
+        // cache
+        if(params.protocol.equals("jdbc:sqlite"))
+        {
+            // TODO: Generalize this. Move to a resource somehow.
+            final int cacheSize;
+            switch(params.cache.get())
+            {
+            case small:  cacheSize = 5000;  break;   // 5MB cache
+            case medium: cacheSize = 20000; break; // 20MB cache
+            case large:  
+            default:     cacheSize = 100000; // 100MB cache
+            }
+            
+            final Statement s = db.getConnection().createStatement();
+            try
+            {
+                s.execute("PRAGMA cache_size = " + cacheSize);
+            }
+            finally
+            {
+                s.close();
+            }
+        }
+
+        // optimization
+        if (params.optimization.get() == Optimization.performance)
+        {
+            final String perfResource = params.protocol.get().replace(':', '.') + ".performance.sql";
+            final InputStream perfStream = getClass().getResourceAsStream(perfResource);
+            if(perfStream != null)
+            {
+                logger.info("Applying performance settings from '" + getClass().getCanonicalName() + "." + perfResource + "'.");
+                try
+                {
+                    JdbcTools.executeSql(db.getConnection(), perfStream);
+                }
+                finally
+                {
+                    perfStream.close();
+                }
+            }
+            else
+            {
+                logger.warn("Could not find performance resource at '" + getClass().getCanonicalName() + "." + perfResource + "'. No performance settings applied.");
+            }
+        }
     }
     
     /* (non-Javadoc)
@@ -3017,8 +3044,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     {
         // semantic_memory.cpp:3011:smem_go
         
-        // after we are done we will perform a wm phase
-        // if any adds/removes
+        // after we are done we will perform a wm phase if there are any adds/removes
         smem_made_changes = false;
         
         // TODO SMEM Timers: my_agent->smem_timers->total->start();
