@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -2017,6 +2018,8 @@ public class DefaultSemanticMemory implements SemanticMemory
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
         try
         {
+            final DatabaseMetaData meta = connection.getMetaData();
+            logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":"  + meta.getDriverVersion());
             db = new SemanticMemoryDatabase(connection);
         }
         catch(SoarException e)

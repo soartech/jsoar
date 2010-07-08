@@ -69,6 +69,51 @@ public class JdbcTools
     {
         try
         {
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line = reader.readLine();
+            while(line != null)
+            {
+                line = line.trim();
+                if(!line.isEmpty() && !line.startsWith("#"))
+                {
+                    final Statement s = db.createStatement();
+                    try
+                    {
+                        s.execute(line);
+                    }
+                    finally
+                    {
+                        s.close();
+                    }
+                }
+                
+                line = reader.readLine();
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new SoarException("Sql error: " + e.getMessage(), e);
+        }
+        finally
+        {
+            is.close();
+        }
+    }    
+    /**
+     * Execute SQL statements from an input stream.
+     * 
+     * <p>One statement per line is expected. Blank lines and lines that start 
+     * with {@code #} are ignored.
+     *  
+     * @param db the database connection
+     * @param is the input stream
+     * @throws SoarException
+     * @throws IOException
+     */
+    public static void executeSqlBatch(Connection db, InputStream is) throws SoarException, IOException
+    {
+        try
+        {
             final Statement s = db.createStatement();
             try
             {

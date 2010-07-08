@@ -92,7 +92,7 @@ class SemanticMemoryDatabase
         {
             throw new FileNotFoundException("Failed to open structure.sql resource");
         }
-        JdbcTools.executeSql(db, is);
+        JdbcTools.executeSqlBatch(db, is);
     }
     
     void prepare() throws SoarException
