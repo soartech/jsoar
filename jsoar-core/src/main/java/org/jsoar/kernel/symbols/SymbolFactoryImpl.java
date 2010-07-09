@@ -85,6 +85,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     public List<Symbol> getAllSymbols()
     {
         final List<Symbol> result = new ArrayList<Symbol>();
+        result.addAll(identifiers.values());
         result.addAll(symConstants.values());
         result.addAll(intConstants.values());
         result.addAll(floatConstants.values());
