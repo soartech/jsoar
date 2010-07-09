@@ -984,24 +984,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     }
     
     /**
-     * <p>semantic_memory.cpp:1116:smem_make_slot
-     * 
-     * @param slots
-     * @param attr
-     * @return
-     */
-    private static List<smem_chunk_value> smem_make_slot( Map<SymbolImpl, List<smem_chunk_value>> slots, SymbolImpl attr )
-    {
-        List<smem_chunk_value> s = slots.get(attr);
-        if(s == null)
-        {
-            s = new ArrayList<smem_chunk_value>();
-            slots.put(attr, s);
-        }
-        return s;
-    }
-    
-    /**
      * <p>semantic_memory.cpp:1128:smem_disconnect_chunk
      * 
      * @param parent_id
@@ -1098,7 +1080,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param children
      * @throws SQLException
      */
-    void smem_store_chunk(/*smem_lti_id*/ long parent_id, Map<SymbolImpl, List<smem_chunk_value>> children) throws SQLException
+    void smem_store_chunk(/*smem_lti_id*/ long parent_id, Map<SymbolImpl, List<Object>> children) throws SQLException
     {
         smem_store_chunk(parent_id, children, true);
     }
@@ -1111,7 +1093,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param remove_old_children
      * @throws SQLException
      */
-    void smem_store_chunk(/*smem_lti_id*/ long parent_id, Map<SymbolImpl, List<smem_chunk_value>> children, boolean remove_old_children /*= true*/ ) throws SQLException
+    void smem_store_chunk(/*smem_lti_id*/ long parent_id, Map<SymbolImpl, List<Object>> children, boolean remove_old_children /*= true*/ ) throws SQLException
     {
         long /*smem_hash_id*/ attr_hash = 0;
         long /*smem_hash_id*/ value_hash = 0;
@@ -1140,7 +1122,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         // get final count
         {
-            for(Map.Entry<SymbolImpl, List<smem_chunk_value>> s : children.entrySet())
+            for(Map.Entry<SymbolImpl, List<Object>> s : children.entrySet())
             {
 //                for(smem_chunk_value v : s.getValue())
 //                {
@@ -1173,7 +1155,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         long stat_adjust = 0;
         
         // for all slots
-        for (Map.Entry<SymbolImpl, List<smem_chunk_value>> s : children.entrySet())
+        for (Map.Entry<SymbolImpl, List<Object>> s : children.entrySet())
         {
             // get attribute hash and contribute to count adjustment
             attr_hash = smem_temporal_hash( s.getKey() );
@@ -1182,10 +1164,10 @@ public class DefaultSemanticMemory implements SemanticMemory
             stat_adjust++;
 
             // for all values in the slot
-            for (smem_chunk_value v : s.getValue())
+            for (Object v : s.getValue())
             {           
                 // most handling is specific to constant vs. identifier
-                final SymbolImpl constant = v.asConstant();
+                final SymbolImpl constant = Adaptables.adapt(v, SymbolImpl.class);
                 if ( constant != null )
                 {
                     value_hash = smem_temporal_hash( constant );
@@ -1211,15 +1193,16 @@ public class DefaultSemanticMemory implements SemanticMemory
                 }
                 else
                 {
-                    value_lti = v.asLti().lti_id; // (*v)->val_lti.val_value->lti_id;
+                    final smem_chunk_lti vAsLti = (smem_chunk_lti) v;
+                    value_lti = vAsLti.lti_id; // (*v)->val_lti.val_value->lti_id;
                     if ( value_lti == 0 )
                     {
-                        value_lti = smem_lti_add_id( v.asLti().lti_letter, v.asLti().lti_number );
-                        v.asLti().lti_id = value_lti;
+                        value_lti = smem_lti_add_id( vAsLti.lti_letter, vAsLti.lti_number );
+                        vAsLti.lti_id = value_lti;
 
-                        if ( v.asLti().soar_id != null )
+                        if ( vAsLti.soar_id != null )
                         {
-                            v.asLti().soar_id.smem_lti = value_lti;
+                            vAsLti.soar_id.smem_lti = value_lti;
 
                             // TODO SMEM uncomment and implement when epmem is implemented
                             // v.asLti().soar_id.smem_time_id = my_agent->epmem_stats->time->get_value();
@@ -1393,18 +1376,18 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             final Map<IdentifierImpl, smem_chunk_lti> sym_to_chunk = new HashMap<IdentifierImpl, smem_chunk_lti>();
 
-            final Map<SymbolImpl, List<smem_chunk_value>> slots = new HashMap<SymbolImpl, List<smem_chunk_value>>();
+            final Map<SymbolImpl, List<Object>> slots = smem_chunk_lti.newSlotMap();
 
             for (WmeImpl w : children)
             {
                 // get slot
-                final List<smem_chunk_value> s = smem_make_slot( slots , w.attr );
+                final List<Object> s = smem_chunk_lti.smem_make_slot( slots , w.attr );
 
                 // create value, per type
-                final smem_chunk_value v;
+                final Object v;
                 if ( smem_symbol_is_constant( w.value ) )
                 {
-                    v = new smem_chunk_constant(w.value);
+                    v = w.value;
                 }
                 else
                 {
@@ -2232,7 +2215,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * <p>semantic_memory.cpp:2158:smem_deallocate_chunk
      */
-    static void smem_deallocate_chunk(smem_chunk_value chunk)
+    static void smem_deallocate_chunk(smem_chunk_lti chunk)
     {
         smem_deallocate_chunk(chunk, true);
     }
@@ -2240,7 +2223,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * <p>semantic_memory.cpp:2158:smem_deallocate_chunk
      */
-    static void smem_deallocate_chunk(smem_chunk_value chunk, boolean free_chunk /*= true*/ )
+    static void smem_deallocate_chunk(smem_chunk_lti chunk, boolean free_chunk /*= true*/ )
     {
         // Nothing to do in JSoar. Yay!
     }
@@ -2337,7 +2320,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 new_chunk.lti_number = chunk_name.id_number;
                 new_chunk.lti_id = 0;
                 new_chunk.soar_id = null;
-                new_chunk.slots = new HashMap<SymbolImpl, List<smem_chunk_value>>();
+                new_chunk.slots = smem_chunk_lti.newSlotMap();
 
                 // consume id
                 lexer.getNextLexeme();
@@ -2375,11 +2358,11 @@ public class DefaultSemanticMemory implements SemanticMemory
                             temp_chunk.lti_letter = chunk_attr.asString() != null ? chunk_attr.getFirstLetter() : 'X';
                             temp_chunk.lti_number = ( intermediate_counter++ );
                             temp_chunk.lti_id = 0;
-                            temp_chunk.slots = new HashMap<SymbolImpl, List<smem_chunk_value>>();
+                            temp_chunk.slots = smem_chunk_lti.newSlotMap();
                             temp_chunk.soar_id = null;
 
                             // add it as a child to the current parent
-                            final List<smem_chunk_value> s = smem_make_slot( intermediate_parent.slots, chunk_attr );
+                            final List<Object> s = smem_chunk_lti.smem_make_slot( intermediate_parent.slots, chunk_attr );
                             s.add( temp_chunk );
 
                             // create a key guaranteed to be unique
@@ -2404,22 +2387,22 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                         if ( chunk_attr != null )
                         {
-                            smem_chunk_value chunk_value = null;
+                            Object chunk_value = null;
                             do
                             {
                                 chunk_value = null;
                                 // value by type
                                 if ( ( lexer.getCurrentLexeme().type == LexemeType.SYM_CONSTANT ) )
                                 {
-                                    chunk_value = new smem_chunk_constant(symbols.createString(lexer.getCurrentLexeme().string));
+                                    chunk_value = symbols.createString(lexer.getCurrentLexeme().string);
                                 }
                                 else if ( ( lexer.getCurrentLexeme().type == LexemeType.INTEGER ) )
                                 {
-                                    chunk_value = new smem_chunk_constant(symbols.createInteger(lexer.getCurrentLexeme().int_val));
+                                    chunk_value = symbols.createInteger(lexer.getCurrentLexeme().int_val);
                                 }
                                 else if ( ( lexer.getCurrentLexeme().type == LexemeType.FLOAT) )
                                 {
-                                    chunk_value = new smem_chunk_constant(symbols.createDouble(lexer.getCurrentLexeme().float_val));
+                                    chunk_value = symbols.createDouble(lexer.getCurrentLexeme().float_val);
                                 }
                                 else if ( ( lexer.getCurrentLexeme().type == LexemeType.AT ) || 
                                           ( lexer.getCurrentLexeme().type == LexemeType.IDENTIFIER ) || 
@@ -2473,7 +2456,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                     lexer.getNextLexeme();
 
                                     // add to appropriate slot
-                                    final List<smem_chunk_value> s = smem_make_slot( intermediate_parent.slots, chunk_attr );
+                                    final List<Object> s = smem_chunk_lti.smem_make_slot( intermediate_parent.slots, chunk_attr );
                                     s.add( chunk_value );
 
                                     // if this was the last attribute
@@ -2522,10 +2505,10 @@ public class DefaultSemanticMemory implements SemanticMemory
                 else
                 {
                     // otherwise, copy
-                    for(Map.Entry<SymbolImpl, List<smem_chunk_value>> ss_p : new_chunk.slots.entrySet())
+                    for(Map.Entry<SymbolImpl, List<Object>> ss_p : new_chunk.slots.entrySet())
                     {
-                        final List<smem_chunk_value> target_slot = smem_make_slot(p.slots, ss_p.getKey());
-                        final List<smem_chunk_value> source_slot = ss_p.getValue();
+                        final List<Object> target_slot = smem_chunk_lti.smem_make_slot(p.slots, ss_p.getKey());
+                        final List<Object> source_slot = ss_p.getValue();
                         
                         // Copy from source to target
                         target_slot.addAll(source_slot);
