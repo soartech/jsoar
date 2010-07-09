@@ -2133,7 +2133,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             SoarException, IOException
     {
         // cache
-        if(params.protocol.equals("jdbc:sqlite"))
+        if(params.driver.equals("org.sqlite.JDBC"))
         {
             // TODO: Generalize this. Move to a resource somehow.
             final int cacheSize;
@@ -2159,11 +2159,14 @@ public class DefaultSemanticMemory implements SemanticMemory
         // optimization
         if (params.optimization.get() == Optimization.performance)
         {
-            final String perfResource = params.protocol.get().replace(':', '.') + ".performance.sql";
+            // If /org/jsoar/kernel/smem/<driver>.performance.sql is found on 
+            // the class path, execute the statements in it.
+            final String perfResource = params.driver.get() + ".performance.sql";
             final InputStream perfStream = getClass().getResourceAsStream(perfResource);
+            final String fullPath = "/" + getClass().getCanonicalName().replace('.', '/') + "/" + perfResource;
             if(perfStream != null)
             {
-                logger.info("Applying performance settings from '" + getClass().getCanonicalName() + "." + perfResource + "'.");
+                logger.info("Applying performance settings from '" + fullPath + "'.");
                 try
                 {
                     JdbcTools.executeSql(db.getConnection(), perfStream);
@@ -2175,7 +2178,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             else
             {
-                logger.warn("Could not find performance resource at '" + getClass().getCanonicalName() + "." + perfResource + "'. No performance settings applied.");
+                logger.warn("Could not find performance resource at '" + fullPath + "'. No performance settings applied.");
             }
         }
     }
