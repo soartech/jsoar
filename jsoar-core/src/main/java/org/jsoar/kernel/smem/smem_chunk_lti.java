@@ -33,8 +33,10 @@ class smem_chunk_lti
      * Map from attributes to slot values. The list is comprised of
      * {@link SymbolImpl} for constants and {@link smem_chunk_lti} for
      * identifiers. This mechanism was chosen to reduce memory usage.
+     * 
+     * <p>Original type: smem_slot_map
      */
-    Map<SymbolImpl, List<Object>> /*smem_slot_map*/ slots;
+    Map<SymbolImpl, List<Object>> slots;
     
     /**
      * Construct a new slot map. Use this rather than creating a raw HashMap. It looks

@@ -350,7 +350,8 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     private SymbolImpl smem_statement_to_symbol( ResultSet q, int type_field, int val_field ) throws SQLException
     {
-        switch (q.getInt( type_field + 1) )
+        final int type = q.getInt( type_field + 1);
+        switch (type )
         {
             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
                 return symbols.createString(q.getString(val_field + 1));
@@ -362,7 +363,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 return symbols.createDouble(q.getDouble(val_field + 1));
 
             default:
-                return null;
+                throw new IllegalStateException("Invalid symbol type in result set: " + type + " (row=" + q.getRow() + ")");
         }
     }
 
@@ -531,7 +532,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     }
     
     /**
-     * semantic_memory.cpp:735:smem_temporal_hash
+     * <p>semantic_memory.cpp:735:smem_temporal_hash
      * 
      * @param sym
      * @param add_on_fail
@@ -668,8 +669,6 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     public static boolean smem_valid_production(Condition lhs_top, Action rhs_top)
     {
-        boolean return_val = true;
-        
         final Set<IdentifierImpl> valid_ltis = new HashSet<IdentifierImpl>();
         
         // collect valid ltis
@@ -685,82 +684,78 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         // validate ltis in actions
         // copied primarily from add_all_variables_in_action
-        {
-            int action_counter = 0;
+        int action_counter = 0;
 
-            for (Action a=rhs_top; a!=null; a=a.next )
-            {       
-                a.already_in_tc = false;
-                action_counter++;
-            }
-
-            // good_pass detects infinite loops
-            boolean good_pass = true;
-            boolean good_action = true;
-            while ( good_pass && action_counter != 0)
-            {
-                good_pass = false;
-                
-                for (Action a=rhs_top; a!=null; a=a.next )
-                {
-                    if ( !a.already_in_tc )
-                    {
-                        good_action = false;
-                        
-                        final MakeAction ma = a.asMakeAction();
-                        if ( ma != null )
-                        {
-                            final IdentifierImpl id = ma.id.asSymbolValue().getSym().asIdentifier();
-
-                            // non-identifiers are ok
-                            if ( id == null )
-                            {
-                                good_action = true;
-                            }
-                            // short-term identifiers are ok
-                            else if ( id.smem_lti == 0 )
-                            {
-                                good_action = true;
-                            }
-                            // valid long-term identifiers are ok
-                            else if ( valid_ltis.contains( id ) )
-                            {
-                                good_action = true;
-                            }
-                        }
-                        else
-                        {                       
-                            good_action = true;
-                        }
-
-                        // we've found a new good action
-                        // mark as good, collect all goodies
-                        if ( good_action )
-                        {
-                            a.already_in_tc = true;
-
-                            if(ma != null)
-                            {
-                                _smem_lti_from_rhs_value( ma.value, valid_ltis );
-                                _smem_lti_from_rhs_value( ma.attr, valid_ltis );
-                            }
-                            else
-                            {
-                                _smem_lti_from_rhs_value( a.asFunctionAction().getCall(), valid_ltis );
-                            }
-
-                            // note that we've dealt with another action
-                            action_counter--;
-                            good_pass = true;
-                        }
-                    }
-                }
-            };
-
-            return_val = ( action_counter == 0 );
+        for (Action a=rhs_top; a!=null; a=a.next )
+        {       
+            a.already_in_tc = false;
+            action_counter++;
         }
 
-        return return_val;
+        // good_pass detects infinite loops
+        boolean good_pass = true;
+        boolean good_action = true;
+        while ( good_pass && action_counter != 0)
+        {
+            good_pass = false;
+            
+            for (Action a=rhs_top; a!=null; a=a.next )
+            {
+                if ( !a.already_in_tc )
+                {
+                    good_action = false;
+                    
+                    final MakeAction ma = a.asMakeAction();
+                    if ( ma != null )
+                    {
+                        final IdentifierImpl id = ma.id.asSymbolValue().getSym().asIdentifier();
+
+                        // non-identifiers are ok
+                        if ( id == null )
+                        {
+                            good_action = true;
+                        }
+                        // short-term identifiers are ok
+                        else if ( id.smem_lti == 0 )
+                        {
+                            good_action = true;
+                        }
+                        // valid long-term identifiers are ok
+                        else if ( valid_ltis.contains( id ) )
+                        {
+                            good_action = true;
+                        }
+                    }
+                    else
+                    {                       
+                        good_action = true;
+                    }
+
+                    // we've found a new good action
+                    // mark as good, collect all goodies
+                    if ( good_action )
+                    {
+                        a.already_in_tc = true;
+
+                        if(ma != null)
+                        {
+                            _smem_lti_from_rhs_value( ma.value, valid_ltis );
+                            _smem_lti_from_rhs_value( ma.attr, valid_ltis );
+                        }
+                        else
+                        {
+                            _smem_lti_from_rhs_value( a.asFunctionAction().getCall(), valid_ltis );
+                        }
+
+                        // note that we've dealt with another action
+                        action_counter--;
+                        good_pass = true;
+                    }
+                }
+            }
+        };
+
+        return action_counter == 0;
     }
     
     /**
@@ -777,9 +772,10 @@ public class DefaultSemanticMemory implements SemanticMemory
         // TODO SMEM Timers: my_agent->smem_timers->act->start();
         ////////////////////////////////////////////////////////////////////////////
 
+        // First get the child count for the LTI
+        long lti_child_ct = 0;
         db.act_lti_child_ct_get.setLong(1, lti);
         final ResultSet rs = db.act_lti_child_ct_get.executeQuery();
-        long lti_child_ct = 0;
         try
         {
             rs.next();
@@ -2708,31 +2704,16 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     void smem_respond_to_cmd( boolean store_only ) throws SQLException, SoarException
     {
+        final List<IdentifierImpl> prohibit = new LinkedList<IdentifierImpl>();
+        final List<IdentifierImpl> store = new LinkedList<IdentifierImpl>();
+
+        final int time_slot = store_only ? 1 : 0;
+        final Queue<IdentifierImpl> syms = new ArrayDeque<IdentifierImpl>(); 
+        final Queue<Integer> levels = new ArrayDeque<Integer>();
+
         // start at the bottom and work our way up
         // (could go in the opposite direction as well)
         IdentifierImpl state = decider.bottom_goal;
-
-        List<WmeImpl> wmes = new LinkedList<WmeImpl>();
-        List<WmeImpl> cmds = null;
-
-        IdentifierImpl query;
-        IdentifierImpl retrieve;
-        List<IdentifierImpl> prohibit = new LinkedList<IdentifierImpl>();
-        List<IdentifierImpl> store = new LinkedList<IdentifierImpl>();
-
-        path_type path = path_type.blank_slate;
-
-        final int time_slot = ( ( store_only )?(1):(0) );
-        long wme_count = 0;
-        boolean new_cue = false;
-
-        Marker tc; 
-
-        IdentifierImpl parent_sym = null;
-        final Queue<IdentifierImpl> syms = new ArrayDeque<IdentifierImpl>(); 
-
-        int parent_level = 0;
-        final Queue<Integer> levels = new ArrayDeque<Integer>();
 
         while ( state != null )
         {
@@ -2743,11 +2724,11 @@ public class DefaultSemanticMemory implements SemanticMemory
 
             // make sure this state has had some sort of change to the cmd
             // NOTE: we only care one-level deep!
-            new_cue = false;
-            wme_count = 0;
-            cmds = null;
+            boolean new_cue = false;
+            long wme_count = 0;
+            List<WmeImpl> cmds = null;
             {
-                tc = DefaultMarker.create(); // get_new_tc_number( my_agent );
+                final Marker tc = DefaultMarker.create(); // get_new_tc_number( my_agent );
 
                 // initialize BFS at command
                 syms.add( smem_info.smem_cmd_header ); // push
@@ -2756,13 +2737,13 @@ public class DefaultSemanticMemory implements SemanticMemory
                 while ( !syms.isEmpty() )
                 {
                     // get state
-                    parent_sym = syms.remove(); // front()/pop()
+                    final IdentifierImpl parent_sym = syms.remove(); // front()/pop()
 
-                    parent_level = levels.remove(); // front()/pop()
+                    final int parent_level = levels.remove(); // front()/pop()
 
-                    // get children of the current identifier
-                    wmes = smem_get_direct_augs_of_id( parent_sym, tc );
                     {
+                        // get children of the current identifier
+                        final List<WmeImpl> wmes = smem_get_direct_augs_of_id( parent_sym, tc );
                         for (WmeImpl w_p : wmes)
                         {
                             if ( ( ( store_only ) && ( ( parent_level != 0 ) || ( ( w_p.attr != predefinedSyms.smem_sym_query ) && ( w_p.attr != predefinedSyms.smem_sym_retrieve ) ) ) ) || 
@@ -2793,7 +2774,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                         }
                         else
                         {
-                            wmes = null; // delete wmes;
+                            // wmes = null; delete wmes;
                         }
                     }
                 }
@@ -2824,11 +2805,11 @@ public class DefaultSemanticMemory implements SemanticMemory
             if ( new_cue && wme_count != 0)
             {
                 // initialize command vars
-                retrieve = null;
-                query = null;
+                IdentifierImpl retrieve = null;
+                IdentifierImpl query = null;
                 store.clear();
                 prohibit.clear();
-                path = path_type.blank_slate;
+                path_type path = path_type.blank_slate;
 
                 // process top-level symbols
                 for (WmeImpl w_p : cmds )
@@ -3002,9 +2983,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // TODO SMEM Timers: my_agent->smem_timers->api->stop();
                 ////////////////////////////////////////////////////////////////////////////
             }
-
-            // free space from aug list
-            cmds = null; //delete cmds;
 
             state = state.higher_goal;
         }
