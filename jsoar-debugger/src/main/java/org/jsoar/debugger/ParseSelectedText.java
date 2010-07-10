@@ -283,7 +283,9 @@ public class ParseSelectedText
 
 		// There can be leading preference symbols in some cases
 		int startId = 0 ;
-		if (token.charAt(0) == '<' || token.charAt(0) == '>' || token.charAt(0) == '=' || token.charAt(0) == '+' || token.charAt(0) == '-')
+		if (token.charAt(0) == '@' || 
+		    token.charAt(0) == '<' || token.charAt(0) == '>' || 
+		    token.charAt(0) == '=' || token.charAt(0) == '+' || token.charAt(0) == '-')
 			startId = 1 ;
 
 		if (token.length() <= startId)
