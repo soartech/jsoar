@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.JdbcTools;
@@ -21,6 +22,7 @@ import org.jsoar.util.JdbcTools;
 class SemanticMemoryDatabase
 {
     private final Connection db;
+    private final Properties statements = new Properties();
 
     PreparedStatement begin;
     PreparedStatement commit;
@@ -92,84 +94,114 @@ class SemanticMemoryDatabase
         {
             throw new FileNotFoundException("Failed to open structure.sql resource");
         }
-        JdbcTools.executeSqlBatch(db, is);
-    }
-    
-    void prepare() throws SoarException
-    {
-        //
-        begin = prepare( "BEGIN" );
-        commit = prepare( "COMMIT" );
-        rollback = prepare( "ROLLBACK" );
-
-        //
-        var_get = prepare( "SELECT value FROM vars WHERE id=?" );
-        var_set = prepare( "REPLACE INTO vars (id,value) VALUES (?,?)" );
-
-        //
-        hash_get = prepare( "SELECT id FROM temporal_symbol_hash WHERE sym_type=? AND sym_const=?" );
-        hash_add = prepare( "INSERT INTO temporal_symbol_hash (sym_type,sym_const) VALUES (?,?)" );
-
-        //
-        lti_add = prepare( "INSERT INTO lti (letter,num,child_ct,act_cycle) VALUES (?,?,?,?)" );
-        lti_get = prepare( "SELECT id FROM lti WHERE letter=? AND num=?" );
-        lti_letter_num = prepare( "SELECT letter, num FROM lti WHERE id=?" );
-        lti_max = prepare( "SELECT letter, MAX(num) FROM lti GROUP BY letter" );
-
-        //
-        web_add = prepare( "INSERT INTO web (parent_id, attr, val_const, val_lti, act_cycle) VALUES (?,?,?,?,?)" );
-        web_truncate = prepare( "DELETE FROM web WHERE parent_id=?" );
-        web_expand = prepare( "SELECT tsh_a.sym_const AS attr_const, tsh_a.sym_type AS attr_type, vcl.sym_const AS value_const, vcl.sym_type AS value_type, vcl.letter AS value_letter, vcl.num AS value_num, vcl.val_lti AS value_lti FROM ((web w LEFT JOIN temporal_symbol_hash tsh_v ON w.val_const=tsh_v.id) vc LEFT JOIN lti ON vc.val_lti=lti.id) vcl INNER JOIN temporal_symbol_hash tsh_a ON vcl.attr=tsh_a.id WHERE parent_id=?" );
-
-        //
-        web_attr_ct = prepare( "SELECT attr, COUNT(*) AS ct FROM web WHERE parent_id=? GROUP BY attr" );
-        web_const_ct = prepare( "SELECT attr, val_const, COUNT(*) AS ct FROM web WHERE parent_id=? AND val_const IS NOT NULL GROUP BY attr, val_const" );
-        web_lti_ct = prepare( "SELECT attr, val_lti, COUNT(*) AS ct FROM web WHERE parent_id=? AND val_const IS NULL GROUP BY attr, val_const, val_lti" );
-
-        //
-        web_attr_all = prepare( "SELECT parent_id, act_cycle FROM web w WHERE attr=? ORDER BY act_cycle DESC" );
-        web_const_all = prepare( "SELECT parent_id, act_cycle FROM web w WHERE attr=? AND val_const=? AND val_lti IS NULL ORDER BY act_cycle DESC" );
-        web_lti_all = prepare( "SELECT parent_id, act_cycle FROM web w WHERE attr=? AND val_const IS NULL AND val_lti=? ORDER BY act_cycle DESC" );
-
-        //
-        web_attr_child = prepare( "SELECT parent_id FROM web WHERE parent_id=? AND attr=?" );
-        web_const_child = prepare( "SELECT parent_id FROM web WHERE parent_id=? AND attr=? AND val_const=?" );
-        web_lti_child = prepare( "SELECT parent_id FROM web WHERE parent_id=? AND attr=? AND val_const IS NULL AND val_lti=?" );
-
-        //
-        ct_attr_add = prepare( "INSERT OR IGNORE INTO ct_attr (attr, ct) VALUES (?,0)" );
-        ct_const_add = prepare( "INSERT OR IGNORE INTO ct_const (attr, val_const, ct) VALUES (?,?,0)" );
-        ct_lti_add = prepare( "INSERT OR IGNORE INTO ct_lti (attr, val_lti, ct) VALUES (?,?,0)" );
-
-        //
-        ct_attr_update = prepare( "UPDATE ct_attr SET ct = ct + ? WHERE attr=?" );
-        ct_const_update = prepare( "UPDATE ct_const SET ct = ct + ? WHERE attr=? AND val_const=?" );
-        ct_lti_update = prepare( "UPDATE ct_lti SET ct = ct + ? WHERE attr=? AND val_lti=?" );
-
-        //
-        ct_attr_get = prepare( "SELECT ct FROM ct_attr WHERE attr=?" );
-        ct_const_get = prepare( "SELECT ct FROM ct_const WHERE attr=? AND val_const=?" );
-        ct_lti_get = prepare( "SELECT ct FROM ct_lti WHERE attr=? AND val_lti=?" );
-
-        //
-        act_set = prepare( "UPDATE web SET act_cycle=? WHERE parent_id=?" );
-        act_lti_child_ct_get = prepare( "SELECT child_ct FROM lti WHERE id=?" );
-        act_lti_child_ct_set = prepare( "UPDATE lti SET child_ct=? WHERE id=?" );
-        act_lti_set = prepare( "UPDATE lti SET act_cycle=? WHERE id=?" );
-        act_lti_get = prepare( "SELECT act_cycle FROM lti WHERE id=?" );
-
-        //
-        vis_lti = prepare( "SELECT id, letter, num FROM lti" );
-        vis_value_const = prepare( "SELECT parent_id, tsh1.sym_type AS attr_type, tsh1.sym_const AS attr_val, tsh2.sym_type AS val_type, tsh2.sym_const AS val_val FROM web w, temporal_symbol_hash tsh1, temporal_symbol_hash tsh2 WHERE (w.attr=tsh1.id) AND (w.val_const=tsh2.id)" );
-        vis_value_lti = prepare( "SELECT parent_id, tsh.sym_type AS attr_type, tsh.sym_const AS attr_val, val_lti FROM web w, temporal_symbol_hash tsh WHERE (w.attr=tsh.id) AND (val_lti IS NOT NULL)" );
-    }
-
-    
-    private PreparedStatement prepare(String sql) throws SoarException
-    {
         try
         {
-            return db.prepareStatement(sql);
+            JdbcTools.executeSqlBatch(db, is);
+        }
+        finally
+        {
+            is.close();
+        }
+    }
+    
+    void prepare() throws SoarException, IOException
+    {
+        loadStatements();
+        
+        //
+        begin = prepare( "begin" );
+        commit = prepare( "commit" );
+        rollback = prepare( "rollback" );
+
+        //
+        var_get = prepare( "var_get" );
+        var_set = prepare( "var_set" );
+
+        //
+        hash_get = prepare( "hash_get" );
+        hash_add = prepare( "hash_add" );
+
+        //
+        lti_add = prepare( "lti_add" );
+        lti_get = prepare( "lti_get" );
+        lti_letter_num = prepare( "lti_letter_num" );
+        lti_max = prepare( "lti_max" );
+
+        //
+        web_add = prepare( "web_add" );
+        web_truncate = prepare( "web_truncate" );
+        web_expand = prepare( "web_expand" );
+
+        //
+        web_attr_ct = prepare( "web_attr_ct" );
+        web_const_ct = prepare( "web_const_ct" );
+        web_lti_ct = prepare( "web_lti_ct" );
+
+        //
+        web_attr_all = prepare( "web_attr_all" );
+        web_const_all = prepare( "web_const_all" );
+        web_lti_all = prepare( "web_lti_all" );
+
+        //
+        web_attr_child = prepare( "web_attr_child" );
+        web_const_child = prepare( "web_const_child" );
+        web_lti_child = prepare( "web_lti_child" );
+
+        //
+        ct_attr_add = prepare( "ct_attr_add" );
+        ct_const_add = prepare( "ct_const_add" );
+        ct_lti_add = prepare( "ct_lti_add" );
+
+        //
+        ct_attr_update = prepare( "ct_attr_update" );
+        ct_const_update = prepare( "ct_const_update" );
+        ct_lti_update = prepare( "ct_lti_update" );
+
+        //
+        ct_attr_get = prepare( "ct_attr_get" );
+        ct_const_get = prepare( "ct_const_get" );
+        ct_lti_get = prepare( "ct_lti_get" );
+
+        //
+        act_set = prepare( "act_set" );
+        act_lti_child_ct_get = prepare( "act_lti_child_ct_get" );
+        act_lti_child_ct_set = prepare( "act_lti_child_ct_set" );
+        act_lti_set = prepare( "act_lti_set" );
+        act_lti_get = prepare( "act_lti_get" );
+
+        //
+        vis_lti = prepare( "vis_lti" );
+        vis_value_const = prepare( "vis_value_const" );
+        vis_value_lti = prepare( "vis_value_lti" );
+    }
+
+    private void loadStatements() throws FileNotFoundException, IOException
+    {
+        final InputStream is = SemanticMemoryDatabase.class.getResourceAsStream("statements.properties");
+        if(is == null)
+        {
+            throw new FileNotFoundException("Failed to open statements.properties resource");
+        }
+        try
+        {
+            statements.load(is);
+        }
+        finally
+        {
+            is.close();
+        }
+    }
+    
+    private PreparedStatement prepare(String name) throws SoarException
+    {
+        final String sql = statements.getProperty(name);
+        if(sql == null)
+        {
+            throw new SoarException("Could not find statement '" + name + "'");
+        }
+        try
+        {
+            return db.prepareStatement(sql.trim());
         }
         catch (SQLException e)
         {
