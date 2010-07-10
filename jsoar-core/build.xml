@@ -16,6 +16,8 @@
         <copy todir="${dist.lib}" >
             <fileset dir="${lib}/db">
                 <include name="*.jar"/>
+                <include name="*.txt"/>
+                <include name="*.htm*"/>
             </fileset>
         </copy>
 		
