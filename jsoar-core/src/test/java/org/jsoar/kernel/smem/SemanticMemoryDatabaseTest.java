@@ -35,6 +35,15 @@ public class SemanticMemoryDatabaseTest
     }
     
     @Test
+    public void testIfStructureAlreadyExistsDontRecreate() throws Exception
+    {
+        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase(db);
+        smdb.structure();
+        
+        smdb.structure();
+    }
+    
+    @Test
     public void testCanCreateInitialTables() throws Exception
     {
         final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase(db);
@@ -49,19 +58,21 @@ public class SemanticMemoryDatabaseTest
         
         // Here's the tables we expect
         final String[] expectedTables = new String[] {
-            "vars", 
-            "temporal_symbol_hash",
-            "lti",
-            "web",
-            "ct_attr",
-            "ct_const",
-            "ct_lti",
-            "ascii"
+            SemanticMemoryDatabase.SMEM_SIGNATURE,
+            SemanticMemoryDatabase.SMEM_SCHEMA + "vars", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "temporal_symbol_hash",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "web",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_attr",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_const",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ascii"
         };
         
         for(String expected : expectedTables)
         {
-            assertTrue("Missing expected table '" + expected + "'", tables.contains(expected));
+            assertTrue("Missing expected table '" + expected + "'", 
+                       tables.contains(expected));
         }
         assertEquals(expectedTables.length, tables.size());
     }
@@ -81,13 +92,13 @@ public class SemanticMemoryDatabaseTest
         
         // Here's the tables we expect
         final String[] expectedTables = new String[] {
-            "temporal_symbol_hash_const_type", 
-            "lti_letter_num",
-            "web_parent_attr_val_lti",
-            "web_attr_val_lti_cycle",
-            "web_attr_cycle",
-            "ct_const_attr_val",
-            "ct_lti_attr_val",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "temporal_symbol_hash_const_type", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "lti_letter_num",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "web_parent_attr_val_lti",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "web_attr_val_lti_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "web_attr_cycle",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_const_attr_val",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "ct_lti_attr_val",
         };
         
         for(String expected : expectedTables)

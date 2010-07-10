@@ -21,6 +21,10 @@ import org.jsoar.util.JdbcTools;
  */
 class SemanticMemoryDatabase
 {
+    // empty table used to verify proper structure
+    static final String SMEM_SCHEMA = "smem2_";
+    static final String SMEM_SIGNATURE = SMEM_SCHEMA + "signature";
+    
     private final Connection db;
     private final Properties statements = new Properties();
 
@@ -89,6 +93,19 @@ class SemanticMemoryDatabase
     
     void structure() throws SoarException, IOException
     {
+        final PreparedStatement signature;
+        try
+        {
+            signature = db.prepareStatement("CREATE TABLE " + SMEM_SIGNATURE + " (uid INTEGER)");
+        }
+        catch (SQLException e)
+        {
+            // If we're here, the table already exists, so don't set up the rest of the 
+            // db structure.
+            return;
+        }
+        
+        
         final InputStream is = SemanticMemoryDatabase.class.getResourceAsStream("structures.sql");
         if(is == null)
         {
@@ -101,6 +118,15 @@ class SemanticMemoryDatabase
         finally
         {
             is.close();
+        }
+        
+        try
+        {
+            signature.execute();
+        }
+        catch (SQLException e)
+        {
+            throw new SoarException("Failed to create signature table: " + e.getMessage(), e);
         }
     }
     
