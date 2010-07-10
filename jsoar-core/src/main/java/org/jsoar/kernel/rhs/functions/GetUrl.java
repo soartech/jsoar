@@ -14,7 +14,8 @@ import java.net.URL;
 import java.util.List;
 
 import org.jsoar.kernel.symbols.Symbol;
-import org.jsoar.util.FileTools;
+
+import com.google.common.io.ByteStreams;
 
 /**
  * A RHS function that opens a connection to a URL, reads it and returns the
@@ -66,8 +67,8 @@ public class GetUrl extends AbstractRhsFunctionHandler
         {
             // Read the input stream into a buffer
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            FileTools.copy(is, out);
-            return context.getSymbols().createString(out.toString());
+            ByteStreams.copy(is, out);
+            return context.getSymbols().createString(out.toString("UTF-8"));
         }
         catch (IOException e)
         {

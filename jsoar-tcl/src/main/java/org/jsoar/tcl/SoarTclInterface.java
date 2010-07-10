@@ -25,7 +25,6 @@ import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.StandardCommands;
-import org.jsoar.util.FileTools;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
@@ -36,6 +35,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclRuntimeError;
 
 import com.google.common.collect.MapMaker;
+import com.google.common.io.ByteStreams;
 
 /**
  * @author ray
@@ -259,7 +259,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
                 try
                 {
                     final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    FileTools.copy(in, out);
+                    ByteStreams.copy(in, out);
                     eval(out.toString());
                 }
                 finally
