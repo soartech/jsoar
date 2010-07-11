@@ -60,7 +60,10 @@ public class SemanticMemoryDatabaseTest
         final String[] expectedTables = new String[] {
             SemanticMemoryDatabase.SMEM_SIGNATURE,
             SemanticMemoryDatabase.SMEM_SCHEMA + "vars", 
-            SemanticMemoryDatabase.SMEM_SCHEMA + "temporal_symbol_hash",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_type",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float",
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str",
             SemanticMemoryDatabase.SMEM_SCHEMA + "lti",
             SemanticMemoryDatabase.SMEM_SCHEMA + "web",
             SemanticMemoryDatabase.SMEM_SCHEMA + "ct_attr",
@@ -92,7 +95,9 @@ public class SemanticMemoryDatabaseTest
         
         // Here's the tables we expect
         final String[] expectedTables = new String[] {
-            SemanticMemoryDatabase.SMEM_SCHEMA + "temporal_symbol_hash_const_type", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_int_const", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_float_const", 
+            SemanticMemoryDatabase.SMEM_SCHEMA + "symbols_str_const", 
             SemanticMemoryDatabase.SMEM_SCHEMA + "lti_letter_num",
             SemanticMemoryDatabase.SMEM_SCHEMA + "web_parent_attr_val_lti",
             SemanticMemoryDatabase.SMEM_SCHEMA + "web_attr_val_lti_cycle",
@@ -122,8 +127,16 @@ public class SemanticMemoryDatabaseTest
         assertNotNull(smdb.var_get);
         assertNotNull(smdb.var_set);
 
-        assertNotNull(smdb.hash_get);
-        assertNotNull(smdb.hash_add);
+        assertNotNull(smdb.hash_rev_int);
+        assertNotNull(smdb.hash_rev_float);
+        assertNotNull(smdb.hash_rev_str);
+        assertNotNull(smdb.hash_get_int);
+        assertNotNull(smdb.hash_get_float);
+        assertNotNull(smdb.hash_get_str);
+        assertNotNull(smdb.hash_add_type);
+        assertNotNull(smdb.hash_add_int);
+        assertNotNull(smdb.hash_add_float);
+        assertNotNull(smdb.hash_add_str);
 
         assertNotNull(smdb.lti_add);
         assertNotNull(smdb.lti_get);

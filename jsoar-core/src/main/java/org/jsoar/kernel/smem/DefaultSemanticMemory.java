@@ -313,58 +313,130 @@ public class DefaultSemanticMemory implements SemanticMemory
 //                 ( sym->common.symbol_type == FLOAT_CONSTANT_SYMBOL_TYPE ) );
     }
     
-    /**
-     * semantic_memory.cpp:542:smem_symbol_to_bind
-     * 
-     * @param sym
-     * @param q
-     * @param type_field
-     * @param val_field
-     * @throws SQLException
-     */
-    private void smem_symbol_to_bind( Symbol sym, PreparedStatement q, int type_field, int val_field ) throws SQLException
+
+    private long /*smem_hash_id*/ smem_temporal_hash_add(int sym_type ) throws SQLException
     {
-        q.setInt( type_field, Symbols.getSymbolType(sym) );
-        if(sym.asString() != null)
-        {
-            q.setString(val_field, sym.asString().getValue());
-        }
-        else if(sym.asInteger() != null)
-        {
-            q.setInt(val_field, sym.asInteger().getValue());
-        }
-        else if(sym.asDouble() != null)
-        {
-            q.setDouble(val_field, sym.asDouble().getValue());
-        }
+        db.hash_add_type.setInt(1, sym_type );
+        return JdbcTools.insertAndGetRowId(db.hash_add_type);
+    }
+
+    private long /*smem_hash_id*/ smem_temporal_hash_int(int val) throws SQLException
+    {
+        return smem_temporal_hash_int(val, true);
     }
     
-    /**
-     * semantic_memory.cpp:561:smem_statement_to_symbol
-     * 
-     * @param q
-     * @param type_field
-     * @param val_field
-     * @return
-     * @throws SQLException
-     */
-    private SymbolImpl smem_statement_to_symbol( ResultSet q, int type_field, int val_field ) throws SQLException
+    private long /*smem_hash_id*/ smem_temporal_hash_int(int val, boolean add_on_fail /*= true*/ ) throws SQLException
     {
-        final int type = q.getInt( type_field + 1);
-        switch (type )
+        long /*smem_hash_id*/ return_val = 0;
+        
+        // search first
+        db.hash_get_int.setInt( 1, val );
+        final ResultSet rs = db.hash_get_int.executeQuery();
+        try
         {
-            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                return symbols.createString(q.getString(val_field + 1));
-
-            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                return symbols.createInteger(q.getInt(val_field + 1));
-
-            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                return symbols.createDouble(q.getDouble(val_field + 1));
-
-            default:
-                throw new IllegalStateException("Invalid symbol type in result set: " + type + " (row=" + q.getRow() + ")");
+            if(rs.next())
+            {
+                return_val = rs.getLong(0 + 1);
+            }
         }
+        finally
+        {
+            rs.close();
+        }
+
+        // if fail and supposed to add
+        if ( return_val == 0 && add_on_fail )
+        {
+            // type first       
+            return_val = smem_temporal_hash_add( Symbols.INT_CONSTANT_SYMBOL_TYPE );
+
+            // then content
+            db.hash_add_int.setLong( 1, return_val );
+            db.hash_add_int.setInt( 2, val );
+            db.hash_add_int.executeUpdate(/*soar_module::op_reinit*/ );
+        }
+
+        return return_val;
+    }
+
+    private long /*smem_hash_id*/ smem_temporal_hash_float(double val) throws SQLException
+    {
+        return smem_temporal_hash_float(val, true);
+    }
+    
+    private long /*smem_hash_id*/ smem_temporal_hash_float(double val, boolean add_on_fail /*= true*/ ) throws SQLException
+    {
+        long /*smem_hash_id*/ return_val = 0;
+        
+        // search first
+        // search first
+        db.hash_get_float.setDouble( 1, val );
+        final ResultSet rs = db.hash_get_float.executeQuery();
+        try
+        {
+            if(rs.next())
+            {
+                return_val = rs.getLong(0 + 1);
+            }
+        }
+        finally
+        {
+            rs.close();
+        }
+
+        // if fail and supposed to add
+        if ( return_val == 0 && add_on_fail )
+        {
+            // type first       
+            return_val = smem_temporal_hash_add( Symbols.FLOAT_CONSTANT_SYMBOL_TYPE );
+
+            // then content
+            db.hash_add_float.setLong( 1, return_val );
+            db.hash_add_float.setDouble( 2, val );
+            db.hash_add_float.executeUpdate(/*soar_module::op_reinit*/ );
+        }
+
+        return return_val;
+    }
+
+    private long /*smem_hash_id*/ smem_temporal_hash_str(String val) throws SQLException
+    {
+        return smem_temporal_hash_str(val, true);
+    }
+    
+    private long /*smem_hash_id*/ smem_temporal_hash_str(String val, boolean add_on_fail /*= true*/ ) throws SQLException
+    {
+        long /*smem_hash_id*/ return_val = 0;
+        
+        // search first
+        // search first
+        db.hash_get_str.setString( 1, val );
+        final ResultSet rs = db.hash_get_str.executeQuery();
+        try
+        {
+            if(rs.next())
+            {
+                return_val = rs.getLong(0 + 1);
+            }
+        }
+        finally
+        {
+            rs.close();
+        }
+
+        // if fail and supposed to add
+        if ( return_val == 0 && add_on_fail )
+        {
+            // type first       
+            return_val = smem_temporal_hash_add( Symbols.SYM_CONSTANT_SYMBOL_TYPE );
+
+            // then content
+            db.hash_add_str.setLong( 1, return_val );
+            db.hash_add_str.setString( 2, val );
+            db.hash_add_str.executeUpdate(/*soar_module::op_reinit*/ );
+        }
+
+        return return_val;
     }
 
     
@@ -558,27 +630,22 @@ public class DefaultSemanticMemory implements SemanticMemory
                 // - search
                 // - if found, return
                 // - else, add
+                
+                
 
-                smem_symbol_to_bind( sym, db.hash_get, 1, 2 );
-                final ResultSet rs = db.hash_get.executeQuery();
-                try
+                switch (Symbols.getSymbolType(sym))
                 {
-                    if (rs.next())
-                    {
-                        return_val = rs.getLong(0 + 1);
-                    }
-                }
-                finally
-                {
-                    rs.close();
-                }
+                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                    return_val = smem_temporal_hash_str( sym.asString().getValue(), add_on_fail );
+                    break;
 
-                //
+                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                    return_val = smem_temporal_hash_int( sym.asInteger().getValue(), add_on_fail );
+                    break;
 
-                if ( return_val == 0 && add_on_fail )
-                {
-                    smem_symbol_to_bind( sym, db.hash_add, 1, 2 );
-                    return_val = JdbcTools.insertAndGetRowId(db.hash_add);
+                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                    return_val = smem_temporal_hash_float( sym.asDouble().getValue(), add_on_fail );
+                    break;
                 }
 
                 // cache results for later re-use
@@ -596,6 +663,70 @@ public class DefaultSemanticMemory implements SemanticMemory
         return return_val;
     }
     
+
+    private int /*long?*/ smem_reverse_hash_int(long /*smem_hash_id*/ hash_value ) throws SQLException
+    {
+        db.hash_rev_int.setLong( 1, hash_value );
+        final ResultSet rs = db.hash_rev_int.executeQuery();
+        try
+        {
+            rs.next();
+            return rs.getInt(0 + 1);
+        }
+        finally
+        {
+            rs.close();
+        }
+    }
+
+    private double smem_reverse_hash_float(long /*smem_hash_id*/ hash_value ) throws SQLException
+    {
+        db.hash_rev_float.setLong( 1, hash_value );
+        final ResultSet rs = db.hash_rev_float.executeQuery();
+        try
+        {
+            rs.next();
+            return rs.getDouble(0 + 1);
+        }
+        finally
+        {
+            rs.close();
+        }
+    }
+
+    private String smem_reverse_hash_str(long /*smem_hash_id*/ hash_value) throws SQLException
+    {
+        db.hash_rev_str.setLong( 1, hash_value );
+        final ResultSet rs = db.hash_rev_str.executeQuery();
+        try
+        {
+            rs.next();
+            return rs.getString(0 + 1);
+        }
+        finally
+        {
+            rs.close();
+        }
+    }
+
+    private SymbolImpl smem_reverse_hash(int sym_type, long /*smem_hash_id*/ hash_value ) throws SQLException
+    {
+        switch ( sym_type )
+        {
+        case Symbols.SYM_CONSTANT_SYMBOL_TYPE:  
+            return symbols.createString(smem_reverse_hash_str(hash_value));
+
+        case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+            return symbols.createInteger(smem_reverse_hash_int(hash_value));
+
+        case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+            return symbols.createDouble(smem_reverse_hash_float(hash_value));
+
+        default:
+            return null;
+        }
+    }
+
     /**
      * copied primarily from add_bound_variables_in_test
      * 
@@ -1506,7 +1637,7 @@ public class DefaultSemanticMemory implements SemanticMemory
              ( lti.getInputWmes() == null ) &&
              ( lti.slots == null ) )
         {
-            // get direct children: attr_const, attr_type, value_const, value_type, value_letter, value_num, value_lti
+            // get direct children: attr_type, attr_hash, value_type, value_hash, value_letter, value_num, value_lti
             db.web_expand.setLong( 1, parent_id );
             final ResultSet rs = db.web_expand.executeQuery();
             try
@@ -1514,20 +1645,17 @@ public class DefaultSemanticMemory implements SemanticMemory
                 while (rs.next())
                 {
                     // make the identifier symbol irrespective of value type
-                    final SymbolImpl attr_sym = smem_statement_to_symbol( rs, 1, 0 );
-    
+                    final SymbolImpl attr_sym = smem_reverse_hash( rs.getInt(0 + 1) , rs.getLong(1 + 1));
+
                     // identifier vs. constant
                     final SymbolImpl value_sym;
-                    if(rs.getMetaData().getColumnType(2 + 1) == java.sql.Types.NULL)
+                    if(rs.getMetaData().getColumnType(6 + 1) != java.sql.Types.NULL)
                     {
-                        value_sym = smem_lti_soar_make(rs.getLong(6 + 1), 
-                                                       (char) rs.getLong(4 + 1), 
-                                                       rs.getLong(5 + 1), 
-                                                       lti.level );
+                        value_sym = smem_lti_soar_make(rs.getLong( 6 + 1 ), (char) rs.getLong( 4 + 1 ), rs.getLong( 5 + 1 ), lti.level);
                     }
                     else
                     {
-                        value_sym = smem_statement_to_symbol( rs, 3, 2 );
+                        value_sym = smem_reverse_hash(rs.getInt(2 + 1), rs.getLong(3 + 1));
                     }
     
                     // add wme
@@ -2222,6 +2350,10 @@ public class DefaultSemanticMemory implements SemanticMemory
     static void smem_deallocate_chunk(smem_chunk_lti chunk, boolean free_chunk /*= true*/ )
     {
         // Nothing to do in JSoar. Yay!
+        if(chunk != null)
+        {
+            chunk.slots = null;
+        }
     }
     
     /**
@@ -2654,10 +2786,10 @@ public class DefaultSemanticMemory implements SemanticMemory
                     }
 
                     // deallocate *contents* of all newbies (need to keep around name->id association for future chunks)
-//                    for ( smem_chunk_lti c_new : newbies )
-//                    {
-//                        smem_deallocate_chunk( c_new, false );
-//                    }
+                    for ( smem_chunk_lti c_new : newbies )
+                    {
+                        smem_deallocate_chunk( c_new, false );
+                    }
                     // clear newbie list
                     newbies.clear();
 
@@ -2677,10 +2809,10 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
 
             // deallocate all chunks
-//          for (smem_chunk_value c_old : chunks.values())
-//          {
-//              smem_deallocate_chunk( c_old, true );
-//          }
+            for (smem_chunk_lti c_old : chunks.values())
+            {
+               smem_deallocate_chunk( c_old, true );
+            }
             chunks.clear();
         }
 
@@ -3111,7 +3243,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                     return_val.append( "\n" );
 
                     {
-                        // parent_id, attr_type, attr_val, val_type, val_val
+                        // parent_id, attr_type, attr_hash, val_type, val_hash
                         final ResultSet q = db.vis_value_const.executeQuery();
                         try
                         {
@@ -3142,15 +3274,15 @@ public class DefaultSemanticMemory implements SemanticMemory
                                     switch ( (int) q.getLong( 3 + 1 ) )
                                     {
                                         case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                            return_val.append( q.getString( 4 + 1 ) );
+                                            return_val.append( smem_reverse_hash_str(q.getLong(4 + 1)));
                                             break;
         
                                         case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                            return_val.append(Long.toString(q.getLong( 4 + 1 )));
+                                            return_val.append(Integer.toString(smem_reverse_hash_int(q.getLong(4 + 1))));
                                             break;
         
                                         case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                            return_val.append(Double.toString(q.getDouble( 4 + 1 )));
+                                            return_val.append(Double.toString(smem_reverse_hash_float(q.getLong(4 + 1))));
                                             break;
         
                                         default:
@@ -3164,15 +3296,15 @@ public class DefaultSemanticMemory implements SemanticMemory
                                     switch ( (int) q.getLong( 1 + 1 ) )
                                     {
                                         case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                            my_terminals.add( q.getString( 2 + 1 ) );
+                                            my_terminals.add( smem_reverse_hash_str(q.getLong(2 + 1)));
                                             break;
         
                                         case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                            my_terminals.add(Long.toString(q.getLong( 2 + 1 )));
+                                            my_terminals.add(Integer.toString(smem_reverse_hash_int(q.getLong(2 + 1))));
                                             break;
         
                                         case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                            my_terminals.add(Double.toString(q.getDouble( 2 + 1 )));
+                                            my_terminals.add(Double.toString(smem_reverse_hash_float(q.getLong(2 + 1))));
                                             break;
         
                                         default:
@@ -3226,7 +3358,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                 // then links to other LTIs
                 {
-                    // parent_id, attr_type, attr_val, val_lti
+                    // parent_id, attr_type, attr_hash, val_lti
                     {
                     final ResultSet q = db.vis_value_lti.executeQuery();
                     try
@@ -3249,22 +3381,22 @@ public class DefaultSemanticMemory implements SemanticMemory
                             {
                                 switch ( (int) q.getLong( 1 + 1) )
                                 {
-                                    case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                        return_val.append( q.getString( 2 + 1 ) );
-                                        break;
-    
-                                    case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                        return_val.append(Long.toString(q.getLong( 2 + 1 )));
-                                        break;
-    
-                                    case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                        return_val.append(Double.toString(q.getDouble( 2 + 1 )));
-                                        break;
-    
-                                    default:
-                                        return_val.append("");
-                                        break;
-                                }
+                                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                    return_val.append( smem_reverse_hash_str(q.getLong(2 + 1)));
+                                    break;
+
+                                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                    return_val.append(Integer.toString(smem_reverse_hash_int(q.getLong(2 + 1))));
+                                    break;
+
+                                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                    return_val.append(Double.toString(smem_reverse_hash_float(q.getLong(2 + 1))));
+                                    break;
+
+                                default:
+                                    // print nothing
+                                    break;
+                               }
                             }
     
                             // footer
@@ -3367,7 +3499,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
             long child_counter = 0;
 
-            // get direct children: attr_const, attr_type, value_const, value_type, value_letter, value_num, value_lti
+            // get direct children: attr_type, attr_hash, value_type, value_hash, value_letter, value_num, value_lti
             db.web_expand.setLong( 1, parent_lti.lti_id );
             final ResultSet expand_q = db.web_expand.executeQuery();
             try
@@ -3375,7 +3507,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 while ( expand_q.next() )
                 {
                     // identifier vs. constant
-                    if ( expand_q.getMetaData().getColumnType(2 + 1) == java.sql.Types.NULL )
+                    if ( expand_q.getMetaData().getColumnType(6 + 1) != java.sql.Types.NULL )
                     {
                         final smem_vis_lti new_lti = new smem_vis_lti();
                         new_lti.lti_id = expand_q.getLong( 6 );
@@ -3398,33 +3530,32 @@ public class DefaultSemanticMemory implements SemanticMemory
     
                         // add linkage
                         {
-                            // get attribute
-                            final String temp_str;
-                            switch ( (int) expand_q.getLong( 1 + 1 ) )
-                            {
-                                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                    temp_str = expand_q.getString( 0 + 1 );
-                                    break;
-    
-                                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                    temp_str = Long.toString(expand_q.getLong(0 + 1));
-                                    break;
-    
-                                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                    temp_str = Double.toString(expand_q.getDouble(0 + 1));
-                                    break;
-    
-                                default:
-                                    temp_str = "";
-                                    break;
-                            }
-    
                             // output linkage
                             return_val.append( parent_lti.lti_name );
                             return_val.append( " -> " );
                             return_val.append( new_lti.lti_name );
                             return_val.append( " [ label = \"" );
-                            return_val.append( temp_str );
+                            
+                            // get attribute
+                            switch ( (int) expand_q.getLong( 0 + 1 ) )
+                            {
+                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                return_val.append( smem_reverse_hash_str(expand_q.getLong(1 + 1)));
+                                break;
+
+                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                return_val.append(Integer.toString(smem_reverse_hash_int(expand_q.getLong(1 + 1))));
+                                break;
+
+                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                return_val.append(Double.toString(smem_reverse_hash_float(expand_q.getLong(1 + 1))));
+                                break;
+
+                            default:
+                                // print nothing
+                                break;
+                            }
+                            
                             return_val.append( "\" ];" );
                             return_val.append( "\n" );
                         }
@@ -3454,67 +3585,66 @@ public class DefaultSemanticMemory implements SemanticMemory
                         final String node_name = String.format("%s_%d", parent_lti.lti_name, child_counter);
                         // add value node
                         {
-    
-                            // get value
-                            final String temp_str;
-                            switch ( (int) expand_q.getLong( 3 + 1 ) )
-                            {
-                                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                    temp_str = expand_q.getString( 2 + 1 );
-                                    break;
-    
-                                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                    temp_str = Long.toString(expand_q.getLong( 2 + 1 ));
-                                    break;
-    
-                                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                    temp_str = Double.toString(expand_q.getDouble( 2 + 1 ));
-                                    break;
-    
-                                default:
-                                    temp_str = "";
-                                    break;
-                            }
-    
                             // output node
                             return_val.append( "node [ shape = plaintext ];" );
                             return_val.append( "\n" );
                             return_val.append( node_name );
                             return_val.append( " [ label=\"" );
-                            return_val.append( temp_str );
+    
+                            // get value
+                            final String temp_str;
+                            switch ( (int) expand_q.getLong( 2 + 1 ) )
+                            {
+                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                return_val.append( smem_reverse_hash_str(expand_q.getLong(3 + 1)));
+                                break;
+
+                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                return_val.append(Integer.toString(smem_reverse_hash_int(expand_q.getLong(3 + 1))));
+                                break;
+
+                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                return_val.append(Double.toString(smem_reverse_hash_float(expand_q.getLong(3 + 1))));
+                                break;
+
+                            default:
+                                // print nothing
+                                break;
+                            }
+    
                             return_val.append( "\" ];" );
                             return_val.append( "\n" );
                         }
     
                         // add linkage
                         {
-                            // get attribute
-                            final String temp_str;
-                            switch ( (int) expand_q.getLong( 1 + 1 ) )
-                            {
-                                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                    temp_str = expand_q.getString( 0 + 1 );
-                                    break;
-    
-                                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                    temp_str = Long.toString(expand_q.getLong( 0 + 1 ));
-                                    break;
-    
-                                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                    temp_str = Double.toString(expand_q.getDouble( 0 + 1));
-                                    break;
-    
-                                default:
-                                    temp_str = "";
-                                    break;
-                            }
-    
                             // output linkage
                             return_val.append( parent_lti.lti_name );
                             return_val.append( " -> " );
                             return_val.append( node_name );
                             return_val.append( " [ label = \"" );
-                            return_val.append( temp_str );
+                            
+                            // get attribute
+                            final String temp_str;
+                            switch ( (int) expand_q.getLong( 0 + 1 ) )
+                            {
+                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                return_val.append( smem_reverse_hash_str(expand_q.getLong(1 + 1)));
+                                break;
+
+                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                return_val.append(Integer.toString(smem_reverse_hash_int(expand_q.getLong(1 + 1))));
+                                break;
+
+                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                return_val.append(Double.toString(smem_reverse_hash_float(expand_q.getLong(1 + 1))));
+                                break;
+
+                            default:
+                                // print nothing
+                                break;
+                            }
+    
                             return_val.append( "\" ];" );
                             return_val.append( "\n" );
                         }

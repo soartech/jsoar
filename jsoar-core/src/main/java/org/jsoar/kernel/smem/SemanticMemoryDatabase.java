@@ -35,8 +35,16 @@ class SemanticMemoryDatabase
     PreparedStatement var_get;
     PreparedStatement var_set;
 
-    PreparedStatement hash_get;
-    PreparedStatement hash_add;
+    PreparedStatement hash_rev_int;
+    PreparedStatement hash_rev_float;
+    PreparedStatement hash_rev_str;
+    PreparedStatement hash_get_int;
+    PreparedStatement hash_get_float;
+    PreparedStatement hash_get_str;
+    PreparedStatement hash_add_type;
+    PreparedStatement hash_add_int;
+    PreparedStatement hash_add_float;
+    PreparedStatement hash_add_str;
 
     PreparedStatement lti_add;
     PreparedStatement lti_get;
@@ -144,8 +152,16 @@ class SemanticMemoryDatabase
         var_set = prepare( "var_set" );
 
         //
-        hash_get = prepare( "hash_get" );
-        hash_add = prepare( "hash_add" );
+        hash_rev_int = prepare("hash_rev_int");
+        hash_rev_float = prepare("hash_rev_float");
+        hash_rev_str = prepare("hash_rev_str");
+        hash_get_int = prepare("hash_get_int");
+        hash_get_float = prepare("hash_get_float");
+        hash_get_str = prepare("hash_get_str");
+        hash_add_type = prepare("hash_add_type");
+        hash_add_int = prepare("hash_add_int");
+        hash_add_float = prepare("hash_add_float");
+        hash_add_str = prepare("hash_add_str");
 
         //
         lti_add = prepare( "lti_add" );

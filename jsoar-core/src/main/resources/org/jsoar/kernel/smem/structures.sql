@@ -2,8 +2,14 @@
 # These are all the add_structure statements for initializing the smem 
 # database
 CREATE TABLE smem2_vars (id INTEGER PRIMARY KEY,value NONE)
-CREATE TABLE smem2_temporal_symbol_hash (id INTEGER PRIMARY KEY, sym_const NONE, sym_type INTEGER)
-CREATE UNIQUE INDEX smem2_temporal_symbol_hash_const_type ON smem2_temporal_symbol_hash (sym_type,sym_const)
+
+CREATE TABLE smem2_symbols_type (id INTEGER PRIMARY KEY, sym_type INTEGER)
+CREATE TABLE smem2_symbols_int (id INTEGER PRIMARY KEY, sym_const INTEGER)
+CREATE UNIQUE INDEX smem2_symbols_int_const ON smem2_symbols_int (sym_const)
+CREATE TABLE smem2_symbols_float (id INTEGER PRIMARY KEY, sym_const REAL)
+CREATE UNIQUE INDEX smem2_symbols_float_const ON smem2_symbols_float (sym_const)
+CREATE TABLE smem2_symbols_str (id INTEGER PRIMARY KEY, sym_const TEXT)
+CREATE UNIQUE INDEX smem2_symbols_str_const ON smem2_symbols_str (sym_const)
 
 CREATE TABLE smem2_lti (id INTEGER PRIMARY KEY, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
 CREATE UNIQUE INDEX smem2_lti_letter_num ON smem2_lti (letter, num)
