@@ -2133,7 +2133,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         {
             final DatabaseMetaData meta = connection.getMetaData();
             logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":"  + meta.getDriverVersion());
-            db = new SemanticMemoryDatabase(connection);
+            db = new SemanticMemoryDatabase(params.driver.get(), connection);
         }
         catch(SoarException e)
         {

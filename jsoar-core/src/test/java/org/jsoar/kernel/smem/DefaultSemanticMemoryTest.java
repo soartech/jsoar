@@ -33,7 +33,7 @@ public class DefaultSemanticMemoryTest
     {
         context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager());
         conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
-        final SemanticMemoryDatabase db = new SemanticMemoryDatabase(conn);
+        final SemanticMemoryDatabase db = new SemanticMemoryDatabase("org.sqlite.JDBC", conn);
         db.structure();
         db.prepare();
         smem = new DefaultSemanticMemory(context, db);

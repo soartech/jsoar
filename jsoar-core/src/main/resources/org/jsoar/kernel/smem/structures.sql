@@ -27,6 +27,7 @@ CREATE UNIQUE INDEX smem2_symbols_str_const ON smem2_symbols_str (sym_const)
 CREATE TABLE smem2_lti (id INTEGER PRIMARY KEY, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
 # MySQL
 #CREATE TABLE smem2_lti (id INTEGER PRIMARY KEY AUTO_INCREMENT, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
+
 CREATE UNIQUE INDEX smem2_lti_letter_num ON smem2_lti (letter, num)
 
 CREATE TABLE smem2_web (parent_id INTEGER, attr INTEGER, val_const INTEGER, val_lti INTEGER, act_cycle INTEGER)

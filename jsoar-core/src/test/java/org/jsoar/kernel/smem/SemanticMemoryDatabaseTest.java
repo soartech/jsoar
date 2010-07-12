@@ -37,7 +37,7 @@ public class SemanticMemoryDatabaseTest
     @Test
     public void testIfStructureAlreadyExistsDontRecreate() throws Exception
     {
-        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase(db);
+        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
         
         smdb.structure();
@@ -46,7 +46,7 @@ public class SemanticMemoryDatabaseTest
     @Test
     public void testCanCreateInitialTables() throws Exception
     {
-        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase(db);
+        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
         
         final Set<String> tables = new HashSet<String>();
@@ -83,7 +83,7 @@ public class SemanticMemoryDatabaseTest
     @Test
     public void testCanCreateInitialIndexes() throws Exception
     {
-        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase(db);
+        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
         
         final Set<String> tables = new HashSet<String>();
@@ -116,7 +116,7 @@ public class SemanticMemoryDatabaseTest
     @Test
     public void testPreparesStatements() throws Exception
     {
-        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase(db);
+        final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
         smdb.structure();
         smdb.prepare();
         

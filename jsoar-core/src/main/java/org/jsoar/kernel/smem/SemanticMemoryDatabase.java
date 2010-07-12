@@ -25,8 +25,9 @@ class SemanticMemoryDatabase
     static final String SMEM_SCHEMA = "smem2_";
     static final String SMEM_SIGNATURE = SMEM_SCHEMA + "signature";
     
+    private final String driver;
     private final Connection db;
-    private final Properties statements = new Properties();
+    private Properties statements = new Properties();
 
     PreparedStatement begin;
     PreparedStatement commit;
@@ -89,8 +90,9 @@ class SemanticMemoryDatabase
     PreparedStatement vis_value_const;
     PreparedStatement vis_value_lti;
     
-    public SemanticMemoryDatabase(Connection db) throws SoarException
+    public SemanticMemoryDatabase(String driver, Connection db) throws SoarException
     {
+        this.driver = driver;
         this.db = db;
     }
 
@@ -138,6 +140,7 @@ class SemanticMemoryDatabase
     void prepare() throws SoarException, IOException
     {
         loadStatements();
+        loadDriverSpecificStatements();
         
         //
         begin = prepare( "begin" );
@@ -214,7 +217,7 @@ class SemanticMemoryDatabase
         vis_value_lti = prepare( "vis_value_lti" );
     }
 
-    private void loadStatements() throws FileNotFoundException, IOException
+    private void loadStatements() throws IOException
     {
         final InputStream is = SemanticMemoryDatabase.class.getResourceAsStream("statements.properties");
         if(is == null)
@@ -224,6 +227,25 @@ class SemanticMemoryDatabase
         try
         {
             statements.load(is);
+        }
+        finally
+        {
+            is.close();
+        }
+    }
+    
+    private void loadDriverSpecificStatements() throws IOException
+    {
+        final InputStream is = SemanticMemoryDatabase.class.getResourceAsStream(driver + ".statements.properties");
+        if(is == null)
+        {
+            return;
+        }
+        try
+        {
+            final Properties newStatements = new Properties(statements);
+            newStatements.load(is);
+            statements = newStatements;
         }
         finally
         {
