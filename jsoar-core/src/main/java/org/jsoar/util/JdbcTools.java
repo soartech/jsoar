@@ -167,7 +167,7 @@ public class JdbcTools
             }
             else
             {
-                return 0;
+                throw new IllegalStateException("getGeneratedKeys() returned empty result set for '" + s + "'");
             }
         }
         finally
