@@ -970,6 +970,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
         catch (SQLException e)
         {
+            e.printStackTrace();
             throw new SoarException(e.getMessage(), e);
         }
 
@@ -1103,6 +1104,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             catch (SQLException e)
             {
+                e.printStackTrace();
                 throw new SoarException(e.getMessage(), e);
             }
 
@@ -1430,7 +1432,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     }
 
     /**
-     * Get the child cound for an id from the database. Extracted from smem_store_chunk().
+     * Get the child count for an id from the database. Extracted from smem_store_chunk().
      * 
      * <p>semantic_memory.cpp:1187:smem_store_chunk
      * 
@@ -1444,6 +1446,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         final ResultSet rs = db.act_lti_child_ct_get.executeQuery();
         try
         {
+           rs.next();
            return rs.getLong(0 + 1);
         }
         finally
@@ -1606,6 +1609,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             final ResultSet rs = db.lti_letter_num.executeQuery();
             try
             {
+                rs.next();
                 lti = smem_lti_soar_make( parent_id, 
                         (char) rs.getLong(0 + 1), 
                         rs.getLong(1 + 1), 
@@ -1649,9 +1653,10 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                     // identifier vs. constant
                     final SymbolImpl value_sym;
-                    if(rs.getMetaData().getColumnType(6 + 1) != java.sql.Types.NULL)
+                    final long lti_id = rs.getLong(6 + 1);
+                    if(!rs.wasNull())
                     {
-                        value_sym = smem_lti_soar_make(rs.getLong( 6 + 1 ), (char) rs.getLong( 4 + 1 ), rs.getLong( 5 + 1 ), lti.level);
+                        value_sym = smem_lti_soar_make(lti_id, (char) rs.getLong( 4 + 1 ), rs.getLong( 5 + 1 ), lti.level);
                     }
                     else
                     {
@@ -2292,6 +2297,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             catch (SQLException e)
             {
+                e.printStackTrace();
                 throw new SoarException("While attaching SMEM: " + e.getMessage(), e);
             }
             catch (IOException e)
@@ -2331,6 +2337,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             catch (SQLException e)
             {
+                e.printStackTrace();
                 throw new SoarException("While closing SMEM: " + e.getMessage(), e);
             }
         }
@@ -2687,6 +2694,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
         catch (SQLException e)
         {
+            e.printStackTrace();
             throw new SoarException(e);
         }
     }
@@ -3507,10 +3515,11 @@ public class DefaultSemanticMemory implements SemanticMemory
                 while ( expand_q.next() )
                 {
                     // identifier vs. constant
-                    if ( expand_q.getMetaData().getColumnType(6 + 1) != java.sql.Types.NULL )
+                    final long check_lti_id = expand_q.getLong(6 + 1);
+                    if ( !expand_q.wasNull() )
                     {
                         final smem_vis_lti new_lti = new smem_vis_lti();
-                        new_lti.lti_id = expand_q.getLong( 6 );
+                        new_lti.lti_id = check_lti_id;
                         new_lti.level = ( parent_lti.level + 1 );
     
                         // add node

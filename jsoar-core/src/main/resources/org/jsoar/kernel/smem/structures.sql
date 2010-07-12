@@ -1,17 +1,32 @@
 # semantic_memory.cpp:smem_statement_container::smem_statement_container
 # These are all the add_structure statements for initializing the smem 
 # database
-CREATE TABLE smem2_vars (id INTEGER PRIMARY KEY,value NONE)
 
+# TODO support other types for values.
+CREATE TABLE smem2_vars (id INTEGER PRIMARY KEY,value INTEGER)
+
+# SQLite
 CREATE TABLE smem2_symbols_type (id INTEGER PRIMARY KEY, sym_type INTEGER)
+# MySQL
+#CREATE TABLE smem2_symbols_type (id INTEGER PRIMARY KEY AUTO_INCREMENT, sym_type INTEGER)
+
 CREATE TABLE smem2_symbols_int (id INTEGER PRIMARY KEY, sym_const INTEGER)
 CREATE UNIQUE INDEX smem2_symbols_int_const ON smem2_symbols_int (sym_const)
+
 CREATE TABLE smem2_symbols_float (id INTEGER PRIMARY KEY, sym_const REAL)
 CREATE UNIQUE INDEX smem2_symbols_float_const ON smem2_symbols_float (sym_const)
+
+# SQLite
 CREATE TABLE smem2_symbols_str (id INTEGER PRIMARY KEY, sym_const TEXT)
+# MySQL
+#CREATE TABLE smem2_symbols_str (id INTEGER PRIMARY KEY, sym_const VARCHAR(255))
+
 CREATE UNIQUE INDEX smem2_symbols_str_const ON smem2_symbols_str (sym_const)
 
+# SQLite
 CREATE TABLE smem2_lti (id INTEGER PRIMARY KEY, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
+# MySQL
+#CREATE TABLE smem2_lti (id INTEGER PRIMARY KEY AUTO_INCREMENT, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
 CREATE UNIQUE INDEX smem2_lti_letter_num ON smem2_lti (letter, num)
 
 CREATE TABLE smem2_web (parent_id INTEGER, attr INTEGER, val_const INTEGER, val_lti INTEGER, act_cycle INTEGER)
