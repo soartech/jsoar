@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.smem;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,10 +14,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.JdbcTools;
+
+import com.google.common.io.ByteStreams;
 
 /**
  * @author ray
@@ -25,6 +31,11 @@ class SemanticMemoryDatabase
     // empty table used to verify proper structure
     static final String SMEM_SCHEMA = "smem2_";
     static final String SMEM_SIGNATURE = SMEM_SCHEMA + "signature";
+    private static final Map<String, String> filterMap = new HashMap<String, String>();
+    static
+    {
+        filterMap.put("@PREFIX@", SMEM_SCHEMA);
+    }
     
     private final String driver;
     private final Connection db;
@@ -121,7 +132,7 @@ class SemanticMemoryDatabase
         }
         
         // Load the database structure by executing structures.sql
-        final InputStream is = SemanticMemoryDatabase.class.getResourceAsStream("structures.sql");
+        final InputStream is = filter(SemanticMemoryDatabase.class.getResourceAsStream("structures.sql"), filterMap);
         if(is == null)
         {
             throw new FileNotFoundException("Failed to open structure.sql resource");
@@ -220,7 +231,7 @@ class SemanticMemoryDatabase
 
     private void loadStatements() throws IOException
     {
-        final InputStream is = SemanticMemoryDatabase.class.getResourceAsStream("statements.properties");
+        final InputStream is = filter(SemanticMemoryDatabase.class.getResourceAsStream("statements.properties"), filterMap);
         if(is == null)
         {
             throw new FileNotFoundException("Failed to open statements.properties resource");
@@ -237,7 +248,7 @@ class SemanticMemoryDatabase
     
     private void loadDriverSpecificStatements() throws IOException
     {
-        final InputStream is = SemanticMemoryDatabase.class.getResourceAsStream(driver + ".statements.properties");
+        InputStream is = filter(SemanticMemoryDatabase.class.getResourceAsStream(driver + ".statements.properties"), filterMap);
         if(is == null)
         {
             return;
@@ -271,5 +282,31 @@ class SemanticMemoryDatabase
         {
             throw new SoarException("Failed to prepare statement '" + sql + "': " + e.getMessage(), e);
         }
+    }
+    
+    private static final InputStream filter(InputStream in, Map<String, String> replacements) throws IOException
+    {
+        if(in == null)
+        {
+            return null;
+        }
+        
+        final ByteArrayOutputStream temp = new ByteArrayOutputStream();
+        try
+        {
+            ByteStreams.copy(in, temp);
+        }
+        finally
+        {
+            in.close();
+        }
+        
+        String tempString = temp.toString("UTF-8");
+        for(Map.Entry<String, String> entry : replacements.entrySet())
+        {
+            tempString = tempString.replace(entry.getKey(), entry.getValue());
+        }
+        
+        return new ByteArrayInputStream(tempString.getBytes("UTF-8"));
     }
 }
