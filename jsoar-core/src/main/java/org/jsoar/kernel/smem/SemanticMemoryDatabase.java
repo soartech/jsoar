@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import org.jsoar.kernel.SoarException;
@@ -262,7 +263,9 @@ class SemanticMemoryDatabase
         }
         try
         {
-            return db.prepareStatement(sql.trim());
+            final String trimmed = sql.trim();
+            return trimmed.startsWith("INSERT") ? db.prepareStatement(trimmed, Statement.RETURN_GENERATED_KEYS) :
+                                                  db.prepareStatement(trimmed);
         }
         catch (SQLException e)
         {
