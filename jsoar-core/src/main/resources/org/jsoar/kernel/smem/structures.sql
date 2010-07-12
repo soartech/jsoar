@@ -73,3 +73,7 @@ INSERT INTO smem2_ascii (ascii_num, ascii_chr) VALUES (88,'X')
 INSERT INTO smem2_ascii (ascii_num, ascii_chr) VALUES (89,'Y')
 INSERT INTO smem2_ascii (ascii_num, ascii_chr) VALUES (90,'Z')
 
+# Finally, create the "signature" table that we use to decide whether
+# the db structure is already initialized
+CREATE TABLE smem2_signature (uid INTEGER)
+ 

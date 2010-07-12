@@ -29,6 +29,23 @@ public class JdbcToolsTest
     {
     }
 
+    @Test 
+    public void testCanDetectIfATableExists() throws Exception
+    {
+        final Connection conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
+        try
+        {
+            assertFalse(JdbcTools.tableExists(conn, "people"));
+            Statement stat = conn.createStatement();
+            stat.executeUpdate("create table people (name, occupation);");
+            assertTrue(JdbcTools.tableExists(conn, "people"));
+        }
+        finally
+        {
+            conn.close();
+        }
+        
+    }
     @Test
     public void testCanCreateAndConnectToInMemorySqlLiteDatabase() throws Exception
     {

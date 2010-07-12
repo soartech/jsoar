@@ -175,4 +175,32 @@ public class JdbcTools
             keySet.close();
         }
     }
+    
+    /**
+     * Return true if a table exists in the database
+     * 
+     * @param db the database connection
+     * @param table the name of the table
+     * @return true if the table exists
+     * @throws SQLException
+     */
+    public static boolean tableExists(Connection db, String table) throws SQLException
+    {
+        final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
+        try
+        {
+            while(rs.next())
+            {
+                if(table.equals(rs.getString("TABLE_NAME")))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        finally
+        {
+            rs.close();
+        }
+    }
 }

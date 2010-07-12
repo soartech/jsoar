@@ -101,19 +101,23 @@ class SemanticMemoryDatabase
     
     void structure() throws SoarException, IOException
     {
-        final PreparedStatement signature;
+        // First check if the signature table is already present. If it is, the
+        // db is initialized.
         try
         {
-            signature = db.prepareStatement("CREATE TABLE " + SMEM_SIGNATURE + " (uid INTEGER)");
+            if(JdbcTools.tableExists(db, SMEM_SIGNATURE))
+            {
+                // If we're here, the table already exists, so don't set up the rest of the 
+                // db structure.
+                return;
+            }
         }
         catch (SQLException e)
         {
-            // If we're here, the table already exists, so don't set up the rest of the 
-            // db structure.
-            return;
+            throw new SoarException("While detecting signature table: " + e.getMessage(), e);
         }
         
-        
+        // Load the database structure by executing structures.sql
         final InputStream is = SemanticMemoryDatabase.class.getResourceAsStream("structures.sql");
         if(is == null)
         {
@@ -128,14 +132,7 @@ class SemanticMemoryDatabase
             is.close();
         }
         
-        try
-        {
-            signature.execute();
-        }
-        catch (SQLException e)
-        {
-            throw new SoarException("Failed to create signature table: " + e.getMessage(), e);
-        }
+        // The signature table (tested above) is created at the end of structures.sql
     }
     
     void prepare() throws SoarException, IOException
