@@ -670,7 +670,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         final ResultSet rs = db.hash_rev_int.executeQuery();
         try
         {
-            rs.next();
+            if(!rs.next()) { throw new IllegalStateException("Expected non-empty result"); }
             return rs.getInt(0 + 1);
         }
         finally
@@ -1446,8 +1446,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         final ResultSet rs = db.act_lti_child_ct_get.executeQuery();
         try
         {
-           rs.next();
-           return rs.getLong(0 + 1);
+           return rs.next() ? rs.getLong(0 + 1) : 0L;
         }
         finally
         {
@@ -1609,7 +1608,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             final ResultSet rs = db.lti_letter_num.executeQuery();
             try
             {
-                rs.next();
+                if(!rs.next()) { throw new IllegalStateException("Expected non-empty result"); };
                 lti = smem_lti_soar_make( parent_id, 
                         (char) rs.getLong(0 + 1), 
                         rs.getLong(1 + 1), 
