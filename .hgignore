@@ -32,5 +32,5 @@ syntax: regexp
 syntax: regexp
 ^jsoar-soar2soar/bin$
 
-syntax: regexp
-^jsoar-core/lib/db/mysql-connector-java-5\.0\.4-bin\.jar$
+syntax: glob
+jsoar-build/lib/db/*.jar
