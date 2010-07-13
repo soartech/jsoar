@@ -9,10 +9,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -202,5 +205,39 @@ public class JdbcTools
         {
             rs.close();
         }
+    }
+    
+    /**
+     * Print a result set to a writer. No real attempt is made to format the table nicely.
+     * 
+     * @param rs the result set
+     * @param out the writer
+     * @throws SQLException
+     */
+    public static void printResultSet(ResultSet rs, Writer out) throws SQLException
+    {
+        final PrintWriter p = new PrintWriter(out);
+        final ResultSetMetaData md = rs.getMetaData();
+        for(int c = 1; c <= md.getColumnCount(); c++)
+        {
+            p.printf("| %10s ", md.getColumnLabel(c));
+        }
+        p.println("|");
+        
+        // ResultSet.getRows() isn't implemented in xerial sqlite :(
+        int rows = 0;
+        while(rs.next())
+        {
+            for(int c = 1; c <= md.getColumnCount(); c++)
+            {
+                p.printf("| %10s ", rs.getObject(c));
+            }
+            p.println("|");
+            rows++;
+        }
+        p.printf("%d row%s", rows, rows != 1 ? "s" : "");
+        p.println();
+        p.flush();
+        
     }
 }

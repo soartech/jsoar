@@ -7,18 +7,25 @@ package org.jsoar.kernel.smem;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Cache;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
+import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
+
+import com.google.common.base.Joiner;
 
 /**
  * @author ray
@@ -78,6 +85,10 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             return doCommit(1, args);
         }
+        else if("-q".equals(arg) || "--sql".equals(arg))
+        {
+            return doSql(1, args);
+        }
         else if(arg.startsWith("-"))
         {
             throw new SoarException("Unknown option " + arg);
@@ -88,11 +99,45 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         }
     }
 
+    private String doSql(int i, String[] args) throws SoarException
+    {
+        if(i + 1 == args.length)
+        {
+            throw new SoarException("No argument for " + args[i] + " option");
+        }
+        final String sql = Joiner.on(' ').join(Arrays.copyOfRange(args, i+1, args.length)).trim();
+        if(smem.getDatabase() == null)
+        {
+            throw new SoarException("Semantic memory database is not open.");
+        }
+        try
+        {
+            final Statement s = smem.getDatabase().getConnection().createStatement();
+            try
+            {
+                final StringWriter out = new StringWriter();
+                if(s.execute(sql))
+                {
+                    JdbcTools.printResultSet(s.getResultSet(), out);
+                }
+                return out.toString();
+            }
+            finally
+            {
+                s.close();
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new SoarException(e.getMessage(), e);
+        }
+    }
+
     private String doCommit(int i, String[] args) throws SoarException
     {
         if(smem.getDatabase() == null)
         {
-            return "Semantic memory database is not open.";
+            throw new SoarException("Semantic memory database is not open.");
         }
         if(!smem.getParams().lazy_commit.get())
         {
