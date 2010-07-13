@@ -74,6 +74,10 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             return doViz(1, args);
         }
+        else if("-c".equals(arg) || "--commit".equals(arg))
+        {
+            return doCommit(1, args);
+        }
         else if(arg.startsWith("-"))
         {
             throw new SoarException("Unknown option " + arg);
@@ -82,6 +86,20 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             throw new SoarException("Unknown argument " + arg);
         }
+    }
+
+    private String doCommit(int i, String[] args) throws SoarException
+    {
+        if(smem.getDatabase() == null)
+        {
+            return "Semantic memory database is not open.";
+        }
+        if(!smem.getParams().lazy_commit.get())
+        {
+            return "Semantic memory database is not in lazy-commit mode.";
+        }
+        smem.commit();
+        return "";
     }
 
     private String doAdd(int i, String[] args) throws SoarException

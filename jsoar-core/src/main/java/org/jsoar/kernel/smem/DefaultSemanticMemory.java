@@ -3671,4 +3671,27 @@ public class DefaultSemanticMemory implements SemanticMemory
         return_val.append( "}" );
         return_val.append( "\n" );
     }
+
+    /**
+     * If db is open and in lazy-commit mode, do a commit. This will force
+     * all data to the database. Otherwise, this method is a no-op.
+     */
+    void commit() throws SoarException
+    {
+        // if lazy, commit
+        if (db != null && params.lazy_commit.get())
+        {
+            // Commit and then start next lazy-commit transaction
+            try
+            {
+                db.commit.executeUpdate( /*soar_module::op_reinit*/ );
+                db.begin.executeUpdate( /*soar_module::op_reinit*/ );
+            }
+            catch (SQLException e)
+            {
+                throw new SoarException("Error while forcing commit: " + e.getMessage(), e);
+            }
+        }
+        
+    }
 }
