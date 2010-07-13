@@ -1,16 +1,18 @@
 # semantic_memory.cpp:smem_statement_container::smem_statement_container
 # These are all the add_structure statements for initializing the smem 
-# database
+# database. All statements *must* be on a single line. Lines starting with #
+# are comments. If a line starts with [XXX], then that line is only executed
+# if the db driver (JDBC class name) is XXX.
 
 # TODO support other types for values.
 CREATE TABLE @PREFIX@vars (id INTEGER PRIMARY KEY,value INTEGER)
 
 # SQLite
-CREATE TABLE @PREFIX@symbols_type (id INTEGER PRIMARY KEY, sym_type INTEGER)
+[org.sqlite.JDBC] CREATE TABLE @PREFIX@symbols_type (id INTEGER PRIMARY KEY, sym_type INTEGER)
 # MySQL
-#CREATE TABLE @PREFIX@symbols_type (id INTEGER PRIMARY KEY AUTO_INCREMENT, sym_type INTEGER)
+[com.mysql.jdbc.Driver] CREATE TABLE @PREFIX@symbols_type (id INTEGER PRIMARY KEY AUTO_INCREMENT, sym_type INTEGER)
 # PostgreSQL
-#CREATE TABLE @PREFIX@symbols_type (id SERIAL, sym_type INTEGER, PRIMARY KEY (id))
+[org.postgresql.Driver] CREATE TABLE @PREFIX@symbols_type (id SERIAL, sym_type INTEGER, PRIMARY KEY (id))
 
 CREATE TABLE @PREFIX@symbols_int (id INTEGER PRIMARY KEY, sym_const INTEGER)
 CREATE UNIQUE INDEX @PREFIX@symbols_int_const ON @PREFIX@symbols_int (sym_const)
@@ -19,18 +21,20 @@ CREATE TABLE @PREFIX@symbols_float (id INTEGER PRIMARY KEY, sym_const REAL)
 CREATE UNIQUE INDEX @PREFIX@symbols_float_const ON @PREFIX@symbols_float (sym_const)
 
 # SQLite
-CREATE TABLE @PREFIX@symbols_str (id INTEGER PRIMARY KEY, sym_const TEXT)
+[org.sqlite.JDBC] CREATE TABLE @PREFIX@symbols_str (id INTEGER PRIMARY KEY, sym_const TEXT)
 # MySQL
-#CREATE TABLE @PREFIX@symbols_str (id INTEGER PRIMARY KEY, sym_const VARCHAR(255))
+[com.mysql.jdbc.Driver] CREATE TABLE @PREFIX@symbols_str (id INTEGER PRIMARY KEY, sym_const VARCHAR(255))
+# PostgreSQL
+[org.postgresql.Driver] CREATE TABLE @PREFIX@symbols_str (id INTEGER PRIMARY KEY, sym_const TEXT)
 
 CREATE UNIQUE INDEX @PREFIX@symbols_str_const ON @PREFIX@symbols_str (sym_const)
 
 # SQLite
-CREATE TABLE @PREFIX@lti (id INTEGER PRIMARY KEY, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
+[org.sqlite.JDBC] CREATE TABLE @PREFIX@lti (id INTEGER PRIMARY KEY, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
 # MySQL
-#CREATE TABLE @PREFIX@lti (id INTEGER PRIMARY KEY AUTO_INCREMENT, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
+[com.mysql.jdbc.Driver] CREATE TABLE @PREFIX@lti (id INTEGER PRIMARY KEY AUTO_INCREMENT, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
 # PostgreSQL
-#CREATE TABLE @PREFIX@lti (id SERIAL, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER, PRIMARY KEY (id))
+[org.postgresql.Driver] CREATE TABLE @PREFIX@lti (id SERIAL, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER, PRIMARY KEY (id))
 
 CREATE UNIQUE INDEX @PREFIX@lti_letter_num ON @PREFIX@lti (letter, num)
 

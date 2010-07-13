@@ -57,6 +57,22 @@ public class JdbcTools
         }
     }
     
+    private static String filterLine(String driverFilter, String line)
+    {
+        if(driverFilter == null || !line.startsWith("["))
+        {
+            return line;
+        }
+        final String prefix = "[" + driverFilter + "]";
+        if(line.startsWith(prefix))
+        {
+            // Strip off prefix and return rest of line
+            return line.substring(prefix.length());
+        }
+        // Filter failed, return nothing
+        return null;
+    }
+    
     /**
      * Execute SQL statements from an input stream.
      * 
@@ -68,7 +84,7 @@ public class JdbcTools
      * @throws SoarException
      * @throws IOException
      */
-    public static void executeSql(Connection db, InputStream is) throws SoarException, IOException
+    public static void executeSql(Connection db, InputStream is, String driverFilter) throws SoarException, IOException
     {
         try
         {
@@ -79,14 +95,18 @@ public class JdbcTools
                 line = line.trim();
                 if(!line.isEmpty() && !line.startsWith("#"))
                 {
-                    final Statement s = db.createStatement();
-                    try
+                    line = filterLine(driverFilter, line);
+                    if(line != null)
                     {
-                        s.execute(line);
-                    }
-                    finally
-                    {
-                        s.close();
+                        final Statement s = db.createStatement();
+                        try
+                        {
+                            s.execute(line);
+                        }
+                        finally
+                        {
+                            s.close();
+                        }
                     }
                 }
                 
@@ -113,7 +133,7 @@ public class JdbcTools
      * @throws SoarException
      * @throws IOException
      */
-    public static void executeSqlBatch(Connection db, InputStream is) throws SoarException, IOException
+    public static void executeSqlBatch(Connection db, InputStream is, String driverFilter) throws SoarException, IOException
     {
         try
         {
@@ -127,7 +147,11 @@ public class JdbcTools
                     line = line.trim();
                     if(!line.isEmpty() && !line.startsWith("#"))
                     {
-                        s.addBatch(line);
+                        line = filterLine(driverFilter, line);
+                        if(line != null)
+                        {
+                            s.addBatch(line);
+                        }
                     }
                     
                     line = reader.readLine();

@@ -139,7 +139,7 @@ class SemanticMemoryDatabase
         }
         try
         {
-            JdbcTools.executeSqlBatch(db, is);
+            JdbcTools.executeSqlBatch(db, is, driver);
         }
         finally
         {

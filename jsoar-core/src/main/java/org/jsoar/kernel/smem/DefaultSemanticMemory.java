@@ -2267,7 +2267,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 logger.info("Applying performance settings from '" + fullPath + "'.");
                 try
                 {
-                    JdbcTools.executeSql(db.getConnection(), perfStream);
+                    JdbcTools.executeSql(db.getConnection(), perfStream, null /*no filter*/);
                 }
                 finally
                 {
