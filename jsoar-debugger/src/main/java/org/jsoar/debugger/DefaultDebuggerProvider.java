@@ -101,7 +101,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
                 }
                 catch (SoarException e)
                 {
-                    logger.error("Failed to open new debugger", e);
+                    logger.error("Failed to open new debugger: " + e.getMessage(), e);
                 }
             } 
         };

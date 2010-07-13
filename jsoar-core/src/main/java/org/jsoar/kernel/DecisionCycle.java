@@ -271,6 +271,7 @@ public class DecisionCycle
         }
         catch (SoarException e)
         {
+            logger.error("While initializing smem: " + e.getMessage(), e);
             this.context.getPrinter().error("While initializing smem: " + e.getMessage());
         }
         

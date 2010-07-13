@@ -970,7 +970,6 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
             throw new SoarException(e.getMessage(), e);
         }
 
@@ -1104,7 +1103,6 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             catch (SQLException e)
             {
-                e.printStackTrace();
                 throw new SoarException(e.getMessage(), e);
             }
 
@@ -2136,6 +2134,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
         catch(SoarException e)
         {
+            logger.error("While opening database: " + e.getMessage(), e);
             connection.close();
             throw e;
         }
@@ -2296,7 +2295,6 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             catch (SQLException e)
             {
-                e.printStackTrace();
                 throw new SoarException("While attaching SMEM: " + e.getMessage(), e);
             }
             catch (IOException e)
@@ -2336,7 +2334,6 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
             catch (SQLException e)
             {
-                e.printStackTrace();
                 throw new SoarException("While closing SMEM: " + e.getMessage(), e);
             }
         }
@@ -2693,7 +2690,6 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
             throw new SoarException(e);
         }
     }

@@ -655,8 +655,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
                     }
                     catch (SoarException e)
                     {
+                        logger.error("Error sourcing file '" + arg + "': " + e.getMessage(), e);
                         debugger.getAgent().getPrinter().error("Error sourcing file '%s': %s", arg, e.getMessage());
-                        logger.error("Error sourcing file '" + arg + "'", e);
                     }
                 }
                 debugger.getAgent().getPrinter().flush();

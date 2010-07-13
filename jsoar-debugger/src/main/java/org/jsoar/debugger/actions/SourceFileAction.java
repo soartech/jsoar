@@ -73,7 +73,7 @@ public class SourceFileAction extends AbstractDebuggerAction
         lastDir = f.getParentFile().getAbsolutePath();
         JSoarDebugger.PREFERENCES.put("lastSourceDir", lastDir);
         
-        final SoarCommandInterpreter tcl = getApplication().getAgent().getInterpreter();
+        final SoarCommandInterpreter interp = getApplication().getAgent().getInterpreter();
         getApplication().getAgent().execute(new Callable<Void>() {
 
             @Override
@@ -81,7 +81,7 @@ public class SourceFileAction extends AbstractDebuggerAction
             {
                 try
                 {
-                    tcl.source(f);
+                    interp.source(f);
                 }
                 catch (SoarException e)
                 {

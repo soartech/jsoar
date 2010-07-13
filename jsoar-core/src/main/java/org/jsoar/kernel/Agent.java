@@ -236,7 +236,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             }
             catch (SoarException e)
             {
-                logger.error(e);
+                logger.error("While closing smem database: " + e.getMessage(), e);
             }
         }
         
@@ -359,7 +359,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                 }
                 catch (SoarException e)
                 {
-                    logger.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage());
+                    logger.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage(), e);
                 }
                 
                 // TODO SMEM This is so lame
