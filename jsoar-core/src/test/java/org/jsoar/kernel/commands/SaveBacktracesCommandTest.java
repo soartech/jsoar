@@ -41,7 +41,7 @@ public class SaveBacktracesCommandTest
     }
     
     @Test
-    public void testDisableShouldSetExplainPropertyToTrue() throws Exception
+    public void testDisableShouldSetExplainPropertyToFalse() throws Exception
     {
         agent.getProperties().set(SoarProperties.EXPLAIN, true);
         command.execute(new String[] {"save-backtraces", "--off" });
