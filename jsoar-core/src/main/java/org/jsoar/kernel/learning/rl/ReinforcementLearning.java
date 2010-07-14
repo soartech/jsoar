@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.learning.rl;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,6 +38,7 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
+import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -57,8 +57,6 @@ import org.jsoar.util.properties.DefaultPropertyProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
-import com.google.common.collect.Lists;
-
 /**
  * @author ray
  */
@@ -72,7 +70,7 @@ public class ReinforcementLearning
     }
     
     /**
-     * Retrieve a proeprty key for an RL property. Appropriately adds necessary
+     * Retrieve a property key for an RL property. Appropriately adds necessary
      * prefixes to the name to find the right key.
      * 
      * @param props the property manager
@@ -95,6 +93,8 @@ public class ReinforcementLearning
         {
             if(value && rl_first_switch)
             {
+                // The first time we switch on RL, set up sane settings. After
+                // that, it's the user's problem.
                 rl_first_switch = false;
                 exploration.exploration_set_policy(Policy.USER_SELECT_E_GREEDY);
                 my_agent.getTrace().startNewLine().print("Exploration Mode changed to epsilon-greedy").flush();
@@ -134,6 +134,7 @@ public class ReinforcementLearning
     private boolean rl_first_switch;
 
     private final Agent my_agent;
+    private SymbolFactoryImpl syms;
     private Decider decider;
     private Chunker chunker;
     private RecognitionMemory recMemory;
@@ -161,6 +162,7 @@ public class ReinforcementLearning
      */
     public void initialize()
     {
+        this.syms      = Adaptables.require(getClass(), my_agent, SymbolFactoryImpl.class);
         this.decider   = Adaptables.require(getClass(), my_agent, Decider.class);
         this.chunker   = Adaptables.require(getClass(), my_agent, Chunker.class);
         this.recMemory = Adaptables.require(getClass(), my_agent, RecognitionMemory.class);
@@ -403,7 +405,7 @@ public class ReinforcementLearning
      */
     static void rl_get_symbol_constant( SymbolImpl p_sym, SymbolImpl i_sym, Map<SymbolImpl, SymbolImpl> constants )
     {
-        if(p_sym.asVariable() != null && (i_sym.asIdentifier() == null /*TODO|| i_sym->id.smem_lti != NIL */))
+        if(p_sym.asVariable() != null && (i_sym.asIdentifier() == null || i_sym.asIdentifier().smem_lti != 0))
         {
             constants.put(p_sym, i_sym);
         }
@@ -552,7 +554,6 @@ public class ReinforcementLearning
             boolean chunk_var = chunker.variablize_this_chunk;
             chunker.variablize_this_chunk = true;
 
-            final SymbolFactoryImpl syms = chunker.variableGenerator.getSyms();
             // make unique production name
             String new_name = "";
             do
@@ -568,7 +569,7 @@ public class ReinforcementLearning
             
             Condition.copy_condition_list(my_template_instance.top_of_instantiated_conditions, cond_top, cond_bottom );
             rl_add_goal_or_impasse_tests_to_conds( cond_top.value );
-            chunker.variableGenerator.reset(cond_top.value, null);
+            syms.getVariableGenerator().reset(cond_top.value, null);
             chunker.variablization_tc = DefaultMarker.create();
             chunker.variablize_condition_list( cond_top.value );
             chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
@@ -608,15 +609,22 @@ public class ReinforcementLearning
                 new_production.rl_efr = init_value;
             }
 
-            // attempt to add to rete, remove if duplicate
-            addProduction(new_production);
-            if ( rete.add_production_to_rete( new_production, null, false, true) == ProductionAddResult.DUPLICATE_PRODUCTION )
+            try
             {
-                my_agent.getProductions().exciseProduction(new_production, false);
-                rl_revert_template_id();
-
-                new_name_symbol = null;
+                // attempt to add to rete, remove if duplicate
+                if(my_agent.getProductions().addProduction(new_production, false) ==
+                    ProductionAddResult.DUPLICATE_PRODUCTION)
+                {
+                    rl_revert_template_id();
+                    new_name_symbol = null;
+                }
             }
+            catch (ReordererException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            this.chunker.variablize_this_chunk = chunk_var; // restored to original value
 
             return_val = new_name_symbol;
         }
@@ -965,7 +973,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                     }
 
                     // Change value of rule
-                    prod.action_list.asMakeAction().referent = chunker.variableGenerator.getSyms().createDouble(new_combined).toRhsValue();
+                    prod.action_list.asMakeAction().referent = syms.createDouble(new_combined).toRhsValue();
                     prod.rl_update_count += 1;
                     prod.rl_ecr = new_ecr;
                     prod.rl_efr = new_efr;
@@ -975,7 +983,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                     {
                         for (Preference pref = inst.preferences_generated; pref != null; pref = pref.inst_next )
                         {
-                            pref.referent = chunker.variableGenerator.getSyms().createDouble(new_combined);
+                            pref.referent = syms.createDouble(new_combined);
                         }
                     }
                 }

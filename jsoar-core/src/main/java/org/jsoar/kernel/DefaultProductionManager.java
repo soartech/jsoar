@@ -27,6 +27,7 @@ import org.jsoar.kernel.rete.ProductionAddResult;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ReordererException;
+import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
@@ -40,7 +41,7 @@ import org.jsoar.util.adaptables.Adaptables;
 public class DefaultProductionManager implements ProductionManager
 {
     private final Agent context;
-    private VariableGenerator variableGenerator;
+    private SymbolFactoryImpl syms;
     private Rete rete;
     private ReinforcementLearning rl;
     private SourceLocation currentSourceLocation;
@@ -76,9 +77,9 @@ public class DefaultProductionManager implements ProductionManager
     
     void initialize()
     {
-        this.variableGenerator = new VariableGenerator(Adaptables.adapt(this.context, SymbolFactoryImpl.class));
-        this.rete = Adaptables.adapt(context, Rete.class);
-        this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
+        this.syms = Adaptables.require(getClass(), context, SymbolFactoryImpl.class);
+        this.rete = Adaptables.require(getClass(), context, Rete.class);
+        this.rl = Adaptables.require(getClass(), context, ReinforcementLearning.class);
     }
     
     /**
@@ -106,10 +107,12 @@ public class DefaultProductionManager implements ProductionManager
              }
              
              // Reorder the production
-             p.reorder(this.variableGenerator, 
-                       new ConditionReorderer(this.variableGenerator, context.getTrace(), context.getMultiAttributes(), p.getName()), 
+             p.reorder(this.syms.getVariableGenerator(), 
+                       new ConditionReorderer(this.syms.getVariableGenerator(), context.getTrace(), context.getMultiAttributes(), p.getName()), 
                        new ActionReorderer(context.getPrinter(), p.getName()), 
                        false);
+             
+             validateLongTermIdentifiersInProduction(p);
 
              // Tell RL about the new production
              rl.addProduction(p);
@@ -224,7 +227,7 @@ public class DefaultProductionManager implements ProductionManager
     /* (non-Javadoc)
      * @see org.jsoar.kernel.ProductionManager#addProduction(org.jsoar.kernel.Production, boolean)
      */
-    public void addProduction(Production p, boolean reorder_nccs) throws ReordererException
+    public ProductionAddResult addProduction(Production p, boolean reorder_nccs) throws ReordererException
     {
         if(productionsByName.values().contains(p))
         {
@@ -246,11 +249,13 @@ public class DefaultProductionManager implements ProductionManager
         }
 
         // Reorder the production
-        p.reorder(this.variableGenerator, 
-                  new ConditionReorderer(this.variableGenerator, context.getTrace(), context.getMultiAttributes(), p.getName()), 
+        p.reorder(this.syms.getVariableGenerator(), 
+                  new ConditionReorderer(this.syms.getVariableGenerator(), context.getTrace(), context.getMultiAttributes(), p.getName()), 
                   new ActionReorderer(context.getPrinter(), p.getName()), 
                   reorder_nccs);
 
+        validateLongTermIdentifiersInProduction(p);
+        
         // Tell RL about the new production
         rl.addProduction(p);
         
@@ -261,13 +266,32 @@ public class DefaultProductionManager implements ProductionManager
         if (result==ProductionAddResult.DUPLICATE_PRODUCTION) 
         {
             exciseProduction (p, false);
-            return;
+            return result;
         }
         
         productionsByType.get(p.getType()).add(p);
         productionsByName.put(p.getName(), p);
         
         context.getEvents().fireEvent(new ProductionAddedEvent(context, p));
+        
+        return result;
+    }
+
+    /**
+     * Performs semantic memory validation of a production. Throws an exception
+     * if the production is invalid.
+     * 
+     * <p>Extracted from production.cpp:make_production.
+     * @param p the production to check
+     * @throws IllegalArgumentException if the production is invalid
+     */
+    private void validateLongTermIdentifiersInProduction(Production p)
+    {
+        if(p.getType() != ProductionType.JUSTIFICATION &&
+           !DefaultSemanticMemory.smem_valid_production(p.condition_list, p.action_list))
+        {
+            throw new IllegalArgumentException("Ungrounded LTI in production: " + p);
+        }
     }
 
     /* (non-Javadoc)

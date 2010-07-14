@@ -11,6 +11,7 @@ sp {report*state-no-change*impasse
               ^quiescence t
               ^type state
               ^reward-link {<rl> <=> <s>}
+              ^smem {<sm> <=> <s>}
               ^superstate {<ss> <=> <s>})
 #make sure we're at the right level in the goal stack
     (<ss> ^superstate nil)
@@ -21,6 +22,7 @@ sp {report*state-no-change*impasse
            <> quiescence
            <> type
            <> reward-link
+           <> smem
            <> superstate})
 #make sure there are no wmes with unexpected values
     (<s> -^attribute <> state
@@ -29,6 +31,7 @@ sp {report*state-no-change*impasse
          -^quiescence <> t
          -^type <> state
          -^reward-link <> <rl>
+         -^smem <> <sm>
          -^superstate <> <ss>)
 -->
    (succeeded)

@@ -7,6 +7,7 @@ package org.jsoar.kernel.symbols;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -63,10 +64,17 @@ public class SymbolFactoryImpl implements SymbolFactory
     private final JavaSymbolImpl nullJavaSym;
     private int current_symbol_hash_id = 0; 
     
+    private final VariableGenerator vars = new VariableGenerator(this);
+    
     public SymbolFactoryImpl()
     {
         nullJavaSym = new JavaSymbolImpl(this, get_next_hash_id(), null);
         reset();
+    }
+    
+    public VariableGenerator getVariableGenerator()
+    {
+        return vars;
     }
     
     /**
@@ -77,6 +85,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     public List<Symbol> getAllSymbols()
     {
         final List<Symbol> result = new ArrayList<Symbol>();
+        result.addAll(identifiers.values());
         result.addAll(symConstants.values());
         result.addAll(intConstants.values());
         result.addAll(floatConstants.values());
@@ -135,15 +144,26 @@ public class SymbolFactoryImpl implements SymbolFactory
         // Note: In csoar, a warning was printed if any identifiers remained in
         // the cache. This was an indication of a memory leak since ids should
         // have been cleaned up during re-initialization. In Java, the garbage
-        // collectors picks up symbols when it gets a chance. So, if we're 
+        // collector picks up symbols when it gets a chance. So, if we're 
         // reinitializing, it should be fine to throw out all the existing ids
         // and start over.
-        identifiers.clear();
+        
+        // SMEM - only clear non LTIs
+        for(final Iterator<IdentifierImpl> it = identifiers.values().iterator(); it.hasNext();)
+        {
+            final IdentifierImpl id = it.next();
+            if(id.smem_lti == 0)
+            {
+                it.remove();
+            }
+        }
                 
         for(int i = 0; i < id_counter.length; ++i)
         {
             id_counter[i] = 1;
         }
+        
+        // SMEM - id counters are reset externally to this call.
     }
     
     /**
@@ -170,6 +190,34 @@ public class SymbolFactoryImpl implements SymbolFactory
         {
             v.gensym_number = 0;
         }
+    }
+    
+    /**
+     * Added to support SMEM. If the current index for the given letter is less than the
+     * max value given, bump it up to max plus one.
+     * 
+     * <p> semantic_memory.cpp:1082:smem_reset_id_counters
+     * 
+     * @param name_letter_index
+     * @param letter_max
+     */
+    public void resetIdNumber(char name_letter, long letter_max)
+    {
+        final int name_letter_index = name_letter - 'A'; 
+        if(id_counter[name_letter_index] <= letter_max)
+        {
+            id_counter[name_letter_index] = (int) letter_max + 1; // TODO SMEM make name numbers long
+        }
+    }
+    
+    public long getIdNumber(char name_letter)
+    {
+        return id_counter[name_letter - 'A'];
+    }
+    
+    public long incrementIdNumber(char name_letter)
+    {
+        return id_counter[name_letter - 'A']++;
     }
     
     /**
@@ -224,6 +272,31 @@ public class SymbolFactoryImpl implements SymbolFactory
         return id;
     }
     
+    /**
+     * This version creates an id with a specific number. NOTE: it does not check if an id with that number already exists. 
+     * This should only be called indirectly via other methods that do check (e.g., findOrCreateIdentifierExact) 
+     * 
+     * @param name_letter the name letter
+     * @param name_number the name number
+     * @param level the goal stack level of the id
+     * @return the new identifier
+     */
+    private IdentifierImpl make_new_identifier_exact(char name_letter, int name_number, int /*goal_stack_level*/ level)
+    {
+        name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
+        if(name_number >= id_counter[name_letter - 'A'])
+        {
+            id_counter[name_letter - 'A'] = name_number + 1;
+        }
+        IdentifierImpl id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
+        
+        id.level = level;
+        id.promotion_level = level;
+        
+        identifiers.put(new IdKey(id.getNameLetter(), id.getNameNumber()), id);
+        return id;
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolFactory#createIdentifier(char)
      */
@@ -236,13 +309,29 @@ public class SymbolFactoryImpl implements SymbolFactory
      * @see org.jsoar.kernel.symbols.SymbolFactory#findOrcreateIdentifier(char, int)
      */
     @Override
-    public Identifier findOrCreateIdentifier(char nameLetter, int nameNumber)
+    public IdentifierImpl findOrCreateIdentifier(char nameLetter, int nameNumber)
     {
         IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
 
         if (id == null)
         {
             id = createIdentifier(nameLetter);
+        }
+
+        return id;
+    }
+    
+    /* 
+     * If the id gets created, this version creates an id with the actual number specified, 
+     * as opposed to using the next available number
+     */
+    public IdentifierImpl findOrCreateIdentifierExact(char nameLetter, int nameNumber)
+    {
+        IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
+
+        if (id == null)
+        {
+            id = make_new_identifier_exact(nameLetter, nameNumber, SoarConstants.TOP_GOAL_LEVEL);
         }
 
         return id;

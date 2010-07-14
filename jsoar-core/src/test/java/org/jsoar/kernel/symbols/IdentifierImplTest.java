@@ -94,6 +94,13 @@ public class IdentifierImplTest extends JSoarTest
         assertNull(Adaptables.adapt(id, GoalDependencySet.class));
         id.gds = new GoalDependencySetImpl(id);
         assertSame(id.gds, Adaptables.adapt(id, GoalDependencySet.class));
-        
+    }
+    
+    @Test
+    public void testFormatsLongTermIdentifiersCorrectly()
+    {
+        final IdentifierImpl id = syms.createIdentifier('S');
+        id.smem_lti = 99;
+        assertEquals("@S" + id.getNameNumber(), String.format("%s", id));
     }
 }

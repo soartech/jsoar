@@ -46,7 +46,7 @@ public class ReloadAction extends AbstractDebuggerAction
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
-        final SoarCommandInterpreter tcl = getApplication().getAgent().getInterpreter();
+        final SoarCommandInterpreter interp = getApplication().getAgent().getInterpreter();
         getApplication().getAgent().execute(new Callable<Void>() {
 
             @Override
@@ -58,9 +58,9 @@ public class ReloadAction extends AbstractDebuggerAction
                     p.startNewLine();
                     if(excise)
                     {
-                        tcl.eval("excise --all");
+                        interp.eval("excise --all");
                     }
-                    final String result = tcl.eval("source --reload");
+                    final String result = interp.eval("source --reload");
                     p.startNewLine().print(result).flush();
                 }
                 catch (SoarException e)

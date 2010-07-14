@@ -44,7 +44,7 @@ public class Debug extends StandaloneRhsFunctionHandler
         }
         catch (SoarException e)
         {
-            throw new RhsFunctionException("debug RHS function failed to open debugger", e);
+            throw new RhsFunctionException("debug RHS function failed to open debugger: " + e.getMessage(), e);
         }
         return null;
     }

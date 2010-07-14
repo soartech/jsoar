@@ -52,7 +52,7 @@ public class RhsValues
             SymbolImpl sym = rete.getRhsVariableBinding(index);
             if (sym == null)
             {
-                sym = rete.variableGenerator.generate_new_variable(Character.toString(uv.getFirstLetter()));
+                sym = rete.getSymbols().getVariableGenerator().generate_new_variable(Character.toString(uv.getFirstLetter()));
                 rete.setRhsVariableBinding(index, sym);
             }
             return sym.toRhsValue();

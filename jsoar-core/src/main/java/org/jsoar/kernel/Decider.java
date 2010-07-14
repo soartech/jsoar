@@ -29,6 +29,7 @@ import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.rete.SoarReteListener;
+import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -105,6 +106,7 @@ public class Decider
     private RecognitionMemory recMemory;
     private SoarReteListener soarReteListener;
     private ReinforcementLearning rl;
+    private SemanticMemory smem;
     
     /**
      * <p>gsysparam.h:164:MAX_GOAL_DEPTH
@@ -211,6 +213,7 @@ public class Decider
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
+        this.smem = Adaptables.require(getClass(), context, SemanticMemory.class);
     }
     
     public List<Identifier> getGoalStack()
@@ -1419,6 +1422,8 @@ public class Decider
 
             id.reward_header = predefined.getSyms().make_new_identifier('R', level);
             SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.reward_header);
+            
+            smem.initializeNewContext(workingMemory, id);
         }
         else
         {
@@ -1736,7 +1741,7 @@ public class Decider
                   if (w.gds.getGoal() != null)
                   {
                       // If the goal pointer is non-NIL, then goal is in the stack
-                      gds_invalid_so_remove_goal(w, "Decider");
+                      gds_invalid_so_remove_goal(w, "While deciding non-context slot");
                   }
                }
                this.workingMemory.remove_wme_from_wm (w);
@@ -2067,6 +2072,9 @@ public class Decider
         remove_wmes_for_context_slot(goal.operator_slot);
         update_impasse_items(goal, null); // causes items & fake pref's to go away
 
+        // TODO epmem epmem_reset(thisAgent, goal);
+        smem.smem_reset(goal);
+        
         this.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
         goal.removeAllImpasseWmes();
         
@@ -2207,7 +2215,7 @@ public class Decider
         id.allow_bottom_up_chunks = true;
 
         create_new_context_rl(id);
-
+        
         /* --- invoke callback routine --- */
         // TODO callback CREATE_NEW_CONTEXT_CALLBACK
         //  soar_invoke_callbacks(thisAgent, CREATE_NEW_CONTEXT_CALLBACK, (soar_call_data) id);
@@ -3029,15 +3037,17 @@ public class Decider
      * 
      * <p>decide.cpp:3040:gds_invalid_so_remove_goal
      * 
-     * @param w
+     * @param w the WME whose removal invalidated the GDS
+     * @param traceContext a string, possibly {@code null} indicating the 
+     *      context in which the WME was removed. 
      */
     public void gds_invalid_so_remove_goal(WmeImpl w, String traceContext)
     {
         // This trace was original copied in al the places where this method
         // was called.
-        context.getTrace().print(EnumSet.of(Category.GDS, Category.WM_CHANGES, Category.VERBOSE), 
-                "%n%s: Removing state %s because element in GDS changed. WME: %s",
-                traceContext, 
+        context.getTrace().print(EnumSet.of(Category.GDS, Category.VERBOSE), 
+                "%n%sRemoving state %s because element in GDS changed. WME: %s",
+                traceContext != null ? traceContext + ": " : "", 
                 w.gds.getGoal(), w);
         
         // #ifndef NO_TIMING_STUFF

@@ -70,6 +70,8 @@ public class WorkingMemoryPatternReader
         Lexeme valuelexeme = lex.getCurrentLexeme();
         Object value = getPatternValue(syms, valuelexeme);
 		
+        // TODO: acceptable test
+        
         return Wmes.newMatcher(syms, id, attr, value, -1);
 	}
     

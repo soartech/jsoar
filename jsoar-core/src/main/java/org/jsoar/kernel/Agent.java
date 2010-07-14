@@ -41,6 +41,7 @@ import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardFunctions;
+import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -136,6 +137,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final Chunker chunker = new Chunker(this);
     private final Explain explain = new Explain(this);
     private final ReinforcementLearning rl = new ReinforcementLearning(this);
+    private final DefaultSemanticMemory smem = new DefaultSemanticMemory(this);
     
     private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
     private final InputOutputImpl io = new InputOutputImpl(this);
@@ -175,7 +177,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             predefinedSyms.getSyms(), decider, printer, rhsFunctions,
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
-            debuggerProvider, decider, rl);
+            debuggerProvider, decider, rl,
+            smem);
     
     /**
      * Construct a new agent with a generated name.
@@ -211,6 +214,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         io.initialize();
         soarReteListener.initialize();
         exploration.initialize();
+        smem.initialize();
         
         // Set up standard RHS functions
         new StandardFunctions(this);
@@ -223,6 +227,18 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     public void dispose()
     {
         setInterpreter(null);
+        
+        if(smem != null)
+        {
+            try
+            {
+                smem.smem_close();
+            }
+            catch (SoarException e)
+            {
+                logger.error("While closing smem database: " + e.getMessage(), e);
+            }
+        }
         
         logger.info("Agent '" + this + "' disposed.");
     }
@@ -343,8 +359,11 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                 }
                 catch (SoarException e)
                 {
-                    logger.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage());
+                    logger.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage(), e);
                 }
+                
+                // TODO SMEM This is so lame
+                interp.addCommand("smem", smem.getCommand());
             }
             return interp;
         }
@@ -833,6 +852,17 @@ public class Agent extends AbstractAdaptable implements AgentRunController
 
         explain.reset_explain();
         syms.reset();
+        
+        try
+        {
+            smem.smem_reset_id_counters(); // This was originally at the end of reset_id_counters()
+        }
+        catch (SoarException e)
+        {
+            logger.error("While trying to reset SMEM id counters: " + e.getMessage(), e);
+            printer.error("While trying to reset SMEM id counters: " + e.getMessage());
+        } 
+        
         workingMemory.reset();
         decisionCycle.reset();
         recMemory.reset();

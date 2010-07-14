@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.VariableGenerator;
+import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.DisjunctionTest;
@@ -32,6 +32,7 @@ import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.symbols.DoubleSymbolImpl;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.IntegerSymbolImpl;
+import org.jsoar.kernel.symbols.LongTermIdentifierSource;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
@@ -74,7 +75,7 @@ public class ParserImplTest extends JSoarTest
     {
         Lexer lexer = new Lexer(Printer.createStdOutPrinter(), new StringReader(input));
         
-        OriginalParserImpl parser = new OriginalParserImpl(new VariableGenerator(syms), lexer);
+        OriginalParserImpl parser = new OriginalParserImpl(syms.getVariableGenerator(), lexer);
         lexer.getNextLexeme();
         return parser;
     }
@@ -381,5 +382,96 @@ public class ParserImplTest extends JSoarTest
         Production p = parser.parseProduction();
         assertNotNull(p);
     }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testThrowsIllegalStateExceptionWithLtiAndNoLtiSource() throws Exception
+    {
+        OriginalParserImpl parser = createParser("testParseLongTermIdentifier\n" +
+                "(state <s> ^value @L1)" +
+                "-->" +
+                "(write hello)");
+        parser.parseProduction();
+    }
 
+    @Test
+    public void testCanParseLongTermIdentifierInTest() throws Exception
+    {
+        OriginalParserImpl parser = createParser("testCanParseLongTermIdentifierInTest\n" +
+                "(state <s> ^value @L1)" +
+                "-->" +
+                "(write hello)");
+        
+        final long expectedLti = 1000;
+        final LongTermIdentifierSource ltis = new LongTermIdentifierSource()
+        {
+            
+            @Override
+            public IdentifierImpl smem_lti_soar_make(long lti, char nameLetter,
+                    long nameNumber, int level)
+            {
+                assertEquals(expectedLti, lti);
+                assertEquals('L', nameLetter);
+                assertEquals(1, nameNumber);
+                final IdentifierImpl result = syms.make_new_identifier(nameLetter, level);
+                result.smem_lti = lti;
+                return result;
+            }
+            
+            @Override
+            public long smem_lti_get_id(char nameLetter, long nameNumber)
+                    throws SoarException
+            {
+                return expectedLti;
+            }
+        };
+        parser.setLongTermIdSource(ltis);
+        
+        final Production p = parser.parseProduction();
+        assertNotNull(p);
+        final IdentifierImpl id = p.condition_list.asThreeFieldCondition().value_test.asEqualityTest().getReferent().asIdentifier();
+        assertEquals('L', id.getNameLetter());
+        assertEquals(1, id.getNameNumber());
+        assertEquals(expectedLti, id.smem_lti);
+    }
+    
+    @Test
+    public void testCanParseLongTermIdentifierInRhsAction() throws Exception
+    {
+        OriginalParserImpl parser = createParser("testCanParseLongTermIdentifierInRhsAction\n" +
+                "(state <s> ^value)" +
+                "-->" +
+                "(<s> ^foo @L2)");
+        
+        final long expectedLti = 1001;
+        final LongTermIdentifierSource ltis = new LongTermIdentifierSource()
+        {
+            
+            @Override
+            public IdentifierImpl smem_lti_soar_make(long lti, char nameLetter,
+                    long nameNumber, int level)
+            {
+                assertEquals(expectedLti, lti);
+                assertEquals('L', nameLetter);
+                assertEquals(2, nameNumber);
+                final IdentifierImpl result = syms.make_new_identifier(nameLetter, level);
+                result.smem_lti = lti;
+                return result;
+            }
+            
+            @Override
+            public long smem_lti_get_id(char nameLetter, long nameNumber)
+                    throws SoarException
+            {
+                return expectedLti;
+            }
+        };
+        parser.setLongTermIdSource(ltis);
+        
+        final Production p = parser.parseProduction();
+        assertNotNull(p);
+        final IdentifierImpl id = p.action_list.asMakeAction().value.asSymbolValue().getSym().asIdentifier();
+        assertEquals('L', id.getNameLetter());
+        assertEquals(1, id.getNameNumber());
+        assertEquals(expectedLti, id.smem_lti);
+    }
 }

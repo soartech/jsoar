@@ -8,10 +8,10 @@ package org.jsoar.kernel.lhs;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
+import org.jsoar.kernel.symbols.VariableGenerator;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.util.Arguments;

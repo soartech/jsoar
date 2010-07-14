@@ -29,6 +29,7 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.StandaloneRhsFunctionHandler;
+import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -63,6 +64,7 @@ public class DecisionCycle
     private RecognitionMemory recMemory;
     private Consistency consistency;
     private ReinforcementLearning rl;
+    private SemanticMemory smem;
     
     private static enum GoType
     {
@@ -174,6 +176,7 @@ public class DecisionCycle
         this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
         this.consistency = Adaptables.adapt(context, Consistency.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
+        this.smem = Adaptables.adapt(context, SemanticMemory.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -260,6 +263,17 @@ public class DecisionCycle
         ExecutionTimers.pause(context.getTotalKernelTimer());
         context.getEvents().fireEvent(pollEvent);
         ExecutionTimers.start(context.getTotalKernelTimer());
+        
+        // TODO SMEM It seems kind of aggressive to init the database regardless of whether it's used.
+        try
+        {
+            smem.smem_attach();
+        }
+        catch (SoarException e)
+        {
+            logger.error("While initializing smem: " + e.getMessage(), e);
+            this.context.getPrinter().error("While initializing smem: " + e.getMessage());
+        }
         
         switch (current_phase)
         {
@@ -400,6 +414,11 @@ public class DecisionCycle
 
         beforePhase(Phase.OUTPUT);
         io.do_output_cycle();
+        
+        if (smem.smem_enabled())
+        {
+            smem.smem_go(false);
+        }
 
         // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)
         if (io.isOutputLinkChanged() || ((++(run_last_output_count)) >= maxNilOutputCycles))
@@ -505,6 +524,11 @@ public class DecisionCycle
             
             recMemory.do_preference_phase(decider.top_goal);
             decider.do_working_memory_phase();
+            
+            if (smem.smem_enabled())
+            {
+                smem.smem_go(true);
+            }
 
             // Update accounting
             this.e_cycle_count.increment();
@@ -605,6 +629,11 @@ public class DecisionCycle
             
             recMemory.do_preference_phase(decider.top_goal);
             decider.do_working_memory_phase();
+            
+            if (smem.smem_enabled())
+            {
+                smem.smem_go(true);
+            }
             
             // Update accounting.
             this.e_cycle_count.increment();

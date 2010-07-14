@@ -889,9 +889,24 @@ public class Lexer
      * ======================================================================
      */
 
+    /**
+     * lexer.cpp:set_lexer_allow_ids
+     * 
+     * @param allow_identifiers
+     */
     public void setAllowIds(boolean allow_identifiers)
     {
         this.allow_ids = allow_identifiers;
+    }
+    
+    /**
+     * lexer.cpp:get_lexer_allow_ids
+     * 
+     * @return
+     */
+    public boolean isAllowIds()
+    {
+        return this.allow_ids;
     }
     
     /**
@@ -970,7 +985,7 @@ public class Lexer
 
         /* --- check if it's an identifier --- */
         final char idStart = s.charAt(idStartIndex);
-        if (s.length() > 1 && Character.isLetter(idStart) && Character.isUpperCase(idStart))
+        if (s.length() > 1 && Character.isLetter(idStart))
         {
             /* --- is the rest of the string an integer? --- */
             int i = idStartIndex + 1;

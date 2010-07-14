@@ -10,8 +10,6 @@ import static org.junit.Assert.*;
 
 import java.net.URL;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -19,22 +17,6 @@ import org.junit.Test;
  */
 public class FileToolsTest
 {
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception
-    {
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception
-    {
-    }
 
     @Test
     public void testAsUrl() throws Exception
@@ -57,5 +39,35 @@ public class FileToolsTest
         assertEquals("__", FileTools.replaceIllegalCharacters("+=", "_"));
         assertEquals("__", FileTools.replaceIllegalCharacters("|,", "_"));
         assertEquals("abcdefg.txt", FileTools.replaceIllegalCharacters("abcdefg.txt", "_"));
+    }
+    
+    @Test
+    public void testCanGetSimpleExtension()
+    {
+        assertEquals("txt", FileTools.getExtension("foo.txt"));
+    }
+    
+    @Test
+    public void testReturnsEmptyStringWhenFileNameEndsWithADot()
+    {
+        assertEquals("", FileTools.getExtension("foo."));
+    }
+    
+    @Test
+    public void testCanGetExtensionForFullPath()
+    {
+        assertEquals("png", FileTools.getExtension("/a/path.with.dots/foo.png"));
+    }
+    
+    @Test
+    public void testReturnsNullWhenThereIsNoExtension()
+    {
+        assertNull(FileTools.getExtension("foo"));
+    }
+    
+    @Test
+    public void testCanTellThatExtensionIsMissingWhenAPathContainsDots()
+    {
+        assertNull(FileTools.getExtension("/a/path.with.dots/foo"));
     }
 }

@@ -82,7 +82,7 @@ public class SoarModule
             {
                 if ( w.gds.getGoal() != null )
                 {      
-                    decider.gds_invalid_so_remove_goal(w, "remove_module_wme");
+                    decider.gds_invalid_so_remove_goal(w, "While removing a module WME");
                     
                     /* NOTE: the call to remove_wme_from_wm will take care of checking if GDS should be removed */
                 }
@@ -102,7 +102,7 @@ public class SoarModule
      * @param conditions
      * @return
      */
-    public Preference make_fake_preference(IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value, Set<WmeImpl> conditions )
+    public static Preference make_fake_preference(IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value, Set<WmeImpl> conditions )
     {
         // make fake preference
         final Preference pref = new Preference(PreferenceType.ACCEPTABLE, id, attr, value, null);

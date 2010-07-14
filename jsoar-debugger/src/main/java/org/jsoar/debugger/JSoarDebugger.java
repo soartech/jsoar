@@ -76,8 +76,10 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
+import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyListener;
 import org.jsoar.util.properties.PropertyListenerHandle;
+import org.jsoar.util.properties.PropertyProvider;
 
 /**
  * @author ray
@@ -88,6 +90,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private static final Log logger = LogFactory.getLog(JSoarDebugger.class);
     private static final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
     public static final Preferences PREFERENCES = Preferences.userRoot().node("org/jsoar/debugger");
+    private static final PropertyKey<JSoarDebugger> CREATED_BY = PropertyKey.builder("JSoarDebugger.createdBy", JSoarDebugger.class).readonly(true).build(); 
     
     private static final Map<ThreadedAgent, JSoarDebugger> debuggers = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
     
@@ -111,7 +114,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private JSoarDebuggerConfiguration configuration = new DefaultDebuggerConfiguration();
     private boolean resetPreferencesAtExit = false;
     
-    private ThreadedAgent proxy;
+    private ThreadedAgent agent;
     private final LoadPluginCommand loadPluginCommand = new LoadPluginCommand(this);
     private final List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
     
@@ -147,7 +150,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         this.frame = parentFrame;
         this.frame.setTitle("JSoar Debugger - " + proxy.getName());
 
-        this.proxy = proxy;
+        this.agent = proxy;
         proxy.getInterpreter().addCommand("load-plugin", loadPluginCommand);
         
         this.add(viewport, BorderLayout.CENTER);
@@ -317,7 +320,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     public ThreadedAgent getAgent()
     {
-        return proxy;
+        return agent;
     }
     
     public SelectionManager getSelectionManager()
@@ -565,7 +568,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     {
         synchronized(debuggers)
         {
-            logger.info(String.format("Detaching from agent '" + proxy + "'"));
+            logger.info(String.format("Detaching from agent '" + agent + "'"));
             
             // clean up dock property listener
             ActiveDockableTracker.getTracker(frame).removePropertyChangeListener(dockTrackerListener);
@@ -580,7 +583,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             // clean up soar event listener
             for(SoarEventListener listener : soarEventListeners)
             {
-                proxy.getEvents().removeListener(null, listener);
+                agent.getEvents().removeListener(null, listener);
             }
             soarEventListeners.clear();
             
@@ -604,7 +607,14 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
             plugins.clear();
             
-            debuggers.remove(proxy);
+            debuggers.remove(agent);
+            
+            // If the agent was created by this debugger, dispose it. This is important
+            // so things like SMEM database will be flushed at shutdown.
+            if(this == agent.getProperties().get(CREATED_BY))
+            {
+                agent.dispose();
+            }
         }
     }
         
@@ -617,9 +627,24 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static JSoarDebugger initialize(final String[] args)
     {
-        final JSoarDebugger debugger = attach(ThreadedAgent.create());
+        final ThreadedAgent agent = ThreadedAgent.create();
+        final JSoarDebugger debugger = attach(agent);
+        agent.getProperties().setProvider(CREATED_BY, new PropertyProvider<JSoarDebugger>()
+        {
+            @Override
+            public JSoarDebugger get()
+            {
+                return debugger;
+            }
+
+            @Override
+            public JSoarDebugger set(JSoarDebugger value)
+            {
+                throw new UnsupportedOperationException("Can't set " + CREATED_BY);
+            }
+        });
         
-        debugger.proxy.execute(new Callable<Void>() {
+        debugger.agent.execute(new Callable<Void>() {
             public Void call() 
             {
                 for(String arg : args)
@@ -630,8 +655,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
                     }
                     catch (SoarException e)
                     {
+                        logger.error("Error sourcing file '" + arg + "': " + e.getMessage(), e);
                         debugger.getAgent().getPrinter().error("Error sourcing file '%s': %s", arg, e.getMessage());
-                        logger.error("Error sourcing file '" + arg + "'", e);
                     }
                 }
                 debugger.getAgent().getPrinter().flush();
@@ -669,11 +694,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
         }
         if(klass.equals(Agent.class))
         {
-            return proxy.getAgent();
+            return agent.getAgent();
         }
         if(klass.equals(ThreadedAgent.class))
         {
-            return proxy;
+            return agent;
         }
         if(klass.equals(SelectionManager.class))
         {
@@ -695,4 +720,9 @@ public class JSoarDebugger extends JPanel implements Adaptable
         return Adaptables.findAdapter(plugins, klass);
     }
     
+    @Override
+    public String toString()
+    {
+        return frame.getTitle();
+    }
 }

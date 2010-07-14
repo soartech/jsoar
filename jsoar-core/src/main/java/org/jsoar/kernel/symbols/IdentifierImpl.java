@@ -39,7 +39,7 @@ import com.google.common.collect.Iterators;
  */
 public class IdentifierImpl extends SymbolImpl implements Identifier
 {
-    private final int name_number;
+    private final int name_number; // TODO make this a long
     private final char name_letter;
     
     public boolean isa_goal;
@@ -89,6 +89,9 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
 
     public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
 
+    public /*smem_lti*/ long smem_lti = 0;
+    public /*epmem_time_id*/ long smem_time_id = 0;
+    public /*uint_ptr_t*/ long id_smem_valid = 0;
     
     /**
      * @param hash_id
@@ -368,7 +371,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format(name_letter + Integer.toString(name_number));
+        formatter.format((smem_lti != 0 ? "@" : "") + name_letter + Integer.toString(name_number));
     }
     
     /* (non-Javadoc)

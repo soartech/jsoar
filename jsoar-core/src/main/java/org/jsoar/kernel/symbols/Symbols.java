@@ -28,7 +28,33 @@ public class Symbols
 {
     private static final Log logger = LogFactory.getLog(Agent.class);
     private static final boolean WARN_ON_JAVA_SYMBOLS = Boolean.valueOf(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
+
+    public static final int IDENTIFIER_SYMBOL_TYPE = 1;
+    public static final int SYM_CONSTANT_SYMBOL_TYPE = 2;
+    public static final int INT_CONSTANT_SYMBOL_TYPE = 3;
+    public static final int FLOAT_CONSTANT_SYMBOL_TYPE = 4;
     
+    public static int getSymbolType(Symbol sym)
+    {
+        if(sym.asIdentifier() != null)
+        {
+            return IDENTIFIER_SYMBOL_TYPE;
+        }
+        else if(sym.asString() != null)
+        {
+            return SYM_CONSTANT_SYMBOL_TYPE;
+        }
+        else if(sym.asInteger() != null)
+        {
+            return INT_CONSTANT_SYMBOL_TYPE;
+        }
+        else if(sym.asDouble() != null)
+        {
+            return FLOAT_CONSTANT_SYMBOL_TYPE;
+        }
+        throw new IllegalArgumentException("Don't know integer type of symbol " + sym);
+    }
+
     private Symbols() {}
     
     /**
@@ -263,4 +289,33 @@ public class Symbols
         return 0.0;
     }
 
+    public static boolean equalByValue(Symbol s1, Symbol s2)
+    {
+        Identifier i1 = s1.asIdentifier();
+        Identifier i2 = s2.asIdentifier();
+
+        // both are ids, so compare them
+        if (i1 != null && i2 != null)
+        {
+            if (i1.getNameLetter() == i2.getNameLetter()
+                    && i1.getNameNumber() == i2.getNameNumber())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        // one is an id and the other is not, so they are not equal
+        else if (i1 != null || i2 != null)
+        {
+            return false;
+        }
+        else
+        {
+            return Symbols.valueOf(s1).equals(Symbols.valueOf(s2));
+        }
+        
+    }
 }

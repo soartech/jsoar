@@ -43,6 +43,7 @@ import org.jsoar.kernel.rhs.RhsValue;
 import org.jsoar.kernel.rhs.UnboundVariable;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.jsoar.kernel.rhs.functions.RhsFunctionException;
+import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -53,6 +54,7 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
+import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.timing.ExecutionTimers;
@@ -302,7 +304,16 @@ public class RecognitionMemory
         final RhsSymbolValue rsv = rv.asSymbolValue();
         if (rsv != null)
         {
-            return rsv.getSym();
+            final SymbolImpl result = rsv.getSym();
+            
+            // See recmem.cpp:instantiate_rhs_value() for long-winded explanation of the following
+            final IdentifierImpl resultAsId = result.asIdentifier();
+            if(resultAsId != null && resultAsId.smem_lti != 0 && resultAsId.level == SemanticMemory.LTI_UNKNOWN_LEVEL)
+            {
+                resultAsId.level = new_id_level;
+                resultAsId.promotion_level = new_id_level;
+            }
+            return result;
         }
 
         final UnboundVariable uv = rv.asUnboundVariable();
@@ -746,7 +757,9 @@ public class RecognitionMemory
         this.production_being_fired = null;
 
         // build chunks/justifications if necessary
-        this.chunker.chunk_instantiation(inst, this.chunker.isLearningOn());
+        final ByRef<Instantiation> new_created_byref = ByRef.create(newly_created_instantiations);
+        this.chunker.chunk_instantiation(inst, this.chunker.isLearningOn(), new_created_byref);
+        newly_created_instantiations = new_created_byref.value;
 
         // TODO callback FIRING_CALLBACK
         //   if (!thisAgent->system_halted) {
@@ -1124,11 +1137,13 @@ public class RecognitionMemory
      * Add_preference_to_tm() adds a given preference to preference memory (and
      * hence temporary memory). 
      * 
-     * prefmem.cpp:203:add_preference_to_tm
+     * <p>prefmem.cpp:203:add_preference_to_tm
+     * 
+     * TODO I wish this was private, but smem and epmem use it.
      * 
      * @param pref
      */
-    private void add_preference_to_tm(Preference pref)
+    public void add_preference_to_tm(Preference pref)
     {
         // #ifdef DEBUG_PREFS
         // print (thisAgent, "\nAdd preference at 0x%8x: ",(unsigned long)pref);

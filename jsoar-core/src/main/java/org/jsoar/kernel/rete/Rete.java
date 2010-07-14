@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
-import org.jsoar.kernel.VariableGenerator;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -53,6 +52,7 @@ import org.jsoar.util.markers.Marker;
 public class Rete
 {
     private final Trace trace;
+    private final SymbolFactoryImpl syms;
     
     /* Set to FALSE to preserve variable names in chunks (takes extra space) */
     private final boolean discard_chunk_varnames = true;
@@ -84,8 +84,6 @@ public class Rete
     // a temp variable used by the firer and sme RHS value stuff.
     private SymbolImpl[] rhs_variable_bindings = {};
     private int highest_rhs_unboundvar_index;
-    
-    public final VariableGenerator variableGenerator;
 
     /**
      * Receives tokens for dummy matches node.
@@ -100,7 +98,7 @@ public class Rete
         Arguments.checkNotNull(syms, "syms");
         
         this.trace = trace;
-        this.variableGenerator = new VariableGenerator(syms);
+        this.syms = syms;
         
         // rete.cpp:8864
         alpha_hash_tables = new ArrayList<HashTable<AlphaMemory>>(16);
@@ -119,6 +117,11 @@ public class Rete
             throw new IllegalStateException("listener already set");
         }
         this.listener = listener;
+    }
+    
+    public SymbolFactoryImpl getSymbols()
+    {
+        return syms;
     }
     
     /**
@@ -471,6 +474,7 @@ public class Rete
           add_wme_to_aht (alpha_hash_tables.get(7),  xor_op(hi,ha,hv), w);
         }
         
+        // TODO EPMEM update id ref counts
     }
     
     /**
@@ -482,6 +486,8 @@ public class Rete
      */
     public void remove_wme_from_rete (WmeImpl w)
     {
+        // TODO EPMEM update epmem when wme removed from rete
+        
         /* --- remove w from all_wmes_in_rete --- */
         all_wmes_in_rete.remove(w);
         //w.in_rete.remove(all_wmes_in_rete);
@@ -926,7 +932,7 @@ public class Rete
      */
     private Test add_gensymmed_equality_test(Test t, char first_letter)
     {
-        Variable New = variableGenerator.generate_new_variable(Character.toString(first_letter));
+        Variable New = syms.getVariableGenerator().generate_new_variable(Character.toString(first_letter));
         Test eq_test = SymbolImpl.makeEqualityTest(New);
         return Tests.add_new_test_to_test(t, eq_test);
     }
@@ -2012,7 +2018,7 @@ public class Rete
         Production prod = p_node.b_p.prod;
         
         if (tok==null) w=null;  /* just for safety */
-        variableGenerator.reset(null, null); // we'll be gensymming new vars
+        syms.getVariableGenerator().reset(null, null); // we'll be gensymming new vars
         
         ReteNodeToConditionsResult rntc =  rete_node_to_conditions (p_node.parent,
                                  p_node.b_p.parents_nvn,
