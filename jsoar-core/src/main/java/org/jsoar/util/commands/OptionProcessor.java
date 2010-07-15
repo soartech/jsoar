@@ -219,7 +219,7 @@ public class OptionProcessor
      * builder. Useful for commands with more than two long options that start
      * with the same letter.
      * 
-     * <p>Argument type defaults to none, call setOptionalArg or setRequiredArg to
+     * <p>Argument type defaults to none, call optionalArg or requiredArg to
      * change.
      * 
      * @param longOption
@@ -256,9 +256,9 @@ public class OptionProcessor
             this.type = type;
         }
 
-        String longOption;
+        final String longOption;
 
-        ArgType type;
+        final ArgType type;
 
         @Override
         public String toString()
@@ -266,7 +266,6 @@ public class OptionProcessor
             return longOption.toString() + "(" + type.toString() + ")";
         }
     }
-
     private final Map<Character, Option> shortOptions = new HashMap<Character, Option>();
 
     private final Map<String, Option> longOptions = new HashMap<String, Option>();

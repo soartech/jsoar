@@ -20,6 +20,7 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.commands.OptionProcessor;
 import org.jsoar.util.commands.SoarCommand;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
@@ -54,10 +55,13 @@ public class PrintCommand implements SoarCommand
     private final String TREE = "tree";
     private final String USER = "user";
     private final String VARPRINT = "varprint";
-
+    
     public PrintCommand(Agent agent)
     {
         this.agent = agent;
+        
+        // TODO
+        // options.newOption(ALL).optionalArg().newOption(CHUNKS)...done();
         
         options.newOption(ALL).register();
         options.newOption(CHUNKS).register();
@@ -116,7 +120,7 @@ public class PrintCommand implements SoarCommand
         
         if (options.has(DEPTH))
         {
-            depth = Integer.parseInt(options.get(DEPTH));
+            depth = options.getInteger(DEPTH);
             if(depth < 0)
                 throw new SoarException("--depth must be positive");
         }
@@ -134,20 +138,10 @@ public class PrintCommand implements SoarCommand
             agent.getPrinter().print("\n").flush();
             return "";
         }
-        
+
         if (!nonOpts.isEmpty())
         {
-            StringBuilder sb = new StringBuilder();
-            boolean first = true;
-            for (String arg : nonOpts)
-            {
-                if (first)
-                    first = false;
-                else
-                    sb.append(" ");
-                sb.append(arg); 
-            }
-            String argString = sb.toString();
+            String argString = Joiner.on(' ').join(nonOpts);
 
             // symbol? pattern?
             Symbol arg = agent.readIdentifierOrContextVariable(argString);
