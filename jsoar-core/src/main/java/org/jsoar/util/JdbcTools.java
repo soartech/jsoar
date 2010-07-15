@@ -204,6 +204,26 @@ public class JdbcTools
     }
     
     /**
+     * Execute a query and return true if any results are returned.
+     * 
+     * @param s the query statement
+     * @return true if the query returns a non-empty result set
+     * @throws SQLException
+     */
+    public static boolean queryHasResults(PreparedStatement s) throws SQLException
+    {
+        final ResultSet rs = s.executeQuery();
+        try
+        {
+            return rs.next();
+        }
+        finally
+        {
+            rs.close();
+        }
+    }
+    
+    /**
      * Return true if a table exists in the database
      * 
      * @param db the database connection

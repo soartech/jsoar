@@ -29,7 +29,7 @@ import com.google.common.io.ByteStreams;
 class SemanticMemoryDatabase
 {
     // empty table used to verify proper structure
-    static final String SMEM_SCHEMA = "smem2_";
+    static final String SMEM_SCHEMA = "smem3_";
     static final String SMEM_SIGNATURE = SMEM_SCHEMA + "signature";
     private static final Map<String, String> filterMap = new HashMap<String, String>();
     static
@@ -45,6 +45,7 @@ class SemanticMemoryDatabase
     PreparedStatement commit;
     PreparedStatement rollback;
 
+    PreparedStatement var_create;
     PreparedStatement var_get;
     PreparedStatement var_set;
 
@@ -79,6 +80,10 @@ class SemanticMemoryDatabase
     PreparedStatement web_attr_child;
     PreparedStatement web_const_child;
     PreparedStatement web_lti_child;
+    
+    PreparedStatement ct_attr_check;
+    PreparedStatement ct_const_check;
+    PreparedStatement ct_lti_check;
 
     PreparedStatement ct_attr_add;
     PreparedStatement ct_const_add;
@@ -113,7 +118,14 @@ class SemanticMemoryDatabase
         return this.db;
     }
     
-    void structure() throws SoarException, IOException
+    /**
+     * Sets up initial database structures if not already present.
+     * 
+     * @return true if the database was initialize, false if it already existed
+     * @throws SoarException
+     * @throws IOException
+     */
+    boolean structure() throws SoarException, IOException
     {
         // First check if the signature table is already present. If it is, the
         // db is initialized.
@@ -123,7 +135,7 @@ class SemanticMemoryDatabase
             {
                 // If we're here, the table already exists, so don't set up the rest of the 
                 // db structure.
-                return;
+                return false;
             }
         }
         catch (SQLException e)
@@ -147,6 +159,8 @@ class SemanticMemoryDatabase
         }
         
         // The signature table (tested above) is created at the end of structures.sql
+        
+        return true;
     }
     
     void prepare() throws SoarException, IOException
@@ -160,6 +174,7 @@ class SemanticMemoryDatabase
         rollback = prepare( "rollback" );
 
         //
+        var_create = prepare( "var_create" );
         var_get = prepare( "var_get" );
         var_set = prepare( "var_set" );
 
@@ -201,6 +216,11 @@ class SemanticMemoryDatabase
         web_const_child = prepare( "web_const_child" );
         web_lti_child = prepare( "web_lti_child" );
 
+        //
+        ct_attr_check = prepare( "ct_attr_check" );
+        ct_const_check = prepare( "ct_const_check" );
+        ct_lti_check = prepare( "ct_lti_check" );
+        
         //
         ct_attr_add = prepare( "ct_attr_add" );
         ct_const_add = prepare( "ct_const_add" );

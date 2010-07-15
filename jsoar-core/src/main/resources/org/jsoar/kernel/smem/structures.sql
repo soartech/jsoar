@@ -85,4 +85,3 @@ INSERT INTO @PREFIX@ascii (ascii_num, ascii_chr) VALUES (90,'Z')
 # Finally, create the "signature" table that we use to decide whether
 # the db structure is already initialized
 CREATE TABLE @PREFIX@signature (uid INTEGER)
- 

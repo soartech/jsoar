@@ -541,7 +541,7 @@ public class DefaultSemanticMemory implements SemanticMemory
     /**
      * Gets an SMem variable from the database
      * 
-     * semantic_memory.cpp:682:smem_variable_get
+     * <p>semantic_memory.cpp:682:smem_variable_get
      * 
      * @param variable_id
      * @param variable_value
@@ -585,11 +585,30 @@ public class DefaultSemanticMemory implements SemanticMemory
     {
         final PreparedStatement var_set = db.var_set;
     
-        var_set.setInt( 1, variable_id.ordinal() );
-        var_set.setLong( 2, variable_value );
+        var_set.setLong( 1, variable_value );
+        var_set.setInt( 2, variable_id.ordinal() );
     
         var_set.execute();
     }
+    
+    /**
+     * Create a new SMem variable in the database
+     * 
+     * semantic_memory.cpp:705:smem_variable_set
+     * 
+     * @param variable_id
+     * @param variable_value
+     * @throws SQLException
+     */
+    private void smem_variable_create(smem_variable_key variable_id, long variable_value ) throws SQLException
+    {
+        final PreparedStatement var_create = db.var_create;
+    
+        var_create.setInt( 1, variable_id.ordinal() );
+        var_create.setLong( 2, variable_value );
+    
+        var_create.execute();
+    }    
     
     /**
      * semantic_memory.cpp:735:smem_temporal_hash
@@ -604,6 +623,8 @@ public class DefaultSemanticMemory implements SemanticMemory
     }
     
     /**
+     * Returns a temporally unique integer representing a symbol constant
+     * 
      * <p>semantic_memory.cpp:735:smem_temporal_hash
      * 
      * @param sym
@@ -1371,8 +1392,13 @@ public class DefaultSemanticMemory implements SemanticMemory
             for(Map.Entry<Long, Long> p : attr_ct_adjust.entrySet())
             {
                 // make sure counter exists (attr)
-                db.ct_attr_add.setLong( 1, p.getKey() );
-                db.ct_attr_add.executeUpdate( /*soar_module::op_reinit*/ );
+                // check if counter exists
+                db.ct_attr_check.setLong(1, p.getKey());
+                if(!JdbcTools.queryHasResults(db.ct_attr_check))
+                {
+                    db.ct_attr_add.setLong( 1, p.getKey() );
+                    db.ct_attr_add.executeUpdate( /*soar_module::op_reinit*/ );
+                }
 
                 // adjust count (adjustment, attr)
                 db.ct_attr_update.setLong( 1, p.getValue() );
@@ -1388,9 +1414,14 @@ public class DefaultSemanticMemory implements SemanticMemory
                 for(Map.Entry<Long, Long> p2 : p1.getValue().entrySet())
                 {
                     // make sure counter exists (attr, val)
-                    db.ct_const_add.setLong( 1, p1.getKey() );
-                    db.ct_const_add.setLong( 2, p2.getKey() );
-                    db.ct_const_add.executeUpdate( /*soar_module::op_reinit*/ );
+                    db.ct_const_check.setLong( 1, p1.getKey() );
+                    db.ct_const_check.setLong( 2, p2.getKey() );
+                    if(!JdbcTools.queryHasResults(db.ct_const_check))
+                    {
+                        db.ct_const_add.setLong( 1, p1.getKey() );
+                        db.ct_const_add.setLong( 2, p2.getKey() );
+                        db.ct_const_add.executeUpdate( /*soar_module::op_reinit*/ );
+                    }
 
                     // adjust count (adjustment, attr, val)
                     db.ct_const_update.setLong( 1, p2.getValue() );
@@ -1408,9 +1439,15 @@ public class DefaultSemanticMemory implements SemanticMemory
                 for(Map.Entry<Long, Long> p2 : p1.getValue().entrySet())
                 {
                     // make sure counter exists (attr, lti)
-                    db.ct_lti_add.setLong( 1, p1.getKey() );
-                    db.ct_lti_add.setLong( 2, p2.getKey() );
-                    db.ct_lti_add.executeUpdate( /*soar_module::op_reinit*/ );
+                    db.ct_lti_check.setLong( 1, p1.getKey() );
+                    db.ct_lti_check.setLong( 2, p2.getKey() );
+                    if(!JdbcTools.queryHasResults(db.ct_lti_check))
+                    {
+                    
+                        db.ct_lti_add.setLong( 1, p1.getKey() );
+                        db.ct_lti_add.setLong( 2, p2.getKey() );
+                        db.ct_lti_add.executeUpdate( /*soar_module::op_reinit*/ );
+                    }
 
                     // adjust count (adjustment, attr, lti)
                     db.ct_lti_update.setLong( 1, p2.getValue() );
@@ -1892,8 +1929,10 @@ public class DefaultSemanticMemory implements SemanticMemory
                         final ResultSet actLtiGetRs = db.act_lti_get.executeQuery();
                         try
                         {
-                            plentiful_parents.add(new ActivatedLti(actLtiGetRs.getLong( 0 + 1 ), 
-                                                                   qrs.getLong( 0 + 1 ) ) );
+                            if(!actLtiGetRs.next()) throw new IllegalStateException("act_lti_get did not return a result");
+                            plentiful_parents.add(
+                                    new ActivatedLti(actLtiGetRs.getLong( 0 + 1 ), 
+                                                     qrs.getLong( 0 + 1 ) ) );
                         }
                         finally
                         {
@@ -2147,62 +2186,49 @@ public class DefaultSemanticMemory implements SemanticMemory
         smem_validation++;
 
         // setup common structures/queries
-        db.structure();
+        final boolean tabula_rasa = db.structure();
         db.prepare();
+
+        if ( tabula_rasa )
+        {
+            db.begin.executeUpdate( /*soar_module::op_reinit*/ );
+            {
+                smem_max_cycle = 1;
+                smem_variable_create(smem_variable_key.var_max_cycle, smem_max_cycle);
+                
+                stats.nodes.set(0L);
+                smem_variable_create(smem_variable_key.var_num_nodes, stats.nodes.get() );
+                
+                stats.edges.set(0L);
+                smem_variable_create(smem_variable_key.var_num_edges, stats.edges.get() );
+                
+                smem_variable_create(smem_variable_key.var_act_thresh, params.thresh.get());
+            }
+            db.commit.executeUpdate();
+        }
+        else
+        {
+            final ByRef<Long> tempMaxCycle = ByRef.create(smem_max_cycle);
+            smem_variable_get( smem_variable_key.var_max_cycle, tempMaxCycle );
+            smem_max_cycle = tempMaxCycle.value;
+
+                final ByRef<Long> temp = ByRef.create(0L);
+
+            // threshold
+            smem_variable_get(smem_variable_key.var_act_thresh, temp );
+            params.thresh.set(temp.value);
+
+            // nodes
+            smem_variable_get(smem_variable_key.var_num_nodes, temp );
+            stats.nodes.set(temp.value);
+
+            // edges
+            smem_variable_get(smem_variable_key.var_num_edges, temp );
+            stats.edges.set(temp.value);
+        }
 
         // reset identifier counters
         smem_reset_id_counters();
-
-        db.begin.executeUpdate( /*soar_module::op_reinit*/ );
-
-        if ( !readonly )
-        {
-            final ByRef<Long> tempMaxCycle = ByRef.create(smem_max_cycle);
-            if ( !smem_variable_get( smem_variable_key.var_max_cycle, tempMaxCycle ) )
-            {
-                smem_max_cycle = 1;
-            }
-            else
-            {
-                smem_max_cycle = tempMaxCycle.value;
-            }
-
-            {
-                final ByRef<Long> temp = ByRef.create(0L);
-
-                // threshold
-                if ( smem_variable_get(smem_variable_key.var_act_thresh, temp ) )
-                {
-                    params.thresh.set(temp.value);
-                }
-                else
-                {
-                    smem_variable_set(smem_variable_key.var_act_thresh, params.thresh.get());
-                }
-
-                // nodes
-                if ( smem_variable_get(smem_variable_key.var_num_nodes, temp ) )
-                {
-                    stats.nodes.set(temp.value);
-                }
-                else
-                {
-                    stats.nodes.set(0L);
-                }
-
-                // edges
-                if ( smem_variable_get(smem_variable_key.var_num_edges, temp ) )
-                {
-                    stats.edges.set(temp.value);
-                }
-                else
-                {
-                    stats.edges.set(0L);
-                }
-            }
-        }
-
-        db.commit.executeUpdate( /*soar_module::op_reinit*/ );
 
         // if lazy commit, then we encapsulate the entire lifetime of the agent in a single transaction
         if (params.lazy_commit.get())
