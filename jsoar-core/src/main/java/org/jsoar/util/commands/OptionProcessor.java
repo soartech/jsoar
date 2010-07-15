@@ -14,84 +14,111 @@ import java.util.Map;
 import org.jsoar.kernel.SoarException;
 
 /**
- * <p>Option processor utility for Soar command line interface. Very similar to
- * csoar option processor. Intended usage: create, register options, loop:
- * process lines, has, getArgument. Each call to process lines resets the
- * internal state but does not unregister options.
+ * <p>
+ * Option processor utility for Soar command line interface. Very similar to
+ * csoar option processor.
  * 
- * <p>Long options should be all lower-case letters and dashes. Short options
- * should be a single upper- or lower- case letter.
+ * <p>
+ * Intended usage: create and register options, then loop: process, has, get.
  * 
- * <p>TODO: SoarException probably the wrong exception to use since this has
+ * <p>
+ * Each call to process lines resets the internal state but does not unregister
+ * options.
+ * 
+ * <p>
+ * Long options toString() should return the single-word long option. The first
+ * letter should be upper- or lower- case depending on the desired
+ * case-sensitive short option character. For example:
+ * 
+ * <pre>
+ * alpha (maps to) --alpha or -a
+ * Beta (maps to) --beta or -B
+ * </pre>
+ * 
+ * <p>
+ * Long options must start with a letter and then consist of letters, numbers or
+ * dashes. The long option will be match in a case insensitive manner.
+ * 
+ * <p>
+ * TODO: SoarException probably the wrong exception to use since this has
  * nothing (really) to do with Soar
  * 
- * <p>TODO: partial matches on long options
+ * <p>
+ * TODO: partial matches on long options
  * 
- * <p>TODO: potentially rewrite using buffers or something to avoid so many string
+ * <p>
+ * TODO: potentially rewrite using buffers or something to avoid so many string
  * objects
+ * 
+ * @param <T>
+ *            Key type used for options, toString becomes long option.
  * 
  * @author voigtjr
  */
-public class OptionProcessor
+public class OptionProcessor <E>
 {
     /**
-     * <p>Factory method.
+     * <p>
+     * Factory method.
      * 
+     * @param <T>
+     *            Key type to use for options.
      * @return New option processor instance.
      */
-    public static OptionProcessor create()
+    public static <T> OptionProcessor<T> create()
     {
-        return new OptionProcessor();
+        return new OptionProcessor<T>();
     }
 
     public class OptionBuilder
     {
-        private final String longOption;
+        private final E longOption;
 
         private char shortOption;
 
-        private ArgType type = ArgType.NONE;
+        private Option.ArgType type = Option.ArgType.NONE;
 
         private boolean registered = false;
 
-        /**
-         * <p>Starts building a new option. Call using newOption(). Must call
-         * register() before this option will work.
-         * 
-         * <p>By default the short option will be the first character of the long
-         * option. To make a short option with a capital letter, capitalize the
-         * first character of the long option, or call setShortOption later. The
-         * long option will be forced to lower-case after setting the short
-         * option.
-         * 
-         * @param longOption
-         *            Long option, omit initial dashes, will be forced to
-         *            lower-case after first char is used for short option.
-         * @throws NullPointerException
-         *             If any arguments are null.
-         * @throws IllegalArgumentException
-         *             If arguments have bad content.
-         */
-        private OptionBuilder(String longOption)
+        private OptionBuilder(E longOption)
         {
-            if (longOption == null)
+            if ((longOption == null) || (longOption.toString() == null))
                 throw new NullPointerException("longOption must not be null.");
 
-            if (longOption.isEmpty())
+            if (longOption.toString().isEmpty())
                 throw new IllegalArgumentException(
                         "Long option is empty string.");
 
-            if (longOption.matches("[^a-z-]+"))
+            if (longOption.toString().matches("[^a-z-]+"))
                 throw new IllegalArgumentException(
                         "Illegal characters in long option.");
 
-            if (longOption.charAt(0) == '-')
+            if (longOption.toString().charAt(0) == '-')
                 throw new IllegalArgumentException(
                         "Long option can't start with dash.");
 
-            shortOption(longOption.charAt(0));
+            shortOption(longOption.toString().charAt(0));
 
-            this.longOption = longOption.toLowerCase();
+            this.longOption = longOption;
+        }
+        
+        /**
+         * Commit the previous option and return a new option builder. Meant to be chained:
+         * 
+         * <pre>options
+         * .newOption("alpha")
+         * .newOption("beta").requiredArg()
+         * .newOption("charlie")
+         * .done()</pre>
+         * 
+         * @see OptionProcessor#newOption(Object)
+         * @param longOption The new option
+         * @return Next option's builder.
+         */
+        public OptionBuilder newOption(E longOption)
+        {
+            done();
+            return new OptionBuilder(longOption);
         }
 
         /**
@@ -129,7 +156,7 @@ public class OptionProcessor
             if (registered)
                 throw new IllegalStateException("Already registered.");
 
-            type = ArgType.NONE;
+            type = Option.ArgType.NONE;
             return this;
         }
 
@@ -149,7 +176,7 @@ public class OptionProcessor
             if (registered)
                 throw new IllegalStateException("Already registered.");
 
-            type = ArgType.OPTIONAL;
+            type = Option.ArgType.OPTIONAL;
             return this;
         }
 
@@ -170,12 +197,12 @@ public class OptionProcessor
             if (registered)
                 throw new IllegalStateException("Already registered.");
 
-            type = ArgType.REQUIRED;
+            type = Option.ArgType.REQUIRED;
             return this;
         }
 
         /**
-         * <p>Register the option with the option manager.
+         * <p>Register the previous option builder and finish registering options.
          * 
          * @throws IllegalStateException
          *             If option is already registered.
@@ -183,92 +210,74 @@ public class OptionProcessor
          *             If there is another option with the short or long option
          *             name already registered.
          */
-        public void register()
+        public void done()
         {
             if (registered)
                 throw new IllegalStateException("Already registered.");
 
             arguments = null;
 
-            Option prev = shortOptions.put(shortOption, new Option(longOption, type));
+            Option<E> prev = shortOptions.put(shortOption, Option.newInstance(longOption, type));
             if (prev != null)
                 throw new IllegalArgumentException(
                         "Already have a short option using -" + shortOption
-                                + ": " + prev.longOption);
-            prev = longOptions.put(longOption, new Option(longOption, type));
+                                + ": " + prev.getLongOption());
+            prev = longOptions.put(longOption.toString().toLowerCase(), Option.newInstance(longOption, type));
             if (prev != null)
             {
                 shortOptions.remove(shortOption);
                 throw new IllegalArgumentException(
                         "Already have a long option using --" + longOption
-                                + ": " + prev.longOption);
+                                + ": " + prev.getLongOption());
             }
             registered = true;
         }
     }
 
     /**
-     * <p>Create a new option builder associating the passed key with the passed
-     * long option. Call register() on returned builder object to register it
-     * with the associated option processor. The short option defaults to the
-     * first letter of the long option. To use an upper-case letter in the short
-     * option, pass a long option with an upper-case first letter--the long
-     * option will be forced to lower-case after.
+     * <p>
+     * Create a new option builder using the longOption.toString() method as the
+     * long option. The short option defaults to the first letter of the long
+     * option. To use an upper-case letter in the short option, pass a long
+     * option with an upper-case first letter--the long option will be forced to
+     * lower-case after. Call newOption() on builder to register another option,
+     * or done() when all options registered. Options are meant to be chained:
      * 
-     * <p>Set a custom short option by calling setShortOption on the returned
+     * <pre>
+     * options
+     * .newOption("alpha")
+     * .newOption("beta").requiredArg()
+     * .newOption("charlie")
+     * .done()
+     * </pre>
+     * 
+     * <p>
+     * Set a custom short option by calling shortOption on the returned
      * builder. Useful for commands with more than two long options that start
      * with the same letter.
      * 
-     * <p>Argument type defaults to none, call optionalArg or requiredArg to
+     * <p>
+     * Argument type defaults to none, call optionalArg or requiredArg to
      * change.
      * 
+     * @see OptionProcessor.OptionBuilder#newOption(Object)
      * @param longOption
      *            The long option for this argument.
-     * @return Option builder, call register() on this to complete registration
-     *         of command.
+     * @return Option builder, call done() on this to complete registration of
+     *         command.
      * @throws NullPointerException
      *             If any arguments are null.
      * @throws IllegalArgumentException
      *             If arguments have bad content.
      */
-    public OptionBuilder newOption(String longOption)
+    public OptionBuilder newOption(E longOption)
     {
         return new OptionBuilder(longOption);
     }
 
-    /**
-     * <p>Argument type, denotes whether or not the option takes an argument or
-     * not, or if it is optional.
-     * 
-     * @author voigtjr
-     * 
-     */
-    private enum ArgType
-    {
-        NONE, REQUIRED, OPTIONAL,
-    }
+    private final Map<Character, Option<E>> shortOptions = new HashMap<Character, Option<E>>();
 
-    private class Option
-    {
-        Option(String longOption, ArgType type)
-        {
-            this.longOption = longOption;
-            this.type = type;
-        }
-
-        final String longOption;
-
-        final ArgType type;
-
-        @Override
-        public String toString()
-        {
-            return longOption.toString() + "(" + type.toString() + ")";
-        }
-    }
-    private final Map<Character, Option> shortOptions = new HashMap<Character, Option>();
-
-    private final Map<String, Option> longOptions = new HashMap<String, Option>();
+    private final Map<String, Option<E>> longOptions = new HashMap<String, Option<E>>();
 
     /**
      * Map from long option to argument. Null values permitted (no argument).
@@ -334,7 +343,7 @@ public class OptionProcessor
                     }
                     else
                     {
-                        Option option = resolveLongOption(arg.substring(2));
+                        Option<E> option = resolveLongOption(arg.substring(2));
                         if (option == null)
                             throw new SoarException("Unknown option: " + arg);
 
@@ -348,7 +357,7 @@ public class OptionProcessor
                     {
                         for (int i = 1; i < arg.length(); ++i)
                         {
-                            Option option = resolveShortOption(arg.charAt(i));
+                            Option<E> option = resolveShortOption(arg.charAt(i));
                             if (option == null)
                                 throw new SoarException("Unknown option: "
                                         + arg);
@@ -368,18 +377,18 @@ public class OptionProcessor
         return nonOptionArgs;
     }
 
-    private boolean processOption(Option option, String arg,
+    private boolean processOption(Option<E> option, String arg,
             Iterator<String> iter) throws SoarException
     {
         return processOption(option, arg, iter, -1);
     }
 
-    private boolean processOption(Option option, String arg,
+    private boolean processOption(Option<E> option, String arg,
             Iterator<String> iter, int at) throws SoarException
     {
         boolean consumedArg = false;
-        if (option.type == ArgType.NONE)
-            arguments.put(option.longOption, null);
+        if (option.getType() == Option.ArgType.NONE)
+            arguments.put(option.getLongOption(), null);
         else
         {
             consumedArg = true;
@@ -397,11 +406,11 @@ public class OptionProcessor
                 optArg = iter.hasNext() ? iter.next() : null;
             }
 
-            if (option.type == ArgType.REQUIRED)
+            if (option.getType() == Option.ArgType.REQUIRED)
                 if (optArg == null)
                     throw new SoarException("Option requires argument: " + arg);
 
-            arguments.put(option.longOption, optArg);
+            arguments.put(option.getLongOption(), optArg);
         }
         return consumedArg;
     }
@@ -427,12 +436,12 @@ public class OptionProcessor
         return false;
     }
 
-    private Option resolveLongOption(String arg)
+    private Option<E> resolveLongOption(String arg)
     {
         return longOptions.get(arg.toLowerCase());
     }
 
-    private Option resolveShortOption(char arg) throws SoarException
+    private Option<E> resolveShortOption(char arg) throws SoarException
     {
         if (!Character.isLetter(arg))
             throw new SoarException("Short option is not a letter: "
@@ -453,14 +462,14 @@ public class OptionProcessor
      * @throws NullPointerException
      *             If option is null.
      */
-    public boolean has(String longOption)
+    public boolean has(E longOption)
     {
-        if (longOption == null)
+        if (longOption == null || longOption.toString() == null)
             throw new NullPointerException("Long option is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
-        return arguments.containsKey(longOption.toLowerCase());
+        return arguments.containsKey(longOption.toString().toLowerCase());
     }
 
     /**
@@ -474,7 +483,7 @@ public class OptionProcessor
      *             If process() not called between registering options and
      *             calling this function.
      */
-    public void set(String longOption)
+    public void set(E longOption)
     {
         set(longOption, null);
     }
@@ -491,14 +500,14 @@ public class OptionProcessor
      * @throws NullPointerException
      *             If long option is null.
      */
-    public void unset(String longOption)
+    public void unset(E longOption)
     {
-        if (longOption == null)
+        if (longOption == null || longOption.toString() == null)
             throw new NullPointerException("Long option is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
-        arguments.remove(longOption.toLowerCase());
+        arguments.remove(longOption.toString().toLowerCase());
     }
 
     /**
@@ -516,14 +525,14 @@ public class OptionProcessor
      * @throws NullPointerException
      *             If long option is null.
      */
-    public void set(String longOption, String argument)
+    public void set(E longOption, String argument)
     {
-        if (longOption == null)
+        if (longOption == null || longOption.toString() == null)
             throw new NullPointerException("Long option is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
-        arguments.put(longOption.toLowerCase(), argument);
+        arguments.put(longOption.toString().toLowerCase(), argument);
     }
 
     /**
@@ -538,14 +547,14 @@ public class OptionProcessor
      * @throws NullPointerException
      *             If long option is null.
      */
-    public String get(String longOption)
+    public String get(E longOption)
     {
-        if (longOption == null)
+        if (longOption == null || longOption.toString() == null)
             throw new NullPointerException("Long option is null.");
         if (arguments == null)
             throw new IllegalStateException(
                     "Call process() before testing for options.");
-        return arguments.get(longOption.toLowerCase());
+        return arguments.get(longOption.toString().toLowerCase());
     }
     
     /**
@@ -562,7 +571,7 @@ public class OptionProcessor
      * @throws SoarException
      *             If argument is not an integer.
      */
-    public int getInteger(String longOption) throws SoarException
+    public int getInteger(E longOption) throws SoarException
     {
         String arg = get(longOption);
         try
@@ -589,7 +598,7 @@ public class OptionProcessor
      * @throws SoarException
      *             If argument is not a double.
      */
-    public double getDouble(String longOption) throws SoarException
+    public double getDouble(E longOption) throws SoarException
     {
         String arg = get(longOption);
         try
@@ -616,7 +625,7 @@ public class OptionProcessor
      * @throws SoarException
      *             If argument is not a float.
      */
-    public float getFloat(String longOption) throws SoarException
+    public float getFloat(E longOption) throws SoarException
     {
         String arg = get(longOption);
         try

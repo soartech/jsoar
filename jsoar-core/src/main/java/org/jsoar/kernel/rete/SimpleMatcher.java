@@ -30,16 +30,16 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 
-/*
+/**
  * SimpleMatcher creates a rete that you can put productions and wmes into and check which productions match
  * This class has its own rete and symbol factory, so it will not interfere with any agent's rete or symbol factory
  * It has no logic for what to do when a production matches, no decision cycle, etc. It just allows you to check for matches.
  */
 public class SimpleMatcher
 {
-    private final SymbolFactoryImpl syms = new SymbolFactoryImpl();;
+    private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     private final Listener listener = new Listener();
-    private final Rete rete = new Rete(Trace.createStdOutTrace().enableAll(), syms);;
+    private final Rete rete = new Rete(Trace.createStdOutTrace().enableAll(), syms);
     private final Map<String, Production> productions = new HashMap<String, Production>();
     
     public SimpleMatcher()
@@ -47,7 +47,7 @@ public class SimpleMatcher
         rete.setReteListener(listener);
     }
     
-    /*
+    /**
      * Adds a production to the rete
      * Throws an exception if duplicate production (SimpleMatcher has no logic for dealing with that)
      * Could return null if syntax error in production string?
@@ -90,16 +90,16 @@ public class SimpleMatcher
         return p;
     }
     
-    /*
+    /**
      * Removes the specified production from the rete
      */
     public void removeProduction(Production p)
     {
         rete.excise_production_from_rete(p);
-        productions.remove(p);
+        productions.remove(p.getName());
     }
     
-    /*
+    /**
      * Removes the production with the specified name from the rete 
      */
     public void removeProduction(String productionName)
@@ -113,7 +113,7 @@ public class SimpleMatcher
         removeProduction(p);
     }
     
-    /*
+    /**
      * Removes all productions from the rete
      */
     public void removeAllProductions()
@@ -124,21 +124,25 @@ public class SimpleMatcher
         }
     }
     
-    /*
+    /**
      * Creates a copy of the wme and adds it to the SimpleMatcher's rete
+     * 
+     * TODO: return timetag of new wme
      */
     public void addWme(Wme w)
     {
-        final IdentifierImpl id = (IdentifierImpl) syms.findOrCreateIdentifierExact(w.getIdentifier().getNameLetter(), w.getIdentifier().getNameNumber());
+        final IdentifierImpl id = copySymbol(syms, w.getIdentifier()).asIdentifier();
         final SymbolImpl attr = copySymbol(syms, w.getAttribute());
-        final SymbolImpl value = copySymbol(syms, w.getValue());;
-        final WmeImpl wme = new WmeImpl(id, attr, value, false, 0);
+        final SymbolImpl value = copySymbol(syms, w.getValue());
+        final WmeImpl wme = new WmeImpl(id, attr, value, false, 0); // TODO: autoincrement timetag
         rete.add_wme_to_rete(wme);
     }
     
-    /*
+    /**
      * Removes the wme that matches the specified wme from the rete
      * Throws an exception if no match?
+     * 
+     * TODO: make efficient version that takes timetag
      */
     public void removeWme(Wme w)
     {
@@ -154,7 +158,7 @@ public class SimpleMatcher
         throw new IllegalArgumentException("wme " + w.toString() + " not in rete");
     }
     
-    /*
+    /**
      * Removes all wmes from the rete
      */
     public void removeAllWmes()
@@ -168,15 +172,17 @@ public class SimpleMatcher
         }
     }
     
-    /*
+    /**
      * Returns true if production argument current matches, otherwise false
+     * 
+     * TODO: change to return the number of matches
      */
     public boolean isMatching(Production p)
     {
         return listener.matching.contains(p);
     }
     
-    /*
+    /**
      * Returns true if production with the specified name matches, otherwise false
      * Throws an exception if the specified production doesn't exist in the rete
      */
@@ -191,7 +197,7 @@ public class SimpleMatcher
         return isMatching(p);
     }
     
-    /*
+    /**
      * Returns PartialMatches structure for specified production
      */
     public PartialMatches getMatches(Production p)
@@ -199,7 +205,7 @@ public class SimpleMatcher
         return rete.getPartialMatches(p.getReteNode());
     }
     
-    /*
+    /**
      * Returns PartialMatches structure for production with specified name
      * Throws an exception if the specified production doesn't exist
      */
