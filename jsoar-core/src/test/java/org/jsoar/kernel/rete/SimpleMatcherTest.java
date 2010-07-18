@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.rete;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -20,26 +21,41 @@ public class SimpleMatcherTest
     @Test
     public void testSimpleMatcherRefProdsByObject() throws Exception
     {
-        SimpleMatcher matcher = new SimpleMatcher();
+        final SimpleMatcher matcher = new SimpleMatcher();
         
         // confirm can add production
-        Production p = matcher.addProduction("test (<id> ^foo bar)-->(write matches)");
+        final Production p = matcher.addProduction("test (<id> ^foo bar)-->(write matches)");
         assertNotNull(p);
         
         // confirm can add wme and production matches
-        SymbolFactoryImpl syms = new SymbolFactoryImpl();
-        Wme w = new WmeImpl(syms.createIdentifier('S'), syms.createString("foo"), syms.createString("bar"), true, 0);
+        final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+        final Wme w = new WmeImpl(syms.createIdentifier('S'), syms.createString("foo"), syms.createString("bar"), true, 0);
         matcher.addWme(w);
         assertTrue(matcher.isMatching(p));
+        
+        // confirm there is only 1 match
+        PartialMatches pm = matcher.getMatches(p);
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 1);
         
         // confirm can remove wme and production unmatches
         matcher.removeWme(w);
         assertFalse(matcher.isMatching(p));
         
+        // confirm there are 0 matches
+        pm = matcher.getMatches(p);
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 0);
+        
         // confirm can re-add wme and production re-matches
         matcher.addWme(w);
         assertTrue(matcher.isMatching(p));
-        
+
+        // confirm there is only 1 match
+        pm = matcher.getMatches(p);
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 1);
+
         // confirm can remove wme and production unmatches again
         matcher.removeWme(w);
         assertFalse(matcher.isMatching(p));
@@ -62,29 +78,52 @@ public class SimpleMatcherTest
     @Test
     public void testSimpleMatcherRefProdsByName() throws Exception
     {
-        SimpleMatcher matcher = new SimpleMatcher();
+        final SimpleMatcher matcher = new SimpleMatcher();
         
         // confirm can add production
-        Production p = matcher.addProduction("test (<id> ^foo bar)-->(write matches)");
-        assertNotNull(p);
+        // using local scope to make sure nothing else in this test refers to the Production instance directly
+        {
+            final Production p = matcher.addProduction("test (<id> ^foo bar)-->(write matches)");
+            assertNotNull(p);
+        }
         
         // confirm can add wme and production matches
-        SymbolFactoryImpl syms = new SymbolFactoryImpl();
-        Wme w = new WmeImpl(syms.createIdentifier('S'), syms.createString("foo"), syms.createString("bar"), true, 0);
+        final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+        final Wme w = new WmeImpl(syms.createIdentifier('S'), syms.createString("foo"), syms.createString("bar"), true, 0);
         matcher.addWme(w);
         assertTrue(matcher.isMatching("test"));
+        
+        // confirm there is only 1 match
+        PartialMatches pm = matcher.getMatches("test");
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 1);
         
         // confirm can remove wme and production unmatches
         matcher.removeWme(w);
         assertFalse(matcher.isMatching("test"));
         
+        // confirm there are 0 matches
+        pm = matcher.getMatches("test");
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 0);
+        
         // confirm can re-add wme and production re-matches
         matcher.addWme(w);
         assertTrue(matcher.isMatching("test"));
         
+        // confirm there is only 1 match
+        pm = matcher.getMatches("test");
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 1);
+        
         // confirm can remove wme and production unmatches again
         matcher.removeWme(w);
         assertFalse(matcher.isMatching("test"));
+        
+        // confirm there are 0 matches
+        pm = matcher.getMatches("test");
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 0);
         
         // confirm production actually removed
         matcher.removeProduction("test");
@@ -104,29 +143,49 @@ public class SimpleMatcherTest
     @Test
     public void testSimpleMatcherRemovalsByAll() throws Exception
     {
-        SimpleMatcher matcher = new SimpleMatcher();
+        final SimpleMatcher matcher = new SimpleMatcher();
         
         // confirm can add production
-        Production p = matcher.addProduction("test (<id> ^foo bar)-->(write matches)");
+        final Production p = matcher.addProduction("test (<id> ^foo bar)-->(write matches)");
         assertNotNull(p);
         
         // confirm can add wme and production matches
-        SymbolFactoryImpl syms = new SymbolFactoryImpl();
-        Wme w = new WmeImpl(syms.createIdentifier('S'), syms.createString("foo"), syms.createString("bar"), true, 0);
+        final SymbolFactoryImpl syms = new SymbolFactoryImpl();
+        final Wme w = new WmeImpl(syms.createIdentifier('S'), syms.createString("foo"), syms.createString("bar"), true, 0);
         matcher.addWme(w);
         assertTrue(matcher.isMatching(p));
+        
+        // confirm there is only 1 match
+        PartialMatches pm = matcher.getMatches(p);
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 1);
         
         // confirm can remove wme and production unmatches
         matcher.removeAllWmes();
         assertFalse(matcher.isMatching(p));
         
+        // confirm there are 0 matches
+        pm = matcher.getMatches(p);
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 0);
+        
         // confirm can re-add wme and production re-matches
         matcher.addWme(w);
         assertTrue(matcher.isMatching(p));
         
+        // confirm there is only 1 match
+        pm = matcher.getMatches(p);
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 1);
+        
         // confirm can remove wme and production unmatches again
         matcher.removeAllWmes();
         assertFalse(matcher.isMatching(p));
+        
+        // confirm there are 0 matches
+        pm = matcher.getMatches(p);
+        assertEquals(pm.getEntries().size(), 1);
+        assertEquals(pm.getEntries().get(0).matches, 0);
         
         // confirm production actually removed
         matcher.removeAllProductions();

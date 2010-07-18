@@ -92,10 +92,10 @@ public class SimpleMatcher
             
         };
         
-        Production p = parser.parseProduction(context, reader);
-        ProductionAddResult result = rete.add_production_to_rete(p);
+        final Production p = parser.parseProduction(context, reader);
+        final ProductionAddResult result = rete.add_production_to_rete(p);
         
-        if(result==ProductionAddResult.DUPLICATE_PRODUCTION)
+        if(result == ProductionAddResult.DUPLICATE_PRODUCTION)
         {
             throw new IllegalArgumentException("duplicate production " + p.getName());
         }
@@ -121,7 +121,7 @@ public class SimpleMatcher
      */
     public void removeProduction(String productionName) throws IllegalArgumentException
     {
-        Production p = productions.get(productionName);
+        final Production p = productions.get(productionName);
         if(p == null)
         {
             throw new IllegalArgumentException("production " + productionName + " doesn't exist");
@@ -180,7 +180,7 @@ public class SimpleMatcher
     public void removeAllWmes()
     {
         // need to make a copy since remove_wme_from_rete will destructively modify the collection returned by rete.getAllWmes
-        Set<WmeImpl> wmes = new HashSet<WmeImpl>(rete.getAllWmes());
+        final Set<WmeImpl> wmes = new HashSet<WmeImpl>(rete.getAllWmes());
 
         for(WmeImpl w : wmes)
         {
@@ -204,7 +204,7 @@ public class SimpleMatcher
      */
     public boolean isMatching(String productionName) throws IllegalArgumentException
     {
-        Production p = productions.get(productionName);
+        final Production p = productions.get(productionName);
         if(p == null)
         {
             throw new IllegalArgumentException("production " + productionName + " doesn't exist");
@@ -229,7 +229,7 @@ public class SimpleMatcher
      */
     public PartialMatches getMatches(String productionName) throws IllegalArgumentException
     {
-        Production p = productions.get(productionName);
+        final Production p = productions.get(productionName);
         if(p == null)
         {
             throw new IllegalArgumentException("production " + productionName + " doesn't exist");
