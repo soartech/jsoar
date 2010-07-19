@@ -177,7 +177,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             {
                 textArea.setText(result);
                 status.setText(result.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
-                getControl().show(ProductionEditView.this);
+                toFront();
             }
         };
         agent.execute(call, SwingCompletionHandler.newInstance(finish));
