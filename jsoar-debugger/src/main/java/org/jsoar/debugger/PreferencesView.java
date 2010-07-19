@@ -223,7 +223,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         }
         else
         {
-            errorLabel.setText("Hello" /*result.getError()*/);
+            errorLabel.setText(result.getError());
             switchPanelComponent(tableScrollPane, errorLabel);
         }
     }
