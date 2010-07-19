@@ -110,11 +110,12 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             {
                 if(e.isPopupTrigger())
                 {
+                    updateSelectionFromMouseEvent(e);
                     showPopupMenu(e);
                 }
                 else if(SwingUtilities.isLeftMouseButton(e))
                 {
-                    updateSelectionOnLeftClick(e);
+                    updateSelectionFromMouseEvent(e);
                 }
             }});
         outputWindow.setEditable(false);
@@ -197,7 +198,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         return "ctrl T";
     }
 
-    private void updateSelectionOnLeftClick(MouseEvent e)
+    private void updateSelectionFromMouseEvent(MouseEvent e)
     {
         int offset = outputWindow.viewToModel(e.getPoint());
         if(offset < 0)
@@ -258,11 +259,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }}, 0);
         
         final int offset = outputWindow.viewToModel(e.getPoint());
-        SelectedObject object = null;
         if(offset >= 0)
         {
             final ParseSelectedText pst = new ParseSelectedText(outputWindow.getText(), offset);
-            object = pst.getParsedObject(debugger);
+            final SelectedObject object = pst.getParsedObject(debugger);
             if(object != null)
             {
                 menu.addSeparator();
