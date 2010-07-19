@@ -34,6 +34,16 @@ import org.jsoar.kernel.tracing.Trace;
  * SimpleMatcher creates a rete that you can put productions and wmes into and check which productions match
  * This class has its own rete and symbol factory, so it will not interfere with any agent's rete or symbol factory
  * It has no logic for what to do when a production matches, no decision cycle, etc. It just allows you to check for matches.
+ * 
+ * Possible enhancements
+ * increase efficiency of wme removals
+ *   approach 1: return timetag of new wme for use in efficient wme removal (requires user to create structure to store timetags)
+ *   approach 2: keep map of wme -> wmeImpl, so can directly look up wme to remove (requires user keep reference to original wmes around)
+ *   approach 3: return new wme copy for use in efficient wme removal (requires user to create structure to store new wmes)
+ * allow user to register rete listener (so can be directly notified of production matches). 
+ * change isMatching to numMatches. Requires adding code to listener to increment/decrement counter on match/unmatch. (Possibly more efficient than getting PartialMatches structure)
+ * 
+ *  
  */
 public class SimpleMatcher
 {
@@ -42,15 +52,19 @@ public class SimpleMatcher
     private final Rete rete = new Rete(Trace.createStdOutTrace().enableAll(), syms);
     private final Map<String, Production> productions = new HashMap<String, Production>();
     
+    /**
+     * Creates an instance of SimpleMatcher.
+     */
     public SimpleMatcher()
     {
         rete.setReteListener(listener);
     }
     
     /**
-     * Adds a production to the rete
-     * Throws an exception if duplicate production (SimpleMatcher has no logic for dealing with that)
-     * Could return null if syntax error in production string?
+     * Adds a production to the rete.
+     * @param s Production in standard Soar syntax without the "sp" or braces. Note that the RHS is currently ignored (this just does matches)
+     * @return A Production instance
+     * @throws ParserException If syntax error or duplicate production already exists in rete
      */
     public Production addProduction(String s) throws ParserException
     {
@@ -78,10 +92,10 @@ public class SimpleMatcher
             
         };
         
-        Production p = parser.parseProduction(context, reader);
-        ProductionAddResult result = rete.add_production_to_rete(p);
+        final Production p = parser.parseProduction(context, reader);
+        final ProductionAddResult result = rete.add_production_to_rete(p);
         
-        if(result==ProductionAddResult.DUPLICATE_PRODUCTION)
+        if(result == ProductionAddResult.DUPLICATE_PRODUCTION)
         {
             throw new IllegalArgumentException("duplicate production " + p.getName());
         }
@@ -92,6 +106,7 @@ public class SimpleMatcher
     
     /**
      * Removes the specified production from the rete
+     * @param p A Production instance that is already in the rete
      */
     public void removeProduction(Production p)
     {
@@ -101,10 +116,12 @@ public class SimpleMatcher
     
     /**
      * Removes the production with the specified name from the rete 
+     * @param productionName The name of the production to remove
+     * @throws IllegalArgumentException If production with specified name is not in rete
      */
-    public void removeProduction(String productionName)
+    public void removeProduction(String productionName) throws IllegalArgumentException
     {
-        Production p = productions.get(productionName);
+        final Production p = productions.get(productionName);
         if(p == null)
         {
             throw new IllegalArgumentException("production " + productionName + " doesn't exist");
@@ -126,25 +143,24 @@ public class SimpleMatcher
     
     /**
      * Creates a copy of the wme and adds it to the SimpleMatcher's rete
-     * 
-     * TODO: return timetag of new wme
+     * Need to create a copy because a Wme can't be in multiple retes
+     * @param w Wme to add to the rete
      */
     public void addWme(Wme w)
     {
         final IdentifierImpl id = copySymbol(syms, w.getIdentifier()).asIdentifier();
         final SymbolImpl attr = copySymbol(syms, w.getAttribute());
         final SymbolImpl value = copySymbol(syms, w.getValue());
-        final WmeImpl wme = new WmeImpl(id, attr, value, false, 0); // TODO: autoincrement timetag
+        final WmeImpl wme = new WmeImpl(id, attr, value, false, 0); // TODO: if want to support timetags, autoincrement here
         rete.add_wme_to_rete(wme);
     }
     
     /**
-     * Removes the wme that matches the specified wme from the rete
-     * Throws an exception if no match?
-     * 
-     * TODO: make efficient version that takes timetag
+     * Finds a matching Wme in the rete and removes it
+     * @param w Wme instance
+     * @throws IllegalArgumentException If Wme is not in rete
      */
-    public void removeWme(Wme w)
+    public void removeWme(Wme w) throws IllegalArgumentException
     {
         for(WmeImpl matcherWme : rete.getAllWmes())
         {
@@ -164,7 +180,7 @@ public class SimpleMatcher
     public void removeAllWmes()
     {
         // need to make a copy since remove_wme_from_rete will destructively modify the collection returned by rete.getAllWmes
-        Set<WmeImpl> wmes = new HashSet<WmeImpl>(rete.getAllWmes());
+        final Set<WmeImpl> wmes = new HashSet<WmeImpl>(rete.getAllWmes());
 
         for(WmeImpl w : wmes)
         {
@@ -173,9 +189,8 @@ public class SimpleMatcher
     }
     
     /**
-     * Returns true if production argument current matches, otherwise false
-     * 
-     * TODO: change to return the number of matches
+     * @param p Production instance to check for matches
+     * @return true if production argument current matches, otherwise false
      */
     public boolean isMatching(Production p)
     {
@@ -183,12 +198,13 @@ public class SimpleMatcher
     }
     
     /**
-     * Returns true if production with the specified name matches, otherwise false
-     * Throws an exception if the specified production doesn't exist in the rete
+     * @param productionName Name of Production to check for matches
+     * @return true if production argument current matches, otherwise false
+     * @throws IllegalArgumentException if Production instance is not in rete
      */
-    public boolean isMatching(String productionName)
+    public boolean isMatching(String productionName) throws IllegalArgumentException
     {
-        Production p = productions.get(productionName);
+        final Production p = productions.get(productionName);
         if(p == null)
         {
             throw new IllegalArgumentException("production " + productionName + " doesn't exist");
@@ -198,7 +214,8 @@ public class SimpleMatcher
     }
     
     /**
-     * Returns PartialMatches structure for specified production
+     * @param p Production instance to get PartialMatches for
+     * @return A PartialMatches instance representing the partial matches for the specified Production
      */
     public PartialMatches getMatches(Production p)
     {
@@ -206,12 +223,13 @@ public class SimpleMatcher
     }
     
     /**
-     * Returns PartialMatches structure for production with specified name
-     * Throws an exception if the specified production doesn't exist
+     * @param productionName Name of Production to get PartialMatches for
+     * @return A PartialMatches instance representing the partial matches for the specified Production
+     * @throws IllegalArgumentException if the specified production doesn't exist
      */
-    public PartialMatches getMatches(String productionName)
+    public PartialMatches getMatches(String productionName) throws IllegalArgumentException
     {
-        Production p = productions.get(productionName);
+        final Production p = productions.get(productionName);
         if(p == null)
         {
             throw new IllegalArgumentException("production " + productionName + " doesn't exist");
@@ -311,6 +329,4 @@ public class SimpleMatcher
         {
         }
     }
-    
-    
 }
