@@ -91,7 +91,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
         SwingTools.setDividerLocation(split, 0.5);
         p.add(split, BorderLayout.CENTER);
         
-        setContentPane(p);
+        getContentPane().add(p);
     }
     
     private JToolBar createToolbar()

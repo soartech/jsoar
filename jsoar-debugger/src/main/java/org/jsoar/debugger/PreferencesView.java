@@ -90,7 +90,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         p.add(barPanel, BorderLayout.NORTH);
         p.add(new JScrollPane(table), BorderLayout.CENTER);
         
-        setContentPane(p);
+        getContentPane().add(p);
 
         this.selectionManager.addListener(this);
     }

@@ -138,7 +138,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         
         p.add(south, BorderLayout.SOUTH);
         
-        setContentPane(p);
+        getContentPane().add(p);
         
         final String oldContents = getPreferences().get(LAST_CONTENT_KEY, null);
         if(oldContents != null)
@@ -175,7 +175,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             {
                 textArea.setText(result);
                 status.setText(result.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
-                setActive(true);
+                getControl().show(ProductionEditView.this);
             }
         };
         agent.execute(call, SwingCompletionHandler.newInstance(finish));

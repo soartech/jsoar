@@ -122,7 +122,7 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
         
         p.add(searchPanel, BorderLayout.SOUTH);
         
-        setContentPane(p);
+        getContentPane().add(p);
     }
 
     /* (non-Javadoc)

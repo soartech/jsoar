@@ -91,7 +91,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
         SwingTools.setDividerLocation(split, 0.5);
         p.add(split, BorderLayout.CENTER);
         
-        setContentPane(p);
+        getContentPane().add(p);
         
         this.selectionManager.addListener(this);
     }
