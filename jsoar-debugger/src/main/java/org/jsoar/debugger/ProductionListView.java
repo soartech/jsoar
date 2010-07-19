@@ -125,7 +125,7 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         
         p.add(bottom, BorderLayout.SOUTH);
         
-        this.setContentPane(p);
+        this.getContentPane().add(p);
     }
     
     /* (non-Javadoc)

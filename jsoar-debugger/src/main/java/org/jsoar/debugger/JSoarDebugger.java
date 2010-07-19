@@ -10,11 +10,12 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +36,6 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.flexdock.docking.Dockable;
-import org.flexdock.docking.DockingConstants;
-import org.flexdock.docking.DockingManager;
-import org.flexdock.docking.activation.ActiveDockableTracker;
-import org.flexdock.plaf.PlafManager;
-import org.flexdock.util.SwingUtility;
-import org.flexdock.view.Viewport;
 import org.jsoar.debugger.actions.AboutAction;
 import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.EditProductionAction;
@@ -52,7 +46,6 @@ import org.jsoar.debugger.actions.InitSoarAction;
 import org.jsoar.debugger.actions.ReloadAction;
 import org.jsoar.debugger.actions.RestoreLayoutAction;
 import org.jsoar.debugger.actions.RunAction;
-import org.jsoar.debugger.actions.ShowViewAction;
 import org.jsoar.debugger.actions.SourceFileAction;
 import org.jsoar.debugger.actions.StepAction;
 import org.jsoar.debugger.actions.StopAction;
@@ -81,6 +74,20 @@ import org.jsoar.util.properties.PropertyListener;
 import org.jsoar.util.properties.PropertyListenerHandle;
 import org.jsoar.util.properties.PropertyProvider;
 
+import bibliothek.gui.dock.common.CControl;
+import bibliothek.gui.dock.common.event.CFocusListener;
+import bibliothek.gui.dock.common.intern.CDockable;
+import bibliothek.gui.dock.common.layout.ThemeMap;
+import bibliothek.gui.dock.common.menu.CLayoutChoiceMenuPiece;
+import bibliothek.gui.dock.common.menu.CLookAndFeelMenuPiece;
+import bibliothek.gui.dock.common.menu.CThemeMenuPiece;
+import bibliothek.gui.dock.common.menu.SingleCDockableListMenuPiece;
+import bibliothek.gui.dock.facile.menu.RootMenuPiece;
+import bibliothek.gui.dock.facile.menu.SubmenuPiece;
+import bibliothek.gui.dock.support.menu.SeparatingMenuPiece;
+import bibliothek.util.xml.XElement;
+import bibliothek.util.xml.XIO;
+
 /**
  * @author ray
  */
@@ -104,7 +111,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         // make it as early as possible.
         // The symptom I was seeing was that an existing window would become
         // very small the first time the debugger was loaded.
-        PlafManager.getSystemThemeName();
+        // TODO DockingFrames PlafManager.getSystemThemeName();
     }
     
     private final SelectionManager selectionManager = new SelectionManager();
@@ -119,12 +126,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final List<JSoarDebuggerPlugin> plugins = new CopyOnWriteArrayList<JSoarDebuggerPlugin>();
     
     private JFrame frame;
-    private final Viewport viewport = new Viewport();
+    private CControl docking;
     private StatusBar status;
     
     private final List<AbstractAdaptableView> views = new ArrayList<AbstractAdaptableView>();
     
-    private PropertyChangeListener dockTrackerListener = null;
     private final List<SoarEventListener> soarEventListeners = new ArrayList<SoarEventListener>();
     private final List<PropertyListenerHandle<?>> propertyListeners = new ArrayList<PropertyListenerHandle<?>>();
     
@@ -153,24 +159,20 @@ public class JSoarDebugger extends JPanel implements Adaptable
         this.agent = proxy;
         proxy.getInterpreter().addCommand("load-plugin", loadPluginCommand);
         
-        this.add(viewport, BorderLayout.CENTER);
-        
-        initActions();
-        
-        this.add(status = new StatusBar(proxy), BorderLayout.SOUTH);
-        
-        initViews();
-        initMenuBar();
-        initToolbar();
-        
+        this.docking = new CControl(this.frame);
+        this.docking.setTheme(ThemeMap.KEY_ECLIPSE_THEME);
         // Track selection to active view
-        ActiveDockableTracker.getTracker(frame).addPropertyChangeListener(
-                dockTrackerListener = new PropertyChangeListener() {
-
+        this.docking.addFocusListener(new CFocusListener()
+        {
+            
             @Override
-            public void propertyChange(PropertyChangeEvent evt)
+            public void focusLost(CDockable dockable)
             {
-                final Dockable newDockable = (Dockable) evt.getNewValue();
+            }
+            
+            @Override
+            public void focusGained(final CDockable newDockable)
+            {
                 SelectionProvider provider = Adaptables.adapt(newDockable, SelectionProvider.class);
                 if(provider != null)
                 {
@@ -188,7 +190,17 @@ public class JSoarDebugger extends JPanel implements Adaptable
                         }
                     }
                 });
-            }});
+            }
+        });
+        this.add(docking.getContentArea(), BorderLayout.CENTER);
+        
+        initActions();
+        
+        this.add(status = new StatusBar(proxy), BorderLayout.SOUTH);
+        
+        initViews();
+        initMenuBar();
+        initToolbar();
         
         // Track the agent name in the title bar
         saveListener(proxy.getProperties().addListener(SoarProperties.NAME, new PropertyListener<String>() {
@@ -262,7 +274,32 @@ public class JSoarDebugger extends JPanel implements Adaptable
         else
         {
             frame.setSize(1200, 1024);
-            SwingUtility.centerOnScreen(frame);
+            frame.setLocationRelativeTo(null); // center
+        }
+        readDefaultLayout();
+    }
+
+    private void readDefaultLayout()
+    {
+        try
+        {
+            final InputStream in = JSoarDebugger.class.getResourceAsStream("layout.xml");
+            if(in != null)
+            {
+                try
+                {
+                    final XElement xml = XIO.readUTF(in);
+                    this.docking.readXML(xml);
+                }
+                finally
+                {
+                    in.close();
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to load default debugger layout: " + e.getMessage(), e);
         }
     }
     
@@ -285,36 +322,21 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private void initViews()
     {
         final ProductionEditView prodEditView = addView(new ProductionEditView(this));
-        viewport.dock(prodEditView);
-        
         final ProductionListView prodListView = addView(new ProductionListView(this));
-        prodEditView.dock(prodListView, DockingConstants.EAST_REGION, 0.75f);
-        
         final PartialMatchesView matchesView = addView(new PartialMatchesView(this));
-        prodListView.dock(matchesView, DockingConstants.SOUTH_REGION);
-        
         final MatchSetView matchSetView = addView(new MatchSetView(this));
-        matchesView.dock(matchSetView);
-        
         final TraceView traceView = addView(new TraceView(this)); 
-        prodEditView.dock(traceView);
-        
         final WmeSearchView wmeSearch = addView(new WmeSearchView(this));
-        prodEditView.dock(wmeSearch, DockingConstants.SOUTH_REGION);
-        
         final WorkingMemoryTreeView wmTreeView = addView(new WorkingMemoryTreeView(this));
-        wmeSearch.dock(wmTreeView);
-        
         final WmeSupportView wmeSupportView = addView(new WmeSupportView(this));
-        wmTreeView.dock(wmeSupportView, DockingConstants.EAST_REGION, 0.6f);
-        
         final PreferencesView preferencesView = addView(new PreferencesView(this));
-        wmeSupportView.dock(preferencesView);
     }
     
     private <T extends AbstractAdaptableView> T addView(T view)
     {
         views.add(view);
+        docking.add(view);
+        view.setVisible(true);
         return view;
     }
     
@@ -417,11 +439,37 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         bar.add(fileMenu);
         
-        final JMenu viewMenu = new JMenu("View");
-        viewMenu.add(actionManager.getAction(RestoreLayoutAction.class));
-        viewMenu.addSeparator();
-        addViewMenuItems(viewMenu);
-        bar.add(viewMenu);
+        final RootMenuPiece viewMenu = new RootMenuPiece( "View", false );
+        viewMenu.add(new SingleCDockableListMenuPiece( docking ));
+        viewMenu.add(new SeparatingMenuPiece(false, true, false));
+        // L&F is cute, but for some reason, switching L&F breaks the trace command box
+        // viewMenu.add(new SubmenuPiece( "Look and feel", true, new CLookAndFeelMenuPiece( docking )));
+        viewMenu.add(new SubmenuPiece( "Theme", true, new CThemeMenuPiece( docking )));
+        
+        final SubmenuPiece layoutMenu = new SubmenuPiece("Layout", false,
+                new CLayoutChoiceMenuPiece( docking, false ));
+        viewMenu.add(layoutMenu);
+        
+        /*
+        viewMenu.getMenu().add(new AbstractAction("Write")
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    docking.writeXML(new File("c:/layouts.xml"));
+                }
+                catch (IOException e1)
+                {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+        });
+        */
+        
+        bar.add(viewMenu.getMenu());
         
         final JMenu runMenu = new JMenu("Run");
         runMenu.add(actionManager.getAction(RunAction.class));
@@ -450,32 +498,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         frame.setJMenuBar(bar);
     }
     
-    private void addViewMenuItems(JMenu viewMenu)
-    {
-        final List<AbstractAdaptableView> sortedViews = new ArrayList<AbstractAdaptableView>(views);
-        Collections.sort(sortedViews, new Comparator<AbstractAdaptableView>() {
-
-            @Override
-            public int compare(AbstractAdaptableView a,
-                    AbstractAdaptableView b)
-            {
-                return a.getTitle().compareToIgnoreCase(b.getTitle());
-            }});
-        
-        int i = 1;
-        for(final AbstractAdaptableView view : sortedViews)
-        {
-            String key = view.getShortcutKey();
-            if(key == null)
-            {   
-                key = "ctrl " + i;
-            }
-            viewMenu.add(new ShowViewAction(view, key));
-            
-            i++;
-        }
-    }
-
     private void initToolbar()
     {
         JToolBar bar = new JToolBar();
@@ -538,7 +560,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             JSoarDebugger debugger = debuggers.get(proxy);
             if(debugger == null)
             {
-                DockingManager.setFloatingEnabled(true);
+                //DockingManager.setFloatingEnabled(true);
         
                 debugger = new JSoarDebugger();
                 
@@ -569,10 +591,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         synchronized(debuggers)
         {
             logger.info(String.format("Detaching from agent '" + agent + "'"));
-            
-            // clean up dock property listener
-            ActiveDockableTracker.getTracker(frame).removePropertyChangeListener(dockTrackerListener);
-            dockTrackerListener = null;
             
             // clean up soar prop listeners
             for(PropertyListenerHandle<?> listener : propertyListeners)

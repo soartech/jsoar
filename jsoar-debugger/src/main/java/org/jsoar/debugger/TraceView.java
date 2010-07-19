@@ -146,7 +146,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         bottom.add(searchPanel, BorderLayout.EAST);
         p.add(bottom, BorderLayout.SOUTH);
         
-        this.setContentPane(p);
+        //getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(p);
     }
     
     /* (non-Javadoc)
@@ -184,10 +185,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     @Override
     public void activate()
     {
-        if(isActive())
-        {
-            commandPanel.giveFocus();
-        }
+        commandPanel.giveFocus();
     }
 
     /* (non-Javadoc)

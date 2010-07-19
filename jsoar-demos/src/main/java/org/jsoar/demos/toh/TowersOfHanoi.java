@@ -5,17 +5,17 @@
  */
 package org.jsoar.demos.toh;
 
+import java.awt.BorderLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.flexdock.docking.DockingConstants;
-import org.jsoar.debugger.AbstractAdaptableView;
 import org.jsoar.debugger.JSoarDebugger;
 import org.jsoar.debugger.JSoarDebuggerPlugin;
-import org.jsoar.debugger.TraceView;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.events.OutputEvent;
-import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
@@ -23,7 +23,7 @@ import org.jsoar.util.events.SoarEventManager;
 /**
  * @author ray
  */
-public class TowersOfHanoi extends AbstractAdaptableView implements JSoarDebuggerPlugin
+public class TowersOfHanoi extends /*AbstractAdaptableView*/ JPanel implements JSoarDebuggerPlugin
 {
     private static final long serialVersionUID = -8069709839874209508L;
     
@@ -32,7 +32,7 @@ public class TowersOfHanoi extends AbstractAdaptableView implements JSoarDebugge
     
     public TowersOfHanoi()
     {
-        super("toh", "Towers of Hanoi");
+        //super("toh", "Towers of Hanoi");
     }
     
     /* (non-Javadoc)
@@ -41,9 +41,11 @@ public class TowersOfHanoi extends AbstractAdaptableView implements JSoarDebugge
     @Override
     public void initialize(JSoarDebugger debugger, String[] args)
     {
-        
-        TraceView trace = Adaptables.adapt(debugger, TraceView.class);
-        trace.dock(this, DockingConstants.SOUTH_REGION);
+        final JFrame f = new JFrame("JSoar - Towers of Hanoi");
+        f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        f.add(this);
+        f.setSize(640, 240);
+        f.setVisible(true);
         
         SoarEventManager em = debugger.getAgent().getEvents();
         
@@ -74,7 +76,8 @@ public class TowersOfHanoi extends AbstractAdaptableView implements JSoarDebugge
         this.game = new Game(numPegs, numDisks);
         this.panel = new TohPanel(game);
 
-        this.setContentPane(panel);
+        setLayout(new BorderLayout());
+        this.add(panel, BorderLayout.CENTER);
         
         // update the input from the game each input cycle.
         em.addListener(InputEvent.class, new SoarEventListener() {

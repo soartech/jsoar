@@ -6,6 +6,7 @@
 package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -93,6 +94,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         
         JPanel p = new JPanel(new BorderLayout());
         SwingTools.addUndoSupport(textArea);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         p.add(new JScrollPane(textArea), BorderLayout.CENTER);
         
         JPanel north = new JPanel(new BorderLayout());
@@ -138,7 +140,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         
         p.add(south, BorderLayout.SOUTH);
         
-        setContentPane(p);
+        getContentPane().add(p);
         
         final String oldContents = getPreferences().get(LAST_CONTENT_KEY, null);
         if(oldContents != null)
@@ -175,7 +177,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             {
                 textArea.setText(result);
                 status.setText(result.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
-                setActive(true);
+                getControl().show(ProductionEditView.this);
             }
         };
         agent.execute(call, SwingCompletionHandler.newInstance(finish));

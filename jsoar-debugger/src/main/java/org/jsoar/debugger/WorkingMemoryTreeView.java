@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import javax.swing.AbstractAction;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -131,12 +132,12 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
         bar.add(idField);
         bar.add(backAction);
         bar.add(forwardAction);
-        bar.add(new AbstractActionExt("Refresh", Images.REFRESH) {
+        bar.add(new AbstractAction("Refresh", Images.REFRESH) {
 
             private static final long serialVersionUID = -6030691756683552616L;
 
             {
-                setToolTipText("Refresh tree");
+                putValue(SHORT_DESCRIPTION, "Refresh tree");
             }
             @Override
             public void actionPerformed(ActionEvent arg0)
@@ -147,7 +148,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
         
         p.add(bar, BorderLayout.NORTH);
         
-        this.setContentPane(p);
+        this.getContentPane().add(p);
         
         jump(idField.getText(), true);
     }

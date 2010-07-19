@@ -5,14 +5,11 @@
  */
 package org.jsoar.debugger;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.util.concurrent.Callable;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
+import org.jdesktop.swingx.JXStatusBar;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
@@ -25,7 +22,7 @@ import org.jsoar.util.adaptables.Adaptables;
 /**
  * @author ray
  */
-public class StatusBar extends JPanel implements Refreshable
+public class StatusBar extends JXStatusBar implements Refreshable
 {
     private static final long serialVersionUID = 1501760828755152573L;
 
@@ -34,31 +31,15 @@ public class StatusBar extends JPanel implements Refreshable
     private final JLabel phase = new JLabel("phase");
     private final JLabel decisions = new JLabel("decisions");
     private final JLabel settings = new JLabel("Status");
-    
+        
     public StatusBar(ThreadedAgent agent)
     {
-        super(new BorderLayout());
-        
         this.agent = agent;
         
-        runState.setBorder(BorderFactory.createEtchedBorder());
-        runState.setPreferredSize(new Dimension(100, 25));
-        phase.setBorder(BorderFactory.createEtchedBorder());
-        phase.setPreferredSize(new Dimension(100, 25));
-        phase.setMaximumSize(new Dimension(100, 25));
-        decisions.setBorder(BorderFactory.createEtchedBorder());
-        decisions.setPreferredSize(new Dimension(120, 25));
-        //decisions.setMaximumSize(new Dimension(100, 25));
-        
-        settings.setBorder(BorderFactory.createEtchedBorder());
-        
-        JPanel left = new JPanel(new BorderLayout());
-        left.add(runState, BorderLayout.WEST);
-        left.add(phase, BorderLayout.CENTER);
-        left.add(decisions, BorderLayout.EAST);
-        
-        add(left, BorderLayout.WEST);
-        add(settings, BorderLayout.CENTER);
+        add(runState, fixed(100));
+        add(phase, fixed(100));
+        add(decisions, fixed(120));
+        add(settings, fill());
     }
     
     public void refresh(boolean afterInitSoar)
@@ -117,4 +98,15 @@ public class StatusBar extends JPanel implements Refreshable
     {
         return "<b>" + name + ":</b>&nbsp;" + (value ? "on" : "off");
     }
+    
+    private JXStatusBar.Constraint fixed(int width)
+    {
+        return new JXStatusBar.Constraint(width);
+    }
+    
+    private JXStatusBar.Constraint fill()
+    {
+        return new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FILL);
+    }
+    
 }

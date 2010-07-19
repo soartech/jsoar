@@ -13,12 +13,13 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.FilterPipeline;
-import org.jdesktop.swingx.decorator.PatternFilter;
 
 /**
  * @author ray
@@ -32,6 +33,7 @@ public class TableFilterPanel extends JPanel
     private final JTextField field = new JTextField();
     private final Color goodBackground = field.getBackground();
     private final Color badBackground = new Color(242, 102, 96);
+    private final TableRowSorter<TableModel> sorter;
     
     public TableFilterPanel(JXTable table, int column)
     {
@@ -40,6 +42,9 @@ public class TableFilterPanel extends JPanel
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         this.table = table;
         this.column = column;
+        
+        this.sorter = new TableRowSorter<TableModel>(table.getModel());
+        table.setRowSorter(sorter);
         
         // Listen for changes to the text field
         field.getDocument().addDocumentListener(new DocumentListener() {
@@ -74,11 +79,11 @@ public class TableFilterPanel extends JPanel
             String patternText = field.getText().trim();
             if(patternText.length() == 0)
             {
-                table.setFilters(null);
+                sorter.setRowFilter(null);
             }
             else
             {
-                table.setFilters(new FilterPipeline(new PatternFilter(patternText, 0, column)));
+                sorter.setRowFilter(RowFilter.regexFilter(patternText, column));
             }
         }
         catch (PatternSyntaxException e)

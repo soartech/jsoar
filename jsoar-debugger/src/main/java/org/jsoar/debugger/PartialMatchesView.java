@@ -49,7 +49,7 @@ public class PartialMatchesView extends AbstractAdaptableView implements Selecti
 
         p.add(new JScrollPane(textArea), BorderLayout.CENTER);
         
-        setContentPane(p);
+        getContentPane().add(p);
 
         this.selectionManager.addListener(this);
         selectionChanged(selectionManager);
