@@ -204,6 +204,15 @@ public class Printer
         this.persistentPrintWriter.flush();
         return this;
     }
+    
+    public Printer warn(String message)
+    {
+        if(printWarnings)
+        {
+            print(message);
+        }
+        return this;
+    }
 
     public Printer warn(String format, Object ... args)
     {
@@ -233,6 +242,18 @@ public class Printer
     public Printer setPrintWarnings(boolean printWarnings)
     {
         this.printWarnings = printWarnings;
+        return this;
+    }
+    
+    /**
+     * Print an error
+     * 
+     * @param message message
+     * @return this
+     */
+    public Printer error(String message)
+    {
+        print("\nError: " + message);
         return this;
     }
 
