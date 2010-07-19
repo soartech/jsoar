@@ -23,18 +23,13 @@ public class PreferencesTableModel extends AbstractTableModel
     private static final String[] columns = {"Type", "Support", "Id", "Attr", "Value", "Referent" };
     private static final Class<?>[] classes = { PreferenceType.class, String.class, Identifier.class, Symbol.class, String.class, Symbol.class };
 
-    private final Result result;
+    private Result result;
     
     /**
      * @param result
      */
-    public PreferencesTableModel(Result result)
+    public PreferencesTableModel()
     {
-        if(result == null)
-        {
-            throw new IllegalArgumentException("result");
-        }
-        this.result = result;
     }
     
     /**
@@ -45,6 +40,17 @@ public class PreferencesTableModel extends AbstractTableModel
         return result;
     }
 
+    public void setResult(Result result)
+    {
+        if(result == null)
+        {
+            throw new IllegalArgumentException("result");
+        }
+        this.result = result;
+        
+        this.fireTableDataChanged();
+    }
+    
     public ResultEntry getResultEntry(int r)
     {
         return result.getEntries().get(r);
@@ -83,7 +89,7 @@ public class PreferencesTableModel extends AbstractTableModel
     @Override
     public int getRowCount()
     {
-        return result.getEntries().size();
+        return result != null ? result.getEntries().size() : 0;
     }
 
     /* (non-Javadoc)

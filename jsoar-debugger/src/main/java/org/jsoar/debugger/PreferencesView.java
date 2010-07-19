@@ -6,10 +6,12 @@
 package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.Callable;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -17,9 +19,8 @@ import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -36,6 +37,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.util.SwingTools;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -49,12 +51,17 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
 
     private final ThreadedAgent agent;
     private final SelectionManager selectionManager;
+    private final JPanel panel = new JPanel(new BorderLayout());
     private final JLabel info = new JLabel(" No state selected");
-    private final JXTable table = new JXTable();
+    private final PreferencesTableModel tableModel = new PreferencesTableModel();
+    private final JXTable table = new JXTable(tableModel);
+    private final JScrollPane tableScrollPane = new JScrollPane(table);
+    private final JLabel errorLabel = new JLabel();
     private JToggleButton synch = new JToggleButton(Images.SYNCH, getPreferences().getBoolean("synch", true));
     {
         synch.setToolTipText("Refresh when run ends");
     }
+    private Identifier lastGoal = null;
     
     public PreferencesView(JSoarDebugger debuggerIn)
     {
@@ -79,6 +86,17 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
                 setText(Character.toString(((PreferenceType) value).getIndicator()));
                 return c;
             }});
+        this.table.getColumnExt(5).setVisible(false);
+        this.table.getColumnExt(3).setVisible(false);
+        this.table.getColumnExt(2).setVisible(false);
+        
+        table.getColumn(0).setResizable(false);
+        table.getColumnExt(0).setMaxWidth(40);
+        table.getColumn(1).setResizable(false);
+        table.getColumn(1).setMaxWidth(60);
+        
+        errorLabel.setVerticalAlignment(SwingConstants.TOP);
+        errorLabel.setForeground(Color.RED);
         
         JPanel barPanel = new JPanel(new BorderLayout());
         barPanel.add(info, BorderLayout.WEST);
@@ -86,11 +104,10 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         
         barPanel.add(bar, BorderLayout.EAST);
         
-        JPanel p = new JPanel(new BorderLayout());
-        p.add(barPanel, BorderLayout.NORTH);
-        p.add(new JScrollPane(table), BorderLayout.CENTER);
+        panel.add(barPanel, BorderLayout.NORTH);
+        panel.add(tableScrollPane, BorderLayout.CENTER);
         
-        getContentPane().add(p);
+        getContentPane().add(panel);
 
         this.selectionManager.addListener(this);
     }
@@ -149,6 +166,7 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         
         if(id == null || id.isGoal())
         {
+            lastGoal = id;
             getPreferences(id);
         }
     }
@@ -162,19 +180,13 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         if(synch.isSelected())
         {
             // Force an update
-            selectionChanged(selectionManager);
+            getPreferences(lastGoal);
         }
     }
 
     private Result getLastResult()
     {
-        final TableModel prefModel = table.getModel();
-        if(!(prefModel instanceof PreferencesTableModel))
-        {
-            return null;
-        }
-        
-        return ((PreferencesTableModel) prefModel).getResult();
+        return tableModel.getResult();
     }
     
     private void getPreferences(final Identifier id)
@@ -206,13 +218,26 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
         info.setText(String.format("<html><b>&nbsp;Operator preferences for <code>%s</code></b></html>", result.getQueryId()));
         if(result.getError() == null)
         {
-            table.setModel(new PreferencesTableModel(result));
+            tableModel.setResult(result);
+            switchPanelComponent(errorLabel, tableScrollPane);
         }
         else
         {
-            table.setModel(new DefaultTableModel(new Object[][] { new Object[] {result.getError()} }, new Object[] { "" }));
+            errorLabel.setText("Hello" /*result.getError()*/);
+            switchPanelComponent(tableScrollPane, errorLabel);
         }
-        table.packAll();        
+    }
+    
+    private void switchPanelComponent(JComponent oldChild, JComponent newChild)
+    {
+        if(!SwingTools.hasChild(panel, newChild))
+        {
+            panel.remove(oldChild);
+            panel.add(newChild, BorderLayout.CENTER);
+            panel.invalidate();
+            panel.revalidate();
+            panel.repaint();
+        }
     }
     
     private Result safeGetPreferences(Identifier id)

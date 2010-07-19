@@ -5,6 +5,7 @@
  */
 package org.jsoar.util;
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -16,6 +17,7 @@ import java.util.Collection;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -186,5 +188,17 @@ public class SwingTools
     public static void addSelectAllOnFocus(final JComboBox combo)
     {
         addSelectAllOnFocus((JTextComponent) combo.getEditor().getEditorComponent());
+    }
+    
+    public static boolean hasChild(JComponent parent, Component child)
+    {
+        for(Component c : parent.getComponents())
+        {
+            if(c == child)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
