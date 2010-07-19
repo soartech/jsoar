@@ -6,6 +6,7 @@
 package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -93,6 +94,7 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         
         JPanel p = new JPanel(new BorderLayout());
         SwingTools.addUndoSupport(textArea);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         p.add(new JScrollPane(textArea), BorderLayout.CENTER);
         
         JPanel north = new JPanel(new BorderLayout());
