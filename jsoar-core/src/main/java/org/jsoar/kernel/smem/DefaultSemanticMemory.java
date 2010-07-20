@@ -3622,7 +3622,6 @@ public class DefaultSemanticMemory implements SemanticMemory
                             return_val.append( " [ label=\"" );
     
                             // get value
-                            final String temp_str;
                             switch ( (int) expand_q.getLong( 2 + 1 ) )
                             {
                             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:

@@ -5,9 +5,15 @@
  */
 package org.jsoar.debugger;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JLabel;
+import javax.swing.Timer;
 
 import org.jdesktop.swingx.JXStatusBar;
 import org.jsoar.kernel.Agent;
@@ -16,7 +22,6 @@ import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
-import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -36,32 +41,45 @@ public class StatusBar extends JXStatusBar implements Refreshable
     {
         this.agent = agent;
         
+        final Font boldStatusFont = runState.getFont().deriveFont(Font.BOLD);
         add(runState, fixed(100));
-        add(phase, fixed(100));
+        runState.setFont(boldStatusFont);
+        runState.setBackground(new Color(102, 242, 96));
+        
+        add(phase, fixed(140));
+        phase.setFont(boldStatusFont);
+        
         add(decisions, fixed(120));
+        decisions.setFont(boldStatusFont);
+        
         add(settings, fill());
+        
+        // periodically refresh. this is so we get some feedback when the agent 
+        // is running.
+        final Timer timer = new Timer(1000, new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                refresh(false);
+            }
+        });
+        timer.start();
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Refreshable#refresh(boolean)
+     */
     public void refresh(boolean afterInitSoar)
     {
-        final ByRef<String> runStateString = ByRef.create(null);
-        final ByRef<String> phaseString = ByRef.create(null);
-        final ByRef<String> decisionsString = ByRef.create(null);
-        final ByRef<String> settingsString = ByRef.create(null);
+        final AtomicReference<String> settingsString = new AtomicReference<String>();
         final Agent a = agent.getAgent();
         
         final Callable<Object> call = new Callable<Object>() {
             @Override
             public Object call() throws Exception
             {
-                runStateString.value = agent.isRunning() ? "Running" : "Idle";
-                if(a.getProperties().get(SoarProperties.WAIT_INFO).waiting)
-                {
-                    runStateString.value += " (wait)";
-                }
-                phaseString.value = a.getCurrentPhase().toString().toLowerCase();
-                decisionsString.value = a.getProperties().get(SoarProperties.DECISION_PHASES_COUNT) + " decisions";
-                settingsString.value = getSettings(a);
+                settingsString.set(getSettings(a));
                 return null;
             }};
         final CompletionHandler<Object> finish = new CompletionHandler<Object>() {
@@ -69,11 +87,22 @@ public class StatusBar extends JXStatusBar implements Refreshable
             @Override
             public void finish(Object result)
             {
+                final boolean running = agent.isRunning();
+                String runStateString = running ? "Running" : "Idle";
+                if(a.getProperties().get(SoarProperties.WAIT_INFO).waiting)
+                {
+                    runStateString += " (wait)";
+                }
+                runState.setText(runStateString);
+                runState.setOpaque(running);
                 
-                runState.setText("<html><b>" + runStateString.value + "</b></html>");
-                phase.setText("<html><b>before " + phaseString.value + "</b></html>");
-                decisions.setText("<html><b>" + decisionsString.value + "</b></html>");
-                settings.setText(settingsString.value);
+                phase.setText("Before " + a.getProperties().get(SoarProperties.CURRENT_PHASE).toString().toLowerCase() + " phase");
+                
+                final Long decisionCount = a.getProperties().get(SoarProperties.DECISION_PHASES_COUNT);
+                final String decisionsString = decisionCount + " decision" + (decisionCount != 1 ? "s" : "");
+                decisions.setText(decisionsString);
+                
+                settings.setText(settingsString.get());
             }
             
         };

@@ -695,11 +695,14 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     /**
      * Returns the current phase of the decision cycle
      * 
+     * <p>This method may be called from any thread.
+     * 
      * @return the current phase of the decision cycle
+     * @see SoarProperties#CURRENT_PHASE
      */
     public Phase getCurrentPhase()
     {
-        return this.decisionCycle.current_phase;
+        return this.decisionCycle.current_phase.get();
     }
     
     /**
@@ -765,7 +768,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                 logger.error("IOException while printing initial stack trace. Ignoring.", e);
             }
         }
-        decisionCycle.current_phase = Phase.INPUT;
+        decisionCycle.current_phase.set(Phase.INPUT);
         decisionCycle.d_cycle_count.increment();
 
         io.init_agent_memory();

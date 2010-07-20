@@ -631,7 +631,7 @@ public class Consistency
 
             // TODO why is this here?
             /* regardless of the outcome, we go to the output phases */
-            this.decisionCycle.current_phase = Phase.OUTPUT;
+            this.decisionCycle.current_phase.set(Phase.OUTPUT);
             return;
         }
 
@@ -716,7 +716,7 @@ public class Consistency
                 */
                 if (!goal_stack_consistent_through_goal(decider.previous_active_goal))
                 {
-                    this.decisionCycle.current_phase = Phase.OUTPUT;
+                    this.decisionCycle.current_phase.set(Phase.OUTPUT);
                     break;
                 }
             }
@@ -778,7 +778,7 @@ public class Consistency
                 */
                 if (!goal_stack_consistent_through_goal(decider.active_goal))
                 {
-                    this.decisionCycle.current_phase = Phase.OUTPUT;
+                    this.decisionCycle.current_phase.set(Phase.OUTPUT);
                     break;
                 }
             }
@@ -817,7 +817,7 @@ public class Consistency
 
             if (!goal_stack_consistent_through_goal(decider.active_goal))
             {
-                this.decisionCycle.current_phase = Phase.OUTPUT;
+                this.decisionCycle.current_phase.set(Phase.OUTPUT);
                 break;
             }
 
@@ -876,7 +876,7 @@ public class Consistency
 
                 /* Decision phases is always next */
 
-                this.decisionCycle.current_phase = Phase.DECISION;
+                this.decisionCycle.current_phase.set(Phase.DECISION);
                 return;
             }
         }
@@ -956,7 +956,7 @@ public class Consistency
                in the propose phases, so check for consistency. */
             if (!goal_stack_consistent_through_goal(decider.previous_active_goal))
             {
-                this.decisionCycle.current_phase = Phase.DECISION;
+                this.decisionCycle.current_phase.set(Phase.DECISION);
                 break;
             }
             /* else: just do a preference phases */
@@ -1005,7 +1005,7 @@ public class Consistency
             */
             if (!goal_stack_consistent_through_goal(decider.active_goal))
             {
-                this.decisionCycle.current_phase = Phase.DECISION;
+                this.decisionCycle.current_phase.set(Phase.DECISION);
                 break;
             }
 

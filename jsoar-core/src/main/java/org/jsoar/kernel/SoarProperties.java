@@ -108,6 +108,7 @@ public class SoarProperties
      */
     public static final PropertyKey<Integer> O_SUPPORT_MODE = PropertyKey.builder("o-support-mode", Integer.class).defaultValue(4).build();
     
+    public static final PropertyKey<Phase> CURRENT_PHASE = PropertyKey.builder("current-phase", Phase.class).defaultValue(Phase.INPUT).build();
     /**
      * Property containing the current stop phase
      * 

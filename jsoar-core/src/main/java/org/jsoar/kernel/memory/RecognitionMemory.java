@@ -1255,7 +1255,7 @@ public class RecognitionMemory
         final Trace trace = context.getTrace();
         if (trace.isEnabled(Category.PHASES))
         {
-            if (this.decisionCycle.current_phase == Phase.APPLY)
+            if (this.decisionCycle.current_phase.get() == Phase.APPLY)
             { /* it's always IE for PROPOSE */
                 switch (FIRING_TYPE)
                 {
@@ -1357,11 +1357,11 @@ public class RecognitionMemory
             
             try
             {
-                if (this.decisionCycle.current_phase == Phase.APPLY)
+                if (this.decisionCycle.current_phase.get() == Phase.APPLY)
                 {
                     decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.lower_goal);
                 }
-                else if (this.decisionCycle.current_phase == Phase.PROPOSE)
+                else if (this.decisionCycle.current_phase.get() == Phase.PROPOSE)
                 {
                     // PROPOSE
                     decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.lower_goal);

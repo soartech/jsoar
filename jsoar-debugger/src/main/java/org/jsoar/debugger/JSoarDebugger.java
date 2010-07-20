@@ -318,15 +318,15 @@ public class JSoarDebugger extends JPanel implements Adaptable
     
     private void initViews()
     {
-        final ProductionEditView prodEditView = addView(new ProductionEditView(this));
-        final ProductionListView prodListView = addView(new ProductionListView(this));
-        final PartialMatchesView matchesView = addView(new PartialMatchesView(this));
-        final MatchSetView matchSetView = addView(new MatchSetView(this));
-        final TraceView traceView = addView(new TraceView(this)); 
-        final WmeSearchView wmeSearch = addView(new WmeSearchView(this));
-        final WorkingMemoryTreeView wmTreeView = addView(new WorkingMemoryTreeView(this));
-        final WmeSupportView wmeSupportView = addView(new WmeSupportView(this));
-        final PreferencesView preferencesView = addView(new PreferencesView(this));
+        addView(new ProductionEditView(this));
+        addView(new ProductionListView(this));
+        addView(new PartialMatchesView(this));
+        addView(new MatchSetView(this));
+        addView(new TraceView(this)); 
+        addView(new WmeSearchView(this));
+        addView(new WorkingMemoryTreeView(this));
+        addView(new WmeSupportView(this));
+        addView(new PreferencesView(this));
     }
     
     private <T extends AbstractAdaptableView> T addView(T view)

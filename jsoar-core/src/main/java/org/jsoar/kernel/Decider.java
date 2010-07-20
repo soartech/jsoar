@@ -2540,7 +2540,7 @@ public class Decider
         final Trace trace = context.getTrace();
         if (trace.isEnabled() && trace.isEnabled(Category.PHASES))
         {
-            if (this.decisionCycle.current_phase == Phase.APPLY)
+            if (this.decisionCycle.current_phase.get() == Phase.APPLY)
             { // it's always IE for PROPOSE
                 // TODO xml
                 // xml_begin_tag(thisAgent, kTagSubphase);

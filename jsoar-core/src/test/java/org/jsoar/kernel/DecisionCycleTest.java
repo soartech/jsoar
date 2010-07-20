@@ -51,15 +51,15 @@ public class DecisionCycleTest
         final Decider decider = Adaptables.adapt(agent, Decider.class);
         for(int i = 1; i < 10; ++i)
         {
-            assertEquals(Phase.INPUT, this.decisionCycle.current_phase);
+            assertEquals(Phase.INPUT, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
-            assertEquals(Phase.PROPOSE, this.decisionCycle.current_phase);
+            assertEquals(Phase.PROPOSE, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
-            assertEquals(Phase.DECISION, this.decisionCycle.current_phase);
+            assertEquals(Phase.DECISION, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
-            assertEquals(Phase.APPLY, this.decisionCycle.current_phase);
+            assertEquals(Phase.APPLY, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
-            assertEquals(Phase.OUTPUT, this.decisionCycle.current_phase);
+            assertEquals(Phase.OUTPUT, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
             
             // Verify that new states are being generated
@@ -75,15 +75,15 @@ public class DecisionCycleTest
         
         assertTrue(agent.getProductions().getProduction("test2").instantiations == null);
         
-        assertEquals(Phase.INPUT, this.decisionCycle.current_phase);
+        assertEquals(Phase.INPUT, this.decisionCycle.current_phase.get());
         this.decisionCycle.runFor(1, RunType.PHASES);
-        assertEquals(Phase.PROPOSE, this.decisionCycle.current_phase);
+        assertEquals(Phase.PROPOSE, this.decisionCycle.current_phase.get());
         this.decisionCycle.runFor(1, RunType.PHASES);
-        assertEquals(Phase.DECISION, this.decisionCycle.current_phase);
+        assertEquals(Phase.DECISION, this.decisionCycle.current_phase.get());
         this.decisionCycle.runFor(1, RunType.PHASES);
-        assertEquals(Phase.APPLY, this.decisionCycle.current_phase);
+        assertEquals(Phase.APPLY, this.decisionCycle.current_phase.get());
         this.decisionCycle.runFor(1, RunType.PHASES);
-        assertEquals(Phase.OUTPUT, this.decisionCycle.current_phase);
+        assertEquals(Phase.OUTPUT, this.decisionCycle.current_phase.get());
         this.decisionCycle.runFor(1, RunType.PHASES);
         
         // verify that (S1 foo 1) is being added to the rete by checking that test2 fired
@@ -109,15 +109,15 @@ public class DecisionCycleTest
         
         for(int i = 1; i < 10; ++i)
         {
-            assertEquals(Phase.INPUT, this.decisionCycle.current_phase);
+            assertEquals(Phase.INPUT, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
-            assertEquals(Phase.PROPOSE, this.decisionCycle.current_phase);
+            assertEquals(Phase.PROPOSE, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
-            assertEquals(Phase.DECISION, this.decisionCycle.current_phase);
+            assertEquals(Phase.DECISION, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
-            assertEquals(Phase.APPLY, this.decisionCycle.current_phase);
+            assertEquals(Phase.APPLY, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
-            assertEquals(Phase.OUTPUT, this.decisionCycle.current_phase);
+            assertEquals(Phase.OUTPUT, this.decisionCycle.current_phase.get());
             this.decisionCycle.runFor(1, RunType.PHASES);
             
             // Verify that one state-no-change occurs, producing S3, but no further
