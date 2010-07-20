@@ -41,8 +41,9 @@ public class RunControlPanel extends JPanel
         final RunControlModel rcm = Adaptables.adapt(debuggerIn, RunControlModel.class);
         bar.add(new JLabel("  Run "));
         countField = rcm.createCountField();
+        countField.setColumns(3);
         countField.setHorizontalAlignment(JTextField.RIGHT);
-        countField.setMaximumSize(new Dimension(50, 20));
+        countField.setMaximumSize(new Dimension(50, 15));
         bar.add(countField);
         
         stepTypeCombo = rcm.createTypeCombo();

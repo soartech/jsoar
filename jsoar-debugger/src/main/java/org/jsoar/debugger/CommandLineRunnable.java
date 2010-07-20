@@ -49,7 +49,7 @@ public class CommandLineRunnable implements Callable<Void>
             printer.error(e.getMessage() + "\n");
         }
         printer.flush();
-        ifc.updateActionsAndStatus();
+        ifc.update(false);
         return null;
     }
 

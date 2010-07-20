@@ -20,6 +20,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.prompt.PromptSupport;
 
 /**
  * @author ray
@@ -69,6 +70,7 @@ public class TableFilterPanel extends JPanel
         
         add(new JLabel("Filter: "), BorderLayout.WEST);
         add(field, BorderLayout.CENTER);
+        PromptSupport.setPrompt("Enter a regex...", field);
     }
     
     private void update()

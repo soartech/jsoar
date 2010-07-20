@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
+import org.jdesktop.swingx.prompt.PromptSupport;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Printer;
@@ -99,7 +100,8 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
         
         JPanel north = new JPanel(new BorderLayout());
         north.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        final JTextField productionField = new JTextField("Enter production name here and hit enter");
+        final JTextField productionField = new JTextField();
+        PromptSupport.setPrompt("Enter production name here and hit enter", productionField);
         // Edit the production when they hit enter
         productionField.addActionListener(new ActionListener() {
 
@@ -177,9 +179,10 @@ public class ProductionEditView extends AbstractAdaptableView implements Disposa
             {
                 textArea.setText(result);
                 status.setText(result.length() != 0 ? "Editing production '" + name + "'" : "No production '" + name + "'");
-                toFront();
             }
         };
+        setVisible(true);
+        toFront();
         agent.execute(call, SwingCompletionHandler.newInstance(finish));
     }
     

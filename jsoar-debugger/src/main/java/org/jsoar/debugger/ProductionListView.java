@@ -18,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.jdesktop.swingx.JXTable;
@@ -51,7 +50,6 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
     private final ProductionTableModel model;
     private final JXTable table;
     private final JLabel stats = new JLabel();
-    private final JLabel info = new JLabel();
     private final TableSelectionProvider selectionProvider;
     
     /**
@@ -64,25 +62,23 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         this.agent = Adaptables.adapt(debuggerIn, ThreadedAgent.class);
         this.actionManager = Adaptables.adapt(debuggerIn, ActionManager.class);
         
-        JPanel p = new JPanel(new BorderLayout());
+        final JPanel p = new JPanel(new BorderLayout());
         
         this.model = new ProductionTableModel(this.agent);
         this.model.initialize();
         this.table = new JXTable(this.model);
-        this.selectionProvider = new TableSelectionProvider(this.table) {
-
-            @Override
-            public void valueChanged(ListSelectionEvent e)
-            {
-                super.valueChanged(e);
-                updateInfo();
-            }};
+        this.table.setColumnControlVisible(true);
+        // Order is important here!
+        this.table.getColumnExt(2).setVisible(false);
+        this.table.getColumnExt(1).setVisible(false);
+        
+        this.selectionProvider = new TableSelectionProvider(this.table);
         
         this.actionManager.getSelectionManager().addListener(this);
         
         this.table.setDefaultRenderer(Production.class, new NameCellRenderer());
         
-        DefaultTableCellRenderer fcRenderer = new DefaultTableCellRenderer();
+        final DefaultTableCellRenderer fcRenderer = new DefaultTableCellRenderer();
         fcRenderer.setHorizontalAlignment(DefaultTableCellRenderer.LEFT);
         this.table.setDefaultRenderer(Integer.class, fcRenderer);
         
@@ -115,13 +111,11 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         p.add(new JScrollPane(table), BorderLayout.CENTER);
         
         stats.setBorder(BorderFactory.createTitledBorder("All Production Statistics"));
-        info.setBorder(BorderFactory.createTitledBorder("Info"));
         
         JPanel bottom = new JPanel(new BorderLayout());
         
         bottom.add(new TableFilterPanel(table, 0), BorderLayout.NORTH);
-        bottom.add(info, BorderLayout.CENTER);
-        bottom.add(stats, BorderLayout.SOUTH);
+        bottom.add(stats, BorderLayout.CENTER);
         
         p.add(bottom, BorderLayout.SOUTH);
         
@@ -136,7 +130,6 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         this.table.repaint();
         this.table.packAll();
         
-        updateInfo();
         updateStats();
     }
 
@@ -176,40 +169,6 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         actionManager.executeAction(EditProductionAction.class.getCanonicalName());
     }
     
-    private void updateInfo()
-    {
-        final Production p =  Adaptables.adapt(selectionProvider.getSelectedObject(), Production.class);
-        
-        final Callable<Integer> call = new Callable<Integer>() {
-
-            public Integer call() throws Exception
-            {
-                return p != null ? p.getReteTokenCount() : 0;
-            }};
-        final CompletionHandler<Integer> finish = new CompletionHandler<Integer>() {
-
-            @Override
-            public void finish(Integer count)
-            {
-                final StringBuilder b = new StringBuilder("<html>");
-                if(p != null)
-                {
-                    b.append("<b>Name:</b>&nbsp;" + p.getName() + "<br>");
-                    b.append("<b>Comment:</b>&nbsp;" + p.getDocumentation() + "<br>");
-                    b.append("<b>Memories:</b>&nbsp;" + count);
-                }
-                else
-                {
-                    b.append("No selection");
-                }
-                b.append("</html>");
-                
-                info.setText(b.toString());
-            }
-        };
-        agent.execute(call, SwingCompletionHandler.newInstance(finish));
-    }
-
     private void updateStats()
     {
         final Callable<Map<ProductionType, Integer>> call = new Callable<Map<ProductionType, Integer>>() {
@@ -271,7 +230,13 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             final Production p = (Production) value;
             setIcon(column == 0 ? Images.PRODUCTION : null);
-            setText(p.getName().toString());
+            setText(p.getName());
+            final long fc = p.getFiringCount();
+            setToolTipText("<html>" +
+            		       "<b>" + p.getName() + "</b><br>" +
+            		       p.getType().getDisplayString() + " production<br>" +
+            		       "Fired " + fc + " time" + (fc != 1 ? "s" : "") + "<p>" +
+                            p.getDocumentation() + "</html>");
             return c;
         }
     }

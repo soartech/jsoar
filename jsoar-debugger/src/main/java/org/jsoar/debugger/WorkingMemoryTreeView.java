@@ -58,7 +58,7 @@ public class WorkingMemoryTreeView extends AbstractAdaptableView implements Refr
     {
         synch.setToolTipText("Refresh tree when run ends");
     }
-    private final JTextField idField = new JTextField("<s> <o> <ts> I2 I3", 40);
+    private final JTextField idField = new JTextField("<s> <o> <ts> I2 I3", 20);
     private List<String> history = new ArrayList<String>();
     private int historyPosition = -1;
 
