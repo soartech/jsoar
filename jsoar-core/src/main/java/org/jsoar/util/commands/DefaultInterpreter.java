@@ -32,6 +32,8 @@ import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.StandardCommands;
 import org.jsoar.util.StringTools;
 
+import com.google.common.base.Joiner;
+
 /**
  * @author ray
  */
@@ -153,7 +155,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private String executeParsedCommand(List<String> parsedCommand) throws SoarException
     {
         parsedCommand = resolveAliases(parsedCommand);
-        final SoarCommand command = commands.get(parsedCommand.get(0));
+        final SoarCommand command = resolveCommand(parsedCommand.get(0));
         if(command != null)
         {
             return command.execute(parsedCommand.toArray(new String[]{}));
@@ -163,6 +165,54 @@ public class DefaultInterpreter implements SoarCommandInterpreter
             throw new SoarException("Unknown command '" + parsedCommand.get(0) + "' in " + parsedCommand);
         }
         
+    }
+    
+    private List<Map.Entry<String, SoarCommand>> resolvePossibleCommands(String prefix)
+    {
+        final List<Map.Entry<String, SoarCommand>> result = new ArrayList<Map.Entry<String,SoarCommand>>();
+        for(Map.Entry<String, SoarCommand> entry : commands.entrySet())
+        {
+            if(entry.getKey().startsWith(prefix))
+            {
+                result.add(entry);
+            }
+        }
+        return result;
+    }
+    
+    private List<String> getNames(List<Map.Entry<String, SoarCommand>> possible)
+    {
+        final List<String> result = new ArrayList<String>(possible.size());
+        for(Map.Entry<String, SoarCommand> e : possible)
+        {
+            result.add(e.getKey());
+        }
+        return result;
+    }
+    
+    private SoarCommand resolveCommand(String name) throws SoarException
+    {
+        // First a quick check for an exact match
+        final SoarCommand quick = commands.get(name);
+        if(quick != null)
+        {
+            return quick;
+        }
+        
+        // Otherwise check for partial matches
+        final List<Map.Entry<String, SoarCommand>> possible = resolvePossibleCommands(name);
+        if(possible.isEmpty())
+        {
+            return null;
+        }
+        else if(possible.size() == 1)
+        {
+            return possible.get(0).getValue();
+        }
+        else
+        {
+            throw new SoarException("Ambiguous command '" + name + "'. Could be one of '" + Joiner.on(", ").join(getNames(possible)));
+        }
     }
     
     private List<String> resolveAliases(List<String> parsedCommand)
