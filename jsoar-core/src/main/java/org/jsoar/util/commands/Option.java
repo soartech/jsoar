@@ -4,6 +4,11 @@
 package org.jsoar.util.commands;
 
 
+/**
+ * @author voigtjr
+ *
+ * @param <E> Type of long option object for keying, usually a string.
+ */
 class Option <E>
 {
     static <T> Option<T> newInstance(T longOption, ArgType type)
@@ -20,7 +25,20 @@ class Option <E>
      */
     enum ArgType
     {
-        NONE, REQUIRED, OPTIONAL,
+        NONE(' '), REQUIRED('+'), OPTIONAL('?'),
+        ;
+        
+        private char symbol;
+        
+        private ArgType(char symbol)
+        {
+            this.symbol = symbol;
+        }
+        
+        public char getSymbol()
+        {
+            return symbol;
+        }
     }
     
     private final E longOption;
@@ -46,6 +64,6 @@ class Option <E>
     @Override
     public String toString()
     {
-        return getLongOption() + "(" + type.toString() + ")";
+        return getLongOption() + "(" + type.toString() + ")" + type.getSymbol();
     }
 }
