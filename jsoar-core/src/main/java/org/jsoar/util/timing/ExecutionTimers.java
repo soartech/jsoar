@@ -58,4 +58,10 @@ public class ExecutionTimers
         ExecutionTimers.enabled = enabled;
     }
 
+
+    public static boolean isEnabled()
+    {
+        return ExecutionTimers.enabled;
+    }
+
 }

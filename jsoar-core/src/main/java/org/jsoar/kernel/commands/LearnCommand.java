@@ -27,4 +27,10 @@ public class LearnCommand extends AbstractToggleCommand
     {
         agent.getProperties().set(SoarProperties.LEARNING_ON, enable);
     }
+
+    @Override
+    protected boolean query(Agent agent)
+    {
+        return agent.getProperties().get(SoarProperties.LEARNING_ON);
+    }
 }

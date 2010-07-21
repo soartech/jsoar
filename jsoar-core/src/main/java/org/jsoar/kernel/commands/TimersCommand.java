@@ -22,5 +22,11 @@ public class TimersCommand extends AbstractToggleCommand {
     {
         ExecutionTimers.setEnabled(enable);
     }
+    
+    @Override
+    protected boolean query(Agent agent)
+    {
+        return ExecutionTimers.isEnabled();
+    }
 
 }

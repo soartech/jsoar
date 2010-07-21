@@ -27,4 +27,10 @@ public class SaveBacktracesCommand extends AbstractToggleCommand
     {
         agent.getProperties().set(SoarProperties.EXPLAIN, enable);
     }
+    
+    @Override
+    protected boolean query(Agent agent)
+    {
+        return agent.getProperties().get(SoarProperties.EXPLAIN);
+    }
 }

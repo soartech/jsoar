@@ -31,4 +31,11 @@ public class VerboseCommand extends AbstractToggleCommand
     {
         agent.getTrace().setEnabled(Category.VERBOSE, enable);
     }
+    
+    @Override
+    protected boolean query(Agent agent)
+    {
+        return agent.getTrace().isEnabled(Category.VERBOSE);
+    }
+    
 }
