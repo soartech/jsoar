@@ -36,8 +36,8 @@ import org.jsoar.kernel.SoarException;
  * </pre>
  * 
  * <p>
- * Long options must start with a letter and then consist of letters, numbers or
- * dashes. The long option will be match in a case insensitive manner.
+ * Long options toString() must start with a letter. The long option will be
+ * matched in a case insensitive manner.
  * 
  * <p>
  * TODO: SoarException probably the wrong exception to use since this has
@@ -55,7 +55,7 @@ import org.jsoar.kernel.SoarException;
  * 
  * @author voigtjr
  */
-public class OptionProcessor <E>
+public class OptionProcessor<E>
 {
     /**
      * <p>
@@ -85,34 +85,28 @@ public class OptionProcessor <E>
             if ((longOption == null) || (longOption.toString() == null))
                 throw new NullPointerException("longOption must not be null.");
 
-            if (longOption.toString().isEmpty())
+            String str = longOption.toString();
+            if (str.isEmpty())
                 throw new IllegalArgumentException(
                         "Long option is empty string.");
 
-            if (longOption.toString().matches("[^a-z-]+"))
-                throw new IllegalArgumentException(
-                        "Illegal characters in long option.");
-
-            if (longOption.toString().charAt(0) == '-')
-                throw new IllegalArgumentException(
-                        "Long option can't start with dash.");
-
-            shortOption(longOption.toString().charAt(0));
+            shortOption(str.charAt(0));
 
             this.longOption = longOption;
         }
-        
+
         /**
-         * Commit the previous option and return a new option builder. Meant to be chained:
+         * Commit the previous option and return a new option builder. Meant to
+         * be chained:
          * 
-         * <pre>options
-         * .newOption("alpha")
-         * .newOption("beta").requiredArg()
-         * .newOption("charlie")
-         * .done()</pre>
+         * <pre>
+         * options.newOption(&quot;alpha&quot;).newOption(&quot;beta&quot;).requiredArg().newOption(&quot;charlie&quot;)
+         *         .done()
+         * </pre>
          * 
          * @see OptionProcessor#newOption(Object)
-         * @param longOption The new option
+         * @param longOption
+         *            The new option
          * @return Next option's builder.
          */
         public OptionBuilder newOption(E longOption)
@@ -122,7 +116,8 @@ public class OptionProcessor <E>
         }
 
         /**
-         * <p>Set the short option. The default for this is the first character of
+         * <p>
+         * Set the short option. The default for this is the first character of
          * the long option. Must be a letter.
          * 
          * @param shortOption
@@ -145,7 +140,8 @@ public class OptionProcessor <E>
         }
 
         /**
-         * <p>Mark this option as having no argument. This is the default.
+         * <p>
+         * Mark this option as having no argument. This is the default.
          * 
          * @return The builder.
          * @throws IllegalStateException
@@ -161,9 +157,11 @@ public class OptionProcessor <E>
         }
 
         /**
-         * <p>Mark this option as having an optional argument.
+         * <p>
+         * Mark this option as having an optional argument.
          * 
-         * <p>This option will consume the next option on the line, if any. When
+         * <p>
+         * This option will consume the next option on the line, if any. When
          * using short options, the argument can be placed with the short
          * option: -aone could be equivalent to -a one
          * 
@@ -181,10 +179,12 @@ public class OptionProcessor <E>
         }
 
         /**
-         * <p>Mark this option as having a required argument. This option must be
+         * <p>
+         * Mark this option as having a required argument. This option must be
          * followed by an argument.
          * 
-         * <p>This option will consume the next option on the line, if any. When
+         * <p>
+         * This option will consume the next option on the line, if any. When
          * using short options, the argument can be placed with the short
          * option: -aone could be equivalent to -a one
          * 
@@ -202,7 +202,8 @@ public class OptionProcessor <E>
         }
 
         /**
-         * <p>Register the previous option builder and finish registering options.
+         * <p>
+         * Register the previous option builder and finish registering options.
          * 
          * @throws IllegalStateException
          *             If option is already registered.
@@ -217,18 +218,28 @@ public class OptionProcessor <E>
 
             arguments = null;
 
-            Option<E> prev = shortOptions.put(shortOption, Option.newInstance(longOption, type));
-            if (prev != null)
+            Option<E> shortPrev = shortOptions.put(shortOption, Option
+                    .newInstance(longOption, type));
+            if (shortPrev != null)
+            {
+                // roll back
+                shortOptions.put(shortOption, shortPrev);
                 throw new IllegalArgumentException(
                         "Already have a short option using -" + shortOption
-                                + ": " + prev.getLongOption());
-            prev = longOptions.put(longOption.toString().toLowerCase(), Option.newInstance(longOption, type));
-            if (prev != null)
+                                + ": " + shortPrev);
+            }
+
+            String longOptionString = longOption.toString().toLowerCase();
+            Option<E> longPrev = longOptions.put(longOptionString, Option
+                    .newInstance(longOption, type));
+            if (longPrev != null)
             {
+                // roll back
                 shortOptions.remove(shortOption);
+                longOptions.put(longOptionString, longPrev);
                 throw new IllegalArgumentException(
-                        "Already have a long option using --" + longOption
-                                + ": " + prev.getLongOption());
+                        "Already have a long option using --"
+                                + longOptionString + ": " + longPrev);
             }
             registered = true;
         }
@@ -243,18 +254,16 @@ public class OptionProcessor <E>
      * lower-case after. Call newOption() on builder to register another option,
      * or done() when all options registered. Options are meant to be chained:
      * 
-     * <pre>
-     * options
-     * .newOption("alpha")
-     * .newOption("beta").requiredArg()
-     * .newOption("charlie")
-     * .done()
-     * </pre>
+     * <p>
+     * <code>
+     * options.newOption(&quot;alpha&quot;).newOption(&quot;beta&quot;).requiredArg().newOption(&quot;charlie&quot;)
+     *         .done()
+     * </code>
      * 
      * <p>
-     * Set a custom short option by calling shortOption on the returned
-     * builder. Useful for commands with more than two long options that start
-     * with the same letter.
+     * Set a custom short option by calling shortOption on the returned builder.
+     * Useful for commands with more than two long options that start with the
+     * same letter.
      * 
      * <p>
      * Argument type defaults to none, call optionalArg or requiredArg to
@@ -285,26 +294,31 @@ public class OptionProcessor <E>
     private Map<String, String> arguments = new HashMap<String, String>();
 
     /**
-     * <p>Evaluate a command line. Assumes first arg is command name (ignored).
+     * <p>
+     * Evaluate a command line. Assumes first arg is command name (ignored).
      * 
-     * <p>Short options are preceded by one dash and may be combined together.
+     * <p>
+     * Short options are preceded by one dash and may be combined together.
      * "-fo" is equivalent to "-f -o". If an option takes an argument, the rest
      * of the token is checked and used before checking for and using the next
      * argument. For example, if "-f" takes an argument, "-fo" means "o" is the
      * argument for "-f" and is equivalent to "-f o"
      * 
-     * <p>Long options are preceded by two dashes and must be by themselves. The
+     * <p>
+     * Long options are preceded by two dashes and must be by themselves. The
      * next argument is used for the option argument if the option takes an
      * argument.
      * 
-     * <p>Optional arguments are tricky and could be implemented a few ways. This
+     * <p>
+     * Optional arguments are tricky and could be implemented a few ways. This
      * implementation assumes that if there is any argument following an
      * argument with an optional argument, that it is that option's argument.
      * For example, if --foo takes an optional argument, then "--foo --bar" will
      * mean that "--bar" is interpreted as an argument to the "--foo" option,
      * and not its own option.
      * 
-     * <p>Non-option arguments are collected and returned in a new list in the same
+     * <p>
+     * Non-option arguments are collected and returned in a new list in the same
      * order they are encountered.
      * 
      * @param args
@@ -444,13 +458,13 @@ public class OptionProcessor <E>
     private Option<E> resolveShortOption(char arg) throws SoarException
     {
         if (!Character.isLetter(arg))
-            throw new SoarException("Short option is not a letter: "
-                    + arg);
+            throw new SoarException("Short option is not a letter: " + arg);
         return shortOptions.get(arg);
     }
 
     /**
-     * <p>Test to see if the most recent invocation of process uncovered the given
+     * <p>
+     * Test to see if the most recent invocation of process uncovered the given
      * option.
      * 
      * @param longOption
@@ -473,7 +487,8 @@ public class OptionProcessor <E>
     }
 
     /**
-     * <p>Manually set an option as if it had been encountered during process.
+     * <p>
+     * Manually set an option as if it had been encountered during process.
      * 
      * Caution: This doesn't enforce optional/required arguments!
      * 
@@ -489,7 +504,8 @@ public class OptionProcessor <E>
     }
 
     /**
-     * <p>Manually unset an option as if it had never been encountered during
+     * <p>
+     * Manually unset an option as if it had never been encountered during
      * process.
      * 
      * @param longOption
@@ -511,9 +527,11 @@ public class OptionProcessor <E>
     }
 
     /**
-     * <p>Manually set an option and its argument.
+     * <p>
+     * Manually set an option and its argument.
      * 
-     * <p>Caution: This doesn't enforce optional/required arguments!
+     * <p>
+     * Caution: This doesn't enforce optional/required arguments!
      * 
      * @param longOption
      *            The long option to set.
@@ -536,7 +554,8 @@ public class OptionProcessor <E>
     }
 
     /**
-     * <p>Get an option's argument as a String.
+     * <p>
+     * Get an option's argument as a String.
      * 
      * @param longOption
      *            Long option who's argument needs retrieval
@@ -556,9 +575,10 @@ public class OptionProcessor <E>
                     "Call process() before testing for options.");
         return arguments.get(longOption.toString().toLowerCase());
     }
-    
+
     /**
-     * <p>Get an option's argument as an integer.
+     * <p>
+     * Get an option's argument as an integer.
      * 
      * @param longOption
      *            Long option who's argument needs retrieval
@@ -578,14 +598,15 @@ public class OptionProcessor <E>
         {
             return Integer.parseInt(arg);
         }
-        catch(NumberFormatException e)
+        catch (NumberFormatException e)
         {
             throw new SoarException("Invalid integer value: " + arg);
         }
     }
 
     /**
-     * <p>Get an option's argument as a double.
+     * <p>
+     * Get an option's argument as a double.
      * 
      * @param longOption
      *            Long option who's argument needs retrieval
@@ -605,14 +626,15 @@ public class OptionProcessor <E>
         {
             return Double.parseDouble(arg);
         }
-        catch(NumberFormatException e)
+        catch (NumberFormatException e)
         {
             throw new SoarException("Invalid double value: " + arg);
         }
     }
 
     /**
-     * <p>Get an option's argument as a float.
+     * <p>
+     * Get an option's argument as a float.
      * 
      * @param longOption
      *            Long option who's argument needs retrieval
@@ -632,9 +654,29 @@ public class OptionProcessor <E>
         {
             return Float.parseFloat(arg);
         }
-        catch(NumberFormatException e)
+        catch (NumberFormatException e)
         {
             throw new SoarException("Invalid float value: " + arg);
         }
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder("[");
+        boolean first = true;
+        for (Option<?> option : longOptions.values())
+        {
+            if (!first)
+                sb.append(",");
+            else
+                first = false;
+            sb.append(option);
+        }
+
+        return sb.append("]").toString();
     }
 }
