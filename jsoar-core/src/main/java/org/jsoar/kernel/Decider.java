@@ -2676,8 +2676,10 @@ public class Decider
     {
         gds.addWme(wme_to_add);
 
-        context.getTrace().print(EnumSet.of(Category.WM_CHANGES, Category.VERBOSE), 
-                "Adding to GDS for %s: %s", wme_to_add.gds.getGoal(), wme_to_add);
+        if(context.getTrace().isEnabled(EnumSet.of(Category.GDS, Category.WM_CHANGES, Category.VERBOSE)))
+        {
+            context.getTrace().startNewLine().print("Adding to GDS for %s: %s", wme_to_add.gds.getGoal(), wme_to_add);
+        }
     }
     
 
@@ -3095,10 +3097,6 @@ public class Decider
                 }
     		}
         }
-        
-        context.getTrace().print(Category.OPERAND2_REMOVALS, 
-                            "\n    REMOVING GOAL [%s] due to change in GDS WME %s",
-                            w.gds.getGoal(), w);
         
         remove_existing_context_and_descendents(w.gds.getGoal());
         /* BUG: Need to reset highest_goal here ???*/
