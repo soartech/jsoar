@@ -42,7 +42,6 @@ import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.kernel.rhs.functions.StandardFunctions;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
-import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
@@ -532,7 +531,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
      * @return the current goal stack as a list of goal identifiers. The
      *  caller may modify the list without affecting the agent.
      */
-    public List<Identifier> getGoalStack()
+    public List<Goal> getGoalStack()
     {
         return decider.getGoalStack();
     }

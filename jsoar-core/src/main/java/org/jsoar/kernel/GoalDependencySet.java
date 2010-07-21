@@ -13,7 +13,11 @@ import org.jsoar.kernel.symbols.Identifier;
 /**
  * Public interface for a Goal Dependency Set.
  * 
+ * <p>This interface can be retrieved from an {@link Identifier}
+ * using adaptables.
+ * 
  * @author ray
+ * @see Identifier
  */
 public interface GoalDependencySet
 {

@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.GoalDependencySetImpl;
 import org.jsoar.kernel.RunType;
@@ -102,5 +103,43 @@ public class IdentifierImplTest extends JSoarTest
         final IdentifierImpl id = syms.createIdentifier('S');
         id.smem_lti = 99;
         assertEquals("@S" + id.getNameNumber(), String.format("%s", id));
+    }
+    
+    @Test
+    public void testStateIsAdaptableToGoal()
+    {
+        final Identifier state = agent.getSymbols().findIdentifier('S', 1);
+        assertNotNull(state);
+        
+        final Goal goal = Adaptables.adapt(state, Goal.class);
+        assertNotNull(goal);
+    }
+    
+    @Test
+    public void testNonStatesAreNotAdaptableToGoal()
+    {
+        final Identifier id = agent.getSymbols().createIdentifier('Z');
+        assertNotNull(id);
+        assertFalse(id.isGoal());
+        
+        final Goal goal = Adaptables.adapt(id, Goal.class);
+        assertNull(goal);
+    }
+    
+    @Test
+    public void testAdaptToGoalAndGetSelectedOperatorName() throws Exception
+    {
+        agent.getProductions().loadProduction("propose (state <s> ^superstate nil) --> (<s> ^operator.name test-operator)");
+        agent.runFor(1, RunType.DECISIONS);
+        
+        final Goal state = agent.getGoalStack().get(0);
+        assertNotNull(state);
+        
+        // just verify adaptability here..
+        final Goal goal = Adaptables.adapt(state.getIdentifier(), Goal.class);
+        assertNotNull(goal);
+        
+        // test the operator name
+        assertEquals("test-operator", goal.getOperatorName().asString().getValue());
     }
 }

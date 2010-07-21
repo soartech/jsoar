@@ -9,10 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
 
@@ -42,12 +42,12 @@ public final class GdsPrintCommand implements SoarCommand
         //  the wme-only list, which is in bottom-to-top order by goal
         //  the goal list, which is in top-to-bottom order by goal
         
-        final List<Identifier> goalsTopToBottom = agent.getGoalStack();
-        final List<Identifier> goalsBottomtoTop = new ArrayList<Identifier>(goalsTopToBottom);
+        final List<Goal> goalsTopToBottom = agent.getGoalStack();
+        final List<Goal> goalsBottomtoTop = new ArrayList<Goal>(goalsTopToBottom);
         Collections.reverse(goalsBottomtoTop);
         
         // list wmes from goals in bottom-to-top order
-        for(final Identifier goal : goalsBottomtoTop)
+        for(final Goal goal : goalsBottomtoTop)
         {
             final GoalDependencySet gds = Adaptables.adapt(goal, GoalDependencySet.class);
             if(gds == null)
@@ -66,7 +66,7 @@ public final class GdsPrintCommand implements SoarCommand
         result += "************************************************************\n";
         
         // list goals with wmes in top-to-bottom order
-        for(final Identifier goal : goalsTopToBottom)
+        for(final Goal goal : goalsTopToBottom)
         {
             result += "  For Goal  " + goal.toString();
             final GoalDependencySet gds = Adaptables.adapt(goal, GoalDependencySet.class);

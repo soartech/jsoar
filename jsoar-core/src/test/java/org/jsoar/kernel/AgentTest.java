@@ -10,7 +10,6 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -55,7 +54,7 @@ public class AgentTest
     {
         agent.runFor(3, RunType.DECISIONS);
         // We start with S1. Running three steps, gives three new states, S2, S3, S4
-        final List<Identifier> gs = agent.getGoalStack();
+        final List<Goal> gs = agent.getGoalStack();
         assertNotNull(gs);
         assertEquals(4, gs.size());
         final SymbolFactory syms = agent.getSymbols();
@@ -63,7 +62,10 @@ public class AgentTest
                                    syms.findIdentifier('S', 3), 
                                    syms.findIdentifier('S', 5), 
                                    syms.findIdentifier('S', 7)),
-                     gs);
+                     Arrays.asList(gs.get(0).getIdentifier(),
+                             gs.get(1).getIdentifier(),
+                             gs.get(2).getIdentifier(),
+                             gs.get(3).getIdentifier()));
     }
 
 }

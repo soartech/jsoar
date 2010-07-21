@@ -10,6 +10,7 @@ import java.util.Formatter;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.GoalDependencySetImpl;
 import org.jsoar.kernel.SavedFiringType;
@@ -22,6 +23,7 @@ import org.jsoar.kernel.memory.WmeType;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.markers.Marker;
 
 import com.google.common.collect.Iterators;
@@ -380,7 +382,11 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public Object getAdapter(Class<?> klass)
     {
-        if(GoalDependencySet.class.equals(klass))
+        if(Goal.class.equals(klass))
+        {
+            return isGoal() ? new GoalImpl() : null;
+        }
+        else if(GoalDependencySet.class.equals(klass))
         {
             return gds;
         }
@@ -460,6 +466,56 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         {
             throw new UnsupportedOperationException();
         }
-        
+    }
+    
+    private class GoalImpl extends AbstractAdaptable implements Goal
+    {
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.Goal#getIdentifier()
+         */
+        @Override
+        public Identifier getIdentifier()
+        {
+            return IdentifierImpl.this;
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.Goal#getOperator()
+         */
+        @Override
+        public IdentifierImpl getOperator()
+        {
+            final WmeImpl wmes = operator_slot != null ? operator_slot.getWmes() : null;
+            return wmes != null ? wmes.value.asIdentifier() : null;
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.kernel.Goal#getOperatorName()
+         */
+        @Override
+        public Symbol getOperatorName()
+        {
+            final IdentifierImpl op = getOperator();
+            final Slot slot = Slot.find_slot(op, factory.findString("name"));
+            
+            return slot != null && slots.getWmes() != null ? slot.getWmes().getValue() : null;
+        }
+
+        /* (non-Javadoc)
+         * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
+         */
+        @Override
+        public Object getAdapter(Class<?> klass)
+        {
+            if(Identifier.class.equals(klass))
+            {
+                return getIdentifier();
+            }
+            else if(GoalDependencySet.class.equals(klass))
+            {
+                return gds;
+            }
+            return super.getAdapter(klass);
+        }
     }
 }

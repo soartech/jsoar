@@ -14,7 +14,6 @@ import java.util.Set;
 
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.SimpleMatcher;
-import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.Test;
 
@@ -50,7 +49,7 @@ public class GDSTests extends FunctionalTestHarness
         runTest("testDoubleSupport", 5);
         assertEquals(2, agent.getGoalStack().size());
         
-        List<Identifier> goals = agent.getGoalStack();
+        List<Goal> goals = agent.getGoalStack();
         GoalDependencySet gds = Adaptables.adapt(goals.get(0), GoalDependencySet.class);
         assertTrue("Expected GDS for top state to be empty", gds == null);
         
@@ -79,7 +78,7 @@ public class GDSTests extends FunctionalTestHarness
      */
     private void testMultiLevel() throws Exception
     {
-        List<Identifier> goals = agent.getGoalStack();
+        final List<Goal> goals = agent.getGoalStack();
         assertTrue("Unexpected number of states", goals.size() == 3);
         
         // top state

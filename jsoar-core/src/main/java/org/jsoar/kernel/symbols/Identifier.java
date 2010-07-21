@@ -8,6 +8,7 @@ package org.jsoar.kernel.symbols;
 import java.util.EnumSet;
 import java.util.Iterator;
 
+import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeType;
@@ -20,6 +21,7 @@ import org.jsoar.kernel.memory.WmeType;
  * <ul>
  * <li>{@link GoalDependencySet} if this identifier is a goal and the goal
  *      has a GDS.
+ * <li>{@link Goal} if this identifier is a goal.
  * </ul>
  * 
  * @author ray

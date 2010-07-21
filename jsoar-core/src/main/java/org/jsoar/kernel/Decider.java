@@ -30,7 +30,6 @@ import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.smem.SemanticMemory;
-import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
@@ -216,12 +215,14 @@ public class Decider
         this.smem = Adaptables.require(getClass(), context, SemanticMemory.class);
     }
     
-    public List<Identifier> getGoalStack()
+    public List<Goal> getGoalStack()
     {
-        final List<Identifier> result = new ArrayList<Identifier>();
+        final List<Goal> result = new ArrayList<Goal>();
         for (IdentifierImpl g = top_goal; g != null; g = g.lower_goal)
         {
-            result.add(g);
+            final Goal goal = Adaptables.adapt(g, Goal.class);
+            assert goal != null;
+            result.add(goal);
         }
         return result;
     }
