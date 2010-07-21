@@ -40,7 +40,8 @@ public class PrintCommand implements SoarCommand
 
     private enum Options
     {
-        all, chunks, Defaults, depth, Filename, full, internal, justifications, name, operators, rl, stack, States, Template, tree, user, varprint,
+        all, chunks, Defaults, depth, Filename, full, internal, justifications, 
+        name, operators, rl, stack, States, Template, tree, user, varprint,
     }
 
     public PrintCommand(Agent agent)
@@ -68,13 +69,16 @@ public class PrintCommand implements SoarCommand
         .done();
     }
 
-    public void setDefaultDepth(int depth)
+    public void setDefaultDepth(int depth) throws SoarException
+    {
+        checkDepth(depth);
+        this.defaultDepth = depth;
+    }
+    
+    private void checkDepth(int depth) throws SoarException
     {
         if (depth <= 0)
-        {
-            throw new IllegalArgumentException("depth must be greater than 0");
-        }
-        this.defaultDepth = depth;
+            throw new SoarException("depth must be greater than 0");
     }
 
     public int getDefaultDepth()
@@ -111,9 +115,9 @@ public class PrintCommand implements SoarCommand
 
         if (options.has(Options.depth))
         {
-            depth = options.getInteger(Options.depth);
-            if (depth < 0)
-                throw new SoarException("--depth must be positive");
+            int newDepth = options.getInteger(Options.depth);
+            checkDepth(newDepth);
+            depth = newDepth;
         }
 
         if (options.has(Options.varprint))
@@ -161,7 +165,6 @@ public class PrintCommand implements SoarCommand
             try
             {
                 int tt = Integer.parseInt(argString);
-                // TODO: make this less naive
                 for (Wme wme : agent.getAllWmesInRete())
                 {
                     if (wme.getTimetag() == tt)
