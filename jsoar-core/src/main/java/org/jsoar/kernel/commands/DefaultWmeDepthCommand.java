@@ -39,10 +39,6 @@ public final class DefaultWmeDepthCommand implements SoarCommand
             {
                 throw new SoarException(args[1] + " is not a valid number");
             }
-            catch(IllegalArgumentException e)
-            {
-                throw new SoarException(e.getMessage());
-            }
         }
         else
         {
