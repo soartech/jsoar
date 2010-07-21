@@ -18,19 +18,21 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 /**
- * TODO: upper-case long options should work
- * 
- * TODO: tests involving new usage of generics
+ * TODO: new chaining
  * 
  * @author voigtjr
- *
+ * 
  */
 public class OptionProcessorTest
 {
     private OptionProcessor<String> op;
+
     private final String alpha = "alpha";
+
     private final String bravo = "bravo";
+
     private final String charlie = "charlie";
+
     private final String delta = "delta";
 
     @Before
@@ -74,7 +76,7 @@ public class OptionProcessorTest
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testRegisterPostmod1()
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
@@ -83,7 +85,7 @@ public class OptionProcessorTest
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testRegisterPostmod2()
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
@@ -92,7 +94,7 @@ public class OptionProcessorTest
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testRegisterPostmod3()
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
@@ -101,7 +103,7 @@ public class OptionProcessorTest
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testRegisterPostmod4()
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
@@ -110,7 +112,7 @@ public class OptionProcessorTest
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testRegisterTwice()
     {
         OptionBuilder b = op.newOption(alpha).shortOption('a');
@@ -155,8 +157,8 @@ public class OptionProcessorTest
                 }
                 try
                 {
-                    op.newOption(alpha).shortOption(
-                            Character.valueOf(i)).done();
+                    op.newOption(alpha).shortOption(Character.valueOf(i))
+                            .done();
                     throw new AssertionError(
                             "Should have rejected short option " + i);
                 }
@@ -192,18 +194,80 @@ public class OptionProcessorTest
     }
 
     @Test
-    public void testRegisterLegalOptions() throws SoarException
+    public void testRegisterLegalOptions01() throws SoarException
     {
         verifySingleOption(alpha, null, alpha, 'a');
-        verifySingleOption("Accent", null, "accent", 'A');
-        verifySingleOption("beta", 'b', "beta", 'b');
-        verifySingleOption(bravo, 'B', bravo, 'B');
-        verifySingleOption("echo-", null, "echo-", 'e');
-        verifySingleOption("fox-trot", null, "fox-trot", 'f');
     }
 
-    public void verifySingleOption(String lReg, Character sReg,
-            String lExpect, char sExpect) throws SoarException
+    @Test
+    public void testRegisterLegalOptions02() throws SoarException
+    {
+        verifySingleOption("Accent", null, "accent", 'A');
+    }
+
+    @Test
+    public void testRegisterLegalOptions03() throws SoarException
+    {
+        verifySingleOption("beta", 'b', "bEtA", 'b');
+
+    }
+
+    @Test
+    public void testRegisterLegalOptions04() throws SoarException
+    {
+        verifySingleOption(bravo, 'B', bravo, 'B');
+    }
+
+    @Test
+    public void testRegisterLegalOptions05() throws SoarException
+    {
+        verifySingleOption("echo-", null, "echo-", 'e');
+    }
+
+    @Test
+    public void testRegisterLegalOptions06() throws SoarException
+    {
+        verifySingleOption("fox-trot", null, "FOX-TROT", 'f');
+    }
+
+    @Test
+    public void testRegisterLegalOptions07() throws SoarException
+    {
+        verifySingleOption("LONG", null, "long", 'L');
+    }
+
+    @Test
+    public void testRegisterLegalOptions08() throws SoarException
+    {
+        verifySingleOption("L-ONG", null, "l-ong", 'L');
+    }
+
+    @Test
+    public void testRegisterLegalOptions09() throws SoarException
+    {
+        verifySingleOption("L--ONG", 'l', "l--ong", 'l');
+    }
+
+    @Test
+    public void testRegisterLegalOptions10() throws SoarException
+    {
+        verifySingleOption("L0NG", 'l', "l0ng", 'l');
+    }
+
+    @Test
+    public void testRegisterLegalOptions11() throws SoarException
+    {
+        verifySingleOption("e1337", null, "e1337", 'e');
+    }
+
+    @Test
+    public void testRegisterLegalOptions12() throws SoarException
+    {
+        verifySingleOption("l0", 'L', "l0", 'L');
+    }
+
+    public void verifySingleOption(String lReg, Character sReg, String lExpect,
+            char sExpect) throws SoarException
     {
         if (sReg == null)
             op.newOption(lReg).done();
@@ -219,19 +283,53 @@ public class OptionProcessorTest
         assertTrue(op.has(lReg));
     }
 
-    @Test
-    public void testProcessNoOptions() throws SoarException
+    @Test(expected = IllegalArgumentException.class)
+    public void testRegisterIllegalOptionNumber1() throws SoarException
     {
-        op.process(new ArrayList<String>());
-        op.process(Lists.newArrayList("command"));
-        op.process(Lists.newArrayList("command", "arg"));
-        op.process(Lists.newArrayList("command", "arg", "arg"));
+        op.newOption("640").done();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRegisterIllegalOptionNumber2() throws SoarException
+    {
+        op.newOption("1eet").done();
+    }
+
+    @Test
+    public void testProcessNoOptions1() throws SoarException
+    {
+        List<String> nonOptions = op.process(new ArrayList<String>());
+        assertTrue(nonOptions.isEmpty());
+    }
+
+    @Test
+    public void testProcessNoOptions2() throws SoarException
+    {
+        List<String> nonOptions = op.process(Lists.newArrayList("command"));
+        assertTrue(nonOptions.isEmpty());
+    }
+
+    @Test
+    public void testProcessNoOptions3() throws SoarException
+    {
+        List<String> nonOptions = op.process(Lists.newArrayList("command",
+                "arg"));
+        assertEquals(nonOptions.size(), 1);
+    }
+
+    @Test
+    public void testProcessNoOptions4() throws SoarException
+    {
+        List<String> nonOptions = op.process(Lists.newArrayList("command",
+                "arg", "arg"));
+        assertEquals(nonOptions.size(), 2);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testCheckOutOfOrder()
     {
         op.newOption(alpha).done();
+        // no process() call
         op.has(alpha);
     }
 
@@ -239,6 +337,7 @@ public class OptionProcessorTest
     public void testCheckArgOutOfOrder()
     {
         op.newOption(alpha).done();
+        // no process() call
         op.get(alpha);
     }
 
@@ -260,8 +359,8 @@ public class OptionProcessorTest
         verify(Lists.newArrayList("command", "--alpha", "--bravo", "arg"), arg,
                 alpha, bravo);
 
-        verify(Lists.newArrayList("command", "-a", "--bravo"), empty,
-                alpha, bravo);
+        verify(Lists.newArrayList("command", "-a", "--bravo"), empty, alpha,
+                bravo);
         verify(Lists.newArrayList("command", "arg", "-a", "--bravo"), arg,
                 alpha, bravo);
         verify(Lists.newArrayList("command", "-a", "arg", "--bravo"), arg,
@@ -269,8 +368,8 @@ public class OptionProcessorTest
         verify(Lists.newArrayList("command", "-a", "--bravo", "arg"), arg,
                 alpha, bravo);
 
-        verify(Lists.newArrayList("command", "--alpha", "-b"), empty,
-                alpha, bravo);
+        verify(Lists.newArrayList("command", "--alpha", "-b"), empty, alpha,
+                bravo);
         verify(Lists.newArrayList("command", "arg", "--alpha", "-b"), arg,
                 alpha, bravo);
         verify(Lists.newArrayList("command", "--alpha", "arg", "-b"), arg,
@@ -278,26 +377,24 @@ public class OptionProcessorTest
         verify(Lists.newArrayList("command", "--alpha", "-b", "arg"), arg,
                 alpha, bravo);
 
-        verify(Lists.newArrayList("command", "-a", "-b"), empty, alpha,
+        verify(Lists.newArrayList("command", "-a", "-b"), empty, alpha, bravo);
+        verify(Lists.newArrayList("command", "arg", "-a", "-b"), arg, alpha,
                 bravo);
-        verify(Lists.newArrayList("command", "arg", "-a", "-b"), arg,
-                alpha, bravo);
-        verify(Lists.newArrayList("command", "-a", "arg", "-b"), arg,
-                alpha, bravo);
-        verify(Lists.newArrayList("command", "-a", "-b", "arg"), arg,
-                alpha, bravo);
-
-        verify(Lists.newArrayList("command", "-b", "-a"), empty, alpha,
+        verify(Lists.newArrayList("command", "-a", "arg", "-b"), arg, alpha,
                 bravo);
-        verify(Lists.newArrayList("command", "arg", "-b", "-a"), arg,
-                alpha, bravo);
-        verify(Lists.newArrayList("command", "-b", "arg", "-a"), arg,
-                alpha, bravo);
-        verify(Lists.newArrayList("command", "-b", "-a", "arg"), arg,
-                alpha, bravo);
+        verify(Lists.newArrayList("command", "-a", "-b", "arg"), arg, alpha,
+                bravo);
 
-        verify(Lists.newArrayList("command", "--bravo", "-a"), empty,
-                alpha, bravo);
+        verify(Lists.newArrayList("command", "-b", "-a"), empty, alpha, bravo);
+        verify(Lists.newArrayList("command", "arg", "-b", "-a"), arg, alpha,
+                bravo);
+        verify(Lists.newArrayList("command", "-b", "arg", "-a"), arg, alpha,
+                bravo);
+        verify(Lists.newArrayList("command", "-b", "-a", "arg"), arg, alpha,
+                bravo);
+
+        verify(Lists.newArrayList("command", "--bravo", "-a"), empty, alpha,
+                bravo);
         verify(Lists.newArrayList("command", "arg", "--bravo", "-a"), arg,
                 alpha, bravo);
         verify(Lists.newArrayList("command", "--bravo", "arg", "-a"), arg,
@@ -305,8 +402,8 @@ public class OptionProcessorTest
         verify(Lists.newArrayList("command", "--bravo", "-a", "arg"), arg,
                 alpha, bravo);
 
-        verify(Lists.newArrayList("command", "-b", "--alpha"), empty,
-                alpha, bravo);
+        verify(Lists.newArrayList("command", "-b", "--alpha"), empty, alpha,
+                bravo);
         verify(Lists.newArrayList("command", "arg", "-b", "--alpha"), arg,
                 alpha, bravo);
         verify(Lists.newArrayList("command", "-b", "arg", "--alpha"), arg,
@@ -323,19 +420,13 @@ public class OptionProcessorTest
         verify(Lists.newArrayList("command", "--bravo", "--alpha", "arg"), arg,
                 alpha, bravo);
 
-        verify(Lists.newArrayList("command", "-ab"), empty, alpha,
-                bravo);
-        verify(Lists.newArrayList("command", "arg", "-ab"), arg, alpha,
-                bravo);
-        verify(Lists.newArrayList("command", "-ab", "arg"), arg, alpha,
-                bravo);
+        verify(Lists.newArrayList("command", "-ab"), empty, alpha, bravo);
+        verify(Lists.newArrayList("command", "arg", "-ab"), arg, alpha, bravo);
+        verify(Lists.newArrayList("command", "-ab", "arg"), arg, alpha, bravo);
 
-        verify(Lists.newArrayList("command", "-ba"), empty, alpha,
-                bravo);
-        verify(Lists.newArrayList("command", "arg", "-ba"), arg, alpha,
-                bravo);
-        verify(Lists.newArrayList("command", "-ba", "arg"), arg, alpha,
-                bravo);
+        verify(Lists.newArrayList("command", "-ba"), empty, alpha, bravo);
+        verify(Lists.newArrayList("command", "arg", "-ba"), arg, alpha, bravo);
+        verify(Lists.newArrayList("command", "-ba", "arg"), arg, alpha, bravo);
     }
 
     private void verify(List<String> line, List<String> nonOptExpected,
@@ -350,9 +441,7 @@ public class OptionProcessorTest
     @Test
     public void testNonOptArgOrder() throws SoarException
     {
-        op.newOption(alpha).done();
-        op.newOption(bravo).done();
-        op.newOption(charlie).done();
+        op.newOption(alpha).newOption(bravo).newOption(charlie).done();
 
         verifyabc(Lists.newArrayList("command", "--alpha", "--bravo",
                 "--charlie", "1", "2", "3"));
@@ -561,7 +650,7 @@ public class OptionProcessorTest
         assertArrayEquals(expected, nonOpt.toArray());
 
     }
-    
+
     @Test
     public void testManualSetUnset() throws SoarException
     {
@@ -583,13 +672,13 @@ public class OptionProcessorTest
         assertFalse(op.has(alpha));
         assertTrue(op.has(bravo));
         assertNull(op.get(bravo));
-        
+
         op.set(bravo, "arg"); // ignores fact this option takes no arg
 
         assertFalse(op.has(alpha));
         assertTrue(op.has(bravo));
         assertEquals("arg", op.get(bravo));
-        
+
         op.unset(bravo);
         op.set(bravo, null);
 
@@ -597,68 +686,68 @@ public class OptionProcessorTest
         assertTrue(op.has(bravo));
         assertNull(op.get(bravo));
     }
-    
-    @Test(expected=IllegalStateException.class)
+
+    @Test(expected = IllegalStateException.class)
     public void testManualOrderException1()
     {
         op.newOption(alpha).done();
         op.set(alpha);
     }
-    
-    @Test(expected=IllegalStateException.class)
+
+    @Test(expected = IllegalStateException.class)
     public void testManualOrderException2()
     {
         op.newOption(alpha).done();
         op.unset(alpha);
     }
-    
-    @Test(expected=IllegalStateException.class)
+
+    @Test(expected = IllegalStateException.class)
     public void testManualOrderException3()
     {
         op.newOption(alpha).done();
         op.set(alpha, null);
     }
-    
-    @Test(expected=NullPointerException.class)
+
+    @Test(expected = NullPointerException.class)
     public void testHasNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
         op.has(null);
     }
-    
-    @Test(expected=NullPointerException.class)
+
+    @Test(expected = NullPointerException.class)
     public void testGetNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
         op.get(null);
     }
-    
-    @Test(expected=NullPointerException.class)
+
+    @Test(expected = NullPointerException.class)
     public void testSetNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
         op.set(null);
     }
-    
-    @Test(expected=NullPointerException.class)
+
+    @Test(expected = NullPointerException.class)
     public void testSetArgNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
         op.set(null, null); // the second null here is legal
     }
-    
-    @Test(expected=NullPointerException.class)
+
+    @Test(expected = NullPointerException.class)
     public void testUnsetNull() throws SoarException
     {
         op.newOption(alpha).done();
         op.process(Lists.newArrayList("command"));
         op.unset(null);
     }
-    
+
     @Test
     public void testClientUpperCaseGiven() throws SoarException
     {
@@ -666,7 +755,7 @@ public class OptionProcessorTest
         op.process(Lists.newArrayList("command", "--ALPHA"));
         assertTrue(op.has(alpha));
     }
-    
+
     @Test
     public void testKeyUpperCaseGiven() throws SoarException
     {
@@ -674,7 +763,7 @@ public class OptionProcessorTest
         op.process(Lists.newArrayList("command", "--alpha"));
         assertTrue(op.has("ALPHA"));
     }
-    
+
     @Test
     public void testGetInteger() throws SoarException
     {
@@ -683,26 +772,28 @@ public class OptionProcessorTest
         assertTrue(op.has(alpha));
         assertEquals(1, op.getInteger(alpha));
     }
-    
+
     @Test
     public void testGetDouble() throws SoarException
     {
         op.newOption(alpha).requiredArg().done();
         op.process(Lists.newArrayList("command", "--alpha", "1.0"));
         assertTrue(op.has(alpha));
-        assertEquals(1.0, op.getDouble(alpha), 0); // 1.0 is representable exactly
+        assertEquals(1.0, op.getDouble(alpha), 0); // 1.0 is representable
+        // exactly
     }
-    
+
     @Test
     public void testGetFloat() throws SoarException
     {
         op.newOption(alpha).requiredArg().done();
         op.process(Lists.newArrayList("command", "--alpha", "1.0"));
         assertTrue(op.has(alpha));
-        assertEquals(1.0, op.getFloat(alpha), 0); // 1.0 is representable exactly
+        assertEquals(1.0, op.getFloat(alpha), 0); // 1.0 is representable
+        // exactly
     }
-    
-    @Test(expected=SoarException.class)
+
+    @Test(expected = SoarException.class)
     public void testGetBadInteger() throws SoarException
     {
         op.newOption(alpha).requiredArg().done();
@@ -710,8 +801,8 @@ public class OptionProcessorTest
         assertTrue(op.has(alpha));
         op.getInteger(alpha);
     }
-    
-    @Test(expected=SoarException.class)
+
+    @Test(expected = SoarException.class)
     public void testGetBadDouble() throws SoarException
     {
         op.newOption(alpha).requiredArg().done();
@@ -719,8 +810,8 @@ public class OptionProcessorTest
         assertTrue(op.has(alpha));
         op.getDouble(alpha);
     }
-    
-    @Test(expected=SoarException.class)
+
+    @Test(expected = SoarException.class)
     public void testGetBadFloat() throws SoarException
     {
         op.newOption(alpha).requiredArg().done();
@@ -728,5 +819,14 @@ public class OptionProcessorTest
         assertTrue(op.has(alpha));
         op.getFloat(alpha);
     }
-    
+
+    @Test
+    public void testToString() throws SoarException
+    {
+        op.newOption(alpha).newOption(bravo).requiredArg().newOption(charlie)
+                .optionalArg().done();
+
+        System.out.println(op);
+    }
+
 }
