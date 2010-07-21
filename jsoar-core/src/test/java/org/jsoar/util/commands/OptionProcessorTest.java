@@ -829,4 +829,36 @@ public class OptionProcessorTest
         System.out.println(op);
     }
 
+    @Test
+    public void testPartialMatch1() throws SoarException
+    {
+        op.newOption("print").newOption("Priority").done();
+        op.process(Lists.newArrayList("command", "--PrIn"));
+        assertTrue(op.has("print"));
+        assertFalse(op.has("priority"));
+    }
+
+    @Test
+    public void testPartialMatch2() throws SoarException
+    {
+        op.newOption("print").newOption("Priority").done();
+        op.process(Lists.newArrayList("command", "--priori"));
+        assertFalse(op.has("print"));
+        assertTrue(op.has("priority"));
+    }
+
+    @Test(expected = SoarException.class)
+    public void testPartialMatch3() throws SoarException
+    {
+        try
+        {
+            op.newOption("print").newOption("Priority").done();
+            op.process(Lists.newArrayList("command", "--pRI"));
+        }
+        catch (SoarException e)
+        {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+    }
 }

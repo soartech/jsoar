@@ -10,8 +10,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.jsoar.kernel.SoarException;
+
+import com.google.common.base.Joiner;
 
 /**
  * <p>
@@ -40,11 +43,15 @@ import org.jsoar.kernel.SoarException;
  * matched in a case insensitive manner.
  * 
  * <p>
- * TODO: SoarException probably the wrong exception to use since this has
- * nothing (really) to do with Soar
+ * Options on the command line are specified using one dash for short options
+ * and two for long options. Long options must have enough characters so that
+ * there isn't ambiguity as to what long option is being called for. If --print
+ * and --priority are options, then --prin, --print, --prio are all legal but
+ * --pri, --pr, or --p are not.
  * 
  * <p>
- * TODO: partial matches on long options
+ * TODO: SoarException probably the wrong exception to use since this has
+ * nothing (really) to do with Soar
  * 
  * <p>
  * TODO: potentially rewrite using buffers or something to avoid so many string
@@ -450,9 +457,29 @@ public class OptionProcessor<E>
         return false;
     }
 
-    private Option<E> resolveLongOption(String arg)
+    private Option<E> resolveLongOption(String arg) throws SoarException
     {
-        return longOptions.get(arg.toLowerCase());
+        String key = arg.toLowerCase();
+        Option<E> ret = longOptions.get(key);
+        if (ret != null)
+            return ret;
+
+        // naive partial match
+        List<Option<E>> candidates = new ArrayList<Option<E>>();
+        for (Entry<String, Option<E>> entry : longOptions.entrySet())
+        {
+            if (entry.getKey().startsWith(key))
+                candidates.add(entry.getValue());
+        }
+
+        if (candidates.size() == 1)
+            return candidates.get(0);
+
+        if (candidates.size() > 1)
+            throw new SoarException(arg + " matches multiple options: "
+                    + Joiner.on(' ').join(candidates));
+
+        return null;
     }
 
     private Option<E> resolveShortOption(char arg) throws SoarException
@@ -660,7 +687,9 @@ public class OptionProcessor<E>
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -668,7 +697,7 @@ public class OptionProcessor<E>
     {
         StringBuilder sb = new StringBuilder("[");
         boolean first = true;
-        for (Option<?> option : longOptions.values())
+        for (Option<E> option : longOptions.values())
         {
             if (!first)
                 sb.append(",");
