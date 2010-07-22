@@ -30,4 +30,10 @@ public class WarningsCommand extends AbstractToggleCommand
     {
         agent.getPrinter().setPrintWarnings(enable);
     }
+    
+    @Override
+    protected boolean query(Agent agent)
+    {
+        return agent.getPrinter().isPrintWarnings();
+    }
 }

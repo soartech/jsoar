@@ -3,29 +3,40 @@
  */
 package org.jsoar.kernel.commands;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.OptionProcessor;
 import org.jsoar.util.commands.SoarCommand;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author ray
  */
 abstract class AbstractToggleCommand implements SoarCommand
 {
-    private static final List<String> enableOpts = Arrays.asList("--on", "-e", "--enable");
-    private static final List<String> disableOpts = Arrays.asList("--off", "-d", "--disable");
-    
+    private enum Options
+    {
+        disable, enable, off, On
+    }
+
+    private static final String ERROR_MESSAGE = "Option must be one of [--on|--off|-e|-d|--enable|--disable]";
+
+    private final OptionProcessor<Options> options = OptionProcessor.create();
+
     private final Agent agent;
 
     AbstractToggleCommand(Agent agent)
     {
         this.agent = agent;
+        
+        for (Options o : Options.values()) {
+            options.newOption(o).done();
+        }
     }
 
-    
     /**
      * @return the agent
      */
@@ -34,29 +45,32 @@ abstract class AbstractToggleCommand implements SoarCommand
         return agent;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
+     */
     @Override
     public String execute(String[] args) throws SoarException
     {
-        if(args.length != 2)
-        {
-            throw new SoarException("Option must be one of [--on|--off|-e|-d|--enable|--disable]");
-        }
-        
-        final String a = args[1];
-        if(enableOpts.contains(a))
-        {
+        List<String> nonOpts = options.process(Lists.newArrayList(args));
+
+        if (!nonOpts.isEmpty())
+            throw new SoarException(ERROR_MESSAGE);
+
+        if (options.has(Options.enable) || options.has(Options.On))
             execute(agent, true);
-        }
-        else if(disableOpts.contains(a))
-        {
+        else if (options.has(Options.disable) || options.has(Options.off))
             execute(agent, false);
-        }
         else
-        {
-            throw new SoarException("Option must be --on, --off, -e, -d, --enable, or --disable");
-        }
+            return "The current " + args[0] + " setting is: "
+                    + (query(agent) ? "enabled" : "disabled");
+
         return "";
     }
-    
-    protected abstract void execute(Agent agent, boolean enable) throws SoarException;
+
+    protected abstract boolean query(Agent agent);
+
+    protected abstract void execute(Agent agent, boolean enable)
+            throws SoarException;
 }
