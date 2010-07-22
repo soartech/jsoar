@@ -49,14 +49,6 @@ import com.google.common.base.Joiner;
  * and --priority are options, then --prin, --print, --prio are all legal but
  * --pri, --pr, or --p are not.
  * 
- * <p>
- * TODO: SoarException probably the wrong exception to use since this has
- * nothing (really) to do with Soar
- * 
- * <p>
- * TODO: potentially rewrite using buffers or something to avoid so many string
- * objects
- * 
  * @param <T>
  *            Key type used for options, toString becomes long option.
  * 
