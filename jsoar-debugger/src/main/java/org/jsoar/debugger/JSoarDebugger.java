@@ -327,6 +327,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         addView(new WorkingMemoryTreeView(this));
         addView(new WmeSupportView(this));
         addView(new PreferencesView(this));
+        addView(new GoalStackView(this));
     }
     
     private <T extends AbstractAdaptableView> T addView(T view)
@@ -455,7 +456,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             {
                 try
                 {
-                    docking.writeXML(new File("c:/layouts.xml"));
+                    docking.writeXML(new File("c:/layout.xml"));
                 }
                 catch (IOException e1)
                 {
