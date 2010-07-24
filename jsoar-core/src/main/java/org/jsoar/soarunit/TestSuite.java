@@ -33,12 +33,20 @@ public class TestSuite
     private String setup = "";
     private final List<Test> tests = new ArrayList<Test>();
     
+    private static String getNameFromFile(File file)
+    {
+        final String name = file.getName();
+        final int dot = name.lastIndexOf('.');
+        
+        return dot > 0 ? name.substring(0, dot) : name;
+    }
+    
     public static TestSuite fromFile(File file) throws SoarException, IOException
     {
         final PushbackReader reader = new PushbackReader(new BufferedReader(new FileReader(file)));
         try
         {
-            final TestSuite suite = new TestSuite(file, file.getName());
+            final TestSuite suite = new TestSuite(file, getNameFromFile(file));
             final DefaultInterpreterParser parser = new DefaultInterpreterParser();
             List<String> parsedCommand = parser.parseCommand(reader);
             while(!parsedCommand.isEmpty())
