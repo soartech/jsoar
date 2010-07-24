@@ -19,7 +19,7 @@ import com.google.common.collect.Lists;
  */
 public class SoarUnit
 {
-    private static enum Options {};
+    private static enum Options { debug };
     
     /**
      * @param args
@@ -27,6 +27,8 @@ public class SoarUnit
     public static void main(String[] args) throws Exception
     {
         final OptionProcessor<Options> options = new OptionProcessor<Options>();
+        options.newOption(Options.debug).requiredArg().done();
+        
         final List<String> rest = options.process(Lists.asList("SoarUnit", args));
         final List<File> inputs = new ArrayList<File>();
         if(rest.isEmpty())
@@ -48,9 +50,40 @@ public class SoarUnit
         }
         
         final List<TestSuite> all = collectAllTestSuites(inputs);
-        final List<TestSuiteResult> results = runAllTestSuites(all);
+        if(options.has(Options.debug))
+        {
+            debugTest(all, options.get(Options.debug));
+        }
+        else
+        {
+            final List<TestSuiteResult> results = runAllTestSuites(all);
+            printAllTestSuiteResults(results);
+        }
+    }
+    private static Test findTest(List<TestSuite> all, String name)
+    {
+        for(TestSuite suite : all)
+        {
+            final Test test = suite.getTest(name);
+            if(test != null)
+            {
+                return test;
+            }
+        }
+        return null;
+    }
+    
+    private static void debugTest(List<TestSuite> all, String name) throws SoarException, InterruptedException
+    {
+        final Test test = findTest(all, name);
+        if(test == null)
+        {
+            System.err.println("No test named '" + name + "'.");
+            System.exit(1);
+        }
         
-        printAllTestSuiteResults(results);
+        System.out.printf("Debugging test %s/%s%n", test.getSuite().getName(), test.getName());
+        test.getSuite().debugTest(test);
     }
 
     private static void printAllTestSuiteResults(final List<TestSuiteResult> results)

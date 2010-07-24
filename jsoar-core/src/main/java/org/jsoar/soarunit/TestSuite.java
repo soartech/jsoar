@@ -18,6 +18,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.commands.DefaultInterpreterParser;
@@ -50,7 +51,7 @@ public class TestSuite
                 }
                 else if("test".equals(name))
                 {
-                    final Test test = new Test(parsedCommand.get(1), parsedCommand.get(2));
+                    final Test test = new Test(suite, parsedCommand.get(1), parsedCommand.get(2));
                     suite.addTest(test);
                 }
                 else
@@ -119,6 +120,17 @@ public class TestSuite
         return tests;
     }
 
+    public Test getTest(String name)
+    {
+        for(Test test : tests)
+        {
+            if(name.equals(test.getName()))
+            {
+                return test;
+            }
+        }
+        return null;
+    }
     public TestSuiteResult run(int index, int total) throws SoarException
     {
         System.out.printf("%d/%d: Running test suite '%s' from '%s'%n", index + 1, total, name, file);
@@ -129,8 +141,6 @@ public class TestSuite
             agent.initialize();
             try
             {
-                agent.getInterpreter().eval(String.format("pushd \"%s\"", FileTools.getParent(file).replace('\\', '/')));
-                
                 final TestResult testResult = runTest(test, agent);
                 result.addTestResult(testResult);
                 if(!testResult.isPassed())
@@ -146,22 +156,31 @@ public class TestSuite
         return result;
     }
     
-    private TestRhsFunction addTestFunction(Agent agent, String name)
+    public void debugTest(Test test) throws SoarException, InterruptedException
     {
-        final TestRhsFunction succeededFunction = new TestRhsFunction(agent, name);
-        agent.getRhsFunctions().registerHandler(succeededFunction);
-        return succeededFunction;
+        final ThreadedAgent agent = ThreadedAgent.create(test.getName());
+        
+        TestRhsFunction.addTestFunction(agent.getAgent(), "pass");
+        TestRhsFunction.addTestFunction(agent.getAgent(), "fail");
+        
+        agent.openDebuggerAndWait();
+        
+        agent.getInterpreter().eval(String.format("pushd \"%s\"", FileTools.getParent(file).replace('\\', '/')));
+        agent.getInterpreter().eval(setup);
+        
+        agent.getInterpreter().eval(test.getContent());
     }
-
+    
     private TestResult runTest(Test test, final Agent agent) throws SoarException
     {
         final StringWriter output = new StringWriter();
         agent.getTrace().setWatchLevel(1);
         agent.getPrinter().addPersistentWriter(output);
         
-        final TestRhsFunction succeededFunction = addTestFunction(agent, "pass");
-        final TestRhsFunction failedFunction = addTestFunction(agent, "fail");
+        final TestRhsFunction succeededFunction = TestRhsFunction.addTestFunction(agent, "pass");
+        final TestRhsFunction failedFunction = TestRhsFunction.addTestFunction(agent, "fail");
         
+        agent.getInterpreter().eval(String.format("pushd \"%s\"", FileTools.getParent(file).replace('\\', '/')));
         agent.getInterpreter().eval(setup);
         
         System.out.printf("Running test: %s%n", test.getName());

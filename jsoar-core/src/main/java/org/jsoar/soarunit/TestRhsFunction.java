@@ -22,6 +22,13 @@ public class TestRhsFunction extends StandaloneRhsFunctionHandler
     private boolean called = false;
     private List<Symbol> arguments;
     
+    public static TestRhsFunction addTestFunction(Agent agent, String name)
+    {
+        final TestRhsFunction succeededFunction = new TestRhsFunction(agent, name);
+        agent.getRhsFunctions().registerHandler(succeededFunction);
+        return succeededFunction;
+    }
+    
     /**
      * @param name
      */
