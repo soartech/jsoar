@@ -6,6 +6,8 @@
 package org.jsoar.soarunit;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,10 +23,31 @@ public class SoarUnit
 {
     private static enum Options { debug };
     
+    private final PrintWriter out;
+
+    public SoarUnit(PrintWriter out)
+    {
+        this.out = out;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        final PrintWriter writer = new PrintWriter(System.out);
+        final int result = new SoarUnit(writer).run(args);
+        writer.flush();
+        if(result != 0)
+        {
+            System.exit(result);
+        }
+    }
+    
     /**
      * @param args
+     * @throws SoarException 
+     * @throws InterruptedException 
+     * @throws IOException 
      */
-    public static void main(String[] args) throws Exception
+    public int run(String[] args) throws SoarException, InterruptedException, IOException
     {
         final OptionProcessor<Options> options = new OptionProcessor<Options>();
         options.newOption(Options.debug).requiredArg().done();
@@ -43,7 +66,7 @@ public class SoarUnit
                 if(!file.exists())
                 {
                     System.err.println("'" + arg + "' does not exist.");
-                    System.exit(1);
+                    return 1;
                 }
                 inputs.add(file);
             }
@@ -59,6 +82,8 @@ public class SoarUnit
             final List<TestSuiteResult> results = runAllTestSuites(all);
             printAllTestSuiteResults(results);
         }
+        
+        return 0;
     }
     private static Test findTest(List<TestSuite> all, String name)
     {
@@ -73,7 +98,7 @@ public class SoarUnit
         return null;
     }
     
-    private static void debugTest(List<TestSuite> all, String name) throws SoarException, InterruptedException
+    private void debugTest(List<TestSuite> all, String name) throws SoarException, InterruptedException
     {
         final Test test = findTest(all, name);
         if(test == null)
@@ -82,11 +107,11 @@ public class SoarUnit
             System.exit(1);
         }
         
-        System.out.printf("Debugging test %s/%s%n", test.getSuite().getName(), test.getName());
+        out.printf("Debugging test %s/%s%n", test.getSuite().getName(), test.getName());
         test.getSuite().debugTest(test);
     }
 
-    private static void printAllTestSuiteResults(final List<TestSuiteResult> results)
+    private void printAllTestSuiteResults(final List<TestSuiteResult> results)
     {
         int totalPassed = 0;
         int totalFailed = 0;
@@ -95,31 +120,30 @@ public class SoarUnit
         {
             final TestSuite suite = result.getSuite();
             totalTests += suite.getTests().size();
-            System.out.println("-------------------------------------------------------------");
-            System.out.printf("Test Suite: %s (%s)%n", suite.getName(), suite.getFile());
-            System.out.printf("%d passed, %d failed%n", result.getPassed(), result.getFailed());
+            out.println("-------------------------------------------------------------");
+            out.printf("Test Suite: %s (%s)%n", suite.getName(), suite.getFile());
+            out.printf("%d passed, %d failed%n", result.getPassed(), result.getFailed());
             for(TestResult testResult : result.getTestResults())
             {
                 final Test test = testResult.getTest();
                 if(testResult.isPassed())
                 {
-                    System.out.printf("PASSED: %s, %s%n", test.getName(), testResult.getMessage());
+                    out.printf("PASSED: %s, %s%n", test.getName(), testResult.getMessage());
                     totalPassed++;
                 }
                 else
                 {
-                    System.out.printf("FAILED: %s, %s%n", test.getName(), testResult.getMessage());
-                    System.out.println(testResult.getOutput());
+                    out.printf("FAILED: %s, %s%n", test.getName(), testResult.getMessage());
+                    out.println(testResult.getOutput());
                     totalFailed++;
                 }
             }
         }
-        System.out.println("-------------------------------------------------------------");
-        System.out.printf("%d/%d tests run. %d passed, %d failed%n", totalPassed + totalFailed, totalTests, totalPassed, totalFailed);
+        out.println("-------------------------------------------------------------");
+        out.printf("%d/%d tests run. %d passed, %d failed%n", totalPassed + totalFailed, totalTests, totalPassed, totalFailed);
     }
 
-    private static List<TestSuiteResult> runAllTestSuites(
-            final List<TestSuite> all) throws SoarException
+    private List<TestSuiteResult> runAllTestSuites(final List<TestSuite> all) throws SoarException
     {
         int index = 0;
         final List<TestSuiteResult> results = new ArrayList<TestSuiteResult>();
@@ -135,8 +159,7 @@ public class SoarUnit
         return results;
     }
 
-    private static List<TestSuite> collectAllTestSuites(final List<File> inputs)
-            throws SoarException, Exception
+    private List<TestSuite> collectAllTestSuites(final List<File> inputs) throws SoarException, IOException
     {
         final List<TestSuite> all = new ArrayList<TestSuite>();
         for(File input : inputs)
@@ -150,13 +173,13 @@ public class SoarUnit
                 all.addAll(collectTestSuitesInDirectory(input));
             }
         }
-        System.out.printf("Found %d test suite%s%n", all.size(), all.size() != 1 ? "s" : "");
+        out.printf("Found %d test suite%s%n", all.size(), all.size() != 1 ? "s" : "");
         return all;
     }
     
-    private static List<TestSuite> collectTestSuitesInDirectory(File dir) throws Exception
+    private List<TestSuite> collectTestSuitesInDirectory(File dir) throws SoarException, IOException
     {
-        System.out.println("Collecting tests in directory '" + dir + "'");
+        out.println("Collecting tests in directory '" + dir + "'");
         
         final List<TestSuite> result = new ArrayList<TestSuite>();
         final File[] children = dir.listFiles();
@@ -170,7 +193,7 @@ public class SoarUnit
                 }
                 else if(file.isFile() && file.getName().startsWith("test") && file.getName().endsWith(".soar"))
                 {
-                    System.out.println("Collecting tests in file '" + file + "'");
+                    out.println("Collecting tests in file '" + file + "'");
                     result.add(TestSuite.fromFile(file));
                 }
             }

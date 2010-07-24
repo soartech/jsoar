@@ -6,6 +6,7 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.soarunit.SoarUnitCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
 /**
@@ -70,6 +71,8 @@ public class StandardCommands
         interp.addCommand("debugger", new DebuggerCommand(agent));
 
         interp.addCommand("gds-print", new GdsPrintCommand(agent));
+        
+        interp.addCommand("soar-unit", new SoarUnitCommand());
         
     }
 
