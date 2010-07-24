@@ -5,6 +5,7 @@
  */
 package org.jsoar.util;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -63,6 +64,20 @@ public class FileTools
         {
             return null;
         }
+    }
+    
+    /**
+     * Get the parent of a file. If {@link File#getParent()} returns {@code null}
+     * returns ".." if the file is a directory, or "." if a file.
+     * 
+     * @param file the file
+     * @return the parent of the file, never {@code null}
+     */
+    public static String getParent(File file)
+    {
+        final String p = file.getParent();
+        
+        return p != null ? p : (file.isDirectory() ? ".." : ".");
     }
     
 }

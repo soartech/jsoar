@@ -5,7 +5,11 @@
  */
 package org.jsoar.soarunit;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PushbackReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,57 +18,59 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
-import org.jsoar.util.commands.SoarCommand;
-import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.DefaultInterpreterParser;
 
 /**
  * @author ray
  */
 public class TestSuite
 {
+    private final File file;
     private final String name;
     private String setup = "";
     private final List<Test> tests = new ArrayList<Test>();
     
-    public static TestSuite fromFile(File file) throws SoarException
+    public static TestSuite fromFile(File file) throws SoarException, IOException
     {
-        final Agent agent = new Agent("TestSuite");
+        final PushbackReader reader = new PushbackReader(new BufferedReader(new FileReader(file)));
         try
         {
-            final SoarCommandInterpreter interp = agent.getInterpreter();
-            // TODO remove all commands...
-            final TestSuite suite = new TestSuite(file.getName());
-            interp.addCommand("setup", new SoarCommand() {
-                @Override
-                public String execute(String[] args) throws SoarException
+            final TestSuite suite = new TestSuite(file, file.getName());
+            final DefaultInterpreterParser parser = new DefaultInterpreterParser();
+            List<String> parsedCommand = parser.parseCommand(reader);
+            while(!parsedCommand.isEmpty())
+            {
+                final String name = parsedCommand.get(0);
+                if("setup".equals(name))
                 {
                     suite.setup += "\n";
-                    suite.setup += args[1];
-                    return "";
+                    suite.setup += parsedCommand.get(1);
                 }
-            });
-            interp.addCommand("test", new SoarCommand() {
-                @Override
-                public String execute(String[] args) throws SoarException
+                else if("test".equals(name))
                 {
-                    final Test test = new Test(args[1], args[2]);
+                    final Test test = new Test(parsedCommand.get(1), parsedCommand.get(2));
                     suite.addTest(test);
-                    return "";
                 }
-            });
-            
-            interp.source(file);
+                else
+                {
+                    throw new SoarException("Unsupported SoarUnit command '" + name + "'");
+                }
+                
+                parsedCommand = parser.parseCommand(reader);
+            }
             return suite;
         }
         finally
         {
-            agent.dispose();
+            reader.close();
         }
     }
     
-    public TestSuite(String name)
+    public TestSuite(File file, String name)
     {
+        this.file = file;
         this.name = name;
     }
 
@@ -92,22 +98,44 @@ public class TestSuite
         return name;
     }
     
+    /**
+     * @return the file
+     */
+    public File getFile()
+    {
+        return file;
+    }
+
     public void addTest(Test test)
     {
         tests.add(test);
     }
  
-    public boolean run() throws SoarException
+    /**
+     * @return the tests
+     */
+    public List<Test> getTests()
     {
+        return tests;
+    }
+
+    public TestSuiteResult run(int index, int total) throws SoarException
+    {
+        System.out.printf("%d/%d: Running test suite '%s' from '%s'%n", index + 1, total, name, file);
+        final TestSuiteResult result = new TestSuiteResult(this);
         for(Test test : tests)
         {
             final Agent agent = new Agent(test.getName());
             agent.initialize();
             try
             {
-                if(!runTest(test, agent))
+                agent.getInterpreter().eval(String.format("pushd \"%s\"", FileTools.getParent(file).replace('\\', '/')));
+                
+                final TestResult testResult = runTest(test, agent);
+                result.addTestResult(testResult);
+                if(!testResult.isPassed())
                 {
-                    return false;
+                    break;
                 }
             }
             finally
@@ -115,7 +143,7 @@ public class TestSuite
                 agent.dispose();
             }
         }
-        return true;
+        return result;
     }
     
     private TestRhsFunction addTestFunction(Agent agent, String name)
@@ -125,14 +153,14 @@ public class TestSuite
         return succeededFunction;
     }
 
-    private boolean runTest(Test test, final Agent agent) throws SoarException
+    private TestResult runTest(Test test, final Agent agent) throws SoarException
     {
         final StringWriter output = new StringWriter();
-        agent.getTrace().setWatchLevel(5);
+        agent.getTrace().setWatchLevel(1);
         agent.getPrinter().addPersistentWriter(output);
         
-        final TestRhsFunction succeededFunction = addTestFunction(agent, "succeeded");
-        final TestRhsFunction failedFunction = addTestFunction(agent, "failed");
+        final TestRhsFunction succeededFunction = addTestFunction(agent, "pass");
+        final TestRhsFunction failedFunction = addTestFunction(agent, "fail");
         
         agent.getInterpreter().eval(setup);
         
@@ -144,33 +172,22 @@ public class TestSuite
         
         if(failedFunction.isCalled())
         {
-            System.out.printf("FAILED: test '%s' failed: %s%n", 
-                              test.getName(), 
-                              StringTools.join(failedFunction.getArguments(), ", "));
-            System.out.println("Agent Output:");
-            System.out.println("-----------------------------------------------------------");
-            System.out.println(output.toString());
-            System.out.println("-----------------------------------------------------------");
-            return false;
+            return new TestResult(test, false, 
+                              StringTools.join(failedFunction.getArguments(), ", "),
+                              output.toString());
         }
         else if(!succeededFunction.isCalled())
         {
             final Long actualCycles = agent.getProperties().get(SoarProperties.D_CYCLE_COUNT);
-            System.out.printf("FAILED: test '%s' never called succeeded function. Ran %d decisions.%n", 
-                              test.getName(), 
-                              actualCycles);
-            System.out.println("Agent Output:");
-            System.out.println("-----------------------------------------------------------");
-            System.out.println(output.toString());
-            System.out.println("-----------------------------------------------------------");
-            return false;
+            return new TestResult(test, false, 
+                    String.format("never called (pass) function. Ran %d decisions.", actualCycles),
+                              output.toString());
         }
         else
         {
-            System.out.printf("PASSED: test '%s' passed: %s%n", 
-                              test.getName(), 
-                              StringTools.join(succeededFunction.getArguments(), ", "));
-            return true;
+            return new TestResult(test, true,
+                    StringTools.join(succeededFunction.getArguments(), ", "), 
+                     "");
         }
     }
     
