@@ -183,7 +183,9 @@ class OriginalParserImpl
     {
         if (currentType() != type)
         {
-            error("Expected " + type.repr() + " " + context + "\n");
+            error("In production '" + 
+                    (currentProduction != null ? currentProduction : "unknown") + 
+                    "', expected " + type.repr() + " " + context + "\n");
             throw new IllegalStateException("Unreachable code");
         }
         lexer.getNextLexeme();
