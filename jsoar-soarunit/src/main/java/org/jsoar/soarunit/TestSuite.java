@@ -80,6 +80,16 @@ public class TestSuite
         }
     }
     
+    public static int getTotalTests(List<TestSuite> allSuites)
+    {
+        int result = 0;
+        for(TestSuite suite : allSuites)
+        {
+            result += suite.getTests().size();
+        }
+        return result;
+    }
+    
     public TestSuite(File file, String name)
     {
         this.file = file;
@@ -176,10 +186,12 @@ public class TestSuite
         
         agent.openDebuggerAndWait();
         
+        agent.getPrinter().print("SoarUnit: Debugging %s%n", test);
         agent.getInterpreter().eval(String.format("pushd \"%s\"", FileTools.getParent(file).replace('\\', '/')));
         agent.getInterpreter().eval(setup);
         
         agent.getInterpreter().eval(test.getContent());
+        agent.getPrinter().flush();
     }
     
     private void printMatchesOnFailure(Agent agent) throws SoarException
@@ -238,5 +250,12 @@ public class TestSuite
         }
     }
     
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString()
+    {
+        return name;
+    }
     
 }

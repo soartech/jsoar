@@ -48,4 +48,15 @@ public class Test
         return content;
     }
 
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return suite + "/" + name;
+    }
+
+    
 }

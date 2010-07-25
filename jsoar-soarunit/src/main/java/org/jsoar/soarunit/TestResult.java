@@ -54,6 +54,15 @@ public class TestResult
     {
         return output;
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        return test.toString();
+    }
     
     
     

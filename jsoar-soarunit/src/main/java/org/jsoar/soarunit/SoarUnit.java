@@ -11,7 +11,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 import org.jsoar.kernel.SoarException;
+import org.jsoar.soarunit.ui.MainFrame;
 import org.jsoar.util.commands.OptionProcessor;
 
 import com.google.common.collect.Lists;
@@ -21,7 +25,7 @@ import com.google.common.collect.Lists;
  */
 public class SoarUnit
 {
-    private static enum Options { debug, Recursive };
+    private static enum Options { help, debug, Recursive, ui };
     
     private final PrintWriter out;
 
@@ -30,6 +34,19 @@ public class SoarUnit
         this.out = out;
     }
 
+    public void usage()
+    {
+        out.println("SoarUnit - Soar unit test framework\n" +
+    		"soar-unit [options] [file and directories]\n" +
+    		"\n" +
+    		"Options:\n" +
+    		"   -h, --help              This message.\n" +               
+    		"   -R, --recursive         Recursively search directories for tests.\n" +
+    		"   -d, --debug [test-name] Open the given test in a debugger.\n" +
+    		"   -u, --ui                Show graphical user interface.\n" +
+    		"");
+    }
+    
     public static void main(String[] args) throws Exception
     {
         final PrintWriter writer = new PrintWriter(System.out);
@@ -51,10 +68,29 @@ public class SoarUnit
     {
         final OptionProcessor<Options> options = new OptionProcessor<Options>();
         options.
+        newOption(Options.help).
         newOption(Options.Recursive).
+        newOption(Options.ui).
         newOption(Options.debug).requiredArg().done();
         
-        final List<String> rest = options.process(Lists.asList("SoarUnit", args));
+        final List<String> rest;
+        try
+        {
+            rest = options.process(Lists.asList("SoarUnit", args));
+        }
+        catch (SoarException e)
+        {
+            out.println(e.getMessage());
+            usage();
+            return 1;
+        }
+        
+        if(options.has(Options.help))
+        {
+            usage();
+            return 0;
+        }
+        
         final List<File> inputs = new ArrayList<File>();
         if(rest.isEmpty())
         {
@@ -67,7 +103,6 @@ public class SoarUnit
                 final File file = new File(arg);
                 if(!file.exists())
                 {
-                    System.err.println("'" + arg + "' does not exist.");
                     return 1;
                 }
                 inputs.add(file);
@@ -78,6 +113,23 @@ public class SoarUnit
         if(options.has(Options.debug))
         {
             debugTest(all, options.get(Options.debug));
+        }
+        else if(options.has(Options.ui))
+        {
+            SwingUtilities.invokeLater(new Runnable() {
+
+                /* (non-Javadoc)
+                 * @see java.lang.Runnable#run()
+                 */
+                @Override
+                public void run()
+                {
+                    final MainFrame mf = new MainFrame(all);
+                    mf.setSize(640, 480);
+                    mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    mf.setVisible(true);
+                    mf.runTests();
+                }});
         }
         else
         {
@@ -105,7 +157,7 @@ public class SoarUnit
         final Test test = findTest(all, name);
         if(test == null)
         {
-            System.err.println("No test named '" + name + "'.");
+            out.println("No test named '" + name + "'.");
             System.exit(1);
         }
         
