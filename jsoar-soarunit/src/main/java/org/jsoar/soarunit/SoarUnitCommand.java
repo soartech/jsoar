@@ -11,13 +11,29 @@ import java.io.StringWriter;
 import java.util.Arrays;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarCommandProvider;
 
 /**
  * @author ray
  */
 public class SoarUnitCommand implements SoarCommand
 {
+    public static class Provider implements SoarCommandProvider
+    {
+
+        /* (non-Javadoc)
+         * @see org.jsoar.util.commands.SoarCommandProvider#registerCommands(org.jsoar.util.commands.SoarCommandInterpreter)
+         */
+        @Override
+        public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
+        {
+            interp.addCommand("soar-unit", new SoarUnitCommand());
+        }
+        
+    }
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */

@@ -31,6 +31,10 @@ syntax: regexp
 ^jsoar-soar2soar/target$
 syntax: regexp
 ^jsoar-soar2soar/bin$
+syntax: regexp
+^jsoar-soarunit/target$
+syntax: regexp
+^jsoar-soarunit/bin$
 
 syntax: glob
 jsoar-build/lib/db/*.jar

@@ -8,5 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-sml"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-tcl"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-soar2soar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-soarunit"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

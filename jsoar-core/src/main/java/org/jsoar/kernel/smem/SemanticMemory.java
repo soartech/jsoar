@@ -9,7 +9,6 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.LongTermIdentifierSource;
-import org.jsoar.util.commands.SoarCommand;
 
 /**
  * @author ray
@@ -73,11 +72,6 @@ public interface SemanticMemory extends LongTermIdentifierSource
      */
     void resetStatistics();
     
-    /**
-     * @return the implementation of the smem command
-     */
-    SoarCommand getCommand();
-
     /**
      * Attaches smem_info to the given identifier. This code is factored out of
      * decide.cpp:create_new_context()

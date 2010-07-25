@@ -6,8 +6,8 @@
 package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.soarunit.SoarUnitCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarCommands;
 
 /**
  * Helper methods for installing standard command handlers in interpreters.
@@ -72,8 +72,7 @@ public class StandardCommands
 
         interp.addCommand("gds-print", new GdsPrintCommand(agent));
         
-        interp.addCommand("soar-unit", new SoarUnitCommand());
-        
+        SoarCommands.registerCustomCommands(interp, agent);
     }
-
+    
 }

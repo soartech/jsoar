@@ -360,9 +360,6 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                 {
                     logger.error("Failed to load default aliases from '" + DEFAULT_ALIASES + "': " + e.getMessage(), e);
                 }
-                
-                // TODO SMEM This is so lame
-                interp.addCommand("smem", smem.getCommand());
             }
             return interp;
         }

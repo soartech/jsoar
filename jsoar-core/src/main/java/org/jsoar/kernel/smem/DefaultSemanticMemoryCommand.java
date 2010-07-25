@@ -7,7 +7,6 @@ package org.jsoar.kernel.smem;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -22,6 +21,8 @@ import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.jsoar.util.commands.SoarCommandProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
@@ -34,6 +35,18 @@ class DefaultSemanticMemoryCommand implements SoarCommand
 {
     private final Adaptable context;
     private final DefaultSemanticMemory smem;
+    
+    public static class Provider implements SoarCommandProvider
+    {
+        /* (non-Javadoc)
+         * @see org.jsoar.util.commands.SoarCommandProvider#registerCommands(org.jsoar.util.commands.SoarCommandInterpreter)
+         */
+        @Override
+        public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
+        {
+            interp.addCommand("smem", new DefaultSemanticMemoryCommand(context));
+        }
+    }
     
     public DefaultSemanticMemoryCommand(Adaptable context)
     {

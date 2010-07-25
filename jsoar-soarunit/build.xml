@@ -1,0 +1,11 @@
+<project name="jsoar-soarunit" default="dist" basedir=".">
+   <description>jsoar-soarunit</description>
+
+    <import file="../jsoar-build/build-common.xml"/>
+
+    <!--
+    <property name="jar.main.class" value="org.jsoar.debugger.JSoarDebugger"/>
+    -->
+	
+    <target name="dist" depends="jar,licenses" description="generate the distribution"/>
+</project>

@@ -7,9 +7,14 @@ package org.jsoar.util.commands;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
+import org.jsoar.util.adaptables.Adaptable;
 
 /**
  * Utility methods for Soar commands and the Soar interpreter
@@ -18,6 +23,8 @@ import org.jsoar.util.FileTools;
  */
 public class SoarCommands
 {
+    private static final Log logger = LogFactory.getLog(SoarCommands.class);
+    
     /**
      * A more general form of the source method.
      * 
@@ -55,6 +62,24 @@ public class SoarCommands
             {
                 interp.source(new File(s));
             }
+        }
+    }
+    
+    /**
+     * Register custom commands on the given interpreter by finding SoarCommandProvider
+     * through the usual ServiceLoader mechanism.
+     * 
+     * @param interp the interpreter
+     * @param context the context, e.g. Agent
+     */
+    public static void registerCustomCommands(SoarCommandInterpreter interp, Adaptable context)
+    {
+        final ServiceLoader<SoarCommandProvider> loader = ServiceLoader.load(SoarCommandProvider.class);
+        for(Iterator<SoarCommandProvider> it = loader.iterator(); it.hasNext();)
+        {
+            final SoarCommandProvider provider = it.next();
+            logger.info("Registering custom commands from " + provider.getClass());
+            provider.registerCommands(interp, context);
         }
     }
 

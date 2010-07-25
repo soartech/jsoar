@@ -64,7 +64,6 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 import org.jsoar.util.properties.PropertyManager;
@@ -200,15 +199,6 @@ public class DefaultSemanticMemory implements SemanticMemory
     public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
     {
         stateInfos.put(id, new SemanticMemoryStateInfo(this, wm, id));
-    }
-
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.smem.SemanticMemory#getCommand()
-     */
-    @Override
-    public SoarCommand getCommand()
-    {
-        return new DefaultSemanticMemoryCommand(context);
     }
 
     SemanticMemoryDatabase getDatabase()
