@@ -15,9 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Production;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
@@ -179,6 +182,21 @@ public class TestSuite
         agent.getInterpreter().eval(test.getContent());
     }
     
+    private void printMatchesOnFailure(Agent agent) throws SoarException
+    {
+        final Printer printer = agent.getPrinter();
+        printer.startNewLine().print("# Matches for pass rules #\n");
+        for(Production p : agent.getProductions().getProductions(null))
+        {
+            if(p.getName().startsWith("pass"))
+            {
+                printer.startNewLine().print("Partial matches for rule '%s'\n", p.getName());
+                p.printPartialMatches(printer, WmeTraceType.NONE);
+            }
+        }
+        printer.flush();
+    }
+    
     private TestResult runTest(Test test, final Agent agent) throws SoarException
     {
         final StringWriter output = new StringWriter();
@@ -199,12 +217,14 @@ public class TestSuite
         
         if(failedFunction.isCalled())
         {
+            printMatchesOnFailure(agent);
             return new TestResult(test, false, 
                               StringTools.join(failedFunction.getArguments(), ", "),
                               output.toString());
         }
         else if(!succeededFunction.isCalled())
         {
+            printMatchesOnFailure(agent);
             final Long actualCycles = agent.getProperties().get(SoarProperties.D_CYCLE_COUNT);
             return new TestResult(test, false, 
                     String.format("never called (pass) function. Ran %d decisions.", actualCycles),

@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
  */
 public class SoarUnit
 {
-    private static enum Options { debug };
+    private static enum Options { debug, Recursive };
     
     private final PrintWriter out;
 
@@ -50,7 +50,9 @@ public class SoarUnit
     public int run(String[] args) throws SoarException, InterruptedException, IOException
     {
         final OptionProcessor<Options> options = new OptionProcessor<Options>();
-        options.newOption(Options.debug).requiredArg().done();
+        options.
+        newOption(Options.Recursive).
+        newOption(Options.debug).requiredArg().done();
         
         final List<String> rest = options.process(Lists.asList("SoarUnit", args));
         final List<File> inputs = new ArrayList<File>();
@@ -72,7 +74,7 @@ public class SoarUnit
             }
         }
         
-        final List<TestSuite> all = collectAllTestSuites(inputs);
+        final List<TestSuite> all = collectAllTestSuites(inputs, options.has(Options.Recursive));
         if(options.has(Options.debug))
         {
             debugTest(all, options.get(Options.debug));
@@ -159,7 +161,7 @@ public class SoarUnit
         return results;
     }
 
-    private List<TestSuite> collectAllTestSuites(final List<File> inputs) throws SoarException, IOException
+    private List<TestSuite> collectAllTestSuites(final List<File> inputs, boolean recursive) throws SoarException, IOException
     {
         final List<TestSuite> all = new ArrayList<TestSuite>();
         for(File input : inputs)
@@ -168,7 +170,7 @@ public class SoarUnit
             {
                 all.add(TestSuite.fromFile(input));
             }
-            else if(input.isDirectory())
+            else if(input.isDirectory() && recursive)
             {
                 all.addAll(collectTestSuitesInDirectory(input));
             }
