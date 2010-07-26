@@ -155,7 +155,7 @@ public class TestPanel extends JPanel
         int index = 0;
         for(TestSuite suite : allSuites)
         {
-            final TestSuiteResult result = suite.run(index++, allSuites.size());
+            final TestSuiteResult result = suite.run(index++, allSuites.size(), false);
             addResult(result);
         }
     }

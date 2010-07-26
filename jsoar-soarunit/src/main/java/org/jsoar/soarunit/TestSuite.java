@@ -152,7 +152,7 @@ public class TestSuite
         }
         return null;
     }
-    public TestSuiteResult run(int index, int total) throws SoarException
+    public TestSuiteResult run(int index, int total, boolean haltOnFailure) throws SoarException
     {
         System.out.printf("%d/%d: Running test suite '%s' from '%s'%n", index + 1, total, name, file);
         final TestSuiteResult result = new TestSuiteResult(this);
@@ -164,7 +164,7 @@ public class TestSuite
             {
                 final TestResult testResult = runTest(test, agent);
                 result.addTestResult(testResult);
-                if(!testResult.isPassed())
+                if(haltOnFailure && !testResult.isPassed())
                 {
                     break;
                 }

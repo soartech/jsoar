@@ -214,7 +214,7 @@ public class SoarUnit
         final List<TestSuiteResult> results = new ArrayList<TestSuiteResult>();
         for(TestSuite suite : all)
         {
-            final TestSuiteResult result = suite.run(index++, all.size());
+            final TestSuiteResult result = suite.run(index++, all.size(), true);
             results.add(result);
             if(result.getFailed() > 0)
             {
