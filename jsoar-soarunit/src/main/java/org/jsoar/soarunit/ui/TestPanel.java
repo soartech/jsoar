@@ -75,6 +75,19 @@ public class TestPanel extends JPanel
             {
                 maybeShowContextMenu(e);
             }
+
+            /* (non-Javadoc)
+             * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
+             */
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)
+                {
+                    handleDoubleClick(e);
+                }
+            }
+            
         });
         
         final JPanel header = new JPanel(new GridLayout(2, 1));
@@ -103,6 +116,15 @@ public class TestPanel extends JPanel
         new RunThread().start();
     }
     
+    private void handleDoubleClick(MouseEvent e)
+    {
+        final TestResult result = (TestResult) list.getSelectedValue();
+        if(result != null)
+        {
+            EditTestAction.editTest(result.getTest());
+        }
+    }
+    
     private void maybeShowContextMenu(MouseEvent e)
     {
         if(!e.isPopupTrigger())
@@ -121,6 +143,7 @@ public class TestPanel extends JPanel
         final TestResult result = (TestResult) list.getSelectedValue();
         if(result != null)
         {
+            menu.add(new EditTestAction(result.getTest()));
             menu.add(new DebugTestAction(result.getTest()));
             menu.add(new CopyDebugTestToClipboardAction(result.getTest()));
         }

@@ -46,13 +46,17 @@ public class TestProgressBar extends JComponent
     {
         super.paintComponent(g);
         
+        final int width = getWidth();
+        final int height = getHeight();
+        
+        g.setColor(getBackground());
+        g.fillRect(0, 0, width, height);
+        
         if(total == 0)
         {
             return;
         }
         
-        final int width = getWidth();
-        final int height = getHeight();
         final int fillWidth = (int) (((passed + failed) / (double) total) * width);
         
         g.setColor(failed == 0 ? PASS_COLOR : FAIL_COLOR);
