@@ -23,7 +23,7 @@ public class DebugTestAction extends AbstractAction
     
     public DebugTestAction(Test test)
     {
-        super("Debug " + test);
+        super("Debug");
         
         this.test = test;
     }

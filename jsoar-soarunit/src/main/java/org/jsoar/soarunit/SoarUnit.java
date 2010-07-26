@@ -28,12 +28,19 @@ public class SoarUnit
     private static enum Options { help, debug, Recursive, ui };
     
     private final PrintWriter out;
-
+    private final boolean fromCommandLine;
+    
     public SoarUnit(PrintWriter out)
     {
-        this.out = out;
+        this(out, false);
     }
 
+    private SoarUnit(PrintWriter out, boolean fromCommandLine)
+    {
+        this.out = out;
+        this.fromCommandLine = fromCommandLine;
+    }
+    
     public void usage()
     {
         out.println("SoarUnit - Soar unit test framework\n" +
@@ -50,7 +57,7 @@ public class SoarUnit
     public static void main(String[] args) throws Exception
     {
         final PrintWriter writer = new PrintWriter(System.out);
-        final int result = new SoarUnit(writer).run(args);
+        final int result = new SoarUnit(writer, true).run(args);
         writer.flush();
         if(result != 0)
         {
@@ -124,9 +131,10 @@ public class SoarUnit
                 @Override
                 public void run()
                 {
+                    MainFrame.initializeLookAndFeel();
                     final MainFrame mf = new MainFrame(all);
                     mf.setSize(640, 480);
-                    mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    mf.setDefaultCloseOperation(fromCommandLine ? JFrame.EXIT_ON_CLOSE : JFrame.DISPOSE_ON_CLOSE);
                     mf.setVisible(true);
                     mf.runTests();
                 }});

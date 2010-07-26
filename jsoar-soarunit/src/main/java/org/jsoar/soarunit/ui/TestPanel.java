@@ -8,10 +8,12 @@ package org.jsoar.soarunit.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
@@ -38,12 +40,11 @@ public class TestPanel extends JPanel
     
     private final List<TestSuite> allSuites;
     private final JLabel summary = new JLabel();
-    private final Color defaultSummaryColor = summary.getBackground();
+    private final TestProgressBar testProgress = new TestProgressBar();
     private final DefaultListModel model = new DefaultListModel();
     private final JList list = new JList(model);
 
     private final int total;
-    private int run;
     private int passed;
     private int failed;
     
@@ -56,8 +57,7 @@ public class TestPanel extends JPanel
         
         this.list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.list.setCellRenderer(new Renderer());
-        this.list.addMouseListener(new MouseAdapter()
-        {
+        this.list.addMouseListener(new MouseAdapter() {
             /* (non-Javadoc)
              * @see java.awt.event.MouseAdapter#mouseReleased(java.awt.event.MouseEvent)
              */
@@ -77,8 +77,20 @@ public class TestPanel extends JPanel
             }
         });
         
-        add(summary, BorderLayout.NORTH);
+        final JPanel header = new JPanel(new GridLayout(2, 1));
+        final JPanel progressPanel = new JPanel(new BorderLayout());
+        progressPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(4, 4, 4, 4), 
+                BorderFactory.createLoweredBevelBorder()));
+        progressPanel.add(testProgress, BorderLayout.CENTER);
+        
+        summary.setBorder(BorderFactory.createEmptyBorder(4, 4, 0, 4));
+        header.add(summary);
+        header.add(progressPanel);
+        
+        add(header, BorderLayout.NORTH);
         add(new JScrollPane(list), BorderLayout.CENTER);
+        
     }
     
     public void runTests()
@@ -86,8 +98,8 @@ public class TestPanel extends JPanel
         model.clear();
         passed = 0;
         failed = 0;
-        run = 0;
         updateSummary();
+        testProgress.update(total, passed, failed);
         new RunThread().start();
     }
     
@@ -110,6 +122,7 @@ public class TestPanel extends JPanel
         if(result != null)
         {
             menu.add(new DebugTestAction(result.getTest()));
+            menu.add(new CopyDebugTestToClipboardAction(result.getTest()));
         }
         menu.show(e.getComponent(), e.getX(), e.getY());
     }
@@ -137,7 +150,6 @@ public class TestPanel extends JPanel
                 for(TestResult testResult : suiteResult.getTestResults())
                 {
                     model.addElement(testResult);
-                    run++;
                     if(testResult.isPassed())
                     {
                         passed++;
@@ -155,6 +167,7 @@ public class TestPanel extends JPanel
                     list.ensureIndexIsVisible(lastIndex);
                 }
                 
+                testProgress.update(total, passed, failed);
                 updateSummary();
             }});
     }
@@ -164,16 +177,6 @@ public class TestPanel extends JPanel
         summary.setText(String.format("%d/%d tests run. %d passed, %d failed%n", 
                                         passed + failed, 
                                         total, passed, failed));
-        if(failed > 0)
-        {
-            summary.setOpaque(true);
-            summary.setBackground(FAIL_COLOR);
-        }
-        else
-        {
-            summary.setOpaque(false);
-            summary.setBackground(defaultSummaryColor);
-        }
     }
 
     private class RunThread extends Thread
@@ -214,7 +217,10 @@ public class TestPanel extends JPanel
             final TestResult r = (TestResult) value;
             if(!isSelected)
             {
-                c.setBackground(r.isPassed() ? PASS_COLOR : FAIL_COLOR);
+                if(!r.isPassed())
+                {
+                    c.setBackground(FAIL_COLOR);
+                }
             }
             
             return c;

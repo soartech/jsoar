@@ -12,6 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.jsoar.soarunit.TestSuite;
 
@@ -58,4 +61,36 @@ public class MainFrame extends JFrame
     {
         testPanel.runTests();
     }
+    
+    /**
+     * Initialize the UI look and feel to the system look and feel. 
+     */
+    public static void initializeLookAndFeel()
+    {
+        try
+        {
+            // First try Nimbus because it looks nice. Then fall back to
+            // the system L&F
+            try {
+                for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                    if ("Nimbus".equals(info.getName())) {
+                        UIManager.setLookAndFeel(info.getClassName());
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                // If Nimbus is not available, you can set the GUI to another look and feel.
+            }
+            
+            // Use the look and feel of the system we're running on rather
+            // than Java. If an error occurs, we proceed normally using
+            // whatever L&F we get.
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (UnsupportedLookAndFeelException e) { }
+        catch (ClassNotFoundException e) { }
+        catch (InstantiationException e) { }
+        catch (IllegalAccessException e) { }
+    }
+    
 }
