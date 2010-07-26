@@ -17,6 +17,7 @@ public class TestSuiteResult
     private final List<TestResult> results = new ArrayList<TestResult>();
     private int passed = 0;
     private int failed = 0;
+    private final FiringCounts firingCounts = new FiringCounts();
     
     public TestSuiteResult(TestSuite suite)
     {
@@ -33,8 +34,6 @@ public class TestSuiteResult
         return suite;
     }
 
-
-
     public void addTestResult(TestResult testResult)
     {
         results.add(testResult);
@@ -46,6 +45,7 @@ public class TestSuiteResult
         {
             failed++;
         }
+        firingCounts.merge(testResult.getFiringCounts());
     }
     
     public List<TestResult> getTestResults()
@@ -68,6 +68,12 @@ public class TestSuiteResult
     {
         return failed;
     }
-    
-    
+
+    /**
+     * @return the firingCounts
+     */
+    public FiringCounts getFiringCounts()
+    {
+        return firingCounts;
+    }
 }

@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
@@ -227,12 +229,15 @@ public class TestSuite
         agent.runFor(cycles, RunType.DECISIONS);
         agent.getPrinter().flush();
         
+        final FiringCounts firingCounts = getFiringCountsForTest(agent);
+        
         if(failedFunction.isCalled())
         {
             printMatchesOnFailure(agent);
             return new TestResult(test, false, 
                               StringTools.join(failedFunction.getArguments(), ", "),
-                              output.toString());
+                              output.toString(),
+                              firingCounts);
         }
         else if(!succeededFunction.isCalled())
         {
@@ -240,14 +245,27 @@ public class TestSuite
             final Long actualCycles = agent.getProperties().get(SoarProperties.D_CYCLE_COUNT);
             return new TestResult(test, false, 
                     String.format("never called (pass) function. Ran %d decisions.", actualCycles),
-                              output.toString());
+                              output.toString(),
+                              firingCounts);
         }
         else
         {
             return new TestResult(test, true,
                     StringTools.join(succeededFunction.getArguments(), ", "), 
-                     "");
+                     "",
+                     firingCounts);
         }
+    }
+    
+    
+    private FiringCounts getFiringCountsForTest(Agent agent)
+    {
+        final FiringCounts result = new FiringCounts();
+        for(Production p : agent.getProductions().getProductions(null))
+        {
+            result.adjust(p.getName(), p.getFiringCount());
+        }
+        return result;
     }
     
     /* (non-Javadoc)

@@ -5,6 +5,7 @@
  */
 package org.jsoar.soarunit;
 
+
 /**
  * @author ray
  */
@@ -14,13 +15,15 @@ public class TestResult
     private final boolean passed;
     private final String message;
     private final String output;
+    private final FiringCounts firingCounts;
     
-    public TestResult(Test test, boolean passed, String message, String output)
+    public TestResult(Test test, boolean passed, String message, String output, FiringCounts firingCounts)
     {
         this.test = test;
         this.passed = passed;
         this.message = message;
         this.output = output;
+        this.firingCounts = firingCounts;
     }
 
     /**
@@ -53,6 +56,14 @@ public class TestResult
     public String getOutput()
     {
         return output;
+    }
+
+    /**
+     * @return the firingCounts
+     */
+    public FiringCounts getFiringCounts()
+    {
+        return firingCounts;
     }
 
     /* (non-Javadoc)
