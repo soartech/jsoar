@@ -120,6 +120,7 @@ public class SoarUnit
         if(options.has(Options.debug))
         {
             debugTest(all, options.get(Options.debug));
+            return 0;
         }
         else if(options.has(Options.ui))
         {
@@ -138,14 +139,14 @@ public class SoarUnit
                     mf.setVisible(true);
                     mf.runTests();
                 }});
+            return 0;
         }
         else
         {
             final List<TestSuiteResult> results = runAllTestSuites(all);
-            printAllTestSuiteResults(results);
+            return printAllTestSuiteResults(results);
         }
         
-        return 0;
     }
     private static Test findTest(List<TestSuite> all, String name)
     {
@@ -173,7 +174,7 @@ public class SoarUnit
         test.getSuite().debugTest(test);
     }
 
-    private void printAllTestSuiteResults(final List<TestSuiteResult> results)
+    private int printAllTestSuiteResults(final List<TestSuiteResult> results)
     {
         int totalPassed = 0;
         int totalFailed = 0;
@@ -203,6 +204,8 @@ public class SoarUnit
         }
         out.println("-------------------------------------------------------------");
         out.printf("%d/%d tests run. %d passed, %d failed%n", totalPassed + totalFailed, totalTests, totalPassed, totalFailed);
+        
+        return totalFailed > 0 ? 1 : 0;
     }
 
     private List<TestSuiteResult> runAllTestSuites(final List<TestSuite> all) throws SoarException
