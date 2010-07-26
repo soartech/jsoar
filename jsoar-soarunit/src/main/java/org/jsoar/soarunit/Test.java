@@ -11,24 +11,24 @@ package org.jsoar.soarunit;
  */
 public class Test
 {
-    private final TestSuite suite;
+    private final TestCase testCase;
     private final String name;
     private final String content;
     
-    public Test(TestSuite suite, String name, String content)
+    public Test(TestCase testCase, String name, String content)
     {
-        this.suite = suite;
+        this.testCase = testCase;
         this.name = name;
         this.content = content;
     }
 
     
     /**
-     * @return the suite
+     * @return the owning test case
      */
-    public TestSuite getSuite()
+    public TestCase getTestCase()
     {
-        return suite;
+        return testCase;
     }
 
 
@@ -55,7 +55,7 @@ public class Test
     @Override
     public String toString()
     {
-        return suite + "/" + name;
+        return testCase + "/" + name;
     }
 
     

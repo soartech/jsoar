@@ -16,7 +16,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import org.jsoar.soarunit.TestSuite;
+import org.jsoar.soarunit.TestCase;
 
 /**
  * @author ray
@@ -28,11 +28,11 @@ public class MainFrame extends JFrame
     private final JPanel contentPane = new JPanel(new BorderLayout());
     private final TestPanel testPanel;
     
-    public MainFrame(List<TestSuite> allSuites)
+    public MainFrame(List<TestCase> allCases)
     {
         super("SoarUnit");
         
-        testPanel = new TestPanel(allSuites);
+        testPanel = new TestPanel(allCases);
         
         setJMenuBar(initMenuBar());
         

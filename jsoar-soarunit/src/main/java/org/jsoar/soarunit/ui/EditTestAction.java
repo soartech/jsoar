@@ -45,7 +45,7 @@ public class EditTestAction extends AbstractAction
     {
         try
         {
-            Desktop.getDesktop().edit(test.getSuite().getFile());
+            Desktop.getDesktop().edit(test.getTestCase().getFile());
         }
         catch (IOException e1)
         {

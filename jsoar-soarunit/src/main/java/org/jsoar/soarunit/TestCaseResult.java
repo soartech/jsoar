@@ -11,27 +11,25 @@ import java.util.List;
 /**
  * @author ray
  */
-public class TestSuiteResult
+public class TestCaseResult
 {
-    private final TestSuite suite;
+    private final TestCase testCase;
     private final List<TestResult> results = new ArrayList<TestResult>();
     private int passed = 0;
     private int failed = 0;
     private final FiringCounts firingCounts = new FiringCounts();
     
-    public TestSuiteResult(TestSuite suite)
+    public TestCaseResult(TestCase testCase)
     {
-        this.suite = suite;
+        this.testCase = testCase;
     }
-    
-    
 
     /**
-     * @return the suite
+     * @return the parent test case
      */
-    public TestSuite getSuite()
+    public TestCase getTestCase()
     {
-        return suite;
+        return testCase;
     }
 
     public void addTestResult(TestResult testResult)

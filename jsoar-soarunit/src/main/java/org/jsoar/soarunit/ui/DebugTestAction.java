@@ -37,7 +37,7 @@ public class DebugTestAction extends AbstractAction
     {
         try
         {
-            test.getSuite().debugTest(test);
+            test.getTestCase().debugTest(test);
         }
         catch (SoarException e1)
         {

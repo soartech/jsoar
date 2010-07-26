@@ -41,7 +41,7 @@ public class CopyDebugTestToClipboardAction extends AbstractAction implements Cl
     {
         final String command = String.format("soar-unit --ui --debug \"%s\" \"%s\"",
                 test.getName(),
-                test.getSuite().getFile().getAbsolutePath().replace('\\', '/'));
+                test.getTestCase().getFile().getAbsolutePath().replace('\\', '/'));
         
         final StringSelection ss = new StringSelection(command); 
         final Clipboard cb = Toolkit.getDefaultToolkit().getSystemClipboard();

@@ -116,7 +116,7 @@ public class SoarUnit
             }
         }
         
-        final List<TestSuite> all = collectAllTestSuites(inputs, options.has(Options.Recursive));
+        final List<TestCase> all = collectAllTestCases(inputs, options.has(Options.Recursive));
         if(options.has(Options.debug))
         {
             debugTest(all, options.get(Options.debug));
@@ -143,16 +143,16 @@ public class SoarUnit
         }
         else
         {
-            final List<TestSuiteResult> results = runAllTestSuites(all);
-            return printAllTestSuiteResults(results);
+            final List<TestCaseResult> results = runAllTestCases(all);
+            return printAllTestCaseResults(results);
         }
         
     }
-    private static Test findTest(List<TestSuite> all, String name)
+    private static Test findTest(List<TestCase> all, String name)
     {
-        for(TestSuite suite : all)
+        for(TestCase testCase : all)
         {
-            final Test test = suite.getTest(name);
+            final Test test = testCase.getTest(name);
             if(test != null)
             {
                 return test;
@@ -161,7 +161,7 @@ public class SoarUnit
         return null;
     }
     
-    private void debugTest(List<TestSuite> all, String name) throws SoarException, InterruptedException
+    private void debugTest(List<TestCase> all, String name) throws SoarException, InterruptedException
     {
         final Test test = findTest(all, name);
         if(test == null)
@@ -170,21 +170,21 @@ public class SoarUnit
             System.exit(1);
         }
         
-        out.printf("Debugging test %s/%s%n", test.getSuite().getName(), test.getName());
-        test.getSuite().debugTest(test);
+        out.printf("Debugging test %s/%s%n", test.getTestCase().getName(), test.getName());
+        test.getTestCase().debugTest(test);
     }
 
-    private int printAllTestSuiteResults(final List<TestSuiteResult> results)
+    private int printAllTestCaseResults(final List<TestCaseResult> results)
     {
         int totalPassed = 0;
         int totalFailed = 0;
         int totalTests = 0;
-        for(TestSuiteResult result : results)
+        for(TestCaseResult result : results)
         {
-            final TestSuite suite = result.getSuite();
-            totalTests += suite.getTests().size();
+            final TestCase testCase = result.getTestCase();
+            totalTests += testCase.getTests().size();
             out.println("-------------------------------------------------------------");
-            out.printf("Test Suite: %s (%s)%n", suite.getName(), suite.getFile());
+            out.printf("Test Case: %s (%s)%n", testCase.getName(), testCase.getFile());
             out.printf("%d passed, %d failed%n", result.getPassed(), result.getFailed());
             for(TestResult testResult : result.getTestResults())
             {
@@ -208,13 +208,13 @@ public class SoarUnit
         return totalFailed > 0 ? 1 : 0;
     }
 
-    private List<TestSuiteResult> runAllTestSuites(final List<TestSuite> all) throws SoarException
+    private List<TestCaseResult> runAllTestCases(final List<TestCase> all) throws SoarException
     {
         int index = 0;
-        final List<TestSuiteResult> results = new ArrayList<TestSuiteResult>();
-        for(TestSuite suite : all)
+        final List<TestCaseResult> results = new ArrayList<TestCaseResult>();
+        for(TestCase testCase : all)
         {
-            final TestSuiteResult result = suite.run(index++, all.size(), true);
+            final TestCaseResult result = testCase.run(index++, all.size(), true);
             results.add(result);
             if(result.getFailed() > 0)
             {
@@ -224,29 +224,29 @@ public class SoarUnit
         return results;
     }
 
-    private List<TestSuite> collectAllTestSuites(final List<File> inputs, boolean recursive) throws SoarException, IOException
+    private List<TestCase> collectAllTestCases(final List<File> inputs, boolean recursive) throws SoarException, IOException
     {
-        final List<TestSuite> all = new ArrayList<TestSuite>();
+        final List<TestCase> all = new ArrayList<TestCase>();
         for(File input : inputs)
         {
             if(input.isFile())
             {
-                all.add(TestSuite.fromFile(input));
+                all.add(TestCase.fromFile(input));
             }
             else if(input.isDirectory() && recursive)
             {
-                all.addAll(collectTestSuitesInDirectory(input));
+                all.addAll(collectTestCasesInDirectory(input));
             }
         }
-        out.printf("Found %d test suite%s%n", all.size(), all.size() != 1 ? "s" : "");
+        out.printf("Found %d test case%s%n", all.size(), all.size() != 1 ? "s" : "");
         return all;
     }
     
-    private List<TestSuite> collectTestSuitesInDirectory(File dir) throws SoarException, IOException
+    private List<TestCase> collectTestCasesInDirectory(File dir) throws SoarException, IOException
     {
         out.println("Collecting tests in directory '" + dir + "'");
         
-        final List<TestSuite> result = new ArrayList<TestSuite>();
+        final List<TestCase> result = new ArrayList<TestCase>();
         final File[] children = dir.listFiles();
         if(children != null)
         {
@@ -254,12 +254,12 @@ public class SoarUnit
             {
                 if(file.isDirectory() && !file.getName().startsWith("."))
                 {
-                    result.addAll(collectTestSuitesInDirectory(file));
+                    result.addAll(collectTestCasesInDirectory(file));
                 }
                 else if(file.isFile() && file.getName().startsWith("test") && file.getName().endsWith(".soar"))
                 {
                     out.println("Collecting tests in file '" + file + "'");
-                    result.add(TestSuite.fromFile(file));
+                    result.add(TestCase.fromFile(file));
                 }
             }
         }

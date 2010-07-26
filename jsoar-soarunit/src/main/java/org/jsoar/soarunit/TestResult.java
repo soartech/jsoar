@@ -74,7 +74,4 @@ public class TestResult
     {
         return test.toString();
     }
-    
-    
-    
 }

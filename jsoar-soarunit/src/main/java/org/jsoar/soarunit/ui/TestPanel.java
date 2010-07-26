@@ -26,8 +26,8 @@ import javax.swing.SwingUtilities;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.soarunit.TestResult;
-import org.jsoar.soarunit.TestSuite;
-import org.jsoar.soarunit.TestSuiteResult;
+import org.jsoar.soarunit.TestCase;
+import org.jsoar.soarunit.TestCaseResult;
 
 /**
  * @author ray
@@ -38,7 +38,7 @@ public class TestPanel extends JPanel
     private static final Color FAIL_COLOR = new Color(242, 102, 96);
     private static final Color PASS_COLOR = new Color(102, 242, 96);
     
-    private final List<TestSuite> allSuites;
+    private final List<TestCase> allTestCases;
     private final JLabel summary = new JLabel();
     private final TestProgressBar testProgress = new TestProgressBar();
     private final DefaultListModel model = new DefaultListModel();
@@ -48,12 +48,12 @@ public class TestPanel extends JPanel
     private int passed;
     private int failed;
     
-    public TestPanel(List<TestSuite> allSuites)
+    public TestPanel(List<TestCase> allTestCases)
     {
         super(new BorderLayout());
         
-        this.allSuites = allSuites;
-        this.total = TestSuite.getTotalTests(allSuites);
+        this.allTestCases = allTestCases;
+        this.total = TestCase.getTotalTests(allTestCases);
         
         this.list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.list.setCellRenderer(new Renderer());
@@ -153,14 +153,14 @@ public class TestPanel extends JPanel
     private void runTestsInternal() throws SoarException
     {
         int index = 0;
-        for(TestSuite suite : allSuites)
+        for(TestCase testCase : allTestCases)
         {
-            final TestSuiteResult result = suite.run(index++, allSuites.size(), false);
+            final TestCaseResult result = testCase.run(index++, allTestCases.size(), false);
             addResult(result);
         }
     }
     
-    private void addResult(final TestSuiteResult suiteResult)
+    private void addResult(final TestCaseResult testCaseResult)
     {
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -170,7 +170,7 @@ public class TestPanel extends JPanel
             @Override
             public void run()
             {
-                for(TestResult testResult : suiteResult.getTestResults())
+                for(TestResult testResult : testCaseResult.getTestResults())
                 {
                     model.addElement(testResult);
                     if(testResult.isPassed())

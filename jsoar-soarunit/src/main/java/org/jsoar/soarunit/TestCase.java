@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
@@ -31,7 +29,7 @@ import org.jsoar.util.commands.DefaultInterpreterParser;
 /**
  * @author ray
  */
-public class TestSuite
+public class TestCase
 {
     private final File file;
     private final String name;
@@ -46,12 +44,12 @@ public class TestSuite
         return dot > 0 ? name.substring(0, dot) : name;
     }
     
-    public static TestSuite fromFile(File file) throws SoarException, IOException
+    public static TestCase fromFile(File file) throws SoarException, IOException
     {
         final PushbackReader reader = new PushbackReader(new BufferedReader(new FileReader(file)));
         try
         {
-            final TestSuite suite = new TestSuite(file, getNameFromFile(file));
+            final TestCase testCase = new TestCase(file, getNameFromFile(file));
             final DefaultInterpreterParser parser = new DefaultInterpreterParser();
             List<String> parsedCommand = parser.parseCommand(reader);
             while(!parsedCommand.isEmpty())
@@ -59,13 +57,13 @@ public class TestSuite
                 final String name = parsedCommand.get(0);
                 if("setup".equals(name))
                 {
-                    suite.setup += "\n";
-                    suite.setup += parsedCommand.get(1);
+                    testCase.setup += "\n";
+                    testCase.setup += parsedCommand.get(1);
                 }
                 else if("test".equals(name))
                 {
-                    final Test test = new Test(suite, parsedCommand.get(1), parsedCommand.get(2));
-                    suite.addTest(test);
+                    final Test test = new Test(testCase, parsedCommand.get(1), parsedCommand.get(2));
+                    testCase.addTest(test);
                 }
                 else
                 {
@@ -74,7 +72,7 @@ public class TestSuite
                 
                 parsedCommand = parser.parseCommand(reader);
             }
-            return suite;
+            return testCase;
         }
         finally
         {
@@ -82,17 +80,17 @@ public class TestSuite
         }
     }
     
-    public static int getTotalTests(List<TestSuite> allSuites)
+    public static int getTotalTests(List<TestCase> allCases)
     {
         int result = 0;
-        for(TestSuite suite : allSuites)
+        for(TestCase testCase : allCases)
         {
-            result += suite.getTests().size();
+            result += testCase.getTests().size();
         }
         return result;
     }
     
-    public TestSuite(File file, String name)
+    public TestCase(File file, String name)
     {
         this.file = file;
         this.name = name;
@@ -154,10 +152,10 @@ public class TestSuite
         }
         return null;
     }
-    public TestSuiteResult run(int index, int total, boolean haltOnFailure) throws SoarException
+    public TestCaseResult run(int index, int total, boolean haltOnFailure) throws SoarException
     {
-        System.out.printf("%d/%d: Running test suite '%s' from '%s'%n", index + 1, total, name, file);
-        final TestSuiteResult result = new TestSuiteResult(this);
+        System.out.printf("%d/%d: Running test case '%s' from '%s'%n", index + 1, total, name, file);
+        final TestCaseResult result = new TestCaseResult(this);
         for(Test test : tests)
         {
             final Agent agent = new Agent(test.getName());
