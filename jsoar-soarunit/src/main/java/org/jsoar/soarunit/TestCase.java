@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
@@ -259,7 +260,7 @@ public class TestCase
     private FiringCounts getFiringCountsForTest(Agent agent)
     {
         final FiringCounts result = new FiringCounts();
-        for(Production p : agent.getProductions().getProductions(null))
+        for(Production p : agent.getProductions().getProductions(ProductionType.USER))
         {
             result.adjust(p.getName(), p.getFiringCount());
         }
