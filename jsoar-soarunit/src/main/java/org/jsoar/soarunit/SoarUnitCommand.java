@@ -21,6 +21,8 @@ import org.jsoar.util.commands.SoarCommandProvider;
  */
 public class SoarUnitCommand implements SoarCommand
 {
+    public static final String NAME = "soarunit";
+    
     public static class Provider implements SoarCommandProvider
     {
 
@@ -30,7 +32,7 @@ public class SoarUnitCommand implements SoarCommand
         @Override
         public void registerCommands(SoarCommandInterpreter interp, Adaptable context)
         {
-            interp.addCommand("soar-unit", new SoarUnitCommand());
+            interp.addCommand(NAME, new SoarUnitCommand());
         }
         
     }

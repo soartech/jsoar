@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import org.jsoar.soarunit.SoarUnitCommand;
 import org.jsoar.soarunit.Test;
 
 /**
@@ -39,7 +40,8 @@ public class CopyDebugTestToClipboardAction extends AbstractAction implements Cl
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        final String command = String.format("soar-unit --ui --debug \"%s\" \"%s\"",
+        final String command = String.format("%s --ui --debug \"%s\" \"%s\"",
+                SoarUnitCommand.NAME,
                 test.getName(),
                 test.getTestCase().getFile().getAbsolutePath().replace('\\', '/'));
         

@@ -35,6 +35,7 @@
       <copy todir="${dist.bin}">
          <fileset file="resources/bin/jsoar.bat"/>
          <fileset file="resources/bin/soar2soar.bat"/>
+         <fileset file="resources/bin/soarunit.bat"/>
    	 	 <fileset file="resources/bin/jsoar"/>
     	 <filterset refid="filters"/>
       </copy>
@@ -49,6 +50,7 @@
        <ant dir="../jsoar-sml" antfile="build.xml"/>
        <ant dir="../jsoar-demos" antfile="build.xml"/>
        <ant dir="../jsoar-ruby" antfile="build.xml"/>
+       <ant dir="../jsoar-soarunit" antfile="build.xml"/>
        <ant dir="../jsoar-soar2soar" antfile="build.xml"/>
     	
       <antcall target="zip"/>
@@ -71,6 +73,7 @@
       <ant dir="../jsoar-sml" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-demos" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-soar2soar" antfile="build.xml" target="clean"/>
+      <ant dir="../jsoar-soarunit" antfile="build.xml" target="clean"/>
    </target>
     
     <target name="doc">
