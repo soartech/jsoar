@@ -192,9 +192,17 @@ public class SimpleMatcher
      * @param p Production instance to check for matches
      * @return true if production argument current matches, otherwise false
      */
-    public boolean isMatching(Production p)
+    public int getNumberMatches(Production p)
     {
-        return listener.matching.contains(p);
+        Integer numMatches = listener.matching.get(p);
+        if(numMatches != null)
+        {
+            return numMatches;
+        }
+        else
+        {
+            return 0;
+        }
     }
     
     /**
@@ -202,7 +210,7 @@ public class SimpleMatcher
      * @return true if production argument current matches, otherwise false
      * @throws IllegalArgumentException if Production instance is not in rete
      */
-    public boolean isMatching(String productionName) throws IllegalArgumentException
+    public int getNumberMatches(String productionName) throws IllegalArgumentException
     {
         final Production p = productions.get(productionName);
         if(p == null)
@@ -210,7 +218,7 @@ public class SimpleMatcher
             throw new IllegalArgumentException("production " + productionName + " doesn't exist");
         }
         
-        return isMatching(p);
+        return getNumberMatches(p);
     }
     
     /**
@@ -284,7 +292,7 @@ public class SimpleMatcher
     
     private class Listener implements ReteListener
     {
-        Set<Production> matching = new HashSet<Production>();
+        Map<Production, Integer> matching = new HashMap<Production, Integer>();
         
         /* (non-Javadoc)
          * @see org.jsoar.kernel.rete.ReteListener#finishRefraction(org.jsoar.kernel.rete.Rete, org.jsoar.kernel.Production, org.jsoar.kernel.rete.Instantiation, org.jsoar.kernel.rete.ReteNode)
@@ -300,8 +308,19 @@ public class SimpleMatcher
          */
         @Override
         public void p_node_left_addition(Rete rete, ReteNode node, Token tok, WmeImpl w)
-        {
-            matching.add(node.b_p.prod);
+        {            
+            Integer i;
+            final Production p = node.b_p.prod;
+            if(matching.containsKey(p))
+            {
+                i = matching.get(p);
+                ++i;
+            }
+            else
+            {
+                i = 1;
+            }
+            matching.put(p, i);
         }
 
         /* (non-Javadoc)
@@ -310,7 +329,17 @@ public class SimpleMatcher
         @Override
         public void p_node_left_removal(Rete rete, ReteNode node, Token tok, WmeImpl w)
         {
-            matching.remove(node.b_p.prod);
+            final Production p = node.b_p.prod;
+            Integer i = matching.get(p);
+            --i;
+            if(i>0)
+            {
+                matching.put(p, i);
+            }
+            else
+            {
+                matching.remove(p);
+            }
         }
 
         /* (non-Javadoc)
