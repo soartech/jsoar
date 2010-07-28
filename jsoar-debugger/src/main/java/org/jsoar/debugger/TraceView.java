@@ -7,6 +7,7 @@ package org.jsoar.debugger;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -28,6 +29,9 @@ import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.JSoarVersion;
+import org.jsoar.kernel.Production;
+import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -115,7 +119,14 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 }
                 else if(SwingUtilities.isLeftMouseButton(e))
                 {
-                    updateSelectionFromMouseEvent(e);
+                    if(e.getClickCount() == 1)
+                    {
+                        updateSelectionFromMouseEvent(e);
+                    }
+                    else if(e.getClickCount() == 2)
+                    {
+                        handleObjectAction(e);
+                    }
                 }
             }});
         outputWindow.setEditable(false);
@@ -124,7 +135,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         outputWindow.setText("JSoar " + version + "\n" + 
                              "http://jsoar.googlecode.com\n" + 
                              "Current command interpreter is '" + debugger.getAgent().getInterpreter().getName() + "'\n" +
-                             "\nRight-click for trace options (or use watch command)\n");
+                             "\n" +
+                             "Right-click for trace options (or use watch command)\n" +
+                             "Double-click identifiers, wmes, and rule names to drill down\n");
         
         debugger.getAgent().getPrinter().pushWriter(outputWriter);
         
@@ -198,15 +211,22 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         return "ctrl T";
     }
 
-    private void updateSelectionFromMouseEvent(MouseEvent e)
+    private SelectedObject getObjectAtPoint(Point p)
     {
-        int offset = outputWindow.viewToModel(e.getPoint());
+        int offset = outputWindow.viewToModel(p);
         if(offset < 0)
         {
-            return;
+            return null;
         }
         final ParseSelectedText pst = new ParseSelectedText(outputWindow.getText(), offset);
         final SelectedObject object = pst.getParsedObject(debugger);
+
+        return object;
+    }
+    
+    private void updateSelectionFromMouseEvent(MouseEvent e)
+    {
+        final SelectedObject object = getObjectAtPoint(e.getPoint());
         if(object == null)
         {
             return;
@@ -226,6 +246,54 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 selectionProvider.setSelection(result);
             }};
         debugger.getAgent().execute(call, SwingCompletionHandler.newInstance(finish));
+    }
+    
+    private void handleObjectAction(MouseEvent e)
+    {
+        final SelectedObject object = getObjectAtPoint(e.getPoint());
+        if(object == null)
+        {
+            return;
+        }
+        final Callable<Void> call = new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception
+            {
+                final Object o = object.retrieveSelection(debugger);
+                final String command;
+                if(o instanceof Identifier)
+                {
+                    command = "print " + o;
+                }
+                else if(o instanceof Production)
+                {
+                    command = "print \"" + ((Production) o).getName() + "\"";
+                }
+                else if(o instanceof Wme)
+                {
+                    final Wme w = (Wme) o;
+                    if(w.getValue().asIdentifier() != null)
+                    {
+                        command = "print " + w.getValue();
+                    }
+                    else
+                    {
+                        command = null;
+                    }
+                }
+                else
+                {
+                    command = null;
+                }
+                
+                if(command != null)
+                {
+                    debugger.getAgent().getInterpreter().eval(command);
+                }
+                return null;
+            }};
+        debugger.getAgent().execute(call, null);
     }
     
     private void showPopupMenu(MouseEvent e)
