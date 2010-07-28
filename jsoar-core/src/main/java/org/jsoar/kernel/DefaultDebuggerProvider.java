@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author ray
  */
-public class DefaultDebuggerProvider implements DebuggerProvider
+public class DefaultDebuggerProvider extends AbstractDebuggerProvider
 {
     private static final Log logger = LogFactory.getLog(DefaultDebuggerProvider.class);
     
@@ -54,7 +54,7 @@ public class DefaultDebuggerProvider implements DebuggerProvider
         loadProvider().openDebuggerAndWait(agent);
     }
 
-    private DebuggerProvider loadProvider() throws SoarException
+    private synchronized DebuggerProvider loadProvider() throws SoarException
     {
         final String className = System.getProperty(PROPERTY, DEFAULT_CLASS);
         try
@@ -63,7 +63,9 @@ public class DefaultDebuggerProvider implements DebuggerProvider
             final Object o = klass.newInstance();
             if(o instanceof DebuggerProvider)
             {
-                return (DebuggerProvider) o;
+                final DebuggerProvider p = (DebuggerProvider) o;
+                p.setProperties(getProperties());
+                return p;
             }
             else
             {

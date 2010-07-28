@@ -5,14 +5,16 @@
  */
 package org.jsoar.demos.robot;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jsoar.debugger.JSoarDebugger;
-import org.jsoar.debugger.JSoarDebuggerConfiguration;
+import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.io.CycleCountInput;
 import org.jsoar.kernel.io.quick.DefaultQMemory;
 import org.jsoar.kernel.io.quick.QMemory;
@@ -39,13 +41,9 @@ public class RobotAgent
     {
         logger.info("Creating robot agent " + this);
         this.agent = ThreadedAgent.create();
-        this.agent.setDebuggerProvider(JSoarDebugger.newDebuggerProvider(new JSoarDebuggerConfiguration() {
-
-            @Override
-            public void exit()
-            {
-                // nothing
-            }}));
+        final Map<String, Object> props = new HashMap<String, Object>();
+        props.put(DebuggerProvider.CLOSE_ACTION, CloseAction.DETACH);
+        this.agent.getDebuggerProvider().setProperties(props);
         
         SoarQMemoryAdapter.attach(this.agent.getAgent(), memory);
         new CycleCountInput(this.agent.getInputOutput());

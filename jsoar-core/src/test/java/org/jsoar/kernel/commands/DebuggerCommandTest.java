@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jsoar.kernel.AbstractDebuggerProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.SoarException;
@@ -22,7 +23,7 @@ public class DebuggerCommandTest
     {
         final Agent agent = new Agent("testDebuggerCommandCallsOpenDebuggerOnAgent");
         final AtomicBoolean called = new AtomicBoolean(false);
-        final DebuggerProvider provider = new DebuggerProvider()
+        final DebuggerProvider provider = new AbstractDebuggerProvider()
         {
             
             @Override

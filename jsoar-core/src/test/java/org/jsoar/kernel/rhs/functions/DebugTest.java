@@ -7,15 +7,16 @@ package org.jsoar.kernel.rhs.functions;
 
 
 
+import static org.junit.Assert.*;
+
+import org.jsoar.kernel.AbstractDebuggerProvider;
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.ByRef;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * @author ray
@@ -46,7 +47,7 @@ public class DebugTest
     public void testDebugCallsOpenDebugger() throws Exception
     {
         final ByRef<Boolean> called = ByRef.create(false);
-        agent.setDebuggerProvider(new DebuggerProvider() {
+        agent.setDebuggerProvider(new AbstractDebuggerProvider() {
 
             @Override
             public void openDebugger(Agent agent)

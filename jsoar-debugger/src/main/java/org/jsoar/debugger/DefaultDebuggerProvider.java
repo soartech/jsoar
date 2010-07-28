@@ -6,6 +6,8 @@
 package org.jsoar.debugger;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
@@ -28,19 +30,28 @@ public class DefaultDebuggerProvider implements DebuggerProvider
 {
     private static final Log logger = LogFactory.getLog(DefaultDebuggerProvider.class);
     
-    private final JSoarDebuggerConfiguration config;
+    private final Map<String, Object> properties = new HashMap<String, Object>();
 
     public DefaultDebuggerProvider()
     {
-        this(null);
     }
 
-    /**
-     * @param config
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.DebuggerProvider#getProperties()
      */
-    public DefaultDebuggerProvider(JSoarDebuggerConfiguration config)
+    @Override
+    public synchronized Map<String, Object> getProperties()
     {
-        this.config = config;
+        return new HashMap<String, Object>(properties);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.DebuggerProvider#setProperties(java.util.Map)
+     */
+    @Override
+    public synchronized void setProperties(Map<String, Object> props)
+    {
+        properties.putAll(props);
     }
 
     /* (non-Javadoc)
@@ -114,11 +125,6 @@ public class DefaultDebuggerProvider implements DebuggerProvider
         {
             throw new SoarException("Can't attach debugger to agent with no ThreadedAgent proxy");
         }
-        final JSoarDebugger debugger = JSoarDebugger.attach(ta);
-        if(debugger != null && config != null)
-        {
-            debugger.setConfiguration(config);
-        }
-        
+        JSoarDebugger.attach(ta, getProperties());
     }
 }

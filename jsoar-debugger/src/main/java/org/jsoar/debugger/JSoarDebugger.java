@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
@@ -115,7 +117,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private final ActionManager actionManager = new ActionManager(this);
     private final RunControlModel runControlModel = new RunControlModel();
         
-    private JSoarDebuggerConfiguration configuration = new DefaultDebuggerConfiguration();
+    private Map<String, Object> providerProperties = new HashMap<String, Object>();
     private boolean resetPreferencesAtExit = false;
     
     private ThreadedAgent agent;
@@ -134,9 +136,11 @@ public class JSoarDebugger extends JPanel implements Adaptable
     /**
      * Construct a new debugger. Add to a JFrame and call initialize().
      */
-    private JSoarDebugger()
+    private JSoarDebugger(Map<String, Object> properties)
     {
         super(new BorderLayout());
+        
+        this.providerProperties.putAll(properties);
         
     }
     
@@ -392,7 +396,12 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 logger.error(e);
             }
         }
-        configuration.exit();
+        
+        final Object closeAction = providerProperties.get(DebuggerProvider.CLOSE_ACTION);
+        if(closeAction == null || closeAction == CloseAction.EXIT)
+        {
+            System.exit(0);
+        }
     }
         
     public void restoreLayout()
@@ -529,11 +538,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         });
     }
     
-    public void setConfiguration(JSoarDebuggerConfiguration config)
-    {
-        this.configuration = config;
-    }
-    
     public static void main(final String[] args)
     {
         SwingTools.initializeLookAndFeel();
@@ -551,7 +555,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      * @param proxy an <b>initialized</b> threaded agent to attach to
      * @return the debugger
      */
-    public static JSoarDebugger attach(ThreadedAgent proxy)
+    public static JSoarDebugger attach(ThreadedAgent proxy, Map<String, Object> properties)
     {
         synchronized(debuggers)
         {
@@ -560,7 +564,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             {
                 //DockingManager.setFloatingEnabled(true);
         
-                debugger = new JSoarDebugger();
+                debugger = new JSoarDebugger(properties);
                 
                 final JFrame frame = new JFrame();
                 
@@ -627,11 +631,18 @@ public class JSoarDebugger extends JPanel implements Adaptable
             
             // If the agent was created by this debugger, dispose it. This is important
             // so things like SMEM database will be flushed at shutdown.
-            if(this == agent.getProperties().get(CREATED_BY))
+            if(shouldDisposeAgent())
             {
                 agent.dispose();
             }
         }
+    }
+
+    private boolean shouldDisposeAgent()
+    {
+        return this == agent.getProperties().get(CREATED_BY) ||
+               EnumSet.of(CloseAction.EXIT, CloseAction.DISPOSE).
+                   contains((CloseAction) providerProperties.get(DebuggerProvider.CLOSE_ACTION)) ;
     }
         
     /**
@@ -644,7 +655,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     public static JSoarDebugger initialize(final String[] args)
     {
         final ThreadedAgent agent = ThreadedAgent.create();
-        final JSoarDebugger debugger = attach(agent);
+        final JSoarDebugger debugger = attach(agent, new HashMap<String, Object>());
         agent.getProperties().setProvider(CREATED_BY, new PropertyProvider<JSoarDebugger>()
         {
             @Override
@@ -690,12 +701,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
      */
     public static DebuggerProvider newDebuggerProvider()
     {
-        return newDebuggerProvider(null);
-    }
-    
-    public static DebuggerProvider newDebuggerProvider(JSoarDebuggerConfiguration config)
-    {
-        return new DefaultDebuggerProvider(config);
+        return newDebuggerProvider();
     }
     
     /* (non-Javadoc)

@@ -12,14 +12,18 @@ import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.runtime.ThreadedAgent;
@@ -185,6 +189,9 @@ public class TestCase
         TestRhsFunction.addTestFunction(agent.getAgent(), "pass");
         TestRhsFunction.addTestFunction(agent.getAgent(), "fail");
         
+        final Map<String, Object> debugProps = new HashMap<String, Object>();
+        debugProps.put(DebuggerProvider.CLOSE_ACTION, CloseAction.DISPOSE);
+        agent.getDebuggerProvider().setProperties(debugProps);
         agent.openDebuggerAndWait();
         
         agent.getPrinter().print("SoarUnit: Debugging %s%n", test);
