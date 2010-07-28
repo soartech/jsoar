@@ -20,6 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
+import org.jsoar.soarunit.TestAgentFactory;
 import org.jsoar.soarunit.TestCaseResult;
 import org.jsoar.soarunit.TestResult;
 
@@ -30,12 +31,15 @@ public class TestResultList extends JPanel
 {
     private static final long serialVersionUID = -2037972910107529427L;
     
+    private final TestAgentFactory agentFactory;
     private final DefaultListModel model = new DefaultListModel();
     private final JList list = new JList(model);
 
-    public TestResultList()
+    public TestResultList(TestAgentFactory agentFactory)
     {
         super(new BorderLayout());
+        
+        this.agentFactory = agentFactory;
         
         this.list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.list.setCellRenderer(new Renderer());
@@ -123,7 +127,7 @@ public class TestResultList extends JPanel
         if(result != null)
         {
             menu.add(new EditTestAction(result.getTest()));
-            menu.add(new DebugTestAction(result.getTest()));
+            menu.add(new DebugTestAction(agentFactory, result.getTest()));
             menu.add(new CopyDebugTestToClipboardAction(result.getTest()));
         }
         menu.show(e.getComponent(), e.getX(), e.getY());

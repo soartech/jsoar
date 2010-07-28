@@ -6,11 +6,15 @@
 package org.jsoar.soarunit.ui;
 
 import java.awt.event.ActionEvent;
+import java.io.PrintWriter;
 
 import javax.swing.AbstractAction;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.soarunit.Test;
+import org.jsoar.soarunit.TestAgentFactory;
+import org.jsoar.soarunit.TestRunner;
+import org.jsoar.util.NullWriter;
 
 /**
  * @author ray
@@ -19,12 +23,14 @@ public class DebugTestAction extends AbstractAction
 {
     private static final long serialVersionUID = -3500496894588331412L;
     
+    private final TestAgentFactory agentFactory;
     private final Test test;
     
-    public DebugTestAction(Test test)
+    public DebugTestAction(TestAgentFactory agentFactory, Test test)
     {
         super("Debug");
         
+        this.agentFactory = agentFactory;
         this.test = test;
     }
 
@@ -37,7 +43,8 @@ public class DebugTestAction extends AbstractAction
     {
         try
         {
-            test.getTestCase().debugTest(test);
+            final TestRunner runner = new TestRunner(agentFactory, new PrintWriter(new NullWriter()));
+            runner.debugTest(test);
         }
         catch (SoarException e1)
         {

@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.soarunit.jsoar.JSoarTestAgentFactory;
 import org.jsoar.soarunit.ui.MainFrame;
 import org.jsoar.util.commands.OptionProcessor;
 
@@ -29,6 +30,7 @@ public class SoarUnit
     
     private final PrintWriter out;
     private final boolean fromCommandLine;
+    private final TestAgentFactory agentFactory = new JSoarTestAgentFactory();
     
     public SoarUnit(PrintWriter out)
     {
@@ -133,7 +135,7 @@ public class SoarUnit
                 public void run()
                 {
                     MainFrame.initializeLookAndFeel();
-                    final MainFrame mf = new MainFrame(all);
+                    final MainFrame mf = new MainFrame(agentFactory, all);
                     mf.setSize(640, 480);
                     mf.setDefaultCloseOperation(fromCommandLine ? JFrame.EXIT_ON_CLOSE : JFrame.DISPOSE_ON_CLOSE);
                     mf.setVisible(true);
@@ -143,8 +145,9 @@ public class SoarUnit
         }
         else
         {
-            final List<TestCaseResult> results = runAllTestCases(all);
-            return printAllTestCaseResults(results);
+            final TestRunner runner = new TestRunner(agentFactory, out);
+            final List<TestCaseResult> results = runner.runAllTestCases(all);
+            return printAllTestCaseResults(results, runner.getFiringCounts());
         }
         
     }
@@ -171,10 +174,11 @@ public class SoarUnit
         }
         
         out.printf("Debugging test %s/%s%n", test.getTestCase().getName(), test.getName());
-        test.getTestCase().debugTest(test);
+        final TestRunner runner = new TestRunner(agentFactory, out);
+        runner.debugTest(test);
     }
 
-    private int printAllTestCaseResults(final List<TestCaseResult> results)
+    private int printAllTestCaseResults(final List<TestCaseResult> results, FiringCounts coverage)
     {
         int totalPassed = 0;
         int totalFailed = 0;
@@ -203,25 +207,14 @@ public class SoarUnit
             }
         }
         out.println("-------------------------------------------------------------");
-        out.printf("%d/%d tests run. %d passed, %d failed%n", totalPassed + totalFailed, totalTests, totalPassed, totalFailed);
+        out.printf("%d/%d tests run. %d passed, %d failed, %d%% coverage%n", 
+                    totalPassed + totalFailed, 
+                    totalTests, 
+                    totalPassed, 
+                    totalFailed,
+                    (int)(coverage.getCoverage() * 100));
         
         return totalFailed > 0 ? 1 : 0;
-    }
-
-    private List<TestCaseResult> runAllTestCases(final List<TestCase> all) throws SoarException
-    {
-        int index = 0;
-        final List<TestCaseResult> results = new ArrayList<TestCaseResult>();
-        for(TestCase testCase : all)
-        {
-            final TestCaseResult result = testCase.run(index++, all.size(), true);
-            results.add(result);
-            if(result.getFailed() > 0)
-            {
-                break;
-            }
-        }
-        return results;
     }
 
     private List<TestCase> collectAllTestCases(final List<File> inputs, boolean recursive) throws SoarException, IOException

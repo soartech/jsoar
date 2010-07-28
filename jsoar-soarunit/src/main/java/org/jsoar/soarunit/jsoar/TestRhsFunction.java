@@ -3,7 +3,7 @@
  *
  * Created on Jul 22, 2010
  */
-package org.jsoar.soarunit;
+package org.jsoar.soarunit.jsoar;
 
 import java.util.List;
 

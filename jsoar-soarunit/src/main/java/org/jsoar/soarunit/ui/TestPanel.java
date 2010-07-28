@@ -6,6 +6,7 @@
 package org.jsoar.soarunit.ui;
 
 import java.awt.BorderLayout;
+import java.io.PrintWriter;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -14,9 +15,12 @@ import javax.swing.SwingUtilities;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.soarunit.FiringCounts;
+import org.jsoar.soarunit.TestAgentFactory;
 import org.jsoar.soarunit.TestCase;
 import org.jsoar.soarunit.TestCaseResult;
 import org.jsoar.soarunit.TestResult;
+import org.jsoar.soarunit.TestRunner;
+import org.jsoar.util.NullWriter;
 
 /**
  * @author ray
@@ -25,22 +29,24 @@ public class TestPanel extends JPanel
 {
     private static final long serialVersionUID = 4823211094468351324L;
     
+    private final TestAgentFactory agentFactory;
     private final List<TestCase> allTestCases;
     private final TestSummaryPanel summary;
     private final TestResultList list;
     private final CoveragePanel coverage;
     
-    public TestPanel(List<TestCase> allTestCases)
+    public TestPanel(TestAgentFactory agentFactory, List<TestCase> allTestCases)
     {
         super(new BorderLayout());
         
+        this.agentFactory = agentFactory;
         this.allTestCases = allTestCases;
         this.summary = new TestSummaryPanel(TestCase.getTotalTests(allTestCases));
         
         add(summary, BorderLayout.NORTH);
 
         final JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Tests", list = new TestResultList());
+        tabs.addTab("Tests", list = new TestResultList(agentFactory));
         tabs.addTab("Coverage", coverage = new CoveragePanel());
         
         add(tabs, BorderLayout.CENTER);
@@ -56,12 +62,13 @@ public class TestPanel extends JPanel
     
     private void runTestsInternal() throws SoarException
     {
-        final FiringCounts allCounts = new FiringCounts();
-        int index = 0;
+        final TestRunner runner = new TestRunner(agentFactory, new PrintWriter(new NullWriter()));
+        runner.setHaltOnFailure(false);
+        runner.setTotal(allTestCases.size());
+        
         for(TestCase testCase : allTestCases)
         {
-            final TestCaseResult result = testCase.run(index++, allTestCases.size(), false);
-            allCounts.merge(result.getFiringCounts());
+            final TestCaseResult result = runner.run(testCase);
             addResult(result);
         }
         
@@ -70,6 +77,7 @@ public class TestPanel extends JPanel
             @Override
             public void run()
             {
+                final FiringCounts allCounts = runner.getFiringCounts();
                 coverage.setFiringCounts(allCounts);
                 summary.update(allCounts);
             }
