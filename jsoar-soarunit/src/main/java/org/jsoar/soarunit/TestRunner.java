@@ -119,9 +119,9 @@ public class TestRunner
         return result;
     }
     
-    public void debugTest(Test test) throws SoarException, InterruptedException
+    public void debugTest(Test test, boolean exitOnClose) throws SoarException, InterruptedException
     {
-        factory.debugTest(test);
+        factory.debugTest(test, exitOnClose);
     }
     
     

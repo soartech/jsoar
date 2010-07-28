@@ -37,7 +37,7 @@ public class JSoarTestAgentFactory implements TestAgentFactory
      * @see org.jsoar.soarunit.TestAgentFactory#debugTest(org.jsoar.soarunit.Test)
      */
     @Override
-    public void debugTest(Test test) throws SoarException, InterruptedException
+    public void debugTest(Test test, boolean exitOnClose) throws SoarException, InterruptedException
     {
         final ThreadedAgent agent = ThreadedAgent.create(test.getName());
         
@@ -45,7 +45,7 @@ public class JSoarTestAgentFactory implements TestAgentFactory
         TestRhsFunction.addTestFunction(agent.getAgent(), "fail");
         
         final Map<String, Object> debugProps = new HashMap<String, Object>();
-        debugProps.put(DebuggerProvider.CLOSE_ACTION, CloseAction.DISPOSE);
+        debugProps.put(DebuggerProvider.CLOSE_ACTION, exitOnClose ? CloseAction.EXIT : CloseAction.DISPOSE);
         agent.getDebuggerProvider().setProperties(debugProps);
         agent.openDebuggerAndWait();
         

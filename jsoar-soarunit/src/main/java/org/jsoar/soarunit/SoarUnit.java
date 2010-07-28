@@ -175,7 +175,7 @@ public class SoarUnit
         
         out.printf("Debugging test %s/%s%n", test.getTestCase().getName(), test.getName());
         final TestRunner runner = new TestRunner(agentFactory, out);
-        runner.debugTest(test);
+        runner.debugTest(test, fromCommandLine);
     }
 
     private int printAllTestCaseResults(final List<TestCaseResult> results, FiringCounts coverage)
