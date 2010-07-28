@@ -51,10 +51,10 @@ public class GDSTests extends FunctionalTestHarness
         
         List<Goal> goals = agent.getGoalStack();
         GoalDependencySet gds = Adaptables.adapt(goals.get(0), GoalDependencySet.class);
-        assertTrue("Expected GDS for top state to be empty", gds == null);
+        assertNull("Expected GDS for top state to be empty", gds);
         
         gds = Adaptables.adapt(goals.get(1), GoalDependencySet.class);
-        assertTrue("Expected GDS for substate to be non-empty", gds != null);
+        assertNotNull("Expected GDS for substate to be non-empty", gds);
     }
     
     @Test
@@ -79,11 +79,11 @@ public class GDSTests extends FunctionalTestHarness
     private void testMultiLevel() throws Exception
     {
         final List<Goal> goals = agent.getGoalStack();
-        assertTrue("Unexpected number of states", goals.size() == 3);
+        assertEquals("Unexpected number of states", goals.size(), 3);
         
         // top state
         GoalDependencySet gds = Adaptables.adapt(goals.get(0), GoalDependencySet.class);
-        assertTrue("Expected first goal to have empty GDS", gds == null);
+        assertNull("Expected first goal to have empty GDS", gds);
 
         
         // first substate        
@@ -98,7 +98,7 @@ public class GDSTests extends FunctionalTestHarness
 
         
         gds = Adaptables.adapt(goals.get(1), GoalDependencySet.class);
-        assertTrue("Expected second goal have non-empty GDS", gds != null);
+        assertNotNull("Expected second goal have non-empty GDS", gds);
 
         Set<Wme> actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
                 
@@ -118,7 +118,7 @@ public class GDSTests extends FunctionalTestHarness
         // for debugging
         String s = matcher.getMatches("expectedGDS").toString();
         
-        assertTrue("expectedGDS didn't match: " + s, matcher.isMatching("expectedGDS"));
+        assertEquals("expectedGDS didn't match: " + s, matcher.getNumberMatches("expectedGDS"), 1);
         
         // reset matcher
         matcher.removeAllProductions();
@@ -135,7 +135,7 @@ public class GDSTests extends FunctionalTestHarness
         //        (44: S5 ^superstate S3)
         
         gds = Adaptables.adapt(goals.get(2), GoalDependencySet.class);
-        assertTrue("Expected third goal have non-empty GDS", gds != null);
+        assertNotNull("Expected third goal have non-empty GDS", gds);
         actual = new LinkedHashSet<Wme>(Lists.newArrayList(gds.getWmes()));
         
         matcher.addProduction("expectedGDS \n" +
@@ -154,6 +154,6 @@ public class GDSTests extends FunctionalTestHarness
         // for debugging
         s = matcher.getMatches("expectedGDS").toString();
         
-        assertTrue("expectedGDS didn't match: " + s, matcher.isMatching("expectedGDS"));
+        assertEquals("expectedGDS didn't match: " + s, matcher.getNumberMatches("expectedGDS"), 1);
     }
 }
