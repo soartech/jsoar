@@ -130,14 +130,16 @@ public class TestRunner
         out.printf("Running test: %s%n", test.getName());
         
         agent.initialize(test);
+        final long startTimeNanos = System.nanoTime();
         agent.run();
+        final long elapsedNanos = System.nanoTime() - startTimeNanos; 
         
         final FiringCounts firingCounts = agent.getFiringCounts();
         
         if(agent.isFailCalled())
         {
             agent.printMatchesOnFailure();
-            return new TestResult(test, false, 
+            return new TestResult(test, elapsedNanos, false, 
                               agent.getFailMessage(),
                               agent.getOutput(),
                               firingCounts);
@@ -146,14 +148,14 @@ public class TestRunner
         {
             agent.printMatchesOnFailure();
             final long actualCycles = agent.getCycleCount();
-            return new TestResult(test, false, 
+            return new TestResult(test, elapsedNanos, false, 
                     String.format("never called (pass) function. Ran %d decisions.", actualCycles),
                               agent.getOutput(),
                               firingCounts);
         }
         else
         {
-            return new TestResult(test, true,
+            return new TestResult(test, elapsedNanos, true,
                     agent.getPassMessage(), 
                      "",
                      firingCounts);

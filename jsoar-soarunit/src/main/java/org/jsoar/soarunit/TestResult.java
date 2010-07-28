@@ -12,14 +12,16 @@ package org.jsoar.soarunit;
 public class TestResult
 {
     private final Test test;
+    private final long nanos;
     private final boolean passed;
     private final String message;
     private final String output;
     private final FiringCounts firingCounts;
     
-    public TestResult(Test test, boolean passed, String message, String output, FiringCounts firingCounts)
+    public TestResult(Test test, long nanos, boolean passed, String message, String output, FiringCounts firingCounts)
     {
         this.test = test;
+        this.nanos = nanos;
         this.passed = passed;
         this.message = message;
         this.output = output;
@@ -65,6 +67,11 @@ public class TestResult
     {
         return firingCounts;
     }
+    
+    public double getElapsedSeconds()
+    {
+        return ((double) nanos) / 1000000000.0;
+    }
 
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
@@ -72,6 +79,6 @@ public class TestResult
     @Override
     public String toString()
     {
-        return test.toString();
+        return String.format("%s (%.3f s)", test.toString(), getElapsedSeconds());
     }
 }
