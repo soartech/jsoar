@@ -5,6 +5,7 @@
  */
 package org.jsoar.soarunit.sml;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -114,12 +115,46 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
         
         kernel = Kernel.CreateKernelInCurrentThread();
         kernel.StopEventThread();
-        passFunction = TestRhsFunction.addTestFunction(kernel, "pass");
-        failFunction = TestRhsFunction.addTestFunction(kernel, "fail");
+        
+        initializeRhsFunctions();
         
         agent = kernel.CreateAgent(test.getName());
         agent.RegisterForPrintEvent(smlPrintEventId.smlEVENT_PRINT, this, null, false);
         
+        loadTestCode(test);
+    }
+    
+    public void debug(Test test, boolean exitOnClose) throws SoarException
+    {
+        kernel = Kernel.CreateKernelInNewThread();
+        initializeRhsFunctions();
+        
+        agent = kernel.CreateAgent(test.getName());
+        
+        // TODO SoarUnit SML: If this fails, there's really no way to tell.
+        // TODO SoarUnit SML: This requires that soar/bin be on the system path
+        String soarHome = System.getProperty("soar.home", null);
+        // TODO SoarUnit SML: library path has to end with a slash. See http://code.google.com/p/soar/issues/detail?id=82.
+        if(soarHome != null && !soarHome.endsWith("\\") && !soarHome.endsWith("/"))
+        {
+            soarHome += File.separator;
+        }
+        agent.SpawnDebugger(Kernel.kDefaultSMLPort, soarHome);
+        
+        loadTestCode(test);
+        
+        // TODO SoarUnit SML: How do we clean up? Detect debugger detach?
+    }
+
+    private void initializeRhsFunctions()
+    {
+        passFunction = TestRhsFunction.addTestFunction(kernel, "pass");
+        failFunction = TestRhsFunction.addTestFunction(kernel, "fail");
+    }
+    
+
+    private void loadTestCode(Test test) throws SoarException
+    {
         executeCommandLine(String.format("pushd \"%s\"", FileTools.getParent(test.getTestCase().getFile()).replace('\\', '/')), true);
         executeCommandLine(prepSoarCodeForSml(test.getTestCase().getSetup()), true);
         executeCommandLine(prepSoarCodeForSml(test.getContent()), true);

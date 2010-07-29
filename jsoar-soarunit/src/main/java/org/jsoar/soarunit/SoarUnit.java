@@ -109,7 +109,7 @@ public class SoarUnit
         
         if(options.has(Options.sml))
         {
-            out.println("Using CSoar/SML, make sure that java.library.path or system path is set correctly.");
+            out.println("Using CSoar/SML, make sure that SOAR_HOME is set to your Soar installation.");
             agentFactory = new SmlTestAgentFactory();
         }
         else

@@ -36,14 +36,32 @@ public class SmlTestAgentFactory implements TestAgentFactory
     public void debugTest(Test test, boolean exitOnClose) throws SoarException,
             InterruptedException
     {
-        // TODO Auto-generated method stub
-
+        new SmlTestAgent().debug(test, exitOnClose);
     }
 
     private static void preloadSmlLibraries()
     {
+        /*
+        TODO SoarUnit SML Someday we may need this code. For now, Soar has to be on the system path for the debugger to work anyway. 
+        final String soarHome = System.getProperty("soar.home", null);
+        if(soarHome != null)
+        {
+            final String soarBinPath = new File(soarHome, "bin").getAbsolutePath();
+            final String currentLibPath = System.getProperty("java.library.path", "");
+            if(currentLibPath.length() == 0)
+            {
+                System.setProperty("java.library.path", soarBinPath);
+            }
+            else
+            {
+                System.setProperty("java.library.path", 
+                        soarBinPath + System.getProperty("path.separator") + currentLibPath);
+            }
+        }
+        */
+        
         System.loadLibrary("ElementXML");
         System.loadLibrary("SoarKernelSML");
-        System.loadLibrary("Java_sml_ClientInterface");        
+        System.loadLibrary("Java_sml_ClientInterface");
     }
 }

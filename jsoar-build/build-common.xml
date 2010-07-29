@@ -38,7 +38,11 @@
          <!-- Set up the build path used throughout the build script  -->
          <path id="compile.libs">
             <fileset dir="${lib}">
-                  <include name="*.jar" />
+                <include name="*.jar" />
+            	
+            	<!-- Jars in lib/build-only are available at compile time, but not
+            		put in the distribution -->
+                <include name="build-only/*.jar" />
             </fileset>
             <fileset dir="${dist.lib}">
                   <include name="*.jar" />
