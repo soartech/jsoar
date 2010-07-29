@@ -8,17 +8,18 @@
    <property name="dist.lib" location="${dist}/lib" />
    <property name="dist.bin" location="${dist}/bin" />
 	
-    <filterset id="filters">
-       <filter token="JSOAR_VERSION" value="${version}"/>
-       <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>
-       <filter token="JSOAR_DEMOS_JAR" value="lib/jsoar-demos-${version}.jar"/>
-    </filterset>
 
    <target name="init-props" description="Create temporary build directories">
       <tstamp />
       <!-- version defaults to snapshot-XXXXX. Use -Dversion=X.X.X on command-line to override -->
       <property name="version" value="snapshot-${DSTAMP}" />
       <property name="dist.zip" location="${ant.project.name}-${version}.zip"/>
+   	
+      <filterset id="filters">
+        <filter token="JSOAR_VERSION" value="${version}"/>
+        <filter token="JSOAR_DEBUGGER_JAR" value="lib/jsoar-debugger-${version}.jar"/>
+        <filter token="JSOAR_DEMOS_JAR" value="lib/jsoar-demos-${version}.jar"/>
+      </filterset>
    </target>
 
    <target name="init" depends="init-props" description="Create output directories">
@@ -47,10 +48,10 @@
        <ant dir="../jsoar-debugger" antfile="build.xml"/>
        <ant dir="../jsoar-tcl" antfile="build.xml"/>
        <ant dir="../jsoar-legilimens" antfile="build.xml"/>
+       <ant dir="../jsoar-soarunit" antfile="build.xml"/>
        <ant dir="../jsoar-sml" antfile="build.xml"/>
        <ant dir="../jsoar-demos" antfile="build.xml"/>
        <ant dir="../jsoar-ruby" antfile="build.xml"/>
-       <ant dir="../jsoar-soarunit" antfile="build.xml"/>
        <ant dir="../jsoar-soar2soar" antfile="build.xml"/>
     	
       <antcall target="zip"/>
@@ -70,10 +71,10 @@
       <ant dir="../jsoar-debugger" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-tcl" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-legilimens" antfile="build.xml" target="clean"/>
+      <ant dir="../jsoar-soarunit" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-sml" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-demos" antfile="build.xml" target="clean"/>
       <ant dir="../jsoar-soar2soar" antfile="build.xml" target="clean"/>
-      <ant dir="../jsoar-soarunit" antfile="build.xml" target="clean"/>
    </target>
     
     <target name="doc">
