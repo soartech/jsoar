@@ -98,7 +98,7 @@ enum ThreadedAgentManager
     {
         synchronized(agents)
         {
-            agents.remove(agent);
+            agents.remove(agent.getAgent());
             events.fireEvent(new ThreadedAgentDetachedEvent(agent));
         }
     }
