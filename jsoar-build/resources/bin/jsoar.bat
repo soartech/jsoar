@@ -20,5 +20,8 @@ if not defined JSOAR_MAIN (
 if not defined JSOAR_OPTS (
    set JSOAR_OPTS=-Xmx1024m
 )
+if not defined JSOAR_CLASSPATH (
+   set JSOAR_CLASSPATH=%HERE%..\lib\*
+)
 
-java %JSOAR_OPTS% -cp "%HERE%..\lib\*" "-Djsoar.home=%HERE%.." %JSOAR_MAIN% %*
+java %JSOAR_OPTS% -cp "%JSOAR_CLASSPATH%" "-Djsoar.home=%HERE%.." %JSOAR_MAIN% %*

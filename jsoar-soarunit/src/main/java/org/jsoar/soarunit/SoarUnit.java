@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.soarunit.jsoar.JSoarTestAgentFactory;
+import org.jsoar.soarunit.sml.SmlTestAgentFactory;
 import org.jsoar.soarunit.ui.MainFrame;
 import org.jsoar.util.commands.OptionProcessor;
 
@@ -26,11 +27,11 @@ import com.google.common.collect.Lists;
  */
 public class SoarUnit
 {
-    private static enum Options { help, debug, Recursive, ui };
+    private static enum Options { help, debug, Recursive, ui, sml };
     
     private final PrintWriter out;
     private final boolean fromCommandLine;
-    private final TestAgentFactory agentFactory = new JSoarTestAgentFactory();
+    private TestAgentFactory agentFactory;
     
     public SoarUnit(PrintWriter out)
     {
@@ -53,6 +54,10 @@ public class SoarUnit
     		"   -R, --recursive         Recursively search directories for tests.\n" +
     		"   -d, --debug [test-name] Open the given test in a debugger.\n" +
     		"   -u, --ui                Show graphical user interface.\n" +
+    		"   -s, --sml               Use CSoar/SML 9.3.0 instead of JSoar\n" +
+    		"\n" +
+    		"Note: When running in SML mode, CSoar's bin directory must be on the system\n" +
+    		"      path or in java.library.path.\n" + 
     		"");
     }
     
@@ -80,7 +85,9 @@ public class SoarUnit
         newOption(Options.help).
         newOption(Options.Recursive).
         newOption(Options.ui).
-        newOption(Options.debug).requiredArg().done();
+        newOption(Options.debug).requiredArg().
+        newOption(Options.sml).
+        done();
         
         final List<String> rest;
         try
@@ -98,6 +105,17 @@ public class SoarUnit
         {
             usage();
             return 0;
+        }
+        
+        if(options.has(Options.sml))
+        {
+            out.println("Using CSoar/SML, make sure that java.library.path or system path is set correctly.");
+            agentFactory = new SmlTestAgentFactory();
+        }
+        else
+        {
+            out.println("Using JSoar.");
+            agentFactory = new JSoarTestAgentFactory();
         }
         
         final List<File> inputs = new ArrayList<File>();
