@@ -310,11 +310,6 @@ public class DefaultSemanticMemory implements SemanticMemory
         return JdbcTools.insertAndGetRowId(db.hash_add_type);
     }
 
-    private long /*smem_hash_id*/ smem_temporal_hash_int(int val) throws SQLException
-    {
-        return smem_temporal_hash_int(val, true);
-    }
-    
     private long /*smem_hash_id*/ smem_temporal_hash_int(int val, boolean add_on_fail /*= true*/ ) throws SQLException
     {
         long /*smem_hash_id*/ return_val = 0;
@@ -349,11 +344,6 @@ public class DefaultSemanticMemory implements SemanticMemory
         return return_val;
     }
 
-    private long /*smem_hash_id*/ smem_temporal_hash_float(double val) throws SQLException
-    {
-        return smem_temporal_hash_float(val, true);
-    }
-    
     private long /*smem_hash_id*/ smem_temporal_hash_float(double val, boolean add_on_fail /*= true*/ ) throws SQLException
     {
         long /*smem_hash_id*/ return_val = 0;
@@ -389,11 +379,6 @@ public class DefaultSemanticMemory implements SemanticMemory
         return return_val;
     }
 
-    private long /*smem_hash_id*/ smem_temporal_hash_str(String val) throws SQLException
-    {
-        return smem_temporal_hash_str(val, true);
-    }
-    
     private long /*smem_hash_id*/ smem_temporal_hash_str(String val, boolean add_on_fail /*= true*/ ) throws SQLException
     {
         long /*smem_hash_id*/ return_val = 0;
