@@ -5,6 +5,9 @@
  */
 package org.jsoar.soarunit.sml;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.jsoar.kernel.SoarException;
 import org.jsoar.soarunit.FiringCounts;
 import org.jsoar.soarunit.Test;
@@ -71,7 +74,15 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
     public FiringCounts getFiringCounts()
     {
         // TODO SoarUnit SML: use executeCommandLineXml to get list of firing counts
-        return new FiringCounts();
+        try
+        {
+            return extractFiringCountsFromPrintedOutput(executeCommandLine("firing-counts", false));
+        }
+        catch (SoarException e)
+        {
+            e.printStackTrace();
+            return new FiringCounts();
+        }
     }
 
     /* (non-Javadoc)
@@ -109,9 +120,9 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
         agent = kernel.CreateAgent(test.getName());
         agent.RegisterForPrintEvent(smlPrintEventId.smlEVENT_PRINT, this, null, false);
         
-        executeCommandLine(String.format("pushd \"%s\"", FileTools.getParent(test.getTestCase().getFile()).replace('\\', '/')));
-        executeCommandLine(prepSoarCodeForSml(test.getTestCase().getSetup()));
-        executeCommandLine(prepSoarCodeForSml(test.getContent()));
+        executeCommandLine(String.format("pushd \"%s\"", FileTools.getParent(test.getTestCase().getFile()).replace('\\', '/')), true);
+        executeCommandLine(prepSoarCodeForSml(test.getTestCase().getSetup()), true);
+        executeCommandLine(prepSoarCodeForSml(test.getContent()), true);
     }
 
     /* (non-Javadoc)
@@ -152,9 +163,9 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
         agent.RunSelf(50000);
     }
 
-    private String executeCommandLine(String code) throws SoarException
+    private String executeCommandLine(String code, boolean echo) throws SoarException
     {
-        final String result = agent.ExecuteCommandLine(code);
+        final String result = agent.ExecuteCommandLine(code, echo);
         if(!agent.GetLastCommandLineResult())
         {
             throw new SoarException(result);
@@ -175,5 +186,17 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
         output.append(message);
 //        System.out.print(message);
 //        System.out.flush();
+    }
+    
+    static FiringCounts extractFiringCountsFromPrintedOutput(String in)
+    {
+        final FiringCounts result = new FiringCounts();
+        final Pattern pattern = Pattern.compile("^\\s*(\\d+):\\s*(.*)$", Pattern.MULTILINE);
+        final Matcher matcher = pattern.matcher(in);
+        while(matcher.find())
+        {
+            result.adjust(matcher.group(2), Long.parseLong(matcher.group(1)));
+        }
+        return result;
     }
 }

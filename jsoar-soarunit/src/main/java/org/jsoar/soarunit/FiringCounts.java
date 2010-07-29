@@ -68,4 +68,9 @@ public class FiringCounts
     {
         return counts.entrySet();
     }
+    
+    public Long getCount(String ruleName)
+    {
+        return counts.get(ruleName);
+    }
 }
