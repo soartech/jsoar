@@ -50,7 +50,8 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
     private final JSoarDebugger debugger;
     private final ThreadedAgent agent;
     private final JXList entryList = new JXList();
-    private final JXTable wmeTable = new JXTable(new DefaultWmeTableModel());
+    private final DefaultWmeTableModel wmeModel = new DefaultWmeTableModel();
+    private final JXTable wmeTable = new JXTable(wmeModel);
     
     public MatchSetView(JSoarDebugger debugger)
     {
@@ -138,8 +139,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
             public void finish(MatchSet result)
             {
                 entryList.setModel(SwingTools.addAll(new DefaultListModel(), result.getEntries()));
-                wmeTable.setModel(new DefaultWmeTableModel());
-                wmeTable.packAll();
+                wmeModel.setWmes(null);
                 
                 entryList.setSelectedIndex(0);
             }
@@ -160,7 +160,7 @@ public class MatchSetView extends AbstractAdaptableView implements Refreshable
     private void tableSelectionChange()
     {
         final MatchSetEntry entry = (MatchSetEntry) entryList.getSelectedValue();
-        wmeTable.setModel(entry != null ? new DefaultWmeTableModel(entry.getWmes()) : new DefaultWmeTableModel());
+        wmeModel.setWmes(entry != null ? entry.getWmes() : null);
         
         if(entry != null)
         {

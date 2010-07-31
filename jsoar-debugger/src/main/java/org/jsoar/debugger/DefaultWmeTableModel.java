@@ -33,19 +33,21 @@ public class DefaultWmeTableModel extends AbstractTableModel
     }
     
     /**
-     * @param wmes
-     */
-    public DefaultWmeTableModel(List<Wme> wmes)
-    {
-        this.wmes = wmes;
-    }
-    
-    /**
      * @return the wmes
      */
     public List<Wme> getWmes()
     {
         return wmes;
+    }
+    
+    public void setWmes(List<Wme> newWmes)
+    {
+        this.wmes.clear();
+        if(newWmes != null)
+        {
+            this.wmes.addAll(newWmes);
+        }
+        fireTableDataChanged();
     }
 
     /* (non-Javadoc)

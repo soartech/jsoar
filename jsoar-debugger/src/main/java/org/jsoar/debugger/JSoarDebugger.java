@@ -332,6 +332,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         addView(new WmeSupportView(this));
         addView(new PreferencesView(this));
         addView(new GoalStackView(this));
+        addView(new GdsView(this));
     }
     
     private <T extends AbstractAdaptableView> T addView(T view)

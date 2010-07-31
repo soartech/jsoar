@@ -45,7 +45,8 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
     
     private final JSoarDebugger debugger;
     private final JLabel description = new JLabel(" Enter glob pattern below and click Search");
-    private final JXTable wmeTable = new JXTable(new DefaultWmeTableModel());
+    private final DefaultWmeTableModel wmeModel = new DefaultWmeTableModel();
+    private final JXTable wmeTable = new JXTable(wmeModel);
     private final JTextField idField = new JTextField(getPreferences().get("id", "*"), 3);
     private final JTextField attrField = new JTextField(getPreferences().get("attr", "*"), 6);
     private final JTextField valueField = new JTextField(getPreferences().get("value", "*"), 6);
@@ -222,7 +223,7 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
             @Override
             public void finish(List<Wme> result)
             {
-                wmeTable.setModel(new DefaultWmeTableModel(result));
+                wmeModel.setWmes(result);
                 description.setText(String.format(
                    "<html>&nbsp;WMEs matching pattern <b><code>(%s ^%s %s)</code></b>", id, attr, value));
             }

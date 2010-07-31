@@ -53,7 +53,8 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
     private final JLabel source = new JLabel("");
     private WmeSupportInfo sourceInfo;
     private final JXList entryList = new JXList();
-    private final JXTable wmeTable = new JXTable(new DefaultWmeTableModel());
+    private final DefaultWmeTableModel wmeModel = new DefaultWmeTableModel();
+    private final JXTable wmeTable = new JXTable(wmeModel);
     
     public WmeSupportView(JSoarDebugger debuggerIn)
     {
@@ -129,7 +130,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
     private void tableSelectionChange()
     {
         final Support support = (Support) entryList.getSelectedValue();
-        wmeTable.setModel(support != null ? new DefaultWmeTableModel(support.getSourceWmes()) : new DefaultWmeTableModel());
+        wmeModel.setWmes(support != null ? support.getSourceWmes() : null);
         
         if(support != null)
         {
@@ -168,7 +169,7 @@ public class WmeSupportView extends AbstractAdaptableView implements SelectionLi
             {
                 source.setText(String.format("<html><b>&nbsp;<code> %#s</code></b> is supported by:</html>", w));
                 entryList.setModel(SwingTools.addAll(new DefaultListModel(), sourceInfo.getSupports()));
-                wmeTable.setModel(new DefaultWmeTableModel());
+                wmeModel.setWmes(null);
                 wmeTable.packAll();
                 entryList.setSelectedIndex(0);
             }
