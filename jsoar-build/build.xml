@@ -35,12 +35,17 @@
       </copy>
       <copy todir="${dist.bin}">
          <fileset file="resources/bin/jsoar.bat"/>
+  	 	 <fileset file="resources/bin/jsoar"/>
+      	
          <fileset file="resources/bin/soar2soar.bat"/>
+      	
          <fileset file="resources/bin/soarunit.bat"/>
-   	 	 <fileset file="resources/bin/jsoar"/>
+         <fileset file="resources/bin/soarunit"/>
+      	
     	 <filterset refid="filters"/>
       </copy>
-   	  <chmod file="${dist.bin}/jsoar" perm="+x"/>
+ 	  <chmod file="${dist.bin}/jsoar" perm="+x"/>
+ 	  <chmod file="${dist.bin}/soarunit" perm="+x"/>
    </target>
 
    <target name="dist" depends="init">
