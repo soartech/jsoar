@@ -73,6 +73,16 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
         debugger.getAgent().execute(new CommandLineRunnable(debugger, "print " + e.object), null);
     }
 
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
+     */
+    @Override
+    public String getShortcutKey()
+    {
+        return "ctrl G";
+    }
+
     /* (non-Javadoc)
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
      */

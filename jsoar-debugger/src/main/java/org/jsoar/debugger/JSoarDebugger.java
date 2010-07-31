@@ -69,6 +69,7 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
+import org.jsoar.util.properties.PropertyChangeEvent;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyListener;
 import org.jsoar.util.properties.PropertyListenerHandle;
@@ -80,7 +81,6 @@ import bibliothek.gui.dock.common.intern.CDockable;
 import bibliothek.gui.dock.common.layout.ThemeMap;
 import bibliothek.gui.dock.common.menu.CLayoutChoiceMenuPiece;
 import bibliothek.gui.dock.common.menu.CThemeMenuPiece;
-import bibliothek.gui.dock.common.menu.SingleCDockableListMenuPiece;
 import bibliothek.gui.dock.facile.menu.RootMenuPiece;
 import bibliothek.gui.dock.facile.menu.SubmenuPiece;
 import bibliothek.gui.dock.support.menu.SeparatingMenuPiece;
@@ -93,25 +93,14 @@ import bibliothek.util.xml.XIO;
 public class JSoarDebugger extends JPanel implements Adaptable
 {
     private static final long serialVersionUID = 7997119112479665988L;
+    
     private static final Log logger = LogFactory.getLog(JSoarDebugger.class);
+    
     private static final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
     public static final Preferences PREFERENCES = Preferences.userRoot().node("org/jsoar/debugger");
     private static final PropertyKey<JSoarDebugger> CREATED_BY = PropertyKey.builder("JSoarDebugger.createdBy", JSoarDebugger.class).readonly(true).build(); 
     
     private static final Map<ThreadedAgent, JSoarDebugger> debuggers = Collections.synchronizedMap(new HashMap<ThreadedAgent, JSoarDebugger>());
-    
-    static 
-    {
-        // This is a workaround for the loading behavior of FlexDock.
-        // The static initializer of PlafManager messes with the Swing
-        // look and feel which means that if it executes "late" due to lazy
-        // class loading, it will mess with non-flexdock frames that were
-        // previously created. Uggh. So we force instantiation here just to
-        // make it as early as possible.
-        // The symptom I was seeing was that an existing window would become
-        // very small the first time the debugger was loaded.
-        // TODO DockingFrames PlafManager.getSystemThemeName();
-    }
     
     private final SelectionManager selectionManager = new SelectionManager();
     private final ActionManager actionManager = new ActionManager(this);
@@ -141,7 +130,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         super(new BorderLayout());
         
         this.providerProperties.putAll(properties);
-        
     }
     
     /**
@@ -163,8 +151,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         this.docking = new CControl(this.frame);
         this.docking.setTheme(ThemeMap.KEY_ECLIPSE_THEME);
         // Track selection to active view
-        this.docking.addFocusListener(new CFocusListener()
-        {
+        this.docking.addFocusListener(new CFocusListener() {
             
             @Override
             public void focusLost(CDockable dockable)
@@ -207,8 +194,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         saveListener(proxy.getProperties().addListener(SoarProperties.NAME, new PropertyListener<String>() {
 
             @Override
-            public void propertyChanged(
-                    org.jsoar.util.properties.PropertyChangeEvent<String> event)
+            public void propertyChanged(PropertyChangeEvent<String> event)
             {
                 frame.setTitle("JSoar Debugger - " + event.getNewValue());
             }}));
@@ -217,8 +203,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         saveListener(proxy.getProperties().addListener(SoarProperties.IS_RUNNING, new PropertyListener<Boolean>() {
 
             @Override
-            public void propertyChanged(
-                    org.jsoar.util.properties.PropertyChangeEvent<Boolean> event)
+            public void propertyChanged(PropertyChangeEvent<Boolean> event)
             {
                 updateActionsAndStatus();
             }}));
@@ -242,6 +227,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }}));
         
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        
         frame.addWindowListener(new WindowAdapter() {
 
             @Override
@@ -448,7 +434,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         bar.add(fileMenu);
         
         final RootMenuPiece viewMenu = new RootMenuPiece( "View", false );
-        viewMenu.add(new SingleCDockableListMenuPiece( docking ));
         viewMenu.add(new SeparatingMenuPiece(false, true, false));
         // L&F is cute, but for some reason, switching L&F breaks the trace command box
         // viewMenu.add(new SubmenuPiece( "Look and feel", true, new CLookAndFeelMenuPiece( docking )));
@@ -457,6 +442,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
         final SubmenuPiece layoutMenu = new SubmenuPiece("Layout", false,
                 new CLayoutChoiceMenuPiece( docking, false ));
         viewMenu.add(layoutMenu);
+        
+        new ViewSelectionMenu( docking, viewMenu.getMenu());
         
         /*
         viewMenu.getMenu().add(new AbstractAction("Write")
@@ -520,7 +507,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     {
         updateActionsAndStatus();
         
-        List<Refreshable> refreshables = Adaptables.adaptCollection(views, Refreshable.class);
+        final List<Refreshable> refreshables = Adaptables.adaptCollection(views, Refreshable.class);
         for(Refreshable r : refreshables)
         {
             r.refresh(afterInitSoar);

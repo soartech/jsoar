@@ -9,6 +9,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry exported="true" kind="lib" path="lib/swingx-1.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dockingFramesCommon-1.0.8-5d.jar" sourcepath="C:/Documents and Settings/ray/home/Downloads/docking-grames-1.0.8-preview-5d/src"/>
-	<classpathentry exported="true" kind="lib" path="lib/dockingFramesCore-1.0.8-5d.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dockingFramesCore-1.0.8-5d.jar" sourcepath="C:/Documents and Settings/ray/home/Downloads/docking-grames-1.0.8-preview-5d/src/dockingFramesCore"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

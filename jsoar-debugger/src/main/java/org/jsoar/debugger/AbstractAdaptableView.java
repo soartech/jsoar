@@ -10,7 +10,10 @@ import java.util.prefs.Preferences;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
+import bibliothek.gui.Dockable;
 import bibliothek.gui.dock.common.DefaultSingleCDockable;
+import bibliothek.gui.dock.common.intern.CDockable;
+import bibliothek.gui.dock.common.intern.DefaultCommonDockable;
 
 /**
  * @author ray
@@ -19,6 +22,30 @@ public abstract class AbstractAdaptableView extends DefaultSingleCDockable imple
 {
     private static final long serialVersionUID = 8049528094231200441L;
 
+    /**
+     * Given an arbitrary dockable dig around and try to find the JSoar view associated
+     * with it.
+     * 
+     * @param dockable the dockable
+     * @return a view, or {@code null}
+     */
+    public static AbstractAdaptableView fromDockable(Dockable dockable)
+    {
+        if(dockable instanceof AbstractAdaptableView)
+        {
+            return (AbstractAdaptableView) dockable;
+        }
+        else if(dockable instanceof DefaultCommonDockable)
+        {
+            final CDockable cdockable = ((DefaultCommonDockable) dockable).getDockable();
+            if(cdockable instanceof AbstractAdaptableView)
+            {
+                return (AbstractAdaptableView) cdockable;
+            }
+        }
+        return null;
+    }
+    
     public AbstractAdaptableView(String persistentId, String title)
     {
         super(persistentId, title);
@@ -37,20 +64,6 @@ public abstract class AbstractAdaptableView extends DefaultSingleCDockable imple
     public void activate()
     {
     }
-    
-//    /* (non-Javadoc)
-//     * @see org.flexdock.view.View#setContentPane(java.awt.Container)
-//     */
-//    @Override
-//    public void setContentPane(Container c) throws IllegalArgumentException
-//    {
-//        // Give every view a default border ...
-//        final JPanel wrapper = new JPanel(new BorderLayout());
-//        wrapper.add(c, BorderLayout.CENTER);
-//        wrapper.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-//        super.setContentPane(wrapper);
-//    }
-
 
     /* (non-Javadoc)
      * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)

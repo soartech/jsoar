@@ -140,6 +140,15 @@ public class PreferencesView extends AbstractAdaptableView implements SelectionL
             }});
         return bar;
     }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
+     */
+    @Override
+    public String getShortcutKey()
+    {
+        return "ctrl P";
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.debugger.Disposable#dispose()

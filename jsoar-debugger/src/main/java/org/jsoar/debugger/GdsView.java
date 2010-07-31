@@ -67,6 +67,19 @@ public class GdsView extends AbstractAdaptableView implements Refreshable
         getContentPane().add(p);
     }
 
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.AbstractAdaptableView#getShortcutKey()
+     */
+    @Override
+    public String getShortcutKey()
+    {
+        return "ctrl shift G";
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Refreshable#refresh(boolean)
+     */
     @Override
     public void refresh(boolean afterInitSoar)
     {
