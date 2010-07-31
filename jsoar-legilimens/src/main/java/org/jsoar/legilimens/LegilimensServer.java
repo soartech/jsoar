@@ -11,8 +11,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 import org.jsoar.legilimens.trace.AgentTraceBuffer;
@@ -33,7 +33,7 @@ import org.restlet.routing.VirtualHost;
  */
 public class LegilimensServer
 {
-    private static final Log logger = LogFactory.getLog(LegilimensServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(LegilimensServer.class);
 
     private static final String ROOT_PROPERTY = "jsoar.legilimens.root";
     private static final String DEFAULT_ROOT = "/jsoar";

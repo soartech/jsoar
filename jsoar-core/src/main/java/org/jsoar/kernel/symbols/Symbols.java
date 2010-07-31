@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.Lexer;
@@ -26,7 +26,7 @@ import org.jsoar.util.Arguments;
  */
 public class Symbols
 {
-    private static final Log logger = LogFactory.getLog(Agent.class);
+    private static final Logger logger = LoggerFactory.getLogger(Agent.class);
     private static final boolean WARN_ON_JAVA_SYMBOLS = Boolean.valueOf(System.getProperty("jsoar.warnOnJavaSymbols", "true"));
 
     public static final int IDENTIFIER_SYMBOL_TYPE = 1;

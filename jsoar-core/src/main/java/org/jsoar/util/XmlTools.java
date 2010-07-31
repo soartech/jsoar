@@ -25,8 +25,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,7 +42,7 @@ import org.xml.sax.SAXException;
  */
 public class XmlTools
 {
-    private static final Log logger = LogFactory.getLog(XmlTools.class);
+    private static final Logger logger = LoggerFactory.getLogger(XmlTools.class);
     
     /**
      * Construct a new document builder

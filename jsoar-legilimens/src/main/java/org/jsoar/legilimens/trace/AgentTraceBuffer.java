@@ -9,8 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.properties.PropertyKey;
@@ -33,7 +33,7 @@ import org.jsoar.util.properties.PropertyProvider;
  */
 public class AgentTraceBuffer
 {
-    private static final Log logger = LogFactory.getLog(AgentTraceBuffer.class);
+    private static final Logger logger = LoggerFactory.getLogger(AgentTraceBuffer.class);
     
     public static final PropertyKey<AgentTraceBuffer> KEY = PropertyKey.builder("legilimens.trace", AgentTraceBuffer.class).readonly(true).build();
     

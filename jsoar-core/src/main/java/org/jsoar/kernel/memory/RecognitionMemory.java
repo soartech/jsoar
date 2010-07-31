@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Consistency;
 import org.jsoar.kernel.Decider;
@@ -79,7 +79,7 @@ import org.jsoar.util.timing.ExecutionTimers;
  */
 public class RecognitionMemory
 {
-    private static final Log logger = LogFactory.getLog(RecognitionMemory.class);
+    private static final Logger logger = LoggerFactory.getLogger(RecognitionMemory.class);
     
     private final Agent context;
     private PredefinedSymbols predefinedSyms;

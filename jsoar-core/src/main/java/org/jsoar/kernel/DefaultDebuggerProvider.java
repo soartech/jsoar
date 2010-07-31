@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the default implementation of the {@link DebuggerProvider} 
@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DefaultDebuggerProvider extends AbstractDebuggerProvider
 {
-    private static final Log logger = LogFactory.getLog(DefaultDebuggerProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
     
     public static final String PROPERTY = "jsoar.debugger.provider";
     public static final String DEFAULT_CLASS = "org.jsoar.debugger.DefaultDebuggerProvider";

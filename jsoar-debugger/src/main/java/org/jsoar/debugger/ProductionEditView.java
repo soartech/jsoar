@@ -24,8 +24,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
@@ -48,7 +48,7 @@ import com.google.common.collect.ForwardingList;
 public class ProductionEditView extends AbstractAdaptableView implements Disposable
 {
     private static final long serialVersionUID = -5150761314645770374L;
-    private static final Log logger = LogFactory.getLog(ProductionEditView.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProductionEditView.class);
 
     private static final String DEFAULT_CONTENTS = "Double-click a production (or right-click) to edit, or just start typing.";
     private static final String LAST_CONTENT_KEY = "lastContent";

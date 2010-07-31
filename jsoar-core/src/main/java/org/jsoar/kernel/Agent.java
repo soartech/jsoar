@@ -20,8 +20,6 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.exploration.Exploration;
@@ -66,6 +64,8 @@ import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.timing.DefaultExecutionTimer;
 import org.jsoar.util.timing.ExecutionTimer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a the base agent object in JSoar. It is a "raw" agent which roughly
@@ -102,7 +102,7 @@ import org.jsoar.util.timing.ExecutionTimer;
  */
 public class Agent extends AbstractAdaptable implements AgentRunController
 {
-    private static final Log logger = LogFactory.getLog(Agent.class);
+    private static final Logger logger = LoggerFactory.getLogger(Agent.class);
     
     private static final AtomicInteger nextName = new AtomicInteger(0);
     

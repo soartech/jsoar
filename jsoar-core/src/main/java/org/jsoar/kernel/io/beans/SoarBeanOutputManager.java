@@ -8,8 +8,8 @@ package org.jsoar.kernel.io.beans;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.io.InputWmes;
@@ -28,7 +28,7 @@ import org.jsoar.util.events.SoarEventManager;
  */
 public class SoarBeanOutputManager
 {
-    private static final Log logger = LogFactory.getLog(SoarBeanOutputManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(SoarBeanOutputManager.class);
 
     private final SoarEventManager eventManager;
     private final SoarEventListener listener;

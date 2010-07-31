@@ -28,8 +28,8 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.Chunker;
@@ -108,7 +108,7 @@ import org.jsoar.util.properties.PropertyManager;
  */
 public class DefaultSemanticMemory implements SemanticMemory
 {
-    private static final Log logger = LogFactory.getLog(DefaultSemanticMemory.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultSemanticMemory.class);
 
     /**
      * semantic_memory.h:232:smem_variable_key

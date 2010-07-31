@@ -11,8 +11,8 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.util.XmlTools;
@@ -31,7 +31,7 @@ public class DefaultWmeToXml
     public static final String TEXT = "/text";
     public static final String NEXT = "/next";
     
-    private static final Log logger = LogFactory.getLog(DefaultXmlToWme.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultXmlToWme.class);
     private static final DocumentBuilder builder = XmlTools.createDocumentBuilder();
     
     private final Map<Identifier, Element> idMap = new HashMap<Identifier, Element>();

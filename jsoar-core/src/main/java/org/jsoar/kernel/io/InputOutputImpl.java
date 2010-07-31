@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
@@ -92,7 +92,7 @@ import org.jsoar.util.markers.Marker;
  */
 public class InputOutputImpl implements InputOutput, WmeFactory<InputWme>
 {
-    private static final Log logger = LogFactory.getLog(InputOutputImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(InputOutputImpl.class);
     
     /**
      * io.cpp:387

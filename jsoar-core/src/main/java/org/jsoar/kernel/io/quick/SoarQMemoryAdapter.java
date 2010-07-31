@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
@@ -58,7 +58,7 @@ import org.jsoar.util.events.SoarEventListener;
  */
 public class SoarQMemoryAdapter implements SoarEventListener, QMemoryListener
 {
-    private static final Log logger = LogFactory.getLog(SoarQMemoryAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(SoarQMemoryAdapter.class);
     private static final Pattern INDEX_PATTERN = Pattern.compile("\\[[^]]+\\]$");
     
     static String getNameFromPath(String path)

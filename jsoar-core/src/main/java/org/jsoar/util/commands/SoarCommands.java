@@ -10,8 +10,8 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.adaptables.Adaptable;
@@ -23,7 +23,7 @@ import org.jsoar.util.adaptables.Adaptable;
  */
 public class SoarCommands
 {
-    private static final Log logger = LogFactory.getLog(SoarCommands.class);
+    private static final Logger logger = LoggerFactory.getLogger(SoarCommands.class);
     
     /**
      * A more general form of the source method.

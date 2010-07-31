@@ -33,8 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.debugger.actions.AboutAction;
 import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.EditProductionAction;
@@ -94,7 +94,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
 {
     private static final long serialVersionUID = 7997119112479665988L;
     
-    private static final Log logger = LogFactory.getLog(JSoarDebugger.class);
+    private static final Logger logger = LoggerFactory.getLogger(JSoarDebugger.class);
     
     private static final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
     public static final Preferences PREFERENCES = Preferences.userRoot().node("org/jsoar/debugger");
@@ -380,7 +380,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             }
             catch (BackingStoreException e)
             {
-                logger.error(e);
+                logger.error(e.getMessage(), e);
             }
         }
         

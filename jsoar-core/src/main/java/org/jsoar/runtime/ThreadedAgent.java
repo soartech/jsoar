@@ -15,8 +15,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.DebuggerProvider;
@@ -74,7 +74,7 @@ import org.jsoar.util.properties.PropertyProvider;
  */
 public class ThreadedAgent extends AbstractAdaptable implements AgentRunController
 {
-    private static final Log logger = LogFactory.getLog(ThreadedAgent.class);
+    private static final Logger logger = LoggerFactory.getLogger(ThreadedAgent.class);
     
     private final Agent agent;
     private final BlockingQueue<Runnable> commands = new LinkedBlockingQueue<Runnable>();

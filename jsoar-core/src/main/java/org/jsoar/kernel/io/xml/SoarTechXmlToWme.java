@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
@@ -33,7 +33,7 @@ import org.w3c.dom.Node;
  */
 public class SoarTechXmlToWme implements XmlToWme
 {
-    private static final Log logger = LogFactory.getLog(SoarTechXmlToWme.class);
+    private static final Logger logger = LoggerFactory.getLogger(SoarTechXmlToWme.class);
     
     private final WmeFactory<?> wmeFactory;
     

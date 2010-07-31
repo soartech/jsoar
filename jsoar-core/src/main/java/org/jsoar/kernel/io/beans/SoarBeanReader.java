@@ -16,8 +16,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.DoubleSymbol;
 import org.jsoar.kernel.symbols.Identifier;
@@ -101,7 +101,7 @@ import com.google.common.collect.Iterators;
  */
 public class SoarBeanReader
 {
-    private static final Log logger = LogFactory.getLog(SoarBeanReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(SoarBeanReader.class);
     
     private final BeanUtilsBean util = new BeanUtilsBean();
     private final Map<Identifier, Object> beanMap = new HashMap<Identifier, Object>();

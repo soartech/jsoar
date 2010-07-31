@@ -8,8 +8,8 @@ package org.jsoar.runtime;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -17,7 +17,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class LegilimensStarter
 {
-    private static final Log logger = LogFactory.getLog(LegilimensStarter.class);
+    private static final Logger logger = LoggerFactory.getLogger(LegilimensStarter.class);
 
     public static final String AUTO_START_PROPERTY = "jsoar.legilimens.autoStart";
     

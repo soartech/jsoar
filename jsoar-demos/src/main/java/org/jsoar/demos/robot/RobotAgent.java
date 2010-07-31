@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.DebuggerProvider.CloseAction;
@@ -27,7 +27,7 @@ import org.jsoar.util.commands.SoarCommands;
  */
 public class RobotAgent
 {
-    private static final Log logger = LogFactory.getLog(RobotAgent.class);
+    private static final Logger logger = LoggerFactory.getLogger(RobotAgent.class);
     
     private Robot robot;
     private final ThreadedAgent agent;

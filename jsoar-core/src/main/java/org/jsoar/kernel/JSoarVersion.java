@@ -9,15 +9,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ray
  */
 public final class JSoarVersion
 {
-    private static final Log logger = LogFactory.getLog(JSoarVersion.class);
+    private static final Logger logger = LoggerFactory.getLogger(JSoarVersion.class);
     
     private static final String PREFIX = "jsoar-core.buildinfo";
     

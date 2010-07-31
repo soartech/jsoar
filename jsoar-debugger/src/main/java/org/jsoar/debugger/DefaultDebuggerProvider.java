@@ -11,8 +11,8 @@ import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.SoarException;
@@ -28,7 +28,7 @@ import org.jsoar.runtime.ThreadedAgent;
  */
 public class DefaultDebuggerProvider implements DebuggerProvider
 {
-    private static final Log logger = LogFactory.getLog(DefaultDebuggerProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultDebuggerProvider.class);
     
     private final Map<String, Object> properties = new HashMap<String, Object>();
 

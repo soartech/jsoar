@@ -14,8 +14,8 @@ import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
 
@@ -24,7 +24,7 @@ import org.jsoar.kernel.RunType;
  */
 public class RunControlModel implements Disposable
 {
-    private static final Log logger = LogFactory.getLog(Agent.class);
+    private static final Logger logger = LoggerFactory.getLogger(Agent.class);
     
     private PlainDocument count = new PlainDocument();
     {
