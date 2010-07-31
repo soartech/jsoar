@@ -6,12 +6,15 @@
 package org.jsoar.soarunit.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import org.jsoar.kernel.SoarException;
@@ -23,6 +26,7 @@ import org.jsoar.soarunit.TestCaseResult;
 import org.jsoar.soarunit.TestResult;
 import org.jsoar.soarunit.TestRunner;
 import org.jsoar.util.NullWriter;
+import org.jsoar.util.StringTools;
 
 /**
  * @author ray
@@ -31,12 +35,17 @@ public class TestPanel extends JPanel
 {
     private static final long serialVersionUID = 4823211094468351324L;
     
+    private static final Color ERROR_BACKGROUND_COLOR = new Color(242, 102, 96).brighter();
+    
     private final TestAgentFactory agentFactory;
     private final TestCaseCollector collector;
     private final TestSummaryPanel summary;
     private final TestResultList list;
     private final CoveragePanel coverage;
-    
+    private final JTextArea errors = new JTextArea();
+    private final Color defaultErrorBackground = errors.getBackground();
+    private final JTabbedPane tabs = new JTabbedPane();
+   
     public TestPanel(TestAgentFactory agentFactory, TestCaseCollector collector)
     {
         super(new BorderLayout());
@@ -47,9 +56,11 @@ public class TestPanel extends JPanel
         
         add(summary, BorderLayout.NORTH);
 
-        final JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Tests", list = new TestResultList(agentFactory));
         tabs.addTab("Coverage", coverage = new CoveragePanel());
+        
+        errors.setEditable(false);
+        tabs.addTab("Errors", new JScrollPane(errors));
         
         add(tabs, BorderLayout.CENTER);
     }
@@ -59,6 +70,11 @@ public class TestPanel extends JPanel
         list.reset();
         summary.reset();
         coverage.reset();
+        
+        errors.setText("No errors!");
+        errors.setBackground(defaultErrorBackground);
+        
+        tabs.setSelectedIndex(0);
         new RunThread().start();
     }
     
@@ -117,11 +133,36 @@ public class TestPanel extends JPanel
             }});
     }
     
+    private void showError(final String message, final Throwable e)
+    {
+        if(SwingUtilities.isEventDispatchThread())
+        {
+            final StringBuilder text = new StringBuilder(message);
+            text.append("\n");
+            text.append("____________________________________________________________________________\n\n");
+            if(e != null)
+            {
+                text.append(StringTools.getStackTrace(e));
+            }
+            errors.setText(text.toString());
+            errors.setBackground(ERROR_BACKGROUND_COLOR);
+            tabs.setSelectedIndex(2);
+        }
+        else
+        {
+            SwingUtilities.invokeLater(new Runnable() {
+                
+                @Override
+                public void run()
+                {
+                    showError(message, e);
+                }
+            });
+        }
+    }
+    
     private class RunThread extends Thread
     {
-        /* (non-Javadoc)
-         * @see java.lang.Thread#run()
-         */
         @Override
         public void run()
         {
@@ -129,15 +170,9 @@ public class TestPanel extends JPanel
             {
                 runTestsInternal();
             }
-            catch (SoarException e)
+            catch (Exception e)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                showError(e.getMessage(), e);
             }
         }
     }

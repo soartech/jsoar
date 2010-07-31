@@ -101,7 +101,15 @@ public class TestRunner
             final TestAgent agent = factory.createTestAgent();
             try
             {
-                final TestResult testResult = runTest(test, agent);
+                final TestResult testResult;
+                try
+                {
+                    testResult = runTest(test, agent);
+                }
+                catch (SoarException e)
+                {
+                    throw new SoarException(testCase.getFile() + ":" + testCase.getName() + ": " + e.getMessage(), e);
+                }
                 result.addTestResult(testResult);
                 if(haltOnFailure && !testResult.isPassed())
                 {

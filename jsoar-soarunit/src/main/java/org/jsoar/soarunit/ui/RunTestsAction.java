@@ -20,7 +20,7 @@ public class RunTestsAction extends AbstractAction
     
     public RunTestsAction(TestPanel tp)
     {
-        super("Run All");
+        super("Re-run All Tests");
         
         this.tp = tp;
     }

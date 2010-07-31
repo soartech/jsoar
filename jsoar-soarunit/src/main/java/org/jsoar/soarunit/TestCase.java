@@ -41,6 +41,7 @@ public class TestCase
         {
             final TestCase testCase = new TestCase(file, getNameFromFile(file));
             final DefaultInterpreterParser parser = new DefaultInterpreterParser();
+            parser.setContext(file.getPath());
             List<String> parsedCommand = parser.parseCommand(reader);
             while(!parsedCommand.isEmpty())
             {
@@ -57,7 +58,7 @@ public class TestCase
                 }
                 else
                 {
-                    throw new SoarException("Unsupported SoarUnit command '" + name + "'");
+                    throw new SoarException(file + ": Unsupported SoarUnit command '" + name + "'");
                 }
                 
                 parsedCommand = parser.parseCommand(reader);

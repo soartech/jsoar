@@ -17,6 +17,18 @@ import org.jsoar.kernel.SoarException;
  */
 public class DefaultInterpreterParser
 {
+    private String context;
+    
+    public String getContext()
+    {
+        return context;
+    }
+    
+    public void setContext(String context)
+    {
+        this.context = context;
+    }
+    
     public List<String> parseCommand(PushbackReader reader) throws IOException, SoarException
     {
         final List<String> result = new ArrayList<String>();
@@ -118,7 +130,7 @@ public class DefaultInterpreterParser
                     c = parseEscapeSequence(reader);
                     if(c == -1)
                     {
-                        throw new SoarException("Unexpected end of file");
+                        throw error("Unexpected end of file");
                     }
                 default:
                     result.append((char) c);
@@ -126,7 +138,7 @@ public class DefaultInterpreterParser
             }
             if(c == -1)
             {
-                throw new SoarException("Unexpected end of input. Unmatched quote.");
+                throw error("Unexpected end of input. Unmatched quote.");
             }
         }
         else if(c == '{')
@@ -151,7 +163,7 @@ public class DefaultInterpreterParser
             }
             if(braces > 0)
             {
-                throw new SoarException("Unexpected end of input. Unmatched opening brace");
+                throw error("Unexpected end of input. Unmatched opening brace");
             }
         }
         else
@@ -181,6 +193,18 @@ public class DefaultInterpreterParser
         case 'b': c = '\b'; break;
         }
         return c;
+    }
+    
+    private SoarException error(String message)
+    {
+        if(context != null)
+        {
+            return new SoarException(context + ": " + message);
+        }
+        else
+        {
+            return new SoarException(message);
+        }
     }
 
 }
