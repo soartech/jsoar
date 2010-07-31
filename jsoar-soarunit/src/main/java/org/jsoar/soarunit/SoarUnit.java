@@ -8,7 +8,6 @@ package org.jsoar.soarunit;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -118,10 +117,11 @@ public class SoarUnit
             agentFactory = new JSoarTestAgentFactory();
         }
         
-        final List<File> inputs = new ArrayList<File>();
+        final boolean recursive = options.has(Options.Recursive);
+        final TestCaseCollector collector = new TestCaseCollector(out);
         if(rest.isEmpty())
         {
-            inputs.add(new File("."));
+            collector.addEntry(new File("."), recursive);
         }
         else
         {
@@ -132,28 +132,24 @@ public class SoarUnit
                 {
                     return 1;
                 }
-                inputs.add(file);
+                collector.addEntry(file, recursive);
             }
         }
         
-        final List<TestCase> all = collectAllTestCases(inputs, options.has(Options.Recursive));
         if(options.has(Options.debug))
         {
-            debugTest(all, options.get(Options.debug));
+            debugTest(collector.collect(), options.get(Options.debug));
             return 0;
         }
         else if(options.has(Options.ui))
         {
             SwingUtilities.invokeLater(new Runnable() {
 
-                /* (non-Javadoc)
-                 * @see java.lang.Runnable#run()
-                 */
                 @Override
                 public void run()
                 {
                     MainFrame.initializeLookAndFeel();
-                    final MainFrame mf = new MainFrame(agentFactory, all);
+                    final MainFrame mf = new MainFrame(agentFactory, collector);
                     mf.setSize(640, 480);
                     mf.setDefaultCloseOperation(fromCommandLine ? JFrame.EXIT_ON_CLOSE : JFrame.DISPOSE_ON_CLOSE);
                     mf.setVisible(true);
@@ -164,7 +160,7 @@ public class SoarUnit
         else
         {
             final TestRunner runner = new TestRunner(agentFactory, out);
-            final List<TestCaseResult> results = runner.runAllTestCases(all);
+            final List<TestCaseResult> results = runner.runAllTestCases(collector.collect());
             return printAllTestCaseResults(results, runner.getFiringCounts());
         }
         
@@ -233,48 +229,5 @@ public class SoarUnit
                     (int)(coverage.getCoverage() * 100));
         
         return totalFailed > 0 ? 1 : 0;
-    }
-
-    private List<TestCase> collectAllTestCases(final List<File> inputs, boolean recursive) throws SoarException, IOException
-    {
-        final List<TestCase> all = new ArrayList<TestCase>();
-        for(File input : inputs)
-        {
-            if(input.isFile())
-            {
-                all.add(TestCase.fromFile(input));
-            }
-            else if(input.isDirectory() && recursive)
-            {
-                all.addAll(collectTestCasesInDirectory(input));
-            }
-        }
-        out.printf("Found %d test case%s%n", all.size(), all.size() != 1 ? "s" : "");
-        return all;
-    }
-    
-    private List<TestCase> collectTestCasesInDirectory(File dir) throws SoarException, IOException
-    {
-        out.println("Collecting tests in directory '" + dir + "'");
-        
-        final List<TestCase> result = new ArrayList<TestCase>();
-        final File[] children = dir.listFiles();
-        if(children != null)
-        {
-            for(File file : children)
-            {
-                if(file.isDirectory() && !file.getName().startsWith("."))
-                {
-                    result.addAll(collectTestCasesInDirectory(file));
-                }
-                else if(file.isFile() && file.getName().startsWith("test") && file.getName().endsWith(".soar"))
-                {
-                    out.println("Collecting tests in file '" + file + "'");
-                    result.add(TestCase.fromFile(file));
-                }
-            }
-        }
-        
-        return result;
-    }
+    }    
 }

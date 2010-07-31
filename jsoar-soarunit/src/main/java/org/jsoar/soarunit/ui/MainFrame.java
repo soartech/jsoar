@@ -6,7 +6,6 @@
 package org.jsoar.soarunit.ui;
 
 import java.awt.BorderLayout;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -17,7 +16,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.jsoar.soarunit.TestAgentFactory;
-import org.jsoar.soarunit.TestCase;
+import org.jsoar.soarunit.TestCaseCollector;
 
 /**
  * @author ray
@@ -29,11 +28,11 @@ public class MainFrame extends JFrame
     private final JPanel contentPane = new JPanel(new BorderLayout());
     private final TestPanel testPanel;
     
-    public MainFrame(TestAgentFactory agentFactory, List<TestCase> allCases)
+    public MainFrame(TestAgentFactory agentFactory, TestCaseCollector collector)
     {
         super("SoarUnit");
         
-        testPanel = new TestPanel(agentFactory, allCases);
+        testPanel = new TestPanel(agentFactory, collector);
         
         setJMenuBar(initMenuBar());
         

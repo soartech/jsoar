@@ -24,16 +24,14 @@ public class TestSummaryPanel extends JPanel
     
     private final JLabel summary = new JLabel();
     private final TestProgressBar testProgress = new TestProgressBar();
-    private final int total;
+    private int total;
     private int passed;
     private int failed;
     private FiringCounts counts = new FiringCounts();
     
-    public TestSummaryPanel(int total)
+    public TestSummaryPanel()
     {
         super(new BorderLayout());
-        
-        this.total = total;
         
         final JPanel header = new JPanel(new GridLayout(2, 1));
         final JPanel progressPanel = new JPanel(new BorderLayout());
@@ -51,8 +49,15 @@ public class TestSummaryPanel extends JPanel
     
     public void reset()
     {
+        this.total = 0;
         this.counts = new FiringCounts();
         update(0, 0);
+    }
+    
+    public void setTotal(int total)
+    {
+        this.total = total;
+        update(passed, failed);
     }
     
     public void addTestResult(TestResult result)
