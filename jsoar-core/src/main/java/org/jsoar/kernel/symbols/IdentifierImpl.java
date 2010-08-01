@@ -517,5 +517,14 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
             }
             return super.getAdapter(klass);
         }
+
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString()
+        {
+            return getIdentifier().toString();
+        }
     }
 }

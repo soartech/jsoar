@@ -11,6 +11,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.jsoar.kernel.events.GdsGoalRemovedEvent;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutputImpl;
 import org.jsoar.kernel.learning.Chunker;
@@ -3099,6 +3100,7 @@ public class Decider
     		}
         }
         
+        final Goal goal = Adaptables.adapt(w.gds.getGoal(), Goal.class);
         remove_existing_context_and_descendents(w.gds.getGoal());
         /* BUG: Need to reset highest_goal here ???*/
 
@@ -3115,6 +3117,8 @@ public class Decider
         //  #endif
         //  #endif
         /* REW: end   11.25.96 */
+        
+        context.getEvents().fireEvent(new GdsGoalRemovedEvent(context, goal, w));
     }
 
     /**

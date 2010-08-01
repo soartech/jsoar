@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -21,19 +22,25 @@ import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.selection.TableSelectionProvider;
 import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
+import org.jsoar.kernel.events.GdsGoalRemovedEvent;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.events.SoarEvent;
+import org.jsoar.util.events.SoarEventListener;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
  * @author ray
  */
-public class GdsView extends AbstractAdaptableView implements Refreshable
+public class GdsView extends AbstractAdaptableView implements Refreshable, Disposable
 {
+    private static final int MAX_REMOVAL_HISTORY = 5;
+    
     private final JSoarDebugger debugger;
     private final JLabel label = new JLabel("No goals");
     private final DefaultWmeTableModel wmeModel = new DefaultWmeTableModel();
@@ -46,6 +53,15 @@ public class GdsView extends AbstractAdaptableView implements Refreshable
             row = wmeTable.convertRowIndexToModel(row);
             return ((DefaultWmeTableModel) wmeTable.getModel()).getWmes().get(row);
         }};
+    private final List<String> recentRemovals = new ArrayList<String>();
+    private final JLabel recentSummary = new JLabel("Recent removals: None");
+    private final SoarEventListener removalListener = new SoarEventListener(){
+        @Override
+        public void onEvent(SoarEvent event)
+        {
+            updateRemovalSummary((GdsGoalRemovedEvent) event);
+        }
+    };
     
     public GdsView(JSoarDebugger debugger)
     {
@@ -63,7 +79,11 @@ public class GdsView extends AbstractAdaptableView implements Refreshable
         
         p.add(new JScrollPane(wmeTable), BorderLayout.CENTER);
         
+        p.add(recentSummary, BorderLayout.SOUTH);
+        
         getContentPane().add(p);
+        
+        this.debugger.getAgent().getEvents().addListener(GdsGoalRemovedEvent.class, removalListener);
     }
 
     
@@ -75,6 +95,16 @@ public class GdsView extends AbstractAdaptableView implements Refreshable
     {
         return "ctrl shift G";
     }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.debugger.Disposable#dispose()
+     */
+    @Override
+    public void dispose()
+    {
+        this.debugger.getAgent().getEvents().removeListener(GdsGoalRemovedEvent.class, removalListener);
+    }
+
 
     /* (non-Javadoc)
      * @see org.jsoar.debugger.Refreshable#refresh(boolean)
@@ -116,8 +146,33 @@ public class GdsView extends AbstractAdaptableView implements Refreshable
         };
         
         debugger.getAgent().execute(start, SwingCompletionHandler.newInstance(finish));
+        
+        if(afterInitSoar)
+        {
+            recentRemovals.clear();
+            recentSummary.setText("Recent removals: None");
+            setTitleText("GDS");
+        }
     }
 
+    private void updateRemovalSummary(final GdsGoalRemovedEvent event)
+    {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                recentRemovals.add(0, String.format("%s %#s", event.getGoal(), event.getCause()));
+                if(recentRemovals.size() > MAX_REMOVAL_HISTORY)
+                {
+                    recentRemovals.remove(recentRemovals.size() - 1);
+                }
+                recentSummary.setText("Recent removals: " + Joiner.on(", ").join(recentRemovals));
+                
+                setTitleText(String.format("GDS (%s!)", event.getGoal()));
+            }
+        });
+    }
+    
     private static List<Wme> getGdsWmes(Goal goal)
     {
         final GoalDependencySet gds = Adaptables.adapt(goal, GoalDependencySet.class);
