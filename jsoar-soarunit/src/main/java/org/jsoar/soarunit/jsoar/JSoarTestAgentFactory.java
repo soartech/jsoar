@@ -51,10 +51,17 @@ public class JSoarTestAgentFactory implements TestAgentFactory
         
         final TestCase testCase = test.getTestCase();
         agent.getPrinter().print("SoarUnit: Debugging %s%n", test);
-        agent.getInterpreter().eval(String.format("pushd \"%s\"", FileTools.getParent(testCase.getFile()).replace('\\', '/')));
-        agent.getInterpreter().eval(testCase.getSetup());
-        
-        agent.getInterpreter().eval(test.getContent());
+        try
+        {
+            agent.getInterpreter().eval(String.format("pushd \"%s\"", FileTools.getParent(testCase.getFile()).replace('\\', '/')));
+            agent.getInterpreter().eval(testCase.getSetup());
+            
+            agent.getInterpreter().eval(test.getContent());
+        }
+        catch (SoarException e)
+        {
+            agent.getPrinter().error(e.getMessage());
+        }
         agent.getPrinter().flush();
     }
 
