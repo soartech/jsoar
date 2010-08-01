@@ -16,6 +16,7 @@ import javax.swing.JScrollPane;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jsoar.debugger.DefaultWmeTableModel.Columns;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.debugger.selection.TableSelectionProvider;
 import org.jsoar.kernel.Goal;
@@ -39,9 +40,6 @@ public class GdsView extends AbstractAdaptableView implements Refreshable
     private final JXTable wmeTable = new JXTable(wmeModel);
     private final TableSelectionProvider selectionProvider = new TableSelectionProvider(wmeTable) {
 
-        /* (non-Javadoc)
-         * @see org.jsoar.debugger.selection.TableSelectionProvider#getValueAt(int)
-         */
         @Override
         protected Object getValueAt(int row)
         {
@@ -61,6 +59,7 @@ public class GdsView extends AbstractAdaptableView implements Refreshable
         this.wmeTable.setHighlighters(HighlighterFactory.createAlternateStriping());
         this.wmeTable.setShowGrid(false);
         this.wmeTable.setDefaultRenderer(Identifier.class, new DefaultWmeTableCellRenderer());
+        this.wmeTable.getColumnExt(Columns.Acceptable.ordinal()).setVisible(false);
         
         p.add(new JScrollPane(wmeTable), BorderLayout.CENTER);
         

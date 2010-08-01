@@ -21,9 +21,12 @@ public class DefaultWmeTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = -8187445208277014970L;
     
-    private static final String[] columns = { "Id", "Attr", "Value", "Timetag", "Acceptable" };
-    private static final Class<?>[] classes = {
-            Identifier.class, Symbol.class, Symbol.class, Integer.class, String.class };
+    public static enum Columns {
+        Id(Identifier.class), Attr(Symbol.class), Value(Symbol.class), Timetag(Integer.class), Acceptable(String.class);
+        
+        Columns(Class<?> type) { this.type = type; }
+        private final Class<?> type;
+    }
     
     private final List<Wme> wmes;
     
@@ -56,7 +59,7 @@ public class DefaultWmeTableModel extends AbstractTableModel
     @Override
     public Class<?> getColumnClass(int columnIndex)
     {
-        return classes[columnIndex];
+        return Columns.values()[columnIndex].type;
     }
     /* (non-Javadoc)
      * @see javax.swing.table.AbstractTableModel#getColumnName(int)
@@ -64,7 +67,7 @@ public class DefaultWmeTableModel extends AbstractTableModel
     @Override
     public String getColumnName(int column)
     {
-        return columns[column];
+        return Columns.values()[column].name();
     }
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
@@ -72,7 +75,7 @@ public class DefaultWmeTableModel extends AbstractTableModel
     @Override
     public int getColumnCount()
     {
-        return columns.length;
+        return Columns.values().length;
     }
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getRowCount()
