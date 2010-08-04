@@ -39,10 +39,11 @@
          <path id="compile.libs">
             <fileset dir="${lib}">
                 <include name="*.jar" />
-            	
-            	<!-- Jars in lib/build-only are available at compile time, but not
-            		put in the distribution -->
-                <include name="build-only/*.jar" />
+            </fileset>
+        	<!-- Jars in lib/build-only are available at compile time, but not
+        		merged into the final jar -->
+            <fileset dir="${lib}/build-only" erroronmissingdir="false">
+                <include name="*.jar" />
             </fileset>
             <fileset dir="${dist.lib}">
                   <include name="*.jar" />
@@ -161,6 +162,13 @@
             <exclude name="**/.svn"/>
          </fileset>
 		</jar>
+		
+    	<!-- Copy build-only jars to dist lib -->
+        <copy todir="${dist.lib}" >
+            <fileset dir="${lib}/build-only" erroronmissingdir="false">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
 		
 	</target>
 
