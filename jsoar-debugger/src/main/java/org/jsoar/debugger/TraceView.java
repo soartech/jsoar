@@ -8,6 +8,10 @@ package org.jsoar.debugger;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -39,6 +43,8 @@ import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.IncrementalSearchPanel;
 
+import sun.swing.SwingUtilities2;
+
 /**
  * @author ray
  */
@@ -52,7 +58,18 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
     private final IncrementalSearchPanel searchPanel;
 
-    private final JTextArea outputWindow = new JTextArea();
+    private final JTextArea outputWindow = new JTextArea() {
+        private static final long serialVersionUID = 5161494134278464101L;
+
+        /* (non-Javadoc)
+         * @see javax.swing.text.JTextComponent#paste()
+         */
+        public void paste()
+        {
+            executePastedInput();
+        }
+    };
+    
     private final Writer outputWriter = new Writer()
     {
         private StringBuilder buffer = new StringBuilder();
@@ -340,6 +357,32 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         
         // Show the menu
         menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+    }
+    
+    private void executePastedInput()
+    {
+        if (SwingUtilities2.canAccessSystemClipboard()) 
+        {
+            final Clipboard cb = outputWindow.getToolkit().getSystemClipboard();
+            final Transferable t = cb.getContents(null);
+            if(t.isDataFlavorSupported(DataFlavor.stringFlavor))
+            {
+                try
+                {
+                    final String text = (String) t.getTransferData(DataFlavor.stringFlavor);
+                    debugger.getAgent().execute(new CommandLineRunnable(debugger, text), null);
+                }
+                catch (UnsupportedFlavorException e)
+                {
+                    // Do nothing
+                }
+                catch (IOException e)
+                {
+                    // Do nothing
+                }
+            }
+        }
+        
     }
     
     private class Provider implements SelectionProvider
