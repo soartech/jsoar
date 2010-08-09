@@ -24,10 +24,12 @@ import java.util.concurrent.Callable;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
 
 import org.jsoar.debugger.ParseSelectedText.SelectedObject;
 import org.jsoar.debugger.selection.SelectionManager;
@@ -57,6 +59,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private final Provider selectionProvider = new Provider();
 
     private final IncrementalSearchPanel searchPanel;
+    
+    private int limit = -1;
+    private int limitTolerance = 200;
 
     private final JTextArea outputWindow = new JTextArea() {
         private static final long serialVersionUID = 5161494134278464101L;
@@ -95,9 +100,25 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                     synchronized(outputWriter) // synchronized on outer.this like the flush() method
                     {
                         outputWindow.append(buffer.toString());
-                        outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
                         buffer.setLength(0);
                         flushing = false;
+                        
+                        if(limit > 0)
+                        {
+                            final int length = outputWindow.getDocument().getLength();
+                            if(length > limit + limitTolerance)
+                            {
+                                try
+                                {
+                                    // Trim the trace back down to limit
+                                    outputWindow.getDocument().remove(0, length - limit);
+                                }
+                                catch (BadLocationException e) {}
+                            }
+                        }
+                        
+                        // Scroll to end
+                        outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
                     }
                 }
             });
@@ -154,7 +175,10 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                              "Current command interpreter is '" + debugger.getAgent().getInterpreter().getName() + "'\n" +
                              "\n" +
                              "Right-click for trace options (or use watch command)\n" +
-                             "Double-click identifiers, wmes, and rule names to drill down\n");
+                             "Double-click identifiers, wmes, and rule names to drill down\n" +
+                             "You can paste code directly into this window.\n");
+        
+        setLimit(getPreferences().getInt("limit", -1));
         
         debugger.getAgent().getPrinter().pushWriter(outputWriter);
         
@@ -195,6 +219,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         
         getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
         getPreferences().put("search", searchPanel.getSearchText());
+        getPreferences().putInt("limit", limit);
     }
 
     /* (non-Javadoc)
@@ -228,6 +253,25 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         return "ctrl T";
     }
 
+    /**
+     * Set the limit on the number of characters saved in the trace. When 
+     * {@code limit +20%} is reached, the beginning 20% of the trace buffer
+     * will be removed.
+     * 
+     * @param limit the limit, in number of characters, or {@code -1} for no limit
+     */
+    public void setLimit(int limit)
+    {
+        synchronized(outputWriter)
+        {
+            this.limit = limit;
+            if(this.limit > 0)
+            {
+                this.limitTolerance = (int) (this.limit * 0.2);
+            }
+        }
+    }
+    
     private SelectedObject getObjectAtPoint(Point p)
     {
         int offset = outputWindow.viewToModel(p);
@@ -320,6 +364,17 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         menu.populateMenu();
         
         menu.insertSeparator(0);
+
+        // Add trace limit action
+        menu.insert(new AbstractAction("Limit trace output ...") {
+
+            private static final long serialVersionUID = 3871607368064705900L;
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                askForTraceLimit();
+            }}, 0);
         
         // Add Wrap text action
         final JCheckBoxMenuItem wrapTextItem = new JCheckBoxMenuItem("Wrap text", outputWindow.getLineWrap());
@@ -343,6 +398,8 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 outputWindow.setText("");
             }}, 0);
         
+        
+        
         final int offset = outputWindow.viewToModel(e.getPoint());
         if(offset >= 0)
         {
@@ -359,6 +416,23 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         menu.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
     }
     
+    private void askForTraceLimit()
+    {
+        final String result = JOptionPane.showInputDialog(outputWindow, "Trace limit in characters (-1 for no limit)", limit);
+        if(result != null)
+        {
+            try
+            {
+                final int newLimit = Integer.valueOf(result);
+                setLimit(newLimit >= 0 ? newLimit : -1);
+            }
+            catch(NumberFormatException e)
+            {
+                // Do nothing
+            }
+        }
+    }
+
     private void executePastedInput()
     {
         if (SwingUtilities2.canAccessSystemClipboard()) 
@@ -382,7 +456,6 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                 }
             }
         }
-        
     }
     
     private class Provider implements SelectionProvider
