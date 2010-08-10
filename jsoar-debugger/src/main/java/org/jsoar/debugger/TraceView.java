@@ -46,6 +46,7 @@ import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.IncrementalSearchPanel;
 
 import sun.swing.SwingUtilities2;
+import bibliothek.gui.dock.common.action.CButton;
 
 /**
  * @author ray
@@ -61,8 +62,9 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     private final IncrementalSearchPanel searchPanel;
     
     private int limit = -1;
-    private int limitTolerance = 200;
-
+    private int limitTolerance = 0;
+    private boolean scrollLock = true;
+    
     private final JTextArea outputWindow = new JTextArea() {
         private static final long serialVersionUID = 5161494134278464101L;
 
@@ -117,8 +119,11 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                             }
                         }
                         
-                        // Scroll to end
-                        outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
+                        if(scrollLock)
+                        {
+                            // Scroll to the end
+                            outputWindow.setCaretPosition(outputWindow.getDocument().getLength());
+                        }
                     }
                 }
             });
@@ -179,6 +184,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                              "You can paste code directly into this window.\n");
         
         setLimit(getPreferences().getInt("limit", -1));
+        scrollLock = getPreferences().getBoolean("scrollLock", true);
         
         debugger.getAgent().getPrinter().pushWriter(outputWriter);
         
@@ -200,8 +206,16 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         
         bottom.add(searchPanel, BorderLayout.EAST);
         p.add(bottom, BorderLayout.SOUTH);
+                
+        addAction(new CButton("Clear", Images.CLEAR) {
+            
+            @Override
+            protected void action()
+            {
+                clear();
+            }
+        });
         
-        //getContentPane().setLayout(new BorderLayout());
         getContentPane().add(p);
     }
     
@@ -220,6 +234,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
         getPreferences().putBoolean("wrap", outputWindow.getLineWrap());
         getPreferences().put("search", searchPanel.getSearchText());
         getPreferences().putInt("limit", limit);
+        getPreferences().putBoolean("scrollLock", scrollLock);
     }
 
     /* (non-Javadoc)
@@ -254,6 +269,21 @@ public class TraceView extends AbstractAdaptableView implements Disposable
     }
 
     /**
+     * Clear the trace window. This method may be called from any thread.
+     */
+    public void clear()
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable() { public void run() { clear(); } });
+        }
+        else
+        {
+            outputWindow.setText("");
+        }
+    }
+    
+    /**
      * Set the limit on the number of characters saved in the trace. When 
      * {@code limit +20%} is reached, the beginning 20% of the trace buffer
      * will be removed.
@@ -262,6 +292,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
      */
     public void setLimit(int limit)
     {
+        // output limit code above is synchronized on the outputWriter
         synchronized(outputWriter)
         {
             this.limit = limit;
@@ -377,6 +408,17 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             }}, 0);
         
         // Add Wrap text action
+        final JCheckBoxMenuItem scrollLockItem = new JCheckBoxMenuItem("Scroll lock", scrollLock);
+        scrollLockItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                scrollLock = !scrollLock;
+            }});
+        menu.insert(scrollLockItem, 0);
+        
+        // Add Wrap text action
         final JCheckBoxMenuItem wrapTextItem = new JCheckBoxMenuItem("Wrap text", outputWindow.getLineWrap());
         wrapTextItem.addActionListener(new ActionListener() {
 
@@ -395,7 +437,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                outputWindow.setText("");
+                clear();
             }}, 0);
         
         
