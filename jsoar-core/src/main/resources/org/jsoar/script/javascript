@@ -3,13 +3,138 @@
 // javascript than through the Java scripting API.
 
 soar = new (function(agent) {
+
+  var INPUT_EVENT = "org.jsoar.kernel.events.InputEvent";
+  var OUTPUT_EVENT = "org.jsoar.kernel.events.OutputEvent";
+  
+  var Symbols = org.jsoar.kernel.symbols.Symbols;
+  var InputWmes = org.jsoar.kernel.io.InputWmes;
+  
+  var io = agent.getInputOutput();
+  
+  function onEvent(eventClass, callback) {
+    if(typeof(eventClass) === "string") {
+      eventClass = java.lang.Class.forName(eventClass);
+    }
+    agent.events.addListener(eventClass, callback);
+  };
+  
+  function toJavaScript(root) {
+    var result = {};
+    var i = root.getWmes();
+    while(i.hasNext()) {
+      var wme = i.next();
+      var attr = wme.getAttribute().toString();
+      var value = wme.getValue();
+      if(value.asIdentifier() !== null) {
+        result[attr] = toJavaScript(value);
+      }
+      else {
+        result[attr] = Symbols.valueOf(value);
+      }
+    }
+    return result;
+  }
+  
+  // For "onOutputCommand" map from name to callback function
+  var outputHandlers = {};
+  
+  // Register for output events, and dispatch to handlers registered
+  // with "onOutputCommand"
+  onEvent(OUTPUT_EVENT, function(e) {
+    var it = e.getInputOutput().getPendingCommands().iterator();
+    while(it.hasNext()) {
+      var command = it.next();
+      var handler = outputHandlers[command.getAttribute().toString()];
+      if(handler) {
+        var result = handler(toJavaScript(command.getValue())) || "complete";
+        InputWmes.add(e.getInputOutput(), command.getValue(), "status", result);
+      }
+    }
+  });
+  
+  var wmes = {
+    newId : function(letter) {
+      return agent.symbols.createIdentifier(letter);
+    },
+    /**
+     * Add an input wme and return it
+     */
+    add : function(id, attr, value) {
+      if(value === undefined) {
+        value = attr;
+        attr = id;
+        id = io.getInputLink();
+      }
+      return InputWmes.add(io, id, attr, value);
+    },
+    
+    /**
+     * Update an input wme and return its replacement
+     */
+    update : function(wme, value) {
+      return InputWmes.update(wme, value);
+    },
+    
+    integer : function(value) {
+      return java.lang.Integer.valueOf(value);
+    },
+    
+    toJavaScript : function(root) {
+      return toJavaScript(root);
+    }
+  };
+  
   return {
     agent : agent,
+    wmes : wmes,
+    
+    /**
+     * Get the current working directory
+     */
     pwd : function() {
       return this.agent.interpreter.eval("pwd");
     },
+    
+    /**
+     * Print to the agent's console
+     */
     print : function(s) {
       this.agent.printer.print(s);
+    },
+    
+    /**
+     * Register a callback function on an event
+     *
+     * @param eventClass Class name as string, or instance of java.lang.Class
+     * @param callback the callback function. See SoarEventListener.onEvent().
+     */
+    onEvent : onEvent,
+
+    /**
+     * Register a callback function on input
+     *
+     * @param callback the callback function. See SoarEventListener.onEvent().
+     */
+    onInput : function(callback) {
+      return this.onEvent(INPUT_EVENT, callback);
+    },
+    
+    /**
+     * Register a callback function on input
+     *
+     * @param callback the callback function. See SoarEventListener.onEvent().
+     */
+    onOutput : function(callback) {
+      return this.onEvent(OUTPUT_EVENT, callback);
+    },
+    
+    onOutputCommand : function(name, callback) {
+      outputHandlers[name] = callback;
+    },
+    
+    onInitSoar : function(callback) {
+      return this.onEvent("org.jsoar.kernel.events.BeforeInitSoarEvent", callback);
     }
   }
 })(_soar.agent);

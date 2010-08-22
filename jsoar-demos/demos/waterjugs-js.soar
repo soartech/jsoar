@@ -1,0 +1,173 @@
+
+script javascript {
+  function init() {
+    moves = 0;
+    jugs = {
+      a: { capacity: 5, contents: 0, contentsWme: null },
+      b: { capacity: 3, contents: 0, contentsWme: null },
+    };
+  } 
+
+  init();
+
+  soar.onInitSoar(init);
+
+  soar.onInput(function(e) {
+    for(var name in jugs) {
+      var jug = jugs[name];
+
+      if(jug.contentsWme) {
+        jug.contentsWme = soar.wmes.update(jug.contentsWme, jug.contents);
+      }
+      else {
+        var id = soar.wmes.newId("J");
+        soar.wmes.add("jug", id);
+        soar.wmes.add(id, "name", name);
+        soar.wmes.add(id, "capacity", jug.capacity);
+        jug.contentsWme = soar.wmes.add(id, "contents", jug.contents);
+      }
+    }
+
+    if(jugs.b.contents == 2) {
+      soar.print("\nenv: Achieved goal in " + moves + " moves!");
+      soar.agent.stop();
+    }
+  });
+
+  soar.onOutputCommand("pour", function(e) {
+    var from = jugs[e.from];
+    var to = jugs[e.to];
+    
+    soar.print("\nenv: Pouring from " + e.from + " to " + e.to);
+
+    var space = to.capacity - to.contents;
+    var amount = Math.min(space, from.contents);
+    to.contents += amount
+    from.contents -= amount;
+
+    moves++;
+  });
+
+  soar.onOutputCommand("fill", function(e) {
+    var jug = jugs[e.jug];
+    jug.contents = jug.capacity;
+
+    soar.print("\nenv: Filling " + e.jug + " to " + jug.capacity);
+
+    moves++;
+  });
+
+  soar.onOutputCommand("empty", function(e) {
+    var jug = jugs[e.jug];
+    jug.contents = 0;
+
+    soar.print("\nenv: Emptying " + e.jug);
+
+    moves++;
+  });
+}
+
+sp {propose*init
+  (state <s> ^superstate nil
+            -^name)
+-->
+  (<s> ^operator.name init)
+}
+
+sp {apply*init
+  (state <s> ^operator.name init)
+-->
+  (<s> ^name waterjugs)
+}
+
+sp {propose*clean-output
+  (state <s> ^name waterjugs
+             ^io.output-link.<name> <c>)
+  (<c> ^status)
+-->
+  (<s> ^operator <o> + >)
+  (<o> ^name clean-output
+       ^command <c>)
+}
+
+sp {apply*clean-output
+  (state <s> ^operator <o>
+             ^io.output-link <ol>)
+  (<ol> ^<name> <c>)
+  (<o> ^name clean-output
+       ^command <c>)
+-->
+  (<ol> ^<name> <c> -)
+}
+
+sp {propose*fill
+  (state <s> ^name waterjugs
+             ^io.input-link <il>)
+  (<il> ^jug <jug>)
+  (<jug> ^name <name>
+         ^capacity <capacity>
+         ^contents {<contents> <> <capacity>})
+-->
+  (<s> ^operator <o> + =)
+  (<o> ^name fill
+       ^jug <name>)
+}
+
+sp {apply*fill
+  (state <s> ^operator <o>
+             ^io.output-link <ol>)
+  (<o> ^name fill
+       ^jug <jug>)
+-->
+  (<ol> ^fill.jug <jug>)
+}
+
+sp {propose*empty
+  (state <s> ^name waterjugs
+             ^io.input-link <il>)
+  (<il> ^jug <jug>)
+  (<jug> ^name <name>
+         ^contents <contents> > 0.0)
+-->
+  (<s> ^operator <o> + =)
+  (<o> ^name empty
+       ^jug <name>)
+}
+
+sp {apply*empty
+  (state <s> ^operator <o>
+             ^io.output-link <ol>)
+  (<o> ^name empty
+       ^jug <jug>)
+-->
+  (<ol> ^empty.jug <jug>)
+}
+
+sp {propose*pour
+  (state <s> ^name waterjugs
+             ^io.input-link <il>)
+  (<il> ^jug <from> ^jug {<to> <> <from>})
+  (<from> ^name <from-name>
+          ^contents > 0.0)
+  (<to> ^name <to-name>
+        ^capacity <cap>
+        ^contents <> <cap>)
+-->
+  (<s> ^operator <o> + =)
+  (<o> ^name pour
+       ^from <from-name>
+       ^to <to-name>)
+}
+
+sp {apply*pour
+  (state <s> ^operator <o>
+             ^io.output-link <ol>)
+  (<o> ^name pour
+       ^from <from>
+       ^to <to>)
+-->
+  (<ol> ^pour <pour>)
+  (<pour> ^from <from>
+          ^to <to>)
+}
+
