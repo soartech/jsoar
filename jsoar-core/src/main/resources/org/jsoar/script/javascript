@@ -2,7 +2,7 @@
 // Performs additional initialization that's easier to do in straight
 // javascript than through the Java scripting API.
 
-soar = new (function(agent) {
+soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
 
   var INPUT_EVENT = "org.jsoar.kernel.events.InputEvent";
   var OUTPUT_EVENT = "org.jsoar.kernel.events.OutputEvent";
@@ -137,4 +137,4 @@ soar = new (function(agent) {
       return this.onEvent("org.jsoar.kernel.events.BeforeInitSoarEvent", callback);
     }
   }
-})(_soar.agent);
+})(_soar.agent) : _soar;

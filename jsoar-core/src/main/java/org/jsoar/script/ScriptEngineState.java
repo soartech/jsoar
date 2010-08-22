@@ -42,12 +42,12 @@ public class ScriptEngineState
 
     private void initializeGlobalScope(String engineName, Adaptable context, ScriptEngine engine) throws SoarException
     {
-        
         final InputStream is = getClass().getResourceAsStream(engineName);
         if(is != null)
         {
             engine.put("_soar", new ScriptContext(context));
             
+            engine.put(ScriptEngine.FILENAME, "/org/jsoar/script/" + engineName);
             final Reader reader = new InputStreamReader(is, Charsets.UTF_8);
             try
             {
