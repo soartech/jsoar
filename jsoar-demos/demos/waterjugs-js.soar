@@ -65,7 +65,15 @@ script javascript {
 
     moves++;
   });
+
+  // Install a dumb RHS function just as an example
+  soar.rhsFunction({ name: "say hello", execute: function(context, args) {
+      soar.print("\n'say hello' RHS function called with args " + args);
+      return "hi";
+  }});
 }
+
+# Do not solve waterjugs like this.
 
 sp {propose*init
   (state <s> ^superstate nil
@@ -169,5 +177,11 @@ sp {apply*pour
   (<ol> ^pour <pour>)
   (<pour> ^from <from>
           ^to <to>)
+}
+
+sp {test-rhs-function
+  (state <s> ^superstate nil)
+-->
+  (<s> ^result (|say hello| 1 2 3 5 <s> |a string|))
 }
 

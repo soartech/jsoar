@@ -76,18 +76,30 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
       return InputWmes.update(wme, value);
     },
     
-    integer : function(value) {
-      return java.lang.Integer.valueOf(value);
-    },
-    
-    toJavaScript : function(root) {
-      return toJavaScript(root);
-    }
+    /**
+     * Convert a tree of WMEs from a particular identifier into a JavaScript
+     * object. Does not handle multi-attributes
+     *
+     * @param root the root identifier to start at
+     * @return a JavaScript object
+     */
+    toJavaScript : toJavaScript,
   };
   
   return {
     agent : agent,
     wmes : wmes,
+    
+    /**
+     * Helper function to force a value to a java integer. This is necessary
+     * because JavaScript only has doubles. Use this when creating symbols.
+     *
+     * @param value numeric value
+     * @return a java.lang.Integer
+     */
+    integer : function(value) {
+      return java.lang.Integer.valueOf(value);
+    },
     
     /**
      * Get the current working directory
@@ -129,12 +141,66 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
       return this.onEvent(OUTPUT_EVENT, callback);
     },
     
+    /**
+     * Register a handler for a named output command. The WMEs of the command
+     * are converted to a JavaScript object using soar.wmes.toJavaScript() and
+     * passed to the callback function.
+     *
+     * @param name the name of the output command
+     * @param callback callback function
+     */
     onOutputCommand : function(name, callback) {
       outputHandlers[name] = callback;
     },
     
+    /**
+     * Register a function to be called before init soar is called.
+     *
+     * @param callback the callback function
+     */
     onInitSoar : function(callback) {
       return this.onEvent("org.jsoar.kernel.events.BeforeInitSoarEvent", callback);
-    }
+    },
+    
+    /**
+     * Register a RHS function. Takes an options structure like this:
+     *
+     * {
+     *   name            : string,                  // required
+     *   minArguments    : integer,                 // optional, defaults to 0
+     *   maxArguments    : integer,                 // optional, defaults to MAX_INTEGER
+     *   mayBeStandalone : boolean,                 // optional, defaults to true
+     *   mayBeValue      : boolean,                 // optional, defaults to true
+     *   execute         : function(context, args), // required
+     * }
+     *
+     * The execute function can return a value. It will be automatically 
+     * converted to a symbol.
+     *
+     * @param options the options structure.
+     */
+    rhsFunction : function(options) {
+      agent.getRhsFunctions().registerHandler(new org.jsoar.kernel.rhs.functions.RhsFunctionHandler({
+        getName : function() { return options.name; },
+        getMinArguments : function() { return options.minArguments ? options.minArguments : 0; },
+        getMaxArguments : function() { return options.maxArguments || java.lang.Integer.MAX_VALUE; },
+        mayBeStandalone : function() { return options.mayBeStandalone !== undefined ? options.mayBeStandalone : true; },
+        mayBeValue : function() { return options.mayBeValue !== undefined ? options.mayBeValue : true; },
+        execute : function(context, args) {
+          // Convert from Java list to JavaScript array...
+          var jsArgs = [];
+          var i = args.iterator();
+          while(i.hasNext()) { jsArgs.push(Symbols.valueOf(i.next())); }
+          
+          // Call the function
+          var result = options.execute(context, jsArgs);
+          if(result) {
+            // Convert to a symbol
+            return Symbols.create(context.getSymbols(), result);
+          }
+          return null;
+        } 
+      }));
+    }, 
   }
 })(_soar.agent) : _soar;
