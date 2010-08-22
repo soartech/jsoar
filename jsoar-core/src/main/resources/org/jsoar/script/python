@@ -1,0 +1,14 @@
+# Initialization script run for the python (Jython) engine.
+# Performs additional initialization that's easier to do in straight
+# Python than through the Java scripting API.
+
+class Soar:
+  
+  def __init__(self, agent):
+    self.agent = agent
+  
+  def pwd(self):
+    return self.agent.interpreter.eval("pwd")
+
+# Replace default context variable with ours...
+soar = Soar(_soar.agent)

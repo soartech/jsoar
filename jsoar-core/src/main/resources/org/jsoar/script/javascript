@@ -1,0 +1,15 @@
+// Initialization script run for the javascript engine.
+// Performs additional initialization that's easier to do in straight
+// javascript than through the Java scripting API.
+
+soar = new (function(agent) {
+  return {
+    agent : agent,
+    pwd : function() {
+      return this.agent.interpreter.eval("pwd");
+    },
+    print : function(s) {
+      this.agent.printer.print(s);
+    }
+  }
+})(_soar.agent);

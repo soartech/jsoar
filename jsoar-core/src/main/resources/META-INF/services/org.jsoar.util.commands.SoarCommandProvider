@@ -1,1 +1,2 @@
 org.jsoar.kernel.smem.DefaultSemanticMemoryCommand$Provider
+org.jsoar.script.ScriptCommand$Provider

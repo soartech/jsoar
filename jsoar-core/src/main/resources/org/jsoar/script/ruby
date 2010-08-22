@@ -1,0 +1,18 @@
+# Initialization script run for the ruby (JRuby) engine.
+# Performs additional initialization that's easier to do in straight
+# Ruby than through the Java scripting API.
+
+class Soar
+  attr_reader :agent
+  
+  def initialize(agent)
+    @agent = agent
+  end
+  
+  def pwd
+    agent.interpreter.eval("pwd")
+  end
+end
+
+# Replace default context variable with ours...
+$soar = Soar.new($_soar.agent)
