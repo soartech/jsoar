@@ -5,10 +5,10 @@
  */
 package org.jsoar.script;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -48,7 +48,7 @@ public class ScriptEngineState
             engine.put("_soar", new ScriptContext(context));
             
             engine.put(ScriptEngine.FILENAME, "/org/jsoar/script/" + engineName);
-            final Reader reader = new InputStreamReader(is, Charsets.UTF_8);
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
             try
             {
                 try
@@ -62,6 +62,8 @@ public class ScriptEngineState
             }
             finally
             {
+                engine.put(ScriptEngine.FILENAME, null);
+
                 try
                 {
                     reader.close();
@@ -101,6 +103,7 @@ public class ScriptEngineState
         }
         catch (ScriptException e)
         {
+            e.printStackTrace();
             throw new SoarException("Error executing script: " + e.getMessage(), e);
         }
     }

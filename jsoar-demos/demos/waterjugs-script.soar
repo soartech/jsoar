@@ -1,0 +1,105 @@
+# Do not solve waterjugs like this.
+
+sp {propose*init
+  (state <s> ^superstate nil
+            -^name)
+-->
+  (<s> ^operator.name init)
+}
+
+sp {apply*init
+  (state <s> ^operator.name init)
+-->
+  (<s> ^name waterjugs)
+}
+
+sp {propose*clean-output
+  (state <s> ^name waterjugs
+             ^io.output-link.<name> <c>)
+  (<c> ^status)
+-->
+  (<s> ^operator <o> + >)
+  (<o> ^name clean-output
+       ^command <c>)
+}
+
+sp {apply*clean-output
+  (state <s> ^operator <o>
+             ^io.output-link <ol>)
+  (<ol> ^<name> <c>)
+  (<o> ^name clean-output
+       ^command <c>)
+-->
+  (<ol> ^<name> <c> -)
+}
+
+sp {propose*fill
+  (state <s> ^name waterjugs
+             ^io.input-link <il>)
+  (<il> ^jug <jug>)
+  (<jug> ^name <name>
+         ^capacity <capacity>
+         ^contents {<contents> <> <capacity>})
+-->
+  (<s> ^operator <o> + =)
+  (<o> ^name fill
+       ^jug <name>)
+}
+
+sp {apply*fill
+  (state <s> ^operator <o>
+             ^io.output-link <ol>)
+  (<o> ^name fill
+       ^jug <jug>)
+-->
+  (<ol> ^fill.jug <jug>)
+}
+
+sp {propose*empty
+  (state <s> ^name waterjugs
+             ^io.input-link <il>)
+  (<il> ^jug <jug>)
+  (<jug> ^name <name>
+         ^contents <contents> > 0.0)
+-->
+  (<s> ^operator <o> + =)
+  (<o> ^name empty
+       ^jug <name>)
+}
+
+sp {apply*empty
+  (state <s> ^operator <o>
+             ^io.output-link <ol>)
+  (<o> ^name empty
+       ^jug <jug>)
+-->
+  (<ol> ^empty.jug <jug>)
+}
+
+sp {propose*pour
+  (state <s> ^name waterjugs
+             ^io.input-link <il>)
+  (<il> ^jug <from> ^jug {<to> <> <from>})
+  (<from> ^name <from-name>
+          ^contents > 0.0)
+  (<to> ^name <to-name>
+        ^capacity <cap>
+        ^contents <> <cap>)
+-->
+  (<s> ^operator <o> + =)
+  (<o> ^name pour
+       ^from <from-name>
+       ^to <to-name>)
+}
+
+sp {apply*pour
+  (state <s> ^operator <o>
+             ^io.output-link <ol>)
+  (<o> ^name pour
+       ^from <from>
+       ^to <to>)
+-->
+  (<ol> ^pour <pour>)
+  (<pour> ^from <from>
+          ^to <to>)
+}

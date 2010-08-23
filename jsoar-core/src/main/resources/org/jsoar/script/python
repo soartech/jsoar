@@ -2,13 +2,87 @@
 # Performs additional initialization that's easier to do in straight
 # Python than through the Java scripting API.
 
-class Soar:
+from java.lang import Class
+from org.jsoar.util.events import SoarEventListener
+from org.jsoar.kernel.io import InputWmes
+from org.jsoar.kernel.symbols import Symbols
+
+class SoarWmes:
+  def __init__(self, agent):
+    self._agent = agent
   
+  def newId(self, letter):
+    return self._agent.getSymbols().createIdentifier(letter)
+    
+  def add(self, id, attr, value = None):
+    io = self._agent.getInputOutput()
+    if(value is None):
+      value = attr
+      attr = id
+      id = io.getInputLink()
+    return InputWmes.add(io, id, attr, value)
+    
+  def update(self, wme, value):
+    return InputWmes.update(wme, value)
+    
+  def toPython(self, root):
+    result = {}
+    i = root.getWmes()
+    while i.hasNext():
+      wme = i.next()
+      attr = Symbols.valueOf(wme.getAttribute())
+      value = wme.getValue()
+      if value.asIdentifier() is None:
+        result[attr] = Symbols.valueOf(value)
+      else:
+        result[attr] = self.toPython(value)
+    return result
+    
+class Soar:
+      
   def __init__(self, agent):
     self.agent = agent
-  
+    self.wmes = SoarWmes(agent)
+    self._outputHandlers = {}
+    
+    self.onOutput(self._dispatchOutputCommands)
+
   def pwd(self):
     return self.agent.interpreter.eval("pwd")
 
-# Replace default context variable with ours...
+  # "print" is a keyword in python so we can't name it that :(
+  def trace(self, message):
+    return self.agent.getPrinter().print(message)
+    
+  def onEvent(self, className, handler):
+    eventClass = Class.forName(className)
+    
+    class Handler(SoarEventListener):
+      def onEvent(self, e):
+        handler(e)
+    
+    self.agent.getEvents().addListener(eventClass, Handler())
+
+  def onInput(self, handler):
+    self.onEvent("org.jsoar.kernel.events.InputEvent", handler)
+    
+  def onOutput(self, handler):
+    self.onEvent("org.jsoar.kernel.events.OutputEvent", handler)
+    
+  def onOutputCommand(self, name, handler):
+    self._outputHandlers[name] = handler
+    
+  def onInitSoar(self, handler):
+    self.onEvent("org.jsoar.kernel.events.BeforeInitSoarEvent", handler)
+
+  def _dispatchOutputCommands(self, e):
+    it = e.getInputOutput().getPendingCommands().iterator()
+    while it.hasNext():
+      command = it.next()
+      handler = self._outputHandlers.get(command.getAttribute().toString())
+      if handler:
+        result = handler(self.wmes.toPython(command.getValue())) or "complete"
+        self.wmes.add(command.getValue(), "status", result)
+  
+# Instantiate Soar interface
 soar = Soar(_soar.agent)

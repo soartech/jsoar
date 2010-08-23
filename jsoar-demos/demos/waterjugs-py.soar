@@ -1,0 +1,76 @@
+script python {
+
+class Jug:
+  def __init__(self, capacity):
+    self.capacity = capacity
+    self.contents = 0
+    self.contentsWme = None
+
+class Waterjugs:
+  
+  def __init__(self):
+    soar.onInitSoar(self.init)
+    soar.onInput(self.onInput)
+    soar.onOutputCommand("pour", self.pour)
+    soar.onOutputCommand("fill", self.fill)
+    soar.onOutputCommand("empty", self.empty)
+    
+    self.init(None)
+
+  def init(self, e):
+    self.moves = 0
+    self.jugs = {
+      "a" : Jug(5),
+      "b" : Jug(3)
+    }
+
+  def onInput(self, e) :
+    for name, jug in self.jugs.items():
+      if jug.contentsWme:
+        jug.contentsWme = soar.wmes.update(jug.contentsWme, jug.contents)
+      else:
+        id = soar.wmes.newId("J")
+        soar.wmes.add("jug", id)
+        soar.wmes.add(id, "name", name)
+        soar.wmes.add(id, "capacity", jug.capacity)
+        jug.contentsWme = soar.wmes.add(id, "contents", jug.contents)
+
+    if self.jugs["b"].contents == 2:
+      soar.trace("\nenv: Achieved goal in %d moves!" % (self.moves,))
+      soar.agent.stop()
+
+  def pour(self, e):
+    fr = self.jugs[e["from"]]
+    to = self.jugs[e["to"]]
+
+    soar.trace("\nenv: Pouring from %s to %s" % (e["from"], e["to"]))
+
+    space = to.capacity - to.contents
+    amount = min(space, fr.contents)
+    to.contents += amount
+    fr.contents -= amount
+
+    self.moves += 1
+
+  def fill(self, e):
+    jug = self.jugs[e["jug"]]
+    jug.contents = jug.capacity
+
+    soar.trace("\nenv: Filling %s to %d" % (e["jug"], jug.capacity))
+
+    self.moves += 1
+
+  def empty(self, e):
+    jug = self.jugs[e["jug"]]
+    jug.contents = 0
+
+    soar.trace("\nenv: Emptying %s" % (e["jug"],))
+
+    self.moves += 1
+
+waterjugs = Waterjugs()
+
+}
+
+source waterjugs-script.soar
+
