@@ -21,6 +21,7 @@ import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * @author ray
@@ -38,7 +39,7 @@ public class SymbolsCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         final List<Symbol> all = syms.getAllSymbols();
         final StringBuilder result = new StringBuilder();

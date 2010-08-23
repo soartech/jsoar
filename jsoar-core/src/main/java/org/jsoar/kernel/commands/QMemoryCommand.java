@@ -10,6 +10,7 @@ import org.jsoar.kernel.io.quick.DefaultQMemory;
 import org.jsoar.kernel.io.quick.QMemory;
 import org.jsoar.kernel.io.quick.SoarQMemoryAdapter;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * Manipulate quick memory from command-line
@@ -46,7 +47,7 @@ public final class QMemoryCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         if(args.length < 2)
         {

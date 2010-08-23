@@ -6,6 +6,7 @@ package org.jsoar.kernel.commands;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * http://winter.eecs.umich.edu/soarwiki/Run
@@ -24,7 +25,7 @@ public final class StopCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         threadedAgent.stop();
         return "";

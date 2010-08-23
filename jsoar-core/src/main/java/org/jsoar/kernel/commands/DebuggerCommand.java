@@ -8,6 +8,7 @@ package org.jsoar.kernel.commands;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * A command that opens the agent's debugger
@@ -27,7 +28,7 @@ public class DebuggerCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
         this.agent.openDebugger();
         return "";

@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 
 /**
@@ -28,7 +29,7 @@ public final class HelpCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         if(args.length > 2)
         {

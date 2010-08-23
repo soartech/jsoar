@@ -14,6 +14,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -149,7 +150,7 @@ public class WatchCommandTest
     private void verifyWatchLevel(int level, String... args) throws SoarException
     {
         trace.disableAll();
-        watch.execute(args);
+        watch.execute(DefaultSoarCommandContext.empty(), args);
         for(Category c : Category.values())
         {
             if(c.isWatchable() && c.isActiveInWatchLevel(level))
@@ -168,15 +169,15 @@ public class WatchCommandTest
     private void verifyOption(Category c, String longOpt, String shortOpt) throws SoarException
     {
         assertFalse(trace.isEnabled(c));
-        watch.execute(new String[] { "watch", "-" + shortOpt });
+        watch.execute(DefaultSoarCommandContext.empty(), new String[] { "watch", "-" + shortOpt });
         assertTrue(trace.isEnabled(c));
-        watch.execute(new String[] { "watch", "-" + shortOpt, "remove" });
+        watch.execute(DefaultSoarCommandContext.empty(), new String[] { "watch", "-" + shortOpt, "remove" });
         assertFalse(trace.isEnabled(c));
         
         // Now with the long version
-        watch.execute(new String[] { "watch", "--" + longOpt });
+        watch.execute(DefaultSoarCommandContext.empty(), new String[] { "watch", "--" + longOpt });
         assertTrue(trace.isEnabled(c));
-        watch.execute(new String[] { "watch", "--" + longOpt, "0" });
+        watch.execute(DefaultSoarCommandContext.empty(), new String[] { "watch", "--" + longOpt, "0" });
         assertFalse(trace.isEnabled(c));
     }
 }

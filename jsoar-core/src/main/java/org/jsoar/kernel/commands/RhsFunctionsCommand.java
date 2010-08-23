@@ -12,6 +12,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * Command that prints out all registered RHS functions
@@ -28,7 +29,7 @@ public final class RhsFunctionsCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         final Printer p = agent.getPrinter();
         

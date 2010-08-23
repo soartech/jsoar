@@ -10,6 +10,7 @@ import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * http://winter.eecs.umich.edu/soarwiki/Run
@@ -56,7 +57,7 @@ public final class RunCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         RunType type = null;
         long count = 0;

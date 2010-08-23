@@ -11,6 +11,7 @@ import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -205,7 +206,7 @@ public class RunCommandTest
     {
         mock.count = -1;
         mock.runType = null;
-        command.execute(args);
+        command.execute(DefaultSoarCommandContext.empty(), args);
     }
     private void verify(long count, RunType runType)
     {

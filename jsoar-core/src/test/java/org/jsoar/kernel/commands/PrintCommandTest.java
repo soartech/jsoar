@@ -7,6 +7,7 @@ import java.io.StringWriter;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class PrintCommandTest
     @Test
     public void testPrintS1() throws SoarException
     {
-        command.execute(new String[] { "print", "s1" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "s1" });
         System.out.println("'" + outputWriter.toString() + "'");
         assertTrue(outputWriter
                 .toString()
@@ -79,14 +80,14 @@ public class PrintCommandTest
     @Test
     public void testPrintS1Depth2() throws SoarException
     {
-        command.execute(new String[] { "print", "s1", "--depth", "2" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "s1", "--depth", "2" });
         String a = outputWriter.toString();
         System.out.println("'" + a + "'");
 
         clearBuffer();
 
         command.setDefaultDepth(2);
-        command.execute(new String[] { "print", "s1" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "s1" });
         String b = outputWriter.toString();
         System.out.println("'" + b + "'");
 
@@ -101,19 +102,19 @@ public class PrintCommandTest
     @Test(expected = SoarException.class)
     public void testVarprintNotImplemented() throws SoarException
     {
-        command.execute(new String[] { "print", "--varprint" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "--varprint" });
     }
 
     @Test
     public void testPrintAll() throws SoarException
     {
-        command.execute(new String[] { "print" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] { "print" });
         String a = outputWriter.toString();
         System.out.println("'" + a + "'");
 
         clearBuffer();
 
-        command.execute(new String[] { "print", "--all" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "--all" });
         String b = outputWriter.toString();
         System.out.println("'" + b + "'");
 

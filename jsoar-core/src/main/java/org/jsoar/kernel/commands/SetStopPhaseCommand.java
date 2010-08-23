@@ -9,6 +9,7 @@ import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
@@ -28,7 +29,7 @@ public class SetStopPhaseCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         if(args.length == 1)
         {

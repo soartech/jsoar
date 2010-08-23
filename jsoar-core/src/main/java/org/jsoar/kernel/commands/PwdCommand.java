@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * @author ray
@@ -30,7 +31,7 @@ public class PwdCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         if(args.length != 1)
         {

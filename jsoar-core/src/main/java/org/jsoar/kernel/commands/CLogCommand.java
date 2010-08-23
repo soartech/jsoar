@@ -15,6 +15,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.TeeWriter;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * @author ray
@@ -33,7 +34,7 @@ public final class CLogCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
         if(args.length == 2)
         {

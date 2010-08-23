@@ -7,6 +7,7 @@ package org.jsoar.debugger;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * @author ray
@@ -27,7 +28,7 @@ public class LoadPluginCommand implements SoarCommand
      * @see tcl.lang.Command#cmdProc(tcl.lang.Interp, tcl.lang.TclObject[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         if(args.length < 2)
         {

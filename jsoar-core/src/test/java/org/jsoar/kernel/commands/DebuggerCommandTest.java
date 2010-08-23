@@ -14,6 +14,7 @@ import org.jsoar.kernel.AbstractDebuggerProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.Test;
 
 public class DebuggerCommandTest
@@ -42,7 +43,7 @@ public class DebuggerCommandTest
         };
         agent.setDebuggerProvider(provider);
         final DebuggerCommand command = new DebuggerCommand(agent);
-        command.execute(new String[] { "debugger" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] { "debugger" });
         assertTrue(called.get());
     }
 }

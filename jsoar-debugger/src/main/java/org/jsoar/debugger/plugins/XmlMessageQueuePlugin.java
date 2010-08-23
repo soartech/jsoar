@@ -14,6 +14,7 @@ import org.jsoar.kernel.io.xml.XmlMessageQueue;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.XmlTools;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -41,7 +42,7 @@ public class XmlMessageQueuePlugin implements JSoarDebuggerPlugin
         agent.getInterpreter().addCommand("xmq-add", new SoarCommand() {
 
             @Override
-            public String execute(String[] args) throws SoarException
+            public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
             {
                 if(args.length != 2)
                 {

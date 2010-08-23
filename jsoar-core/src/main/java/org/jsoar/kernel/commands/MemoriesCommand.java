@@ -18,6 +18,7 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * http://winter.eecs.umich.edu/soarwiki/Memories
@@ -34,7 +35,7 @@ public final class MemoriesCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         Production single = null;
         int count = Integer.MAX_VALUE;

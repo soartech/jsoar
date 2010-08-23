@@ -20,6 +20,7 @@ import org.jsoar.kernel.events.ProductionExcisedEvent;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.events.SoarEvent;
 import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
@@ -159,7 +160,7 @@ public class SourceCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         if(args.length < 2)
         {
@@ -173,7 +174,7 @@ public class SourceCommand implements SoarCommand
         {
             return "Reloaded: " + 
                    StringTools.join(Arrays.asList(lastTopLevelCommand), " ") + "\n" + 
-                   execute(lastTopLevelCommand);
+                   execute(commandContext, lastTopLevelCommand);
         }
         else if(!topLevel && reload)
         {

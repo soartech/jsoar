@@ -18,6 +18,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.commands.OptionProcessor;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommandProvider;
 import org.slf4j.Logger;
@@ -68,7 +69,7 @@ public class ScriptCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         if(args.length == 1)
         {

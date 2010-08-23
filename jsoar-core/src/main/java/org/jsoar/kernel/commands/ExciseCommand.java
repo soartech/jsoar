@@ -14,6 +14,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * http://winter.eecs.umich.edu/soarwiki/Excise
@@ -30,7 +31,7 @@ public final class ExciseCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         final Set<Production> toExcise = new LinkedHashSet<Production>();
         final ProductionManager pm = agent.getProductions();

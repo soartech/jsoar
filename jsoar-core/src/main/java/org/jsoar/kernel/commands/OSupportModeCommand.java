@@ -5,6 +5,7 @@ package org.jsoar.kernel.commands;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * @author ray
@@ -16,7 +17,7 @@ public final class OSupportModeCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         throw new SoarException( 
                 "o-support-mode command is not supported. " +

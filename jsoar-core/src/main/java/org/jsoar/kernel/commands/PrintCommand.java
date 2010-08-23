@@ -19,6 +19,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.commands.OptionProcessor;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -106,7 +107,7 @@ public class PrintCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         agent.getPrinter().startNewLine();
 

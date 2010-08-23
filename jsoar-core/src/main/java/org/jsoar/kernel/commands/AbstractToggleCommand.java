@@ -9,6 +9,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.OptionProcessor;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 import com.google.common.collect.Lists;
 
@@ -51,7 +52,7 @@ abstract class AbstractToggleCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
         List<String> nonOpts = options.process(Lists.newArrayList(args));
 

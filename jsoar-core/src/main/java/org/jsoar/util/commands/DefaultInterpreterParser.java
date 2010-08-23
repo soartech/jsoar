@@ -50,7 +50,7 @@ public class DefaultInterpreterParser
     private boolean atEndOfCommand(PushbackReader reader) throws IOException
     {
         int c = 0;
-        while((c = reader.read()) != -1) 
+        while((c = read(reader)) != -1) 
         {
             switch(c)
             {
@@ -58,7 +58,7 @@ public class DefaultInterpreterParser
             case '\r':
             case '\n':
             case '#': 
-                reader.unread(c); 
+                unread(reader, c); 
                 return true;
             // Skip whitespace
             case ' ':
@@ -67,7 +67,7 @@ public class DefaultInterpreterParser
                 break;
             // Anything else means there's more to the command
             default: 
-                reader.unread(c); 
+                unread(reader, c); 
                 return false;
             }
         }
@@ -78,27 +78,27 @@ public class DefaultInterpreterParser
     public void skipWhitespace(PushbackReader reader) throws IOException
     {
         int c = 0;
-        while((c = reader.read()) != -1 && Character.isWhitespace(c)) {}
+        while((c = read(reader)) != -1 && Character.isWhitespace(c)) {}
         if(c != -1)
         {
-            reader.unread(c);
+            unread(reader, c);
         }
     }
     
     private void skipToEndOfLine(PushbackReader reader) throws IOException
     {
         int c = 0;
-        while((c = reader.read()) != -1 && c != '\n' && c != '\r') {}
+        while((c = read(reader)) != -1 && c != '\n' && c != '\r') {}
         if(c != -1 && c != '\n' && c != '\r')
         {
-            reader.unread(c);
+            unread(reader, c);
         }
     }
     
     public void skipWhitespaceAndComments(PushbackReader reader) throws IOException
     {
         skipWhitespace(reader);
-        int c = reader.read();
+        int c = read(reader);
         if(c == -1) return;
         if(c == '#')
         {
@@ -107,7 +107,7 @@ public class DefaultInterpreterParser
         }
         else
         {
-            reader.unread(c);
+            unread(reader, c);
         }
     }
 
@@ -115,14 +115,14 @@ public class DefaultInterpreterParser
     {
         skipWhitespace(reader);
         final StringBuilder result = new StringBuilder();
-        int c = reader.read();
+        int c = read(reader);
         if(c == -1)
         {
             return null;
         }
         if(c == '"')
         {
-            while((c = reader.read()) != -1 && c != '"') 
+            while((c = read(reader)) != -1 && c != '"') 
             {
                 switch(c)
                 {
@@ -144,7 +144,7 @@ public class DefaultInterpreterParser
         else if(c == '{')
         {
             int braces = 1;
-            while(braces > 0 && (c = reader.read()) != -1) 
+            while(braces > 0 && (c = read(reader)) != -1) 
             {
                 switch(c)
                 {
@@ -169,13 +169,13 @@ public class DefaultInterpreterParser
         else
         {
             result.append((char) c);
-            while((c = reader.read()) != -1 && !Character.isWhitespace(c)) 
+            while((c = read(reader)) != -1 && !Character.isWhitespace(c)) 
             {
                 result.append((char) c);
             }
             if(c != -1)
             {
-                reader.unread(c);
+                unread(reader, c);
             }
         }
         return result.toString();
@@ -183,7 +183,7 @@ public class DefaultInterpreterParser
     
     private int parseEscapeSequence(PushbackReader reader) throws IOException
     {
-        int c = reader.read();
+        int c = read(reader);
         switch(c)
         {
         case 'n': c = '\n'; break;
@@ -205,6 +205,16 @@ public class DefaultInterpreterParser
         {
             return new SoarException(message);
         }
+    }
+    
+    private int read(PushbackReader reader) throws IOException
+    {
+        return reader.read();
+    }
+    
+    private void unread(PushbackReader reader, int c) throws IOException
+    {
+        reader.unread(c);
     }
 
 }

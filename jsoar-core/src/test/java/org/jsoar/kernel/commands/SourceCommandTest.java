@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.events.SoarEventManager;
 import org.junit.After;
 import org.junit.Before;
@@ -62,7 +63,7 @@ public class SourceCommandTest
     {
         final TestAdapter a = new TestAdapter();
         final SourceCommand command = new SourceCommand(a, new SoarEventManager());
-        command.execute(new String[] {"source", "-r"});
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-r"});
     }
     
     @Test(expected=SoarException.class)
@@ -70,7 +71,7 @@ public class SourceCommandTest
     {
         final TestAdapter a = new TestAdapter();
         final SourceCommand command = new SourceCommand(a, new SoarEventManager());
-        command.execute(new String[] {"source", "--reload"});
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "--reload"});
     }
     
     @Test
@@ -78,17 +79,17 @@ public class SourceCommandTest
     {
         final TestAdapter a = new TestAdapter();
         final SourceCommand command = new SourceCommand(a, new SoarEventManager());
-        command.execute(new String[] {"source", "-a", "test.soar"});
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-a", "test.soar"});
         assertEquals(1, a.files.size());
         assertEquals("test.soar", a.files.get(0).getName());
         
         a.files.clear();
-        command.execute(new String[] {"source", "-r"});
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-r"});
         assertEquals(1, a.files.size());
         assertEquals("test.soar", a.files.get(0).getName());
         
         a.files.clear();
-        command.execute(new String[] {"source", "--reload"});
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "--reload"});
         assertEquals(1, a.files.size());
         assertEquals("test.soar", a.files.get(0).getName());
     }
@@ -98,17 +99,17 @@ public class SourceCommandTest
     {
         final TestAdapter a = new TestAdapter();
         final SourceCommand command = new SourceCommand(a, new SoarEventManager());
-        command.execute(new String[] {"source", "-v", "http://daveray.com/test.soar"});
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-v", "http://daveray.com/test.soar"});
         assertEquals(1, a.urls.size());
         assertEquals("http://daveray.com/test.soar", a.urls.get(0).toExternalForm());
         
         a.urls.clear();
-        command.execute(new String[] {"source", "-r"});
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "-r"});
         assertEquals(1, a.urls.size());
         assertEquals("http://daveray.com/test.soar", a.urls.get(0).toExternalForm());
         
         a.urls.clear();
-        command.execute(new String[] {"source", "--reload"});
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"source", "--reload"});
         assertEquals(1, a.urls.size());
         assertEquals("http://daveray.com/test.soar", a.urls.get(0).toExternalForm());
     }

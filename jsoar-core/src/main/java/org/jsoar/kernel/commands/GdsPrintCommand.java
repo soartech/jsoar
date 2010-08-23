@@ -15,6 +15,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * http://code.google.com/p/soar/wiki/CommandLineInterface#gds-print
@@ -33,7 +34,7 @@ public final class GdsPrintCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         String result = "********************* Current GDS **************************\n"
                       + "stepping thru all wmes in rete, looking for any that are in a gds...\n";

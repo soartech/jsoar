@@ -12,6 +12,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
@@ -27,7 +28,7 @@ public final class StatsCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         boolean system = false;
         boolean hashes = false;

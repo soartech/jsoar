@@ -9,6 +9,7 @@ import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.RunCommand;
 import org.jsoar.runtime.ThreadedAgent;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 
 public class Soar2Soar
 {
@@ -108,7 +109,7 @@ public class Soar2Soar
     {
         final String args[] = line.split("\\s+", 0);
         final RunCommand runCommand = new RunCommand(controller);
-        runCommand.execute(args);
+        runCommand.execute(/* TODO SoarCommandContext */ DefaultSoarCommandContext.empty(), args);
     }
 
     private void usage()

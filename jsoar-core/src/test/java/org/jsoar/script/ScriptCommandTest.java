@@ -14,6 +14,7 @@ import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.AdaptableContainer;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,13 +39,13 @@ public class ScriptCommandTest
     @Test(expected=SoarException.class)
     public void testThrowsAnExceptionForUnknownScriptEngines() throws Exception
     {
-        command.execute(new String[] { "script", "unknown-script-engine" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] { "script", "unknown-script-engine" });
     }
     
     @Test
     public void testCanEvalScriptCode() throws Exception
     {
-        final String result = command.execute(new String[] { "script", "javascript", "'hi there'" });
+        final String result = command.execute(DefaultSoarCommandContext.empty(), new String[] { "script", "javascript", "'hi there'" });
         assertEquals("hi there", result);
     }
     
@@ -52,7 +53,7 @@ public class ScriptCommandTest
     public void testInstallsRhsFunctionHandler() throws Exception
     {
         // Initialize javascript engine
-        command.execute(new String[] { "script", "javascript" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] { "script", "javascript" });
         
         final RhsFunctionManager rhsFuncs = Adaptables.adapt(context, RhsFunctionManager.class);
         assertNotNull(rhsFuncs);

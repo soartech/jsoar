@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class SaveBacktracesCommandTest
     public void testEnableShouldSetExplainPropertyToTrue() throws Exception
     {
         agent.getProperties().set(SoarProperties.EXPLAIN, false);
-        command.execute(new String[] {"save-backtraces", "-e" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"save-backtraces", "-e" });
         assertTrue(agent.getProperties().get(SoarProperties.EXPLAIN));
     }
     
@@ -44,7 +45,7 @@ public class SaveBacktracesCommandTest
     public void testDisableShouldSetExplainPropertyToFalse() throws Exception
     {
         agent.getProperties().set(SoarProperties.EXPLAIN, true);
-        command.execute(new String[] {"save-backtraces", "--off" });
+        command.execute(DefaultSoarCommandContext.empty(), new String[] {"save-backtraces", "--off" });
         assertFalse(agent.getProperties().get(SoarProperties.EXPLAIN));
     }
 

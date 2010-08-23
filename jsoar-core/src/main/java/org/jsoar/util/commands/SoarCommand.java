@@ -21,10 +21,11 @@ public interface SoarCommand
      * command is the first argument, so {@code args.length} will always be
      * at least 1.
      * 
+     * @param context the command execution context
      * @param args commands arguments. {@code args[0]} is the name of the command.
      *  {@code args.length} will always be at least 1.
      * @return the result of the command
      * @throws SoarException
      */
-    String execute(String[] args) throws SoarException;
+    String execute(SoarCommandContext context, String[] args) throws SoarException;
 }

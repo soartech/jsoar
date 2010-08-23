@@ -19,6 +19,7 @@ import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * http://winter.eecs.umich.edu/soarwiki/Preferences
@@ -44,7 +45,7 @@ public class PreferencesCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         final PrintPreferencesCommand ppc = new PrintPreferencesCommand();
         processArgs(args, ppc);

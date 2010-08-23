@@ -13,6 +13,7 @@ import java.util.Arrays;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommandProvider;
 
@@ -40,7 +41,7 @@ public class SoarUnitCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         final StringWriter writer = new StringWriter();
         final PrintWriter pw = new PrintWriter(writer);

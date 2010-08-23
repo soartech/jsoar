@@ -11,6 +11,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * http://code.google.com/p/soar/wiki/CommandLineInterface#watch
@@ -66,7 +67,7 @@ public final class WatchCommand implements SoarCommand
 
     
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         if(args.length == 1)
         {

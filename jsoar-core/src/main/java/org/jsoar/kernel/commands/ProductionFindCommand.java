@@ -17,6 +17,7 @@ import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -36,7 +37,7 @@ public final class ProductionFindCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         final ProductionFinder finder = new ProductionFinder(agent);
         finder.options().clear();

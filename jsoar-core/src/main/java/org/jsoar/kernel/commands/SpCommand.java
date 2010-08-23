@@ -12,6 +12,7 @@ import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * @author ray
@@ -28,7 +29,7 @@ public final class SpCommand implements SoarCommand
     }
 
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         if(args.length != 2)
         {

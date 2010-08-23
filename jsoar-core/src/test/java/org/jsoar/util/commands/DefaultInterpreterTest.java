@@ -8,7 +8,9 @@ package org.jsoar.util.commands;
 
 import static org.junit.Assert.*;
 
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -42,6 +44,29 @@ public class DefaultInterpreterTest
     {
         this.agent.dispose();
     }
+    
+    @Test
+    public void testPassesCommandContextToCommand() throws Exception
+    {
+        final AtomicReference<SoarCommandContext> context = new AtomicReference<SoarCommandContext>();
+        interp.addCommand("testCommandContext", new SoarCommand()
+        {
+            @Override
+            public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
+            {
+                context.set(commandContext);
+                return null;
+            }
+        });
+        
+        final URL result = getClass().getResource("DefaultInterpreterTest_testPassesCommandContextToCommand.soar");
+        assertNotNull("Couldn't find test resource", result);
+        
+        interp.source(result);
+        
+        assertNotNull(context.get());
+        assertEquals(result.toExternalForm(), context.get().getSourceLocation().getFile());
+    }
 
     @Test
     public void testCanChooseACommandBasedOnAPrefix() throws Exception
@@ -50,7 +75,7 @@ public class DefaultInterpreterTest
         interp.addCommand("testCanChoose", new SoarCommand()
         {
             @Override
-            public String execute(String[] args) throws SoarException
+            public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
             {
                 called.set(true);
                 return null;
@@ -67,7 +92,7 @@ public class DefaultInterpreterTest
         final SoarCommand command = new SoarCommand()
         {
             @Override
-            public String execute(String[] args) throws SoarException
+            public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
             {
                 called.set(true);
                 return null;
@@ -77,6 +102,5 @@ public class DefaultInterpreterTest
         interp.addCommand("testCanAlsoChoose", command);
         interp.eval("testCan");
         assertFalse("Expected an ambiguous command exception", called.get());
-       
     }
 }

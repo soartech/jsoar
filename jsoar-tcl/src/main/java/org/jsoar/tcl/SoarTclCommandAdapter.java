@@ -6,6 +6,7 @@
 package org.jsoar.tcl;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.commands.SoarCommand;
 
 import tcl.lang.Command;
@@ -40,7 +41,7 @@ public class SoarTclCommandAdapter implements Command
         for(int i = 0; i < args.length; ++i) { stringArgs[i] = args[i].toString(); }
         try
         {
-            interp.setResult(inner.execute(stringArgs));
+            interp.setResult(inner.execute(/* TODO SoarCommandContext */ DefaultSoarCommandContext.empty(), stringArgs));
         }
         catch (SoarException e)
         {

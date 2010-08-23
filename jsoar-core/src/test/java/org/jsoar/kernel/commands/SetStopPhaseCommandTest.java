@@ -15,6 +15,7 @@ import java.util.List;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
 import org.jsoar.util.properties.PropertyManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,7 +131,7 @@ public class SetStopPhaseCommandTest
     {
         final List<String> argsList = new ArrayList<String>(Arrays.asList(args));
         argsList.add(0, "set-stop-phase");
-        command.execute(argsList.toArray(new String[] {}));
+        command.execute(DefaultSoarCommandContext.empty(), argsList.toArray(new String[] {}));
         assertSame(expectedPhase, props.get(SoarProperties.STOP_PHASE));
     }
 

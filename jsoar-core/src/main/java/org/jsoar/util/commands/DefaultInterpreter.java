@@ -30,6 +30,7 @@ import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.StandardCommands;
+import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.StringTools;
 
 import com.google.common.base.Joiner;
@@ -158,7 +159,9 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         final SoarCommand command = resolveCommand(parsedCommand.get(0));
         if(command != null)
         {
-            return command.execute(parsedCommand.toArray(new String[]{}));
+            final SoarCommandContext commandContext = new DefaultSoarCommandContext(
+                    new DefaultSourceLocation(sourceCommand.getCurrentFile(), -1, -1));
+            return command.execute(commandContext, parsedCommand.toArray(new String[]{}));
         }
         else
         {
@@ -239,7 +242,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         }
         
         @Override
-        public String execute(String[] args) throws SoarException
+        public String execute(SoarCommandContext context, String[] args) throws SoarException
         {
             if(args.length == 1)
             {

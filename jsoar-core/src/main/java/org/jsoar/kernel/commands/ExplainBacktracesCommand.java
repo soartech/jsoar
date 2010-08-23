@@ -10,6 +10,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.Explain;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 
 /**
  * @author ray
@@ -27,7 +28,7 @@ public class ExplainBacktracesCommand implements SoarCommand
      * @see org.jsoar.util.commands.SoarCommand#execute(java.lang.String[])
      */
     @Override
-    public String execute(String[] args) throws SoarException
+    public String execute(SoarCommandContext commandContext, String[] args) throws SoarException
     {
         final Options options = processArgs(args);
         
