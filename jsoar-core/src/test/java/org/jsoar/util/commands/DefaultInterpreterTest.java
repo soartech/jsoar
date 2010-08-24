@@ -66,6 +66,7 @@ public class DefaultInterpreterTest
         
         assertNotNull(context.get());
         assertEquals(result.toExternalForm(), context.get().getSourceLocation().getFile());
+        assertEquals(3, context.get().getSourceLocation().getLine() + 1);
     }
 
     @Test

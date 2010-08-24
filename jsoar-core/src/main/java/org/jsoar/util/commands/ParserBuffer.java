@@ -29,12 +29,12 @@ public class ParserBuffer
     {
         this.reader = reader;
         this.file = null;
-        currentOffset = -1;
-        line = -1;
+        currentOffset = 0;
+        line = 0;
     }
     
     /**
-     * @return the file
+     * @return the file or null if unknown
      */
     public String getFile()
     {
