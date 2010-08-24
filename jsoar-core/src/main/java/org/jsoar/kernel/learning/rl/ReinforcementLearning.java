@@ -127,7 +127,7 @@ public class ReinforcementLearning
     public static final PropertyKey<Boolean> TEMPORAL_DISCOUNT = key("temporal-discount", Boolean.class).defaultValue(true).build();
     private final BooleanPropertyProvider temporal_discount = new BooleanPropertyProvider(TEMPORAL_DISCOUNT);
     ////////
-    private static final SourceLocation NEW_PRODUCTION_SOURCE = new DefaultSourceLocation("*RL*", -1, -1);
+    private static final SourceLocation NEW_PRODUCTION_SOURCE = DefaultSourceLocation.newBuilder().file("*RL*").build();
     
     // reinforcement learning
     private int rl_template_count;

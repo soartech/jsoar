@@ -27,4 +27,8 @@ public interface SourceLocation
      */
     int getLength();
 
+    /**
+     * @return the line (starting at 0), or {@code -1} if unknown
+     */
+    int getLine();
 }

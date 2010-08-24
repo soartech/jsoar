@@ -6,31 +6,26 @@
 package org.jsoar.util.commands;
 
 import java.io.IOException;
-import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.DefaultSourceLocation;
+import org.jsoar.util.SourceLocation;
 
 /**
  * @author ray
  */
 public class DefaultInterpreterParser
 {
-    private String context;
+    private int startOfCommand;
+    private int lineOfCommand;
     
-    public String getContext()
+    public ParsedCommand parseCommand(ParserBuffer reader) throws IOException, SoarException
     {
-        return context;
-    }
-    
-    public void setContext(String context)
-    {
-        this.context = context;
-    }
-    
-    public List<String> parseCommand(PushbackReader reader) throws IOException, SoarException
-    {
+        startOfCommand = -1;
+        lineOfCommand = -1;
+        
         final List<String> result = new ArrayList<String>();
         skipWhitespaceAndComments(reader);
         String word = parseWord(reader);
@@ -44,10 +39,16 @@ public class DefaultInterpreterParser
             skipWhitespaceAndComments(reader);
             word = parseWord(reader);
         }
-        return result;
+        final SourceLocation loc = DefaultSourceLocation.newBuilder().
+                                        file(reader.getFile()).
+                                        offset(startOfCommand).
+                                        length(reader.getCurrentOffset() - startOfCommand).
+                                        line(lineOfCommand).
+                                        build();
+        return new ParsedCommand(loc, result);
     }
     
-    private boolean atEndOfCommand(PushbackReader reader) throws IOException
+    private boolean atEndOfCommand(ParserBuffer reader) throws IOException
     {
         int c = 0;
         while((c = read(reader)) != -1) 
@@ -75,7 +76,7 @@ public class DefaultInterpreterParser
         return true;
     }
     
-    public void skipWhitespace(PushbackReader reader) throws IOException
+    public void skipWhitespace(ParserBuffer reader) throws IOException
     {
         int c = 0;
         while((c = read(reader)) != -1 && Character.isWhitespace(c)) {}
@@ -85,7 +86,7 @@ public class DefaultInterpreterParser
         }
     }
     
-    private void skipToEndOfLine(PushbackReader reader) throws IOException
+    private void skipToEndOfLine(ParserBuffer reader) throws IOException
     {
         int c = 0;
         while((c = read(reader)) != -1 && c != '\n' && c != '\r') {}
@@ -95,7 +96,7 @@ public class DefaultInterpreterParser
         }
     }
     
-    public void skipWhitespaceAndComments(PushbackReader reader) throws IOException
+    public void skipWhitespaceAndComments(ParserBuffer reader) throws IOException
     {
         skipWhitespace(reader);
         int c = read(reader);
@@ -111,7 +112,7 @@ public class DefaultInterpreterParser
         }
     }
 
-    public String parseWord(PushbackReader reader) throws SoarException, IOException
+    public String parseWord(ParserBuffer reader) throws SoarException, IOException
     {
         skipWhitespace(reader);
         final StringBuilder result = new StringBuilder();
@@ -120,6 +121,13 @@ public class DefaultInterpreterParser
         {
             return null;
         }
+        
+        if(startOfCommand == -1)
+        {
+            startOfCommand = reader.getCurrentOffset();
+            lineOfCommand = reader.getCurrentLine();
+        }
+        
         if(c == '"')
         {
             while((c = read(reader)) != -1 && c != '"') 
@@ -130,7 +138,7 @@ public class DefaultInterpreterParser
                     c = parseEscapeSequence(reader);
                     if(c == -1)
                     {
-                        throw error("Unexpected end of file");
+                        throw error(reader, "Unexpected end of file");
                     }
                 default:
                     result.append((char) c);
@@ -138,7 +146,7 @@ public class DefaultInterpreterParser
             }
             if(c == -1)
             {
-                throw error("Unexpected end of input. Unmatched quote.");
+                throw error(reader, "Unexpected end of input. Unmatched quote.");
             }
         }
         else if(c == '{')
@@ -163,7 +171,7 @@ public class DefaultInterpreterParser
             }
             if(braces > 0)
             {
-                throw error("Unexpected end of input. Unmatched opening brace");
+                throw error(reader, "Unexpected end of input. Unmatched opening brace");
             }
         }
         else
@@ -181,7 +189,7 @@ public class DefaultInterpreterParser
         return result.toString();
     }
     
-    private int parseEscapeSequence(PushbackReader reader) throws IOException
+    private int parseEscapeSequence(ParserBuffer reader) throws IOException
     {
         int c = read(reader);
         switch(c)
@@ -195,24 +203,17 @@ public class DefaultInterpreterParser
         return c;
     }
     
-    private SoarException error(String message)
+    private SoarException error(ParserBuffer reader, String message)
     {
-        if(context != null)
-        {
-            return new SoarException(context + ": " + message);
-        }
-        else
-        {
-            return new SoarException(message);
-        }
+        return new SoarException(reader.getLocation() + ": " + message);
     }
     
-    private int read(PushbackReader reader) throws IOException
+    private int read(ParserBuffer reader) throws IOException
     {
         return reader.read();
     }
     
-    private void unread(PushbackReader reader, int c) throws IOException
+    private void unread(ParserBuffer reader, int c) throws IOException
     {
         reader.unread(c);
     }

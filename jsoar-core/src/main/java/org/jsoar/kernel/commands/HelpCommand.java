@@ -12,7 +12,6 @@ import java.util.ResourceBundle;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
-import org.jsoar.util.commands.SoarCommandInterpreter;
 
 /**
  * @author ray
@@ -21,11 +20,8 @@ public final class HelpCommand implements SoarCommand
 {
     private final ResourceBundle resources = ResourceBundle.getBundle("jsoar");
     
-    private final SoarCommandInterpreter interp;
-    
-    public HelpCommand(SoarCommandInterpreter interp)
+    public HelpCommand()
     {
-        this.interp = interp;
     }
 
     @Override

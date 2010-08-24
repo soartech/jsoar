@@ -69,7 +69,7 @@ import org.jsoar.util.properties.BooleanPropertyProvider;
  */
 public class Chunker
 {
-    private static final SourceLocation NEW_PRODUCTION_SOURCE = new DefaultSourceLocation("*chunker*", -1, -1);
+    private static final SourceLocation NEW_PRODUCTION_SOURCE = DefaultSourceLocation.newBuilder().file("*chunker*").build();
     private final Agent context;
     private Decider decider;
     private Backtracer backtrace;

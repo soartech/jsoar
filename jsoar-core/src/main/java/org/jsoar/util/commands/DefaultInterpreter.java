@@ -28,9 +28,7 @@ import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
-import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.StandardCommands;
-import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.StringTools;
 
 import com.google.common.base.Joiner;
@@ -43,20 +41,16 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private final Map<String, SoarCommand> commands = new HashMap<String, SoarCommand>();
     private final Map<String, List<String>> aliases = new LinkedHashMap<String, List<String>>();
     
-    private final Agent agent;
     private final SourceCommand sourceCommand;
     
     public DefaultInterpreter(Agent agent)
     {
-        this.agent = agent;
-        
         // Interpreter-specific handlers
         addCommand("alias", new AliasCommand());
         addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));
-        addCommand("sp", new SpCommand(this.agent, this.sourceCommand));
         
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
@@ -141,10 +135,12 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private String eval(Reader reader) throws IOException, SoarException
     {
         final DefaultInterpreterParser parser = new DefaultInterpreterParser();
-        final PushbackReader pbReader = new PushbackReader(reader);
-        List<String> parsedCommand = parser.parseCommand(pbReader);
+        final ParserBuffer pbReader = new ParserBuffer(new PushbackReader(reader));
+        pbReader.setFile(sourceCommand.getCurrentFile());
+        
+        ParsedCommand parsedCommand = parser.parseCommand(pbReader);
         String lastResult = "";
-        while(!parsedCommand.isEmpty())
+        while(!parsedCommand.isEof())
         {
             lastResult = executeParsedCommand(parsedCommand);
             
@@ -153,19 +149,18 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         return lastResult;
     }
     
-    private String executeParsedCommand(List<String> parsedCommand) throws SoarException
+    private String executeParsedCommand(ParsedCommand parsedCommand) throws SoarException
     {
         parsedCommand = resolveAliases(parsedCommand);
-        final SoarCommand command = resolveCommand(parsedCommand.get(0));
+        final SoarCommand command = resolveCommand(parsedCommand.getArgs().get(0));
         if(command != null)
         {
-            final SoarCommandContext commandContext = new DefaultSoarCommandContext(
-                    new DefaultSourceLocation(sourceCommand.getCurrentFile(), -1, -1));
-            return command.execute(commandContext, parsedCommand.toArray(new String[]{}));
+            final SoarCommandContext commandContext = new DefaultSoarCommandContext(parsedCommand.getLocation());
+            return command.execute(commandContext, parsedCommand.getArgs().toArray(new String[]{}));
         }
         else
         {
-            throw new SoarException("Unknown command '" + parsedCommand.get(0) + "' in " + parsedCommand);
+            throw new SoarException(parsedCommand.getLocation() + ": Unknown command '" + parsedCommand.getArgs().get(0) + "'");
         }
         
     }
@@ -218,9 +213,9 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         }
     }
     
-    private List<String> resolveAliases(List<String> parsedCommand)
+    private ParsedCommand resolveAliases(ParsedCommand parsedCommand)
     {
-        final String first = parsedCommand.get(0);
+        final String first = parsedCommand.getArgs().get(0);
         final List<String> alias = aliases.get(first);
         if(alias == null)
         {
@@ -229,8 +224,8 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         else
         {
             final List<String> result = new ArrayList<String>(alias);
-            result.addAll(parsedCommand.subList(1, parsedCommand.size()));
-            return result;
+            result.addAll(parsedCommand.getArgs().subList(1, parsedCommand.getArgs().size()));
+            return new ParsedCommand(parsedCommand.getLocation(), result);
         }
     }
     

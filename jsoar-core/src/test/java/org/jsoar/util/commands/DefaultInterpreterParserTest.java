@@ -34,47 +34,49 @@ public class DefaultInterpreterParserTest
     @Test
     public void testParseCommandTerminatedByEndOfFile() throws Exception
     {
-        final PushbackReader reader = reader("    watch {5}");
-        assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader));
+        final ParserBuffer reader = reader("    watch {5}");
+        assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader).getArgs());
         checkRemainder("", reader);
     }
     
     @Test
     public void testParseCommandTerminatedByCarriageReturn() throws Exception
     {
-        final PushbackReader reader = reader("    sp {test\n(state <s> ^superstate nil)\n-->\r\n(write (crlf))\n}\r\nx");
-        assertEquals(Arrays.asList("sp", "test\n(state <s> ^superstate nil)\n-->\r\n(write (crlf))\n"), parser.parseCommand(reader));
+        final ParserBuffer reader = reader("    sp {test\n(state <s> ^superstate nil)\n-->\r\n(write (crlf))\n}\r\nx");
+        assertEquals(Arrays.asList("sp", "test\n(state <s> ^superstate nil)\n-->\r\n(write (crlf))\n"), parser.parseCommand(reader).getArgs());
         checkRemainder("\r\nx", reader);
     }
     
     @Test
     public void testParseCommandTerminatedByLineFeed() throws Exception
     {
-        final PushbackReader reader = reader("    watch {5}\nx");
-        assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader));
+        final ParserBuffer reader = reader("    watch {5}\nx");
+        assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader).getArgs());
         checkRemainder("\nx", reader);
     }
     
     @Test
     public void testParseCommandTerminatedByComment() throws Exception
     {
-        final PushbackReader reader = reader("    watch {5} #comment");
-        assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader));
+        final ParserBuffer reader = reader("    watch {5} #comment");
+        assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader).getArgs());
         checkRemainder("#comment", reader);
     }
     
     @Test
     public void testParseCommandReturnsEmptyListAtEof() throws Exception
     {
-        final PushbackReader reader = reader("   #comment    \n");
-        assertTrue(parser.parseCommand(reader).isEmpty());
+        final ParserBuffer reader = reader("   #comment    \n");
+        final ParsedCommand parsedCommand = parser.parseCommand(reader);
+        assertTrue(parsedCommand.isEof());
+        assertTrue(parsedCommand.getArgs().isEmpty());
         checkRemainder("", reader);
     }
     
     @Test
     public void testCanSkipWhitespace() throws Exception
     {
-        final PushbackReader reader = reader(" \n\t\t    xxx");
+        final ParserBuffer reader = reader(" \n\t\t    xxx");
         
         parser.skipWhitespace(reader);
         checkRemainder("xxx", reader);
@@ -83,7 +85,7 @@ public class DefaultInterpreterParserTest
     @Test
     public void testCanSkipComments() throws Exception
     {
-        final PushbackReader reader = reader(" \n" +
+        final ParserBuffer reader = reader(" \n" +
         		"# this is a comment\n" +
         		"   # and another\r\n" +
         		"   # and one more\n" +
@@ -96,7 +98,7 @@ public class DefaultInterpreterParserTest
     @Test
     public void testCanParseAnUnquotedWord() throws Exception
     {
-        final PushbackReader reader = reader("   1-word_with*no+quotes  x ");
+        final ParserBuffer reader = reader("   1-word_with*no+quotes  x ");
         
         final String result = parser.parseWord(reader);
         
@@ -107,7 +109,7 @@ public class DefaultInterpreterParserTest
     @Test
     public void testCanParseAQuotedWord() throws Exception
     {
-        final PushbackReader reader = reader("   \"word with\\n \\\"quotes\"  x ");
+        final ParserBuffer reader = reader("   \"word with\\n \\\"quotes\"  x ");
         
         final String result = parser.parseWord(reader);
         
@@ -118,7 +120,7 @@ public class DefaultInterpreterParserTest
     @Test
     public void testCanParseBracedWord() throws Exception
     {
-        final PushbackReader reader = reader("    { words {* words\\n\n \"} words }   end");
+        final ParserBuffer reader = reader("    { words {* words\\n\n \"} words }   end");
         final String result = parser.parseWord(reader);
         assertEquals(" words {* words\\n\n \"} words ", result);
         checkRemainder("   end", reader);        
@@ -127,7 +129,7 @@ public class DefaultInterpreterParserTest
     @Test(expected=SoarException.class)
     public void testErrorOnUnclosedBrace() throws Exception
     {
-        final PushbackReader reader = reader("    { words { ");
+        final ParserBuffer reader = reader("    { words { ");
         parser.parseWord(reader);
         
     }
@@ -135,17 +137,17 @@ public class DefaultInterpreterParserTest
     @Test(expected=SoarException.class)
     public void testErrorOnUnclosedQuote() throws Exception
     {
-        final PushbackReader reader = reader("    \" words { ");
+        final ParserBuffer reader = reader("    \" words { ");
         parser.parseWord(reader);
         
     }
 
-    private PushbackReader reader(String input)
+    private ParserBuffer reader(String input)
     {
-        return new PushbackReader(new StringReader(input));
+        return new ParserBuffer(new PushbackReader(new StringReader(input)));
     }
     
-    private void checkRemainder(String expected, PushbackReader reader) throws IOException
+    private void checkRemainder(String expected, ParserBuffer reader) throws IOException
     {
         final StringBuilder b = new StringBuilder();
         int c = 0;

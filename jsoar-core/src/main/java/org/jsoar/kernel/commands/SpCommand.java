@@ -9,8 +9,6 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.parser.ParserException;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.util.DefaultSourceLocation;
-import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
@@ -20,12 +18,10 @@ import org.jsoar.util.commands.SoarCommandContext;
 public final class SpCommand implements SoarCommand
 {
     private final Agent agent;
-    private final SourceCommand sourceCommand;
 
-    public SpCommand(Agent agent, SourceCommand sourceCommand)
+    public SpCommand(Agent agent)
     {
         this.agent = agent;
-        this.sourceCommand = sourceCommand;
     }
 
     @Override
@@ -34,23 +30,25 @@ public final class SpCommand implements SoarCommand
         if(args.length != 2)
         {
             // TODO illegal argument
-            throw new SoarException(String.format("Expected %s body, got %s", args[0], Arrays.asList(args)));
+            throw new SoarException(String.format("%s: Expected %s body, got %s", 
+                                        commandContext.getSourceLocation(), 
+                                        args[0], 
+                                        Arrays.asList(args)));
         }
         
         try
         {
-            final SourceLocation location = new DefaultSourceLocation(sourceCommand != null ? sourceCommand.getCurrentFile() : "", -1, -1);
-            agent.getProductions().loadProduction(args[1], location);
+            agent.getProductions().loadProduction(args[1], commandContext.getSourceLocation());
             agent.getPrinter().print("*");
             return "";
         }
         catch (ReordererException e)
         {
-            throw new SoarException(e.getMessage());
+            throw new SoarException(commandContext.getSourceLocation() + ":" + e.getMessage());
         }
         catch (ParserException e)
         {
-            throw new SoarException(e.getMessage());
+            throw new SoarException(commandContext.getSourceLocation() + ":" + e.getMessage());
         }
     }
 }

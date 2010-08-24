@@ -26,6 +26,7 @@ public class StandardCommands
      */
     public static void addToInterpreter(Agent agent, SoarCommandInterpreter interp)
     {
+        interp.addCommand("sp", new SpCommand(agent));
         interp.addCommand("multi-attributes", new MultiAttrCommand(agent));
         interp.addCommand("stats", new StatsCommand(agent));
         interp.addCommand("learn", new LearnCommand(agent));
@@ -62,7 +63,7 @@ public class StandardCommands
         interp.addCommand("properties", new PropertiesCommand(agent));
         interp.addCommand("symbols", new SymbolsCommand(agent));
         
-        interp.addCommand("help", new HelpCommand(interp));
+        interp.addCommand("help", new HelpCommand());
         
         interp.addCommand("qmemory", new QMemoryCommand(agent));
         interp.addCommand("timers", new TimersCommand());

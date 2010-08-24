@@ -14,8 +14,6 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.PopdCommand;
@@ -23,10 +21,11 @@ import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
-import org.jsoar.kernel.commands.SpCommand;
 import org.jsoar.kernel.commands.StandardCommands;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -124,7 +123,6 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));
-        addCommand("sp", new SpCommand(this.agent, this.sourceCommand));
 
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);

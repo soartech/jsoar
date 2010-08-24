@@ -15,6 +15,8 @@ import java.util.List;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.commands.DefaultInterpreterParser;
+import org.jsoar.util.commands.ParsedCommand;
+import org.jsoar.util.commands.ParserBuffer;
 
 /**
  * @author ray
@@ -36,24 +38,24 @@ public class TestCase
     
     public static TestCase fromFile(File file) throws SoarException, IOException
     {
-        final PushbackReader reader = new PushbackReader(new BufferedReader(new FileReader(file)));
+        final ParserBuffer reader = new ParserBuffer(new PushbackReader(new BufferedReader(new FileReader(file))));
+        reader.setFile(file.getPath());
         try
         {
             final TestCase testCase = new TestCase(file, getNameFromFile(file));
             final DefaultInterpreterParser parser = new DefaultInterpreterParser();
-            parser.setContext(file.getPath());
-            List<String> parsedCommand = parser.parseCommand(reader);
-            while(!parsedCommand.isEmpty())
+            ParsedCommand parsedCommand = parser.parseCommand(reader);
+            while(!parsedCommand.isEof())
             {
-                final String name = parsedCommand.get(0);
+                final String name = parsedCommand.getArgs().get(0);
                 if("setup".equals(name))
                 {
                     testCase.setup += "\n";
-                    testCase.setup += parsedCommand.get(1);
+                    testCase.setup += parsedCommand.getArgs().get(1);
                 }
                 else if("test".equals(name))
                 {
-                    final Test test = new Test(testCase, parsedCommand.get(1), parsedCommand.get(2));
+                    final Test test = new Test(testCase, parsedCommand.getArgs().get(1), parsedCommand.getArgs().get(2));
                     testCase.addTest(test);
                 }
                 else
