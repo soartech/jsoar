@@ -34,6 +34,8 @@ import org.jsoar.util.StringTools;
 import com.google.common.base.Joiner;
 
 /**
+ * Default implementation of {@link SoarCommandInterpreter}.
+ * 
  * @author ray
  */
 public class DefaultInterpreter implements SoarCommandInterpreter

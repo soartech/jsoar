@@ -5,15 +5,15 @@
  */
 package org.jsoar.kernel.symbols;
 
-import org.jsoar.kernel.rhs.functions.JavaRhsFunction;
+import org.jsoar.script.ScriptCommand;
 
 /**
  * A symbol whose value is an arbitrary Java object. 
  * 
- * <p>This symbol is meant to support {@link JavaRhsFunction}.
+ * <p>This symbol is meant to support JSoar scripting.
  *  
  * @author ray
- * @see JavaRhsFunction
+ * @see ScriptCommand
  */
 public interface JavaSymbol extends Symbol
 {
