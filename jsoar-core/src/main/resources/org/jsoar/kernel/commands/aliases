@@ -53,3 +53,8 @@ alias qrm  qmemory --remove
 alias qclear qmemory --clear
 
 alias internal-symbols symbols
+
+# script command aliases
+alias js script javascript
+alias py script python
+alias rb script ruby
