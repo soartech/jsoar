@@ -1,0 +1,91 @@
+script ruby {
+
+class Jug
+  attr_reader :capacity
+  attr_accessor :contents
+  attr_accessor :contents_wme
+  def initialize(capacity)
+    @capacity = capacity
+    @contents = 0
+    @contents_wme = nil
+  end
+end
+
+class Waterjugs
+  
+  def initialize()
+    $soar.on_init_soar {|e| init e}
+    $soar.on_input {|e| on_input e}
+    $soar.on_output_command("pour") {|e| pour e}
+    $soar.on_output_command("fill") {|e| fill e}
+    $soar.on_output_command("empty"){|e| empty e}
+    
+    init(nil)
+  end
+
+  def init(e)
+    @moves = 0
+    @jugs = {
+      "a" => Jug.new(5),
+      "b" => Jug.new(3)
+    }
+  end
+
+  def on_input(e)
+    @jugs.each do |name,jug|
+      if jug.contents_wme
+        jug.contents_wme = $soar.wmes.update(jug.contents_wme, jug.contents)
+      else
+        id = $soar.wmes.new_id("J")
+        $soar.wmes.add("jug", id)
+        $soar.wmes.add(id, "name", name)
+        $soar.wmes.add(id, "capacity", jug.capacity)
+        jug.contents_wme = $soar.wmes.add(id, "contents", jug.contents)
+      end
+    end
+
+    if @jugs["b"].contents == 2
+      $soar.print("\nenv: Achieved goal in #{@moves} moves!")
+      $soar.agent.stop()
+    end
+  end
+
+  def pour(e)
+    fr = @jugs[e["from"]]
+    to = @jugs[e["to"]]
+
+    $soar.print("\nenv: Pouring from #{e["from"]} to #{e["to"]}")
+
+    space = to.capacity - to.contents
+    amount = [space, fr.contents].min
+    to.contents += amount
+    fr.contents -= amount
+
+    @moves += 1
+  end
+
+  def fill(e)
+    jug = @jugs[e["jug"]]
+    jug.contents = jug.capacity
+
+    $soar.print("\nenv: Filling #{e["jug"]} to #{jug.capacity}")
+
+    @moves += 1
+  end
+
+  def empty(e)
+    jug = @jugs[e["jug"]]
+    jug.contents = 0
+
+    $soar.print("\nenv: Emptying #{e["jug"]}")
+
+    @moves += 1
+  end
+end
+
+waterjugs = Waterjugs.new()
+
+}
+
+source waterjugs-script.soar
+

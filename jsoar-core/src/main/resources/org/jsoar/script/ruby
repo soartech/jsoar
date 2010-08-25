@@ -2,15 +2,106 @@
 # Performs additional initialization that's easier to do in straight
 # Ruby than through the Java scripting API.
 
+require 'java'
+
+java_import org.jsoar.util.events.SoarEventListener
+java_import org.jsoar.kernel.io.InputWmes
+java_import org.jsoar.kernel.symbols.Symbols
+
+class SoarWmes
+
+  def initialize(agent)
+    @agent = agent  
+  end
+  
+  def new_id(letter)
+    @agent.symbols.create_identifier(letter[0])
+  end
+  
+  def add(id, attr, value = nil)
+    io = @agent.input_output
+    if value.nil?
+      value = attr
+      attr = id
+      id = io.input_link
+    end
+    InputWmes.add(io, id, attr, value)
+  end
+  
+  def update(wme, value)
+    InputWmes.update(wme, value)
+  end
+  
+  def to_ruby(root)
+    result = {}
+    i = root.wmes
+    while i.has_next()
+      wme = i.next()
+      attr = Symbols.value_of(wme.attribute)
+      value = wme.value
+      if value.as_identifier().nil?
+        result[attr] = Symbols.value_of(value)
+      else
+        result[attr] = to_ruby(value)
+      end
+    end
+    result
+  end
+end
+
 class Soar
   attr_reader :agent
+  attr_reader :wmes
   
   def initialize(agent)
     @agent = agent
+    @wmes = SoarWmes.new(agent)
+    @output_handlers = {}
+    
+    on_output {|e| dispatch_output_commands(e) }
   end
   
   def pwd
     agent.interpreter.eval("pwd")
+  end
+  
+  def print(message)
+    @agent.printer.print(message)
+  end
+  
+  def on_event(className, &handler)
+    event_class = java.lang.Class.forName(className)
+    @agent.events.add_listener(event_class, handler)
+  end
+  
+  def on_input(&handler)
+    on_event("org.jsoar.kernel.events.InputEvent", &handler)
+  end
+  
+  def on_output(&handler)
+    on_event("org.jsoar.kernel.events.OutputEvent", &handler)
+  end
+  
+  def on_output_command(name, &handler)
+    @output_handlers[name] = handler
+  end
+  
+  def on_init_soar(&handler)
+    on_event("org.jsoar.kernel.events.BeforeInitSoarEvent", &handler)
+  end
+  
+private
+
+  def dispatch_output_commands(e)
+    it = e.input_output.pending_commands.iterator()
+    while it.has_next()
+      command = it.next()
+      handler = @output_handlers[command.attribute.to_string]
+      if handler
+        result = handler.call(wmes.to_ruby(command.value)) || "complete"
+        wmes.add(command.value, "status", result)
+      end
+    end
   end
 end
 
