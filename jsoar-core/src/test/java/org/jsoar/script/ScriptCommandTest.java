@@ -8,6 +8,7 @@ package org.jsoar.script;
 
 import static org.junit.Assert.*;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
@@ -15,6 +16,7 @@ import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.AdaptableContainer;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.DefaultSoarCommandContext;
+import org.jsoar.util.events.SoarEvent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +25,8 @@ public class ScriptCommandTest
 {
     private Adaptable context;
     private ScriptCommand command;
+    
+    public static class TestEvent implements SoarEvent {};
     
     @Before
     public void setUp() throws Exception
@@ -60,5 +64,56 @@ public class ScriptCommandTest
         
         final RhsFunctionHandler handler = rhsFuncs.getHandler("javascript");
         assertNotNull(handler);
+    }
+    
+    @Test
+    public void testCanCleanupRegisteredListenersWhenReset() throws Exception
+    {
+        final Agent agent = new Agent("testCanCleanupRegisteredListenersWhenReset");
+        try
+        {
+            agent.initialize();
+            // Initialize javascript engine and register a handler for our test
+            // event. It throws an exception.
+            agent.getInterpreter().eval("script javascript { soar.onEvent('org.jsoar.script.ScriptCommandTest$TestEvent', function() { throw 'Failed'; }); }");
+            // reset javascript engine
+            agent.getInterpreter().eval("script --reset javascript");
+            
+            // Now if everything went right, firing the test event should have
+            // no effect
+            agent.getEvents().fireEvent(new TestEvent());
+        }
+        finally
+        {
+            agent.dispose();
+        }
+    }
+    
+    @Test
+    public void testCanCleanupRegistersRhsFunctionsWhenReset() throws Exception
+    {
+        final Agent agent = new Agent("testCanCleanupRegistersRhsFunctionsWhenReset");
+        try
+        {
+            agent.initialize();
+            // Initialize javascript engine and register a handler for our test
+            // function. It throws an exception.
+            agent.getInterpreter().eval("script javascript {\n" +
+                "soar.rhsFunction( { name: 'cleanup-test', \n" +
+                "   execute: function(context, args) { throw 'Failed'; } " +
+                "});\n" +
+                "\n}");
+            
+            // reset javascript engine
+            agent.getInterpreter().eval("script --reset javascript");
+            
+            // Now if everything went right, firing the test event should have
+            // no effect
+            assertNull(agent.getRhsFunctions().getHandler("cleanup-test"));
+        }
+        finally
+        {
+            agent.dispose();
+        }
     }
 }

@@ -31,9 +31,11 @@ public class ScriptCommand implements SoarCommand
 {
     private static final Logger logger = LoggerFactory.getLogger(ScriptCommand.class);
     
-    private static enum Options { }
+    private static enum GlobalOptions { reset, dispose; }
+    private static enum EngineOptions {  }
     
-    private final OptionProcessor<Options> options = OptionProcessor.create();
+    private final OptionProcessor<GlobalOptions> globalOptions = OptionProcessor.create();
+    private final OptionProcessor<EngineOptions> engineOptions = OptionProcessor.create();
     private final Adaptable context;
     private ScriptEngineManager manager;
     private final Map<String, ScriptEngineState> engines = new HashMap<String, ScriptEngineState>();
@@ -63,6 +65,11 @@ public class ScriptCommand implements SoarCommand
     ScriptCommand(Adaptable context)
     {
         this.context = context;
+        
+        globalOptions.newOption(GlobalOptions.dispose)
+                     .newOption(GlobalOptions.reset)
+                     .done();
+                    
     }
     
     /* (non-Javadoc)
@@ -78,10 +85,15 @@ public class ScriptCommand implements SoarCommand
         
         // Strip off script and treat the engine type as the command name...
         // i.e. "script javascript ..." becomes "javascript ..."
-        final List<String> shiftedArgs = Arrays.asList(Arrays.copyOfRange(args, 1, args.length));
-        final List<String> trailing = options.process(shiftedArgs);
-        final String engine = shiftedArgs.get(0);
-        final ScriptEngineState state = getEngineByName(engine);
+        final List<String> engineArgs = globalOptions.process(Arrays.asList(args));
+        final String engineName = engineArgs.get(0);
+        if(globalOptions.has(GlobalOptions.dispose))
+        {
+            return disposeEngine(engineName);
+        }
+        
+        final List<String> trailing = engineOptions.process(engineArgs);
+        final ScriptEngineState state = getEngineByName(engineName, globalOptions.has(GlobalOptions.reset));
         if(!trailing.isEmpty())
         {
             final Object result = state.eval(trailing.get(0));
@@ -101,10 +113,32 @@ public class ScriptCommand implements SoarCommand
         }
         return manager;
     }
+    
+    private synchronized String disposeEngine(String name) throws SoarException
+    {
+        final ScriptEngineState state = engines.remove(name);
+        if(state != null)
+        {
+            state.dispose();
+            return "Disposed '" + name + "'";
+        }
+        else
+        {
+            return "No engine '" + name + "'";
+        }
+    }
 
-    private synchronized ScriptEngineState getEngineByName(String name) throws SoarException
+
+    private synchronized ScriptEngineState getEngineByName(String name, boolean reset) throws SoarException
     {
         ScriptEngineState state = engines.get(name);
+        if(state != null && reset)
+        {
+            state.dispose();
+            engines.remove(name);
+            state = null;
+        }
+        
         if(state == null)
         {
             final ScriptEngine engine = getEngineManager().getEngineByName(name);

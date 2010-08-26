@@ -57,6 +57,7 @@ class Soar
     @agent = agent
     @wmes = SoarWmes.new(agent)
     @output_handlers = {}
+    @disposers = []
     
     on_output {|e| dispatch_output_commands(e) }
   end
@@ -72,6 +73,8 @@ class Soar
   def on_event(className, &handler)
     event_class = java.lang.Class.forName(className)
     @agent.events.add_listener(event_class, handler)
+    
+    @disposers << lambda { || @agent.events.remove_listener(event_class, handler) }
   end
   
   def on_input(&handler)
@@ -90,6 +93,15 @@ class Soar
     on_event("org.jsoar.kernel.events.BeforeInitSoarEvent", &handler)
   end
   
+  def on_dispose(&handler)
+    @disposers << handler
+  end
+  
+  def _dispose()
+    @disposers.each do |d|
+      d.call()
+    end
+  end
 private
 
   def dispatch_output_commands(e)
@@ -107,3 +119,7 @@ end
 
 # Replace default context variable with ours...
 $soar = Soar.new($_soar.agent)
+
+def soar_dispose()
+  $soar._dispose
+end

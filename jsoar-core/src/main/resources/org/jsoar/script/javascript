@@ -12,11 +12,28 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
   
   var io = agent.getInputOutput();
   
+  // Remember all listeners we register so we can remove them
+  // when the script engine is disposed.
+  var disposers = [];
+  
+  function dispose() {
+    for each(var d in disposers) {
+      d();
+    }
+  }
+  
   function onEvent(eventClass, callback) {
     if(typeof(eventClass) === "string") {
       eventClass = java.lang.Class.forName(eventClass);
     }
-    agent.events.addListener(eventClass, callback);
+    var proxy = new org.jsoar.util.events.SoarEventListenerProxy(callback);
+    agent.events.addListener(eventClass, proxy);
+    
+    var result = function() {
+      agent.events.removeListener(eventClass, proxy);
+    }
+    disposers.push(result);
+    return result;
   };
   
   function toJavaScript(root) {
@@ -116,10 +133,21 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
     },
     
     /**
+     * Register a callback for when the engine is disposed.
+     *
+     * @param callback the callback function. Takes no arguments.
+     */
+    onDispose : function(callback) {
+      disposers.push(callback);
+      return callback;
+    },
+    
+    /**
      * Register a callback function on an event
      *
      * @param eventClass Class name as string, or instance of java.lang.Class
      * @param callback the callback function. See SoarEventListener.onEvent().
+     * @returns a function that can be called to unregister the listener
      */
     onEvent : onEvent,
 
@@ -127,6 +155,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * Register a callback function on input
      *
      * @param callback the callback function. See SoarEventListener.onEvent().
+     * @returns a function that can be called to unregister the listener
      */
     onInput : function(callback) {
       return this.onEvent(INPUT_EVENT, callback);
@@ -136,6 +165,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * Register a callback function on input
      *
      * @param callback the callback function. See SoarEventListener.onEvent().
+     * @returns a function that can be called to unregister the listener
      */
     onOutput : function(callback) {
       return this.onEvent(OUTPUT_EVENT, callback);
@@ -148,15 +178,20 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      *
      * @param name the name of the output command
      * @param callback callback function
+     * @returns a function that can be called to unregister the listener
      */
     onOutputCommand : function(name, callback) {
       outputHandlers[name] = callback;
+      return function() {
+        delete outputHandlers[name];
+      };
     },
     
     /**
      * Register a function to be called before init soar is called.
      *
      * @param callback the callback function
+     * @returns a function that can be called to unregister the listener
      */
     onInitSoar : function(callback) {
       return this.onEvent("org.jsoar.kernel.events.BeforeInitSoarEvent", callback);
@@ -178,6 +213,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * converted to a symbol.
      *
      * @param options the options structure.
+     * @returns a function that can be called to remove the RHS function
      */
     rhsFunction : function(options) {
       agent.getRhsFunctions().registerHandler(new org.jsoar.kernel.rhs.functions.RhsFunctionHandler({
@@ -201,6 +237,21 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
           return null;
         } 
       }));
+      
+      var d = function() {
+        agent.getRhsFunctions().unregisterHandler(options.name);
+      }
+      disposers.push(d);
+      return d;
     }, 
+    
+    _dispose : dispose,
   }
 })(_soar.agent) : _soar;
+
+/**
+ * Called when the engine is disposed or reset...
+ */
+function soar_dispose() {
+  soar._dispose();
+}

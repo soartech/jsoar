@@ -2,6 +2,8 @@
 # Performs additional initialization that's easier to do in straight
 # Python than through the Java scripting API.
 
+import java
+
 from java.lang import Class
 from org.jsoar.util.events import SoarEventListener
 from org.jsoar.kernel.io import InputWmes
@@ -44,6 +46,7 @@ class Soar:
     self.agent = agent
     self.wmes = SoarWmes(agent)
     self._outputHandlers = {}
+    self._disposers = []
     
     self.onOutput(self._dispatchOutputCommands)
 
@@ -61,19 +64,28 @@ class Soar:
       def onEvent(self, e):
         handler(e)
     
-    self.agent.getEvents().addListener(eventClass, Handler())
+    proxy = Handler()
+    self.agent.getEvents().addListener(eventClass, proxy)
+    d = lambda : self.agent.getEvents().removeListener(eventClass, proxy)
+    self._disposers.append(d)
+    return d
 
   def onInput(self, handler):
-    self.onEvent("org.jsoar.kernel.events.InputEvent", handler)
+    return self.onEvent("org.jsoar.kernel.events.InputEvent", handler)
     
   def onOutput(self, handler):
-    self.onEvent("org.jsoar.kernel.events.OutputEvent", handler)
+    return self.onEvent("org.jsoar.kernel.events.OutputEvent", handler)
+    
+  def _removeOutputHandler(self, name):
+    del self._outputHandlers[name]
     
   def onOutputCommand(self, name, handler):
     self._outputHandlers[name] = handler
     
+    return lambda : self._removeOutputHandler(name)
+    
   def onInitSoar(self, handler):
-    self.onEvent("org.jsoar.kernel.events.BeforeInitSoarEvent", handler)
+    return self.onEvent("org.jsoar.kernel.events.BeforeInitSoarEvent", handler)
 
   def _dispatchOutputCommands(self, e):
     it = e.getInputOutput().getPendingCommands().iterator()
@@ -83,6 +95,13 @@ class Soar:
       if handler:
         result = handler(self.wmes.toPython(command.getValue())) or "complete"
         self.wmes.add(command.getValue(), "status", result)
+   
+  def dispose(self):
+    for d in self._disposers:
+      d()
   
 # Instantiate Soar interface
 soar = Soar(_soar.agent)
+
+def soar_dispose():
+  soar.dispose()

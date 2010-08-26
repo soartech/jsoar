@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
@@ -17,6 +18,8 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
 
@@ -27,20 +30,92 @@ import com.google.common.base.Charsets;
  */
 public class ScriptEngineState
 {
+    private static final Logger logger = LoggerFactory.getLogger(ScriptEngineState.class);
+    
+    private final Adaptable context;
     private final String engineName;
     private final ScriptEngine engine;
 
     public ScriptEngineState(Adaptable context, String engineName, ScriptEngine engine) throws SoarException
     {
+        this.context = context;
         this.engineName = engineName;
         this.engine = engine;
         
-        initializeGlobalScope(engineName, context, engine);
+        initializeGlobalScope();
         
-        installRhsFunction(engineName, context);
+        installRhsFunction();
     }
 
-    private void initializeGlobalScope(String engineName, Adaptable context, ScriptEngine engine) throws SoarException
+
+    public ScriptEngine getEngine()
+    {
+        return engine;
+    }
+    
+    /**
+     * Evaluate the given string in the scripting engine.
+     * 
+     * @param script the script string
+     * @return the result. Type depends on scripting engine and script.
+     * @throws SoarException
+     */
+    public Object eval(String script) throws SoarException
+    {
+        try
+        {
+            return engine.eval(script);
+        }
+        catch (ScriptException e)
+        {
+            e.printStackTrace();
+            throw new SoarException("Error executing script: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Dispose the engine, cleaning up any hooks that have been added to the
+     * agent.
+     */
+    public void dispose() throws SoarException
+    {
+        uninstallRhsFunction();
+        
+        invokeDisposeMethod();
+    }
+
+    private void invokeDisposeMethod() throws SoarException
+    {
+        if(!(engine instanceof Invocable))
+        {
+            return;
+        }
+        
+        final Invocable invocable = (Invocable) engine;
+        try
+        {
+            invocable.invokeFunction("soar_dispose");
+        }
+        catch (ScriptException e)
+        {
+            logger.error(engineName + ": Error calling soar_dispose: " + e.getMessage(), e);
+            throw new SoarException("Error executing script: " + e.getMessage(), e);
+        }
+        catch (NoSuchMethodException e)
+        {
+            // Fall back to just doing an eval...
+            try
+            {
+                engine.eval("soar_dispose()");
+            }
+            catch (ScriptException die)
+            {
+                logger.error(engineName + ": soar_dispose method not defined. " + die.getMessage());
+            }
+        }
+    }
+    
+    private void initializeGlobalScope() throws SoarException
     {
         final InputStream is = getClass().getResourceAsStream(engineName);
         if(is != null)
@@ -80,34 +155,28 @@ public class ScriptEngineState
         }
     }
 
-    private void installRhsFunction(String name, Adaptable context)
+    private void installRhsFunction()
     {
         final RhsFunctionManager rhsFunctions = Adaptables.adapt(context, RhsFunctionManager.class);
         if(rhsFunctions != null)
         {
-            ScriptRhsFunction rhsFunction = new ScriptRhsFunction(name, this);
+            ScriptRhsFunction rhsFunction = new ScriptRhsFunction(engineName, this);
             rhsFunctions.registerHandler(rhsFunction);
         }
     }
-
-    public ScriptEngine getEngine()
-    {
-        return engine;
-    }
     
-    public Object eval(String script) throws SoarException
+    private void uninstallRhsFunction()
     {
-        try
+        final RhsFunctionManager rhsFunctions = Adaptables.adapt(context, RhsFunctionManager.class);
+        if(rhsFunctions != null)
         {
-            return engine.eval(script);
-        }
-        catch (ScriptException e)
-        {
-            e.printStackTrace();
-            throw new SoarException("Error executing script: " + e.getMessage(), e);
+            rhsFunctions.unregisterHandler(engineName);
         }
     }
     
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     public String toString()
     {
         return engineName;
