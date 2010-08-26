@@ -24,6 +24,8 @@ import org.jsoar.util.commands.SoarCommandProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+
 /**
  * @author ray
  */
@@ -96,7 +98,7 @@ public class ScriptCommand implements SoarCommand
         final ScriptEngineState state = getEngineByName(engineName, globalOptions.has(GlobalOptions.reset));
         if(!trailing.isEmpty())
         {
-            final Object result = state.eval(trailing.get(0));
+            final Object result = state.eval(Joiner.on(' ').join(trailing));
             return result != null ? result.toString() : "";
         }
         else
