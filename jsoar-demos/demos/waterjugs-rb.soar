@@ -1,4 +1,5 @@
-script ruby {
+# Reset parameter resets the engine each time it's loaded.
+script --reset ruby {
 
 class Jug
   attr_reader :capacity

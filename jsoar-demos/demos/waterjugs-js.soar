@@ -1,5 +1,8 @@
 
-script javascript {
+# The reset flag resets the engine. That way this code can be
+# sourced multiple times without a pile up of listeners and
+# other junk.
+script --reset javascript {
   function init() {
     moves = 0;
     jugs = {
