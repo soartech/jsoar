@@ -1,0 +1,79 @@
+# Unit tests for JavaScript script API
+
+test "test can create input from JavaScript objects" {
+ 
+  waitsnc --on
+
+  # Put some stuff on the input link
+  script javascript {
+    soar.forOneEvent(soar.onInput, function(e) {
+      soar.wmes.add("company", soar.wmes.fromJavaScript({
+        name: "FooTech",
+        size: soar.integer(2),
+        morale : 12.4,
+        employee : [
+          "phil",
+          {
+             name: "jim",
+             role: "big boss"
+          }
+        ]
+      }, "C"));
+    });
+  }
+
+  # Check that it's there.
+  sp {pass
+    (state <s> ^superstate nil
+               ^io.input-link.company <c>)
+    (<c> ^name |FooTech|
+         ^size 2
+         ^morale 12.4
+         ^employee |phil|
+         ^employee <jim>)
+    (<jim> ^name |jim|
+           ^role |big boss|)
+  -->
+    (pass)
+  }
+}
+
+test "test can handle output commands with JavaScript" {
+  waitsnc --on
+
+  script javascript {
+    value = null;
+    valueWme = null;
+
+    // Catch a value and return ^status done!
+    soar.onOutputCommand("test-command", function(e) {
+      value = e["value"];
+      return "done!";
+    });
+
+    // Put the output-command value back on the input-link
+    soar.onInput(function(e) {
+      if(value && !valueWme) {
+        valueWme = soar.wmes.add("test-value", value);
+      }
+    });
+  }
+
+  sp {do-output
+    (state <s> ^superstate nil
+               ^io.output-link <ol>)
+  -->
+    (<ol> ^test-command.value 123456)
+  }
+
+  sp {pass
+    (state <s> ^superstate nil
+               ^io.input-link <il>
+               ^io.output-link <ol>)
+    (<il> ^test-value 123456)
+    (<ol> ^test-command.status |done!|)
+  -->
+    (pass)
+  }
+}
+

@@ -22,6 +22,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
     }
   }
   
+  // General event registration handler (see below)
   function onEvent(eventClass, callback) {
     if(typeof(eventClass) === "string") {
       eventClass = java.lang.Class.forName(eventClass);
@@ -29,13 +30,14 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
     var proxy = new org.jsoar.util.events.SoarEventListenerProxy(callback);
     agent.events.addListener(eventClass, proxy);
     
-    var result = function() {
+    var disposer = function() {
       agent.events.removeListener(eventClass, proxy);
     }
-    disposers.push(result);
-    return result;
+    disposers.unshift(disposer); // add to front so disposed in reverse
+    return disposer;
   };
   
+  // Convert a WME structure to a JavaScript object (see below)
   function toJavaScript(root) {
     var result = {};
     var i = root.getWmes();
@@ -51,6 +53,44 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
       }
     }
     return result;
+  }
+  
+  // Check if an object is an array. Thanks Douglas Crockford.
+  function isArray(testObject) {   
+    return testObject && 
+          !(testObject.propertyIsEnumerable('length')) && 
+          typeof testObject === 'object' && 
+          typeof testObject.length === 'number';
+  }
+  function isJava(o) { return o !== undefined && o !== null && o.getClass; }
+  
+  // Convert a JavaScript object to WMEs (see below)
+  function fromJavaScript(root, letter) {
+    var id = soar.wmes.newId(letter || "Z");
+    for(var key in root) {
+      var value = root[key];
+      var type = typeof(value);
+      
+      // String, numbers or Java objects...
+      if(type == "string" || type == "number" || isJava(value)) {
+        soar.wmes.add(id, key, value);
+      }
+      else if(isArray(value)) {
+        // Arrays become multi-attributes ...
+        for each(var arrayValue in value) {
+          if(isJava(arrayValue) || typeof(arrayValue) != 'object'){
+            soar.wmes.add(id, key, arrayValue);
+          }
+          else {
+            soar.wmes.add(id, key, fromJavaScript(arrayValue, key[0]));
+          }
+        }
+      }
+      else {
+        soar.wmes.add(id, key, fromJavaScript(root, key[0]));
+      }
+    }
+    return id;
   }
   
   // For "onOutputCommand" map from name to callback function
@@ -101,6 +141,34 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * @return a JavaScript object
      */
     toJavaScript : toJavaScript,
+    
+    /**
+     * Convert a simple JavaScript object to WMEs with the following conventions:
+     *
+     * <ul>
+     * <li>String, number, Java object - Converted according to org.jsoar.kernel.symbols.Symbols.create()
+     * <li>Arrays - Converted to multi-attributes
+     * <li>JavaScript objects - Converted to an identifier by recursively calling fromJavaScript()
+     * </ul>
+     *
+     * Here's an example of putting a simple message on the input link:
+     * 
+     * <pre>
+     * soar.wmes.add("message", soar.wmes.fromJavaScript({
+     *   from : "Dave",
+     *   to   : "Agent",
+     *   id   : soar.integer(12345), // force integer instead of double
+     *   content : {
+     *      message : "Hello"
+     *   }
+     * }));
+     * </pre>
+     *
+     * @param root The object to convert
+     * @param letter Optional letter for the generated identifier
+     * @return a new identifier
+     */
+    fromJavaScript : fromJavaScript,
   };
   
   return {
@@ -138,7 +206,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * @param callback the callback function. Takes no arguments.
      */
     onDispose : function(callback) {
-      disposers.push(callback);
+      disposers.unshift(callback);
       return callback;
     },
     
@@ -150,6 +218,34 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * @returns a function that can be called to unregister the listener
      */
     onEvent : onEvent,
+    
+    /**
+     * Register a callback that fires once and then is unregistered
+     * automatically. For example, to catch a single input event:
+     *
+     * <pre>
+     * soar.forOneEvent(soar.onInput, function() {
+     *    soar.print("First, and only, input event");
+     * });
+     * </pre>
+     *
+     * @param registerFunc Function to call that regsiters for an event and
+     *    returns an unregister function. e.g. soar.onInput, etc.
+     * @param callback the callback function. See onEvent()
+     * @returns a function that can be called to unregister the listener
+     */
+    forOneEvent : function(registerFunc, callback) {
+      var cleanup = undefined;
+      cleanup = registerFunc(function(e){
+        try {
+          callback(e);
+        }
+        finally {
+          cleanup();
+        }
+      });
+      return cleanup;
+    },
 
     /**
      * Register a callback function on input
@@ -158,7 +254,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * @returns a function that can be called to unregister the listener
      */
     onInput : function(callback) {
-      return this.onEvent(INPUT_EVENT, callback);
+      return onEvent(INPUT_EVENT, callback);
     },
     
     /**
@@ -168,7 +264,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * @returns a function that can be called to unregister the listener
      */
     onOutput : function(callback) {
-      return this.onEvent(OUTPUT_EVENT, callback);
+      return onEvent(OUTPUT_EVENT, callback);
     },
     
     /**
@@ -194,7 +290,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
      * @returns a function that can be called to unregister the listener
      */
     onInitSoar : function(callback) {
-      return this.onEvent("org.jsoar.kernel.events.BeforeInitSoarEvent", callback);
+      return onEvent("org.jsoar.kernel.events.BeforeInitSoarEvent", callback);
     },
     
     /**
@@ -241,7 +337,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
       var d = function() {
         agent.getRhsFunctions().unregisterHandler(options.name);
       }
-      disposers.push(d);
+      disposers.unshift(d);
       return d;
     }, 
     
