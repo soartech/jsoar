@@ -137,7 +137,7 @@ public class TestPanel extends JPanel
     {
         if(SwingUtilities.isEventDispatchThread())
         {
-            final StringBuilder text = new StringBuilder(message);
+            final StringBuilder text = new StringBuilder(message != null ? message : "no message");
             text.append("\n");
             text.append("____________________________________________________________________________\n\n");
             if(e != null)
