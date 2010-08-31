@@ -65,7 +65,7 @@ public class TestCaseCollector
                 {
                     result.addAll(collectTestCasesInDirectory(file));
                 }
-                else if(file.isFile() && file.getName().startsWith("test") && file.getName().endsWith(".soar"))
+                else if(isTestFile(file))
                 {
                     out.println("Collecting tests in file '" + file + "'");
                     result.add(TestCase.fromFile(file));
@@ -74,6 +74,13 @@ public class TestCaseCollector
         }
         
         return result;
+    }
+    
+    private boolean isTestFile(File file)
+    {
+        return file.isFile() &&
+              (file.getName().endsWith(".soarunit") ||
+               (file.getName().startsWith("test") && file.getName().endsWith(".soar")));
     }
     
     private static class Entry
