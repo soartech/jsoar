@@ -62,6 +62,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
           typeof testObject === 'object' && 
           typeof testObject.length === 'number';
   }
+  
   function isJava(o) { return o !== undefined && o !== null && o.getClass; }
   
   // Convert a JavaScript object to WMEs (see below)
@@ -71,7 +72,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
       var value = root[key];
       var type = typeof(value);
       
-      // String, numbers or Java objects...
+      // String, numbers or Java objects use Symbols.create() directly
       if(type == "string" || type == "number" || isJava(value)) {
         soar.wmes.add(id, key, value);
       }
@@ -87,7 +88,8 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
         }
       }
       else {
-        soar.wmes.add(id, key, fromJavaScript(root, key[0]));
+        // JavaScript objects recurse...
+        soar.wmes.add(id, key, fromJavaScript(value, key[0]));
       }
     }
     return id;

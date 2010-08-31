@@ -101,6 +101,35 @@ test "can create input from JavaScript objects" {
   }
 }
 
+test "can create input from JavaScript objects with nesting" {
+  waitsnc --on
+
+  # There was a bug in JavaScript objects with multiple-nesting
+  # levels.
+  script javascript {
+    soar.forOneEvent(soar.onInput, function(e) {
+      soar.wmes.add("my-location", soar.wmes.fromJavaScript({
+        north: {
+          contents: {
+            type: "food",
+            quantity: soar.integer(3)
+          }
+        }
+      }, "C"));
+    });
+  }
+
+  # Check that it's there.
+  sp {pass
+    (state <s> ^superstate nil
+               ^io.input-link.my-location.north.contents <c>)
+    (<c> ^type food
+         ^quantity 3)
+  -->
+    (pass)
+  }
+}
+
 test "can handle output commands with JavaScript" {
   waitsnc --on
 

@@ -7,6 +7,7 @@ require 'java'
 java_import org.jsoar.util.events.SoarEventListener
 java_import org.jsoar.kernel.io.InputWmes
 java_import org.jsoar.kernel.symbols.Symbols
+java_import org.jsoar.kernel.rhs.functions.RhsFunctionHandler
 
 class SoarWmes
 
@@ -47,8 +48,59 @@ class SoarWmes
     end
     result
   end
+  
+  def from_ruby(root, letter = "Z")
+    id = new_id(letter)
+    root.each do |k,v|
+      type = v.class
+      if type == String || type == Fixnum || type == Float || type.respond_to?(:java_class)
+        add(id, k, v)
+      elsif v.is_a?(Hash)
+        add(id, k, from_ruby(v, k[0,1]))
+      elsif v.is_a?(Enumerable)
+        v.each do |av|
+          if av.is_a?(Hash)
+            add(id, k, from_ruby(av))
+          else
+            add(id, k, av)
+          end
+        end
+      end
+    end
+    id
+  end
 end
 
+class RubyRhsFunction < RhsFunctionHandler.class
+  def initialize(options, &handler)
+    @options = options
+    @handler = handler
+  end
+  def getName() 
+    @options[:name] 
+  end
+  def getMinArguments()
+    @options[:min_arguments] || 0
+  end
+  def getMaxArguments()
+    @options[:max_arguments] || java.lang.Integer::MAX_VALUE
+  end
+  def mayBeStandalone()
+    @options[:may_be_standalone].nil? ? true : @options[:may_be_standalone]
+  end
+  def mayBeValue()
+    @options[:may_be_value].nil? ? true : @options[:may_be_value]
+  end
+  def execute(context, args)
+    result = @handler.call(context, args)
+    if !result.nil?
+      Symbols.create(context.symbols, result)
+    else
+      nil
+    end
+  end
+end
+    
 class Soar
   attr_reader :agent
   attr_reader :wmes
@@ -74,7 +126,22 @@ class Soar
     event_class = java.lang.Class.forName(className)
     @agent.events.add_listener(event_class, handler)
     
-    @disposers << lambda { || @agent.events.remove_listener(event_class, handler) }
+    d = lambda { || @agent.events.remove_listener(event_class, handler) }
+    @disposers << d
+    d
+  end
+  
+  def for_one_event(event_method, &handler)
+    em = method(event_method)
+    cleanup = nil
+    cleanup = em.call() do |e|
+      begin
+        handler.call(e)
+      ensure
+        cleanup.call
+      end
+    end
+    cleanup
   end
   
   def on_input(&handler)
@@ -95,6 +162,14 @@ class Soar
   
   def on_dispose(&handler)
     @disposers << handler
+  end
+  
+  def rhs_function(options, &handler)
+    agent.rhs_functions.register_handler(RubyRhsFunction.new(options, &handler))
+    
+    d = lambda { || @agent.rhs_functions.unregister_handler(options[:name]) }
+    @disposers << d
+    d
   end
   
   def _dispose()
