@@ -183,7 +183,7 @@
       </copy>
    </target>
     
-	<target name="doc" depends="init" description="Generate API documentation">
+	<target name="doc" depends="init" description="Generate API documentation" unless="nodoc">
 		<javadoc packagenames="${doc.packagenames}"
 		           sourcepath="${src}"
 		    	   classpathref="compile.libs"
