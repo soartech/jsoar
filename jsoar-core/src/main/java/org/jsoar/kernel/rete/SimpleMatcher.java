@@ -310,7 +310,7 @@ public class SimpleMatcher
         public void p_node_left_addition(Rete rete, ReteNode node, Token tok, WmeImpl w)
         {            
             Integer i;
-            final Production p = node.b_p.prod;
+            final Production p = node.b_p().prod;
             if(matching.containsKey(p))
             {
                 i = matching.get(p);
@@ -329,7 +329,7 @@ public class SimpleMatcher
         @Override
         public void p_node_left_removal(Rete rete, ReteNode node, Token tok, WmeImpl w)
         {
-            final Production p = node.b_p.prod;
+            final Production p = node.b_p().prod;
             Integer i = matching.get(p);
             --i;
             if(i>0)

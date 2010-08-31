@@ -266,7 +266,7 @@ public class Rete
             {
                 continue;
             }
-            if (!ignore_rhs && !Action.same_rhs(p_node.b_p.prod.action_list, p.action_list))
+            if (!ignore_rhs && !Action.same_rhs(p_node.b_p().prod.action_list, p.action_list))
             {
                 continue;
             }
@@ -275,7 +275,7 @@ public class Rete
             {
                 // TODO: Test
                 trace.getPrinter().warn("\nIgnoring %s because it is a duplicate of %s ",
-                                        p.getName(), p_node.b_p.prod.getName());
+                                        p.getName(), p_node.b_p().prod.getName());
                 
                 // TODO: XML Warn
                 // std::stringstream output;
@@ -352,13 +352,13 @@ public class Rete
         /* --- if not a chunk, store variable name information --- */
         if ((p.getType() == ProductionType.CHUNK) && discard_chunk_varnames)
         {
-            p.getReteNode().b_p.parents_nvn = null;
+            p.getReteNode().b_p().parents_nvn = null;
             p.clearRhsUnboundVariables();
             //deallocate_symbol_list_removing_references (thisAgent, rhs_unbound_vars_for_new_prod);
         }
         else
         {
-            p.getReteNode().b_p.parents_nvn = NodeVarNames.get_nvn_for_condition_list(lhs_top, null);
+            p.getReteNode().b_p().parents_nvn = NodeVarNames.get_nvn_for_condition_list(lhs_top, null);
             p.setRhsUnboundVariables(rhs_unbound_vars_for_new_prod);
         }
 
@@ -385,13 +385,13 @@ public class Rete
         ReteNode parent = p_node.parent;
 
         // deallocate the variable name information
-        p_node.b_p.parents_nvn = null;
+        p_node.b_p().parents_nvn = null;
 
         // cause all existing instantiations to retract, by removing any
         // tokens at the node
-        while (p_node.a_np.tokens != null)
+        while (p_node.a_np().tokens != null)
         {
-            remove_token_and_subtree(p_node.a_np.tokens);
+            remove_token_and_subtree(p_node.a_np().tokens);
         }
 
         listener.removingProductionNode(this, p_node);
@@ -504,7 +504,7 @@ public class Rete
           if (am.right_mems == null) {
               ReteNode next = null;
             for (ReteNode node=am.beta_nodes; node!=null; node=next) {
-              next = node.b_posneg.next_from_alpha_mem;
+              next = node.b_posneg().next_from_alpha_mem;
               switch (node.node_type) {
               case POSITIVE_BNODE:
               case UNHASHED_POSITIVE_BNODE:
@@ -742,7 +742,7 @@ public class Rete
                 ReteNode next = null;
                 for (ReteNode node = am.beta_nodes; node != null; node = next)
                 {
-                    next = node.b_posneg.next_from_alpha_mem;
+                    next = node.b_posneg().next_from_alpha_mem;
                     executeRightAddition(node, w);
                 }
                 // only one possible alpha memory per table could match
@@ -814,7 +814,7 @@ public class Rete
           parent.first_child = child;
           child.next_sibling = null;
           /* to avoid double-counting these right adds */
-          for(RightMemory rm = parent.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
+          for(RightMemory rm = parent.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
           {
               executeRightAddition(parent, rm.w);
           }
@@ -825,7 +825,7 @@ public class Rete
           
         // if parent is negative or cn: easy, just look at the list of tokens
         // on the parent node
-        for(Token tok = parent.a_np.tokens; tok != null; tok = tok.next_of_node)
+        for(Token tok = parent.a_np().tokens; tok != null; tok = tok.next_of_node)
         {
             if(!((LeftToken)tok).hasNegRightTokens())
             {
@@ -1098,9 +1098,9 @@ public class Rete
 
         /* --- inform each linked child (positive join) node --- */
         ListItem<ReteNode> next = null;
-        for (ListItem<ReteNode> child = node.b_mem.first_linked_child.first; child != null; child = next)
+        for (ListItem<ReteNode> child = node.b_mem().first_linked_child.first; child != null; child = next)
         {
-            next = child.item.a_pos.from_beta_mem.next;
+            next = child.item.a_pos().from_beta_mem.next;
             positive_node_left_addition(child.item, New, referent);
         }
     }
@@ -1123,9 +1123,9 @@ public class Rete
 
         /* --- inform each linked child (positive join) node --- */
         ListItem<ReteNode> next = null;
-        for (ListItem<ReteNode> child = node.b_mem.first_linked_child.first; child != null; child = next)
+        for (ListItem<ReteNode> child = node.b_mem().first_linked_child.first; child != null; child = next)
         {
-            next = child.item.a_pos.from_beta_mem.next;
+            next = child.item.a_pos().from_beta_mem.next;
             unhashed_positive_node_left_addition(child.item, New);
         }
     }    
@@ -1139,7 +1139,7 @@ public class Rete
      */
     private void positive_node_left_addition(ReteNode node, LeftToken New, SymbolImpl hash_referent)
     {
-        AlphaMemory am = node.b_posneg.alpha_mem_;
+        AlphaMemory am = node.b_posneg().alpha_mem_;
 
         if (node.node_is_right_unlinked())
         {
@@ -1163,7 +1163,7 @@ public class Rete
                 continue;
             }
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next) {
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next) {
                 if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
                     failed_a_test = true;
@@ -1194,7 +1194,7 @@ public class Rete
         if (node.node_is_right_unlinked())
         {
             node.relink_to_right_mem();
-            if (node.b_posneg.alpha_mem_.right_mems == null)
+            if (node.b_posneg().alpha_mem_.right_mems == null)
             {
                 node.unlink_from_left_mem();
                 return;
@@ -1202,11 +1202,11 @@ public class Rete
         }
 
         // look through right memory for matches
-        for (RightMemory rm = node.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
+        for (RightMemory rm = node.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
         {
             /* --- does rm->w match new? --- */
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
             {
                 if (!ReteTestRoutines.match_left_and_right( rt, New, rm.w))
                 {
@@ -1265,7 +1265,7 @@ public class Rete
             return;
         }
 
-        final AlphaMemory am = node.b_posneg.alpha_mem_;
+        final AlphaMemory am = node.b_posneg().alpha_mem_;
 
         if (node.node_is_right_unlinked())
         {
@@ -1291,7 +1291,7 @@ public class Rete
                 continue;
             }
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
                 if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
                     failed_a_test = true;
@@ -1332,7 +1332,7 @@ public class Rete
         if (node.node_is_right_unlinked())
         {
             node.relink_to_right_mem();
-            if (node.b_posneg.alpha_mem_.right_mems == null)
+            if (node.b_posneg().alpha_mem_.right_mems == null)
             {
                 node.make_mp_bnode_left_unlinked();
                 return;
@@ -1340,11 +1340,11 @@ public class Rete
         }
 
         /* --- look through right memory for matches --- */
-        for (RightMemory rm = node.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
+        for (RightMemory rm = node.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
         {
             /* --- does rm->w match new? --- */
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
             {
                 if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
@@ -1376,7 +1376,7 @@ public class Rete
         if (node.node_is_left_unlinked())
         {
             node.relink_to_left_mem();
-            if (node.parent.a_np.tokens == null)
+            if (node.parent.a_np().tokens == null)
             {
                 node.unlink_from_right_mem();
                 return;
@@ -1398,7 +1398,7 @@ public class Rete
                 continue;
             }
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
             {
                 if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
@@ -1428,7 +1428,7 @@ public class Rete
         if (node.node_is_left_unlinked())
         {
             node.relink_to_left_mem();
-            if (node.parent.a_np.tokens == null)
+            if (node.parent.a_np().tokens == null)
             {
                 node.unlink_from_right_mem();
                 return;
@@ -1445,7 +1445,7 @@ public class Rete
             }
             /* --- does tok match w? --- */
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
             {
                 if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
@@ -1477,7 +1477,7 @@ public class Rete
         if (node.mp_bnode_is_left_unlinked())
         {
             node.make_mp_bnode_left_linked();
-            if (node.a_np.tokens == null)
+            if (node.a_np().tokens == null)
             {
                 node.unlink_from_right_mem();
                 return;
@@ -1499,7 +1499,7 @@ public class Rete
                 continue;
             }
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
             {
                 if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
@@ -1531,7 +1531,7 @@ public class Rete
         if (node.mp_bnode_is_left_unlinked())
         {
             node.make_mp_bnode_left_linked();
-            if (node.a_np.tokens == null)
+            if (node.a_np().tokens == null)
             {
                 node.unlink_from_right_mem();
                 return;
@@ -1548,7 +1548,7 @@ public class Rete
             }
             /* --- does tok match w? --- */
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
             {
                 if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
@@ -1608,7 +1608,7 @@ public class Rete
         left_ht.insert_token_into_left_ht(New, hv);
 
         /* --- look through right memory for matches --- */
-        AlphaMemory am = node.b_posneg.alpha_mem_;
+        AlphaMemory am = node.b_posneg().alpha_mem_;
         int right_hv = am.am_id ^ referent.hash_id;
         for (RightMemory rm = right_ht.right_ht_bucket(right_hv); rm != null; rm = rm.next_in_bucket)
         {
@@ -1622,7 +1622,7 @@ public class Rete
                 continue;
             }
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
             {
                 if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
@@ -1669,11 +1669,11 @@ public class Rete
         left_ht.insert_token_into_left_ht(New, hv);
 
         /* --- look through right memory for matches --- */
-        for (RightMemory rm = node.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
+        for (RightMemory rm = node.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
         {
             /* --- does rm->w match new? --- */
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
             {
                 if (!ReteTestRoutines.match_left_and_right(rt, New, rm.w))
                 {
@@ -1723,7 +1723,7 @@ public class Rete
                 continue;
             }
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
             {
                 if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
@@ -1763,7 +1763,7 @@ public class Rete
             }
             /* --- does tok match w? --- */
             boolean failed_a_test = false;
-            for (ReteTest rt = node.b_posneg.other_tests; rt != null; rt = rt.next)
+            for (ReteTest rt = node.b_posneg().other_tests; rt != null; rt = rt.next)
                 if (!ReteTestRoutines.match_left_and_right(rt, tok, w))
                 {
                     failed_a_test = true;
@@ -1825,7 +1825,7 @@ public class Rete
      */
     private void cn_partner_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
-        final ReteNode partner = node.b_cn.partner;
+        final ReteNode partner = node.b_cn().partner;
 
         // build new negrm token
         
@@ -1919,7 +1919,7 @@ public class Rete
               int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
               left_ht.remove_token_from_left_ht(lt, hv);
             if (! node.mp_bnode_is_left_unlinked()) {
-              if (node.a_np.tokens == null) { node.unlink_from_right_mem (); }
+              if (node.a_np().tokens == null) { node.unlink_from_right_mem (); }
             }
 
           // for P nodes
@@ -1932,7 +1932,7 @@ public class Rete
             LeftToken lt = (LeftToken) tok; // TODO: Assume this is safe?
             int hv = node.node_id ^ (lt.referent != null ? lt.referent.hash_id : 0);
             left_ht.remove_token_from_left_ht(lt, hv);
-            if (node.a_np.tokens == null) { node.unlink_from_right_mem(); }
+            if (node.a_np().tokens == null) { node.unlink_from_right_mem(); }
             for (ListItem<RightToken> t = lt.getFirstNegRightToken(); t != null; t = t.next) {
                 t.item.removeFromWme();
             }
@@ -1952,10 +1952,10 @@ public class Rete
 //      #endif
             /* --- for right unlinking, then if the beta memory just went to
                zero, right unlink any attached Pos nodes --- */
-            if (node.a_np.tokens == null) {
+            if (node.a_np().tokens == null) {
                 ListItem<ReteNode> next = null;
-              for (ListItem<ReteNode> child=node.b_mem.first_linked_child.first; child!=null; child=next) {
-                next = child.item.a_pos.from_beta_mem.next;
+              for (ListItem<ReteNode> child=node.b_mem().first_linked_child.first; child!=null; child=next) {
+                next = child.item.a_pos().from_beta_mem.next;
                 child.item.unlink_from_right_mem();
               }
             }
@@ -2015,13 +2015,13 @@ public class Rete
     {
         ConditionsAndNots result = new ConditionsAndNots();
         
-        Production prod = p_node.b_p.prod;
+        Production prod = p_node.b_p().prod;
         
         if (tok==null) w=null;  /* just for safety */
         syms.getVariableGenerator().reset(null, null); // we'll be gensymming new vars
         
         ReteNodeToConditionsResult rntc =  rete_node_to_conditions (p_node.parent,
-                                 p_node.b_p.parents_nvn,
+                                 p_node.b_p().parents_nvn,
                                  dummy_top_node,
                                  tok, w, null);
         result.top = rntc.dest_top_cond;
@@ -2347,7 +2347,7 @@ public class Rete
         if (node.node_type == ReteNodeType.CN_BNODE)
         {
             ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
-            ReteNodeToConditionsResult sub = rete_node_to_conditions(node.b_cn.partner.parent,
+            ReteNodeToConditionsResult sub = rete_node_to_conditions(node.b_cn().partner.parent,
                     nvn != null ? nvn.bottom_of_subconditions : null, 
                     node.parent, null, null, cond.prev);
             ncc.top = sub.dest_top_cond;
@@ -2375,9 +2375,9 @@ public class Rete
                 pc.value_test = SymbolImpl.makeEqualityTest(w.value);
                 pc.test_for_acceptable_preference = w.acceptable;
                 pc.bt().wme_ = w;
-                if (node.b_posneg.other_tests != null)
+                if (node.b_posneg().other_tests != null)
                 { /* don't bother if there are no tests*/
-                    result.nots_found_in_production = collect_nots(node.b_posneg.other_tests, w, cond,
+                    result.nots_found_in_production = collect_nots(node.b_posneg().other_tests, w, cond,
                             result.nots_found_in_production);
                 }
             }
@@ -2386,7 +2386,7 @@ public class Rete
                 // Here (because of w != null in test above), the condition can still be 
                 // positive or negative, i.e. just a three-field condition
                 final ThreeFieldCondition tfc = cond.asThreeFieldCondition();
-                final AlphaMemory am = node.b_posneg.alpha_mem_;
+                final AlphaMemory am = node.b_posneg().alpha_mem_;
                 tfc.id_test = SymbolImpl.makeEqualityTest(am.id);
                 tfc.attr_test = SymbolImpl.makeEqualityTest(am.attr);
                 tfc.value_test = SymbolImpl.makeEqualityTest(am.value);
@@ -2412,9 +2412,9 @@ public class Rete
                 }
 
                 // if there are other tests, add them too
-                if (node.b_posneg.other_tests != null)
+                if (node.b_posneg().other_tests != null)
                 {
-                    add_rete_test_list_to_tests(tfc, node.b_posneg.other_tests);
+                    add_rete_test_list_to_tests(tfc, node.b_posneg().other_tests);
                 }
 
                 // if we threw away the variable names, make sure there's some 
@@ -2568,7 +2568,7 @@ public class Rete
         {
             // recursively print match counts for the NCC subconditions
             printer.print("    -{\n");
-            ppmi_aux(printer, node.b_cn.partner.real_parent_node(), parent, ncc.bottom, wtt, indent + 5);
+            ppmi_aux(printer, node.b_cn().partner.real_parent_node(), parent, ncc.bottom, wtt, indent + 5);
             printer.spaces(indent).print("%s }\n", match_count_string);
         }
         else
@@ -2589,7 +2589,7 @@ public class Rete
                         printer.print("\n");
                     }
                     printer.spaces(indent).print("*** Matches for Right ***\n").spaces(indent);
-                    for (RightMemory rm = node.b_posneg.alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
+                    for (RightMemory rm = node.b_posneg().alpha_mem_.right_mems; rm != null; rm = rm.next_in_am)
                     {
                         if (wtt == WmeTraceType.TIMETAG)
                             printer.print("%d", rm.w.timetag);
@@ -2653,7 +2653,7 @@ public class Rete
         {
             // recursively print match counts for the NCC subconditions
             entries.add(new Entry(cond, matches_at_this_level, 
-                    getPartialMatchesAux(new ArrayList<Entry>(), node.b_cn.partner.real_parent_node(), parent, ncc.bottom)));
+                    getPartialMatchesAux(new ArrayList<Entry>(), node.b_cn().partner.real_parent_node(), parent, ncc.bottom)));
         }
         else
         {
@@ -2713,11 +2713,11 @@ public class Rete
             if ((node.node_type != ReteNodeType.POSITIVE_BNODE)
                     && (node.node_type != ReteNodeType.UNHASHED_POSITIVE_BNODE))
             {
-                for (Token tok = node.a_np.tokens; tok != null; tok = tok.next_of_node)
+                for (Token tok = node.a_np().tokens; tok != null; tok = tok.next_of_node)
                     count++;
             }
             if (node.node_type == ReteNodeType.CN_BNODE)
-                node = node.b_cn.partner.parent;
+                node = node.b_cn().partner.parent;
             else
                 node = node.parent;
         }

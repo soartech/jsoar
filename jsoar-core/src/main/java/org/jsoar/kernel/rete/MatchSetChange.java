@@ -56,7 +56,7 @@ public class MatchSetChange
     private MatchSetChange(ReteNode p_node, Token tok, WmeImpl w)
     {
         assert p_node.node_type == ReteNodeType.P_BNODE;
-        assert p_node.b_p != null;
+        assert p_node.b_p() != null;
         
         this.p_node = p_node;
         this.tok = tok;
@@ -67,9 +67,9 @@ public class MatchSetChange
     private MatchSetChange(ReteNode p_node, Instantiation inst)
     {
         assert p_node.node_type == ReteNodeType.P_BNODE;
-        assert p_node.b_p != null;
+        assert p_node.b_p() != null;
         assert inst != null;
-        assert inst.prod == p_node.b_p.prod;
+        assert inst.prod == p_node.b_p().prod;
         
         this.p_node = p_node;
         this.inst = inst;
@@ -84,7 +84,7 @@ public class MatchSetChange
      */
     public Production getProduction()
     {
-        return inst != null ? inst.prod : p_node.b_p.prod;
+        return inst != null ? inst.prod : p_node.b_p().prod;
     }
 
     /**
@@ -133,7 +133,7 @@ public class MatchSetChange
 //      #endif
              return lowest_goal_wme.id;
         }
-            throw new IllegalStateException("\nError: Did not find goal for ms_change assertion: " + this.p_node.b_p.prod.getName());
+            throw new IllegalStateException("\nError: Did not find goal for ms_change assertion: " + this.p_node.b_p().prod.getName());
       }
     
     /**

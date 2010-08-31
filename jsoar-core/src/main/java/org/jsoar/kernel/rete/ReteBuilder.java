@@ -455,8 +455,8 @@ import org.jsoar.util.markers.Marker;
             /* --- look for a matching existing join node --- */
             for (node = mem_node.first_child; node != null; node = node.next_sibling)
             {
-                if ((node.node_type == pos_node_type) && (am == node.b_posneg.alpha_mem_)
-                        && rete_test_lists_are_identical(node.b_posneg.other_tests, rt.value))
+                if ((node.node_type == pos_node_type) && (am == node.b_posneg().alpha_mem_)
+                        && rete_test_lists_are_identical(node.b_posneg().other_tests, rt.value))
                 {
                     break;
                 }
@@ -493,8 +493,8 @@ import org.jsoar.util.markers.Marker;
         if (mp_node != null)
         { 
             // Found matching M part of MP
-            if ((am == mp_node.b_posneg.alpha_mem_)
-                    && rete_test_lists_are_identical(mp_node.b_posneg.other_tests, rt.value))
+            if ((am == mp_node.b_posneg().alpha_mem_)
+                    && rete_test_lists_are_identical(mp_node.b_posneg().other_tests, rt.value))
             {
                 // Complete MP match was found
                 rt.value = null;
@@ -565,9 +565,9 @@ import org.jsoar.util.markers.Marker;
         for (node = parent.first_child; node != null; node = node.next_sibling)
         {
             if ((node.node_type == node_type)
-                    && (am == node.b_posneg.alpha_mem_)
+                    && (am == node.b_posneg().alpha_mem_)
                     && ((!hash_this_node) || ((node.left_hash_loc_field_num == left_hash_loc.value.field_num) && (node.left_hash_loc_levels_up == left_hash_loc.value.levels_up)))
-                    && rete_test_lists_are_identical(node.b_posneg.other_tests, rt.value))
+                    && rete_test_lists_are_identical(node.b_posneg().other_tests, rt.value))
             {
                 break;
             }
@@ -652,7 +652,7 @@ import org.jsoar.util.markers.Marker;
                 {
                     if (child.node_type == ReteNodeType.CN_BNODE)
                     {
-                        if (child.b_cn.partner.parent == subconditions_bottom_node.value)
+                        if (child.b_cn().partner.parent == subconditions_bottom_node.value)
                         {
                             break;
                         }

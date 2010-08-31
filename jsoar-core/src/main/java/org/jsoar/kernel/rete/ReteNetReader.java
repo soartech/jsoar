@@ -207,7 +207,7 @@ public class ReteNetReader
         }
         if (node.node_type == ReteNodeType.CN_BNODE) 
         {
-            ReteNode temp = node.b_cn.partner.parent;
+            ReteNode temp = node.b_cn().partner.parent;
             NodeVarNames nvn_for_ncc = readNodeVarNames(dis, temp, symbolMap);
             final NodeVarNames bottom_of_subconditions = nvn_for_ncc;
             while (temp != node.parent)

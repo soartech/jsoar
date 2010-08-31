@@ -55,7 +55,7 @@ public class ReteUnitTest extends JSoarTest
         @Override
         public void p_node_left_addition(Rete rete, ReteNode node, Token tok, WmeImpl w)
         {
-            matching.add(node.b_p.prod);
+            matching.add(node.b_p().prod);
         }
 
         /* (non-Javadoc)
@@ -64,7 +64,7 @@ public class ReteUnitTest extends JSoarTest
         @Override
         public void p_node_left_removal(Rete rete, ReteNode node, Token tok, WmeImpl w)
         {
-            matching.remove(node.b_p.prod);
+            matching.remove(node.b_p().prod);
         }
 
         /* (non-Javadoc)
@@ -132,7 +132,7 @@ public class ReteUnitTest extends JSoarTest
     {
         assertNotNull(rete.dummy_top_node);
         assertEquals(ReteNodeType.DUMMY_TOP_BNODE, rete.dummy_top_node.node_type);
-        RightToken dummyTopToken = (RightToken) rete.dummy_top_node.a_np.tokens;
+        RightToken dummyTopToken = (RightToken) rete.dummy_top_node.a_np().tokens;
         assertNotNull(dummyTopToken);
         assertNull(dummyTopToken.parent);
         assertSame(rete.dummy_top_node, dummyTopToken.node);

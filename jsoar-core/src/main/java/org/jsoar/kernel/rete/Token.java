@@ -42,7 +42,7 @@ public class Token
         
         if(addToNode)
         {
-            addToNode(node.a_np, this);
+            addToNode(node.a_np(), this);
         }
         addToParent(parent, this);
         addToWme(w, this);
@@ -119,7 +119,7 @@ public class Token
     
     public void removeFromNode()
     {
-        final NonPosNodeData a_np = node.a_np;
+        final NonPosNodeData a_np = node.a_np();
         
         if(next_of_node != null)
         {

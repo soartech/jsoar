@@ -15,7 +15,7 @@ import org.jsoar.util.ListItem;
  * 
  * @author ray
  */
-public class PosNodeData extends ReteNodeData
+public class PosNodeData implements AReteNodeData
 {
     /* --- dll of left-linked pos nodes from the parent beta memory --- */
     final ListItem<ReteNode> from_beta_mem;

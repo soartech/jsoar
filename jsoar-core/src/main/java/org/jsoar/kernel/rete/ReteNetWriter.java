@@ -193,7 +193,7 @@ public class ReteNetWriter
             if (node.node_type == ReteNodeType.DUMMY_TOP_BNODE) return;
             if (node.node_type == ReteNodeType.CN_BNODE) 
             {
-                node = node.b_cn.partner.parent;
+                node = node.b_cn().partner.parent;
                 nvn = nvn.bottom_of_subconditions;
                 continue;
             }

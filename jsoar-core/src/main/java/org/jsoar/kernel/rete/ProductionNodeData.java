@@ -14,7 +14,7 @@ import org.jsoar.kernel.Production;
  * 
  * @author ray
  */
-public class ProductionNodeData extends ReteNodeData
+public class ProductionNodeData implements BReteNodeData
 {
     public Production prod;                  /* the production */
     NodeVarNames parents_nvn;         /* records variable names */

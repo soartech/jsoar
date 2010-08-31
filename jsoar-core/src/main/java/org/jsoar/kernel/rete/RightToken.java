@@ -28,7 +28,7 @@ public class RightToken extends Token
     {
         assert current_node != null && current_node.node_type == ReteNodeType.DUMMY_TOP_BNODE;
         RightToken t = new RightToken(current_node, null, null, null);
-        current_node.a_np.tokens = t;
+        current_node.a_np().tokens = t;
         return t;
     }
     

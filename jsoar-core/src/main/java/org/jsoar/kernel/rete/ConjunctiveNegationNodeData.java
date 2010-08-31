@@ -12,7 +12,7 @@ package org.jsoar.kernel.rete;
  *  
  * @author ray
  */
-public class ConjunctiveNegationNodeData extends ReteNodeData
+public class ConjunctiveNegationNodeData implements BReteNodeData
 {
     /**
      * The partner, always of type {@link ReteNodeType#CN_PARTNER_BNODE}
