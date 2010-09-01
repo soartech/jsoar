@@ -85,7 +85,8 @@
     <target name="compile" depends="init" description="compile the source ">
 
         <javac destdir="${target.classes}" debug="on" optimize="on" 
-                target="${java.target.level}" source="${java.source.level}">
+               target="${java.target.level}" source="${java.source.level}"
+        	     includeAntRuntime="no">
             <src path="${src}" />
             <classpath refid="compile.libs"/>
         </javac>
@@ -97,10 +98,11 @@
         </copy>
     </target>
 
-    <target name="compile-tests" depends="compile" description="compile the test sources">
+    <target name="compile-tests" depends="compile" description="compile the test sources" unless="notest">
 
         <javac destdir="${test.classes}" debug="on" optimize="on" 
-               target="${java.target.level}" source="${java.source.level}">
+               target="${java.target.level}" source="${java.source.level}"
+               includeAntRuntime="no">
             <src path="${test.src}" />
             <classpath>
                <pathelement path="${target.classes}" />
@@ -115,7 +117,7 @@
         </copy>
     </target>
 	
-    <target name="test" depends="compile-tests" description="Run unit tests">
+    <target name="test" depends="compile-tests" description="Run unit tests" unless="notest">
         <junit printsummary="on" haltonfailure="yes" fork="yes" forkmode="perBatch" showoutput="true">
      	   <jvmarg value="-Xmx1024M"/>
      	   <jvmarg value="-ea"/>
