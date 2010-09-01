@@ -439,7 +439,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         // and add it to the list of preferences to be removed
         // when the goal is removed
-        state.addGoalPreference(pref);
+        state.isa_goal.addGoalPreference(pref);
         pref.on_goal_list = true;
 
 

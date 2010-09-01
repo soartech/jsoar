@@ -1499,7 +1499,7 @@ public class Decider
         // make the fake preference
         final Preference pref = new Preference(PreferenceType.ACCEPTABLE, goal,
                 predefinedSyms.item_symbol, cand.value, null);
-        goal.addGoalPreference(pref);
+        goal.isa_goal.addGoalPreference(pref);
         pref.on_goal_list = true;
         pref.preference_add_ref();
 
@@ -1972,9 +1972,9 @@ public class Decider
         /* --- remove any preferences supported by this goal --- */
         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
         {
-            while (goal.preferences_from_goal != null)
+            while (goal.isa_goal.preferences_from_goal != null)
             {
-                final Preference p = goal.popGoalPreference();
+                final Preference p = goal.isa_goal.popGoalPreference();
                 p.on_goal_list = false;
                 
                 if (!p.remove_preference_from_clones(recMemory))
@@ -1991,9 +1991,9 @@ public class Decider
              * cases, but needs testing.
              */
             // Prefs are added to head of dll, so try removing from tail
-            if (goal.preferences_from_goal != null)
+            if (goal.isa_goal.preferences_from_goal != null)
             {
-                Preference p = goal.preferences_from_goal;
+                Preference p = goal.isa_goal.preferences_from_goal;
                 while (p.all_of_goal_next != null)
                     p = p.all_of_goal_next; 
                 while (p != null)
@@ -2001,7 +2001,7 @@ public class Decider
                     // RPM 10/06 we need to save this because p may be freed by the
                     // end of the loop
                     final Preference p_next = p.all_of_goal_prev; 
-                    goal.removeGoalPreference(p);
+                    goal.isa_goal.removeGoalPreference(p);
                     p.on_goal_list = false;
                     if (!p.remove_preference_from_clones(recMemory))
                         if (p.isInTempMemory())

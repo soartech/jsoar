@@ -604,7 +604,7 @@ public class RecognitionMemory
         {
             for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
             {
-                inst.match_goal.addGoalPreference(p);
+                inst.match_goal.isa_goal.addGoalPreference(p);
                 p.on_goal_list = true;
             }
         }

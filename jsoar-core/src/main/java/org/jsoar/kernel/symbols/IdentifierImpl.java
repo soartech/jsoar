@@ -15,7 +15,6 @@ import org.jsoar.kernel.GoalDependencySet;
 import org.jsoar.kernel.GoalDependencySetImpl;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
-import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -72,7 +71,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     private WmeImpl impasse_wmes;
     public IdentifierImpl higher_goal;
     public IdentifierImpl lower_goal;
-    public Preference preferences_from_goal = null;
 
     public IdentifierImpl reward_header;        // pointer to reward_link
     public ReinforcementLearningInfo rl_info;           // various Soar-RL information
@@ -288,48 +286,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         slot.next = slot.prev = null;
     }
     
-    public void addGoalPreference(Preference pref)
-    {
-        pref.all_of_goal_next = preferences_from_goal;
-        pref.all_of_goal_prev = null;
-        
-        if(preferences_from_goal != null)
-        {
-            preferences_from_goal.all_of_goal_prev = pref;
-        }
-        preferences_from_goal = pref;
-    }
-    
-    public void removeGoalPreference(Preference pref)
-    {
-        if(preferences_from_goal == pref)
-        {
-            preferences_from_goal = pref.all_of_goal_next;
-            if(preferences_from_goal != null)
-            {
-                preferences_from_goal.all_of_goal_prev = null;
-            }
-        }
-        else
-        {
-            pref.all_of_goal_prev.all_of_goal_next = pref.all_of_goal_next;
-            if(pref.all_of_goal_next != null)
-            {
-                pref.all_of_goal_next.all_of_goal_prev = pref.all_of_goal_prev;
-            }
-        }
-        pref.all_of_goal_next = pref.all_of_goal_prev = null;
-    }
-
-    public Preference popGoalPreference()
-    {
-        final Preference head = preferences_from_goal;
-        if(head != null)
-        {
-            removeGoalPreference(head);
-        }
-        return head;
-    }
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.SymbolImpl#add_symbol_to_tc(int, java.util.LinkedList, java.util.LinkedList)
      */
