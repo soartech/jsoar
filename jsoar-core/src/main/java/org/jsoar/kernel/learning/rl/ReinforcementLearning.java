@@ -210,7 +210,7 @@ public class ReinforcementLearning
      */
     private void rl_remove_refs_for_prod(Production prod )
     {
-        for ( IdentifierImpl state = decider.top_state; state != null; state = state.lower_goal )
+        for ( IdentifierImpl state = decider.top_state; state != null; state = state.isa_goal.lower_goal )
         {
             state.rl_info.eligibility_traces.remove( prod );
             
@@ -771,7 +771,7 @@ public class ReinforcementLearning
         while( goal != null)
         {
             rl_tabulate_reward_value_for_goal( goal );
-            goal = goal.lower_goal;
+            goal = goal.isa_goal.lower_goal;
         }
     }
     

@@ -551,7 +551,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
 
         final Writer writer = printer.getWriter();
         
-        for (IdentifierImpl g = decider.top_goal; g != null; g = g.lower_goal) 
+        for (IdentifierImpl g = decider.top_goal; g != null; g = g.isa_goal.lower_goal) 
         {
             stateCount++ ;
 

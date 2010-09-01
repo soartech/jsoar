@@ -882,7 +882,7 @@ public class SoarReteListener implements ReteListener
         // Loop from bottom to top because we expect activity at
         // the bottom usually
 
-        for (IdentifierImpl goal = decider.bottom_goal; goal != null; goal = goal.higher_goal)
+        for (IdentifierImpl goal = decider.bottom_goal; goal != null; goal = goal.isa_goal.higher_goal)
         {
             // if there are any assertions or retrctions for this goal,
             // return TRUE

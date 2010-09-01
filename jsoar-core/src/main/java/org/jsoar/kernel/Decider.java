@@ -220,7 +220,7 @@ public class Decider
     public List<Goal> getGoalStack()
     {
         final List<Goal> result = new ArrayList<Goal>();
-        for (IdentifierImpl g = top_goal; g != null; g = g.lower_goal)
+        for (IdentifierImpl g = top_goal; g != null; g = g.isa_goal.lower_goal)
         {
             final Goal goal = Adaptables.adapt(g, Goal.class);
             assert goal != null;
@@ -238,7 +238,7 @@ public class Decider
      */
     public IdentifierImpl find_goal_at_goal_stack_level(int level)
     {
-        for (IdentifierImpl g = top_goal; g != null; g = g.lower_goal)
+        for (IdentifierImpl g = top_goal; g != null; g = g.isa_goal.lower_goal)
             if (g.level == level)
                 return (g);
         return null;
@@ -384,10 +384,10 @@ public class Decider
                 context.getTrace().print(Category.OPERAND2_REMOVALS,
                         "\n        REMOVING: Operator from context slot (proposal no longer matches): %s", w);
                 this.remove_wmes_for_context_slot(s);
-                if (s.id.lower_goal != null)
+                if (s.id.isa_goal.lower_goal != null)
                 {
-                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of an operator removal.\n", s.id.lower_goal);
-                    this.remove_existing_context_and_descendents(s.id.lower_goal);
+                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of an operator removal.\n", s.id.isa_goal.lower_goal);
+                    this.remove_existing_context_and_descendents(s.id.isa_goal.lower_goal);
                 }
             }
         }
@@ -886,7 +886,7 @@ public class Decider
                 this.walk_tc_number = DefaultMarker.create();
                 walk_and_update_levels(g);
             }
-            g = g.lower_goal;
+            g = g.isa_goal.lower_goal;
         }
 
         // GC anything left with an unknown level after the walk
@@ -1944,8 +1944,8 @@ public class Decider
     void remove_existing_context_and_descendents(IdentifierImpl goal)
     {
         // remove descendents of this goal
-        if (goal.lower_goal != null)
-            remove_existing_context_and_descendents(goal.lower_goal);
+        if (goal.isa_goal.lower_goal != null)
+            remove_existing_context_and_descendents(goal.isa_goal.lower_goal);
 
         // TODO callback POP_CONTEXT_STACK_CALLBACK
         // invoke callback routine
@@ -1965,8 +1965,8 @@ public class Decider
         }
         else
         {
-            bottom_goal = goal.higher_goal;
-            bottom_goal.lower_goal = null;
+            bottom_goal = goal.isa_goal.higher_goal;
+            bottom_goal.isa_goal.lower_goal = null;
         }
 
         /* --- remove any preferences supported by this goal --- */
@@ -2120,8 +2120,9 @@ public class Decider
         {
             // Creating a sub-goal (or substate)
             id = create_new_impasse(true, bottom_goal, attr_of_impasse, impasse_type, bottom_goal.level + 1);
-            id.higher_goal = bottom_goal;
-            bottom_goal.lower_goal = id;
+            id.isa_goal = new GoalIdentifierInfo();
+            id.isa_goal.higher_goal = bottom_goal;
+            bottom_goal.isa_goal.lower_goal = id;
             bottom_goal = id;
             add_impasse_wme(id, predefinedSyms.quiescence_symbol, predefinedSyms.t_symbol, null);
             if ((ImpasseType.NO_CHANGE == impasse_type) && (MAX_GOAL_DEPTH < bottom_goal.level))
@@ -2145,14 +2146,14 @@ public class Decider
             // Creating the top state
             id = create_new_impasse(true, predefinedSyms.nil_symbol, null, ImpasseType.NONE,
                     SoarConstants.TOP_GOAL_LEVEL);
+            id.isa_goal = new GoalIdentifierInfo();
             top_goal = id;
             bottom_goal = id;
             top_state = top_goal;
-            id.higher_goal = null;
-            id.lower_goal = null;
+            id.isa_goal.higher_goal = null;
+            id.isa_goal.lower_goal = null;
         }
 
-        id.isa_goal = new GoalIdentifierInfo();
         id.isa_goal.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
         id.allow_bottom_up_chunks = true;
 
@@ -2175,10 +2176,10 @@ public class Decider
      */
     public ImpasseType type_of_existing_impasse(IdentifierImpl goal)
     {
-        if (goal.lower_goal == null)
+        if (goal.isa_goal.lower_goal == null)
             return ImpasseType.NONE;
 
-        for (WmeImpl w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = goal.isa_goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
         {
             if (w.attr == predefinedSyms.impasse_symbol)
             {
@@ -2208,10 +2209,10 @@ public class Decider
      */
     public SymbolImpl attribute_of_existing_impasse(IdentifierImpl goal)
     {
-        if (goal.lower_goal == null)
+        if (goal.isa_goal.lower_goal == null)
             return null;
         
-        for (WmeImpl w = goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = goal.isa_goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == predefinedSyms.attribute_symbol)
                 return w.value;
 
@@ -2344,10 +2345,10 @@ public class Decider
             for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
                 temp.preference_add_ref();
 
-            if (goal.lower_goal != null)
+            if (goal.isa_goal.lower_goal != null)
             {
-           		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of a decision.\n", goal.lower_goal);
-                remove_existing_context_and_descendents(goal.lower_goal);
+           		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of a decision.\n", goal.isa_goal.lower_goal);
+                remove_existing_context_and_descendents(goal.isa_goal.lower_goal);
             }
 
             WmeImpl w = this.workingMemory.make_wme(s.id, s.attr, candidates.value.value, false);
@@ -2372,7 +2373,7 @@ public class Decider
         if ((impasse_type == type_of_existing_impasse(goal))
                 && (attribute_of_impasse == attribute_of_existing_impasse(goal)))
         {
-            update_impasse_items(goal.lower_goal, candidates.value);
+            update_impasse_items(goal.isa_goal.lower_goal, candidates.value);
             return false;
         }
 
@@ -2381,10 +2382,10 @@ public class Decider
         for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
             temp.preference_add_ref();
 
-        if (goal.lower_goal != null)
+        if (goal.isa_goal.lower_goal != null)
         {
-       		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because it's the wrong type of impasse.\n", goal.lower_goal);
-            remove_existing_context_and_descendents(goal.lower_goal);
+       		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because it's the wrong type of impasse.\n", goal.isa_goal.lower_goal);
+            remove_existing_context_and_descendents(goal.isa_goal.lower_goal);
         }
         
         if (this.waitsnc.value.get() && (impasse_type == ImpasseType.NO_CHANGE)
@@ -2396,7 +2397,7 @@ public class Decider
         else
         {
             create_new_context(attribute_of_impasse, impasse_type);
-            update_impasse_items(goal.lower_goal, candidates.value);
+            update_impasse_items(goal.isa_goal.lower_goal, candidates.value);
         }
 
         for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
@@ -2440,11 +2441,11 @@ public class Decider
                 {
                     // no more slots to look at for this goal; have we reached
                     // the last slot in whole stack?
-                    if (goal.lower_goal == null)
+                    if (goal.isa_goal.lower_goal == null)
                         break;
 
                     // no, go down one level
-                    goal = goal.lower_goal;
+                    goal = goal.isa_goal.lower_goal;
                     s = goal.isa_goal.operator_slot;
                 }
             } /* end of while (TRUE) find next slot to decide */
@@ -3021,13 +3022,13 @@ public class Decider
         {
             if (tempMemory.highest_goal_whose_context_changed.level >= w.gds.getGoal().level)
             {
-                tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
+                tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().isa_goal.higher_goal;
             }
         }
         else
         {
             // If nothing has yet changed (highest_ ... = NIL) then set the goal automatically
-            tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().higher_goal;
+            tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().isa_goal.higher_goal;
             
     		// Tell those slots they are changed so that the impasses can be regenerated
     		// bug 1011

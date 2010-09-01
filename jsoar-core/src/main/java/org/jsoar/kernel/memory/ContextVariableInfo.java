@@ -93,7 +93,7 @@ public class ContextVariableInfo
         IdentifierImpl g = bottom_goal;
         while (g != null && levels_up != 0)
         {
-            g = g.higher_goal;
+            g = g.isa_goal.higher_goal;
             levels_up--;
         }
 

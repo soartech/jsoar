@@ -20,6 +20,8 @@ public class GoalIdentifierInfo
     public final ListHead<MatchSetChange> ms_retractions = ListHead.newInstance();  /* dll of retractions at this level */
     public Slot operator_slot;
     public Preference preferences_from_goal = null;
+    public IdentifierImpl higher_goal;
+    public IdentifierImpl lower_goal;
     
     public void addGoalPreference(Preference pref)
     {

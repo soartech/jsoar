@@ -2093,7 +2093,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // so just clear out result stack
             data.smem_wmes.clear();
             
-            state = state.lower_goal;
+            state = state.isa_goal.lower_goal;
         }
     }
     
@@ -3120,7 +3120,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 ////////////////////////////////////////////////////////////////////////////
             }
 
-            state = state.higher_goal;
+            state = state.isa_goal.higher_goal;
         }
     }
     

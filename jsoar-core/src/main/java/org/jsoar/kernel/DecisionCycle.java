@@ -758,7 +758,7 @@ public class DecisionCycle
             if (rl.rl_enabled())
             {
                 // TODO how about a method?
-                for (IdentifierImpl g = decider.bottom_goal; g != null; g = g.higher_goal)
+                for (IdentifierImpl g = decider.bottom_goal; g != null; g = g.isa_goal.higher_goal)
                 {
                     rl.rl_tabulate_reward_value_for_goal(g);
                     rl.rl_perform_update(0, true, g);

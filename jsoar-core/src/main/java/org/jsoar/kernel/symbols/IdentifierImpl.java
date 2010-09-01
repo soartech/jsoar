@@ -69,8 +69,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     // Fields used only on goal identifiers
     public GoalIdentifierInfo isa_goal;
     private WmeImpl impasse_wmes;
-    public IdentifierImpl higher_goal;
-    public IdentifierImpl lower_goal;
 
     public IdentifierImpl reward_header;        // pointer to reward_link
     public ReinforcementLearningInfo rl_info;           // various Soar-RL information

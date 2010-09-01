@@ -947,7 +947,7 @@ public class Chunker
                 break;
             case NO_CHANGE:
             {
-                SymbolImpl sym = find_impasse_wme_value(goal.lower_goal, predefinedSyms.attribute_symbol);
+                SymbolImpl sym = find_impasse_wme_value(goal.isa_goal.lower_goal, predefinedSyms.attribute_symbol);
 
                 if (sym == null)
                 {
@@ -1127,7 +1127,7 @@ public class Chunker
         }
 
         // update flags on goal stack for bottom-up chunking
-        for (IdentifierImpl g = inst.match_goal.higher_goal; g != null && g.allow_bottom_up_chunks; g = g.higher_goal)
+        for (IdentifierImpl g = inst.match_goal.isa_goal.higher_goal; g != null && g.allow_bottom_up_chunks; g = g.isa_goal.higher_goal)
             g.allow_bottom_up_chunks = false;
 
         int grounds_level = inst.match_goal_level - 1;
