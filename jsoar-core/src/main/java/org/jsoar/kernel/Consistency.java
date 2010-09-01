@@ -375,10 +375,10 @@ public class Consistency
     {
         /* print_with_symbols("\nLooking for I-activity at goal: %y\n", goal); */
 
-        if (!goal.ms_i_assertions.isEmpty())
+        if (!goal.isa_goal.ms_i_assertions.isEmpty())
             return true;
 
-        if (!goal.ms_retractions.isEmpty())
+        if (!goal.isa_goal.ms_retractions.isEmpty())
             return true;
 
         /* printf("\nNo instantiation found.  Returning FALSE\n");  */
@@ -430,7 +430,7 @@ public class Consistency
             #endif
              */
             /* If there are any active productions at this goal, return the goal */
-            if ((!goal.ms_i_assertions.isEmpty()) || (!goal.ms_retractions.isEmpty()))
+            if ((!goal.isa_goal.ms_i_assertions.isEmpty()) || (!goal.isa_goal.ms_retractions.isEmpty()))
                 return goal;
         }
 
@@ -474,8 +474,8 @@ public class Consistency
             */
 
             /* If there are any active productions at this goal, return the goal */
-            if ((!goal.ms_i_assertions.isEmpty()) || (!goal.ms_o_assertions.isEmpty())
-                    || (!goal.ms_retractions.isEmpty()))
+            if ((!goal.isa_goal.ms_i_assertions.isEmpty()) || (!goal.isa_goal.ms_o_assertions.isEmpty())
+                    || (!goal.isa_goal.ms_retractions.isEmpty()))
                 return goal;
         }
 

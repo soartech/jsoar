@@ -31,6 +31,7 @@ import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.rete.SoarReteListener;
 import org.jsoar.kernel.smem.SemanticMemory;
+import org.jsoar.kernel.symbols.GoalIdentifierInfo;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
@@ -427,7 +428,7 @@ public class Decider
     public void post_link_addition(IdentifierImpl from, IdentifierImpl to)
     {
         // don't add links to goals/impasses, except the special one (NIL,goal)
-        if ((to.isa_goal) && from != null)
+        if ((to.isGoal()) && from != null)
             return;
 
         to.link_count++;
@@ -494,7 +495,7 @@ public class Decider
         id.could_be_a_link_from_below = true;
 
         // sanity check
-        if (id.isa_goal)
+        if (id.isGoal())
         {
             throw new IllegalStateException("Internal error: tried to promote a goal or impasse id");
             /*
@@ -544,7 +545,7 @@ public class Decider
     {
         // don't remove links to goals/impasses, except the special one
         // (NIL,goal)
-        if ((to.isa_goal) && from != null)
+        if ((to.isGoal()) && from != null)
             return;
 
         to.link_count--;
@@ -1603,7 +1604,7 @@ public class Decider
                 else
                 {
                     id.removeImpasseWme(w);
-                    if (id.isa_goal)
+                    if (id.isGoal())
                         remove_fake_preference_for_goal_item(w.preference);
                     this.workingMemory.remove_wme_from_wm(w);
                 }
@@ -1624,13 +1625,13 @@ public class Decider
         for (Preference cand = items; cand != null; cand = cand.next_candidate)
         {
             Preference bt_pref;
-            if (id.isa_goal)
+            if (id.isGoal())
                 bt_pref = make_fake_preference_for_goal_item(id, cand);
             else
                 bt_pref = cand;
             if (cand.value.decider_flag == DeciderFlag.ALREADY_EXISTING_WME)
             {
-                if (id.isa_goal)
+                if (id.isGoal())
                     remove_fake_preference_for_goal_item(cand.value.decider_wme.preference);
                 cand.value.decider_wme.preference = bt_pref;
             }
@@ -2039,10 +2040,10 @@ public class Decider
          * acceptably efficient.
          */
 
-        if (!goal.ms_retractions.isEmpty())
+        if (!goal.isa_goal.ms_retractions.isEmpty())
         { /* There's something on the retraction list */
 
-            final MatchSetChange head = goal.ms_retractions.getFirstItem();
+            final MatchSetChange head = goal.isa_goal.ms_retractions.getFirstItem();
             MatchSetChange tail = head;
 
             // find the tail of this list
@@ -2151,7 +2152,7 @@ public class Decider
             id.lower_goal = null;
         }
 
-        id.isa_goal = true;
+        id.isa_goal = new GoalIdentifierInfo();
         id.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
         id.allow_bottom_up_chunks = true;
 

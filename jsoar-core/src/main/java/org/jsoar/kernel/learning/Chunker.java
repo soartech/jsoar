@@ -765,9 +765,9 @@ public class Chunker
             // TODO Assumes id_test is equality test of identifier
             IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
 
-            if ((id.isa_goal) && (id.tc_number != tc))
+            if ((id.isGoal()) && (id.tc_number != tc))
             {
-                Test t = id.isa_goal ? GoalIdTest.INSTANCE : ImpasseIdTest.INSTANCE;
+                Test t = id.isGoal() ? GoalIdTest.INSTANCE : ImpasseIdTest.INSTANCE;
                 
                 // TODO Assumes variablized_cond is three-field (put this assumption in class?)
                 ThreeFieldCondition tfc = cc.variablized_cond.asThreeFieldCondition();

@@ -252,7 +252,7 @@ public class RecognitionMemory
             {
                 final BackTraceInfo bt = pc.bt();
                 final IdentifierImpl id = bt.wme_.id;
-                if (id.isa_goal)
+                if (id.isGoal())
                 {
                     if (bt.level > lowest_level_so_far)
                     {
@@ -462,7 +462,7 @@ public class RecognitionMemory
 
         if (a.preference_type != PreferenceType.ACCEPTABLE && 
             a.preference_type != PreferenceType.REJECT     && 
-            !(id.isa_goal && attr == predefinedSyms.operator_symbol))
+            !(id.isGoal() && attr == predefinedSyms.operator_symbol))
         {
             context.getPrinter().error("[%s] attribute preference other than +/- for %s ^%s -- ignoring it.", production_being_fired, id, attr);
             return null;

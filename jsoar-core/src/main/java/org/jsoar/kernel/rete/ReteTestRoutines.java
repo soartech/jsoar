@@ -32,7 +32,7 @@ class ReteTestRoutines
      */
     private static boolean id_is_goal_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
-        return w.id.isa_goal;
+        return w.id.isGoal();
     }
 
     private static boolean id_is_impasse_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)

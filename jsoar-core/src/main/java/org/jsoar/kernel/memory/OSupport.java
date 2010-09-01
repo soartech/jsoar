@@ -264,7 +264,7 @@ public class OSupport
 
                             if (pass == 0)
                             {
-                                if (w.id.isa_goal == true)
+                                if (w.id.isGoal())
                                 {
                                     if (lowest_goal_wme == null)
                                     {

@@ -295,7 +295,7 @@ public class Backtracer
                     valueId.tc_number = tc;
                 }
             }
-            else if ((id.isa_goal) && (pc.bt().level <= grounds_level))
+            else if ((id.isGoal()) && (pc.bt().level <= grounds_level))
             {
                 // id is a higher goal id that was tested: so add id to the TC
                 id.tc_number = tc;
@@ -474,7 +474,7 @@ public class Backtracer
             }
             // for augmentations of the local goal id, either handle the
             // "^quiescence t" test or discard it
-            if (cond.id_test.asEqualityTest().getReferent().asIdentifier().isa_goal)
+            if (cond.id_test.asEqualityTest().getReferent().asIdentifier().isGoal())
             {
                 if ((cond.attr_test.asEqualityTest().getReferent() == predefinedSyms.quiescence_symbol)
                         && (cond.value_test.asEqualityTest().getReferent() == predefinedSyms.t_symbol)

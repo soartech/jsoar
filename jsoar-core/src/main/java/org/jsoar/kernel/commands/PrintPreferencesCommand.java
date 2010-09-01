@@ -166,7 +166,7 @@ public class PrintPreferencesCommand
 
             return;
         }
-        else if (!id.isa_goal && attr == null)
+        else if (!id.isGoal() && attr == null)
         {
             // find wme(s?) whose value is <ID> and print prefs if they exist
             // ??? should write print_prefs_for_id(soarAgent, id, print_prod,

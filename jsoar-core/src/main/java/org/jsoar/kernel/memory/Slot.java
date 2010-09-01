@@ -144,7 +144,7 @@ public class Slot
          * Context slots are goals and operators; operator slots get created
          * with a goal (see create_new_context).
          */
-        if ((id.isa_goal) && (attr == operator_symbol))
+        if ((id.isGoal()) && (attr == operator_symbol))
         {
             this.isa_context_slot = true;
         }

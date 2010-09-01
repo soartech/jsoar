@@ -104,7 +104,7 @@ public class MatchSetChange
         //int lowest_level_so_far = -1;
 
         if (this.w != null) {
-            if (this.w.id.isa_goal) {
+            if (this.w.id.isGoal()) {
               lowest_goal_wme = this.w;
               //lowest_level_so_far = this.w.id.level;
             }
@@ -113,7 +113,7 @@ public class MatchSetChange
         for (Token tok=this.tok; tok!=dummy_top_token; tok=tok.parent) {
           if (tok.w != null) {
             /* print_wme(tok->w); */
-            if (tok.w.id.isa_goal) {
+            if (tok.w.id.isGoal()) {
 
               if (lowest_goal_wme == null)
                 lowest_goal_wme = tok.w;

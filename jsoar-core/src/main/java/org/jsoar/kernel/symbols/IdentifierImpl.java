@@ -20,9 +20,8 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WmeType;
-import org.jsoar.kernel.rete.MatchSetChange;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.markers.Marker;
 
@@ -44,8 +43,12 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     private final int name_number; // TODO make this a long
     private final char name_letter;
     
-    public boolean isa_goal;
+    /**
+     * This value is incremented for every incoming ^operator link pointing
+     * to this identifier. It is used solely for printing identifiers.
+     */
     public short isa_operator;
+    
     public boolean allow_bottom_up_chunks;
     
     public boolean could_be_a_link_from_below;
@@ -64,7 +67,8 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     // note any significant speedup or memory usage improvement, so I'll leave it out until we
     // get really serious about refactoring the kernel.
     
-    // Fields used only on goals and impasse identifiers
+    // Fields used only on goal identifiers
+    public GoalIdentifierInfo isa_goal;
     private WmeImpl impasse_wmes;
     public IdentifierImpl higher_goal, lower_goal;
     public Slot operator_slot;
@@ -81,10 +85,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
      */
     public SavedFiringType saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
     
-    public final ListHead<MatchSetChange> ms_o_assertions = ListHead.newInstance(); /* dll of o assertions at this level */
-    public final ListHead<MatchSetChange> ms_i_assertions = ListHead.newInstance(); /* dll of i assertions at this level */
-    public final ListHead<MatchSetChange> ms_retractions = ListHead.newInstance();  /* dll of retractions at this level */
-
     // fields used for Soar I/O stuff
     private WmeImpl input_wmes;
 
@@ -182,7 +182,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public boolean isGoal()
     {
-        return isa_goal;
+        return isa_goal != null;
     }
 
     /**

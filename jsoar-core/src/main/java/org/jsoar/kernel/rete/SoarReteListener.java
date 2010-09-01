@@ -129,7 +129,7 @@ public class SoarReteListener implements ReteListener
 
             if (msc.goal != null)
             {
-                msc.in_level.remove(msc.goal.ms_retractions);
+                msc.in_level.remove(msc.goal.isa_goal.ms_retractions);
             }
             else
             {
@@ -214,7 +214,7 @@ public class SoarReteListener implements ReteListener
 
             if (msc.goal != null)
             {
-                msc.in_level.remove(msc.goal.ms_retractions);
+                msc.in_level.remove(msc.goal.isa_goal.ms_retractions);
             }
             else
             {
@@ -354,7 +354,7 @@ public class SoarReteListener implements ReteListener
 
                             if (pass == 0)
                             {
-                                if (temp_tok.w.id.isa_goal)
+                                if (temp_tok.w.id.isGoal())
                                 {
                                     if (lowest_goal_wme == null)
                                     {
@@ -458,7 +458,7 @@ public class SoarReteListener implements ReteListener
         if (prod_type == SavedFiringType.PE_PRODS)
         {
             ms_o_assertions = msc.addToHeadOfAllList(ms_o_assertions);
-            msc.in_level.insertAtHead(msc.goal.ms_o_assertions);
+            msc.in_level.insertAtHead(msc.goal.isa_goal.ms_o_assertions);
             node.b_p().prod.OPERAND_which_assert_list = AssertListType.O_LIST;
 
             trace.print(Category.VERBOSE, 
@@ -468,7 +468,7 @@ public class SoarReteListener implements ReteListener
         else
         {
             ms_i_assertions = msc.addToHeadOfAllList(ms_i_assertions);
-            msc.in_level.insertAtHead(msc.goal.ms_i_assertions);
+            msc.in_level.insertAtHead(msc.goal.isa_goal.ms_i_assertions);
             node.b_p().prod.OPERAND_which_assert_list = AssertListType.I_LIST;
 
             trace.print(Category.VERBOSE, 
@@ -509,12 +509,12 @@ public class SoarReteListener implements ReteListener
                     ms_o_assertions = msc.removeFromAllList(ms_o_assertions);
                     // msc already defined for the assertion so the goal
                     // should be defined as well.
-                    msc.in_level.remove(msc.goal.ms_o_assertions);
+                    msc.in_level.remove(msc.goal.isa_goal.ms_o_assertions);
                 }
                 else if (node.b_p().prod.OPERAND_which_assert_list == AssertListType.I_LIST)
                 {
                     ms_i_assertions = msc.removeFromAllList(ms_i_assertions);
-                    msc.in_level.remove(msc.goal.ms_i_assertions);
+                    msc.in_level.remove(msc.goal.isa_goal.ms_i_assertions);
                 }
                 // #ifdef DEBUG_RETE_PNODES
                 // print_with_symbols (thisAgent, "\nRemoving tentative assertion: %y", node->b.p.prod->name);
@@ -588,7 +588,7 @@ public class SoarReteListener implements ReteListener
             ms_retractions = msc.addToHeadOfAllList(ms_retractions);
             if (msc.goal != null)
             { /* Goal exists */
-                msc.in_level.insertAtHead(msc.goal.ms_retractions);
+                msc.in_level.insertAtHead(msc.goal.isa_goal.ms_retractions);
             }
             else
             { /* NIL Goal; put on the NIL Goal list */
@@ -720,19 +720,19 @@ public class SoarReteListener implements ReteListener
         { /* Just do asserts for current goal */
             if (recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
-                if (decider.active_goal.ms_o_assertions.isEmpty())
+                if (decider.active_goal.isa_goal.ms_o_assertions.isEmpty())
                     return null;
 
-                msc = decider.active_goal.ms_o_assertions.pop();
+                msc = decider.active_goal.isa_goal.ms_o_assertions.pop();
                 ms_o_assertions = msc.removeFromAllList(ms_o_assertions);
             }
             else
             {
                 /* IE PRODS */
-                if (decider.active_goal.ms_i_assertions.isEmpty())
+                if (decider.active_goal.isa_goal.ms_i_assertions.isEmpty())
                     return null;
 
-                msc = decider.active_goal.ms_i_assertions.pop();
+                msc = decider.active_goal.isa_goal.ms_i_assertions.pop();
                 ms_i_assertions = msc.removeFromAllList(ms_i_assertions);
             }
         }
@@ -789,13 +789,13 @@ public class SoarReteListener implements ReteListener
         	if (recMemory.FIRING_TYPE == SavedFiringType.PE_PRODS)
             {
                 ms_o_assertions = msc.addToHeadOfAllList(ms_o_assertions);
-                decider.active_goal.ms_o_assertions.push(msc);
+                decider.active_goal.isa_goal.ms_o_assertions.push(msc);
             }
             else
             {
                 /* IE PRODS */
                 ms_i_assertions = msc.addToHeadOfAllList(ms_i_assertions);
-                decider.active_goal.ms_i_assertions.push(msc);
+                decider.active_goal.isa_goal.ms_i_assertions.push(msc);
             }
     	}
     }
@@ -813,11 +813,11 @@ public class SoarReteListener implements ReteListener
         if (decider.active_level == 0)
             return null;
 
-        if (decider.active_goal.ms_retractions.isEmpty())
+        if (decider.active_goal.isa_goal.ms_retractions.isEmpty())
             return null;
 
         // remove from the Waterfall-specific list */
-        final MatchSetChange msc = decider.active_goal.ms_retractions.pop();
+        final MatchSetChange msc = decider.active_goal.isa_goal.ms_retractions.pop();
         // and remove from the complete retraction list
         ms_retractions = msc.removeFromAllList(ms_retractions);
 
@@ -886,8 +886,8 @@ public class SoarReteListener implements ReteListener
         {
             // if there are any assertions or retrctions for this goal,
             // return TRUE
-            if (!goal.ms_o_assertions.isEmpty() || !goal.ms_i_assertions.isEmpty()
-                    || !goal.ms_retractions.isEmpty())
+            if (!goal.isa_goal.ms_o_assertions.isEmpty() || !goal.isa_goal.ms_i_assertions.isEmpty()
+                    || !goal.isa_goal.ms_retractions.isEmpty())
                 return true;
         }
 

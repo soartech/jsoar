@@ -1031,7 +1031,7 @@ public class TraceFormats
 
         // determine the type and name of the object
         TraceFormatRestriction type_of_object;
-        if (id.isa_goal)
+        if (id.isGoal())
             type_of_object = TraceFormatRestriction.FOR_STATES_TF;
         else if (id.isa_operator != 0)
             type_of_object = TraceFormatRestriction.FOR_OPERATORS_TF;
