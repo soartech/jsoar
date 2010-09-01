@@ -70,8 +70,8 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     // Fields used only on goal identifiers
     public GoalIdentifierInfo isa_goal;
     private WmeImpl impasse_wmes;
-    public IdentifierImpl higher_goal, lower_goal;
-    public Slot operator_slot;
+    public IdentifierImpl higher_goal;
+    public IdentifierImpl lower_goal;
     public Preference preferences_from_goal = null;
 
     public IdentifierImpl reward_header;        // pointer to reward_link
@@ -484,7 +484,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         @Override
         public IdentifierImpl getOperator()
         {
-            final WmeImpl wmes = operator_slot != null ? operator_slot.getWmes() : null;
+            final WmeImpl wmes = isa_goal != null && isa_goal.operator_slot != null ? isa_goal.operator_slot.getWmes() : null;
             return wmes != null ? wmes.value.asIdentifier() : null;
         }
 

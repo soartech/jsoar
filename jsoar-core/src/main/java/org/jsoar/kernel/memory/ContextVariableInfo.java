@@ -109,7 +109,7 @@ public class ContextVariableInfo
         }
         else
         {
-            WmeImpl w = g.operator_slot.getWmes();
+            WmeImpl w = g.isa_goal.operator_slot.getWmes();
             value = w != null ? w.getValue() : null;
         }
         return new ContextVariableInfo(g, attribute, value);

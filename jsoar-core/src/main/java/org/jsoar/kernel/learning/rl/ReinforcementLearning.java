@@ -795,7 +795,7 @@ public class ReinforcementLearning
         
         // Make list of just-fired prods
         int just_fired = 0;
-        for ( Preference pref = goal.operator_slot.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); pref != null; pref = pref.next )
+        for ( Preference pref = goal.isa_goal.operator_slot.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); pref != null; pref = pref.next )
         {
             if ( op == pref.value && pref.inst.prod.rl_rule)
             {

@@ -1092,10 +1092,10 @@ public class TraceFormats
         if (current_state != null)
         {
             tparams.current_s = current_state;
-            if (current_state.operator_slot.getWmes() != null)
+            if (current_state.isa_goal.operator_slot.getWmes() != null)
             {
                 // TODO Is it safe to assume this is an IdentifierImpl?
-                tparams.current_o = current_state.operator_slot.getWmes().value.asIdentifier(); 
+                tparams.current_o = current_state.isa_goal.operator_slot.getWmes().value.asIdentifier(); 
             }
         }
         tparams.allow_cycle_counts = allow_cycle_counts;
@@ -1163,9 +1163,9 @@ public class TraceFormats
         // "this doesn't work yet so for now just print the last selection".
         // Presumably, whatever it was supposed to do has been lost to the ages.
 
-        if (bottom_goal.operator_slot.getWmes() != null)
+        if (bottom_goal.isa_goal.operator_slot.getWmes() != null)
         {
-            print_stack_trace(writer, bottom_goal.operator_slot.getWmes().value,
+            print_stack_trace(writer, bottom_goal.isa_goal.operator_slot.getWmes().value,
                     bottom_goal, TraceFormatRestriction.FOR_OPERATORS_TF, true);
         }
 

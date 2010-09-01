@@ -565,9 +565,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                     traceFormats.print_stack_trace (writer,g, g, TraceFormatRestriction.FOR_STATES_TF, false);
                     writer.append('\n');
                 }
-                if (operators && g.operator_slot.getWmes() != null) 
+                if (operators && g.isa_goal.operator_slot.getWmes() != null) 
                 {
-                    traceFormats.print_stack_trace (writer, g.operator_slot.getWmes().value,
+                    traceFormats.print_stack_trace (writer, g.isa_goal.operator_slot.getWmes().value,
                         g, TraceFormatRestriction.FOR_OPERATORS_TF, false);
                     writer.append('\n');
                 }

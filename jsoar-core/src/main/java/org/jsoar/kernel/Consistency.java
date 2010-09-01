@@ -91,10 +91,10 @@ public class Consistency
         /* Determine the current operator/impasse in the slot*/
         WmeImpl current_operator;
         boolean operator_in_slot;
-        if (goal.operator_slot.getWmes() != null)
+        if (goal.isa_goal.operator_slot.getWmes() != null)
         {
             /* There is an operator in the slot */
-            current_operator = goal.operator_slot.getWmes();
+            current_operator = goal.isa_goal.operator_slot.getWmes();
             operator_in_slot = true;
         }
         else
@@ -322,7 +322,7 @@ public class Consistency
                 context.getPrinter().print("    Looking at goal [%s] to see if its preferences have changed\n", goal);
             }
 
-            Slot s = goal.operator_slot;
+            Slot s = goal.isa_goal.operator_slot;
 
             if ((goal.lower_goal != null) || (s.getWmes() != null))
             { /* If we are not at the bottom goal or if there is an operator in the

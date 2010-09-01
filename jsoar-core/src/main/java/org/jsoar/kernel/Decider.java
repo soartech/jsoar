@@ -2011,7 +2011,7 @@ public class Decider
             }
         }
         // remove wmes for this goal, and garbage collect
-        remove_wmes_for_context_slot(goal.operator_slot);
+        remove_wmes_for_context_slot(goal.isa_goal.operator_slot);
         update_impasse_items(goal, null); // causes items & fake pref's to go away
 
         // TODO epmem epmem_reset(thisAgent, goal);
@@ -2153,7 +2153,7 @@ public class Decider
         }
 
         id.isa_goal = new GoalIdentifierInfo();
-        id.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
+        id.isa_goal.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
         id.allow_bottom_up_chunks = true;
 
         create_new_context_rl(id);
@@ -2334,7 +2334,7 @@ public class Decider
         // remove wme's for lower slots of this context
         if (attribute_of_impasse == predefinedSyms.state_symbol)
         {
-            remove_wmes_for_context_slot(goal.operator_slot);
+            remove_wmes_for_context_slot(goal.isa_goal.operator_slot);
         }
 
         // if we have a winner, remove any existing impasse and install the
@@ -2425,7 +2425,7 @@ public class Decider
             /* no context changed, so jump right to the bottom */
             goal = bottom_goal;
 
-        Slot s = goal.operator_slot;
+        Slot s = goal.isa_goal.operator_slot;
 
         // loop down context stack
         while (true)
@@ -2436,7 +2436,7 @@ public class Decider
                 if (context_slot_is_decidable(s))
                     break;
 
-                if ((s == goal.operator_slot) || (s.getWmes() == null))
+                if ((s == goal.isa_goal.operator_slot) || (s.getWmes() == null))
                 {
                     // no more slots to look at for this goal; have we reached
                     // the last slot in whole stack?
@@ -2445,7 +2445,7 @@ public class Decider
 
                     // no, go down one level
                     goal = goal.lower_goal;
-                    s = goal.operator_slot;
+                    s = goal.isa_goal.operator_slot;
                 }
             } /* end of while (TRUE) find next slot to decide */
 
