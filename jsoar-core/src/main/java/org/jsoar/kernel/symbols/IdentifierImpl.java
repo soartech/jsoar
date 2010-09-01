@@ -45,7 +45,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     private final char name_letter;
     
     public boolean isa_goal;
-    public boolean isa_impasse;
     public short isa_operator;
     public boolean allow_bottom_up_chunks;
     

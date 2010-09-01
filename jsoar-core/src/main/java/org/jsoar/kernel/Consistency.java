@@ -223,8 +223,6 @@ public class Consistency
             { /* There is no operator in the slot */
                 if (goal.lower_goal != null)
                 { /* But there is an impasse */
-                    if (goal.lower_goal.isa_impasse)
-                        context.getPrinter().warn("This goal is an impasse\n");
                     context.getPrinter().warn("      No Impasse Needed but Impasse exists: remove impasse now\n");
                     context.getPrinter().warn(
                             "\n\n   *************This should never be executed*******************\n\n");

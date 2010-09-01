@@ -35,12 +35,9 @@ class ReteTestRoutines
         return w.id.isa_goal;
     }
 
-    /**
-     * rete.cpp:4481:id_is_impasse_rete_test_routine
-     */
     private static boolean id_is_impasse_rete_test_routine(ReteTest rt, LeftToken left, WmeImpl w)
     {
-        return w.id.isa_impasse;
+        return false; // removed when attribute impasses were removed.
     }
 
     /**

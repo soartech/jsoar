@@ -683,7 +683,7 @@ public class ReinforcementLearning
 
             IdentifierImpl id = pc.id_test.asEqualityTest().getReferent().asIdentifier();
 
-            if ( ( id.isa_goal || id.isa_impasse ) && ( id.tc_number != tc ) ) 
+            if ( ( id.isa_goal) && ( id.tc_number != tc ) ) 
             {
                 Test ct = id.isa_goal ? GoalIdTest.INSTANCE : ImpasseIdTest.INSTANCE;
                 pc.id_test = Tests.add_new_test_to_test(pc.id_test, ct );

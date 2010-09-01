@@ -427,7 +427,7 @@ public class Decider
     public void post_link_addition(IdentifierImpl from, IdentifierImpl to)
     {
         // don't add links to goals/impasses, except the special one (NIL,goal)
-        if ((to.isa_goal || to.isa_impasse) && from != null)
+        if ((to.isa_goal) && from != null)
             return;
 
         to.link_count++;
@@ -494,7 +494,7 @@ public class Decider
         id.could_be_a_link_from_below = true;
 
         // sanity check
-        if (id.isa_goal || id.isa_impasse)
+        if (id.isa_goal)
         {
             throw new IllegalStateException("Internal error: tried to promote a goal or impasse id");
             /*
@@ -544,7 +544,7 @@ public class Decider
     {
         // don't remove links to goals/impasses, except the special one
         // (NIL,goal)
-        if ((to.isa_goal || to.isa_impasse) && from != null)
+        if ((to.isa_goal) && from != null)
             return;
 
         to.link_count--;
@@ -620,10 +620,6 @@ public class Decider
 
         for (Slot s = id.slots; s != null; s = s.next)
         {
-            // remove any existing attribute impasse for the slot
-            if (s.impasse_type != ImpasseType.NONE)
-                remove_existing_attribute_impasse_for_slot(s);
-
             // remove all wme's from the slot
             this.workingMemory.remove_wme_list_from_wm(s.getWmes(), false);
             s.removeAllWmes();
@@ -1460,46 +1456,6 @@ public class Decider
     }
     
     /**
-     * Create an attribute impasse for a given slot
-     * 
-     * decide.cpp:1293:create_new_attribute_impasse_for_slot
-     * 
-     * @param s
-     * @param impasse_type
-     */
-    private void create_new_attribute_impasse_for_slot(Slot s, ImpasseType impasse_type)
-    {
-        s.impasse_type = impasse_type;
-        final IdentifierImpl id = create_new_impasse(false, s.id, s.attr, impasse_type, SoarConstants.ATTRIBUTE_IMPASSE_LEVEL);
-        s.impasse_id = id;
-        id.isa_impasse = true;
-
-        // TODO callback CREATE_NEW_ATTRIBUTE_IMPASSE_CALLBACK
-        // soar_invoke_callbacks(thisAgent, CREATE_NEW_ATTRIBUTE_IMPASSE_CALLBACK, (soar_call_data) s);
-    }
-
-    /**
-     * Remove an attribute impasse from a given slot
-     * 
-     * decide.cpp:1307:remove_existing_attribute_impasse_for_slot
-     * 
-     * @param s
-     */
-    private void remove_existing_attribute_impasse_for_slot(Slot s)
-    {
-        // TODO callback REMOVE_ATTRIBUTE_IMPASSE_CALLBACK
-        // soar_invoke_callbacks(thisAgent, REMOVE_ATTRIBUTE_IMPASSE_CALLBACK, (soar_call_data) s);
-
-        final IdentifierImpl id = s.impasse_id;
-        s.impasse_id = null;
-        s.impasse_type = ImpasseType.NONE;
-
-        this.workingMemory.remove_wme_list_from_wm(id.getImpasseWmes(), false);
-        id.removeAllImpasseWmes();
-        post_link_removal(null, id); // remove the special link
-    }
-
-    /**
      * Fake Preferences for Goal ^Item Augmentations
      * 
      * <p>When we backtrace through a (goal ^item) augmentation, we want to
@@ -1711,10 +1667,6 @@ public class Decider
       
       if (impasse_type==ImpasseType.NONE) 
       {
-         // no impasse, so remove any existing one and update the wmes
-         if (s.impasse_type != ImpasseType.NONE)
-            remove_existing_attribute_impasse_for_slot (s);
-         
          // reset marks on existing wme values to "NOTHING"
          for (WmeImpl w = s.getWmes(); w != null; w = w.next)
             w.value.decider_flag = DeciderFlag.NOTHING;
@@ -1909,20 +1861,7 @@ public class Decider
        }
     
        // create and/or update impasse structure
-       if (s.impasse_type != ImpasseType.NONE) 
-       {
-          if (s.impasse_type != impasse_type) 
-          {
-             remove_existing_attribute_impasse_for_slot (s);
-             create_new_attribute_impasse_for_slot (s, impasse_type);
-          }
-          update_impasse_items (s.impasse_id, candidates.value);
-       } 
-       else 
-       {
-          create_new_attribute_impasse_for_slot (s, impasse_type);
-          update_impasse_items (s.impasse_id, candidates.value);
-       }
+       update_impasse_items (s.impasse_id, candidates.value);
     }
 
     /**
