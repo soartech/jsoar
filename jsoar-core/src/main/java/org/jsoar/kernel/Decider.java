@@ -1384,7 +1384,7 @@ public class Decider
     private void add_impasse_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, Preference p)
     {
         WmeImpl w = this.workingMemory.make_wme(id, attr, value, false);
-        id.addImpasseWme(w);
+        id.isa_goal.addImpasseWme(w);
         w.preference = p;
         this.workingMemory.add_wme_to_wm(w);
     }
@@ -1410,6 +1410,8 @@ public class Decider
         
         final IdentifierImpl id = predefined.getSyms().make_new_identifier('S', level);
         post_link_addition(null, id); // add the special link
+
+        id.isa_goal = new GoalIdentifierInfo();
 
         add_impasse_wme(id, predefined.type_symbol, predefined.state_symbol, null);
         add_impasse_wme(id, predefined.superstate_symbol, object, null);
@@ -1441,7 +1443,6 @@ public class Decider
             break;
         }
         
-        id.isa_goal = new GoalIdentifierInfo();
         id.allow_bottom_up_chunks = true;
         id.isa_goal.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
 
@@ -1579,7 +1580,7 @@ public class Decider
         final int item_count = Preference.countCandidates(items);
 
         // reset flags on existing items to "NOTHING"
-        for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.isa_goal.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == predefinedSyms.item_symbol)
                 w.value.decider_flag = DeciderFlag.NOTHING;
 
@@ -1589,7 +1590,7 @@ public class Decider
 
         // for each existing item: if it's supposed to be there still, then
         // mark it "ALREADY_EXISTING"; otherwise remove it
-        WmeImpl w = id.getImpasseWmes();
+        WmeImpl w = id.isa_goal.getImpasseWmes();
         while (w != null)
         {
             final WmeImpl next_w = w.next;
@@ -1602,9 +1603,8 @@ public class Decider
                 }
                 else
                 {
-                    id.removeImpasseWme(w);
-                    if (id.isGoal())
-                        remove_fake_preference_for_goal_item(w.preference);
+                    id.isa_goal.removeImpasseWme(w);
+                    remove_fake_preference_for_goal_item(w.preference);
                     this.workingMemory.remove_wme_from_wm(w);
                 }
             }
@@ -1613,7 +1613,7 @@ public class Decider
             // remove item-count WME if it exists
             else if (w.attr == predefinedSyms.item_count_symbol)
             {
-                id.removeImpasseWme(w);
+                id.isa_goal.removeImpasseWme(w);
                 this.workingMemory.remove_wme_from_wm(w);
             }
 
@@ -2016,8 +2016,8 @@ public class Decider
         // TODO epmem epmem_reset(thisAgent, goal);
         smem.smem_reset(goal);
         
-        this.workingMemory.remove_wme_list_from_wm(goal.getImpasseWmes(), false);
-        goal.removeAllImpasseWmes();
+        this.workingMemory.remove_wme_list_from_wm(goal.isa_goal.getImpasseWmes(), false);
+        goal.isa_goal.removeAllImpasseWmes();
         
         /*
          * If there was a GDS for this goal, we want to set the pointer for the
@@ -2175,7 +2175,7 @@ public class Decider
         if (goal.isa_goal.lower_goal == null)
             return ImpasseType.NONE;
 
-        for (WmeImpl w = goal.isa_goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = goal.isa_goal.lower_goal.isa_goal.getImpasseWmes(); w != null; w = w.next)
         {
             if (w.attr == predefinedSyms.impasse_symbol)
             {
@@ -2208,7 +2208,7 @@ public class Decider
         if (goal.isa_goal.lower_goal == null)
             return null;
         
-        for (WmeImpl w = goal.isa_goal.lower_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = goal.isa_goal.lower_goal.isa_goal.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == predefinedSyms.attribute_symbol)
                 return w.value;
 

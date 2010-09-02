@@ -895,7 +895,7 @@ public class Chunker
      */
     private static SymbolImpl find_impasse_wme_value(IdentifierImpl id, SymbolImpl attr)
     {
-        for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.isa_goal.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == attr)
                 return w.value;
         return null;

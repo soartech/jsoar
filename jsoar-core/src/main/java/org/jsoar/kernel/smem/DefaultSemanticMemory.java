@@ -259,7 +259,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
 
             // impasse wmes
-            for (WmeImpl w=id.getImpasseWmes(); w!=null; w=w.next )
+            for (WmeImpl w=id.isa_goal != null ? id.isa_goal.getImpasseWmes() : null; w!=null; w=w.next )
             {
                 if ( !w.acceptable )
                 {
@@ -1646,7 +1646,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }   
 
         // if no children, then retrieve children
-        if ( ( lti.getImpasseWmes() == null ) &&
+        if ( ( lti.isa_goal == null || lti.isa_goal.getImpasseWmes() == null ) &&
              ( lti.getInputWmes() == null ) &&
              ( lti.slots == null ) )
         {

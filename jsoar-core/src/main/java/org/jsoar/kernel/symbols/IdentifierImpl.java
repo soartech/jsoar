@@ -41,7 +41,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     
     /**
      * This value is incremented for every incoming ^operator link pointing
-     * to this identifier. It is used solely for printing identifiers.
+     * to this identifier. It is used solely for printing operators.
      */
     public short isa_operator;
     
@@ -56,9 +56,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public Marker tc_number; /* used for transitive closures, marking, etc. */
     public SymbolImpl variablization; /* used by the chunker */
     
-    // Fields used only on goal identifiers
     public GoalIdentifierInfo isa_goal;
-    private WmeImpl impasse_wmes;
 
     // fields used for Soar I/O stuff
     private WmeImpl input_wmes;
@@ -198,25 +196,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         this.input_wmes = null;
     }
     
-    public WmeImpl getImpasseWmes()
-    {
-        return impasse_wmes;
-    }
-    
-    public void addImpasseWme(WmeImpl w)
-    {
-        this.impasse_wmes = w.addToList(this.impasse_wmes);
-    }
-    
-    public void removeAllImpasseWmes()
-    {
-        this.impasse_wmes = null;
-    }
-    
-    public void removeImpasseWme(WmeImpl w)
-    {
-        this.impasse_wmes = w.removeFromList(this.impasse_wmes);
-    }
     /**
      * <p>production.cpp:1068:unmark_identifiers_and_free_list
      * 
@@ -352,7 +331,8 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         @Override
         public boolean hasNext()
         {
-            return (!didImpasseWmes &&  id.getImpasseWmes() != null) || (!didInputs && id.getInputWmes() != null) || slot != null;
+            return (!didImpasseWmes &&  id.isa_goal != null && id.isa_goal.getImpasseWmes() != null) || 
+                   (!didInputs && id.getInputWmes() != null) || slot != null;
         }
 
         /* (non-Javadoc)
@@ -362,12 +342,12 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         public Iterator<Wme> next()
         {
             // First try to return an iterator over the impasse wmes
-            if(!didImpasseWmes)
+            if(!didImpasseWmes && id.isa_goal != null)
             {
                 didImpasseWmes = true;
-                if(id.getImpasseWmes() != null)
+                if(id.isa_goal.getImpasseWmes() != null)
                 {
-                    return id.getImpasseWmes().iterator();
+                    return id.isa_goal.getImpasseWmes().iterator();
                 }
             }
             // Next try to return an iterator over the input wmes

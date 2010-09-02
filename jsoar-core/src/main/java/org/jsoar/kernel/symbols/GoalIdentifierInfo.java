@@ -10,6 +10,7 @@ import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.util.ListHead;
 
@@ -27,6 +28,7 @@ public class GoalIdentifierInfo
     public IdentifierImpl lower_goal;
     
     public GoalDependencySetImpl gds; // pointer to a goal's dependency set
+    private WmeImpl impasse_wmes;
     
     /**
      * FIRING_TYPE that must be restored if Waterfall processing returns to this
@@ -39,6 +41,26 @@ public class GoalIdentifierInfo
     public IdentifierImpl reward_header;        // pointer to reward_link
     public ReinforcementLearningInfo rl_info;   // various Soar-RL information
 
+    public WmeImpl getImpasseWmes()
+    {
+        return impasse_wmes;
+    }
+    
+    public void addImpasseWme(WmeImpl w)
+    {
+        this.impasse_wmes = w.addToList(this.impasse_wmes);
+    }
+    
+    public void removeAllImpasseWmes()
+    {
+        this.impasse_wmes = null;
+    }
+    
+    public void removeImpasseWme(WmeImpl w)
+    {
+        this.impasse_wmes = w.removeFromList(this.impasse_wmes);
+    }
+    
     public void addGoalPreference(Preference pref)
     {
         pref.all_of_goal_next = preferences_from_goal;

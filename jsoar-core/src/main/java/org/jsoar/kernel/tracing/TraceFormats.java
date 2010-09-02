@@ -707,7 +707,7 @@ public class TraceFormats
 
         // call this routine recursively on any wme matching the first segment
         //   of the attribute path
-        for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.isa_goal != null ? id.isa_goal.getImpasseWmes() : null; w != null; w = w.next)
             if (w.attr == path.get(pathIndex))
                 count = add_values_of_attribute_path(w.value, path, pathIndex + 1, result, recursive, count);
         for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
@@ -783,7 +783,7 @@ public class TraceFormats
             for (Slot s = id.slots; s != null; s = s.next)
                 for (WmeImpl w = s.getWmes(); w != null; w = w.next)
                     add_trace_for_wme(values, w, print_attributes, recursive);
-            for (WmeImpl w = id.getImpasseWmes(); w != null; w = w.next)
+            for (WmeImpl w = id.isa_goal != null ? id.isa_goal.getImpasseWmes() : null; w != null; w = w.next)
                 add_trace_for_wme(values, w, print_attributes, recursive);
             for (WmeImpl w = id.getInputWmes(); w != null; w = w.next)
                 add_trace_for_wme(values, w, print_attributes, recursive);
