@@ -1404,38 +1404,30 @@ public class Decider
      *            Goal stack level
      * @return
      */
-    private IdentifierImpl create_new_impasse(boolean isa_goal, SymbolImpl object, SymbolImpl attr, ImpasseType impasse_type,
-            int level)
+    private IdentifierImpl create_new_impasse(SymbolImpl object, SymbolImpl attr, ImpasseType impasse_type, int level)
     {
         final PredefinedSymbols predefined = predefinedSyms; // reduce typing
         
-        IdentifierImpl id = predefined.getSyms().make_new_identifier(isa_goal ? 'S' : 'I', level);
+        final IdentifierImpl id = predefined.getSyms().make_new_identifier('S', level);
         post_link_addition(null, id); // add the special link
 
-        add_impasse_wme(id, predefined.type_symbol, 
-                        isa_goal ? predefined.state_symbol : predefined.impasse_symbol, null);
+        add_impasse_wme(id, predefined.type_symbol, predefined.state_symbol, null);
+        add_impasse_wme(id, predefined.superstate_symbol, object, null);
 
-        if (isa_goal)
-        {
-            add_impasse_wme(id, predefined.superstate_symbol, object, null);
-
-            id.reward_header = predefined.getSyms().make_new_identifier('R', level);
-            SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.reward_header);
-            
-            smem.initializeNewContext(workingMemory, id);
-        }
-        else
-        {
-            add_impasse_wme(id, predefined.object_symbol, object, null);
-        }
+        id.reward_header = predefined.getSyms().make_new_identifier('R', level);
+        SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.reward_header);
+        
+        smem.initializeNewContext(workingMemory, id);
 
         if (attr != null)
+        {
             add_impasse_wme(id, predefined.attribute_symbol, attr, null);
+        }
 
         switch (impasse_type)
         {
-        case NONE:
-            break; /* this happens only when creating the top goal */
+        case NONE: // this happens only when creating the top goal
+            break; 
         case CONSTRAINT_FAILURE:
             add_impasse_wme(id, predefined.impasse_symbol, predefined.constraint_failure_symbol, null);
             add_impasse_wme(id, predefined.choices_symbol, predefined.none_symbol, null);
@@ -1453,6 +1445,11 @@ public class Decider
             add_impasse_wme(id, predefined.choices_symbol, predefined.none_symbol, null);
             break;
         }
+        
+        id.isa_goal = new GoalIdentifierInfo();
+        id.allow_bottom_up_chunks = true;
+        id.isa_goal.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
+
         return id;
     }
     
@@ -2119,11 +2116,13 @@ public class Decider
         if (bottom_goal != null)
         {
             // Creating a sub-goal (or substate)
-            id = create_new_impasse(true, bottom_goal, attr_of_impasse, impasse_type, bottom_goal.level + 1);
-            id.isa_goal = new GoalIdentifierInfo();
+            id = create_new_impasse(bottom_goal, attr_of_impasse, impasse_type, bottom_goal.level + 1);
+            
+            // Insert into goal stack
             id.isa_goal.higher_goal = bottom_goal;
             bottom_goal.isa_goal.lower_goal = id;
             bottom_goal = id;
+            
             add_impasse_wme(id, predefinedSyms.quiescence_symbol, predefinedSyms.t_symbol, null);
             if ((ImpasseType.NO_CHANGE == impasse_type) && (MAX_GOAL_DEPTH < bottom_goal.level))
             {
@@ -2144,18 +2143,13 @@ public class Decider
         else
         {
             // Creating the top state
-            id = create_new_impasse(true, predefinedSyms.nil_symbol, null, ImpasseType.NONE,
-                    SoarConstants.TOP_GOAL_LEVEL);
-            id.isa_goal = new GoalIdentifierInfo();
+            id = create_new_impasse(predefinedSyms.nil_symbol, null, ImpasseType.NONE, SoarConstants.TOP_GOAL_LEVEL);
+            
+            // Insert into goal stack
             top_goal = id;
             bottom_goal = id;
             top_state = top_goal;
-            id.isa_goal.higher_goal = null;
-            id.isa_goal.lower_goal = null;
         }
-
-        id.isa_goal.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
-        id.allow_bottom_up_chunks = true;
 
         create_new_context_rl(id);
         
