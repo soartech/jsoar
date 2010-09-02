@@ -26,7 +26,8 @@ public class GoalIdentifierInfo
     public Preference preferences_from_goal = null;
     public IdentifierImpl higher_goal;
     public IdentifierImpl lower_goal;
-    
+    public boolean allow_bottom_up_chunks;
+        
     public GoalDependencySetImpl gds; // pointer to a goal's dependency set
     private WmeImpl impasse_wmes;
     

@@ -45,8 +45,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
      */
     public short isa_operator;
     
-    public boolean allow_bottom_up_chunks;
-    
     public boolean could_be_a_link_from_below;
     public int level;
     public int promotion_level;

@@ -1127,8 +1127,8 @@ public class Chunker
         }
 
         // update flags on goal stack for bottom-up chunking
-        for (IdentifierImpl g = inst.match_goal.isa_goal.higher_goal; g != null && g.allow_bottom_up_chunks; g = g.isa_goal.higher_goal)
-            g.allow_bottom_up_chunks = false;
+        for (IdentifierImpl g = inst.match_goal.isa_goal.higher_goal; g != null && g.isa_goal.allow_bottom_up_chunks; g = g.isa_goal.higher_goal)
+            g.isa_goal.allow_bottom_up_chunks = false;
 
         int grounds_level = inst.match_goal_level - 1;
 
@@ -1150,8 +1150,8 @@ public class Chunker
         backtrace.locals.clear();
         this.instantiations_with_nots.clear();
 
-        if (allow_variablization && (!learningAllGoals))
-            allow_variablization = inst.match_goal.allow_bottom_up_chunks;
+        if (allow_variablization && !learningAllGoals)
+            allow_variablization = inst.match_goal.isa_goal.allow_bottom_up_chunks;
 
         boolean chunk_free_flag = false;
         boolean chunky_flag = false;

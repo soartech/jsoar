@@ -1443,7 +1443,7 @@ public class Decider
             break;
         }
         
-        id.allow_bottom_up_chunks = true;
+        id.isa_goal.allow_bottom_up_chunks = true;
         id.isa_goal.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
 
         // Create RL link
