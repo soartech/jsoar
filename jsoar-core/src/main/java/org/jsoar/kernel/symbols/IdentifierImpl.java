@@ -12,9 +12,6 @@ import java.util.NoSuchElementException;
 
 import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
-import org.jsoar.kernel.GoalDependencySetImpl;
-import org.jsoar.kernel.SavedFiringType;
-import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -58,29 +55,11 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public Slot slots; // dll of slots for this identifier
     public Marker tc_number; /* used for transitive closures, marking, etc. */
     public SymbolImpl variablization; /* used by the chunker */
-
-    // TODO I think, in the long run, all of these fields should be pushed into a Goal object.
-    // If anything, they're sitting around taking up memory on all non-goal identifiers. Also,
-    // it will probably make some of the code clearer to have an actual Goal class in the 
-    // system.  I experimented with this (only about 30 minutes of refactoring), but I didn't
-    // note any significant speedup or memory usage improvement, so I'll leave it out until we
-    // get really serious about refactoring the kernel.
     
     // Fields used only on goal identifiers
     public GoalIdentifierInfo isa_goal;
     private WmeImpl impasse_wmes;
 
-    public IdentifierImpl reward_header;        // pointer to reward_link
-    public ReinforcementLearningInfo rl_info;           // various Soar-RL information
-
-    public GoalDependencySetImpl gds; // pointer to a goal's dependency set
-
-    /**
-     * FIRING_TYPE that must be restored if Waterfall processing returns to this
-     * level. See consistency.cpp
-     */
-    public SavedFiringType saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
-    
     // fields used for Soar I/O stuff
     private WmeImpl input_wmes;
 
@@ -339,9 +318,9 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         {
             return isGoal() ? new GoalImpl() : null;
         }
-        else if(GoalDependencySet.class.equals(klass))
+        else if(isGoal() && GoalDependencySet.class.equals(klass))
         {
-            return gds;
+            return isa_goal.gds;
         }
                 
         return super.getAdapter(klass);
@@ -464,9 +443,9 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
             {
                 return getIdentifier();
             }
-            else if(GoalDependencySet.class.equals(klass))
+            else if(isGoal() && GoalDependencySet.class.equals(klass))
             {
-                return gds;
+                return isa_goal.gds;
             }
             return super.getAdapter(klass);
         }

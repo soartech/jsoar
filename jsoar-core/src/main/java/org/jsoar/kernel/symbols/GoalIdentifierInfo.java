@@ -5,6 +5,9 @@
  */
 package org.jsoar.kernel.symbols;
 
+import org.jsoar.kernel.GoalDependencySetImpl;
+import org.jsoar.kernel.SavedFiringType;
+import org.jsoar.kernel.learning.rl.ReinforcementLearningInfo;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.rete.MatchSetChange;
@@ -23,6 +26,19 @@ public class GoalIdentifierInfo
     public IdentifierImpl higher_goal;
     public IdentifierImpl lower_goal;
     
+    public GoalDependencySetImpl gds; // pointer to a goal's dependency set
+    
+    /**
+     * FIRING_TYPE that must be restored if Waterfall processing returns to this
+     * level. See consistency.cpp
+     */
+    public SavedFiringType saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
+    
+    
+    // RL related structures
+    public IdentifierImpl reward_header;        // pointer to reward_link
+    public ReinforcementLearningInfo rl_info;   // various Soar-RL information
+
     public void addGoalPreference(Preference pref)
     {
         pref.all_of_goal_next = preferences_from_goal;

@@ -582,7 +582,7 @@ public class Consistency
         
         /* Clear any interruption flags on the goals....*/
         for (IdentifierImpl goal = decider.top_goal; goal != null; goal = goal.isa_goal.lower_goal)
-            goal.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
+            goal.isa_goal.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
     }
 
     /**
@@ -734,14 +734,14 @@ public class Consistency
             #endif
             */
 
-            if (goal.saved_firing_type != SavedFiringType.NO_SAVED_PRODS)
+            if (goal.isa_goal.saved_firing_type != SavedFiringType.NO_SAVED_PRODS)
             {
                 /*
                 #ifdef DEBUG_DETERMINE_LEVEL_PHASE
                 print(thisAgent, "\nRestoring production type from previous processing at this level"); 
                 #endif
                 */
-                recMemory.FIRING_TYPE = goal.saved_firing_type;
+                recMemory.FIRING_TYPE = goal.isa_goal.saved_firing_type;
                 // KJC 04.05 commented the next line after reworking the phases
                 // in init_soar.cpp
                 // thisAgent->current_phase = DETERMINE_LEVEL_PHASE;
@@ -791,7 +791,7 @@ public class Consistency
             */
 
             goal = decider.previous_active_goal;
-            goal.saved_firing_type = recMemory.FIRING_TYPE;
+            goal.isa_goal.saved_firing_type = recMemory.FIRING_TYPE;
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE       
             if (goal->id.saved_firing_type == IE_PRODS)
@@ -978,7 +978,7 @@ public class Consistency
             */
 
             IdentifierImpl goal = decider.previous_active_goal;
-            goal.saved_firing_type = recMemory.FIRING_TYPE;
+            goal.isa_goal.saved_firing_type = recMemory.FIRING_TYPE;
 
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE       

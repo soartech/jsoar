@@ -1414,11 +1414,6 @@ public class Decider
         add_impasse_wme(id, predefined.type_symbol, predefined.state_symbol, null);
         add_impasse_wme(id, predefined.superstate_symbol, object, null);
 
-        id.reward_header = predefined.getSyms().make_new_identifier('R', level);
-        SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.reward_header);
-        
-        smem.initializeNewContext(workingMemory, id);
-
         if (attr != null)
         {
             add_impasse_wme(id, predefined.attribute_symbol, attr, null);
@@ -1449,6 +1444,13 @@ public class Decider
         id.isa_goal = new GoalIdentifierInfo();
         id.allow_bottom_up_chunks = true;
         id.isa_goal.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
+
+        // Create RL link
+        id.isa_goal.reward_header = predefined.getSyms().make_new_identifier('R', level);
+        SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.isa_goal.reward_header);
+        
+        // Create SMEM stuff
+        smem.initializeNewContext(workingMemory, id);
 
         return id;
     }
@@ -1739,7 +1741,7 @@ public class Decider
                   if ((w.preference.o_supported == true) &&
                      (w.preference.inst.match_goal_level != 1)) {
                      
-                     if (w.preference.inst.match_goal.gds == null) {
+                     if (w.preference.inst.match_goal.isa_goal.gds == null) {
                      /* If there is no GDS yet for this goal,
                         * then we need to create one */
                         if (w.preference.inst.match_goal_level == w.preference.id.level) {
@@ -2023,9 +2025,9 @@ public class Decider
          * need to make certain that the GDS doesn't need to be free'd here as
          * well.
          */
-        if (goal.gds != null)
+        if (goal.isa_goal.gds != null)
         {
-            goal.gds.clearGoal();
+            goal.isa_goal.gds.clearGoal();
         }
 
         /*
@@ -2070,7 +2072,7 @@ public class Decider
         }
 
         // decide.cpp:remove_existing_context_and_descendents_rl
-        goal.rl_info = null;
+        goal.isa_goal.rl_info = null;
 
         /* REW: BUG
          * Tentative assertions can exist for removed goals.  However, it looks
@@ -2095,7 +2097,7 @@ public class Decider
      */
     private void create_new_context_rl(IdentifierImpl id ) 
     {
-        id.rl_info = new ReinforcementLearningInfo();
+        id.isa_goal.rl_info = new ReinforcementLearningInfo();
         // everything else set by ReinforcementLearningInfo constructor
     }
      
@@ -2686,7 +2688,7 @@ public class Decider
                             wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
                             /* JC ADDED: Separate adding wme to GDS as a function */
-                            add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
+                            add_wme_to_gds(inst.match_goal.isa_goal.gds, wme_matching_this_cond);
 
                             if (DEBUG_GDS)
                             {
@@ -2705,14 +2707,14 @@ public class Decider
 
                             wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
-                            add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
+                            add_wme_to_gds(inst.match_goal.isa_goal.gds, wme_matching_this_cond);
 
                             if (DEBUG_GDS)
                             {
                                 context.getPrinter().print("\n       ....switching from old to new GDS list....\n");
                             }
 
-                            wme_matching_this_cond.gds = inst.match_goal.gds;
+                            wme_matching_this_cond.gds = inst.match_goal.isa_goal.gds;
                         }
                     }
                     else
@@ -2720,7 +2722,7 @@ public class Decider
                         // We know that the WME should be in the GDS of the current
                         // goal if the WME's GDS does not already exist. (i.e., if NIL GDS)
 
-                        add_wme_to_gds(inst.match_goal.gds, wme_matching_this_cond);
+                        add_wme_to_gds(inst.match_goal.isa_goal.gds, wme_matching_this_cond);
 
                         if (DEBUG_GDS)
                         {
@@ -2804,7 +2806,7 @@ public class Decider
                                             * the GDS is no longer around */
                                             fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
 
-                                            add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
+                                            add_wme_to_gds(inst.match_goal.isa_goal.gds, fake_inst_wme_cond);
 
                                             if (DEBUG_GDS)
                                             {
@@ -2824,14 +2826,14 @@ public class Decider
 
                                             fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
                                             
-                                            add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
+                                            add_wme_to_gds(inst.match_goal.isa_goal.gds, fake_inst_wme_cond);
 
                                             if (DEBUG_GDS)
                                             {
                                                 context.getPrinter().print(
                                                         "\n       .....switching from old to new GDS list....\n");
                                             }
-                                            fake_inst_wme_cond.gds = inst.match_goal.gds;
+                                            fake_inst_wme_cond.gds = inst.match_goal.isa_goal.gds;
                                         }
                                     }
                                     else
@@ -2840,7 +2842,7 @@ public class Decider
                                         // the current goal if the WME's GDS does not
                                         // already exist. (i.e., if NIL GDS)
 
-                                        add_wme_to_gds(inst.match_goal.gds, fake_inst_wme_cond);
+                                        add_wme_to_gds(inst.match_goal.isa_goal.gds, fake_inst_wme_cond);
 
                                         if (DEBUG_GDS)
                                         {
@@ -3080,7 +3082,7 @@ public class Decider
      */
     private void create_gds_for_goal(IdentifierImpl goal)
     {
-        goal.gds = new GoalDependencySetImpl(goal);
+        goal.isa_goal.gds = new GoalDependencySetImpl(goal);
         if (DEBUG_GDS)
         {
             context.getPrinter().print("\nCreated GDS for goal [%s].\n", goal);

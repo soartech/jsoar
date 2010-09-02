@@ -212,9 +212,9 @@ public class ReinforcementLearning
     {
         for ( IdentifierImpl state = decider.top_state; state != null; state = state.isa_goal.lower_goal )
         {
-            state.rl_info.eligibility_traces.remove( prod );
+            state.isa_goal.rl_info.eligibility_traces.remove( prod );
             
-            final ListIterator<Production> it =  state.rl_info.prev_op_rl_rules.listIterator();
+            final ListIterator<Production> it =  state.isa_goal.rl_info.prev_op_rl_rules.listIterator();
             while(it.hasNext())
             {
                 final Production c = it.next();
@@ -702,11 +702,11 @@ public class ReinforcementLearning
      */
     public void rl_tabulate_reward_value_for_goal(IdentifierImpl goal )
     {
-        final ReinforcementLearningInfo data = goal.rl_info;
+        final ReinforcementLearningInfo data = goal.isa_goal.rl_info;
 
     if ( !data.prev_op_rl_rules.isEmpty() )
     {
-        final Slot s = Slot.make_slot(goal.reward_header, preSyms.rl_sym_reward, null);
+        final Slot s = Slot.make_slot(goal.isa_goal.reward_header, preSyms.rl_sym_reward, null);
         
         double reward = 0.0;
         double discount_rate = this.discount_rate.get(); // rl_params->discount_rate->get_value();
@@ -787,7 +787,7 @@ public class ReinforcementLearning
      */
     public void rl_store_data(IdentifierImpl goal, Preference cand)
     {
-        final ReinforcementLearningInfo data = goal.rl_info;
+        final ReinforcementLearningInfo data = goal.isa_goal.rl_info;
         final Symbol op = cand.value;
         data.previous_q = cand.numeric_value;
 
@@ -861,7 +861,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
 
     if ( !using_gaps || op_rl )
     {    
-        final ReinforcementLearningInfo data = goal.rl_info;
+        final ReinforcementLearningInfo data = goal.isa_goal.rl_info;
         
         if (!data.prev_op_rl_rules.isEmpty())
         {           
@@ -1004,7 +1004,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
      */
     public static void rl_watkins_clear(IdentifierImpl goal )
     {
-        goal.rl_info.eligibility_traces.clear();
+        goal.isa_goal.rl_info.eligibility_traces.clear();
     }
     
 
