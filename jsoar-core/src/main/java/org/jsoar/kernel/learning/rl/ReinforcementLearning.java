@@ -210,11 +210,11 @@ public class ReinforcementLearning
      */
     private void rl_remove_refs_for_prod(Production prod )
     {
-        for ( IdentifierImpl state = decider.top_state; state != null; state = state.isa_goal.lower_goal )
+        for ( IdentifierImpl state = decider.top_state; state != null; state = state.goalInfo.lower_goal )
         {
-            state.isa_goal.rl_info.eligibility_traces.remove( prod );
+            state.goalInfo.rl_info.eligibility_traces.remove( prod );
             
-            final ListIterator<Production> it =  state.isa_goal.rl_info.prev_op_rl_rules.listIterator();
+            final ListIterator<Production> it =  state.goalInfo.rl_info.prev_op_rl_rules.listIterator();
             while(it.hasNext())
             {
                 final Production c = it.next();
@@ -702,11 +702,11 @@ public class ReinforcementLearning
      */
     public void rl_tabulate_reward_value_for_goal(IdentifierImpl goal )
     {
-        final ReinforcementLearningInfo data = goal.isa_goal.rl_info;
+        final ReinforcementLearningInfo data = goal.goalInfo.rl_info;
 
     if ( !data.prev_op_rl_rules.isEmpty() )
     {
-        final Slot s = Slot.make_slot(goal.isa_goal.reward_header, preSyms.rl_sym_reward, null);
+        final Slot s = Slot.make_slot(goal.goalInfo.reward_header, preSyms.rl_sym_reward, null);
         
         double reward = 0.0;
         double discount_rate = this.discount_rate.get(); // rl_params->discount_rate->get_value();
@@ -771,7 +771,7 @@ public class ReinforcementLearning
         while( goal != null)
         {
             rl_tabulate_reward_value_for_goal( goal );
-            goal = goal.isa_goal.lower_goal;
+            goal = goal.goalInfo.lower_goal;
         }
     }
     
@@ -787,7 +787,7 @@ public class ReinforcementLearning
      */
     public void rl_store_data(IdentifierImpl goal, Preference cand)
     {
-        final ReinforcementLearningInfo data = goal.isa_goal.rl_info;
+        final ReinforcementLearningInfo data = goal.goalInfo.rl_info;
         final Symbol op = cand.value;
         data.previous_q = cand.numeric_value;
 
@@ -795,7 +795,7 @@ public class ReinforcementLearning
         
         // Make list of just-fired prods
         int just_fired = 0;
-        for ( Preference pref = goal.isa_goal.operator_slot.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); pref != null; pref = pref.next )
+        for ( Preference pref = goal.goalInfo.operator_slot.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); pref != null; pref = pref.next )
         {
             if ( op == pref.value && pref.inst.prod.rl_rule)
             {
@@ -861,7 +861,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
 
     if ( !using_gaps || op_rl )
     {    
-        final ReinforcementLearningInfo data = goal.isa_goal.rl_info;
+        final ReinforcementLearningInfo data = goal.goalInfo.rl_info;
         
         if (!data.prev_op_rl_rules.isEmpty())
         {           
@@ -1004,7 +1004,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
      */
     public static void rl_watkins_clear(IdentifierImpl goal )
     {
-        goal.isa_goal.rl_info.eligibility_traces.clear();
+        goal.goalInfo.rl_info.eligibility_traces.clear();
     }
     
 

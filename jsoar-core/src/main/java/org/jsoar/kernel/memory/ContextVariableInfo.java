@@ -93,7 +93,7 @@ public class ContextVariableInfo
         IdentifierImpl g = bottom_goal;
         while (g != null && levels_up != 0)
         {
-            g = g.isa_goal.higher_goal;
+            g = g.goalInfo.higher_goal;
             levels_up--;
         }
 
@@ -109,7 +109,7 @@ public class ContextVariableInfo
         }
         else
         {
-            WmeImpl w = g.isa_goal.operator_slot.getWmes();
+            WmeImpl w = g.goalInfo.operator_slot.getWmes();
             value = w != null ? w.getValue() : null;
         }
         return new ContextVariableInfo(g, attribute, value);

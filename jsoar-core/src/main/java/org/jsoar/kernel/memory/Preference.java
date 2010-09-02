@@ -274,7 +274,7 @@ public class Preference implements Formattable
         // remove it from the list of pref's for its match goal
         if (pref.on_goal_list)
         {
-            pref.inst.match_goal.isa_goal.removeGoalPreference(pref);
+            pref.inst.match_goal.goalInfo.removeGoalPreference(pref);
         }
 
         // remove it from the list of pref's from that instantiation

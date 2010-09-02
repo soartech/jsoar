@@ -151,9 +151,9 @@ public class PrintPreferencesCommand
                     }
                 }
             }
-            if (id.isa_goal != null && id.isa_goal.getImpasseWmes() != null)
+            if (id.goalInfo != null && id.goalInfo.getImpasseWmes() != null)
                 printer.print("Arch-created wmes for %s :\n", id);
-            for (WmeImpl w = id.isa_goal != null ? id.isa_goal.getImpasseWmes() : null; w != null; w = w.next)
+            for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
             {
                 printer.print("%s", w);
             }

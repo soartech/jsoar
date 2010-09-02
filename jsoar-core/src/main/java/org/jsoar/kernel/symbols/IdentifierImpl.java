@@ -53,7 +53,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public Marker tc_number; /* used for transitive closures, marking, etc. */
     public SymbolImpl variablization; /* used by the chunker */
     
-    public GoalIdentifierInfo isa_goal;
+    public GoalIdentifierInfo goalInfo;
 
     // fields used for Soar I/O stuff
     private WmeImpl input_wmes;
@@ -152,7 +152,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public boolean isGoal()
     {
-        return isa_goal != null;
+        return goalInfo != null;
     }
 
     /**
@@ -292,11 +292,11 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         if(Goal.class.equals(klass))
         {
-            return isa_goal;
+            return goalInfo;
         }
         else if(isGoal() && GoalDependencySet.class.equals(klass))
         {
-            return isa_goal.gds;
+            return goalInfo.gds;
         }
                 
         return super.getAdapter(klass);
@@ -328,7 +328,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         @Override
         public boolean hasNext()
         {
-            return (!didImpasseWmes &&  id.isa_goal != null && id.isa_goal.getImpasseWmes() != null) || 
+            return (!didImpasseWmes &&  id.goalInfo != null && id.goalInfo.getImpasseWmes() != null) || 
                    (!didInputs && id.getInputWmes() != null) || slot != null;
         }
 
@@ -339,12 +339,12 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         public Iterator<Wme> next()
         {
             // First try to return an iterator over the impasse wmes
-            if(!didImpasseWmes && id.isa_goal != null)
+            if(!didImpasseWmes && id.goalInfo != null)
             {
                 didImpasseWmes = true;
-                if(id.isa_goal.getImpasseWmes() != null)
+                if(id.goalInfo.getImpasseWmes() != null)
                 {
-                    return id.isa_goal.getImpasseWmes().iterator();
+                    return id.goalInfo.getImpasseWmes().iterator();
                 }
             }
             // Next try to return an iterator over the input wmes

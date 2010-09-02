@@ -92,10 +92,10 @@ public class IdentifierImplTest extends JSoarTest
     public void testIsAdaptableToGoalDependencySet()
     {
         final IdentifierImpl id = syms.createIdentifier('S');
-        id.isa_goal = new GoalIdentifierInfo(id);
+        id.goalInfo = new GoalIdentifierInfo(id);
         assertNull(Adaptables.adapt(id, GoalDependencySet.class));
-        id.isa_goal.gds = new GoalDependencySetImpl(id);
-        assertSame(id.isa_goal.gds, Adaptables.adapt(id, GoalDependencySet.class));
+        id.goalInfo.gds = new GoalDependencySetImpl(id);
+        assertSame(id.goalInfo.gds, Adaptables.adapt(id, GoalDependencySet.class));
     }
     
     @Test

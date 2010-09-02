@@ -551,7 +551,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
 
         final Writer writer = printer.getWriter();
         
-        for (IdentifierImpl g = decider.top_goal; g != null; g = g.isa_goal.lower_goal) 
+        for (IdentifierImpl g = decider.top_goal; g != null; g = g.goalInfo.lower_goal) 
         {
             stateCount++ ;
 
@@ -565,9 +565,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
                     traceFormats.print_stack_trace (writer,g, g, TraceFormatRestriction.FOR_STATES_TF, false);
                     writer.append('\n');
                 }
-                if (operators && g.isa_goal.operator_slot.getWmes() != null) 
+                if (operators && g.goalInfo.operator_slot.getWmes() != null) 
                 {
-                    traceFormats.print_stack_trace (writer, g.isa_goal.operator_slot.getWmes().value,
+                    traceFormats.print_stack_trace (writer, g.goalInfo.operator_slot.getWmes().value,
                         g, TraceFormatRestriction.FOR_OPERATORS_TF, false);
                     writer.append('\n');
                 }

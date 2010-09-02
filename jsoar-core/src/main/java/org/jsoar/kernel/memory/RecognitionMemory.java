@@ -604,7 +604,7 @@ public class RecognitionMemory
         {
             for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
             {
-                inst.match_goal.isa_goal.addGoalPreference(p);
+                inst.match_goal.goalInfo.addGoalPreference(p);
                 p.on_goal_list = true;
             }
         }
@@ -1349,7 +1349,7 @@ public class RecognitionMemory
                 break;
             }
             
-            if (decider.active_goal.isa_goal.lower_goal == null)
+            if (decider.active_goal.goalInfo.lower_goal == null)
             {
                 trace.print(Category.WATERFALL, " inner preference loop at bottom goal.\n");
                 break;
@@ -1359,12 +1359,12 @@ public class RecognitionMemory
             {
                 if (this.decisionCycle.current_phase.get() == Phase.APPLY)
                 {
-                    decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.isa_goal.lower_goal);
+                    decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.goalInfo.lower_goal);
                 }
                 else if (this.decisionCycle.current_phase.get() == Phase.PROPOSE)
                 {
                     // PROPOSE
-                    decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.isa_goal.lower_goal);
+                    decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.goalInfo.lower_goal);
                 } 
             } 
             catch (IllegalStateException e)

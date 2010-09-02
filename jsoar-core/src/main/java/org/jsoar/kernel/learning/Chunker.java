@@ -895,7 +895,7 @@ public class Chunker
      */
     private static SymbolImpl find_impasse_wme_value(IdentifierImpl id, SymbolImpl attr)
     {
-        for (WmeImpl w = id.isa_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.goalInfo.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == attr)
                 return w.value;
         return null;
@@ -947,7 +947,7 @@ public class Chunker
                 break;
             case NO_CHANGE:
             {
-                SymbolImpl sym = find_impasse_wme_value(goal.isa_goal.lower_goal, predefinedSyms.attribute_symbol);
+                SymbolImpl sym = find_impasse_wme_value(goal.goalInfo.lower_goal, predefinedSyms.attribute_symbol);
 
                 if (sym == null)
                 {
@@ -1127,8 +1127,8 @@ public class Chunker
         }
 
         // update flags on goal stack for bottom-up chunking
-        for (IdentifierImpl g = inst.match_goal.isa_goal.higher_goal; g != null && g.isa_goal.allow_bottom_up_chunks; g = g.isa_goal.higher_goal)
-            g.isa_goal.allow_bottom_up_chunks = false;
+        for (IdentifierImpl g = inst.match_goal.goalInfo.higher_goal; g != null && g.goalInfo.allow_bottom_up_chunks; g = g.goalInfo.higher_goal)
+            g.goalInfo.allow_bottom_up_chunks = false;
 
         int grounds_level = inst.match_goal_level - 1;
 
@@ -1151,7 +1151,7 @@ public class Chunker
         this.instantiations_with_nots.clear();
 
         if (allow_variablization && !learningAllGoals)
-            allow_variablization = inst.match_goal.isa_goal.allow_bottom_up_chunks;
+            allow_variablization = inst.match_goal.goalInfo.allow_bottom_up_chunks;
 
         boolean chunk_free_flag = false;
         boolean chunky_flag = false;

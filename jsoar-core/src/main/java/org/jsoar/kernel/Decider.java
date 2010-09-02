@@ -220,7 +220,7 @@ public class Decider
     public List<Goal> getGoalStack()
     {
         final List<Goal> result = new ArrayList<Goal>();
-        for (IdentifierImpl g = top_goal; g != null; g = g.isa_goal.lower_goal)
+        for (IdentifierImpl g = top_goal; g != null; g = g.goalInfo.lower_goal)
         {
             final Goal goal = Adaptables.adapt(g, Goal.class);
             assert goal != null;
@@ -238,7 +238,7 @@ public class Decider
      */
     public IdentifierImpl find_goal_at_goal_stack_level(int level)
     {
-        for (IdentifierImpl g = top_goal; g != null; g = g.isa_goal.lower_goal)
+        for (IdentifierImpl g = top_goal; g != null; g = g.goalInfo.lower_goal)
             if (g.level == level)
                 return (g);
         return null;
@@ -384,10 +384,10 @@ public class Decider
                 context.getTrace().print(Category.OPERAND2_REMOVALS,
                         "\n        REMOVING: Operator from context slot (proposal no longer matches): %s", w);
                 this.remove_wmes_for_context_slot(s);
-                if (s.id.isa_goal.lower_goal != null)
+                if (s.id.goalInfo.lower_goal != null)
                 {
-                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of an operator removal.\n", s.id.isa_goal.lower_goal);
-                    this.remove_existing_context_and_descendents(s.id.isa_goal.lower_goal);
+                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of an operator removal.\n", s.id.goalInfo.lower_goal);
+                    this.remove_existing_context_and_descendents(s.id.goalInfo.lower_goal);
                 }
             }
         }
@@ -886,7 +886,7 @@ public class Decider
                 this.walk_tc_number = DefaultMarker.create();
                 walk_and_update_levels(g);
             }
-            g = g.isa_goal.lower_goal;
+            g = g.goalInfo.lower_goal;
         }
 
         // GC anything left with an unknown level after the walk
@@ -1384,7 +1384,7 @@ public class Decider
     private void add_impasse_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, Preference p)
     {
         WmeImpl w = this.workingMemory.make_wme(id, attr, value, false);
-        id.isa_goal.addImpasseWme(w);
+        id.goalInfo.addImpasseWme(w);
         w.preference = p;
         this.workingMemory.add_wme_to_wm(w);
     }
@@ -1396,7 +1396,7 @@ public class Decider
      * 
      * decide.cpp:1241:create_new_impasse
      * 
-     * @param isa_goal
+     * @param goalInfo
      * @param object
      * @param attr
      * @param impasse_type
@@ -1411,7 +1411,7 @@ public class Decider
         final IdentifierImpl id = predefined.getSyms().make_new_identifier('S', level);
         post_link_addition(null, id); // add the special link
 
-        id.isa_goal = new GoalIdentifierInfo(id);
+        id.goalInfo = new GoalIdentifierInfo(id);
 
         add_impasse_wme(id, predefined.type_symbol, predefined.state_symbol, null);
         add_impasse_wme(id, predefined.superstate_symbol, object, null);
@@ -1443,12 +1443,12 @@ public class Decider
             break;
         }
         
-        id.isa_goal.allow_bottom_up_chunks = true;
-        id.isa_goal.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
+        id.goalInfo.allow_bottom_up_chunks = true;
+        id.goalInfo.operator_slot = Slot.make_slot(id, predefinedSyms.operator_symbol, predefinedSyms.operator_symbol);
 
         // Create RL link
-        id.isa_goal.reward_header = predefined.getSyms().make_new_identifier('R', level);
-        SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.isa_goal.reward_header);
+        id.goalInfo.reward_header = predefined.getSyms().make_new_identifier('R', level);
+        SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.goalInfo.reward_header);
         
         // Create SMEM stuff
         smem.initializeNewContext(workingMemory, id);
@@ -1499,7 +1499,7 @@ public class Decider
         // make the fake preference
         final Preference pref = new Preference(PreferenceType.ACCEPTABLE, goal,
                 predefinedSyms.item_symbol, cand.value, null);
-        goal.isa_goal.addGoalPreference(pref);
+        goal.goalInfo.addGoalPreference(pref);
         pref.on_goal_list = true;
         pref.preference_add_ref();
 
@@ -1580,7 +1580,7 @@ public class Decider
         final int item_count = Preference.countCandidates(items);
 
         // reset flags on existing items to "NOTHING"
-        for (WmeImpl w = id.isa_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = id.goalInfo.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == predefinedSyms.item_symbol)
                 w.value.decider_flag = DeciderFlag.NOTHING;
 
@@ -1590,7 +1590,7 @@ public class Decider
 
         // for each existing item: if it's supposed to be there still, then
         // mark it "ALREADY_EXISTING"; otherwise remove it
-        WmeImpl w = id.isa_goal.getImpasseWmes();
+        WmeImpl w = id.goalInfo.getImpasseWmes();
         while (w != null)
         {
             final WmeImpl next_w = w.next;
@@ -1603,7 +1603,7 @@ public class Decider
                 }
                 else
                 {
-                    id.isa_goal.removeImpasseWme(w);
+                    id.goalInfo.removeImpasseWme(w);
                     remove_fake_preference_for_goal_item(w.preference);
                     this.workingMemory.remove_wme_from_wm(w);
                 }
@@ -1613,7 +1613,7 @@ public class Decider
             // remove item-count WME if it exists
             else if (w.attr == predefinedSyms.item_count_symbol)
             {
-                id.isa_goal.removeImpasseWme(w);
+                id.goalInfo.removeImpasseWme(w);
                 this.workingMemory.remove_wme_from_wm(w);
             }
 
@@ -1741,7 +1741,7 @@ public class Decider
                   if ((w.preference.o_supported == true) &&
                      (w.preference.inst.match_goal_level != 1)) {
                      
-                     if (w.preference.inst.match_goal.isa_goal.gds == null) {
+                     if (w.preference.inst.match_goal.goalInfo.gds == null) {
                      /* If there is no GDS yet for this goal,
                         * then we need to create one */
                         if (w.preference.inst.match_goal_level == w.preference.id.level) {
@@ -1943,8 +1943,8 @@ public class Decider
     void remove_existing_context_and_descendents(IdentifierImpl goal)
     {
         // remove descendents of this goal
-        if (goal.isa_goal.lower_goal != null)
-            remove_existing_context_and_descendents(goal.isa_goal.lower_goal);
+        if (goal.goalInfo.lower_goal != null)
+            remove_existing_context_and_descendents(goal.goalInfo.lower_goal);
 
         // TODO callback POP_CONTEXT_STACK_CALLBACK
         // invoke callback routine
@@ -1964,16 +1964,16 @@ public class Decider
         }
         else
         {
-            bottom_goal = goal.isa_goal.higher_goal;
-            bottom_goal.isa_goal.lower_goal = null;
+            bottom_goal = goal.goalInfo.higher_goal;
+            bottom_goal.goalInfo.lower_goal = null;
         }
 
         /* --- remove any preferences supported by this goal --- */
         if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
         {
-            while (goal.isa_goal.preferences_from_goal != null)
+            while (goal.goalInfo.preferences_from_goal != null)
             {
-                final Preference p = goal.isa_goal.popGoalPreference();
+                final Preference p = goal.goalInfo.popGoalPreference();
                 p.on_goal_list = false;
                 
                 if (!p.remove_preference_from_clones(recMemory))
@@ -1990,9 +1990,9 @@ public class Decider
              * cases, but needs testing.
              */
             // Prefs are added to head of dll, so try removing from tail
-            if (goal.isa_goal.preferences_from_goal != null)
+            if (goal.goalInfo.preferences_from_goal != null)
             {
-                Preference p = goal.isa_goal.preferences_from_goal;
+                Preference p = goal.goalInfo.preferences_from_goal;
                 while (p.all_of_goal_next != null)
                     p = p.all_of_goal_next; 
                 while (p != null)
@@ -2000,7 +2000,7 @@ public class Decider
                     // RPM 10/06 we need to save this because p may be freed by the
                     // end of the loop
                     final Preference p_next = p.all_of_goal_prev; 
-                    goal.isa_goal.removeGoalPreference(p);
+                    goal.goalInfo.removeGoalPreference(p);
                     p.on_goal_list = false;
                     if (!p.remove_preference_from_clones(recMemory))
                         if (p.isInTempMemory())
@@ -2010,14 +2010,14 @@ public class Decider
             }
         }
         // remove wmes for this goal, and garbage collect
-        remove_wmes_for_context_slot(goal.isa_goal.operator_slot);
+        remove_wmes_for_context_slot(goal.goalInfo.operator_slot);
         update_impasse_items(goal, null); // causes items & fake pref's to go away
 
         // TODO epmem epmem_reset(thisAgent, goal);
         smem.smem_reset(goal);
         
-        this.workingMemory.remove_wme_list_from_wm(goal.isa_goal.getImpasseWmes(), false);
-        goal.isa_goal.removeAllImpasseWmes();
+        this.workingMemory.remove_wme_list_from_wm(goal.goalInfo.getImpasseWmes(), false);
+        goal.goalInfo.removeAllImpasseWmes();
         
         /*
          * If there was a GDS for this goal, we want to set the pointer for the
@@ -2025,9 +2025,9 @@ public class Decider
          * need to make certain that the GDS doesn't need to be free'd here as
          * well.
          */
-        if (goal.isa_goal.gds != null)
+        if (goal.goalInfo.gds != null)
         {
-            goal.isa_goal.gds.clearGoal();
+            goal.goalInfo.gds.clearGoal();
         }
 
         /*
@@ -2039,10 +2039,10 @@ public class Decider
          * acceptably efficient.
          */
 
-        if (!goal.isa_goal.ms_retractions.isEmpty())
+        if (!goal.goalInfo.ms_retractions.isEmpty())
         { /* There's something on the retraction list */
 
-            final MatchSetChange head = goal.isa_goal.ms_retractions.getFirstItem();
+            final MatchSetChange head = goal.goalInfo.ms_retractions.getFirstItem();
             MatchSetChange tail = head;
 
             // find the tail of this list
@@ -2072,7 +2072,7 @@ public class Decider
         }
 
         // decide.cpp:remove_existing_context_and_descendents_rl
-        goal.isa_goal.rl_info = null;
+        goal.goalInfo.rl_info = null;
 
         /* REW: BUG
          * Tentative assertions can exist for removed goals.  However, it looks
@@ -2097,7 +2097,7 @@ public class Decider
      */
     private void create_new_context_rl(IdentifierImpl id ) 
     {
-        id.isa_goal.rl_info = new ReinforcementLearningInfo();
+        id.goalInfo.rl_info = new ReinforcementLearningInfo();
         // everything else set by ReinforcementLearningInfo constructor
     }
      
@@ -2121,8 +2121,8 @@ public class Decider
             id = create_new_impasse(bottom_goal, attr_of_impasse, impasse_type, bottom_goal.level + 1);
             
             // Insert into goal stack
-            id.isa_goal.higher_goal = bottom_goal;
-            bottom_goal.isa_goal.lower_goal = id;
+            id.goalInfo.higher_goal = bottom_goal;
+            bottom_goal.goalInfo.lower_goal = id;
             bottom_goal = id;
             
             add_impasse_wme(id, predefinedSyms.quiescence_symbol, predefinedSyms.t_symbol, null);
@@ -2172,10 +2172,10 @@ public class Decider
      */
     public ImpasseType type_of_existing_impasse(IdentifierImpl goal)
     {
-        if (goal.isa_goal.lower_goal == null)
+        if (goal.goalInfo.lower_goal == null)
             return ImpasseType.NONE;
 
-        for (WmeImpl w = goal.isa_goal.lower_goal.isa_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = goal.goalInfo.lower_goal.goalInfo.getImpasseWmes(); w != null; w = w.next)
         {
             if (w.attr == predefinedSyms.impasse_symbol)
             {
@@ -2205,10 +2205,10 @@ public class Decider
      */
     public SymbolImpl attribute_of_existing_impasse(IdentifierImpl goal)
     {
-        if (goal.isa_goal.lower_goal == null)
+        if (goal.goalInfo.lower_goal == null)
             return null;
         
-        for (WmeImpl w = goal.isa_goal.lower_goal.isa_goal.getImpasseWmes(); w != null; w = w.next)
+        for (WmeImpl w = goal.goalInfo.lower_goal.goalInfo.getImpasseWmes(); w != null; w = w.next)
             if (w.attr == predefinedSyms.attribute_symbol)
                 return w.value;
 
@@ -2331,7 +2331,7 @@ public class Decider
         // remove wme's for lower slots of this context
         if (attribute_of_impasse == predefinedSyms.state_symbol)
         {
-            remove_wmes_for_context_slot(goal.isa_goal.operator_slot);
+            remove_wmes_for_context_slot(goal.goalInfo.operator_slot);
         }
 
         // if we have a winner, remove any existing impasse and install the
@@ -2341,10 +2341,10 @@ public class Decider
             for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
                 temp.preference_add_ref();
 
-            if (goal.isa_goal.lower_goal != null)
+            if (goal.goalInfo.lower_goal != null)
             {
-           		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of a decision.\n", goal.isa_goal.lower_goal);
-                remove_existing_context_and_descendents(goal.isa_goal.lower_goal);
+           		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of a decision.\n", goal.goalInfo.lower_goal);
+                remove_existing_context_and_descendents(goal.goalInfo.lower_goal);
             }
 
             WmeImpl w = this.workingMemory.make_wme(s.id, s.attr, candidates.value.value, false);
@@ -2369,7 +2369,7 @@ public class Decider
         if ((impasse_type == type_of_existing_impasse(goal))
                 && (attribute_of_impasse == attribute_of_existing_impasse(goal)))
         {
-            update_impasse_items(goal.isa_goal.lower_goal, candidates.value);
+            update_impasse_items(goal.goalInfo.lower_goal, candidates.value);
             return false;
         }
 
@@ -2378,10 +2378,10 @@ public class Decider
         for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
             temp.preference_add_ref();
 
-        if (goal.isa_goal.lower_goal != null)
+        if (goal.goalInfo.lower_goal != null)
         {
-       		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because it's the wrong type of impasse.\n", goal.isa_goal.lower_goal);
-            remove_existing_context_and_descendents(goal.isa_goal.lower_goal);
+       		context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because it's the wrong type of impasse.\n", goal.goalInfo.lower_goal);
+            remove_existing_context_and_descendents(goal.goalInfo.lower_goal);
         }
         
         if (this.waitsnc.value.get() && (impasse_type == ImpasseType.NO_CHANGE)
@@ -2393,7 +2393,7 @@ public class Decider
         else
         {
             create_new_context(attribute_of_impasse, impasse_type);
-            update_impasse_items(goal.isa_goal.lower_goal, candidates.value);
+            update_impasse_items(goal.goalInfo.lower_goal, candidates.value);
         }
 
         for (Preference temp = candidates.value; temp != null; temp = temp.next_candidate)
@@ -2422,7 +2422,7 @@ public class Decider
             /* no context changed, so jump right to the bottom */
             goal = bottom_goal;
 
-        Slot s = goal.isa_goal.operator_slot;
+        Slot s = goal.goalInfo.operator_slot;
 
         // loop down context stack
         while (true)
@@ -2433,16 +2433,16 @@ public class Decider
                 if (context_slot_is_decidable(s))
                     break;
 
-                if ((s == goal.isa_goal.operator_slot) || (s.getWmes() == null))
+                if ((s == goal.goalInfo.operator_slot) || (s.getWmes() == null))
                 {
                     // no more slots to look at for this goal; have we reached
                     // the last slot in whole stack?
-                    if (goal.isa_goal.lower_goal == null)
+                    if (goal.goalInfo.lower_goal == null)
                         break;
 
                     // no, go down one level
-                    goal = goal.isa_goal.lower_goal;
-                    s = goal.isa_goal.operator_slot;
+                    goal = goal.goalInfo.lower_goal;
+                    s = goal.goalInfo.operator_slot;
                 }
             } /* end of while (TRUE) find next slot to decide */
 
@@ -2688,7 +2688,7 @@ public class Decider
                             wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
                             /* JC ADDED: Separate adding wme to GDS as a function */
-                            add_wme_to_gds(inst.match_goal.isa_goal.gds, wme_matching_this_cond);
+                            add_wme_to_gds(inst.match_goal.goalInfo.gds, wme_matching_this_cond);
 
                             if (DEBUG_GDS)
                             {
@@ -2707,14 +2707,14 @@ public class Decider
 
                             wme_matching_this_cond.gds.removeWme(wme_matching_this_cond);
 
-                            add_wme_to_gds(inst.match_goal.isa_goal.gds, wme_matching_this_cond);
+                            add_wme_to_gds(inst.match_goal.goalInfo.gds, wme_matching_this_cond);
 
                             if (DEBUG_GDS)
                             {
                                 context.getPrinter().print("\n       ....switching from old to new GDS list....\n");
                             }
 
-                            wme_matching_this_cond.gds = inst.match_goal.isa_goal.gds;
+                            wme_matching_this_cond.gds = inst.match_goal.goalInfo.gds;
                         }
                     }
                     else
@@ -2722,7 +2722,7 @@ public class Decider
                         // We know that the WME should be in the GDS of the current
                         // goal if the WME's GDS does not already exist. (i.e., if NIL GDS)
 
-                        add_wme_to_gds(inst.match_goal.isa_goal.gds, wme_matching_this_cond);
+                        add_wme_to_gds(inst.match_goal.goalInfo.gds, wme_matching_this_cond);
 
                         if (DEBUG_GDS)
                         {
@@ -2806,7 +2806,7 @@ public class Decider
                                             * the GDS is no longer around */
                                             fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
 
-                                            add_wme_to_gds(inst.match_goal.isa_goal.gds, fake_inst_wme_cond);
+                                            add_wme_to_gds(inst.match_goal.goalInfo.gds, fake_inst_wme_cond);
 
                                             if (DEBUG_GDS)
                                             {
@@ -2826,14 +2826,14 @@ public class Decider
 
                                             fake_inst_wme_cond.gds.removeWme(fake_inst_wme_cond);
                                             
-                                            add_wme_to_gds(inst.match_goal.isa_goal.gds, fake_inst_wme_cond);
+                                            add_wme_to_gds(inst.match_goal.goalInfo.gds, fake_inst_wme_cond);
 
                                             if (DEBUG_GDS)
                                             {
                                                 context.getPrinter().print(
                                                         "\n       .....switching from old to new GDS list....\n");
                                             }
-                                            fake_inst_wme_cond.gds = inst.match_goal.isa_goal.gds;
+                                            fake_inst_wme_cond.gds = inst.match_goal.goalInfo.gds;
                                         }
                                     }
                                     else
@@ -2842,7 +2842,7 @@ public class Decider
                                         // the current goal if the WME's GDS does not
                                         // already exist. (i.e., if NIL GDS)
 
-                                        add_wme_to_gds(inst.match_goal.isa_goal.gds, fake_inst_wme_cond);
+                                        add_wme_to_gds(inst.match_goal.goalInfo.gds, fake_inst_wme_cond);
 
                                         if (DEBUG_GDS)
                                         {
@@ -3018,13 +3018,13 @@ public class Decider
         {
             if (tempMemory.highest_goal_whose_context_changed.level >= w.gds.getGoal().level)
             {
-                tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().isa_goal.higher_goal;
+                tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().goalInfo.higher_goal;
             }
         }
         else
         {
             // If nothing has yet changed (highest_ ... = NIL) then set the goal automatically
-            tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().isa_goal.higher_goal;
+            tempMemory.highest_goal_whose_context_changed = w.gds.getGoal().goalInfo.higher_goal;
             
     		// Tell those slots they are changed so that the impasses can be regenerated
     		// bug 1011
@@ -3082,7 +3082,7 @@ public class Decider
      */
     private void create_gds_for_goal(IdentifierImpl goal)
     {
-        goal.isa_goal.gds = new GoalDependencySetImpl(goal);
+        goal.goalInfo.gds = new GoalDependencySetImpl(goal);
         if (DEBUG_GDS)
         {
             context.getPrinter().print("\nCreated GDS for goal [%s].\n", goal);

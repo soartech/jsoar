@@ -246,7 +246,7 @@ private void mark_depths_augs_of_id (SymbolImpl idIn, int depth, Marker tc)
         mark_depths_augs_of_id (w.attr, depth-1, tc);
         mark_depths_augs_of_id (w.value, depth-1, tc);
     }
-    for (WmeImpl w=id.isa_goal != null ? id.isa_goal.getImpasseWmes() : null; w!=null; w=w.next) {
+    for (WmeImpl w=id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w!=null; w=w.next) {
         mark_depths_augs_of_id (w.attr, depth-1, tc);
         mark_depths_augs_of_id (w.value, depth-1, tc);
     }
@@ -304,7 +304,7 @@ private void print_augs_of_id (SymbolImpl idIn,
     /* --- first, count all direct augmentations of this id --- */
     /* --- next, construct the array of wme pointers and sort them --- */
     List<WmeImpl> list = new ArrayList<WmeImpl>();
-    for (WmeImpl w=id.isa_goal != null ? id.isa_goal.getImpasseWmes() : null; w!=null; w=w.next)
+    for (WmeImpl w=id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w!=null; w=w.next)
         list.add(w);
     for (WmeImpl w=id.getInputWmes(); w!=null; w=w.next)
         list.add(w);

@@ -259,7 +259,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             }
 
             // impasse wmes
-            for (WmeImpl w=id.isa_goal != null ? id.isa_goal.getImpasseWmes() : null; w!=null; w=w.next )
+            for (WmeImpl w=id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w!=null; w=w.next )
             {
                 if ( !w.acceptable )
                 {
@@ -439,7 +439,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
         // and add it to the list of preferences to be removed
         // when the goal is removed
-        state.isa_goal.addGoalPreference(pref);
+        state.goalInfo.addGoalPreference(pref);
         pref.on_goal_list = true;
 
 
@@ -1646,7 +1646,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         }   
 
         // if no children, then retrieve children
-        if ( ( lti.isa_goal == null || lti.isa_goal.getImpasseWmes() == null ) &&
+        if ( ( lti.goalInfo == null || lti.goalInfo.getImpasseWmes() == null ) &&
              ( lti.getInputWmes() == null ) &&
              ( lti.slots == null ) )
         {
@@ -2093,7 +2093,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // so just clear out result stack
             data.smem_wmes.clear();
             
-            state = state.isa_goal.lower_goal;
+            state = state.goalInfo.lower_goal;
         }
     }
     
@@ -3120,7 +3120,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                 ////////////////////////////////////////////////////////////////////////////
             }
 
-            state = state.isa_goal.higher_goal;
+            state = state.goalInfo.higher_goal;
         }
     }
     

@@ -219,7 +219,7 @@ public class StructuredPreferencesCommand
             }
         }
         final List<Wme> impasseWmes = new ArrayList<Wme>();
-        for (WmeImpl w = id.isa_goal != null ? id.isa_goal.getImpasseWmes() : null; w != null; w = w.next)
+        for (WmeImpl w = id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w != null; w = w.next)
         {
             impasseWmes.add(w);
         }

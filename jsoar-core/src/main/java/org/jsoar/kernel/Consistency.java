@@ -91,10 +91,10 @@ public class Consistency
         /* Determine the current operator/impasse in the slot*/
         WmeImpl current_operator;
         boolean operator_in_slot;
-        if (goal.isa_goal.operator_slot.getWmes() != null)
+        if (goal.goalInfo.operator_slot.getWmes() != null)
         {
             /* There is an operator in the slot */
-            current_operator = goal.isa_goal.operator_slot.getWmes();
+            current_operator = goal.goalInfo.operator_slot.getWmes();
             operator_in_slot = true;
         }
         else
@@ -106,7 +106,7 @@ public class Consistency
 
         ImpasseType current_impasse_type;
         final SymbolImpl current_impasse_attribute;
-        if (goal.isa_goal.lower_goal != null)
+        if (goal.goalInfo.lower_goal != null)
         {
             // the goal is impassed
             current_impasse_type = decider.type_of_existing_impasse(goal);
@@ -221,7 +221,7 @@ public class Consistency
             }
             else
             { /* There is no operator in the slot */
-                if (goal.isa_goal.lower_goal != null)
+                if (goal.goalInfo.lower_goal != null)
                 { /* But there is an impasse */
                     context.getPrinter().warn("      No Impasse Needed but Impasse exists: remove impasse now\n");
                     context.getPrinter().warn(
@@ -287,8 +287,8 @@ public class Consistency
         decider.remove_wmes_for_context_slot(s);
 
         /* If there are any subgoals, remove those */
-        if (s.id.isa_goal.lower_goal != null)
-            decider.remove_existing_context_and_descendents(s.id.isa_goal.lower_goal);
+        if (s.id.goalInfo.lower_goal != null)
+            decider.remove_existing_context_and_descendents(s.id.goalInfo.lower_goal);
 
         decider.do_buffered_wm_and_ownership_changes();
     }
@@ -315,16 +315,16 @@ public class Consistency
         /* Check only those goals where preferences have changes that are at or above the level 
            of the consistency check */
         for (IdentifierImpl goal = tempMemory.highest_goal_whose_context_changed; goal != null
-                && goal.level <= level; goal = goal.isa_goal.lower_goal)
+                && goal.level <= level; goal = goal.goalInfo.lower_goal)
         {
             if (DEBUG_CONSISTENCY_CHECK)
             {
                 context.getPrinter().print("    Looking at goal [%s] to see if its preferences have changed\n", goal);
             }
 
-            Slot s = goal.isa_goal.operator_slot;
+            Slot s = goal.goalInfo.operator_slot;
 
-            if ((goal.isa_goal.lower_goal != null) || (s.getWmes() != null))
+            if ((goal.goalInfo.lower_goal != null) || (s.getWmes() != null))
             { /* If we are not at the bottom goal or if there is an operator in the
                          bottom goal's operator slot */
                 if (DEBUG_CONSISTENCY_CHECK)
@@ -375,10 +375,10 @@ public class Consistency
     {
         /* print_with_symbols("\nLooking for I-activity at goal: %y\n", goal); */
 
-        if (!goal.isa_goal.ms_i_assertions.isEmpty())
+        if (!goal.goalInfo.ms_i_assertions.isEmpty())
             return true;
 
-        if (!goal.isa_goal.ms_retractions.isEmpty())
+        if (!goal.goalInfo.ms_retractions.isEmpty())
             return true;
 
         /* printf("\nNo instantiation found.  Returning FALSE\n");  */
@@ -420,7 +420,7 @@ public class Consistency
      */
     public IdentifierImpl highest_active_goal_propose(IdentifierImpl start_goal)
     {
-        for (IdentifierImpl goal = start_goal; goal != null; goal = goal.isa_goal.lower_goal)
+        for (IdentifierImpl goal = start_goal; goal != null; goal = goal.goalInfo.lower_goal)
         {
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE      
@@ -430,7 +430,7 @@ public class Consistency
             #endif
              */
             /* If there are any active productions at this goal, return the goal */
-            if ((!goal.isa_goal.ms_i_assertions.isEmpty()) || (!goal.isa_goal.ms_retractions.isEmpty()))
+            if ((!goal.goalInfo.ms_i_assertions.isEmpty()) || (!goal.goalInfo.ms_retractions.isEmpty()))
                 return goal;
         }
 
@@ -462,7 +462,7 @@ public class Consistency
      */
     public IdentifierImpl highest_active_goal_apply(IdentifierImpl start_goal)
     {
-        for (IdentifierImpl goal = start_goal; goal != null; goal = goal.isa_goal.lower_goal)
+        for (IdentifierImpl goal = start_goal; goal != null; goal = goal.goalInfo.lower_goal)
         {
             /*
             #if 0 //DEBUG_DETERMINE_LEVEL_PHASE      
@@ -474,8 +474,8 @@ public class Consistency
             */
 
             /* If there are any active productions at this goal, return the goal */
-            if ((!goal.isa_goal.ms_i_assertions.isEmpty()) || (!goal.isa_goal.ms_o_assertions.isEmpty())
-                    || (!goal.isa_goal.ms_retractions.isEmpty()))
+            if ((!goal.goalInfo.ms_i_assertions.isEmpty()) || (!goal.goalInfo.ms_o_assertions.isEmpty())
+                    || (!goal.goalInfo.ms_retractions.isEmpty()))
                 return goal;
         }
 
@@ -581,8 +581,8 @@ public class Consistency
         decider.active_goal = null;
         
         /* Clear any interruption flags on the goals....*/
-        for (IdentifierImpl goal = decider.top_goal; goal != null; goal = goal.isa_goal.lower_goal)
-            goal.isa_goal.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
+        for (IdentifierImpl goal = decider.top_goal; goal != null; goal = goal.goalInfo.lower_goal)
+            goal.goalInfo.saved_firing_type = SavedFiringType.NO_SAVED_PRODS;
     }
 
     /**
@@ -734,14 +734,14 @@ public class Consistency
             #endif
             */
 
-            if (goal.isa_goal.saved_firing_type != SavedFiringType.NO_SAVED_PRODS)
+            if (goal.goalInfo.saved_firing_type != SavedFiringType.NO_SAVED_PRODS)
             {
                 /*
                 #ifdef DEBUG_DETERMINE_LEVEL_PHASE
                 print(thisAgent, "\nRestoring production type from previous processing at this level"); 
                 #endif
                 */
-                recMemory.FIRING_TYPE = goal.isa_goal.saved_firing_type;
+                recMemory.FIRING_TYPE = goal.goalInfo.saved_firing_type;
                 // KJC 04.05 commented the next line after reworking the phases
                 // in init_soar.cpp
                 // thisAgent->current_phase = DETERMINE_LEVEL_PHASE;
@@ -791,7 +791,7 @@ public class Consistency
             */
 
             goal = decider.previous_active_goal;
-            goal.isa_goal.saved_firing_type = recMemory.FIRING_TYPE;
+            goal.goalInfo.saved_firing_type = recMemory.FIRING_TYPE;
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE       
             if (goal->id.saved_firing_type == IE_PRODS)
@@ -978,7 +978,7 @@ public class Consistency
             */
 
             IdentifierImpl goal = decider.previous_active_goal;
-            goal.isa_goal.saved_firing_type = recMemory.FIRING_TYPE;
+            goal.goalInfo.saved_firing_type = recMemory.FIRING_TYPE;
 
             /*
             #ifdef DEBUG_DETERMINE_LEVEL_PHASE       
