@@ -40,6 +40,12 @@ public class Production
 {
     private static final List<Variable> EMPTY_RHS_UNBOUND_VARS_LIST = Collections.emptyList();
     
+    public enum AssertListType
+    {
+        O_LIST, // 0     /* moved here from soarkernel.h.  only used in rete.cpp */
+        I_LIST  // 1     /*   values for prod->OPERAND_which_assert_list */
+    }
+    
     private final ProductionType type;
     private final SourceLocation location;
     private final String name;

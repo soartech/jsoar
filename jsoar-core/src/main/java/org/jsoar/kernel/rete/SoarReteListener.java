@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
-import org.jsoar.kernel.AssertListType;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.MatchSet;
 import org.jsoar.kernel.MatchSetEntry;
@@ -22,6 +21,7 @@ import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.MatchSetEntry.EntryType;
+import org.jsoar.kernel.Production.AssertListType;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.PreferenceType;

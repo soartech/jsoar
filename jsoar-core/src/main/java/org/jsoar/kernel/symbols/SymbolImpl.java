@@ -5,7 +5,7 @@
  */
 package org.jsoar.kernel.symbols;
 
-import org.jsoar.kernel.DeciderFlag;
+import org.jsoar.kernel.Decider.DeciderFlag;
 import org.jsoar.kernel.lhs.EqualityTest;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rhs.RhsSymbolValue;
