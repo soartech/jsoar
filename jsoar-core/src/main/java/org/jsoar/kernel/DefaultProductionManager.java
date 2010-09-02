@@ -129,8 +129,6 @@ public class DefaultProductionManager implements ProductionManager
     @Override
     public void exciseProduction(Production prod, boolean print_sharp_sign)
     {
-        // TODO if (prod->trace_firings) remove_pwatch (thisAgent, prod);
-        
         context.getEvents().fireEvent(new ProductionExcisedEvent(context, prod));
         
         productionsByType.get(prod.getType()).remove(prod);

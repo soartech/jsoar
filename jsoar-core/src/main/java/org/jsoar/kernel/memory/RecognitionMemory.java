@@ -666,7 +666,7 @@ public class RecognitionMemory
             }
         }
 
-        boolean trace_it = trace.isEnabled(inst.prod.getType().getTraceCategory());
+        boolean trace_it = trace.isEnabled(inst.prod.getType().getTraceCategory()) || inst.prod.isTraceFirings();
         if(trace_it)
         {
             trace.startNewLine().print("Firing %s", inst);
@@ -946,7 +946,7 @@ public class RecognitionMemory
         boolean retracted_a_preference = false;
 
         final Trace trace = context.getTrace();
-        final boolean trace_it = trace.isEnabled(inst.prod.getType().getTraceCategory());
+        final boolean trace_it = trace.isEnabled(inst.prod.getType().getTraceCategory()) || inst.prod.isTraceFirings();
 
         // retract any preferences that are in TM and aren't o-supported
         Preference pref = inst.preferences_generated;

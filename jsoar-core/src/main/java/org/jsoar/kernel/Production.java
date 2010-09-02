@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.jsoar.kernel.lhs.Condition;
@@ -55,8 +56,10 @@ public class Production
     public Action action_list;
     public ProductionSupport declared_support = ProductionSupport.UNDECLARED;
     public boolean interrupt = false;
+    
     private final AtomicLong firingCount = new AtomicLong(0);
-    public boolean trace_firings = false;
+    private final AtomicBoolean traceFirings = new AtomicBoolean();
+    
     private Rete rete;
     private ReteNode p_node;
     /**
@@ -169,6 +172,24 @@ public class Production
         return this.firingCount.incrementAndGet();
     }
         
+    /**
+     * @return true if firings of this rule should be traced
+     */
+    public boolean isTraceFirings()
+    {
+        return traceFirings.get();
+    }
+    
+    /**
+     * Set whether firings of this rule should be traced.
+     * 
+     * @param value new value
+     */
+    public void setTraceFirings(boolean value)
+    {
+        traceFirings.set(value);
+    }
+
     /**
      * Print partial match information for this production to the given printer
      * 

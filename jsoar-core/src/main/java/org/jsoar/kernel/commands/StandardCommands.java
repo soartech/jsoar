@@ -43,6 +43,7 @@ public class StandardCommands
         interp.addCommand("echo", new EchoCommand(agent));
         interp.addCommand("clog", new CLogCommand(agent));
         interp.addCommand("watch", new WatchCommand(agent.getTrace()));
+        interp.addCommand("pwatch", new ProductionWatchCommand(agent.getProductions()));
         interp.addCommand("rhs-functions", new RhsFunctionsCommand(agent));
         
         final PrintCommand printCommand = new PrintCommand(agent);
