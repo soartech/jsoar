@@ -267,7 +267,7 @@ public class ReinforcementLearning
      * @param prod
      * @return
      */
-    static boolean rl_valid_rule( Production prod )
+    private static boolean rl_valid_rule( Production prod )
     {
         boolean numeric_pref = false;
         int num_actions = 0;
@@ -403,7 +403,7 @@ public class ReinforcementLearning
      * @param i_sym
      * @param constants
      */
-    static void rl_get_symbol_constant( SymbolImpl p_sym, SymbolImpl i_sym, Map<SymbolImpl, SymbolImpl> constants )
+    private static void rl_get_symbol_constant( SymbolImpl p_sym, SymbolImpl i_sym, Map<SymbolImpl, SymbolImpl> constants )
     {
         if(p_sym.asVariable() != null && (i_sym.asIdentifier() == null || i_sym.asIdentifier().smem_lti != 0))
         {
@@ -419,7 +419,7 @@ public class ReinforcementLearning
      * @param i_test
      * @param constants
      */
-    static void rl_get_test_constant( Test p_test, Test i_test, Map<SymbolImpl, SymbolImpl> constants )
+    private static void rl_get_test_constant( Test p_test, Test i_test, Map<SymbolImpl, SymbolImpl> constants )
     {
         if (Tests.isBlank(p_test))
         {
@@ -482,7 +482,7 @@ public class ReinforcementLearning
      * @param i_conds
      * @param constants
      */
-    void rl_get_template_constants( Condition p_conds, Condition i_conds, Map<SymbolImpl, SymbolImpl> constants )
+    private void rl_get_template_constants( Condition p_conds, Condition i_conds, Map<SymbolImpl, SymbolImpl> constants )
     {
         Condition p_cond = p_conds;
         Condition i_cond = i_conds;
@@ -943,6 +943,8 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                 {   
                     final Production prod = iter.getKey();
 
+                    assert prod.rl_rule;
+                    
                     // get old vals
                     old_ecr = prod.rl_ecr;
                     old_efr = prod.rl_efr;
