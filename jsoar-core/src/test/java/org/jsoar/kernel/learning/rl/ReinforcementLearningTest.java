@@ -8,6 +8,7 @@ package org.jsoar.kernel.learning.rl;
 
 import static org.junit.Assert.*;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +74,8 @@ public class ReinforcementLearningTest
         expectedValues.put("rl*value*function*8", Arrays.asList(18.75, 35.6875, 50.9875, 64.808125, 77.29225));
         expectedValues.put("rl*value*function*9", Arrays.asList(10., 19., 27.1, 34.39, 40.951));
         
-        SoarCommands.source(agent.getInterpreter(), "http://soar.googlecode.com/svn/trunk/SoarSuite/Core/Demos/rl-unit/rl-unit_source.soar");
+        final URL code = getClass().getResource("/org/jsoar/kernel/RLTests_testRLUnit.soar");
+        SoarCommands.source(agent.getInterpreter(), code);
         for(int run = 0; run < NUM_RUNS; run++)
         {
             agent.runFor(0, RunType.FOREVER);
