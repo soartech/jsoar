@@ -1411,7 +1411,7 @@ public class Decider
         final IdentifierImpl id = predefined.getSyms().make_new_identifier('S', level);
         post_link_addition(null, id); // add the special link
 
-        id.isa_goal = new GoalIdentifierInfo();
+        id.isa_goal = new GoalIdentifierInfo(id);
 
         add_impasse_wme(id, predefined.type_symbol, predefined.state_symbol, null);
         add_impasse_wme(id, predefined.superstate_symbol, object, null);

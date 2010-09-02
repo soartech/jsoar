@@ -18,7 +18,6 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WmeType;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
-import org.jsoar.util.adaptables.AbstractAdaptable;
 import org.jsoar.util.markers.Marker;
 
 import com.google.common.collect.Iterators;
@@ -293,7 +292,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     {
         if(Goal.class.equals(klass))
         {
-            return isGoal() ? new GoalImpl() : null;
+            return isa_goal;
         }
         else if(isGoal() && GoalDependencySet.class.equals(klass))
         {
@@ -375,66 +374,6 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         public void remove()
         {
             throw new UnsupportedOperationException();
-        }
-    }
-    
-    private class GoalImpl extends AbstractAdaptable implements Goal
-    {
-        /* (non-Javadoc)
-         * @see org.jsoar.kernel.Goal#getIdentifier()
-         */
-        @Override
-        public Identifier getIdentifier()
-        {
-            return IdentifierImpl.this;
-        }
-
-        /* (non-Javadoc)
-         * @see org.jsoar.kernel.Goal#getOperator()
-         */
-        @Override
-        public IdentifierImpl getOperator()
-        {
-            final WmeImpl wmes = isa_goal != null && isa_goal.operator_slot != null ? isa_goal.operator_slot.getWmes() : null;
-            return wmes != null ? wmes.value.asIdentifier() : null;
-        }
-
-        /* (non-Javadoc)
-         * @see org.jsoar.kernel.Goal#getOperatorName()
-         */
-        @Override
-        public Symbol getOperatorName()
-        {
-            final IdentifierImpl op = getOperator();
-            final Slot slot = Slot.find_slot(op, factory.findString("name"));
-            
-            return slot != null && slots.getWmes() != null ? slot.getWmes().getValue() : null;
-        }
-
-        /* (non-Javadoc)
-         * @see org.jsoar.util.adaptables.AbstractAdaptable#getAdapter(java.lang.Class)
-         */
-        @Override
-        public Object getAdapter(Class<?> klass)
-        {
-            if(Identifier.class.equals(klass))
-            {
-                return getIdentifier();
-            }
-            else if(isGoal() && GoalDependencySet.class.equals(klass))
-            {
-                return isa_goal.gds;
-            }
-            return super.getAdapter(klass);
-        }
-
-        /* (non-Javadoc)
-         * @see java.lang.Object#toString()
-         */
-        @Override
-        public String toString()
-        {
-            return getIdentifier().toString();
         }
     }
 }

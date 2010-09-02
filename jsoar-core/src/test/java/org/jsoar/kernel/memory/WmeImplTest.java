@@ -22,7 +22,7 @@ public class WmeImplTest extends JSoarTest
     public void testIsAdaptableToGoalDependencySet()
     {
         final IdentifierImpl id = syms.createIdentifier('S');
-        id.isa_goal = new GoalIdentifierInfo();
+        id.isa_goal = new GoalIdentifierInfo(id);
         id.isa_goal.gds = new GoalDependencySetImpl(id);
         final WmeImpl wme = new WmeImpl(id, syms.createString("hi"), syms.createInteger(99), true, 0);
         assertNull(Adaptables.adapt(wme, GoalDependencySet.class));
