@@ -8,7 +8,6 @@ package org.jsoar.kernel.modules;
 import java.util.Set;
 
 import org.jsoar.kernel.Decider;
-import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
@@ -31,7 +30,6 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class SoarModule
 {
-    private PredefinedSymbols syms;
     private WorkingMemory wm;
     private Decider decider;
     
@@ -42,7 +40,6 @@ public class SoarModule
     
     public void initialize(AbstractAdaptable context)
     {
-        syms = Adaptables.require(getClass(), context, PredefinedSymbols.class);
         wm = Adaptables.require(getClass(), context, WorkingMemory.class);
         decider = Adaptables.require(getClass(), context, Decider.class);
     }

@@ -20,7 +20,6 @@ public class PositiveCondition extends ThreeFieldCondition
      */
     private BackTraceInfo bt;
     
-    
     public PositiveCondition()
     {
         

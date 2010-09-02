@@ -61,8 +61,8 @@ public class ConjunctiveNegationCondition extends Condition
     public boolean cond_is_in_tc(Marker tc)
     {
         // conjunctive negations: keep trying to add stuff to the TC
-        ListHead<IdentifierImpl> new_ids = ListHead.newInstance();
-        ListHead<Variable> new_vars = ListHead.newInstance();
+        final ListHead<IdentifierImpl> new_ids = ListHead.newInstance();
+        final ListHead<Variable> new_vars = ListHead.newInstance();
 
         for (Condition c = top; c != null; c = c.next)
             c.already_in_tc = false;

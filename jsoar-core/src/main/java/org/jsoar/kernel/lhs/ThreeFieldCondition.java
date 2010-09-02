@@ -17,6 +17,7 @@ public abstract class ThreeFieldCondition extends Condition
     public Test id_test;
     public Test attr_test;
     public Test value_test;
+    public boolean test_for_acceptable_preference;   /* for pos, neg cond's only */
     
     protected ThreeFieldCondition()
     {

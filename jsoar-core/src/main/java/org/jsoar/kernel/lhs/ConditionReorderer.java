@@ -5,8 +5,11 @@
  */
 package org.jsoar.kernel.lhs;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -39,6 +42,12 @@ public class ConditionReorderer
     private final MultiAttributes multiAttrs;
 
     private String prodName;
+    
+    /**
+     * Originally this was just a field on Condition. Converted to a temporary
+     * map to save memory. It just makes more sense anyway.
+     */
+    private final Map<Condition, List<Variable>> reorder_vars_requiring_bindings = new HashMap<Condition, List<Variable>>();
 
     private static class SavedTest
     {
@@ -75,10 +84,10 @@ public class ConditionReorderer
      */
     public void reorder_lhs(ByRef<Condition> lhs_top, ByRef<Condition> lhs_bottom, boolean reorder_nccs) throws ReordererException
     {
-        Marker tc = DefaultMarker.create();
+        final Marker tc = DefaultMarker.create();
         /* don't mark any variables, since nothing is bound outside the LHS */
 
-        ListHead<Variable> roots = Conditions.collect_root_variables(lhs_top.value, tc, trace.getPrinter(), prodName);
+        final ListHead<Variable> roots = Conditions.collect_root_variables(lhs_top.value, tc, trace.getPrinter(), prodName);
 
         /*
          * SBH/MVP 6-24-94 Fix to include only root "STATE" test in the LHS of a
@@ -109,8 +118,8 @@ public class ConditionReorderer
 
         if (roots.isEmpty())
         {
-            String message = String.format("Error: in production %s,\n"+
-                    " The LHS has no roots.\n", prodName);
+            final String message = String.format("Error: in production %s,\n"+
+                                                 " The LHS has no roots.\n", prodName);
             trace.getPrinter().print(message);
             throw new ReordererException(message);
         }
@@ -139,9 +148,9 @@ public class ConditionReorderer
      * @param reorder_nccs
      */
     private void reorder_condition_list(ByRef<Condition> top_of_conds, ByRef<Condition> bottom_of_conds,
-            ListHead<Variable> roots, Marker tc, boolean reorder_nccs)
+                                        ListHead<Variable> roots, Marker tc, boolean reorder_nccs)
     {
-        SavedTest saved_tests = simplify_condition_list(top_of_conds.value);
+        final SavedTest saved_tests = simplify_condition_list(top_of_conds.value);
         reorder_simplified_conditions(top_of_conds, bottom_of_conds, roots, tc, reorder_nccs);
         restore_and_deallocate_saved_tests(top_of_conds.value, tc, saved_tests);
 
@@ -157,7 +166,7 @@ public class ConditionReorderer
      */
     private void restore_and_deallocate_saved_tests(Condition conds_list, Marker tc, SavedTest tests_to_restore)
     {
-        ListHead<Variable> new_vars = ListHead.newInstance();
+        final ListHead<Variable> new_vars = ListHead.newInstance();
         for (Condition cond = conds_list; cond != null; cond = cond.next)
         {
             if (cond.asPositiveCondition() != null) 
@@ -299,10 +308,14 @@ public class ConditionReorderer
     private void reorder_simplified_conditions(ByRef<Condition> top_of_conds, ByRef<Condition> bottom_of_conds,
             ListHead<Variable> roots, Marker bound_vars_tc_number, boolean reorder_nccs)
     {
+        // Originally condition::reorder_next_min_cost. Moved here to save memory, reduce
+        // coupling, etc.
+        final Map<Condition, Condition> reorder_next_min_cost = new HashMap<Condition, Condition>();
+        
         Condition remaining_conds = top_of_conds.value; // header of dll
         Condition first_cond = null;
         Condition last_cond = null;
-        ListHead<Variable> new_vars = ListHead.newInstance();
+        final ListHead<Variable> new_vars = ListHead.newInstance();
         Condition chosen;
 
         /*
@@ -323,11 +336,11 @@ public class ConditionReorderer
                 {
                     min_cost = cost;
                     min_cost_conds = cond;
-                    cond.reorder_next_min_cost = null;
+                    reorder_next_min_cost.put(cond, null);
                 }
                 else if (cost == min_cost)
                 {
-                    cond.reorder_next_min_cost = min_cost_conds;
+                    reorder_next_min_cost.put(cond, min_cost_conds);
                     min_cost_conds = cond;
                 }
                 /*
@@ -356,18 +369,19 @@ public class ConditionReorderer
                 // free_growable_string(thisAgent, gs);
             }
             // if more than one min-cost item, and cost>1, do lookahead
-            if (min_cost > 1 && min_cost_conds.reorder_next_min_cost != null)
+            if (min_cost > 1 && reorder_next_min_cost.get(min_cost_conds) != null)
             {
                 min_cost = MAX_COST + 1;
-                for (Condition cond = min_cost_conds, next_cond = cond.reorder_next_min_cost; cond != null; 
-                     cond = next_cond, next_cond = (cond != null ? cond.reorder_next_min_cost : null))
+                for (Condition cond = min_cost_conds, next_cond = reorder_next_min_cost.get(cond); 
+                     cond != null; 
+                     cond = next_cond, next_cond = (cond != null ? reorder_next_min_cost.get(cond) : null))
                 {
                     cost = find_lowest_cost_lookahead(remaining_conds, cond, bound_vars_tc_number, roots);
                     if (cost < min_cost)
                     {
                         min_cost = cost;
                         min_cost_conds = cond;
-                        cond.reorder_next_min_cost = null;
+                        reorder_next_min_cost.put(cond, null);
                     }
                     else
                     {
@@ -384,16 +398,16 @@ public class ConditionReorderer
                             {
                                 min_cost = cost;
                                 min_cost_conds = cond;
-                                cond.reorder_next_min_cost = null;
+                                reorder_next_min_cost.put(cond, null);
                             }
                         }
                     }
                 }
             }
             /** **************************************************************** */
-            if (min_cost == 1 && min_cost_conds.reorder_next_min_cost != null)
+            if (min_cost == 1 && reorder_next_min_cost.get(min_cost_conds) != null)
             {
-                for (Condition cond = min_cost_conds; cond != null; cond = cond.reorder_next_min_cost)
+                for (Condition cond = min_cost_conds; cond != null; cond = reorder_next_min_cost.get(cond))
                 {
                     if (cond.asPositiveCondition() != null && min_cost_conds.asPositiveCondition() != null
                             && canonical_cond_greater(min_cost_conds, cond))
@@ -423,9 +437,9 @@ public class ConditionReorderer
             ConjunctiveNegationCondition ncc = chosen.asConjunctiveNegationCondition();
             if (ncc != null && reorder_nccs)
             {
-                ListHead<Variable> ncc_roots = Conditions.collect_root_variables(ncc.top, bound_vars_tc_number, trace.getPrinter(), prodName);
-                ByRef<Condition> top = ByRef.create(ncc.top);
-                ByRef<Condition> bottom = ByRef.create(ncc.bottom);
+                final ListHead<Variable> ncc_roots = Conditions.collect_root_variables(ncc.top, bound_vars_tc_number, trace.getPrinter(), prodName);
+                final ByRef<Condition> top = ByRef.create(ncc.top);
+                final ByRef<Condition> bottom = ByRef.create(ncc.bottom);
                 reorder_condition_list(top, bottom, ncc_roots, bound_vars_tc_number, reorder_nccs);
                 ncc.top = top.value;
                 ncc.bottom = bottom.value;
@@ -570,7 +584,7 @@ public class ConditionReorderer
         int result;
 
         /* --- handle the common simple case quickly up front --- */
-        PositiveCondition pc = cond.asPositiveCondition();
+        final PositiveCondition pc = cond.asPositiveCondition();
         if (root_vars_not_bound_yet.isEmpty() && pc != null && 
                 !Tests.isBlank(pc.id_test) && !Tests.isBlank(pc.attr_test) && !Tests.isBlank(pc.value_test) &&
                 pc.id_test.asEqualityTest() != null && 
@@ -593,7 +607,7 @@ public class ConditionReorderer
 
             if (!symbol_is_constant_or_marked_variable(pc.value_test.asEqualityTest().getReferent(), tc))
             {
-                if (cond.test_for_acceptable_preference)
+                if (pc.test_for_acceptable_preference)
                 {
                     result = result * BF_FOR_ACCEPTABLE_PREFS;
                 }
@@ -622,7 +636,7 @@ public class ConditionReorderer
             }
             if (!test_covered_by_bound_vars(pc.value_test, tc, root_vars_not_bound_yet))
             {
-                if (cond.test_for_acceptable_preference)
+                if (pc.test_for_acceptable_preference)
                 {
                     result = result * BF_FOR_ACCEPTABLE_PREFS;
                 }
@@ -633,12 +647,10 @@ public class ConditionReorderer
             }
             return result;
         }
-        /*
-         * --- negated or NC conditions: just check whether all variables
-         * requiring bindings are actually bound. If so, return 1, else return
-         * MAX_COST ---
-         */
-        for (Variable v : cond.reorder_vars_requiring_bindings)
+        
+        // negated or NC conditions: just check whether all variables requiring 
+        // bindings are actually bound. If so, return 1, else return MAX_COST
+        for (Variable v : reorder_vars_requiring_bindings.get(cond))
         {
             if (v.tc_number != tc)
             {
@@ -805,12 +817,12 @@ public class ConditionReorderer
         // scan through negated and NC cond's, remove lists from them
         for (Condition c = cond_list; c != null; c = c.next)
         {
-            PositiveCondition pc = c.asPositiveCondition();
+            final PositiveCondition pc = c.asPositiveCondition();
             if (pc == null)
             {
-                c.reorder_vars_requiring_bindings.clear();
+                reorder_vars_requiring_bindings.get(c).clear();
             }
-            ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
+            final ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
             if (ncc != null)
             {
                 remove_vars_requiring_bindings(ncc.top);
@@ -870,7 +882,7 @@ public class ConditionReorderer
             PositiveCondition pc = c.asPositiveCondition();
             if (pc == null)
             {
-                c.reorder_vars_requiring_bindings = collect_vars_tested_by_cond_that_are_bound(c, tc, new LinkedList<Variable>());
+                reorder_vars_requiring_bindings.put(c, collect_vars_tested_by_cond_that_are_bound(c, tc, new LinkedList<Variable>()));
             }
             ConjunctiveNegationCondition ncc = c.asConjunctiveNegationCondition();
             if (ncc != null)

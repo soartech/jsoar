@@ -25,14 +25,7 @@ import org.jsoar.util.markers.Marker;
 public abstract class Condition implements Formattable
 {
     public boolean already_in_tc;                 /* used only by cond_is_in_tc stuff */
-    public boolean test_for_acceptable_preference;   /* for pos, neg cond's only */
     public Condition  next, prev;
-
-    /**
-     * used only during reordering.
-     */
-    List<Variable> reorder_vars_requiring_bindings = null;
-    Condition reorder_next_min_cost = null;
 
     public static Condition insertAtHead(Condition header, Condition c)
     {
@@ -154,7 +147,7 @@ public abstract class Condition implements Formattable
     {
         int result;
 
-        PositiveCondition pc = cond.asPositiveCondition();
+        final PositiveCondition pc = cond.asPositiveCondition();
         if (pc != null)
         {
             result = Tests.hash_test(pc.id_test);
@@ -162,13 +155,13 @@ public abstract class Condition implements Formattable
             result ^= Tests.hash_test(pc.attr_test);
             result = (result << 24) | (result >> 8);
             result ^= Tests.hash_test(pc.value_test);
-            if (cond.test_for_acceptable_preference)
+            if (pc.test_for_acceptable_preference)
                 result++;
 
             return result;
         }
 
-        NegativeCondition nc = cond.asNegativeCondition();
+        final NegativeCondition nc = cond.asNegativeCondition();
         if (nc != null)
         {
             result = 1267818;
@@ -177,13 +170,13 @@ public abstract class Condition implements Formattable
             result ^= Tests.hash_test(nc.attr_test);
             result = (result << 24) | (result >> 8);
             result ^= Tests.hash_test(nc.value_test);
-            if (cond.test_for_acceptable_preference)
+            if (nc.test_for_acceptable_preference)
                 result++;
 
             return result;
         }
 
-        ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+        final ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
         if (ncc != null)
         {
             result = 82348149;
@@ -225,7 +218,7 @@ public abstract class Condition implements Formattable
                 return false;
             if (!Tests.tests_are_equal(tfc1.value_test, tfc2.value_test, neg))
                 return false;
-            if (c1.test_for_acceptable_preference != c2.test_for_acceptable_preference)
+            if (tfc1.test_for_acceptable_preference != tfc2.test_for_acceptable_preference)
                 return false;
             return true;
         }

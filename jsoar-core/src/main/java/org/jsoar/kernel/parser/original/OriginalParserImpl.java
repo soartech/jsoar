@@ -870,7 +870,7 @@ class OriginalParserImpl
             }
             
             // build condition using the new value test
-            PositiveCondition pc = new PositiveCondition();
+            final PositiveCondition pc = new PositiveCondition();
             pc.value_test = value_test.value;
             pc.test_for_acceptable_preference = acceptable;
             new_conds = Condition.insertAtHead(new_conds, pc);
@@ -941,7 +941,7 @@ class OriginalParserImpl
             
             // setup for next attribute in path:  make a dummy variable,
             //   create a new condition in the path
-            PositiveCondition c = new PositiveCondition();
+            final PositiveCondition c = new PositiveCondition();
             if (last_c != null)
             {
                 last_c.next = c;
@@ -1107,7 +1107,7 @@ class OriginalParserImpl
         if (currentType() == LexemeType.R_PAREN)
         {
             lexer.getNextLexeme(); // consume the right parenthesis
-            PositiveCondition c = new PositiveCondition();
+            final PositiveCondition c = new PositiveCondition();
             c.attr_test = make_placeholder_test('a');
             c.value_test = make_placeholder_test('v');
             c.test_for_acceptable_preference = false;
