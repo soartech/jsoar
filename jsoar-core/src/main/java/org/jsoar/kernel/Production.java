@@ -37,6 +37,11 @@ import org.jsoar.util.StringTools;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
+/**
+ * Represents a production rule in Soar.
+ * 
+ * @author ray
+ */
 public class Production
 {
     private static final List<Variable> EMPTY_RHS_UNBOUND_VARS_LIST = Collections.emptyList();
@@ -47,18 +52,64 @@ public class Production
         I_LIST  // 1     /*   values for prod->OPERAND_which_assert_list */
     }
     
+    /** production.h:66:_SUPPORT */
+    public enum ProductionSupport
+    {
+        /** production.h:66:UNDECLARED_SUPPORT */
+        UNDECLARED,
+        /** production.h:66:DECLARED_O_SUPPORT */
+        DECLARED_O_SUPPORT,
+        /** production.h:66:DECLARED_I_SUPPORT */
+        DECLARED_I_SUPPORT
+    }
+    
+    /**
+     * Builder class used to construct productions.
+     */
+    public static class Builder
+    {
+        private ProductionType type;
+        private SourceLocation location;
+        private String name;
+        private String documentation = "";
+        private Condition topCondition, bottomCondition;
+        private Action actions;
+        private ProductionSupport support = ProductionSupport.UNDECLARED;
+        
+        public Builder type(ProductionType type) { this.type = type; return this; }
+        public Builder location(SourceLocation v) { this.location = v; return this; }
+        public Builder name(String v) { this.name = v; return this; }
+        public Builder documentation(String v) { this.documentation = v; return this; }
+        public Builder conditions(Condition top, Condition bottom) { 
+            this.topCondition = top;
+            this.bottomCondition = bottom;
+            return this; 
+        }
+        public Builder actions(Action v) { this.actions = v; return this; }
+        public Builder support(ProductionSupport v) { this.support = v; return this; }
+        
+        public Production build()
+        {
+            return new Production(type, location, name, documentation, topCondition, bottomCondition, actions, support);
+        }
+    }
+    
+    public static Builder newBuilder() { return new Builder(); }
+    
     private final ProductionType type;
     private final SourceLocation location;
     private final String name;
     private final String documentation;
-    public Condition condition_list;
-    private Condition bottomOfConditionList;
-    public Action action_list;
-    public ProductionSupport declared_support = ProductionSupport.UNDECLARED;
-
-    private final AtomicBoolean breakpointEnabled = new AtomicBoolean();
-    private final AtomicBoolean breakOnFire = new AtomicBoolean();
+    private final ProductionSupport declared_support;
     
+    private Condition condition_list;
+    private Condition bottomOfConditionList;
+    private Action action_list;
+
+    /**
+     * production.h:interrupt
+     */
+    private final AtomicBoolean breakpointEnabled = new AtomicBoolean();
     private final AtomicLong firingCount = new AtomicLong(0);
     private final AtomicBoolean traceFirings = new AtomicBoolean();
     
@@ -73,7 +124,12 @@ public class Production
      */
     public Instantiation instantiations;
     private List<Variable> rhs_unbound_variables = null;
-    public boolean already_fired = false; /* RPM test workaround for bug #139 */
+    
+    /**
+     * <p>production.h:already_fired
+     * <p>RPM test workaround for bug #139
+     */
+    public boolean justificationAlreadyFired = false;
     public AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;
     private int reference_count = 1;
     
@@ -91,14 +147,10 @@ public class Production
      * 
      * <p>production.cpp:1507:make_production
      * 
-     * @param type The type of production
-     * @param name The name of the production
-     * @param lhs_top_in Top of LHS conditions
-     * @param lhs_bottom_in Bottom of LHS conditions
-     * @param rhs_top_in Top of RHS actions
+     * @see Builder#build()
      */
-    public Production(ProductionType type, SourceLocation location, String name, String doc,
-                      Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in)
+    private Production(ProductionType type, SourceLocation location, String name, String doc,
+                      Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in, ProductionSupport support)
     {
         Arguments.checkNotNull(type, "type");
         Arguments.checkNotNull(location, "location");
@@ -110,10 +162,10 @@ public class Production
         this.location = location;
         this.name = name;
         this.documentation = doc;
-        this.p_node = null; // it's not in the Rete yet
         this.condition_list = lhs_top_in;
         this.bottomOfConditionList = lhs_bottom_in;
         this.action_list = rhs_top_in;
+        this.declared_support = support;
     }
     
     /**
@@ -125,7 +177,7 @@ public class Production
     }
     
     /**
-     * @return the location
+     * @return the source location of the production
      */
     public SourceLocation getLocation()
     {
@@ -146,6 +198,36 @@ public class Production
     public String getDocumentation()
     {
         return documentation != null ? documentation : "";
+    }
+    
+    /**
+     * @return the declared support of the production
+     */
+    public ProductionSupport getDeclaredSupport()
+    {
+        return declared_support;
+    }
+    
+    /**
+     * Returns the first condition in the production. Use {@link Condition#next}
+     * to iterate.
+     * 
+     * @return the first condition in the production
+     */
+    public Condition getFirstCondition()
+    {
+        return condition_list;
+    }
+    
+    /**
+     * Returns the first action in the production. Use {@link Action#next} to 
+     * iterate.
+     * 
+     * @return the first action in the production
+     */
+    public Action getFirstAction()
+    {
+        return action_list;
     }
     
     /**
@@ -273,9 +355,9 @@ public class Production
         }
         if (type != ProductionType.JUSTIFICATION)
         {
-            ByRef<Condition> lhs_top = ByRef.create(condition_list);
-            ByRef<Condition> lhs_bottom = ByRef.create(bottomOfConditionList);
-            ByRef<Action> rhs_top = ByRef.create(action_list);
+            final ByRef<Condition> lhs_top = ByRef.create(condition_list);
+            final ByRef<Condition> lhs_bottom = ByRef.create(bottomOfConditionList);
+            final ByRef<Action> rhs_top = ByRef.create(action_list);
             // ??? thisAgent->name_of_production_being_reordered =
             // name->sc.name;
 
@@ -293,6 +375,7 @@ public class Production
             }
 
             this.condition_list = lhs_top.value;
+            this.bottomOfConditionList = lhs_bottom.value;
             this.action_list = rhs_top.value;
         }
         else

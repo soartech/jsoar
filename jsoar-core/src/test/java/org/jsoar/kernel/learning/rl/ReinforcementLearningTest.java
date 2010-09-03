@@ -87,7 +87,7 @@ public class ReinforcementLearningTest
                 final Production rule = agent.getProductions().getProduction(ruleName);
                 assertNotNull(rule);
                 assertEquals(expectedValue, 
-                             rule.action_list.asMakeAction().referent.asSymbolValue().getSym().asDouble().getValue(), 
+                             rule.getFirstAction().asMakeAction().referent.asSymbolValue().getSym().asDouble().getValue(), 
                              0.00000001);
             }
             agent.initialize();

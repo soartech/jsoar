@@ -428,7 +428,7 @@ public class ParserImplTest extends JSoarTest
         
         final Production p = parser.parseProduction();
         assertNotNull(p);
-        final IdentifierImpl id = p.condition_list.asThreeFieldCondition().value_test.asEqualityTest().getReferent().asIdentifier();
+        final IdentifierImpl id = p.getFirstCondition().asThreeFieldCondition().value_test.asEqualityTest().getReferent().asIdentifier();
         assertEquals('L', id.getNameLetter());
         assertEquals(1, id.getNameNumber());
         assertEquals(expectedLti, id.smem_lti);
@@ -469,7 +469,7 @@ public class ParserImplTest extends JSoarTest
         
         final Production p = parser.parseProduction();
         assertNotNull(p);
-        final IdentifierImpl id = p.action_list.asMakeAction().value.asSymbolValue().getSym().asIdentifier();
+        final IdentifierImpl id = p.getFirstAction().asMakeAction().value.asSymbolValue().getSym().asIdentifier();
         assertEquals('L', id.getNameLetter());
         assertEquals(1, id.getNameNumber());
         assertEquals(expectedLti, id.smem_lti);

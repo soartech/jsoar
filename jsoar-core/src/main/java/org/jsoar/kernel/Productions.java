@@ -8,7 +8,10 @@ package org.jsoar.kernel;
 import org.jsoar.util.ByRef;
 
 /**
+ * Utilities related to productions.
+ * 
  * @author ray
+ * @see Production
  */
 public class Productions
 {

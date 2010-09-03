@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.Production.ProductionSupport;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -2024,9 +2024,16 @@ class OriginalParserImpl
             // Nothing
         }
 
-        final Production p = new Production(prod_type, location, name, documentation, lhs_top, lhs_bottom, rhs);
-
-        p.declared_support = declared_support;
+        final Production p = Production.newBuilder()
+            .type(prod_type)
+            .location(location)
+            .name(name)
+            .documentation(documentation)
+            .conditions(lhs_top, lhs_bottom)
+            .actions(rhs)
+            .support(declared_support)
+            .build();
+        
         p.setBreakpointEnabled(interrupt_on_match);
 
         return p;

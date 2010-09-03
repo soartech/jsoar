@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Consistency;
 import org.jsoar.kernel.Decider;
@@ -18,11 +16,11 @@ import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.Production.ProductionSupport;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.lhs.BackTraceInfo;
@@ -58,6 +56,8 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.timing.ExecutionTimers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Recognition Memory (Firer and Chunker) Routines (Does not include the Rete
@@ -692,7 +692,7 @@ public class RecognitionMemory
         // execute the RHS actions, collect the results
         assert inst.preferences_generated == null;
         boolean need_to_do_support_calculations = false;
-        for (Action a = prod.action_list; a != null; a = a.next)
+        for (Action a = prod.getFirstAction(); a != null; a = a.next)
         {
             Preference pref = null;
             if (prod.getType() != ProductionType.TEMPLATE)
@@ -713,11 +713,11 @@ public class RecognitionMemory
             {
                 pref.setInstantiation(inst);
                                 
-                if (inst.prod.declared_support == ProductionSupport.DECLARED_O_SUPPORT)
+                if (inst.prod.getDeclaredSupport() == ProductionSupport.DECLARED_O_SUPPORT)
                 {
                     pref.o_supported = true;
                 }
-                else if (inst.prod.declared_support == ProductionSupport.DECLARED_I_SUPPORT)
+                else if (inst.prod.getDeclaredSupport() == ProductionSupport.DECLARED_I_SUPPORT)
                 {
                     pref.o_supported = false;
                 }
@@ -789,7 +789,7 @@ public class RecognitionMemory
         }
 
         // Scan RHS identifiers for their levels, don't fire those at or higher than the change level
-        for (Action a = prod.action_list; a != null; a = a.next)
+        for (Action a = prod.getFirstAction(); a != null; a = a.next)
         {
             // These next three calls get the identifier which has the level,
             // skipping anything that isn't an identifier.

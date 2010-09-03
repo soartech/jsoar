@@ -286,7 +286,7 @@ public class DefaultProductionManager implements ProductionManager
     private void validateLongTermIdentifiersInProduction(Production p)
     {
         if(p.getType() != ProductionType.JUSTIFICATION &&
-           !DefaultSemanticMemory.smem_valid_production(p.condition_list, p.action_list))
+           !DefaultSemanticMemory.smem_valid_production(p.getFirstCondition(), p.getFirstAction()))
         {
             throw new IllegalArgumentException("Ungrounded LTI in production: " + p);
         }

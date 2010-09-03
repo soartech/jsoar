@@ -1306,8 +1306,14 @@ public class Chunker
         add_goal_or_impasse_tests(top_cc.value.next_prev);
 
         // make the production
-
-        final Production prod = new Production(prod_type, NEW_PRODUCTION_SOURCE, prod_name, "", lhs_top, lhs_bottom, rhs);
+        final Production prod = Production.newBuilder()
+            .type(prod_type)
+            .location(NEW_PRODUCTION_SOURCE)
+            .name(prod_name)
+            .conditions(lhs_top, lhs_bottom)
+            .actions(rhs)
+            .build();
+        
         // Reorder the production
         try
         {
@@ -1391,20 +1397,21 @@ public class Chunker
         add_production_to_rete() when it throws away chunk variable names. */
         if (this.explain.isEnabled())
         {
-            ByRef<Condition> new_top = ByRef.create(null);
-            ByRef<Condition> new_bottom = ByRef.create(null);
-            Condition.copy_condition_list(prod.condition_list, new_top, new_bottom);
+            final ByRef<Condition> new_top = ByRef.create(null);
+            final ByRef<Condition> new_bottom = ByRef.create(null);
+            Condition.copy_condition_list(prod.getFirstCondition(), new_top, new_bottom);
             temp_explain_chunk.conds = new_top.value;
             temp_explain_chunk.actions = copy_and_variablize_result_list(results);
         }
 
-        ProductionAddResult rete_addition_result = this.rete.add_production_to_rete(prod, chunk_inst, print_name,
+        final ProductionAddResult rete_addition_result = this.rete.add_production_to_rete(prod, chunk_inst, print_name,
                 false);
 
         // If didn't immediately excise the chunk from the rete net
         // then record the temporary structure in the list of explained chunks.
 
         if (this.explain.isEnabled())
+        {
             if ((rete_addition_result != ProductionAddResult.DUPLICATE_PRODUCTION)
                     && ((prod_type != ProductionType.JUSTIFICATION) || (rete_addition_result != ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH)))
             {
@@ -1416,6 +1423,7 @@ public class Chunker
                 // RBD 4/6/95 if excised the chunk, discard previously-copied stuff
                 // Not much to do here in Java
             }
+        }
 
         // deallocate chunks conds and variablized conditions
         // Not much to do in Java...

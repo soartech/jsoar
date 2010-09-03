@@ -6,7 +6,7 @@
 package org.jsoar.kernel.memory;
 
 import org.jsoar.kernel.PredefinedSymbols;
-import org.jsoar.kernel.ProductionSupport;
+import org.jsoar.kernel.Production.ProductionSupport;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rhs.Action;
@@ -196,15 +196,15 @@ public class OSupport
         o_support = false;
         op_elab = false;
 
-        if (inst.prod.declared_support == ProductionSupport.DECLARED_O_SUPPORT)
+        if (inst.prod.getDeclaredSupport() == ProductionSupport.DECLARED_O_SUPPORT)
         {
             o_support = true;
         }
-        else if (inst.prod.declared_support == ProductionSupport.DECLARED_I_SUPPORT)
+        else if (inst.prod.getDeclaredSupport() == ProductionSupport.DECLARED_I_SUPPORT)
         {
             o_support = false;
         }
-        else if (inst.prod.declared_support == ProductionSupport.UNDECLARED)
+        else if (inst.prod.getDeclaredSupport() == ProductionSupport.UNDECLARED)
         {
             /*
              * check if the instantiation is proposing an operator. if it
@@ -212,7 +212,7 @@ public class OSupport
              */
 
             operator_proposal = false;
-            for (act = inst.prod.action_list; act != null; act = act.next)
+            for (act = inst.prod.getFirstAction(); act != null; act = act.next)
             {
                 MakeAction ma = act.asMakeAction();
                 if (ma != null && ma.attr.asSymbolValue() != null)
@@ -287,7 +287,7 @@ public class OSupport
                                     // former o_support_calculation_type test site
                                     // iff RHS has only operator elaborations then it's IE_PROD,
                                     // otherwise PE_PROD, so look for non-op-elabs in the actions KJC 1/00
-                                    for (act = inst.prod.action_list; act != null; act = act.next)
+                                    for (act = inst.prod.getFirstAction(); act != null; act = act.next)
                                     {
                                         MakeAction ma = act.asMakeAction();
                                         if (ma != null)

@@ -208,7 +208,7 @@ public class Rete
     public ProductionAddResult add_production_to_rete(Production p, Instantiation refracted_inst,
             boolean warn_on_duplicates, boolean ignore_rhs)
     {
-        final Condition lhs_top = p.condition_list;
+        final Condition lhs_top = p.getFirstCondition();
         ProductionAddResult production_addition_result;
 
         final ByRef<ReteNode> bottom_node = ByRef.create(null);
@@ -223,7 +223,7 @@ public class Rete
 
         final List<Variable> rhs_unbound_vars_for_new_prod = new ArrayList<Variable>(3);
         final Marker rhs_unbound_vars_tc = DefaultMarker.create();
-        for (Action a = p.action_list; a != null; a = a.next)
+        for (Action a = p.getFirstAction(); a != null; a = a.next)
         {
             MakeAction ma = a.asMakeAction();
             if (ma != null)
@@ -266,7 +266,7 @@ public class Rete
             {
                 continue;
             }
-            if (!ignore_rhs && !Action.same_rhs(p_node.b_p().prod.action_list, p.action_list))
+            if (!ignore_rhs && !Action.same_rhs(p_node.b_p().prod.getFirstAction(), p.getFirstAction()))
             {
                 continue;
             }
@@ -2041,7 +2041,7 @@ public class Rete
                    this.highest_rhs_unboundvar_index++;
                }
            }
-           result.actions = Action.copy_action_list_and_substitute_varnames (this, prod.action_list,
+           result.actions = Action.copy_action_list_and_substitute_varnames (this, prod.getFirstAction(),
                                                                                result.bottom);
            int index = 0;
            while (index <= highest_rhs_unboundvar_index) rhs_variable_bindings[index++] = null;

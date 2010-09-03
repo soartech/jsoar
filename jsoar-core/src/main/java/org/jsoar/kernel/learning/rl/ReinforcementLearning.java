@@ -238,7 +238,7 @@ public class ReinforcementLearning
         boolean var_pref = false;
         int num_actions = 0;
 
-        for ( Action a = prod.action_list; a != null; a = a.next ) 
+        for ( Action a = prod.getFirstAction(); a != null; a = a.next ) 
         {
             num_actions++;
             
@@ -272,7 +272,7 @@ public class ReinforcementLearning
         boolean numeric_pref = false;
         int num_actions = 0;
 
-        for ( Action a = prod.action_list; a != null; a = a.next ) 
+        for ( Action a = prod.getFirstAction(); a != null; a = a.next ) 
         {
             num_actions++;
             
@@ -549,7 +549,7 @@ public class ReinforcementLearning
         if ( my_template_instance.prod.rl_template_instantiations.add(constant_map))
         {
             Production my_template = my_template_instance.prod;
-            Action my_action = my_template.action_list;
+            Action my_action = my_template.getFirstAction();
 
             boolean chunk_var = chunker.variablize_this_chunk;
             chunker.variablize_this_chunk = true;
@@ -586,11 +586,13 @@ public class ReinforcementLearning
             new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
             // make new production
-            Production new_production = new Production( ProductionType.USER, NEW_PRODUCTION_SOURCE, 
-                                                        new_name_symbol.toString(), null,
-                                                        cond_top.value, 
-                                                        cond_bottom.value,
-                                                        new_action );
+            final Production new_production = Production.newBuilder()
+                                   .type(ProductionType.USER)
+                                   .location(NEW_PRODUCTION_SOURCE)
+                                   .name(new_name_symbol.toString())
+                                   .conditions(cond_top.value, cond_bottom.value)
+                                   .actions(new_action)
+                                   .build();
             chunker.variablize_this_chunk = chunk_var; // restored to original value
 
             // set initial expected reward values
@@ -975,7 +977,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                     }
 
                     // Change value of rule
-                    prod.action_list.asMakeAction().referent = syms.createDouble(new_combined).toRhsValue();
+                    prod.getFirstAction().asMakeAction().referent = syms.createDouble(new_combined).toRhsValue();
                     prod.rl_update_count += 1;
                     prod.rl_ecr = new_ecr;
                     prod.rl_efr = new_efr;
@@ -1028,7 +1030,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
             p.rl_rule = rl_valid_rule( p );  
             if(p.rl_rule)
             {
-                p.rl_efr = Symbols.asDouble(p.action_list.asMakeAction().referent.asSymbolValue().getSym());
+                p.rl_efr = Symbols.asDouble(p.getFirstAction().asMakeAction().referent.asSymbolValue().getSym());
             }
         }
         

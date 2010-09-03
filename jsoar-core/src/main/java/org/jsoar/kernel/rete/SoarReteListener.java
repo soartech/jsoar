@@ -18,11 +18,11 @@ import org.jsoar.kernel.MatchSet;
 import org.jsoar.kernel.MatchSetEntry;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.ProductionSupport;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.MatchSetEntry.EntryType;
 import org.jsoar.kernel.Production.AssertListType;
+import org.jsoar.kernel.Production.ProductionSupport;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.PreferenceType;
@@ -195,13 +195,13 @@ public class SoarReteListener implements ReteListener
          */
         if (match_found && node.b_p().prod.getType() == ProductionType.JUSTIFICATION)
         {
-            if (node.b_p().prod.already_fired)
+            if (node.b_p().prod.justificationAlreadyFired)
             {
                 return;
             }
             else
             {
-                node.b_p().prod.already_fired = true;
+                node.b_p().prod.justificationAlreadyFired = true;
             }
         }
 
@@ -266,21 +266,21 @@ public class SoarReteListener implements ReteListener
 
         SavedFiringType prod_type = SavedFiringType.IE_PRODS;
 
-        if (node.b_p().prod.declared_support == ProductionSupport.DECLARED_O_SUPPORT)
+        if (node.b_p().prod.getDeclaredSupport() == ProductionSupport.DECLARED_O_SUPPORT)
         {
             prod_type = SavedFiringType.PE_PRODS;
         }
-        else if (node.b_p().prod.declared_support == ProductionSupport.DECLARED_I_SUPPORT)
+        else if (node.b_p().prod.getDeclaredSupport() == ProductionSupport.DECLARED_I_SUPPORT)
         {
             prod_type = SavedFiringType.IE_PRODS;
         }
-        else if (node.b_p().prod.declared_support == ProductionSupport.UNDECLARED)
+        else if (node.b_p().prod.getDeclaredSupport() == ProductionSupport.UNDECLARED)
         {
             // check if the instantiation is proposing an operator. if it
             // is, then this instantiation is i-supported.
             boolean operator_proposal = false;
 
-            for (Action act = node.b_p().prod.action_list; act != null; act = act.next)
+            for (Action act = node.b_p().prod.getFirstAction(); act != null; act = act.next)
             {
                 final MakeAction ma = act.asMakeAction();
                 final RhsSymbolValue attr = ma != null ? ma.attr.asSymbolValue() : null;
@@ -384,7 +384,7 @@ public class SoarReteListener implements ReteListener
                                     // operator augmentations before determining if this is an
                                     // operator elaboration
 
-                                    for (Action act = node.b_p().prod.action_list; act != null; act = act.next)
+                                    for (Action act = node.b_p().prod.getFirstAction(); act != null; act = act.next)
                                     {
                                         MakeAction ma = act.asMakeAction();
                                         if (ma != null)
@@ -683,7 +683,7 @@ public class SoarReteListener implements ReteListener
         // #endif
         msc.in_level.insertAtHead(nil_goal_retractions);
 
-        msc.p_node.b_p().prod.already_fired = false; // mark prod as not fired yet
+        msc.p_node.b_p().prod.justificationAlreadyFired = false; // mark prod as not fired yet
 
         ms_retractions = msc.addToHeadOfAllList(ms_retractions);
         p_node.b_p().tentative_retractions = msc.addToHeadOfNodeList(p_node.b_p().tentative_retractions);
