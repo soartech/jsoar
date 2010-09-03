@@ -55,7 +55,9 @@ public class Production
     private Condition bottomOfConditionList;
     public Action action_list;
     public ProductionSupport declared_support = ProductionSupport.UNDECLARED;
-    public boolean interrupt = false;
+
+    private final AtomicBoolean breakpointEnabled = new AtomicBoolean();
+    private final AtomicBoolean breakOnFire = new AtomicBoolean();
     
     private final AtomicLong firingCount = new AtomicLong(0);
     private final AtomicBoolean traceFirings = new AtomicBoolean();
@@ -172,6 +174,16 @@ public class Production
         return this.firingCount.incrementAndGet();
     }
         
+    public boolean isBreakpointEnabled()
+    {
+        return breakpointEnabled.get();
+    }
+    
+    public void setBreakpointEnabled(boolean v)
+    {
+        breakpointEnabled.set(v);
+    }
+    
     /**
      * @return true if firings of this rule should be traced
      */

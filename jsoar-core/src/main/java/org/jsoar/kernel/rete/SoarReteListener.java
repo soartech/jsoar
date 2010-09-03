@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
+import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.MatchSet;
 import org.jsoar.kernel.MatchSetEntry;
 import org.jsoar.kernel.PredefinedSymbols;
@@ -477,6 +478,15 @@ public class SoarReteListener implements ReteListener
         }
         ///
         // Location for Match Interrupt
+        
+        if(node.b_p().prod.isBreakpointEnabled())
+        {
+            final DecisionCycle dc = Adaptables.adapt(context, DecisionCycle.class);
+            if(dc != null)
+            {
+                dc.interrupt(node.b_p().prod.getName());
+            }
+        }
 
         node.b_p().tentative_assertions = msc.addToHeadOfNodeList(node.b_p().tentative_assertions);
     }

@@ -2024,10 +2024,10 @@ class OriginalParserImpl
             // Nothing
         }
 
-        Production p = new Production(prod_type, location, name, documentation, lhs_top, lhs_bottom, rhs);
+        final Production p = new Production(prod_type, location, name, documentation, lhs_top, lhs_bottom, rhs);
 
         p.declared_support = declared_support;
-        p.interrupt = interrupt_on_match;
+        p.setBreakpointEnabled(interrupt_on_match);
 
         return p;
 }
