@@ -2032,9 +2032,8 @@ class OriginalParserImpl
             .conditions(lhs_top, lhs_bottom)
             .actions(rhs)
             .support(declared_support)
+            .interrupt(interrupt_on_match)
             .build();
-        
-        p.setBreakpointEnabled(interrupt_on_match);
 
         return p;
 }

@@ -32,6 +32,7 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
+import org.jsoar.util.DefaultSourceLocation;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.markers.DefaultMarker;
@@ -69,12 +70,13 @@ public class Production
     public static class Builder
     {
         private ProductionType type;
-        private SourceLocation location;
+        private SourceLocation location = DefaultSourceLocation.UNKNOWN;
         private String name;
         private String documentation = "";
         private Condition topCondition, bottomCondition;
         private Action actions;
         private ProductionSupport support = ProductionSupport.UNDECLARED;
+        private boolean interrupt = false;
         
         public Builder type(ProductionType type) { this.type = type; return this; }
         public Builder location(SourceLocation v) { this.location = v; return this; }
@@ -87,10 +89,11 @@ public class Production
         }
         public Builder actions(Action v) { this.actions = v; return this; }
         public Builder support(ProductionSupport v) { this.support = v; return this; }
+        public Builder interrupt(boolean v) { this.interrupt = v; return this; }
         
         public Production build()
         {
-            return new Production(type, location, name, documentation, topCondition, bottomCondition, actions, support);
+            return new Production(type, location, name, documentation, topCondition, bottomCondition, actions, support, interrupt);
         }
     }
     
@@ -101,6 +104,7 @@ public class Production
     private final String name;
     private final String documentation;
     private final ProductionSupport declared_support;
+    private final boolean interrupt;
     
     private Condition condition_list;
     private Condition bottomOfConditionList;
@@ -150,7 +154,8 @@ public class Production
      * @see Builder#build()
      */
     private Production(ProductionType type, SourceLocation location, String name, String doc,
-                      Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in, ProductionSupport support)
+                      Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in, ProductionSupport support,
+                      boolean interrupt)
     {
         Arguments.checkNotNull(type, "type");
         Arguments.checkNotNull(location, "location");
@@ -166,6 +171,7 @@ public class Production
         this.bottomOfConditionList = lhs_bottom_in;
         this.action_list = rhs_top_in;
         this.declared_support = support;
+        this.interrupt = interrupt;
     }
     
     /**
@@ -256,11 +262,25 @@ public class Production
         return this.firingCount.incrementAndGet();
     }
         
+    /**
+     * Returns true if this production will interrupt the agent when it matches.
+     * This could be either because of the <code>:interrupt</code> flag expliticly
+     * on the rule or because {@link #setBreakpointEnabled(boolean)} was called.
+     * 
+     * @return true if this production will interrupt the agent when it matches
+     */
     public boolean isBreakpointEnabled()
     {
-        return breakpointEnabled.get();
+        return interrupt || breakpointEnabled.get();
     }
     
+    /**
+     * If set to true, the production will interrupt the agent when it matches.
+     * Note that if the production has the <code>:interrupt</code> flag set, this
+     * method has no affect.
+     * 
+     * @param v the new breakpoint setting
+     */
     public void setBreakpointEnabled(boolean v)
     {
         breakpointEnabled.set(v);
@@ -507,31 +527,24 @@ public class Production
         // print any flags
         switch (type)
         {
-        case DEFAULT:
-            printer.print("    :default\n");
-            break;
-        case USER:
-            break;
-        case CHUNK:
-            printer.print("    :chunk\n");
-            break;
-        case JUSTIFICATION:
-            printer.print("    :justification ;# not reloadable\n");
-            break;
-        case TEMPLATE:
-            printer.print("   :template\n");
-            break;
+        case DEFAULT:       printer.print("    :default\n"); break;
+        case USER:          break;
+        case CHUNK:         printer.print("    :chunk\n"); break;
+        case JUSTIFICATION: printer.print("    :justification ;# not reloadable\n"); break;
+        case TEMPLATE:      printer.print("   :template\n"); break;
+        }
+        
+        switch(declared_support)
+        {
+        case DECLARED_O_SUPPORT: printer.print("    :o-support\n"); break;
+        case DECLARED_I_SUPPORT: printer.print("    :i-support\n"); break;
         }
 
-        if (declared_support == ProductionSupport.DECLARED_O_SUPPORT)
+        if(interrupt)
         {
-            printer.print("    :o-support\n");
+            printer.print("    :interrupt\n");
         }
-        else if (declared_support == ProductionSupport.DECLARED_I_SUPPORT)
-        {
-            printer.print("    :i-support\n");
-        }
-
+        
         // print the LHS and RHS
         ConditionsAndNots cns = rete.p_node_to_conditions_and_nots(p_node, null, null, true);
         printer.print("   ");
