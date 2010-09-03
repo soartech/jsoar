@@ -52,9 +52,14 @@ public class ParseSelectedText
 		{
             parent.add(new ExecuteCommandAction(debugger, String.format("print %s", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("edit %s", m_Name)));
+            parent.addSeparator();
             parent.add(new ExecuteCommandAction(debugger, String.format("matches %s", m_Name)));
             parent.add(new ExecuteCommandAction(debugger, String.format("matches --wmes %s", m_Name)));
+            parent.addSeparator();
             parent.add(new ExecuteCommandAction(debugger, String.format("excise %s", m_Name)));
+            parent.addSeparator();
+            parent.add(new ExecuteCommandAction(debugger, String.format("pbreak --on %s", m_Name)));
+            parent.add(new ExecuteCommandAction(debugger, String.format("pbreak --off %s", m_Name)));
 		}
 	}
 	

@@ -229,13 +229,16 @@ public class ProductionListView extends AbstractAdaptableView implements Refresh
         {
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             final Production p = (Production) value;
-            setIcon(column == 0 ? Images.PRODUCTION : null);
+            setIcon(column == 0 ? 
+                        (p.isBreakpointEnabled() ? Images.PRODUCTION_BREAK : Images.PRODUCTION) 
+                    : null);
             setText(p.getName());
             final long fc = p.getFiringCount();
             setToolTipText("<html>" +
             		       "<b>" + p.getName() + "</b><br>" +
             		       p.getType().getDisplayString() + " production<br>" +
-            		       "Fired " + fc + " time" + (fc != 1 ? "s" : "") + "<p>" +
+            		       "Fired " + fc + " time" + (fc != 1 ? "s" : "") +
+            		       (p.isBreakpointEnabled() ? "<br>:interrupt" : "") + "<p>" +
                             p.getDocumentation() + "</html>");
             return c;
         }

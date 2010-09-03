@@ -45,6 +45,7 @@ import org.jsoar.debugger.actions.InitSoarAction;
 import org.jsoar.debugger.actions.ReloadAction;
 import org.jsoar.debugger.actions.RestoreLayoutAction;
 import org.jsoar.debugger.actions.RunAction;
+import org.jsoar.debugger.actions.SetBreakpointAction;
 import org.jsoar.debugger.actions.SourceFileAction;
 import org.jsoar.debugger.actions.StepAction;
 import org.jsoar.debugger.actions.StopAction;
@@ -404,6 +405,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         new InitSoarAction(actionManager);
         new SourceFileAction(actionManager);
         new ExciseProductionAction(actionManager);
+        new SetBreakpointAction(actionManager);
         new AboutAction(actionManager);
         new EditProductionAction(actionManager);
         new RestoreLayoutAction(actionManager);
