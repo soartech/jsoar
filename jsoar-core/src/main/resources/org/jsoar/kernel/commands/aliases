@@ -25,6 +25,7 @@ alias pref preferences
 alias ps print --stack
 alias topd pwd
 alias pw pwatch
+alias pb pbreak
 alias exit quit
 alias step run -d
 alias d run -d
