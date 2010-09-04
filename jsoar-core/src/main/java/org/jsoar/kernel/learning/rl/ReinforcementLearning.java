@@ -242,7 +242,7 @@ public class ReinforcementLearning
         {
             num_actions++;
             
-            MakeAction ma = a.asMakeAction();
+            final MakeAction ma = a.asMakeAction();
             if (ma != null)
             {
                 if ( a.preference_type == PreferenceType.NUMERIC_INDIFFERENT )
@@ -251,7 +251,7 @@ public class ReinforcementLearning
                 }
                 else if ( a.preference_type == PreferenceType.BINARY_INDIFFERENT )
                 {   
-                    RhsSymbolValue asSym = ma.referent.asSymbolValue();
+                    final RhsSymbolValue asSym = ma.referent.asSymbolValue();
                     if ( asSym != null && asSym.getSym().asVariable() != null)
                         var_pref = true;
                 }
@@ -276,7 +276,7 @@ public class ReinforcementLearning
         {
             num_actions++;
             
-            MakeAction ma = a.asMakeAction();
+            final MakeAction ma = a.asMakeAction();
             if (ma != null)
             {
                 if ( a.preference_type == PreferenceType.NUMERIC_INDIFFERENT)
@@ -366,7 +366,7 @@ public class ReinforcementLearning
      */
     private void rl_update_template_tracking(String rule_name )
     {
-        int new_id = rl_get_template_id( rule_name );
+        final int new_id = rl_get_template_id( rule_name );
 
         if ( ( new_id != -1 ) && ( new_id > rl_template_count ) )
             rl_template_count = ( new_id + 1 );
@@ -677,7 +677,7 @@ public class ReinforcementLearning
     private void rl_add_goal_or_impasse_tests_to_conds( Condition all_conds )
     {
         // mark each id as we add a test for it, so we don't add a test for the same id in two different places
-        Marker tc = DefaultMarker.create();
+        final Marker tc = DefaultMarker.create();
 
         for (Condition cond = all_conds; cond != null; cond = cond.next )
         {

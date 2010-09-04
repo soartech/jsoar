@@ -146,7 +146,8 @@ public class Production
     public RLRuleInfo rlRuleInfo = null;
     
     /**
-     * Container for RL template-specific info
+     * Container for RL template-specific info. Only initialized if type is
+     * TEMPLATE, i.e. ":template" flag is given.
      */
     public final RLTemplateInfo rlTemplateInfo;
     
