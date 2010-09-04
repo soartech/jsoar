@@ -46,12 +46,6 @@ public class Production
 {
     private static final List<Variable> EMPTY_RHS_UNBOUND_VARS_LIST = Collections.emptyList();
     
-    public enum AssertListType
-    {
-        O_LIST, // 0     /* moved here from soarkernel.h.  only used in rete.cpp */
-        I_LIST  // 1     /*   values for prod->OPERAND_which_assert_list */
-    }
-    
     /** production.h:66:_SUPPORT */
     public enum ProductionSupport
     {
@@ -133,7 +127,6 @@ public class Production
      * <p>RPM test workaround for bug #139
      */
     public boolean justificationAlreadyFired = false;
-    public AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;
     
     private boolean reordered = false;
     

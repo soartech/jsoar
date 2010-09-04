@@ -21,7 +21,6 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.MatchSetEntry.EntryType;
-import org.jsoar.kernel.Production.AssertListType;
 import org.jsoar.kernel.Production.ProductionSupport;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.Instantiation;
@@ -29,6 +28,7 @@ import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.rete.ProductionNodeData.AssertListType;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReteLocation;
@@ -460,7 +460,7 @@ public class SoarReteListener implements ReteListener
         {
             ms_o_assertions = msc.addToHeadOfAllList(ms_o_assertions);
             msc.in_level.insertAtHead(msc.goal.goalInfo.ms_o_assertions);
-            node.b_p().prod.OPERAND_which_assert_list = AssertListType.O_LIST;
+            node.b_p().OPERAND_which_assert_list = AssertListType.O_LIST;
 
             trace.print(Category.VERBOSE, 
                                 "\n   RETE: putting [%s] into ms_o_assertions",
@@ -470,7 +470,7 @@ public class SoarReteListener implements ReteListener
         {
             ms_i_assertions = msc.addToHeadOfAllList(ms_i_assertions);
             msc.in_level.insertAtHead(msc.goal.goalInfo.ms_i_assertions);
-            node.b_p().prod.OPERAND_which_assert_list = AssertListType.I_LIST;
+            node.b_p().OPERAND_which_assert_list = AssertListType.I_LIST;
 
             trace.print(Category.VERBOSE, 
                                 "\n   RETE: putting [%s] into ms_i_assertions",
@@ -514,14 +514,14 @@ public class SoarReteListener implements ReteListener
                 // match found in tentative_assertions, so remove it
                 node.b_p().tentative_assertions = msc.removeFromNodeList(node.b_p().tentative_assertions);
 
-                if (node.b_p().prod.OPERAND_which_assert_list == AssertListType.O_LIST)
+                if (node.b_p().OPERAND_which_assert_list == AssertListType.O_LIST)
                 {
                     ms_o_assertions = msc.removeFromAllList(ms_o_assertions);
                     // msc already defined for the assertion so the goal
                     // should be defined as well.
                     msc.in_level.remove(msc.goal.goalInfo.ms_o_assertions);
                 }
-                else if (node.b_p().prod.OPERAND_which_assert_list == AssertListType.I_LIST)
+                else if (node.b_p().OPERAND_which_assert_list == AssertListType.I_LIST)
                 {
                     ms_i_assertions = msc.removeFromAllList(ms_i_assertions);
                     msc.in_level.remove(msc.goal.goalInfo.ms_i_assertions);
