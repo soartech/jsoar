@@ -8,11 +8,11 @@ package org.jsoar.kernel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.jsoar.kernel.learning.rl.RLRuleInfo;
+import org.jsoar.kernel.learning.rl.RLTemplateInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConditionReorderer;
 import org.jsoar.kernel.lhs.Conditions;
@@ -25,7 +25,6 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.ActionReorderer;
 import org.jsoar.kernel.rhs.ActionSupport;
 import org.jsoar.kernel.rhs.ReordererException;
-import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.symbols.VariableGenerator;
 import org.jsoar.kernel.tracing.Printer;
@@ -139,12 +138,17 @@ public class Production
     
     private boolean reordered = false;
     
-    public boolean rl_rule = false;                 /* if true, is a Soar-RL rule */
-    public double rl_update_count;       /* number of (potentially fractional) updates to this rule */
-    public Condition rl_template_conds;  // RL-9.3.0
-    public Set<Map<SymbolImpl, SymbolImpl>> rl_template_instantiations; // RL-9.3.0
-    public double rl_ecr; // RL-9.3.0
-    public double rl_efr; // RL-9.3.0
+    /** 
+     * If non-null, is a Soar-RL rule.
+     * 
+     * <p>production.h:rl_rule 
+     */
+    public RLRuleInfo rlRuleInfo = null;
+    
+    /**
+     * Container for RL template-specific info
+     */
+    public final RLTemplateInfo rlTemplateInfo;
     
     /**
      * Function introduced while trying to tease apart production construction
@@ -172,6 +176,8 @@ public class Production
         this.action_list = rhs_top_in;
         this.declared_support = support;
         this.interrupt = interrupt;
+        
+        rlTemplateInfo = type == ProductionType.TEMPLATE ? new RLTemplateInfo() : null;
     }
     
     /**
@@ -531,7 +537,7 @@ public class Production
         case USER:          break;
         case CHUNK:         printer.print("    :chunk\n"); break;
         case JUSTIFICATION: printer.print("    :justification ;# not reloadable\n"); break;
-        case TEMPLATE:      printer.print("   :template\n"); break;
+        case TEMPLATE:      printer.print("    :template\n"); break;
         }
         
         switch(declared_support)

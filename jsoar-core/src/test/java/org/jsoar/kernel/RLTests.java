@@ -107,7 +107,7 @@ public class RLTests extends FunctionalTestHarness
         boolean result = true;
         for(Production p : agent.getProductions().getProductions(null))
         {
-            if(p.rl_rule && p.getName().startsWith(rulePrefix))
+            if(p.rlRuleInfo != null && p.getName().startsWith(rulePrefix))
             {
                 int startOfIndex = p.getName().lastIndexOf('*') + 1;
                 int index = Integer.valueOf(p.getName().substring(startOfIndex)) - 1;

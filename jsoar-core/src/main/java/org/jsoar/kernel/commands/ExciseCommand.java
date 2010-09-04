@@ -88,7 +88,7 @@ public final class ExciseCommand implements SoarCommand
 
         for(Production p : toExcise)
         {
-            if(!rl ||  (rl && p.rl_rule))
+            if(!rl ||  (rl && p.rlRuleInfo != null))
             {
                 pm.exciseProduction(p, false);
             }

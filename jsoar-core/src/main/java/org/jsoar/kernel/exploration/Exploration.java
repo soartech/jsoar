@@ -716,7 +716,7 @@ public class Exploration
                 cand.total_preferences_for_candidate += 1;
                 cand.numeric_value += get_number_from_symbol( pref.referent );
                 
-                if(pref.inst.prod.rl_rule)
+                if(pref.inst.prod.rlRuleInfo != null)
                 {
                     cand.rl_contribution = true;
                 }

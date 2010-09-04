@@ -215,7 +215,7 @@ public class PrintCommand implements SoarCommand
         {
             for (Production p : agent.getProductions().getProductions(null))
             {
-                if (p.rl_rule)
+                if (p.rlRuleInfo != null)
                     do_print_for_production(p);
             }
         }
@@ -246,9 +246,9 @@ public class PrintCommand implements SoarCommand
         {
             p.print("%s ", prod.getName());
 
-            if (prod.rl_rule)
+            if (prod.rlRuleInfo != null)
             {
-                p.print("%f  ", prod.rl_update_count);
+                p.print("%f  ", prod.rlRuleInfo.rl_update_count);
                 p.print("%s", prod.getFirstAction().asMakeAction().referent);
             }
         }

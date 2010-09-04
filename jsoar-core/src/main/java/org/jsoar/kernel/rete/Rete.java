@@ -349,12 +349,12 @@ public class Rete
             production_addition_result = refactedInstMatched ? ProductionAddResult.REFRACTED_INST_MATCHED : ProductionAddResult.REFRACTED_INST_DID_NOT_MATCH;
         }
 
-        /* --- if not a chunk, store variable name information --- */
-        if ((p.getType() == ProductionType.CHUNK) && discard_chunk_varnames)
+        // If it's a chunk, we don't store RHS variable names and stuff.
+        // For all other rules, save the variable names
+        if (p.getType() == ProductionType.CHUNK && discard_chunk_varnames)
         {
             p.getReteNode().b_p().parents_nvn = null;
             p.clearRhsUnboundVariables();
-            //deallocate_symbol_list_removing_references (thisAgent, rhs_unbound_vars_for_new_prod);
         }
         else
         {

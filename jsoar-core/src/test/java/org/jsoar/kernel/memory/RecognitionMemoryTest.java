@@ -143,7 +143,7 @@ public class RecognitionMemoryTest
         assertEquals(2, chunks.size());
         for(Production p : chunks)
         {
-            assertTrue(p.getName() + " should be an rl rule", p.rl_rule);
+            assertTrue(p.getName() + " should be an rl rule", p.rlRuleInfo != null);
         }
     }
 }

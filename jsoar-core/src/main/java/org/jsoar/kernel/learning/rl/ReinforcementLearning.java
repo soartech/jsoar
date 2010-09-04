@@ -520,25 +520,26 @@ public class ReinforcementLearning
     {
     SymbolImpl return_val = null;
     
+    final RLTemplateInfo rlInfo = my_template_instance.prod.rlTemplateInfo;
     // initialize production conditions
-    if ( my_template_instance.prod.rl_template_conds == null )
+    if ( rlInfo.rl_template_conds == null )
     {
-        ConditionsAndNots cans = 
+        final ConditionsAndNots cans = 
         rete.p_node_to_conditions_and_nots(my_template_instance.prod.getReteNode(), null, null, false);
 
-        my_template_instance.prod.rl_template_conds = cans.top;
+        rlInfo.rl_template_conds = cans.top;
     }
 
     // initialize production instantiation set
-    if ( my_template_instance.prod.rl_template_instantiations == null)
+    if ( rlInfo.rl_template_instantiations == null)
     {
-        my_template_instance.prod.rl_template_instantiations = new HashSet<Map<SymbolImpl, SymbolImpl>>();
+        rlInfo.rl_template_instantiations = new HashSet<Map<SymbolImpl, SymbolImpl>>();
     }
 
     // get constants
-    Map<SymbolImpl, SymbolImpl> constant_map = new HashMap<SymbolImpl, SymbolImpl>();
+    final Map<SymbolImpl, SymbolImpl> constant_map = new HashMap<SymbolImpl, SymbolImpl>();
     {   
-        rl_get_template_constants(my_template_instance.prod.rl_template_conds, 
+        rl_get_template_constants(rlInfo.rl_template_conds, 
                                   my_template_instance.top_of_instantiated_conditions, 
                                   constant_map);        
     }
@@ -546,10 +547,10 @@ public class ReinforcementLearning
     // try to insert into instantiation set
     //if ( !constant_map.empty() )
     {
-        if ( my_template_instance.prod.rl_template_instantiations.add(constant_map))
+        if(rlInfo.rl_template_instantiations.add(constant_map))
         {
-            Production my_template = my_template_instance.prod;
-            Action my_action = my_template.getFirstAction();
+            final Production my_template = my_template_instance.prod;
+            final Action my_action = my_template.getFirstAction();
 
             boolean chunk_var = chunker.variablize_this_chunk;
             chunker.variablize_this_chunk = true;
@@ -575,14 +576,14 @@ public class ReinforcementLearning
             chunker.variablize_nots_and_insert_into_conditions( my_template_instance.nots, cond_top.value );
 
             // get the preference value
-            IdentifierImpl id = recMemory.instantiate_rhs_value( my_action.asMakeAction().id, -1, 's', tok, w ).asIdentifier();
-            SymbolImpl attr = recMemory.instantiate_rhs_value( my_action.asMakeAction().attr, id.level, 'a', tok, w );
-            char first_letter = attr.getFirstLetter();
-            SymbolImpl value = recMemory.instantiate_rhs_value(my_action.asMakeAction().value, id.level, first_letter, tok, w );
-            SymbolImpl referent = recMemory.instantiate_rhs_value(my_action.asMakeAction().referent, id.level, first_letter, tok, w );
+            final IdentifierImpl id = recMemory.instantiate_rhs_value( my_action.asMakeAction().id, -1, 's', tok, w ).asIdentifier();
+            final SymbolImpl attr = recMemory.instantiate_rhs_value( my_action.asMakeAction().attr, id.level, 'a', tok, w );
+            final char first_letter = attr.getFirstLetter();
+            final SymbolImpl value = recMemory.instantiate_rhs_value(my_action.asMakeAction().value, id.level, first_letter, tok, w );
+            final SymbolImpl referent = recMemory.instantiate_rhs_value(my_action.asMakeAction().referent, id.level, first_letter, tok, w );
 
             // make new action list
-            Action new_action = rl_make_simple_action(id, attr, value, referent);
+            final Action new_action = rl_make_simple_action(id, attr, value, referent);
             new_action.preference_type = PreferenceType.NUMERIC_INDIFFERENT;
 
             // make new production
@@ -595,6 +596,8 @@ public class ReinforcementLearning
                                    .build();
             chunker.variablize_this_chunk = chunk_var; // restored to original value
 
+            new_production.rlRuleInfo = new RLRuleInfo();
+            
             // set initial expected reward values
             {
                 double init_value = 0.0;
@@ -607,15 +610,14 @@ public class ReinforcementLearning
                     init_value = referent.asDouble().getValue();
                 }
 
-                new_production.rl_ecr = 0.0;
-                new_production.rl_efr = init_value;
+                new_production.rlRuleInfo.rl_ecr = 0.0;
+                new_production.rlRuleInfo.rl_efr = init_value;
             }
 
             try
             {
                 // attempt to add to rete, remove if duplicate
-                if(my_agent.getProductions().addProduction(new_production, false) ==
-                    ProductionAddResult.DUPLICATE_PRODUCTION)
+                if(my_agent.getProductions().addProduction(new_production, false) == ProductionAddResult.DUPLICATE_PRODUCTION)
                 {
                     rl_revert_template_id();
                     new_name_symbol = null;
@@ -799,7 +801,7 @@ public class ReinforcementLearning
         int just_fired = 0;
         for ( Preference pref = goal.goalInfo.operator_slot.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); pref != null; pref = pref.next )
         {
-            if ( op == pref.value && pref.inst.prod.rl_rule)
+            if ( op == pref.value && pref.inst.prod.rlRuleInfo != null)
             {
                 if ( just_fired == 0 && !data.prev_op_rl_rules.isEmpty())
                 {
@@ -919,8 +921,8 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                 {
                     if(p != null)
                     {
-                        sum_old_ecr += p.rl_ecr;
-                        sum_old_efr += p.rl_efr;
+                        sum_old_ecr += p.rlRuleInfo.rl_ecr;
+                        sum_old_efr += p.rlRuleInfo.rl_efr;
                         
                         final Double old = data.eligibility_traces.get(p);
                         if(old != null)
@@ -945,11 +947,11 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
                 {   
                     final Production prod = iter.getKey();
 
-                    assert prod.rl_rule;
+                    assert prod.rlRuleInfo != null;
                     
                     // get old vals
-                    old_ecr = prod.rl_ecr;
-                    old_efr = prod.rl_efr;
+                    old_ecr = prod.rlRuleInfo.rl_ecr;
+                    old_efr = prod.rlRuleInfo.rl_efr;
                     
                     // calculate updates
                     delta_ecr = ( alpha * iter.getValue() * ( data.reward - sum_old_ecr ) );
@@ -978,9 +980,9 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
 
                     // Change value of rule
                     prod.getFirstAction().asMakeAction().referent = syms.createDouble(new_combined).toRhsValue();
-                    prod.rl_update_count += 1;
-                    prod.rl_ecr = new_ecr;
-                    prod.rl_efr = new_efr;
+                    prod.rlRuleInfo.rl_update_count += 1;
+                    prod.rlRuleInfo.rl_ecr = new_ecr;
+                    prod.rlRuleInfo.rl_efr = new_efr;
 
                     // Change value of preferences generated by current instantiations of this rule
                     for (Instantiation inst = prod.instantiations; inst != null; inst = inst.nextInProdList)
@@ -1023,14 +1025,13 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
     {
         // Soar-RL stuff
         // From production.cpp:make_production
-        p.rl_update_count = 0;
-        p.rl_rule = false;
+        p.rlRuleInfo = null;
         if (p.getType() != ProductionType.JUSTIFICATION && p.getType() != ProductionType.TEMPLATE) 
         {
-            p.rl_rule = rl_valid_rule( p );  
-            if(p.rl_rule)
+            if(rl_valid_rule(p))
             {
-                p.rl_efr = Symbols.asDouble(p.getFirstAction().asMakeAction().referent.asSymbolValue().getSym());
+                p.rlRuleInfo = new RLRuleInfo();
+                p.rlRuleInfo.rl_efr = Symbols.asDouble(p.getFirstAction().asMakeAction().referent.asSymbolValue().getSym());
             }
         }
         
@@ -1060,7 +1061,7 @@ public void rl_perform_update(double op_value, boolean op_rl, IdentifierImpl goa
     public void exciseProduction(Production prod)
     {
         // Remove RL-related pointers to this production (unnecessary if rule never fired).
-        if ( prod.rl_rule && prod.getFiringCount() != 0 ) 
+        if ( prod.rlRuleInfo != null && prod.getFiringCount() != 0 ) 
             rl_remove_refs_for_prod( prod ); 
     }
     

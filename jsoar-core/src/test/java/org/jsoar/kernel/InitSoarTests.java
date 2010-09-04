@@ -36,7 +36,8 @@ public class InitSoarTests extends FunctionalTestHarness
         {
             assertTrue("Production " + p.getName() + " firing count is not zero", p.getFiringCount() == 0);
             assertTrue("Production " + p.getName() + " has instantiations", p.instantiations == null);
-            assertTrue("Production " + p.getName() + " has non-zero RL update count", p.rl_update_count == 0.0);
+            assertTrue("Production " + p.getName() + " has non-zero RL update count", 
+                       p.rlRuleInfo == null || p.rlRuleInfo.rl_update_count == 0.0);
         }
         
         // confirm all stats are reset
