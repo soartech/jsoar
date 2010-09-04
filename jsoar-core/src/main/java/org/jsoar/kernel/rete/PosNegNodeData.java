@@ -12,7 +12,7 @@ package org.jsoar.kernel.rete;
  * 
  * @author ray
  */
-public class PosNegNodeData implements BReteNodeData
+class PosNegNodeData implements BReteNodeData
 {
     ReteTest other_tests; /* tests other than the hashed test */
     AlphaMemory alpha_mem_;  /* the alpha memory this node uses */

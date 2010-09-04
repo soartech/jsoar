@@ -13,7 +13,7 @@ package org.jsoar.kernel.rete;
  * 
  * @author ray
  */
-public class NonPosNodeData implements AReteNodeData
+class NonPosNodeData implements AReteNodeData
 {
     Token tokens = null; // dll of tokens at this node
     boolean is_left_unlinked; //:1;           /* used on mp nodes only */

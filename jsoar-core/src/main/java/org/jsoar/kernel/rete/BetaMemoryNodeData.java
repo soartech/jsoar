@@ -14,7 +14,7 @@ import org.jsoar.util.ListHead;
  * 
  * @author ray
  */
-public class BetaMemoryNodeData implements BReteNodeData
+class BetaMemoryNodeData implements BReteNodeData
 {
     // first pos node child that is left-linked
     final ListHead<ReteNode> first_linked_child;

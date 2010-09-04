@@ -14,7 +14,7 @@ import org.jsoar.kernel.Production;
  * 
  * @author ray
  */
-public class ProductionNodeData implements BReteNodeData
+class ProductionNodeData implements BReteNodeData
 {
     enum AssertListType
     {

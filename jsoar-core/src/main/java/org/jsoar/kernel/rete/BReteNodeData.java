@@ -8,7 +8,7 @@ package org.jsoar.kernel.rete;
 /**
  * @author ray
  */
-public interface BReteNodeData extends ReteNodeData
+interface BReteNodeData extends ReteNodeData
 {
     BReteNodeData copy();
 }
