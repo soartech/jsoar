@@ -134,7 +134,6 @@ public class Production
      */
     public boolean justificationAlreadyFired = false;
     public AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;
-    private int reference_count = 1;
     
     private boolean reordered = false;
     
@@ -418,34 +417,6 @@ public class Production
         }
 
         reordered = true;
-    }
-
-    public int getReferenceCount()
-    {
-        return reference_count;
-    }
-    
-    /**
-     * <p>production.h:380:production_add_ref
-     */
-    public void production_add_ref()
-    {
-        reference_count++;
-    }
-
-    /**
-     * <p>production.h:385:production_remove_ref
-     */
-    public void production_remove_ref()
-    {
-        reference_count--;
-        if (reference_count == 0)
-        {
-            if (instantiations != null)
-            {
-                throw new IllegalStateException("Internal error: deallocating prod. that still has inst's");
-            }
-        }
     }
     
     public List<Variable> getRhsUnboundVariables()

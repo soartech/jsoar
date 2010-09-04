@@ -532,9 +532,6 @@ public class RecognitionMemory
     public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations,
             final IdentifierImpl top_goal)
     {
-
-        inst.prod.production_add_ref();
-
         find_match_goal(inst);
 
         int level = inst.match_goal_level;
@@ -912,11 +909,8 @@ public class RecognitionMemory
         inst.top_of_instantiated_conditions = null;//  deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
         inst.bottom_of_instantiated_conditions = null; // This is very important to avoid memory leaks!
         inst.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
-        if (inst.prod != null) 
-        {
-            inst.prod.production_remove_ref();
-        }
-        // TODO: Instantiation is deallocated here. Can we help GC?
+
+       // TODO: Instantiation is deallocated here. Can we help GC?
     }
     
     /**
@@ -985,7 +979,11 @@ public class RecognitionMemory
          * thing supporting this justification is the instantiation, hence it
          * has already been excised, and doing it again is wrong.
          */
-        if (inst.prod.getType() == ProductionType.JUSTIFICATION && inst.prod.getReferenceCount() > 1)
+        // Removed reference count check because it seemed unnecessary
+        // and never made a difference in the tests. If this comes up, it seems
+        // better to just make exciseProduction smarter so it doesn't crash if
+        // a production is excised multiple times.
+        if (inst.prod.getType() == ProductionType.JUSTIFICATION /*&& inst.prod.getReferenceCount() > 1*/)
         {
             context.getProductions().exciseProduction(inst.prod, false);
         }

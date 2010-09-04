@@ -144,7 +144,6 @@ public class DefaultProductionManager implements ProductionManager
         {
             this.rete.excise_production_from_rete(prod);
         }
-        prod.production_remove_ref();
     }
 
     /* (non-Javadoc)
