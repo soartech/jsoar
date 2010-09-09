@@ -195,13 +195,13 @@ public class SoarReteListener implements ReteListener
          */
         if (match_found && node.b_p().prod.getType() == ProductionType.JUSTIFICATION)
         {
-            if (node.b_p().prod.justificationAlreadyFired)
+            if (node.b_p().justificationAlreadyFired)
             {
                 return;
             }
             else
             {
-                node.b_p().prod.justificationAlreadyFired = true;
+                node.b_p().justificationAlreadyFired = true;
             }
         }
 
@@ -683,7 +683,7 @@ public class SoarReteListener implements ReteListener
         // #endif
         msc.in_level.insertAtHead(nil_goal_retractions);
 
-        msc.p_node.b_p().prod.justificationAlreadyFired = false; // mark prod as not fired yet
+        msc.p_node.b_p().justificationAlreadyFired = false; // mark prod as not fired yet
 
         ms_retractions = msc.addToHeadOfAllList(ms_retractions);
         p_node.b_p().tentative_retractions = msc.addToHeadOfNodeList(p_node.b_p().tentative_retractions);

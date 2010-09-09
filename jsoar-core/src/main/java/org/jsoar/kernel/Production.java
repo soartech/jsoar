@@ -122,12 +122,6 @@ public class Production
     public Instantiation instantiations;
     private List<Variable> rhs_unbound_variables = null;
     
-    /**
-     * <p>production.h:already_fired
-     * <p>RPM test workaround for bug #139
-     */
-    public boolean justificationAlreadyFired = false;
-    
     private boolean reordered = false;
     
     /** 

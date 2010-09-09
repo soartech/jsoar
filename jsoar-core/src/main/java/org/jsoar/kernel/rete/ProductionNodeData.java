@@ -37,6 +37,13 @@ class ProductionNodeData implements BReteNodeData
      */
     AssertListType OPERAND_which_assert_list = AssertListType.O_LIST;
     
+    /**
+     * Moved here from Production since it's only ever used by rete.
+     * <p>RPM test workaround for bug #139 (old Soar Bugzilla)
+     * <p>production.h:already_fired
+     */
+    boolean justificationAlreadyFired = false;
+    
     public ProductionNodeData()
     {
     }
