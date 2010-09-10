@@ -43,7 +43,7 @@ public class Min extends AbstractRhsFunctionHandler
     {
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
         
-        int minInt = Integer.MAX_VALUE;
+        long minInt = Long.MAX_VALUE;
         double minDouble = Double.MAX_VALUE;
         boolean useDouble = false;
         

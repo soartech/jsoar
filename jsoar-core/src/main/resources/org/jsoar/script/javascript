@@ -178,14 +178,14 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
     wmes : wmes,
     
     /**
-     * Helper function to force a value to a java integer. This is necessary
+     * Helper function to force a value to a java long. This is necessary
      * because JavaScript only has doubles. Use this when creating symbols.
      *
      * @param value numeric value
-     * @return a java.lang.Integer
+     * @return a java.lang.Long
      */
     integer : function(value) {
-      return java.lang.Integer.valueOf(value);
+      return java.lang.Long.valueOf(value);
     },
     
     /**

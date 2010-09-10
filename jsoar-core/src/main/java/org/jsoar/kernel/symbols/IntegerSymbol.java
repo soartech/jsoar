@@ -16,5 +16,5 @@ public interface IntegerSymbol extends Symbol
      * @return The value of the symbol
      * @see Symbols#valueOf(Symbol)
      */
-    int getValue();
+    long getValue();
 }

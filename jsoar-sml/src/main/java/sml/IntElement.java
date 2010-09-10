@@ -31,7 +31,8 @@ public synchronized void delete() {
   }
 
   public int GetValue() {
-      return wme.getValue().asInteger().getValue();
+      // TODO SML int to long
+      return (int) wme.getValue().asInteger().getValue();
   }
 
   public IntElement ConvertToIntElement() {

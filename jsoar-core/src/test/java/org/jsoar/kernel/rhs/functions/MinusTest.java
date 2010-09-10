@@ -35,6 +35,14 @@ public class MinusTest extends JSoarTest
     }
     
     @Test
+    public void testOneLargeIntArg() throws Exception
+    {
+        Minus minus = new Minus();
+        
+        assertEquals(-33000000000L, minus.execute(rhsFuncContext, Symbols.asList(syms, 33000000000L)).asInteger().getValue());
+    }
+    
+    @Test
     public void testOneFloatArg() throws Exception
     {
         Minus minus = new Minus();
@@ -56,6 +64,14 @@ public class MinusTest extends JSoarTest
         Minus minus = new Minus();
         
         assertEquals(2 - 3 - 4 - -2, minus.execute(rhsFuncContext, Symbols.asList(syms, 2, 3, 4, -2)).asInteger().getValue());
+    }
+    
+    @Test
+    public void testLargeIntArgs() throws Exception
+    {
+        Minus minus = new Minus();
+        
+        assertEquals(2 - 3000000000L - 4 - -2, minus.execute(rhsFuncContext, Symbols.asList(syms, 2, 3000000000L, 4, -2)).asInteger().getValue());
     }
     
     @Test

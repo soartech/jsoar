@@ -59,6 +59,14 @@ public class MultiplyTest extends JSoarTest
     }
     
     @Test
+    public void testLargeIntArgs() throws Exception
+    {
+        Multiply multiply = new Multiply();
+        
+        assertEquals(2000000000000L * 3 * 4 * -2, multiply.execute(rhsFuncContext, Symbols.asList(syms, 2000000000000L, 3, 4, -2)).asInteger().getValue());
+    }
+    
+    @Test
     public void testFloatArgs() throws Exception
     {
         Multiply multiply = new Multiply();

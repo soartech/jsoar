@@ -52,7 +52,7 @@ public class CycleCountInputTest
     @Test
     public void testCycleCountInput() throws Exception
     {
-        final List<Integer> matches = new ArrayList<Integer>();
+        final List<Long> matches = new ArrayList<Long>();
         agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("match") {
 
             @Override
@@ -75,7 +75,7 @@ public class CycleCountInputTest
         assertEquals(n, matches.size());
         
         int expected = 1;
-        for(Integer i : matches)
+        for(Long i : matches)
         {
             assertEquals(expected++, i.intValue());
         }

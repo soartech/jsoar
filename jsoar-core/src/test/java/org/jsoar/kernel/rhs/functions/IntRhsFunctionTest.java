@@ -25,6 +25,15 @@ public class IntRhsFunctionTest extends JSoarTest
         Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "99"));
         assertEquals(99, result.asInteger().getValue());
     }
+    
+    @Test
+    public void testConvertStringWithLargeInteger() throws Exception
+    {
+        IntRhsFunction f = new IntRhsFunction();
+        Symbol result = f.execute(rhsFuncContext, Symbols.asList(syms, "999999999999999"));
+        assertEquals(999999999999999L, result.asInteger().getValue());
+    }
+    
     @Test
     public void testConvertDouble() throws Exception
     {

@@ -119,7 +119,7 @@ public class SymbolsTest extends JSoarTest
     public void testValueOfInteger()
     {
         final IntegerSymbol s = syms.createInteger(42);
-        assertEquals(42, Symbols.valueOf(s));
+        assertEquals(42L, Symbols.valueOf(s));
     }
     
     @Test

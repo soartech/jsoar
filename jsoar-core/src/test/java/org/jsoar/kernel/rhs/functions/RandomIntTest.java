@@ -36,7 +36,7 @@ public class RandomIntTest extends JSoarTest
             final Symbol result = ri.execute(rhsFuncContext, Symbols.asList(syms, 10));
             assertNotNull(result);
             assertNotNull(result.asInteger());
-            final int value = result.asInteger().getValue();
+            final long value = result.asInteger().getValue();
             assertTrue(value >= 0 && value < 10);
         }
     }
@@ -51,7 +51,7 @@ public class RandomIntTest extends JSoarTest
             final Symbol result = ri.execute(rhsFuncContext, Symbols.asList(syms, -10));
             assertNotNull(result);
             assertNotNull(result.asInteger());
-            final int value = result.asInteger().getValue();
+            final long value = result.asInteger().getValue();
             assertTrue(value <= 0 && value > -10);
         }
     }

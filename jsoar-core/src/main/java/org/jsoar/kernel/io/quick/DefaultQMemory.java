@@ -127,7 +127,7 @@ public class DefaultQMemory implements QMemory
     /* (non-Javadoc)
      * @see org.jsoar.kernel.io.quick.QMemory#getInteger(java.lang.String)
      */
-    public synchronized int getInteger(String path)
+    public synchronized long getInteger(String path)
     {
         MemoryNode node = memory.get(path);
         return node != null ? node.getIntValue() : 0;

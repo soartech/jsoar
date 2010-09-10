@@ -49,7 +49,7 @@ class SubQMemory implements QMemory
      * @see org.jsoar.kernel.io.quick.QMemory#getInteger(java.lang.String)
      */
     @Override
-    public int getInteger(String path)
+    public long getInteger(String path)
     {
         return source.getInteger(getPath(path));
     }

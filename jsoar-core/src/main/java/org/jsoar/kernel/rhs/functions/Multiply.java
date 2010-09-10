@@ -24,7 +24,7 @@ public final class Multiply extends AbstractRhsFunctionHandler
     {
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
 
-        int i = 1;
+        long i = 1;
         double f = 1.0;
         boolean float_found = false;
         for(Symbol arg : arguments)

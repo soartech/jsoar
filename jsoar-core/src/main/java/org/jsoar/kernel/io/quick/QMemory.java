@@ -81,7 +81,7 @@ public interface QMemory
      * @return int value on the given path, or 0 if not found. Conversions from
      *      double and string are performed if possible.
      */
-    int getInteger(String path);
+    long getInteger(String path);
 
     /**
      * @param path path to search

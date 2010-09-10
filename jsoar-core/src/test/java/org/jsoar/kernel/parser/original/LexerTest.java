@@ -35,7 +35,21 @@ public class LexerTest
         assertNotNull(lexeme);
         
         assertEquals(LexemeType.INTEGER, lexeme.type);
-        assertEquals(123456, lexeme.int_val);
+        assertEquals(123456L, lexeme.int_val);
+        
+    }
+    
+    @Test
+    public void testCanLexLargeInteger() throws Exception
+    {
+        Lexer lexer = createLexer("12345678910");
+        
+        lexer.getNextLexeme();
+        Lexeme lexeme = lexer.getCurrentLexeme();
+        assertNotNull(lexeme);
+        
+        assertEquals(LexemeType.INTEGER, lexeme.type);
+        assertEquals(12345678910L, lexeme.int_val);
         
     }
     
@@ -49,7 +63,7 @@ public class LexerTest
         assertNotNull(lexeme);
         
         assertEquals(LexemeType.INTEGER, lexeme.type);
-        assertEquals(+123456, lexeme.int_val);
+        assertEquals(+123456L, lexeme.int_val);
         
     }    
     @Test
@@ -121,9 +135,9 @@ public class LexerTest
     
     @Test public void testThatAnOutOfBoundsIntegerCausesALexerError() throws Exception
     {
-        Lexer lexer = createLexer("5000000000");
+        Lexer lexer = createLexer("5000000000000000000000000000000000000000000000000000000000000000000");
         lexer.getNextLexeme();
         final Lexeme lexeme = lexer.getCurrentLexeme();
-        assertEquals(0, lexeme.int_val);
+        assertEquals(0L, lexeme.int_val);
     }
 }

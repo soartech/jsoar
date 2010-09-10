@@ -90,7 +90,7 @@ public class ReteNetWriter
         nextIndex = writeSymbolList(dos, symbolIndex, nextIndex,
                 syms.getSymbols(IntegerSymbol.class),
                 new SymbolWriter<IntegerSymbol>() {
-                    public void write(DataOutputStream dos, IntegerSymbol s) throws IOException { dos.writeInt(s.getValue()); }
+                    public void write(DataOutputStream dos, IntegerSymbol s) throws IOException { dos.writeLong(s.getValue()); }
             });
         nextIndex = writeSymbolList(dos, symbolIndex, nextIndex,
                 syms.getSymbols(DoubleSymbol.class),

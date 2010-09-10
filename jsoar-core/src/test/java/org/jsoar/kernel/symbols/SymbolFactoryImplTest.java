@@ -85,6 +85,18 @@ public class SymbolFactoryImplTest
     }
     
     @Test
+    public void testMakeLargeIntConstant()
+    {
+        IntegerSymbolImpl s = syms.createInteger(999999999999L);
+        assertNotNull(s);
+        assertEquals(999999999999L, s.getValue());
+        assertFalse(s.hash_id == 0);
+        assertSame(s, syms.findInteger(s.getValue()));
+        assertSame(s, syms.createInteger(s.getValue()));
+    }
+    
+    
+    @Test
     public void testMakeNewSymConstant()
     {
         StringSymbolImpl s = syms.createString("A sym constant");

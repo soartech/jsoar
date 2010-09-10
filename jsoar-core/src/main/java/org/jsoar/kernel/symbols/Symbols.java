@@ -106,7 +106,7 @@ public class Symbols
         if(value instanceof Integer || value instanceof Long || value instanceof Short || value instanceof Byte ||
            value instanceof AtomicInteger || value instanceof AtomicLong)
         {
-            return factory.createInteger(((Number) value).intValue());
+            return factory.createInteger(((Number) value).longValue());
         }
         
         // Landing here could very well be a bug (passing null, or something 

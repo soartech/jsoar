@@ -93,7 +93,7 @@ public interface SymbolFactory
      * @return A symbol. Subsequent calls with the same value will return the
      *      same object.
      */
-    public IntegerSymbol createInteger(int value);
+    public IntegerSymbol createInteger(long value);
 
     /**
      * Find an existing integer symbol
@@ -103,7 +103,7 @@ public interface SymbolFactory
      * @param value The integer value of the symbol
      * @return The symbol, or <code>null</code> if not found
      */
-    public IntegerSymbol findInteger(int value);
+    public IntegerSymbol findInteger(long value);
 
     /**
      * Create a new double symbol

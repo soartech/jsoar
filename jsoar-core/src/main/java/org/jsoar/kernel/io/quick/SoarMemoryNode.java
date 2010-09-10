@@ -79,7 +79,7 @@ class SoarMemoryNode
         }
         else if (node.isInt())
         {
-            int intVal = node.getIntValue();
+            long intVal = node.getIntValue();
             memoryNode.setIntValue(intVal);
         }
         else if (node.isDouble())

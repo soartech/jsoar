@@ -24,7 +24,7 @@ public final class Plus extends AbstractRhsFunctionHandler
     {
         RhsFunctions.checkAllArgumentsAreNumeric(getName(), arguments);
 
-        int i = 0;
+        long i = 0;
         double f = 0;
         boolean float_found = false;
         for(Symbol arg : arguments)

@@ -109,7 +109,7 @@ public class ReteNetReader
 
             public IntegerSymbol read(DataInputStream dis) throws IOException
             {
-                return syms.createInteger(dis.readInt());
+                return syms.createInteger(dis.readLong());
             }}));
         result.addAll(readSymbolList(dis, new SymbolReader<DoubleSymbol>(){
 

@@ -56,7 +56,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     
     private final long id_counter[] = new long[26];
     private final Map<String, StringSymbolImpl> symConstants = newReferenceMap();
-    private final Map<Integer, IntegerSymbolImpl> intConstants = newReferenceMap();
+    private final Map<Long, IntegerSymbolImpl> intConstants = newReferenceMap();
     private final Map<Double, DoubleSymbolImpl> floatConstants = newReferenceMap();
     private final Map<IdKey, IdentifierImpl> identifiers = newReferenceMap();
     private final Map<String, Variable> variables = newReferenceMap();
@@ -390,9 +390,9 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.SymbolFactory#make_int_constant(int)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#createInteger(long)
      */
-    public IntegerSymbolImpl createInteger(int value)
+    public IntegerSymbolImpl createInteger(long value)
     {
         IntegerSymbolImpl sym = findInteger(value);
         if(sym == null)
@@ -404,9 +404,9 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.SymbolFactory#find_int_constant(int)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#findInteger(long)
      */
-    public IntegerSymbolImpl findInteger(int value)
+    public IntegerSymbolImpl findInteger(long value)
     {
         return intConstants.get(value);
     }

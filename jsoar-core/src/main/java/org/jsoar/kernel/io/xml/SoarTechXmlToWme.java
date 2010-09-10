@@ -167,7 +167,7 @@ public class SoarTechXmlToWme implements XmlToWme
         }
         else if(SoarTechWmeToXml.INTEGER.equals(type))
         {
-            return syms.createInteger(Integer.valueOf(value));
+            return syms.createInteger(Long.valueOf(value));
         }
         else
         {

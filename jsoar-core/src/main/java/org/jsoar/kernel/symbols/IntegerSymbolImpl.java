@@ -12,22 +12,22 @@ import java.util.Formatter;
  */
 public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
 {
-    private final int value;
+    private final long value;
     
     /**
      * @param hash_id
      */
-    IntegerSymbolImpl(SymbolFactory factory, int hash_id, int value)
+    IntegerSymbolImpl(SymbolFactory factory, int hash_id, long value)
     {
         super(factory, hash_id);
         this.value = value;
     }
 
     
-    /**
-     * @return the value
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.IntegerSymbol#getValue()
      */
-    public int getValue()
+    public long getValue()
     {
         return value;
     }
@@ -131,7 +131,7 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
     @Override
     public String toString()
     {
-        return Integer.toString(getValue());
+        return Long.toString(getValue());
     }
 
 
@@ -141,7 +141,7 @@ public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format(Integer.toString(getValue()));
+        formatter.format(Long.toString(getValue()));
     }
     
     

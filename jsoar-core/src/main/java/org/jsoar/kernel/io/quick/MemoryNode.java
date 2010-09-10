@@ -36,7 +36,7 @@ class MemoryNode
 
     public boolean isInt()
     {
-        return value instanceof Integer;
+        return value instanceof Long;
     }
 
     public boolean isDouble()
@@ -62,7 +62,7 @@ class MemoryNode
         return changed;
     }
 
-    public boolean setIntValue(int intVal)
+    public boolean setIntValue(long intVal)
     {
         final boolean changed = !isInt() || intVal != getIntValue();
         this.value = intVal;
@@ -93,7 +93,7 @@ class MemoryNode
         return changed;
     }
     
-    public int getIntValue()
+    public long getIntValue()
     {
         if(value instanceof Number)
         {
@@ -101,7 +101,7 @@ class MemoryNode
         }
         else if(value != null)
         {
-            return Integer.parseInt(value.toString());
+            return Long.parseLong(value.toString());
         }
         return 0;
     }

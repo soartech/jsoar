@@ -559,11 +559,11 @@ public class Lexer
                 lexeme.type = LexemeType.INTEGER;
                 if(lexeme.string.charAt(0) != '+')
                 {
-                    lexeme.int_val = Integer.valueOf(lexeme.string);
+                    lexeme.int_val = Long.valueOf(lexeme.string);
                 }
                 else
                 {
-                    lexeme.int_val = Integer.valueOf(lexeme.string.substring(1));
+                    lexeme.int_val = Long.valueOf(lexeme.string.substring(1));
                 }
             }
             catch (NumberFormatException e)

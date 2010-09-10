@@ -41,7 +41,7 @@ public final class Minus extends AbstractRhsFunctionHandler
                                syms.createDouble(-arg.asDouble().getValue());
         }
         
-        int i = 0;
+        long i = 0;
         double f = 0;
         boolean float_found = false;
         IntegerSymbol ic = arg.asInteger();

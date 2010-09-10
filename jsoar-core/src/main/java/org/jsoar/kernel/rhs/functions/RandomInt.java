@@ -61,14 +61,14 @@ public class RandomInt extends AbstractRhsFunctionHandler
             {
                 throw new RhsFunctionException("random-int: Expected integer for first argument, got " + arguments.get(0));
             }
-            final int max = maxSym.getValue();
+            final long max = maxSym.getValue();
             if(max >= 0)
             {
-                return context.getSymbols().createInteger(random.nextInt(max));
+                return context.getSymbols().createInteger(random.nextInt((int)max));
             }
             else
             {
-                return context.getSymbols().createInteger(-random.nextInt(-max));
+                return context.getSymbols().createInteger(-random.nextInt(-(int) max));
             }
         }
     }

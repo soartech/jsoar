@@ -310,12 +310,12 @@ public class DefaultSemanticMemory implements SemanticMemory
         return JdbcTools.insertAndGetRowId(db.hash_add_type);
     }
 
-    private long /*smem_hash_id*/ smem_temporal_hash_int(int val, boolean add_on_fail /*= true*/ ) throws SQLException
+    private long /*smem_hash_id*/ smem_temporal_hash_int(long val, boolean add_on_fail /*= true*/ ) throws SQLException
     {
         long /*smem_hash_id*/ return_val = 0;
         
         // search first
-        db.hash_get_int.setInt( 1, val );
+        db.hash_get_int.setLong( 1, val );
         final ResultSet rs = db.hash_get_int.executeQuery();
         try
         {
@@ -337,7 +337,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
             // then content
             db.hash_add_int.setLong( 1, return_val );
-            db.hash_add_int.setInt( 2, val );
+            db.hash_add_int.setLong( 2, val );
             db.hash_add_int.executeUpdate(/*soar_module::op_reinit*/ );
         }
 

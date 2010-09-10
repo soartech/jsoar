@@ -26,6 +26,13 @@ public class MinTest extends JSoarTest
         assertEquals(-40, result.asInteger().getValue());
     }
     
+    @Test public void testMinWithLargeIntegers() throws Exception
+    {
+        final Min min = new Min();
+        final Symbol result = min.execute(rhsFuncContext, Symbols.asList(syms, 2, 1, -40000000000L, 99));
+        assertEquals(-40000000000L, result.asInteger().getValue());
+    }
+    
     @Test public void testMinWithAllDoubles() throws Exception
     {
         final Min min = new Min();

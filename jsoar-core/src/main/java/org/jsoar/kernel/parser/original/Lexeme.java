@@ -12,7 +12,7 @@ public class Lexeme
 {
     public String string = "";
     public LexemeType type = null;
-    public int int_val;
+    public long int_val;
     public double float_val;
     public char id_letter;
     public long id_number;

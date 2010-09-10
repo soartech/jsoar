@@ -26,6 +26,13 @@ public class MaxTest extends JSoarTest
         assertEquals(99, result.asInteger().getValue());
     }
     
+    @Test public void testMaxWithLargeIntegers() throws Exception
+    {
+        final Max max = new Max();
+        final Symbol result = max.execute(rhsFuncContext, Symbols.asList(syms, 2, 1000000000000L, -40, 99));
+        assertEquals(1000000000000L, result.asInteger().getValue());
+    }
+    
     @Test public void testMaxWithAllDoubles() throws Exception
     {
         final Max max = new Max();

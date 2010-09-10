@@ -35,7 +35,7 @@ public class IntRhsFunction extends AbstractRhsFunctionHandler
         final DoubleSymbol doubleSym = arg.asDouble();
         if(doubleSym != null)
         {
-            return context.getSymbols().createInteger((int) doubleSym.getValue());
+            return context.getSymbols().createInteger((long) doubleSym.getValue());
         }
         if(arg.asIdentifier() != null)
         {
@@ -44,7 +44,7 @@ public class IntRhsFunction extends AbstractRhsFunctionHandler
         final String string = arg.toString();
         try
         {
-            return context.getSymbols().createInteger(Integer.parseInt(string));
+            return context.getSymbols().createInteger(Long.parseLong(string));
         }
         catch(NumberFormatException e)
         {
