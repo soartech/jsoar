@@ -1043,7 +1043,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         // semantic_memory.cpp:1053:smem_lti_soar_make
 
         // try to find existing
-        IdentifierImpl return_val = symbols.findIdentifier(name_letter, (int) name_number); // TODO SMEM make name_number long
+        IdentifierImpl return_val = symbols.findIdentifier(name_letter, name_number);
 
         // otherwise create
         if ( return_val == null )
@@ -2764,7 +2764,7 @@ public class DefaultSemanticMemory implements SemanticMemory
                                         c_new.lti_id = smem_lti_add_id( c_new.lti_letter, c_new.lti_number );
 
                                         // this could affect an existing identifier in Soar's WM
-                                        final IdentifierImpl id_parent = symbols.findIdentifier( c_new.lti_letter, /* TODO SMEM long ids */(int) c_new.lti_number );
+                                        final IdentifierImpl id_parent = symbols.findIdentifier( c_new.lti_letter, c_new.lti_number );
                                         if ( id_parent != null )
                                         {
                                             // if so we make it an lti manually

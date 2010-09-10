@@ -601,7 +601,7 @@ public class Lexer
             {
                 lexeme.id_letter = Character.toUpperCase(lexeme.string.charAt(0));
                 lexeme.type = LexemeType.IDENTIFIER;
-                lexeme.id_number = Integer.valueOf(lexeme.string.substring(1));
+                lexeme.id_number = Long.valueOf(lexeme.string.substring(1));
             }
             catch (NumberFormatException e)
             {

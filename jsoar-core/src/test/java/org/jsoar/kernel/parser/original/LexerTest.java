@@ -94,7 +94,22 @@ public class LexerTest
         assertEquals("S123", lexeme.string);
         assertEquals('S', lexeme.id_letter);
         assertEquals(123, lexeme.id_number);
+    }
+    
+    @Test
+    public void testLexerCanParseIdentifiersWithLongNumbers() throws Exception
+    {
+        Lexer lexer = createLexer("S1000000000000"); // > size of integer
         
+        lexer.setAllowIds(true);
+        lexer.getNextLexeme();
+        Lexeme lexeme = lexer.getCurrentLexeme();
+        assertNotNull(lexeme);
+        
+        assertEquals(LexemeType.IDENTIFIER, lexeme.type);
+        assertEquals("S1000000000000", lexeme.string);
+        assertEquals('S', lexeme.id_letter);
+        assertEquals(1000000000000L, lexeme.id_number);
     }
     
     @Test public void testThatAnOutOfBoundsIntegerIsStillAPossibleInteger()

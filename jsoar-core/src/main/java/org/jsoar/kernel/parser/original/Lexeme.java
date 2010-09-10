@@ -15,7 +15,7 @@ public class Lexeme
     public int int_val;
     public double float_val;
     public char id_letter;
-    public int id_number;
+    public long id_number;
     
     public void append(char c)
     {

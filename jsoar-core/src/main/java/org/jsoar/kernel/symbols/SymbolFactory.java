@@ -25,7 +25,7 @@ public interface SymbolFactory
      * @param nameNumber The name number of the desired id
      * @return The identifier, or <code>null</code> if not found
      */
-    public Identifier findIdentifier(char nameLetter, int nameNumber);
+    public Identifier findIdentifier(char nameLetter, long nameNumber);
 
     /**
      * Create a new identifier
@@ -41,7 +41,7 @@ public interface SymbolFactory
     /**
      * Find an identifier by letter and number, and create a new one
      * with the given letter if none was found. This is simply a compound
-     * of {@link #findIdentifier(char, int)} and {@link #createIdentifier(char)}
+     * of {@link #findIdentifier(char, long)} and {@link #createIdentifier(char)}
      * 
      * <p>io.cpp::get_io_identifier
      * 
@@ -49,7 +49,7 @@ public interface SymbolFactory
      * @param nameNumber The name number of the id
      * @return The identifier
      */
-    public Identifier findOrCreateIdentifier(char nameLetter, int nameNumber);
+    public Identifier findOrCreateIdentifier(char nameLetter, long nameNumber);
 
     /**
      * Find an existing string symbol

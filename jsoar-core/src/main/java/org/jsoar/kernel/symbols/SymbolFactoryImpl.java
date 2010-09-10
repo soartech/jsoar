@@ -54,7 +54,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         return new MapMaker().weakValues().makeMap();
     }
     
-    private final int id_counter[] = new int[26];
+    private final long id_counter[] = new long[26];
     private final Map<String, StringSymbolImpl> symConstants = newReferenceMap();
     private final Map<Integer, IntegerSymbolImpl> intConstants = newReferenceMap();
     private final Map<Double, DoubleSymbolImpl> floatConstants = newReferenceMap();
@@ -244,9 +244,9 @@ public class SymbolFactoryImpl implements SymbolFactory
     
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.SymbolFactory#find_identifier(char, int)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#findIdentifier(char, int)
      */
-    public IdentifierImpl findIdentifier(char name_letter, int name_number)
+    public IdentifierImpl findIdentifier(char name_letter, long name_number)
     {
         return identifiers.get(new IdKey(name_letter, name_number));
     }
@@ -261,7 +261,7 @@ public class SymbolFactoryImpl implements SymbolFactory
     public IdentifierImpl make_new_identifier(char name_letter, int /*goal_stack_level*/ level)
     {
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
-        int name_number = id_counter[name_letter - 'A']++;
+        long name_number = id_counter[name_letter - 'A']++;
         
         IdentifierImpl id = new IdentifierImpl(this, get_next_hash_id(), name_letter, name_number);
         
@@ -281,7 +281,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      * @param level the goal stack level of the id
      * @return the new identifier
      */
-    private IdentifierImpl make_new_identifier_exact(char name_letter, int name_number, int /*goal_stack_level*/ level)
+    private IdentifierImpl make_new_identifier_exact(char name_letter, long name_number, int /*goal_stack_level*/ level)
     {
         name_letter = Character.isLetter(name_letter) ? Character.toUpperCase(name_letter) : 'I';
         if(name_number >= id_counter[name_letter - 'A'])
@@ -306,10 +306,10 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.SymbolFactory#findOrcreateIdentifier(char, int)
+     * @see org.jsoar.kernel.symbols.SymbolFactory#findOrcreateIdentifier(char, long)
      */
     @Override
-    public IdentifierImpl findOrCreateIdentifier(char nameLetter, int nameNumber)
+    public IdentifierImpl findOrCreateIdentifier(char nameLetter, long nameNumber)
     {
         IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
 
@@ -325,7 +325,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      * If the id gets created, this version creates an id with the actual number specified, 
      * as opposed to using the next available number
      */
-    public IdentifierImpl findOrCreateIdentifierExact(char nameLetter, int nameNumber)
+    public IdentifierImpl findOrCreateIdentifierExact(char nameLetter, long nameNumber)
     {
         IdentifierImpl id = findIdentifier(nameLetter, nameNumber);
 
@@ -477,14 +477,14 @@ public class SymbolFactoryImpl implements SymbolFactory
     
     private static class IdKey
     {
-        char name_letter;
-        int name_number;
+        final char name_letter;
+        final long name_number;
         
         /**
          * @param name_letter
          * @param name_number
          */
-        public IdKey(char name_letter, int name_number)
+        public IdKey(char name_letter, long name_number)
         {
             this.name_letter = name_letter;
             this.name_number = name_number;
@@ -499,9 +499,10 @@ public class SymbolFactoryImpl implements SymbolFactory
             final int prime = 31;
             int result = 1;
             result = prime * result + name_letter;
-            result = prime * result + name_number;
+            result = prime * result + (int) name_number;
             return result;
         }
+        
         /* (non-Javadoc)
          * @see java.lang.Object#equals(java.lang.Object)
          */

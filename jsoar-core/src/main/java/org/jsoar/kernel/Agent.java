@@ -511,10 +511,10 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         if(t.length() < 2 || !Character.isLetter(t.charAt(0))) return null;
         
         final char letter = Character.toUpperCase(t.charAt(0));
-        int number = 1;
+        long number = 1;
         try
         {
-            number = Integer.parseInt(t.substring(1));
+            number = Long.parseLong(t.substring(1));
         }
         catch(NumberFormatException e)
         {

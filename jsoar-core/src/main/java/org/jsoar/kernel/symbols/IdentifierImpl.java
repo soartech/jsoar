@@ -35,7 +35,7 @@ import com.google.common.collect.Iterators;
  */
 public class IdentifierImpl extends SymbolImpl implements Identifier
 {
-    private final int name_number; // TODO make this a long
+    private final long name_number; // TODO make this a long
     private final char name_letter;
     
     /**
@@ -67,7 +67,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     /**
      * @param hash_id
      */
-    IdentifierImpl(SymbolFactory factory, int hash_id, char name_letter, int name_number)
+    IdentifierImpl(SymbolFactory factory, int hash_id, char name_letter, long name_number)
     {
         super(factory, hash_id);
         
@@ -85,10 +85,10 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     }
 
     /* (non-Javadoc)
-     * @see org.jsoar.kernel.symbols.IdSymbol#getNameNumber()
+     * @see org.jsoar.kernel.symbols.Identifier#getNameNumber()
      */
     @Override
-    public int getNameNumber()
+    public long getNameNumber()
     {
         return name_number;
     }
@@ -272,7 +272,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public String toString()
     {
-        return name_letter + Integer.toString(name_number);
+        return name_letter + Long.toString(name_number);
     }
 
     /* (non-Javadoc)
@@ -281,7 +281,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     @Override
     public void formatTo(Formatter formatter, int flags, int width, int precision)
     {
-        formatter.format((smem_lti != 0 ? "@" : "") + name_letter + Integer.toString(name_number));
+        formatter.format((smem_lti != 0 ? "@" : "") + name_letter + Long.toString(name_number));
     }
     
     /* (non-Javadoc)

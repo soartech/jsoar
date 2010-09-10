@@ -128,7 +128,7 @@ public class DecisionCycleTest
         }
     }
     
-    private void validateLastOperator(int number)
+    private void validateLastOperator(long number)
     {
         final SymbolFactoryImpl syms = Adaptables.adapt(agent, SymbolFactoryImpl.class);
         IdentifierImpl last = syms.findIdentifier('O', number);

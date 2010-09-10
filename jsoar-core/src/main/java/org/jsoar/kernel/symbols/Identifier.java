@@ -36,7 +36,7 @@ public interface Identifier extends Symbol
     /**
      * @return The name number of this id, e.g. in R56, returns 56.
      */
-    int getNameNumber();
+    long getNameNumber();
     
     /**
      * Returns an iterator over all WMEs with this id.
