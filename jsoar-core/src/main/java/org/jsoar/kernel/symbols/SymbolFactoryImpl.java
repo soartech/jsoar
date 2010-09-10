@@ -221,9 +221,11 @@ public class SymbolFactoryImpl implements SymbolFactory
     }
     
     /**
+     * Find the variable with the given name
+     * 
      * <p>symtab.cpp:195:find_variable
      * 
-     * @param name
+     * @param name the variable name
      * @return the variable, or {@code null} if not found
      */
     public Variable find_variable(String name)
@@ -231,6 +233,14 @@ public class SymbolFactoryImpl implements SymbolFactory
         return variables.get(name);
     }
     
+    /**
+     * Find the variable with the given name or create it if it doesn't exist.
+     * 
+     * <p>symtab.cpp::make_variable
+     * 
+     * @param name the variable name
+     * @return a new variable
+     */
     public Variable make_variable(String name)
     {
         Variable v = find_variable(name);
@@ -248,7 +258,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      */
     public IdentifierImpl findIdentifier(char name_letter, long name_number)
     {
-        return identifiers.get(new IdKey(name_letter, name_number));
+        return identifiers.get(getIdKey(name_letter, name_number));
     }
     
     /**
@@ -268,7 +278,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         id.level = level;
         id.promotion_level = level;
         
-        identifiers.put(new IdKey(id.getNameLetter(), id.getNameNumber()), id);
+        identifiers.put(getIdKey(id.getNameLetter(), id.getNameNumber()), id);
         return id;
     }
     
@@ -293,7 +303,7 @@ public class SymbolFactoryImpl implements SymbolFactory
         id.level = level;
         id.promotion_level = level;
         
-        identifiers.put(new IdKey(id.getNameLetter(), id.getNameNumber()), id);
+        identifiers.put(getIdKey(id.getNameLetter(), id.getNameNumber()), id);
         return id;
     }
     
@@ -475,19 +485,23 @@ public class SymbolFactoryImpl implements SymbolFactory
         return current_symbol_hash_id += 137;
     }
     
+    private static IdKey getIdKey(char letter, long number)
+    {
+        // Using just a packed only has very minor memory usage or
+        // performance gains, so don't bother. IdKey is clearer.
+        //return (((long) letter) << 48) | number;
+        return new IdKey(letter, number);
+    }
+    
     private static class IdKey
     {
-        final char name_letter;
-        final long name_number;
+        private final char letter;
+        private final long number;
         
-        /**
-         * @param name_letter
-         * @param name_number
-         */
-        public IdKey(char name_letter, long name_number)
+        public IdKey(char letter, long number)
         {
-            this.name_letter = name_letter;
-            this.name_number = name_number;
+            this.letter = letter;
+            this.number = number;
         }
         
         /* (non-Javadoc)
@@ -498,8 +512,9 @@ public class SymbolFactoryImpl implements SymbolFactory
         {
             final int prime = 31;
             int result = 1;
-            result = prime * result + name_letter;
-            result = prime * result + (int) name_number;
+            result = prime * result + letter;
+            // See Long.hashCode() for where this comes from...
+            result = prime * result + (int)(number ^ (number >>> 32));
             return result;
         }
         
@@ -511,18 +526,12 @@ public class SymbolFactoryImpl implements SymbolFactory
         {
             if (this == obj)
                 return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
             final IdKey other = (IdKey) obj;
-            if (name_letter != other.name_letter)
+            if (letter != other.letter)
                 return false;
-            if (name_number != other.name_number)
+            if (number != other.number)
                 return false;
             return true;
         }
-        
-        
     }
 }
