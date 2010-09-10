@@ -21,7 +21,7 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.MatchSetEntry.EntryType;
-import org.jsoar.kernel.Production.ProductionSupport;
+import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.PreferenceType;
@@ -266,15 +266,15 @@ public class SoarReteListener implements ReteListener
 
         SavedFiringType prod_type = SavedFiringType.IE_PRODS;
 
-        if (node.b_p().prod.getDeclaredSupport() == ProductionSupport.DECLARED_O_SUPPORT)
+        if (node.b_p().prod.getDeclaredSupport() == Support.DECLARED_O_SUPPORT)
         {
             prod_type = SavedFiringType.PE_PRODS;
         }
-        else if (node.b_p().prod.getDeclaredSupport() == ProductionSupport.DECLARED_I_SUPPORT)
+        else if (node.b_p().prod.getDeclaredSupport() == Support.DECLARED_I_SUPPORT)
         {
             prod_type = SavedFiringType.IE_PRODS;
         }
-        else if (node.b_p().prod.getDeclaredSupport() == ProductionSupport.UNDECLARED)
+        else if (node.b_p().prod.getDeclaredSupport() == Support.UNDECLARED)
         {
             // check if the instantiation is proposing an operator. if it
             // is, then this instantiation is i-supported.

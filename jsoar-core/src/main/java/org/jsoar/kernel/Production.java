@@ -46,14 +46,35 @@ public class Production
 {
     private static final List<Variable> EMPTY_RHS_UNBOUND_VARS_LIST = Collections.emptyList();
     
-    /** production.h:66:_SUPPORT */
-    public enum ProductionSupport
+    /**
+     * Enumerations for possible declared production support types
+     *  
+     * <p>production.h:66:_SUPPORT 
+     * 
+     * @see Production#getDeclaredSupport()
+     */
+    public enum Support
     {
-        /** production.h:66:UNDECLARED_SUPPORT */
+        /**
+         * The production has no declared support, i.e. it's support will be
+         * determined by Soar.
+         *  
+         * <p>production.h:66:UNDECLARED_SUPPORT 
+         */
         UNDECLARED,
-        /** production.h:66:DECLARED_O_SUPPORT */
+        
+        /**
+         * The production has been declared with {@code :o-support}.
+         *  
+         * <p>production.h:66:DECLARED_O_SUPPORT 
+         */
         DECLARED_O_SUPPORT,
-        /** production.h:66:DECLARED_I_SUPPORT */
+        
+        /**
+         * The production has been declared with {@code :i-support}.
+         *  
+         * <p>production.h:66:DECLARED_I_SUPPORT
+         */
         DECLARED_I_SUPPORT
     }
     
@@ -68,7 +89,7 @@ public class Production
         private String documentation = "";
         private Condition topCondition, bottomCondition;
         private Action actions;
-        private ProductionSupport support = ProductionSupport.UNDECLARED;
+        private Support support = Support.UNDECLARED;
         private boolean interrupt = false;
         
         public Builder type(ProductionType type) { this.type = type; return this; }
@@ -81,7 +102,7 @@ public class Production
             return this; 
         }
         public Builder actions(Action v) { this.actions = v; return this; }
-        public Builder support(ProductionSupport v) { this.support = v; return this; }
+        public Builder support(Support v) { this.support = v; return this; }
         public Builder interrupt(boolean v) { this.interrupt = v; return this; }
         
         public Production build()
@@ -96,7 +117,7 @@ public class Production
     private final SourceLocation location;
     private final String name;
     private final String documentation;
-    private final ProductionSupport declared_support;
+    private final Support declared_support;
     private final boolean interrupt;
     
     private Condition condition_list;
@@ -112,6 +133,7 @@ public class Production
     
     private Rete rete;
     private ReteNode p_node;
+    
     /**
      * List of instantiations of this production. Use {@link Instantiation#nextInProdList}
      * to iterate.
@@ -145,7 +167,7 @@ public class Production
      * @see Builder#build()
      */
     private Production(ProductionType type, SourceLocation location, String name, String doc,
-                      Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in, ProductionSupport support,
+                      Condition lhs_top_in, Condition lhs_bottom_in, Action rhs_top_in, Support support,
                       boolean interrupt)
     {
         Arguments.checkNotNull(type, "type");
@@ -201,8 +223,9 @@ public class Production
     
     /**
      * @return the declared support of the production
+     * @see Support
      */
-    public ProductionSupport getDeclaredSupport()
+    public Support getDeclaredSupport()
     {
         return declared_support;
     }
@@ -257,7 +280,7 @@ public class Production
         
     /**
      * Returns true if this production will interrupt the agent when it matches.
-     * This could be either because of the <code>:interrupt</code> flag expliticly
+     * This could be either because of the <code>:interrupt</code> flag explicitly
      * on the rule or because {@link #setBreakpointEnabled(boolean)} was called.
      * 
      * @return true if this production will interrupt the agent when it matches

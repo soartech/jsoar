@@ -6,7 +6,7 @@
 package org.jsoar.kernel.memory;
 
 import org.jsoar.kernel.PredefinedSymbols;
-import org.jsoar.kernel.Production.ProductionSupport;
+import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.rhs.Action;
@@ -196,15 +196,15 @@ public class OSupport
         o_support = false;
         op_elab = false;
 
-        if (inst.prod.getDeclaredSupport() == ProductionSupport.DECLARED_O_SUPPORT)
+        if (inst.prod.getDeclaredSupport() == Support.DECLARED_O_SUPPORT)
         {
             o_support = true;
         }
-        else if (inst.prod.getDeclaredSupport() == ProductionSupport.DECLARED_I_SUPPORT)
+        else if (inst.prod.getDeclaredSupport() == Support.DECLARED_I_SUPPORT)
         {
             o_support = false;
         }
-        else if (inst.prod.getDeclaredSupport() == ProductionSupport.UNDECLARED)
+        else if (inst.prod.getDeclaredSupport() == Support.UNDECLARED)
         {
             /*
              * check if the instantiation is proposing an operator. if it

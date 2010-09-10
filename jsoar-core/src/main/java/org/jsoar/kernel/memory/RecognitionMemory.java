@@ -20,7 +20,7 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.Production.ProductionSupport;
+import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.lhs.BackTraceInfo;
@@ -710,11 +710,11 @@ public class RecognitionMemory
             {
                 pref.setInstantiation(inst);
                                 
-                if (inst.prod.getDeclaredSupport() == ProductionSupport.DECLARED_O_SUPPORT)
+                if (inst.prod.getDeclaredSupport() == Support.DECLARED_O_SUPPORT)
                 {
                     pref.o_supported = true;
                 }
-                else if (inst.prod.getDeclaredSupport() == ProductionSupport.DECLARED_I_SUPPORT)
+                else if (inst.prod.getDeclaredSupport() == Support.DECLARED_I_SUPPORT)
                 {
                     pref.o_supported = false;
                 }

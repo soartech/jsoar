@@ -15,7 +15,7 @@ import java.util.ListIterator;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.Production.ProductionSupport;
+import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -1950,18 +1950,18 @@ class OriginalParserImpl
         final String documentation = parseDocumenation();
 
         // read optional flags
-        ProductionSupport declared_support = ProductionSupport.UNDECLARED;
+        Support declared_support = Support.UNDECLARED;
         ProductionType prod_type = ProductionType.USER;
         boolean interrupt_on_match = false;
         while (currentType() == LexemeType.SYM_CONSTANT)
         {
             if (":o-support".equals(current().string))
             {
-                declared_support = ProductionSupport.DECLARED_O_SUPPORT;
+                declared_support = Support.DECLARED_O_SUPPORT;
             }
             else if (":i-support".equals(current().string))
             {
-                declared_support = ProductionSupport.DECLARED_I_SUPPORT;
+                declared_support = Support.DECLARED_I_SUPPORT;
             }
             else if (":chunk".equals(current().string))
             {
