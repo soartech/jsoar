@@ -28,8 +28,6 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.learning.Chunker;
@@ -67,6 +65,8 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 import org.jsoar.util.properties.PropertyManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of {@link SemanticMemory}
@@ -2140,18 +2140,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         // attempt connection
         final String jdbcUrl = params.protocol.get() + ":" + params.path.get();
         final Connection connection = JdbcTools.connect(params.driver.get(), jdbcUrl);
-        try
-        {
-            final DatabaseMetaData meta = connection.getMetaData();
-            logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":"  + meta.getDriverVersion());
-            db = new SemanticMemoryDatabase(params.driver.get(), connection);
-        }
-        catch(SoarException e)
-        {
-            logger.error("While opening database: " + e.getMessage(), e);
-            connection.close();
-            throw e;
-        }
+        final DatabaseMetaData meta = connection.getMetaData();
+        logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":"  + meta.getDriverVersion());
+        db = new SemanticMemoryDatabase(params.driver.get(), connection);
 
         // temporary queries for one-time init actions
 

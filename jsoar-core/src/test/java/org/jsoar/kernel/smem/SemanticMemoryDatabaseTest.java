@@ -38,9 +38,9 @@ public class SemanticMemoryDatabaseTest
     public void testIfStructureAlreadyExistsDontRecreate() throws Exception
     {
         final SemanticMemoryDatabase smdb = new SemanticMemoryDatabase("org.sqlite.JDBC", db);
-        smdb.structure();
+        assertTrue(smdb.structure());
         
-        smdb.structure();
+        assertFalse(smdb.structure());
     }
     
     @Test
