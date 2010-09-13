@@ -13,7 +13,7 @@
 									<node nodeId="1279502856266" orientation="VERTICAL" divider="0.5990853658536586">
 										<node nodeId="1279502864937" orientation="HORIZONTAL" divider="0.8241469816272966">
 											<node nodeId="1279769514359" orientation="HORIZONTAL" divider="0.8639543436905516">
-												<leaf id="0" nodeId="1279502856109">
+												<leaf id="1" nodeId="1279502856109">
 													<placeholders>
 														<placeholder>dock.single.productionList</placeholder>
 														<placeholder>dock.single.productionEditor</placeholder>
@@ -49,7 +49,7 @@
 													</placeholders>
 												</leaf>
 											</node>
-											<leaf id="2" nodeId="1279502876906">
+											<leaf id="0" nodeId="1279502876906">
 												<placeholders>
 													<placeholder>dock.single.productionList</placeholder>
 												</placeholders>
@@ -64,9 +64,10 @@
 												</leaf>
 												<node nodeId="1279502903922" orientation="HORIZONTAL" divider="0.6534181240063593">
 													<node nodeId="1284338328282" orientation="HORIZONTAL" divider="0.5101544957250301">
-														<leaf id="1" nodeId="1279502856250">
+														<leaf id="5" nodeId="1279502856250">
 															<placeholders>
 																<placeholder>dock.single.wmeSupport</placeholder>
+																<placeholder>dock.single.gds</placeholder>
 																<placeholder>dock.single.preferences</placeholder>
 															</placeholders>
 															<placeholder-map>
@@ -82,15 +83,38 @@
 																		<placeholder>dock.single.wmeSupport</placeholder>
 																	</key>
 																</entry>
+																<entry>
+																	<key shared="false">
+																		<placeholder>dock.single.gds</placeholder>
+																	</key>
+																</entry>
 															</placeholder-map>
 														</leaf>
-														<leaf id="5" nodeId="1284338328281">
+														<leaf id="4" nodeId="1284338328281">
 															<placeholders>
 																<placeholder>dock.single.wmeSupport</placeholder>
 															</placeholders>
+															<placeholder-map>
+																<version>0</version>
+																<format>dock.PlaceholderList</format>
+																<entry>
+																	<key shared="false">
+																		<placeholder>dock.single.wmeSupport</placeholder>
+																	</key>
+																	<item key="convert" type="b">true</item>
+																	<item key="convert-keys" type="a"/>
+																</entry>
+																<entry>
+																	<key shared="false">
+																		<placeholder>dock.single.gds</placeholder>
+																	</key>
+																	<item key="convert" type="b">true</item>
+																	<item key="convert-keys" type="a"/>
+																</entry>
+															</placeholder-map>
 														</leaf>
 													</node>
-													<leaf id="4" nodeId="1279502903921">
+													<leaf id="2" nodeId="1279502903921">
 														<placeholders>
 															<placeholder>dock.single.matcheset</placeholder>
 															<placeholder>dock.single.partialmatches</placeholder>
@@ -126,6 +150,15 @@
 								</delegate>
 							</layout>
 							<children ignore="false">
+								<child>
+									<layout factory="predefined" placeholder="dock.single.productionList">
+										<replacement id="dockablesingle productionList"/>
+										<delegate id="delegate_ccontrol backup factory id">
+											<id>productionList</id>
+										</delegate>
+									</layout>
+									<children ignore="false"/>
+								</child>
 								<child>
 									<layout factory="delegate_StackDockStationFactory">
 										<selected>0</selected>
@@ -194,33 +227,6 @@
 									</children>
 								</child>
 								<child>
-									<layout factory="predefined" placeholder="dock.single.preferences">
-										<replacement id="dockablesingle preferences"/>
-										<delegate id="delegate_ccontrol backup factory id">
-											<id>preferences</id>
-										</delegate>
-									</layout>
-									<children ignore="false"/>
-								</child>
-								<child>
-									<layout factory="predefined" placeholder="dock.single.productionList">
-										<replacement id="dockablesingle productionList"/>
-										<delegate id="delegate_ccontrol backup factory id">
-											<id>productionList</id>
-										</delegate>
-									</layout>
-									<children ignore="false"/>
-								</child>
-								<child>
-									<layout factory="predefined" placeholder="dock.single.goalStack">
-										<replacement id="dockablesingle goalStack"/>
-										<delegate id="delegate_ccontrol backup factory id">
-											<id>goalStack</id>
-										</delegate>
-									</layout>
-									<children ignore="false"/>
-								</child>
-								<child>
 									<layout factory="delegate_StackDockStationFactory">
 										<selected>0</selected>
 										<placeholders>
@@ -278,10 +284,76 @@
 									</children>
 								</child>
 								<child>
-									<layout factory="predefined" placeholder="dock.single.wmeSupport">
-										<replacement id="dockablesingle wmeSupport"/>
+									<layout factory="predefined" placeholder="dock.single.goalStack">
+										<replacement id="dockablesingle goalStack"/>
 										<delegate id="delegate_ccontrol backup factory id">
-											<id>wmeSupport</id>
+											<id>goalStack</id>
+										</delegate>
+									</layout>
+									<children ignore="false"/>
+								</child>
+								<child>
+									<layout factory="delegate_StackDockStationFactory">
+										<selected>0</selected>
+										<placeholders>
+											<version>0</version>
+											<format>dock.PlaceholderList</format>
+											<entry>
+												<key shared="false">
+													<placeholder>dock.single.wmeSupport</placeholder>
+												</key>
+												<item key="convert" type="b">true</item>
+												<item key="convert-keys" type="a">
+													<item type="s">id</item>
+													<item type="s">index</item>
+													<item type="s">placeholder</item>
+												</item>
+												<item key="dock.id" type="i">0</item>
+												<item key="dock.index" type="i">0</item>
+												<item key="dock.placeholder" type="s">dock.single.wmeSupport</item>
+											</entry>
+											<entry>
+												<key shared="false">
+													<placeholder>dock.single.gds</placeholder>
+												</key>
+												<item key="convert" type="b">true</item>
+												<item key="convert-keys" type="a">
+													<item type="s">id</item>
+													<item type="s">index</item>
+													<item type="s">placeholder</item>
+												</item>
+												<item key="dock.id" type="i">1</item>
+												<item key="dock.index" type="i">1</item>
+												<item key="dock.placeholder" type="s">dock.single.gds</item>
+											</entry>
+										</placeholders>
+									</layout>
+									<children ignore="false">
+										<child>
+											<layout factory="predefined" placeholder="dock.single.wmeSupport">
+												<replacement id="dockablesingle wmeSupport"/>
+												<delegate id="delegate_ccontrol backup factory id">
+													<id>wmeSupport</id>
+												</delegate>
+											</layout>
+											<children ignore="false"/>
+										</child>
+										<child>
+											<layout factory="predefined" placeholder="dock.single.gds">
+												<replacement id="dockablesingle gds"/>
+												<delegate id="delegate_ccontrol backup factory id">
+													<id>gds</id>
+												</delegate>
+											</layout>
+											<children ignore="false"/>
+										</child>
+									</children>
+								</child>
+								<child>
+									<layout factory="predefined" placeholder="dock.single.preferences">
+										<replacement id="dockablesingle preferences"/>
+										<delegate id="delegate_ccontrol backup factory id">
+											<id>preferences</id>
 										</delegate>
 									</layout>
 									<children ignore="false"/>
@@ -391,17 +463,6 @@
 									<replacement id="dockablesingle wmeSearch"/>
 									<delegate id="delegate_ccontrol backup factory id">
 										<id>wmeSearch</id>
-									</delegate>
-								</layout>
-								<children ignore="false"/>
-							</layout>
-						</child>
-						<child key="single gds" location="false">
-							<layout>
-								<layout factory="predefined" placeholder="dock.single.gds">
-									<replacement id="dockablesingle gds"/>
-									<delegate id="delegate_ccontrol backup factory id">
-										<id>gds</id>
 									</delegate>
 								</layout>
 								<children ignore="false"/>
@@ -599,9 +660,33 @@
 								</property>
 							</properties>
 						</entry>
-						<entry id="single gds">
-							<history/>
-							<properties/>
+						<entry id="single gds" current="dock.mode.normal">
+							<history>
+								<mode>dock.mode.normal</mode>
+							</history>
+							<properties>
+								<property id="dock.mode.normal">
+									<mode>dock.mode.normal</mode>
+									<root>ccontrol center</root>
+									<location>
+										<property factory="SplitDockPlaceholderProperty">
+											<placeholder>dock.single.gds</placeholder>
+											<backup-path>
+												<node location="BOTTOM" size="0.40091463414634143" id="1279502856266"/>
+												<node location="TOP" size="0.2053789731051345" id="1279502856251"/>
+												<node location="RIGHT" size="0.5902777777777778" id="1279502894593"/>
+												<node location="LEFT" size="0.6534181240063593" id="1279502903922"/>
+												<node location="LEFT" size="0.5101544957250301" id="1284338328282"/>
+												<leaf id="1279502856250"/>
+											</backup-path>
+										</property>
+										<property factory="StackDockPropertyFactory">
+											<index>1</index>
+											<placeholder>dock.single.gds</placeholder>
+										</property>
+									</location>
+								</property>
+							</properties>
 						</entry>
 						<entry id="single trace" current="dock.mode.normal">
 							<history>
