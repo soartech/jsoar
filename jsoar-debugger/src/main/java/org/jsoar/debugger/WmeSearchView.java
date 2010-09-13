@@ -145,7 +145,7 @@ public class WmeSearchView extends AbstractAdaptableView implements Refreshable,
     @Override
     public void refresh(boolean afterInitSoar)
     {
-        if(synch.isSelected())
+        if(synch.isSelected() && isVisible())
         {
             doSearch();
         }

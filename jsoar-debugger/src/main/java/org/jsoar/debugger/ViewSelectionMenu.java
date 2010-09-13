@@ -70,6 +70,10 @@ public class ViewSelectionMenu
                     view.setVisible(true);
                     view.toFront();
                     view.activate();
+                    if(view instanceof Refreshable)
+                    {
+                        ((Refreshable) view).refresh(false);
+                    }
                 }
             });
             menu.insert(item, 0);
