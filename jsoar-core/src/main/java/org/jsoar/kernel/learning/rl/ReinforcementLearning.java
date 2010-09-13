@@ -750,7 +750,7 @@ public class ReinforcementLearning
         }
 
         // update stats
-        final double global_reward = 0.0; // TODO my_agent->rl_stats->global_reward->get_value();
+        // final double global_reward = 0.0; // TODO my_agent->rl_stats->global_reward->get_value();
         // TODO my_agent->rl_stats->total_reward->set_value( reward );
         // TODO my_agent->rl_stats->global_reward->set_value( global_reward + reward );
 
