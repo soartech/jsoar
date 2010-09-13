@@ -315,7 +315,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         addView(new MatchSetView(this));
         addView(new TraceView(this)); 
         addView(new WmeSearchView(this));
-        addView(new WorkingMemoryTreeView(this));
         addView(new WmeSupportView(this));
         addView(new PreferencesView(this));
         addView(new GoalStackView(this));
