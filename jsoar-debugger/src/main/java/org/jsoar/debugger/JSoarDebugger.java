@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -33,8 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.debugger.actions.AboutAction;
 import org.jsoar.debugger.actions.ActionManager;
 import org.jsoar.debugger.actions.EditProductionAction;
@@ -75,6 +74,8 @@ import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyListener;
 import org.jsoar.util.properties.PropertyListenerHandle;
 import org.jsoar.util.properties.PropertyProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.common.event.CFocusListener;
@@ -320,12 +321,18 @@ public class JSoarDebugger extends JPanel implements Adaptable
         addView(new GoalStackView(this));
         addView(new GdsView(this));
     }
-    
     private <T extends AbstractAdaptableView> T addView(T view)
+    {
+        return addView(view, true);
+    }
+    private <T extends AbstractAdaptableView> T addView(T view, boolean visible)
     {
         views.add(view);
         docking.add(view);
-        view.setVisible(true);
+        if(visible)
+        {
+            view.setVisible(true);
+        }
         return view;
     }
     
@@ -446,7 +453,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         new ViewSelectionMenu( docking, viewMenu.getMenu());
         
-        /*
         viewMenu.getMenu().add(new AbstractAction("Write")
         {
             @Override
@@ -454,7 +460,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
             {
                 try
                 {
-                    docking.writeXML(new File("c:/layout.xml"));
+                    docking.writeXML(new File("../jsoar-debugger/src/main/resources/org/jsoar/debugger/layout.xml"));
                 }
                 catch (IOException e1)
                 {
@@ -463,7 +469,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 }
             }
         });
-        */
         
         bar.add(viewMenu.getMenu());
         
