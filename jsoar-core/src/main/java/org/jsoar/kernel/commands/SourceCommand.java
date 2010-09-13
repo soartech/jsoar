@@ -380,10 +380,10 @@ public class SourceCommand implements SoarCommand
     
     private static class TopLevelState
     {
-        List<FileInfo> files = new ArrayList<FileInfo>();
+        final List<FileInfo> files = new ArrayList<FileInfo>();
         int totalProductionsAdded = 0;
         int totalProductionsExcised = 0;
-        int totalProductionsIgnored = 0; // TODO
+        //int totalProductionsIgnored = 0; // TODO implement totalProductionsIgnored
         
         void productionAdded(Production p)
         {

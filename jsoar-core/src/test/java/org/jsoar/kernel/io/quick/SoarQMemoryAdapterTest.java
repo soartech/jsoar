@@ -37,7 +37,6 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     
     private static class MatchFunction extends StandaloneRhsFunctionHandler
     {
-        boolean called = false;
         List<List<Symbol>> calls = new ArrayList<List<Symbol>>();
         
         public MatchFunction() { super("match"); }
@@ -48,7 +47,6 @@ public class SoarQMemoryAdapterTest extends JSoarTest
         @Override
         public Symbol execute(RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
         {
-            called = true;
             calls.add(new ArrayList<Symbol>(arguments));
             return null;
         }

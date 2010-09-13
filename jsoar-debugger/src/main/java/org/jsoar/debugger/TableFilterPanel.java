@@ -45,7 +45,7 @@ public class TableFilterPanel extends JPanel
         this.column = column;
         
         this.sorter = new TableRowSorter<TableModel>(table.getModel());
-        table.setRowSorter(sorter);
+        this.table.setRowSorter(sorter);
         
         // Listen for changes to the text field
         field.getDocument().addDocumentListener(new DocumentListener() {
