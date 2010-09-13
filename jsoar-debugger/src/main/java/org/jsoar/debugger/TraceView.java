@@ -181,7 +181,7 @@ public class TraceView extends AbstractAdaptableView implements Disposable
                              "\n" +
                              "Right-click for trace options (or use watch command)\n" +
                              "Double-click identifiers, wmes, and rule names to drill down\n" +
-                             "You can paste code directly into this window.\n");
+                             "You can paste code (ctrl+v) directly into this window.\n");
         
         setLimit(getPreferences().getInt("limit", -1));
         scrollLock = getPreferences().getBoolean("scrollLock", true);
