@@ -453,6 +453,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         new ViewSelectionMenu( docking, viewMenu.getMenu());
         
+        /*
         viewMenu.getMenu().add(new AbstractAction("Write")
         {
             @Override
@@ -469,6 +470,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 }
             }
         });
+        */
         
         bar.add(viewMenu.getMenu());
         
