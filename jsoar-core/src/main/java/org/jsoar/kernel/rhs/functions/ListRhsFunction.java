@@ -31,9 +31,6 @@ import org.jsoar.kernel.symbols.Symbol;
  */
 public class ListRhsFunction extends AbstractRhsFunctionHandler
 {
-    /**
-     * @param name
-     */
     public ListRhsFunction()
     {
         super("list");

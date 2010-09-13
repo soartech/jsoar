@@ -50,7 +50,7 @@ public class SoarModule
      * @param id
      * @param attr
      * @param value
-     * @return
+     * @return the new wme
      */
     public static WmeImpl add_module_wme(WorkingMemory wm, IdentifierImpl id, SymbolImpl attr, SymbolImpl value )
     {
@@ -97,7 +97,7 @@ public class SoarModule
      * @param attr
      * @param value
      * @param conditions
-     * @return
+     * @return the new preference
      */
     public static Preference make_fake_preference(IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value, Set<WmeImpl> conditions )
     {

@@ -902,7 +902,7 @@ public class Lexer
     /**
      * lexer.cpp:get_lexer_allow_ids
      * 
-     * @return
+     * @return true if the lexer accepts identifier literals, e.g. {@code S1}
      */
     public boolean isAllowIds()
     {

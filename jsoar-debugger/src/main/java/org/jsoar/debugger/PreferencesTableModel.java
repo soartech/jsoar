@@ -25,9 +25,6 @@ public class PreferencesTableModel extends AbstractTableModel
 
     private Result result;
     
-    /**
-     * @param result
-     */
     public PreferencesTableModel()
     {
     }

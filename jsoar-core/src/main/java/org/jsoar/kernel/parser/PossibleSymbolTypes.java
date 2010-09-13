@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.parser;
 
+import org.jsoar.kernel.parser.original.Lexer;
+
 /**
  * @author ray
  * @see Lexer#determine_possible_symbol_types_for_string(String)

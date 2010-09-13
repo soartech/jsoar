@@ -202,8 +202,6 @@ public class XmlMessageQueue
      * 
      * @param message the message
      * @return this
-     * @throws IllegalArgumentException if {@code message} is {@code null}
-     * @throws IllegalStateException if {@link #initialize()} has not been called
      */
     public XmlMessageQueue add(Element message)
     {

@@ -271,8 +271,8 @@ public class Symbols
     /**
      * utilities.cpp:361:get_number_from_symbol
      * 
-     * @param sym
-     * @return
+     * @param sym the symbol to convert
+     * @return the value of the symbol as a double
      */
     public static double asDouble(Symbol sym)
     {

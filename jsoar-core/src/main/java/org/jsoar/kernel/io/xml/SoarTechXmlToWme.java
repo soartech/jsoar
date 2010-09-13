@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
@@ -20,6 +18,8 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -28,8 +28,7 @@ import org.w3c.dom.Node;
  * 
  * @author ray
  * @see XmlToWme
- * @see InputXmlWmeFactory
- * @see RhsFunctionXmlWmeFactory
+ * @see WmeFactory
  */
 public class SoarTechXmlToWme implements XmlToWme
 {

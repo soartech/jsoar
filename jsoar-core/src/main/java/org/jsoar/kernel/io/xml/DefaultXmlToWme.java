@@ -23,8 +23,7 @@ import org.w3c.dom.Text;
  * 
  * @author ray
  * @see XmlToWme
- * @see InputXmlWmeFactory
- * @see RhsFunctionXmlWmeFactory
+ * @see WmeFactory
  * @see DefaultWmeToXml
  */
 public class DefaultXmlToWme implements XmlToWme

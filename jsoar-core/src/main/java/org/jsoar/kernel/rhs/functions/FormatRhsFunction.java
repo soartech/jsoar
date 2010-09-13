@@ -19,9 +19,6 @@ import org.jsoar.kernel.symbols.Symbols;
  */
 public class FormatRhsFunction extends AbstractRhsFunctionHandler
 {
-    /**
-     * @param name
-     */
     public FormatRhsFunction()
     {
         super("format", 1, Integer.MAX_VALUE);

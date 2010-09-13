@@ -198,7 +198,7 @@ public class SymbolFactoryImpl implements SymbolFactory
      * 
      * <p> semantic_memory.cpp:1082:smem_reset_id_counters
      * 
-     * @param name_letter_index
+     * @param name_letter
      * @param letter_max
      */
     public void resetIdNumber(char name_letter, long letter_max)

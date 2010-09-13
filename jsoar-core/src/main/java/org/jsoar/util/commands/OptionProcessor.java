@@ -49,8 +49,7 @@ import com.google.common.base.Joiner;
  * and --priority are options, then --prin, --print, --prio are all legal but
  * --pri, --pr, or --p are not.
  * 
- * @param <T>
- *            Key type used for options, toString becomes long option.
+ * @param <E> Key type used for options, toString becomes long option.
  * 
  * @author voigtjr
  */

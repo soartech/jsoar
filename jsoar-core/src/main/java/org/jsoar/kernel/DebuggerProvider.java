@@ -7,6 +7,8 @@ package org.jsoar.kernel;
 
 import java.util.Map;
 
+import org.jsoar.runtime.ThreadedAgent;
+
 /**
  * Interface for an object that knows how to instantiate and attach a debugger to 
  * a JSoar agent.

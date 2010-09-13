@@ -5,6 +5,8 @@
  */
 package org.jsoar.kernel.events;
 
+import org.jsoar.kernel.tracing.PrintEventWriter;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.events.SoarEvent;
 
 /**

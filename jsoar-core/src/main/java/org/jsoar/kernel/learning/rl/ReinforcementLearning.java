@@ -514,7 +514,7 @@ public class ReinforcementLearning
      * @param my_template_instance
      * @param tok
      * @param w
-     * @return
+     * @return the new name of the template
      */
     public SymbolImpl rl_build_template_instantiation( Instantiation my_template_instance, Token tok, WmeImpl w )
     {

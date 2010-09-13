@@ -522,10 +522,10 @@ public class Tests
     }
 
     /**
-     * test_is_blank_test
+     * <p>production.cpp::test_is_blank_test
      * 
-     * @param t
-     * @return
+     * @param t the test
+     * @return true if the test is blank, i.e. {@code null}
      */
     public static boolean isBlank(Test t)
     {

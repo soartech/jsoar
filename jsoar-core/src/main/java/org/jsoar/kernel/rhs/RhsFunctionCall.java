@@ -72,7 +72,7 @@ public class RhsFunctionCall extends AbstractRhsValue
     /**
      * rhsfun.h:rhs_value_to_funcall_list
      * 
-     * @return
+     * @return the arguments of the function call
      */
     public List<RhsValue> getArguments()
     {

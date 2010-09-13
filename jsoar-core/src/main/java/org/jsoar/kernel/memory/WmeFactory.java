@@ -32,7 +32,7 @@ public interface WmeFactory<T>
      * @param id the id of the new WME
      * @param attr the attribute of the new WME
      * @param value the value of the new WME
-     * @returns the new WME, or possibly {@code Void} if the WME is not created
+     * @return the new WME, or possibly {@code Void} if the WME is not created
      *  immediately.
      */
     T addWme(Identifier id, Symbol attr, Symbol value);

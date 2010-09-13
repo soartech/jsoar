@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.io.xml;
 
+import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.rhs.functions.RhsFunctionHandler;
 import org.jsoar.kernel.symbols.Identifier;
 import org.w3c.dom.Element;
