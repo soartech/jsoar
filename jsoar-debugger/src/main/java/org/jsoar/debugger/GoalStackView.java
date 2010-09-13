@@ -35,7 +35,16 @@ public class GoalStackView extends AbstractAdaptableView implements Refreshable
 {
     private final JSoarDebugger debugger;
     private final DefaultListModel model = new DefaultListModel();
-    private final JList list = new JList(model);
+    private final JList list = new JList(model) {
+        private static final long serialVersionUID = -1363240384388636598L;
+
+        public String getToolTipText(MouseEvent event)
+        {
+            final int index = locationToIndex(event.getPoint());
+            return index >= 0 ? getModel().getElementAt(index).toString() : null;
+        }  
+    };
+    
     private final ListSelectionProvider selectionProvider = new ListSelectionProvider(list);
 
     public GoalStackView(JSoarDebugger debugger)
