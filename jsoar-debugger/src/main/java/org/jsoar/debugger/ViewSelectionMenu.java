@@ -33,7 +33,7 @@ public class ViewSelectionMenu
         this.control = control;
         this.menu = menu;
         
-        control.intern().addFrontendListener(new DockFrontendAdapter() {
+        this.control.intern().addFrontendListener(new DockFrontendAdapter() {
 
             @Override
             public void added(DockFrontend frontend, Dockable dockable)
