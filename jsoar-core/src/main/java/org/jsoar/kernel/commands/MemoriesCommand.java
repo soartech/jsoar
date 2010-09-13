@@ -21,7 +21,7 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
- * http://winter.eecs.umich.edu/soarwiki/Memories
+ * Implementation of the "memories" command.
  * 
  * @author ray
  */

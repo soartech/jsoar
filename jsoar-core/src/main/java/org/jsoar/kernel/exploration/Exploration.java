@@ -23,7 +23,9 @@ import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
- * exploration.cpp
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>exploration.cpp
  * 
  * @author ray
  */

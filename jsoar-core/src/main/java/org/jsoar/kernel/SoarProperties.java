@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel;
 
+import org.jsoar.kernel.commands.WaitSncCommand;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.runtime.ThreadedAgent;
@@ -14,6 +15,9 @@ import org.jsoar.util.properties.PropertyKey;
 
 /**
  * Declaration of per-agent Soar configuration properties.
+ * 
+ * <p>Note that the "properties" command can be used to print the current 
+ * values of all properties in the agent.</p>
  * 
  * @author ray
  */
@@ -30,8 +34,11 @@ public class SoarProperties
     public static final PropertyKey<String> NAME = PropertyKey.builder("name", String.class).build();
     
     /**
-     * agent.h:740:waitsnc
+     * The current "waitsnc" setting.
+     * 
+     * <p>agent.h:740:waitsnc
      * @see Decider
+     * @see WaitSncCommand
      */
     public static final PropertyKey<Boolean> WAITSNC = PropertyKey.builder("waitsnc", Boolean.class).defaultValue(false).build();
     

@@ -12,7 +12,9 @@ import java.util.Map;
 import org.jsoar.kernel.Production;
 
 /**
- * reinforcement_learning.h:99:rl_data
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>reinforcement_learning.h:99:rl_data
  * 
  * @author ray
  */

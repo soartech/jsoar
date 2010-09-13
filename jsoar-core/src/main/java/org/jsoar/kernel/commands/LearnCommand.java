@@ -10,6 +10,8 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 
 /**
+ * Implementation of the "learn" command.
+ * 
  * @author ray
  */
 public class LearnCommand extends AbstractToggleCommand

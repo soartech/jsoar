@@ -12,6 +12,8 @@ import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
+ * Implementation of the "rl" command.
+ * 
  * @author ray
  */
 public final class ReinforcementLearningCommand implements SoarCommand

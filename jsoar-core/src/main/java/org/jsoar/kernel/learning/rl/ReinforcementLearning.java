@@ -58,6 +58,8 @@ import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * @author ray
  */
 public class ReinforcementLearning

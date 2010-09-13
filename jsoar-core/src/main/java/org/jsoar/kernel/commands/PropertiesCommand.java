@@ -16,7 +16,7 @@ import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
- * Command that prints out all property values
+ * Implementation of the "properties" command. Prints out all property values
  * 
  * @author ray
  */

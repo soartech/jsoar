@@ -13,7 +13,7 @@ import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
 /**
- * Variable Generator
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
  * 
  * <p>These routines are used for generating new variables. The variables aren't
  * necessarily "completely" new--they might occur in some existing production.

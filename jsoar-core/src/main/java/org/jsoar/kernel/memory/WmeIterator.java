@@ -9,6 +9,11 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * An iterator that knows how to iterate over all the weirdness of working
+ * memory, i.e. slots, impasse_wmes, input_wmes, etc, etc.
+ * 
  * @author ray
  */
 public class WmeIterator implements Iterator<Wme>

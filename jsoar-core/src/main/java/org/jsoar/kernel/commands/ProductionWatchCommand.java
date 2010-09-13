@@ -20,7 +20,7 @@ import org.jsoar.util.commands.SoarCommandContext;
 import com.google.common.base.Joiner;
 
 /**
- * Implementation of the pwatch command.
+ * Implementation of the "pwatch" command.
  * 
  * <p>See http://code.google.com/p/soar/wiki/CommandLineInterface#pwatch
  *  

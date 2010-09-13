@@ -11,7 +11,8 @@ import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 
 /**
- * decision_manipulation.cpp
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * <p>decision_manipulation.cpp
  * 
  * @author ray
  */

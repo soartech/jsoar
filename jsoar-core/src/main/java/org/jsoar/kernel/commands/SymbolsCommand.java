@@ -24,6 +24,8 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
+ * Implementation of the "symbols" command.
+ * 
  * @author ray
  */
 public class SymbolsCommand implements SoarCommand

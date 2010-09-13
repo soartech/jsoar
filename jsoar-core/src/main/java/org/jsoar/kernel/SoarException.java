@@ -6,13 +6,12 @@
 package org.jsoar.kernel;
 
 /**
+ * Base exception class used throughout JSoar
+ * 
  * @author ray
  */
 public class SoarException extends Exception
 {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 6819941600876892428L;
 
     /**

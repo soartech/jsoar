@@ -16,6 +16,8 @@ import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
+ * Implementation of the "stats" command.
+ * 
  * @author ray
  */
 public final class StatsCommand implements SoarCommand

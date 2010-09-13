@@ -26,7 +26,7 @@ import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 
 /**
- * Implementation of the source command. 
+ * Implementation of the "source" command. 
  * 
  * <p> Manages the following:
  * <ul>

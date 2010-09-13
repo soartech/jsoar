@@ -14,6 +14,9 @@ import org.jsoar.util.commands.SoarCommandContext;
 import com.google.common.collect.Lists;
 
 /**
+ * Base class for handling "toggle" commands, i.e. commands with options like
+ * {@code [--on|--off|-e|-d|--enable|--disable]}
+ * 
  * @author ray
  */
 abstract class AbstractToggleCommand implements SoarCommand

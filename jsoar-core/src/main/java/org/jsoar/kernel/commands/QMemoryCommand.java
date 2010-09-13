@@ -13,7 +13,7 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
- * Manipulate quick memory from command-line
+ * Implementation of the "qmemory" command. Manipulate quick memory from command-line
  * 
  * <p>Usage:
  * 

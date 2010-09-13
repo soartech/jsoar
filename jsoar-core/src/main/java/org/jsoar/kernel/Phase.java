@@ -1,6 +1,8 @@
 package org.jsoar.kernel;
 
 import org.jsoar.kernel.events.AbstractPhaseEvent;
+import org.jsoar.kernel.events.InputEvent;
+import org.jsoar.kernel.events.OutputEvent;
 import org.jsoar.kernel.events.PhaseEvents;
 import org.jsoar.kernel.events.PhaseEvents.AfterApply;
 import org.jsoar.kernel.events.PhaseEvents.AfterDecision;
@@ -16,34 +18,48 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
- * init_soar.h:127:top_level_phase
+ * Represents a phase type in the Soar decision cycle.
+ * 
+ * <p>init_soar.h:127:top_level_phase
  * 
  * @author ray
  */
 public enum Phase
 {
     /**
-     * init_soar.h:127:INPUT_PHASE
+     * The input phase of the agent where input is generated.
+     * 
+     * <p>init_soar.h:127:INPUT_PHASE
+     * @see InputEvent
      */
     INPUT ("input", BeforeInput.class, AfterInput.class), 
     
     /**
-     * init_soar.h:127:PROPOSE_PHASE
+     * The operator proposal phase
+     * 
+     * <p>init_soar.h:127:PROPOSE_PHASE
      */
     PROPOSE ("propose", BeforePropose.class, AfterPropose.class),
     
     /**
-     * init_soar.h:127:DECISION_PHASE
+     * The decision phase
+     * 
+     * <p>init_soar.h:127:DECISION_PHASE
      */
     DECISION ("decision", BeforeDecision.class, AfterDecision.class),
     
     /**
-     * init_soar.h:127:APPLY_PHASE
+     * The operator application phase
+     * 
+     * <p>init_soar.h:127:APPLY_PHASE
      */
     APPLY ("apply", BeforeApply.class, AfterApply.class),
     
     /**
-     * init_soar.h:127:OUTPUT_PHASE
+     * The output phase where the agent's output-link is processed.
+     * 
+     * <p>init_soar.h:127:OUTPUT_PHASE
+     * @see OutputEvent
      */
     OUTPUT ("output", BeforeOutput.class, AfterOutput.class);
         

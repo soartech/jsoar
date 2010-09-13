@@ -9,6 +9,8 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 
 /**
+ * Implementation of the "warnings" command.
+ * 
  * @author ray
  */
 public class WarningsCommand extends AbstractToggleCommand

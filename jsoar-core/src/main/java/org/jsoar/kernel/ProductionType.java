@@ -8,7 +8,9 @@ package org.jsoar.kernel;
 import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
- * gsysparam.h:43:_PRODUCTION_TYPE
+ * Enumeration of various production types.
+ * 
+ * <p>gsysparam.h:43:_PRODUCTION_TYPE
  * @author ray
  */
 public enum ProductionType

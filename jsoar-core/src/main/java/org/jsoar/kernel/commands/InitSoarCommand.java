@@ -9,6 +9,8 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
+ * Implementation of the "init-soar" command.
+ * 
  * @author ray
  */
 public final class InitSoarCommand implements SoarCommand

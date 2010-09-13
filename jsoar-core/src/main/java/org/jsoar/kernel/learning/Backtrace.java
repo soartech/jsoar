@@ -8,6 +8,8 @@ package org.jsoar.kernel.learning;
 import org.jsoar.kernel.lhs.Condition;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * <p>backtrace.h:35:backtrace_struct
  * 
  * @author ray

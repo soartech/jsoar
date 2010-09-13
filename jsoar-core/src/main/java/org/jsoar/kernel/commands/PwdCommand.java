@@ -12,6 +12,8 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
+ * Implementation of the "pwd" command.
+ * 
  * @author ray
  */
 public class PwdCommand implements SoarCommand

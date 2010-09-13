@@ -10,6 +10,8 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.tracing.Trace.Category;
 
 /**
+ * Implementation of the "verbose" command.
+ * 
  * @author ray
  */
 public class VerboseCommand extends AbstractToggleCommand

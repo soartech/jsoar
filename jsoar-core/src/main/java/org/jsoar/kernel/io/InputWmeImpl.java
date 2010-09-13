@@ -16,6 +16,8 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * @author ray
  */
 class InputWmeImpl implements InputWme

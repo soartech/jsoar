@@ -20,7 +20,7 @@ import org.jsoar.util.commands.SoarCommandContext;
 import com.google.common.base.Joiner;
 
 /**
- * Implementation of the pbreak command. Enables/disables the :interrupt
+ * Implementation of the "pbreak" command. Enables/disables the :interrupt
  * flag on a rule. Behavior is otherwise the same as "pwatch"
  *
  * <p>This is a JSoar-only command.

@@ -20,7 +20,7 @@ import org.jsoar.util.commands.SoarCommandContext;
 /**
  * http://code.google.com/p/soar/wiki/CommandLineInterface#gds-print
  * 
- * <p>Implementation of print-gds command.
+ * <p>Implementation of "gds-print" command.
  * 
  * @author marinier
  */

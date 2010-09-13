@@ -7,6 +7,7 @@ package org.jsoar.kernel;
 
 import java.util.Map;
 
+import org.jsoar.kernel.rhs.functions.Debug;
 import org.jsoar.runtime.ThreadedAgent;
 
 /**
@@ -14,6 +15,9 @@ import org.jsoar.runtime.ThreadedAgent;
  * a JSoar agent.
  * 
  * @author ray
+ * @see Agent#setDebuggerProvider(DebuggerProvider)
+ * @see Agent#getDebuggerProvider()
+ * @see Debug
  */
 public interface DebuggerProvider
 {

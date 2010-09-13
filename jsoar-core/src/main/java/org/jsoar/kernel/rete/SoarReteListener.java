@@ -44,7 +44,9 @@ import org.jsoar.util.ListHead;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
- * Soar-specific implementation of the {@link ReteListener} interface. This includes
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>Soar-specific implementation of the {@link ReteListener} interface. This includes
  * all of the stuff like Soar 7 mode, match set changes, etc.
  * 
  * @author ray

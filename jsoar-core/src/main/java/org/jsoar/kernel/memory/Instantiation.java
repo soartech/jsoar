@@ -20,8 +20,9 @@ import org.jsoar.kernel.tracing.Traceable;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
  * 
- * intantiations.h:84
+ * <p>intantiations.h:84
  * 
  * @author ray
  */

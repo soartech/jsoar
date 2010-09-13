@@ -42,7 +42,9 @@ import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
 /**
- * User-defined Soar I/O routines should be added at system startup time
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>User-defined Soar I/O routines should be added at system startup time
  * via calls to add_input_function() and add_output_function().  These 
  * calls add things to the system's list of (1) functions to be called 
  * every input cycle, and (2) symbol-to-function mappings for output

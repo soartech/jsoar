@@ -12,6 +12,8 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
+ * Implementation of the "set-parser" command.
+ * 
  * @author ray
  */
 public class SetParserCommand implements SoarCommand

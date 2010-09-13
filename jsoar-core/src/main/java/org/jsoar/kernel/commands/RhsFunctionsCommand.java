@@ -15,7 +15,7 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
- * Command that prints out all registered RHS functions
+ * Implementation of the "rhs-functions" command. Command that prints out all registered RHS functions
  * 
  * @author ray
  */

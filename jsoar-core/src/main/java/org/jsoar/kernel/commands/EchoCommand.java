@@ -10,6 +10,8 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
+ * Implementation of the "echo" command.
+ * 
  * @author ray
  */
 public final class EchoCommand implements SoarCommand

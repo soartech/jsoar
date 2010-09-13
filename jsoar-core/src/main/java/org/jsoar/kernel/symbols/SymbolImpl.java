@@ -14,7 +14,9 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.Marker;
 
 /**
- * This is the internal implementation class for symbols. It should
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>This is the internal implementation class for symbols. It should
  * only be used in the kernel. External code (I/O and RHS functions) should use
  * {@link Symbol}
  * 

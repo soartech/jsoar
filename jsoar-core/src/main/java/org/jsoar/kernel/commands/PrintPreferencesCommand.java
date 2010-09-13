@@ -25,7 +25,7 @@ import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * 
- * sml_KernelHelpers.cpp:906:soar_ecPrintPreferences
+ * <p>sml_KernelHelpers.cpp:906:soar_ecPrintPreferences
  * 
  * @author ray
  */

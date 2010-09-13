@@ -12,7 +12,9 @@ import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
- * Slot Garbage Collection
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>Slot Garbage Collection
  * 
  * <p>Old slots are garbage collected as follows: whenever we notice that the last
  * preference has been removed from a slot, we call

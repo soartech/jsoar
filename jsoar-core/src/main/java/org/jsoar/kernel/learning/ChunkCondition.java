@@ -10,7 +10,9 @@ import org.jsoar.util.ListItem;
 import org.jsoar.util.HashTable;
 
 /**
- * chunk.h:27:chunk_cond
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>chunk.h:27:chunk_cond
  * 
  * @author ray
  */

@@ -18,50 +18,52 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import com.google.common.collect.Iterators;
 
 /**
- * Fields in a slot:
- *
- *    next, prev:  used for a doubly-linked list of all slots for a certain
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>Fields in a slot:
+ * <ul>
+ *    <li>next, prev:  used for a doubly-linked list of all slots for a certain
  *      identifier.
  *
- *    id, attr:   identifier and attribute of the slot
+ *    <li>id, attr:   identifier and attribute of the slot
  *
- *    wmes:  header of a doubly-linked list of all wmes in the slot
+ *    <li>wmes:  header of a doubly-linked list of all wmes in the slot
  *
- *    acceptable_preference_wmes:  header of doubly-linked list of all
+ *    <li>acceptable_preference_wmes:  header of doubly-linked list of all
  *      acceptable preference wmes in the slot.  (This is only used for
  *      context slots.)
  *
- *    all_preferences:  header of a doubly-linked list of all preferences
+ *    <li>all_preferences:  header of a doubly-linked list of all preferences
  *      currently in the slot
  *
- *    preferences[NUM_PREFERENCE_TYPES]: array of headers of doubly-linked
+ *    <li>preferences[NUM_PREFERENCE_TYPES]: array of headers of doubly-linked
  *      lists, one for each possible type of preference.  These store
  *      all the preferences, sorted into lists according to their types.
  *      Within each list, the preferences are sorted according to their
  *      match goal, with the pref. supported by the highest goal at the
  *      head of the list.
  *
- *    impasse_id:  points to the identifier of the attribute impasse object
+ *    <li>impasse_id:  points to the identifier of the attribute impasse object
  *      for this slot.  (NIL if the slot isn't impassed.)
  *
- *    isa_context_slot:  TRUE iff this is a context slot
+ *    <li>isa_context_slot:  TRUE iff this is a context slot
  *
- *    impasse_type:  indicates the type of the impasse for this slot.  This
+ *    <li>impasse_type:  indicates the type of the impasse for this slot.  This
  *      is one of NONE_IMPASSE_TYPE, CONSTRAINT_FAILURE_IMPASSE_TYPE, etc.
  *
- *    marked_for_possible_removal:  TRUE iff this slot is on the list of
+ *    <li>marked_for_possible_removal:  TRUE iff this slot is on the list of
  *      slots that might be deallocated at the end of the current top-level
  *      phases.
  *
- *    changed:  indicates whether the preferences for this slot have changed.
+ *    <li>changed:  indicates whether the preferences for this slot have changed.
  *      For non-context slots, this is either NIL or a pointer to the
  *      corresponding dl_cons in changed_slots (see decide.c); for context
  *      slots, it's just a zero/nonzero flag.
  *
- *    acceptable_preference_changed:  for context slots only; this is zero
+ *    <li>acceptable_preference_changed:  for context slots only; this is zero
  *      if no acceptable or require preference in this slot has changed;
  *      if one has changed, it points to a dl_cons.
- *
+ * </ul>
  * 
  * <p>gdatastructs.h:288
  * 

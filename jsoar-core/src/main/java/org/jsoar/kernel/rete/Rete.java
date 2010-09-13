@@ -47,6 +47,8 @@ import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * @author ray
  */
 public class Rete

@@ -13,7 +13,9 @@ import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
 
 /**
- * chunk.h:45:chunk_cond_set
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>chunk.h:45:chunk_cond_set
  * 
  * @author ray
  */

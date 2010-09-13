@@ -4,6 +4,11 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.timing.ExecutionTimers;
 
+/**
+ * Implementation of the "timers" command.
+ * 
+ * @author ray
+ */
 public class TimersCommand extends AbstractToggleCommand 
 {
     public TimersCommand()

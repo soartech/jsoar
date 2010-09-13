@@ -48,6 +48,8 @@ import org.jsoar.util.timing.ExecutionTimers;
 /**
  * An attempt to encapsulate the Soar decision cycle
  * 
+ * <p><em>This is an internal interface. Don't use it unless you know what you're doing.</em></p>
+ * 
  * @author ray
  */
 public class DecisionCycle

@@ -10,6 +10,8 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 
 /**
+ * Implementation of the "save-backtraces" command.
+ * 
  * @author ray
  */
 public class SaveBacktracesCommand extends AbstractToggleCommand

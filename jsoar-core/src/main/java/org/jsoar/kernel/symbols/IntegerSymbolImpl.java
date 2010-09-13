@@ -8,6 +8,8 @@ package org.jsoar.kernel.symbols;
 import java.util.Formatter;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * @author ray
  */
 public class IntegerSymbolImpl extends SymbolImpl implements IntegerSymbol

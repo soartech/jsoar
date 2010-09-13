@@ -11,13 +11,14 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.tracing.Printer;
 
 /**
- * For each chunk (or justification) take a copy of its conds and actions, and
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>For each chunk (or justification) take a copy of its conds and actions, and
  * the list of productions which were backtraced through in creating it. Also
  * keep a list of all of the grounds (WMEs in the supergoal) which were tested
  * as the chunk was formed.
  * 
- * <p>
- * explain.h:38:explain_chunk_struct
+ * <p>explain.h:38:explain_chunk_struct
  * 
  * @author ray
  */

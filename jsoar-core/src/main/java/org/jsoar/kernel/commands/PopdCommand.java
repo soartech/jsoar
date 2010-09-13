@@ -12,6 +12,8 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
+ * Implementation of the "popd" command.
+ * 
  * @author ray
  */
 public class PopdCommand implements SoarCommand

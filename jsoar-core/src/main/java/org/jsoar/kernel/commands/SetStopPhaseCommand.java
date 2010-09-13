@@ -13,6 +13,8 @@ import org.jsoar.util.commands.SoarCommandContext;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
+ * Implementation of the "set-stop-phase" command.
+ * 
  * @author ray
  */
 public class SetStopPhaseCommand implements SoarCommand

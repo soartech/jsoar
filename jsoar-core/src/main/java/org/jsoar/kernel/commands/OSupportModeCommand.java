@@ -8,6 +8,8 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
+ * Implementation of the "o-support-mode" command.
+ * 
  * @author ray
  */
 public final class OSupportModeCommand implements SoarCommand

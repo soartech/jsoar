@@ -11,7 +11,11 @@ import java.net.URL;
 import org.jsoar.kernel.SoarException;
 
 /**
+ * Helper interface for separating "source" command implementation from the
+ * details of the interpreter.
+ * 
  * @author ray
+ * @see SourceCommand
  */
 public interface SourceCommandAdapter
 {

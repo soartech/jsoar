@@ -10,6 +10,8 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 
 /**
+ * Implementation of the "waitsnc" command.
+ * 
  * @author ray
  */
 public class WaitSncCommand extends AbstractToggleCommand

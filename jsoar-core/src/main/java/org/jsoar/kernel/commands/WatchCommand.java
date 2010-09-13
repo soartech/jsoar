@@ -14,7 +14,7 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
- * http://code.google.com/p/soar/wiki/CommandLineInterface#watch
+ * Implementation of the "watch" command.
  * 
  * @author ray
  */

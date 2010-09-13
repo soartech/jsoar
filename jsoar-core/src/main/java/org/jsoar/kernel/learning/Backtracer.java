@@ -25,21 +25,23 @@ import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
 
 /**
- * Global level functions and variables for backtracing
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
  * 
- * Four sets of conditions are maintained during backtracing: locals, grounds,
+ * <p>Global level functions and variables for backtracing</p>
+ * 
+ * <p>Four sets of conditions are maintained during backtracing: locals, grounds,
  * positive potentials, and negateds. Negateds are really potentials, but we
  * keep them separately throughout backtracing, and ground them at the very end.
  * Note that this means during backtracing, the grounds, positive potentials,
  * and locals are all instantiated top-level positive conditions, so they all
  * have a bt.wme_ on them.
  * 
- * In order to avoid backtracing through the same instantiation twice, we mark
+ * <p>In order to avoid backtracing through the same instantiation twice, we mark
  * each instantiation as we BT it, by setting inst->backtrace_number =
  * backtrace_number (this is a global variable which gets incremented each time
  * we build a chunk).
  * 
- * Locals, grounds, and positive potentials are kept on lists (see the global
+ * <p>Locals, grounds, and positive potentials are kept on lists (see the global
  * variables below). These are consed lists of the conditions (that is, the
  * original instantiated conditions). Furthermore, we mark the bt.wme_'s on each
  * condition so we can quickly determine whether a given condition is already in
@@ -52,11 +54,11 @@ import org.jsoar.util.markers.Marker;
  * *both* preferences. Marking the wmes with just "locals_tc" or "potentials_tc"
  * alone would prevent the second preference from being BT'd.
  * 
- * The add_to_grounds(), add_to_potentials(), and add_to_locals() macros below
+ * <p>The add_to_grounds(), add_to_potentials(), and add_to_locals() macros below
  * are used to add conditions to these sets. The negated conditions are
  * maintained in the chunk_cond_set "negated_set."
  * 
- * As we backtrace, each instantiation that has some Nots is added to the list
+ * <p>As we backtrace, each instantiation that has some Nots is added to the list
  * instantiations_with_nots. We have to go back afterwards and figure out which
  * Nots are between identifiers that ended up in the grounds.
  * 

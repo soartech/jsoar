@@ -12,7 +12,9 @@ import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
- * Container for RL template rule-specific fields.
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>Container for RL template rule-specific fields.
  * 
  * @author ray
  */

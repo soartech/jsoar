@@ -60,7 +60,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Recognition Memory (Firer and Chunker) Routines (Does not include the Rete
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>Recognition Memory (Firer and Chunker) Routines (Does not include the Rete
  * net)
  * 
  * <p>Init_firer() and init_chunker() should be called at startup time, to do

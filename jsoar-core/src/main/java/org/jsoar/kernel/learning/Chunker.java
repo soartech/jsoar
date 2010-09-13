@@ -63,7 +63,9 @@ import org.jsoar.util.markers.Marker;
 import org.jsoar.util.properties.BooleanPropertyProvider;
 
 /**
- * chunking.cpp
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>chunking.cpp
  * 
  * @author ray
  */

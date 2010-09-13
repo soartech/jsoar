@@ -6,6 +6,8 @@
 package org.jsoar.kernel;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * @author ray
  */
 public enum SavedFiringType

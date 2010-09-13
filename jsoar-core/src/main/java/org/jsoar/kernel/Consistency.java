@@ -21,7 +21,8 @@ import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
- * consistency.cpp
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * <p>consistency.cpp
  * 
  * @author ray
  */

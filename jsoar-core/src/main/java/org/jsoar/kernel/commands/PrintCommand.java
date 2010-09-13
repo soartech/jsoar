@@ -25,7 +25,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
- * http://winter.eecs.umich.edu/soarwiki/Print
+ * Implementation of the "print" command.
  * 
  * @author ray
  * @author voigtjr

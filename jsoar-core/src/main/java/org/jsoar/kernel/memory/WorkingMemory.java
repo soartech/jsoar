@@ -25,6 +25,8 @@ import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * <p>wmem.cpp
  * <p>The following fields or functions were removed because they were unused or
  * unnecessary in Java:

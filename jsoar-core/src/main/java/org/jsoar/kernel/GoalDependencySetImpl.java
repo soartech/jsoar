@@ -14,7 +14,9 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.Arguments;
 
 /**
- * The Goal Dependency Set is a data strcuture used in Operand2 to maintain
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>The Goal Dependency Set is a data strcuture used in Operand2 to maintain
  * the integrity of a subgoal with respect to changes in supergoal WMEs.
  * Whenever a WME in the goal's dependency set changes, the goal is immediately
  * removed.  The routines for maintaining the GDS and determining if a goal

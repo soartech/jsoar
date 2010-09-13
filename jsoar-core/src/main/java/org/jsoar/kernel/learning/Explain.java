@@ -18,6 +18,8 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.util.properties.BooleanPropertyProvider;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * <p>agent.h:564:explain_chunk_name - Eliminated. Not used in CSoar
  * 
  * @author ray

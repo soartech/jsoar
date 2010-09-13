@@ -33,7 +33,9 @@ import org.jsoar.util.ListHead;
 import org.jsoar.util.markers.Marker;
 
 /**
- * Functions and data structures for building the rete network. Extracted
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>Functions and data structures for building the rete network. Extracted
  * from rete.cpp for sanity.
  * 
  * @author ray

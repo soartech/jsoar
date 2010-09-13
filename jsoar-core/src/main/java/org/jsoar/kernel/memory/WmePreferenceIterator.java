@@ -11,6 +11,8 @@ import java.util.NoSuchElementException;
 import org.jsoar.kernel.symbols.Symbol;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * An iterator over all the preferences for a single WME.
  * 
  * <p>This is package private, only for use by the implementation

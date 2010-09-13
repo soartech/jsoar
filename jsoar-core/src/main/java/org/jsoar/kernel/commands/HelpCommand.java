@@ -14,6 +14,8 @@ import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
 
 /**
+ * Implementation of the "help" command.
+ * 
  * @author ray
  */
 public final class HelpCommand implements SoarCommand

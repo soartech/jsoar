@@ -23,7 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
 /**
- * http://winter.eecs.umich.edu/soarwiki/Production-find
+ * Implementation of the "production-find" command.
  * 
  * @author ray
  */

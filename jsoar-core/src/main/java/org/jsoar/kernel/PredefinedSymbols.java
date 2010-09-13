@@ -11,15 +11,13 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 
 /**
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
  * @author ray
  */
 public class PredefinedSymbols
 {
     private final SymbolFactoryImpl syms;
-    
-    //final StringSymbolImpl problem_space_symbol;
-    //final StringSymbolImpl goal_symbol;
-    //final Variable wait_symbol;
     
     public final StringSymbolImpl state_symbol;
     public final StringSymbolImpl operator_symbol;

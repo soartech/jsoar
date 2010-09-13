@@ -23,62 +23,64 @@ import org.jsoar.util.adaptables.AbstractAdaptable;
 import com.google.common.collect.Iterators;
 
 /**
- * Internal implementation of {@link Wme} interface.
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>Internal implementation of {@link Wme} interface.
  * 
    <p>Fields in a WME:
    <ul>
    <li>id, attr, value:  points to symbols for the wme fields
 
-      acceptable:  TRUE iff this is an acceptable pref. wme
+      <li>acceptable:  TRUE iff this is an acceptable pref. wme
 
-      timetag:  timetag of the wme
+      <li>timetag:  timetag of the wme
 
-      reference count:  (see below)
+      <li>reference count:  (see below)
 
-      rete_next, rete_prev:  pointers in the doubly-linked list of all
+      <li>rete_next, rete_prev:  pointers in the doubly-linked list of all
          wmes currently known to the rete (header is all_wmes_in_rete)
          (this equals WM except while WM is being changed)
 
-      right_mems:  header of a doubly-linked list of right memory entries
+      <li>right_mems:  header of a doubly-linked list of right memory entries
          (in one or more alpha memories containing the wme).  This is used
          only by the Rete, as part of list-based remove.
 
-      tokens:  header of a doubly-linked list of tokens in the Rete.
+      <li>tokens:  header of a doubly-linked list of tokens in the Rete.
          This is used only by the Rete, as part of list-based remove.
 
-      next, prev:  pointers in a doubly-linked list of wmes.
+      <li>next, prev:  pointers in a doubly-linked list of wmes.
          Depending on the wme type, the header of this DLL is:
            - slot.wmes (for ordinary wmes)
            - slot.acceptable_preference_wmes (for acceptable pref. wmes)
            - id.impasse_wmes (for architecture-created goal/impasse wmes)
            - id.input_wmes (for Soar I/O wmes)
 
-      preference:  points to the preference supporting the wme.  For I/O
+      <li>preference:  points to the preference supporting the wme.  For I/O
          wmes and (most) architecture-created wmes, this is NIL.
 
-      output_link:  this is used only for top-state output links.
+      <li>output_link:  this is used only for top-state output links.
          It points to an output_link structure used by the I/O routines.
 
-      grounds_tc, potentials_tc, locals_tc:  used by the chunker to indicate
+      <li>grounds_tc, potentials_tc, locals_tc:  used by the chunker to indicate
          whether this wme is in the grounds, potentials, and/or locals sets
 
-      chunker_bt_pref: used by the chunker; set to cond->bt.trace when
+      <li>chunker_bt_pref: used by the chunker; set to cond->bt.trace when
          a wme is added to either the potentials or locals set
 
-      These are the additions to the WME structure that will be used
+      <li>These are the additions to the WME structure that will be used
          to track dependencies for goals.  Each working memory element
      now includes a pointer  to a gds_struct (defined below) and
      pointers to other WMEs on the same GDS.
 
-      gds: the goal dependency set the wme is in
-      gds_next, gds_prev:  used for dll of all wmes in gds
-
-      If a particular working memory element is not dependent for any goal,
+      <li>gds: the goal dependency set the wme is in
+      <li>gds_next, gds_prev:  used for dll of all wmes in gds
+    </ul>
+      <p>If a particular working memory element is not dependent for any goal,
      then the values for these pointers will all be NIL. If a WME is
      dependent for more than one goal, then it will point to the GDS
      of the highest goal.
 
-   Reference counts on wmes:
+   <p>Reference counts on wmes:
       +1 if the wme is currently in WM
       +1 for each instantiation condition that points to it (bt.wme)
    We deallocate a wme when its reference count goes to 0.

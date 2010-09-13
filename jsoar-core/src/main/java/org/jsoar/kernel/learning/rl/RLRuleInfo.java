@@ -7,7 +7,9 @@ package org.jsoar.kernel.learning.rl;
 
 
 /**
- * Fields specific to RL rules.
+ * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
+ * 
+ * <p>Fields specific to RL rules.
  * 
  * @author ray
  */
