@@ -45,7 +45,6 @@ import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.util.IncrementalSearchPanel;
 
-import sun.swing.SwingUtilities2;
 import bibliothek.gui.dock.common.action.CButton;
 
 /**
@@ -477,25 +476,22 @@ public class TraceView extends AbstractAdaptableView implements Disposable
 
     private void executePastedInput()
     {
-        if (SwingUtilities2.canAccessSystemClipboard()) 
+        final Clipboard cb = outputWindow.getToolkit().getSystemClipboard();
+        final Transferable t = cb.getContents(null);
+        if(t.isDataFlavorSupported(DataFlavor.stringFlavor))
         {
-            final Clipboard cb = outputWindow.getToolkit().getSystemClipboard();
-            final Transferable t = cb.getContents(null);
-            if(t.isDataFlavorSupported(DataFlavor.stringFlavor))
+            try
             {
-                try
-                {
-                    final String text = (String) t.getTransferData(DataFlavor.stringFlavor);
-                    debugger.getAgent().execute(new CommandLineRunnable(debugger, text), null);
-                }
-                catch (UnsupportedFlavorException e)
-                {
-                    // Do nothing
-                }
-                catch (IOException e)
-                {
-                    // Do nothing
-                }
+                final String text = (String) t.getTransferData(DataFlavor.stringFlavor);
+                debugger.getAgent().execute(new CommandLineRunnable(debugger, text), null);
+            }
+            catch (UnsupportedFlavorException e)
+            {
+                // Do nothing
+            }
+            catch (IOException e)
+            {
+                // Do nothing
             }
         }
     }
