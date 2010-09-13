@@ -247,10 +247,6 @@ public class JSoarDebugger extends JPanel implements Adaptable
                 exit();
             }});
         
-        //Adaptables.adapt(this, TraceView.class).setVisible(true);
-        
-        update(false);
-        
         final Preferences winPrefs = getWindowPrefs();
         if(winPrefs.get("x", null) != null)
         {
@@ -265,6 +261,8 @@ public class JSoarDebugger extends JPanel implements Adaptable
             frame.setLocationRelativeTo(null); // center
         }
         readDefaultLayout();
+        
+        update(false);
     }
 
     private void readDefaultLayout()
