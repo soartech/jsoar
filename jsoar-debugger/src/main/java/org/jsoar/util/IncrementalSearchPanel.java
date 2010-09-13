@@ -21,7 +21,7 @@ public class IncrementalSearchPanel extends JPanel
     private static final long serialVersionUID = -2622212061070295059L;
     
     private final JTextComponent target;
-    private final JTextField searchField = new JTextField(20);
+    private final JTextField searchField = new JTextField(15);
     private final IncrementalSearch searcher;
     private final Color normalBackground = searchField.getBackground();
     private final Color goodBackground = new Color(102, 242, 96);
