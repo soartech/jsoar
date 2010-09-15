@@ -7,15 +7,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.util.TeeWriter;
+import org.jsoar.util.commands.OptionProcessor;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandContext;
+
+import com.google.common.collect.Lists;
 
 /**
  * Implementation of the "clog" command.
@@ -24,8 +26,13 @@ import org.jsoar.util.commands.SoarCommandContext;
  */
 public final class CLogCommand implements SoarCommand
 {
-    private static final List<String> offOptions = Arrays.asList("-c", "--close", "-o", "--off", "-d", "--disable");
-    private static final List<String> queryOptions = Arrays.asList("-q", "--query");
+    private final OptionProcessor<Options> options = OptionProcessor.create();
+    
+    private enum Options
+    {
+        close, off, disable, query,
+        // TODO: Implement -a, --add, -A, --append, -e, --existing
+    }
     
     private final Agent agent;
     private LinkedList<Writer> writerStack = new LinkedList<Writer>();
@@ -33,40 +40,50 @@ public final class CLogCommand implements SoarCommand
     public CLogCommand(Agent agent)
     {
         this.agent = agent;
+        
+        options
+        .newOption(Options.close)
+        .newOption(Options.off)
+        .newOption(Options.disable)
+        .newOption(Options.query)
+        .done();
     }
 
     @Override
     public String execute(SoarCommandContext context, String[] args) throws SoarException
     {
-        if(args.length == 2)
+        List<String> nonOpts = options.process(Lists.newArrayList(args));
+        
+        if (options.has(Options.close) || options.has(Options.disable) || options.has(Options.off))
         {
-            String arg = args[1];
-            if(offOptions.contains(arg))
+            if(writerStack.isEmpty())
             {
-                if(writerStack.isEmpty())
-                {
-                    throw new SoarException("Log stack is empty");
-                }
-                final Writer w = writerStack.pop();
-                agent.getPrinter().popWriter();
-                if(w != null)
-                {
-                    try
-                    {
-                        w.close();
-                    }
-                    catch (IOException e)
-                    {
-                        throw new SoarException("While closing writer: " + e.getMessage());
-                    }
-                }
-                return "";
+                throw new SoarException("Log stack is empty");
             }
-            else if(queryOptions.contains(arg))
+            final Writer w = writerStack.pop();
+            agent.getPrinter().popWriter();
+            if(w != null)
             {
-                return writerStack.isEmpty() ? "closed" : String.format("open (%d writers)", writerStack.size());
+                try
+                {
+                    w.close();
+                }
+                catch (IOException e)
+                {
+                    throw new SoarException("While closing writer: " + e.getMessage());
+                }
             }
-            else if(arg.equals("stdout"))
+            return "";
+        } 
+        else if (options.has(Options.query))
+        {
+            return writerStack.isEmpty() ? "closed" : String.format("open (%d writers)", writerStack.size());
+        } 
+        else if (nonOpts.size() == 1)
+        {
+            String arg = nonOpts.get(0);
+            
+            if(arg.equals("stdout"))
             {
                 Writer w = new OutputStreamWriter(System.out);
                 writerStack.push(null);
@@ -95,8 +112,7 @@ public final class CLogCommand implements SoarCommand
                 }
             }
         }
-        // TODO: Implement -a, --add, -A, --append, -e, --existing
-        
+
         throw new SoarException("Expected 1 argument, got " + (args.length - 1));
     }
 }
