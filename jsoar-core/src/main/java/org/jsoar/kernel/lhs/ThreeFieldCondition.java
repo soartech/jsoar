@@ -80,7 +80,7 @@ public abstract class ThreeFieldCondition extends Condition
     public String toString()
     {
         // For debugging only
-        return id_test + "^" + attr_test + " " + value_test;
+        return id_test + " ^" + attr_test + " " + value_test;
     }
 
 }

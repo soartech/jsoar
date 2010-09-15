@@ -9,6 +9,7 @@ import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.NegativeCondition;
 import org.jsoar.kernel.lhs.PositiveCondition;
+import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.ListHead;
@@ -97,15 +98,15 @@ class NodeVarNames
         final Object idVars = VarNames.add_unbound_varnames_in_test(cond.id_test, null);
 
         /* --- add sparse bindings for id, then get attr field varnames --- */
-        Rete.bind_variables_in_test(cond.id_test, 0, 0, false, vars_bound);
+        Tests.bind_variables_in_test(cond.id_test, 0, 0, false, vars_bound);
         final Object attrVars = VarNames.add_unbound_varnames_in_test(cond.attr_test, null);
 
         /* --- add sparse bindings for attr, then get value field varnames --- */
-        Rete.bind_variables_in_test(cond.attr_test, 0, 0, false, vars_bound);
+        Tests.bind_variables_in_test(cond.attr_test, 0, 0, false, vars_bound);
         final Object valueVars = VarNames.add_unbound_varnames_in_test(cond.value_test, null);
 
         /* --- Pop the variable bindings for these conditions --- */
-        Rete.pop_bindings_and_deallocate_list_of_variables(vars_bound);
+        Variable.pop_bindings_and_deallocate_list_of_variables(vars_bound);
 
         return newInstance(parent_nvn, idVars, attrVars, valueVars);
     }  
@@ -136,9 +137,9 @@ class NodeVarNames
                 New = make_nvn_for_posneg_cond(pc, parent_nvn);
 
                 // Add sparse variable bindings for this condition
-                Rete.bind_variables_in_test(pc.id_test, 0, 0, false, vars);
-                Rete.bind_variables_in_test(pc.attr_test, 0, 0, false, vars);
-                Rete.bind_variables_in_test(pc.value_test, 0, 0, false, vars);
+                Tests.bind_variables_in_test(pc.id_test, 0, 0, false, vars);
+                Tests.bind_variables_in_test(pc.attr_test, 0, 0, false, vars);
+                Tests.bind_variables_in_test(pc.value_test, 0, 0, false, vars);
 
             }
             NegativeCondition nc = cond.asNegativeCondition();
@@ -157,7 +158,7 @@ class NodeVarNames
         }
 
         // Pop the variable bindings for these conditions
-        Rete.pop_bindings_and_deallocate_list_of_variables(vars);
+        Variable.pop_bindings_and_deallocate_list_of_variables(vars);
 
         return parent_nvn;
     }

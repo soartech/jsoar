@@ -322,6 +322,55 @@ public class Tests
 
         return add_new_test_to_test (t, add_me);
     }
+    
+    /**
+     * This routine pushes bindings for variables occurring (i.e., being
+     * equality-tested) in a given test.  It can do this in DENSE fashion
+     * (push a new binding for ANY variable) or SPARSE fashion (push a new
+     * binding only for previously-unbound variables), depending on the
+     * boolean "dense" parameter.  Any variables receiving new bindings
+     * are also pushed onto the given "varlist".
+     * 
+     * <p>rete.cpp:2394:bind_variables_in_test
+     * 
+     * @param t
+     * @param depth
+     * @param field_num
+     * @param dense
+     * @param varlist
+     */
+    public static void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, ListHead<Variable> varlist)
+    {
+        if (Tests.isBlank(t))
+        {
+            return;
+        }
+        final EqualityTest eq = t.asEqualityTest();
+        if (eq != null)
+        {
+            Variable referent = eq.getReferent().asVariable();
+            if (referent == null) // not a variable
+            {
+                return;
+            }
+            if (!dense && referent.var_is_bound())
+            {
+                return;
+            }
+            referent.push_var_binding(depth, field_num);
+            varlist.push(referent); // push(thisAgent, referent, *varlist);
+            return;
+        }
+
+        final ConjunctiveTest ct = t.asConjunctiveTest();
+        if (ct != null)
+        {
+            for (Test c : ct.conjunct_list)
+            {
+                bind_variables_in_test(c, depth, field_num, dense, varlist);
+            }
+        }
+    }
 
     /**
      * production.cpp:412:tests_are_equal

@@ -393,9 +393,9 @@ import org.jsoar.util.markers.Marker;
         final ListHead<Variable> vars_bound_here = ListHead.newInstance();
 
         // Add sparse variable bindings for this condition
-        Rete.bind_variables_in_test(cond.id_test, current_depth, 0, false, vars_bound_here);
-        Rete.bind_variables_in_test(cond.attr_test, current_depth, 1, false, vars_bound_here);
-        Rete.bind_variables_in_test(cond.value_test, current_depth, 2, false, vars_bound_here);
+        Tests.bind_variables_in_test(cond.id_test, current_depth, 0, false, vars_bound_here);
+        Tests.bind_variables_in_test(cond.attr_test, current_depth, 1, false, vars_bound_here);
+        Tests.bind_variables_in_test(cond.value_test, current_depth, 2, false, vars_bound_here);
 
         // Get Rete tests, alpha constants, and hash location
         final ByRef<SymbolImpl> alpha_id = ByRef.create(null);
@@ -409,7 +409,7 @@ import org.jsoar.util.markers.Marker;
         add_rete_tests_for_test(rete, cond.value_test, current_depth, 2, rt, alpha_value);
 
         // Pop sparse variable bindings for this condition
-        Rete.pop_bindings_and_deallocate_list_of_variables(vars_bound_here);
+        Variable.pop_bindings_and_deallocate_list_of_variables(vars_bound_here);
 
         // Get alpha memory
         final AlphaMemory am = rete.find_or_make_alpha_mem(alpha_id.value, alpha_attr.value, alpha_value.value,
@@ -531,12 +531,12 @@ import org.jsoar.util.markers.Marker;
      */
     private static ReteNode make_node_for_negative_cond(Rete rete, NegativeCondition cond, int current_depth, ReteNode parent)
     {
-        ListHead<Variable> vars_bound_here = ListHead.newInstance();
+        final ListHead<Variable> vars_bound_here = ListHead.newInstance();
 
         /* --- Add sparse variable bindings for this condition --- */
-        Rete.bind_variables_in_test(cond.id_test, current_depth, 0, false, vars_bound_here);
-        Rete.bind_variables_in_test(cond.attr_test, current_depth, 1, false, vars_bound_here);
-        Rete.bind_variables_in_test(cond.value_test, current_depth, 2, false, vars_bound_here);
+        Tests.bind_variables_in_test(cond.id_test, current_depth, 0, false, vars_bound_here);
+        Tests.bind_variables_in_test(cond.attr_test, current_depth, 1, false, vars_bound_here);
+        Tests.bind_variables_in_test(cond.value_test, current_depth, 2, false, vars_bound_here);
 
         /* --- Get Rete tests, alpha constants, and hash location --- */
         final ByRef<SymbolImpl> alpha_id = ByRef.create(null);
@@ -553,7 +553,7 @@ import org.jsoar.util.markers.Marker;
         add_rete_tests_for_test(rete, cond.value_test, current_depth, 2, rt, alpha_value);
 
         /* --- Pop sparse variable bindings for this condition --- */
-        Rete.pop_bindings_and_deallocate_list_of_variables(vars_bound_here);
+        Variable.pop_bindings_and_deallocate_list_of_variables(vars_bound_here);
 
         /* --- Get alpha memory --- */
         final AlphaMemory am = rete.find_or_make_alpha_mem(alpha_id.value, alpha_attr.value, alpha_value.value,
@@ -628,16 +628,16 @@ import org.jsoar.util.markers.Marker;
 
         for (Condition cond = cond_list; cond != null; cond = cond.next)
         {
-            PositiveCondition pc = cond.asPositiveCondition();
-            NegativeCondition nc = cond.asNegativeCondition();
-            ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
+            final PositiveCondition pc = cond.asPositiveCondition();
+            final NegativeCondition nc = cond.asNegativeCondition();
+            final ConjunctiveNegationCondition ncc = cond.asConjunctiveNegationCondition();
             if (pc != null)
             {
                 new_node = make_node_for_positive_cond(rete, pc, current_depth, node);
                 /* --- Add dense variable bindings for this condition --- */
-                Rete.bind_variables_in_test(pc.id_test, current_depth, 0, true, vars_bound);
-                Rete.bind_variables_in_test(pc.attr_test, current_depth, 1, true, vars_bound);
-                Rete.bind_variables_in_test(pc.value_test, current_depth, 2, true, vars_bound);
+                Tests.bind_variables_in_test(pc.id_test, current_depth, 0, true, vars_bound);
+                Tests.bind_variables_in_test(pc.attr_test, current_depth, 1, true, vars_bound);
+                Tests.bind_variables_in_test(pc.value_test, current_depth, 2, true, vars_bound);
             }
             else if (nc != null)
             {
@@ -694,7 +694,7 @@ import org.jsoar.util.markers.Marker;
         }
         else
         {
-            Rete.pop_bindings_and_deallocate_list_of_variables(vars_bound);
+            Variable.pop_bindings_and_deallocate_list_of_variables(vars_bound);
         }
     }
 

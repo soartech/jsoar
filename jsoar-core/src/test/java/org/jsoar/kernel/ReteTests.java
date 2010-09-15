@@ -46,4 +46,18 @@ public class ReteTests extends FunctionalTestHarness
         final DecisionCycle dc = Adaptables.adapt(agent, DecisionCycle.class);
         assertFalse(dc.isHitMaxElaborations());
     }    
+    
+    @Test
+    public void testSplitNode() throws Exception
+    {
+        agent.getProductions().loadProduction("first\n" +
+        "   (<s> ^foo1 nil)\n" +
+        "-->\n" +
+        "   (interrupt)");        
+        agent.getProductions().loadProduction("second\n" +
+        "   (<s> ^foo2 nil)\n" +
+        "-->\n" +
+        "   (interrupt)");
+        
+    }
 }

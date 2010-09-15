@@ -147,6 +147,24 @@ public class Variable extends SymbolImpl
         rete_binding_locations.pop();
     }
     
+    /**
+     * This routine takes a list of variables; for each item <v> on the
+     * list, it pops a binding of <v>.  It also deallocates the list.
+     * This is often used for un-binding a group of variables which got
+     * bound in some procedure.
+     * 
+     * <p>rete.cpp:2430:pop_bindings_and_deallocate_list_of_variables
+     * 
+     * @param vars
+     */
+    public static void pop_bindings_and_deallocate_list_of_variables(ListHead<Variable> vars)
+    {
+        for (ListItem<Variable> v = vars.first; v != null; v = v.next)
+        {
+            v.item.pop_var_binding();
+        }
+    } 
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.Symbol#asVariable()
      */

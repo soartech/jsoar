@@ -257,7 +257,7 @@ public class Rete
 
         // clean up variable bindings created by build_network...
 
-        pop_bindings_and_deallocate_list_of_variables(vars_bound.value);
+        Variable.pop_bindings_and_deallocate_list_of_variables(vars_bound.value);
 
         update_max_rhs_unbound_variables(rhs_unbound_vars_for_new_prod.size());
 
@@ -835,73 +835,6 @@ public class Rete
             }
         }
     }
-
-    /**
-     * This routine pushes bindings for variables occurring (i.e., being
-     * equality-tested) in a given test.  It can do this in DENSE fashion
-     * (push a new binding for ANY variable) or SPARSE fashion (push a new
-     * binding only for previously-unbound variables), depending on the
-     * boolean "dense" parameter.  Any variables receiving new bindings
-     * are also pushed onto the given "varlist".
-     * 
-     * <p>rete.cpp:2394:bind_variables_in_test
-     * 
-     * @param t
-     * @param depth
-     * @param field_num
-     * @param dense
-     * @param varlist
-     */
-    static void bind_variables_in_test(Test t, int depth, int field_num, boolean dense, ListHead<Variable> varlist)
-    {
-        if (Tests.isBlank(t))
-        {
-            return;
-        }
-        EqualityTest eq = t.asEqualityTest();
-        if (eq != null)
-        {
-            Variable referent = eq.getReferent().asVariable();
-            if (referent == null) // not a variable
-            {
-                return;
-            }
-            if (!dense && referent.var_is_bound())
-            {
-                return;
-            }
-            referent.push_var_binding(depth, field_num);
-            varlist.push(referent); // push(thisAgent, referent, *varlist);
-            return;
-        }
-
-        ConjunctiveTest ct = t.asConjunctiveTest();
-        if (ct != null)
-        {
-            for (Test c : ct.conjunct_list)
-            {
-                bind_variables_in_test(c, depth, field_num, dense, varlist);
-            }
-        }
-    }
-
-    /**
-     * This routine takes a list of variables; for each item <v> on the
-     * list, it pops a binding of <v>.  It also deallocates the list.
-     * This is often used for un-binding a group of variables which got
-     * bound in some procedure.
-     * 
-     * <p>rete.cpp:2430:pop_bindings_and_deallocate_list_of_variables
-     * 
-     * @param vars
-     */
-    static void pop_bindings_and_deallocate_list_of_variables(ListHead<Variable> vars)
-    {
-        for (ListItem<Variable> v = vars.first; v != null; v = v.next)
-        {
-            v.item.pop_var_binding();
-        }
-    } 
     
     /**
      * When a production is fired, we use an array of gensyms to store 
@@ -962,12 +895,13 @@ public class Rete
             cond = cond.prev;
         }
 
-        ThreeFieldCondition tfc = cond.asThreeFieldCondition();
+        final ThreeFieldCondition tfc = cond.asThreeFieldCondition();
         if(tfc ==  null)
         {
             throw new IllegalStateException("Expected ThreeFieldCondition, got " + cond);
         }
-        Test t = null;
+        
+        final Test t;
         if (where_field_num == 0)
         {
             t = tfc.id_test;
@@ -986,13 +920,14 @@ public class Rete
             // goto abort_var_bound_in_reconstructed_conds;
             throw new IllegalStateException("Internal error in var_bound_in_reconstructed_conds");
         }
-        EqualityTest eq = t.asEqualityTest();
+        
+        final EqualityTest eq = t.asEqualityTest();
         if (eq != null)
         {
             return eq.getReferent();
         }
 
-        ConjunctiveTest ct = t.asConjunctiveTest();
+        final ConjunctiveTest ct = t.asConjunctiveTest();
         if (ct != null)
         {
             for (Test c : ct.conjunct_list)
@@ -1095,10 +1030,10 @@ public class Rete
         final int hv = node.node_id ^ referent.hash_id;
 
         // build new left token, add it to the hash table
-        LeftToken New = new LeftToken(node, tok, w, referent);
+        final LeftToken New = new LeftToken(node, tok, w, referent);
         left_ht.insert_token_into_left_ht(New, hv);
 
-        /* --- inform each linked child (positive join) node --- */
+        // inform each linked child (positive join) node
         ListItem<ReteNode> next = null;
         for (ListItem<ReteNode> child = node.b_mem().first_linked_child.first; child != null; child = next)
         {
@@ -1117,13 +1052,13 @@ public class Rete
      */
     private void unhashed_beta_memory_node_left_addition(ReteNode node, Token tok, WmeImpl w)
     {
-        int hv = node.node_id;
+        final int hv = node.node_id;
 
-        /* --- build new left token, add it to the hash table --- */
-        LeftToken New = new LeftToken(node, tok, w, null);
+        // build new left token, add it to the hash table
+        final LeftToken New = new LeftToken(node, tok, w, null);
         left_ht.insert_token_into_left_ht(New, hv);
 
-        /* --- inform each linked child (positive join) node --- */
+        // inform each linked child (positive join) node
         ListItem<ReteNode> next = null;
         for (ListItem<ReteNode> child = node.b_mem().first_linked_child.first; child != null; child = next)
         {
@@ -1141,7 +1076,7 @@ public class Rete
      */
     private void positive_node_left_addition(ReteNode node, LeftToken New, SymbolImpl hash_referent)
     {
-        AlphaMemory am = node.b_posneg().alpha_mem_;
+        final AlphaMemory am = node.b_posneg().alpha_mem_;
 
         if (node.node_is_right_unlinked())
         {
@@ -1154,7 +1089,7 @@ public class Rete
         }
 
         // look through right memory for matches
-        int right_hv = am.am_id ^ hash_referent.hash_id;
+        final int right_hv = am.am_id ^ hash_referent.hash_id;
         for (RightMemory rm = right_ht.right_ht_bucket(right_hv); rm != null; rm = rm.next_in_bucket)
         {
             if (rm.am != am)
