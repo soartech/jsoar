@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,8 @@ public class Symbols
     public static final int SYM_CONSTANT_SYMBOL_TYPE = 2;
     public static final int INT_CONSTANT_SYMBOL_TYPE = 3;
     public static final int FLOAT_CONSTANT_SYMBOL_TYPE = 4;
+
+    private static Pattern ID_PATTERN = Pattern.compile("^\\s*([a-zA-Z])(\\d+)\\s*$");
     
     public static int getSymbolType(Symbol sym)
     {
@@ -217,6 +221,35 @@ public class Symbols
         return Character.toUpperCase(c);
     }
     
+    /**
+     * Parse and find an identifier from a string, for example <code>S123</code>.
+     * 
+     * @param symbols the symbol factory
+     * @param idString the id string
+     * @return the identifier, or {@code null} if parse failed, or the id doesn't
+     *      exist.
+     */
+    public static Identifier parseIdentifier(SymbolFactory symbols, String idString)
+    {
+        final Matcher matcher = ID_PATTERN.matcher(idString);
+        if(matcher.matches())
+        {
+            final char letter = matcher.group(1).toUpperCase().charAt(0);
+            try
+            {
+                final long number = Long.parseLong(matcher.group(2));
+                return symbols.findIdentifier(letter, number);
+            }
+            catch (NumberFormatException e)
+            {
+                return null;
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
     /**
      * 
      * <p>sml_KernelHelpers.cpp:731:read_attribute_from_string
