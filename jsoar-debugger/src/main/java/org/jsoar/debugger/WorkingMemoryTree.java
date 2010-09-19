@@ -6,34 +6,41 @@
 package org.jsoar.debugger;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
+import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
@@ -51,8 +58,10 @@ public class WorkingMemoryTree extends JComponent
     private static final Stroke selectionStroke = new BasicStroke(2);
     private static final Stroke markerStroke = new BasicStroke(2);
     private final ThreadedAgent agent;
+    private final Set<Identifier> roots = new HashSet<Identifier>();
     private final ArrayList<Row> rows = new ArrayList<Row>();
     
+    private Color alternateRootFillColor = new Color(248, 248, 248);
     private Color idTextColor = Color.BLACK;
     private Color idFillColor = new Color(192, 192, 192);
     private Color currentIdFillColor = new Color(225, 225, 225);
@@ -62,15 +71,18 @@ public class WorkingMemoryTree extends JComponent
     private Color selectionColor = new Color(0, 0, 255);
     private Color selectionSubColor = new Color(232, 242, 254);
     
-    private Symbol symbolUnderMouse;
+    private Symbol symbolUnderMouse = null;
     private final List<Wme> selectedWmes = new ArrayList<Wme>();
+    
+    private Point offset = new Point();
+    private Point lastMouseDragPoint = null;
     
     public WorkingMemoryTree(ThreadedAgent agent)
     {
         this.agent = agent;
         setFont(font);
         setBackground(Color.WHITE);
-        expandId('S', 1, 0, 0);
+        //expandId('S', 1, 0, 0);
         
         addMouseMotionListener(new MouseAdapter() {
             @Override
@@ -82,6 +94,7 @@ public class WorkingMemoryTree extends JComponent
             @Override
             public void mouseDragged(MouseEvent e)
             {
+                WorkingMemoryTree.this.mouseDragged(e);
             }
         });
         addMouseListener(new MouseAdapter(){
@@ -91,7 +104,62 @@ public class WorkingMemoryTree extends JComponent
             {
                 WorkingMemoryTree.this.mouseClicked(e);
             }
+
+            @Override
+            public void mousePressed(MouseEvent e)
+            {
+                WorkingMemoryTree.this.mousePressed(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e)
+            {
+                WorkingMemoryTree.this.mouseReleased(e);
+            }
         });
+    }
+    
+    public void addRoot(Identifier id)
+    {
+        if(roots.contains(id))
+        {
+            
+        }
+        else
+        {
+            roots.add(id);
+            expandId(id, 0, 0);
+        }
+    }
+    
+    public void removeRoot(Identifier id)
+    {
+        if(roots.remove(id))
+        {
+            final ListIterator<Row> it = rows.listIterator();
+            boolean inRoot = false;
+            while(it.hasNext())
+            {
+                final Row row = it.next();
+                if((row.level == 0 && row.id == id) || (row.level > 0 && inRoot))
+                {
+                    inRoot = true;
+                    it.remove();
+                }
+                else if(row.level == 0 && inRoot)
+                {
+                    row.row = it.previousIndex();
+                    break;
+                }
+            }
+            
+            while(it.hasNext())
+            {
+                it.next().row = it.previousIndex();
+            }
+            
+            repaint();
+        }
     }
     
     private int getIndent()
@@ -106,7 +174,7 @@ public class WorkingMemoryTree extends JComponent
     
     private Row getRowAtPoint(Point p)
     {
-        int rowNum = ((int) p.getY()) / getRowHeight();
+        int rowNum = (p.y - offset.y) / getRowHeight();
         
         return rowNum < rows.size() ? rows.get(rowNum) : null;
     }
@@ -140,8 +208,32 @@ public class WorkingMemoryTree extends JComponent
         
         final Graphics2D g2d = (Graphics2D) g;
         final ArrayDeque<Integer> currentIdMarkers = new ArrayDeque<Integer>();
+        
+        Identifier lastRoot = null;
+        boolean alternateRoot = true;
+        
         for(Row row : rows)
         {
+            final int y = offset.y + row.row * getRowHeight();
+            
+            if(row.level == 0 && row.id != lastRoot)
+            {
+                lastRoot = row.id;
+                alternateRoot = !alternateRoot;
+            }
+            
+            if(isRowSelected(row))
+            {
+                g2d.setColor(selectionSubColor);
+                g2d.fillRect(0, y, getWidth(), getRowHeight());
+            }
+            else if(alternateRoot)
+            {
+                g2d.setColor(alternateRootFillColor);
+                g2d.fillRect(0, y, getWidth(), getRowHeight());
+            }
+            
+            
             final Integer lastMarker = currentIdMarkers.peekLast();
             boolean start = false;
             boolean end = false;
@@ -154,13 +246,6 @@ public class WorkingMemoryTree extends JComponent
             {
                 end = true;
                 currentIdMarkers.pop();
-            }
-            final int y = row.row * getRowHeight();
-            
-            if(isRowSelected(row))
-            {
-                g2d.setColor(selectionSubColor);
-                g2d.fillRect(0, y, getWidth(), getRowHeight());
             }
             final Stroke oldStroke = g2d.getStroke();
             g2d.setStroke(markerStroke);
@@ -200,7 +285,8 @@ public class WorkingMemoryTree extends JComponent
         x += row.attrBounds.getWidth() + xpad;
         for(RowValue value : row.values)
         {
-            value.bounds = paintSymbol(g2d, value.wme.getValue(), value.wme.getValue().toString(), x, y);
+            final String s = value.wme.getValue() + (value.wme.isAcceptable() ? " +" : "");
+            value.bounds = paintSymbol(g2d, value.wme.getValue(), s, x, y);
             if(isSelected(value.wme))
             {
                 final Stroke oldStroke = g2d.getStroke();
@@ -286,11 +372,11 @@ public class WorkingMemoryTree extends JComponent
         {
             return;
         }
-        expandId(valueId.getNameLetter(), valueId.getNameNumber(), row.level + 1, row.row + 1);
+        expandId(valueId, row.level + 1, row.row + 1);
         v.expanded = true;
     }
     
-    private void expandId(final char letter, final long number, final int level, final int insertAt)
+    private void expandId(final Identifier id, final int level, final int insertAt)
     {
         final Callable<List<Row>> start = new Callable<List<Row>>()
         {
@@ -298,7 +384,6 @@ public class WorkingMemoryTree extends JComponent
             public List<Row> call() throws Exception
             {
                 final List<Row> result = new ArrayList<Row>();
-                final Identifier id = agent.getSymbols().findIdentifier(letter, number);
                 if(id != null)
                 {
                     final Map<Symbol, Row> rowMap = new HashMap<Symbol, Row>();
@@ -379,7 +464,37 @@ public class WorkingMemoryTree extends JComponent
         }
         value.expanded = false;
     }
-
+    
+    private void mousePressed(MouseEvent e)
+    {
+        lastMouseDragPoint = e.getPoint();
+    }
+    
+    private void mouseReleased(MouseEvent e)
+    {
+        lastMouseDragPoint = null;
+    }
+    
+    private void mouseDragged(MouseEvent e)
+    {
+        final Point p = e.getPoint();
+        final int dy = p.y - lastMouseDragPoint.y;
+        offset.y = Math.min(0, offset.y + dy);
+        final int totalHeight = rows.size() * getRowHeight();
+        if(totalHeight < getHeight())
+        {
+            offset.y = 0;
+        }
+        if(totalHeight > getHeight() && offset.y + totalHeight < getHeight())
+        {
+            offset.y = getHeight() - totalHeight;
+        }
+        System.out.println(offset);
+        
+        repaint();
+        lastMouseDragPoint = p;
+    }
+    
     private void mouseMoved(MouseEvent e)
     {
         final Point p = e.getPoint();
@@ -568,19 +683,44 @@ public class WorkingMemoryTree extends JComponent
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         final ThreadedAgent agent = ThreadedAgent.create();
-        agent.executeAndWait(new Callable<Void>()
-        {
+        agent.executeAndWait(new Callable<Void>() {
             @Override
             public Void call() throws Exception
             {
                 SoarCommands.source(agent.getInterpreter(), 
                         "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
-                agent.getAgent().runFor(1, RunType.DECISIONS);
+                agent.getAgent().runFor(2, RunType.PHASES);
                 return null;
             }
         }, 100000, TimeUnit.DAYS);
+        
         final WorkingMemoryTree tree = new WorkingMemoryTree(agent);
-        f.setContentPane(new JScrollPane(tree));
+        final JPanel panel = new JPanel(new BorderLayout());
+        
+        final JTextField idField = new JTextField("S1");
+        idField.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                final Identifier id = Symbols.parseIdentifier(agent.getSymbols(), idField.getText());
+                if(id != null)
+                {
+                    if(!tree.roots.contains(id))
+                    {
+                        tree.addRoot(id);
+                    }
+                    else
+                    {
+                        tree.removeRoot(id);
+                    }
+                }
+            }
+        });
+        
+        panel.add(idField, BorderLayout.NORTH);
+        panel.add(tree, BorderLayout.CENTER);
+        f.setContentPane(panel);
         f.setSize(800, 600);
         f.setVisible(true);
     }
