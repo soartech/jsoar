@@ -41,7 +41,6 @@ import javax.swing.SwingUtilities;
 
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wme;
-import org.jsoar.kernel.memory.WmesTest;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
