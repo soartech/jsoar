@@ -3,7 +3,7 @@
  *
  * Created on Sep 16, 2010
  */
-package org.jsoar.debugger;
+package org.jsoar.debugger.wm;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
