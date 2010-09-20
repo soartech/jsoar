@@ -704,6 +704,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     /**
      * Returns a <b>copy</b> of the set of all WMEs currently in the rete.
      * 
+     * <p><em>This method should only be called from the agent thread</em>
+     * 
      * @return a <b>copy</b> of the set of all WMEs currently in the rete
      */
     public Set<Wme> getAllWmesInRete()
@@ -712,6 +714,24 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     }
     
     /**
+     * Return {@code true} if the given wme is currently in the rete, i.e.
+     * is in working memory.
+     * 
+     * <p><em>This method should only be called from the agent thread</em>
+     * 
+     * @param wme the wme to test
+     * @return {@code true} if the wme is in the rete.
+     */
+    public boolean isWmeInRete(Wme wme)
+    {
+        return rete.containsWme(wme);
+    }
+    
+    /**
+     * Returns the number of WMEs currently in the rete.
+     * 
+     * <p><em>This method should only be called from the agent thread</em>
+     * 
      * @return Number of WMEs currently in the rete
      */
     public int getNumWmesInRete()

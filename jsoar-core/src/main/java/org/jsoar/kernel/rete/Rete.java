@@ -26,6 +26,7 @@ import org.jsoar.kernel.lhs.Test;
 import org.jsoar.kernel.lhs.Tests;
 import org.jsoar.kernel.lhs.ThreeFieldCondition;
 import org.jsoar.kernel.memory.Instantiation;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.rete.PartialMatches.Entry;
 import org.jsoar.kernel.rhs.Action;
@@ -164,6 +165,11 @@ public class Rete
     public Collection<WmeImpl> getAllWmes()
     {
         return all_wmes_in_rete;
+    }
+    
+    public boolean containsWme(Wme w)
+    {
+        return all_wmes_in_rete.contains(w);
     }
     
     /**
