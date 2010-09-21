@@ -20,14 +20,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -50,9 +43,6 @@ import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.SwingTools;
 import org.jsoar.util.commands.SoarCommands;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 /**
  * @author ray
  */
@@ -60,13 +50,12 @@ public class WorkingMemoryTree extends JComponent
 {
     private static final long serialVersionUID = 8031999540064492987L;
 
-    private static final Font font = Font.decode("Arial-BOLD").deriveFont(Font.BOLD);
+    private static final Font font = Font.decode("Arial-BOLD");
+    private static final Font rootFont = Font.decode("Arial-BOLD").deriveFont(font.getSize() * 1.7f);
     private static final Stroke selectionStroke = new BasicStroke(2);
     private static final Stroke markerStroke = new BasicStroke(2);
-    private final ThreadedAgent agent;
-    private final Map<Identifier, RootRow> roots = new HashMap<Identifier, RootRow>();
-    private final ArrayList<Row> rows = new ArrayList<Row>();
-    private final Multimap<Wme, WmeRow.Value> wmeToRowValues = HashMultimap.create();
+
+    private final Model model;
     
     private Color alternateRootFillColor = new Color(248, 248, 248);
     private Color idTextColor = Color.BLACK;
@@ -84,9 +73,19 @@ public class WorkingMemoryTree extends JComponent
     private Point offset = new Point();
     private Point lastMouseDragPoint = null;
     
+    private final CompletionHandler<Void> repaint = SwingCompletionHandler.newInstance(new CompletionHandler<Void>()
+    {
+        @Override
+        public void finish(Void result)
+        {
+            repaint();
+        }
+    });
+    
     public WorkingMemoryTree(ThreadedAgent agent)
     {
-        this.agent = agent;
+        this.model = new Model(agent);
+
         setFont(font);
         setBackground(Color.WHITE);
         //expandId('S', 1, 0, 0);
@@ -95,13 +94,19 @@ public class WorkingMemoryTree extends JComponent
             @Override
             public void mouseMoved(MouseEvent e)
             {
-                WorkingMemoryTree.this.mouseMoved(e);
+                synchronized(model.lock)
+                {
+                    WorkingMemoryTree.this.mouseMoved(e);
+                }
             }
 
             @Override
             public void mouseDragged(MouseEvent e)
             {
-                WorkingMemoryTree.this.mouseDragged(e);
+                synchronized(model.lock)
+                {
+                    WorkingMemoryTree.this.mouseDragged(e);
+                }
             }
         });
         addMouseListener(new MouseAdapter(){
@@ -109,61 +114,32 @@ public class WorkingMemoryTree extends JComponent
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                WorkingMemoryTree.this.mouseClicked(e);
+                synchronized(model.lock)
+                {
+                    WorkingMemoryTree.this.mouseClicked(e);
+                }
             }
 
             @Override
             public void mousePressed(MouseEvent e)
             {
-                WorkingMemoryTree.this.mousePressed(e);
+                synchronized(model.lock)
+                {
+                    WorkingMemoryTree.this.mousePressed(e);
+                }
             }
 
             @Override
             public void mouseReleased(MouseEvent e)
             {
-                WorkingMemoryTree.this.mouseReleased(e);
+                synchronized(model.lock)
+                {
+                    WorkingMemoryTree.this.mouseReleased(e);
+                }
             }
         });
     }
     
-    public void addRoot(Identifier id)
-    {
-        if(roots.containsKey(id))
-        {
-            
-        }
-        else
-        {
-            final RootRow newRoot = new RootRow(id);
-            roots.put(id, newRoot);
-            rows.add(0, newRoot);
-            expandId(newRoot, id, null, 1);
-        }
-    }
-    
-    public void removeRoot(Identifier id)
-    {
-        final RootRow root = roots.remove(id);
-        if(root != null)
-        {
-            final ListIterator<Row> it = rows.listIterator(root.row);
-            while(it.hasNext())
-            {
-                final Row row = it.next();
-                if(row.root == root)
-                {
-                    it.remove();
-                    cleanupRow(row);
-                }
-                else
-                {
-                    row.row = it.previousIndex();
-                }
-            }
-            
-            repaint();
-        }
-    }
     
     private int getIndent()
     {
@@ -179,7 +155,7 @@ public class WorkingMemoryTree extends JComponent
     {
         int rowNum = (p.y - offset.y) / getRowHeight();
         
-        return rowNum < rows.size() ? rows.get(rowNum) : null;
+        return rowNum < model.rows.size() ? model.rows.get(rowNum) : null;
     }
     
     private boolean isSelected(Wme wme)
@@ -210,12 +186,21 @@ public class WorkingMemoryTree extends JComponent
         g.fillRect(0, 0, getWidth(), getHeight());
         
         final Graphics2D g2d = (Graphics2D) g;
+        
+        synchronized(model.lock)
+        {
+            paintComponentSafe(g2d);
+        }
+    }
+    
+    protected void paintComponentSafe(Graphics2D g2d)
+    {
         final ArrayDeque<Integer> currentIdMarkers = new ArrayDeque<Integer>();
         
         RootRow lastRoot = null;
         boolean alternateRoot = true;
         
-        for(Row row : rows)
+        for(Row row : model.rows)
         {
             final int y = offset.y + row.row * getRowHeight();
             
@@ -230,8 +215,11 @@ public class WorkingMemoryTree extends JComponent
             
             if(asRoot != null)
             {
+                paintRootRow(asRoot, g2d, y);
                 continue;
             }
+            
+            g2d.setFont(font);
             
             if(isRowSelected(asWme))
             {
@@ -283,6 +271,19 @@ public class WorkingMemoryTree extends JComponent
             g2d.setColor(Color.BLACK);
             //g2d.drawLine(0, y, getWidth(), y);
         }
+    }
+
+
+    private void paintRootRow(final RootRow asRoot, Graphics2D g2d, final int y)
+    {
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(rootFont);
+        final int rowHeight = getRowHeight();
+        final String text = asRoot.id.toString();
+        final Rectangle2D bounds = g2d.getFontMetrics().getStringBounds(text, g2d);
+        bounds.setFrame(5, y + (rowHeight / 2 - bounds.getHeight() / 2), bounds.getWidth(), bounds.getHeight());
+        
+        g2d.drawString(text, (int) bounds.getX(), (int) (bounds.getY() + bounds.getHeight()));
     }
 
     private void paintRow(Graphics2D g2d, WmeRow row, int y, ArrayDeque<Integer> currentIdMarkers)
@@ -372,175 +373,6 @@ public class WorkingMemoryTree extends JComponent
         return bounds;
     }
     
-    private void expandRow(WmeRow.Value v)
-    {
-        if(v.expanded)
-        {
-            return;
-        }
-        final Identifier valueId = v.wme.getValue().asIdentifier();
-        if(valueId == null)
-        {
-            return;
-        }
-        expandId(v.row.root, valueId, v, v.row.row + 1);
-        v.expanded = true;
-    }
-    
-    private void expandId(final RootRow root, final Identifier id, final WmeRow.Value parent, final int insertAt)
-    {
-        final Callable<List<WmeRow>> start = new Callable<List<WmeRow>>()
-        {
-            @Override
-            public List<WmeRow> call() throws Exception
-            {
-                final List<WmeRow> result = new ArrayList<WmeRow>();
-                if(id != null)
-                {
-                    final Map<Symbol, WmeRow> rowMap = new HashMap<Symbol, WmeRow>();
-                    for(Iterator<Wme> it = id.getWmes(); it.hasNext();)
-                    {
-                        final Wme wme = it.next();
-                        WmeRow newRow = rowMap.get(wme.getAttribute());
-                        if(newRow == null)
-                        {
-                            newRow = new WmeRow(root, parent, wme.getIdentifier(), wme.getAttribute());
-                            newRow.row = insertAt + result.size();
-                            result.add(newRow);
-                            rowMap.put(wme.getAttribute(), newRow);
-                        }
-                        final WmeRow.Value newRowValue = newRow.addValue(wme);
-                        wmeToRowValues.put(wme, newRowValue);
-                    }
-                }
-                return result;
-            }
-        };
-        final CompletionHandler<List<WmeRow>> finish = new CompletionHandler<List<WmeRow>>()
-        {
-            @Override
-            public void finish(List<WmeRow> result)
-            {
-                rows.addAll(insertAt, result);
-                for(int i = insertAt + result.size(); i < rows.size(); i++)
-                {
-                    rows.get(i).row += result.size() + (parent != null ? 0 : 1);
-                }
-                assert rowIndexesAreValid();
-                repaint();
-            }
-        };
-        agent.execute(start, SwingCompletionHandler.newInstance(finish));
-    }
-    
-    private void removeRowAndChildren(WmeRow row)
-    {
-        final ListIterator<Row> it = rows.listIterator(row.row);
-        cleanupRow(row);
-        it.next();
-        it.remove();
-        while(it.hasNext())
-        {
-            final Row subRow = it.next();
-            if(subRow.level > row.level)
-            {
-                cleanupRow(subRow);
-                it.remove();
-            }
-            else
-            {
-                subRow.row = it.previousIndex();
-                break;
-            }
-        }
-        
-        fixTrailingRowIndexes(it);
-    }
-    
-    private void collapseRow(WmeRow.Value value)
-    {
-        if(!value.expanded)
-        {
-            return;
-        }
-        
-        final ListIterator<Row> it = rows.listIterator(value.row.row + 1);
-        boolean inSubRow = false;
-        while(it.hasNext())
-        {
-            final Row subRow = it.next();
-            final WmeRow asWme = subRow.asWme();
-            if(asWme == null)
-            {
-                subRow.row = it.previousIndex();
-                break;
-            }
-            else if(asWme.id == value.wme.getValue() && subRow.level == value.row.level + 1)
-            {
-                it.remove();
-                cleanupRow(subRow);
-                inSubRow = true;
-            }
-            else if(inSubRow && subRow.level > value.row.level + 1)
-            {
-                cleanupRow(subRow);
-                it.remove();
-            }
-            else if(inSubRow && subRow.level == value.row.level + 1)
-            {
-                inSubRow = false;
-                subRow.row = it.previousIndex();
-            }
-            else if(subRow.level <= value.row.level)
-            {
-                subRow.row = it.previousIndex();
-                break;
-            }
-            else
-            {
-                subRow.row = it.previousIndex();
-            }
-        }
-        
-        fixTrailingRowIndexes(it);
-        value.expanded = false;
-    }
-
-    private void cleanupRow(Row row)
-    {
-        final WmeRow wmeRow = row.asWme();
-        if(wmeRow != null)
-        {
-            for(WmeRow.Value value : wmeRow.values)
-            {
-                wmeToRowValues.remove(value.wme, value);
-            }
-        }
-    }
-    
-    private void fixTrailingRowIndexes(final ListIterator<Row> it)
-    {
-        while(it.hasNext())
-        {
-            final Row trailingRow = it.next();
-            trailingRow.row = it.previousIndex();
-        }
-        
-        assert rowIndexesAreValid();
-    }
-    
-    private boolean rowIndexesAreValid()
-    {
-        for(int i = 0; i < rows.size(); ++i)
-        {
-            if(rows.get(i).row != i)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    
     private void mousePressed(MouseEvent e)
     {
         lastMouseDragPoint = e.getPoint();
@@ -556,7 +388,7 @@ public class WorkingMemoryTree extends JComponent
         final Point p = e.getPoint();
         final int dy = p.y - lastMouseDragPoint.y;
         offset.y = Math.min(0, offset.y + dy);
-        final int totalHeight = rows.size() * getRowHeight();
+        final int totalHeight = model.rows.size() * getRowHeight();
         if(totalHeight < getHeight())
         {
             offset.y = 0;
@@ -647,7 +479,7 @@ public class WorkingMemoryTree extends JComponent
             }
             if(SwingUtilities.isLeftMouseButton(e) && doubleClick)
             {
-                expandOrCollapseRow(asWme);
+                model.expandOrCollapseRow(asWme, repaint);
             }
         }
         else
@@ -656,34 +488,6 @@ public class WorkingMemoryTree extends JComponent
             {
                 selectedWmes.clear();
                 repaint();
-            }
-        }
-    }
-
-    private void expandOrCollapseRow(WmeRow row)
-    {
-        boolean expanded = false;
-        for(WmeRow.Value v : row.values)
-        {
-            if(v.expanded)
-            {
-                expanded = true;
-                break;
-            }
-        }
-        
-        if(expanded)
-        {
-            for(WmeRow.Value v : row.values)
-            {
-                collapseRow(v);
-            }
-        }
-        else
-        {
-            for(WmeRow.Value v : row.values)
-            {
-                expandRow(v);
             }
         }
     }
@@ -712,98 +516,17 @@ public class WorkingMemoryTree extends JComponent
         {
             if(!value.expanded)
             {
-                expandRow(value);
+                model.expandRow(value, repaint);
             }
             else
             {
-                collapseRow(value);
+                model.collapseRow(value, repaint);
             }
             repaint();
         }
     }
     
-    private void updateRemovedWmes()
-    {
-        // For all removed WMEs, remove corresponding rows and sub-rows
-        final Set<Wme> removedWmes = new HashSet<Wme>();
-        for(Wme wme : wmeToRowValues.keys())
-        {
-            if(!agent.getAgent().isWmeInRete(wme))
-            {
-                removedWmes.add(wme);
-            }
-        }
-        
-        for(Wme wme : removedWmes)
-        {
-            final Collection<WmeRow.Value> values = wmeToRowValues.removeAll(wme);
-            for(WmeRow.Value value : values)
-            {
-                final WmeRow containingRow = value.row;
-                if(containingRow.values.size() == 1)
-                {
-                    removeRowAndChildren(containingRow);
-                }
-                else
-                {
-                    collapseRow(value);
-                    value.row.values.remove(value);
-                }
-            }
-        }
-    }
-    
-    private void updateWmeChildren(Wme wme)
-    {
-        for(WmeRow.Value rv : new ArrayList<WmeRow.Value>(wmeToRowValues.get(wme)))
-        {
-            if(rv.expanded)
-            {
-                collapseRow(rv);
-                expandRow(rv);
-            }
-        }
-    }
-    
-    private void updateAddedWmes()
-    {
-        // For each remaining WME if it's value is an id and it's marked
-        // as expanded, re-request the sub-wmes and add any new ones that
-        // are missing from the tree.
-        final Set<Wme> currentWmes = new HashSet<Wme>(wmeToRowValues.keys());
-        for(Wme wme : currentWmes)
-        {
-            final Identifier valueId = wme.getValue().asIdentifier();
-            if(valueId != null)
-            {
-                updateWmeChildren(wme);
-            }
-        }
-    }
-    
-    private void update()
-    {
-        final Callable<Void> begin = new Callable<Void>(){
 
-            @Override
-            public Void call() throws Exception
-            {
-                updateRemovedWmes();
-                updateAddedWmes();
-                return null;
-            }
-        };
-        
-        final CompletionHandler<Void> end = new CompletionHandler<Void>()
-        {
-            @Override
-            public void finish(Void result)
-            {
-                repaint();
-            }
-        };
-        agent.execute(begin, SwingCompletionHandler.newInstance(end));
-    }
     
     public static void swingMain() throws Exception
     {
@@ -837,13 +560,13 @@ public class WorkingMemoryTree extends JComponent
                 final Identifier id = Symbols.parseIdentifier(agent.getSymbols(), idField.getText());
                 if(id != null)
                 {
-                    if(!tree.roots.containsKey(id))
+                    if(!tree.model.hasRoot(id))
                     {
-                        tree.addRoot(id);
+                        tree.model.addRoot(id, tree.repaint);
                     }
                     else
                     {
-                        tree.removeRoot(id);
+                        tree.model.removeRoot(id, tree.repaint);
                     }
                 }
             }
@@ -854,12 +577,11 @@ public class WorkingMemoryTree extends JComponent
         
         panel.add(new JButton(new AbstractAction("Step")
         {
-            
             @Override
             public void actionPerformed(ActionEvent e)
             {
                 agent.getAgent().runFor(1, RunType.PHASES);
-                tree.update();
+                tree.model.update(tree.repaint);
             }
         }), BorderLayout.SOUTH);
         f.setContentPane(panel);
