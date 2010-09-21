@@ -8,6 +8,9 @@ package org.jsoar.debugger.wm;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JButton;
+
+import org.jsoar.debugger.Images;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 
@@ -18,12 +21,18 @@ class RootRow extends Row
 {
     final Identifier id;
     final Map<Symbol, WmeRow> children = new HashMap<Symbol, WmeRow>();
+    final JButton deleteButton = new JButton();
 
     public RootRow(Identifier id)
     {
         super(null, 0);
         
         this.id = id;
+        
+        deleteButton.setBorderPainted(false);
+        deleteButton.setOpaque(false);
+        deleteButton.setContentAreaFilled(false);
+        deleteButton.setIcon(Images.DELETE);
     }
 
     /* (non-Javadoc)

@@ -5,6 +5,8 @@
  */
 package org.jsoar.debugger.wm;
 
+import java.awt.geom.Rectangle2D;
+
 
 /**
  * @author ray
@@ -14,6 +16,7 @@ abstract class Row
     final RootRow root;
     final int level;
     int row;
+    Rectangle2D bounds = new Rectangle2D.Double();
     
     public Row(RootRow root, int level)
     {

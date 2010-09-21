@@ -56,11 +56,12 @@ public class WorkingMemoryTree extends JComponent
     private static final Font rootFont = Font.decode("Arial-BOLD").deriveFont(font.getSize() * 1.7f);
     private static final Stroke selectionStroke = new BasicStroke(2);
     private static final Stroke markerStroke = new BasicStroke(2);
-    private static final Stroke newWmeStroke = new BasicStroke(2);
+    private static final Stroke newWmeStroke = new BasicStroke(3);
 
     private final Model model;
     
-    private Color alternateRootFillColor = new Color(248, 248, 248);
+    private Color rootRowFillColor = new Color(192, 192, 192);
+    private Color rootRowTextColor = Color.WHITE;
     private Color idTextColor = Color.BLACK;
     private Color idFillColor = new Color(192, 192, 192);
     private Color currentIdFillColor = new Color(225, 225, 225);
@@ -69,6 +70,7 @@ public class WorkingMemoryTree extends JComponent
     private Color otherTextColor = Color.YELLOW;
     private Color selectionColor = new Color(0, 0, 255);
     private Color selectionSubColor = new Color(232, 242, 254);
+    private Color markerColor = new Color(192, 192, 192);
     
     private Symbol symbolUnderMouse = null;
     private final List<Wme> selectedWmes = new ArrayList<Wme>();
@@ -87,11 +89,12 @@ public class WorkingMemoryTree extends JComponent
     
     public WorkingMemoryTree(ThreadedAgent agent)
     {
+        setLayout(null);
         this.model = new Model(agent);
 
         setFont(font);
         setBackground(Color.WHITE);
-        //expandId('S', 1, 0, 0);
+        setToolTipText("");
         
         addMouseMotionListener(new MouseAdapter() {
             @Override
@@ -179,6 +182,36 @@ public class WorkingMemoryTree extends JComponent
     }
     
     /* (non-Javadoc)
+     * @see javax.swing.JComponent#getToolTipText(java.awt.event.MouseEvent)
+     */
+    @Override
+    public String getToolTipText(MouseEvent event)
+    {
+        synchronized(model.lock)
+        {
+            final Point p = event.getPoint();
+            final Row row = getRowAtPoint(p);
+            if(row == null)
+            {
+                return "";
+            }
+            final WmeRow wmeRow = row.asWme();
+            if(wmeRow != null)
+            {
+                for(WmeRow.Value v : wmeRow.values)
+                {
+                    if(v.bounds.contains(p))
+                    {
+                        return String.format("%#s, timetag: %d", v.wme, v.wme.getTimetag());
+                    }
+                }
+            }
+            return super.getToolTipText(event);
+        }
+    }
+
+
+    /* (non-Javadoc)
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override
@@ -196,29 +229,29 @@ public class WorkingMemoryTree extends JComponent
         }
     }
     
-    protected void paintComponentSafe(Graphics2D g2d)
+    private void doRowLayout(Graphics2D g2d)
     {
-        final ArrayDeque<Integer> currentIdMarkers = new ArrayDeque<Integer>();
-        
-        RootRow lastRoot = null;
-        boolean alternateRoot = true;
-        
         for(Row row : model.rows)
         {
             final int y = offset.y + row.row * getRowHeight();
-            
+            row.bounds = new Rectangle2D.Double(0, y, getWidth(), getRowHeight());
+        }
+    }
+    
+    private void paintComponentSafe(Graphics2D g2d)
+    {
+        doRowLayout(g2d);
+        
+        final ArrayDeque<Integer> currentIdMarkers = new ArrayDeque<Integer>();
+        
+        for(Row row : model.rows)
+        {
             final RootRow asRoot = row.asRoot();
             final WmeRow asWme = row.asWme();
             
-            if(asRoot != null && asRoot != lastRoot)
-            {
-                lastRoot = asRoot;
-                alternateRoot = !alternateRoot;
-            }
-            
             if(asRoot != null)
             {
-                paintRootRow(asRoot, g2d, y);
+                paintRootRow(asRoot, g2d);
                 continue;
             }
             
@@ -227,14 +260,8 @@ public class WorkingMemoryTree extends JComponent
             if(isRowSelected(asWme))
             {
                 g2d.setColor(selectionSubColor);
-                g2d.fillRect(0, y, getWidth(), getRowHeight());
+                g2d.fill(row.bounds);
             }
-            else if(alternateRoot)
-            {
-                g2d.setColor(alternateRootFillColor);
-                g2d.fillRect(0, y, getWidth(), getRowHeight());
-            }
-            
             
             final Integer lastMarker = currentIdMarkers.peekLast();
             boolean start = false;
@@ -249,127 +276,173 @@ public class WorkingMemoryTree extends JComponent
                 end = true;
                 currentIdMarkers.pop();
             }
+            
             final Stroke oldStroke = g2d.getStroke();
             g2d.setStroke(markerStroke);
-            g2d.setColor(idFillColor);
+            g2d.setColor(markerColor);
+            final int y = (int) row.bounds.getY();
             if(start)
             {
-                final int x = row.level * getIndent();
-                g2d.drawLine(x - 2, y, x + 3, y);
+                final int x = row.level * getIndent() + 2;
+                g2d.drawLine(x, y, x + 5, y);
             }
             for(Integer i : currentIdMarkers)
             {
-                final int x = i * getIndent();
-                g2d.drawLine(x - 2, y, x - 2, y + getRowHeight());
+                final int x = i * getIndent() + 2;
+                g2d.drawLine(x, y, x, y + getRowHeight());
             }
             if(end)
             {
-                final int x = lastMarker * getIndent();
-                g2d.drawLine(x - 2, y, x + 3, y);
+                final int x = lastMarker * getIndent() + 2;
+                g2d.drawLine(x, y, x + 5, y);
             }
             g2d.setStroke(oldStroke);
             
-            paintRow(g2d, asWme, y, currentIdMarkers);
-            
-            g2d.setColor(Color.BLACK);
-            //g2d.drawLine(0, y, getWidth(), y);
+            paintRow(g2d, asWme);
         }
     }
 
-
-    private void paintRootRow(final RootRow asRoot, Graphics2D g2d, final int y)
+    private Rectangle2D getCenteredTextBounds(Graphics2D g2d, String text, int x, int y)
     {
-        g2d.setColor(Color.BLACK);
-        g2d.setFont(rootFont);
         final int rowHeight = getRowHeight();
-        final String text = String.format("%s  (%d)", asRoot.id, asRoot.children.size());
         final Rectangle2D bounds = g2d.getFontMetrics().getStringBounds(text, g2d);
-        bounds.setFrame(5, y + (rowHeight / 2 - bounds.getHeight() / 2), bounds.getWidth(), bounds.getHeight());
+        bounds.setFrame(x, y + (rowHeight / 2 - bounds.getHeight() / 2), bounds.getWidth(), bounds.getHeight());
+        return bounds;
+    }
+    
+    private void paintRootRow(final RootRow asRoot, Graphics2D g2d)
+    {
+        g2d.setFont(rootFont);
+        final String text = String.format("%s", asRoot.id);
+        final Rectangle2D bounds = getCenteredTextBounds(g2d, text, 5, (int) asRoot.bounds.getY());
         
-        g2d.drawString(text, (int) bounds.getX(), (int) (bounds.getY() + bounds.getHeight()));
-        g2d.drawLine((int) bounds.getMaxX() + 10, (int) bounds.getMaxY(), 
-                      getWidth() - 10, (int) bounds.getMaxY());
+        g2d.setColor(rootRowFillColor);
+        g2d.fillRoundRect((int) asRoot.bounds.getX() + 2, (int) asRoot.bounds.getY() + 2, 
+                          (int) asRoot.bounds.getWidth() - 4, (int) asRoot.bounds.getHeight() - 4, 
+                          6, 6);
+        g2d.setColor(rootRowTextColor);
+        g2d.drawString(text, (int) bounds.getX(), 
+                      (int) (bounds.getMaxY() - g2d.getFontMetrics().getDescent()));
+        
+        if(asRoot.deleteButton.getParent() == null)
+        {
+            add(asRoot.deleteButton);
+            validate();
+            asRoot.deleteButton.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    remove(asRoot.deleteButton);
+                    validate();
+                    model.removeRoot(asRoot.id, repaint);
+                }
+            });
+        }
+        asRoot.deleteButton.setBounds((int) asRoot.bounds.getMaxX() - 30, (int) (asRoot.bounds.getCenterY() - 20 / 2), 20, 20);
     }
 
-    private void paintRow(Graphics2D g2d, WmeRow row, int y, ArrayDeque<Integer> currentIdMarkers)
+    private void paintRow(Graphics2D g2d, WmeRow row)
     {
-        final int startX = 5 + getIndent() * row.level; 
+        final int y = (int) row.bounds.getY();
         final int xpad = 15;
+        final int startX = 10 + getIndent() * row.level; 
         int x = startX;
+        
         row.idBounds = paintSymbol(g2d, row.id, row.id.toString(), x, y);
         x += row.idBounds.getWidth() + xpad;
+        
         row.attrBounds = paintSymbol(g2d, row.attr, "^" + row.attr.toString(), x, y);
         x += row.attrBounds.getWidth() + xpad;
+        
         for(WmeRow.Value value : row.values)
         {
             final String s = value.wme.getValue() + (value.wme.isAcceptable() ? " +" : "");
             value.bounds = paintSymbol(g2d, value.wme.getValue(), s, x, y);
+            
             if(isSelected(value.wme))
             {
-                final Stroke oldStroke = g2d.getStroke();
-                g2d.setStroke(selectionStroke);
-                final int fillPad = 4;
-                final int top = ((int) value.bounds.getY() - fillPad);
-                final int height = (int) value.bounds.getHeight() + fillPad * 2;
-                g2d.setColor(selectionColor);
-                g2d.drawRoundRect((int) value.bounds.getX() - fillPad, top, 
-                                  (int) value.bounds.getWidth() + fillPad * 2, height, 4, 4);
-                g2d.setStroke(oldStroke);
+                paintSelectionIndicator(g2d, value);
+            }
+            
+            if(model.isNew(value))
+            {
+                paintNewValueIndicator(g2d, value);
             }
             
             if(value.expanded)
             {
-                g2d.setColor(idFillColor);
-                g2d.fillArc((int) value.bounds.getX(), (int) value.bounds.getMaxY(), 
-                            (int) value.bounds.getWidth(), (int) (getRowHeight() - value.bounds.getHeight()), 
-                            45, 90);
+                paintExpandedIdIndicator(g2d, value);
             }
-            if(model.isNew(value))
-            {
-                final Stroke oldStroke = g2d.getStroke();
-                g2d.setColor(Color.ORANGE);
-                g2d.setStroke(newWmeStroke);
-                g2d.drawLine((int) value.bounds.getMinX(), (int) value.bounds.getMaxY() + 4, 
-                        (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 4);
-                g2d.drawLine((int) value.bounds.getMinX(), (int) value.bounds.getMaxY() + 8, 
-                        (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 8);
-                g2d.setStroke(oldStroke);
-            }
+            
             x += value.bounds.getWidth() + xpad;
         }
         
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(Integer.toString(row.row), getWidth() - 40, (int) (row.idBounds.getY() + row.idBounds.getHeight()));
+        // Debug
+//        g2d.setColor(Color.BLACK);
+//        g2d.drawString(Integer.toString(row.row), getWidth() - 40, (int) row.idBounds.getMaxY());
+    }
+
+    private void paintSelectionIndicator(Graphics2D g2d, WmeRow.Value value)
+    {
+        final Stroke oldStroke = g2d.getStroke();
+        g2d.setStroke(selectionStroke);
+        final int fillPad = 4;
+        final int top = ((int) value.bounds.getY() - fillPad);
+        final int height = (int) value.bounds.getHeight() + fillPad * 2;
+        g2d.setColor(selectionColor);
+        g2d.drawRoundRect((int) value.bounds.getX() - fillPad, top, 
+                          (int) value.bounds.getWidth() + fillPad * 2, height, 4, 4);
+        g2d.setStroke(oldStroke);
+    }
+
+    private void paintExpandedIdIndicator(Graphics2D g2d, WmeRow.Value value)
+    {
+        g2d.setColor(idFillColor);
+        g2d.fillArc((int) value.bounds.getX(), (int) value.bounds.getMaxY(), 
+                    (int) value.bounds.getWidth(), (int) (getRowHeight() - value.bounds.getHeight()), 
+                    45, 90);
+    }
+
+    private void paintNewValueIndicator(Graphics2D g2d, WmeRow.Value value)
+    {
+        final Stroke oldStroke = g2d.getStroke();
+        g2d.setColor(Color.ORANGE);
+        g2d.setStroke(newWmeStroke);
+        g2d.drawLine((int) value.bounds.getMinX(), (int) value.bounds.getMaxY() + 5, 
+                     (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 5);
+        g2d.setStroke(oldStroke);
+    }
+    
+    private Color getSymbolTextColor(Symbol sym)
+    {
+        if(sym.asIdentifier() != null)
+        {
+            return idTextColor;
+        }
+        else if(sym.asString() != null)
+        {
+            return stringTextColor;
+        }
+        else if(sym.asDouble() != null || sym.asInteger() != null)
+        {
+            return numberTextColor;
+        }
+        else
+        {
+            return otherTextColor;
+        }
     }
     
     private Rectangle2D paintSymbol(Graphics2D g2d, Symbol sym, String string, int x, int y)
     {
-        final int rowHeight = getRowHeight();
-        final Rectangle2D bounds = g2d.getFontMetrics().getStringBounds(string, g2d);
-        bounds.setFrame(x, y + (rowHeight / 2 - bounds.getHeight() / 2), bounds.getWidth(), bounds.getHeight());
+        final Rectangle2D bounds = getCenteredTextBounds(g2d, string, x, y);
         
-        final Identifier id = sym.asIdentifier();
-        final Color textColor;
-        if(id != null)
-        {
-            textColor = idTextColor;
-        }
-        else if(sym.asString() != null)
-        {
-            textColor = stringTextColor;
-        }
-        else if(sym.asDouble() != null || sym.asInteger() != null)
-        {
-            textColor = numberTextColor;
-        }
-        else
-        {
-            textColor = otherTextColor;
-        }
+        final Color textColor = getSymbolTextColor(sym);
 
-        if(id != null)
+        if(sym.asIdentifier() != null)
         {
-            g2d.setColor(id == symbolUnderMouse ? currentIdFillColor : idFillColor);
+            g2d.setColor(sym == symbolUnderMouse ? currentIdFillColor : idFillColor);
             final int fillPad = 3;
             g2d.fillRoundRect((int) bounds.getX() - fillPad, ((int) bounds.getY() - fillPad), 
                               (int) bounds.getWidth() + fillPad * 2, (int) bounds.getHeight() + fillPad * 2, 4, 4);
@@ -383,7 +456,7 @@ public class WorkingMemoryTree extends JComponent
         }
 
         g2d.setColor(textColor);
-        g2d.drawString(string, (int) bounds.getX(), (int) (bounds.getY() + bounds.getHeight()));
+        g2d.drawString(string, (int) bounds.getX(), (int) (bounds.getMaxY() - g2d.getFontMetrics().getDescent()));
         
         return bounds;
     }
@@ -552,10 +625,10 @@ public class WorkingMemoryTree extends JComponent
             @Override
             public Void call() throws Exception
             {
-//                SoarCommands.source(agent.getInterpreter(), 
-//                "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
                 SoarCommands.source(agent.getInterpreter(), 
-                "../jsoar-demos/demos/scripting/waterjugs-js.soar");
+                "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
+//                SoarCommands.source(agent.getInterpreter(), 
+//                "../jsoar-demos/demos/scripting/waterjugs-js.soar");
                 agent.getTrace().setEnabled(Category.WM_CHANGES, true);
                 agent.getAgent().runFor(1, RunType.DECISIONS);
                 agent.getAgent().runFor(2, RunType.PHASES);

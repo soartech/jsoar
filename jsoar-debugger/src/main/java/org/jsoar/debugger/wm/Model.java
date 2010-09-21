@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
@@ -158,7 +157,6 @@ class Model
     private void expandIdInternal(final Identifier id, final WmeRow.Value parent)
     {
         final RootRow root;
-        final int insertAt;
         if(parent == null)
         {
             if(!roots.containsKey(id))
@@ -175,12 +173,10 @@ class Model
             {
                 root = roots.get(id);
             }
-            insertAt = root.row + 1;
         }
         else
         {
             root = parent.row.root;
-            insertAt = parent.row.row + 1;
         }
         
         expandIdInternalHelper(id, root, parent);
