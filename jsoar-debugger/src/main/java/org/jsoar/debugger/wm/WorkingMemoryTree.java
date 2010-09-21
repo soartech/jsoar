@@ -64,9 +64,9 @@ public class WorkingMemoryTree extends JComponent
     private static final Stroke selectionStroke = new BasicStroke(2);
     private static final Stroke markerStroke = new BasicStroke(2);
     private final ThreadedAgent agent;
-    private final Set<Identifier> roots = new HashSet<Identifier>();
+    private final Map<Identifier, RootRow> roots = new HashMap<Identifier, RootRow>();
     private final ArrayList<Row> rows = new ArrayList<Row>();
-    private final Multimap<Wme, RowValue> wmeToRowValues = HashMultimap.create();
+    private final Multimap<Wme, WmeRow.Value> wmeToRowValues = HashMultimap.create();
     
     private Color alternateRootFillColor = new Color(248, 248, 248);
     private Color idTextColor = Color.BLACK;
@@ -128,40 +128,38 @@ public class WorkingMemoryTree extends JComponent
     
     public void addRoot(Identifier id)
     {
-        if(roots.contains(id))
+        if(roots.containsKey(id))
         {
             
         }
         else
         {
-            roots.add(id);
-            expandId(id, 0, 0);
+            final RootRow newRoot = new RootRow(id);
+            roots.put(id, newRoot);
+            rows.add(0, newRoot);
+            expandId(newRoot, id, null, 1);
         }
     }
     
     public void removeRoot(Identifier id)
     {
-        if(roots.remove(id))
+        final RootRow root = roots.remove(id);
+        if(root != null)
         {
-            final ListIterator<Row> it = rows.listIterator();
-            boolean inRoot = false;
+            final ListIterator<Row> it = rows.listIterator(root.row);
             while(it.hasNext())
             {
                 final Row row = it.next();
-                if((row.level == 0 && row.id == id) || (row.level > 0 && inRoot))
+                if(row.root == root)
                 {
-                    inRoot = true;
                     it.remove();
                     cleanupRow(row);
                 }
-                else if(row.level == 0 && inRoot)
+                else
                 {
                     row.row = it.previousIndex();
-                    break;
                 }
             }
-            
-            fixTrailingRowIndexes(it);
             
             repaint();
         }
@@ -189,9 +187,9 @@ public class WorkingMemoryTree extends JComponent
         return selectedWmes.contains(wme);
     }
 
-    private boolean isRowSelected(Row row)
+    private boolean isRowSelected(WmeRow row)
     {
-        for(RowValue v : row.values)
+        for(WmeRow.Value v : row.values)
         {
             if(isSelected(v.wme))
             {
@@ -214,20 +212,28 @@ public class WorkingMemoryTree extends JComponent
         final Graphics2D g2d = (Graphics2D) g;
         final ArrayDeque<Integer> currentIdMarkers = new ArrayDeque<Integer>();
         
-        Identifier lastRoot = null;
+        RootRow lastRoot = null;
         boolean alternateRoot = true;
         
         for(Row row : rows)
         {
             final int y = offset.y + row.row * getRowHeight();
             
-            if(row.level == 0 && row.id != lastRoot)
+            final RootRow asRoot = row.asRoot();
+            final WmeRow asWme = row.asWme();
+            
+            if(asRoot != null && asRoot != lastRoot)
             {
-                lastRoot = row.id;
+                lastRoot = asRoot;
                 alternateRoot = !alternateRoot;
             }
             
-            if(isRowSelected(row))
+            if(asRoot != null)
+            {
+                continue;
+            }
+            
+            if(isRowSelected(asWme))
             {
                 g2d.setColor(selectionSubColor);
                 g2d.fillRect(0, y, getWidth(), getRowHeight());
@@ -242,12 +248,12 @@ public class WorkingMemoryTree extends JComponent
             final Integer lastMarker = currentIdMarkers.peekLast();
             boolean start = false;
             boolean end = false;
-            if(row.id == symbolUnderMouse && (lastMarker == null || lastMarker < row.level))
+            if(asWme.id == symbolUnderMouse && (lastMarker == null || lastMarker < row.level))
             {
                 start = true;
                 currentIdMarkers.add(row.level);
             }
-            else if(row.id != symbolUnderMouse && lastMarker != null && lastMarker >= row.level)
+            else if(asWme.id != symbolUnderMouse && lastMarker != null && lastMarker >= row.level)
             {
                 end = true;
                 currentIdMarkers.pop();
@@ -272,14 +278,14 @@ public class WorkingMemoryTree extends JComponent
             }
             g2d.setStroke(oldStroke);
             
-            paintRow(g2d, row, y, currentIdMarkers);
+            paintRow(g2d, asWme, y, currentIdMarkers);
             
             g2d.setColor(Color.BLACK);
             //g2d.drawLine(0, y, getWidth(), y);
         }
     }
 
-    private void paintRow(Graphics2D g2d, Row row, int y, ArrayDeque<Integer> currentIdMarkers)
+    private void paintRow(Graphics2D g2d, WmeRow row, int y, ArrayDeque<Integer> currentIdMarkers)
     {
         final int startX = 5 + getIndent() * row.level; 
         final int xpad = 15;
@@ -288,7 +294,7 @@ public class WorkingMemoryTree extends JComponent
         x += row.idBounds.getWidth() + xpad;
         row.attrBounds = paintSymbol(g2d, row.attr, "^" + row.attr.toString(), x, y);
         x += row.attrBounds.getWidth() + xpad;
-        for(RowValue value : row.values)
+        for(WmeRow.Value value : row.values)
         {
             final String s = value.wme.getValue() + (value.wme.isAcceptable() ? " +" : "");
             value.bounds = paintSymbol(g2d, value.wme.getValue(), s, x, y);
@@ -366,7 +372,7 @@ public class WorkingMemoryTree extends JComponent
         return bounds;
     }
     
-    private void expandRow(Row row, RowValue v)
+    private void expandRow(WmeRow.Value v)
     {
         if(v.expanded)
         {
@@ -377,49 +383,48 @@ public class WorkingMemoryTree extends JComponent
         {
             return;
         }
-        expandId(valueId, row.level + 1, row.row + 1);
+        expandId(v.row.root, valueId, v, v.row.row + 1);
         v.expanded = true;
     }
     
-    private void expandId(final Identifier id, final int level, final int insertAt)
+    private void expandId(final RootRow root, final Identifier id, final WmeRow.Value parent, final int insertAt)
     {
-        final Callable<List<Row>> start = new Callable<List<Row>>()
+        final Callable<List<WmeRow>> start = new Callable<List<WmeRow>>()
         {
             @Override
-            public List<Row> call() throws Exception
+            public List<WmeRow> call() throws Exception
             {
-                final List<Row> result = new ArrayList<Row>();
+                final List<WmeRow> result = new ArrayList<WmeRow>();
                 if(id != null)
                 {
-                    final Map<Symbol, Row> rowMap = new HashMap<Symbol, Row>();
+                    final Map<Symbol, WmeRow> rowMap = new HashMap<Symbol, WmeRow>();
                     for(Iterator<Wme> it = id.getWmes(); it.hasNext();)
                     {
                         final Wme wme = it.next();
-                        Row newRow = rowMap.get(wme.getAttribute());
+                        WmeRow newRow = rowMap.get(wme.getAttribute());
                         if(newRow == null)
                         {
-                            newRow = new Row(level, wme.getIdentifier(), wme.getAttribute());
+                            newRow = new WmeRow(root, parent, wme.getIdentifier(), wme.getAttribute());
                             newRow.row = insertAt + result.size();
                             result.add(newRow);
                             rowMap.put(wme.getAttribute(), newRow);
                         }
-                        final RowValue newRowValue = new RowValue(newRow, wme);
-                        newRow.values.add(newRowValue);
+                        final WmeRow.Value newRowValue = newRow.addValue(wme);
                         wmeToRowValues.put(wme, newRowValue);
                     }
                 }
                 return result;
             }
         };
-        final CompletionHandler<List<Row>> finish = new CompletionHandler<List<Row>>()
+        final CompletionHandler<List<WmeRow>> finish = new CompletionHandler<List<WmeRow>>()
         {
             @Override
-            public void finish(List<Row> result)
+            public void finish(List<WmeRow> result)
             {
                 rows.addAll(insertAt, result);
                 for(int i = insertAt + result.size(); i < rows.size(); i++)
                 {
-                    rows.get(i).row += result.size();
+                    rows.get(i).row += result.size() + (parent != null ? 0 : 1);
                 }
                 assert rowIndexesAreValid();
                 repaint();
@@ -428,7 +433,7 @@ public class WorkingMemoryTree extends JComponent
         agent.execute(start, SwingCompletionHandler.newInstance(finish));
     }
     
-    private void removeRowAndChildren(Row row)
+    private void removeRowAndChildren(WmeRow row)
     {
         final ListIterator<Row> it = rows.listIterator(row.row);
         cleanupRow(row);
@@ -452,35 +457,41 @@ public class WorkingMemoryTree extends JComponent
         fixTrailingRowIndexes(it);
     }
     
-    private void collapseRow(Row row, RowValue value)
+    private void collapseRow(WmeRow.Value value)
     {
         if(!value.expanded)
         {
             return;
         }
         
-        final ListIterator<Row> it = rows.listIterator(row.row + 1);
+        final ListIterator<Row> it = rows.listIterator(value.row.row + 1);
         boolean inSubRow = false;
         while(it.hasNext())
         {
             final Row subRow = it.next();
-            if(subRow.id == value.wme.getValue() && subRow.level == row.level + 1)
+            final WmeRow asWme = subRow.asWme();
+            if(asWme == null)
+            {
+                subRow.row = it.previousIndex();
+                break;
+            }
+            else if(asWme.id == value.wme.getValue() && subRow.level == value.row.level + 1)
             {
                 it.remove();
                 cleanupRow(subRow);
                 inSubRow = true;
             }
-            else if(inSubRow && subRow.level > row.level + 1)
+            else if(inSubRow && subRow.level > value.row.level + 1)
             {
                 cleanupRow(subRow);
                 it.remove();
             }
-            else if(inSubRow && subRow.level == row.level + 1)
+            else if(inSubRow && subRow.level == value.row.level + 1)
             {
                 inSubRow = false;
                 subRow.row = it.previousIndex();
             }
-            else if(subRow.level <= row.level)
+            else if(subRow.level <= value.row.level)
             {
                 subRow.row = it.previousIndex();
                 break;
@@ -497,9 +508,13 @@ public class WorkingMemoryTree extends JComponent
 
     private void cleanupRow(Row row)
     {
-        for(RowValue value : row.values)
+        final WmeRow wmeRow = row.asWme();
+        if(wmeRow != null)
         {
-            wmeToRowValues.remove(value.wme, value);
+            for(WmeRow.Value value : wmeRow.values)
+            {
+                wmeToRowValues.remove(value.wme, value);
+            }
         }
     }
     
@@ -561,22 +576,23 @@ public class WorkingMemoryTree extends JComponent
         final Point p = e.getPoint();
         final Row row = getRowAtPoint(p);
         boolean repaint = false;
-        if(row != null)
+        if(row != null && row.asWme() != null)
         {
-            if(row.idBounds.contains(p))
+            final WmeRow asWme = row.asWme();
+            if(asWme.idBounds.contains(p))
             {
-                repaint = symbolUnderMouse != row.id;
-                symbolUnderMouse = row.id;
+                repaint = symbolUnderMouse != asWme.id;
+                symbolUnderMouse = asWme.id;
             }
-            else if(row.attrBounds.contains(p))
+            else if(asWme.attrBounds.contains(p))
             {
-                repaint = symbolUnderMouse != row.attr;
-                symbolUnderMouse = row.attr;
+                repaint = symbolUnderMouse != asWme.attr;
+                symbolUnderMouse = asWme.attr;
             }
             else
             {
                 Symbol value = null;
-                for(RowValue v : row.values)
+                for(WmeRow.Value v : asWme.values)
                 {
                     if(v.bounds.contains(p))
                     {
@@ -606,19 +622,20 @@ public class WorkingMemoryTree extends JComponent
         final boolean doubleClick = e.getClickCount() == 2;
         
         final Row row = getRowAtPoint(e.getPoint());
-        if(row != null)
+        if(row != null && row.asWme() != null)
         {
-            for(RowValue value : row.values)
+            final WmeRow asWme = row.asWme();
+            for(WmeRow.Value value : asWme.values)
             {
                 if(value.bounds.contains(e.getPoint()))
                 {
                     if(SwingUtilities.isLeftMouseButton(e) && doubleClick)
                     {
-                        rowValueDoubleClicked(row, value);
+                        rowValueDoubleClicked(value);
                     }
                     else if(SwingUtilities.isLeftMouseButton(e) && singleClick)
                     {
-                        rowValueSingleClicked(e, row, value);
+                        rowValueSingleClicked(e, value);
                     }
                     return;
                 }
@@ -630,7 +647,7 @@ public class WorkingMemoryTree extends JComponent
             }
             if(SwingUtilities.isLeftMouseButton(e) && doubleClick)
             {
-                expandOrCollapseRow(row);
+                expandOrCollapseRow(asWme);
             }
         }
         else
@@ -643,10 +660,10 @@ public class WorkingMemoryTree extends JComponent
         }
     }
 
-    private void expandOrCollapseRow(Row row)
+    private void expandOrCollapseRow(WmeRow row)
     {
         boolean expanded = false;
-        for(RowValue v : row.values)
+        for(WmeRow.Value v : row.values)
         {
             if(v.expanded)
             {
@@ -657,21 +674,21 @@ public class WorkingMemoryTree extends JComponent
         
         if(expanded)
         {
-            for(RowValue v : row.values)
+            for(WmeRow.Value v : row.values)
             {
-                collapseRow(row, v);
+                collapseRow(v);
             }
         }
         else
         {
-            for(RowValue v : row.values)
+            for(WmeRow.Value v : row.values)
             {
-                expandRow(row, v);
+                expandRow(v);
             }
         }
     }
 
-    private void rowValueSingleClicked(MouseEvent e, Row row, RowValue value)
+    private void rowValueSingleClicked(MouseEvent e, WmeRow.Value value)
     {
         if(e.isControlDown())
         {
@@ -688,18 +705,18 @@ public class WorkingMemoryTree extends JComponent
         repaint();
     }
 
-    private void rowValueDoubleClicked(final Row row, RowValue value)
+    private void rowValueDoubleClicked(WmeRow.Value value)
     {
         final Identifier valueId = value.wme.getValue().asIdentifier();
         if(valueId != null)
         {
             if(!value.expanded)
             {
-                expandRow(row, value);
+                expandRow(value);
             }
             else
             {
-                collapseRow(row, value);
+                collapseRow(value);
             }
             repaint();
         }
@@ -719,17 +736,17 @@ public class WorkingMemoryTree extends JComponent
         
         for(Wme wme : removedWmes)
         {
-            final Collection<RowValue> values = wmeToRowValues.removeAll(wme);
-            for(RowValue value : values)
+            final Collection<WmeRow.Value> values = wmeToRowValues.removeAll(wme);
+            for(WmeRow.Value value : values)
             {
-                final Row containingRow = value.row;
+                final WmeRow containingRow = value.row;
                 if(containingRow.values.size() == 1)
                 {
                     removeRowAndChildren(containingRow);
                 }
                 else
                 {
-                    collapseRow(containingRow, value);
+                    collapseRow(value);
                     value.row.values.remove(value);
                 }
             }
@@ -738,12 +755,12 @@ public class WorkingMemoryTree extends JComponent
     
     private void updateWmeChildren(Wme wme)
     {
-        for(RowValue rv : new ArrayList<RowValue>(wmeToRowValues.get(wme)))
+        for(WmeRow.Value rv : new ArrayList<WmeRow.Value>(wmeToRowValues.get(wme)))
         {
             if(rv.expanded)
             {
-                collapseRow(rv.row, rv);
-                expandRow(rv.row, rv);
+                collapseRow(rv);
+                expandRow(rv);
             }
         }
     }
@@ -788,41 +805,6 @@ public class WorkingMemoryTree extends JComponent
         agent.execute(begin, SwingCompletionHandler.newInstance(end));
     }
     
-    private static class Row
-    {
-        private final int level;
-        private int row;
-        
-        private final Identifier id;
-        private Rectangle2D idBounds;
-        
-        private final Symbol attr;
-        private Rectangle2D attrBounds;
-        
-        private final List<RowValue> values = new ArrayList<RowValue>();
-
-        public Row(int level, Identifier id, Symbol attr)
-        {
-            this.level = level;
-            this.id = id;
-            this.attr = attr;
-        }
-    }
-    
-    private static class RowValue
-    {
-        private final Row row;
-        private final Wme wme;
-        private boolean expanded;
-        private Rectangle2D bounds;
-
-        public RowValue(Row row, Wme wme)
-        {
-            this.row = row;
-            this.wme = wme;
-        }
-    }
-    
     public static void swingMain() throws Exception
     {
         final JFrame f = new JFrame();
@@ -855,7 +837,7 @@ public class WorkingMemoryTree extends JComponent
                 final Identifier id = Symbols.parseIdentifier(agent.getSymbols(), idField.getText());
                 if(id != null)
                 {
-                    if(!tree.roots.contains(id))
+                    if(!tree.roots.containsKey(id))
                     {
                         tree.addRoot(id);
                     }
