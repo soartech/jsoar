@@ -485,7 +485,6 @@ public class WorkingMemoryTree extends JComponent
         {
             offset.y = getHeight() - totalHeight;
         }
-        System.out.println(offset);
         
         repaint();
         lastMouseDragPoint = p;
