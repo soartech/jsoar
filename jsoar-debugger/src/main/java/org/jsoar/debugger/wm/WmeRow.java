@@ -7,7 +7,9 @@ package org.jsoar.debugger.wm;
 
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
@@ -42,24 +44,54 @@ class WmeRow extends Row
         return this;
     }
 
-    public Value addValue(Wme wme)
+    public Value getValue(Wme wme)
     {
-        final Value value = new Value(this, wme);
+        for(Value value : values)
+        {
+            if(wme == value.wme)
+            {
+                return value;
+            }
+        }
+        return null;
+    }
+    
+    public Value addValue(long ts, Wme wme)
+    {
+        final Value value = new Value(ts, this, wme);
         values.add(value);
         return value;
     }
     
     static class Value
     {
+        final long ts;
         final WmeRow row;
         final Wme wme;
         boolean expanded;
+        final Map<Symbol, WmeRow> children = new HashMap<Symbol, WmeRow>();
         Rectangle2D bounds;
 
-        private Value(WmeRow row, Wme wme)
+        private Value(long ts, WmeRow row, Wme wme)
         {
+            this.ts = ts;
             this.row = row;
             this.wme = wme;
+        }
+        
+        public WmeRow addChild(RootRow root, Identifier id, Symbol attr)
+        {
+            final WmeRow newRow = new WmeRow(root, this, id, attr);
+            if(null != children.put(attr, newRow))
+            {
+                throw new IllegalStateException("Multiple children with same attribute!");
+            }
+            return newRow;
+        }
+        
+        public void removeChild(WmeRow child)
+        {
+            children.remove(child.attr);
         }
     }
 }

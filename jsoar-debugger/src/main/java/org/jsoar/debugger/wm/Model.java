@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import org.jsoar.debugger.wm.WmeRow.Value;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -35,10 +36,16 @@ class Model
     final Map<Identifier, RootRow> roots = new HashMap<Identifier, RootRow>();
     final ArrayList<Row> rows = new ArrayList<Row>();
     final Multimap<Wme, WmeRow.Value> wmeToRowValues = HashMultimap.create();
+    long ts = 0;
     
     public Model(ThreadedAgent agent)
     {
         this.agent = agent;
+    }
+    
+    public boolean isNew(WmeRow.Value v)
+    {
+        return v.ts == ts;
     }
     
     public boolean hasRoot(Identifier id)
@@ -59,6 +66,7 @@ class Model
             }
             else
             {
+                ts++;
                 expandId(id, null, finish);
             }
         }
@@ -71,6 +79,7 @@ class Model
             final RootRow root = roots.remove(id);
             if(root != null)
             {
+                ts++;
                 final ListIterator<Row> it = rows.listIterator(root.row);
                 while(it.hasNext())
                 {
@@ -112,16 +121,61 @@ class Model
         }
     }
     
+    private void expandIdInternalHelper(Identifier id, RootRow root, WmeRow.Value parent)
+    {
+        for(Iterator<Wme> it = id.getWmes(); it.hasNext();)
+        {
+            final Wme wme = it.next();
+            final Identifier wmeId = wme.getIdentifier();
+            final Symbol wmeAttr = wme.getAttribute();
+            WmeRow newRow = parent != null ? parent.children.get(wmeAttr) : root.children.get(wmeAttr);
+            
+            if(newRow == null)
+            {
+                newRow = parent != null ? parent.addChild(root, wmeId, wmeAttr) : root.addChild(wmeId, wmeAttr);
+                newRow.row = (parent != null ? parent.row.row : root.row) + 1;
+                rows.add(newRow.row, newRow);
+                
+                for(int i = newRow.row + 1; i < rows.size(); i++)
+                {
+                    final Row followingRow = rows.get(i);
+                    followingRow.row = i;
+                }
+            }
+
+            final Value existingValue = newRow.getValue(wme);
+            if(existingValue == null)
+            {
+                wmeToRowValues.put(wme, newRow.addValue(ts, wme));
+            }
+            else if(existingValue.expanded)
+            {
+                expandIdInternalHelper(wme.getValue().asIdentifier(), root, existingValue);
+            }
+        }
+    }
+    
     private void expandIdInternal(final Identifier id, final WmeRow.Value parent)
     {
         final RootRow root;
         final int insertAt;
         if(parent == null)
         {
-            root = new RootRow(id);
-            roots.put(id, root);
-            rows.add(0, root);
-            insertAt = 1;
+            if(!roots.containsKey(id))
+            {
+                root = new RootRow(id);
+                roots.put(id, root);
+                rows.add(0, root);
+                if(parent != null)
+                {
+                    parent.row.row++;
+                }
+            }
+            else
+            {
+                root = roots.get(id);
+            }
+            insertAt = root.row + 1;
         }
         else
         {
@@ -129,27 +183,11 @@ class Model
             insertAt = parent.row.row + 1;
         }
         
-        final List<WmeRow> newRows = new ArrayList<WmeRow>();
-        final Map<Symbol, WmeRow> rowMap = new HashMap<Symbol, WmeRow>();
-        for(Iterator<Wme> it = id.getWmes(); it.hasNext();)
-        {
-            final Wme wme = it.next();
-            WmeRow newRow = rowMap.get(wme.getAttribute());
-            if(newRow == null)
-            {
-                newRow = new WmeRow(root, parent, wme.getIdentifier(), wme.getAttribute());
-                newRow.row = insertAt + newRows.size();
-                newRows.add(newRow);
-                rowMap.put(wme.getAttribute(), newRow);
-            }
-            final WmeRow.Value newRowValue = newRow.addValue(wme);
-            wmeToRowValues.put(wme, newRowValue);
-        }
+        expandIdInternalHelper(id, root, parent);
         
-        rows.addAll(insertAt, newRows);
-        for(int i = insertAt + newRows.size(); i < rows.size(); i++)
+        for(int i = 0; i < rows.size(); i++)
         {
-            rows.get(i).row += newRows.size() + (parent != null ? 0 : 1);
+            rows.get(i).row = i;
         }
         assert rowIndexesAreValid();
     }
@@ -293,6 +331,15 @@ class Model
             final WmeRow wmeRow = row.asWme();
             if(wmeRow != null)
             {
+                if(wmeRow.parent != null)
+                {
+                    wmeRow.parent.removeChild(wmeRow);
+                }
+                else
+                {
+                    wmeRow.root.removeChild(wmeRow);
+                }
+                
                 for(WmeRow.Value value : wmeRow.values)
                 {
                     wmeToRowValues.remove(value.wme, value);
@@ -349,9 +396,7 @@ class Model
         {
             if(rv.expanded)
             {
-                collapseRow(rv, null);
                 expandIdInternal(rv.wme.getValue().asIdentifier(), rv);
-                rv.expanded = true;
             }
         }
     }
@@ -370,6 +415,10 @@ class Model
                 updateWmeChildren(wme);
             }
         }
+        for(RootRow root : roots.values())
+        {
+            expandIdInternal(root.id, null);
+        }
     }
     
     public void update(CompletionHandler<Void> finish)
@@ -381,6 +430,7 @@ class Model
             {
                 synchronized(lock)
                 {
+                    ts++;
                     updateRemovedWmes();
                     updateAddedWmes();
                 }

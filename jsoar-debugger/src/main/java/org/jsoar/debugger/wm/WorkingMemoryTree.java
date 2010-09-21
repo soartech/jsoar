@@ -18,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.io.OutputStreamWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.Symbols;
+import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.runtime.CompletionHandler;
 import org.jsoar.runtime.SwingCompletionHandler;
 import org.jsoar.runtime.ThreadedAgent;
@@ -54,6 +56,7 @@ public class WorkingMemoryTree extends JComponent
     private static final Font rootFont = Font.decode("Arial-BOLD").deriveFont(font.getSize() * 1.7f);
     private static final Stroke selectionStroke = new BasicStroke(2);
     private static final Stroke markerStroke = new BasicStroke(2);
+    private static final Stroke newWmeStroke = new BasicStroke(2);
 
     private final Model model;
     
@@ -279,11 +282,13 @@ public class WorkingMemoryTree extends JComponent
         g2d.setColor(Color.BLACK);
         g2d.setFont(rootFont);
         final int rowHeight = getRowHeight();
-        final String text = asRoot.id.toString();
+        final String text = String.format("%s  (%d)", asRoot.id, asRoot.children.size());
         final Rectangle2D bounds = g2d.getFontMetrics().getStringBounds(text, g2d);
         bounds.setFrame(5, y + (rowHeight / 2 - bounds.getHeight() / 2), bounds.getWidth(), bounds.getHeight());
         
         g2d.drawString(text, (int) bounds.getX(), (int) (bounds.getY() + bounds.getHeight()));
+        g2d.drawLine((int) bounds.getMaxX() + 10, (int) bounds.getMaxY(), 
+                      getWidth() - 10, (int) bounds.getMaxY());
     }
 
     private void paintRow(Graphics2D g2d, WmeRow row, int y, ArrayDeque<Integer> currentIdMarkers)
@@ -319,7 +324,17 @@ public class WorkingMemoryTree extends JComponent
                             (int) value.bounds.getWidth(), (int) (getRowHeight() - value.bounds.getHeight()), 
                             45, 90);
             }
-            
+            if(model.isNew(value))
+            {
+                final Stroke oldStroke = g2d.getStroke();
+                g2d.setColor(Color.ORANGE);
+                g2d.setStroke(newWmeStroke);
+                g2d.drawLine((int) value.bounds.getMinX(), (int) value.bounds.getMaxY() + 4, 
+                        (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 4);
+                g2d.drawLine((int) value.bounds.getMinX(), (int) value.bounds.getMaxY() + 8, 
+                        (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 8);
+                g2d.setStroke(oldStroke);
+            }
             x += value.bounds.getWidth() + xpad;
         }
         
@@ -526,14 +541,13 @@ public class WorkingMemoryTree extends JComponent
         }
     }
     
-
-    
     public static void swingMain() throws Exception
     {
         final JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         final ThreadedAgent agent = ThreadedAgent.create();
+        agent.getPrinter().addPersistentWriter(new OutputStreamWriter(System.out));
         agent.executeAndWait(new Callable<Void>() {
             @Override
             public Void call() throws Exception
@@ -542,6 +556,7 @@ public class WorkingMemoryTree extends JComponent
 //                "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
                 SoarCommands.source(agent.getInterpreter(), 
                 "../jsoar-demos/demos/scripting/waterjugs-js.soar");
+                agent.getTrace().setEnabled(Category.WM_CHANGES, true);
                 agent.getAgent().runFor(1, RunType.DECISIONS);
                 agent.getAgent().runFor(2, RunType.PHASES);
                 return null;

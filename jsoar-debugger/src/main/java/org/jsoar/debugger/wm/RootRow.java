@@ -5,7 +5,11 @@
  */
 package org.jsoar.debugger.wm;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.Symbol;
 
 /**
  * @author ray
@@ -13,6 +17,7 @@ import org.jsoar.kernel.symbols.Identifier;
 class RootRow extends Row
 {
     final Identifier id;
+    final Map<Symbol, WmeRow> children = new HashMap<Symbol, WmeRow>();
 
     public RootRow(Identifier id)
     {
@@ -29,4 +34,20 @@ class RootRow extends Row
     {
         return this;
     }
+    
+    public WmeRow addChild(Identifier id, Symbol attr)
+    {
+        final WmeRow newRow = new WmeRow(this, null, id, attr);
+        if(null != children.put(attr, newRow))
+        {
+            throw new IllegalStateException("Multiple children with same attribute!");
+        }
+        return newRow;
+    }
+
+    public void removeChild(WmeRow child)
+    {
+        children.remove(child.attr);
+    }
+
 }
