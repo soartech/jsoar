@@ -33,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import org.jsoar.debugger.selection.SelectionManager;
+import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
@@ -52,15 +54,15 @@ public class WorkingMemoryTree extends JComponent
 {
     private static final long serialVersionUID = 8031999540064492987L;
 
-    private static final Font font = Font.decode("Arial-BOLD");
-    private static final Font rootFont = Font.decode("Arial-BOLD").deriveFont(font.getSize() * 1.7f);
-    private static final Font rootNoteFont = rootFont.deriveFont(rootFont.getSize() * 0.7f);
     private static final Stroke selectionStroke = new BasicStroke(2);
     private static final Stroke markerStroke = new BasicStroke(2);
     private static final Stroke newWmeStroke = new BasicStroke(3);
 
     private final Model model;
     
+    private final Font font;
+    private final Font rootFont;
+    private final Font rootNoteFont;
     private Color rootRowFillColor = new Color(192, 192, 192);
     private Color rootRowTextColor = Color.WHITE;
     private Color idTextColor = Color.BLACK;
@@ -75,7 +77,9 @@ public class WorkingMemoryTree extends JComponent
     
     private Symbol symbolUnderMouse = null;
     private final List<Wme> selectedWmes = new ArrayList<Wme>();
+    private final Provider selectionProvider = new Provider();
     
+    private int rowHeight = 26;
     private Point offset = new Point();
     private Point lastMouseDragPoint = null;
     
@@ -91,7 +95,12 @@ public class WorkingMemoryTree extends JComponent
     public WorkingMemoryTree(ThreadedAgent agent)
     {
         setLayout(null);
-        this.model = new Model(agent);
+        
+        font = Font.decode("Arial-BOLD-10");
+        rootFont = font.deriveFont(font.getSize() * 1.5f);
+        rootNoteFont = rootFont.deriveFont(rootFont.getSize() * 0.7f);
+
+        this.model = new Model(agent, getTreeLock());
 
         setFont(font);
         setBackground(Color.WHITE);
@@ -147,6 +156,25 @@ public class WorkingMemoryTree extends JComponent
         });
     }
     
+    /**
+     * @return selection provider for the tree
+     */
+    public SelectionProvider getSelectionProvider() { return selectionProvider; }
+    
+    public void updateModel()
+    {
+        model.update(repaint);
+    }
+    
+    public void addRoot(Object key)
+    {
+        model.addRoot(key, repaint);
+    }
+    
+    public void removeRoot(Object key)
+    {
+        model.removeRoot(key, repaint);
+    }
     
     private int getIndent()
     {
@@ -155,7 +183,7 @@ public class WorkingMemoryTree extends JComponent
     
     private int getRowHeight()
     {
-        return 25;
+        return rowHeight;
     }
     
     private Row getRowAtPoint(Point p)
@@ -230,8 +258,10 @@ public class WorkingMemoryTree extends JComponent
     protected void paintComponent(Graphics g)
     {
         SwingTools.enableAntiAliasing(g);
+        g.setFont(getFont());
         g.setColor(getBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
+        rowHeight = g.getFontMetrics().getHeight() * 2;
         
         final Graphics2D g2d = (Graphics2D) g;
         
@@ -613,6 +643,7 @@ public class WorkingMemoryTree extends JComponent
             if(SwingUtilities.isLeftMouseButton(e))
             {
                 selectedWmes.clear();
+                selectionProvider.selectionChanged();
                 repaint();
             }
             if(SwingUtilities.isLeftMouseButton(e) && doubleClick)
@@ -625,6 +656,7 @@ public class WorkingMemoryTree extends JComponent
             if(SwingUtilities.isLeftMouseButton(e))
             {
                 selectedWmes.clear();
+                selectionProvider.selectionChanged();
                 repaint();
             }
         }
@@ -644,6 +676,7 @@ public class WorkingMemoryTree extends JComponent
             selectedWmes.clear();
             selectedWmes.add(value.wme);
         }
+        selectionProvider.selectionChanged();
         repaint();
     }
 
@@ -661,6 +694,43 @@ public class WorkingMemoryTree extends JComponent
                 model.collapseRow(value, repaint);
             }
             repaint();
+        }
+    }
+    
+    private class Provider implements SelectionProvider
+    {
+        private SelectionManager manager;
+        
+        public void selectionChanged()
+        {
+            if(manager != null)
+            {
+                manager.fireSelectionChanged();
+            }
+        }
+        
+        @Override
+        public void activate(SelectionManager manager)
+        {
+            this.manager = manager;
+        }
+
+        @Override
+        public void deactivate()
+        {
+            this.manager = null;
+        }
+
+        @Override
+        public Object getSelectedObject()
+        {
+            return !selectedWmes.isEmpty() ? selectedWmes.get(0) : null;
+        }
+
+        @Override
+        public List<Object> getSelection()
+        {
+            return new ArrayList<Object>(selectedWmes);
         }
     }
     

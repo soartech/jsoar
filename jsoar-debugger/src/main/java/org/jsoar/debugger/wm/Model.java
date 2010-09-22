@@ -31,16 +31,17 @@ import com.google.common.collect.Multimap;
  */
 class Model
 {
-    final Object lock = new String("WorkingMemoryTreeLock");
+    final Object lock;
     final ThreadedAgent agent;
     final Map<Object, RootRow> roots = new HashMap<Object, RootRow>();
     final ArrayList<Row> rows = new ArrayList<Row>();
     final Multimap<Wme, WmeRow.Value> wmeToRowValues = HashMultimap.create();
     long ts = 0;
     
-    public Model(ThreadedAgent agent)
+    public Model(ThreadedAgent agent, Object lock)
     {
         this.agent = agent;
+        this.lock = lock;
     }
     
     public boolean isNew(WmeRow.Value v)
@@ -194,7 +195,7 @@ class Model
             root = parent.row.root;
         }
         
-        expandIdInternalHelper(root.getId(), root, parent);
+        expandIdInternalHelper(id instanceof Identifier ? (Identifier) id : root.getId(), root, parent);
         
         for(int i = 0; i < rows.size(); i++)
         {
