@@ -52,11 +52,13 @@ import org.jsoar.util.commands.SoarCommands;
  */
 public class WorkingMemoryTree extends JComponent
 {
+
     private static final long serialVersionUID = 8031999540064492987L;
 
     private static final Stroke selectionStroke = new BasicStroke(2);
     private static final Stroke markerStroke = new BasicStroke(2);
     private static final Stroke newWmeStroke = new BasicStroke(3);
+    private static final Color newWmeColor = Color.GREEN.darker();
 
     private final Model model;
     
@@ -229,7 +231,7 @@ public class WorkingMemoryTree extends JComponent
             {
                 for(WmeRow.Value v : wmeRow.values)
                 {
-                    if(v.bounds.contains(p))
+                    if(v.bounds != null && v.bounds.contains(p))
                     {
                         return String.format("%#s, timetag: %d", v.wme, v.wme.getTimetag());
                     }
@@ -488,10 +490,19 @@ public class WorkingMemoryTree extends JComponent
     private void paintNewValueIndicator(Graphics2D g2d, WmeRow.Value value)
     {
         final Stroke oldStroke = g2d.getStroke();
-        g2d.setColor(Color.ORANGE);
+        // Underline...
+        //g2d.setColor(Color.ORANGE);
+        //g2d.setStroke(newWmeStroke);
+        //g2d.drawLine((int) value.bounds.getMinX(), (int) value.bounds.getMaxY() + 5, 
+        //             (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 5);
+        
+        // "plus" in upper right corner
+        g2d.setColor(newWmeColor);
         g2d.setStroke(newWmeStroke);
-        g2d.drawLine((int) value.bounds.getMinX(), (int) value.bounds.getMaxY() + 5, 
-                     (int) value.bounds.getMaxX(), (int) value.bounds.getMaxY() + 5);
+        final Point c = new Point((int) value.bounds.getMaxX() + 2, (int) value.bounds.getMinY() - 2);
+        g2d.drawLine(c.x - 3, c.y, c.x + 3, c.y);
+        g2d.drawLine(c.x, c.y - 3, c.x, c.y + 3);
+        
         g2d.setStroke(oldStroke);
     }
     
@@ -797,6 +808,8 @@ public class WorkingMemoryTree extends JComponent
         
         panel.add(new JButton(new AbstractAction("Step")
         {
+            private static final long serialVersionUID = -3480585677989449955L;
+
             @Override
             public void actionPerformed(ActionEvent e)
             {

@@ -71,7 +71,7 @@ class Model
             else
             {
                 ts++;
-                expandId(id, null, finish);
+                expandId(id, null, timeIncrementCompletionHandler(finish));
             }
         }
     }
@@ -125,7 +125,7 @@ class Model
             {
                 return;
             }
-            expandId(valueId, v, finish);
+            expandId(valueId, v, timeIncrementCompletionHandler(finish));
             v.expanded = true;
         }
     }
@@ -493,5 +493,20 @@ class Model
                 }
             };
         }
+    }
+    
+    private CompletionHandler<Void> timeIncrementCompletionHandler(final CompletionHandler<Void> inner)
+    {
+        return new CompletionHandler<Void>() {
+            @Override
+            public void finish(Void result)
+            {
+                ts++;
+                if(inner != null) {
+                    inner.finish(result);
+                }
+            }
+            
+        };
     }
 }
