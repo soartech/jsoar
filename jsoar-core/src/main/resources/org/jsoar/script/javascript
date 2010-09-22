@@ -136,6 +136,16 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
     },
     
     /**
+     * Remove an input wme. Equivalent to <code>wme.remove()</code>.
+     * It's ok for wme to be null or undefined.
+     */
+    remove : function(wme) {
+      if(wme) {
+        wme.remove();
+      }
+    },
+    
+    /**
      * Convert a tree of WMEs from a particular identifier into a JavaScript
      * object. Does not handle multi-attributes
      *
