@@ -65,7 +65,7 @@ public class WorkingMemoryTree extends JComponent
     private Color idTextColor = Color.BLACK;
     private Color idFillColor = new Color(192, 192, 192);
     private Color currentIdFillColor = new Color(225, 225, 225);
-    private Color stringTextColor = new Color(0, 200, 0);
+    private Color stringTextColor = new Color(0, 125, 0);
     private Color numberTextColor = new Color(0, 0, 200);
     private Color otherTextColor = Color.YELLOW;
     private Color selectionColor = new Color(0, 0, 255);
@@ -154,7 +154,7 @@ public class WorkingMemoryTree extends JComponent
     
     private int getRowHeight()
     {
-        return 30;
+        return 25;
     }
     
     private Row getRowAtPoint(Point p)
@@ -205,6 +205,17 @@ public class WorkingMemoryTree extends JComponent
                         return String.format("%#s, timetag: %d", v.wme, v.wme.getTimetag());
                     }
                 }
+                
+                final StringBuilder b = new StringBuilder("<html>");
+                final int n = wmeRow.values.size();
+                b.append(String.format("<b>%s ^%s</b><br>", wmeRow.id, wmeRow.attr));
+                b.append(n + " working memory element" + (n != 1 ? "s" : ""));
+                for(WmeRow.Value v : wmeRow.values)
+                {
+                    b.append(String.format("<br>- %#s, timetag: %d", v.wme, v.wme.getTimetag()));
+                }
+                b.append("</html>");
+                return b.toString();
             }
             return super.getToolTipText(event);
         }
@@ -624,10 +635,13 @@ public class WorkingMemoryTree extends JComponent
             @Override
             public Void call() throws Exception
             {
-                SoarCommands.source(agent.getInterpreter(), 
-                "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
 //                SoarCommands.source(agent.getInterpreter(), 
-//                "../jsoar-demos/demos/scripting/waterjugs-js.soar");
+//                "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
+                agent.getInterpreter().eval(
+                "sp {test (state <s> ^superstate nil) --> (<s> ^<s> <s>)" +
+                "(<s> ^55 hi) (<s> ^(random-float) yum)}");
+                SoarCommands.source(agent.getInterpreter(), 
+                "../jsoar-demos/demos/scripting/waterjugs-js.soar");
                 agent.getTrace().setEnabled(Category.WM_CHANGES, true);
                 agent.getAgent().runFor(1, RunType.DECISIONS);
                 agent.getAgent().runFor(2, RunType.PHASES);
