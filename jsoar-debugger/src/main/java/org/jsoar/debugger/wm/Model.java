@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.jsoar.debugger.wm.WmeRow.Value;
+import org.jsoar.kernel.memory.ContextVariableInfo;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.Symbol;
@@ -32,7 +33,7 @@ class Model
 {
     final Object lock = new String("WorkingMemoryTreeLock");
     final ThreadedAgent agent;
-    final Map<Identifier, RootRow> roots = new HashMap<Identifier, RootRow>();
+    final Map<Object, RootRow> roots = new HashMap<Object, RootRow>();
     final ArrayList<Row> rows = new ArrayList<Row>();
     final Multimap<Wme, WmeRow.Value> wmeToRowValues = HashMultimap.create();
     long ts = 0;
@@ -47,7 +48,7 @@ class Model
         return v.ts == ts;
     }
     
-    public boolean hasRoot(Identifier id)
+    public boolean hasRoot(Object id)
     {
         synchronized(lock)
         {
@@ -58,7 +59,7 @@ class Model
     public boolean isInputLink(Identifier id) { return agent.getInputOutput().getInputLink() == id; }
     public boolean isOutputLink(Identifier id) { return agent.getInputOutput().getOutputLink() == id; }
     
-    public void addRoot(Identifier id, CompletionHandler<Void> finish)
+    public void addRoot(Object id, CompletionHandler<Void> finish)
     {
         synchronized(lock)
         {
@@ -74,7 +75,7 @@ class Model
         }
     }
     
-    public boolean removeRoot(Identifier id, CompletionHandler<Void> finish)
+    public boolean removeRoot(Object id, CompletionHandler<Void> finish)
     {
         synchronized(lock)
         {
@@ -82,26 +83,31 @@ class Model
             if(root != null)
             {
                 ts++;
-                final ListIterator<Row> it = rows.listIterator(root.row);
-                while(it.hasNext())
-                {
-                    final Row row = it.next();
-                    if(row.root == root)
-                    {
-                        it.remove();
-                        cleanupRow(row);
-                    }
-                    else
-                    {
-                        row.row = it.previousIndex();
-                    }
-                }
+                removeRootRow(root, false);
                 if(finish != null)
                 {
                     finish.finish(null);
                 }
             }
             return root != null;
+        }
+    }
+
+    private void removeRootRow(final RootRow root, boolean onlyChildren)
+    {
+        final ListIterator<Row> it = rows.listIterator(onlyChildren ? root.row + 1 : root.row);
+        while(it.hasNext())
+        {
+            final Row row = it.next();
+            if(row.root == root)
+            {
+                it.remove();
+                cleanupRow(row);
+            }
+            else
+            {
+                row.row = it.previousIndex();
+            }
         }
     }
     
@@ -125,6 +131,11 @@ class Model
     
     private void expandIdInternalHelper(Identifier id, RootRow root, WmeRow.Value parent)
     {
+        if(id == null)
+        {
+            return;
+        }
+        
         for(Iterator<Wme> it = id.getWmes(); it.hasNext();)
         {
             final Wme wme = it.next();
@@ -157,14 +168,15 @@ class Model
         }
     }
     
-    private void expandIdInternal(final Identifier id, final WmeRow.Value parent)
+    private void expandIdInternal(final Object id, final WmeRow.Value parent)
     {
         final RootRow root;
         if(parent == null)
         {
             if(!roots.containsKey(id))
             {
-                root = new RootRow(id);
+                root = new RootRow(ts, id, rootIdGetter(id));
+                
                 roots.put(id, root);
                 rows.add(0, root);
                 if(parent != null)
@@ -182,7 +194,7 @@ class Model
             root = parent.row.root;
         }
         
-        expandIdInternalHelper(id, root, parent);
+        expandIdInternalHelper(root.getId(), root, parent);
         
         for(int i = 0; i < rows.size(); i++)
         {
@@ -191,7 +203,7 @@ class Model
         assert rowIndexesAreValid();
     }
     
-    private void expandId(final Identifier id, final WmeRow.Value parent, CompletionHandler<Void> finish)
+    private void expandId(final Object id, final WmeRow.Value parent, CompletionHandler<Void> finish)
     {
         final Callable<Void> start = new Callable<Void>()
         {
@@ -416,7 +428,11 @@ class Model
         }
         for(RootRow root : roots.values())
         {
-            expandIdInternal(root.id, null);
+            if(root.update(ts))
+            {
+                removeRootRow(root, true);
+            }
+            expandIdInternal(root.key, null);
         }
     }
     
@@ -449,5 +465,32 @@ class Model
             }
         }
         return true;
+    }
+    
+    private Callable<Identifier> rootIdGetter(final Object var)
+    {
+        if(var instanceof Identifier)
+        {
+            return new Callable<Identifier>() {
+                @Override
+                public Identifier call() throws Exception
+                {
+                    return (Identifier) var;
+                }
+            };
+        }
+        else
+        {
+            return new Callable<Identifier>() {
+    
+                @Override
+                public Identifier call() throws Exception
+                {
+                    final ContextVariableInfo info = agent.getAgent().getContextVariableInfo(var.toString());
+                    final Symbol value = info.getValue();
+                    return value != null ? value.asIdentifier() : null;
+                }
+            };
+        }
     }
 }

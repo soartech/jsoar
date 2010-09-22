@@ -324,8 +324,19 @@ public class WorkingMemoryTree extends JComponent
     
     private void paintRootRow(final RootRow asRoot, Graphics2D g2d)
     {
+        final Identifier id = asRoot.getId();
         g2d.setFont(rootFont);
-        final String text = String.format("%s", asRoot.id);
+        
+        final String text;
+        if(id == asRoot.key)
+        {
+            text = String.format("%s", id);
+        }
+        else
+        {
+            text = String.format("%s %s", asRoot.key, id != null ? id : "");
+        }
+        
         final Rectangle2D bounds = getCenteredTextBounds(g2d, text, 5, (int) asRoot.bounds.getY());
         
         g2d.setColor(rootRowFillColor);
@@ -337,16 +348,25 @@ public class WorkingMemoryTree extends JComponent
                       (int) (bounds.getMaxY() - g2d.getFontMetrics().getDescent()));
         
         String notes = "";
-        if(model.isInputLink(asRoot.id))
+        if(model.isInputLink(asRoot.getId()))
         {
             notes += " (input-link)  ";
         }
-        else if(model.isOutputLink(asRoot.id))
+        else if(model.isOutputLink(asRoot.getId()))
         {
             notes += "(output-link)  ";
         }
-        final int childCount = asRoot.children.size();
-        notes += childCount + " child" + (childCount == 1 ? "" : "ren");
+        
+        if(id != null)
+        {
+            final int childCount = asRoot.children.size();
+            notes += childCount + " child" + (childCount == 1 ? "" : "ren");
+        }
+        else
+        {
+            notes += "Not found";
+        }
+        
         if(!notes.isEmpty())
         {
             g2d.setFont(rootNoteFont);
@@ -366,7 +386,7 @@ public class WorkingMemoryTree extends JComponent
                 {
                     remove(asRoot.deleteButton);
                     validate();
-                    model.removeRoot(asRoot.id, repaint);
+                    model.removeRoot(asRoot.key, repaint);
                 }
             });
         }
@@ -678,16 +698,25 @@ public class WorkingMemoryTree extends JComponent
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                final Identifier id = Symbols.parseIdentifier(agent.getSymbols(), idField.getText());
-                if(id != null)
+                final String idString = idField.getText().trim();
+                final Object idOrVar;
+                if(!idString.startsWith("<"))
                 {
-                    if(!tree.model.hasRoot(id))
+                    idOrVar = Symbols.parseIdentifier(agent.getSymbols(), idString);
+                }
+                else
+                {
+                    idOrVar = idString;
+                }
+                if(idOrVar != null)
+                {
+                    if(!tree.model.hasRoot(idOrVar))
                     {
-                        tree.model.addRoot(id, tree.repaint);
+                        tree.model.addRoot(idOrVar, tree.repaint);
                     }
                     else
                     {
-                        tree.model.removeRoot(id, tree.repaint);
+                        tree.model.removeRoot(idOrVar, tree.repaint);
                     }
                 }
             }
