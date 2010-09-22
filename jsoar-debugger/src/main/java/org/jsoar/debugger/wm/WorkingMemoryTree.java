@@ -54,6 +54,7 @@ public class WorkingMemoryTree extends JComponent
 
     private static final Font font = Font.decode("Arial-BOLD");
     private static final Font rootFont = Font.decode("Arial-BOLD").deriveFont(font.getSize() * 1.7f);
+    private static final Font rootNoteFont = rootFont.deriveFont(rootFont.getSize() * 0.7f);
     private static final Stroke selectionStroke = new BasicStroke(2);
     private static final Stroke markerStroke = new BasicStroke(2);
     private static final Stroke newWmeStroke = new BasicStroke(3);
@@ -334,6 +335,25 @@ public class WorkingMemoryTree extends JComponent
         g2d.setColor(rootRowTextColor);
         g2d.drawString(text, (int) bounds.getX(), 
                       (int) (bounds.getMaxY() - g2d.getFontMetrics().getDescent()));
+        
+        String notes = "";
+        if(model.isInputLink(asRoot.id))
+        {
+            notes += " (input-link)  ";
+        }
+        else if(model.isOutputLink(asRoot.id))
+        {
+            notes += "(output-link)  ";
+        }
+        final int childCount = asRoot.children.size();
+        notes += childCount + " child" + (childCount == 1 ? "" : "ren");
+        if(!notes.isEmpty())
+        {
+            g2d.setFont(rootNoteFont);
+            final Rectangle2D noteBounds = getCenteredTextBounds(g2d, text, 5, (int) asRoot.bounds.getY());
+            g2d.drawString(notes, (int) bounds.getMaxX() + 10, 
+                          (int) (noteBounds.getMaxY() - g2d.getFontMetrics().getDescent()));
+        }
         
         if(asRoot.deleteButton.getParent() == null)
         {

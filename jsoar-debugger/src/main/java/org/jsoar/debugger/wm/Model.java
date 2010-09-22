@@ -55,6 +55,9 @@ class Model
         }
     }
     
+    public boolean isInputLink(Identifier id) { return agent.getInputOutput().getInputLink() == id; }
+    public boolean isOutputLink(Identifier id) { return agent.getInputOutput().getOutputLink() == id; }
+    
     public void addRoot(Identifier id, CompletionHandler<Void> finish)
     {
         synchronized(lock)
