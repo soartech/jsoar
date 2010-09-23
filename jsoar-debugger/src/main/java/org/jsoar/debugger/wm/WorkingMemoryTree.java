@@ -52,7 +52,6 @@ import org.jsoar.util.commands.SoarCommands;
  */
 public class WorkingMemoryTree extends JComponent
 {
-
     private static final long serialVersionUID = 8031999540064492987L;
 
     private static final Stroke selectionStroke = new BasicStroke(2);
@@ -65,12 +64,13 @@ public class WorkingMemoryTree extends JComponent
     private final Font font;
     private final Font rootFont;
     private final Font rootNoteFont;
-    private Color rootRowFillColor = new Color(192, 192, 192);
+    private Color backgroundColor = new Color(255, 255, 240);
+    private Color rootRowFillColor = new Color(70, 130, 180);
     private Color rootRowTextColor = Color.WHITE;
     private Color idTextColor = Color.BLACK;
     private Color idFillColor = new Color(192, 192, 192);
     private Color currentIdFillColor = new Color(225, 225, 225);
-    private Color stringTextColor = new Color(0, 125, 0);
+    private Color stringTextColor = new Color(148, 0, 211);
     private Color numberTextColor = new Color(0, 0, 200);
     private Color otherTextColor = Color.YELLOW;
     private Color selectionColor = new Color(0, 0, 255);
@@ -98,14 +98,14 @@ public class WorkingMemoryTree extends JComponent
     {
         setLayout(null);
         
-        font = Font.decode("Arial-BOLD-10");
+        font = Font.decode("Arial-BOLD-11");
         rootFont = font.deriveFont(font.getSize() * 1.5f);
         rootNoteFont = rootFont.deriveFont(rootFont.getSize() * 0.7f);
 
         this.model = new Model(agent, getTreeLock());
 
         setFont(font);
-        setBackground(Color.WHITE);
+        setBackground(backgroundColor);
         setToolTipText("");
         
         addMouseMotionListener(new MouseAdapter() {
@@ -372,9 +372,12 @@ public class WorkingMemoryTree extends JComponent
         final Rectangle2D bounds = getCenteredTextBounds(g2d, text, 5, (int) asRoot.bounds.getY());
         
         g2d.setColor(rootRowFillColor);
-        g2d.fillRoundRect((int) asRoot.bounds.getX() + 2, (int) asRoot.bounds.getY() + 2, 
-                          (int) asRoot.bounds.getWidth() - 4, (int) asRoot.bounds.getHeight() - 4, 
-                          6, 6);
+        g2d.fillRect((int) asRoot.bounds.getX(), (int) asRoot.bounds.getY(), 
+                (int) asRoot.bounds.getWidth(), (int) asRoot.bounds.getHeight() - 2);
+        
+//        g2d.fillRoundRect((int) asRoot.bounds.getX() + 2, (int) asRoot.bounds.getY() + 2, 
+//                          (int) asRoot.bounds.getWidth() - 4, (int) asRoot.bounds.getHeight() - 4, 
+//                          6, 6);
         g2d.setColor(rootRowTextColor);
         g2d.drawString(text, (int) bounds.getX(), 
                       (int) (bounds.getMaxY() - g2d.getFontMetrics().getDescent()));
@@ -590,12 +593,12 @@ public class WorkingMemoryTree extends JComponent
         if(row != null && row.asWme() != null)
         {
             final WmeRow asWme = row.asWme();
-            if(asWme.idBounds.contains(p))
+            if(asWme.idBounds != null && asWme.idBounds.contains(p))
             {
                 repaint = symbolUnderMouse != asWme.id;
                 symbolUnderMouse = asWme.id;
             }
-            else if(asWme.attrBounds.contains(p))
+            else if(asWme.attrBounds != null && asWme.attrBounds.contains(p))
             {
                 repaint = symbolUnderMouse != asWme.attr;
                 symbolUnderMouse = asWme.attr;
