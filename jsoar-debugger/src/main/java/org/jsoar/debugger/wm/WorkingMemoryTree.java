@@ -64,7 +64,7 @@ public class WorkingMemoryTree extends JComponent
     private final Font font;
     private final Font rootFont;
     private final Font rootNoteFont;
-    private Color backgroundColor = new Color(255, 255, 240);
+    private Color backgroundColor = Color.white; //new Color(255, 255, 240);
     private Color rootRowFillColor = new Color(70, 130, 180);
     private Color rootRowTextColor = Color.WHITE;
     private Color idTextColor = Color.BLACK;
@@ -76,6 +76,8 @@ public class WorkingMemoryTree extends JComponent
     private Color selectionColor = new Color(0, 0, 255);
     private Color selectionSubColor = new Color(232, 242, 254);
     private Color markerColor = new Color(192, 192, 192);
+    private Color stateIndicatorColor = new Color(0, 230, 0);
+    private Color operatorIndicatorColor = new Color(255, 160, 122 /*255, 99, 71*/);
     
     private Symbol symbolUnderMouse = null;
     private final List<Wme> selectedWmes = new ArrayList<Wme>();
@@ -263,7 +265,7 @@ public class WorkingMemoryTree extends JComponent
         g.setFont(getFont());
         g.setColor(getBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
-        rowHeight = g.getFontMetrics().getHeight() * 2;
+        rowHeight = (int) (g.getFontMetrics().getHeight() * 1.6);
         
         final Graphics2D g2d = (Graphics2D) g;
         
@@ -535,12 +537,33 @@ public class WorkingMemoryTree extends JComponent
         
         final Color textColor = getSymbolTextColor(sym);
 
-        if(sym.asIdentifier() != null)
+        final Identifier id = sym.asIdentifier();
+        if(id != null)
         {
             g2d.setColor(sym == symbolUnderMouse ? currentIdFillColor : idFillColor);
             final int fillPad = 3;
-            g2d.fillRoundRect((int) bounds.getX() - fillPad, ((int) bounds.getY() - fillPad), 
-                              (int) bounds.getWidth() + fillPad * 2, (int) bounds.getHeight() + fillPad * 2, 4, 4);
+            final int leftX = (int) bounds.getX() - fillPad;
+            final int topY = (int) bounds.getY() - fillPad;
+            final int h = (int) bounds.getHeight() + fillPad * 2;
+            final int w = (int) bounds.getWidth() + fillPad * 2;
+            g2d.fillRoundRect(leftX, topY, 
+                              w, h, 4, 4);
+            
+            if(id.isGoal())
+            {
+                g2d.setColor(stateIndicatorColor);
+                //g2d.fillArc(leftX - fillPad, topY - fillPad, fillPad * 2, fillPad * 2, 0, 360);
+                g2d.fillArc(leftX + 2, topY + 2, 
+                            w - 4, h - 4, 0, 360);
+            }
+            else if(id.isOperator())
+            {
+                g2d.setColor(operatorIndicatorColor);
+                //g2d.fillArc(leftX - fillPad, topY - fillPad, fillPad * 2, fillPad * 2, 0, 360);
+                g2d.fillArc(leftX + 2, topY + 2, 
+                            w - 4, h - 4, 0, 360);
+                
+            }
         }
         else if(sym == symbolUnderMouse)
         {
@@ -759,13 +782,13 @@ public class WorkingMemoryTree extends JComponent
             @Override
             public Void call() throws Exception
             {
-//                SoarCommands.source(agent.getInterpreter(), 
-//                "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
-                agent.getInterpreter().eval(
-                "sp {test (state <s> ^superstate nil) --> (<s> ^<s> <s>)" +
-                "(<s> ^55 hi) (<s> ^(random-float) yum)}");
                 SoarCommands.source(agent.getInterpreter(), 
-                "../jsoar-demos/demos/scripting/waterjugs-js.soar");
+                "C:\\Program Files\\Soar\\Soar-Suite-9.3.0-win-x86\\share\\soar\\Demos\\towers-of-hanoi\\towers-of-hanoi.soar");
+//                agent.getInterpreter().eval(
+//                "sp {test (state <s> ^superstate nil) --> (<s> ^<s> <s>)" +
+//                "(<s> ^55 hi) (<s> ^(random-float) yum)}");
+//                SoarCommands.source(agent.getInterpreter(), 
+//                "../jsoar-demos/demos/scripting/waterjugs-js.soar");
                 agent.getTrace().setEnabled(Category.WM_CHANGES, true);
                 agent.getAgent().runFor(1, RunType.DECISIONS);
                 agent.getAgent().runFor(2, RunType.PHASES);

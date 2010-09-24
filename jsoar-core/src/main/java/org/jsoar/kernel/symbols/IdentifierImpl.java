@@ -157,6 +157,15 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
         return goalInfo != null;
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.symbols.Identifier#isOperator()
+     */
+    @Override
+    public boolean isOperator()
+    {
+        return isa_operator != 0;
+    }
+
     /**
      * <p>production.cpp:1043:mark_identifier_if_unmarked
      * 

@@ -51,4 +51,9 @@ public interface Identifier extends Symbol
      * @return true if this identifier is a goal/state
      */
     boolean isGoal();
+    
+    /**
+     * @return true if this identifier is an operator
+     */
+    boolean isOperator();
 }
