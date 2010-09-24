@@ -243,9 +243,18 @@ public class WorkingMemoryTree extends JComponent
                 final int n = wmeRow.values.size();
                 b.append(String.format("<b>%s ^%s</b><br>", wmeRow.id, wmeRow.attr));
                 b.append(n + " working memory element" + (n != 1 ? "s" : ""));
+                int count = 0;
                 for(WmeRow.Value v : wmeRow.values)
                 {
+                    if(count++ >= 15)
+                    {
+                        break;
+                    }
                     b.append(String.format("<br>- %#s, timetag: %d", v.wme, v.wme.getTimetag()));
+                }
+                if(wmeRow.values.size() != count)
+                {
+                    b.append("<br> ... " + ((wmeRow.values.size() - count) + 1) + " more WMEs ...");
                 }
                 b.append("</html>");
                 return b.toString();
