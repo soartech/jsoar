@@ -117,7 +117,7 @@ public class ScriptEngineState
     
     private void initializeGlobalScope() throws SoarException
     {
-        final InputStream is = getClass().getResourceAsStream(engineName);
+        final InputStream is = getClass().getResourceAsStream(engineName.toLowerCase());
         if(is != null)
         {
             engine.put("_soar", new ScriptContext(context));

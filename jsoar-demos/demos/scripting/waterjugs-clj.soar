@@ -1,0 +1,91 @@
+
+# The reset flag resets the engine. That way this code can be
+# sourced multiple times without a pile up of listeners and
+# other junk.
+script --reset Clojure {
+  (use 'org.jsoar.script.clojure)
+
+  (def state (ref {}))
+
+  (defn init
+    [e]
+    (dosync
+      (ref-set state { :moves 0 
+                       :jugs { 
+                          :a { :capacity 5 :contents 0 :wme nil }
+                          :b { :capacity 3 :contents 0 :wme nil } } })))
+
+  (init nil)
+
+  (on-init-soar init)
+
+  (on-input
+    (fn [e]
+      (echo "Got input")))
+
+;  soar.onInput(function(e) {
+;    for(var name in jugs) {
+;      var jug = jugs[name];
+;
+;      if(jug.contentsWme) {
+;        jug.contentsWme = soar.wmes.update(jug.contentsWme, jug.contents);
+;      }
+;      else {
+;        var id = soar.wmes.newId("J");
+;        soar.wmes.add("jug", id);
+;        soar.wmes.add(id, "name", name);
+;        soar.wmes.add(id, "capacity", jug.capacity);
+;        jug.contentsWme = soar.wmes.add(id, "contents", jug.contents);
+;      }
+;    }
+;
+;    if(jugs.b.contents == 2) {
+;      soar.print("\nenv: Achieved goal in " + moves + " moves!");
+;      soar.agent.stop();
+;    }
+;  });
+
+  (on-output-command "pour"
+    (fn [e] (echo "Got pour command")))
+
+;  soar.onOutputCommand("pour", function(e) {
+;    var from = jugs[e.from];
+;    var to = jugs[e.to];
+;    
+;    soar.print("\nenv: Pouring from " + e.from + " to " + e.to);
+;
+;    var space = to.capacity - to.contents;
+;    var amount = Math.min(space, from.contents);
+;    to.contents += amount
+;    from.contents -= amount;
+;
+;    moves++;
+;  });
+
+  (on-output-command "fill"
+    (fn [e] (echo "Got fill command")))
+
+;  soar.onOutputCommand("fill", function(e) {
+;    var jug = jugs[e.jug];
+;    jug.contents = jug.capacity;
+;
+;    soar.print("\nenv: Filling " + e.jug + " to " + jug.capacity);
+;
+;    moves++;
+;  });
+
+  (on-output-command "empty"
+    (fn [e] (echo "Got empty command")))
+
+;  soar.onOutputCommand("empty", function(e) {
+;    var jug = jugs[e.jug];
+;    jug.contents = 0;
+;
+;    soar.print("\nenv: Emptying " + e.jug);
+;
+;    moves++;
+;  });
+
+}
+
+source waterjugs-script.soar
