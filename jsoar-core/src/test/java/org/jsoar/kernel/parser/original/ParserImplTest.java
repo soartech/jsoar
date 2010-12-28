@@ -383,6 +383,33 @@ public class ParserImplTest extends JSoarTest
         assertNotNull(p);
     }
     
+    @Test
+    public void testCanParseProductionsWithEmbeddedComment() throws Exception
+    {
+        // Testing a problematic production from towers-of-hanoi
+        OriginalParserImpl parser = createParser("production-with-comment\n" +
+"   (state <s> ^superstate nil\n" +
+"              #^commented-out 1\n" +
+"             ^name)\n" +
+"-->\n" +
+"   (write)");
+        Production p = parser.parseProduction();
+        assertNotNull(p);
+    }
+    
+    @Test
+    public void testCanParseProductionsWithTrailingSemiColonComment() throws Exception
+    {
+        // Testing a problematic production from towers-of-hanoi
+        OriginalParserImpl parser = createParser("production-with-comment\n" +
+"   (state <s> ^superstate nil\n" +
+"              ^attr 1 ;# trailing comment\n" +
+"             ^name)\n" +
+"-->\n" +
+"   (write)");
+        Production p = parser.parseProduction();
+        assertNotNull(p);
+    }    
     @Test(expected=IllegalStateException.class)
     public void testThrowsIllegalStateExceptionWithLtiAndNoLtiSource() throws Exception
     {
