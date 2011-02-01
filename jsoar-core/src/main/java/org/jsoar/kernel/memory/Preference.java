@@ -135,6 +135,7 @@ public class Preference implements Formattable
     
     public void setInstantiation(Instantiation inst)
     {
+        assert !deallocated;
         assert this.inst == null;
         this.inst = inst;
         inst.insertGeneratedPreference(this);
@@ -145,6 +146,7 @@ public class Preference implements Formattable
      */
     public boolean isInTempMemory()
     {
+        assert !deallocated;
         return slot != null;
     }
     
@@ -153,11 +155,13 @@ public class Preference implements Formattable
      */
     public void preference_add_ref()
     {
+        assert !deallocated;
         reference_count++;
     }
     
     public void preference_remove_ref(RecognitionMemory recMemory)
     {
+        assert !deallocated;
         assert this.reference_count > 0;
         
         this.reference_count--;
@@ -303,6 +307,7 @@ public class Preference implements Formattable
      */
     boolean possibly_deallocate_preference_and_clones(Preference pref, RecognitionMemory recMemory)
     {
+        assert !deallocated;
         if (pref.reference_count > 0)
         {
             return false;
@@ -356,6 +361,7 @@ public class Preference implements Formattable
      */
     public boolean remove_preference_from_clones(RecognitionMemory recMemory)
     {
+        assert !deallocated;
         final Preference pref = this;
         Preference any_clone = null;
         if (this.next_clone != null)
