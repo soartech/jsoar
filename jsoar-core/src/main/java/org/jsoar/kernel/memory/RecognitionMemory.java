@@ -59,6 +59,8 @@ import org.jsoar.util.timing.ExecutionTimers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
  * 
@@ -586,17 +588,16 @@ public class RecognitionMemory
                         bt.trace = Preference.find_clone_for_level(bt.trace, level);
                     }
                     
-					// Forcing top-level ref counts for backtrace preference references                
-//                    if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
-//                    {
+                    if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+                    {
                         if (bt.trace != null)
                             bt.trace.preference_add_ref();
-//                    }
-//                    else
-//                    {
-//                        if ((bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
-//                            bt.trace.preference_add_ref();
-//                    }
+                    }
+                    else
+                    {
+                        if ((bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
+                            bt.trace.preference_add_ref();
+                    }
                 }
             }
         }
@@ -886,28 +887,27 @@ public class RecognitionMemory
                     bt.clearProhibits();
                 }
 
-				// Forcing top-level ref counts for backtrace preference references                
-//                if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
-//                {
+                if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+                {
                     // (removed in jsoar) pc.bt().wme_.wme_remove_ref(context.workingMemory);
                     if (bt.trace != null)
                     {
                         bt.trace.preference_remove_ref(this);
                         bt.trace = null;// This is very important to avoid memory leaks!
                     }
-//                }
-//                else
-//                {
-//                    if (level > SoarConstants.TOP_GOAL_LEVEL)
-//                    {
-//                        // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
-//                        if (bt.trace != null)
-//                        {
-//                            bt.trace.preference_remove_ref(this);
-//                            bt.trace = null;// This is very important to avoid memory leaks!
-//                        }
-//                    }
-//                }
+                }
+                else
+                {
+                    if (level > SoarConstants.TOP_GOAL_LEVEL)
+                    {
+                        // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
+                        if (bt.trace != null)
+                        {
+                            bt.trace.preference_remove_ref(this);
+                            bt.trace = null;// This is very important to avoid memory leaks!
+                        }
+                    }
+                }
             }
         }
 
@@ -1011,8 +1011,10 @@ public class RecognitionMemory
      * throw away the rest.
      * 
      * <p>recmem.cpp:891:assert_new_preferences
+     * 
+     * @bufdeallo Buffered preferences to deallocate after inner elaboration loop.
      */
-    private void assert_new_preferences()
+    private void assert_new_preferences(List<Preference> bufdeallo)
     {
         final Trace trace = context.getTrace();
         // Note: In CSoar, this list is just build up using the next link in the
@@ -1044,7 +1046,7 @@ public class RecognitionMemory
         }
 
         if (!o_rejects.isEmpty())
-            process_o_rejects_and_deallocate_them(o_rejects);
+            process_o_rejects_and_deallocate_them(o_rejects, bufdeallo);
         
         // Note: In CSoar there is some random code commented out at this point. Is it important? Who knows?
 
@@ -1102,8 +1104,10 @@ public class RecognitionMemory
      * prefmem.cpp:330:process_o_rejects_and_deallocate_them
      * 
      * @param o_rejects
+     * @param bufdeallo Preferences buffered for deallocation after inner
+     * elaboration loop completes.
      */
-    private void process_o_rejects_and_deallocate_them(List<Preference> o_rejects)
+    private void process_o_rejects_and_deallocate_them(List<Preference> o_rejects, List<Preference> bufdeallo)
     {
         for (Preference pref : o_rejects)
         {
@@ -1129,6 +1133,8 @@ public class RecognitionMemory
                     final Preference next_p = p.nextOfSlot;
                     if (p.value == pref.value)
                     {
+                        p.preference_add_ref();
+                        bufdeallo.add(p);
                         remove_preference_from_tm(p);
                     }
                     p = next_p;
@@ -1283,6 +1289,10 @@ public class RecognitionMemory
         decider.change_level = decider.highest_active_level;
         decider.next_change_level = decider.highest_active_level;
         
+        // Temporary list to buffer deallocation of some preferences until 
+        // the inner elaboration loop is over.
+        List<Preference> bufdeallo = Lists.newArrayList();
+        
         // FIXME: should not do this inner elaboration loop for soar 7 mode.
         for (;;)
         {
@@ -1343,7 +1353,7 @@ public class RecognitionMemory
             // New waterfall model: push unfired matches back on to the assertion lists
             this.soarReteListener.restore_postponed_assertions();
             
-            assert_new_preferences();
+            assert_new_preferences(bufdeallo);
     
             // update accounting
             this.decisionCycle.inner_e_cycle_count.increment();
@@ -1384,6 +1394,10 @@ public class RecognitionMemory
             assert decider.active_goal != null;
             decider.active_level = decider.active_goal.level;
         } // inner elaboration loop/cycle end
+        
+        // Deallocate preferences delayed during inner elaboration loop.
+        for (Preference p : bufdeallo)
+            p.preference_remove_ref(this);
 
         // Restore previous active level.
         decider.active_level = decider.highest_active_level;
