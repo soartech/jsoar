@@ -585,16 +585,18 @@ public class RecognitionMemory
                     {
                         bt.trace = Preference.find_clone_for_level(bt.trace, level);
                     }
-                    if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
-                    {
+                    
+					// Forcing top-level ref counts for backtrace preference references                
+//                    if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+//                    {
                         if (bt.trace != null)
                             bt.trace.preference_add_ref();
-                    }
-                    else
-                    {
-                        if ((bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
-                            bt.trace.preference_add_ref();
-                    }
+//                    }
+//                    else
+//                    {
+//                        if ((bt.trace != null) && (level > SoarConstants.TOP_GOAL_LEVEL))
+//                            bt.trace.preference_add_ref();
+//                    }
                 }
             }
         }
@@ -884,27 +886,28 @@ public class RecognitionMemory
                     bt.clearProhibits();
                 }
 
-                if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
-                {
+				// Forcing top-level ref counts for backtrace preference references                
+//                if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+//                {
                     // (removed in jsoar) pc.bt().wme_.wme_remove_ref(context.workingMemory);
                     if (bt.trace != null)
                     {
                         bt.trace.preference_remove_ref(this);
-                        bt.trace = null; // This is very important to avoid memory leaks!
+                        bt.trace = null;// This is very important to avoid memory leaks!
                     }
-                }
-                else
-                {
-                    if (level > SoarConstants.TOP_GOAL_LEVEL)
-                    {
-                        // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
-                        if (bt.trace != null)
-                        {
-                            bt.trace.preference_remove_ref(this);
-                            bt.trace = null; // This is very important to avoid memory leaks!
-                        }
-                    }
-                }
+//                }
+//                else
+//                {
+//                    if (level > SoarConstants.TOP_GOAL_LEVEL)
+//                    {
+//                        // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
+//                        if (bt.trace != null)
+//                        {
+//                            bt.trace.preference_remove_ref(this);
+//                            bt.trace = null;// This is very important to avoid memory leaks!
+//                        }
+//                    }
+//                }
             }
         }
 
