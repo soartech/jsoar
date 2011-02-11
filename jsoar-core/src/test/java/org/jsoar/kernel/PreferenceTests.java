@@ -56,4 +56,10 @@ public class PreferenceTests extends FunctionalTestHarness
         runTest("testORejectsFirst", 1);
     }
 
+    @Test
+    public void testDeallocation() throws Exception
+    {
+        runTest("testDeallocation", 6);
+    }
+
 }
