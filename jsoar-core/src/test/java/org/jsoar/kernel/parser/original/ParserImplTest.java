@@ -501,4 +501,16 @@ public class ParserImplTest extends JSoarTest
         assertEquals(1, id.getNameNumber());
         assertEquals(expectedLti, id.smem_lti);
     }
+    
+    @Test
+    public void testCanParseProductionsWithCapitalLetterAttribute() throws Exception
+    {
+        // Testing that the parser successfully generates a variable from an attribute with a capital letter
+        OriginalParserImpl parser = createParser("production-with-cap-letter\n" +
+"   (state <s> ^superstate nil\n)" +
+"-->\n" +
+"   (<s> ^A.b c)");
+        Production p = parser.parseProduction();
+        assertNotNull(p);
+    } 
 }

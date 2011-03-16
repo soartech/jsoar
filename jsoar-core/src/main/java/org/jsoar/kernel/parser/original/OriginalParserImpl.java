@@ -1758,7 +1758,7 @@ class OriginalParserImpl
             /* --- create variable with "#" in its name:  this couldn't possibly be a
                variable in the user's code, since the lexer doesn't handle "#" --- */
             /* KJC used same format so could steal code... */
-            char first_letter = attr.getFirstLetter();
+            char first_letter = Character.toLowerCase(attr.getFirstLetter());
             String namebuf = "<#" + first_letter + '*' + placeholder_counter[first_letter - 'a']++;
             Variable new_var = syms.make_variable(namebuf);
             /* --- indicate that there is no corresponding "real" variable yet --- */
