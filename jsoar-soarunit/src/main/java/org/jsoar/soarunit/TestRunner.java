@@ -226,7 +226,7 @@ public class TestRunner
         {
             return new TestResult(test, elapsedInitTimeNanos, elapsedNanos, true,
                     agent.getPassMessage(), 
-                     "",
+                     agent.getOutput(),
                      firingCounts);
         }
     }
