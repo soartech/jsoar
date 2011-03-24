@@ -101,8 +101,8 @@ public class TestRunner
             throw new SoarException(e.getMessage(), e);
         }
         final long elapsedTime = System.nanoTime() - startTime;
-        out.printf("Ran %d tests in %f s\n", total, elapsedTime / 1000000000.0);
-        System.out.printf("Ran %d tests in %f s\n", total, elapsedTime / 1000000000.0);
+        out.printf("Ran %d tests in %f s\n", TestCase.getTotalTests(all), elapsedTime / 1000000000.0);
+        System.out.printf("Ran %d tests in %f s\n", TestCase.getTotalTests(all), elapsedTime / 1000000000.0);
         return results;
         
         /*
