@@ -12,16 +12,18 @@ package org.jsoar.soarunit;
 public class TestResult
 {
     private final Test test;
-    private final long nanos;
+    private final long initNanos;
+    private final long runNanos;
     private final boolean passed;
     private final String message;
     private final String output;
     private final FiringCounts firingCounts;
     
-    public TestResult(Test test, long nanos, boolean passed, String message, String output, FiringCounts firingCounts)
+    public TestResult(Test test, long initNanos, long nanos, boolean passed, String message, String output, FiringCounts firingCounts)
     {
         this.test = test;
-        this.nanos = nanos;
+        this.initNanos = initNanos;
+        this.runNanos = nanos;
         this.passed = passed;
         this.message = message;
         this.output = output;
@@ -68,9 +70,14 @@ public class TestResult
         return firingCounts;
     }
     
-    public double getElapsedSeconds()
+    public double getInitTimeInSeconds()
     {
-        return ((double) nanos) / 1000000000.0;
+        return ((double) initNanos) / 1000000000.0;
+    }
+    
+    public double getRunTimeInSeconds()
+    {
+    	return ((double) runNanos) / 1000000000.0;
     }
 
     /* (non-Javadoc)
@@ -79,6 +86,6 @@ public class TestResult
     @Override
     public String toString()
     {
-        return String.format("%s (%.3f s)", test.toString(), getElapsedSeconds());
+        return String.format("%s (%.3f s + %.3f s)", test.toString(), getInitTimeInSeconds(), getRunTimeInSeconds());
     }
 }

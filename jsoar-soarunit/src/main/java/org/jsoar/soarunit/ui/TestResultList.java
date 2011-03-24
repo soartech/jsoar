@@ -17,8 +17,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.jsoar.soarunit.TestAgentFactory;
 import org.jsoar.soarunit.TestCaseResult;
@@ -34,6 +38,7 @@ public class TestResultList extends JPanel
     private final TestAgentFactory agentFactory;
     private final DefaultListModel model = new DefaultListModel();
     private final JList list = new JList(model);
+    private final JTextArea output = new JTextArea();
 
     public TestResultList(TestAgentFactory agentFactory)
     {
@@ -76,10 +81,35 @@ public class TestResultList extends JPanel
             
         });
         
-        add(new JScrollPane(list), BorderLayout.CENTER);        
+        this.list.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				handleSelectionChanged(e);
+			}
+		});
+        
+        final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        split.setLeftComponent(new JScrollPane(list));
+        split.setRightComponent(new JScrollPane(output));
+        split.setDividerSize(5);
+        split.setResizeWeight(0.7);
+        
+        add(split, BorderLayout.CENTER);        
     }
     
-    public void reset()
+    protected void handleSelectionChanged(ListSelectionEvent e) {
+    	final TestResult result = (TestResult) list.getSelectedValue();
+    	if(result != null) {
+    		final String outputString = result.getOutput(); 
+    		output.setText(!outputString.isEmpty() ? outputString : "No output produced by agent.");
+    	}
+    	else {
+    		output.setText("");
+    	}
+	}
+
+	public void reset()
     {
         model.clear();
     }
@@ -144,7 +174,6 @@ public class TestResultList extends JPanel
         public Component getListCellRendererComponent(JList list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus)
         {
-            // TODO Auto-generated method stub
             final JLabel c = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,
                     cellHasFocus);
             

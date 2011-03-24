@@ -98,7 +98,9 @@ public class TestRunner
         final TestCaseResult result = new TestCaseResult(testCase);
         for(Test test : testCase.getTests())
         {
+        	final long initStartTime = System.nanoTime();
             final TestAgent agent = factory.createTestAgent();
+            out.printf("   Created agent in %f seconds\n", (System.nanoTime() - initStartTime) / 1000000.0);
             try
             {
                 final TestResult testResult;
@@ -137,17 +139,19 @@ public class TestRunner
     {
         out.printf("Running test: %s%n", test.getName());
         
+        final long startInitTimeNanos = System.nanoTime();
         agent.initialize(test);
-        final long startTimeNanos = System.nanoTime();
+        final long startRunTimeNanos = System.nanoTime();
+        final long elapsedInitTimeNanos = startRunTimeNanos - startInitTimeNanos;
         agent.run();
-        final long elapsedNanos = System.nanoTime() - startTimeNanos; 
+        final long elapsedNanos = System.nanoTime() - startRunTimeNanos; 
         
         final FiringCounts firingCounts = agent.getFiringCounts();
         
         if(agent.isFailCalled())
         {
             agent.printMatchesOnFailure();
-            return new TestResult(test, elapsedNanos, false, 
+            return new TestResult(test, elapsedInitTimeNanos, elapsedNanos, false, 
                               agent.getFailMessage(),
                               agent.getOutput(),
                               firingCounts);
@@ -156,14 +160,14 @@ public class TestRunner
         {
             agent.printMatchesOnFailure();
             final long actualCycles = agent.getCycleCount();
-            return new TestResult(test, elapsedNanos, false, 
+            return new TestResult(test, elapsedInitTimeNanos, elapsedNanos, false, 
                     String.format("never called (pass) function. Ran %d decisions.", actualCycles),
                               agent.getOutput(),
                               firingCounts);
         }
         else
         {
-            return new TestResult(test, elapsedNanos, true,
+            return new TestResult(test, elapsedInitTimeNanos, elapsedNanos, true,
                     agent.getPassMessage(), 
                      "",
                      firingCounts);

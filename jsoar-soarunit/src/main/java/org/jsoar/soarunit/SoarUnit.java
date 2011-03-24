@@ -209,12 +209,12 @@ public class SoarUnit
                 final Test test = testResult.getTest();
                 if(testResult.isPassed())
                 {
-                    out.printf("PASSED: %s, %s (%.3f s)%n", test.getName(), testResult.getMessage(), testResult.getElapsedSeconds());
+                    out.printf("PASSED: %s, %s (%.3f s)%n", test.getName(), testResult.getMessage(), testResult.getRunTimeInSeconds());
                     totalPassed++;
                 }
                 else
                 {
-                    out.printf("FAILED: %s, %s (%.3f s)%n", test.getName(), testResult.getMessage(), testResult.getElapsedSeconds());
+                    out.printf("FAILED: %s, %s (%.3f s)%n", test.getName(), testResult.getMessage(), testResult.getRunTimeInSeconds());
                     out.println(testResult.getOutput());
                     totalFailed++;
                 }
