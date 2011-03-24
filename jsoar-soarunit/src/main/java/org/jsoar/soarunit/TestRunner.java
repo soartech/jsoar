@@ -8,6 +8,7 @@ package org.jsoar.soarunit;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.jsoar.kernel.SoarException;
 
@@ -17,9 +18,8 @@ import org.jsoar.kernel.SoarException;
 public class TestRunner
 {
     private final PrintWriter out;
-    private int index;
     private int total;
-    private boolean haltOnFailure;
+    private boolean haltOnFailure = true;
     private FiringCounts firingCounts = new FiringCounts();
     private final TestAgentFactory factory;
     
@@ -35,14 +35,6 @@ public class TestRunner
     public int getTotal()
     {
         return total;
-    }
-
-    /**
-     * @param total the total to set
-     */
-    public void setTotal(int total)
-    {
-        this.total = total;
     }
 
     /**
@@ -69,29 +61,53 @@ public class TestRunner
         return firingCounts;
     }
 
-    public List<TestCaseResult> runAllTestCases(final List<TestCase> all) throws SoarException
+    public List<TestCaseResult> runAllTestCases(final List<TestCase> all, TestCaseResultHandler handler) throws SoarException
     {
-        index = 0;
         total = all.size();
-        haltOnFailure = true;
         firingCounts = new FiringCounts();
         
+        int index = 0;
         final List<TestCaseResult> results = new ArrayList<TestCaseResult>();
         for(TestCase testCase : all)
         {
-            final TestCaseResult result = run(testCase);
-            results.add(result);
-            if(result.getFailed() > 0)
+            try
             {
-                break;
+                final TestCaseResult result = createTestCaseRunner(testCase, handler, ++index).call();
+                firingCounts.merge(result.getFiringCounts());
+                results.add(result);
+                
+                if(haltOnFailure && result.getFailed() > 0)
+                {
+                    break;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new SoarException(e.getMessage(), e);
             }
         }
         return results;
     }
     
-    public TestCaseResult run(TestCase testCase) throws SoarException
+    private Callable<TestCaseResult> createTestCaseRunner(final TestCase testCase, final TestCaseResultHandler handler, final int index)
     {
-        index++;
+        return new Callable<TestCaseResult>()
+        {
+            @Override
+            public TestCaseResult call() throws Exception
+            {
+                final TestCaseResult result = run(testCase, index);
+                if(handler != null) 
+                {
+                    handler.handleTestCaseResult(result);
+                }
+                return result;
+            }
+        };
+    }
+   
+    private TestCaseResult run(TestCase testCase, int index) throws SoarException
+    {
         out.printf("%d/%d: Running test case '%s' from '%s'%n", index, total, 
                             testCase.getName(), 
                             testCase.getFile());
@@ -100,7 +116,7 @@ public class TestRunner
         {
         	final long initStartTime = System.nanoTime();
             final TestAgent agent = factory.createTestAgent();
-            out.printf("   Created agent in %f seconds\n", (System.nanoTime() - initStartTime) / 1000000.0);
+            out.printf("   Created agent in %f seconds\n", (System.nanoTime() - initStartTime) / 1000000000.0);
             try
             {
                 final TestResult testResult;
@@ -123,9 +139,6 @@ public class TestRunner
                 agent.dispose();
             }
         }
-        
-        firingCounts.merge(result.getFiringCounts());
-        
         return result;
     }
     

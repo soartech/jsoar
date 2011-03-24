@@ -160,7 +160,7 @@ public class SoarUnit
         else
         {
             final TestRunner runner = new TestRunner(agentFactory, out);
-            final List<TestCaseResult> results = runner.runAllTestCases(collector.collect());
+            final List<TestCaseResult> results = runner.runAllTestCases(collector.collect(), null);
             return printAllTestCaseResults(results, runner.getFiringCounts());
         }
         

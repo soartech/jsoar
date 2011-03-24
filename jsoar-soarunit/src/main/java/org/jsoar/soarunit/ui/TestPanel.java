@@ -23,6 +23,7 @@ import org.jsoar.soarunit.TestAgentFactory;
 import org.jsoar.soarunit.TestCase;
 import org.jsoar.soarunit.TestCaseCollector;
 import org.jsoar.soarunit.TestCaseResult;
+import org.jsoar.soarunit.TestCaseResultHandler;
 import org.jsoar.soarunit.TestResult;
 import org.jsoar.soarunit.TestRunner;
 import org.jsoar.util.NullWriter;
@@ -97,13 +98,13 @@ public class TestPanel extends JPanel
         
         final TestRunner runner = new TestRunner(agentFactory, new PrintWriter(new NullWriter()));
         runner.setHaltOnFailure(false);
-        runner.setTotal(allTestCases.size());
-        
-        for(TestCase testCase : allTestCases)
-        {
-            final TestCaseResult result = runner.run(testCase);
-            addResult(result);
-        }
+        runner.runAllTestCases(allTestCases, new TestCaseResultHandler() {
+			
+			@Override
+			public void handleTestCaseResult(TestCaseResult result) {
+				addResult(result);
+			}
+		});
         
         SwingUtilities.invokeLater(new Runnable()
         {
