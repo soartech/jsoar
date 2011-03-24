@@ -9,6 +9,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.jsoar.kernel.SoarException;
 
@@ -22,6 +26,10 @@ public class TestRunner
     private boolean haltOnFailure = true;
     private FiringCounts firingCounts = new FiringCounts();
     private final TestAgentFactory factory;
+    private final ExecutorService executor = 
+        //Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        //Executors.newCachedThreadPool();
+        Executors.newSingleThreadExecutor();
     
     public TestRunner(TestAgentFactory factory, PrintWriter out)
     {
@@ -65,7 +73,40 @@ public class TestRunner
     {
         total = all.size();
         firingCounts = new FiringCounts();
+
+        final long startTime = System.nanoTime();
+        int index = 0;
+        final List<Callable<TestCaseResult>> tasks = new ArrayList<Callable<TestCaseResult>>();
+        for(TestCase testCase : all)
+        {
+            tasks.add(createTestCaseRunner(testCase, handler, ++index));
+        }
+        final List<TestCaseResult> results = new ArrayList<TestCaseResult>();
+        try
+        {
+            final List<Future<TestCaseResult>> futures = executor.invokeAll(tasks);
+            for(Future<TestCaseResult> future : futures) 
+            {
+                final TestCaseResult result = future.get();
+                firingCounts.merge(result.getFiringCounts());
+                results.add(result);
+            }
+        }
+        catch (InterruptedException e)
+        {
+            throw new SoarException(e.getMessage(), e);
+        }
+        catch (ExecutionException e)
+        {
+            throw new SoarException(e.getMessage(), e);
+        }
+        final long elapsedTime = System.nanoTime() - startTime;
+        out.printf("Ran %d tests in %f s\n", total, elapsedTime / 1000000000.0);
+        System.out.printf("Ran %d tests in %f s\n", total, elapsedTime / 1000000000.0);
+        return results;
         
+        /*
+        final long startTime = System.nanoTime();
         int index = 0;
         final List<TestCaseResult> results = new ArrayList<TestCaseResult>();
         for(TestCase testCase : all)
@@ -86,7 +127,11 @@ public class TestRunner
                 throw new SoarException(e.getMessage(), e);
             }
         }
+        final long elapsedTime = System.nanoTime() - startTime;
+        out.printf("Ran %d test cases in %f s\n", total, elapsedTime / 1000000000.0);
         return results;
+        */
+       
     }
     
     private Callable<TestCaseResult> createTestCaseRunner(final TestCase testCase, final TestCaseResultHandler handler, final int index)
@@ -114,9 +159,7 @@ public class TestRunner
         final TestCaseResult result = new TestCaseResult(testCase);
         for(Test test : testCase.getTests())
         {
-        	final long initStartTime = System.nanoTime();
             final TestAgent agent = factory.createTestAgent();
-            out.printf("   Created agent in %f seconds\n", (System.nanoTime() - initStartTime) / 1000000000.0);
             try
             {
                 final TestResult testResult;
@@ -150,7 +193,7 @@ public class TestRunner
     
     private TestResult runTest(Test test, final TestAgent agent) throws SoarException
     {
-        out.printf("Running test: %s%n", test.getName());
+        out.printf("   Running test: '%s/%s' on thread %s%n", test.getTestCase().getName(), test.getName(), Thread.currentThread().getName());
         
         final long startInitTimeNanos = System.nanoTime();
         agent.initialize(test);
@@ -158,7 +201,8 @@ public class TestRunner
         final long elapsedInitTimeNanos = startRunTimeNanos - startInitTimeNanos;
         agent.run();
         final long elapsedNanos = System.nanoTime() - startRunTimeNanos; 
-        
+        out.printf("      finished in %f seconds\n", elapsedNanos / 1000000000.0);
+       
         final FiringCounts firingCounts = agent.getFiringCounts();
         
         if(agent.isFailCalled())
