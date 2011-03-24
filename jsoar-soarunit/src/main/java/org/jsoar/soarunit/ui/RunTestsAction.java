@@ -6,13 +6,15 @@
 package org.jsoar.soarunit.ui;
 
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractAction;
 
 /**
  * @author ray
  */
-public class RunTestsAction extends AbstractAction
+public class RunTestsAction extends AbstractAction implements PropertyChangeListener
 {
     private static final long serialVersionUID = -4334282971542808502L;
     
@@ -23,7 +25,9 @@ public class RunTestsAction extends AbstractAction
         super("Re-run All Tests");
         
         this.tp = tp;
+        this.tp.addPropertyChangeListener(TestPanel.RUNNING_TESTS, this);
     }
+    
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
@@ -32,5 +36,10 @@ public class RunTestsAction extends AbstractAction
     {
         tp.runTests();
     }
+    
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		setEnabled(!((Boolean) evt.getNewValue()).booleanValue());
+	}
 
 }

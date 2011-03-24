@@ -36,6 +36,8 @@ public class TestPanel extends JPanel
     private static final long serialVersionUID = 4823211094468351324L;
     
     private static final Color ERROR_BACKGROUND_COLOR = new Color(242, 102, 96).brighter();
+
+	public static final String RUNNING_TESTS = "runningTests";
     
     private final TestAgentFactory agentFactory;
     private final TestCaseCollector collector;
@@ -67,6 +69,7 @@ public class TestPanel extends JPanel
     
     public void runTests()
     {
+    	firePropertyChange(RUNNING_TESTS, false, true);
         list.reset();
         summary.reset();
         coverage.reset();
@@ -107,9 +110,7 @@ public class TestPanel extends JPanel
             @Override
             public void run()
             {
-                final FiringCounts allCounts = runner.getFiringCounts();
-                coverage.setFiringCounts(allCounts);
-                summary.update(allCounts);
+                handleTestRunFinished(runner);
             }
         });
     }
@@ -161,7 +162,15 @@ public class TestPanel extends JPanel
         }
     }
     
-    private class RunThread extends Thread
+    private void handleTestRunFinished(final TestRunner runner) {
+		final FiringCounts allCounts = runner.getFiringCounts();
+		coverage.setFiringCounts(allCounts);
+		summary.update(allCounts);
+		
+		firePropertyChange(RUNNING_TESTS, true, false);
+	}
+
+	private class RunThread extends Thread
     {
         @Override
         public void run()
