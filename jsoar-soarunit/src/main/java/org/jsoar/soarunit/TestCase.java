@@ -154,5 +154,10 @@ public class TestCase
     {
         return name;
     }
+
+    public TestCase reload() throws SoarException, IOException
+    {
+        return fromFile(getFile());
+    }
     
 }

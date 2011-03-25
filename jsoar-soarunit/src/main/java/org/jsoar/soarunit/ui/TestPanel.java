@@ -149,6 +149,7 @@ public class TestPanel extends JPanel
             errors.setText(text.toString());
             errors.setBackground(ERROR_BACKGROUND_COLOR);
             tabs.setSelectedIndex(2);
+            firePropertyChange(RUNNING_TESTS, true, false);
         }
         else
         {

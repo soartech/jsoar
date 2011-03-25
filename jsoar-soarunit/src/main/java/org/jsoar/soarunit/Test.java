@@ -5,6 +5,10 @@
  */
 package org.jsoar.soarunit;
 
+import java.io.IOException;
+
+import org.jsoar.kernel.SoarException;
+
 
 /**
  * @author ray
@@ -56,6 +60,14 @@ public class Test
     public String toString()
     {
         return testCase + "/" + name;
+    }
+
+
+    public Test reload() throws SoarException, IOException
+    {
+        final TestCase reloadedTestCase = getTestCase().reload();
+        
+        return reloadedTestCase.getTest(getName());
     }
 
     

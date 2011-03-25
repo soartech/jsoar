@@ -6,6 +6,7 @@
 package org.jsoar.soarunit.ui;
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.swing.AbstractAction;
@@ -39,12 +40,12 @@ public class DebugTestAction extends AbstractAction
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     @Override
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
         try
         {
             final TestRunner runner = new TestRunner(agentFactory, new PrintWriter(new NullWriter()));
-            runner.debugTest(test, false);
+            runner.debugTest(test.reload(), false);
         }
         catch (SoarException e1)
         {
@@ -55,6 +56,11 @@ public class DebugTestAction extends AbstractAction
         {
             // TODO Auto-generated catch block
             e1.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
