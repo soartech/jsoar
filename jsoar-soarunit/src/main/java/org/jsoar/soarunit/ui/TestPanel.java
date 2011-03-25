@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -84,7 +85,7 @@ public class TestPanel extends JPanel
     
     private void runTestsInternal() throws SoarException, IOException
     {
-        final List<TestCase> allTestCases = collector.collect();
+        final List<TestCase> allTestCases = Collections.unmodifiableList(collector.collect());
         final int totalTests = TestCase.getTotalTests(allTestCases);
         
         SwingUtilities.invokeLater(new Runnable()
@@ -92,6 +93,9 @@ public class TestPanel extends JPanel
             @Override
             public void run()
             {
+                for(TestCase testCase : allTestCases) {
+                    list.addTestCase(testCase);
+                }
                 summary.setTotal(totalTests);
             }
         });

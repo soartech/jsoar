@@ -24,7 +24,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.jsoar.soarunit.Test;
 import org.jsoar.soarunit.TestAgentFactory;
+import org.jsoar.soarunit.TestCase;
 import org.jsoar.soarunit.TestCaseResult;
 import org.jsoar.soarunit.TestResult;
 
@@ -99,9 +101,9 @@ public class TestResultList extends JPanel
     }
     
     protected void handleSelectionChanged(ListSelectionEvent e) {
-    	final TestResult result = (TestResult) list.getSelectedValue();
+    	final TestResultProxy result = (TestResultProxy) list.getSelectedValue();
     	if(result != null) {
-    		final String outputString = result.getOutput(); 
+    		final String outputString = result.getResult().getOutput(); 
     		output.setText(!outputString.isEmpty() ? outputString : "No output produced by agent.");
     	}
     	else {
@@ -114,24 +116,47 @@ public class TestResultList extends JPanel
         model.clear();
     }
     
+	public void addTestCase(TestCase testCase) {
+	    for(Test test : testCase.getTests()) {
+	        model.addElement(new TestResultProxy(test));
+	    }
+	}
+	
+	private int getProxyIndex(TestResult testResult) {
+	    for(int i = 0; i < model.getSize(); i++) {
+	        final TestResultProxy proxy = (TestResultProxy) model.get(i);
+	        if(proxy.getTest() == testResult.getTest()) {
+	            return i;
+	        }
+	    }
+	    return -1;
+	}
+	
     public void addTestResults(TestCaseResult testCaseResult)
     {
         for(TestResult testResult : testCaseResult.getTestResults())
         {
-            model.addElement(testResult);
+            final int index = getProxyIndex(testResult);
+            if(index >= 0) {
+                ((TestResultProxy) model.get(index)).setResult(testResult);
+            }
         }
         
+        list.repaint();
+        
         // Autoscroll
+        /*
         final int lastIndex = model.getSize() - 1;
         if(lastIndex >= 0)
         {
             list.ensureIndexIsVisible(lastIndex);
         }
+        */
     }
     
     private void handleDoubleClick(MouseEvent e)
     {
-        final TestResult result = (TestResult) list.getSelectedValue();
+        final TestResultProxy result = (TestResultProxy) list.getSelectedValue();
         if(result != null)
         {
             EditTestAction.editTest(result.getTest());
@@ -153,7 +178,7 @@ public class TestResultList extends JPanel
         
         list.setSelectedIndex(index);
         final JPopupMenu menu = new JPopupMenu();
-        final TestResult result = (TestResult) list.getSelectedValue();
+        final TestResultProxy result = (TestResultProxy) list.getSelectedValue();
         if(result != null)
         {
             menu.add(new EditTestAction(result.getTest()));
@@ -177,18 +202,27 @@ public class TestResultList extends JPanel
             final JLabel c = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,
                     cellHasFocus);
             
-            final TestResult r = (TestResult) value;
+            final TestResultProxy r = (TestResultProxy) value;
             if(!isSelected)
             {
-                if(!r.isPassed())
+                if(r.getResult() != null) {
+                    if(r.getResult().isPassed())
+                    {
+                        c.setBackground(Constants.PASS_COLOR);
+                    }
+                    else
+                    {
+                        c.setBackground(Constants.FAIL_COLOR);                        
+                    }
+                }
+                else 
                 {
-                    c.setBackground(Constants.FAIL_COLOR);
+                    c.setBackground(Constants.RUNNING_COLOR);
                 }
             }
             
             return c;
         }
-        
     }
 
 }
