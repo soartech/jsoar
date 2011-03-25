@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -43,6 +44,7 @@ public class TestPanel extends JPanel
     
     private final TestAgentFactory agentFactory;
     private final TestCaseCollector collector;
+    private final ExecutorService executor;
     private final TestSummaryPanel summary;
     private final TestResultList list;
     private final CoveragePanel coverage;
@@ -50,12 +52,13 @@ public class TestPanel extends JPanel
     private final Color defaultErrorBackground = errors.getBackground();
     private final JTabbedPane tabs = new JTabbedPane();
    
-    public TestPanel(TestAgentFactory agentFactory, TestCaseCollector collector)
+    public TestPanel(TestAgentFactory agentFactory, TestCaseCollector collector, ExecutorService executor)
     {
         super(new BorderLayout());
         
         this.agentFactory = agentFactory;
         this.collector = collector;
+        this.executor = executor;
         this.summary = new TestSummaryPanel();
         
         add(summary, BorderLayout.NORTH);
@@ -100,7 +103,7 @@ public class TestPanel extends JPanel
             }
         });
         
-        final TestRunner runner = new TestRunner(agentFactory, new PrintWriter(new NullWriter()));
+        final TestRunner runner = new TestRunner(agentFactory, new PrintWriter(new NullWriter()), executor);
         runner.setHaltOnFailure(false);
         runner.runAllTestCases(allTestCases, new TestCaseResultHandler() {
 			

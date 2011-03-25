@@ -6,6 +6,7 @@
 package org.jsoar.soarunit.ui;
 
 import java.awt.BorderLayout;
+import java.util.concurrent.ExecutorService;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -28,11 +29,11 @@ public class MainFrame extends JFrame
     private final JPanel contentPane = new JPanel(new BorderLayout());
     private final TestPanel testPanel;
     
-    public MainFrame(TestAgentFactory agentFactory, TestCaseCollector collector)
+    public MainFrame(TestAgentFactory agentFactory, TestCaseCollector collector, ExecutorService executor)
     {
         super("SoarUnit");
         
-        testPanel = new TestPanel(agentFactory, collector);
+        testPanel = new TestPanel(agentFactory, collector, executor);
         
         setJMenuBar(initMenuBar());
         

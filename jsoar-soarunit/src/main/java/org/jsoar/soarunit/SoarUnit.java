@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -26,7 +28,9 @@ import com.google.common.collect.Lists;
  */
 public class SoarUnit
 {
-    private static enum Options { help, debug, Recursive, ui, sml };
+    private static enum Options { help, debug, Recursive, ui, sml, threads };
+    
+    private static final int DONT_EXIT = 255;
     
     private final PrintWriter out;
     private final boolean fromCommandLine;
@@ -54,6 +58,7 @@ public class SoarUnit
     		"   -d, --debug [test-name] Open the given test in a debugger.\n" +
     		"   -u, --ui                Show graphical user interface.\n" +
     		"   -s, --sml               Use CSoar/SML 9.3.0 instead of JSoar\n" +
+    		"   -t, --threads           [1, n] for fixed thread pool, 'cpus' for number of cpus, 'cached' for cached\n" +
     		"\n" +
     		"Note: When running in SML mode, CSoar's bin directory must be on the system\n" +
     		"      path or in java.library.path.\n" + 
@@ -65,9 +70,35 @@ public class SoarUnit
         final PrintWriter writer = new PrintWriter(System.out);
         final int result = new SoarUnit(writer, true).run(args);
         writer.flush();
-        if(result != 0)
+        if(result != DONT_EXIT) 
         {
             System.exit(result);
+        }
+    }
+    
+    private ExecutorService getExecutor(OptionProcessor<Options> options) {
+        final String value = options.get(Options.threads);
+        if(value == null)
+        {
+            out.println("Using single-threaded test executor.");
+            return Executors.newSingleThreadExecutor();
+        }
+        else if(value.equals("cpus"))
+        {
+            int n = Runtime.getRuntime().availableProcessors();
+            out.printf("Using fixed thread pool of size %d for %d processors.%n", n, n);
+            return Executors.newFixedThreadPool(n);
+        }
+        else if(value.equals("cached"))
+        {
+            out.println("Using cached thread pool.");
+            return Executors.newCachedThreadPool();
+        }
+        else
+        {
+            final int n = Integer.parseInt(value);
+            out.printf("Using fixed thread pool of size %d.%n", n);
+            return n == 1 ? Executors.newSingleThreadExecutor() : Executors.newFixedThreadPool(n);
         }
     }
     
@@ -86,6 +117,7 @@ public class SoarUnit
         newOption(Options.ui).
         newOption(Options.debug).requiredArg().
         newOption(Options.sml).
+        newOption(Options.threads).requiredArg().
         done();
         
         final List<String> rest;
@@ -139,7 +171,7 @@ public class SoarUnit
         if(options.has(Options.debug))
         {
             debugTest(collector.collect(), options.get(Options.debug));
-            return 0;
+            return DONT_EXIT;
         }
         else if(options.has(Options.ui))
         {
@@ -149,17 +181,17 @@ public class SoarUnit
                 public void run()
                 {
                     MainFrame.initializeLookAndFeel();
-                    final MainFrame mf = new MainFrame(agentFactory, collector);
+                    final MainFrame mf = new MainFrame(agentFactory, collector, getExecutor(options));
                     mf.setSize(640, 480);
                     mf.setDefaultCloseOperation(fromCommandLine ? JFrame.EXIT_ON_CLOSE : JFrame.DISPOSE_ON_CLOSE);
                     mf.setVisible(true);
                     mf.runTests();
                 }});
-            return 0;
+            return DONT_EXIT;
         }
         else
         {
-            final TestRunner runner = new TestRunner(agentFactory, out);
+            final TestRunner runner = new TestRunner(agentFactory, out, getExecutor(options));
             final List<TestCaseResult> results = runner.runAllTestCases(collector.collect(), null);
             return printAllTestCaseResults(results, runner.getFiringCounts());
         }
@@ -188,7 +220,7 @@ public class SoarUnit
         }
         
         out.printf("Debugging test %s/%s%n", test.getTestCase().getName(), test.getName());
-        final TestRunner runner = new TestRunner(agentFactory, out);
+        final TestRunner runner = new TestRunner(agentFactory, out, null);
         runner.debugTest(test, fromCommandLine);
     }
 

@@ -44,7 +44,7 @@ public class DebugTestAction extends AbstractAction
     {
         try
         {
-            final TestRunner runner = new TestRunner(agentFactory, new PrintWriter(new NullWriter()));
+            final TestRunner runner = new TestRunner(agentFactory, new PrintWriter(new NullWriter()), null);
             runner.debugTest(test.reload(), false);
         }
         catch (SoarException e1)

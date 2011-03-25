@@ -26,15 +26,14 @@ public class TestRunner
     private boolean haltOnFailure = true;
     private FiringCounts firingCounts = new FiringCounts();
     private final TestAgentFactory factory;
-    private final ExecutorService executor = 
-        //Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        //Executors.newCachedThreadPool();
-        Executors.newSingleThreadExecutor();
+    private final ExecutorService executor;
     
-    public TestRunner(TestAgentFactory factory, PrintWriter out)
+    public TestRunner(TestAgentFactory factory, PrintWriter out, ExecutorService executor)
     {
         this.factory = factory;
         this.out = out;
+        
+        this.executor = executor != null ? executor : Executors.newSingleThreadExecutor();
     }
 
     /**
