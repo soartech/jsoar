@@ -210,8 +210,8 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
     
     private String prepSoarCodeForSml(String code)
     {
-        return code.replace("(pass ", "(exec pass").
-                    replace("(fail ", "(exec fail");
+        return code.replace("(pass)", "(exec pass)").
+                    replace("(fail)", "(exec fail)");
     }
 
     @Override
