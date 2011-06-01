@@ -927,12 +927,6 @@ public class RecognitionMemory
                             {
                                 //Preference clone;
                     
-                                // TODO: this looks like dead code?
-                                if (trace.reference_count != 0) 
-                                {
-                                        continue;
-                                }
-                                
                                 boolean has_active_clones = false;
                                 for (Preference clone=trace.next_clone; clone != null; clone=clone.next_clone) 
                                 {
