@@ -8,6 +8,8 @@ package org.jsoar.kernel.memory;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Stack;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Consistency;
@@ -16,11 +18,11 @@ import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SavedFiringType;
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.Production.Support;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.learning.rl.ReinforcementLearning;
 import org.jsoar.kernel.lhs.BackTraceInfo;
@@ -855,7 +857,242 @@ public class RecognitionMemory
      * 
      * @param inst
      */
-    private void deallocate_instantiation(Instantiation inst)
+    private void deallocate_instantiation (Instantiation inst) 
+    {
+        Condition cond;
+        //Preference pref;
+        int level;
+
+        Stack<Condition> cond_stack = new Stack<Condition>();
+        List<Instantiation> inst_list = new ArrayList<Instantiation>();
+        inst_list.add(inst);
+        ListIterator<Instantiation> next_iter = inst_list.listIterator();
+
+        while ( next_iter.hasNext() ) 
+        {
+            inst = next_iter.next();
+            assert(inst != null);
+
+            level = inst.match_goal_level;
+
+            for (cond=inst.top_of_instantiated_conditions; cond!=null; cond=cond.next) 
+            {
+                final PositiveCondition pc = cond.asPositiveCondition();
+                if (pc != null)
+                {
+                    final BackTraceInfo bt = pc.bt();
+                    if (bt.hasProhibits())
+                    {
+                        for (Preference pref : bt)
+                        {
+                            if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+                            {
+                                pref.preference_remove_ref(this);
+                            }
+                            else
+                            {
+                                if (level > SoarConstants.TOP_GOAL_LEVEL)
+                                    pref.preference_remove_ref(this);
+                            }
+                        }
+                        bt.clearProhibits();
+                    }
+
+                    /*      voigtjr, nlderbin:
+                            We flattened out the following recursive loop in order to prevent a stack
+                            overflow that happens when the chain of backtrace instantiations is very long:
+
+                                    retract_instantiation
+                                    possibly_deallocate_instantiation
+                                    loop start:
+                                    deallocate_instantiation (here)
+                                    preference_remove_ref
+                                    possibly_deallocate_preferences_and_clones
+                                    deallocate_preference
+                                    possibly_deallocate_instantiation
+                                    goto loop start
+                     */
+                    if (!SoarConstants.DO_TOP_LEVEL_REF_CTS && level <= SoarConstants.TOP_GOAL_LEVEL)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        // (removed in jsoar) wme_remove_ref (thisAgent, cond->bt.wme_);
+                        final Preference trace = bt.trace;
+                        if (trace != null) 
+                        {
+                            trace.reference_count--;
+                            if (trace.reference_count == 0) 
+                            {
+                                //Preference clone;
+                    
+                                // TODO: this looks like dead code?
+                                if (trace.reference_count != 0) 
+                                {
+                                        continue;
+                                }
+                                
+                                boolean has_active_clones = false;
+                                for (Preference clone=trace.next_clone; clone != null; clone=clone.next_clone) 
+                                {
+                                    if ( clone.reference_count != 0 ) 
+                                    {
+                                        has_active_clones = true;
+                                    }
+                                }
+                                if ( has_active_clones ) 
+                                {
+                                    continue;
+                                }
+                                for ( Preference clone = trace.prev_clone; clone != null; clone = clone.prev_clone ) 
+                                {
+                                    if ( clone.reference_count != 0 ) 
+                                    {
+                                        has_active_clones = true;
+                                    }
+                                }
+                                if ( has_active_clones ) 
+                                {
+                                    continue;
+                                }
+
+                                // The clones are hopefully a simple case so we just call deallocate_preference on them.
+                                // Someone needs to create a test case to push this boundary...
+                                {
+                                    Preference clone = trace.next_clone;
+                                    Preference next;
+                                    while (clone != null) {
+                                        next = clone.next_clone;
+                                        Preference.deallocate_preference (clone, this);
+                                        clone = next;
+                                    }
+                                    clone = trace.prev_clone;
+                                    while (clone != null) {
+                                        next = clone.prev_clone;
+                                        Preference.deallocate_preference (clone, this);
+                                        clone = next;
+                                    }
+                                }
+
+                                /* --- deallocate pref --- */
+                                /* --- remove it from the list of bt.trace's for its match goal --- */
+                                if ( trace.on_goal_list ) 
+                                {
+                                    // The code below is an expansion of this remove_from_dll macro...
+                                    //remove_from_dll( 
+                                    //        cond->bt.trace->inst->match_goal->id.preferences_from_goal, 
+                                    //        cond->bt.trace, all_of_goal_next, all_of_goal_prev );
+
+                                    if(trace.all_of_goal_next != null)
+                                    {
+                                        trace.all_of_goal_next.all_of_goal_prev = 
+                                            trace.all_of_goal_prev;
+                                    }
+                                    if(trace.all_of_goal_prev != null)
+                                    {
+                                        trace.all_of_goal_prev.all_of_goal_next = 
+                                            trace.all_of_goal_next;
+                                    }
+                                    else
+                                    {
+                                        trace.inst.match_goal.goalInfo.preferences_from_goal = trace.all_of_goal_next;
+                                    }
+                                }
+
+                                /* --- remove it from the list of bt.trace's from that instantiation --- */
+                                // The code below is an expansion of this remove_from_dll macro...
+                                //remove_from_dll( cond->bt.trace->inst->preferences_generated, cond->bt.trace, inst_next, inst_prev );
+
+                                if(trace.inst_next != null)
+                                {
+                                    trace.inst_next.inst_prev = 
+                                        trace.inst_prev;
+                                }
+                                if(trace.inst_prev != null)
+                                {
+                                    trace.inst_prev.inst_next = 
+                                        trace.inst_next;
+                                }
+                                else
+                                {
+                                    trace.inst.preferences_generated = trace.inst_next;
+                                }
+
+                                if ( ( trace.inst.preferences_generated == null ) && ( !trace.inst.in_ms ) ) 
+                                {
+                                    //next_iter = inst_list.insert( next_iter, trace.inst );
+                                    // TODO: there must be a better way -- this looks terribly inefficient and ugly
+                                    int index = next_iter.previousIndex()+1;
+                                    inst_list.add(index, trace.inst);
+                                    next_iter = inst_list.listIterator(index);
+                                }
+
+                                cond_stack.push( cond );
+                            } // if
+                        } // if
+                    } // if
+                    /* voigtjr, nlderbin end */
+                } // if
+            } // for
+        } // while
+
+        //        // free condition symbols and pref
+        //        while( !cond_stack.empty() ) 
+        //        {
+        //                condition* temp = cond_stack.top();
+        //                cond_stack.pop();
+        //
+        //                /* --- dereference component symbols --- */
+        //                symbol_remove_ref( thisAgent, temp->bt.trace->id );
+        //                symbol_remove_ref( thisAgent, temp->bt.trace->attr );
+        //                symbol_remove_ref( thisAgent, temp->bt.trace->value );
+        //                if ( preference_is_binary( temp->bt.trace->type ) ) 
+        //                {
+        //                        symbol_remove_ref( thisAgent, temp->bt.trace->referent );
+        //                }
+        //
+        //                if ( temp->bt.trace->wma_o_set )
+        //                {
+        //                        wma_remove_pref_o_set( thisAgent, temp->bt.trace );
+        //                }
+        //
+        //                /* --- free the memory --- */
+        //                free_with_pool( &thisAgent->preference_pool, temp->bt.trace );
+        //        }
+
+        //        // free instantiations in the reverse order
+        //        std::list<instantiation*>::reverse_iterator riter = inst_list.rbegin();
+        //        while( riter != inst_list.rend() ) 
+        //        {
+        //                instantiation* temp = *riter;
+        //                ++riter;
+        //
+        //                deallocate_condition_list( thisAgent, temp->top_of_instantiated_conditions );
+        //                deallocate_list_of_nots( thisAgent, temp->nots );
+        //                if ( temp->prod ) 
+        //                {
+        //                        production_remove_ref( thisAgent, temp->prod );
+        //                }
+        //                free_with_pool( &thisAgent->instantiation_pool, temp );
+        //        }
+        
+        // TODO: are these next loops really necessary?
+        
+        for(Condition temp : cond_stack)
+        {
+            temp.asPositiveCondition().bt().trace = null;
+        }
+        
+        for(Instantiation temp : inst_list)
+        {
+            temp.top_of_instantiated_conditions = null;//  deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
+            temp.bottom_of_instantiated_conditions = null; // This is very important to avoid memory leaks!
+            temp.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
+        }
+    }
+
+    private void deallocate_instantiation_OLD(Instantiation inst)
     {
         int level = inst.match_goal_level;
 
