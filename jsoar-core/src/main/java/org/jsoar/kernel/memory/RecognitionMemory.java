@@ -864,7 +864,7 @@ public class RecognitionMemory
         int level;
 
         Stack<Condition> cond_stack = new Stack<Condition>();
-        List<Instantiation> inst_list = new ArrayList<Instantiation>();
+        List<Instantiation> inst_list = new LinkedList<Instantiation>();
         inst_list.add(inst);
         ListIterator<Instantiation> next_iter = inst_list.listIterator();
 
