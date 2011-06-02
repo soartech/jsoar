@@ -1085,69 +1085,6 @@ public class RecognitionMemory
             temp.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
         }
     }
-
-    private void deallocate_instantiation_OLD(Instantiation inst)
-    {
-        int level = inst.match_goal_level;
-
-        // #ifdef DEBUG_INSTANTIATIONS
-        // if (inst->prod)
-        // print_with_symbols (thisAgent, "\nDeallocate instantiation of %y",inst->prod->name);
-        // #endif
-
-        for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
-        {
-            final PositiveCondition pc = cond.asPositiveCondition();
-            if (pc != null)
-            {
-                final BackTraceInfo bt = pc.bt();
-                if (bt.hasProhibits())
-                {
-                    for (Preference pref : bt)
-                    {
-                        if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
-                        {
-                            pref.preference_remove_ref(this);
-                        }
-                        else
-                        {
-                            if (level > SoarConstants.TOP_GOAL_LEVEL)
-                                pref.preference_remove_ref(this);
-                        }
-                    }
-                    bt.clearProhibits();
-                }
-
-                if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
-                {
-                    // (removed in jsoar) pc.bt().wme_.wme_remove_ref(context.workingMemory);
-                    if (bt.trace != null)
-                    {
-                        bt.trace.preference_remove_ref(this);
-                        bt.trace = null;// This is very important to avoid memory leaks!
-                    }
-                }
-                else
-                {
-                    if (level > SoarConstants.TOP_GOAL_LEVEL)
-                    {
-                        // (removed in jsoar) pc.bt.wme_.wme_remove_ref(context.workingMemory);
-                        if (bt.trace != null)
-                        {
-                            bt.trace.preference_remove_ref(this);
-                            bt.trace = null;// This is very important to avoid memory leaks!
-                        }
-                    }
-                }
-            }
-        }
-
-        inst.top_of_instantiated_conditions = null;//  deallocate_condition_list (thisAgent, inst->top_of_instantiated_conditions);
-        inst.bottom_of_instantiated_conditions = null; // This is very important to avoid memory leaks!
-        inst.nots = null; //deallocate_list_of_nots (thisAgent, inst->nots);
-
-       // TODO: Instantiation is deallocated here. Can we help GC?
-    }
     
     /**
      * <p>recmem.h:65:possibly_deallocate_instantiation
