@@ -1,0 +1,98 @@
+sp {elaborate*state*name
+    (state <s> ^superstate <s*1>)
+    (<s*1> ^operator <o*1>)
+    (<o*1> ^name <name>)
+    -->
+    (<s> ^name <name> +)
+}
+
+sp {elaborate*state*top-state
+    (state <s> ^superstate <s*1>)
+    (<s*1> ^top-state <ts>)
+    -->
+    (<s> ^top-state <ts> +)
+}
+
+sp {elaborate*top-state*top-state
+    (state <s> ^superstate nil)
+    -->
+    (<s> ^top-state <s> +)
+}
+
+sp {propose*initialize-count-and-die
+    (state <s> ^superstate nil -^name <n*1>)
+    -->
+    (<s> ^operator <o> +)
+    (<o> ^name initialize-count-and-die +)
+}
+
+sp {apply*initialize-count-and-die
+    (state <s> ^operator <op>)
+    (<op> ^name initialize-count-and-die)
+    -->
+    (<s> ^name count-and-die + ^phase one +)
+}
+
+sp {count-and-die*propose*one
+    (state <s> ^phase one ^name count-and-die)
+    -->
+    (<s> ^operator <op> + ^operator <op> =)
+    (<op> ^name one +)
+}
+
+sp {one*propose*done
+    (state <s> ^name one ^max <max> ^count <max>)
+    -->
+    (<s> ^operator <op> + ^operator <op> =)
+    (<op> ^name done +)
+}
+
+sp {apply*done
+    (state <s> ^operator <op> ^superstate <ss>)
+    (<op> ^name done)
+    (<ss> ^operator <ss-op>)
+    -->
+    (<ss> ^phase one - ^phase two +)
+}
+
+sp {one*propose*inc
+    (state <s> ^name one ^max <max> ^count { < <max> <ct> })
+    -->
+    (<s> ^operator <op> + ^operator <op> =)
+    (<op> ^name inc +)
+}
+
+sp {apply*inc
+    (state <s> ^operator <op> ^count <ct>)
+    (<op> ^name inc)
+    -->
+    (<s> ^count <ct> - ^count (+ <ct> 1) +)
+}
+
+sp {one*propose*init
+    (state <s> ^name one -^count <c*1>)
+    -->
+    (<s> ^operator <op> + ^operator <op> =)
+    (<op> ^name init +)
+}
+
+sp {apply*init
+    (state <s> ^operator <op>)
+    (<op> ^name init)
+    -->
+    (<s> ^max 75000 + ^count 1 +)
+}
+
+sp {count-and-die*propose*two
+    (state <s> ^phase two ^name count-and-die)
+    -->
+    (<s> ^operator <op> + ^operator <op> =)
+    (<op> ^name two +)
+}
+
+sp {apply*two
+    (state <s> ^operator <op>)
+    (<op> ^name two)
+    -->
+    (halt)
+}
