@@ -33,6 +33,7 @@ public abstract class ThreeFieldCondition extends Condition
         this.id_test = other.id_test;
         this.attr_test = other.attr_test;
         this.value_test = other.value_test;
+        this.test_for_acceptable_preference = other.test_for_acceptable_preference;
     }
     
     /* (non-Javadoc)

@@ -146,4 +146,19 @@ public class RecognitionMemoryTest
             assertTrue(p.getName() + " should be an rl rule", p.rlRuleInfo != null);
         }
     }
+    
+    @Test
+    public void testInstiationDeallocationStackOverflow() throws Exception
+    {
+        /*
+         * Test for jsoar issue 7 (port of recursion flattening from csoar)
+         * The real test is whether this crashes with a stack overflow or not (it should not)
+         */
+        final SoarCommandInterpreter ifc = agent.getInterpreter();
+        ifc.source(RecognitionMemoryTest.class.getResource("/" + RecognitionMemoryTest.class.getName().replace('.', '/')  + "_count-and-die.soar"));
+
+        agent.runFor(75006, RunType.DECISIONS);
+        
+        assertTrue("did not halt when expected", agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT) == 75005);
+    }
 }
