@@ -614,93 +614,16 @@ public class Lexer
         }
 
         // otherwise it must be a symbolic constant
-        if (possibleType.possible_sc)
-        {
-            lexeme.type = LexemeType.SYM_CONSTANT;
-            if (printer.isPrintWarnings())
-            {
-                if (lexeme.at(0) == '<')
+        lexeme.type = LexemeType.SYM_CONSTANT;
+        if (this.printer.isPrintWarnings()) {
+                if ( lexeme.string.startsWith("<") || 
+                     lexeme.string.endsWith(">") )
                 {
-                    if (lexeme.at(1) == '<')
-                    {
-                        printer.print( 
-                           "Warning: Possible disjunctive encountered in reading symbolic constant\n" +
-                           " If a disjunctive was intended, add a space after <<\n" +
-                           " If a constant was intended, surround constant with vertical bars\n");
-                        //
-                        // xml_generate_warning(thisAgent, "Warning: Possible
-                        // disjunctive encountered in reading symbolic
-                        // constant.\n If a disjunctive was intended, add a
-                        // space after &lt;&lt;\n If a constant was intended,
-                        // surround constant with vertical bars.");
-                        // TODO: should this be appended to previous XML
-                        // message, or should it be a separate message?
+                        this.printer.print("Warning: Suspicious string constant \"%s\"\n", lexeme.string);
                         print_location_of_most_recent_lexeme();
-                    }
-                    else
-                    {
-                        printer.print(
-                           "Warning: Possible variable (" + lexeme + ") encountered in reading symbolic constant\n" +
-                           " If a constant was intended, surround constant with vertical bars\n");
-
-                        // TODO
-                        // xml_generate_warning(thisAgent, "Warning: Possible
-                        // variable encountered in reading symbolic constant.\n
-                        // If a constant was intended, surround constant with
-                        // vertical bars.");
-                        // TODO: should this be appended to previous XML
-                        // message, or should it be a separate message?
-                        print_location_of_most_recent_lexeme();
-                    }
+                        //TODO: xml_generate_warning(thisAgent, "Warning: Suspicious string constant");            
                 }
-                else
-                {
-                    if (lexeme.at(lexeme.length() - 1) == '>')
-                    {
-                        if (lexeme.at(lexeme.length() - 2) == '>')
-                        {
-                            printer.print(
-                               "Warning: Possible disjunctive (" + lexeme + ") encountered in reading symbolic constant\n" +
-                               " If a disjunctive was intended, add a space before >>\n" +
-                               " If a constant was intended, surround constant with vertical bars\n");
-                            
-                            // TODO
-                            // xml_generate_warning(thisAgent, "Warning:
-                            // Possible disjunctive encountered in reading
-                            // symbolic constant.\n If a disjunctive was
-                            // intended, add a space before &gt;&gt;\n If a
-                            // constant was intended, surround constant with
-                            // vertical bars.");
-                            // TODO: should this be appended to previous XML
-                            // message, or should it be a separate message?
-                            print_location_of_most_recent_lexeme();
-
-                        }
-                        else
-                        {
-                            printer.print(
-                               "Warning: Possible variable (" + lexeme + ") encountered in reading symbolic constant\n" +
-                               " If a constant was intended, surround constant with vertical bars\n");
-                            
-                            // TODO
-                            // xml_generate_warning(thisAgent, "Warning:
-                            // Possible variable encountered in reading symbolic
-                            // constant.\n If a constant was intended, surround
-                            // constant with vertical bars.");
-                            // //TODO: should this be appended to previous XML
-                            // message, or should it be a separate message?
-                            print_location_of_most_recent_lexeme();
-
-                            // TODO: generate tagged output in
-                            // print_location_of_most_recent_lexeme
-                        }
-                    }
-                }
-            }
-            return true;
         }
-
-        lexeme.type = LexemeType.QUOTED_STRING;
         return true;
     }
 

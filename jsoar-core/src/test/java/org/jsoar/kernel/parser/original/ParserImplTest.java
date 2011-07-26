@@ -21,6 +21,7 @@ import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
 import org.jsoar.kernel.lhs.DisjunctionTest;
 import org.jsoar.kernel.lhs.EqualityTest;
+import org.jsoar.kernel.lhs.NegativeCondition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.lhs.RelationalTest;
 import org.jsoar.kernel.memory.PreferenceType;
@@ -245,6 +246,18 @@ public class ParserImplTest extends JSoarTest
         assertNull(c3.next);
         assertSame(c2, c3.prev);
         assertNotNull(c3.asNegativeCondition());
+    }
+    
+    @Test
+    public void testParseNegatedCond() throws Exception
+    {
+        OriginalParserImpl parser = createParser("-(<s> ^operator <o> +)");
+        
+        Condition c0 = parser.parse_cond();
+        NegativeCondition n0 = c0.asNegativeCondition();
+        assertNotNull(c0);
+        assertNotNull(n0);
+        assertEquals(n0.test_for_acceptable_preference, true);
     }
     
     @Test

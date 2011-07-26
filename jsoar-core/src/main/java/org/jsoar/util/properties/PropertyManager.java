@@ -19,10 +19,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class PropertyManager
 {
-    @SuppressWarnings("unchecked")
-    private final Map<PropertyKey<?>, PropertyProvider> properties = Collections.synchronizedMap(new HashMap<PropertyKey<?>, PropertyProvider>());
-    @SuppressWarnings("unchecked")
-    private final Map<PropertyKey<?>, List> listeners = Collections.synchronizedMap(new HashMap<PropertyKey<?>, List>());
+    private final Map<PropertyKey<?>, PropertyProvider<?>> properties = Collections.synchronizedMap(new HashMap<PropertyKey<?>, PropertyProvider<?>>());
+    private final Map<PropertyKey<?>, List<?>> listeners = Collections.synchronizedMap(new HashMap<PropertyKey<?>, List<?>>());
     
     /**
      * Construct a new property manager.

@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Decider;
+import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.PredefinedSymbols;
+import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
@@ -21,6 +24,7 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -218,7 +222,47 @@ public class PrintPreferencesCommand
                 }
             }
         }
+        
+        if ( id.isGoal() && attr.toString().equals("operator") )
+        {
+            // voigtjr march 2010
+            // print selection probabilities re: issue 18
+            // run preference semantics "read only" via _consistency_check
+            // returns a list of candidates without deciding which one in the event of indifference
+            final ByRef<Preference> cand = ByRef.create(null);
+            final Decider decider = Adaptables.adapt(agent, Decider.class);
+            ImpasseType impasse_type = decider.run_preference_semantics_for_consistency_check(s, cand);
 
+            // if the impasse isn't NONE_IMPASSE_TYPE, there's an impasse and we don't want to print anything
+            // if we have no candidates, we don't want to print anything
+            if ((impasse_type == ImpasseType.NONE) && cand != null)
+            {
+                printer.print("\nselection probabilities:\n");
+
+                // some of this following code is redundant with code in exploration.cpp
+                // see exploration_choose_according_to_policy
+                // see exploration_compute_value_of_candidate
+                // see exploration_probabilistically_select
+                int count = 0;
+                double total_probability = 0;
+                final Exploration exploration = Adaptables.adapt(agent, Exploration.class);
+                // add up positive numeric values, count candidates
+                for (Preference p = cand.value; p != null; p = p.next_candidate) 
+                {
+                    exploration.exploration_compute_value_of_candidate(p, s, 0);
+                    ++count;
+                    if ( p.numeric_value > 0 )
+                        total_probability += p.numeric_value;
+                }
+                assert (count != 0);
+                for (Preference p = cand.value; p != null; p = p.next_candidate) 
+                {
+                    // if total probability is zero, fall back to random
+                    double prob = total_probability > 0.0 ? p.numeric_value / total_probability : 1.0 / count;
+                    print_preference_and_source(agent, printer, p, prob);
+                }
+            }
+        }
     }
     
     /**
@@ -234,9 +278,15 @@ public class PrintPreferencesCommand
      * @param agnt
      * @param printer
      * @param pref
+     * @param selection_probability
      * @throws IOException
      */
     private void print_preference_and_source(Agent agnt, Printer printer, Preference pref) throws IOException
+    {
+        print_preference_and_source(agnt, printer, pref, null);
+    }
+    
+    private void print_preference_and_source(Agent agnt, Printer printer, Preference pref, Double selection_probability) throws IOException
     {
         final TraceFormats traceFormats = Adaptables.adapt(agnt, TraceFormats.class);
         final PredefinedSymbols predefinedSyms = Adaptables.adapt(agnt, PredefinedSymbols.class);
@@ -259,6 +309,7 @@ public class PrintPreferencesCommand
             printer.print(" :O ");
         else
             printer.print(" :I ");
+        if (selection_probability != null) printer.print ("(%.1f%%)", selection_probability * 100.0);
         printer.print("\n");
         if (print_prod)
         {

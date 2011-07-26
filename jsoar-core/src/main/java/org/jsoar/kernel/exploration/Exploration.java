@@ -6,6 +6,9 @@
 package org.jsoar.kernel.exploration;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.jsoar.kernel.Agent;
@@ -526,103 +529,82 @@ public class Exploration
         return null;
     }
 
-    /**
+    /*
+     * Select a candidate whose Q-value is Q_i with probability
+     *
+     * e^(Q_i / t) / sum(j=1 to n, e^(Q_j / t)).
+     * 
+     * Since Q values can get very large or very small (negative values),
+     * overflow and underflow problems can occur when calculating the
+     * exponentials. This is avoided by subtracting a constant k from
+     * all exponent values involved. This doesn't affect the actual
+     * probabilities with which candidates are chosen, because subtracting
+     * a constant from an exponent is equivalent to dividing by the base
+     * raised to that constant, and the divisors cancel out during the
+     * calculation.
+     *
+     * k is chosen to be Q_max / t. This means that the values of all
+     * numerator exponentials are at most 1, and the value of the sum in the
+     * denominator is between 1 and n. This gets rid of the overflow problem
+     * completely, and in the cases where underflow will occur, the actual
+     * probability of the action being considered will be so small (< 10^-300)
+     * that it's negligible.
+     * 
      * <p>exploration.cpp:621:exploration_boltzmann_select
      */
-    private Preference exploration_boltzmann_select( Preference candidates )
+    Preference exploration_boltzmann_select( Preference candidates )
     {
-        // TODO This is weird.
-        double temp =  exploration_get_parameter_value("temperature" /* (const long) EXPLORATION_PARAM_TEMPERATURE */);
-        
-        // output trace information
-        final Trace trace = context.getTrace();
-        if ( trace.isEnabled(Category.INDIFFERENT))
-        {
-            for (Preference cand = candidates; cand != null; cand = cand.next_candidate )
-            {
-                trace.print("\n Candidate %s:  ", cand.value );
-                trace.print("Value (Sum) = %f, (Exp) = %f", cand.numeric_value, 
-                                    Math.exp( cand.numeric_value / temp ) );
-                /*
-                xml_begin_tag( my_agent, kTagCandidate );
-                xml_att_val( my_agent, kCandidateName, cand->value );
-                xml_att_val( my_agent, kCandidateType, kCandidateTypeSum );
-                xml_att_val( my_agent, kCandidateValue, cand->numeric_value );
-                xml_att_val( my_agent, kCandidateExpValue, exp( cand->numeric_value / temp ) );
-                xml_end_tag( my_agent, kTagCandidate );
-                */
-            }
-        }
-
-        /**
-         * Since we can't guarantee any combination of temperature/q-values, could be useful
-         * to notify the user if double limit has been breached.
-         */
-        double exp_max = Math.log( Double.MAX_VALUE );
-        double q_max = exp_max * temp;
-
-        /*
-         * method to increase usable range of boltzmann with double
-         * - find the highest/lowest q-values
-         * - take half the difference
-         * - subtract this value from all q-values when making calculations
-         * 
-         * this maintains relative probabilities of selection, while reducing greatly the exponential extremes of calculations
-         */
-        double q_diff = 0;
-        if ( candidates.next_candidate != null ) 
-        {
-            double q_high = candidates.numeric_value;
-            double q_low = candidates.numeric_value;
+            double t = exploration_get_parameter_value("temperature");
+            double maxq;
+            Preference c;
             
-            for (Preference cand = candidates.next_candidate; cand != null; cand = cand.next_candidate ) 
+            maxq = candidates.numeric_value;
+            for (c = candidates.next_candidate; c != null; c = c.next_candidate) {
+                    if (maxq < c.numeric_value)
+                            maxq = c.numeric_value;
+            }
+            
+            double exptotal = 0.0;
+            List<Double> expvals = new LinkedList<Double>();
+            
+
+            for (c = candidates; c != null; c = c.next_candidate) {
+                    // equivalent to exp((c.numeric_value / t) - (maxq / t)) but safer against overflow
+                    double v = Math.exp((c.numeric_value - maxq) / t);
+                    expvals.add(v);
+                    exptotal += v;
+            }
+            
+            // output trace information
+            final Trace trace = context.getTrace();
+            if ( trace.isEnabled(Category.INDIFFERENT) )
             {
-                if ( cand.numeric_value > q_high )
-                    q_high = cand.numeric_value;
-                if ( cand.numeric_value < q_low )
-                    q_low = cand.numeric_value;
+                ListIterator<Double> i = expvals.listIterator();
+                    for (c = candidates; c != null; c = c.next_candidate)
+                    {
+                            double prob = i.next() / exptotal;
+                            trace.print("\n Candidate %s:  ", c.value );
+                            trace.print("Value (Sum) = %f, (Prob) = %f", c.numeric_value, prob );
+//                            xml_begin_tag( my_agent, kTagCandidate );
+//                            xml_att_val( my_agent, kCandidateName, c.value );
+//                            xml_att_val( my_agent, kCandidateType, kCandidateTypeSum );
+//                            xml_att_val( my_agent, kCandidateValue, c.numeric_value );
+//                            xml_att_val( my_agent, kCandidateExpValue, prob );
+//                            xml_end_tag( my_agent, kTagCandidate );
+                    }
             }
 
-            q_diff = ( q_high - q_low ) / 2;
-        } 
-        else 
-        {
-            q_diff = candidates.numeric_value;
-        }
+            double r = context.getRandom().nextDouble()*exptotal;
+            double sum = 0.0;
 
-        double total_probability = 0.0;
-        for (Preference cand = candidates; cand != null; cand = cand.next_candidate) 
-        {
-
-            /*  Total Probability represents the range of values, we expect
-             *  the use of negative valued preferences, so its possible the
-             *  sum is negative, here that means a fractional probability
-             */
-            double q_val = ( cand.numeric_value - q_diff );
-            total_probability += Math.exp( (double) (  q_val / temp ) );
-            
-            /**
-             * Let user know if adjusted q-value will overflow
-             */
-            if ( q_val > q_max )
-            {
-                context.getPrinter().warn("WARNING: Boltzmann update overflow! %f > %f", q_val, q_max );
+            ListIterator<Double> i = expvals.listIterator();
+            for (c = candidates, i = expvals.listIterator(); c != null; c = c.next_candidate) {
+                    sum += i.next();
+                    if (sum >= r)
+                            return c;
             }
-        }
-
-        double rn = context.getRandom().nextDouble(); //SoarRand(); // generates a number in [0,1]
-        double selected_probability = rn * total_probability;
-
-        double current_sum = 0.0;
-        for (Preference cand = candidates; cand != null; cand = cand.next_candidate) 
-        {
-            current_sum += Math.exp( (double) ( ( cand.numeric_value - q_diff ) / temp ) );
             
-            if ( selected_probability <= current_sum )
-                return cand;
-        }
-        
-        return null;
+            return null;
     }
     
     /**

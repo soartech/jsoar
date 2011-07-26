@@ -26,7 +26,7 @@ public class Preference implements Formattable
     public SymbolImpl referent; // TODO: I'd like this to be final, but RL changes it.
     public boolean o_supported = false;  /* is the preference o-supported? */
     public boolean on_goal_list = false; /* is this pref on the list for its match goal */
-    private int reference_count = 0;
+    public int reference_count = 0; // TODO: this shouldn't be public if we can avoid it
     
     /**
      * The slot this preference is in. This is also a replacement for in_tm
@@ -270,7 +270,7 @@ public class Preference implements Formattable
      * 
      * @param pref
      */
-    private void deallocate_preference (Preference pref, RecognitionMemory recMemory) 
+    static public void deallocate_preference (Preference pref, RecognitionMemory recMemory) 
     {
         assert !pref.deallocated;
         assert pref.reference_count == 0;

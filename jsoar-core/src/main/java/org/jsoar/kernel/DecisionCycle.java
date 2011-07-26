@@ -864,8 +864,9 @@ public class DecisionCycle
             }
             if (count >= this.maxNilOutputCycles)
             {
-                stop_soar = true;
-                reason_for_stopping = "exceeded max_nil_output_cycles with no output";
+                break;
+                //stop_soar = true;
+                //reason_for_stopping = "exceeded max_nil_output_cycles with no output";
             }
         }
         
@@ -923,7 +924,12 @@ public class DecisionCycle
         case ELABORATIONS: run_for_n_elaboration_cycles(n); break;
         case DECISIONS: run_for_n_decision_cycles(n); break;
         case PHASES: run_for_n_phases(n); break;
-        case MODIFICATIONS_OF_OUTPUT: run_for_n_modifications_of_output(n); break;
+        case MODIFICATIONS_OF_OUTPUT:
+            for(long i = 0; i < n; ++i)
+            {
+                run_for_n_modifications_of_output(1);
+            }
+            break;
         case FOREVER: runForever(); break;
         default:
             throw new IllegalArgumentException("Unknown run type: " + runType);
