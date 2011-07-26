@@ -102,6 +102,7 @@ public class TestRunner
         final long elapsedTime = System.nanoTime() - startTime;
         out.printf("Ran %d tests in %f s\n", TestCase.getTotalTests(all), elapsedTime / 1000000000.0);
         System.out.printf("Ran %d tests in %f s\n", TestCase.getTotalTests(all), elapsedTime / 1000000000.0);
+        System.gc();
         return results;
         
         /*
