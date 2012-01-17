@@ -347,7 +347,7 @@ public class Consistency
                                             goal);
                         }
                         
-                    	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %y because of a failed consistency check.\n", goal);
+                    	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "Removing state %s because of a failed consistency check.\n", goal);
                     	/* This doesn;t seem like it should be necessary but evidently it is: see 2.008 */
                         remove_current_decision(s);
                         return false; /* No need to continue once a decision is removed */
