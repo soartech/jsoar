@@ -164,9 +164,9 @@ public class Printer
      * 
      * @param writer the writer to remove
      */
-    public void removePersistenWriter(Writer writer)
+    public void removePersistentWriter(Writer writer)
     {
-        this.persistentWriters.addWriter(writer);
+        this.persistentWriters.removeWriter(writer);
     }
     
     public Printer print(String output)
@@ -178,8 +178,13 @@ public class Printer
     
     public Printer print(String format, Object ... args)
     {
-        this.printWriter.printf(format, args);
-        this.persistentPrintWriter.printf(format, args);
+    	try {
+    		this.printWriter.printf(format, args);
+    	}
+    	catch (Exception e) {
+    		System.out.println("!!");	
+    	}
+    	this.persistentPrintWriter.printf(format, args);
         return this;
     }
     
