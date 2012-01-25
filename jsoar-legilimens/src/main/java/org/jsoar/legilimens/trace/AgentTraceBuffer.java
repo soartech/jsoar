@@ -99,7 +99,7 @@ public class AgentTraceBuffer
     {
         // TODO remove from agent properties
         
-        agent.getPrinter().removePersistenWriter(fileBuffer);
+        agent.getPrinter().removePersistentWriter(fileBuffer);
         
         fileBuffer.close();
     }
