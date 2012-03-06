@@ -18,7 +18,7 @@ import org.jsoar.util.properties.PropertyProvider;
  * <p>semantic_memory.h:92:smem_stat_container
  * @author ray
  */
-class DefaultSemanticMemoryStats
+class DefaultSemanticMemoryStats implements SemanticMemoryStatistics
 {
     private static final String PREFIX = "smem.stats.";
     
@@ -88,5 +88,23 @@ class DefaultSemanticMemoryStats
         {
             properties.set(key, key.getDefaultValue());
         }
+    }
+
+    @Override
+    public long getRetrieves()
+    {
+        return retrieves.get();
+    }
+
+    @Override
+    public long getQueries()
+    {
+        return queries.get();
+    }
+
+    @Override
+    public long getStores()
+    {
+        return stores.get();
     }
 }

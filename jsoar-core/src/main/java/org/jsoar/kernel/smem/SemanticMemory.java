@@ -73,6 +73,11 @@ public interface SemanticMemory extends LongTermIdentifierSource
     void resetStatistics();
     
     /**
+     * Returns an object that exposes statistics about semantic memory
+     */
+    SemanticMemoryStatistics getStatistics();
+    
+    /**
      * Attaches smem_info to the given identifier. This code is factored out of
      * decide.cpp:create_new_context()
      * 

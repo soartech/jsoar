@@ -190,7 +190,14 @@ public class DefaultSemanticMemory implements SemanticMemory
         stats.reset();
     }
     
-    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.SemanticMemory#getStatistics()
+     */
+    @Override
+    public SemanticMemoryStatistics getStatistics()
+    {
+    	return stats;
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.kernel.smem.SemanticMemory#attachToNewContext(org.jsoar.kernel.symbols.IdentifierImpl)
