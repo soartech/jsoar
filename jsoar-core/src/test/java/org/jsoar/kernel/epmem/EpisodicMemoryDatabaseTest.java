@@ -40,17 +40,17 @@ public class EpisodicMemoryDatabaseTest
     @Test
     public void testIfStructureAlreadyExistsDontRecreate() throws Exception
     {
-        final EpisodicMemoryDatabase smdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
-        assertTrue(smdb.structure());
+        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
+        assertTrue(emdb.structure());
         
-        assertFalse(smdb.structure());
+        assertFalse(emdb.structure());
     }
     
     @Test
     public void testCanCreateInitialTables() throws Exception
     {
-        final EpisodicMemoryDatabase smdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
-        smdb.structure();
+        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
+        emdb.structure();
         
         final Set<String> tables = new HashSet<String>();
         final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
@@ -92,8 +92,8 @@ public class EpisodicMemoryDatabaseTest
     @Test
     public void testCanCreateInitialIndexes() throws Exception
     {
-        final EpisodicMemoryDatabase smdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
-        smdb.structure();
+        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
+        emdb.structure();
         
         final Set<String> tables = new HashSet<String>();
         final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"INDEX"});
@@ -136,44 +136,44 @@ public class EpisodicMemoryDatabaseTest
     @Test
     public void testPreparesStatements() throws Exception
     {
-        final EpisodicMemoryDatabase smdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
-        smdb.structure();
-        smdb.prepare();
+        final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
+        emdb.structure();
+        emdb.prepare();
         
-        assertNotNull(smdb.begin);
-        assertNotNull(smdb.commit);
-        assertNotNull(smdb.rollback);
-        assertNotNull(smdb.var_get);
-        assertNotNull(smdb.var_set);
-        assertNotNull(smdb.rit_add_left);
-        assertNotNull(smdb.rit_truncate_left);
-        assertNotNull(smdb.rit_add_right);
-        assertNotNull(smdb.rit_truncate_right);
-        assertNotNull(smdb.hash_get);
-        assertNotNull(smdb.hash_add);
+        assertNotNull(emdb.begin);
+        assertNotNull(emdb.commit);
+        assertNotNull(emdb.rollback);
+        assertNotNull(emdb.var_get);
+        assertNotNull(emdb.var_set);
+        assertNotNull(emdb.rit_add_left);
+        assertNotNull(emdb.rit_truncate_left);
+        assertNotNull(emdb.rit_add_right);
+        assertNotNull(emdb.rit_truncate_right);
+        assertNotNull(emdb.hash_get);
+        assertNotNull(emdb.hash_add);
         
         // epmem_graph_statement_container
-        assertNotNull(smdb.add_time);
-        assertNotNull(smdb.add_node_now);
-        assertNotNull(smdb.delete_node_now);
-        assertNotNull(smdb.add_node_point);
-        assertNotNull(smdb.add_node_range);
-        assertNotNull(smdb.add_node_unique);
-        assertNotNull(smdb.find_node_unique);
-        assertNotNull(smdb.add_edge_now);
-        assertNotNull(smdb.delete_edge_now);
-        assertNotNull(smdb.add_edge_point);
-        assertNotNull(smdb.add_edge_range);
-        assertNotNull(smdb.add_edge_unique);
-        assertNotNull(smdb.find_edge_unique);
-        assertNotNull(smdb.find_edge_unique_shared);
-        assertNotNull(smdb.valid_episode);
-        assertNotNull(smdb.next_episode);
-        assertNotNull(smdb.prev_episode);
-        assertNotNull(smdb.get_nodes);
-        assertNotNull(smdb.get_edges);
-        assertNotNull(smdb.promote_id);
-        assertNotNull(smdb.find_lti);
+        assertNotNull(emdb.add_time);
+        assertNotNull(emdb.add_node_now);
+        assertNotNull(emdb.delete_node_now);
+        assertNotNull(emdb.add_node_point);
+        assertNotNull(emdb.add_node_range);
+        assertNotNull(emdb.add_node_unique);
+        assertNotNull(emdb.find_node_unique);
+        assertNotNull(emdb.add_edge_now);
+        assertNotNull(emdb.delete_edge_now);
+        assertNotNull(emdb.add_edge_point);
+        assertNotNull(emdb.add_edge_range);
+        assertNotNull(emdb.add_edge_unique);
+        assertNotNull(emdb.find_edge_unique);
+        assertNotNull(emdb.find_edge_unique_shared);
+        assertNotNull(emdb.valid_episode);
+        assertNotNull(emdb.next_episode);
+        assertNotNull(emdb.prev_episode);
+        assertNotNull(emdb.get_nodes);
+        assertNotNull(emdb.get_edges);
+        assertNotNull(emdb.promote_id);
+        assertNotNull(emdb.find_lti);
 
     }
 }
