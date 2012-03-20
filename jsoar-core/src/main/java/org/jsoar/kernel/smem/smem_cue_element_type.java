@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2010 Dave Ray <daveray@gmail.com>
+ */
 package org.jsoar.kernel.smem;
 
 /**
