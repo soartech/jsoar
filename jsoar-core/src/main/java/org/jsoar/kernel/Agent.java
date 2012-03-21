@@ -20,6 +20,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.exploration.Exploration;
@@ -47,11 +48,11 @@ import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.PrintEventWriter;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
-import org.jsoar.kernel.tracing.TraceFormatRestriction;
-import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.kernel.tracing.TraceFormatRestriction;
+import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.NullWriter;
@@ -137,6 +138,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final Explain explain = new Explain(this);
     private final ReinforcementLearning rl = new ReinforcementLearning(this);
     private final DefaultSemanticMemory smem = new DefaultSemanticMemory(this);
+    private final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(this);
     
     private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
     private final InputOutputImpl io = new InputOutputImpl(this);
@@ -177,7 +179,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
             debuggerProvider, decider, rl,
-            smem);
+            smem, epmem);
     
     /**
      * Construct a new agent with a generated name.
@@ -214,6 +216,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         soarReteListener.initialize();
         exploration.initialize();
         smem.initialize();
+        epmem.initialize();
         
         // Set up standard RHS functions
         new StandardFunctions(this);
@@ -236,6 +239,18 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             catch (SoarException e)
             {
                 logger.error("While closing smem database: " + e.getMessage(), e);
+            }
+        }
+        
+        if (epmem != null)
+        {
+            try
+            {
+                epmem.epmem_close();
+            }
+            catch (SoarException e)
+            {
+                logger.error("While closing epmem database: " + e.getMessage(), e);
             }
         }
         
@@ -881,6 +896,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             logger.error("While trying to reset SMEM id counters: " + e.getMessage(), e);
             printer.error("While trying to reset SMEM id counters: " + e.getMessage());
         } 
+        
+        // TODO epmem reset if any
         
         workingMemory.reset();
         decisionCycle.reset();

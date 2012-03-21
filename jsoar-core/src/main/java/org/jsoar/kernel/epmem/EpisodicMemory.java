@@ -5,10 +5,17 @@
  */
 package org.jsoar.kernel.epmem;
 
+import org.jsoar.kernel.SoarException;
+
 /**
  * @author voigtjr
  */
 public interface EpisodicMemory
 {
+    /**
+     * episodic_memory.cpp:epmem_close
+     * @throws SoarException
+     */
+    void epmem_close() throws SoarException;
 
 }

@@ -5,7 +5,9 @@
  */
 package org.jsoar.kernel.epmem;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.sql.Connection;
 
@@ -15,6 +17,7 @@ import org.jsoar.util.adaptables.AdaptableContainer;
 import org.jsoar.util.properties.PropertyManager;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 public class DefaultEpisodicMemoryTest
 {
@@ -38,6 +41,17 @@ public class DefaultEpisodicMemoryTest
     public void tearDown() throws Exception
     {
         conn.close();
+    }
+
+    @Test
+    public void testCanInitializeTheDatabase() throws Exception
+    {
+        final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(context);
+        epmem.initialize();
+        assertNull(epmem.getDatabase());
+        epmem.epmem_init_db();
+        assertNotNull(epmem.getDatabase());
+        assertFalse(epmem.getDatabase().getConnection().isClosed());
     }
 
 }

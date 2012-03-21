@@ -60,6 +60,17 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement promote_id;
     PreparedStatement find_lti;
 
+    // episodic_memory.cpp:1703:epmem_init_db
+    PreparedStatement get_max_time;
+    // episodic_memory.cpp:1719:epmem_init_db
+    PreparedStatement now_select_node;
+    // episodic_memory.cpp:1719:epmem_init_db
+    PreparedStatement now_select_edge;
+    // episodic_memory.cpp:1721:epmem_init_db
+    PreparedStatement now_delete_node;
+    // episodic_memory.cpp:1721:epmem_init_db
+    PreparedStatement now_delete_edge;
+            
     /**
      * @param driver
      * @param db

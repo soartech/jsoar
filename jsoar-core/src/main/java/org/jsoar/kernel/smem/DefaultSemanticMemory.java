@@ -2277,6 +2277,8 @@ public class DefaultSemanticMemory implements SemanticMemory
                 logger.warn("Could not find performance resource at '" + fullPath + "'. No performance settings applied.");
             }
         }
+        
+        // TODO SMEM page_size
     }
     
     /* (non-Javadoc)
