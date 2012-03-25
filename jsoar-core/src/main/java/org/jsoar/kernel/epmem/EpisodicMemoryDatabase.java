@@ -70,6 +70,10 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement now_delete_node;
     // episodic_memory.cpp:1721:epmem_init_db
     PreparedStatement now_delete_edge;
+    // episodic_memory.cpp:1761:epmem_init_db
+    PreparedStatement minmax_select_node;
+    // episodic_memory.cpp:1761:epmem_init_db
+    PreparedStatement minmax_select_edge;
             
     /**
      * @param driver

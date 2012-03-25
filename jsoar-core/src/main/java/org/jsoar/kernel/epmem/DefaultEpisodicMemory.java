@@ -481,26 +481,40 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // get max id + max list
         {
-            const char *minmax_select[] = { "SELECT MAX(child_id) FROM node_unique", "SELECT MAX(parent_id) FROM edge_unique" };
-            std::vector<bool> *minmax_max[] = { my_agent->epmem_node_maxes, my_agent->epmem_edge_maxes };
-            std::vector<epmem_time_id> *minmax_min[] = { my_agent->epmem_node_mins, my_agent->epmem_edge_mins };
+            final PreparedStatement[] minmax_select = { db.minmax_select_node, db.minmax_select_edge };
+            
+            @SuppressWarnings("unchecked")
+            final List<List<Boolean>> minmax_max = Lists.newArrayList(epmem_node_maxes, epmem_edge_maxes);
+            @SuppressWarnings("unchecked")
+            final List<List</*epmem_time_id*/Long>> minmax_min = Lists.newArrayList(epmem_node_mins, epmem_edge_mins);
 
-            for ( int i=EPMEM_RIT_STATE_NODE; i<=EPMEM_RIT_STATE_EDGE; i++ )
-            {
-                temp_q = new soar_module::sqlite_statement( my_agent->epmem_db, minmax_select[i] );
-                temp_q->prepare();
-                temp_q->execute();
-                if ( temp_q->column_type( 0 ) != soar_module::null_t )
-                {
-                    std::vector<bool>::size_type num_ids = temp_q->column_int( 0 );
-
-                    minmax_max[i]->resize( num_ids, true );
-                    minmax_min[i]->resize( num_ids, time_max );
-                }
-
-                delete temp_q;
-                temp_q = NULL;
-            }
+//            for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++)
+//            {
+//                final PreparedStatement temp_q = minmax_select[i];
+//                final ResultSet rs = temp_q.executeQuery();
+//                try
+//                {
+//                    // XXX HERE
+//                    // if ( temp_q->column_type( 0 ) != soar_module::null_t )
+//                    rs.getType()
+//                }
+//                finally
+//                {
+//                    rs.close();
+//                }
+//
+//
+//                if ( temp_q->column_type( 0 ) != soar_module::null_t )
+//                {
+//                    std::vector<bool>::size_type num_ids = temp_q->column_int( 0 );
+//
+//                    minmax_max[i]->resize( num_ids, true );
+//                    minmax_min[i]->resize( num_ids, time_max );
+//                }
+//
+//                delete temp_q;
+//                temp_q = NULL;
+//            }
         }
         //
         //                // get id pools
