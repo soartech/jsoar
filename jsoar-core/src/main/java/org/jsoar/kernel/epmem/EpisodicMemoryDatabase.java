@@ -17,6 +17,8 @@ import org.jsoar.util.db.AbstractSoarDatabase;
  */
 final class EpisodicMemoryDatabase extends AbstractSoarDatabase
 {
+    enum value_type { null_t, int_t, double_t, text_t };
+    
     // empty table used to verify proper structure
     static final String EPMEM_SCHEMA = "epmem2_";
     static final String EPMEM_SIGNATURE = EPMEM_SCHEMA + "signature";
@@ -74,6 +76,8 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement minmax_select_node;
     // episodic_memory.cpp:1761:epmem_init_db
     PreparedStatement minmax_select_edge;
+    // episodic_memory.cpp:1794:epmem_init_db
+    PreparedStatement edge_unique_select;
             
     /**
      * @param driver
@@ -84,6 +88,43 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         super(driver, db, EPMEM_SIGNATURE);
         
         getFilterMap().put("@PREFIX@", EPMEM_SCHEMA);
+    }
+    
+    /**
+     * soardb.h:460:column_type
+     * 
+     * Similar to what column_type is doing in soar_module except this is operating directly on the type
+     * instead of the column itself. This might be a confusingly bad idea to change what the parameter means here.
+     * TODO EPMEM document this hack
+     * 
+     * @param col
+     * @return
+     */
+    value_type column_type(int jdbcColumnType)
+    {
+        value_type return_val = EpisodicMemoryDatabase.value_type.null_t;
+
+        switch (jdbcColumnType)
+        {
+        // TODO EPMEM Not sure which is valid here
+        case java.sql.Types.BIGINT:
+        case java.sql.Types.SMALLINT:
+        case java.sql.Types.TINYINT:
+        case java.sql.Types.INTEGER:
+            return_val = EpisodicMemoryDatabase.value_type.int_t;
+            break;
+
+        case java.sql.Types.DOUBLE:
+        case java.sql.Types.FLOAT:
+            return_val = EpisodicMemoryDatabase.value_type.double_t;
+            break;
+
+        case java.sql.Types.VARCHAR:
+            return_val = EpisodicMemoryDatabase.value_type.text_t;
+            break;
+        }
+
+        return return_val;
     }
 
 }

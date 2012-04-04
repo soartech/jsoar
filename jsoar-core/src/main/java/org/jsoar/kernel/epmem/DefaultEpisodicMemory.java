@@ -71,15 +71,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private static class epmem_rit_state_param
     {
         long /*soar_module::integer_stat*/ stat;
-        epmem_variable_key var_key;
+        epmem_variable_key var_key = epmem_variable_key.var_rit_offset_1;
     }
     
     private static class epmem_rit_state
     {
-        epmem_rit_state_param offset;
-        epmem_rit_state_param leftroot;
-        epmem_rit_state_param rightroot;
-        epmem_rit_state_param minstep;
+        epmem_rit_state_param offset = new epmem_rit_state_param();
+        epmem_rit_state_param leftroot = new epmem_rit_state_param();
+        epmem_rit_state_param rightroot = new epmem_rit_state_param();
+        epmem_rit_state_param minstep = new epmem_rit_state_param();
 
         // TODO EPMEM soar_module::timer *timer;
         PreparedStatement add_query;
@@ -143,12 +143,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         this.db = db;
     }
     
+    /**
+     * This is called when the agent is initialized. This code here in CSoar is usually run at 
+     * agent creation.
+     */
     public void initialize()
     {
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context, PropertyManager.class);
         params = new DefaultEpisodicMemoryParams(properties);
         stats = new DefaultEpisodicMemoryStats(properties);
         
+        epmem_node_removals = Maps.newHashMap();
+        epmem_node_mins = Lists.newArrayList();
+        epmem_node_maxes = Lists.newArrayList();
+
+        epmem_edge_removals = Maps.newHashMap();
+        epmem_edge_mins = Lists.newArrayList();
+        epmem_edge_maxes = Lists.newArrayList();
+
         epmem_id_repository = Maps.newHashMap();
         epmem_id_replacement = Maps.newHashMap();
         epmem_id_ref_counts = Maps.newHashMap();
@@ -274,6 +286,35 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
 
         // TODO EPMEM page_size
+    }
+    
+    private void initMinMax(long time_max, PreparedStatement minmax_select, List<Boolean> minmax_max, List<Long> minmax_min) throws SQLException
+    {
+        final ResultSet rs = minmax_select.executeQuery();
+        try
+        {
+            while (rs.next())
+            {
+                // if ( temp_q->column_type( 0 ) != soar_module::null_t )
+                if (db.column_type(rs.getMetaData().getColumnType(0 + 1)) != EpisodicMemoryDatabase.value_type.null_t)
+                {
+                    // std::vector<bool>::size_type num_ids = temp_q->column_int( 0 );
+                    int num_ids = rs.getInt(0 + 1);
+                    
+                    for (int i = 0; i < num_ids; i++)
+                    {
+                        // minmax_max[i]->resize( num_ids, true );
+                        minmax_max.add(Boolean.TRUE);
+                        // minmax_min[i]->resize( num_ids, time_max );
+                        minmax_min.add(time_max);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            rs.close();
+        }
     }
     
     /**
@@ -448,7 +489,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 temp_q.setLong(2, time_last);
 
                 final PreparedStatement temp_q2 = now_select[i];
-                final ResultSet rs = temp_q.executeQuery();
+                final ResultSet rs = temp_q2.executeQuery();
                 try
                 {
                     //while ( temp_q2->execute() == soar_module::row )
@@ -481,82 +522,77 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // get max id + max list
         {
-            final PreparedStatement[] minmax_select = { db.minmax_select_node, db.minmax_select_edge };
-            
-            @SuppressWarnings("unchecked")
-            final List<List<Boolean>> minmax_max = Lists.newArrayList(epmem_node_maxes, epmem_edge_maxes);
-            @SuppressWarnings("unchecked")
-            final List<List</*epmem_time_id*/Long>> minmax_min = Lists.newArrayList(epmem_node_mins, epmem_edge_mins);
-
-//            for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++)
-//            {
-//                final PreparedStatement temp_q = minmax_select[i];
-//                final ResultSet rs = temp_q.executeQuery();
-//                try
-//                {
-//                    // XXX HERE
-//                    // if ( temp_q->column_type( 0 ) != soar_module::null_t )
-//                    rs.getType()
-//                }
-//                finally
-//                {
-//                    rs.close();
-//                }
-//
-//
-//                if ( temp_q->column_type( 0 ) != soar_module::null_t )
-//                {
-//                    std::vector<bool>::size_type num_ids = temp_q->column_int( 0 );
-//
-//                    minmax_max[i]->resize( num_ids, true );
-//                    minmax_min[i]->resize( num_ids, time_max );
-//                }
-//
-//                delete temp_q;
-//                temp_q = NULL;
-//            }
+            // Removed two-element iteration because java collections hate that
+            // episodic_memory.cpp:1761
+            initMinMax(time_max, db.minmax_select_node, epmem_node_maxes, epmem_node_mins);
+            initMinMax(time_max, db.minmax_select_edge, epmem_edge_maxes, epmem_edge_mins);
+            // episodic_memory.cpp:1780
         }
-        //
-        //                // get id pools
-        //                {
-        //                    epmem_node_id q0;
-        //                    int64_t w;
-        //                    epmem_node_id q1;
-        //                    epmem_node_id parent_id;
-        //
-        //                    epmem_hashed_id_pool **hp;
-        //                    epmem_id_pool **ip;
-        //
-        //                    temp_q = new soar_module::sqlite_statement( my_agent->epmem_db, "SELECT q0, w, q1, parent_id FROM edge_unique" );
-        //                    temp_q->prepare();
-        //
-        //                    while ( temp_q->execute() == soar_module::row )
-        //                    {
-        //                        q0 = temp_q->column_int( 0 );
-        //                        w = temp_q->column_int( 1 );
-        //                        q1 = temp_q->column_int( 2 );
-        //                        parent_id = temp_q->column_int( 3 );
-        //
-        //                        hp =& (*my_agent->epmem_id_repository)[ q0 ];
-        //                        if ( !(*hp) )
-        //                            (*hp) = new epmem_hashed_id_pool;
-        //
-        //                        ip =& (*(*hp))[ w ];
-        //                        if ( !(*ip) )
-        //                            (*ip) = new epmem_id_pool;
-        //
-        //                        (*(*ip))[ q1 ] = parent_id;
-        //
-        //                        hp =& (*my_agent->epmem_id_repository)[ q1 ];
-        //                        if ( !(*hp) )
-        //                            (*hp) = new epmem_hashed_id_pool;
-        //                    }
-        //
-        //                    delete temp_q;
-        //                    temp_q = NULL;
-        //                }
-        //            }
-        //
+        
+        // get id pools
+        {
+            long q0;
+            long w;
+            long q1;
+            long parent_id;
+
+            // epmem_hashed_id_pool **hp;
+            Map<Long, Map<Long, Long>> hp;
+            // epmem_id_pool **ip;
+            Map<Long, Long> ip;
+
+            PreparedStatement temp_q = db.edge_unique_select;
+            final ResultSet rs = temp_q.executeQuery();
+            try
+            {
+                // while ( temp_q->execute() == soar_module::row )
+                while (rs.next())
+                {
+                    q0 = rs.getLong(0 + 1);
+                    w = rs.getLong(1 + 1);
+                    q1 = rs.getLong(2 + 1);
+                    parent_id = rs.getLong(3 + 1);
+
+                    // create new epmem_hashed_id_pool for q0 if it doesn't exist in epmem_id_repository
+                    // hp = &(*my_agent->epmem_id_repository)[ q0 ];
+                    // if ( !(*hp) )
+                    //     (*hp) = new epmem_hashed_id_pool;
+                    hp = epmem_id_repository.get(q0);
+                    if (hp == null)
+                    {
+                        hp = Maps.newHashMap();
+                        epmem_id_repository.put(q0, hp);
+                    }
+
+                    //   ip = &(*(*hp))[ w ];
+                    //   if ( !(*ip) )
+                    //       (*ip) = new epmem_id_pool;
+                    ip = hp.get(w);
+                    if (ip == null)
+                    {
+                        ip = Maps.newHashMap();
+                        hp.put(w, ip);
+                    }
+                    
+                    //   (*(*ip))[ q1 ] = parent_id;
+                    ip.put(q1, parent_id);
+                    
+                    //   hp = &(*my_agent->epmem_id_repository)[ q1 ];
+                    //   if ( !(*hp) )
+                    //       (*hp) = new epmem_hashed_id_pool; 
+                    hp = epmem_id_repository.get(q1);
+                    if (hp == null)
+                    {
+                        hp = Maps.newHashMap();
+                        epmem_id_repository.put(q1, hp);
+                    }
+                }
+            }
+            finally
+            {
+                rs.close();
+            }
+        }
         
         // if lazy commit, then we encapsulate the entire lifetime of the agent in a single transaction
         if (params.lazy_commit.get())
