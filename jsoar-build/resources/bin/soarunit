@@ -23,7 +23,7 @@ mingw=false
 case "`uname`" in
   CYGWIN*) cygwin=true ;;
   MINGW*) mingw=true;;
-  Darwin*) darwin=true 
+  Darwin*) darwin=true
            if [ -z "$JAVA_VERSION" ] ; then
              JAVA_VERSION="CurrentJDK"
            else
@@ -134,7 +134,7 @@ if [ "x$SOAR_HOME" != "x" ]; then
   JSOAR_OPTS="-Dsoar.home=$SOAR_HOME -Djava.library.path=$SOAR_HOME/lib"
 
   # Stick the right sml.jar at the front of the classpath
-  JSOAR_CLASSPATH="$SOAR_HOME/share/java/sml.jar:$JSOAR_CLASSPATH"
+  JSOAR_CLASSPATH="$SOAR_HOME/bin/java/sml.jar:$JSOAR_CLASSPATH"
 fi
 
 # Set up LD_LIBRARY_PATH so the debugger will work
