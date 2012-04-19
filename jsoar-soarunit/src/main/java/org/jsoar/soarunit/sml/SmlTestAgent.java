@@ -112,25 +112,25 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
     public void initialize(Test test) throws SoarException
     {
         output.setLength(0);
-        
+
         kernel = Kernel.CreateKernelInCurrentThread();
         kernel.StopEventThread();
-        
+
         initializeRhsFunctions();
-        
+
         agent = kernel.CreateAgent(test.getName());
         agent.RegisterForPrintEvent(smlPrintEventId.smlEVENT_PRINT, this, null, false);
-        
+
         loadTestCode(test);
     }
-    
+
     public void debug(Test test, boolean exitOnClose) throws SoarException
     {
         kernel = Kernel.CreateKernelInNewThread();
         initializeRhsFunctions();
-        
+
         agent = kernel.CreateAgent(test.getName());
-        
+
         // TODO SoarUnit SML: If this fails, there's really no way to tell.
         // TODO SoarUnit SML: This requires that soar/bin be on the system path
         String soarHome = System.getProperty("soar.home", null);
@@ -139,10 +139,21 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
         {
             soarHome += File.separator;
         }
-        agent.SpawnDebugger(Kernel.kDefaultSMLPort, soarHome);
-        
+        soarHome += "bin" + File.separator + "SoarJavaDebugger.jar";
+
+        System.out.println("launching debugger from: " + soarHome);
+        boolean success = agent.SpawnDebugger(Kernel.kDefaultSMLPort, soarHome);
+        if (success)
+        {
+            System.out.println("successfully launched debugger");
+        }
+        else
+        {
+            System.out.println("failed to launch debugger; check that SOAR_HOME is set properly");
+        }
+
         loadTestCode(test);
-        
+
         // TODO SoarUnit SML: How do we clean up? Detect debugger detach?
     }
 
@@ -151,7 +162,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
         passFunction = TestRhsFunction.addTestFunction(kernel, "pass");
         failFunction = TestRhsFunction.addTestFunction(kernel, "fail");
     }
-    
+
 
     private void loadTestCode(Test test) throws SoarException
     {
@@ -207,7 +218,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
         }
         return result;
     }
-    
+
     private String prepSoarCodeForSml(String code)
     {
         return code.replace("(pass)", "(exec pass)"). // when there are no args
@@ -224,7 +235,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
 //        System.out.print(message);
 //        System.out.flush();
     }
-    
+
     static FiringCounts extractFiringCountsFromPrintedOutput(String in)
     {
         final FiringCounts result = new FiringCounts();
