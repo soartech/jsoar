@@ -95,17 +95,18 @@ public class AutoTypeXmlToWmeTest {
         agent.runFor(1, RunType.DECISIONS);
         
         final Identifier il = agent.getInputOutput().getInputLink();
-     
         final MatcherBuilder m = Wmes.matcher(agent);
-        final Identifier xml = m.attr("ignored").find(il).getValue().asIdentifier();
+        final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
         assertNotNull(xml);
+        final Identifier ignored = m.attr("ignored").find(xml).getValue().asIdentifier();
+        assertNotNull(ignored);
         
-        final Wme location = m.attr("location").find(xml);
+        final Wme location = m.attr("location").find(ignored);
         assertNotNull(location);
         assertEquals("Ann Arbor", m.attr("name").find(location).getValue().asString().getValue());
         assertEquals(100000, m.attr("population").find(location).getValue().asInteger().getValue());
         
-        final Wme person = m.attr("person").find(xml);
+        final Wme person = m.attr("person").find(ignored);
         assertNotNull(person);
         assertEquals("Bill", m.attr("name").find(person).getValue().asString().getValue());
 	}

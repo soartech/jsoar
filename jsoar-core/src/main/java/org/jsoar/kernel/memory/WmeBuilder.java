@@ -3,18 +3,17 @@
  *
  * Created on July 10, 2012
  */
-package org.jsoar.kernel.io;
+package org.jsoar.kernel.memory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 
 /**
- * A builder object for constructing input link structures. 
+ * A builder object for constructing wme structures. 
  * 
  * <p>For example, to build the following input-link structure:
  * <pre>{@code
@@ -53,49 +52,66 @@ import org.jsoar.kernel.symbols.Symbols;
  *           add("flag", null);
  * }</pre>
  * 
- * @author ray
+ * @author chris.kawatsu
  */
-public class WmeFactoryBackedInputBuilder<T>
+public class WmeBuilder<T>
 {
     public final WmeFactory<T> wmeFactory;
     public final Identifier id;
-    private final WmeFactoryBackedInputBuilder<T> parent;
+    private final WmeBuilder<T> parent;
     private final Map<String, Identifier> idMap;
     private final Map<String, T> wmeMap;
     
     /**
      * Construct a new builder object that starts building WMEs at the given
-     * identifier.
+     * identifier name. Use {@link #top()} to get a reference to the new 
+     * identifier.<br><br>
      * 
-     * @param wmeFactory The I/O interface
-     * @param root The root to start building at
+     * <i>Note: WmeBuilder objects are immutable.</i>
+     * 
+     * @param wmeFactory The wmeFactory
+     * @param rootName The name of the top wme for this builder
      * @return a new builder object
      */
-    public static<U> WmeFactoryBackedInputBuilder<U> create(WmeFactory<U> wmeFactory, Identifier root)
+    public static<U> WmeBuilder<U> create(WmeFactory<U> wmeFactory, String rootName)
     {
-        return new WmeFactoryBackedInputBuilder<U>(wmeFactory, null, root, new HashMap<String, Identifier>(), new HashMap<String, U>());
+        return new WmeBuilder<U>(wmeFactory, null, rootName, new HashMap<String, Identifier>(), new HashMap<String, U>());
     }
     
     /**
-     * Construct a new builder object that starts building WMEs at the
-     * input-link identifier, i.e. "I2".
+     * Construct a new builder object that starts building WMEs at the given
+     * identifier. <br><br>
      * 
-     * @param wmeFactory The I/O interface
+     * <i>Note: WmeBuilder objects are immutable.</i>
+     * 
+     * @param wmeFactory The wmeFactory
+     * @param root The root to start building at
      * @return a new builder object
      */
-    public static WmeFactoryBackedInputBuilder<?> create(WmeFactory<?> wmeFactory)
+    public static<U> WmeBuilder<U> create(WmeFactory<U> wmeFactory, Identifier root)
     {
-        return create(wmeFactory, wmeFactory.getSymbols().findIdentifier('I', 2));
+        return new WmeBuilder<U>(wmeFactory, null, root, new HashMap<String, Identifier>(), new HashMap<String, U>());
     }
     
-    private WmeFactoryBackedInputBuilder(WmeFactory<T> wmeFactory, WmeFactoryBackedInputBuilder<T> parent, Identifier id, 
-                          Map<String, Identifier> idMap, Map<String, T> wmeMap)
+    private WmeBuilder(WmeFactory<T> wmeFactory, WmeBuilder<T> parent, String rootAttr, 
+    		Map<String, Identifier> idMap, Map<String, T> wmeMap)
     {
-        this.wmeFactory = wmeFactory;
-        this.parent = parent;
-        this.id = id;
-        this.idMap = idMap;
-        this.wmeMap = wmeMap;
+    	final Identifier newId = wmeFactory.getSymbols().createIdentifier(Symbols.getFirstLetter(rootAttr));
+    	this.wmeFactory = wmeFactory;
+    	this.parent = parent;
+    	this.id = newId;
+    	this.idMap = idMap;
+    	this.wmeMap = wmeMap;
+    }
+    
+    private WmeBuilder(WmeFactory<T> wmeFactory, WmeBuilder<T> parent, Identifier id, 
+    		Map<String, Identifier> idMap, Map<String, T> wmeMap)
+    {
+    	this.wmeFactory = wmeFactory;
+    	this.parent = parent;
+    	this.id = id;
+    	this.idMap = idMap;
+    	this.wmeMap = wmeMap;
     }
     
     /**
@@ -109,7 +125,7 @@ public class WmeFactoryBackedInputBuilder<T>
      * @param value the value
      * @return this builder
      */
-    public WmeFactoryBackedInputBuilder<T> add(Object attr, Object value)
+    public WmeBuilder<T> add(Object attr, Object value)
     {
     	final SymbolFactory syms = wmeFactory.getSymbols();
         wmeMap.put(null, wmeFactory.addWme(id, Symbols.create(syms, attr), Symbols.create(syms, value)));
@@ -128,12 +144,12 @@ public class WmeFactoryBackedInputBuilder<T>
      * @param attr the attribute
      * @return new builder rooted at a new identifier
      */
-    public WmeFactoryBackedInputBuilder<T> push(Object attr)
+    public WmeBuilder<T> push(Object attr)
     {
         final Identifier newId = wmeFactory.getSymbols().createIdentifier(Symbols.getFirstLetter(attr));
         final SymbolFactory syms = wmeFactory.getSymbols();
         wmeMap.put(null, wmeFactory.addWme(id, Symbols.create(syms, attr), Symbols.create(syms, newId)));
-        return new WmeFactoryBackedInputBuilder<T>(wmeFactory, this, newId, idMap, wmeMap);
+        return new WmeBuilder<T>(wmeFactory, this, newId, idMap, wmeMap);
     }
     
     /**
@@ -142,7 +158,7 @@ public class WmeFactoryBackedInputBuilder<T>
      * @param name The name of the identifier
      * @return this builder
      */
-    public WmeFactoryBackedInputBuilder<T> markId(String name)
+    public WmeBuilder<T> markId(String name)
     {
         idMap.put(name, id);
         return this;
@@ -165,7 +181,7 @@ public class WmeFactoryBackedInputBuilder<T>
      * @param name The name of the WME
      * @return this builder
      */
-    public WmeFactoryBackedInputBuilder<T> markWme(String name)
+    public WmeBuilder<T> markWme(String name)
     {
         wmeMap.put(name, wmeMap.get(null));
         return this;
@@ -190,7 +206,7 @@ public class WmeFactoryBackedInputBuilder<T>
      * @return parent builder
      * @throws IllegalStateException if the builder stack is empty
      */
-    public WmeFactoryBackedInputBuilder<T> pop()
+    public WmeBuilder<T> pop()
     {
         if(parent == null)
         {
@@ -204,13 +220,13 @@ public class WmeFactoryBackedInputBuilder<T>
      * 
      * @return builder at the top of the stack
      */
-    public WmeFactoryBackedInputBuilder<T> top()
+    public WmeBuilder<T> top()
     {
         if(parent == null)
         {
             return this;
         }
-        WmeFactoryBackedInputBuilder<T> p = parent;
+        WmeBuilder<T> p = parent;
         while(p.parent != null)
         {
             p = p.parent;
@@ -229,13 +245,13 @@ public class WmeFactoryBackedInputBuilder<T>
      * @throws IllegalArgumentException if no identifier with the given name
      *      exists.
      */
-    public WmeFactoryBackedInputBuilder<T>jump(String idName)
+    public WmeBuilder<T>jump(String idName)
     {
         Identifier newId = idMap.get(idName);
         if(newId == null)
         {
             throw new IllegalArgumentException("No id with name '" + idName + "'");
         }
-        return new WmeFactoryBackedInputBuilder<T>(wmeFactory, this, newId, idMap, wmeMap);
+        return new WmeBuilder<T>(wmeFactory, this, newId, idMap, wmeMap);
     }
 }

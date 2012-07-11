@@ -6,8 +6,8 @@
 package org.jsoar.kernel.io.xml;
 
 import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.io.WmeFactoryBackedInputBuilder;
 import org.jsoar.kernel.memory.WmeFactory;
+import org.jsoar.kernel.memory.WmeBuilder;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -51,7 +51,7 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme {
 
 	@Override
 	protected void getXmlTree(NodeList nodeList,
-			WmeFactoryBackedInputBuilder<?> builder) {
+			WmeBuilder<?> builder) {
 
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node current = nodeList.item(i);
@@ -96,7 +96,7 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme {
 
 	@Override
 	protected void addAttributes(NamedNodeMap nnm,
-			WmeFactoryBackedInputBuilder<?> builder) {
+			WmeBuilder<?> builder) {
 		for (int i = 0; i < nnm.getLength(); i++) {
 			Node n = nnm.item(i);
 			String val = n.getNodeValue().trim();
@@ -117,7 +117,7 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme {
 	 * @param attribute
 	 * @param value
 	 */
-	private void addWme(WmeFactoryBackedInputBuilder<?> builder,
+	private void addWme(WmeBuilder<?> builder,
 			String attribute, String value) {
 		try {
 			Integer intVal = Integer.parseInt(value);

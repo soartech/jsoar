@@ -11,9 +11,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.io.WmeFactoryBackedInputBuilder;
 import org.jsoar.kernel.io.xml.XmlToWme;
 import org.jsoar.kernel.memory.WmeFactory;
+import org.jsoar.kernel.memory.WmeBuilder;
 import org.jsoar.kernel.symbols.Identifier;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,24 +29,40 @@ import org.w3c.dom.NodeList;
 abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 
 	// protected InputBuilder builder;
-	protected WmeFactoryBackedInputBuilder<?> builder;
-
+	protected WmeBuilder<?> builder = null;
+	private WmeFactory<?> factory = null;
+	
+	/**
+	 * Create an xml to wme object which adds wmes to the input link.
+	 * 
+	 * @param io
+	 */
 	public AbstractXmlFileToWme(InputOutput io) {
-		builder = WmeFactoryBackedInputBuilder.create(io.asWmeFactory());
+		factory = io.asWmeFactory();
+		builder = WmeBuilder.create(io.asWmeFactory(), io.getInputLink());
 	}
-
+	
+	/**
+	 * Create an xml to wme object which adds wmes to an arbitrary location.
+	 * The root wme is returned by {@link #fromXml(Element)}.
+	 * 
+	 * @param wmeFactory
+	 */
 	public AbstractXmlFileToWme(WmeFactory<?> wmeFactory) {
-		builder = WmeFactoryBackedInputBuilder.create(wmeFactory);
+		factory = wmeFactory;
+		//builder = WmeBuilder.create(wmeFactory);
 	}
 
 	@Override
-	public void xmlToWme(File file) {
+	public Identifier xmlToWme(File file) {
 		Element root = getRootElement(file);
-		fromXml(root);
+		return fromXml(root);
 	}
 
 	@Override
 	public Identifier fromXml(Element element) {
+		if(builder == null)
+			builder = WmeBuilder.create(factory, element.getNodeName());
 		builder = builder.push(element.getNodeName());
 		addAttributes(element.getAttributes(), builder);
 		getXmlTree(element.getChildNodes(), builder);
@@ -70,7 +86,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 	 *            - the JSoar builder
 	 */
 	abstract void getXmlTree(NodeList nodelList,
-			WmeFactoryBackedInputBuilder<?> builder);
+			WmeBuilder<?> builder);
 
 	/**
 	 * Add the attributes contained in the <code>NamedNodeMap</code> to the
@@ -82,7 +98,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 	 *            - the JSoar builder
 	 */
 	abstract void addAttributes(NamedNodeMap nnm,
-			WmeFactoryBackedInputBuilder<?> builder);
+			WmeBuilder<?> builder);
 
 	/**
 	 * Parse an XML file and get its root {@link Element}.

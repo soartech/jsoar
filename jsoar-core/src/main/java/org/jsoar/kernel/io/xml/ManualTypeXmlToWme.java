@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.io.WmeFactoryBackedInputBuilder;
 import org.jsoar.kernel.memory.WmeFactory;
+import org.jsoar.kernel.memory.WmeBuilder;
 import org.jsoar.kernel.symbols.Identifier;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -61,21 +61,21 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 	}
 
 	@Override
-	public void xmlToWme(File file) {
+	public Identifier xmlToWme(File file) {
 		Element root = getRootElement(file);
 		xmlPath.pushTag(root.getNodeName());
-		super.fromXml(root);
+		return super.fromXml(root);
 	}
 
 	@Override
 	public Identifier fromXml(Element element) {
-		builder = builder.push(element.getNodeName());
+		xmlPath.pushTag(element.getNodeName());
 		return super.fromXml(element);
 	}
 
 	@Override
 	protected void getXmlTree(NodeList nodeList,
-			WmeFactoryBackedInputBuilder<?> builder) {
+			WmeBuilder<?> builder) {
 
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node current = nodeList.item(i);
@@ -122,7 +122,7 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 
 	@Override
 	protected void addAttributes(NamedNodeMap nnm,
-			WmeFactoryBackedInputBuilder<?> builder) {
+			WmeBuilder<?> builder) {
 		for (int i = 0; i < nnm.getLength(); i++) {
 			Node n = nnm.item(i);
 			String val = n.getNodeValue().trim();
@@ -180,9 +180,10 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 	 * @param value
 	 *            - the value of the WME
 	 */
-	private void addWme(WmeFactoryBackedInputBuilder<?> builder,
+	private void addWme(WmeBuilder<?> builder,
 			String attribute, String value) {
 		String path = xmlPath.toString();
+		System.out.println(path+"."+attribute+" "+value);
 		if (floatTags.contains(path)) {
 			Double doubleVal = Double.parseDouble(value);
 			builder = builder.add(attribute, doubleVal);
