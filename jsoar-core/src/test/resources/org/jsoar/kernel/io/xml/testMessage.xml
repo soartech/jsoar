@@ -1,21 +1,11 @@
 <Message>
 	<TestEmpty></TestEmpty>
+	<TestEmpty1 />
 	<TestEmpty2> </TestEmpty2>
 	<TestEmpty3>	</TestEmpty3>
 	<TestEmpty4>
 	</TestEmpty4>
 	<TestFloat>0.0</TestFloat>
 	<TestInt>0</TestInt>
-	<TestString>one</TestString>
-	<TestString>two</TestString>
-	<Test>
-		<Test>nested test</Test>
-		<Value>string</Value>
-		<Double>
-			<Value>2.0</Value>
-		</Double>
-	</Test>
-	<Test>
-		<Test>nested test 2</Test>
-	</Test>
+	<Attribute myString="test" myFloat="1.0" myInt="1" />
 </Message>
