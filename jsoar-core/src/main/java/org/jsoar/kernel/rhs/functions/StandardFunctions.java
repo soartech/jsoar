@@ -97,6 +97,8 @@ public class StandardFunctions
                 new FromXml(), 
                 new ToXml(),
                 new FromSoarTechXml(),
+                new FromAutoTypeXml(),
+                new FromManualTypeXml(),
                 new ToSoarTechXml(),
                 new GetUrl(), 
                 new AcceptRhsFunction(),

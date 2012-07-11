@@ -10,9 +10,10 @@ import java.io.File;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.jsoar.kernel.io.InputBuilder;
 import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.io.WmeFactoryBackedInputBuilder;
 import org.jsoar.kernel.io.xml.XmlToWme;
+import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,10 +28,15 @@ import org.w3c.dom.NodeList;
  */
 abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 
-	protected InputBuilder builder;
+	// protected InputBuilder builder;
+	protected WmeFactoryBackedInputBuilder<?> builder;
 
 	public AbstractXmlFileToWme(InputOutput io) {
-		builder = InputBuilder.create(io);
+		builder = WmeFactoryBackedInputBuilder.create(io.asWmeFactory());
+	}
+
+	public AbstractXmlFileToWme(WmeFactory<?> wmeFactory) {
+		builder = WmeFactoryBackedInputBuilder.create(wmeFactory);
 	}
 
 	@Override
@@ -63,7 +69,8 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 	 * @param builder
 	 *            - the JSoar builder
 	 */
-	abstract void getXmlTree(NodeList nodelList, InputBuilder builder);
+	abstract void getXmlTree(NodeList nodelList,
+			WmeFactoryBackedInputBuilder<?> builder);
 
 	/**
 	 * Add the attributes contained in the <code>NamedNodeMap</code> to the
@@ -74,7 +81,8 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 	 * @param builder
 	 *            - the JSoar builder
 	 */
-	abstract void addAttributes(NamedNodeMap nnm, InputBuilder builder);
+	abstract void addAttributes(NamedNodeMap nnm,
+			WmeFactoryBackedInputBuilder<?> builder);
 
 	/**
 	 * Parse an XML file and get its root {@link Element}.

@@ -9,8 +9,9 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jsoar.kernel.io.InputBuilder;
 import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.io.WmeFactoryBackedInputBuilder;
+import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -51,6 +52,13 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 		floatTags = new HashSet<String>();
 		intTags = new HashSet<String>();
 	}
+	
+	public ManualTypeXmlToWme(WmeFactory<?> wmeFactory) {
+		super(wmeFactory);
+		xmlPath = new XmlPath();
+		floatTags = new HashSet<String>();
+		intTags = new HashSet<String>();
+	}
 
 	@Override
 	public void xmlToWme(File file) {
@@ -66,51 +74,63 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 	}
 
 	@Override
-	protected void getXmlTree(NodeList nodeList, InputBuilder builder) {
+	protected void getXmlTree(NodeList nodeList,
+			WmeFactoryBackedInputBuilder<?> builder) {
 
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node current = nodeList.item(i);
-			//ignore nodes that are not element nodes (text and attribute nodes are handled as a special case)
+			// ignore nodes that are not element nodes (text and attribute nodes
+			// are handled as a special case)
 			if (current.getNodeType() == Node.ELEMENT_NODE) {
 				xmlPath.pushTag(current.getNodeName());
-				builder = builder.push(current.getNodeName());
-				
-				//add attribute nodes, if any
-				if (current.getAttributes() != null) {
+				boolean pushed = false;
+
+				// add attribute nodes, if any
+				if (current.hasAttributes()) {
+					pushed = true;
+					builder = builder.push(current.getNodeName());
 					addAttributes(current.getAttributes(), builder);
 				}
-				
 				if (current.getChildNodes().getLength() == 1) {
-					//leaf node containing text
-					builder = builder.pop();
+					// leaf node containing text
+					if (pushed)
+						builder = builder.pop();
 					addWme(builder, current.getNodeName(), current
 							.getFirstChild().getNodeValue().trim());
 				} else if (!current.hasChildNodes() && !current.hasAttributes()) {
-					//empty leaf node
-					builder = builder.pop();
+					// empty leaf node
+					if (pushed)
+						builder = builder.pop();
 					addWme(builder, current.getNodeName(), "");
 				} else if (current.hasChildNodes()
 						&& current.getNodeName() != null) {
-					//recursive call if not a leaf node
+					// recursive call if not a leaf node
+					if (!pushed)
+						builder = builder.push(current.getNodeName());
 					getXmlTree(current.getChildNodes(), builder);
 					builder = builder.pop();
 				} else {
-					//pop in case none of the conditions above were met
-					builder = builder.pop();
+					// pop if none of the above are true
+					if (pushed)
+						builder = builder.pop();
 				}
 				xmlPath.popTag();
 			}
-		} 
+		}
 		return;
 	}
-	
+
 	@Override
-	protected void addAttributes(NamedNodeMap nnm, InputBuilder builder) {
+	protected void addAttributes(NamedNodeMap nnm,
+			WmeFactoryBackedInputBuilder<?> builder) {
 		for (int i = 0; i < nnm.getLength(); i++) {
 			Node n = nnm.item(i);
+			String val = n.getNodeValue().trim();
+			if (val.length() > 0) {
 				xmlPath.pushTag(n.getNodeName());
 				addWme(builder, n.getNodeName(), n.getNodeValue());
 				xmlPath.popTag();
+			}
 		}
 	}
 
@@ -160,7 +180,8 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 	 * @param value
 	 *            - the value of the WME
 	 */
-	private void addWme(InputBuilder builder, String attribute, String value) {
+	private void addWme(WmeFactoryBackedInputBuilder<?> builder,
+			String attribute, String value) {
 		String path = xmlPath.toString();
 		if (floatTags.contains(path)) {
 			Double doubleVal = Double.parseDouble(value);
