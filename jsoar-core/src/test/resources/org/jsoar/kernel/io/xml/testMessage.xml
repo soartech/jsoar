@@ -5,7 +5,16 @@
 	<TestEmpty3>	</TestEmpty3>
 	<TestEmpty4>
 	</TestEmpty4>
+	<MultiEmpty>
+		<TestEmpty>not empty</TestEmpty>
+	</MultiEmpty>
+	<MultiEmpty>
+		<TestEmpty></TestEmpty>
+	</MultiEmpty>
+	<MultiEmpty><TestEmpty></TestEmpty></MultiEmpty>
 	<TestFloat>0.0</TestFloat>
 	<TestInt>0</TestInt>
 	<Attribute myString="test" myFloat="1.0" myInt="1" />
+	<Multi>one</Multi>
+	<Multi>two</Multi>
 </Message>

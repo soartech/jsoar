@@ -66,7 +66,7 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme {
 					builder = builder.push(current.getNodeName());
 					addAttributes(current.getAttributes(), builder);
 				}
-				if (current.getChildNodes().getLength() == 1) {
+				if (current.getChildNodes().getLength() == 1 && current.getFirstChild().getNodeValue() != null) {
 					// leaf node containing text
 					if (pushed)
 						builder = builder.pop();
