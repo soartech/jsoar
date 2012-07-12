@@ -188,8 +188,6 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 	private void addWme(WmeBuilder<?> builder,
 			String attribute, String value) {
 		String path = xmlPath.toString();
-		//TODO remove println
-		System.out.println(path+"."+attribute+" "+value);
 		if (floatTags.contains(path)) {
 			Double doubleVal = Double.parseDouble(value);
 			builder = builder.add(attribute, doubleVal);
