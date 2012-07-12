@@ -49,7 +49,7 @@ private Agent agent;
 		assertTrue(testMsg.canRead());
 
 		ManualTypeXmlToWme pat = new ManualTypeXmlToWme(agent.getInputOutput());
-		pat.xmlToWme(testMsg);
+		pat.xmlToWme(testMsg, agent.getInputOutput());
 		agent.runFor(1, RunType.DECISIONS);
 
 		final MatcherBuilder m = Wmes.matcher(agent);
@@ -88,7 +88,7 @@ private Agent agent;
 		pat.addIntTag("Message.TestInt");
 		pat.addFloatTag("Message.Attribute.myFloat");
 		pat.addIntTag("Message.Attribute.myInt");
-		pat.xmlToWme(testMsg);
+		pat.xmlToWme(testMsg, agent.getInputOutput());
 		agent.runFor(1, RunType.DECISIONS);
 
 		final MatcherBuilder m = Wmes.matcher(agent);
@@ -133,15 +133,13 @@ private Agent agent;
         final MatcherBuilder m = Wmes.matcher(agent);
         final Identifier xml = m.attr("xml").find(il).getValue().asIdentifier();
         assertNotNull(xml);
-        final Identifier ignored = m.attr("ignored").find(xml).getValue().asIdentifier();
-        assertNotNull(ignored);
         
-        final Wme location = m.attr("location").find(ignored);
+        final Wme location = m.attr("location").find(xml);
         assertNotNull(location);
         assertEquals("Ann Arbor", m.attr("name").find(location).getValue().asString().getValue());
         assertEquals(100000, m.attr("population").find(location).getValue().asInteger().getValue());
         
-        final Wme person = m.attr("person").find(ignored);
+        final Wme person = m.attr("person").find(xml);
         assertNotNull(person);
         assertEquals("Bill", m.attr("name").find(person).getValue().asString().getValue());
 	}
@@ -154,7 +152,7 @@ private Agent agent;
 		ManualTypeXmlToWme pat = new ManualTypeXmlToWme(agent.getInputOutput());
 		pat.addFloatTag("Message.TestFloat");
 		pat.addIntTag("Message.TestInt");
-		pat.xmlToWme(testMsg);
+		pat.xmlToWme(testMsg, agent.getInputOutput());
 		agent.runFor(1, RunType.DECISIONS);
 
 		final MatcherBuilder m = Wmes.matcher(agent);

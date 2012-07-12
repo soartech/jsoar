@@ -7,7 +7,7 @@ package org.jsoar.kernel.io.xml;
 
 import java.io.File;
 
-import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.io.InputOutput;
 
 /**
  * An XML parser which adds XML graphs to the JSoar input link.
@@ -18,10 +18,11 @@ import org.jsoar.kernel.symbols.Identifier;
 public interface XmlFileToWme {
 	/**
 	 * Add the contents of an XML file to the JSoar input link.
+	 * The WMEs will be added under the input link with the same
+	 * name as the root XML node.
 	 * 
-	 * @param f - the XML file
-	 * @param b - the JSoar builder
-	 * @return 
+	 * @param file - the XML file
+	 * @param io - agent's I/O object
 	 */
-	public Identifier xmlToWme(File file);
+	public void xmlToWme(File file, InputOutput io);
 }

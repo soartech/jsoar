@@ -15,6 +15,8 @@ import org.jsoar.kernel.io.xml.XmlToWme;
 import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.memory.WmeBuilder;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.Symbols;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -39,7 +41,6 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 	 */
 	public AbstractXmlFileToWme(InputOutput io) {
 		factory = io.asWmeFactory();
-		builder = WmeBuilder.create(io.asWmeFactory(), io.getInputLink());
 	}
 	
 	/**
@@ -50,20 +51,20 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 	 */
 	public AbstractXmlFileToWme(WmeFactory<?> wmeFactory) {
 		factory = wmeFactory;
-		//builder = WmeBuilder.create(wmeFactory);
 	}
 
 	@Override
-	public Identifier xmlToWme(File file) {
-		Element root = getRootElement(file);
-		return fromXml(root);
+	public void xmlToWme(File file, InputOutput io) {
+		final Element root = getRootElement(file);
+		final Identifier ret = fromXml(root);
+		final SymbolFactory sf = io.getSymbols();
+		io.addInputWme(io.getInputLink(), Symbols.create(sf, root.getNodeName()), ret);
 	}
 
 	@Override
 	public Identifier fromXml(Element element) {
-		if(builder == null)
-			builder = WmeBuilder.create(factory, element.getNodeName());
-		builder = builder.push(element.getNodeName());
+		builder = WmeBuilder.create(factory, element.getNodeName());
+		//builder = builder.push(element.getNodeName());
 		addAttributes(element.getAttributes(), builder);
 		getXmlTree(element.getChildNodes(), builder);
 		return builder.top().id;

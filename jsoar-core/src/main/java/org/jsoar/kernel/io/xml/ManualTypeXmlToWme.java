@@ -13,6 +13,8 @@ import org.jsoar.kernel.io.InputOutput;
 import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.memory.WmeBuilder;
 import org.jsoar.kernel.symbols.Identifier;
+import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.Symbols;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -61,12 +63,11 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 	}
 
 	@Override
-	public Identifier xmlToWme(File file) {
-		Element root = getRootElement(file);
-		xmlPath.pushTag(root.getNodeName());
-		Identifier ret = super.fromXml(root);
-		xmlPath.popTag();
-		return ret;
+	public void xmlToWme(File file, InputOutput io) {
+		final Element root = getRootElement(file);
+		final Identifier ret = fromXml(root);
+		final SymbolFactory sf = io.getSymbols();
+		io.addInputWme(io.getInputLink(), Symbols.create(sf, root.getNodeName()), ret);
 	}
 
 	@Override
@@ -187,6 +188,7 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 	private void addWme(WmeBuilder<?> builder,
 			String attribute, String value) {
 		String path = xmlPath.toString();
+		//TODO remove println
 		System.out.println(path+"."+attribute+" "+value);
 		if (floatTags.contains(path)) {
 			Double doubleVal = Double.parseDouble(value);
