@@ -64,13 +64,17 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 	public Identifier xmlToWme(File file) {
 		Element root = getRootElement(file);
 		xmlPath.pushTag(root.getNodeName());
-		return super.fromXml(root);
+		Identifier ret = super.fromXml(root);
+		xmlPath.popTag();
+		return ret;
 	}
 
 	@Override
 	public Identifier fromXml(Element element) {
 		xmlPath.pushTag(element.getNodeName());
-		return super.fromXml(element);
+		Identifier ret = super.fromXml(element);
+		xmlPath.popTag();
+		return ret;
 	}
 
 	@Override
