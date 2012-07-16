@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.memory.WmeBuilder;
+import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
@@ -23,21 +23,34 @@ import org.w3c.dom.NodeList;
 /**
  * A {@link XmlFileToWme} implementation in which the XML tags with types other
  * than string are manually specified. XML tags are specified using their full
- * path. For example in:<br>
- * <br>
+ * path. For example in:<br><br>
  * 
- * &lt;Message><br>
- * &nbsp;&nbsp;&nbsp;&lt;MessageValue>1&lt;/MessageValue><br>
- * &lt;/Message><br>
- * <br>
+ * &lt;Message id="1"><br>
+ * &nbsp;&nbsp;&nbsp;&lt;MessageValue>1.0&lt;/MessageValue><br>
+ * &lt;/Message><br><br>
  * 
- * the value of MessageValue would be specified as a float using the path
- * <code>Message.MessageValue</code>.<br>
- * <br>
+ * the values of MessageValue and id would be specified as a floating point or integer using the paths
+ * <code>Message.MessageValue</code> <code>Message.id</code> respectively.<br><br>
  * 
- * Float and integer XML paths are added using {@link #addFloatTag(String)
+ * Floating point and integer XML paths are added using {@link #addFloatTag(String)
  * addFloatTag} and {@link #addIntTag(String) addIntTag}. The values added as
- * floats and those added as integers are enforced to be mutually exclusive.
+ * floats and those added as integers are enforced to be mutually exclusive.<br><br>
+ * 
+ * Using {@link #fromXml(Element) fromXml} the WME structure from the above XML would be:<br><br>
+ * 
+ * <code>^id |1|</code><br>
+ * <code>^MessageValue |1.0|</code><br><br>
+ * 
+ * Note that the root XML tag is ignored, but its attributes are still added. 
+ * If {@link #xmlToWme(java.io.File, InputOutput) xmlToWme}
+ * is used, the message is added directly to the input link and the root tag is not ignored. This
+ * results in the following WME structure:<br><br>
+ * 
+ * <code>^io</code><br>
+ * &nbsp;&nbsp;&nbsp;<code>^input-link</code><br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^Message</code><br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^id |1|</code><br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^MessageValue |1.0|</code><br><br>
  * 
  * @author chris.kawatsu
  * 
@@ -187,12 +200,12 @@ public class ManualTypeXmlToWme extends AbstractXmlFileToWme {
 	 */
 	private void addWme(WmeBuilder<?> builder,
 			String attribute, String value) {
-		String path = xmlPath.toString();
+		final String path = xmlPath.toString();
 		if (floatTags.contains(path)) {
-			Double doubleVal = Double.parseDouble(value);
+			final Double doubleVal = Double.parseDouble(value);
 			builder = builder.add(attribute, doubleVal);
 		} else if (intTags.contains(path)) {
-			Integer intVal = Integer.parseInt(value);
+			final Long intVal = Long.parseLong(value);
 			builder = builder.add(attribute, intVal);
 		} else {
 			builder = builder.add(attribute, value);

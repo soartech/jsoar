@@ -23,19 +23,19 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 /**
- * Abstract class which uses JAXP to obtain a graph structure from an XML file.
+ * Abstract class which contains functions to load XML from file and add a parsed XML
+ * document to JSoar working memory.
  * 
  * @author chris.kawatsu
  * 
  */
 abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 
-	// protected InputBuilder builder;
-	protected WmeBuilder<?> builder = null;
+	private WmeBuilder<?> builder = null;
 	private WmeFactory<?> factory = null;
 	
 	/**
-	 * Create an xml to wme object which adds wmes to the input link.
+	 * Overloaded {@link #AbstractXmlFileToWme(WmeFactory)}.
 	 * 
 	 * @param io
 	 */
@@ -44,8 +44,11 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 	}
 	
 	/**
-	 * Create an xml to wme object which adds wmes to an arbitrary location.
-	 * The root wme is returned by {@link #fromXml(Element)}.
+	 * Create an xmlToWme object which adds WMEs to an arbitrary location.
+	 * The root WME is returned by {@link #fromXml(Element)}.<br><br>
+	 * 
+	 * Note: {@link #xmlToWme(File, InputOutput) xmlToWme} adds WMEs directly to the
+	 * input link instead of returning a reference to a WME.
 	 * 
 	 * @param wmeFactory
 	 */
@@ -67,7 +70,7 @@ abstract class AbstractXmlFileToWme implements XmlFileToWme, XmlToWme {
 		//builder = builder.push(element.getNodeName());
 		addAttributes(element.getAttributes(), builder);
 		getXmlTree(element.getChildNodes(), builder);
-		return builder.top().id;
+		return builder.topId();
 	}
 
 	/**

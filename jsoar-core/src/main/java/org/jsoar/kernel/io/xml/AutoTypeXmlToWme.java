@@ -6,8 +6,8 @@
 package org.jsoar.kernel.io.xml;
 
 import org.jsoar.kernel.io.InputOutput;
-import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.memory.WmeBuilder;
+import org.jsoar.kernel.memory.WmeFactory;
 import org.jsoar.kernel.rhs.functions.RhsFunctionContext;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -17,12 +17,34 @@ import org.w3c.dom.NodeList;
  * A {@link XmlFileToWme} implementation which tries to automatically determine
  * the type (float, int, or string) of XML values.
  * <ul>
- * <li>If <code>Integer.parse</code> is successful the type is
+ * <li>If {@link Long#parseLong(String) parseLong} is successful the type is
  * <code>Integer</code>.
- * <li>Next, if <code>Double.parse</code> is successful the type is
+ * <li>Next, if {@link Double#parseDouble(String) parseDouble} is successful the type is
  * <code>Double</code>.
  * <li>Otherwise the type is <code>String</code>.
  * </ul>
+ * 
+ * For example, the following XML:<br><br>
+ * 
+ * &lt;Message id="1"><br>
+ * &nbsp;&nbsp;&nbsp;&lt;MessageValue>1.0&lt;/MessageValue><br>
+ * &lt;/Message><br><br>
+ * 
+ * results in<br><br>
+ * 
+ * <code>^id 1</code><br>
+ * <code>^MessageValue 1.0</code><br><br>
+ * 
+ * when using {@link #fromXml(org.w3c.dom.Element) fromXml}. Note that the root XML tag is 
+ * ignored, but its attributes are still added. If {@link #xmlToWme(java.io.File, InputOutput) xmlToWme}
+ * is used, the message is added directly to the input link and the root tag is not ignored. This
+ * results in the following WME structure:<br><br>
+ * 
+ * <code>^io</code><br>
+ * &nbsp;&nbsp;&nbsp;<code>^input-link</code><br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^Message</code><br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^id 1</code><br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^MessageValue 1.0</code><br><br>
  * 
  * @author chris.kawatsu
  * 
@@ -120,16 +142,16 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme {
 	private void addWme(WmeBuilder<?> builder,
 			String attribute, String value) {
 		try {
-			Integer intVal = Integer.parseInt(value);
-			builder.add(attribute, intVal);
+			final Long intVal = Long.parseLong(value);
+			builder = builder.add(attribute, intVal);
 			return;
 		} catch (NumberFormatException e) {
 			// not an Integer if exception is thrown
 		}
 
 		try {
-			Double doubleVal = Double.parseDouble(value);
-			builder.add(attribute, doubleVal);
+			final Double doubleVal = Double.parseDouble(value);
+			builder = builder.add(attribute, doubleVal);
 			return;
 		} catch (NumberFormatException e) {
 			// not a Double if exception is thrown

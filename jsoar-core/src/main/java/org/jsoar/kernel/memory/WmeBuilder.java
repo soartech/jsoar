@@ -13,58 +13,24 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.Symbols;
 
 /**
- * A builder object for constructing wme structures. 
- * 
- * <p>For example, to build the following input-link structure:
- * <pre>{@code
- * ^input-link
- *    ^location (L1)
- *       ^x 3
- *       ^y 4
- *       ^name hello
- *    ^location
- *       ^x 5
- *       ^y 6
- *       ^name goodbye
- *       ^|a link| <L1>
- *    ^99  |integer attribute|
- *    ^3.0 |double attribute|
- *    ^flag
- * }</pre>
- *
- * you would use the following builder code:
- * 
- * <pre>{@code                
- *   InputBuilder2 builder = InputBuilder2.create(agent.io);
- *   builder.push("location").markId("L1").
- *               add("x", 3).
- *               add("y", 4).
- *               add("name", "hello").
- *               pop().
- *           push("location").markId("L2").
- *               add("x", 5).
- *               add("y", 6).
- *               add("name", "goodbye").
- *               link("a link", "L1").
- *               pop().
- *           add(99, "integer attribute").
- *           add(3.0, "double attribute").
- *           add("flag", null);
- * }</pre>
+ * A builder object for constructing wme structures. Similar to
+ * {@link org.jsoar.kernel.io.InputBuilder InputBuilder} but does not
+ * add WMEs directly to the input-link. Instead a wme structure is built
+ * and the root identifier is returned by {@link #topId()}.
  * 
  * @author chris.kawatsu
  */
 public class WmeBuilder<T>
 {
-    public final WmeFactory<T> wmeFactory;
-    public final Identifier id;
+    private final WmeFactory<T> wmeFactory;
+    private final Identifier id;
     private final WmeBuilder<T> parent;
     private final Map<String, Identifier> idMap;
     private final Map<String, T> wmeMap;
     
     /**
      * Construct a new builder object that starts building WMEs at the given
-     * identifier name. Use {@link #top()} to get a reference to the new 
+     * identifier name. Use {@link #topId()} to get a reference to the new 
      * identifier.<br><br>
      * 
      * <i>Note: WmeBuilder objects are immutable.</i>
@@ -232,6 +198,15 @@ public class WmeBuilder<T>
             p = p.parent;
         }
         return p;
+    }
+    
+    /**
+     * Return the root identifier of the top of the builder stack.
+     * 
+     * @return identifier at the top of the stack
+     */
+    public Identifier topId() {
+    	return top().id;
     }
     
     /**
