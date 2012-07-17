@@ -15,10 +15,10 @@ import org.w3c.dom.NodeList;
 
 /**
  * A {@link XmlFileToWme} implementation which tries to automatically determine
- * the type (float, int, or string) of XML values.
+ * the type (floating point, integer, or string) of XML values.
  * <ul>
  * <li>If {@link Long#parseLong(String) parseLong} is successful the type is
- * <code>Integer</code>.
+ * <code>Long</code>.
  * <li>Next, if {@link Double#parseDouble(String) parseDouble} is successful the type is
  * <code>Double</code>.
  * <li>Otherwise the type is <code>String</code>.
