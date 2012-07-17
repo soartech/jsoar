@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jsoar.kernel.io.xml.AutoTypeXmlToWme;
 import org.jsoar.kernel.io.xml.ManualTypeXmlToWme;
 import org.jsoar.kernel.io.xml.TagAlreadyAddedException;
 import org.jsoar.kernel.symbols.Symbol;
@@ -18,9 +17,33 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * A RHS function that parses an XML string using {@link AutoTypeXmlToWme} and
- * returns a working memory representation of the XML.
- * 
+ * A RHS function that parses an XML string using {@link ManualTypeXmlToWme} and
+ * returns a working memory representation of the XML. The root element
+ * of the XML input is ignored.<br>
+ * <br>
+ * The type of XML data is specified by providing additional parameters after the XML
+ * string. In the following production population and myInt are added as
+ * integers while myFloat is added as a floating point number.<br>
+ * <br>
+ * <pre>{@code
+ * sp "testFromXml
+ * (state <s> ^superstate nil ^io.input-link <il>) 
+ * -->
+ * (<il> ^xml (from-mt-xml |
+ *   <ignored>
+ *     <location>
+ *       <name>Ann Arbor</name>
+ *       <population>100000</population>
+ *     </location>
+ *     <person>
+ *       <name>Bill</name>
+ *     </person>
+ *     <attribute name="test" myInt="1" myFloat="5.23"/>
+ *   </ignored>| 
+ *   |int| |ignored.location.population| 
+ *   |int| |ignored.attribute.myInt| 
+ *   |float| |ignored.attribute.myFloat|))"
+ * }</pre>
  * @author chris.kawatsu
  */
 public class FromManualTypeXml extends AbstractRhsFunctionHandler
@@ -29,7 +52,7 @@ public class FromManualTypeXml extends AbstractRhsFunctionHandler
      */
     public FromManualTypeXml()
     {
-        super("from-mt-xml", 1, 100);
+        super("from-mt-xml", 1, 101);
     }
 
     /* (non-Javadoc)

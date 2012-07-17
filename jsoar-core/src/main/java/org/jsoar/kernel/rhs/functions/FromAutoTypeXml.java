@@ -16,7 +16,8 @@ import org.xml.sax.SAXException;
 
 /**
  * A RHS function that parses an XML string using {@link AutoTypeXmlToWme} and
- * returns a working memory representation of the XML.
+ * returns a working memory representation of the XML. The root element
+ * of the XML input is ignored.
  * 
  * @author chris.kawatsu
  */
