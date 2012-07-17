@@ -14,8 +14,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * A {@link XmlFileToWme} implementation which tries to automatically determine
- * the type (floating point, integer, or string) of XML values.
+ * An {@link AbstractXmlFileToWme} implementation which tries to automatically
+ * determine the type (floating point, integer, or string) of XML values. The
+ * class does <i>not</i> support arbitrary graph structure using link attributes
+ * which is present in {@link SoarTechXmlToWme}.
  * <ul>
  * <li>If {@link Long#parseLong(String) parseLong} is successful the type is
  * <code>Long</code>.

@@ -21,9 +21,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * A {@link XmlFileToWme} implementation in which the XML tags with types other
- * than string are manually specified. XML tags are specified using their full
- * path. For example in:<br>
+ * An {@link AbstractXmlFileToWme} implementation in which the XML tags with
+ * types other than string are manually specified. The class does <i>not</i>
+ * support arbitrary graph structure using link attributes which is present in
+ * {@link SoarTechXmlToWme}. XML tags are specified using their full path. For
+ * example in:<br>
  * <br>
  * 
  * &lt;Message id="1"><br>
@@ -32,7 +34,7 @@ import org.w3c.dom.NodeList;
  * <br>
  * 
  * the values of MessageValue and id would be specified as a floating point or
- * integer using the paths <code>Message.MessageValue</code>
+ * integer using the paths <code>Message.MessageValue</code> and
  * <code>Message.id</code> respectively.<br>
  * <br>
  * 
