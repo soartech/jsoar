@@ -107,7 +107,7 @@ private Agent agent;
 		assertTrue(m.attr("Attribute").find(msg).getValue().asString() == null);
 		final Identifier att = m.attr("Attribute").find(msg).getValue().asIdentifier();
 		assertEquals("test", m.attr("myString").find(att).getValue().asString().getValue());
-		assertEquals(1l, m.attr("myInt").find(att).getValue().asInteger().getValue());
+		assertEquals(1L, m.attr("myInt").find(att).getValue().asInteger().getValue());
 		assertEquals(1d, m.attr("myFloat").find(att).getValue().asDouble().getValue(), 10e-8);
 	}
 	
@@ -126,7 +126,10 @@ private Agent agent;
                 "   <name>Bill</name>" +
                 "</person>" +
                 "<attribute name=\"test\" int=\"1\" float=\"5.23\" />" +
-                "</ignored>| |int| |ignored.location.population| |int| |ignored.attribute.int| |float| |ignored.attribute.float|))");
+                "</ignored>| " +
+                "|int| |ignored.location.population| " +
+                "|int| |ignored.attribute.int| " +
+                "|float| |ignored.attribute.float|))");
         agent.runFor(1, RunType.DECISIONS);
         
         final Identifier il = agent.getInputOutput().getInputLink();
@@ -138,7 +141,7 @@ private Agent agent;
         final Wme location = m.attr("location").find(xml);
         assertNotNull(location);
         assertEquals("Ann Arbor", m.attr("name").find(location).getValue().asString().getValue());
-        assertEquals(100000l, m.attr("population").find(location).getValue().asInteger().getValue());
+        assertEquals(100000L, m.attr("population").find(location).getValue().asInteger().getValue());
         
         final Wme person = m.attr("person").find(xml);
         assertNotNull(person);
@@ -147,7 +150,7 @@ private Agent agent;
         final Wme attribute = m.attr("attribute").find(xml);
         assertNotNull(attribute);
         assertEquals("test", m.attr("name").find(attribute).getValue().asString().getValue());
-        assertEquals(1l, m.attr("int").find(attribute).getValue().asInteger().getValue());
+        assertEquals(1L, m.attr("int").find(attribute).getValue().asInteger().getValue());
         assertEquals(5.23d, m.attr("float").find(attribute).getValue().asDouble().getValue(), 10e-8);
 	}
 	
