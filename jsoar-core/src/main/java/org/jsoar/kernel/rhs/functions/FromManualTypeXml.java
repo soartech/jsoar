@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Dave Ray <daveray@gmail.com>
+ * Copyright (c) 2012 Soar Technology Inc.
  *
  * Created on July 10, 2012
  */
@@ -18,14 +18,16 @@ import org.xml.sax.SAXException;
 
 /**
  * A RHS function that parses an XML string using {@link ManualTypeXmlToWme} and
- * returns a working memory representation of the XML. The root element
- * of the XML input is ignored.<br>
+ * returns a working memory representation of the XML. The root element of the
+ * XML input is ignored.<br>
  * <br>
- * The type of XML data is specified by providing additional parameters after the XML
- * string. In the following production population and myInt are added as
+ * The type of XML data is specified by providing additional parameters after
+ * the XML string. In the following production population and myInt are added as
  * integers while myFloat is added as a floating point number.<br>
  * <br>
- * <pre>{@code
+ * 
+ * <pre>
+ * {@code
  * sp "testFromXml
  * (state <s> ^superstate nil ^io.input-link <il>) 
  * -->
@@ -43,7 +45,9 @@ import org.xml.sax.SAXException;
  *   |int| |ignored.location.population| 
  *   |int| |ignored.attribute.myInt| 
  *   |float| |ignored.attribute.myFloat|))"
- * }</pre>
+ * }
+ * </pre>
+ * 
  * @author chris.kawatsu
  */
 public class FromManualTypeXml extends AbstractRhsFunctionHandler
@@ -55,20 +59,26 @@ public class FromManualTypeXml extends AbstractRhsFunctionHandler
         super("from-mt-xml", 1, 101);
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel
+     * .rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
-    public Symbol execute(final RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(final RhsFunctionContext context,
+            List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
-        
+
         final String xml = arguments.get(0).toString();
-        if(xml == null)
+        if (xml == null)
         {
-            throw new RhsFunctionException("Only argument to '" + getName() + "' RHS function must be an XML string.");
+            throw new RhsFunctionException("Only argument to '" + getName()
+                    + "' RHS function must be an XML string.");
         }
-        
+
         final Document doc;
         try
         {
@@ -85,19 +95,27 @@ public class FromManualTypeXml extends AbstractRhsFunctionHandler
         ManualTypeXmlToWme mt = new ManualTypeXmlToWme(context);
         Iterator<Symbol> args = arguments.iterator();
         args.next();
-        try{
-        while(args.hasNext()) {
-        	String type = args.next().toString();
-        	if(type.equals("float")) {
-        		mt.addFloatTag(args.next().toString());
-        	} else if (type.equals("int")) {
-        		mt.addIntTag(args.next().toString());
-        	}
+        try
+        {
+            while (args.hasNext())
+            {
+                String type = args.next().toString();
+                if (type.equals("float"))
+                {
+                    mt.addFloatTag(args.next().toString());
+                }
+                else if (type.equals("int"))
+                {
+                    mt.addIntTag(args.next().toString());
+                }
+            }
         }
-        }catch(TagAlreadyAddedException e) {
-        	throw new RhsFunctionException("Int and float tags must be mutually exclusive.", e);
+        catch (TagAlreadyAddedException e)
+        {
+            throw new RhsFunctionException(
+                    "Int and float tags must be mutually exclusive.", e);
         }
-        
+
         return mt.fromXml(doc.getDocumentElement());
     }
 }

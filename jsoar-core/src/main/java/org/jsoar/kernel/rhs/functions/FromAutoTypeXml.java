@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Dave Ray <daveray@gmail.com>
+ * Copyright (c) 2012 Soar Technology Inc.
  *
  * Created on July 10, 2012
  */
@@ -16,8 +16,8 @@ import org.xml.sax.SAXException;
 
 /**
  * A RHS function that parses an XML string using {@link AutoTypeXmlToWme} and
- * returns a working memory representation of the XML. The root element
- * of the XML input is ignored.
+ * returns a working memory representation of the XML. The root element of the
+ * XML input is ignored.
  * 
  * @author chris.kawatsu
  */
@@ -30,20 +30,26 @@ public class FromAutoTypeXml extends AbstractRhsFunctionHandler
         super("from-at-xml", 1, 1);
     }
 
-    /* (non-Javadoc)
-     * @see org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel.rhs.functions.RhsFunctionContext, java.util.List)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.jsoar.kernel.rhs.functions.RhsFunctionHandler#execute(org.jsoar.kernel
+     * .rhs.functions.RhsFunctionContext, java.util.List)
      */
     @Override
-    public Symbol execute(final RhsFunctionContext context, List<Symbol> arguments) throws RhsFunctionException
+    public Symbol execute(final RhsFunctionContext context,
+            List<Symbol> arguments) throws RhsFunctionException
     {
         RhsFunctions.checkArgumentCount(this, arguments);
-        
+
         final String xml = arguments.get(0).toString();
-        if(xml == null)
+        if (xml == null)
         {
-            throw new RhsFunctionException("Only argument to '" + getName() + "' RHS function must be an XML string.");
+            throw new RhsFunctionException("Only argument to '" + getName()
+                    + "' RHS function must be an XML string.");
         }
-        
+
         final Document doc;
         try
         {
@@ -57,7 +63,8 @@ public class FromAutoTypeXml extends AbstractRhsFunctionHandler
         {
             throw new RhsFunctionException(e.getMessage(), e);
         }
-        
-        return AutoTypeXmlToWme.forRhsFunction(context).fromXml(doc.getDocumentElement());
+
+        return AutoTypeXmlToWme.forRhsFunction(context).fromXml(
+                doc.getDocumentElement());
     }
 }
