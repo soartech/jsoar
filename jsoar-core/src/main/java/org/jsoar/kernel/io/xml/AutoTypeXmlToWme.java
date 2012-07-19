@@ -110,7 +110,9 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme
                 {
                     // leaf node containing text
                     if (pushed)
+                    {
                         builder = builder.pop();
+                    }
                     addWme(builder, current.getNodeName(), current
                             .getFirstChild().getNodeValue().trim());
                 }
@@ -118,7 +120,9 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme
                 {
                     // empty leaf node
                     if (pushed)
+                    {
                         builder = builder.pop();
+                    }
                     addWme(builder, current.getNodeName(), "");
                 }
                 else if (current.hasChildNodes()
@@ -126,7 +130,9 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme
                 {
                     // recursive call if not a leaf node
                     if (!pushed)
+                    {
                         builder = builder.push(current.getNodeName());
+                    }
                     getXmlTree(current.getChildNodes(), builder);
                     builder = builder.pop();
                 }
@@ -134,7 +140,9 @@ public class AutoTypeXmlToWme extends AbstractXmlFileToWme
                 {
                     // pop if none of the above are true
                     if (pushed)
+                    {
                         builder = builder.pop();
+                    }
                 }
             }
         }

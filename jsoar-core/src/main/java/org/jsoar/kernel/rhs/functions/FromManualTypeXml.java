@@ -56,7 +56,7 @@ public class FromManualTypeXml extends AbstractRhsFunctionHandler
      */
     public FromManualTypeXml()
     {
-        super("from-mt-xml", 1, 101);
+        super("from-mt-xml", 1, Integer.MAX_VALUE);
     }
 
     /*
