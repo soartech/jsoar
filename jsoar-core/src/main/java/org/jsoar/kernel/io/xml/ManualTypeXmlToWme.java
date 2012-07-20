@@ -62,8 +62,7 @@ import org.w3c.dom.NodeList;
  * &nbsp;&nbsp;&nbsp;<code>^input-link</code><br>
  * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^Message</code><br>
  * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^id |1|</code><br>
- * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
- * <code>^MessageValue |1.0|</code><br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>^MessageValue |1.0|</code><br>
  * <br>
  * 
  * @author chris.kawatsu
