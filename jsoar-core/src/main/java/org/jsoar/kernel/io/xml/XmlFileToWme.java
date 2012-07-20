@@ -13,7 +13,8 @@ import org.jsoar.kernel.io.InputOutput;
  * An XML parser which adds XML graphs to the JSoar input link.
  * 
  * @author chris.kawatsu
- * 
+ * @see AutoTypeXmlToWme
+ * @see ManualTypeXmlToWme
  */
 public interface XmlFileToWme
 {

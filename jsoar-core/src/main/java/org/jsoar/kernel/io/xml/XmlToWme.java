@@ -18,6 +18,8 @@ import org.w3c.dom.Element;
  * @author ray
  * @see DefaultXmlToWme
  * @see SoarTechXmlToWme
+ * @see AutoTypeXmlToWme
+ * @see ManualTypeXmlToWme
  */
 public interface XmlToWme
 {
