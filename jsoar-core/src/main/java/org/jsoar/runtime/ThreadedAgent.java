@@ -15,8 +15,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.AgentRunController;
 import org.jsoar.kernel.DebuggerProvider;
@@ -28,6 +26,7 @@ import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.commands.RunCommand;
 import org.jsoar.kernel.commands.StopCommand;
 import org.jsoar.kernel.events.RunLoopEvent;
+import org.jsoar.kernel.events.StartEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.kernel.events.UncaughtExceptionEvent;
 import org.jsoar.kernel.io.InputOutput;
@@ -44,6 +43,8 @@ import org.jsoar.util.events.SoarEventListener;
 import org.jsoar.util.events.SoarEventManager;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.properties.PropertyProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A wrapper around a raw {@link Agent} which gives the agent its own thread
@@ -369,6 +370,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
         {
             return;
         }
+        
         agent.getProperties().firePropertyChanged(SoarProperties.IS_RUNNING, true, false);
         
         execute(new Callable<Void>() {
@@ -376,6 +378,7 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
             @Override
             public Void call()
             {
+                getEvents().fireEvent(new StartEvent(agent));
                 try
                 {
                     agent.runFor(n, runType);
@@ -393,8 +396,9 @@ public class ThreadedAgent extends AbstractAdaptable implements AgentRunControll
     
     /**
      * Start the agent running. The agent will run until {@link #stop()} is
-     * called or it halts for some reason. When the agent stops a
-     * {@link StopEvent} event will be fired.
+     * called or it halts for some reason. When the agent starts running (at
+     * some point in the future), a {@link StartEvent} event will be fired. When
+     * the agent stops a {@link StopEvent} event will be fired.
      */
     public void runForever()
     {
