@@ -244,7 +244,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
             }
             catch (TclException e)
             {
-                throw new SoarException(interp.getResult().toString());
+                String errLocation = "In file: " + file.getAbsolutePath() + " line " + interp.getErrorLine() + ".";
+                throw new SoarException(errLocation + System.getProperty("line.separator") + interp.getResult().toString());
             }
         }
 
