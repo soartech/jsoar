@@ -1,0 +1,112 @@
+setup {
+  source water-jug.soar
+  
+  # we bypass the normal init operator so we can create specific situations to test
+  sp {init
+     (state <s> ^superstate nil)
+  -->
+     (<s> ^name water-jug)
+  }
+}
+
+# this test checks that the fill operator is proposed twice when both jugs
+# are empty (and no other operators are proposed)
+test fill-proposed-both-empty {
+  sp {create-jugs
+     (state <s> ^name water-jug)
+  -->
+     (<s> ^jug <i> <j>)
+     (<i> ^volume 3
+          ^contents 0)
+     (<j> ^volume 5
+          ^contents 0)}
+          
+  sp {test
+     (state <s> ^operator <o1> + <o2> +)
+     (<o1> ^name fill
+           ^fill-jug.volume 3)
+     (<o2> ^name fill
+           ^fill-jug.volume 5)
+    -(<s> ^operator {<> <o1> <> <o2>} +)
+  -->
+     (pass)
+  }
+}
+
+# this test checks that the fill operator is proposed twice when both jugs
+# are partly empty
+test fill-proposed-both-partly-empty {
+  sp {create-jugs
+     (state <s> ^name water-jug)
+  -->
+     (<s> ^jug <i> <j>)
+     (<i> ^volume 3
+          ^contents 2)
+     (<j> ^volume 5
+          ^contents 2)}
+          
+  sp {test
+     (state <s> ^operator <o1> + <o2> +)
+     (<o1> ^name fill
+           ^fill-jug.volume 3)
+     (<o2> ^name fill
+           ^fill-jug.volume 5)
+  -->
+     (pass)
+  }
+}
+
+# this test checks that the fill operator is proposed once when one jug
+# is full and the other is empty
+test fill-proposed-one-full {
+  sp {create-jugs
+     (state <s> ^name water-jug)
+  -->
+     (<s> ^jug <i> <j>)
+     (<i> ^volume 3
+          ^contents 0)
+     (<j> ^volume 5
+          ^contents 5)}
+          
+  sp {test
+     (state <s> ^operator <o1> +)
+     (<o1> ^name fill
+           ^fill-jug.volume 3)
+    -{
+      (<s> ^operator {<> <o1> <o>} +)
+      (<o> ^name fill)
+     }
+  -->
+     (pass)
+  }
+}
+
+# this test forces a particular operator to get selected
+# and confirms it applied correctly
+test fill-succeeded {
+  sp {create-jugs
+     (state <s> ^name water-jug)
+  -->
+     (<s> ^jug <i> <j>)
+     (<i> ^volume 3
+          ^contents 0)
+     (<j> ^volume 5
+          ^contents 5)}
+  
+  sp {force-fill
+     (state <s> ^operator <o> +)
+     (<o> ^name fill)
+  -->
+     (<s> ^operator <o> >)
+  }
+  
+  sp {test
+     (state <s> ^jug <i> <j>)
+     (<i> ^volume 3
+          ^contents 3)
+     (<j> ^volume 5
+          ^contents 5)
+  -->
+     (pass)
+  }
+}
