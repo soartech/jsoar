@@ -28,6 +28,8 @@ import sml.smlPrintEventId;
  */
 public class SmlTestAgent implements TestAgent, PrintEventInterface, UpdateEventInterface
 {
+    static private int port = Kernel.kDefaultSMLPort;
+    
     private Kernel kernel;
     private Agent agent;
     private TestRhsFunction passFunction;
@@ -47,7 +49,6 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface, UpdateEvent
     @Override
     public void dispose()
     {
-        System.out.println("Disposing...");
         output.setLength(0);
         if(agent != null)
         {
@@ -133,7 +134,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface, UpdateEvent
 
     public void debug(Test test, boolean exitOnClose) throws SoarException
     {
-        kernel = Kernel.CreateKernelInNewThread();
+        kernel = Kernel.CreateKernelInNewThread(port);
         this.commonInitialize(test);
 
         // TODO SoarUnit SML: If this fails, there's really no way to tell.
@@ -146,8 +147,9 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface, UpdateEvent
         }
         soarHome += "bin" + File.separator + "SoarJavaDebugger.jar";
 
-        System.out.println("launching debugger from: " + soarHome);
-        boolean success = agent.SpawnDebugger(Kernel.kDefaultSMLPort, soarHome);
+        System.out.println("launching debugger on port " + port + " from: " + soarHome);
+        boolean success = agent.SpawnDebugger(port, soarHome);
+        port = port + 1; // increment the port so that we don't connect to some other agent that was previously being debugged
         if (success)
         {
             System.out.println("successfully launched debugger");
@@ -160,6 +162,11 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface, UpdateEvent
         loadTestCode(test);
 
         // TODO SoarUnit SML: How do we clean up? Detect debugger detach?
+        // There are several kernel functions for getting connection status, etc.,
+        // so in principle debugger detach can be detected. But it's not clear
+        // when we should check (there is not an event for detecting when a 
+        // connection closes, changes, etc.). Maybe we should just set up a
+        // polling function here.
     }
     
     /**
