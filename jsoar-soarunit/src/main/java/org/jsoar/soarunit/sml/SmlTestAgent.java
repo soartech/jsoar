@@ -16,20 +16,30 @@ import org.jsoar.soarunit.TestAgent;
 import org.jsoar.util.FileTools;
 
 import sml.Agent;
-import sml.Kernel;
-import sml.smlPrintEventId;
 import sml.Agent.PrintEventInterface;
+import sml.Identifier;
+import sml.IntElement;
+import sml.Kernel;
+import sml.Kernel.UpdateEventInterface;
+import sml.smlPrintEventId;
 
 /**
  * @author ray
  */
-public class SmlTestAgent implements TestAgent, PrintEventInterface
+public class SmlTestAgent implements TestAgent, PrintEventInterface, UpdateEventInterface
 {
     private Kernel kernel;
     private Agent agent;
     private TestRhsFunction passFunction;
     private TestRhsFunction failFunction;
     private final StringBuilder output = new StringBuilder();
+    
+    // these used to put soarunit-specific input on the input-link
+    // currently just the cycle count, which is very helpful for 
+    // writing some kinds of tests and being able to fail early
+    private Identifier inputLink;
+    private Identifier soarUnitWme;
+    private IntElement cycleCountWme;
 
     /* (non-Javadoc)
      * @see org.jsoar.soarunit.TestAgent#dispose()
@@ -37,6 +47,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
     @Override
     public void dispose()
     {
+        System.out.println("Disposing...");
         output.setLength(0);
         if(agent != null)
         {
@@ -115,21 +126,15 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
 
         kernel = Kernel.CreateKernelInCurrentThread();
         kernel.StopEventThread();
-
-        initializeRhsFunctions();
-
-        agent = kernel.CreateAgent(test.getName());
+        this.commonInitialize(test);
         agent.RegisterForPrintEvent(smlPrintEventId.smlEVENT_PRINT, this, null, false);
-
         loadTestCode(test);
     }
 
     public void debug(Test test, boolean exitOnClose) throws SoarException
     {
         kernel = Kernel.CreateKernelInNewThread();
-        initializeRhsFunctions();
-
-        agent = kernel.CreateAgent(test.getName());
+        this.commonInitialize(test);
 
         // TODO SoarUnit SML: If this fails, there's really no way to tell.
         // TODO SoarUnit SML: This requires that soar/bin be on the system path
@@ -156,7 +161,22 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
 
         // TODO SoarUnit SML: How do we clean up? Detect debugger detach?
     }
-
+    
+    /**
+     * creates the agent, sets up update event, RHS functions
+     * assumes kernel has already been created
+     * @param test
+     */
+    private void commonInitialize(Test test)
+    {
+        initializeRhsFunctions();
+        this.kernel.RegisterForUpdateEvent(sml.smlUpdateEventId.smlEVENT_AFTER_ALL_OUTPUT_PHASES, this, null);
+        this.agent = kernel.CreateAgent(test.getName());
+        this.inputLink = agent.GetInputLink();
+        this.soarUnitWme = this.inputLink.CreateIdWME("soar-unit");
+        this.cycleCountWme = this.soarUnitWme.CreateIntWME("cycle-count", this.getCycleCount());
+    }
+    
     private void initializeRhsFunctions()
     {
         passFunction = TestRhsFunction.addTestFunction(kernel, "pass");
@@ -246,5 +266,12 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface
             result.adjust(matcher.group(2), Long.parseLong(matcher.group(1)));
         }
         return result;
+    }
+
+    @Override
+    public void updateEventHandler(int arg0, Object arg1, Kernel arg2, int arg3)
+    {
+        // update the cycle count
+        this.cycleCountWme.Update(this.getCycleCount());
     }
 }
