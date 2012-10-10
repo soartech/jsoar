@@ -52,7 +52,7 @@ public class ReteNetReader
     private final Rete rete;
     private final ProductionManager productionManager;
     
-    public ReteNetReader(Agent context)
+    protected ReteNetReader(Agent context)
     {
         Arguments.checkNotNull(context, "context");
         this.context = context;

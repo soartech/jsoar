@@ -41,7 +41,7 @@ public class ReteNetWriter
     private final SymbolFactoryImpl syms;
     private final Rete rete;
 
-    public ReteNetWriter(Agent context)
+    protected ReteNetWriter(Agent context)
     {
         Arguments.checkNotNull(context, "context");
 
