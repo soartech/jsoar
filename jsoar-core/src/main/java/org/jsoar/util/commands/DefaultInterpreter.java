@@ -26,6 +26,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
+import org.jsoar.kernel.commands.ReteNetCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
@@ -44,6 +45,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private final Map<String, List<String>> aliases = new LinkedHashMap<String, List<String>>();
     
     private final SourceCommand sourceCommand;
+    private ReteNetCommand reteNetCommand;
     
     public DefaultInterpreter(Agent agent)
     {
@@ -53,6 +55,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));
+        addCommand("rete-net", this.reteNetCommand = new ReteNetCommand(sourceCommand, agent));
         
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
@@ -110,6 +113,36 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     {
         sourceCommand.source(url.toExternalForm());
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.io.File)
+     */
+    @Override
+    public void loadRete(File file) throws SoarException
+    {
+        reteNetCommand.load(file.getAbsolutePath());
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.net.URL)
+     */
+    @Override
+    public void loadRete(URL url) throws SoarException
+    {
+        reteNetCommand.load(url.toExternalForm());
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#saveRete(java.io.File)
+     */
+    @Override
+    public void saveRete(File file) throws SoarException
+    {
+        reteNetCommand.save(file.getPath());
+    }   
     
     private String evalAndClose(Reader reader, String context) throws SoarException
     {
@@ -306,4 +339,5 @@ public class DefaultInterpreter implements SoarCommandInterpreter
             return DefaultInterpreter.this.eval(code);
         }
     }
+
 }
