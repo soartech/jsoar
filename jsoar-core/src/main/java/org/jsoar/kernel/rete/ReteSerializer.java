@@ -33,7 +33,7 @@ public class ReteSerializer
     public static Agent createAgent(InputStream is) throws IOException, SoarException
     {
         Agent agent = new Agent();
-        new ReteNetReader(agent).read(is);
+        replaceRete(agent, is);
         return agent;
     }
 
@@ -47,6 +47,9 @@ public class ReteSerializer
      */
     public static void replaceRete(Agent context, InputStream is) throws IOException, SoarException
     {
+        // TODO: Maybe initialize works instead?
+        context.reinitialize_soar();
+//        Rete rete = Adaptables.adapt(context, Rete.class);
         new ReteNetReader(context).read(is);
     }
 }
