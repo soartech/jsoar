@@ -51,7 +51,7 @@ public class VarLocation
      * @param levels_up
      * @param field_num
      */
-    private VarLocation(int levels_up, int field_num)
+    protected VarLocation(int levels_up, int field_num)
     {
         this.levels_up = levels_up;
         this.field_num = field_num;

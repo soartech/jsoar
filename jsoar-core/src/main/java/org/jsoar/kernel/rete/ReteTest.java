@@ -117,7 +117,7 @@ public class ReteTest
                r == RELATIONAL_SAME_TYPE;
     }
     
-    private ReteTest(int type)
+    protected ReteTest(int type)
     {
         this.type = type;
         this.right_field_num = 0;
