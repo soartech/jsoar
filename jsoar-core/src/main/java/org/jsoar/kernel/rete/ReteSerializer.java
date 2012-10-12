@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.SoarException;
 
 public class ReteSerializer
@@ -15,8 +17,9 @@ public class ReteSerializer
      * @param context the agent to serialize
      * @param os the output stream to write to
      * @throws IOException on general I/O errors (e.g., permission issues)
+     * @throws SoarException on serialization error
      */
-    public static void saveRete(Agent context, OutputStream os) throws IOException
+    public static void saveRete(Agent context, OutputStream os) throws IOException, SoarException
     {
         new ReteNetWriter(context).write(os);
     }
@@ -47,9 +50,19 @@ public class ReteSerializer
      */
     public static void replaceRete(Agent context, InputStream is) throws IOException, SoarException
     {
-        // TODO: Maybe initialize works instead?
+        context.initialize();
+        
         context.reinitialize_soar();
+        // Excise all productions.
+        ProductionManager productions = context.getProductions();
+        for(Production p : productions.getProductions(null))
+        {
+            productions.exciseProduction(p, false);
+        }
+
 //        Rete rete = Adaptables.adapt(context, Rete.class);
         new ReteNetReader(context).read(is);
+        
+        context.init_agent_memory();
     }
 }
