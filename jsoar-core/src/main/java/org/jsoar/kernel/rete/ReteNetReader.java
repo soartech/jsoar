@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
@@ -49,13 +50,16 @@ public class ReteNetReader
 {
     public static final String MAGIC_STRING = "JSoarCompactReteNet";
     public static final int FORMAT_VERSION = 2;
-    
+
     private final Agent context;
     private final SymbolFactoryImpl syms;
     private final Rete rete;
     private final ProductionManager productionManager;
-    private ReinforcementLearning rl;
-    
+    private final ReinforcementLearning rl;
+
+    private List<Symbol> symbolMap;
+    private List<AlphaMemory> alphaMemories;
+
     protected ReteNetReader(Agent context)
     {
         Arguments.checkNotNull(context, "context");
@@ -65,7 +69,7 @@ public class ReteNetReader
         this.rl = Adaptables.require(getClass(), context, ReinforcementLearning.class);
         this.productionManager = context.getProductions();
     }
-    
+
     /**
      * Read a rete network from the given input stream. The agent
      * will be reinitialized, all productions will be excised and then
@@ -79,7 +83,7 @@ public class ReteNetReader
      */
     public void read(InputStream is) throws IOException, SoarException
     {
-        final DataInputStream dis = new DataInputStream(is);
+        final DataInputStream dis = new DataInputStream(new GZIPInputStream(is));
         final String magic = dis.readUTF();
         if(!MAGIC_STRING.equals(magic))
         {
@@ -90,13 +94,13 @@ public class ReteNetReader
         {
             throw new SoarException(String.format("Unsupported JSoar rete net version. Expected %d, got %d", FORMAT_VERSION, version));
         }
-        
-        final List<Symbol> symbolMap = readAllSymbols(dis);
-        final List<AlphaMemory> alphaMemories = readAlphaMemories(dis, symbolMap);
-        readBetaMemories(dis, symbolMap, alphaMemories);
+
+        readAllSymbols(dis);
+        readAlphaMemories(dis);
+        readBetaMemories(dis);
         readProperties(dis);
     }
-    
+
     @SuppressWarnings("unchecked")
     private void readProperties(DataInputStream dis) throws IOException, SoarException
     {
@@ -110,7 +114,7 @@ public class ReteNetReader
             {
                 throw new SoarException("Unknown property " + name);
             }
-            
+
             if (propertyKey.getType().equals(Boolean.class))
             {
                 boolean value = dis.readBoolean();
@@ -123,25 +127,23 @@ public class ReteNetReader
             }
             else
             {
-                throw new SoarException("Unknown property type \"" + propertyKey.getType() + "\" for property " + name);
+                throw new SoarException(String.format("Unhandled property type \"%s\" for property %s.", propertyKey.getType(), name));
             }
         }
     }
 
-    private void readBetaMemories(DataInputStream dis,
-            List<Symbol> symbolMap, List<AlphaMemory> alphaMemories) throws IOException, SoarException
+    private void readBetaMemories(DataInputStream dis) throws IOException, SoarException
     {
         // Number of children.
         int numNodes = dis.readInt();
-        
+
         for (int i = 0; i < numNodes; i++)
         {
-            readNodeAndChildren(dis, rete.dummy_top_node, symbolMap, alphaMemories);
+            readNodeAndChildren(dis, rete.dummy_top_node);
         }
     }
 
-    private void readNodeAndChildren(DataInputStream dis,
-            ReteNode parent, List<Symbol> symbolMap, List<AlphaMemory> alphaMemories) throws IOException, SoarException
+    private void readNodeAndChildren(DataInputStream dis, ReteNode parent) throws IOException, SoarException
     {
         final ReteNodeType type = ReteNodeType.valueOf(dis.readUTF());
         ReteNode New = null;
@@ -149,7 +151,7 @@ public class ReteNetReader
         boolean left_unlinked_flag;
         ReteTest other_tests;
         Production prod;
-        
+
         /* 
          * Initializing the left_hash_loc structure to flag values.
          * It gets passed into some of the various make_new_??? functions
@@ -159,18 +161,18 @@ public class ReteNetReader
         switch (type) {
         case MEMORY_BNODE:
             left_hash_loc = readLeftHashLoc(dis);
-          /* ... and fall through to the next case below ... */
+            // ... and fall through to the next case below ... 
         case UNHASHED_MEMORY_BNODE:
             New = ReteNode.make_new_mem_node(rete, parent, type, left_hash_loc);
-          break;
+            break;
 
         case MP_BNODE:
             left_hash_loc = readLeftHashLoc(dis);
-          /* ... and fall through to the next case below ... */
+            // ... and fall through to the next case below ... 
         case UNHASHED_MP_BNODE:
             am = alphaMemories.get(dis.readInt());
             am.reference_count++;
-            other_tests = readTestList(dis, symbolMap, alphaMemories);
+            other_tests = readTestList(dis);
             left_unlinked_flag = dis.readBoolean();
             New = ReteNode.make_new_mp_node(rete, parent, type, left_hash_loc, am, other_tests,
                     left_unlinked_flag);
@@ -178,171 +180,116 @@ public class ReteNetReader
 
         case POSITIVE_BNODE:
         case UNHASHED_POSITIVE_BNODE:
-          am = alphaMemories.get(dis.readInt());
-          am.reference_count++;
-          other_tests = readTestList(dis, symbolMap, alphaMemories);
-          left_unlinked_flag = dis.readBoolean();
-          New = ReteNode.make_new_positive_node(rete, parent, type, am, other_tests,
-                  left_unlinked_flag);
-          break;
+            am = alphaMemories.get(dis.readInt());
+            am.reference_count++;
+            other_tests = readTestList(dis);
+            left_unlinked_flag = dis.readBoolean();
+            New = ReteNode.make_new_positive_node(rete, parent, type, am, other_tests,
+                    left_unlinked_flag);
+            break;
 
         case NEGATIVE_BNODE:
             left_hash_loc = readLeftHashLoc(dis);
-          /* ... and fall through to the next case below ... */
+            // ... and fall through to the next case below ... 
         case UNHASHED_NEGATIVE_BNODE:
-          am = alphaMemories.get(dis.readInt());
-          am.reference_count++;
+            am = alphaMemories.get(dis.readInt());
+            am.reference_count++;
 
-          other_tests = readTestList(dis, symbolMap, alphaMemories);
-          New = ReteNode.make_new_negative_node(rete, parent, type, left_hash_loc, am,other_tests);
-          break;
+            other_tests = readTestList(dis);
+            New = ReteNode.make_new_negative_node(rete, parent, type, left_hash_loc, am,other_tests);
+            break;
 
         case CN_PARTNER_BNODE:
-          int count = dis.readInt();
-          ReteNode ncc_top = parent;
-          while (count-- > 0) ncc_top = ncc_top.real_parent_node();
-          New = ReteNode.make_new_cn_node(rete, ncc_top, parent);
-          break;
+            int count = dis.readInt();
+            ReteNode ncc_top = parent;
+            while (count-- > 0) ncc_top = ncc_top.real_parent_node();
+            New = ReteNode.make_new_cn_node(rete, ncc_top, parent);
+            break;
 
         case P_BNODE:
-//          allocate_with_pool (thisAgent, &thisAgent.production_pool, &prod);
-//          prod.reference_count = 1;
-//          prod.firing_count = 0;
-//          prod.trace_firings = FALSE;
-//          prod.instantiations = NIL;
-//          prod.filename = NIL;
-//          prod.p_node = NIL;
-//          prod.interrupt = FALSE;
-          
             String name = dis.readUTF();
             String doc = dis.readUTF();
             ProductionType prodType = ProductionType.valueOf(dis.readUTF());
             Support declaredSupport = Support.valueOf(dis.readUTF());
-//          sym = reteload_symbol_from_index (thisAgent,f);
-//          symbol_add_ref (sym);
-//          prod.name = sym;
-//          sym.sc.production = prod;
-            
-//          if (reteload_one_byte(f)) {
-//            reteload_string(f);
-//            prod.documentation = make_memory_block_for_string (thisAgent, reteload_string_buf);
-//          } else {
-//            prod.documentation = NIL;
-//          }
-//          prod.type = reteload_one_byte (f);
-//          prod.declared_support = reteload_one_byte (f);
-            
-//          prod.action_list = reteload_action_list (thisAgent,f);
-            Action actionList = readActionList(dis, symbolMap, alphaMemories);
-            // TODO: There's a hack here: fake conditions to get us to build the production.
-//            prod = Production.newBuilder().name(name).documentation(doc).type(prodType).support(declaredSupport).actions(actionList).conditions(new ConjunctiveNegationCondition(), new ConjunctiveNegationCondition()).build();
-            prod = Production.newBuilder().name(name).documentation(doc).type(prodType).support(declaredSupport).actions(actionList).build();
+            Action actionList = readActionList(dis);
+            prod = Production.newBuilder()
+                    .name(name)
+                    .documentation(doc)
+                    .type(prodType)
+                    .support(declaredSupport)
+                    .actions(actionList)
+                    .build();
 
             int numUnboundVariables = dis.readInt();
             rete.update_max_rhs_unbound_variables(numUnboundVariables);
             List<Variable> unboundVars = new ArrayList<Variable>(numUnboundVariables);
             for(int i = 0; i < numUnboundVariables; i++)
             {
-                // TODO: Are these in the right order?
-//                prod.getRhsUnboundVariables().add((Variable)getSymbol(symbolMap, dis.readInt()));
-                unboundVars.add(getSymbol(symbolMap, dis.readInt()).asVariable());
+                unboundVars.add(getSymbol(dis.readInt()).asVariable());
             }
             prod.setRhsUnboundVariables(unboundVars);
-            productionManager.addProductionToNameTypeMaps(prod);
-//            insert_at_head_of_dll (thisAgent->all_productions_of_type[prod->type],
-//                    prod, next, prev);
-//            thisAgent->num_productions_of_type[prod->type]++;
-//          ubv_list = NIL;
-//          while (count--) {
-//            sym = reteload_symbol_from_index(thisAgent,f);
-//            symbol_add_ref (sym);
-//            push(thisAgent, sym, ubv_list);
-//          }
-//          prod.rhs_unbound_variables = destructively_reverse_list (ubv_list);
 
-            
-// TODO: Make these methods public?
-//          insert_at_head_of_dll (thisAgent.all_productions_of_type[prod.type],
-//                                 prod, next, prev);
-//          thisAgent.num_productions_of_type[prod.type]++;
-
-          // Soar-RL stuff
+            // Soar-RL stuff
             rl.addProduction(prod);
-//          prod.rl_update_count = 0.0;
-//          prod.rl_delta_bar_delta_beta = -3.0;
-//          prod.rl_delta_bar_delta_h = 0.0;
-//          prod.rl_update_count = 0;
-//          prod.rl_rule = false;
-//          prod.rl_ecr = 0.0;
-//          prod.rl_efr = 0.0;
-//          if ( ( prod.getType() != ProductionType.JUSTIFICATION ) && ( prod.getType() != ProductionType.TEMPLATE ) )
-//          {
-//            prod.rl_rule = rl_valid_rule( prod );
-//            if ( prod.rl_rule )
-//            {
-//              prod.rl_efr = get_number_from_symbol( rhs_value_to_symbol( prod.action_list.referent ) );
-//
-//              if ( prod.documentation )
-//              {
-//                rl_rule_meta( thisAgent, prod );
-//              }
-//            }
-//          }
-            
+
             New = ReteNode.make_new_production_node(rete, parent, prod);
-            // TODO: Where does this live in JSoar?
-//          adjust_sharing_factors_from_here_to_top (New, 1);
-          if (dis.readBoolean()) {
-              // TODO: Is this the right method call?
-            New.b_p().parents_nvn = readNodeVarNames(dis, parent, symbolMap);
-          } else {
-            New.b_p().parents_nvn = null;
-          }
+            boolean hasNodeVariableNames = dis.readBoolean();
+            if (hasNodeVariableNames)
+            {
+                New.b_p().parents_nvn = readNodeVarNames(dis, parent, symbolMap);
+            }
+            else
+            {
+                New.b_p().parents_nvn = null;
+            }
 
-          /* --- call new node's add_left routine with all the parent's tokens --- */
-          rete.update_node_with_matches_from_above(New);
+            // --- call new node's add_left routine with all the parent's tokens --- 
+            rete.update_node_with_matches_from_above(New);
 
-           /* --- invoke callback on the production --- */
-          // TODO: Callback here or use the production manager?
-          context.getEvents().fireEvent(new ProductionAddedEvent(context, prod));
-          break;
+            productionManager.addProductionToNameTypeMaps(prod);
+            // --- invoke callback on the production --- 
+            context.getEvents().fireEvent(new ProductionAddedEvent(context, prod));
+            break;
+        default:
+            throw new SoarException("Unhandled ReteNodeType: " + type);
         }
 
         /* --- read in the children of the node --- */
         int count = dis.readInt();
-        while (count-- > 0) readNodeAndChildren(dis, New, symbolMap, alphaMemories);
+        while (count-- > 0) 
+        {
+            readNodeAndChildren(dis, New);
+        }
     }
 
     private VarLocation readLeftHashLoc(DataInputStream dis) throws IOException
     {
-       int field_num = dis.readInt(); 
-       int levels_up = dis.readInt();
-        
-       return new VarLocation(levels_up, field_num);
+        int field_num = dis.readInt(); 
+        int levels_up = dis.readInt();
+
+        return new VarLocation(levels_up, field_num);
     }
 
-    private Action readActionList(DataInputStream dis,
-            List<Symbol> symbolMap, List<AlphaMemory> alphaMemories) throws IOException, SoarException
+    private Action readActionList(DataInputStream dis) throws IOException, SoarException
     {
-        // reteload_action_list
         Action a;
         Action prev_a = null;
         Action first_a = null;
         int count; 
-        
+
         count = dis.readInt();
-        
+
         while (count-- > 0) {
-          a = readRHSAction(dis, symbolMap, alphaMemories);
-          if (prev_a != null)
-          {
-              prev_a.next = a;
-          }
-          else
-          {
-              first_a = a;
-          }
-          prev_a = a;
+            a = readRHSAction(dis);
+            if (prev_a != null)
+            {
+                prev_a.next = a;
+            }
+            else
+            {
+                first_a = a;
+            }
+            prev_a = a;
         }
         if (prev_a != null)
         {
@@ -355,10 +302,9 @@ public class ReteNetReader
         return first_a; 
     }
 
-    private Action readRHSAction(DataInputStream dis, List<Symbol> symbolMap,
-            List<AlphaMemory> alphaMemories) throws IOException, SoarException
-            {
-        // JSoar's Action doesn't have a type field. These constants {0, 1} match MAKE_ACTION and FUNCALL_ACTION.
+    private Action readRHSAction(DataInputStream dis) throws IOException, SoarException
+    {
+        // JSoar's Action lacks a type field. These constants {0, 1} match MAKE_ACTION and FUNCALL_ACTION.
         int type = dis.readInt();
         Action a = null;
         if (type == 0)
@@ -369,7 +315,7 @@ public class ReteNetReader
         {
             a = new FunctionAction(null);
         }
-        
+
         boolean hasPreferenceType = dis.readBoolean();
         if (hasPreferenceType)
         {
@@ -386,18 +332,18 @@ public class ReteNetReader
         if (type == 1)
         {
             FunctionAction fa = a.asFunctionAction();
-            fa.call = reteload_rhs_value(dis, symbolMap, alphaMemories).asFunctionCall();
+            fa.call = reteload_rhs_value(dis).asFunctionCall();
         }
         // MAKE_ACTION
         else if (type == 0)
         {
             MakeAction ma = a.asMakeAction();
-            ma.id = reteload_rhs_value(dis, symbolMap, alphaMemories);
-            ma.attr = reteload_rhs_value(dis, symbolMap, alphaMemories);
-            ma.value = reteload_rhs_value(dis, symbolMap, alphaMemories);
+            ma.id = reteload_rhs_value(dis);
+            ma.attr = reteload_rhs_value(dis);
+            ma.value = reteload_rhs_value(dis);
             if (a.preference_type != null && a.preference_type.isBinary())
             {
-                ma.referent = reteload_rhs_value(dis, symbolMap, alphaMemories);
+                ma.referent = reteload_rhs_value(dis);
             }
             else
             {
@@ -406,10 +352,9 @@ public class ReteNetReader
         }
 
         return a;
-            }
+    }
 
-    private RhsValue reteload_rhs_value(DataInputStream dis,
-            List<Symbol> symbolMap, List<AlphaMemory> alphaMemories) throws IOException, SoarException
+    private RhsValue reteload_rhs_value(DataInputStream dis) throws IOException, SoarException
     {
         RhsValue rv = null;
         SymbolImpl sym;
@@ -420,54 +365,50 @@ public class ReteNetReader
         type = dis.readInt();
         switch (type) {
         case 0: // RhsSymbolValue
-            // TODO: Is it okay to just recreate the RhsSymbolValue?
-          sym = getSymbol(symbolMap, dis.readInt());
-          rv = new RhsSymbolValue(sym);
-          break;
+            sym = getSymbol(dis.readInt());
+            rv = new RhsSymbolValue(sym);
+            break;
         case 1: // RhsFunctionCall
-          sym = getSymbol(symbolMap, dis.readInt());
-          boolean isStandalone = dis.readBoolean();
-          
-          // TODO: How do we check for non-existent RHS functions?
-//          RhsFunctionHandler rf = context.getRhsFunctions().getHandler(sym.asString().getValue());
-//          if (rf == null)
-//          {
-//              throw new SoarException("Undefined RHS function: " + sym.asString().getValue());
-//          }
-          RhsFunctionCall funCall = new RhsFunctionCall(sym.asString(), isStandalone);
-          int count = dis.readInt();
-          while (count-- > 0)
-          {
-              funCall.addArgument(reteload_rhs_value(dis, symbolMap, alphaMemories));
-          }
-          rv = funCall;
-          break;
+            sym = getSymbol(dis.readInt());
+            boolean isStandalone = dis.readBoolean();
+
+            // We don't check if the function name exists in context.getRhsFunctions() in case it's a custom RHS function.
+            RhsFunctionCall funCall = new RhsFunctionCall(sym.asString(), isStandalone);
+            int count = dis.readInt();
+            while (count-- > 0)
+            {
+                funCall.addArgument(reteload_rhs_value(dis));
+            }
+            rv = funCall;
+            break;
         case 2: // ReteLocation
-          field_num = dis.readInt();
-          levels_up = dis.readInt();
-          rv = ReteLocation.create(field_num, levels_up);
-          break;
+            field_num = dis.readInt();
+            levels_up = dis.readInt();
+            rv = ReteLocation.create(field_num, levels_up);
+            break;
         case 3: // UnboundVariable
-          int i = dis.readInt(); // Index of the unbound variable.
-          rete.update_max_rhs_unbound_variables(i+1);
-          rv = UnboundVariable.create(i);
-          break;
+            int i = dis.readInt(); // Index of the unbound variable.
+            rete.update_max_rhs_unbound_variables(i+1);
+            rv = UnboundVariable.create(i);
+            break;
+        default:
+            throw new SoarException("Unhandled RHS type: " + type);
         }
-        
+
         return rv;
     }
 
-    private ReteTest readTestList(DataInputStream dis, List<Symbol> symbolMap,
-            List<AlphaMemory> alphaMemories) throws IOException, SoarException
+    private ReteTest readTestList(DataInputStream dis) throws IOException, SoarException
     {  
         ReteTest rt, prev_rt, first;
         int count;
-    
+
         prev_rt = null;
         first = null;
         count = dis.readInt();
-        while (count-- > 0) {
-            rt = readTest(dis, symbolMap, alphaMemories);
+        while (count-- > 0)
+        {
+            rt = readTest(dis);
             if (prev_rt != null)
             {
                 prev_rt.next = rt; 
@@ -478,6 +419,7 @@ public class ReteNetReader
             }
             prev_rt = rt;
         }
+
         if (prev_rt != null)
         {
             prev_rt.next = null;
@@ -486,22 +428,21 @@ public class ReteNetReader
         {
             first = null;
         }
-        
+
         return first;
     }
-        private ReteTest readTest(DataInputStream dis, List<Symbol> symbolMap,
-            List<AlphaMemory> alphaMemories) throws IOException, SoarException
+    private ReteTest readTest(DataInputStream dis) throws IOException, SoarException
     {
         SymbolImpl sym;
 
         int type = dis.readInt();
         int right_field_num = dis.readInt();
-        
+
         ReteTest rt = new ReteTest(type);
         if (rt.test_is_constant_relational_test())
         {
             type -= ReteTest.CONSTANT_RELATIONAL; // ReteTest's constructor will add this back in.
-            sym = getSymbol(symbolMap, dis.readInt());
+            sym = getSymbol(dis.readInt());
             rt = ReteTest.createConstantTest(type, right_field_num, (SymbolImpl)sym);
         }
         else if (rt.test_is_variable_relational_test()) {
@@ -511,18 +452,18 @@ public class ReteNetReader
             rt = ReteTest.createVariableTest(type, right_field_num, new VarLocation(levels_up, field_num));
         }
         else if (type == ReteTest.DISJUNCTION) {
-          int count = dis.readInt();
-          List<SymbolImpl> disjuncts = new ArrayList<SymbolImpl>(count);
-          
-          while (count-- > 0) {
-            sym = getSymbol(symbolMap, dis.readInt());
-            disjuncts.add((SymbolImpl)sym);
-          }
-          rt = ReteTest.createDisjunctionTest(right_field_num, disjuncts);
+            int count = dis.readInt();
+            List<SymbolImpl> disjuncts = new ArrayList<SymbolImpl>(count);
+
+            while (count-- > 0) {
+                sym = getSymbol(dis.readInt());
+                disjuncts.add((SymbolImpl)sym);
+            }
+            rt = ReteTest.createDisjunctionTest(right_field_num, disjuncts);
         }
         else if (type == ReteTest.ID_IS_GOAL)
         {
-           rt = ReteTest.createGoalIdTest(); 
+            rt = ReteTest.createGoalIdTest(); 
         }
         else if (type == ReteTest.ID_IS_IMPASSE)
         {
@@ -532,7 +473,7 @@ public class ReteNetReader
         {
             throw new SoarException("Unknown test type: " + rt + " (" + type + ")");
         }
-        
+
         return rt;
     }
 
@@ -540,7 +481,7 @@ public class ReteNetReader
     {
         T read(DataInputStream dis) throws IOException;
     }
-    
+
     /**
      * Read all symbols, indexed by their rete-net symbol table index.
      * 
@@ -550,11 +491,11 @@ public class ReteNetReader
      * @throws SoarException 
      * @see ReteNetWriter#writeAllSymbols
      */
-    private List<Symbol> readAllSymbols(DataInputStream dis) throws IOException, SoarException
+    private void readAllSymbols(DataInputStream dis) throws IOException, SoarException
     {
         final List<Symbol> result = new ArrayList<Symbol>();
         result.add(null); // symbol 0 is null (see writeAllSymbols)
-        
+
         result.addAll(readSymbolList(dis, new SymbolReader<StringSymbol>(){
 
             public StringSymbol read(DataInputStream dis) throws IOException
@@ -579,10 +520,9 @@ public class ReteNetReader
             {
                 return syms.createDouble(dis.readDouble());
             }}));
-        
-        return result;
+        this.symbolMap = result;
     }
-    
+
     private <T extends Symbol> List<T> readSymbolList(DataInputStream dis, SymbolReader<T> reader) throws IOException, SoarException
     {
         final int size = dis.readInt();
@@ -597,8 +537,8 @@ public class ReteNetReader
         }
         return result;
     }
-    
-    private static SymbolImpl getSymbol(List<Symbol> symbolMap, int index) throws SoarException
+
+    private SymbolImpl getSymbol(int index) throws SoarException
     {
         if(index < 0 || index >= symbolMap.size())
         {
@@ -606,29 +546,29 @@ public class ReteNetReader
         }
         return (SymbolImpl) symbolMap.get(index);
     }
-    
-    private List<AlphaMemory> readAlphaMemories(DataInputStream dis, List<Symbol> symbolMap) throws IOException, SoarException
+
+    private void readAlphaMemories(DataInputStream dis) throws IOException, SoarException
     {
         final int count = dis.readInt();
         if(count < 0)
         {
             throw new SoarException(String.format("Invalid alpha memory list size %d", count));
         }
-        
+
         final List<AlphaMemory> ams = new ArrayList<AlphaMemory>(count);
         ams.add(null); // am index values start at 1. See writeAlphaMemories
         for(int i = 0; i < count; ++i)
         {
-            final SymbolImpl id = getSymbol(symbolMap, dis.readInt());
-            final SymbolImpl attr = getSymbol(symbolMap, dis.readInt());
-            final SymbolImpl value = getSymbol(symbolMap, dis.readInt());
+            final SymbolImpl id = getSymbol(dis.readInt());
+            final SymbolImpl attr = getSymbol(dis.readInt());
+            final SymbolImpl value = getSymbol(dis.readInt());
             final boolean acceptable = dis.readBoolean();
             ams.add(rete.find_or_make_alpha_mem(id, attr, value, acceptable));
         }
-        return ams;
+        this.alphaMemories = ams;
     }
-    
-    private static Object readVarNames(DataInputStream dis, List<Symbol> symbolMap) throws SoarException, IOException
+
+    private Object readVarNames(DataInputStream dis) throws SoarException, IOException
     {
         final byte type = dis.readByte();
         if(type == 0)
@@ -638,7 +578,7 @@ public class ReteNetReader
         else if(type == 1)
         {
             final int index = dis.readInt(); 
-            return VarNames.one_var_to_varnames(getSymbol(symbolMap, index).asVariable());
+            return VarNames.one_var_to_varnames(getSymbol(index).asVariable());
         }
         else if(type == 2)
         {
@@ -650,7 +590,7 @@ public class ReteNetReader
             final LinkedList<Variable> vars = new LinkedList<Variable>();
             for(int i = 0; i < count; ++i)
             {
-                vars.add(getSymbol(symbolMap, i).asVariable());
+                vars.add(getSymbol(i).asVariable());
             }
             return VarNames.var_list_to_varnames(vars);
         }
@@ -659,8 +599,8 @@ public class ReteNetReader
             throw new SoarException(String.format("Invalid varnames record type. Expected 0, 1, or 2, got %d", type));
         }
     }
-    
-    private static NodeVarNames readNodeVarNames(DataInputStream dis, ReteNode node, List<Symbol> symbolMap) throws SoarException, IOException 
+
+    private NodeVarNames readNodeVarNames(DataInputStream dis, ReteNode node, List<Symbol> symbolMap) throws SoarException, IOException 
     {
         if (node.node_type == ReteNodeType.DUMMY_TOP_BNODE)
         {
@@ -679,9 +619,9 @@ public class ReteNetReader
             return NodeVarNames.createForNcc(nvn_for_ncc,
                     bottom_of_subconditions);
         } 
-        Object id = readVarNames(dis, symbolMap);
-        Object attr = readVarNames(dis, symbolMap);
-        Object value = readVarNames(dis, symbolMap);
+        Object id = readVarNames(dis);
+        Object attr = readVarNames(dis);
+        Object value = readVarNames(dis);
         NodeVarNames parent = readNodeVarNames(dis, node.real_parent_node(), symbolMap);
         return NodeVarNames.newInstance(parent, id, attr, value);
     }
