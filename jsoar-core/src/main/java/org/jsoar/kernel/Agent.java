@@ -850,7 +850,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     /**
      * init_soar.cpp:350:reinitialize_soar
      */
-    public void reinitialize_soar()
+    private void reinitialize_soar()
     {
         getEvents().fireEvent(new BeforeInitSoarEvent(this));
 
