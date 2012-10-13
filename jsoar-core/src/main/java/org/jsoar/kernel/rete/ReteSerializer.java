@@ -52,7 +52,6 @@ public class ReteSerializer
     {
         context.initialize();
         
-        context.reinitialize_soar();
         // Excise all productions.
         ProductionManager productions = context.getProductions();
         for(Production p : productions.getProductions(null))
@@ -60,9 +59,8 @@ public class ReteSerializer
             productions.exciseProduction(p, false);
         }
 
-//        Rete rete = Adaptables.adapt(context, Rete.class);
         new ReteNetReader(context).read(is);
         
-        context.init_agent_memory();
+        context.initialize();
     }
 }
