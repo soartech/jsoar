@@ -46,7 +46,6 @@ public class ReteNetWriter
     private final SymbolFactoryImpl syms;
     private final Rete rete;
     
-    
     private Map<Symbol, Integer> symbolIndex;
     private Map<AlphaMemory, Integer> amIndex;
 
@@ -80,21 +79,34 @@ public class ReteNetWriter
      */
     protected void write(OutputStream os) throws IOException, SoarException
     {
-        final DataOutputStream dos = new DataOutputStream(new GZIPOutputStream(os));
-
+        DataOutputStream dos = new DataOutputStream(os);
+        GZIPOutputStream gos = null;
         try {
-            System.gc(); // This is only to try to get rid of any symbols that may be hanging around
+            // This is only to try to get rid of any symbols that may be hanging around
             // they won't hurt the rete if they stay, just make the image bigger.
+            System.gc(); 
+            
+            // Write out version information uncompressed.
             dos.writeUTF(ReteNetReader.MAGIC_STRING);
             dos.writeInt(ReteNetReader.FORMAT_VERSION);
+            dos.writeInt(ReteNetReader.COMPRESSION_TYPE);
+            
+            // Write out symbols, alpha memories, beta network, and some important properties.
+            // This portion of the rete file is compressed.
+            gos = new GZIPOutputStream(os);
+            dos = new DataOutputStream(gos);
             writeAllSymbols(dos);
             writeAlphaMemories(dos, rete.getAllAlphaMemories());
             writeChildrenOfNode(dos, rete.dummy_top_node);
             writeProperties(dos, propertiesToInclude);
         }
         finally {
+            dos.flush();
+            if (gos != null)
+            { 
+                gos.finish();
+            }
         }
-
     }
 
     private void writeProperties(DataOutputStream dos, HashSet<PropertyKey<?>> properties) throws IOException, SoarException

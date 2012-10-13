@@ -50,6 +50,7 @@ public class ReteNetReader
 {
     public static final String MAGIC_STRING = "JSoarCompactReteNet";
     public static final int FORMAT_VERSION = 2;
+    public static final int COMPRESSION_TYPE = 1;
 
     private final Agent context;
     private final SymbolFactoryImpl syms;
@@ -83,18 +84,25 @@ public class ReteNetReader
      */
     public void read(InputStream is) throws IOException, SoarException
     {
-        final DataInputStream dis = new DataInputStream(new GZIPInputStream(is));
+        DataInputStream dis = new DataInputStream(is);
         final String magic = dis.readUTF();
         if(!MAGIC_STRING.equals(magic))
         {
             throw new SoarException("Input does not appear to be a valid JSoar rete net");
         }
         final int version = dis.readInt();
+        final int compression = dis.readInt();
         if(version != FORMAT_VERSION)
         {
             throw new SoarException(String.format("Unsupported JSoar rete net version. Expected %d, got %d", FORMAT_VERSION, version));
         }
+        if(compression != COMPRESSION_TYPE)
+        {
+            throw new SoarException(String.format("Unsupported JSoar rete net compression type. Expected %d, got %d", COMPRESSION_TYPE, compression));
+        }
 
+        // Everything else is compressed.
+        dis = new DataInputStream(new GZIPInputStream(is));
         readAllSymbols(dis);
         readAlphaMemories(dis);
         readBetaMemories(dis);
@@ -315,6 +323,10 @@ public class ReteNetReader
         {
             a = new FunctionAction(null);
         }
+        else
+        {
+            throw new SoarException(String.format("Unknown Action type %d.", type));
+        }
 
         boolean hasPreferenceType = dis.readBoolean();
         if (hasPreferenceType)
@@ -350,7 +362,11 @@ public class ReteNetReader
                 ma.referent = null;
             }
         }
-
+        else
+        {
+            throw new SoarException(String.format("Unknown Action type %d.", type));
+        }
+        
         return a;
     }
 
