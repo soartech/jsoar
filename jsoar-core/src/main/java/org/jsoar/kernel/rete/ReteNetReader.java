@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DefaultProductionManager;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.Production.Support;
-import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.events.ProductionAddedEvent;
@@ -55,7 +55,7 @@ public class ReteNetReader
     private final Agent context;
     private final SymbolFactoryImpl syms;
     private final Rete rete;
-    private final ProductionManager productionManager;
+    private final DefaultProductionManager productionManager;
     private final ReinforcementLearning rl;
 
     private List<Symbol> symbolMap;
@@ -68,7 +68,7 @@ public class ReteNetReader
         this.syms = Adaptables.require(getClass(), context, SymbolFactoryImpl.class);
         this.rete = Adaptables.require(getClass(), context, Rete.class);
         this.rl = Adaptables.require(getClass(), context, ReinforcementLearning.class);
-        this.productionManager = context.getProductions();
+        this.productionManager = (DefaultProductionManager)context.getProductions();
     }
 
     /**
