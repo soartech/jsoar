@@ -388,7 +388,13 @@ public class ReteNetReader
             sym = getSymbol(dis.readInt());
             boolean isStandalone = dis.readBoolean();
 
-            // We don't check if the function name exists in context.getRhsFunctions() in case it's a custom RHS function.
+            // Check if the RHS function sym exists.
+            // Not worth throwing an exception here because the user could register the RHS
+            // function after the rete is loaded.
+            if (context.getRhsFunctions().getHandler(sym.asString().getValue()) == null)
+            {
+                context.getPrinter().warn("\nWARNING: Loaded a rete network that references undefined RHS function %s\n", sym.asString().getValue());
+            }
             RhsFunctionCall funCall = new RhsFunctionCall(sym.asString(), isStandalone);
             int count = dis.readInt();
             while (count-- > 0)
