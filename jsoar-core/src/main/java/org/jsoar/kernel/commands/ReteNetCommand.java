@@ -90,13 +90,13 @@ public class ReteNetCommand implements SoarCommand
             ReteSerializer.replaceRete(agent, is);
         }
         catch (IOException e)
-        {            
+        {
             e.printStackTrace();
             final Throwable cause = e.getCause();
             agent.getPrinter().error("Unable to deserialize rete (I/O error): " + 
                     (cause != null ? cause.getMessage() : e.getMessage()) + "\n" +
                     StringTools.getStackTrace(e));
-            throw new SoarException("IO error during rete load");
+            throw new SoarException("IO error during rete load:\n" + e.toString());
         }
         finally 
         {
@@ -159,7 +159,7 @@ public class ReteNetCommand implements SoarCommand
             agent.getPrinter().error("Unable to serialize rete (I/O error): " + 
                     (cause != null ? cause.getMessage() : e.getMessage()) + "\n" +
                     StringTools.getStackTrace(e));
-            throw new SoarException("IO error during rete save");
+            throw new SoarException("IO error during rete save:\n" + e.toString());
         }
         finally
         {
