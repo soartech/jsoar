@@ -23,4 +23,4 @@ $ ant -Dnodoc=true
 
 To skip tests(?!):
 
-$ and -Dnotest=true
+$ ant -Dnotest=true
