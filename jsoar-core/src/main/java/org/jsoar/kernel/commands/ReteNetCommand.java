@@ -119,24 +119,53 @@ public class ReteNetCommand implements SoarCommand
      */
     private InputStream source(String fileString) throws SoarException, IOException
     {
-        URL url = FileTools.asUrl(fileString);
-        if (!new File(fileString).isAbsolute())
-        {
-            fileString = sourceCommand.getWorkingDirectory() + "/" + fileString;
-        }
+        final URL url = FileTools.asUrl(fileString);
         File file = new File(fileString);
-        if (url != null)
+        if(url != null)
         {
             return url.openStream();
         }
-        if (!file.exists())
-        {
-            throw new SoarException("File not found: " + fileString);
-        }
-        else
-        {
+        else if(file.isAbsolute())
+        {       
+            if (!file.exists())
+            {
+                throw new SoarException("File not found: " + fileString);
+            }
             return new FileInputStream(file);
+ 
         }
+        else if(sourceCommand.getWorkingDirectoryRaw().url != null)
+        {
+            final URL childUrl = sourceCommand.joinUrl(sourceCommand.getWorkingDirectoryRaw().url, fileString);
+            return childUrl.openStream();
+        }
+        else 
+        {
+            file = new File(sourceCommand.getWorkingDirectoryRaw().file, file.getPath());
+            if (!file.exists())
+            {
+                throw new SoarException("File not found: " + fileString);
+            }
+            return new FileInputStream(file);
+        } 
+//        URL url = FileTools.asUrl(fileString);
+//        if (!new File(fileString).isAbsolute())
+//        {
+//            fileString = sourceCommand.getWorkingDirectory() + "/" + fileString;
+//        }
+//        File file = new File(fileString);
+//        if (url != null)
+//        {
+//            return url.openStream();
+//        }
+//        if (!file.exists())
+//        {
+//            throw new SoarException("File not found: " + fileString);
+//        }
+//        else
+//        {
+//            return new FileInputStream(file);
+//        }
     }
  
     public void save(String filename) throws SoarException
