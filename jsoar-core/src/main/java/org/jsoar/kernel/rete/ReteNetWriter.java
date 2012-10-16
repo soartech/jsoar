@@ -148,17 +148,17 @@ public class ReteNetWriter
     private void writeChildrenOfNode(DataOutputStream dos, ReteNode node) throws IOException, SoarException
     {
         ReteNode child;
-        int i = 0;
+        int numChildren = 0;
 
         // --- Count number of non-CN-node children. --- 
         for (child = node.first_child; child != null; child = child.next_sibling)
         {
             if (child.node_type != ReteNodeType.CN_BNODE)
             {
-                i++;
+                numChildren++;
             }
         }
-        dos.writeInt(i);
+        dos.writeInt(numChildren);
 
         // --- Count number of non-CN-node children. --- 
         for (child = node.first_child; child != null; child = child.next_sibling)
@@ -178,7 +178,6 @@ public class ReteNetWriter
      */
     private void writeNodeAndChildren(DataOutputStream dos, ReteNode node) throws IOException, SoarException
     {
-        int i;
         Production prod;
         ReteNode temp;
 
@@ -187,7 +186,8 @@ public class ReteNetWriter
 
         dos.writeUTF(node.node_type.toString());
 
-        switch (node.node_type) {
+        switch (node.node_type)
+        {
         case MEMORY_BNODE:
             writeLeftHashLoc(dos, node);
             // ... and fall through to the next case below ... 
@@ -219,9 +219,10 @@ public class ReteNetWriter
             break;
 
         case CN_PARTNER_BNODE:
-            i=0;
+            int i = 0;
             temp = node.real_parent_node();
-            while (temp != node.b_cn().partner.parent) {
+            while (temp != node.b_cn().partner.parent)
+            {
                 temp = temp.real_parent_node();
                 i++;
             }
@@ -241,7 +242,8 @@ public class ReteNetWriter
             {
                 dos.writeInt(getSymbolIndex(unboundVar));
             }
-            if (node.b_p().parents_nvn != null) {
+            if (node.b_p().parents_nvn != null)
+            {
                 dos.writeBoolean(true);
                 writeNodeVarNames(dos, node.b_p().parents_nvn, node.parent);
             } else {
@@ -286,14 +288,14 @@ public class ReteNetWriter
      */
     private void writeActionList(DataOutputStream dos, Action firstAction) throws IOException, SoarException
     {
-        int i = 0;
+        int numActions = 0;
         Action a;
 
         for (a = firstAction; a != null; a = a.next)
         {
-            i++;
+            numActions++;
         }
-        dos.writeInt(i);
+        dos.writeInt(numActions);
 
         for (a = firstAction; a != null; a = a.next)
         {
@@ -318,11 +320,11 @@ public class ReteNetWriter
         // JSoar's Action doesn't have a type field. These constants match MAKE_ACTION and FUNCALL_ACTION.
         if (a instanceof MakeAction)
         {
-            dos.writeInt(0);
+            dos.writeInt(ReteNetReader.MAKE_ACTION);
         }
         else if (a instanceof FunctionAction) 
         {
-            dos.writeInt(1);
+            dos.writeInt(ReteNetReader.FUNCALL_ACTION);
         }
         else
         {
@@ -382,12 +384,13 @@ public class ReteNetWriter
         
         if (rv instanceof RhsSymbolValue)
         {
-            dos.writeInt(0);
+            dos.writeInt(ReteNetReader.RHS_SYMBOL);
             sym = rv.asSymbolValue().getSym();
             dos.writeInt(getSymbolIndex(sym));
         }
-        else if (rv instanceof RhsFunctionCall) {
-            dos.writeInt(1);
+        else if (rv instanceof RhsFunctionCall)
+        {
+            dos.writeInt(ReteNetReader.RHS_FUNCALL);
             dos.writeInt(getSymbolIndex(rv.asFunctionCall().getName()));
             dos.writeBoolean(rv.asFunctionCall().isStandalone());
             List<RhsValue> arguments = rv.asFunctionCall().getArguments();
@@ -399,13 +402,13 @@ public class ReteNetWriter
         }
         else if (rv instanceof ReteLocation)
         {
-            dos.writeInt(2);
+            dos.writeInt(ReteNetReader.RHS_RETELOC);
             dos.writeInt(rv.asReteLocation().getFieldNum());
             dos.writeInt(rv.asReteLocation().getLevelsUp());
         }
         else if (rv instanceof UnboundVariable)
         {
-            dos.writeInt(3);
+            dos.writeInt(ReteNetReader.RHS_UNBOUND_VAR);
             dos.writeInt(rv.asUnboundVariable().getIndex());
         }
         else
@@ -428,14 +431,14 @@ public class ReteNetWriter
      */
     private void writeTestList(DataOutputStream dos, ReteTest firstRete) throws IOException, SoarException
     {
-        int i = 0;
+        int numTests = 0;
         ReteTest rt;
 
         for (rt = firstRete; rt != null; rt = rt.next)
         {
-            i++;
+            numTests++;
         }
-        dos.writeInt(i);
+        dos.writeInt(numTests);
 
         for (rt = firstRete; rt != null; rt = rt.next)
         {
@@ -650,16 +653,16 @@ public class ReteNetWriter
     {
         if(varNames == null)
         {
-            dos.writeByte((byte) 0);
+            dos.writeInt(ReteNetReader.VARNAME_NULL);
         }
         else if(VarNames.varnames_is_one_var(varNames))
         {
-            dos.writeByte((byte) 1);
+            dos.writeInt(ReteNetReader.VARNAME_ONE_VAR);
             dos.writeInt(getSymbolIndex(VarNames.varnames_to_one_var(varNames)));
         }
         else
         {
-            dos.writeByte((byte) 2);
+            dos.writeInt(ReteNetReader.VARNAME_LIST);
             final List<Variable> vars = VarNames.varnames_to_var_list(varNames);
             dos.writeInt(vars.size());
             for(Variable v : vars)

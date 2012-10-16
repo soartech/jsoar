@@ -49,9 +49,25 @@ import org.jsoar.util.properties.PropertyManager;
  */
 public class ReteNetReader
 {
-    public static final String MAGIC_STRING = "JSoarCompactReteNet";
-    public static final int FORMAT_VERSION = 2;
-    public static final int COMPRESSION_TYPE = 1;
+    // JSoar rete-net header information.
+    protected static final String MAGIC_STRING = "JSoarCompactReteNet";
+    protected static final int FORMAT_VERSION = 3;
+    protected static final int COMPRESSION_TYPE = 1;
+    
+    // Used in {@link ReteNetReader#readAction} and {@link ReteNetWriter#writeAction} */
+    protected static final int MAKE_ACTION = 0;
+    protected static final int FUNCALL_ACTION = 1;
+    
+    // Used in {@link ReteNetReader#readRHSValue} and {@link ReteNetWriter#writeRHSValue}
+    protected static final int RHS_SYMBOL = 0;
+    protected static final int RHS_FUNCALL = 1;
+    protected static final int RHS_RETELOC = 2;
+    protected static final int RHS_UNBOUND_VAR = 3;
+    
+    // Used in {@link ReteNetReader#readVarNames} and {@link ReteNetWriter#writeVarNames}
+    protected static final int VARNAME_NULL = 0;
+    protected static final int VARNAME_ONE_VAR = 1;
+    protected static final int VARNAME_LIST = 2;
 
     private final Agent context;
     private final SymbolFactoryImpl syms;
@@ -98,11 +114,13 @@ public class ReteNetReader
         final int compression = dis.readInt();
         if(version != FORMAT_VERSION)
         {
-            throw new SoarException(String.format("Unsupported JSoar rete net version. Expected %d, got %d", FORMAT_VERSION, version));
+            throw new SoarException(String.format("Unsupported JSoar rete net version. Expected %d, got %d",
+                    FORMAT_VERSION, version));
         }
         if(compression != COMPRESSION_TYPE)
         {
-            throw new SoarException(String.format("Unsupported JSoar rete net compression type. Expected %d, got %d", COMPRESSION_TYPE, compression));
+            throw new SoarException(String.format("Unsupported JSoar rete net compression type. Expected %d, got %d",
+                    COMPRESSION_TYPE, compression));
         }
 
         // Everything else is compressed.
@@ -142,7 +160,8 @@ public class ReteNetReader
             }
             else
             {
-                throw new SoarException(String.format("Unhandled property type \"%s\" for property %s.", propertyKey.getType(), name));
+                throw new SoarException(String.format("Unhandled property type \"%s\" for property %s.",
+                        propertyKey.getType(), name));
             }
         }
     }
@@ -183,7 +202,8 @@ public class ReteNetReader
          */
         VarLocation left_hash_loc = new VarLocation(-1, -1);
         
-        switch (type) {
+        switch (type)
+        {
         case MEMORY_BNODE:
             left_hash_loc = readLeftHashLoc(dis);
             // ... and fall through to the next case below ... 
@@ -312,7 +332,8 @@ public class ReteNetReader
 
         count = dis.readInt();
 
-        while (count-- > 0) {
+        while (count-- > 0)
+        {
             a = readAction(dis);
             if (prev_a != null)
             {
@@ -344,11 +365,11 @@ public class ReteNetReader
         // JSoar's Action lacks a type field. These constants {0, 1} match MAKE_ACTION and FUNCALL_ACTION.
         int type = dis.readInt();
         Action a = null;
-        if (type == 0)
+        if (type == MAKE_ACTION)
         {
             a = new MakeAction();
         }
-        else if (type == 1)
+        else if (type == FUNCALL_ACTION)
         {
             a = new FunctionAction(null);
         }
@@ -412,12 +433,13 @@ public class ReteNetReader
         int levels_up;
 
         type = dis.readInt();
-        switch (type) {
-        case 0: // RhsSymbolValue
+        switch (type)
+        {
+        case RHS_SYMBOL: // RhsSymbolValue
             sym = getSymbol(dis.readInt());
             rv = new RhsSymbolValue(sym);
             break;
-        case 1: // RhsFunctionCall
+        case RHS_FUNCALL: // RhsFunctionCall
             sym = getSymbol(dis.readInt());
             boolean isStandalone = dis.readBoolean();
 
@@ -426,7 +448,8 @@ public class ReteNetReader
             // function after the rete is loaded.
             if (context.getRhsFunctions().getHandler(sym.asString().getValue()) == null)
             {
-                context.getPrinter().warn("\nWARNING: Loaded a rete network that references undefined RHS function %s\n", sym.asString().getValue());
+                context.getPrinter().warn("\nWARNING: Loaded a rete network that references undefined RHS function %s\n",
+                        sym.asString().getValue());
             }
             RhsFunctionCall funCall = new RhsFunctionCall(sym.asString(), isStandalone);
             int count = dis.readInt();
@@ -436,15 +459,15 @@ public class ReteNetReader
             }
             rv = funCall;
             break;
-        case 2: // ReteLocation
+        case RHS_RETELOC: // ReteLocation
             field_num = dis.readInt();
             levels_up = dis.readInt();
             rv = ReteLocation.create(field_num, levels_up);
             break;
-        case 3: // UnboundVariable
-            int i = dis.readInt(); // Index of the unbound variable.
-            rete.update_max_rhs_unbound_variables(i+1);
-            rv = UnboundVariable.create(i);
+        case RHS_UNBOUND_VAR: // UnboundVariable
+            int index = dis.readInt(); // Index of the unbound variable.
+            rete.update_max_rhs_unbound_variables(index+1);
+            rv = UnboundVariable.create(index);
             break;
         default:
             throw new SoarException("Unhandled RHS type: " + type);
@@ -508,17 +531,20 @@ public class ReteNetReader
             sym = getSymbol(dis.readInt());
             rt = ReteTest.createConstantTest(type, right_field_num, (SymbolImpl)sym);
         }
-        else if (rt.test_is_variable_relational_test()) {
+        else if (rt.test_is_variable_relational_test())
+        {
             type -= ReteTest.VARIABLE_RELATIONAL; // ReteTest's constructor will add this back in.
             int field_num = dis.readInt();
             int levels_up = dis.readInt();
             rt = ReteTest.createVariableTest(type, right_field_num, new VarLocation(levels_up, field_num));
         }
-        else if (type == ReteTest.DISJUNCTION) {
+        else if (type == ReteTest.DISJUNCTION)
+        {
             int count = dis.readInt();
             List<SymbolImpl> disjuncts = new ArrayList<SymbolImpl>(count);
 
-            while (count-- > 0) {
+            while (count-- > 0)
+            {
                 sym = getSymbol(dis.readInt());
                 disjuncts.add((SymbolImpl)sym);
             }
@@ -591,7 +617,8 @@ public class ReteNetReader
     /**
      * @see ReteNetWriter#writeSymbolList 
      */
-    private <T extends Symbol> List<T> readSymbolList(DataInputStream dis, SymbolReader<T> reader) throws IOException, SoarException
+    private <T extends Symbol> List<T> readSymbolList(DataInputStream dis,
+            SymbolReader<T> reader) throws IOException, SoarException
     {
         final int size = dis.readInt();
         if(size < 0)
@@ -650,17 +677,17 @@ public class ReteNetReader
      */
     private Object readVarNames(DataInputStream dis) throws SoarException, IOException
     {
-        final byte type = dis.readByte();
-        if(type == 0)
+        final int type = dis.readInt();
+        if(type == VARNAME_NULL)
         {
             return null;
         }
-        else if(type == 1)
+        else if(type == VARNAME_ONE_VAR)
         {
             final int index = dis.readInt(); 
             return VarNames.one_var_to_varnames(getSymbol(index).asVariable());
         }
-        else if(type == 2)
+        else if(type == VARNAME_LIST)
         {
             final int count = dis.readInt();
             if(count < 0)
@@ -684,7 +711,8 @@ public class ReteNetReader
      * <p>rete.cpp:6918:reteload_node_varnames
      * @see ReteNetWriter#writeNodeVarNames 
      */
-    private NodeVarNames readNodeVarNames(DataInputStream dis, ReteNode node, List<Symbol> symbolMap) throws SoarException, IOException 
+    private NodeVarNames readNodeVarNames(DataInputStream dis, ReteNode node,
+            List<Symbol> symbolMap) throws SoarException, IOException 
     {
         if (node.node_type == ReteNodeType.DUMMY_TOP_BNODE)
         {
@@ -700,8 +728,7 @@ public class ReteNetReader
                 temp = temp.real_parent_node();
                 nvn_for_ncc = nvn_for_ncc.parent;
             }
-            return NodeVarNames.createForNcc(nvn_for_ncc,
-                    bottom_of_subconditions);
+            return NodeVarNames.createForNcc(nvn_for_ncc, bottom_of_subconditions);
         } 
         Object id = readVarNames(dis);
         Object attr = readVarNames(dis);
