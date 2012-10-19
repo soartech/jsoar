@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2008  Dave Ray <daveray@gmail.com>
+ * Copyright (c) 2012 Soar Technology, Inc
  *
- * Created on Dec 15, 2008
+ * Created on Oct 19, 2012
  */
 package org.jsoar.tcl;
 
@@ -11,9 +11,9 @@ import org.jsoar.kernel.RunType;
 import org.junit.Test;
 
 /**
- * @author ray
+ * @author charles.newton
  */
-public class TclRhsFunctionTest extends TclTest
+public class TclDictTest extends TclTest
 {
     @Test
     public void testExecute() throws Exception
@@ -22,6 +22,8 @@ public class TclRhsFunctionTest extends TclTest
         
         agent.runFor(1, RunType.DECISIONS);
         
-        assertEquals("this is a \\ test", ifc.eval("set value"));
+        assertEquals("alice", ifc.eval("set value1"));
+        assertEquals("bob", ifc.eval("set value2"));
     }
+
 }
