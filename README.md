@@ -1,3 +1,5 @@
+## Note: This is a Maven fork of JSoar
+
 JSoar is a pure Java implementation of the Soar kernel. See 
 http://jsoar.googlecode.com for more information.
 
