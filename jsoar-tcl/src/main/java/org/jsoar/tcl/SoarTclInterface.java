@@ -129,7 +129,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         
         try
         {
-            interp.evalFile(DEFAULT_TCL_CODE);
+            interp.evalResource(DEFAULT_TCL_CODE);
         }
         catch (TclException e)
         {
@@ -146,23 +146,22 @@ public class SoarTclInterface implements SoarCommandInterpreter
      */
     private void initializeEnv()
     {
-//        for(Map.Entry<String, String> e : System.getenv().entrySet())
-//        {
-//            try
-//            {
-//                // Windows env vars are case-insensitive, but Jacl's env implementation,
-//                // unlike "real" Tcl doesn't take this into account, so for sanity we'll
-//                // make them all upper case.
-//                //TODO
-//            	interp.setVar("env", e.getKey().toUpperCase(), e.getValue(), TCL.GLOBAL_ONLY);
-//            }
-//            catch (TclException ex)
-//            {
-//                final String message = "Failed to set environment variable '" + e + "': " + interp.getResult();
-//                logger.error(message);
-//                agent.getPrinter().error(message);
-//            }
-//        }
+        for(Map.Entry<String, String> e : System.getenv().entrySet())
+        {
+            try
+            {
+                // Windows env vars are case-insensitive, but Jacl's env implementation,
+                // unlike "real" Tcl doesn't take this into account, so for sanity we'll
+                // make them all upper case.
+                interp.setVar("env", e.getKey().toUpperCase(), e.getValue(), TCL.GLOBAL_ONLY);
+            }
+            catch (TclException ex)
+            {
+                final String message = "Failed to set environment variable '" + e + "': " + interp.getResult();
+                logger.error(message);
+                agent.getPrinter().error(message);
+            }
+        }
     }
 
     private Command adapt(SoarCommand c)
@@ -245,7 +244,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
             }
             catch (TclException e)
             {
-                String errLocation = "In file: " + file.getAbsolutePath() + " line ?" + /*interp.getErrorLine() +*/ ".";
+                String errLocation = "In file: " + file.getAbsolutePath() + " line " + interp.getErrorLine() + ".";
                 throw new SoarException(errLocation + System.getProperty("line.separator") + interp.getResult().toString());
             }
         }
