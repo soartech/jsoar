@@ -9,6 +9,13 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionManager;
 import org.jsoar.kernel.SoarException;
 
+/**
+ * Convenience methods for {@link ReteNetReader} and {@link ReteNetWriter} that
+ * handle some additional interfacing with agents.
+ * 
+ * @author charles.newton
+ *
+ */
 public class ReteSerializer
 {
     /**

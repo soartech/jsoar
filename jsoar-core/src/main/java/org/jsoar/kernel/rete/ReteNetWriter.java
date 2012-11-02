@@ -12,12 +12,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPOutputStream;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
@@ -83,8 +84,9 @@ public class ReteNetWriter
      */
     protected void write(OutputStream os) throws IOException, SoarException
     {
+        ensureNoJustifications();
+        
         DataOutputStream dos = new DataOutputStream(os);
-        GZIPOutputStream gos = null;
         try {
             // This is only to try to get rid of any symbols that may be hanging around
             // they won't hurt the rete if they stay, just make the image bigger.
@@ -93,23 +95,29 @@ public class ReteNetWriter
             // Write out version information uncompressed.
             dos.writeUTF(ReteNetReader.MAGIC_STRING);
             dos.writeInt(ReteNetReader.FORMAT_VERSION);
-            dos.writeInt(ReteNetReader.COMPRESSION_TYPE);
 
             // Write out symbols, alpha memories, beta network, and some important properties.
-            // This portion of the rete file is compressed (GZIP).
-            gos = new GZIPOutputStream(os);
-            dos = new DataOutputStream(gos);
             writeAllSymbols(dos);
             writeAlphaMemories(dos, rete.getAllAlphaMemories());
             writeChildrenOfNode(dos, rete.dummy_top_node);
             writeProperties(dos, propertiesToInclude);
         }
-        finally {
+        finally
+        {
             dos.flush();
-            if (gos != null)
-            { 
-                gos.finish();
-            }
+        }
+    }
+
+    /**
+     * Make sure there are no justifications present in the agent.
+     * 
+     * <p>rete.cpp:7551:save_rete_net
+     */
+    private void ensureNoJustifications() throws SoarException
+    {
+        if (context.getProductions().getProductions(ProductionType.JUSTIFICATION).size() > 0)
+        {
+            throw new SoarException("Internal error: cannot save rete net with justifications present.");
         }
     }
 

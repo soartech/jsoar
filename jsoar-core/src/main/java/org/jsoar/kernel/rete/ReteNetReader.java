@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DefaultProductionManager;
@@ -52,7 +51,6 @@ public class ReteNetReader
     // JSoar rete-net header information.
     protected static final String MAGIC_STRING = "JSoarCompactReteNet";
     protected static final int FORMAT_VERSION = 3;
-    protected static final int COMPRESSION_TYPE = 1;
     
     // Used in {@link ReteNetReader#readAction} and {@link ReteNetWriter#writeAction} */
     protected static final int MAKE_ACTION = 0;
@@ -111,20 +109,12 @@ public class ReteNetReader
             throw new SoarException("Input does not appear to be a valid JSoar rete net");
         }
         final int version = dis.readInt();
-        final int compression = dis.readInt();
         if(version != FORMAT_VERSION)
         {
             throw new SoarException(String.format("Unsupported JSoar rete net version. Expected %d, got %d",
                     FORMAT_VERSION, version));
         }
-        if(compression != COMPRESSION_TYPE)
-        {
-            throw new SoarException(String.format("Unsupported JSoar rete net compression type. Expected %d, got %d",
-                    COMPRESSION_TYPE, compression));
-        }
-
-        // Everything else is compressed.
-        dis = new DataInputStream(new GZIPInputStream(is));
+        
         readAllSymbols(dis);
         readAlphaMemories(dis);
         readChildrenOfNode(dis);

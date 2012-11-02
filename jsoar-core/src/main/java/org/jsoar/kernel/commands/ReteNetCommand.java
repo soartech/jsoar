@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
@@ -86,7 +89,7 @@ public class ReteNetCommand implements SoarCommand
         InputStream is = null;
         try
         {
-            is = source(source); 
+            is = uncompressIfNeeded(source, findFile(source));
             ReteSerializer.replaceRete(agent, is);
         }
         catch (IOException e)
@@ -113,11 +116,11 @@ public class ReteNetCommand implements SoarCommand
             }
         }
     }
-    
+
     /**
      * Construct an InputStream from a file or URL.
      */
-    private InputStream source(String fileString) throws SoarException, IOException
+    private InputStream findFile(String fileString) throws SoarException, IOException
     {
         final URL url = FileTools.asUrl(fileString);
         File file = new File(fileString);
@@ -132,7 +135,7 @@ public class ReteNetCommand implements SoarCommand
                 throw new SoarException("File not found: " + fileString);
             }
             return new FileInputStream(file);
- 
+
         }
         else if(sourceCommand.getWorkingDirectoryRaw().url != null)
         {
@@ -148,38 +151,20 @@ public class ReteNetCommand implements SoarCommand
             }
             return new FileInputStream(file);
         } 
-//        URL url = FileTools.asUrl(fileString);
-//        if (!new File(fileString).isAbsolute())
-//        {
-//            fileString = sourceCommand.getWorkingDirectory() + "/" + fileString;
-//        }
-//        File file = new File(fileString);
-//        if (url != null)
-//        {
-//            return url.openStream();
-//        }
-//        if (!file.exists())
-//        {
-//            throw new SoarException("File not found: " + fileString);
-//        }
-//        else
-//        {
-//            return new FileInputStream(file);
-//        }
     }
- 
+
     public void save(String filename) throws SoarException
     {
-        FileOutputStream fos = null;
+        OutputStream os = null;
         if (!new File(filename).isAbsolute())
         {
             filename = sourceCommand.getWorkingDirectory() + "/" + filename;
         }
         try
         {
-            fos = new FileOutputStream(filename);
-            ReteSerializer.saveRete(agent, fos);
-            fos.close();
+            os = compressIfNeeded(filename, new FileOutputStream(filename));
+            ReteSerializer.saveRete(agent, os);
+            os.close();
         }
         catch (IOException e)
         {
@@ -192,11 +177,11 @@ public class ReteNetCommand implements SoarCommand
         }
         finally
         {
-            if (fos != null)
+            if (os != null)
             {
                 try
                 {
-                    fos.close();
+                    os.close();
                 }
                 catch (IOException e)
                 {
@@ -204,5 +189,23 @@ public class ReteNetCommand implements SoarCommand
                 }
             }
         }
+    }
+
+    private OutputStream compressIfNeeded(String filename, OutputStream os) throws IOException
+    {
+        if (filename.endsWith(".Z")) 
+        {
+            return new GZIPOutputStream(os);
+        }
+        return os;
+    }
+    
+    private InputStream uncompressIfNeeded(String filename, InputStream is) throws IOException
+    {
+        if (filename.endsWith(".Z")) 
+        {
+            return new GZIPInputStream(is);
+        }
+        return is;
     }
 }
