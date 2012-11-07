@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-debugger"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-demos"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-legilimens"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-tcl"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-soar2soar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jsoar-soarunit"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
