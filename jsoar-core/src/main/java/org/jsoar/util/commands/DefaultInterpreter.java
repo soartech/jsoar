@@ -45,7 +45,7 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     private final Map<String, List<String>> aliases = new LinkedHashMap<String, List<String>>();
     
     private final SourceCommand sourceCommand;
-    private ReteNetCommand reteNetCommand;
+    private final ReteNetCommand reteNetCommand;
     
     public DefaultInterpreter(Agent agent)
     {
