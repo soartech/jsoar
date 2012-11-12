@@ -145,7 +145,7 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface, UpdateEvent
         {
             soarHome += File.separator;
         }
-        soarHome += "bin" + File.separator + "SoarJavaDebugger.jar";
+        soarHome += "SoarJavaDebugger.jar";
 
         System.out.println("launching debugger on port " + port + " from: " + soarHome);
         boolean success = agent.SpawnDebugger(port, soarHome);
