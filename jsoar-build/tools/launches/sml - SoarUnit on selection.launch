@@ -7,6 +7,8 @@
 <listEntry value="1"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="DYLD_LIBRARY_PATH" value="${env_var:SOAR_HOME}"/>
+<mapEntry key="LD_LIBRARY_PATH" value="${env_var:SOAR_HOME}"/>
 <mapEntry key="Path" value="${env_var:SOAR_HOME}"/>
 </mapAttribute>
 <listAttribute key="org.eclipse.jdt.launching.CLASSPATH">
