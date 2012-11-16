@@ -39,6 +39,9 @@ import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.PropertyKey;
 
 /**
+ * Writes out the rete to a file.
+ * 
+ * @see ReteNetReader
  * @author ray
  * @author charles.newton
  */
@@ -100,6 +103,7 @@ public class ReteNetWriter
             writeAllSymbols(dos);
             writeAlphaMemories(dos, rete.getAllAlphaMemories());
             writeChildrenOfNode(dos, rete.dummy_top_node);
+            // RETECOMPAT: CSoar's rete-net doesn't write out properties.
             writeProperties(dos, propertiesToInclude);
         }
         finally
@@ -192,6 +196,7 @@ public class ReteNetWriter
         if (node.node_type == ReteNodeType.CN_BNODE)
             return; // ignore CN nodes 
 
+        // RETECOMPAT: When writing out an enum type, JSoar uses the enum's toString(), but CSoar writes out one byte.
         dos.writeUTF(node.node_type.toString());
 
         switch (node.node_type)
@@ -206,6 +211,8 @@ public class ReteNetWriter
             writeLeftHashLoc(dos, node);
             // ... and fall through to the next case below ... 
         case UNHASHED_MP_BNODE:
+            // RETECOMPAT: No effort has been put in writing out CSoar compatible integers. Everything is written
+            // out as a 32-bit integer.
             dos.writeInt(getAlphaMemoryIndex(node.b_posneg().alpha_mem_));
             writeTestList(dos, node.b_posneg().other_tests);
             dos.writeBoolean(node.a_np().is_left_unlinked);
@@ -239,7 +246,7 @@ public class ReteNetWriter
 
         case P_BNODE:
             prod = node.b_p().prod;
-            // Production names in JSoar are strings, not symbols.
+            // RETECOMPAT: Production names in JSoar are strings, but in CSoar they're string symbols.
             dos.writeUTF(prod.getName());
             dos.writeUTF(prod.getDocumentation());
             dos.writeUTF(prod.getType().toString());

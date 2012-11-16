@@ -43,6 +43,9 @@ import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
+ * Loads a rete network into memory.
+ * 
+ * @see ReteNetWriter
  * @author ray
  * @author charles.newton
  */
@@ -50,7 +53,7 @@ public class ReteNetReader
 {
     // JSoar rete-net header information.
     protected static final String MAGIC_STRING = "JSoarCompactReteNet";
-    protected static final int FORMAT_VERSION = 3;
+    protected static final int FORMAT_VERSION = 1;
     
     // Used in {@link ReteNetReader#readAction} and {@link ReteNetWriter#writeAction} */
     protected static final int MAKE_ACTION = 0;
@@ -87,11 +90,9 @@ public class ReteNetReader
     }
 
     /**
-     * Read a rete network from the given input stream. The agent
-     * will be reinitialized, all productions will be excised and then
-     * the rete network will be loaded. 
+     * Load a rete network from the given input stream.
      * 
-     * <p>This method does not close the input stream
+     * <p>This method does not close the input stream.
      * 
      * <p>rete.cpp:7548:load_rete_net
      * 
