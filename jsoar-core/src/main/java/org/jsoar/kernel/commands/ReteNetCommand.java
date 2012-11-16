@@ -153,6 +153,9 @@ public class ReteNetCommand implements SoarCommand
         } 
     }
 
+    /**
+     * Saves the rete network to the given file.
+     */
     public void save(String filename) throws SoarException
     {
         OutputStream os = null;
