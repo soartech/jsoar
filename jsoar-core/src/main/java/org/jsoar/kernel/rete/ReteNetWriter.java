@@ -119,7 +119,7 @@ public class ReteNetWriter
      */
     private void ensureNoJustifications() throws SoarException
     {
-        if (context.getProductions().getProductions(ProductionType.JUSTIFICATION).size() > 0)
+        if (!context.getProductions().getProductions(ProductionType.JUSTIFICATION).isEmpty())
         {
             throw new SoarException("Internal error: cannot save rete net with justifications present.");
         }
