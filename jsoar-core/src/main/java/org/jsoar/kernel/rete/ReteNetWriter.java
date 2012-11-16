@@ -332,14 +332,13 @@ public class ReteNetWriter
      */
     private void writeAction(DataOutputStream dos, Action a) throws IOException, SoarException
     {
-        // JSoar's Action doesn't have a type field. These constants match MAKE_ACTION and FUNCALL_ACTION.
         if (a instanceof MakeAction)
         {
-            dos.writeInt(ReteNetReader.MAKE_ACTION);
+            dos.writeInt(ReteNetConstants.Action.MAKE_ACTION.ordinal());
         }
         else if (a instanceof FunctionAction) 
         {
-            dos.writeInt(ReteNetReader.FUNCALL_ACTION);
+            dos.writeInt(ReteNetConstants.Action.FUNCALL_ACTION.ordinal());
         }
         else
         {
@@ -399,13 +398,13 @@ public class ReteNetWriter
         
         if (rv instanceof RhsSymbolValue)
         {
-            dos.writeInt(ReteNetReader.RHS_SYMBOL);
+            dos.writeInt(ReteNetConstants.RHS.RHS_SYMBOL.ordinal());
             sym = rv.asSymbolValue().getSym();
             dos.writeInt(getSymbolIndex(sym));
         }
         else if (rv instanceof RhsFunctionCall)
         {
-            dos.writeInt(ReteNetReader.RHS_FUNCALL);
+            dos.writeInt(ReteNetConstants.RHS.RHS_FUNCALL.ordinal());
             dos.writeInt(getSymbolIndex(rv.asFunctionCall().getName()));
             dos.writeBoolean(rv.asFunctionCall().isStandalone());
             List<RhsValue> arguments = rv.asFunctionCall().getArguments();
@@ -417,13 +416,13 @@ public class ReteNetWriter
         }
         else if (rv instanceof ReteLocation)
         {
-            dos.writeInt(ReteNetReader.RHS_RETELOC);
+            dos.writeInt(ReteNetConstants.RHS.RHS_RETELOC.ordinal());
             dos.writeInt(rv.asReteLocation().getFieldNum());
             dos.writeInt(rv.asReteLocation().getLevelsUp());
         }
         else if (rv instanceof UnboundVariable)
         {
-            dos.writeInt(ReteNetReader.RHS_UNBOUND_VAR);
+            dos.writeInt(ReteNetConstants.RHS.RHS_UNBOUND_VAR.ordinal());
             dos.writeInt(rv.asUnboundVariable().getIndex());
         }
         else
@@ -668,16 +667,16 @@ public class ReteNetWriter
     {
         if(varNames == null)
         {
-            dos.writeInt(ReteNetReader.VARNAME_NULL);
+            dos.writeInt(ReteNetConstants.VarName.VARNAME_NULL.ordinal());
         }
         else if(VarNames.varnames_is_one_var(varNames))
         {
-            dos.writeInt(ReteNetReader.VARNAME_ONE_VAR);
+            dos.writeInt(ReteNetConstants.VarName.VARNAME_ONE_VAR.ordinal());
             dos.writeInt(getSymbolIndex(VarNames.varnames_to_one_var(varNames)));
         }
         else
         {
-            dos.writeInt(ReteNetReader.VARNAME_LIST);
+            dos.writeInt(ReteNetConstants.VarName.VARNAME_LIST.ordinal());
             final List<Variable> vars = VarNames.varnames_to_var_list(varNames);
             dos.writeInt(vars.size());
             for(Variable v : vars)

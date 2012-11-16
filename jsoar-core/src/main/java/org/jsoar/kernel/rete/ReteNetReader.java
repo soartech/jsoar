@@ -54,21 +54,6 @@ public class ReteNetReader
     // JSoar rete-net header information.
     protected static final String MAGIC_STRING = "JSoarCompactReteNet";
     protected static final int FORMAT_VERSION = 1;
-    
-    // Used in {@link ReteNetReader#readAction} and {@link ReteNetWriter#writeAction} */
-    protected static final int MAKE_ACTION = 0;
-    protected static final int FUNCALL_ACTION = 1;
-    
-    // Used in {@link ReteNetReader#readRHSValue} and {@link ReteNetWriter#writeRHSValue}
-    protected static final int RHS_SYMBOL = 0;
-    protected static final int RHS_FUNCALL = 1;
-    protected static final int RHS_RETELOC = 2;
-    protected static final int RHS_UNBOUND_VAR = 3;
-    
-    // Used in {@link ReteNetReader#readVarNames} and {@link ReteNetWriter#writeVarNames}
-    protected static final int VARNAME_NULL = 0;
-    protected static final int VARNAME_ONE_VAR = 1;
-    protected static final int VARNAME_LIST = 2;
 
     private final Agent context;
     private final SymbolFactoryImpl syms;
@@ -115,7 +100,7 @@ public class ReteNetReader
             throw new SoarException(String.format("Unsupported JSoar rete net version. Expected %d, got %d",
                     FORMAT_VERSION, version));
         }
-        
+
         readAllSymbols(dis);
         readAlphaMemories(dis);
         readChildrenOfNode(dis);
@@ -156,7 +141,7 @@ public class ReteNetReader
             }
         }
     }
-    
+
     /** 
      * @see ReteNetWriter#writeChildrenOfNode
      * 
@@ -171,7 +156,7 @@ public class ReteNetReader
             readNodeAndChildren(dis, rete.dummy_top_node);
         }
     }
-    
+
     /** 
      * @see ReteNetWriter#writeNodeAndChildren
      * 
@@ -192,7 +177,7 @@ public class ReteNetReader
          * below but is never used (hopefully) for UNHASHED node types.
          */
         VarLocation left_hash_loc = new VarLocation(-1, -1);
-        
+
         switch (type)
         {
         case MEMORY_BNODE:
@@ -297,7 +282,7 @@ public class ReteNetReader
             readNodeAndChildren(dis, New);
         }
     }
-    
+
     /**
      * @see ReteNetWriter#writeLeftHashLoc 
      */
@@ -308,7 +293,7 @@ public class ReteNetReader
 
         return new VarLocation(levels_up, field_num);
     }
-    
+
     /**
      * <p>rete.cpp:7116:retesave_action_list
      * 
@@ -346,21 +331,22 @@ public class ReteNetReader
         }
         return first_a; 
     }
-    
+
     /**
      * <p>rete.cpp:7085:reteload_rhs_action
      * @see ReteNetWriter#writeAction 
      */
     private Action readAction(DataInputStream dis) throws IOException, SoarException
     {
-        // JSoar's Action lacks a type field. These constants {0, 1} match MAKE_ACTION and FUNCALL_ACTION.
-        int type = dis.readInt();
         Action a = null;
-        if (type == MAKE_ACTION)
+
+        int type = dis.readInt();
+        ReteNetConstants.Action actionType = ReteNetConstants.Action.fromOrdinal(type);
+        if (actionType == ReteNetConstants.Action.MAKE_ACTION)
         {
             a = new MakeAction();
         }
-        else if (type == FUNCALL_ACTION)
+        else if (actionType == ReteNetConstants.Action.FUNCALL_ACTION)
         {
             a = new FunctionAction(null);
         }
@@ -381,14 +367,12 @@ public class ReteNetReader
         }
         a.support = ActionSupport.valueOf(dis.readUTF());
 
-        // FUNCALL_ACTION
-        if (type == 1)
+        if (actionType == ReteNetConstants.Action.FUNCALL_ACTION)
         {
             FunctionAction fa = a.asFunctionAction();
             fa.call = readRHSValue(dis).asFunctionCall();
         }
-        // MAKE_ACTION
-        else if (type == 0)
+        else if (actionType == ReteNetConstants.Action.MAKE_ACTION)
         {
             MakeAction ma = a.asMakeAction();
             ma.id = readRHSValue(dis);
@@ -403,14 +387,10 @@ public class ReteNetReader
                 ma.referent = null;
             }
         }
-        else
-        {
-            throw new SoarException(String.format("Unknown Action type %d.", type));
-        }
-        
+
         return a;
     }
-    
+
     /**
      * <p>rete.cpp:6983:reteload_rhs_value
      * @see ReteNetWriter#writeRHSValue 
@@ -424,7 +404,8 @@ public class ReteNetReader
         int levels_up;
 
         type = dis.readInt();
-        switch (type)
+        ReteNetConstants.RHS rhsType = ReteNetConstants.RHS.fromOrdinal(type);
+        switch (rhsType)
         {
         case RHS_SYMBOL: // RhsSymbolValue
             sym = getSymbol(dis.readInt());
@@ -466,7 +447,7 @@ public class ReteNetReader
 
         return rv;
     }
-    
+
     /**
      * <p>rete.cpp:7205:reteload_rete_test_list
      * @see ReteNetWriter#writeTestList 
@@ -504,7 +485,7 @@ public class ReteNetReader
 
         return first;
     }
-    
+
     /**
      * <p>rete.cpp:7166:reteload_rete_test
      * @see ReteNetWriter#writeTest 
@@ -556,7 +537,7 @@ public class ReteNetReader
 
         return rt;
     }
-    
+
     private static interface SymbolReader<T extends Symbol>
     {
         T read(DataInputStream dis) throws IOException;
@@ -604,7 +585,7 @@ public class ReteNetReader
             }}));
         this.symbolMap = result;
     }
-    
+
     /**
      * @see ReteNetWriter#writeSymbolList 
      */
@@ -623,7 +604,7 @@ public class ReteNetReader
         }
         return result;
     }
-    
+
     /**
      * @see ReteNetWriter#getSymbolIndex 
      * @see ReteNetWriter#indexSymbol 
@@ -636,7 +617,7 @@ public class ReteNetReader
         }
         return (SymbolImpl) symbolMap.get(index);
     }
-    
+
     /**
      * <p>rete.cpp:6804:reteload_alpha_memories
      * @see ReteNetWriter#writeAlphaMemories 
@@ -661,7 +642,7 @@ public class ReteNetReader
         }
         this.alphaMemories = ams;
     }
-    
+
     /**
      * <p>rete.cpp:6878:reteload_node_varnames
      * @see ReteNetWriter#writeVarNames
@@ -669,16 +650,20 @@ public class ReteNetReader
     private Object readVarNames(DataInputStream dis) throws SoarException, IOException
     {
         final int type = dis.readInt();
-        if(type == VARNAME_NULL)
+        final ReteNetConstants.VarName varNameType = ReteNetConstants.VarName.fromOrdinal(type);
+
+        switch (varNameType)
+        {
+        case VARNAME_NULL:
         {
             return null;
         }
-        else if(type == VARNAME_ONE_VAR)
+        case VARNAME_ONE_VAR:
         {
             final int index = dis.readInt(); 
             return VarNames.one_var_to_varnames(getSymbol(index).asVariable());
         }
-        else if(type == VARNAME_LIST)
+        case VARNAME_LIST:
         {
             final int count = dis.readInt();
             if(count < 0)
@@ -692,12 +677,13 @@ public class ReteNetReader
             }
             return VarNames.var_list_to_varnames(vars);
         }
-        else
+        default:
         {
             throw new SoarException(String.format("Invalid varnames record type. Expected 0, 1, or 2, got %d", type));
         }
+        }
     }
-    
+
     /**
      * <p>rete.cpp:6918:reteload_node_varnames
      * @see ReteNetWriter#writeNodeVarNames 
