@@ -31,7 +31,7 @@
   </build>
   <dependencies>
   	<dependency>
-  		<groupId>jsoar-core</groupId>
+  		<groupId>com.soartech</groupId>
   		<artifactId>jsoar-core</artifactId>
   		<version>0.13.0-SNAPSHOT</version>
   	</dependency>
