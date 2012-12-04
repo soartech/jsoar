@@ -81,4 +81,38 @@ public interface SoarCommandInterpreter
      * @see SoarCommands#source(SoarCommandInterpreter, Object)
      */
     void source(URL url) throws SoarException;
+
+    /**
+     * Load the rete file at the given file.
+     * 
+     * <p>If the file refers to a directory that is different from the current 
+     * directory, then the current directory is first changed and then the file 
+     * is sourced. If the file is relative it is assumed to be relative to the
+     * interpreter's current directory.
+     * 
+     * <p> Note that the working directory is not changed while loading the rete file
+     * because additional files cannot be loaded during a rete deserialization.
+     * 
+     * @param any the file to load a rete from
+     * @throws SoarException
+     * @see SoarCommands#loadRete(SoarCommandInterpreter, Object)
+     */
+    void loadRete(File file) throws SoarException;
+    
+    /**
+     * Load the rete file at the given URL.
+     * 
+     * <p> Note that the working directory is not changed while loading the rete file
+     * because additional files cannot be loaded during a rete deserialization.
+     * 
+     * @param url the URL.
+     * @throws SoarException
+     * @see SoarCommands#loadRete(SoarCommandInterpreter, Object)
+     */
+    void loadRete(URL url) throws SoarException;
+    
+    /**
+     * Saves the current rete network of an agent to the given file.
+     */
+    void saveRete(File file) throws SoarException;
 }

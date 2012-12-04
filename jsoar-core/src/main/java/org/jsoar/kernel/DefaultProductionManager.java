@@ -317,5 +317,17 @@ public class DefaultProductionManager implements ProductionManager
     {
         return productionsByName.size();
     }
-
+    
+    /**
+     * (Internal method for supporting ReteNetReader. Incorrect usage can result in the production manager
+     * no longer being consistent. You probably don't want to call this.)
+     * 
+     * Adds a production into the "production by name" and "production by type" maps.
+     * @param p the production to note.
+     */
+    public void addProductionToNameTypeMaps(Production p)
+    {
+        productionsByType.get(p.getType()).add(p);
+        productionsByName.put(p.getName(), p); 
+    }
 }
