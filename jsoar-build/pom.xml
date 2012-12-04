@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>jsoar-build</groupId>
+  <groupId>com.soartech</groupId>
   <artifactId>jsoar-build</artifactId>
   <version>0.13.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -18,37 +18,37 @@
   </build>
   <dependencies>
   	<dependency>
-  		<groupId>jsoar-core</groupId>
+  		<groupId>com.soartech</groupId>
   		<artifactId>jsoar-core</artifactId>
   		<version>0.13.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-  		<groupId>jsoar-debugger</groupId>
+  		<groupId>com.soartech</groupId>
   		<artifactId>jsoar-debugger</artifactId>
   		<version>0.13.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-  		<groupId>jsoar-demos</groupId>
+  		<groupId>com.soartech</groupId>
   		<artifactId>jsoar-demos</artifactId>
   		<version>0.13.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-  		<groupId>jsoar-legilimens</groupId>
+  		<groupId>com.soartech</groupId>
   		<artifactId>jsoar-legilimens</artifactId>
   		<version>0.13.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-  		<groupId>jsoar-soar2soar</groupId>
+  		<groupId>com.soartech</groupId>
   		<artifactId>jsoar-soar2soar</artifactId>
   		<version>0.13.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-  		<groupId>jsoar-soarunit</groupId>
+  		<groupId>com.soartech</groupId>
   		<artifactId>jsoar-soarunit</artifactId>
   		<version>0.13.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-  		<groupId>jsoar-tcl</groupId>
+  		<groupId>com.soartech</groupId>
   		<artifactId>jsoar-tcl</artifactId>
   		<version>0.13.0-SNAPSHOT</version>
   	</dependency>
