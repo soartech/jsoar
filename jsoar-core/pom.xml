@@ -34,15 +34,9 @@
   		<version>1.7.2</version>
   	</dependency>
   	<dependency>
-  		<groupId>org.slf4j</groupId>
-  		<artifactId>slf4j-jdk14</artifactId>
-  		<version>1.7.2</version>
-  	</dependency>
-  	<dependency>
   		<groupId>commons-beanutils</groupId>
   		<artifactId>commons-beanutils</artifactId>
   		<version>1.8.3</version>
-  		<scope>runtime</scope>
   	</dependency>
   	<dependency>
   		<groupId>junit</groupId>
