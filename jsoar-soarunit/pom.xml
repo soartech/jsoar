@@ -29,6 +29,12 @@
       </plugin>
     </plugins>
   </build>
+	<repositories>
+		<repository>
+			<id>soarpublic</id>
+			<url>http://weaver-misc:9045/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
   <dependencies>
     <dependency>
   	  <groupId>com.soartech</groupId>
@@ -39,8 +45,6 @@
   		<groupId>edu.umich.soar</groupId>
   		<artifactId>sml</artifactId>
   		<version>9.3.2</version>
-  		<scope>system</scope>
-  		<systemPath>${basedir}/lib/sml-9.3.2.jar</systemPath>
   	</dependency>
   	<dependency>
   		<groupId>junit</groupId>
