@@ -29,6 +29,13 @@
       </plugin>
     </plugins>
   </build>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <name>SoarTech Snapshots</name>
+      <url>http://weaver-misc:9045/nexus/content/repositories/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
   <dependencies>
   	<dependency>
   		<groupId>com.soartech</groupId>
