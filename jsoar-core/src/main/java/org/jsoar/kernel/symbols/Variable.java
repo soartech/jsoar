@@ -120,7 +120,7 @@ public class Variable extends SymbolImpl
      * rete.cpp:2333:dummy_to_varloc_field_num
      * 
      * @param d
-     * @return the fiel part of a dummy
+     * @return the field part of a dummy
      */
     public static int dummy_to_varloc_field_num(int d)
     {
