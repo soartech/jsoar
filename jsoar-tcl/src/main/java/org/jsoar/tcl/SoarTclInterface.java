@@ -111,8 +111,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
     
     private final SourceCommand sourceCommand;
     
-    final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
-    final CmdRhsFunction cmdRhsFunction = new CmdRhsFunction(this);
+    private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
+    private final CmdRhsFunction cmdRhsFunction = new CmdRhsFunction(this);
     
     private SoarTclInterface(Agent agent)
     {
