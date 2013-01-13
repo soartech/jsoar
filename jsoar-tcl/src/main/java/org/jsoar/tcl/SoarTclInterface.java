@@ -22,6 +22,7 @@ import org.jsoar.kernel.commands.PwdCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
+import org.jsoar.kernel.rhs.functions.CmdRhsFunction;
 import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
@@ -111,6 +112,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private final SourceCommand sourceCommand;
     
     final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
+    final CmdRhsFunction cmdRhsFunction = new CmdRhsFunction(this);
     
     private SoarTclInterface(Agent agent)
     {
@@ -118,6 +120,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
         
         initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
+        this.agent.getRhsFunctions().registerHandler(cmdRhsFunction);
         
         // Interpreter-specific handlers
         addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
@@ -242,6 +245,10 @@ public class SoarTclInterface implements SoarCommandInterpreter
     public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException
     {
         SoarTclCommandAdapter commandAdapter = (SoarTclCommandAdapter)interp.getCommand(name);
+        if (commandAdapter == null)
+        {
+            throw new SoarException(srcLoc + ": Unknown command '" + name + "'");
+        }
         return commandAdapter.getSoarCommand();
     }
     
