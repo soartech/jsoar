@@ -6,12 +6,18 @@
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.StringWriter;
+import java.net.URL;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.util.SourceLocation;
+import org.jsoar.util.commands.DefaultSoarCommandContext;
+import org.jsoar.util.commands.SoarCommand;
+import org.jsoar.util.commands.SoarCommandContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +69,7 @@ public class TclCmdTest
     @Test
     public void testCmdFC() throws Exception
     {
-        agent.getProductions().loadProduction("testCmdPrintFC (state <s> ^superstate nil) --> (write (cmd fc))");
+        agent.getProductions().loadProduction("testCmdPrintFC (state <s> ^superstate nil) --> (write (cmd firing-counts))");
         outputWriter.flush();
         agent.runFor(1, RunType.DECISIONS);
         String output = outputWriter.getBuffer().toString();
@@ -93,5 +99,30 @@ public class TclCmdTest
         assertFalse(output.startsWith("(S1"));
         assertFalse(output.startsWith("(S1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)"));
         assertTrue(output.startsWith("No production named"));
+    }
+    
+    @Test
+    public void testTclGetCommand() throws Exception
+    {
+        ifc.eval("sp {wait (state <s> ^superstate nil) --> (wait)}");
+        SourceLocation location = agent.getProductions().getProduction("wait").getLocation();
+        SoarCommand pwd = ifc.getCommand("pwd", location);
+        final SoarCommandContext commandContext = new DefaultSoarCommandContext(location);
+        String[] args = new String[1];
+        String ret = pwd.execute(commandContext, args);
+        assertNotNull(ret);
+        assertTrue(ret.length() > 0);
+    }
+    
+    @Test
+    public void testTclSource() throws Exception
+    {
+        // Make sure we source with the TCL interpreter (not the default interpreter).
+        URL sourceTestLoc = getClass().getResource("/" + SoarTclInterfaceTest.class.getCanonicalName().replace('.', '/') + "_sourceResource.soar");
+        System.out.println(sourceTestLoc.toExternalForm());
+        ifc.eval("sp {testSource (state <s> ^superstate nil) --> (write (crlf) (cmd source |" + sourceTestLoc.toExternalForm() + "|))}");
+        outputWriter.flush();
+        agent.runFor(1, RunType.DECISIONS);
+        assertNotNull(ifc.getAgent().getProductions().getProduction("top-state*propose*wait"));
     }
 }
