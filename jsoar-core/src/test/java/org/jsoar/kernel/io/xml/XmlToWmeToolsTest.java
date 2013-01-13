@@ -10,9 +10,17 @@ import static org.junit.Assert.*;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.events.InputEvent;
+import org.jsoar.kernel.io.InputWme;
+import org.jsoar.kernel.io.InputWmes;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.Wmes;
+import org.jsoar.kernel.symbols.Symbols;
+import org.jsoar.util.ByRef;
 import org.jsoar.util.XmlTools;
+import org.jsoar.util.events.SoarEvent;
+import org.jsoar.util.events.SoarEventListener;
+import org.jsoar.util.events.SoarEvents;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +68,56 @@ public class XmlToWmeToolsTest
         agent.runFor(1, RunType.DECISIONS);
         
         final Wme root = Wmes.matcher(agent).attr("another-attr").find(agent.getInputOutput().getInputLink());
+        assertNotNull(root);
+        assertNotNull(Wmes.matcher(agent).attr("name").value("hi").find(root));
+    }
+    
+    @Test
+    public void testAddXmlInputToInputWmeWithExplicitAttribute() throws Exception
+    {
+        final ByRef<InputWme> loc = new ByRef<InputWme>();
+        SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class, new SoarEventListener()
+        {
+            @Override
+            public void onEvent(SoarEvent event)
+            {
+                loc.value = InputWmes.add(agent.getInputOutput(), "xml-data", Symbols.NEW_ID);
+            }
+        });
+        
+        agent.runFor(1, RunType.DECISIONS);
+        
+        final XmlToWme converter = SoarTechXmlToWme.forInput(agent.getInputOutput());
+        XmlToWmeTools.addXmlInput(agent.getInputOutput(), XmlTools.parse("<xml-input><name value='hi'/></xml-input>"), converter, "another-attr");
+        
+        agent.runFor(1, RunType.DECISIONS);
+        
+        final Wme root = Wmes.matcher(agent).attr("another-attr").find(loc.value.getIdentifier());
+        assertNotNull(root);
+        assertNotNull(Wmes.matcher(agent).attr("name").value("hi").find(root));
+    }
+    
+    @Test
+    public void testAddXmlInputToInputWmeWithDefaultAttribute() throws Exception
+    {
+        final ByRef<InputWme> loc = new ByRef<InputWme>();
+        SoarEvents.listenForSingleEvent(agent.getEvents(), InputEvent.class, new SoarEventListener()
+        {
+            @Override
+            public void onEvent(SoarEvent event)
+            {
+                loc.value = InputWmes.add(agent.getInputOutput(), "xml-data", Symbols.NEW_ID);
+            }
+        });
+        
+        agent.runFor(1, RunType.DECISIONS);
+        
+        final XmlToWme converter = SoarTechXmlToWme.forInput(agent.getInputOutput());
+        XmlToWmeTools.addXmlInput(agent.getInputOutput(), XmlTools.parse("<xml-input><name value='hi'/></xml-input>"), converter);
+        
+        agent.runFor(1, RunType.DECISIONS);
+        
+        final Wme root = Wmes.matcher(agent).attr("xml-input").find(loc.value.getIdentifier());
         assertNotNull(root);
         assertNotNull(Wmes.matcher(agent).attr("name").value("hi").find(root));
     }
