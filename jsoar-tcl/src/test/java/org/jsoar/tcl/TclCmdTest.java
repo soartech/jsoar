@@ -90,9 +90,9 @@ public class TclCmdTest
     @Test
     public void testNewline() throws Exception
     {
-        // This shouldn't run both "print -d 1 S1" and "fc", i.e. \n should be
+        // This shouldn't run both "print -d 1 S1" and "firing-counts", i.e. \n should be
         // passed as an argument, not parsed as a command delimiter.
-        agent.getProductions().loadProduction("testNewline (state <s> ^superstate nil) --> (write (cmd print -d 1 <s> |\n| fc))");
+        agent.getProductions().loadProduction("testNewline (state <s> ^superstate nil) --> (write (cmd print -d 1 <s> |\n| firing-counts))");
         outputWriter.flush();
         agent.runFor(1, RunType.DECISIONS);
         String output = outputWriter.getBuffer().toString();
