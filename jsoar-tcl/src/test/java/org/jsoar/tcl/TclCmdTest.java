@@ -119,7 +119,6 @@ public class TclCmdTest
     {
         // Make sure we source with the TCL interpreter (not the default interpreter).
         URL sourceTestLoc = getClass().getResource("/" + SoarTclInterfaceTest.class.getCanonicalName().replace('.', '/') + "_sourceResource.soar");
-        System.out.println(sourceTestLoc.toExternalForm());
         ifc.eval("sp {testSource (state <s> ^superstate nil) --> (write (crlf) (cmd source |" + sourceTestLoc.toExternalForm() + "|))}");
         outputWriter.flush();
         agent.runFor(1, RunType.DECISIONS);
