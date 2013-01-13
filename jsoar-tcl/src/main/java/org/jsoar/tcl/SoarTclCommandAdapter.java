@@ -48,5 +48,12 @@ public class SoarTclCommandAdapter implements Command
             throw new TclException(interp, e.getMessage());
         }
     }
-
+    
+    /**
+     * @return the {@link SoarCommand} backing this Tcl command.
+     */
+    public SoarCommand getSoarCommand()
+    {
+        return inner;
+    }
 }

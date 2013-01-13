@@ -22,6 +22,7 @@ import org.jsoar.kernel.commands.PwdCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.slf4j.Logger;
@@ -233,6 +234,17 @@ public class SoarTclInterface implements SoarCommandInterpreter
         interp.createCommand(name, adapt(handler));
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#getCommand(java.lang.String, org.jsoar.util.SourceLocation)
+     */
+    @Override
+    public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException
+    {
+        SoarTclCommandAdapter commandAdapter = (SoarTclCommandAdapter)interp.getCommand(name);
+        return commandAdapter.getSoarCommand();
+    }
+    
     private class MySourceCommandAdapter implements SourceCommandAdapter
     {
         @Override
@@ -278,4 +290,6 @@ public class SoarTclInterface implements SoarCommandInterpreter
             return SoarTclInterface.this.eval(code);
         }
     }
+
+
 }
