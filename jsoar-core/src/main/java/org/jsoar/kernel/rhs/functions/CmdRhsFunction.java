@@ -59,15 +59,6 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
     {
         RhsFunctions.checkArgumentCount(this, arguments);
         
-//        final StringBuilder concat = new StringBuilder();
-//        for(Symbol s : arguments)
-//        {
-//            concat.append(String.format(" %#s", s));
-//        }
-//        // Delete the leading space.
-//        concat.deleteCharAt(0);
-//        final String exp = concat.toString();
-        
         try
         {
             String commandName = arguments.get(0).toString();
@@ -78,8 +69,6 @@ public class CmdRhsFunction extends AbstractRhsFunctionHandler
             final SoarCommandContext commandContext = new DefaultSoarCommandContext(srcLoc);
             String result = command.execute(commandContext, commandArgs.toArray(new String[commandArgs.size()]));
             return context.getSymbols().createString(result);
-//            final String result = this.interp.eval(exp);
-//            return context.getSymbols().createString(result);
         }
         catch (SoarException e)
         {
