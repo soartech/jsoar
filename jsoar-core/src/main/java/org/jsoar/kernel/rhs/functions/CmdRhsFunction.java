@@ -36,6 +36,7 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
  *     ...
  *     -->
  *     (write (cmd print -d 2 &lt;s&gt;)) }
+ * }
  * </pre>
  * 
  * @author charles.newton
