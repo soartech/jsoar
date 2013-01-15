@@ -19,10 +19,11 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
-import org.jsoar.kernel.commands.ReteNetCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
+import org.jsoar.kernel.rhs.functions.CmdRhsFunction;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.commands.SoarCommand;
 import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.slf4j.Logger;
@@ -109,10 +110,9 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private final Interp interp = new Interp();
     
     private final SourceCommand sourceCommand;
-    private ReteNetCommand reteNetCommand;
     
-    final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
-
+    private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
+    private final CmdRhsFunction cmdRhsFunction = new CmdRhsFunction(this);
     
     private SoarTclInterface(Agent agent)
     {
@@ -120,14 +120,14 @@ public class SoarTclInterface implements SoarCommandInterpreter
         
         initializeEnv();
         this.agent.getRhsFunctions().registerHandler(tclRhsFunction);
+        this.agent.getRhsFunctions().registerHandler(cmdRhsFunction);
         
         // Interpreter-specific handlers
         addCommand("source", this.sourceCommand = new SourceCommand(new MySourceCommandAdapter(), agent.getEvents()));
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));
-        addCommand("rete-net", this.reteNetCommand = new ReteNetCommand(sourceCommand, agent));
-        
+
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
         
@@ -215,36 +215,6 @@ public class SoarTclInterface implements SoarCommandInterpreter
         sourceCommand.source(url.toExternalForm());
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.io.File)
-     */
-    @Override
-    public void loadRete(File file) throws SoarException
-    {
-        reteNetCommand.load(file.getPath());
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.net.URL)
-     */
-    @Override
-    public void loadRete(URL url) throws SoarException
-    {
-        reteNetCommand.load(url.toExternalForm());
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#saveRete(java.io.File)
-     */
-    @Override
-    public void saveRete(File file) throws SoarException
-    {
-        reteNetCommand.save(file.getPath());
-    }
-    
     public String eval(String command) throws SoarException
     {
         try
@@ -267,6 +237,21 @@ public class SoarTclInterface implements SoarCommandInterpreter
         interp.createCommand(name, adapt(handler));
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#getCommand(java.lang.String, org.jsoar.util.SourceLocation)
+     */
+    @Override
+    public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException
+    {
+        SoarTclCommandAdapter commandAdapter = (SoarTclCommandAdapter)interp.getCommand(name);
+        if (commandAdapter == null)
+        {
+            throw new SoarException(srcLoc + ": Unknown command '" + name + "'");
+        }
+        return commandAdapter.getSoarCommand();
+    }
+    
     private class MySourceCommandAdapter implements SourceCommandAdapter
     {
         @Override
@@ -278,7 +263,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
             }
             catch (TclException e)
             {
-                throw new SoarException(interp.getResult().toString());
+                String errLocation = "In file: " + file.getAbsolutePath() + " line " + interp.getErrorLine() + ".";
+                throw new SoarException(errLocation + System.getProperty("line.separator") + interp.getResult().toString());
             }
         }
 
@@ -311,4 +297,6 @@ public class SoarTclInterface implements SoarCommandInterpreter
             return SoarTclInterface.this.eval(code);
         }
     }
+
+
 }

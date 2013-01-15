@@ -30,6 +30,7 @@ import org.jsoar.kernel.commands.ReteNetCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
+import org.jsoar.util.SourceLocation;
 import org.jsoar.util.StringTools;
 
 import com.google.common.base.Joiner;
@@ -68,6 +69,17 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     public void addCommand(String name, SoarCommand handler)
     {
         commands.put(name, handler);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#getCommand(java.lang.String, org.jsoar.util.SourceLocation)
+     */
+    public SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException
+    {
+        final List<String> command = new ArrayList<String>();
+        command.add(name);
+        return getSoarCommand(new ParsedCommand(srcLoc, command));
     }
 
     /* (non-Javadoc)
@@ -186,18 +198,23 @@ public class DefaultInterpreter implements SoarCommandInterpreter
     
     private String executeParsedCommand(ParsedCommand parsedCommand) throws SoarException
     {
+        final SoarCommand command = getSoarCommand(parsedCommand);
+        final SoarCommandContext commandContext = new DefaultSoarCommandContext(parsedCommand.getLocation());
+        return command.execute(commandContext, parsedCommand.getArgs().toArray(new String[]{}));
+    }
+    
+    private SoarCommand getSoarCommand(ParsedCommand parsedCommand) throws SoarException
+    {
         parsedCommand = resolveAliases(parsedCommand);
-        final SoarCommand command = resolveCommand(parsedCommand.getArgs().get(0));
+        final SoarCommand command = resolveCommand(parsedCommand.getArgs().get(0));       
         if(command != null)
         {
-            final SoarCommandContext commandContext = new DefaultSoarCommandContext(parsedCommand.getLocation());
-            return command.execute(commandContext, parsedCommand.getArgs().toArray(new String[]{}));
+            return command;
         }
         else
         {
             throw new SoarException(parsedCommand.getLocation() + ": Unknown command '" + parsedCommand.getArgs().get(0) + "'");
         }
-        
     }
     
     private List<Map.Entry<String, SoarCommand>> resolvePossibleCommands(String prefix)
