@@ -1,3 +1,6 @@
+set test "test!"
+
+if {0 < 1} {
 #### Propose wait for a state-no-change
 sp {top-state*propose*wait
 (state <s> ^attribute state
@@ -6,3 +9,4 @@ sp {top-state*propose*wait
 -->
 (<s> ^operator <o> +)
 (<o> ^name wait)}
+}

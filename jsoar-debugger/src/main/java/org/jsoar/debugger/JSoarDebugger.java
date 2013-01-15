@@ -52,10 +52,10 @@ import org.jsoar.debugger.selection.SelectionManager;
 import org.jsoar.debugger.selection.SelectionProvider;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.DebuggerProvider;
+import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
-import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.events.AfterInitSoarEvent;
 import org.jsoar.kernel.events.StopEvent;
 import org.jsoar.runtime.CompletionHandler;
@@ -79,9 +79,9 @@ import org.slf4j.LoggerFactory;
 import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.common.event.CFocusListener;
 import bibliothek.gui.dock.common.intern.CDockable;
-import bibliothek.gui.dock.common.layout.ThemeMap;
 import bibliothek.gui.dock.common.menu.CLayoutChoiceMenuPiece;
 import bibliothek.gui.dock.common.menu.CThemeMenuPiece;
+import bibliothek.gui.dock.common.theme.ThemeMap;
 import bibliothek.gui.dock.facile.menu.RootMenuPiece;
 import bibliothek.gui.dock.facile.menu.SubmenuPiece;
 import bibliothek.gui.dock.support.menu.SeparatingMenuPiece;
@@ -151,6 +151,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
         
         this.docking = new CControl(this.frame);
         this.docking.setTheme(ThemeMap.KEY_ECLIPSE_THEME);
+        
         // Track selection to active view
         this.docking.addFocusListener(new CFocusListener() {
             
@@ -326,7 +327,7 @@ public class JSoarDebugger extends JPanel implements Adaptable
     private <T extends AbstractAdaptableView> T addView(T view, boolean visible)
     {
         views.add(view);
-        docking.add(view);
+        docking.addDockable(view);
         if(visible)
         {
             view.setVisible(true);
@@ -440,10 +441,13 @@ public class JSoarDebugger extends JPanel implements Adaptable
         bar.add(fileMenu);
         
         final RootMenuPiece viewMenu = new RootMenuPiece( "View", false );
-        viewMenu.add(new SeparatingMenuPiece(false, true, false));
+        
         // L&F is cute, but for some reason, switching L&F breaks the trace command box
         // viewMenu.add(new SubmenuPiece( "Look and feel", true, new CLookAndFeelMenuPiece( docking )));
-        viewMenu.add(new SubmenuPiece( "Theme", true, new CThemeMenuPiece( docking )));
+        
+        viewMenu.add(new SeparatingMenuPiece(
+                new SubmenuPiece( "Theme", true, new CThemeMenuPiece( docking )),
+                true, true, false));
         
         final SubmenuPiece layoutMenu = new SubmenuPiece("Layout", false,
                 new CLayoutChoiceMenuPiece( docking, false ));

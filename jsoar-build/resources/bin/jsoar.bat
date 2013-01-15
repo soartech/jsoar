@@ -6,7 +6,7 @@ rem
 rem Usage:
 rem
 rem > jsoar [soar files or URLs]
- 
+
 setlocal
 
 set HERE=%~sp0

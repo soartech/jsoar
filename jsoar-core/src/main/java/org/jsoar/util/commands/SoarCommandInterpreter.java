@@ -10,6 +10,7 @@ import java.net.URL;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.util.SourceLocation;
 
 /**
  * Interface for an object that knows how to execute Soar commands and
@@ -41,6 +42,14 @@ public interface SoarCommandInterpreter
      * @param handler the handler for the command
      */
     void addCommand(String name, SoarCommand handler);
+    
+    /**
+     * Fetches a command associated with this interpreter.
+     * 
+     * @param name the name of a command added with {@link #addCommand(String, SoarCommand)};
+     * @throws SoarException 
+     */
+    SoarCommand getCommand(String name, SourceLocation srcLoc) throws SoarException;
     
     /**
      * Evaluate a bit of code and return the result.

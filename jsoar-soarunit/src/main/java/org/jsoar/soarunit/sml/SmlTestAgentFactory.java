@@ -15,11 +15,12 @@ import org.jsoar.soarunit.TestAgentFactory;
  */
 public class SmlTestAgentFactory implements TestAgentFactory
 {
-    static
-    {
-        preloadSmlLibraries();
-    }
-    
+//    static
+//    {
+//        // as of 9.3.2, we no longer need to preload the libraries
+//        //preloadSmlLibraries();
+//    }
+
     /* (non-Javadoc)
      * @see org.jsoar.soarunit.TestAgentFactory#createTestAgent()
      */
@@ -42,7 +43,7 @@ public class SmlTestAgentFactory implements TestAgentFactory
     private static void preloadSmlLibraries()
     {
         /*
-        TODO SoarUnit SML Someday we may need this code. For now, Soar has to be on the system path for the debugger to work anyway. 
+        TODO SoarUnit SML Someday we may need this code. For now, Soar has to be on the system path for the debugger to work anyway.
         final String soarHome = System.getProperty("soar.home", null);
         if(soarHome != null)
         {
@@ -54,14 +55,15 @@ public class SmlTestAgentFactory implements TestAgentFactory
             }
             else
             {
-                System.setProperty("java.library.path", 
+                System.setProperty("java.library.path",
                         soarBinPath + System.getProperty("path.separator") + currentLibPath);
             }
         }
         */
-        
-        System.loadLibrary("ElementXML");
-        System.loadLibrary("SoarKernelSML");
-        System.loadLibrary("Java_sml_ClientInterface");
+
+        // these are the libraries as of soar 9.3.1. In 9.3.2, the libraries changed and no longer need to be preloaded.
+//        System.loadLibrary("ElementXML");
+//        System.loadLibrary("SoarKernelSML");
+//        System.loadLibrary("Java_sml_ClientInterface");
     }
 }
