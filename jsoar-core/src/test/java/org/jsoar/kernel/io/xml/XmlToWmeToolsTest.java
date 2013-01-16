@@ -88,13 +88,17 @@ public class XmlToWmeToolsTest
         agent.runFor(1, RunType.DECISIONS);
         
         final XmlToWme converter = SoarTechXmlToWme.forInput(agent.getInputOutput());
-        XmlToWmeTools.addXmlInput(agent.getInputOutput(), XmlTools.parse("<xml-input><name value='hi'/></xml-input>"), converter, "another-attr");
+        XmlToWmeTools.addXmlInput(loc.value, XmlTools.parse("<xml-input><name value='hi'/></xml-input>"), converter, "another-attr");
         
+        // Creates:
+        // ^io.input-link.xml-data.another-attr.name |hi|
         agent.runFor(1, RunType.DECISIONS);
         
-        final Wme root = Wmes.matcher(agent).attr("another-attr").find(loc.value.getIdentifier());
+        final Wme root = Wmes.matcher(agent).attr("xml-data").find(agent.getInputOutput().getInputLink());
         assertNotNull(root);
-        assertNotNull(Wmes.matcher(agent).attr("name").value("hi").find(root));
+        final Wme xmlData = Wmes.matcher(agent).attr("another-attr").find(root.getValue().asIdentifier());
+        assertNotNull(xmlData);
+        assertNotNull(Wmes.matcher(agent).attr("name").value("hi").find(xmlData.getValue().asIdentifier()));
     }
     
     @Test
@@ -110,15 +114,19 @@ public class XmlToWmeToolsTest
             }
         });
         
+        // Creates:
+        // ^io.input-link.xml-data.xml-input.name |hi|
         agent.runFor(1, RunType.DECISIONS);
         
         final XmlToWme converter = SoarTechXmlToWme.forInput(agent.getInputOutput());
-        XmlToWmeTools.addXmlInput(agent.getInputOutput(), XmlTools.parse("<xml-input><name value='hi'/></xml-input>"), converter);
+        XmlToWmeTools.addXmlInput(loc.value, XmlTools.parse("<xml-input><name value='hi'/></xml-input>"), converter);
         
         agent.runFor(1, RunType.DECISIONS);
         
-        final Wme root = Wmes.matcher(agent).attr("xml-input").find(loc.value.getIdentifier());
+        final Wme root = Wmes.matcher(agent).attr("xml-data").find(agent.getInputOutput().getInputLink());
         assertNotNull(root);
-        assertNotNull(Wmes.matcher(agent).attr("name").value("hi").find(root));
+        final Wme xmlData = Wmes.matcher(agent).attr("xml-input").find(root.getValue().asIdentifier());
+        assertNotNull(xmlData);
+        assertNotNull(Wmes.matcher(agent).attr("name").value("hi").find(xmlData.getValue().asIdentifier()));
     }
 }
