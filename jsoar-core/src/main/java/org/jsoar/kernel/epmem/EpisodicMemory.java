@@ -6,6 +6,8 @@
 package org.jsoar.kernel.epmem;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 
 /**
  * @author voigtjr
@@ -17,5 +19,7 @@ public interface EpisodicMemory
      * @throws SoarException
      */
     void epmem_close() throws SoarException;
-
+    
+    // TODO stub, not sure if these are the correct parameters
+    void initializeNewContext(WorkingMemory wm, IdentifierImpl id);
 }

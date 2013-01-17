@@ -11,6 +11,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.events.GdsGoalRemovedEvent;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutputImpl;
@@ -159,6 +160,7 @@ public class Decider
     private SoarReteListener soarReteListener;
     private ReinforcementLearning rl;
     private SemanticMemory smem;
+    private EpisodicMemory epmem;
     
     /**
      * <p>gsysparam.h:164:MAX_GOAL_DEPTH
@@ -266,6 +268,7 @@ public class Decider
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
         this.smem = Adaptables.require(getClass(), context, SemanticMemory.class);
+        this.epmem = Adaptables.require(getClass(), context, EpisodicMemory.class);
     }
     
     public List<Goal> getGoalStack()
@@ -1500,6 +1503,9 @@ public class Decider
         // Create RL link
         id.goalInfo.reward_header = predefined.getSyms().make_new_identifier('R', level);
         SoarModule.add_module_wme(workingMemory, id, predefined.rl_sym_reward_link, id.goalInfo.reward_header);
+        
+        //Create EPMEM stuff
+        epmem.initializeNewContext(workingMemory, id);
         
         // Create SMEM stuff
         smem.initializeNewContext(workingMemory, id);

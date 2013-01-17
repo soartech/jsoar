@@ -23,6 +23,9 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.smem.SemanticMemoryStateInfo;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
@@ -132,6 +135,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private final epmem_rit_state[] epmem_rit_state_graph = new epmem_rit_state[] {new epmem_rit_state(), new epmem_rit_state()};
 
     //bool epmem_first_switch;
+    
+    private Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
 
     public DefaultEpisodicMemory(Adaptable context)
     {
@@ -724,5 +729,23 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
         }
     }
-
+    
+    @Override
+    public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
+    {
+    	this.stateInfos.put(id, new EpisodicMemoryStateInfo());
+//
+//    	{
+//    	  int64_t my_time = static_cast<int64_t>( thisAgent->epmem_stats->time->get_value() );
+//    	  if ( my_time == 0 )
+//    	  {
+//    		  // special case: pre-initialization
+//    		  my_time = 1;
+//    	  }
+//    	  
+//    	  Symbol* my_time_sym = make_int_constant( thisAgent, my_time );
+//    	  id->id.epmem_time_wme = soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_present_id, my_time_sym );
+//    	  symbol_remove_ref( thisAgent, my_time_sym );
+//    	}
+    }
 }
