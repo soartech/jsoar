@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -153,18 +154,58 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         params = new DefaultEpisodicMemoryParams(properties);
         stats = new DefaultEpisodicMemoryStats(properties);
         
+        // CK: not implementing timers
+        // src/agent.cpp:369:  newAgent->epmem_timers = new epmem_timer_container( newAgent );
+        
+        // CK: in smem this is called from smem_attach, there is no equivalent function in episodic_memory.cpp
+        try 
+        {
+			epmem_init_db();
+			// database connection closed in Agent#dispose()
+		} catch (SoarException e) {
+			// TODO throw this to agent? thrown if there is a problem connecting to database
+			// smem logs/prints like this:
+			logger.error("While initializing epmem: " + e.getMessage(), e);
+			// the context passed to the constructor from Agent is a reference to the Agent object
+			// TODO can we assume context can be adapted to Agent?
+			Adaptables.adapt(this.context, Agent.class).getPrinter().error("While initializing smem: " + e.getMessage());
+		}
+    
+//        src/agent.cpp:393:  newAgent->epmem_node_removals = new epmem_id_removal_map();
         epmem_node_removals = Maps.newHashMap();
+//        src/agent.cpp:375:  newAgent->epmem_node_mins = new std::vector<epmem_time_id>();
         epmem_node_mins = Lists.newArrayList();
+//        src/agent.cpp:376:  newAgent->epmem_node_maxes = new std::vector<bool>();
         epmem_node_maxes = Lists.newArrayList();
-
+// CK: why is the object constructed twice in cpp?
+//        src/agent.cpp:386:  newAgent->epmem_edge_removals = 
+//          new epmem_id_removal_map( std::less< epmem_node_id >(), 
+//                soar_module::soar_memory_pool_allocator< std::pair< epmem_node_id, bool > >( newAgent ) );
+//        src/agent.cpp:394:  newAgent->epmem_edge_removals = new epmem_id_removal_map();
         epmem_edge_removals = Maps.newHashMap();
+//        src/agent.cpp:378:  newAgent->epmem_edge_mins = new std::vector<epmem_time_id>();    
         epmem_edge_mins = Lists.newArrayList();
+//        src/agent.cpp:379:  newAgent->epmem_edge_maxes = new std::vector<bool>();
         epmem_edge_maxes = Lists.newArrayList();
 
         epmem_id_repository = Maps.newHashMap();
         epmem_id_replacement = Maps.newHashMap();
         epmem_id_ref_counts = Maps.newHashMap();
         epmem_id_removes = Lists.newLinkedList();
+        
+        // TODO implement these?
+//        src/agent.cpp:372:  newAgent->epmem_stmts_common = NULL;
+//        src/agent.cpp:373:  newAgent->epmem_stmts_graph = NULL;       
+//        src/agent.cpp:402:  newAgent->epmem_validation = 0;
+//        src/agent.cpp:403:  newAgent->epmem_first_switch = true;
+        
+        // CK: don't need memory pools in java:
+//        src/agent.cpp:388:  newAgent->epmem_wme_adds = new epmem_symbol_set( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
+//        src/agent.cpp:389:  newAgent->epmem_promotions = new epmem_symbol_set( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
+//        src/agent.cpp:391:  newAgent->epmem_id_removes = new epmem_symbol_stack( soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
+//        src/agent.cpp:396:  newAgent->epmem_wme_adds = new epmem_symbol_set();
+//        src/agent.cpp:397:  newAgent->epmem_promotions = new epmem_symbol_set();
+//        src/agent.cpp:399:  newAgent->epmem_id_removes = new epmem_symbol_stack();
     }
     
     EpisodicMemoryDatabase getDatabase()
