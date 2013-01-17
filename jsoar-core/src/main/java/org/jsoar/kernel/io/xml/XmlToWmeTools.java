@@ -131,7 +131,7 @@ public class XmlToWmeTools
      */
     public static void addXmlInput(final InputWme parent, Node root, final XmlToWme converter, final String attr)
     {
-        addXmlInput(parent.getInputOutput(), parent.getIdentifier(), root, converter, attr);
+        addXmlInput(parent.getInputOutput(), parent.getValue().asIdentifier(), root, converter, attr);
     }
     
     /**
