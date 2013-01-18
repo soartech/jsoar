@@ -739,6 +739,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.kernel.epmem.EpisodicMemory#initializeNewContext(org.jsoar.kernel.memory.WorkingMemory, org.jsoar.kernel.symbols.IdentifierImpl)
+     */
     @Override
     public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
     {
@@ -764,8 +768,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_go(boolean)
+     */
 	@Override
 	public void epmem_go(boolean allow_store) {
 		// TODO stub
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_enabled()
+	 */
+	@Override
+	public boolean epmem_enabled() {
+		// CK: C++ code
+//		return ( my_agent->epmem_params->learning->get_value() == soar_module::on );
+		// TODO stub
+		return false;
 	}
 }

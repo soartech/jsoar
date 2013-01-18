@@ -15,6 +15,11 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
  */
 public interface EpisodicMemory
 {
+	/**
+	 * episodic_memory.cpp:epmem_enabled
+	 */
+	boolean epmem_enabled();
+	
     /**
      * episodic_memory.cpp:epmem_close
      * @throws SoarException
