@@ -21,6 +21,7 @@ public class DefaultEpisodicMemoryParams
     public static enum Phase { output, decision };
     static enum Learning { on, off };
     static enum Force { remember, ignore, off };
+    static enum Trigger { none, output, dc };
     
     private static final String PREFIX = "epmem.params.";
     
@@ -56,6 +57,9 @@ public class DefaultEpisodicMemoryParams
     
     static final PropertyKey<Force> FORCE = key("force", Force.class).defaultValue(Force.off).build();
     final EnumPropertyProvider<Force> force = new EnumPropertyProvider<Force>(FORCE);
+    
+    static final PropertyKey<Trigger> TRIGGER = key("trigger", Trigger.class).defaultValue(Trigger.output).build();
+    final EnumPropertyProvider<Trigger> trigger = new EnumPropertyProvider<Trigger>(TRIGGER);
 
     private final PropertyManager properties;
 
@@ -74,6 +78,7 @@ public class DefaultEpisodicMemoryParams
         properties.setProvider(PHASE, phase);
         properties.setProvider(LEARNING, learning);
         properties.setProvider(FORCE, force);
+        properties.setProvider(TRIGGER, trigger);
     }
 
     public PropertyManager getProperties()
