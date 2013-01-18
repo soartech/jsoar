@@ -19,11 +19,11 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 
 public class EpisodicMemoryStateInfo 
 {   
-    public long last_ol_time;       // last update to output-link
-    public long last_ol_count;      // last count of output-link
+    public long last_ol_time = 0;       // last update to output-link
+    public long last_ol_count = 0;      // last count of output-link
     
-    public long last_cmd_time;      // last update to epmem.command
-    public long last_cmd_count;     // last update to epmem.command
+    public long last_cmd_time = 0;      // last update to epmem.command
+    public long last_cmd_count = 0;     // last update to epmem.command
     
     public long last_memory = DefaultEpisodicMemory.EPMEM_MEMID_NONE;        // last retrieved memory
     
