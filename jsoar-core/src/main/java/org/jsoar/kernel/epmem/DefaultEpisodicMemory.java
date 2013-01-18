@@ -26,8 +26,10 @@ import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.smem.SemanticMemoryStateInfo;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
@@ -101,6 +103,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private DefaultEpisodicMemoryStats stats;
     private Decider decider;
 
+    SymbolFactoryImpl symbols;
+    
     private EpisodicMemoryDatabase db;
 
     /** agent.h:epmem_validation */
@@ -167,6 +171,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         decider = Adaptables.adapt(context, Decider.class);
         params = new DefaultEpisodicMemoryParams(properties);
         stats = new DefaultEpisodicMemoryStats(properties);
+        
+        symbols = Adaptables.require(DefaultEpisodicMemory.class, context, SymbolFactoryImpl.class);
         
         // CK: not implementing timers
         // src/agent.cpp:369:  newAgent->epmem_timers = new epmem_timer_container( newAgent );
