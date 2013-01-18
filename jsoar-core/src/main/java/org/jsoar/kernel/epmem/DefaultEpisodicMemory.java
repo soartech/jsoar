@@ -809,8 +809,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 	public boolean epmem_enabled() {
 		// CK: C++ code
 //		return ( my_agent->epmem_params->learning->get_value() == soar_module::on );
-		// TODO stub
-		return false;
+		return ( params.learning.get() == DefaultEpisodicMemoryParams.Learning.on );
 	}
 
 	@Override

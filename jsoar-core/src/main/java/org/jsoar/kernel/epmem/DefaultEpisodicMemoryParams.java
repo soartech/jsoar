@@ -17,10 +17,9 @@ import org.jsoar.util.properties.PropertyManager;
 public class DefaultEpisodicMemoryParams
 {
     static enum Optimization { safety, performance };
-    static enum Cache {
-        small, medium, large;
-    }
+    static enum Cache { small, medium, large; }
     public static enum Phase { output, decision };
+    public static enum Learning { on, off };
     
     private static final String PREFIX = "epmem.params.";
     
@@ -50,6 +49,9 @@ public class DefaultEpisodicMemoryParams
     // TODO: what should the default phase be?
     static final PropertyKey<Phase> PHASE = key("phase", Phase.class).defaultValue(Phase.output).build();
     final EnumPropertyProvider<Phase> phase = new EnumPropertyProvider<Phase>(PHASE);
+    
+    static final PropertyKey<Learning> LEARNING = key("learning", Learning.class).defaultValue(Learning.off).build();
+    final EnumPropertyProvider<Learning> learning = new EnumPropertyProvider<Learning>(LEARNING);
 
     private final PropertyManager properties;
 
@@ -66,6 +68,7 @@ public class DefaultEpisodicMemoryParams
         properties.setProvider(OPTIMIZATION, optimization);
         
         properties.setProvider(PHASE, phase);
+        properties.setProvider(LEARNING, learning);
     }
 
     public PropertyManager getProperties()
