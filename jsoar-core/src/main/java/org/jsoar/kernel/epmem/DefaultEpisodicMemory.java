@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -72,6 +73,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         var_next_id
     }
     
+    /**
+     * episodic_memory.h:30:EPMEM_MEMID_NONE
+     */
+    public static final long EPMEM_MEMID_NONE = 0;
+    
     private static class epmem_rit_state_param
     {
         long /*soar_module::integer_stat*/ stat;
@@ -92,6 +98,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private Adaptable context;
     private DefaultEpisodicMemoryParams params;
     private DefaultEpisodicMemoryStats stats;
+    private Decider decider;
 
     private EpisodicMemoryDatabase db;
 
@@ -136,7 +143,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     //bool epmem_first_switch;
     
-    private Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
+    private final Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
 
     public DefaultEpisodicMemory(Adaptable context)
     {
@@ -156,6 +163,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     public void initialize()
     {
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context, PropertyManager.class);
+        decider = Adaptables.adapt(context, Decider.class);
         params = new DefaultEpisodicMemoryParams(properties);
         stats = new DefaultEpisodicMemoryStats(properties);
         
@@ -172,8 +180,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 			// smem logs/prints like this:
 			logger.error("While initializing epmem: " + e.getMessage(), e);
 			// the context passed to the constructor from Agent is a reference to the Agent object
-			// TODO can we assume context can be adapted to Agent?
-			Adaptables.adapt(this.context, Agent.class).getPrinter().error("While initializing smem: " + e.getMessage());
+			Agent agent = Adaptables.adapt(this.context, Agent.class);
+			if(agent!=null)
+			    agent.getPrinter().error("While initializing epmem: " + e.getMessage());
 		}
     
 //        src/agent.cpp:393:  newAgent->epmem_node_removals = new epmem_id_removal_map();
@@ -734,5 +743,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
     {
     	this.stateInfos.put(id, new EpisodicMemoryStateInfo());
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.smem.EpisodicMemory#epmem_reset(org.jsoar.kernel.symbols.IdentifierImpl)
+     */
+    @Override
+    public void epmem_reset(IdentifierImpl state)
+    {
+        // episodic_memory.cpp:1470:epmem_reset()
+        if ( state == null )
+        {
+            state = decider.top_goal;
+        }
+        
+        while( state != null) 
+        {
+            final EpisodicMemoryStateInfo data = stateInfos.remove(state);
+            
+        }
     }
 }

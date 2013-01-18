@@ -1,7 +1,25 @@
 package org.jsoar.kernel.epmem;
 
+/**
+ * Epmem info associated with a state.  This structure isn't accessed in a tight loop
+ * so we can just maintain a map in {@link EpisodicMemory}
+ * 
+ * episodic_memory.h:427:epmem_data_struct
+ * decide.cpp:2464:create_new_context (initialization)
+ * 
+ * @author skrawczyk
+ *
+ */
+
 public class EpisodicMemoryStateInfo 
-{
+{   
+    public long last_ol_time;       // last update to output-link
+    public long last_ol_count;      // last count of output-link
+    
+    public long last_cmd_time;      // last update to epmem.command
+    public long last_cmd_count;     // last update to epmem.command
+    
+    public long last_memory = DefaultEpisodicMemory.EPMEM_MEMID_NONE;        // last retrieved memory
 	
 	public EpisodicMemoryStateInfo()
 	{

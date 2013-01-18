@@ -22,4 +22,11 @@ public interface EpisodicMemory
     
     // TODO stub, not sure if these are the correct parameters
     void initializeNewContext(WorkingMemory wm, IdentifierImpl id);
+    
+    /**
+     * Performs cleanup when a state is removed
+     * 
+     * <p>episodic_memory.h:epmem_reset
+     */
+    void epmem_reset(IdentifierImpl state);
 }
