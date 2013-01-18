@@ -12,6 +12,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.jsoar.kernel.epmem.EpisodicMemory;
+import org.jsoar.kernel.epmem.EpisodicMemoryStateInfo;
 import org.jsoar.kernel.events.GdsGoalRemovedEvent;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutputImpl;
@@ -2211,6 +2212,13 @@ public class Decider
         }
 
         create_new_context_rl(id);
+        
+        // CK: epmem C++ code
+//        id->id.epmem_info->last_ol_time = 0;  
+//        id->id.epmem_info->last_cmd_time = 0;
+//        id->id.epmem_info->last_cmd_count = 0;
+//        id->id.epmem_info->last_memory = EPMEM_MEMID_NONE;
+        id.epmem_info = new EpisodicMemoryStateInfo();
         
         /* --- invoke callback routine --- */
         // TODO callback CREATE_NEW_CONTEXT_CALLBACK

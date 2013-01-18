@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 
 import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
+import org.jsoar.kernel.epmem.EpisodicMemoryStateInfo;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -65,6 +66,8 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public /*smem_lti*/ long smem_lti = 0;
     public /*epmem_time_id*/ long smem_time_id = 0;
     public /*uint_ptr_t*/ long id_smem_valid = 0;
+    
+    public /*epmem_data_struct*/ EpisodicMemoryStateInfo epmem_info;
     
     /**
      * @param hash_id
