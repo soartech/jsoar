@@ -19,7 +19,8 @@ public class DefaultEpisodicMemoryParams
     static enum Optimization { safety, performance };
     static enum Cache { small, medium, large; }
     public static enum Phase { output, decision };
-    public static enum Learning { on, off };
+    static enum Learning { on, off };
+    static enum Force { remember, ignore, off };
     
     private static final String PREFIX = "epmem.params.";
     
@@ -52,6 +53,9 @@ public class DefaultEpisodicMemoryParams
     
     static final PropertyKey<Learning> LEARNING = key("learning", Learning.class).defaultValue(Learning.off).build();
     final EnumPropertyProvider<Learning> learning = new EnumPropertyProvider<Learning>(LEARNING);
+    
+    static final PropertyKey<Force> FORCE = key("force", Force.class).defaultValue(Force.off).build();
+    final EnumPropertyProvider<Force> force = new EnumPropertyProvider<Force>(FORCE);
 
     private final PropertyManager properties;
 
@@ -69,6 +73,7 @@ public class DefaultEpisodicMemoryParams
         
         properties.setProvider(PHASE, phase);
         properties.setProvider(LEARNING, learning);
+        properties.setProvider(FORCE, force);
     }
 
     public PropertyManager getProperties()
