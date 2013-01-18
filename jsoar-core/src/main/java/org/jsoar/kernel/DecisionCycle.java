@@ -400,7 +400,7 @@ public class DecisionCycle
 //            epmem_go( thisAgent );
         if ( epmem.epmem_enabled() && epmem.getPhase() == DefaultEpisodicMemoryParams.Phase.decision)
         {
-        	epmem.epmem_go(false);
+        	epmem.epmem_go();
         }
         
         Phase.DECISION.trace(trace, false);
@@ -450,7 +450,7 @@ public class DecisionCycle
         if (epmem.epmem_enabled() && epmem.getPhase() == DefaultEpisodicMemoryParams.Phase.output)
         {
 //        	thisAgent->wma_d_cycle_count++;
-        	epmem.epmem_go(false);
+        	epmem.epmem_go();
 //        	thisAgent->wma_d_cycle_count--;
         }
 

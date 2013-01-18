@@ -24,9 +24,12 @@ import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.kernel.io.InputOutput;
+import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -102,6 +105,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
     
     private Adaptable context;
+    private Agent agent;
     private DefaultEpisodicMemoryParams params;
     private DefaultEpisodicMemoryStats stats;
     private Decider decider;
@@ -178,6 +182,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         stats = new DefaultEpisodicMemoryStats(properties);
         
         symbols = Adaptables.require(DefaultEpisodicMemory.class, context, SymbolFactoryImpl.class);
+        agent = Adaptables.require(DefaultEpisodicMemory.class, context, Agent.class);
         
         // CK: not implementing timers
         // src/agent.cpp:369:  newAgent->epmem_timers = new epmem_timer_container( newAgent );
@@ -188,13 +193,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 			epmem_init_db();
 			// database connection closed in Agent#dispose()
 		} catch (SoarException e) {
-			// TODO throw this to agent? thrown if there is a problem connecting to database
 			// smem logs/prints like this:
 			logger.error("While initializing epmem: " + e.getMessage(), e);
-			// the context passed to the constructor from Agent is a reference to the Agent object
-			Agent agent = Adaptables.adapt(this.context, Agent.class);
-			if(agent!=null)
-			    agent.getPrinter().error("While initializing epmem: " + e.getMessage());
+			agent.getPrinter().error("While initializing epmem: " + e.getMessage());
 		}
     
 //        src/agent.cpp:393:  newAgent->epmem_node_removals = new epmem_id_removal_map();
@@ -791,6 +792,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             state = state.goalInfo.lower_goal;
         }
     }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_go()
+     */
+    @Override
+    public void epmem_go()
+    {
+    	epmem_go(true);
+    }
 
     /*
      * (non-Javadoc)
@@ -798,7 +809,112 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
 	@Override
 	public void epmem_go(boolean allow_store) {
-		// TODO stub
+//		my_agent->epmem_timers->total->start();
+//
+//		#ifndef EPMEM_EXPERIMENT
+//
+//			if ( allow_store )
+//			{
+//				epmem_consider_new_episode( my_agent );
+//			}
+//			epmem_respond_to_cmd( my_agent );
+		if ( allow_store )
+		{
+			epmem_consider_new_episode();
+		}
+		epmem_responder_to_cmd();
+//
+//		#else // EPMEM_EXPERIMENT
+//
+//			_epmem_exp( my_agent );
+//			epmem_respond_to_cmd( my_agent );
+//
+//		#endif // EPMEM_EXPERIMENT
+//
+//			my_agent->epmem_timers->total->stop();
+	}
+	
+	/**
+	 * Based upon trigger/force parameter settings, potentially records a new episode
+	 * 
+	 * <p>episodic_memory.cpp:epmem_consider_new_episode( agent *my_agent )
+	 */
+	private void epmem_consider_new_episode() {
+		// TODO Auto-generated method stub
+//		////////////////////////////////////////////////////////////////////////////
+//		my_agent->epmem_timers->trigger->start();
+//		////////////////////////////////////////////////////////////////////////////
+//
+		boolean new_memory = false;
+		
+		if ( params.force.get() == DefaultEpisodicMemoryParams.Force.off )
+		{
+			if ( params.trigger.get() == DefaultEpisodicMemoryParams.Trigger.output )
+			{
+				WmeImpl wme;
+				Identifier ol = agent.getInputOutput().getOutputLink();
+				List<Wme> commands = agent.getInputOutput().getPendingCommands();
+				
+			}
+		}
+//		const int64_t force = my_agent->epmem_params->force->get_value();
+//		bool new_memory = false;
+//
+//		if ( force == epmem_param_container::force_off )
+//		{
+//			const int64_t trigger = my_agent->epmem_params->trigger->get_value();
+//
+//			if ( trigger == epmem_param_container::output )
+//			{
+//				slot *s;
+//				wme *w;
+//				Symbol *ol = my_agent->io_header_output;
+//
+//				// examine all commands on the output-link for any
+//				// that appeared since last memory was recorded
+//				for ( s = ol->id.slots; s != NIL; s = s->next )
+//				{
+//					for ( w = s->wmes; w != NIL; w = w->next )
+//					{
+//						if ( w->timetag > my_agent->top_goal->id.epmem_info->last_ol_time )
+//						{
+//							new_memory = true;
+//							my_agent->top_goal->id.epmem_info->last_ol_time = w->timetag;
+//						}
+//					}
+//				}
+//			}
+//			else if ( trigger == epmem_param_container::dc )
+//			{
+//				new_memory = true;
+//			}
+//			else if ( trigger == epmem_param_container::none )
+//			{
+//				new_memory = false;
+//			}
+//		}
+//		else
+//		{
+//			new_memory = ( force == epmem_param_container::remember );
+//
+//			my_agent->epmem_params->force->set_value( epmem_param_container::force_off );
+//		}
+//
+//		////////////////////////////////////////////////////////////////////////////
+//		my_agent->epmem_timers->trigger->stop();
+//		////////////////////////////////////////////////////////////////////////////
+//
+//		if ( new_memory )
+//		{
+//			epmem_new_episode( my_agent );
+//		}
+//
+//		return new_memory;
+	}
+
+	private void epmem_responder_to_cmd() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/*

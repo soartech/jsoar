@@ -37,6 +37,13 @@ public interface EpisodicMemory
     void epmem_reset(IdentifierImpl state);
     
     /**
+     * Default value of {@code allow_store} is {@code true} in C++
+     * 
+     * @see epmem_go(boolean allow_store)
+     */
+    void epmem_go();
+    
+    /**
      * The kernel calls this function to implement Soar-EpMem:
      * consider new storage and respond to any commands
      * 
