@@ -1,5 +1,7 @@
 package org.jsoar.kernel.epmem;
 
+import org.jsoar.kernel.symbols.IdentifierImpl;
+
 /**
  * Epmem info associated with a state.  This structure isn't accessed in a tight loop
  * so we can just maintain a map in {@link EpisodicMemory}
@@ -20,6 +22,10 @@ public class EpisodicMemoryStateInfo
     public long last_cmd_count;     // last update to epmem.command
     
     public long last_memory = DefaultEpisodicMemory.EPMEM_MEMID_NONE;        // last retrieved memory
+    
+    public final IdentifierImpl epmem_header = null; 
+    public final IdentifierImpl epmem_cmd_header = null;
+    public final IdentifierImpl epmem_result_header = null;
 	
 	public EpisodicMemoryStateInfo()
 	{
@@ -30,6 +36,7 @@ public class EpisodicMemoryStateInfo
 //    	soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_cmd, id->id.epmem_cmd_header );	
 //    	id->id.epmem_result_header = make_new_identifier( thisAgent, 'R', level );
 //    	soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_result, id->id.epmem_result_header );
+		
 
 // CK: not implementing timers
 //    	{

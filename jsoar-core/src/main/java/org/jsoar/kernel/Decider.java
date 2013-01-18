@@ -11,6 +11,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.epmem.EpisodicMemoryStateInfo;
 import org.jsoar.kernel.events.GdsGoalRemovedEvent;
@@ -2214,11 +2215,22 @@ public class Decider
         create_new_context_rl(id);
         
         // CK: epmem C++ code
+//        allocate_with_pool( thisAgent, &( thisAgent->epmem_info_pool ), &( id->id.epmem_info ) );
 //        id->id.epmem_info->last_ol_time = 0;  
 //        id->id.epmem_info->last_cmd_time = 0;
 //        id->id.epmem_info->last_cmd_count = 0;
 //        id->id.epmem_info->last_memory = EPMEM_MEMID_NONE;
+//        allocate_with_pool( thisAgent, &( thisAgent->epmem_wmes_pool ), &( id->id.epmem_info->epmem_wmes ) );
+//      #ifdef USE_MEM_POOL_ALLOCATORS
+//        id->id.epmem_info->epmem_wmes = new ( id->id.epmem_info->epmem_wmes ) epmem_wme_stack( soar_module::soar_memory_pool_allocator< preference* >( thisAgent ) );
+//      #else
+//        id->id.epmem_info->epmem_wmes = new ( id->id.epmem_info->epmem_wmes ) epmem_wme_stack();
+//      #endif
         id.epmem_info = new EpisodicMemoryStateInfo();
+        id.epmem_info.last_cmd_count = 0;
+        id.epmem_info.last_cmd_time = 0;
+        id.epmem_info.last_ol_time = 0;
+        id.epmem_info.last_memory = DefaultEpisodicMemory.EPMEM_MEMID_NONE;
         
         /* --- invoke callback routine --- */
         // TODO callback CREATE_NEW_CONTEXT_CALLBACK
