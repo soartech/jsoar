@@ -182,7 +182,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         epmem_node_mins = Lists.newArrayList();
 //        src/agent.cpp:376:  newAgent->epmem_node_maxes = new std::vector<bool>();
         epmem_node_maxes = Lists.newArrayList();
-// CK: why is the object constructed twice in cpp?
+// CK: initialization depends on whether USE_MEM_POOL_ALLOCATORS is defined
 //        src/agent.cpp:386:  newAgent->epmem_edge_removals = 
 //          new epmem_id_removal_map( std::less< epmem_node_id >(), 
 //                soar_module::soar_memory_pool_allocator< std::pair< epmem_node_id, bool > >( newAgent ) );
