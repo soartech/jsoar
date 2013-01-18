@@ -20,6 +20,7 @@ public class DefaultEpisodicMemoryParams
     static enum Cache {
         small, medium, large;
     }
+    static enum Phase { output, selection };
     
     private static final String PREFIX = "epmem.params.";
     
@@ -45,6 +46,10 @@ public class DefaultEpisodicMemoryParams
     
     static final PropertyKey<Optimization> OPTIMIZATION = key("optimization", Optimization.class).defaultValue(Optimization.performance).build();
     final EnumPropertyProvider<Optimization> optimization = new EnumPropertyProvider<Optimization>(OPTIMIZATION);
+    
+    // TODO: what should the default phase be?
+    static final PropertyKey<Phase> PHASE = key("phase", Phase.class).defaultValue(Phase.output).build();
+    final EnumPropertyProvider<Phase> phase = new EnumPropertyProvider<Phase>(PHASE);
 
     private final PropertyManager properties;
 
@@ -59,6 +64,8 @@ public class DefaultEpisodicMemoryParams
         properties.setProvider(LAZY_COMMIT, lazy_commit);
         properties.setProvider(CACHE, cache);
         properties.setProvider(OPTIMIZATION, optimization);
+        
+        properties.setProvider(PHASE, phase);
     }
 
     public PropertyManager getProperties()
