@@ -1,9 +1,16 @@
+/*
+ * Copyright (c) 2012 Soar Technology Inc.
+ *
+ * Created on January 17, 2013
+ */
 package org.jsoar.kernel.epmem;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 import org.jsoar.kernel.memory.Preference;
+import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 
 /**
@@ -16,7 +23,6 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
  * @author skrawczyk
  *
  */
-
 public class EpisodicMemoryStateInfo 
 {   
     public long last_ol_time = 0;       // last update to output-link
@@ -29,19 +35,24 @@ public class EpisodicMemoryStateInfo
     
     public final Deque<Preference> epmem_wmes = new ArrayDeque<Preference>(); // wmes in last epmem
     
-    public final IdentifierImpl epmem_header = null; 
-    public final IdentifierImpl epmem_cmd_header = null;
-    public final IdentifierImpl epmem_result_header = null;
+    public final IdentifierImpl epmem_header; 
+    public final IdentifierImpl epmem_cmd_header;
+    public final IdentifierImpl epmem_result_header;
 
-	public EpisodicMemoryStateInfo()
+	public EpisodicMemoryStateInfo(DefaultEpisodicMemory epmem, WorkingMemory wm, IdentifierImpl id)
 	{
-		//TODO stub
 //    	id->id.epmem_header = make_new_identifier( thisAgent, 'E', level );		
+		epmem_header = epmem.symbols.make_new_identifier('E', id.level);
 //    	soar_module::add_module_wme( thisAgent, id, thisAgent->epmem_sym, id->id.epmem_header );
+		SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym, epmem_header);
 //    	id->id.epmem_cmd_header = make_new_identifier( thisAgent, 'C', level );
-//    	soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_cmd, id->id.epmem_cmd_header );	
+		epmem_cmd_header = epmem.symbols.make_new_identifier('C', id.level);
+//    	soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_cmd, id->id.epmem_cmd_header );
+		SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_cmd, epmem_cmd_header);
 //    	id->id.epmem_result_header = make_new_identifier( thisAgent, 'R', level );
+		epmem_result_header = epmem.symbols.make_new_identifier('R', id.level);
 //    	soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_result, id->id.epmem_result_header );
+		SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_result, epmem_result_header);
 		
 
 // CK: not implementing timers

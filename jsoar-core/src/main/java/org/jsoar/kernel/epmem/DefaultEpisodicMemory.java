@@ -27,7 +27,6 @@ import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
-import org.jsoar.kernel.smem.SemanticMemoryStateInfo;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -44,6 +43,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
+ * <h2>Variance from CSoar Implementation</h2>
+ * <p>The smem_data_struct that was added to every identifier in CSoar is instead maintained 
+ * in a map from id to {@link EpisodicMemoryStateInfo} in this class.
+ * 
  * <h2>Typedef mappings</h2>
  * <ul>
  * <li>uint64_t == long
@@ -147,6 +150,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private final epmem_rit_state[] epmem_rit_state_graph = new epmem_rit_state[] {new epmem_rit_state(), new epmem_rit_state()};
 
     //bool epmem_first_switch;
+    
+    EpisodicMemorySymbols predefinedSyms;
     
     private final Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
 
@@ -753,7 +758,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     @Override
     public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
     {
-    	this.stateInfos.put(id, new EpisodicMemoryStateInfo());
+    	this.stateInfos.put(id, new EpisodicMemoryStateInfo(this, wm, id));
     }
     
     /* (non-Javadoc)

@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.epmem;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.WorkingMemory;

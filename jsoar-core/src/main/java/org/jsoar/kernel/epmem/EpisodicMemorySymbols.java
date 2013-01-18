@@ -5,8 +5,8 @@
  */
 package org.jsoar.kernel.epmem;
 
-import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * Standard symbols used by epmem
@@ -15,9 +15,9 @@ import org.jsoar.kernel.symbols.SymbolFactoryImpl;
  */
 class EpisodicMemorySymbols
 {
-    public final Symbol epmem_sym;
-//    public final Symbol epmem_sym_cmd;
-//    public final Symbol epmem_sym_result;
+    public final SymbolImpl epmem_sym;
+    public final SymbolImpl epmem_sym_cmd;
+    public final SymbolImpl epmem_sym_result;
 //    
 //    public final Symbol epmem_sym_retrieved;
 //    public final Symbol epmem_sym_status;
@@ -49,6 +49,8 @@ class EpisodicMemorySymbols
     {
         // symtab.cpp:create_predefined_symbols
         epmem_sym = syms.createString( "smem" );
+        epmem_sym_cmd = syms.createString( "command" );
+        epmem_sym_result = syms.createString( "result" );
         
         // XXX needs transformation
         
