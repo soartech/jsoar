@@ -23,6 +23,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.smem.SemanticMemoryStateInfo;
@@ -799,5 +800,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 //		return ( my_agent->epmem_params->learning->get_value() == soar_module::on );
 		// TODO stub
 		return false;
+	}
+
+	@Override
+	public Phase getPhase() {
+		return params.phase.get();
 	}
 }

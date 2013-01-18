@@ -20,7 +20,7 @@ public class DefaultEpisodicMemoryParams
     static enum Cache {
         small, medium, large;
     }
-    static enum Phase { output, selection };
+    public static enum Phase { output, decision };
     
     private static final String PREFIX = "epmem.params.";
     

@@ -12,6 +12,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams;
+import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.events.AbstractPhaseEvent;
 import org.jsoar.kernel.events.AfterDecisionCycleEvent;
 import org.jsoar.kernel.events.AfterElaborationEvent;
@@ -67,6 +69,7 @@ public class DecisionCycle
     private Consistency consistency;
     private ReinforcementLearning rl;
     private SemanticMemory smem;
+    private EpisodicMemory epmem;
     
     private static enum GoType
     {
@@ -181,6 +184,7 @@ public class DecisionCycle
         this.consistency = Adaptables.adapt(context, Consistency.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
         this.smem = Adaptables.adapt(context, SemanticMemory.class);
+        this.epmem = Adaptables.adapt(context, EpisodicMemory.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -391,6 +395,14 @@ public class DecisionCycle
 
         // Note: AGGRESSIVE_ONC used to be here. Dropped from jsoar because 
         // it didn't look like it had been used in years.
+        
+//        if ( epmem_enabled( thisAgent ) && ( thisAgent->epmem_params->phase->get_value() == epmem_param_container::phase_selection ) )
+//            epmem_go( thisAgent );
+        if ( epmem.epmem_enabled() && epmem.getPhase() == DefaultEpisodicMemoryParams.Phase.decision)
+        {
+        	epmem.epmem_go(false);
+        }
+        
         Phase.DECISION.trace(trace, false);
 
         recMemory.FIRING_TYPE = SavedFiringType.PE_PRODS;
@@ -422,6 +434,24 @@ public class DecisionCycle
         if (smem.smem_enabled())
         {
             smem.smem_go(false);
+        }
+        
+//      if ( epmem_enabled( thisAgent ) && ( thisAgent->epmem_params->phase->get_value() == epmem_param_container::phase_output ) )
+//  	  {
+//  		  // since we consolidated wma histories from this decision,
+//  		  // we need to pretend it's the next time step in case
+//  		  // an epmem retrieval wants to know current activation value
+//  		  thisAgent->wma_d_cycle_count++;
+//  		  {
+//  			  epmem_go( thisAgent );
+//  		  }
+//  		  thisAgent->wma_d_cycle_count--;
+//  	  }
+        if (epmem.epmem_enabled() && epmem.getPhase() == DefaultEpisodicMemoryParams.Phase.output)
+        {
+//        	thisAgent->wma_d_cycle_count++;
+        	epmem.epmem_go(false);
+//        	thisAgent->wma_d_cycle_count--;
         }
 
         // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)

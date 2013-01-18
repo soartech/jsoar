@@ -7,6 +7,7 @@ package org.jsoar.kernel.epmem;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 
@@ -45,4 +46,6 @@ public interface EpisodicMemory
      * @param allow_store
      */
     void epmem_go(boolean allow_store);
+    
+    Phase getPhase();
 }
