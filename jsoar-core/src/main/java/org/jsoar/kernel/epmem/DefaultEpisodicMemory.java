@@ -763,4 +763,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             
         }
     }
+
+	@Override
+	public void epmem_go(boolean allow_store) {
+		// TODO stub
+	}
 }

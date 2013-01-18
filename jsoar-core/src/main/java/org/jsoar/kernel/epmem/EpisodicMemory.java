@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.epmem;
 
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -29,4 +30,14 @@ public interface EpisodicMemory
      * <p>episodic_memory.h:epmem_reset
      */
     void epmem_reset(IdentifierImpl state);
+    
+    /**
+     * The kernel calls this function to implement Soar-EpMem:
+     * consider new storage and respond to any commands
+     * 
+     * <p>episodic_memory.h:epmem_go
+     * 
+     * @param allow_store
+     */
+    void epmem_go(boolean allow_store);
 }
