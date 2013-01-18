@@ -765,6 +765,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             final EpisodicMemoryStateInfo data = stateInfos.remove(state);
             
+            data.last_ol_time = 0;
+            
+            data.last_cmd_time = 0;
+            data.last_cmd_count = 0;
+
+            data.last_memory = EPMEM_MEMID_NONE;
+
+            // this will be called after prefs from goal are already removed,
+            // so just clear out result stack
+            data.epmem_wmes.clear();
+
+            state = state.goalInfo.lower_goal;
         }
     }
 

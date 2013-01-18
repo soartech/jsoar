@@ -1,5 +1,9 @@
 package org.jsoar.kernel.epmem;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 
 /**
@@ -23,10 +27,12 @@ public class EpisodicMemoryStateInfo
     
     public long last_memory = DefaultEpisodicMemory.EPMEM_MEMID_NONE;        // last retrieved memory
     
+    public final Deque<Preference> epmem_wmes = new ArrayDeque<Preference>(); // wmes in last epmem
+    
     public final IdentifierImpl epmem_header = null; 
     public final IdentifierImpl epmem_cmd_header = null;
     public final IdentifierImpl epmem_result_header = null;
-	
+
 	public EpisodicMemoryStateInfo()
 	{
 		//TODO stub

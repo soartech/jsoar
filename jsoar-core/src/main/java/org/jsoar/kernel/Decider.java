@@ -2072,7 +2072,7 @@ public class Decider
         remove_wmes_for_context_slot(goal.goalInfo.operator_slot);
         update_impasse_items(goal, null); // causes items & fake pref's to go away
 
-        // TODO epmem epmem_reset(thisAgent, goal);
+        epmem.epmem_reset(goal);
         smem.smem_reset(goal);
         
         this.workingMemory.remove_wme_list_from_wm(goal.goalInfo.getImpasseWmes(), false);
