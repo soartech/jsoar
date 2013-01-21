@@ -10,5 +10,5 @@ package org.jsoar.kernel.epmem;
  */
 public interface EpisodicMemoryStatistics
 {
-
+    public long getTime();
 }

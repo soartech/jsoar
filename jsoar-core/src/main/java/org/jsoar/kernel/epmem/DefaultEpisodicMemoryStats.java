@@ -96,5 +96,10 @@ class DefaultEpisodicMemoryStats implements EpisodicMemoryStatistics
         }
     }
 
+    @Override
+    public long getTime()
+    {
+        return time.get();
+    }
 
 }
