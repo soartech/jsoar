@@ -839,8 +839,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 	 * 
 	 * <p>episodic_memory.cpp:epmem_consider_new_episode( agent *my_agent )
 	 */
-	private void epmem_consider_new_episode() {
-		// TODO Auto-generated method stub
+	private boolean epmem_consider_new_episode() {
 //		////////////////////////////////////////////////////////////////////////////
 //		my_agent->epmem_timers->trigger->start();
 //		////////////////////////////////////////////////////////////////////////////
@@ -849,67 +848,52 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 		
 		if ( params.force.get() == DefaultEpisodicMemoryParams.Force.off )
 		{
-			if ( params.trigger.get() == DefaultEpisodicMemoryParams.Trigger.output )
-			{
-				WmeImpl wme;
-				Identifier ol = agent.getInputOutput().getOutputLink();
-				List<Wme> commands = agent.getInputOutput().getPendingCommands();
-				
-			}
+		    switch(params.trigger.get()) {
+		    case output:
+                // examine all commands on the output-link for any
+//              // that appeared since last memory was recorded
+                EpisodicMemoryStateInfo stateInfo = stateInfos.get(decider.top_goal);
+                for(Wme wme : agent.getInputOutput().getPendingCommands())
+                {
+                    if(wme.getTimetag() > stateInfo.last_ol_time)
+                    {
+                        new_memory = true;
+                        stateInfo.last_ol_time = wme.getTimetag();
+                    }
+                }
+                break;
+		    case dc:
+		        new_memory = true;
+		        break;
+		    case none:
+		        new_memory = false;
+		        break;
+		    }
 		}
-//		const int64_t force = my_agent->epmem_params->force->get_value();
-//		bool new_memory = false;
-//
-//		if ( force == epmem_param_container::force_off )
-//		{
-//			const int64_t trigger = my_agent->epmem_params->trigger->get_value();
-//
-//			if ( trigger == epmem_param_container::output )
-//			{
-//				slot *s;
-//				wme *w;
-//				Symbol *ol = my_agent->io_header_output;
-//
-//				// examine all commands on the output-link for any
-//				// that appeared since last memory was recorded
-//				for ( s = ol->id.slots; s != NIL; s = s->next )
-//				{
-//					for ( w = s->wmes; w != NIL; w = w->next )
-//					{
-//						if ( w->timetag > my_agent->top_goal->id.epmem_info->last_ol_time )
-//						{
-//							new_memory = true;
-//							my_agent->top_goal->id.epmem_info->last_ol_time = w->timetag;
-//						}
-//					}
-//				}
-//			}
-//			else if ( trigger == epmem_param_container::dc )
-//			{
-//				new_memory = true;
-//			}
-//			else if ( trigger == epmem_param_container::none )
-//			{
-//				new_memory = false;
-//			}
-//		}
-//		else
-//		{
-//			new_memory = ( force == epmem_param_container::remember );
-//
-//			my_agent->epmem_params->force->set_value( epmem_param_container::force_off );
-//		}
-//
-//		////////////////////////////////////////////////////////////////////////////
-//		my_agent->epmem_timers->trigger->stop();
-//		////////////////////////////////////////////////////////////////////////////
-//
-//		if ( new_memory )
-//		{
-//			epmem_new_episode( my_agent );
-//		}
-//
-//		return new_memory;
+		else
+		{
+		    new_memory = params.force.get()==DefaultEpisodicMemoryParams.Force.remember;
+		    params.force.set(DefaultEpisodicMemoryParams.Force.off);
+		}
+		
+//      ////////////////////////////////////////////////////////////////////////////
+//    my_agent->epmem_timers->trigger->stop();
+//    ////////////////////////////////////////////////////////////////////////////
+		
+		if ( new_memory )
+		{
+		    epmem_new_episode();
+		}
+
+		return new_memory;
+	}
+	
+	/**
+	 * <p>episodic_memory.cpp:2473:epmem_new_episode( agent *my_agent )
+	 */
+	private void epmem_new_episode()
+	{
+	    
 	}
 
 	private void epmem_responder_to_cmd() {
