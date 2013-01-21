@@ -16,8 +16,10 @@ import java.sql.Statement;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import org.jsoar.kernel.Agent;
@@ -81,18 +83,23 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         var_rit_offset_2, var_rit_leftroot_2, var_rit_rightroot_2, var_rit_minstep_2,
         var_next_id
     }
-    
+
     /**
      * episodic_memory.h:30:EPMEM_MEMID_NONE
      */
     public static final long EPMEM_MEMID_NONE = 0;
-    
+
+    /**
+     * episodic_memory.h:52:EPMEM_NODEID_BAD
+     */
+    public static final long EPMEM_NODEID_BAD = -1;
+
     private static class epmem_rit_state_param
     {
         long /*soar_module::integer_stat*/ stat;
         epmem_variable_key var_key = epmem_variable_key.var_rit_offset_1;
     }
-    
+
     private static class epmem_rit_state
     {
         epmem_rit_state_param offset = new epmem_rit_state_param();
@@ -103,7 +110,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // TODO EPMEM soar_module::timer *timer;
         PreparedStatement add_query;
     }
-    
+
     private Adaptable context;
     private Agent agent;
     private DefaultEpisodicMemoryParams params;
@@ -111,7 +118,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private Decider decider;
 
     SymbolFactoryImpl symbols;
-    
+
     private EpisodicMemoryDatabase db;
 
     /** agent.h:epmem_validation */
@@ -139,13 +146,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private Map<Long, Set<WmeImpl>> /*epmem_id_ref_counter*/ epmem_id_ref_counts;
     /** agent.h:epmem_id_removes */
     private Deque<SymbolImpl> /*epmem_symbol_stack*/ epmem_id_removes;
-    
+
     /** agen.h:epmem_wme_adds */
-    private final Set<SymbolImpl> /*epmem_symbol_set*/ epmem_wme_adds = new HashSet<SymbolImpl>();
-    
+    private final Set<IdentifierImpl> /*epmem_symbol_set*/ epmem_wme_adds = new HashSet<IdentifierImpl>();
+
     /** episodic_memory.h:51:EPMEM_NODEID_ROOT */
     private static final Long EPMEM_NODEID_ROOT = 0L;
-    
+
     /** episodic_memory.h:69:EPMEM_RIT_STATE_NODE */
     private static final int EPMEM_RIT_STATE_NODE = 0;
     /** episodic_memory.h:70:EPMEM_RIT_STATE_EDGE */
@@ -157,22 +164,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private final epmem_rit_state[] epmem_rit_state_graph = new epmem_rit_state[] {new epmem_rit_state(), new epmem_rit_state()};
 
     //bool epmem_first_switch;
-    
+
     EpisodicMemorySymbols predefinedSyms;
-    
+
     private final Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
 
     public DefaultEpisodicMemory(Adaptable context)
     {
         this(context, null);
     }
-    
+
     public DefaultEpisodicMemory(Adaptable context, EpisodicMemoryDatabase db)
     {
         this.context = context;
         this.db = db;
     }
-    
+
     /**
      * This is called when the agent is initialized. This code here in CSoar is usually run at 
      * agent creation.
@@ -183,60 +190,60 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         decider = Adaptables.adapt(context, Decider.class);
         params = new DefaultEpisodicMemoryParams(properties);
         stats = new DefaultEpisodicMemoryStats(properties);
-        
+
         symbols = Adaptables.require(DefaultEpisodicMemory.class, context, SymbolFactoryImpl.class);
         agent = Adaptables.require(DefaultEpisodicMemory.class, context, Agent.class);
-        
+
         // CK: not implementing timers
         // src/agent.cpp:369:  newAgent->epmem_timers = new epmem_timer_container( newAgent );
-        
+
         // CK: in smem this is called from smem_attach, there is no equivalent function in episodic_memory.cpp
         epmem_init_db_catch();
-    
-//        src/agent.cpp:393:  newAgent->epmem_node_removals = new epmem_id_removal_map();
+
+        //        src/agent.cpp:393:  newAgent->epmem_node_removals = new epmem_id_removal_map();
         epmem_node_removals = Maps.newHashMap();
-//        src/agent.cpp:375:  newAgent->epmem_node_mins = new std::vector<epmem_time_id>();
+        //        src/agent.cpp:375:  newAgent->epmem_node_mins = new std::vector<epmem_time_id>();
         epmem_node_mins = Lists.newArrayList();
-//        src/agent.cpp:376:  newAgent->epmem_node_maxes = new std::vector<bool>();
+        //        src/agent.cpp:376:  newAgent->epmem_node_maxes = new std::vector<bool>();
         epmem_node_maxes = Lists.newArrayList();
-// CK: initialization depends on whether USE_MEM_POOL_ALLOCATORS is defined
-//        src/agent.cpp:386:  newAgent->epmem_edge_removals = 
-//          new epmem_id_removal_map( std::less< epmem_node_id >(), 
-//                soar_module::soar_memory_pool_allocator< std::pair< epmem_node_id, bool > >( newAgent ) );
-//        src/agent.cpp:394:  newAgent->epmem_edge_removals = new epmem_id_removal_map();
+        // CK: initialization depends on whether USE_MEM_POOL_ALLOCATORS is defined
+        //        src/agent.cpp:386:  newAgent->epmem_edge_removals = 
+        //          new epmem_id_removal_map( std::less< epmem_node_id >(), 
+        //                soar_module::soar_memory_pool_allocator< std::pair< epmem_node_id, bool > >( newAgent ) );
+        //        src/agent.cpp:394:  newAgent->epmem_edge_removals = new epmem_id_removal_map();
         epmem_edge_removals = Maps.newHashMap();
-//        src/agent.cpp:378:  newAgent->epmem_edge_mins = new std::vector<epmem_time_id>();    
+        //        src/agent.cpp:378:  newAgent->epmem_edge_mins = new std::vector<epmem_time_id>();    
         epmem_edge_mins = Lists.newArrayList();
-//        src/agent.cpp:379:  newAgent->epmem_edge_maxes = new std::vector<bool>();
+        //        src/agent.cpp:379:  newAgent->epmem_edge_maxes = new std::vector<bool>();
         epmem_edge_maxes = Lists.newArrayList();
 
         epmem_id_repository = Maps.newHashMap();
         epmem_id_replacement = Maps.newHashMap();
         epmem_id_ref_counts = Maps.newHashMap();
         epmem_id_removes = Lists.newLinkedList();
-        
+
         // TODO implement these?
-//        src/agent.cpp:372:  newAgent->epmem_stmts_common = NULL;
-//        src/agent.cpp:373:  newAgent->epmem_stmts_graph = NULL;       
-//        src/agent.cpp:402:  newAgent->epmem_validation = 0;
-//        src/agent.cpp:403:  newAgent->epmem_first_switch = true;
-        
-//      src/agent.cpp:388:  newAgent->epmem_wme_adds = new epmem_symbol_set( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
-        
+        //        src/agent.cpp:372:  newAgent->epmem_stmts_common = NULL;
+        //        src/agent.cpp:373:  newAgent->epmem_stmts_graph = NULL;       
+        //        src/agent.cpp:402:  newAgent->epmem_validation = 0;
+        //        src/agent.cpp:403:  newAgent->epmem_first_switch = true;
+
+        // this is done in creation instead: src/agent.cpp:388:  newAgent->epmem_wme_adds = new epmem_symbol_set( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
+
 
         // CK: don't need memory pools in java:
-//        src/agent.cpp:389:  newAgent->epmem_promotions = new epmem_symbol_set( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
-//        src/agent.cpp:391:  newAgent->epmem_id_removes = new epmem_symbol_stack( soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
-//        src/agent.cpp:396:  newAgent->epmem_wme_adds = new epmem_symbol_set();
-//        src/agent.cpp:397:  newAgent->epmem_promotions = new epmem_symbol_set();
-//        src/agent.cpp:399:  newAgent->epmem_id_removes = new epmem_symbol_stack();
+        //        src/agent.cpp:389:  newAgent->epmem_promotions = new epmem_symbol_set( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
+        //        src/agent.cpp:391:  newAgent->epmem_id_removes = new epmem_symbol_stack( soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
+        //        src/agent.cpp:396:  newAgent->epmem_wme_adds = new epmem_symbol_set();
+        //        src/agent.cpp:397:  newAgent->epmem_promotions = new epmem_symbol_set();
+        //        src/agent.cpp:399:  newAgent->epmem_id_removes = new epmem_symbol_stack();
     }
-    
+
     EpisodicMemoryDatabase getDatabase()
     {
         return db;
     }
-    
+
     /**
      * Opens the SQLite database and performs all initialization required for
      * the current mode
@@ -249,7 +256,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         epmem_init_db(false);
     }
-    
+
     /**
      * similar to epmem_init_db except this catches and logs the exception
      */
@@ -263,8 +270,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             agent.getPrinter().error("While initializing epmem: " + e.getMessage());
         }
     }
-    
-    
+
+
 
     /**
      * Opens the SQLite database and performs all initialization required for
@@ -296,7 +303,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
         }
     }
-    
+
     /**
      * Extracted from epmem_init_db(). Take performance settings and apply then
      * to the current database.
@@ -311,9 +318,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         // TODO EPMEM SMEM a lot of this database code is identical between the two modules
         // and could be factored out.
-        
+
         // apply performance options
-        
+
         // cache
         if(params.driver.equals("org.sqlite.JDBC"))
         {
@@ -326,7 +333,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             case large:  
             default:     cacheSize = 100000; // 100MB cache
             }
-            
+
             final Statement s = db.getConnection().createStatement();
             try
             {
@@ -337,7 +344,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 s.close();
             }
         }
-        
+
         // optimization
         if (params.optimization.get() == Optimization.performance)
         {
@@ -366,7 +373,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // TODO EPMEM page_size
     }
-    
+
     private void initMinMax(long time_max, PreparedStatement minmax_select, List<Boolean> minmax_max, List<Long> minmax_min) throws SQLException
     {
         final ResultSet rs = minmax_select.executeQuery();
@@ -379,7 +386,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     // std::vector<bool>::size_type num_ids = temp_q->column_int( 0 );
                     int num_ids = rs.getInt(0 + 1);
-                    
+
                     for (int i = 0; i < num_ids; i++)
                     {
                         // minmax_max[i]->resize( num_ids, true );
@@ -395,7 +402,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             rs.close();
         }
     }
-    
+
     /**
      * Private method for epmem_init_db that throws SQLException, IOException so 
      * it can wrap in SoarException and throw.
@@ -422,10 +429,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         final DatabaseMetaData meta = connection.getMetaData();
         logger.info("Opened database '" + jdbcUrl + "' with " + meta.getDriverName() + ":"  + meta.getDriverVersion());
         db = new EpisodicMemoryDatabase(params.driver.get(), connection);
-        
+
         applyDatabasePerformanceOptions();
-        
-        
+
+
         // update validation count
         epmem_validation++;
 
@@ -433,7 +440,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // setup graph structures/queries
         db.structure();
         db.prepare();
-        
+
         // initialize range tracking
         epmem_node_mins.clear();
         epmem_node_maxes.clear();
@@ -442,17 +449,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         epmem_edge_mins.clear();
         epmem_edge_maxes.clear();
         epmem_edge_removals.clear();
-        
+
         epmem_id_repository.put(EPMEM_NODEID_ROOT, new HashMap<Long, Map<Long, Long>>());
         {
             Set<WmeImpl> wms_temp = Sets.newHashSet();
             wms_temp.add(null);
             epmem_id_ref_counts.put(EPMEM_NODEID_ROOT, wms_temp);
         }
-        
+
         // initialize time
         stats.time.set(1L);
-        
+
         // initialize next_id
         stats.next_id.set(1L);
 
@@ -480,23 +487,23 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].add_query = db.add_edge_range;
 
         ////
-        
+
         // get/set RIT variables
         {
             final ByRef<Long> var_val = ByRef.create(0L);
-            
+
             for ( int i=EPMEM_RIT_STATE_NODE; i<=EPMEM_RIT_STATE_EDGE; i++ )
             {
                 // offset
                 if (epmem_get_variable(epmem_rit_state_graph[i].offset.var_key, var_val))
                 {
-                   epmem_rit_state_graph[i].offset.stat = var_val.value;
+                    epmem_rit_state_graph[i].offset.stat = var_val.value;
                 }
                 else
                 {
                     epmem_set_variable(epmem_rit_state_graph[i].offset.var_key, epmem_rit_state_graph[i].offset.stat);
                 }
-        
+
                 // leftroot
                 if (epmem_get_variable(epmem_rit_state_graph[i].leftroot.var_key, var_val))
                 {
@@ -506,7 +513,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     epmem_set_variable(epmem_rit_state_graph[i].leftroot.var_key, epmem_rit_state_graph[i].leftroot.stat);
                 }
-        
+
                 // rightroot
                 if (epmem_get_variable(epmem_rit_state_graph[i].rightroot.var_key, var_val))
                 {
@@ -515,7 +522,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 else
                 {
                     epmem_set_variable(epmem_rit_state_graph[i].rightroot.var_key, epmem_rit_state_graph[i].rightroot.stat);
-        
+
                 }
                 // minstep
                 if (epmem_get_variable(epmem_rit_state_graph[i].minstep.var_key, var_val))
@@ -528,13 +535,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
             }
         }
-        
+
         ////
-        
+
         // get max time
         {
             final PreparedStatement temp_q = db.get_max_time;
-            
+
             final ResultSet rs = temp_q.executeQuery();
             try
             {
@@ -561,7 +568,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             final PreparedStatement[] now_select = new PreparedStatement[] {db.now_select_node, db.now_select_edge};
             final PreparedStatement[] now_add = new PreparedStatement[] {db.add_node_point, db.add_edge_point};
             final PreparedStatement[] now_delete = new PreparedStatement[] {db.now_delete_node, db.now_delete_edge};
-            
+
             for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++)
             {
                 final PreparedStatement temp_q = now_add[i];
@@ -607,7 +614,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             initMinMax(time_max, db.minmax_select_edge, epmem_edge_maxes, epmem_edge_mins);
             // episodic_memory.cpp:1780
         }
-        
+
         // get id pools
         {
             long q0;
@@ -652,10 +659,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         ip = Maps.newHashMap();
                         hp.put(w, ip);
                     }
-                    
+
                     //   (*(*ip))[ q1 ] = parent_id;
                     ip.put(q1, parent_id);
-                    
+
                     //   hp = &(*my_agent->epmem_id_repository)[ q1 ];
                     //   if ( !(*hp) )
                     //       (*hp) = new epmem_hashed_id_pool; 
@@ -672,14 +679,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 rs.close();
             }
         }
-        
+
         // capture augmentations of top-state as the sole set of adds,
         // which catches up to what would have been incremental encoding
         // to this point
         {
             epmem_wme_adds.add(decider.top_state); //my_agent->epmem_wme_adds->insert( my_agent->top_state );
         }
-        
+
         // if lazy commit, then we encapsulate the entire lifetime of the agent in a single transaction
         if (params.lazy_commit.get())
         {
@@ -694,7 +701,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private void epmem_rit_insert_interval(long range_start, long time_last, long long1, epmem_rit_state epmem_rit_state)
     {
         // TODO Auto-generated method stub
-        
+
     }
 
     /**
@@ -710,7 +717,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private boolean epmem_get_variable(epmem_variable_key variable_id, ByRef<Long> variable_value) throws SQLException
     {
         final PreparedStatement var_get = db.var_get;
-    
+
         var_get.setInt( 1, variable_id.ordinal() );
         final ResultSet rs = var_get.executeQuery();
         try
@@ -743,10 +750,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private void epmem_set_variable(epmem_variable_key variable_id, long variable_value) throws SQLException
     {
         final PreparedStatement var_set = db.var_set;
-    
+
         var_set.setLong( 1, variable_value );
         var_set.setInt( 2, variable_id.ordinal() );
-    
+
         var_set.execute();
     }
 
@@ -758,7 +765,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             try
             {
                 // TODO this is copy-paste from smem right now, there are other things to do here
-                
+
                 // close the database
                 db.getConnection().close();
                 db = null;
@@ -768,11 +775,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 throw new SoarException("While closing epmem: " + e.getMessage(), e);
             }
         }
-        
+
         //episodic_memory.cpp:1415:my_agent->epmem_wme_adds->clear();
         epmem_wme_adds.clear();
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.jsoar.kernel.epmem.EpisodicMemory#initializeNewContext(org.jsoar.kernel.memory.WorkingMemory, org.jsoar.kernel.symbols.IdentifierImpl)
@@ -780,9 +787,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     @Override
     public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
     {
-    	this.stateInfos.put(id, new EpisodicMemoryStateInfo(this, wm, id));
+        this.stateInfos.put(id, new EpisodicMemoryStateInfo(this, wm, id));
     }
-    
+
     /* (non-Javadoc)
      * @see org.jsoar.kernel.smem.EpisodicMemory#epmem_reset(org.jsoar.kernel.symbols.IdentifierImpl)
      */
@@ -794,13 +801,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             state = decider.top_goal;
         }
-        
+
         while( state != null) 
         {
             final EpisodicMemoryStateInfo data = stateInfos.remove(state);
-            
+
             data.last_ol_time = 0;
-            
+
             data.last_cmd_time = 0;
             data.last_cmd_count = 0;
 
@@ -813,7 +820,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             state = state.goalInfo.lower_goal;
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_go()
@@ -821,58 +828,58 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     @Override
     public void epmem_go()
     {
-    	epmem_go(true);
+        epmem_go(true);
     }
 
     /*
      * (non-Javadoc)
      * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_go(boolean)
      */
-	@Override
-	public void epmem_go(boolean allow_store) {
-//		my_agent->epmem_timers->total->start();
-//
-//		#ifndef EPMEM_EXPERIMENT
-//
-//			if ( allow_store )
-//			{
-//				epmem_consider_new_episode( my_agent );
-//			}
-//			epmem_respond_to_cmd( my_agent );
-		if ( allow_store )
-		{
-			epmem_consider_new_episode();
-		}
-		epmem_responder_to_cmd();
-//
-//		#else // EPMEM_EXPERIMENT
-//
-//			_epmem_exp( my_agent );
-//			epmem_respond_to_cmd( my_agent );
-//
-//		#endif // EPMEM_EXPERIMENT
-//
-//			my_agent->epmem_timers->total->stop();
-	}
-	
-	/**
-	 * Based upon trigger/force parameter settings, potentially records a new episode
-	 * 
-	 * <p>episodic_memory.cpp:epmem_consider_new_episode( agent *my_agent )
-	 */
-	private boolean epmem_consider_new_episode() {
-//		////////////////////////////////////////////////////////////////////////////
-//		my_agent->epmem_timers->trigger->start();
-//		////////////////////////////////////////////////////////////////////////////
-//
-		boolean new_memory = false;
-		
-		if ( params.force.get() == DefaultEpisodicMemoryParams.Force.off )
-		{
-		    switch(params.trigger.get()) {
-		    case output:
+    @Override
+    public void epmem_go(boolean allow_store) {
+        //		my_agent->epmem_timers->total->start();
+        //
+        //		#ifndef EPMEM_EXPERIMENT
+        //
+        //			if ( allow_store )
+        //			{
+        //				epmem_consider_new_episode( my_agent );
+        //			}
+        //			epmem_respond_to_cmd( my_agent );
+        if ( allow_store )
+        {
+            epmem_consider_new_episode();
+        }
+        epmem_responder_to_cmd();
+        //
+        //		#else // EPMEM_EXPERIMENT
+        //
+        //			_epmem_exp( my_agent );
+        //			epmem_respond_to_cmd( my_agent );
+        //
+        //		#endif // EPMEM_EXPERIMENT
+        //
+        //			my_agent->epmem_timers->total->stop();
+    }
+
+    /**
+     * Based upon trigger/force parameter settings, potentially records a new episode
+     * 
+     * <p>episodic_memory.cpp:epmem_consider_new_episode( agent *my_agent )
+     */
+    private boolean epmem_consider_new_episode() {
+        //		////////////////////////////////////////////////////////////////////////////
+        //		my_agent->epmem_timers->trigger->start();
+        //		////////////////////////////////////////////////////////////////////////////
+        //
+        boolean new_memory = false;
+
+        if ( params.force.get() == DefaultEpisodicMemoryParams.Force.off )
+        {
+            switch(params.trigger.get()) {
+            case output:
                 // examine all commands on the output-link for any
-//              // that appeared since last memory was recorded
+                //              // that appeared since last memory was recorded
                 EpisodicMemoryStateInfo stateInfo = stateInfos.get(decider.top_goal);
                 for(Wme wme : agent.getInputOutput().getPendingCommands())
                 {
@@ -883,124 +890,145 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     }
                 }
                 break;
-		    case dc:
-		        new_memory = true;
-		        break;
-		    case none:
-		        new_memory = false;
-		        break;
-		    }
-		}
-		else
-		{
-		    new_memory = params.force.get()==DefaultEpisodicMemoryParams.Force.remember;
-		    params.force.set(DefaultEpisodicMemoryParams.Force.off);
-		}
-		
-//      ////////////////////////////////////////////////////////////////////////////
-//    my_agent->epmem_timers->trigger->stop();
-//    ////////////////////////////////////////////////////////////////////////////
-		
-		if ( new_memory )
-		{
-		    epmem_new_episode();
-		}
-
-		return new_memory;
-	}
-	
-	/**
-	 * <p>episodic_memory.cpp:2473:epmem_new_episode( agent *my_agent )
-	 */
-	private void epmem_new_episode()
-	{
-	    // if this is the first episode, initialize db components
-	    epmem_init_db_catch();
-
-	    // add the episode only if db is properly initialized2
-	    if(this.db == null)
-	        return;
-	    
-	    ////////////////////////////////////////////////////////////////////////////
-	    //my_agent->epmem_timers->storage->start();
-	    ////////////////////////////////////////////////////////////////////////////
-	    
-//	    epmem_time_id time_counter = my_agent->epmem_stats->time->get_value();
-//
-//	    // provide trace output
-//	    if ( my_agent->sysparams[ TRACE_EPMEM_SYSPARAM ] )
-//	    {
-//	        char buf[256];
-//
-//	        SNPRINTF( buf, 254, "NEW EPISODE: %ld", static_cast<long int>(time_counter) );
-//
-//	        print( my_agent, buf );
-//	        xml_generate_warning( my_agent, buf );
-//	    }
-	    
-	       // walk appropriate levels
-        {
-            // prevents infinite loops
-            final Marker tc = DefaultMarker.create(); //get_new_tc_number( my_agent );
-
-//            // children of the current identifier
-//            epmem_wme_list* wmes = NULL;
-//
-//            // breadth first search state
-//            std::queue< Symbol* > parent_syms;
-//            Symbol* parent_sym = NULL;
-//            std::queue< epmem_node_id > parent_ids;
-//            epmem_node_id parent_id;
-//
-//            // cross-level information
-//            std::map< wme*, epmem_id_reservation* > id_reservations;
-//            std::set< Symbol* > new_identifiers;
-//
-//            // start with new WMEs attached to known identifiers
-//            for ( epmem_symbol_set::iterator id_p = my_agent->epmem_wme_adds->begin(); id_p != my_agent->epmem_wme_adds->end(); id_p++ )
-//            {
-//                // make sure the WME is valid
-//                // it can be invalid if a child WME was added, but then the parent was removed, setting the epmem_id to EPMEM_NODEID_BAD
-//                if ((*id_p)->id.epmem_id != EPMEM_NODEID_BAD) {
-//                    parent_syms.push( (*id_p) );
-//                    parent_ids.push( (*id_p)->id.epmem_id );
-//                    while ( !parent_syms.empty() )
-//                    {
-//                        parent_sym = parent_syms.front();
-//                        parent_syms.pop();
-//                        parent_id = parent_ids.front();
-//                        parent_ids.pop();
-//                        wmes = epmem_get_augs_of_id( parent_sym, tc );
-//                        if ( ! wmes->empty() )
-//                        {
-//                            _epmem_store_level( my_agent, parent_syms, parent_ids, tc, wmes->begin(), wmes->end(), parent_id, time_counter, id_reservations, new_identifiers, epmem_node, epmem_edge );
-//                        }
-//                        delete wmes;
-//                    }
-//                }
-//            }
+            case dc:
+                new_memory = true;
+                break;
+            case none:
+                new_memory = false;
+                break;
+            }
         }
-        
-	}
+        else
+        {
+            new_memory = params.force.get()==DefaultEpisodicMemoryParams.Force.remember;
+            params.force.set(DefaultEpisodicMemoryParams.Force.off);
+        }
 
-	private void epmem_responder_to_cmd() {
-		// TODO Auto-generated method stub
-		
-	}
+        //      ////////////////////////////////////////////////////////////////////////////
+        //    my_agent->epmem_timers->trigger->stop();
+        //    ////////////////////////////////////////////////////////////////////////////
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_enabled()
-	 */
-	@Override
-	public boolean epmem_enabled() {
-		// CK: C++ code
-//		return ( my_agent->epmem_params->learning->get_value() == soar_module::on );
-		return ( params.learning.get() == DefaultEpisodicMemoryParams.Learning.on );
-	}
+        if ( new_memory )
+        {
+            epmem_new_episode();
+        }
 
-	@Override
-	public Phase getPhase() {
-		return params.phase.get();
-	}
-}
+        return new_memory;
+    }
+
+    /**
+     * <p>episodic_memory.cpp:2473:epmem_new_episode( agent *my_agent )
+     */
+    private void epmem_new_episode()
+    {
+        // if this is the first episode, initialize db components
+        epmem_init_db_catch();
+
+        // add the episode only if db is properly initialized2
+        if(this.db == null)
+            return;
+
+        ////////////////////////////////////////////////////////////////////////////
+        //my_agent->epmem_timers->storage->start();
+        ////////////////////////////////////////////////////////////////////////////
+
+        //	    epmem_time_id time_counter = my_agent->epmem_stats->time->get_value();
+        //
+        //	    // provide trace output
+        //	    if ( my_agent->sysparams[ TRACE_EPMEM_SYSPARAM ] )
+        //	    {
+        //	        char buf[256];
+        //
+        //	        SNPRINTF( buf, 254, "NEW EPISODE: %ld", static_cast<long int>(time_counter) );
+        //
+        //	        print( my_agent, buf );
+        //	        xml_generate_warning( my_agent, buf );
+        //	    }
+
+        // perform storage
+        {
+            // seen nodes (non-identifiers) and edges (identifiers)
+            Queue<Long> epmem_node = new LinkedList<Long>();
+            Queue<Long> epmem_edge = new LinkedList<Long>();
+
+            // walk appropriate levels
+            {
+                // prevents infinite loops
+                final Marker tc = DefaultMarker.create(); //get_new_tc_number( my_agent );
+
+                // children of the current identifier
+                List<WmeImpl> wmes = null;
+
+                // breadth first search state
+                Queue<SymbolImpl> parent_syms = new LinkedList<SymbolImpl>();
+                SymbolImpl parent_sym = null;
+                Queue<Long> parent_ids = new LinkedList<Long>();
+                long parent_id;
+
+                // cross-level information
+                Map<WmeImpl,EpisodicMemoryIdReservation> id_reservations = new HashMap<WmeImpl,EpisodicMemoryIdReservation>();
+                Set<SymbolImpl> new_identifiers = new HashSet<SymbolImpl>();
+
+                // start with new WMEs attached to known identifiers
+                for(IdentifierImpl id_p : epmem_wme_adds)
+                {
+                    // make sure the WME is valid
+                    // it can be invalid if a child WME was added, but then the parent was removed, setting the epmem_id to EPMEM_NODEID_BAD
+                    if(id_p.epmem_id!=EPMEM_NODEID_BAD)
+                    {
+                        parent_syms.add(id_p);
+                        parent_ids.add(id_p.epmem_id);
+                        while(!parent_syms.isEmpty())
+                        {
+                            parent_sym = parent_syms.poll();
+                            parent_id = parent_ids.poll();
+                            wmes = epmem_get_augs_of_id( parent_sym, tc );
+                            if ( ! wmes.isEmpty() )
+                            {
+                                _epmem_store_level(parent_syms, parent_ids, tc, wmes, parent_id, /*time_counter,*/ id_reservations, new_identifiers, epmem_node, epmem_edge );
+                            }
+                            wmes = null;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private List<WmeImpl> epmem_get_augs_of_id(SymbolImpl id, Marker tc)
+    {
+        //TODO
+        return null;
+    }
+
+    // three cases for sharing ids amongst identifiers in two passes:
+    // 1. value known in phase one (try reservation)
+    // 2. value unknown in phase one, but known at phase two (try assignment adhering to constraint)
+    // 3. value unknown in phase one/two (if anything is left, unconstrained assignment)
+    void _epmem_store_level( Queue<SymbolImpl> parent_syms, Queue<Long> parent_ids, Marker tc, List<WmeImpl> wmes, long parent_id, /*epmem_time_id time_counter,*/
+            Map<WmeImpl, EpisodicMemoryIdReservation > id_reservations, Set< SymbolImpl > new_identifiers, Queue< Long > epmem_node, Queue< Long > epmem_edge )
+    {
+        //TODO
+    }
+
+        private void epmem_responder_to_cmd() {
+            // TODO Auto-generated method stub
+
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_enabled()
+         */
+        @Override
+        public boolean epmem_enabled() {
+            // CK: C++ code
+            //		return ( my_agent->epmem_params->learning->get_value() == soar_module::on );
+            return ( params.learning.get() == DefaultEpisodicMemoryParams.Learning.on );
+        }
+
+        @Override
+        public Phase getPhase() {
+            return params.phase.get();
+        }
+    }
