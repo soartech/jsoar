@@ -77,6 +77,11 @@ public class SourceCommand implements SoarCommand
         return workingDirectory.url != null ? workingDirectory.url.toExternalForm() : workingDirectory.file.getAbsolutePath();
     }
     
+    /*package*/ DirStackEntry getWorkingDirectoryRaw()
+    {
+        return workingDirectory;
+    }
+    
     public String getCurrentFile()
     {
         return fileStack.peek();
@@ -285,10 +290,15 @@ public class SourceCommand implements SoarCommand
         {
             throw new SoarException("Cannot determine parent of URL: " + url);
         }
-        return FileTools.asUrl(s.substring(0, i));
+        URL parent = FileTools.asUrl(s.substring(0, i));
+        if (parent != null)
+        {
+            return parent;
+        }
+        return FileTools.asUrl(s.substring(0, i) + "/");
     }
     
-    private URL joinUrl(URL parent, String child)
+    /*package*/ URL joinUrl(URL parent, String child)
     {
         final String s = parent.toExternalForm();
         return FileTools.asUrl(s.endsWith("/") ? s + child : s + "/" + child);
@@ -357,7 +367,7 @@ public class SourceCommand implements SoarCommand
     }
     
     // This ain't pretty, but it's private and it works
-    private static class DirStackEntry
+    /*package*/ static class DirStackEntry
     {
         File file;
         URL url;

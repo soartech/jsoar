@@ -26,7 +26,7 @@ public class ReteTest
     public static final int DISJUNCTION         = 0x20;
     public static final int ID_IS_GOAL          = 0x30;
     public static final int ID_IS_IMPASSE       = 0x31;
-    
+
     // for the first two (i.e., the relational tests), we add in one of
     // the following, to specifiy the kind of relation
     public static final int RELATIONAL_EQUAL            = 0x00;
@@ -36,18 +36,18 @@ public class ReteTest
     public static final int RELATIONAL_LESS_OR_EQUAL    = 0x04;
     public static final int RELATIONAL_GREATER_OR_EQUAL = 0x05;
     public static final int RELATIONAL_SAME_TYPE        = 0x06;
-    
+
     final int type;                     // test type (ID_IS_GOAL, etc.)
     final int right_field_num;          // field (0, 1, or 2) from wme 
-    
+
     // TODO union rete_test_data_union {
     final VarLocation variable_referent; // for relational tests to a variable
     final SymbolImpl constant_referent; // for relational tests to a constant
     final List<SymbolImpl> disjunction_list; // immutable list of symbols in disjunction test
     // TODO } data;
-      
+
     ReteTest next; /* next in list of tests at the node */
-    
+
     /**
      * Constructs a new disjunction rete test.
      * 
@@ -60,7 +60,7 @@ public class ReteTest
     {
         return new ReteTest(fieldNum, disjuncts);
     }
-    
+
     /**
      * Constructs a new variable test
      * 
@@ -73,7 +73,7 @@ public class ReteTest
     {
         return new ReteTest(type, fieldNum, variableReferent);
     }
-    
+
     /**
      * Constructs a new constant test
      * 
@@ -86,7 +86,7 @@ public class ReteTest
     {
         return new ReteTest(type, fieldNum, constant);
     }
-    
+
     /**
      * Constructs a new goal id test
      * 
@@ -96,7 +96,7 @@ public class ReteTest
     {
         return new ReteTest(ID_IS_GOAL);
     }
-    
+
     /**
      * Constructs a new impasse id test
      * @return new test
@@ -105,19 +105,19 @@ public class ReteTest
     {
         return new ReteTest(ID_IS_IMPASSE);
     }
-    
+
     private static boolean isRelationType(int r)
     {
         return r == RELATIONAL_EQUAL ||
-               r == RELATIONAL_NOT_EQUAL ||
-               r == RELATIONAL_LESS ||
-               r == RELATIONAL_GREATER ||
-               r == RELATIONAL_LESS_OR_EQUAL ||
-               r == RELATIONAL_GREATER_OR_EQUAL ||
-               r == RELATIONAL_SAME_TYPE;
+                r == RELATIONAL_NOT_EQUAL ||
+                r == RELATIONAL_LESS ||
+                r == RELATIONAL_GREATER ||
+                r == RELATIONAL_LESS_OR_EQUAL ||
+                r == RELATIONAL_GREATER_OR_EQUAL ||
+                r == RELATIONAL_SAME_TYPE;
     }
-    
-    private ReteTest(int type)
+
+    protected ReteTest(int type)
     {
         this.type = type;
         this.right_field_num = 0;
@@ -125,7 +125,7 @@ public class ReteTest
         this.disjunction_list = null;
         this.constant_referent = null;
     }
-    
+
     private ReteTest(int fieldNum, List<SymbolImpl> disjunction)
     {
         this.type = DISJUNCTION;
@@ -134,7 +134,7 @@ public class ReteTest
         this.variable_referent = null;
         this.constant_referent = null;
     }
-    
+
     private ReteTest(int relation, int fieldNum, VarLocation variableReferent)
     {
         assert isRelationType(relation);
@@ -144,7 +144,7 @@ public class ReteTest
         this.variable_referent = variableReferent;
         this.constant_referent = null;
     }
-    
+
     private ReteTest(int relation, int fieldNum, SymbolImpl constantReferent)
     {
         assert isRelationType(relation);
@@ -154,7 +154,7 @@ public class ReteTest
         this.disjunction_list = null;
         this.variable_referent = null;
     }
-    
+
     /**
      * <p>rete.cpp:220:test_is_constant_relational_test
      * 
@@ -162,7 +162,7 @@ public class ReteTest
      */
     public boolean test_is_constant_relational_test()
     {
-      return (((type) & 0xF0)==0x00);
+        return (((type) & 0xF0)==0x00);
     }
 
     /**
@@ -172,9 +172,9 @@ public class ReteTest
      */
     public boolean test_is_variable_relational_test()
     {
-      return (((type) & 0xF0)==0x10);
+        return (((type) & 0xF0)==0x10);
     }
-    
+
     /**
      * <p>rete.cpp:242:kind_of_relational_test
      * 
@@ -182,7 +182,7 @@ public class ReteTest
      */
     public int kind_of_relational_test()
     {
-      return ((type) & 0x0F);
+        return ((type) & 0x0F);
     }
 
     /**
@@ -192,8 +192,64 @@ public class ReteTest
      */
     public boolean test_is_not_equal_test()
     {
-      return (((type)==0x01) || ((type)==0x11));
+        return (((type)==0x01) || ((type)==0x11));
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        String typeStr = "unknown";
 
+        if (this.test_is_constant_relational_test())
+        {
+            typeStr = "constant, " + relationToString(type - CONSTANT_RELATIONAL);
+        }
+        else if (this.test_is_variable_relational_test())
+        {
+            typeStr = "variable, " + relationToString(type - VARIABLE_RELATIONAL);
+        }
+        else if (this.type == DISJUNCTION)
+        {
+            typeStr = "disjunction";
+        }
+        else if (this.type == ID_IS_GOAL)
+        {
+            typeStr = "id is goal";
+        }
+        else if (this.type == ID_IS_IMPASSE)
+        {
+            typeStr = "id is impasse";
+        }
+        return String.format("ReteTest id %d (%s)", this.type, typeStr);
+    }
+
+    /**
+     * @return a String representation of the relation.
+     */
+    private String relationToString(int relation)
+    {        
+        switch (relation)
+        {
+        case RELATIONAL_EQUAL:
+            return "equal"; 
+        case RELATIONAL_NOT_EQUAL: 
+            return "not equal";
+        case RELATIONAL_LESS: 
+            return "less";
+        case RELATIONAL_GREATER: 
+            return "greater";
+        case RELATIONAL_LESS_OR_EQUAL: 
+            return "less or equal";
+        case RELATIONAL_GREATER_OR_EQUAL: 
+            return "greater or equal";
+        case RELATIONAL_SAME_TYPE: 
+            return "same_type";
+        default:
+            return "unknown";
+        }
+    }
 }

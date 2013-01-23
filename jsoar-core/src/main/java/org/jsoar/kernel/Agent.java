@@ -143,8 +143,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(recMemory.getRhsFunctionContext());
     private final DecisionCycle decisionCycle = new DecisionCycle(this);
-    private SoarEventManager eventManager = new SoarEventManager();
-    private DefaultProductionManager productions = new DefaultProductionManager(this);
+    private final SoarEventManager eventManager = new SoarEventManager();
+    private final DefaultProductionManager productions = new DefaultProductionManager(this);
     
     /**
      * agent.h:480:total_cpu_time

@@ -36,12 +36,12 @@ public class RhsFunctionManager
     }
 
     /**
-     * Returns a list of all regsitered RHS function handlers. The list is
+     * Returns a list of all registered RHS function handlers. The list is
      * a copy and may be modified by the caller.
      * 
      * <p>This method may be called from any thread
      * 
-     * @return Copy of list of all regsitered RHS function handlers 
+     * @return Copy of list of all registered RHS function handlers 
      */
     public List<RhsFunctionHandler> getHandlers()
     {

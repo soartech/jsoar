@@ -173,8 +173,8 @@ public class Production
         Arguments.checkNotNull(type, "type");
         Arguments.checkNotNull(location, "location");
         Arguments.checkNotNull(name, "name");
-        Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
-        Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
+//        Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
+//        Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
         
         this.type = type;
         this.location = location;
