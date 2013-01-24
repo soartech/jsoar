@@ -1209,7 +1209,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         //TODO
     }
 
-        private void epmem_responder_to_cmd() {
+        private void epmem_responder_to_cmd() 
+        {
             // TODO Auto-generated method stub
 
         }
@@ -1219,14 +1220,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
          * @see org.jsoar.kernel.epmem.EpisodicMemory#epmem_enabled()
          */
         @Override
-        public boolean epmem_enabled() {
+        public boolean epmem_enabled() 
+        {
             // CK: C++ code
             //		return ( my_agent->epmem_params->learning->get_value() == soar_module::on );
             return ( params.learning.get() == DefaultEpisodicMemoryParams.Learning.on );
         }
 
         @Override
-        public Phase getPhase() {
-            return params.phase.get();
+        public boolean encodeInOutputPhase()
+        {
+        	return ( params.phase.get() == Phase.output );
+        }
+        
+        @Override
+        public boolean encodeInSelectionPhase()
+        {
+        	return ( params.phase.get() == Phase.selection );
         }
     }

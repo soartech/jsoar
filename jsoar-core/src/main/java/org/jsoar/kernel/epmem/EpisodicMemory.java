@@ -6,7 +6,6 @@
 package org.jsoar.kernel.epmem;
 
 import org.jsoar.kernel.SoarException;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 
@@ -53,5 +52,15 @@ public interface EpisodicMemory
      */
     void epmem_go(boolean allow_store);
     
-    Phase getPhase();
+    /**
+     * Check if new episodes should be processed during the output phase.
+     * @return
+     */
+    boolean encodeInOutputPhase();
+    
+    /**
+     * Check if new episodes should be processed during the selection phase.
+     * @return
+     */
+    boolean encodeInSelectionPhase();
 }

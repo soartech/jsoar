@@ -14,11 +14,11 @@ import org.jsoar.util.properties.PropertyManager;
 /**
  * @author voigtjr
  */
-public class DefaultEpisodicMemoryParams
+class DefaultEpisodicMemoryParams
 {
     static enum Optimization { safety, performance };
     static enum Cache { small, medium, large; }
-    public static enum Phase { output, decision };
+    static enum Phase { output, selection };
     static enum Learning { on, off };
     static enum Force { remember, ignore, off };
     static enum Trigger { none, output, dc };

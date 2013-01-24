@@ -10,9 +10,6 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams;
 import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.events.AbstractPhaseEvent;
 import org.jsoar.kernel.events.AfterDecisionCycleEvent;
@@ -37,8 +34,8 @@ import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
-import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.tracing.TraceFormats;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.EnumPropertyProvider;
@@ -46,6 +43,8 @@ import org.jsoar.util.properties.IntegerPropertyProvider;
 import org.jsoar.util.properties.LongPropertyProvider;
 import org.jsoar.util.properties.PropertyManager;
 import org.jsoar.util.timing.ExecutionTimers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An attempt to encapsulate the Soar decision cycle
@@ -398,7 +397,7 @@ public class DecisionCycle
         
 //        if ( epmem_enabled( thisAgent ) && ( thisAgent->epmem_params->phase->get_value() == epmem_param_container::phase_selection ) )
 //            epmem_go( thisAgent );
-        if ( epmem.epmem_enabled() && epmem.getPhase() == DefaultEpisodicMemoryParams.Phase.decision)
+        if ( epmem.epmem_enabled() && epmem.encodeInSelectionPhase() )
         {
         	epmem.epmem_go();
         }
@@ -447,7 +446,7 @@ public class DecisionCycle
 //  		  }
 //  		  thisAgent->wma_d_cycle_count--;
 //  	  }
-        if (epmem.epmem_enabled() && epmem.getPhase() == DefaultEpisodicMemoryParams.Phase.output)
+        if (epmem.epmem_enabled() && epmem.encodeInOutputPhase())
         {
 //        	thisAgent->wma_d_cycle_count++;
         	epmem.epmem_go();
