@@ -27,46 +27,46 @@ public class EpisodicMemoryStateInfo
 {   
     public long last_ol_time = 0;       // last update to output-link
     public long last_ol_count = 0;      // last count of output-link
-    
+
     public long last_cmd_time = 0;      // last update to epmem.command
     public long last_cmd_count = 0;     // last update to epmem.command
-    
-    public long last_memory = DefaultEpisodicMemory.EPMEM_MEMID_NONE;        // last retrieved memory
-    
+
+    public long last_memory = DefaultEpisodicMemory.EPMEM_MEMID_NONE;         // last retrieved memory
+
     public final Deque<Preference> epmem_wmes = new ArrayDeque<Preference>(); // wmes in last epmem
-    
+
     public final IdentifierImpl epmem_header; 
     public final IdentifierImpl epmem_cmd_header;
     public final IdentifierImpl epmem_result_header;
 
-	public EpisodicMemoryStateInfo(DefaultEpisodicMemory epmem, WorkingMemory wm, IdentifierImpl id)
-	{
-//    	id->id.epmem_header = make_new_identifier( thisAgent, 'E', level );		
-		epmem_header = epmem.symbols.make_new_identifier('E', id.level);
-//    	soar_module::add_module_wme( thisAgent, id, thisAgent->epmem_sym, id->id.epmem_header );
-		SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym, epmem_header);
-//    	id->id.epmem_cmd_header = make_new_identifier( thisAgent, 'C', level );
-		epmem_cmd_header = epmem.symbols.make_new_identifier('C', id.level);
-//    	soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_cmd, id->id.epmem_cmd_header );
-		SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_cmd, epmem_cmd_header);
-//    	id->id.epmem_result_header = make_new_identifier( thisAgent, 'R', level );
-		epmem_result_header = epmem.symbols.make_new_identifier('R', id.level);
-//    	soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_result, id->id.epmem_result_header );
-		SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_result, epmem_result_header);
-		
+    public EpisodicMemoryStateInfo(DefaultEpisodicMemory epmem, WorkingMemory wm, IdentifierImpl id)
+    {
+        // id->id.epmem_header = make_new_identifier( thisAgent, 'E', level );		
+        epmem_header = epmem.symbols.make_new_identifier('E', id.level);
+        // soar_module::add_module_wme( thisAgent, id, thisAgent->epmem_sym, id->id.epmem_header );
+        SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym, epmem_header);
+        // id->id.epmem_cmd_header = make_new_identifier( thisAgent, 'C', level );
+        epmem_cmd_header = epmem.symbols.make_new_identifier('C', id.level);
+        // soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_cmd, id->id.epmem_cmd_header );
+        SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_cmd, epmem_cmd_header);
+        // id->id.epmem_result_header = make_new_identifier( thisAgent, 'R', level );
+        epmem_result_header = epmem.symbols.make_new_identifier('R', id.level);
+        // soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_result, id->id.epmem_result_header );
+        SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_result, epmem_result_header);
 
-// CK: not implementing timers
-//    	{
-//    	  int64_t my_time = static_cast<int64_t>( thisAgent->epmem_stats->time->get_value() );
-//    	  if ( my_time == 0 )
-//    	  {
-//    		  // special case: pre-initialization
-//    		  my_time = 1;
-//    	  }
-//    	  
-//    	  Symbol* my_time_sym = make_int_constant( thisAgent, my_time );
-//    	  id->id.epmem_time_wme = soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_present_id, my_time_sym );
-//    	  symbol_remove_ref( thisAgent, my_time_sym );
-//    	}
-	}
+
+        // CK: not implementing timers
+        //    	{
+        //    	  int64_t my_time = static_cast<int64_t>( thisAgent->epmem_stats->time->get_value() );
+        //    	  if ( my_time == 0 )
+        //    	  {
+        //    		  // special case: pre-initialization
+        //    		  my_time = 1;
+        //    	  }
+        //    	  
+        //    	  Symbol* my_time_sym = make_int_constant( thisAgent, my_time );
+        //    	  id->id.epmem_time_wme = soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_present_id, my_time_sym );
+        //    	  symbol_remove_ref( thisAgent, my_time_sym );
+        //    	}
+    }
 }
