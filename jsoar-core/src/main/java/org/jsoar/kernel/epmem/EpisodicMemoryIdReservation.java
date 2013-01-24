@@ -1,7 +1,6 @@
 package org.jsoar.kernel.epmem;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 /**
  * epmem_id_reservation_struct
@@ -13,25 +12,30 @@ import java.util.List;
 
 public class EpisodicMemoryIdReservation
 {
-    public final long /*epmem_node_id*/ my_id;
+    public long /*epmem_node_id*/ my_id;
     public final long /*epmem_hash_id*/ my_hash;
-    public final List<EpisodicMemoryIdPair> /*epmem_id_pool*/ my_pool = new ArrayList<EpisodicMemoryIdPair>();
+    
+    /**
+     * Map is not initialized.
+     */
+    public Map<Long, Long> /*epmem_id_pool*/ my_pool;
     
     public EpisodicMemoryIdReservation(long id, long hash)
     {
         my_id = id;
         my_hash = hash;
     }
-    
-    public static class EpisodicMemoryIdPair
-    {
-        public final long first;
-        public final long second;
-        
-        public EpisodicMemoryIdPair(long first, long second)
-        {
-            this.first = first;
-            this.second = second;
-        }
-    }
+
+    // CK: changing this to Map<Long, Long>
+//    public static class EpisodicMemoryIdPair
+//    {
+//        public final long first;
+//        public final long second;
+//        
+//        public EpisodicMemoryIdPair(long first, long second)
+//        {
+//            this.first = first;
+//            this.second = second;
+//        }
+//    }
 }

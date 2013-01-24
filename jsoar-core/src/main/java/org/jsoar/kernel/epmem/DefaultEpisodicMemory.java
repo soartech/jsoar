@@ -1387,9 +1387,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     	long /*epmem_hash_id*/ my_hash;	// attribute
     	long /*epmem_hash_id*/ my_hash2;	// value
     	
-//    	// id repository
-//    	epmem_id_pool **my_id_repo;
-//    	epmem_id_pool *my_id_repo2;
+        // id repository
+        Map<Long, Long> /*epmem_id_pool*/ my_id_repo;
+        Map<Long, Long> /*epmem_id_pool*/ my_id_repo2;
 //    	epmem_id_pool::iterator pool_p;
 //    	std::map<wme *, epmem_id_reservation *>::iterator r_p;
     	EpisodicMemoryIdReservation new_id_reservation;
@@ -1428,6 +1428,25 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     new_id_reservation = new EpisodicMemoryIdReservation(EPMEM_NODEID_BAD, epmem_temporal_hash(wme.getAttribute()));
                 }
+                
+                // try to find appropriate reservation
+                my_id_repo = epmem_id_repository.get(parent_id).get(new_id_reservation.my_hash);
+                if(my_id_repo != null)
+                {
+                    // TODO make sure std::pair::first is the key and std::pair::second is the value
+                    long wmeEpmemId = wme.value.asIdentifier().epmem_id;
+                    new_id_reservation.my_id = my_id_repo.get(wmeEpmemId);
+                    my_id_repo.remove(wmeEpmemId);
+                }
+                else
+                {
+                    // add repository
+                    my_id_repo = Maps.newHashMap();
+                }
+                
+                new_id_reservation.my_pool = my_id_repo;
+                id_reservations.put(wme, new_id_reservation);
+                new_id_reservation = null;
     		}
     	}
     	
