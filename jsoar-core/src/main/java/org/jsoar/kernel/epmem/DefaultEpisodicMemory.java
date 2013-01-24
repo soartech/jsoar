@@ -82,7 +82,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private static enum epmem_variable_key
     {
-        var_rit_offset_1, var_rit_leftroot_1, var_rit_rightroot_1, var_rit_minstep_1, var_rit_offset_2, var_rit_leftroot_2, var_rit_rightroot_2, var_rit_minstep_2, var_next_id
+        var_rit_offset_1, var_rit_leftroot_1, var_rit_rightroot_1, var_rit_minstep_1, 
+        var_rit_offset_2, var_rit_leftroot_2, var_rit_rightroot_2, var_rit_minstep_2, var_next_id
     }
 
     /**
@@ -191,7 +192,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     EpisodicMemorySymbols predefinedSyms;
 
-    private final Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = new HashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
+    private final Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = 
+            new HashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
 
     public DefaultEpisodicMemory(Adaptable context)
     {
@@ -412,10 +414,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 logger.info("Applying performance settings from '" + fullPath + "'.");
                 try
                 {
-                    JdbcTools.executeSql(db.getConnection(), perfStream, null /*
-                                                                               * no
-                                                                               * filter
-                                                                               */);
+                    JdbcTools.executeSql(db.getConnection(), perfStream, null /* no filter */);
                 }
                 finally
                 {
@@ -1370,8 +1369,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param epmem_node
      * @param epmem_edge
      */
-    void _epmem_store_level( Queue<SymbolImpl> parent_syms, Queue<Long> parent_ids, Marker tc, List<WmeImpl> w_p, long parent_id, long time_counter,
-            Map<WmeImpl, EpisodicMemoryIdReservation > id_reservations, Set< SymbolImpl > new_identifiers, Queue< Long > epmem_node, Queue< Long > epmem_edge )
+    void _epmem_store_level( 
+            Queue<SymbolImpl> parent_syms, 
+            Queue<Long> parent_ids, 
+            Marker tc, 
+            List<WmeImpl> w_p, 
+            long parent_id, 
+            long time_counter,
+            Map<WmeImpl, EpisodicMemoryIdReservation > id_reservations, 
+            Set< SymbolImpl > new_identifiers, 
+            Queue< Long > epmem_node, 
+            Queue< Long > epmem_edge )
     {
     	boolean value_known_apriori = false;
     	
@@ -1445,6 +1453,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private long /*epmem_hash_id*/ epmem_temporal_hash(Symbol sym, boolean add_on_fail)
     {
+        // TODO stub
         return 0;
     }
 
@@ -1463,8 +1472,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     public boolean epmem_enabled()
     {
         // CK: C++ code
-        // return ( my_agent->epmem_params->learning->get_value() ==
-        // soar_module::on );
+        // return ( my_agent->epmem_params->learning->get_value() == soar_module::on );
         return (params.learning.get() == DefaultEpisodicMemoryParams.Learning.on);
     }
 
