@@ -16,6 +16,7 @@ import java.sql.Statement;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1384,14 +1385,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     	
         // id repository
         Map<Long, Long> /*epmem_id_pool*/ my_id_repo;
-        Map<Long, Long> /*epmem_id_pool*/ my_id_repo2;
-//    	epmem_id_pool::iterator pool_p;
+        Map<Long, Long> /*epmem_id_pool*/ my_id_repo2 = null;
+        // epmem_id_pool::iterator pool_p;
         EpisodicMemoryIdReservation r_p;
     	EpisodicMemoryIdReservation new_id_reservation;
     	
-    	// identifier recursion
-    	List<WmeImpl> w_p2;
-    	boolean good_recurse = false;
+        // identifier recursion
+        // CK: these are unused
+        // List<WmeImpl> w_p2;
+        // boolean good_recurse = false;
     	
     	// find WME ID for WMEs whose value is an identifier and has a known epmem id 
     	// (prevents ordering issues with unknown children)
@@ -1572,16 +1574,292 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             my_hash = r_p.my_hash;
                             my_id_repo2 = r_p.my_pool;
                             
-                            if(r_p.my_id != EPMEM_NODEID_BAD)
+                            if (r_p.my_id != EPMEM_NODEID_BAD)
                             {
                                 wme.epmem_id = r_p.my_id;
+                                epmem_id_replacement.put(wme.epmem_id, my_id_repo2);
                             }
+
+                            // delete reservation and map entry
+                            id_reservations.remove(wme);
+                        }
+                        // OR a shared identifier at the same level, in which
+                        // case we need an exact match (case 2)
+                        else
+                        {
+                            // get temporal hash
+                            if (wme.acceptable)
+                            {
+                                my_hash = EPMEM_HASH_ACCEPTABLE;
+                            }
+                            else
+                            {
+                                my_hash = epmem_temporal_hash(wme.attr);
+                            }
+                            
+                            // try to get an id that matches new information
+                            my_id_repo = epmem_id_repository.get(parent_id).get(my_hash);
+                            if(my_id_repo != null)
+                            {
+                                if(!my_id_repo.isEmpty())
+                                {
+                                    Iterator<Long> it = my_id_repo.keySet().iterator();
+                                    while(it.hasNext())
+                                    {
+                                        final Long first = it.next();
+                                        if (first == wmeValueId.epmem_id)
+                                        {
+                                            final Long second = my_id_repo.get(first);
+                                            wme.epmem_id = second;
+                                            it.remove();
+                                            epmem_id_replacement.put(wme.epmem_id, my_id_repo);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // add repository
+                                my_id_repo = Maps.newHashMap();
+                            }
+
+                            // keep the address for later (used if w->epmem_id was not assigned)
+                            my_id_repo2 = my_id_repo;
+                        }
+                    }
+                    // case 3
+                    else
+                    {
+                        // UNKNOWN identifier
+                        new_identifiers.add(wme.value);
+
+                        // get temporal hash
+                        if (wme.acceptable)
+                        {
+                            my_hash = EPMEM_HASH_ACCEPTABLE;
+                        }
+                        else
+                        {
+                            my_hash = epmem_temporal_hash(wme.attr);
+                        }
+
+                        // try to find node
+                        my_id_repo = epmem_id_repository.get(parent_id).get(my_hash);
+                        if (my_id_repo != null)
+                        {
+                            // if something leftover, try to use it
+                            if (!my_id_repo.isEmpty())
+                            {
+                                Iterator<Long> it = my_id_repo.keySet().iterator();
+                                while (it.hasNext())
+                                {
+                                    final Long first = it.next();
+                                    // the ref set for this epmem_id may not be there if the pools were regenerated from a previous DB
+                                    // a non-existant ref set is the equivalent of a ref count of 0 (ie. an empty ref set)
+                                    // so we allow the identifier from the pool to be used
+                                    if (epmem_id_ref_counts.get(first) == null || epmem_id_ref_counts.get(first).size() == 0)
+                                    {
+                                        final Long second = my_id_repo.get(first);
+                                        wme.epmem_id = second;
+                                        wmeValueId.epmem_id = first;
+                                        wmeValueId.epmem_valid = epmem_validation;
+                                        it.remove();
+                                        epmem_id_replacement.put(wme.epmem_id, my_id_repo);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // add repository
+                            my_id_repo = Maps.newHashMap();
+                        }
+                        
+                        // keep the address for later (used if w->epmem_id was not assgined)
+                        my_id_repo2 = my_id_repo;
+                    }
+                }
+                
+                // add wme if no success above
+                if (wme.epmem_id == EPMEM_NODEID_BAD)
+                {
+                    // can't use value_known_apriori, since value may have been assigned (lti, id repository via case 3)
+                    if (wmeValueId.epmem_id == EPMEM_NODEID_BAD || wmeValueId.epmem_valid != epmem_validation)
+                    {
+                        // update next id
+                        wmeValueId.epmem_id = stats.getNextId();
+                        wmeValueId.epmem_valid = epmem_validation;
+                        stats.setNextId(wmeValueId.epmem_id + 1L);
+                        epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
+
+                        // add repository for possible future children
+                        Map<Long, Map<Long, Long>> epmem_hashed_id_pool = Maps.newHashMap();
+                        epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
+                        
+                        Set<WmeImpl> epmem_wme_set = Sets.newHashSet();
+                        epmem_id_ref_counts.put(wmeValueId.epmem_id, epmem_wme_set);
+                    }
+                    
+                    // insert (q0,w,q1)
+                    final PreparedStatement ps = db.add_edge_unique;
+                    ps.setLong(1, parent_id);
+                    ps.setLong(2, my_hash);
+                    ps.setLong(3, wmeValueId.epmem_id);
+                    // TODO: will this be a problem if different from C++ max?
+                    ps.setLong(4, Long.MAX_VALUE);
+                    
+                    // CK: not all database drivers support this
+                    final ResultSet rs = ps.getGeneratedKeys();
+                    try
+                    {
+                        if (rs.next())
+                        {
+                            wme.epmem_id = rs.getLong(1);
+                        }
+                        else
+                        {
+                            // throw an exception if we were not able to get the row id of the insert
+                            throw new SQLException("ps.getGeneratedKeys failed!");
+                        }
+                    }
+                    finally
+                    {
+                        rs.close();
+                    }
+
+                    if (wmeValueId.smem_lti == 0)
+                    {
+                        // replace the epmem_id and wme id in the right place
+                        epmem_id_replacement.put(wme.epmem_id, my_id_repo2);
+                    }
+                    
+                    // new nodes definitely start
+                    epmem_edge.add(wme.epmem_id);
+                    epmem_edge_mins.add(time_counter);
+                    epmem_edge_maxes.add(false);
+                }
+                else
+                {
+                 // definitely don't remove
+                    epmem_edge_removals.put(wme.epmem_id, false);
+
+                    // we add ONLY if the last thing we did was remove
+                    if(epmem_edge_maxes.get((int)(wme.epmem_id-1L)))
+                    {
+                        epmem_edge.add(wme.epmem_id);
+                        epmem_edge_maxes.set((int)(wme.epmem_id-1L), false);
+                    }
+                }
+
+                // at this point we have successfully added a new wme
+                // whose value is an identifier.  If the value was
+                // unknown at the beginning of this episode, then we need
+                // to update its ref count for each WME added (thereby catching
+                // up with ref counts that would have been accumulated via wme adds)
+                if (new_identifiers.contains(wme.value))
+                {
+                    // because we could have bypassed the ref set before, we need to create it here
+                    if (epmem_id_ref_counts.get(wmeValueId.epmem_id).size() == 0)
+                    {
+                        Set<WmeImpl> epmem_wme_set = Sets.newHashSet();
+                        epmem_id_ref_counts.put(wmeValueId.epmem_id, epmem_wme_set);
+                    }
+                    epmem_id_ref_counts.get(wmeValueId.epmem_id).add(wme);
+                }
+
+                // if the value has not been iterated over, continue to augmentations
+                if(wmeValueId.tc_number != tc)
+                {
+                    parent_syms.add(wme.value);
+                    parent_ids.add(wmeValueId.epmem_id);
+                }
+            }
+            else
+            {
+                // have we seen this node in this database?
+                if (wme.epmem_id == EPMEM_NODEID_BAD || wme.epmem_valid != epmem_validation)
+                {
+                    wme.epmem_id = EPMEM_NODEID_BAD;
+                    wme.epmem_valid = epmem_validation;
+
+                    my_hash = epmem_temporal_hash(wme.attr);
+                    my_hash2 = epmem_temporal_hash(wme.value);
+
+                    // try to get node id
+                    {
+                        // parent_id=? AND attr=? AND value=?
+                        final PreparedStatement ps = db.find_node_unique;
+                        ps.setLong(1, parent_id);
+                        ps.setLong(2, my_hash);
+                        ps.setLong(3, my_hash2);
+
+                        final ResultSet rs = ps.executeQuery();
+                        try
+                        {
+                            if (rs.next())
+                            {
+                                wme.epmem_id = rs.getLong(0);
+                            }
+                        }
+                        finally
+                        {
+                            rs.close();
+                        }
+
+                        // CK: no reinitialize for PreparedStatment
+                        // my_agent->epmem_stmts_graph->find_node_unique->reinitialize();
+                    }
+                    
+                    // act depending on new/existing feature
+                    if (wme.epmem_id == EPMEM_NODEID_BAD)
+                    {
+                        // insert (parent_id,attr,value)
+                        final PreparedStatement ps = db.add_node_unique;
+                        ps.setLong(1, parent_id);
+                        ps.setLong(2, my_hash);
+                        ps.setLong(3, my_hash2);
+
+                        // CK: not all database drivers support this
+                        final ResultSet rs = ps.getGeneratedKeys();
+                        try
+                        {
+                            if (rs.next())
+                            {
+                                wme.epmem_id = rs.getLong(1);
+                            }
+                            else
+                            {
+                                // throw an exception if we were not able to get the row id of the insert
+                                throw new SQLException("ps.getGeneratedKeys failed!");
+                            }
+                        }
+                        finally
+                        {
+                            rs.close();
+                        }
+
+                        // new nodes definitely start
+                        epmem_node.add(wme.epmem_id);
+                        epmem_node_mins.add(time_counter);
+                        epmem_node_maxes.add(false);
+                    }
+                    else
+                    {
+                        // definitely don't remove
+                        epmem_node_removals.put(wme.epmem_id, false);
+
+                        // add ONLY if the last thing we did was add
+                        if( epmem_node_maxes.get((int)(wme.epmem_id-1L)) )
+                        {
+                            epmem_node.add(wme.epmem_id);
+                            epmem_node_maxes.set((int)(wme.epmem_id - 1L), false);
                         }
                     }
                 }
             }
-    	}
-    	//TODO finish implementing
+        }
     }
     
     /**
