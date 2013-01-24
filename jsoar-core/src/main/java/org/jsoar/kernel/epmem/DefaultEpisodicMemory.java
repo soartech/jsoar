@@ -30,6 +30,7 @@ import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
@@ -111,11 +112,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private static class epmem_rit_state
     {
         epmem_rit_state_param offset = new epmem_rit_state_param();
-
         epmem_rit_state_param leftroot = new epmem_rit_state_param();
-
         epmem_rit_state_param rightroot = new epmem_rit_state_param();
-
         epmem_rit_state_param minstep = new epmem_rit_state_param();
 
         // TODO EPMEM soar_module::timer *timer;
@@ -123,17 +121,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     private Adaptable context;
-
     private Agent agent;
 
     private DefaultEpisodicMemoryParams params;
-
     private DefaultEpisodicMemoryStats stats;
 
     private Decider decider;
-
     SymbolFactoryImpl symbols;
-
     private EpisodicMemoryDatabase db;
 
     /** agent.h:epmem_validation */
@@ -1368,6 +1362,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param new_identifiers
      * @param epmem_node
      * @param epmem_edge
+     * @throws SQLException 
      */
     void _epmem_store_level( 
             Queue<SymbolImpl> parent_syms, 
@@ -1379,7 +1374,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             Map<WmeImpl, EpisodicMemoryIdReservation > id_reservations, 
             Set< SymbolImpl > new_identifiers, 
             Queue< Long > epmem_node, 
-            Queue< Long > epmem_edge )
+            Queue< Long > epmem_edge ) throws SQLException
     {
     	boolean value_known_apriori = false;
     	
@@ -1450,7 +1445,98 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     		}
     	}
     	
+    	for(WmeImpl wme : w_p)
+    	{
+    	    // skip over WMEs already in the system
+            if( wme.id.epmem_id != EPMEM_NODEID_BAD && wme.id.epmem_valid == epmem_validation)
+            {
+                continue;
+            }
+
+            // prevent exclusions from being recorded
+            if(params.exclusions.contains(wme.attr))
+            {
+                continue;
+            }
+            
+            final IdentifierImpl wmeValueId = wme.value.asIdentifier();
+            if (wmeValueId != null)
+            {
+                wme.id.epmem_valid = epmem_validation;
+                wme.id.epmem_id = EPMEM_NODEID_BAD;
+                
+                my_hash = 0;
+                my_id_repo = null;
+
+                // if the value already has an epmem_id, the WME ID would have already been assigned above 
+                // (ie. the epmem_id of the VALUE is KNOWN APRIORI [sic])
+                // however, it's also possible that the value is known but no WME ID is given 
+                // (eg. (<s> ^foo <a> ^bar <a>)); this is case 2
+                // CK: C++ code:
+                // value_known_apriori = ( ( (*w_p)->value->id.epmem_id != EPMEM_NODEID_BAD ) 
+                //  && ( (*w_p)->value->id.epmem_valid == my_agent->epmem_validation ) );
+                value_known_apriori = (wmeValueId.epmem_id != EPMEM_NODEID_BAD && wmeValueId.epmem_valid == epmem_validation);
+                
+                // if long-term identifier as value, special processing (we may need to promote, we don't add to/take from any pools
+                if (wmeValueId.smem_lti != 0)
+                {
+                    // find the lti or add new one
+                    if(!value_known_apriori)
+                    {
+                        wmeValueId.epmem_id = EPMEM_NODEID_BAD;
+                        wmeValueId.epmem_valid = epmem_validation;
+                        
+                        // try to find
+                        final PreparedStatement ps = db.find_lti;
+                        ps.setLong(1, wmeValueId.getNameLetter());
+                        ps.setLong(1, wmeValueId.getNameNumber());
+                        final ResultSet rs = ps.executeQuery();
+                        try
+                        {
+                            if (rs.first())
+                            {
+                                wmeValueId.epmem_id = rs.getLong(0);
+                            }
+                        }
+                        finally
+                        {
+                            rs.close();
+                        }
+
+                        // add if necessary
+                        if(wmeValueId.epmem_id == EPMEM_NODEID_BAD)
+                        {
+                            wmeValueId.epmem_id = stats.getNextId();
+                            stats.setNextId(wmeValueId.epmem_id + 1L);
+                            epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
+
+                            // add repository
+                            Map<Long, Map<Long, Long>> epmem_hashed_id_pool = Maps.newHashMap();
+                            epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
+                            
+                            _epmem_promote_id(wmeValueId, time_counter);
+                        }
+                    }
+                }
+            }
+    	}
     	//TODO finish implementing
+    }
+    
+    /**
+     * <p>episodic_memory.cpp:2031:inline void _epmem_promote_id( agent* my_agent, Symbol* id, epmem_time_id t )
+     * @param id
+     * @param t
+     * @throws SQLException 
+     */
+    void _epmem_promote_id( IdentifierImpl id, long /*epmem_time_id*/ t ) throws SQLException
+    {
+        final PreparedStatement ps = db.promote_id;
+        ps.setLong(1, id.epmem_id);
+        ps.setLong(2, id.getNameLetter());
+        ps.setLong(3, id.getNameNumber());
+        ps.setLong(4, t);
+        ps.executeUpdate();
     }
     
     /**
