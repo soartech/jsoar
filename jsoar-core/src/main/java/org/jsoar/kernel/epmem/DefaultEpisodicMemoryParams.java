@@ -5,6 +5,11 @@
  */
 package org.jsoar.kernel.epmem;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.jsoar.kernel.symbols.SymbolFactory;
+import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.properties.BooleanPropertyProvider;
 import org.jsoar.util.properties.DefaultPropertyProvider;
 import org.jsoar.util.properties.EnumPropertyProvider;
@@ -16,6 +21,11 @@ import org.jsoar.util.properties.PropertyManager;
  */
 class DefaultEpisodicMemoryParams
 {
+    /**
+     * Set of attributes which are excluded from epmem.
+     */
+    Set<SymbolImpl> exclusions = new HashSet<SymbolImpl>();
+    
     static enum Optimization { safety, performance };
     static enum Cache { small, medium, large; }
     static enum Phase { output, selection };
@@ -63,7 +73,7 @@ class DefaultEpisodicMemoryParams
 
     private final PropertyManager properties;
 
-    public DefaultEpisodicMemoryParams(PropertyManager properties)
+    public DefaultEpisodicMemoryParams(PropertyManager properties, SymbolFactory sf)
     {
         this.properties = properties;
         
@@ -79,6 +89,10 @@ class DefaultEpisodicMemoryParams
         properties.setProvider(LEARNING, learning);
         properties.setProvider(FORCE, force);
         properties.setProvider(TRIGGER, trigger);
+        
+        // exclude ^epmem and ^smem attributes from being added to epmem by default
+        exclusions.add((SymbolImpl) sf.createString("epmem"));
+        exclusions.add((SymbolImpl) sf.createString("smem"));
     }
 
     public PropertyManager getProperties()
