@@ -1386,7 +1386,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         Map<Long, Long> /*epmem_id_pool*/ my_id_repo;
         Map<Long, Long> /*epmem_id_pool*/ my_id_repo2;
 //    	epmem_id_pool::iterator pool_p;
-//    	std::map<wme *, epmem_id_reservation *>::iterator r_p;
+        EpisodicMemoryIdReservation r_p;
     	EpisodicMemoryIdReservation new_id_reservation;
     	
     	// identifier recursion
@@ -1398,7 +1398,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     	for(WmeImpl wme : w_p)
     	{
     		// skip over WMEs already in the system
-    		if( wme.id.epmem_id != EPMEM_NODEID_BAD && wme.id.epmem_valid == epmem_validation)
+    		if( wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation)
     		{
     		    continue;
     		}
@@ -1448,7 +1448,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     	for(WmeImpl wme : w_p)
     	{
     	    // skip over WMEs already in the system
-            if( wme.id.epmem_id != EPMEM_NODEID_BAD && wme.id.epmem_valid == epmem_validation)
+            if( wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation)
             {
                 continue;
             }
@@ -1462,8 +1462,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             final IdentifierImpl wmeValueId = wme.value.asIdentifier();
             if (wmeValueId != null)
             {
-                wme.id.epmem_valid = epmem_validation;
-                wme.id.epmem_id = EPMEM_NODEID_BAD;
+                wme.epmem_valid = epmem_validation;
+                wme.epmem_id = EPMEM_NODEID_BAD;
                 
                 my_hash = 0;
                 my_id_repo = null;
@@ -1487,20 +1487,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         wmeValueId.epmem_valid = epmem_validation;
                         
                         // try to find
-                        final PreparedStatement ps = db.find_lti;
-                        ps.setLong(1, wmeValueId.getNameLetter());
-                        ps.setLong(1, wmeValueId.getNameNumber());
-                        final ResultSet rs = ps.executeQuery();
-                        try
                         {
-                            if (rs.first())
+                            final PreparedStatement ps = db.find_lti;
+                            ps.setLong(1, wmeValueId.getNameLetter());
+                            ps.setLong(1, wmeValueId.getNameNumber());
+                            final ResultSet rs = ps.executeQuery();
+                            try
                             {
-                                wmeValueId.epmem_id = rs.getLong(0);
+                                if (rs.first())
+                                {
+                                    wmeValueId.epmem_id = rs.getLong(0);
+                                }
                             }
-                        }
-                        finally
-                        {
-                            rs.close();
+                            finally
+                            {
+                                rs.close();
+                            }
+                            // CK: no reinitialize for PreparedStatement
+                            // my_agent->epmem_stmts_graph->find_lti->reinitialize();
                         }
 
                         // add if necessary
@@ -1515,6 +1519,63 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
                             
                             _epmem_promote_id(wmeValueId, time_counter);
+                        }
+                    }
+
+                    // now perform deliberate edge search
+                    // ltis don't use the pools, so we make a direct search in
+                    // the edge_unique table
+                    // if failure, drop below and use standard channels
+                    {
+                        // get temporal hash
+                        if ( wme.acceptable )
+                        {
+                            my_hash = EPMEM_HASH_ACCEPTABLE;
+                        }
+                        else
+                        {
+                            my_hash = epmem_temporal_hash( wme.attr );
+                        }
+                        
+                        // q0, w, q1
+                        final PreparedStatement ps = db.find_edge_unique;
+                        ps.setLong(1, parent_id);
+                        ps.setLong(2, my_hash);
+                        ps.setLong(3, wmeValueId.epmem_id);
+                        
+                        final ResultSet rs = ps.executeQuery();
+                        
+                        try
+                        {
+                            if (rs.first())
+                            {
+                                wme.epmem_id = rs.getLong(0);
+                            }
+                        }
+                        finally
+                        {
+                            rs.close();
+                        }
+                        // CK: no reinitialize for PreparedStatement
+                        // my_agent->epmem_stmts_graph->find_edge_unique_shared->reinitialize();
+                    }
+                }
+                else
+                {
+                    // in the case of a known value, we already have a reservation (case 1)
+                    if ( value_known_apriori )
+                    {
+                        r_p = id_reservations.get(wme);
+                        
+                        if(r_p != null)
+                        {
+                            my_hash = r_p.my_hash;
+                            my_id_repo2 = r_p.my_pool;
+                            
+                            if(r_p.my_id != EPMEM_NODEID_BAD)
+                            {
+                                wme.epmem_id = r_p.my_id;
+                            }
                         }
                     }
                 }

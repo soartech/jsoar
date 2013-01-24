@@ -130,6 +130,9 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public int potentials_tc;
     public int locals_tc;
     
+    public /*epmem_node_id*/ long epmem_id = 0;
+    public /*uint64_t*/ long epmem_valid = 0;
+    
     public Preference chunker_bt_pref;
     
     public GoalDependencySetImpl gds;
