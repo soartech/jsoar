@@ -1897,8 +1897,20 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private long /*epmem_hash_id*/ epmem_temporal_hash(Symbol sym, boolean add_on_fail)
     {
-        // TODO stub
-        return 0;
+        long /*epmem_hash_id*/ return_val = 0;
+        
+        // ////////////////////////////////////////////////////////////////////////////
+        // my_agent->epmem_timers->hash->start();
+        // ////////////////////////////////////////////////////////////////////////////
+        
+        if( sym.asString() != null ||
+            sym.asDouble() != null ||
+            sym.asInteger() != null)
+        {
+            // TODO finish implementing
+        }
+        
+        return return_val;
     }
 
     private void epmem_responder_to_cmd()
