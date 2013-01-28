@@ -927,7 +927,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             epmem_consider_new_episode();
         }
-        epmem_responder_to_cmd();
+        epmem_respond_to_cmd();
         //
         // #else // EPMEM_EXPERIMENT
         //
@@ -1913,7 +1913,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return return_val;
     }
 
-    private void epmem_responder_to_cmd()
+    private void epmem_respond_to_cmd()
     {
         // TODO Auto-generated method stub
 
