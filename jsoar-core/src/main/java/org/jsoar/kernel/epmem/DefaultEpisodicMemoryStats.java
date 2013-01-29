@@ -101,6 +101,12 @@ class DefaultEpisodicMemoryStats implements EpisodicMemoryStatistics
     {
         return time.get();
     }
+    
+    @Override
+    public void setTime(long time)
+    {
+        this.time.set(time);
+    }
 
     @Override
     public long getNextId()

@@ -11,6 +11,7 @@ package org.jsoar.kernel.epmem;
 public interface EpisodicMemoryStatistics
 {
     public long getTime();
+    public void setTime(long time);
     public long getNextId();
     public void setNextId(long next_id);
 }
