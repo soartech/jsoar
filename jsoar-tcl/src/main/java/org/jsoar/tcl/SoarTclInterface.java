@@ -5,11 +5,7 @@
  */
 package org.jsoar.tcl;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -36,7 +32,6 @@ import tcl.lang.TclException;
 import tcl.lang.TclRuntimeError;
 
 import com.google.common.collect.MapMaker;
-import com.google.common.io.ByteStreams;
 
 /**
  * @author ray
@@ -273,19 +268,9 @@ public class SoarTclInterface implements SoarCommandInterpreter
         {
             try
             {
-                final InputStream in = new BufferedInputStream(url.openStream());
-                try
-                {
-                    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    ByteStreams.copy(in, out);
-                    eval(out.toString());
-                }
-                finally
-                {
-                    in.close();
-                }
+                interp.evalURL(url, url.toString());
             }
-            catch(IOException e)
+            catch (TclException e)
             {
                 throw new SoarException(e.getMessage(), e);
             }
@@ -296,6 +281,36 @@ public class SoarTclInterface implements SoarCommandInterpreter
         {
             return SoarTclInterface.this.eval(code);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.io.File)
+     */
+    @Override
+    public void loadRete(File file) throws SoarException
+    {
+        agent.getInterpreter().loadRete(file);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.net.URL)
+     */
+    @Override
+    public void loadRete(URL url) throws SoarException
+    {
+        agent.getInterpreter().loadRete(url);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#saveRete(java.io.File)
+     */
+    @Override
+    public void saveRete(File file) throws SoarException
+    {
+        agent.getInterpreter().saveRete(file);
     }
 
 
