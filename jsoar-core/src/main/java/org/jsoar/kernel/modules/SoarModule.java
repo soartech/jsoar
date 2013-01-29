@@ -19,7 +19,7 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
-import org.jsoar.util.adaptables.AbstractAdaptable;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -38,7 +38,7 @@ public class SoarModule
         
     }
     
-    public void initialize(AbstractAdaptable context)
+    public void initialize(Adaptable context)
     {
         wm = Adaptables.require(getClass(), context, WorkingMemory.class);
         decider = Adaptables.require(getClass(), context, Decider.class);
@@ -60,6 +60,11 @@ public class SoarModule
         wm.add_wme_to_wm(w);
 
         return w;
+    }
+    
+    public WmeImpl add_module_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value)
+    {
+        return add_module_wme(wm,id,attr,value);
     }
 
     /**
