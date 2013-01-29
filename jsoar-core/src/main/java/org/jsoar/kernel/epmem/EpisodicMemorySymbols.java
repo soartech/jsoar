@@ -26,7 +26,7 @@ class EpisodicMemorySymbols
 //    public final Symbol epmem_sym_normalized_match_score;
 //    public final Symbol epmem_sym_match_cardinality;
 //    public final Symbol epmem_sym_memory_id;
-//    public final Symbol epmem_sym_present_id;
+    public final SymbolImpl epmem_sym_present_id;
 //    public final Symbol epmem_sym_no_memory;
 //    public final Symbol epmem_sym_graph_match;
 //    public final Symbol epmem_sym_graph_match_mapping;
@@ -65,7 +65,7 @@ class EpisodicMemorySymbols
 //        thisAgent->epmem_sym_normalized_match_score = make_sym_constant( thisAgent, "normalized-match-score" );
 //        thisAgent->epmem_sym_match_cardinality = make_sym_constant( thisAgent, "match-cardinality" );
 //        thisAgent->epmem_sym_memory_id = make_sym_constant( thisAgent, "memory-id" );
-//        thisAgent->epmem_sym_present_id = make_sym_constant( thisAgent, "present-id" );
+        epmem_sym_present_id = syms.createString("present-id" );
 //        thisAgent->epmem_sym_no_memory = make_sym_constant( thisAgent, "no-memory" );
 //        thisAgent->epmem_sym_graph_match = make_sym_constant( thisAgent, "graph-match" );
 //        thisAgent->epmem_sym_graph_match_mapping = make_sym_constant( thisAgent, "mapping" );
