@@ -31,6 +31,7 @@ import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -132,7 +133,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private EpisodicMemoryDatabase db;
 
     /** agent.h:epmem_validation */
-    private/* uintptr_t */long epmem_validation;
+    private/* uintptr_t */long epmem_validation = 0;
 
     /** agent.h:epmem_node_removals */
     private Map</* epmem_node_id */Long, Boolean> epmem_node_removals;
@@ -164,9 +165,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /** agent.h:epmem_id_removes */
     private Deque<SymbolImpl> /* epmem_symbol_stack */epmem_id_removes;
 
-    /** agen.h:epmem_wme_adds */
+    /** agent.h:epmem_wme_adds */
     private final Set<IdentifierImpl> /* epmem_symbol_set */epmem_wme_adds = new HashSet<IdentifierImpl>();
 
+    /** agent.h:epmem_promotions */
+    private final Set<SymbolImpl> /* epmem_symbol_set */epmem_promotions = new HashSet<SymbolImpl>();
+    
     /** episodic_memory.h:51:EPMEM_NODEID_ROOT */
     private static final Long EPMEM_NODEID_ROOT = 0L;
 
@@ -189,6 +193,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     private final Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = 
             new HashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
+    
+    private final SoarModule soarModule = new SoarModule();
 
     public DefaultEpisodicMemory(Adaptable context)
     {
@@ -257,7 +263,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // TODO implement these?
         // src/agent.cpp:372: newAgent->epmem_stmts_common = NULL;
         // src/agent.cpp:373: newAgent->epmem_stmts_graph = NULL;
-        // src/agent.cpp:402: newAgent->epmem_validation = 0;
         // src/agent.cpp:403: newAgent->epmem_first_switch = true;
 
         // this is done in creation instead: src/agent.cpp:388:
@@ -272,11 +277,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // src/agent.cpp:391: newAgent->epmem_id_removes = new
         // epmem_symbol_stack( soar_module::soar_memory_pool_allocator< Symbol*
         // >( newAgent ) );
-        // src/agent.cpp:396: newAgent->epmem_wme_adds = new epmem_symbol_set();
-        // src/agent.cpp:397: newAgent->epmem_promotions = new
-        // epmem_symbol_set();
         // src/agent.cpp:399: newAgent->epmem_id_removes = new
         // epmem_symbol_stack();
+        
+        soarModule.initialize(context);
     }
 
     EpisodicMemoryDatabase getDatabase()
@@ -1107,13 +1111,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // add NOW entry
                     // id = ?, start = ?
                     db.add_edge_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
-                                                           // 1, (*temp_node) );
+                    // 1, (*temp_node) );
                     db.add_node_now.setLong(2, time_counter); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
-                                                              // 2, time_counter
-                                                              // );
+                    // 2, time_counter
+                    // );
                     db.add_node_now.executeUpdate(/* soar_module::op_reinit */); // my_agent->epmem_stmts_graph->add_node_now->execute(
-                                                                                 // soar_module::op_reinit
-                                                                                 // );
+                    // soar_module::op_reinit
+                    // );
 
                     // update min
                     epmem_node_mins.set((int) temp_node - 1, time_counter);
@@ -1129,204 +1133,174 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // add NOW entry
                     // id = ?, start = ?
                     db.add_edge_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_edge_now->bind_int(
-                                                           // 1, (*temp_node) );
+                    // 1, (*temp_node) );
                     db.add_edge_now.setLong(2, time_counter); // my_agent->epmem_stmts_graph->add_edge_now->bind_int(
-                                                              // 2, time_counter
-                                                              // );
+                    // 2, time_counter
+                    // );
                     db.add_edge_now.executeUpdate(/* soar_module::op_reinit */);// my_agent->epmem_stmts_graph->add_edge_now->execute(
-                                                                                // soar_module::op_reinit
-                                                                                // );
+                    // soar_module::op_reinit
+                    // );
 
                     // update min
                     epmem_edge_mins.set((int) temp_node - 1, time_counter);
 
                     db.update_edge_unique_last.setLong(1, Long.MAX_VALUE); // my_agent->epmem_stmts_graph->update_edge_unique_last->bind_int(
-                                                                           // 1,
-                                                                           // LLONG_MAX
-                                                                           // );
+                    // 1,
+                    // LLONG_MAX
+                    // );
                     db.update_edge_unique_last.setLong(2, temp_node); // my_agent->epmem_stmts_graph->update_edge_unique_last->bind_int(
-                                                                      // 2,
-                                                                      // *temp_node
-                                                                      // );
+                    // 2,
+                    // *temp_node
+                    // );
                     db.update_edge_unique_last.executeUpdate(/*
-                                                              * soar_module::
-                                                              * op_reinit
-                                                              */); // my_agent->epmem_stmts_graph->update_edge_unique_last->execute(
-                                                                   // soar_module::op_reinit
-                                                                   // );
+                     * soar_module::
+                     * op_reinit
+                     */); // my_agent->epmem_stmts_graph->update_edge_unique_last->execute(
+                    // soar_module::op_reinit
+                    // );
 
                     epmem_edge.poll();
                 }
             }
 
-            // all removals
-            // {
-            // epmem_id_removal_map::iterator r;
-            // epmem_time_id range_start;
-            // epmem_time_id range_end;
-            //
-            // #ifdef EPMEM_EXPERIMENT
-            // epmem_dc_interval_removes = 0;
-            // #endif
-            //
-            // // nodes
-            // r = my_agent->epmem_node_removals->begin();
-            // while ( r != my_agent->epmem_node_removals->end() )
-            // {
-            // if ( r->second )
-            // {
-            // #ifdef EPMEM_EXPERIMENT
-            // epmem_dc_interval_removes++;
-            // #endif
-            //
-            // // remove NOW entry
-            // // id = ?
-            // my_agent->epmem_stmts_graph->delete_node_now->bind_int( 1,
-            // r->first );
-            // my_agent->epmem_stmts_graph->delete_node_now->execute(
-            // soar_module::op_reinit );
-            //
-            // range_start = (*my_agent->epmem_node_mins)[ r->first - 1 ];
-            // range_end = ( time_counter - 1 );
-            //
-            // // point (id, start)
-            // if ( range_start == range_end )
-            // {
-            // my_agent->epmem_stmts_graph->add_node_point->bind_int( 1,
-            // r->first );
-            // my_agent->epmem_stmts_graph->add_node_point->bind_int( 2,
-            // range_start );
-            // my_agent->epmem_stmts_graph->add_node_point->execute(
-            // soar_module::op_reinit );
-            // }
-            // // node
-            // else
-            // {
-            // epmem_rit_insert_interval( my_agent, range_start, range_end,
-            // r->first, &( my_agent->epmem_rit_state_graph[
-            // EPMEM_RIT_STATE_NODE ] ) );
-            // }
-            //
-            // // update max
-            // (*my_agent->epmem_node_maxes)[ r->first - 1 ] = true;
-            // }
-            //
-            // r++;
-            // }
-            // my_agent->epmem_node_removals->clear();
-            //
-            // // edges
-            // r = my_agent->epmem_edge_removals->begin();
-            // while ( r != my_agent->epmem_edge_removals->end() )
-            // {
-            // if ( r->second )
-            // {
-            // #ifdef EPMEM_EXPERIMENT
-            // epmem_dc_interval_removes++;
-            // #endif
-            //
-            // // remove NOW entry
-            // // id = ?
-            // my_agent->epmem_stmts_graph->delete_edge_now->bind_int( 1,
-            // r->first );
-            // my_agent->epmem_stmts_graph->delete_edge_now->execute(
-            // soar_module::op_reinit );
-            //
-            // range_start = (*my_agent->epmem_edge_mins)[ r->first - 1 ];
-            // range_end = ( time_counter - 1 );
-            //
-            // my_agent->epmem_stmts_graph->update_edge_unique_last->bind_int(
-            // 1, range_end );
-            // my_agent->epmem_stmts_graph->update_edge_unique_last->bind_int(
-            // 2, r->first );
-            // my_agent->epmem_stmts_graph->update_edge_unique_last->execute(
-            // soar_module::op_reinit );
-            // // point (id, start)
-            // if ( range_start == range_end )
-            // {
-            // my_agent->epmem_stmts_graph->add_edge_point->bind_int( 1,
-            // r->first );
-            // my_agent->epmem_stmts_graph->add_edge_point->bind_int( 2,
-            // range_start );
-            // my_agent->epmem_stmts_graph->add_edge_point->execute(
-            // soar_module::op_reinit );
-            // }
-            // // node
-            // else
-            // {
-            // epmem_rit_insert_interval( my_agent, range_start, range_end,
-            // r->first, &( my_agent->epmem_rit_state_graph[
-            // EPMEM_RIT_STATE_EDGE ] ) );
-            // }
-            //
-            // // update max
-            // (*my_agent->epmem_edge_maxes)[ r->first - 1 ] = true;
-            // }
-            //
-            // r++;
-            // }
-            // my_agent->epmem_edge_removals->clear();
-            // }
-            //
-            // // all in-place lti promotions
-            // {
-            // for ( epmem_symbol_set::iterator
-            // p_it=my_agent->epmem_promotions->begin();
-            // p_it!=my_agent->epmem_promotions->end(); p_it++ )
-            // {
-            // if ( ( (*p_it)->id.smem_time_id == time_counter ) && (
-            // (*p_it)->id.smem_valid == my_agent->epmem_validation ) )
-            // {
-            // _epmem_promote_id( my_agent, (*p_it), time_counter );
-            // }
-            //
-            // symbol_remove_ref( my_agent, (*p_it) );
-            // }
-            // my_agent->epmem_promotions->clear();
-            // }
-            //
-            // // add the time id to the times table
-            // my_agent->epmem_stmts_graph->add_time->bind_int( 1, time_counter
-            // );
-            // my_agent->epmem_stmts_graph->add_time->execute(
-            // soar_module::op_reinit );
-            //
-            // my_agent->epmem_stats->time->set_value( time_counter + 1 );
-            //
-            // // update time wme on all states
-            // {
-            // Symbol* state = my_agent->bottom_goal;
-            // Symbol* my_time_sym = make_int_constant( my_agent, time_counter +
-            // 1 );
-            //
-            // while ( state != NULL )
-            // {
-            // if ( state->id.epmem_time_wme != NIL )
-            // {
-            // soar_module::remove_module_wme( my_agent,
-            // state->id.epmem_time_wme );
-            // }
-            //
-            // state->id.epmem_time_wme = soar_module::add_module_wme( my_agent,
-            // state->id.epmem_header, my_agent->epmem_sym_present_id,
-            // my_time_sym );
-            //
-            // state = state->id.higher_goal;
-            // }
-            //
-            // symbol_remove_ref( my_agent, my_time_sym );
-            // }
-            //
-            // // clear add/remove maps
-            // {
-            // my_agent->epmem_wme_adds->clear();
-            // }
-            // }
-            //
-            // ////////////////////////////////////////////////////////////////////////////
-            // my_agent->epmem_timers->storage->stop();
-            // ////////////////////////////////////////////////////////////////////////////
+            //all removals
+            {
+                long /*epmem_time_id*/ range_start;
+                long /*epmem_time_id*/ range_end;
+
+                //#ifdef EPMEM_EXPERIMENT
+                //epmem_dc_interval_removes = 0;
+                //#endif
+
+                // nodes
+                for(Map.Entry<Long, Boolean> r : epmem_node_removals.entrySet())
+                {
+                    if(r.getValue())
+                    {
+                        //#ifdef EPMEM_EXPERIMENT
+                        //epmem_dc_interval_removes++;
+                        //#endif
+
+                        // remove NOW entry
+                        // id = ?
+                        db.delete_edge_now.setLong(1, r.getKey());
+                        db.delete_edge_now.executeUpdate(/*soar_module::op_reinit*/);
+
+                        range_start = epmem_node_mins.get((int)(r.getKey()-1));
+                        range_end = ( time_counter - 1 );
+
+                        // point (id, start)
+                        if ( range_start == range_end )
+                        {
+                            db.add_node_point.setLong(1, r.getKey());
+                            db.add_node_point.setLong(2, range_start);
+                            db.add_edge_point.executeUpdate(/*soar_module::op_reinit*/);
+                        }
+                        // node
+                        else
+                        {
+                            epmem_rit_insert_interval(range_start, range_end, r.getKey(), epmem_rit_state_graph[EPMEM_RIT_STATE_NODE]);
+                        }
+
+                        // update max
+                        epmem_node_maxes.set((int)(r.getKey()-1), true);
+                    }
+                }
+                epmem_node_removals.clear();
+
+                // edges
+                for(Map.Entry<Long, Boolean> r : epmem_edge_removals.entrySet()) 
+                {
+                    if ( r.getValue() )
+                    {
+                        //#ifdef EPMEM_EXPERIMENT
+                        //epmem_dc_interval_removes++;
+                        //#endif
+
+                        // remove NOW entry
+                        // id = ?
+                        db.delete_edge_now.setLong(1, r.getKey());
+                        db.delete_edge_now.executeUpdate(/*soar_module::op_reinit*/);
+
+                        range_start = epmem_edge_mins.get((int)(r.getKey()-1));
+                        range_end = ( time_counter - 1 );
+
+                        db.update_edge_unique_last.setLong(1, range_end);
+                        db.update_edge_unique_last.setLong(2, r.getKey());
+                        db.update_edge_unique_last.executeUpdate(/*soar_module::op_reinit*/);
+
+                        // point (id, start)
+                        if ( range_start == range_end )
+                        {
+                            db.add_edge_point.setLong(1, r.getKey());
+                            db.add_edge_point.setLong(2, range_start);
+                            db.add_edge_point.executeUpdate(/*soar_module::op_reinit*/);
+                        }
+                        // node
+                        else
+                        {
+                            epmem_rit_insert_interval(range_start, range_end, r.getKey(), epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE]);
+                        }
+
+                        // update max
+                        epmem_edge_maxes.set((int)(r.getKey() - 1), true);
+                    }
+                }
+                epmem_edge_removals.clear();
+            }
+
+            // all in-place lti promotions
+            {
+                for(SymbolImpl p_it : epmem_promotions)
+                {
+                    if((p_it.asIdentifier().smem_time_id == time_counter ) && (
+                            p_it.asIdentifier().id_smem_valid == epmem_validation ) )
+                    {
+                        _epmem_promote_id(p_it, time_counter );
+                    }
+                    //SJK: I don't believe this is necessary; see DefaultSemanticMemory.java:1648
+                    //symbol_remove_ref( my_agent, (*p_it) );
+                }
+                epmem_promotions.clear();
+            }
+
+            // add the time id to the times table
+            db.add_time.setLong(1, time_counter);
+            db.add_time.executeUpdate(/*soar_module::op_reinit*/);
+
+            stats.setTime( time_counter + 1 );
+
+            // update time wme on all states
+            {
+                SymbolImpl state = decider.bottom_goal;
+                SymbolImpl my_time_sym = symbols.createInteger(time_counter+1);
+
+                while ( state != null )
+                {
+                    EpisodicMemoryStateInfo stateInfo = stateInfos.get(state.asIdentifier());
+                    if ( stateInfo.epmem_time_wme != null )
+                    {
+                        soarModule.remove_module_wme(stateInfo.epmem_time_wme);
+                    }
+
+                    stateInfo.epmem_time_wme = soarModule.add_module_wme(stateInfo.epmem_header,
+                            predefinedSyms.epmem_sym_present_id, my_time_sym);
+
+                    state = state.asIdentifier().goalInfo.higher_goal;
+                }
+                //SJK: again, I'm guessing this is unnecessary
+                //symbol_remove_ref( my_agent, my_time_sym );
+            }
+
+            // clear add/remove maps
+            {
+                epmem_wme_adds.clear();
+            }
         }
+
+        // ////////////////////////////////////////////////////////////////////////////
+        // my_agent->epmem_timers->storage->stop();
+        // ////////////////////////////////////////////////////////////////////////////
     }
 
     private List<WmeImpl> epmem_get_augs_of_id(SymbolImpl id, Marker tc)
@@ -1868,12 +1842,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param t
      * @throws SQLException 
      */
-    void _epmem_promote_id( IdentifierImpl id, long /*epmem_time_id*/ t ) throws SQLException
+    void _epmem_promote_id( SymbolImpl id, long /*epmem_time_id*/ t ) throws SQLException
     {
         final PreparedStatement ps = db.promote_id;
-        ps.setLong(1, id.epmem_id);
-        ps.setLong(2, id.getNameLetter());
-        ps.setLong(3, id.getNameNumber());
+        ps.setLong(1, id.asIdentifier().epmem_id);
+        ps.setLong(2, id.asIdentifier().getNameLetter());
+        ps.setLong(3, id.asIdentifier().getNameNumber());
         ps.setLong(4, t);
         ps.executeUpdate();
     }
