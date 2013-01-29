@@ -1,0 +1,12 @@
+set value1 "initial"
+set value2 "initial"
+
+set d [dict create 1 alice]
+dict set d 2 bob
+
+sp {testExecute
+(state <s> ^superstate nil)
+-->
+(<s> ^result (tcl |set value1 [dict get $d 1]|)
+     ^result (tcl |set value2 [dict get $d 2]|))
+}
