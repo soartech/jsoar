@@ -1039,7 +1039,7 @@ public class Decider
      * for the slot. The argument "result_candidates" is set to a list of
      * candidate values for the slot--if the returned impasse type is
      * NONE_IMPASSE_TYPE, this is the set of winners; otherwise it is the set of
-     * tied, conflicted, or constraint-failured values. This list of values is a
+     * tied, conflicted, or constraint-failure values. This list of values is a
      * list of preferences for those values, linked via the "next_candidate"
      * field on each preference structure. If there is more than one preference
      * for a given value, only one is returned in the result_candidates, with
@@ -1054,7 +1054,7 @@ public class Decider
      * (i.e., before the next time the slot is re-decided, I think), we would be
      * left with a WME still in WM (not GC'd, because of the acceptable
      * preference higher up) but with a trace pointing to a deallocated require
-     * preference. This case is very obsure and unlikely to come up, but it
+     * preference. This case is very obscure and unlikely to come up, but it
      * could easily cause a core dump or worse.
      * 
      * <p>decide.cpp:840:run_preference_semantics
@@ -1807,7 +1807,7 @@ public class Decider
                            * the chunk will be first on the GDS list.  This order
                            * appears to be always true, although I am not 100% certain
                            * (I think it occurs this way because the chunk is
-                           * necessarily added to the instantiaton list after the
+                           * necessarily added to the instantiation list after the
                            * original instantiation and lists get built such older items
                            * appear further from the head of the list) . If not true,
                            * then we need to keep track of any GDS's that get created

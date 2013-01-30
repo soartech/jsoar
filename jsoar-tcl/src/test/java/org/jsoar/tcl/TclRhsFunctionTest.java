@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  * @author ray
  */
-public class TclRhsFunctionTest extends TclTest
+public class TclRhsFunctionTest extends TclTestBase
 {
     @Test
     public void testExecute() throws Exception

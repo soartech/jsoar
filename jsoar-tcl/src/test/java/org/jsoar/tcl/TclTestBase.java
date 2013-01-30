@@ -13,23 +13,26 @@ import org.junit.After;
 import org.junit.Before;
 
 /**
+ * Base class for TCL tests that use a common set up / tear down harness
+ * and take <code>.soar</code> input via /resources.
+ *
  * @author ray
  */
-public class TclTest
+public abstract class TclTestBase
 {
     protected Agent agent;
     protected SoarTclInterface ifc;
 
-    protected void sourceTestFile(Class<? extends TclTest> childClass, String name) throws SoarException
+    protected void sourceTestFile(Class<? extends TclTestBase> childClass, String name) throws SoarException
     {
         ifc.source(getSourceTestFile(childClass, name));
     }
-    
-    protected URL getSourceTestFile(Class<? extends TclTest> childClass, String name)
+
+    protected URL getSourceTestFile(Class<? extends TclTestBase> childClass, String name)
     {
         return childClass.getResource("/" + childClass.getName().replace('.', '/')  + "_" + name);
     }
-    
+
     /**
      * @throws java.lang.Exception
      */

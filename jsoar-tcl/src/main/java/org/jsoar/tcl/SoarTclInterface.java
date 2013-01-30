@@ -318,5 +318,4 @@ public class SoarTclInterface implements SoarCommandInterpreter
         agent.getInterpreter().saveRete(file);
     }
 
-
 }

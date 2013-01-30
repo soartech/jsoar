@@ -1171,7 +1171,7 @@ public class RecognitionMemory
      * preference generated except for o-rejects. It also removes each
      * instantiation from newly_created_instantiations, linking each onto the
      * list of instantiations for that particular production. O-rejects are
-     * bufferred and handled after everything else.
+     * buffered and handled after everything else.
      * 
      * <p>Note that some instantiations on newly_created_instantiations are not in
      * the match set--for the initial instantiations of chunks/justifications,

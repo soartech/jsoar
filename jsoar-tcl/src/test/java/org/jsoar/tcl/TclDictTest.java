@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  * @author charles.newton
  */
-public class TclDictTest extends TclTest
+public class TclDictTest extends TclTestBase
 {
     @Test
     public void testExecute() throws Exception
