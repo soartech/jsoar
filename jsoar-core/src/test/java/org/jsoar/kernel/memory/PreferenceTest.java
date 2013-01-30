@@ -22,6 +22,7 @@ public class PreferenceTest extends JSoarTest
     {
         
 // RPM 5/2010 commented this out since it tests a defunct preference type (which I'm removing)
+// RPM 1/2013 leaving this here as a template for testing other preference types
 //
 //        Preference p = new Preference(PreferenceType.BINARY_PARALLEL, 
 //                                      syms.make_new_identifier('S', 0),

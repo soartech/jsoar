@@ -1,8 +1,11 @@
 diff from csoar revision 13602
 see issue 84 on github
 
-removed irrelevant whitespace changes from diff
-applied typo fixes to various comments, so those are now removed from this diff as well
+* removed irrelevant whitespace changes from diff
+* stuff that is done, and thus removed from this diff
+** applied typo fixes to various comments
+** applied parser changes 
+** removed all references to reconsider prefs
 
 ################################################################################
 # changes to learn command
@@ -310,21 +313,6 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/consistency.cpp	diff
 # decide stuff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
-... 			
-# this should be part of an enum in jsoar
-140 	140 		#define WORST_DECIDER_FLAG 5
-141 	141 		#define UNARY_INDIFFERENT_DECIDER_FLAG 6
-142 	142 		#define ALREADY_EXISTING_WME_DECIDER_FLAG 7
-143 		- 	#define UNARY_PARALLEL_DECIDER_FLAG 8
-	143 	+ 	
-144 	144 		/* REW: 2003-01-02 Behavior Variability Kernel Experiments
-145 	145 		A new preference type: unary indifferent + constant (probability) value
-146 	146 		*/
-147 		- 	#define UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG 9
-	147 	+ 	#define UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG 8
-148 	148 		
-149 	149 		/* ======================================================================
-150 	150 		
 
 # new function: add_to_CDPS()
 859 	859 		#endif
@@ -1435,81 +1423,13 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 1642 	1748 		/* --- return the fake preference --- */
 1643 	1749 		return pref;
 1644 	1750 		}
-... 				
-
-# comment update	
-
-2080 	2186 		Context Slot Is Decidable
-2081 	2187 		
-2082 	2188 		This returns TRUE iff the given slot (which must be a context slot)
-2083 		- 	is decidable. A context slot is decidable if:
-2084 		- 	- it has an installed value in WM and there is a reconsider
-2085 		- 	preference for that value, or
-2086 		- 	- it has no installed value but does have changed preferences
-	2189 	+ 	is decidable. A context slot is decidable if it has no installed
-	2190 	+ 	value but does have changed preferences
-2087 	2191 		------------------------------------------------------------------ */
-2088 	2192 		
-
-# context_slot_is_decidable()
-2089 	2193 		Bool context_slot_is_decidable (slot *s)
-2090 	2194 		{
-2091 		- 	Symbol *v;
-2092 		- 	preference *p;
-2093 		- 	
-2094 	2195 		if (!s->wmes)
-2095 	2196 		return (s->changed != NIL);
-2096 		- 	
-2097 		- 	v = s->wmes->value;
-2098 		- 	for (p = s->preferences[RECONSIDER_PREFERENCE_TYPE]; p != NIL; p = p->next)
-2099 		- 	{
-2100 		- 	if (v == p->value)
-2101 		- 	return TRUE;
-2102 		- 	}
-2103 	2197 		
-2104 	2198 		return FALSE;
-2105 	2199 		}
-... 			
-
-# removal of old comment
-2762 	2856 		{
-2763 	2857 		predict_srand_restore_snapshot( thisAgent, !predict );
-2764 	2858 		
-2765 		- 	/* phase printing moved to init_soar: do_one_top_level_phase */
-2766 		- 	
-2767 	2859 		decide_context_slots (thisAgent, predict);
-2768 	2860 		
-2769 	2861 		if ( !predict )
-... 	
+... 					
 
 ################################################################################
 # adding cdps list in various places, and comment changes
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff
 			
-# comment expansion
-
-155 	155 		------------------------------------------------------------------------ */
-156 	156 		
-157 	157 		/* WARNING: preference types must be numbered 0..(NUM_PREFERENCE_TYPES-1),
-158 		- 	because the slot structure contains an array using these indices. */
-	158 	+ 	because the slot structure contains an array using these indices. Also
-	159 	+ 	make sure to update the strings in prefmem.h. Finally, make sure the
-	160 	+ 	helper function defined below (for e.g. preference_is_unary) use the
-	161 	+ 	correct indices.
-	162 	+ 	
-	163 	+ 	NOTE: Reconsider, binary and unary parallel preferences are all
-	164 	+ 	deprecated. Their types are not removed here because it would break
-	165 	+ 	backward compatibility of rete fast loading/saving. It's possible that
-	166 	+ 	can be fixed in rete.cpp, but for now, we're just keeping the preference
-	167 	+ 	types. There is no code that actually uses them any more, though.*/
-	168 	+ 	
-	169 	+ 	
-159 	170 		
-160 	171 		#define ACCEPTABLE_PREFERENCE_TYPE 0
-161 	172 		#define REQUIRE_PREFERENCE_TYPE 1
-... 						
-
 # comment expansion
 280 	290 		match goal, with the pref. supported by the highest goal at the
 281 	291 		head of the list.
@@ -1612,67 +1532,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/init_soar.cpp	diff
 233 	236 		thisAgent->sysparams[DECISION_CYCLE_MAX_USEC_INTERRUPT] = 0;
 234 	237 		}
 235 	238 		
-... 			
-
-################################################################################
-# parser changes to remove Soar 7 syntax support, and corresponding comment updates
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/parser.cpp	diff
-	
-... 			
-1377 	1377 		if (thisAgent->lexeme.type==COMMA_LEXEME) get_lexeme(thisAgent);
-1378 	1378 		return WORST_PREFERENCE_TYPE;
-1379 	1379 		
-1380 		- 	case AMPERSAND_LEXEME:
-1381 		- 	get_lexeme(thisAgent);
-1382 		- 	if ((thisAgent->lexeme.type!=COMMA_LEXEME) &&
-1383 		- 	(thisAgent->lexeme.type!=R_PAREN_LEXEME) &&
-1384 		- 	(thisAgent->lexeme.type!=UP_ARROW_LEXEME) &&
-1385 		- 	(!is_preference_lexeme(thisAgent->lexeme.type)))
-1386 		- 	return BINARY_PARALLEL_PREFERENCE_TYPE;
-1387 		- 	/* --- forced unary preference --- */
-1388 		- 	if (thisAgent->lexeme.type==COMMA_LEXEME) get_lexeme(thisAgent);
-1389 		- 	return UNARY_PARALLEL_PREFERENCE_TYPE;
-1390 		- 	
-1391 	1380 		default:
-1392 	1381 		/* --- if no preference given, make it an acceptable preference --- */
-1393 	1382 		return ACCEPTABLE_PREFERENCE_TYPE;
-... 			
-1469 	1458 		}
-1470 	1459 		}
-1471 	1460 		
-1472 		- 	/* KJC begin: 10.09.98 */
-1473 		- 	/* modified 3.99 to take out parallels and only create acceptables */
-1474 	1461 		/* -----------------------------------------------------------------
-1475 	1462 		Parse Preferences for Soar8 Non-Operators
-1476 	1463 		
-... 			
-1505 	1492 		char szPrintId[256];
-1506 	1493 		
-1507 	1494 		/* --- Note: this routine is set up so if there's not preference type
-1508 		- 	indicator at all, we return an acceptable preference make
-1509 		- 	and a parallel preference make. For non-operators, allow
-1510 		- 	only REJECT_PREFERENCE_TYPE, (and UNARY_PARALLEL and ACCEPTABLE).
-	1495 	+ 	indicator at all, we return an acceptable preference make. For
-	1496 	+ 	non-operators, allow only REJECT_PREFERENCE_TYPE, (and ACCEPTABLE).
-1511 	1497 		If any other preference type indicator is found, a warning or
-1512 	1498 		error msg (error only on binary prefs) is printed. --- */
-1513 	1499 		
-... 			
-1648 	1634 		and create new action in the path */
-1649 	1635 		new_var = make_placeholder_var(thisAgent, first_letter_from_rhs_value (attr));
-1650 	1636 		
-1651 		- 	/* parse_preferences actually creates the action. eventhough
-	1637 	+ 	/* parse_preferences actually creates the action. Even though
-1652 	1638 		there aren't really any preferences to read, we need the default
-1653 		- 	acceptable and parallel prefs created for all attributes in path */
-	1639 	+ 	acceptable prefs created for all attributes in path */
-	1640 	+ 	
-1654 	1641 		if(strcmp(szAttribute,"operator") != 0)
-1655 	1642 		{
-1656 	1643 		new_actions = parse_preferences_soar8_non_operator (thisAgent, id, attr,
-... 	
-
+... 				
 
 ################################################################################
 # comment update. Probably irrelevant in jsoar
@@ -1689,27 +1549,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/prefmem.cpp	diff
 40 	43 		const char * preference_name[] =
 41 	44 		{ "acceptable",
 42 	45 		"require",
-... 	
-
-################################################################################
-# removing Soar 7 support
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/print.cpp	diff	
-
 ... 			
-918 	918 		case REQUIRE_PREFERENCE_TYPE: return '!';
-919 	919 		case REJECT_PREFERENCE_TYPE: return '-';
-920 	920 		case PROHIBIT_PREFERENCE_TYPE: return '~';
-921 		- 	case RECONSIDER_PREFERENCE_TYPE: return '@';
-922 	921 		case NUMERIC_INDIFFERENT_PREFERENCE_TYPE: return '=';
-923 	922 		case UNARY_INDIFFERENT_PREFERENCE_TYPE: return '=';
-924 	923 		case BINARY_INDIFFERENT_PREFERENCE_TYPE: return '=';
-925 		- 	case UNARY_PARALLEL_PREFERENCE_TYPE: return '&';
-926 		- 	case BINARY_PARALLEL_PREFERENCE_TYPE: return '&';
-927 	924 		case BEST_PREFERENCE_TYPE: return '>';
-928 	925 		case BETTER_PREFERENCE_TYPE: return '>';
-929 	926 		case WORST_PREFERENCE_TYPE: return '<';
-... 		
 
 ################################################################################
 # code that builds the CDPS
