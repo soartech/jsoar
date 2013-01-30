@@ -1,0 +1,6 @@
+proc dropSecond {a b} {
+    return $a
+}
+
+dropSecond "a" \
+"b c"
