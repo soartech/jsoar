@@ -5,6 +5,8 @@
  */
 package org.jsoar.tcl;
 
+import java.net.URL;
+
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarException;
 import org.junit.After;
@@ -20,7 +22,12 @@ public class TclTest
 
     protected void sourceTestFile(Class<? extends TclTest> childClass, String name) throws SoarException
     {
-        ifc.source(childClass.getResource("/" + childClass.getName().replace('.', '/')  + "_" + name));
+        ifc.source(getSourceTestFile(childClass, name));
+    }
+    
+    protected URL getSourceTestFile(Class<? extends TclTest> childClass, String name)
+    {
+        return childClass.getResource("/" + childClass.getName().replace('.', '/')  + "_" + name);
     }
     
     /**
