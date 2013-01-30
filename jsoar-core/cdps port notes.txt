@@ -1,6 +1,9 @@
 diff from csoar revision 13602
 see issue 84 on github
 
+removed irrelevant whitespace changes from diff
+applied typo fixes to various comments, so those are now removed from this diff as well
+
 ################################################################################
 # changes to learn command
 # this is implemented differently in jsoar, so don't take these changes literally
