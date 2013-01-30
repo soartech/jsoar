@@ -19,14 +19,14 @@
 	</build>
   <distributionManagement>
     <snapshotRepository>
-      <id>snapshots</id>
+      <id>soartech-snapshots</id>
       <name>SoarTech Snapshots</name>
       <url>https://nexus.soartech.com:8443/nexus/content/repositories/snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
 	<repositories>
 		<repository>
-			<id>soarpublic</id>
+			<id>soartech-public</id>
 			<url>https://nexus.soartech.com:8443/nexus/content/groups/public/</url>
 		</repository>
 	</repositories>

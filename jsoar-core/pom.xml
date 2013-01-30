@@ -17,7 +17,7 @@
   </build>
 <distributionManagement>
   <snapshotRepository>
-    <id>snapshots</id>
+    <id>soartech-snapshots</id>
     <url>https://nexus.soartech.com:8443/nexus/content/repositories/snapshots</url>
   </snapshotRepository>
 </distributionManagement>
