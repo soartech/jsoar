@@ -104,6 +104,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     public static final long EPMEM_HASH_ACCEPTABLE = 1;
 
+    /**
+     * episodic_memory.h:63:EPMEM_RIT_ROOT
+     */
+    private static final long EPMEM_RIT_ROOT = 0;
+    
+    /**
+     * episodic_memory.h:65:EPMEM_LN_2
+     */
+    private static final double EPMEM_LN_2 = 0.693147180559945;
+    
     private static class epmem_rit_state_param
     {
         long /* soar_module::integer_stat */stat;
@@ -766,10 +776,97 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // //////////////////////////////////////////////////////////////////////////
     }
 
-    private void epmem_rit_insert_interval(long range_start, long time_last, long long1, epmem_rit_state epmem_rit_state)
+    private void epmem_rit_insert_interval(long lower, long upper, long id, epmem_rit_state rit_state) throws SQLException
     {
-        // TODO Auto-generated method stub
+        // initialize offset
+        long offset = rit_state.offset.stat;
+        if ( offset == EPMEM_RIT_OFFSET_INIT )
+        {
+            offset = lower;
 
+            // update database
+            epmem_set_variable( rit_state.offset.var_key, offset );
+
+            // update stat
+            rit_state.offset.stat = offset;
+        }
+
+        // get node
+        long node;
+        {
+            long left_root = rit_state.leftroot.stat;
+            long right_root = rit_state.rightroot.stat;
+            long min_step = rit_state.minstep.stat;
+
+            // shift interval
+            long l = ( lower - offset );
+            long u = ( upper - offset );
+
+            // update left_root
+            if ( ( u < EPMEM_RIT_ROOT ) && ( l <= ( 2 * left_root ) ) )
+            {
+                left_root = (long) Math.pow( -2.0, Math.floor( Math.log( -l ) / EPMEM_LN_2 ) );
+
+                // update database
+                epmem_set_variable( rit_state.leftroot.var_key, left_root );
+
+                // update stat
+                rit_state.leftroot.stat = left_root;
+            }
+
+            // update right_root
+            if ( ( l > EPMEM_RIT_ROOT ) && ( u >= ( 2 * right_root ) ) )
+            {
+                right_root = (long) Math.pow( 2.0, Math.floor( Math.log( u ) / EPMEM_LN_2 ) );
+
+                // update database
+                epmem_set_variable( rit_state.rightroot.var_key, right_root );
+
+                // update stat
+                rit_state.rightroot.stat = right_root;
+            }
+
+            // update min_step
+            EpmemRitForkNodeResult forkNodeResult = epmem_rit_fork_node( l, u, /*true,*/ rit_state );
+            long step = forkNodeResult.step;
+            node = forkNodeResult.node;
+
+            if ( ( node != EPMEM_RIT_ROOT ) && ( step < min_step ) )
+            {
+                min_step = step;
+
+                // update database
+                epmem_set_variable( rit_state.minstep.var_key, min_step );
+
+                // update stat
+                rit_state.minstep.stat = min_step;
+            }
+        }
+
+        // perform insert
+        // ( node, start, end, id )
+        rit_state.add_query.setLong( 1, node );
+        rit_state.add_query.setLong( 2, lower );
+        rit_state.add_query.setLong( 3, upper );
+        rit_state.add_query.setLong( 4, id );
+        rit_state.add_query.executeUpdate(/*soar_module::op_reinit*/);
+    }
+    
+    private static final class EpmemRitForkNodeResult
+    {
+        public final long node;
+        public final long step;
+        
+        public EpmemRitForkNodeResult(long node, long step)
+        {
+            this.node = node;
+            this.step = step;
+        }
+    }
+    
+    private final EpmemRitForkNodeResult epmem_rit_fork_node(long lower, long uppper, epmem_rit_state rit_state)
+    {
+        return null;
     }
 
     /**
