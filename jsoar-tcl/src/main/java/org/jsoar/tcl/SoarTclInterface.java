@@ -212,6 +212,11 @@ public class SoarTclInterface implements SoarCommandInterpreter
     
     public String eval(String command) throws SoarException
     {
+        // Convert CRLFs (Windows line delimiters) to LFs.
+        // (jTcl has an issue with parsing CRLFs: http://kenai.com/bugzilla/show_bug.cgi?id=5817 )
+        // See {@link TclLineContinuationTest}
+        command = command.replaceAll("\r\n", "\n");
+        command = command.replaceAll("\r", "\n");
         try
         {
             interp.eval(command);
@@ -222,7 +227,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
             throw new SoarException(interp.getResult().toString());
         }
     }
-
+    
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommandInterpreter#addCommand(java.lang.String, org.jsoar.util.commands.SoarCommand)
      */
