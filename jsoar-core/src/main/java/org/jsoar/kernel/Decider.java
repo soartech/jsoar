@@ -1933,11 +1933,9 @@ public class Decider
     }
     
     /**
-     * This returns TRUE iff the given slot (which must be a context slot) is
-     * decidable. A context slot is decidable if: 
-     *   - it has an installed value in WM and there is a reconsider preference 
-     *     for that value, or
-     *   - it has no installed value but does have changed preferences
+     * This returns TRUE iff the given slot (which must be a context slot)
+     * is decidable. A context slot is decidable if it has no installed
+     * value but does have changed preferences
      * 
      * <p>decide.cpp:1791:context_slot_is_decidable
      * 
@@ -1948,13 +1946,6 @@ public class Decider
     {
         if (s.getWmes() == null)
             return s.changed != null;
-
-        SymbolImpl v = s.getWmes().value;
-        for (Preference p = s.getPreferencesByType(PreferenceType.RECONSIDER); p != null; p = p.next)
-        {
-            if (v == p.value)
-                return true;
-        }
 
         return false;
     }

@@ -25,7 +25,6 @@ public class PreferenceTypeTest
         assertEquals("require", PreferenceType.REQUIRE.getDisplayName());
         assertEquals("reject", PreferenceType.REJECT.getDisplayName());
         assertEquals("prohibit", PreferenceType.PROHIBIT.getDisplayName());
-        assertEquals("reconsider", PreferenceType.RECONSIDER.getDisplayName());
         assertEquals("unary indifferent", PreferenceType.UNARY_INDIFFERENT.getDisplayName());
         assertEquals("best", PreferenceType.BEST.getDisplayName());
         assertEquals("worst", PreferenceType.WORST.getDisplayName());

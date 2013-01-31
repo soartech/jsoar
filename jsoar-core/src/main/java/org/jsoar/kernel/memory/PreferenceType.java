@@ -33,11 +33,6 @@ public enum PreferenceType
     PROHIBIT('~', false), 
     
     /**
-     * gdatastructs.h:150:RECONSIDER_PREFERENCE_TYPE
-     */
-    RECONSIDER('@', false), 
-    
-    /**
      * gdatastructs.h:151:UNARY_INDIFFERENT_PREFERENCE_TYPE
      */
     UNARY_INDIFFERENT('=', false), 

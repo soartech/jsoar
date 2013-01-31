@@ -1636,9 +1636,9 @@ class OriginalParserImpl
     Action parse_preferences_soar8_non_operator (SymbolImpl id, RhsValue attr, RhsValue value) throws IOException, ParserException 
     {
         /* --- Note: this routine is set up so if there's not preference type
-           indicator at all, we return an acceptable preference make
-           and a parallel preference make.  For non-operators, allow
-           only REJECT_PREFERENCE_TYPE, (and UNARY_PARALLEL and ACCEPTABLE).
+           indicator at all, we return an acceptable preference make. For
+           non-operators, allow only REJECT_PREFERENCE_TYPE, (and ACCEPTABLE).
+           
            If any other preference type indicator is found, a warning or
            error msg (error only on binary prefs) is printed. --- */
 
@@ -1764,9 +1764,10 @@ class OriginalParserImpl
             /* --- indicate that there is no corresponding "real" variable yet --- */
             new_var.current_binding_value = null;
 
-            /* parse_preferences actually creates the action.  eventhough
+            /* parse_preferences actually creates the action.  Even though
              there aren't really any preferences to read, we need the default
-             acceptable and parallel prefs created for all attributes in path */
+             acceptable prefs created for all attributes in path */
+            
             if (!"operator".equals(szAttribute))
             {
                 new_actions = parse_preferences_soar8_non_operator(id, attr, new_var.toRhsValue());

@@ -1,8 +1,12 @@
 diff from csoar revision 13602
 see issue 84 on github
 
-removed irrelevant whitespace changes from diff
-applied typo fixes to various comments, so those are now removed from this diff as well
+* removed irrelevant whitespace changes from diff
+* stuff that is done, and thus removed from this diff
+** applied typo fixes to various comments
+** applied parser changes 
+** removed all references to reconsider prefs
+** removed more stuff from diff that doesn't apply to jsoar (some changes were already made)
 
 ################################################################################
 # changes to learn command
@@ -161,41 +165,6 @@ Modify	/trunk/SoarSuite/Core/CLI/src/cli_preferences.cpp	diff
 # backtrace stuff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
-# backtrace_through_instantiation()
-... 			
-312 	312 		for (c=inst->top_of_instantiated_conditions; c!=NIL; c=c->next) {
-313 	313 		if (c->type==POSITIVE_CONDITION) {
-314 	314 		
-315 		- 	/* REW: begin 11.22.97 */
-316 		- 	/* print (thisAgent, "\n Checking...");print_wme(c->bt.wme_);
-317 		- 	if (c->bt.trace) print ("c->bt.trace exists..."); else print("\n no c->bt.trace...");
-318 		- 	if (c->bt.wme_) {
-319 		- 	print ("c->bt.wme_....");
-320 		- 	if (c->bt.wme_->preference)
-321 		- 	print("c->bt.wme_->preference");
-322 		- 	else
-323 		- 	print("\n no c->bt.wme_->preference");
-324 		- 	} else
-325 		- 	print ("\nNo WME No Preference!!!!!!");
-326 		- 	print("\n");
-327 		- 	if ((c->bt.trace) && (c->bt.wme_->preference)){
-328 		- 	if (c->bt.trace != c->bt.wme_->preference) {
-329 		- 	print("\n bt.trace and WME preferences not equal:\n");
-330 		- 	print(thisAgent, "\nWME:"); print_wme(c->bt.wme_);
-331 		- 	print("\n bt.trace:");
-332 		- 	if (c->bt.trace) print_preference(c->bt.trace); else print(" NIL\n");
-333 		- 	print("\n bt.wme_->preference:");
-334 		- 	if (c->bt.wme_->preference) print_preference(c->bt.wme_->preference);
-335 		- 	else print(" NIL\n");
-336 		- 	c->bt.trace = c->bt.wme_->preference;
-337 		- 	c->bt.level = c->bt.wme_->id->id.level;
-338 		- 	}
-339 		- 	}*/
-340 		- 	/* REW: end 11.22.97 */
-341 	315 		/* --- positive cond's are grounds, potentials, or locals --- */
-342 	316 		if (referent_of_equality_test(c->data.tests.id_test)->id.tc_num == tc) {
-343 	317 		add_to_grounds (thisAgent, c);
-...
 
 # trace_locals() 			
 444 	418 		void trace_locals (agent* thisAgent, goal_stack_level grounds_level, bool *reliable) {
@@ -310,21 +279,6 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/consistency.cpp	diff
 # decide stuff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
-... 			
-# this should be part of an enum in jsoar
-140 	140 		#define WORST_DECIDER_FLAG 5
-141 	141 		#define UNARY_INDIFFERENT_DECIDER_FLAG 6
-142 	142 		#define ALREADY_EXISTING_WME_DECIDER_FLAG 7
-143 		- 	#define UNARY_PARALLEL_DECIDER_FLAG 8
-	143 	+ 	
-144 	144 		/* REW: 2003-01-02 Behavior Variability Kernel Experiments
-145 	145 		A new preference type: unary indifferent + constant (probability) value
-146 	146 		*/
-147 		- 	#define UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG 9
-	147 	+ 	#define UNARY_INDIFFERENT_CONSTANT_DECIDER_FLAG 8
-148 	148 		
-149 	149 		/* ======================================================================
-150 	150 		
 
 # new function: add_to_CDPS()
 859 	859 		#endif
@@ -1281,34 +1235,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 	1409 	+ 	* the candidate list. This will also catch when a candidate has no
 	1410 	+ 	* indifferent preferences at all. */
 1362 	1411 		
-1363 		- 	/* === Parallels === */
-1364 		- 	for (cand=candidates; cand!=NIL; cand=cand->next_candidate)
-1365 		- 	cand->value->common.decider_flag = NOTHING_DECIDER_FLAG;
-1366 		- 	for (p=s->preferences[UNARY_PARALLEL_PREFERENCE_TYPE]; p; p=p->next)
-1367 		- 	p->value->common.decider_flag = UNARY_PARALLEL_DECIDER_FLAG;
-1368 		- 	not_all_parallel = FALSE;
-1369 		- 	for (cand=candidates; cand!=NIL; cand=cand->next_candidate) {
-1370 		- 	/* --- if cand is unary parallel, it's fine --- */
-1371 		- 	if (cand->value->common.decider_flag==UNARY_PARALLEL_DECIDER_FLAG)
-1372 		- 	continue;
-1373 		- 	/* --- check whether cand is binary parallel to each other candidate --- */
-1374 		- 	for (p=candidates; p!=NIL; p=p->next_candidate) {
-1375 		- 	if (p==cand) continue;
-1376 		- 	match_found = FALSE;
-1377 		- 	for (p2=s->preferences[BINARY_PARALLEL_PREFERENCE_TYPE]; p2!=NIL;
-1378 		- 	p2=p2->next)
-1379 		- 	if ( ((p2->value==cand->value)&&(p2->referent==p->value)) ||
-1380 		- 	((p2->value==p->value)&&(p2->referent==cand->value)) ) {
-1381 		- 	match_found = TRUE;
-1382 		- 	break;
-1383 		- 	}
-1384 		- 	if (!match_found) {
-1385 		- 	not_all_parallel = TRUE;
-1386 		- 	break;
-1387 		- 	}
-1388 		- 	} /* end of for p loop */
-1389 		- 	if (not_all_parallel) break;
-1390 		- 	} /* end of for cand loop */
+
 	1412 	+ 	not_all_indifferent = false;
 	1413 	+ 	some_numeric = false;
 1391 	1414 		
@@ -1435,81 +1362,13 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 1642 	1748 		/* --- return the fake preference --- */
 1643 	1749 		return pref;
 1644 	1750 		}
-... 				
-
-# comment update	
-
-2080 	2186 		Context Slot Is Decidable
-2081 	2187 		
-2082 	2188 		This returns TRUE iff the given slot (which must be a context slot)
-2083 		- 	is decidable. A context slot is decidable if:
-2084 		- 	- it has an installed value in WM and there is a reconsider
-2085 		- 	preference for that value, or
-2086 		- 	- it has no installed value but does have changed preferences
-	2189 	+ 	is decidable. A context slot is decidable if it has no installed
-	2190 	+ 	value but does have changed preferences
-2087 	2191 		------------------------------------------------------------------ */
-2088 	2192 		
-
-# context_slot_is_decidable()
-2089 	2193 		Bool context_slot_is_decidable (slot *s)
-2090 	2194 		{
-2091 		- 	Symbol *v;
-2092 		- 	preference *p;
-2093 		- 	
-2094 	2195 		if (!s->wmes)
-2095 	2196 		return (s->changed != NIL);
-2096 		- 	
-2097 		- 	v = s->wmes->value;
-2098 		- 	for (p = s->preferences[RECONSIDER_PREFERENCE_TYPE]; p != NIL; p = p->next)
-2099 		- 	{
-2100 		- 	if (v == p->value)
-2101 		- 	return TRUE;
-2102 		- 	}
-2103 	2197 		
-2104 	2198 		return FALSE;
-2105 	2199 		}
-... 			
-
-# removal of old comment
-2762 	2856 		{
-2763 	2857 		predict_srand_restore_snapshot( thisAgent, !predict );
-2764 	2858 		
-2765 		- 	/* phase printing moved to init_soar: do_one_top_level_phase */
-2766 		- 	
-2767 	2859 		decide_context_slots (thisAgent, predict);
-2768 	2860 		
-2769 	2861 		if ( !predict )
-... 	
+... 					
 
 ################################################################################
 # adding cdps list in various places, and comment changes
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff
 			
-# comment expansion
-
-155 	155 		------------------------------------------------------------------------ */
-156 	156 		
-157 	157 		/* WARNING: preference types must be numbered 0..(NUM_PREFERENCE_TYPES-1),
-158 		- 	because the slot structure contains an array using these indices. */
-	158 	+ 	because the slot structure contains an array using these indices. Also
-	159 	+ 	make sure to update the strings in prefmem.h. Finally, make sure the
-	160 	+ 	helper function defined below (for e.g. preference_is_unary) use the
-	161 	+ 	correct indices.
-	162 	+ 	
-	163 	+ 	NOTE: Reconsider, binary and unary parallel preferences are all
-	164 	+ 	deprecated. Their types are not removed here because it would break
-	165 	+ 	backward compatibility of rete fast loading/saving. It's possible that
-	166 	+ 	can be fixed in rete.cpp, but for now, we're just keeping the preference
-	167 	+ 	types. There is no code that actually uses them any more, though.*/
-	168 	+ 	
-	169 	+ 	
-159 	170 		
-160 	171 		#define ACCEPTABLE_PREFERENCE_TYPE 0
-161 	172 		#define REQUIRE_PREFERENCE_TYPE 1
-... 						
-
 # comment expansion
 280 	290 		match goal, with the pref. supported by the highest goal at the
 281 	291 		head of the list.
@@ -1556,45 +1415,16 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff
 536 	555 		
 ... 			
 
-# make comments pretty (whitespace changes only)
-550 	569 		/* --- finally, the structure of a condition --- */
-551 	570 		typedef struct condition_struct {
-552 	571 		byte type;
-553 		- 	Bool already_in_tc; /* used only by cond_is_in_tc stuff */
-	572 	+ 	Bool already_in_tc; /* used only by cond_is_in_tc stuff */
-554 	573 		Bool test_for_acceptable_preference; /* for pos, neg cond's only */
-555 	574 		struct condition_struct *next, *prev;
-556 	575 		union condition_main_data_union {
-557 	576 		three_field_tests tests; /* for pos, neg cond's only */
-558 	577 		ncc_info ncc; /* for ncc's only */
-559 	578 		} data;
-560 		- 	bt_info bt; /* for top-level positive cond's: used for BT and by the rete */
-	579 	+ 	bt_info bt; /* for top-level positive cond's: used for BT and by the rete */
-561 	580 		reorder_info reorder; /* used only during reordering */
-562 	581 		} condition;
-563 	582 		
-... 	
-
 
 ################################################################################
-# param update. Probably irrelevant to jsoar
+# add new sysparam param
+# this probably should go in Chunker.java (that's where chunkThroughLocalNegations is)
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/gsysparam.h	diff
-	
 
 ... 			
-191 	191 		/* JRV: Break on long decision cycle time */
-192 	192 		#define DECISION_CYCLE_MAX_USEC_INTERRUPT 45
-193 	193 		
 	194 	+ 	/* MMA: Chunk over evaluation rules in subgoals */
 	195 	+ 	#define CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM 46
-	196 	+ 	
-194 	197 		/* --- Warning: if you add sysparams, be sure to update the next line! --- */
-195 		- 	#define HIGHEST_SYSPARAM_NUMBER 45
-	198 	+ 	#define HIGHEST_SYSPARAM_NUMBER 46
-196 	199 		
-197 	200 		/* -----------------------------------------
-198 	201 		Sysparams[] stores the parameters; set_sysparam()
 ... 		
 
 ################################################################################
@@ -1612,104 +1442,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/init_soar.cpp	diff
 233 	236 		thisAgent->sysparams[DECISION_CYCLE_MAX_USEC_INTERRUPT] = 0;
 234 	237 		}
 235 	238 		
-... 			
-
-################################################################################
-# parser changes to remove Soar 7 syntax support, and corresponding comment updates
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/parser.cpp	diff
-	
-... 			
-1377 	1377 		if (thisAgent->lexeme.type==COMMA_LEXEME) get_lexeme(thisAgent);
-1378 	1378 		return WORST_PREFERENCE_TYPE;
-1379 	1379 		
-1380 		- 	case AMPERSAND_LEXEME:
-1381 		- 	get_lexeme(thisAgent);
-1382 		- 	if ((thisAgent->lexeme.type!=COMMA_LEXEME) &&
-1383 		- 	(thisAgent->lexeme.type!=R_PAREN_LEXEME) &&
-1384 		- 	(thisAgent->lexeme.type!=UP_ARROW_LEXEME) &&
-1385 		- 	(!is_preference_lexeme(thisAgent->lexeme.type)))
-1386 		- 	return BINARY_PARALLEL_PREFERENCE_TYPE;
-1387 		- 	/* --- forced unary preference --- */
-1388 		- 	if (thisAgent->lexeme.type==COMMA_LEXEME) get_lexeme(thisAgent);
-1389 		- 	return UNARY_PARALLEL_PREFERENCE_TYPE;
-1390 		- 	
-1391 	1380 		default:
-1392 	1381 		/* --- if no preference given, make it an acceptable preference --- */
-1393 	1382 		return ACCEPTABLE_PREFERENCE_TYPE;
-... 			
-1469 	1458 		}
-1470 	1459 		}
-1471 	1460 		
-1472 		- 	/* KJC begin: 10.09.98 */
-1473 		- 	/* modified 3.99 to take out parallels and only create acceptables */
-1474 	1461 		/* -----------------------------------------------------------------
-1475 	1462 		Parse Preferences for Soar8 Non-Operators
-1476 	1463 		
-... 			
-1505 	1492 		char szPrintId[256];
-1506 	1493 		
-1507 	1494 		/* --- Note: this routine is set up so if there's not preference type
-1508 		- 	indicator at all, we return an acceptable preference make
-1509 		- 	and a parallel preference make. For non-operators, allow
-1510 		- 	only REJECT_PREFERENCE_TYPE, (and UNARY_PARALLEL and ACCEPTABLE).
-	1495 	+ 	indicator at all, we return an acceptable preference make. For
-	1496 	+ 	non-operators, allow only REJECT_PREFERENCE_TYPE, (and ACCEPTABLE).
-1511 	1497 		If any other preference type indicator is found, a warning or
-1512 	1498 		error msg (error only on binary prefs) is printed. --- */
-1513 	1499 		
-... 			
-1648 	1634 		and create new action in the path */
-1649 	1635 		new_var = make_placeholder_var(thisAgent, first_letter_from_rhs_value (attr));
-1650 	1636 		
-1651 		- 	/* parse_preferences actually creates the action. eventhough
-	1637 	+ 	/* parse_preferences actually creates the action. Even though
-1652 	1638 		there aren't really any preferences to read, we need the default
-1653 		- 	acceptable and parallel prefs created for all attributes in path */
-	1639 	+ 	acceptable prefs created for all attributes in path */
-	1640 	+ 	
-1654 	1641 		if(strcmp(szAttribute,"operator") != 0)
-1655 	1642 		{
-1656 	1643 		new_actions = parse_preferences_soar8_non_operator (thisAgent, id, attr,
-... 	
-
-
-################################################################################
-# comment update. Probably irrelevant in jsoar
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/prefmem.cpp	diff	
-
-... 			
-37 	37 		#include "wma.h"
-38 	38 		#include "wmem.h"
-39 	39 		
-	40 	+ 	/* Note that these must be in the same order as the #define variables
-	41 	+ 	* in gdatastructs.h */
-	42 	+ 	
-40 	43 		const char * preference_name[] =
-41 	44 		{ "acceptable",
-42 	45 		"require",
-... 	
-
-################################################################################
-# removing Soar 7 support
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/print.cpp	diff	
-
-... 			
-918 	918 		case REQUIRE_PREFERENCE_TYPE: return '!';
-919 	919 		case REJECT_PREFERENCE_TYPE: return '-';
-920 	920 		case PROHIBIT_PREFERENCE_TYPE: return '~';
-921 		- 	case RECONSIDER_PREFERENCE_TYPE: return '@';
-922 	921 		case NUMERIC_INDIFFERENT_PREFERENCE_TYPE: return '=';
-923 	922 		case UNARY_INDIFFERENT_PREFERENCE_TYPE: return '=';
-924 	923 		case BINARY_INDIFFERENT_PREFERENCE_TYPE: return '=';
-925 		- 	case UNARY_PARALLEL_PREFERENCE_TYPE: return '&';
-926 		- 	case BINARY_PARALLEL_PREFERENCE_TYPE: return '&';
-927 	924 		case BEST_PREFERENCE_TYPE: return '>';
-928 	925 		case BETTER_PREFERENCE_TYPE: return '>';
-929 	926 		case WORST_PREFERENCE_TYPE: return '<';
-... 		
+... 						
 
 ################################################################################
 # code that builds the CDPS
@@ -1718,9 +1451,8 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/print.cpp	diff
 #  which I have removed from this diff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
-	
 
-# memory pools are irrelevant in jsoar
+# these probably just become lists (memory pools are irrelevant in jsoar)
 
 ... 			
 59 	59 		using namespace soar_TraceNames;
