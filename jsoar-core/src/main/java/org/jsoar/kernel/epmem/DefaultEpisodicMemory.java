@@ -2371,11 +2371,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // clear prohibit list
                 prohibit.clear();
                 
-                //CK: this is not implemented in smem
-//                if (!retrieval_wmes.isEmpty() || !meta_wmes.isEmpty())
-//                {
-//                    // process preference assertion en masse
-//                    epmem_process_buffered_wmes(state, cue_wmes, meta_wmes, retrieval_wmes);
+                //CK: this is not implemented in smem - added to c++ after port?
+                if (!retrieval_wmes.isEmpty() || !meta_wmes.isEmpty())
+                {
+                    // process preference assertion en masse
+                    epmem_process_buffered_wmes(state, cue_wmes, meta_wmes, retrieval_wmes);
 
                     // CK: should not be necessary in JSoar
                     // clear cache
@@ -2397,8 +2397,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 //                        meta_wmes.clear();
 //                    }
                     // process wm changes on this state
-//                    do_wm_phase = true;
-//                }
+                    do_wm_phase = true;
+                }
 
                 // clear cue wmes
                 cue_wmes.clear();
