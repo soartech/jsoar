@@ -29,6 +29,7 @@ import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
@@ -1409,10 +1410,60 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // ////////////////////////////////////////////////////////////////////////////
     }
 
-    private List<WmeImpl> epmem_get_augs_of_id(SymbolImpl id, Marker tc)
+    /**
+     * This routine gets all wmes rooted at an id.
+     * 
+     * <p>episodic_memory.cpp:870:epmem_wme_list *epmem_get_augs_of_id( Symbol * id, tc_number tc )
+     * @param sym
+     * @param tc
+     * @return
+     */
+    private List<WmeImpl> epmem_get_augs_of_id(SymbolImpl sym, Marker tc)
     {
-        // TODO
-        return null;
+        List<WmeImpl> /* epmem_wme_list */return_val = Lists.newLinkedList();
+
+        // augs only exist for identifiers
+        final IdentifierImpl id = sym.asIdentifier();
+        if (id != null && id.tc_number != tc)
+        {
+            id.tc_number = tc;
+
+            // impasse wmes
+            // for ( w=id->id.impasse_wmes; w!=NIL; w=w->next )
+            // {
+            // return_val->push_back( w );
+            // }
+            // TODO make sure this is the correct way to get impasse_wmes
+            if (id.isGoal())
+            {
+                Iterator<Wme> it = id.getWmes();
+                while (it.hasNext())
+                {
+                    return_val.add((WmeImpl) it.next());
+                }
+            }
+
+            // input wmes
+            for (WmeImpl wi = id.getInputWmes(); wi.next != null; wi = wi.next)
+            {
+                return_val.add(wi);
+            }
+
+            // regular wmes
+            for (Slot s = id.slots; s != null; s = s.next)
+            {
+                for (WmeImpl w = s.getWmes(); w != null; w = w.next)
+                {
+                    return_val.add(w);
+                }
+                for (WmeImpl w = s.getAcceptablePreferenceWmes(); w != null; w = w.next)
+                {
+                    return_val.add(w);
+                }
+            }
+        }
+        
+        return return_val;
     }
 
     /**
