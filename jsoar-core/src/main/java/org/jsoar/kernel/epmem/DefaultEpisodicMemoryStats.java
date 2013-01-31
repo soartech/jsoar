@@ -40,19 +40,36 @@ class DefaultEpisodicMemoryStats implements EpisodicMemoryStatistics
     }
     
     // epmem_time_id_stat *time;
-    static final PropertyKey<Long> TIME = key("time", Long.class).defaultValue(1L).build();
+    static final PropertyKey<Long> TIME = key("time", Long.class).defaultValue(0L).build();
     final DefaultPropertyProvider<Long> time = new DefaultPropertyProvider<Long>(TIME);
     
     // epmem_node_id_stat *next_id;
-    static final PropertyKey<Long> NEXT_ID = key("next-id", Long.class).defaultValue(1L).build();
+    static final PropertyKey<Long> NEXT_ID = key("next-id", Long.class).defaultValue(0L).build();
     final DefaultPropertyProvider<Long> next_id = new DefaultPropertyProvider<Long>(NEXT_ID);
+
+    // non-cue-based-retrievals
+    // soar_module::integer_stat *ncbr;
+    static final PropertyKey<Long> NCBR = key("ncbr", Long.class).defaultValue(0L).build();
+    final DefaultPropertyProvider<Long> ncbr = new DefaultPropertyProvider<Long>(NCBR);
+    
+    
+    // soar_module::integer_stat *nexts;
+    static final PropertyKey<Long> NEXTS = key("nexts", Long.class).defaultValue(0L).build();
+    final DefaultPropertyProvider<Long> nexts = new DefaultPropertyProvider<Long>(NEXTS);
+
+    // soar_module::integer_stat *prevs;
+    static final PropertyKey<Long> PREVS = key("prevs", Long.class).defaultValue(0L).build();
+    final DefaultPropertyProvider<Long> prevs = new DefaultPropertyProvider<Long>(PREVS);
+    
+    // soar_module::integer_stat *cbr;
+    static final PropertyKey<Long> CBR = key("cbr", Long.class).defaultValue(0L).build();
+    final DefaultPropertyProvider<Long> cbr = new DefaultPropertyProvider<Long>(CBR);
 
 //    epmem_db_lib_version_stat* db_lib_version;
 //    epmem_mem_usage_stat *mem_usage;
 //    epmem_mem_high_stat *mem_high;
 //    soar_module::integer_stat *cbr;
-//    soar_module::integer_stat *nexts;
-//    soar_module::integer_stat *prevs;
+
 //    soar_module::integer_stat *ncb_wmes;
 //
 //    soar_module::integer_stat *qry_pos;
@@ -80,6 +97,10 @@ class DefaultEpisodicMemoryStats implements EpisodicMemoryStatistics
 
         add(TIME, time);
         add(NEXT_ID, next_id);
+        add(NCBR, ncbr);
+        add(NEXTS, nexts);
+        add(PREVS, prevs);
+        add(CBR, cbr);
     }
     
     private <T> void add(PropertyKey<T> key, PropertyProvider<T> value)
