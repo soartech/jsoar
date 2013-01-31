@@ -2184,7 +2184,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         SymbolImpl previous = null;
         SymbolImpl query = null;
         SymbolImpl neg_query = null;
-        List<Long> /*epmem_time_list*/ prohibit = Lists.newArrayList();
+        List<Long> /*epmem_time_list*/ prohibit = Lists.newLinkedList();
         long /*epmem_time_id*/ before = 0;
         long /*epmem_time_id*/ after = 0;
 
@@ -2371,10 +2371,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // clear prohibit list
                 prohibit.clear();
                 
-                if (!retrieval_wmes.isEmpty() || !meta_wmes.isEmpty())
-                {
-                    // process preference assertion en masse
-                    epmem_process_buffered_wmes(state, cue_wmes, meta_wmes, retrieval_wmes);
+                //CK: this is not implemented in smem
+//                if (!retrieval_wmes.isEmpty() || !meta_wmes.isEmpty())
+//                {
+//                    // process preference assertion en masse
+//                    epmem_process_buffered_wmes(state, cue_wmes, meta_wmes, retrieval_wmes);
 
                     // CK: should not be necessary in JSoar
                     // clear cache
@@ -2396,8 +2397,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 //                        meta_wmes.clear();
 //                    }
                     // process wm changes on this state
-                    do_wm_phase = true;
-                }
+//                    do_wm_phase = true;
+//                }
 
                 // clear cue wmes
                 cue_wmes.clear();
@@ -2476,7 +2477,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             return;
         }
         
-        // instantiation* inst = soar_module::make_fake_instantiation( my_agent, state, &cue_wmes, &my_list );
+        // TODO find out if this function is necessary in JSoar (same for epmem_process_buffered_wmes)
     }
 
     /**
