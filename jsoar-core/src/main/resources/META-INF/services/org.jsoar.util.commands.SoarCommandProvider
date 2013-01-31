@@ -1,2 +1,3 @@
 org.jsoar.kernel.smem.DefaultSemanticMemoryCommand$Provider
+org.jsoar.kernel.epmem.DefaultEpisodicMemoryCommand$Provider
 org.jsoar.script.ScriptCommand$Provider

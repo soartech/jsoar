@@ -301,6 +301,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         return db;
     }
+    
+    DefaultEpisodicMemoryParams getParams()
+    {
+        return params;
+    }
 
     /**
      * Opens the SQLite database and performs all initialization required for
