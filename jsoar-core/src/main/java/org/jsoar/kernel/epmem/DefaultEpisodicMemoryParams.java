@@ -25,12 +25,29 @@ class DefaultEpisodicMemoryParams
      * Set of attributes which are excluded from epmem.
      */
     Set<SymbolImpl> exclusions = new HashSet<SymbolImpl>();
-    
+    /**
+     * Policy for committing data to disk
+     */
     static enum Optimization { safety, performance };
+    /**
+     * Size of memory pages used in the SQLite cache
+     */
     static enum Cache { small, medium, large; }
+    /**
+     * Decision cycle phase to encode new episodes and process epmem link commands
+     */
     static enum Phase { output, selection };
+    /**
+     * Episodic memory enabled
+     */
     static enum Learning { on, off };
+    /**
+     * Forces episode encoding/ignoring in the next storage phase
+     */
     static enum Force { remember, ignore, off };
+    /**
+     * How episode encoding is triggered
+     */
     static enum Trigger { none, output, dc };
     
     private static final String PREFIX = "epmem.params.";
