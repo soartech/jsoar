@@ -7,6 +7,7 @@ see issue 84 on github
 ** applied parser changes 
 ** removed all references to reconsider prefs
 ** removed more stuff from diff that doesn't apply to jsoar (some changes were already made)
+** added new sysparam
 
 ################################################################################
 # there are additions to the learn command, but jsoar's learn command is barely
@@ -1278,36 +1279,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff
 534 	553 		struct condition_struct *next_min_cost; /* used only during reordering */
 535 	554 		} reorder_info;
 536 	555 		
-... 			
-
-
-################################################################################
-# add new sysparam param
-# this probably should go in Chunker.java (that's where chunkThroughLocalNegations is)
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/gsysparam.h	diff
-
-... 			
-	194 	+ 	/* MMA: Chunk over evaluation rules in subgoals */
-	195 	+ 	#define CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM 46
-... 		
-
-################################################################################
-# set default param value for new behavior
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/init_soar.cpp	diff
-	
-... 			
-230 	230 		// JRV: Chunk through local negations by default
-231 	231 		thisAgent->sysparams[CHUNK_THROUGH_LOCAL_NEGATIONS_SYSPARAM] = TRUE;
-232 	232 		
-	233 	+ 	// MMA: Chunk through evaluation rules off by default
-	234 	+ 	thisAgent->sysparams[CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM] = TRUE;
-	235 	+ 	
-233 	236 		thisAgent->sysparams[DECISION_CYCLE_MAX_USEC_INTERRUPT] = 0;
-234 	237 		}
-235 	238 		
-... 						
+... 								
 
 ################################################################################
 # code that builds the CDPS
