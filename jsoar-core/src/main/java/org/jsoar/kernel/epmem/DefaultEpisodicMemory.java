@@ -34,6 +34,7 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
+import org.jsoar.kernel.smem.SemanticMemoryStateInfo;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
@@ -1038,7 +1039,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             epmem_consider_new_episode();
         }
-        epmem_respond_to_cmd();
+        try
+        {
+            epmem_respond_to_cmd();
+        }
+        catch (SoarException e)
+        {
+            logger.error("While responding to epmem command: " + e.getMessage(), e);
+            agent.getPrinter().error("While responding to epmem command: " + e.getMessage());
+        }
         //
         // #else // EPMEM_EXPERIMENT
         //
@@ -1158,8 +1167,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // walk appropriate levels
             {
                 // prevents infinite loops
-                final Marker tc = DefaultMarker.create(); // get_new_tc_number(
-                                                          // my_agent );
+                final Marker tc = DefaultMarker.create(); // get_new_tc_number( my_agent );
 
                 // children of the current identifier
                 List<WmeImpl> wmes = null;
@@ -2138,10 +2146,443 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return return_val;
     }
 
-    private void epmem_respond_to_cmd()
+    /**
+     * Implements the Soar-EpMem API
+     * 
+     * <p>episodic_memory.cpp:5238:void epmem_respond_to_cmd( agent *my_agent )
+     * @throws SoarException 
+     */
+    private void epmem_respond_to_cmd() throws SoarException
+    {
+        // if this is before the first episode, initialize db components
+        if (db == null)
+        {
+            epmem_init_db();
+        }
+
+        // CK: exception will be thrown above if not initialized
+        // respond to query only if db is properly initialized
+        // if ( my_agent->epmem_db->get_status() != soar_module::connected )
+        // {
+        // return;
+        // }
+
+        // start at the bottom and work our way up
+        // (could go in the opposite direction as well)
+        IdentifierImpl state = agent.getBottomGoal();
+
+        List<WmeImpl> wmes;
+        List<WmeImpl> cmds;
+
+        Set<WmeImpl> /* soar_module::wme_set */cue_wmes = Sets.newHashSet();
+        List<WmeImpl> /* soar_module::symbol_triple_list */meta_wmes = Lists.newArrayList();
+        List<WmeImpl> /* soar_module::symbol_triple_list */retrieval_wmes = Lists.newArrayList();
+
+        long /* epmem_time_id */retrieve = 0;
+        SymbolImpl next = null;
+        SymbolImpl previous = null;
+        SymbolImpl query = null;
+        SymbolImpl neg_query = null;
+        List<Long> /*epmem_time_list*/ prohibit = Lists.newArrayList();
+        long /*epmem_time_id*/ before = 0;
+        long /*epmem_time_id*/ after = 0;
+
+        Set<SymbolImpl> currents = Sets.newHashSet();
+
+        boolean good_cue = false;
+        int path = 0;
+
+        long /* uint64_t */wme_count;
+        boolean new_cue;
+
+        boolean do_wm_phase = false;
+        
+        while ( state != null )
+        {
+            final EpisodicMemoryStateInfo epmem_info = epmem_info(state);
+            // ////////////////////////////////////////////////////////////////////////////
+            // my_agent->epmem_timers->api->start();
+            // ////////////////////////////////////////////////////////////////////////////
+            
+            // make sure this state has had some sort of change to the cmd
+            new_cue = false;
+            wme_count = 0;
+            cmds = null;
+            {
+                Marker tc = DefaultMarker.create(); // get_new_tc_number( my_agent )
+                Queue<SymbolImpl> syms = new LinkedList<SymbolImpl>();
+                SymbolImpl parent_sym;
+
+                // initialize BFS at command
+                syms.add(epmem_info.epmem_cmd_header);
+
+                while (!syms.isEmpty())
+                {
+                    // get state
+                    parent_sym = syms.poll();
+                    
+                    // get children of the current identifier
+                    wmes = epmem_get_augs_of_id(parent_sym, tc);
+                    {
+                        for (final WmeImpl wme : wmes)
+                        {
+                            wme_count++;
+
+                            if (wme.timetag > epmem_info.last_cmd_time)
+                            {
+                                new_cue = true;
+                                epmem_info.last_cmd_time = wme.timetag;
+                            }
+
+                            if (wme.value.asIdentifier() != null)
+                            {
+                                syms.add(wme.value.asIdentifier());
+                            }
+                        }
+                        
+                        // free space from aug list
+                        if (cmds == null)
+                        {
+                            cmds = wmes;
+                        }
+                        else
+                        {
+                            wmes = null;
+                        }
+                    }
+                }
+                
+                // see if any WMEs were removed
+                if (epmem_info.last_cmd_count != wme_count)
+                {
+                    new_cue = true;
+                    epmem_info.last_cmd_count = wme_count;
+                }
+                
+                if (new_cue)
+                {
+                    // clear old results
+                    epmem_clear_result(state);
+
+                    do_wm_phase = true;
+                }
+            }
+            
+            // a command is issued if the cue is new
+            // and there is something on the cue
+            if (new_cue && wme_count != 0)
+            {
+                _epmem_respond_to_cmd_parse(cmds, good_cue, path, retrieve, next, 
+                        previous, query, neg_query, prohibit, before, after, currents, cue_wmes);
+                
+                // ////////////////////////////////////////////////////////////////////////////
+                // my_agent->epmem_timers->api->stop();
+                // ////////////////////////////////////////////////////////////////////////////
+                
+                retrieval_wmes.clear();
+                meta_wmes.clear();
+
+                // process command
+                if (good_cue)
+                {
+                    // retrieve
+                    if (path == 1)
+                    {
+                        epmem_install_memory(
+                                state, 
+                                retrieve, 
+                                meta_wmes,
+                                retrieval_wmes);
+
+                        // add one to the ncbr stat
+                        stats.ncbr.set(stats.ncbr.get() + 1L);
+                    }
+                    // previous or next
+                    else if (path == 2)
+                    {
+                        if (next != null)
+                        {
+                            epmem_install_memory(
+                                    state, 
+                                    epmem_next_episode(epmem_info.last_memory), 
+                                    meta_wmes, 
+                                    retrieval_wmes);
+
+                            // add one to the next stat
+                            stats.nexts.set(stats.nexts.get() + 1L);
+                        }
+                        else
+                        {
+                            epmem_install_memory(
+                                    state, 
+                                    epmem_previous_episode(epmem_info.last_memory), 
+                                    meta_wmes, 
+                                    retrieval_wmes);
+
+                            // add one to the prev stat
+                            stats.prevs.set(stats.prevs.get() + 1L);
+                        }
+                        
+                        if (epmem_info.last_memory == EPMEM_MEMID_NONE)
+                        {
+                            epmem_buffer_add_wme(
+                                    meta_wmes, 
+                                    epmem_info.epmem_result_header, 
+                                    predefinedSyms.epmem_sym_failure, 
+                                    ((next != null) ? (next) : (previous)));
+                        }
+                        else
+                        {
+                            epmem_buffer_add_wme(
+                                    meta_wmes, 
+                                    epmem_info.epmem_result_header, 
+                                    predefinedSyms.epmem_sym_success, 
+                                    ((next != null) ? (next) : (previous)));
+                        }
+                    }
+                    // query
+                    else if (path == 3)
+                    {
+                        epmem_process_query(
+                                state, 
+                                query, 
+                                neg_query, 
+                                prohibit, 
+                                before, 
+                                after, 
+                                currents, 
+                                cue_wmes, 
+                                meta_wmes, 
+                                retrieval_wmes);
+
+                        // add one to the cbr stat
+                        stats.cbr.set(stats.cbr.get() + 1L);
+                    }
+                }
+                else
+                {
+                    epmem_buffer_add_wme(meta_wmes, 
+                            epmem_info.epmem_result_header, 
+                            predefinedSyms.epmem_sym_status, 
+                            predefinedSyms.epmem_sym_bad_cmd);
+                }
+                
+                // clear prohibit list
+                prohibit.clear();
+                
+                if (!retrieval_wmes.isEmpty() || !meta_wmes.isEmpty())
+                {
+                    // process preference assertion en masse
+                    epmem_process_buffered_wmes(state, cue_wmes, meta_wmes, retrieval_wmes);
+
+                    // CK: should not be necessary in JSoar
+                    // clear cache
+//                    {
+//                        for ( WmeImpl w : retrieval_wmes)
+//                        {
+//                            symbol_remove_ref( w.id );
+//                            symbol_remove_ref( w.attr );
+//                            symbol_remove_ref( w.value );
+//                        }
+//                        for ( mw_it=meta_wmes.begin(); mw_it!=meta_wmes.end(); mw_it++ )
+//                        {
+//                            symbol_remove_ref( my_agent, (*mw_it)->id );
+//                            symbol_remove_ref( my_agent, (*mw_it)->attr );
+//                            symbol_remove_ref( my_agent, (*mw_it)->value );
+//
+//                            delete (*mw_it);
+//                        }
+//                        meta_wmes.clear();
+//                    }
+                    // process wm changes on this state
+                    do_wm_phase = true;
+                }
+
+                // clear cue wmes
+                cue_wmes.clear();
+            }
+            else
+            {
+                // ////////////////////////////////////////////////////////////////////////////
+                // my_agent->epmem_timers->api->stop();
+                // ////////////////////////////////////////////////////////////////////////////
+            }
+            
+         // free space from command aug list
+            if ( cmds != null )
+            {
+                cmds = null;
+            }
+
+            state = state.goalInfo.higher_goal;
+        }
+        
+        if (do_wm_phase)
+        {
+            // ////////////////////////////////////////////////////////////////////////////
+            // my_agent->epmem_timers->wm_phase->start();
+            // ////////////////////////////////////////////////////////////////////////////
+
+            agent.getDecider().do_working_memory_phase();
+
+            // ////////////////////////////////////////////////////////////////////////////
+            // my_agent->epmem_timers->wm_phase->stop();
+            // ////////////////////////////////////////////////////////////////////////////
+        }
+    }
+    
+    /**
+     * 
+     * @param state
+     * @param cue_wmes
+     * @param meta_wmes
+     * @param retrieval_wmes
+     */
+    private void epmem_process_buffered_wmes(
+            IdentifierImpl state, 
+            Set<WmeImpl> cue_wmes, 
+            List<WmeImpl> meta_wmes, 
+            List<WmeImpl> retrieval_wmes)
     {
         // TODO Auto-generated method stub
+    }
 
+    /**
+     * 
+     * @param state
+     * @param query
+     * @param neg_query
+     * @param prohibit
+     * @param before
+     * @param after
+     * @param currents
+     * @param cue_wmes
+     * @param meta_wmes
+     * @param retrieval_wmes
+     */
+    private void epmem_process_query(
+            IdentifierImpl state, 
+            SymbolImpl query, 
+            SymbolImpl neg_query, 
+            List<Long> prohibit, 
+            long before, 
+            long after,
+            Set<SymbolImpl> currents, 
+            Set<WmeImpl> cue_wmes, 
+            List<WmeImpl> meta_wmes, 
+            List<WmeImpl> retrieval_wmes)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * 
+     * @param meta_wmes
+     * @param epmem_result_header
+     * @param epmem_sym_success
+     * @param symbolImpl
+     */
+    private void epmem_buffer_add_wme(
+            List<WmeImpl> meta_wmes, 
+            IdentifierImpl epmem_result_header, 
+            SymbolImpl epmem_sym_success, 
+            SymbolImpl symbolImpl)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * 
+     * @param last_memory
+     * @return
+     */
+    private long epmem_previous_episode(long last_memory)
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /**
+     * 
+     * @param last_memory
+     * @return
+     */
+    private long epmem_next_episode(long last_memory)
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /**
+     * 
+     * @param state
+     * @param retrieve
+     * @param meta_wmes
+     * @param retrieval_wmes
+     */
+    private void epmem_install_memory(IdentifierImpl state, long retrieve, List<WmeImpl> meta_wmes, List<WmeImpl> retrieval_wmes)
+    {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * <p>
+     * episodic_memory.cpp:5063:void inline _epmem_respond_to_cmd_parse( agent*
+     * my_agent, epmem_wme_list* cmds, bool& good_cue, int& path, epmem_time_id&
+     * retrieve, Symbol*& next, Symbol*& previous, Symbol*& query, Symbol*&
+     * neg_query, epmem_time_list& prohibit, epmem_time_id& before,
+     * epmem_time_id& after, epmem_symbol_set& currents, soar_module::wme_set&
+     * cue_wmes )
+     * 
+     * @param cmds
+     * @param good_cue
+     * @param path
+     * @param retrieve
+     * @param next
+     * @param previous
+     * @param query
+     * @param neg_query
+     * @param prohibit
+     * @param before
+     * @param after
+     * @param currents
+     * @param cue_wmes
+     */
+    private void _epmem_respond_to_cmd_parse(
+            List<WmeImpl> cmds, 
+            boolean good_cue, 
+            int path, 
+            long retrieve, 
+            SymbolImpl next, 
+            SymbolImpl previous,
+            SymbolImpl query, 
+            SymbolImpl neg_query, 
+            List<Long> prohibit, 
+            long before, 
+            long after, 
+            Set<SymbolImpl> currents, 
+            Set<WmeImpl> cue_wmes)
+    {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * Removes any WMEs produced by EpMem resulting from a command
+     * 
+     * <p>episodic_memory.cpp:1449:void epmem_clear_result( agent *my_agent, Symbol *state )
+     * @param state
+     */
+    private void epmem_clear_result(IdentifierImpl state)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private EpisodicMemoryStateInfo epmem_info(IdentifierImpl state)
+    {
+        return stateInfos.get(state);
     }
 
     /*

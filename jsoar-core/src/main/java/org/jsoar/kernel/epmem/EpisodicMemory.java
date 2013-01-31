@@ -37,6 +37,7 @@ public interface EpisodicMemory
     
     /**
      * Default value of {@code allow_store} is {@code true} in C++
+     * @throws SoarException 
      * 
      * @see epmem_go(boolean allow_store)
      */
@@ -49,6 +50,7 @@ public interface EpisodicMemory
      * <p>episodic_memory.h:epmem_go
      * 
      * @param allow_store
+     * @throws SoarException 
      */
     void epmem_go(boolean allow_store);
     
