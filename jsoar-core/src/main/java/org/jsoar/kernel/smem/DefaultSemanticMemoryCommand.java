@@ -235,7 +235,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         }
         else
         {
-            throw new SoarException("Unknown parameter '" + name + "'");
+            throw new SoarException("Unknown smem parameter '" + name + "'");
         }
         
         return "";

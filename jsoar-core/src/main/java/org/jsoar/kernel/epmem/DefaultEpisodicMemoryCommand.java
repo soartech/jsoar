@@ -85,19 +85,21 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         final PropertyManager props = epmem.getParams().getProperties();
         if (name.equals("learning"))
         {
-            props.set(DefaultEpisodicMemoryParams.LEARNING, Learning.on);
+            props.set(DefaultEpisodicMemoryParams.LEARNING, Learning.valueOf(value));
         }
         else if (name.equals("trigger"))
         {
             props.set(DefaultEpisodicMemoryParams.TRIGGER, Trigger.valueOf(value));
+            return "Set trigger to "+Trigger.valueOf(value).toString();
         }
         else if (name.equals("phase"))
         {
             props.set(DefaultEpisodicMemoryParams.PHASE, Phase.valueOf(value));
+            return "Set phase to "+Phase.valueOf(value).toString();
         }
         else
         {
-            throw new SoarException("Unknown parameter '" + name + "'");
+            throw new SoarException("Unknown epmem parameter '" + name + "'");
         }
 
         return "";
