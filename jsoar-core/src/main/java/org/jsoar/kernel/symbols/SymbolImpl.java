@@ -35,6 +35,9 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
     public /*smem_hash_id*/ long smem_hash;
     public /*uintptr_t*/ long common_smem_valid;
     
+    public /*epmem_hash_id*/ long epmem_hash_id;
+    public /*uint64_t*/ long epmem_valid;
+    
     /*package*/ SymbolImpl(SymbolFactory factory, int hash_id)
     {
         this.factory = factory;
