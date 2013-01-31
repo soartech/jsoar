@@ -37,6 +37,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
@@ -1494,7 +1495,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else
                 {
-                    new_id_reservation = new EpisodicMemoryIdReservation(EPMEM_NODEID_BAD, epmem_temporal_hash(wme.getAttribute()));
+                    new_id_reservation = new EpisodicMemoryIdReservation(EPMEM_NODEID_BAD, epmem_temporal_hash(wme.attr));
                 }
                 
                 // try to find appropriate reservation
@@ -1953,8 +1954,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * emem_temporal_hash with default value of add_on_fail (true)
      * @param sym
      * @return
+     * @throws SQLException 
      */
-    private long /*epmem_hash_id*/ epmem_temporal_hash(Symbol sym)
+    private long /*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym) throws SQLException
     {
         return epmem_temporal_hash(sym, true);
     }
@@ -1965,8 +1967,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param sym
      * @param add_on_fail
      * @return
+     * @throws SQLException 
      */
-    private long /*epmem_hash_id*/ epmem_temporal_hash(Symbol sym, boolean add_on_fail)
+    private long /*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym, boolean add_on_fail /*= true*/) throws SQLException
     {
         long /*epmem_hash_id*/ return_val = 0;
         
@@ -1978,9 +1981,101 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             sym.asDouble() != null ||
             sym.asInteger() != null)
         {
-            // TODO finish implementing
+            //if ( ( !sym->common.epmem_hash ) || ( sym->common.epmem_valid != my_agent->epmem_validation ) )
+            if (!(sym.epmem_hash_id == 0) || (sym.epmem_valid != epmem_validation))
+            {
+                sym.epmem_hash_id = 0;
+                sym.epmem_valid = epmem_validation;
+
+                // basic process:
+                // - search
+                // - if found, return
+                // - else, add
+
+                final PreparedStatement hash_get = db.hash_get;
+                
+                hash_get.setLong(1, Symbols.getSymbolType(sym));
+                
+                switch (Symbols.getSymbolType(sym))
+                {
+                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                    hash_get.setString(2, sym.asString().getValue());
+                    break;
+                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                    hash_get.setLong(2, sym.asInteger().getValue());
+                    break;
+
+                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                    hash_get.setDouble(2, sym.asDouble().getValue());
+                    break;
+                }
+
+                final ResultSet hash_get_rs = hash_get.executeQuery();
+                try
+                {
+                    if (hash_get_rs.next())
+                    {
+                        return_val = hash_get_rs.getLong(0);
+                    }
+                }
+                finally
+                {
+                    hash_get_rs.close();
+                }
+                
+                if (return_val == 0 && add_on_fail)
+                {
+                    final PreparedStatement hash_add = db.hash_add;
+
+                    hash_add.setLong(1, Symbols.getSymbolType(sym));
+
+                    switch (Symbols.getSymbolType(sym))
+                    {
+                    case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                        hash_add.setString(2, sym.asString().getValue());
+                        break;
+                    case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                        hash_add.setLong(2, sym.asInteger().getValue());
+                        break;
+
+                    case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                        hash_add.setDouble(2, sym.asDouble().getValue());
+                        break;
+                    }
+
+                    // CK: not all database drivers support this
+                    final ResultSet hash_add_rs = hash_add.getGeneratedKeys();
+                    try
+                    {
+                        if (hash_add_rs.next())
+                        {
+                            return_val = hash_add_rs.getLong(1);
+                        }
+                        else
+                        {
+                            // throw an exception if we were not able to get the
+                            // row id of the insert
+                            throw new SQLException("ps.getGeneratedKeys failed!");
+                        }
+                    }
+                    finally
+                    {
+                        hash_add_rs.close();
+                    }
+                }
+                
+                // cache results for later re-use
+                sym.epmem_hash_id = return_val;
+                sym.epmem_valid = epmem_validation;
+            }
+
+            return_val = sym.epmem_hash_id;
         }
-        
+
+        // ////////////////////////////////////////////////////////////////////////////
+        // my_agent->epmem_timers->hash->stop();
+        // ////////////////////////////////////////////////////////////////////////////
+
         return return_val;
     }
 
