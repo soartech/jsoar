@@ -549,22 +549,6 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     }
     
     /**
-     * @return the bottom goal from the decider
-     */
-    public IdentifierImpl getBottomGoal()
-    {
-        return decider.bottom_goal;
-    }
-    
-    /**
-     * @return the agent's decider
-     */
-    public Decider getDecider()
-    {
-        return decider;
-    }
-    
-    /**
      * <p>sml_KernelHelpers.cpp:83:PrintStackTrace
      * 
      * @param states

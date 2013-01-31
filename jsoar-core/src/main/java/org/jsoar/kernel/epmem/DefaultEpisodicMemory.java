@@ -2170,7 +2170,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // start at the bottom and work our way up
         // (could go in the opposite direction as well)
-        IdentifierImpl state = agent.getBottomGoal();
+        IdentifierImpl state = decider.bottom_goal;
 
         List<WmeImpl> wmes;
         List<WmeImpl> cmds;
@@ -2425,7 +2425,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // my_agent->epmem_timers->wm_phase->start();
             // ////////////////////////////////////////////////////////////////////////////
 
-            agent.getDecider().do_working_memory_phase();
+            decider.do_working_memory_phase();
 
             // ////////////////////////////////////////////////////////////////////////////
             // my_agent->epmem_timers->wm_phase->stop();
@@ -2481,6 +2481,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     /**
+     * Call epmem_process_query with level = 3 (default in C++)
+     */
+    private void epmem_process_query(IdentifierImpl state, SymbolImpl query, SymbolImpl neg_query, List<Long> prohibit, long before, 
+            long after, Set<SymbolImpl> currents, Set<WmeImpl> cue_wmes, List<WmeImpl> meta_wmes, List<WmeImpl> retrieval_wmes)
+    {
+        epmem_process_query(state, query, neg_query, prohibit, before, after, currents, cue_wmes, meta_wmes, retrieval_wmes, 3);
+    }
+    
+    /**
+     * <p>
+     * episodic_memory.cpp:3869:void epmem_process_query(agent *my_agent, Symbol
+     * *state, Symbol *pos_query, Symbol *neg_query, epmem_time_list& prohibits,
+     * epmem_time_id before, epmem_time_id after, epmem_symbol_set& currents,
+     * soar_module::wme_set& cue_wmes, soar_module::symbol_triple_list&
+     * meta_wmes, soar_module::symbol_triple_list& retrieval_wmes, int level=3)
      * 
      * @param state
      * @param query
@@ -2503,26 +2518,34 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             Set<SymbolImpl> currents, 
             Set<WmeImpl> cue_wmes, 
             List<WmeImpl> meta_wmes, 
-            List<WmeImpl> retrieval_wmes)
+            List<WmeImpl> retrieval_wmes,
+            int level /*=3*/)
     {
         // TODO Auto-generated method stub
-        
     }
 
     /**
+     * <p>
+     * episodic_memory.cpp:998:inline void epmem_buffer_add_wme(
+     * soar_module::symbol_triple_list& my_list, Symbol* id, Symbol* attr,
+     * Symbol* value )
      * 
-     * @param meta_wmes
-     * @param epmem_result_header
-     * @param epmem_sym_success
-     * @param symbolImpl
+     * @param my_list
+     * @param id
+     * @param attr
+     * @param value
      */
     private void epmem_buffer_add_wme(
-            List<WmeImpl> meta_wmes, 
-            IdentifierImpl epmem_result_header, 
-            SymbolImpl epmem_sym_success, 
-            SymbolImpl symbolImpl)
+            List<WmeImpl> my_list, 
+            IdentifierImpl id, 
+            SymbolImpl attr, 
+            SymbolImpl value)
     {
-        // TODO Auto-generated method stub
+//        my_list.push_back( new soar_module::symbol_triple( id, attr, value ) );
+//
+//        symbol_add_ref( id );
+//        symbol_add_ref( attr );
+//        symbol_add_ref( value );
         
     }
 
