@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
+import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
@@ -233,13 +234,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         params = new DefaultEpisodicMemoryParams(properties, symbols);
         stats = new DefaultEpisodicMemoryStats(properties);
 
+        predefinedSyms = new EpisodicMemorySymbols(symbols);
+        
         // CK: not implementing timers
         // src/agent.cpp:369: newAgent->epmem_timers = new
         // epmem_timer_container( newAgent );
-
-        // CK: in smem this is called from smem_attach, there is no equivalent
-        // function in episodic_memory.cpp
-        epmem_init_db_catch();
 
         // src/agent.cpp:393: newAgent->epmem_node_removals = new
         // epmem_id_removal_map();
@@ -290,6 +289,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // >( newAgent ) );
         // src/agent.cpp:399: newAgent->epmem_id_removes = new
         // epmem_symbol_stack();
+        
+        // CK: in smem this is called from smem_attach, there is no equivalent
+        // function in episodic_memory.cpp
+        epmem_init_db_catch();
         
         soarModule.initialize(context);
     }
