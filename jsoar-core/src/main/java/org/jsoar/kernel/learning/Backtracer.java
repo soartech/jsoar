@@ -355,10 +355,6 @@ public class Backtracer
             PositiveCondition pc = c.asPositiveCondition();
             if (pc != null)
             {
-
-                // Note: In CSoar there was a bunch of commented out print code
-                // here...
-
                 // positive cond's are grounds, potentials, or locals
                 if (pc.id_test.asEqualityTest().getReferent().asIdentifier().tc_number == tc)
                 {
