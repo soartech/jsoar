@@ -29,6 +29,7 @@ import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -2432,6 +2433,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
     
     /**
+     * <p>
+     * episodic_memory.cpp:992:inline void epmem_process_buffered_wmes( agent*
+     * my_agent, Symbol* state, soar_module::wme_set& cue_wmes,
+     * soar_module::symbol_triple_list& meta_wmes,
+     * soar_module::symbol_triple_list& retrieval_wmes )
      * 
      * @param state
      * @param cue_wmes
@@ -2444,7 +2450,33 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             List<WmeImpl> meta_wmes, 
             List<WmeImpl> retrieval_wmes)
     {
-        // TODO Auto-generated method stub
+        _epmem_process_buffered_wme_list( state, cue_wmes, meta_wmes, epmem_info(state).epmem_wmes );
+        _epmem_process_buffered_wme_list( state, cue_wmes, retrieval_wmes, null );
+    }
+
+    /**
+     * <p>
+     * episodic_memory.cpp:912:inline void _epmem_process_buffered_wme_list(
+     * agent* my_agent, Symbol* state, soar_module::wme_set& cue_wmes,
+     * soar_module::symbol_triple_list& my_list, epmem_wme_stack* epmem_wmes )
+     * 
+     * @param state
+     * @param cue_wmes
+     * @param retrieval_wmes
+     * @param epmem_wmes
+     */
+    private void _epmem_process_buffered_wme_list(
+            IdentifierImpl state, 
+            Set<WmeImpl> cue_wmes, 
+            List<WmeImpl> my_list, 
+            Deque<Preference> epmem_wmes)
+    {
+        if (my_list.isEmpty())
+        {
+            return;
+        }
+        
+        // instantiation* inst = soar_module::make_fake_instantiation( my_agent, state, &cue_wmes, &my_list );
     }
 
     /**
