@@ -1103,7 +1103,7 @@ public class Decider
 
                 if (pref != null)
                 {
-                    printer.print("\n %ss:\n", type);
+                    printer.print("\n %ss:\n", type.getDisplayName());
                     for (Preference p = pref; p != null; p = p.next)
                     {
                         printer.print(" ");
