@@ -451,14 +451,14 @@ public class Backtracer
 
                 backtrace_through_instantiation(bt_pref.inst, grounds_level, cond, 0);
 
-                // check if any prohibit preferences
-                if (bt.hasProhibits())
+                // Check for any CDPS prefs and backtrace through them
+                if (bt.hasContextDependentPreferences())
                 {
                     for (Preference p : bt)
                     {
                         if (traceBacktracing)
                         {
-                            printer.print("     For prohibit preference: %s", p);
+                            printer.print("     Backtracing through CDPS preference: %s", p);
                         }
                         backtrace_through_instantiation(p.inst, grounds_level, cond, 6);
                     }
@@ -612,13 +612,13 @@ public class Backtracer
             Preference bt_pref = Preference.find_clone_for_level(bt.trace, grounds_level + 1);
 
             backtrace_through_instantiation(bt_pref.inst, grounds_level, potential, 0);
-            if (bt.hasProhibits())
+            if (bt.hasContextDependentPreferences())
             {
                 for (Preference p : bt)
                 {
                     if (traceBacktracing)
                     {
-                        printer.print("     For prohibit preference: %s", p);
+                        printer.print("     Backtracing through CDPS preference: %s", p);
                     }
                     backtrace_through_instantiation(p.inst, grounds_level, potential, 6);
                 }

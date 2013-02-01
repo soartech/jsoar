@@ -6,6 +6,7 @@
 package org.jsoar.kernel.memory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -187,47 +188,92 @@ public class RecognitionMemory
         this.FIRING_TYPE = SavedFiringType.IE_PRODS; /* KJC 10.05.98 was PE */
     }
     
-    /**
-     * Build Prohibit Preference List for Backtracing
+    /*
+     * Build context-dependent preference set
      * 
-     * recmem.cpp:70:build_prohibits_list
+     * This function will copy the CDPS from a slot to the backtrace info for the
+     * corresponding condition.  The copied CDPS will later be backtraced through.
      * 
+     * Note: Until prohibits are included explicitly as part of the CDPS, we will
+     * just copy them directly from the prohibits list so that there is no
+     * additional overhead.  Once the CDPS is on by default, we can eliminate the
+     * second half of the big else (and not call this function at all if the
+     * sysparam is not set.
+     *
      * @param inst
+     * 
+     * recmem.cpp:95:build_CDPS
+     * 
      */
-    private void build_prohibits_list(Instantiation inst)
+
+    void build_CDPS(Instantiation inst)
     {
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             final PositiveCondition pc = cond.asPositiveCondition();
             final BackTraceInfo bt = pc != null ? pc.bt() : null;
-            if(pc != null)
+            if (pc != null)
             {
-                bt.clearProhibits();
+                bt.clearContextDependentPreferenceSet();
             }
+
             if (pc != null && bt.trace != null)
             {
                 if (bt.trace.slot != null)
                 {
-                    Preference pref = bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
-                    while (pref != null)
+                    if (this.chunker.chunkThroughEvaluationRules)
                     {
-                        Preference new_pref = null;
-                        if (pref.inst.match_goal_level == inst.match_goal_level && pref.isInTempMemory())
+                        if (bt.trace.slot.hasContextDependentPreferenceSet())
                         {
-                            bt.addProhibit(pref);
-                        }
-                        else
-                        {
-                            new_pref = Preference.find_clone_for_level(pref, inst.match_goal_level);
-                            if (new_pref != null)
+                            for (Iterator<Preference> it = bt.trace.slot.getContextDependentPreferenceSet().iterator(); it.hasNext();)
                             {
-                                if (new_pref.isInTempMemory())
+                                Preference new_pref = null;
+                                Preference pref = it.next();
+                                if (pref.inst.match_goal_level == inst.match_goal_level
+                                        && pref.isInTempMemory())
                                 {
-                                    bt.addProhibit(new_pref);
+                                    bt.addContextDependentPreference(pref);
+                                }
+                                else
+                                {
+                                    new_pref = Preference.find_clone_for_level(
+                                            pref, inst.match_goal_level);
+                                    if (new_pref != null)
+                                    {
+                                        if (new_pref.isInTempMemory())
+                                        {
+                                            bt.addContextDependentPreference(new_pref);
+                                        }
+                                    }
                                 }
                             }
                         }
-                        pref = pref.next;
+                    }
+                    else
+                    {
+                        Preference pref = bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
+                        while (pref != null)
+                        {
+                            Preference new_pref = null;
+                            if (pref.inst.match_goal_level == inst.match_goal_level
+                                    && pref.isInTempMemory())
+                            {
+                                bt.addContextDependentPreference(pref);
+                            }
+                            else
+                            {
+                                new_pref = Preference.find_clone_for_level(
+                                        pref, inst.match_goal_level);
+                                if (new_pref != null)
+                                {
+                                    if (new_pref.isInTempMemory())
+                                    {
+                                        bt.addContextDependentPreference(new_pref);
+                                    }
+                                }
+                            }
+                            pref = pref.next;
+                        }
                     }
                 }
             }
@@ -756,7 +802,8 @@ public class RecognitionMemory
             }
         }
         
-        build_prohibits_list(inst);
+        // Copy any context-dependent preferences for conditions of this instantiation
+        build_CDPS(inst);
 
         this.production_being_fired = null;
 
@@ -881,7 +928,7 @@ public class RecognitionMemory
                 if (pc != null)
                 {
                     final BackTraceInfo bt = pc.bt();
-                    if (bt.hasProhibits())
+                    if (bt.hasContextDependentPreferences())
                     {
                         for (Preference pref : bt)
                         {
@@ -895,7 +942,7 @@ public class RecognitionMemory
                                     pref.preference_remove_ref(this);
                             }
                         }
-                        bt.clearProhibits();
+                        bt.clearContextDependentPreferenceSet();
                     }
 
                     /*      voigtjr, nlderbin:

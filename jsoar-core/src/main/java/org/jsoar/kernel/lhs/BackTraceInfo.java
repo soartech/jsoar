@@ -24,7 +24,8 @@ public class BackTraceInfo implements Iterable<Preference>
     public int level;   /* level (at firing time) of the id of the wme */
     public Preference trace;        /* preference for BT, or NIL */
 
-    private LinkedList<Preference> prohibits;  /* list of prohibit prefs to backtrace through */
+    private LinkedList<Preference> CDPS;  /* list of substate evaluation prefs to backtrace through,
+                                             i.e. the context dependent preference set. */
 
     public BackTraceInfo()
     {
@@ -35,7 +36,7 @@ public class BackTraceInfo implements Iterable<Preference>
         this.wme_ = other.wme_;
         this.level = other.level;
         this.trace = other.trace;
-        this.prohibits = other.prohibits;
+        this.CDPS = other.CDPS;
     }
     
     /**
@@ -46,26 +47,26 @@ public class BackTraceInfo implements Iterable<Preference>
         return new BackTraceInfo(this);
     }
 
-    public void addProhibit(Preference pref)
+    public void addContextDependentPreference(Preference pref)
     {
-        if(prohibits == null)
+        if(CDPS == null)
         {
-            prohibits = new LinkedList<Preference>();
+            CDPS = new LinkedList<Preference>();
         }
-        prohibits.push(pref);
+        CDPS.push(pref);
         pref.preference_add_ref();
     }
     
-    public boolean hasProhibits()
+    public boolean hasContextDependentPreferences()
     {
-        return prohibits != null && !prohibits.isEmpty();
+        return CDPS != null && !CDPS.isEmpty();
     }
     
-    public void clearProhibits()
+    public void clearContextDependentPreferenceSet()
     {
-        if(prohibits != null)
+        if(CDPS != null)
         {
-            prohibits.clear();
+            CDPS.clear();
         }
     }
 
@@ -75,6 +76,6 @@ public class BackTraceInfo implements Iterable<Preference>
     @Override
     public Iterator<Preference> iterator()
     {
-        return prohibits.iterator();
+        return CDPS.iterator();
     }
 }

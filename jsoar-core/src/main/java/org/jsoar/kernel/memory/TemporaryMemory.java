@@ -7,9 +7,12 @@ package org.jsoar.kernel.memory;
 
 import java.util.LinkedList;
 
+import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * <em>This is an internal interface. Don't use it unless you know what you're doing.</em>
@@ -105,11 +108,11 @@ public class TemporaryMemory
      * <p>tempmem.cpp:159:remove_garbage_slots
      */
     @SuppressWarnings("unchecked")
-    public void remove_garbage_slots()
+    public void remove_garbage_slots(final Agent context)
     {
         while (!slots_for_possible_removal.isEmpty())
         {
-            Slot s = slots_for_possible_removal.pop();
+            final Slot s = slots_for_possible_removal.pop();
 
             if (s.getWmes() != null || s.getAllPreferences() != null)
             {
@@ -123,9 +126,16 @@ public class TemporaryMemory
             // print_with_symbols (thisAgent, "\nDeallocate slot %y ^%y", s->id,
             // s->attr);
             // #endif
+            
+            final Chunker chunker = Adaptables.adapt(context, Chunker.class);
+            if (s.hasContextDependentPreferenceSet() && chunker.chunkThroughEvaluationRules)
+            {
+                s.clear_CDPS(context);
+            }
+
             if (s.changed != null && !s.isa_context_slot)
             {
-                ListItem<Slot> changed = (ListItem<Slot>) s.changed;
+                final ListItem<Slot> changed = (ListItem<Slot>) s.changed;
                 changed.remove(changed_slots);
             }
             s.id.removeSlot(s);

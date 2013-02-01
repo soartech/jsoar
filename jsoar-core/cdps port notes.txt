@@ -10,11 +10,35 @@ see issue 84 on github
 ** added new sysparam
 
 ################################################################################
+# testing possibilities
+# TestSoarPerformance.cpp refers to test_agents/cdps1.soar and test_agents/cdps2.soar
+# Maybe can make these into unit tests
+
+################################################################################
 # there are additions to the learn command, but jsoar's learn command is barely
 # implemented as it is (it only supports on/off) so porting the full learn
 # command is really a different task
 
-# soar_ecPrintPreferences()
+
+################################################################################
+# initialize CDPS instead of prohibits
+# DONE unnecessary in java
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/soar_module.cpp	diff	
+
+# make_fake_instantiation()
+... 			
+162 	162 		}
+163 	163 		}
+164 	164 		
+165 		- 	cond->bt.prohibits = NULL;
+	165 	+ 	cond->bt.CDPS = NULL;
+166 	166 		
+167 	167 		prev_cond = cond;
+168 	168 		}
+... 	
+
+# soar_ecPrintPreferences() -- DONE
 Modify	/trunk/SoarSuite/Core/CLI/src/cli_preferences.cpp	diff
 ... 			
 275 	275 		// run preference semantics "read only" via _consistency_check
@@ -32,7 +56,7 @@ Modify	/trunk/SoarSuite/Core/CLI/src/cli_preferences.cpp	diff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 
-# trace_locals() 			
+# trace_locals() -- DONE
 444 	418 		void trace_locals (agent* thisAgent, goal_stack_level grounds_level, bool *reliable) {
 445 	419 		
 446 	420 		/* mvp 5-17-94 */
@@ -79,7 +103,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 496 	470 		}
 ... 			
 
-# trace_ungrounded_potentials()
+# trace_ungrounded_potentials() -- DONE
 610 	584 		Bool trace_ungrounded_potentials (agent* thisAgent, goal_stack_level grounds_level, bool *reliable) {
 611 	585 		
 612 	586 		/* mvp 5-17-94 */
@@ -127,6 +151,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 
 ################################################################################
 # consistency stuff
+# DONE
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/consistency.cpp	diff
 ... 			
@@ -146,7 +171,8 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/consistency.cpp	diff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 
-# new function: add_to_CDPS()
+# new function: add_to_CDPS() -- DONE
+
 859 	859 		#endif
 860 	860 		#endif
 861 	861 		}
@@ -220,9 +246,9 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 864 	929
 
 # this diff is confusing, but the essence is that:
-#  require_preference_semantics() is removed
-#  run_preference_semantics_for_consistency_check() is removed
-#  run_preference_semantics() is modified
+#  require_preference_semantics() is removed -- moved into run_preference_semantics -- DONE
+#  run_preference_semantics_for_consistency_check() is removed -- DONE
+#  run_preference_semantics() is modified -- DONE
 # it may be easier to diff the current and old version of run_preference_semantics() than to follow this diff
 
 889 	954 		
@@ -1219,6 +1245,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 ... 			
 
 # make_fake_preference_for_goal_item()
+# DONE-- unnecessary to initialize to null in java (is default value)
 1638 	1743 		#endif
 1639 	1744 		cond->bt.level = ap_wme->id->id.level;
 1640 	1745 		cond->bt.trace = NIL;
@@ -1233,34 +1260,9 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 ################################################################################
 # adding cdps list in various places, and comment changes
 
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff
-			
-# comment expansion
-280 	290 		match goal, with the pref. supported by the highest goal at the
-281 	291 		head of the list.
-282 	292 		
-	293 	+ 	CDPS: a dll of preferences in the context-dependent preference set,
-	294 	+ 	which is the set of all preferences that contributed to an operator's
-	295 	+ 	selection. This is used to allow Soar to backtrace through evaluation
-	296 	+ 	rules in substates. The rules that determine which preferences are
-	297 	+ 	in the CPSD are outlined in run_preference_semantics().
-	298 	+ 	
-283 	299 		impasse_id: points to the identifier of the attribute impasse object
-284 	300 		for this slot. (NIL if the slot isn't impassed.)
-285 	301 		
-... 			
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff			
 
-# adding cdps list to slot_struct
-310 	326 		wme *acceptable_preference_wmes; /* dll of acceptable pref. wmes */
-311 	327 		preference *all_preferences; /* dll of all pref's in the slot */
-312 	328 		preference *preferences[NUM_PREFERENCE_TYPES]; /* dlls for each type */
-	329 	+ 	::list *CDPS; /* list of prefs in the CDPS to backtrace through */
-313 	330 		Symbol *impasse_id; /* NIL if slot is not impassed */
-314 	331 		Bool isa_context_slot;
-315 	332 		byte impasse_type;
-... 			
-
-# adding cdps list to bt_info_struct
+# adding cdps list to bt_info_struct (DONE -- leaving here for reference until breakage is resolved)
 525 	542 		preference *trace; /* preference for BT, or NIL */
 526 	543 		
 527 	544 		/* mvp 5-17-94 */
@@ -1269,17 +1271,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff
 	546 	+ 	i.e. the context dependent preference set. */
 	547 	+ 	
 529 	548 		} bt_info;
-530 	549 		
-
-# change to reorder_info_struct
-531 	550 		/* --- info on conditions used only by the reorderer --- */
-532 	551 		typedef struct reorder_info_struct {
-533 		- 	::list *vars_requiring_bindings; /* used only during reordering */
-	552 	+ 	::list *vars_requiring_bindings; /* used only during reordering */
-534 	553 		struct condition_struct *next_min_cost; /* used only during reordering */
-535 	554 		} reorder_info;
-536 	555 		
-... 								
+530 	549 									
 
 ################################################################################
 # code that builds the CDPS
@@ -1287,26 +1279,10 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff
 #  formatter was run on this file, resulting in tons of irrelevant whitespace changes
 #  which I have removed from this diff
 
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
-
-# these probably just become lists (memory pools are irrelevant in jsoar)
-
-... 			
-59 	59 		using namespace soar_TraceNames;
-60 	60 		
-61 	61 		#ifdef USE_MEM_POOL_ALLOCATORS
-62 		- 	typedef std::list< instantiation*, soar_module::soar_memory_pool_allocator< instantiation* > > inst_mpool_list;
-63 		- 	typedef std::list< condition*, soar_module::soar_memory_pool_allocator< condition* > > cond_mpool_list;
-	62 	+ 	typedef std::list<instantiation*,
-	63 	+ 	soar_module::soar_memory_pool_allocator<instantiation*> > inst_mpool_list;
-	64 	+ 	typedef std::list<condition*,
-	65 	+ 	soar_module::soar_memory_pool_allocator<condition*> > cond_mpool_list;
-64 	66 		#else
-65 	67 		typedef std::list< instantiation* > inst_mpool_list;
-66 	68 		typedef std::list< condition* > cond_mpool_list;
-... 		
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff	
 
 # remove build_prohibits_list(), replace with build_CDPS()
+# DONE
 
 76 	78 		wme* glbDeepCopyWMEs = NULL;
 77 	79 		
@@ -1382,6 +1358,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
 ... 			
 
 # replace call to build_prohibits_list() with call to build_CDPS()
+# DONE
 	
 766 		- 	/* mvp 5-17-94 */
 767 		- 	build_prohibits_list (thisAgent, inst);
@@ -1389,30 +1366,13 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
 	831 	+ 	build_CDPS(thisAgent, inst);
 768 	832 		
 
-
-################################################################################
-# initialize CDPS instead of prohibits
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/soar_module.cpp	diff	
-
-# make_fake_instantiation()
-... 			
-162 	162 		}
-163 	163 		}
-164 	164 		
-165 		- 	cond->bt.prohibits = NULL;
-	165 	+ 	cond->bt.CDPS = NULL;
-166 	166 		
-167 	167 		prev_cond = cond;
-168 	168 		}
-... 	
-
 ################################################################################
 # slot stuff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/tempmem.cpp	diff	
 
 # make_slot()
+# DONE -- don't think this is necessary in java
 ... 			
 99 	99 		symbol_add_ref (attr);
 100 	100 		s->wmes = NIL;
@@ -1424,6 +1384,9 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/tempmem.cpp	diff
 ... 			
 
 # clear_CDPS()
+# DONE -- put in Slot.java since it is manipulating a member of that class, but it also
+#         needs access to the agent's RecognitionMemory, so I had to pass in an Agent context
+#         not sure if that implies it belongs elsewhere
 
 159 	160 		s->marked_for_possible_removal = TRUE;
 160 	161 		push (thisAgent, s, thisAgent->slots_for_possible_removal);
@@ -1454,6 +1417,8 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/tempmem.cpp	diff
 ... 			
 
 # remove_garbage_slots()
+# DONE (note that most of this is whitespace changes)
+# needed to access chunkThroughEvaluationRules sysparam in Chunker, so make it public
 
 181 	202 		print_with_symbols (thisAgent, "\nDeallocate slot %y ^%y", s->id, s->attr);
 182 	203 		#endif
@@ -1493,8 +1458,3 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/tempmem.cpp	diff
 199 	224 		}
 200 	225 		
 ... 	
-
-################################################################################
-# testing possibilities
-# TestSoarPerformance.cpp refers to test_agents/cdps1.soar and test_agents/cdps2.soar
-# Maybe can make these into unit tests

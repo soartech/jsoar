@@ -34,6 +34,7 @@ import org.jsoar.kernel.smem.SemanticMemory;
 import org.jsoar.kernel.symbols.GoalIdentifierInfo;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.Arguments;
@@ -982,58 +983,20 @@ public class Decider
         //#endif
         //#endif
     }
-
-
+    
     /**
-     * Require_preference_semantics() is a helper function for
-     * run_preference_semantics() that is used when there is at least one
-     * require preference for the slot.
-     * 
-     * decide.cpp:803:require_preference_semantics
-     * 
-     * @return
+     *  Perform reinforcement learning update for one valid candidate.
      */
-    private ImpasseType require_preference_semantics(Slot s, ByRef<Preference> result_candidates, boolean consistency)
+    void rl_update_for_one_candidate(Slot s, boolean consistency, Preference candidates)
     {
-        // collect set of required items into candidates list
-        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next)
-            p.value.decider_flag = DeciderFlag.NOTHING;
-        
-        Preference candidates = null;
-        for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next)
-        {
-            if (p.value.decider_flag == DeciderFlag.NOTHING)
-            {
-                p.next_candidate = candidates;
-                candidates = p;
-                // unmark it, in order to prevent it from being added twice
-                p.value.decider_flag = DeciderFlag.CANDIDATE;
-            }
-        }
-        result_candidates.value = candidates;
-
-        // if more than one required item, we have a constraint failure
-        if (candidates.next_candidate != null)
-            return ImpasseType.CONSTRAINT_FAILURE;
-
-        // just one require, check for require-prohibit impasse
-        SymbolImpl value = candidates.value;
-        for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next)
-            if (p.value == value)
-                return ImpasseType.CONSTRAINT_FAILURE;
-
-        // the lone require is the winner
-        if (!consistency && candidates != null && rl.rl_enabled())
+        if (!consistency && this.rl.rl_enabled())
         {
             rl.rl_tabulate_reward_values();
-            exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
-            rl.rl_perform_update( candidates.numeric_value, candidates.rl_contribution, s.id );
+            exploration.exploration_compute_value_of_candidate(candidates, s, 0);
+            rl.rl_perform_update(candidates.numeric_value, candidates.rl_contribution, s.id);
         }
-
-        return ImpasseType.NONE;
     }
     
-
     /**
      * Examines the preferences for a given slot, and returns an impasse type
      * for the slot. The argument "result_candidates" is set to a list of
@@ -1065,9 +1028,25 @@ public class Decider
      * @param predict  (defaulted to false in CSoar)
      * @return
      */
-    private ImpasseType run_preference_semantics(Slot s, ByRef<Preference> result_candidates,
+    public ImpasseType run_preference_semantics(Slot s, ByRef<Preference> result_candidates,
             boolean consistency /* = false */, boolean predict /* = false */)
     {
+        /* Set a flag to determine if a context-dependent preference set makes sense in this context.
+         * We can ignore the CDPS when:
+         * - Run_preference_semantics is called for a consistency check (don't want side effects)
+         * - For non-context slots (only makes sense for operators)
+         * - For context-slots at the top level (will never be backtraced through)
+         * - when the learning system parameter is set off (note, this is independent of whether learning is on) */
+
+        boolean do_CDPS = (s.isa_context_slot && !consistency && (s.id.level > SoarConstants.TOP_GOAL_LEVEL) && chunker.chunkThroughEvaluationRules);
+        
+        /* Empty the context-dependent preference set in the slot */
+
+        if (do_CDPS && s.hasContextDependentPreferenceSet())
+        {
+            s.clear_CDPS(context);
+        }
+        
         // if the slot has no preferences at all, things are trivial
         if (s.getAllPreferences() == null)
         {
@@ -1077,8 +1056,8 @@ public class Decider
             return ImpasseType.NONE;
         }
 
-        // if this is the true decision slot and selection has been made,
-        // attempt force selection
+        // If this is the true decision slot and selection has been made, attempt force selection
+        
         if (!s.isa_context_slot && !consistency)
         {
             if (decisionManip.select_get_operator() != null)
@@ -1106,23 +1085,109 @@ public class Decider
             }
         }
 
+        /* If debugging a context-slot, print all preferences that we're deciding through */
+        
+        final Trace trace = context.getTrace();
+        final Printer printer = trace.getPrinter();
+        final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
+        
+        if (traceBacktracing && s.isa_context_slot)
+        {
+
+            printer.print("\n-------------------------------\nRUNNING PREFERENCE SEMANTICS...\n-------------------------------\n");
+            printer.print("All Preferences for slot:");
+
+            for (PreferenceType type : PreferenceType.values())
+            {
+                Preference pref = s.getPreferencesByType(type);
+
+                if (pref != null)
+                {
+                    printer.print("\n %ss:\n", type);
+                    for (Preference p = pref; p != null; p = p.next)
+                    {
+                        printer.print(" ");
+                        printer.print(p.toString());
+                    }
+                }
+            }
+            printer.print("-------------------------------\n");
+        }
+        
         /* === Requires === */
+        
         if (s.getPreferencesByType(PreferenceType.REQUIRE) != null)
         {
-            return require_preference_semantics(s, result_candidates, consistency);
+            
+            // Collect set of required items into candidates list
+            
+            for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next)
+                p.value.decider_flag = DeciderFlag.NOTHING;
+            
+            Preference candidates = null;
+            for (Preference p = s.getPreferencesByType(PreferenceType.REQUIRE); p != null; p = p.next)
+            {
+                if (p.value.decider_flag == DeciderFlag.NOTHING)
+                {
+                    p.next_candidate = candidates;
+                    candidates = p;
+                    // unmark it, in order to prevent it from being added twice
+                    p.value.decider_flag = DeciderFlag.CANDIDATE;
+                }
+            }
+            result_candidates.value = candidates;
+
+            // Check if we have more than one required item. If so, return constraint failure.
+            
+            if (candidates.next_candidate != null)
+                return ImpasseType.CONSTRAINT_FAILURE;
+
+            /*
+             * Check if we have also have a prohibit preference. If so, return
+             * constraint failure. Note that this is the one difference between
+             * prohibit and reject preferences.
+             */
+            
+            SymbolImpl value = candidates.value;
+            for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next)
+                if (p.value == value)
+                    return ImpasseType.CONSTRAINT_FAILURE;
+
+            // --- We have a winner, so update RL ---
+            
+            rl_update_for_one_candidate(s, consistency, candidates);
+            
+            /* Print a message that we're adding the require preference to the CDPS
+            * even though we really aren't. Requires aren't actually handled by
+            * the CDPS mechanism since they are already backtraced through. */
+
+            if (traceBacktracing)
+            {
+                printer.print("--> Adding preference to CDPS: ");
+                printer.print(candidates.toString());
+            }
+
+            return ImpasseType.NONE;
         }
 
         /* === Acceptables, Prohibits, Rejects === */
 
-        // mark everything that's acceptable, then unmark the prohibited and rejected items
+        // Mark every acceptable preference as a possible candidate
+        
         for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next)
             p.value.decider_flag = DeciderFlag.CANDIDATE;
+        
+        /* Unmark any preferences that have a prohibit or reject. Note that this may
+         * remove the candidate_decider_flag set in the last loop
+         */
         for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next)
             p.value.decider_flag = DeciderFlag.NOTHING;
         for (Preference p = s.getPreferencesByType(PreferenceType.REJECT); p != null; p = p.next)
             p.value.decider_flag = DeciderFlag.NOTHING;
 
-        // now scan through acceptables and build the list of candidates
+        /* Build list of candidates. These are the acceptable prefs that didn't
+         * have the CANDIDATE_DECIDER_FLAG reversed by prohibit or reject prefs.
+         */
         Preference candidates = null;
         for (Preference p = s.getPreferencesByType(PreferenceType.ACCEPTABLE); p != null; p = p.next)
         {
@@ -1135,24 +1200,43 @@ public class Decider
             }
         }
 
-        /* === Handling of attribute_preferences_mode 2 === */
+        /* If this is not a decidable context slot, then we're done */
         if (!s.isa_context_slot)
         {
             result_candidates.value = candidates;
             return ImpasseType.NONE;
         }
+        
+        /* If there are reject or prohibit preferences, then
+        * add all reject and prohibit preferences to CDPS */
 
-        /* === If there are only 0 or 1 candidates, we're done === */
+        if (do_CDPS)
+        {
+            if (s.getPreferencesByType(PreferenceType.PROHIBIT) != null || s.getPreferencesByType(PreferenceType.REJECT) != null)
+            {
+                for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next)
+                    s.add_to_CDPS(context, p, true);
+                for (Preference p = s.getPreferencesByType(PreferenceType.REJECT); p != null; p = p.next)
+                    s.add_to_CDPS(context, p, true);
+            }
+        }
+
+        /* Exit point 1: Check if we're done, i.e. 0 or 1 candidates left */
         if ((candidates == null) || (candidates.next_candidate == null))
         {
             result_candidates.value = candidates;
 
-            if (!consistency && rl.rl_enabled() && candidates != null)
+            if (candidates != null)
             {
-                // perform update here for just one candidate
-                rl.rl_tabulate_reward_values();
-                exploration.exploration_compute_value_of_candidate(candidates, s, 0);
-                rl.rl_perform_update( candidates.numeric_value, candidates.rl_contribution, s.id );
+                // Update RL values for the winning candidate
+                rl_update_for_one_candidate(s, consistency, candidates);
+            }
+            else
+            {
+                if (do_CDPS && s.hasContextDependentPreferenceSet())
+                {
+                    s.clear_CDPS(context);
+                }
             }
 
             return ImpasseType.NONE;
@@ -1162,21 +1246,9 @@ public class Decider
         if (s.getPreferencesByType(PreferenceType.BETTER) != null
                 || s.getPreferencesByType(PreferenceType.WORSE) != null)
         {
-            // algorithm:
-            // for each j > k:
-            //   if j is (candidate or conflicted) and k is (candidate or conflicted):
-            //     if one of (j, k) is candidate:
-            //       candidate -= k, if not already true
-            //       conflicted += k, if not already true
-            // for each j < k:
-            //   if j is (candidate or conflicted) and k is (candidate or conflicted):
-            //     if one of (j, k) is candidate:
-            //       candidate -= j, if not already true
-            //       conflicted += j, if not already true
-            // if no remaining candidates:
-            //   conflict impasse using conflicted as candidates
-            // else
-            //   pass on candidates to next filter
+            
+            // Initialize decider flags
+            
             for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
             {
                 p.value.decider_flag = DeciderFlag.NOTHING;
@@ -1191,6 +1263,13 @@ public class Decider
             {
                 cand.value.decider_flag = DeciderFlag.CANDIDATE;
             }
+            
+            /*
+             * Mark any preferences that are worse than another as conflicted.
+             * This will either remove it from the candidate list or add it to
+             * the conflicted list later. We first do this for both the referent
+             * half of better and then the value half of worse preferences.
+             */
             for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
             {
                 final SymbolImpl j = p.value;
@@ -1199,9 +1278,10 @@ public class Decider
                     continue;
                 if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
                 {
-                    // decide.cpp:1044: changes from old algorithm
                     if (j.decider_flag == DeciderFlag.CANDIDATE || k.decider_flag == DeciderFlag.CANDIDATE)
+                    {
                         k.decider_flag = DeciderFlag.CONFLICTED;
+                    }
                 }
             }
             
@@ -1213,20 +1293,25 @@ public class Decider
                     continue;
                 if (j.decider_flag.isSomething() && k.decider_flag.isSomething())
                 {
-                    // decide.cpp:1057: changes from old algorithm
                     if (j.decider_flag == DeciderFlag.CANDIDATE || k.decider_flag == DeciderFlag.CANDIDATE)
+                    {
                         j.decider_flag = DeciderFlag.CONFLICTED;
+                    }
                 }
             }
 
-            // now scan through candidates list, look for remaining candidates
-            // decide.cpp:1063: collecting candidates now, not conflicts as in old algorithm
+            // Check if a valid candidate still exists.
+            
             Preference cand = null, prev_cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
             {
                 if (cand.value.decider_flag == DeciderFlag.CANDIDATE)
                     break;
             }
+            
+            /* If no candidates exists, collect conflicted candidates and return as
+             * the result candidates with a conflict impasse type. */
+            
             if (cand == null)
             {
                 // collect conflicted candidates into new candidates list
@@ -1248,16 +1333,27 @@ public class Decider
                     cand = cand.next_candidate;
                 }
                 result_candidates.value = candidates;
+                if (do_CDPS && s.hasContextDependentPreferenceSet())
+                {
+                    s.clear_CDPS(context);
+                }
                 return ImpasseType.CONFLICT;
             }
 
-            // non-conflict candidates found, remove conflicts from candidates
+            /*
+             * Otherwise, delete conflicted candidates from candidate list. Also
+             * add better preferences to CDPS for every item in the candidate
+             * list and delete acceptable preferences from the CDPS for those
+             * that don't make the candidate list.
+             */
+            
             prev_cand = null;
             cand = candidates;
             while (cand != null)
             {
                 if (cand.value.decider_flag == DeciderFlag.CONFLICTED)
                 {
+                    // Remove this preference from the candidate list
                     if (prev_cand != null)
                         prev_cand.next_candidate = cand.next_candidate;
                     else
@@ -1265,25 +1361,81 @@ public class Decider
                 }
                 else
                 {
+                    if (do_CDPS)
+                    {
+                        /* Add better/worse preferences to CDPS */
+                        for (Preference p = s.getPreferencesByType(PreferenceType.BETTER); p != null; p = p.next)
+                        {
+                            if (p.value == cand.value)
+                            {
+                                s.add_to_CDPS(context, p, true);
+                            }
+                        }
+                        for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
+                        {
+                            if (p.referent == cand.value)
+                            {
+                                s.add_to_CDPS(context, p, true);
+                            }
+                        }
+                    }
                     prev_cand = cand;
                 }
                 cand = cand.next_candidate;
             }
         }
     
+        // Exit point 2: Check if we're done, i.e. 0 or 1 candidates left
+
+        if ((candidates == null) || (candidates.next_candidate == null))
+        {
+            result_candidates.value = candidates;
+
+            if (candidates != null)
+            {
+                // Update RL values for the winning candidate
+                rl_update_for_one_candidate(s, consistency, candidates);
+            }
+            else
+            {
+                if (do_CDPS && s.hasContextDependentPreferenceSet())
+                {
+                    s.clear_CDPS(context);
+                }
+            }
+
+            return ImpasseType.NONE;
+        }
 
         /* === Bests === */
         if (s.getPreferencesByType(PreferenceType.BEST) != null)
         {
+            // Initialize decider flags for all candidates
             Preference cand, prev_cand;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
                 cand.value.decider_flag = DeciderFlag.NOTHING;
+            
+            // Mark flag for those with a best preference
             for (Preference p = s.getPreferencesByType(PreferenceType.BEST); p != null; p = p.next)
+            {
                 p.value.decider_flag = DeciderFlag.BEST;
+            }
+            
+            // Reduce candidates list to only those with best preference flag and add pref to CDPS
             prev_cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
                 if (cand.value.decider_flag == DeciderFlag.BEST)
                 {
+                    if (do_CDPS)
+                    {
+                        for (Preference p = s.getPreferencesByType(PreferenceType.BEST); p != null; p = p.next)
+                        {
+                            if (p.value == cand.value)
+                            {
+                                s.add_to_CDPS(context, p, true);
+                            }
+                        }
+                    }
                     if (prev_cand != null)
                         prev_cand.next_candidate = cand;
                     else
@@ -1293,17 +1445,62 @@ public class Decider
             if (prev_cand != null)
                 prev_cand.next_candidate = null;
         }
+        
+        /* Exit point 3: Check if we're done, i.e. 0 or 1 candidates left */
 
+        if ((candidates == null) || (candidates.next_candidate == null))
+        {
+            result_candidates.value = candidates;
+
+            if (candidates != null)
+            {
+                // Update RL values for the winning candidate
+                rl_update_for_one_candidate(s, consistency, candidates);
+            }
+            else
+            {
+                if (do_CDPS && s.hasContextDependentPreferenceSet())
+                {
+                    s.clear_CDPS(context);
+                }
+            }
+
+            return ImpasseType.NONE;
+        }
+        
         /* === Worsts === */
         if (s.getPreferencesByType(PreferenceType.WORST) != null)
         {
+            // Initialize decider flags for all candidates
             Preference cand, prev_cand;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
                 cand.value.decider_flag = DeciderFlag.NOTHING;
+            
+            // Mark flag for those with a worst preference
             for (Preference p = s.getPreferencesByType(PreferenceType.WORST); p != null; p = p.next)
                 p.value.decider_flag = DeciderFlag.WORST;
+            
+            /*
+             * Because we only want to add worst preferences to the CDPS if they
+             * actually have an impact on the candidate list, we must first see
+             * if there's at least one non-worst candidate.
+             */
+
+            boolean some_not_worst = false;
+            if (do_CDPS)
+            {
+                for (cand = candidates; cand != null; cand = cand.next_candidate)
+                {
+                    if (cand.value.decider_flag != DeciderFlag.WORST)
+                    {
+                        some_not_worst = true;
+                    }
+                }
+            }
+            
             prev_cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
+            {
                 if (cand.value.decider_flag != DeciderFlag.WORST)
                 {
                     if (prev_cand != null)
@@ -1312,50 +1509,93 @@ public class Decider
                         candidates = cand;
                     prev_cand = cand;
                 }
+                else
+                {
+                    if (do_CDPS && some_not_worst)
+                    {
+                        /* Add this worst preference to CDPS */
+                        for (Preference p = s.getPreferencesByType(PreferenceType.WORST); p != null; p = p.next)
+                        {
+                            if (p.value == cand.value)
+                            {
+                                s.add_to_CDPS(context, p, true);
+                            }
+                        }
+                    }
+                }
+            }
             if (prev_cand != null)
                 prev_cand.next_candidate = null;
         }
 
-        /* === If there are only 0 or 1 candidates, we're done === */
-        if (candidates == null || candidates.next_candidate == null)
+        /* Exit point 4: Check if we're done, i.e. 0 or 1 candidates left */
+        if ((candidates == null) || (candidates.next_candidate == null))
         {
             result_candidates.value = candidates;
 
-            if (!consistency && rl.rl_enabled() && candidates != null)
+            if (candidates != null)
             {
-                // perform update here for just one candidate
-                rl.rl_tabulate_reward_values();
-                exploration.exploration_compute_value_of_candidate( candidates, s, 0 );
-                rl.rl_perform_update( candidates.numeric_value, candidates.rl_contribution, s.id );
+                // Update RL values for the winning candidate
+                rl_update_for_one_candidate(s, consistency, candidates);
+            }
+            else
+            {
+                if (do_CDPS && s.hasContextDependentPreferenceSet())
+                {
+                    s.clear_CDPS(context);
+                }
             }
 
             return ImpasseType.NONE;
         }
 
         /* === Indifferents === */
+        
+        // Initialize decider flags for all candidates
+        
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
             cand.value.decider_flag = DeciderFlag.NOTHING;
+        
+        // Mark flag for unary or numeric indifferent preferences
+        
         for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT); p != null; p = p.next)
             p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT;
 
         for (Preference p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); p != null; p = p.next)
             p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT;
-
-        for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT); p != null; p = p.next)
-        {
-            if ((p.referent.asInteger() != null) || (p.referent.asDouble() != null))
-                p.value.decider_flag = DeciderFlag.UNARY_INDIFFERENT_CONSTANT;
-        }
+        
+        /*
+         * Go through candidate list and check for a tie impasse. All candidates
+         * must either be unary indifferent or binary indifferent to every item
+         * on the candidate list. This will also catch when a candidate has no
+         * indifferent preferences at all.
+         */
 
         boolean not_all_indifferent = false;
+        boolean some_numeric = false;
+        
         for (Preference cand = candidates; cand != null; cand = cand.next_candidate)
         {
+            /*
+             * If this candidate has a unary indifferent preference, skip.
+             * Numeric indifferent prefs are considered to have an implicit
+             * unary indifferent pref, which is why they are skipped too.
+             */
             if (cand.value.decider_flag == DeciderFlag.UNARY_INDIFFERENT)
                 continue;
             else if (cand.value.decider_flag == DeciderFlag.UNARY_INDIFFERENT_CONSTANT)
+            {
+                some_numeric = true;
                 continue;
+            }
 
-            // check whether cand is binary indifferent to each other one
+            /*
+             * Candidate has either only binary indifferences or no indifference
+             * prefs at all, so make sure there is a binary preference between
+             * its operator and every other preference's operator in the
+             * candidate list
+             */
+            
             for (Preference p = candidates; p != null; p = p.next_candidate)
             {
                 if (p == cand)
@@ -1387,36 +1627,86 @@ public class Decider
             {
                 result_candidates.value = exploration.exploration_choose_according_to_policy(s, candidates);
                 result_candidates.value.next_candidate = null;
+
+                if (do_CDPS)
+                {
+
+                    /*
+                     * Add all indifferent preferences associated with the
+                     * chosen candidate to the CDPS.
+                     */
+
+                    if (some_numeric)
+                    {
+
+                        /*
+                         * Note that numeric indifferent preferences are never
+                         * considered duplicates, so we pass an extra argument
+                         * to add_to_cdps so that it does not check for
+                         * duplicates.
+                         */
+
+                        for (Preference p = s.getPreferencesByType(PreferenceType.NUMERIC_INDIFFERENT); p != null; p = p.next)
+                        {
+                            if (p.value == result_candidates.value.value)
+                            {
+                                s.add_to_CDPS(context, p, false);
+                            }
+                        }
+
+                        /*
+                         * Now add any binary preferences with a candidate that
+                         * does NOT have a numeric preference.
+                         */
+
+                        for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT); p != null; p = p.next)
+                        {
+                            if ((p.value == result_candidates.value.value)
+                                    || (p.referent == result_candidates.value.value))
+                            {
+                                if ((p.referent.decider_flag != DeciderFlag.UNARY_INDIFFERENT_CONSTANT)
+                                        || (p.value.decider_flag != DeciderFlag.UNARY_INDIFFERENT_CONSTANT))
+                                {
+                                    s.add_to_CDPS(context, p, true);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        /* This decision was non-numeric, so add all non-numeric preferences associated with the
+                        * chosen candidate to the CDPS.*/
+
+                        for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT); p != null; p = p.next)
+                        {
+                            if (p.value == result_candidates.value.value) {
+                                    s.add_to_CDPS(context, p, true);
+                            }
+                        }
+                        for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT); p != null; p = p.next)
+                        {
+                            if ((p.value == result_candidates.value.value) || (p.referent == result_candidates.value.value)) {
+                                    s.add_to_CDPS(context, p, true);
+                            }
+                        }
+                    }
+                }
             }
             else
+            {
                 result_candidates.value = candidates;
+            }
 
             return ImpasseType.NONE;
         }
 
-        // items not all indifferent; for context slots this gives a tie
-        if (s.isa_context_slot)
-        {
-            result_candidates.value = candidates;
-            return ImpasseType.TIE;
-        }
-
+        // Candidates are not all indifferent, so we have a tie.
         result_candidates.value = candidates;
-
-        // otherwise we have a tie
+        if (do_CDPS && s.hasContextDependentPreferenceSet())
+        {
+            s.clear_CDPS(context);
+        }
         return ImpasseType.TIE;
-    }
-    
-    /**
-     * decide.cpp:1204:run_preference_semantics_for_consistency_check
-     * 
-     * @param s
-     * @param result_candidates
-     * @return the impasse type
-     */
-    public ImpasseType run_preference_semantics_for_consistency_check (Slot s, ByRef<Preference> result_candidates) 
-    {
-        return run_preference_semantics(s, result_candidates, true, false );
     }
     
     /**
@@ -2509,7 +2799,7 @@ public class Decider
         do_buffered_acceptable_preference_wme_changes();
         do_buffered_link_changes();
         this.workingMemory.do_buffered_wm_changes(io);
-        tempMemory.remove_garbage_slots();
+        tempMemory.remove_garbage_slots(context);
     }
     
     /**
