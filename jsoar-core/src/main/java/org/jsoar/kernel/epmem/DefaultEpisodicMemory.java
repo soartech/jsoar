@@ -1446,16 +1446,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (id.isGoal())
             {
                 Iterator<Wme> it = id.getWmes();
-                while (it.hasNext())
+                if (it != null)
                 {
-                    return_val.add((WmeImpl) it.next());
+                    while (it.hasNext())
+                    {
+                        return_val.add((WmeImpl) it.next());
+                    }
                 }
             }
 
             // input wmes
-            for (WmeImpl wi = id.getInputWmes(); wi.next != null; wi = wi.next)
+            if (id.getInputWmes() != null)
             {
-                return_val.add(wi);
+                for (WmeImpl wi = id.getInputWmes(); wi.next != null; wi = wi.next)
+                {
+                    return_val.add(wi);
+                }
             }
 
             // regular wmes
