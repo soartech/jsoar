@@ -489,6 +489,11 @@ public class Slot
             printer.print("--> Adding preference to CDPS: %s", pref);
         }
 
+        if(this.CDPS == null)
+        {
+            this.CDPS = new LinkedList<Preference>();
+        }
+        
         for (Iterator<Preference> it = this.CDPS.iterator(); it.hasNext();)
         {
             Preference p = it.next();
@@ -542,7 +547,8 @@ public class Slot
         }
         if (!already_exists)
         {
-            this.CDPS.add(pref);
+            this.CDPS.push(pref);
+            pref.preference_add_ref();
         }
         else if (traceBacktracing)
         {

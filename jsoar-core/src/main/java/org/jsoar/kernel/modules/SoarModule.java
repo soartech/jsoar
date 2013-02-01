@@ -158,8 +158,8 @@ public class SoarModule
                     }
                 }               
 
-                // Prohibits defaults to null
-                // cond.bt().prohibits = null;
+                // CDPS defaults to null
+                // cond.bt().CDPS = null;
 
                 prev_cond = cond;
             }

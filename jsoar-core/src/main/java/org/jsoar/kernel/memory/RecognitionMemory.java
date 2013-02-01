@@ -233,6 +233,7 @@ public class RecognitionMemory
                                         && pref.isInTempMemory())
                                 {
                                     bt.addContextDependentPreference(pref);
+                                    pref.preference_add_ref();
                                 }
                                 else
                                 {
@@ -243,6 +244,7 @@ public class RecognitionMemory
                                         if (new_pref.isInTempMemory())
                                         {
                                             bt.addContextDependentPreference(new_pref);
+                                            new_pref. preference_add_ref();
                                         }
                                     }
                                 }
@@ -259,6 +261,7 @@ public class RecognitionMemory
                                     && pref.isInTempMemory())
                             {
                                 bt.addContextDependentPreference(pref);
+                                pref.preference_add_ref();
                             }
                             else
                             {
@@ -269,6 +272,7 @@ public class RecognitionMemory
                                     if (new_pref.isInTempMemory())
                                     {
                                         bt.addContextDependentPreference(new_pref);
+                                        new_pref.preference_add_ref();
                                     }
                                 }
                             }
