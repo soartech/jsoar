@@ -449,9 +449,9 @@ public class Slot
 
         final RecognitionMemory recMemory = Adaptables.adapt(context, RecognitionMemory.class);
 
-        for (Iterator<Preference> it = this.CDPS.iterator(); it.hasNext(); )
+        for(Preference p : CDPS)
         {
-            it.next().preference_remove_ref(recMemory);
+            p.preference_remove_ref(recMemory);
         }
 
         this.CDPS = null;
@@ -494,9 +494,8 @@ public class Slot
             this.CDPS = new LinkedList<Preference>();
         }
         
-        for (Iterator<Preference> it = this.CDPS.iterator(); it.hasNext();)
+        for(Preference p : CDPS)
         {
-            Preference p = it.next();
             if (p == pref)
             {
                 already_exists = true;

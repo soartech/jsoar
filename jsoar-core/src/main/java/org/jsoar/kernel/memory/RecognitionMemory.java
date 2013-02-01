@@ -225,10 +225,9 @@ public class RecognitionMemory
                     {
                         if (bt.trace.slot.hasContextDependentPreferenceSet())
                         {
-                            for (Iterator<Preference> it = bt.trace.slot.getContextDependentPreferenceSet().iterator(); it.hasNext();)
+                            for(Preference pref : bt.trace.slot.getContextDependentPreferenceSet())
                             {
                                 Preference new_pref = null;
-                                Preference pref = it.next();
                                 if (pref.inst.match_goal_level == inst.match_goal_level
                                         && pref.isInTempMemory())
                                 {
