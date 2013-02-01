@@ -90,6 +90,15 @@ public final class WatchCommand implements SoarCommand
                 i++;
                 processLevel(args[i]);
             }
+            else if(arg.equals("-L") || arg.equals("--learning"))
+            {
+                if(i + 1 == args.length)
+                {
+                    throw new SoarException("Missing argument for " + arg + " option.");
+                }
+                i++;
+                processLearning(args[i]);
+            }
             else if(arg.startsWith("--"))
             {
                 i = processOption(arg.substring(2), i, args);
@@ -190,5 +199,35 @@ public final class WatchCommand implements SoarCommand
         {
             throw new SoarException(e.getMessage());
         }
+    }
+    
+    private void processLearning(String arg) throws SoarException
+    {
+        if (arg.equals("noprint") || arg.equals("0"))
+        {
+            trace.setEnabled(Category.CHUNK_NAMES, false);
+            trace.setEnabled(Category.CHUNKS, false);
+            trace.setEnabled(Category.JUSTIFICATION_NAMES, false);
+            trace.setEnabled(Category.JUSTIFICATIONS, false);
+            return;
+        }
+        if (arg.equals("print") || arg.equals("1"))
+        {
+            trace.setEnabled(Category.CHUNK_NAMES, true);
+            trace.setEnabled(Category.CHUNKS, false);
+            trace.setEnabled(Category.JUSTIFICATION_NAMES, true);
+            trace.setEnabled(Category.JUSTIFICATIONS, false);
+            return;
+        }
+        if (arg.equals("fullprint") || arg.equals("2"))
+        {
+            trace.setEnabled(Category.CHUNK_NAMES, true);
+            trace.setEnabled(Category.CHUNKS, true);
+            trace.setEnabled(Category.JUSTIFICATION_NAMES, true);
+            trace.setEnabled(Category.JUSTIFICATIONS, true);
+            return;
+        }
+
+        throw new SoarException("Invalid learn setting, expected noprint, print, fullprint, or 0-2. Got: " + arg);
     }
 }
