@@ -80,44 +80,50 @@ public class ChunkingTests extends FunctionalTestHarness
                 "chunk-1*d10*opnochange*1", 
                 ProductionType.CHUNK,
                 "sp {chunk-1*d10*opnochange*1\n" +
-                "    :chunk\n" +
-                "    (state <s1> ^operator <o1>)\n" +
-                "    (<o1> -^default-desired-copy yes)\n" +
-                "    (<o1> ^name evaluate-operator)\n" +
-                "    (<o1> ^superproblem-space <s2>)\n" +
-                "    (<s2> ^name move-blocks)\n" +
-                "    (<o1> ^evaluation <e1>)\n" +
-                "    (<s1> ^evaluation <e1>)\n" +
-                "    (<o1> ^superstate <s3>)\n" +
-                "    (<s3> ^name blocks-world)\n" +
-                "    (<s3> ^object <o2>)\n" +
-                "    (<o2> ^type block)\n" +
-                "    (<e1> ^desired <d1>)\n" +
-                "    (<o1> ^superoperator <s4>)\n" +
-                "    (<s4> ^moving-block { <m1> <> <o2> })\n" +
-                "    (<s3> ^object <m1>)\n" +
-                "    (<s4> ^destination <d2>)\n" +
-                "    (<s3> ^ontop <o3>)\n" +
-                "    (<o3> ^top-block <o2>)\n" +
-                "    (<o3> ^bottom-block { <b1> <> <d2> <> <m1> })\n" +
-                "    (<s3> ^ontop <o4>)\n" +
-                "    (<o4> ^top-block <m1>)\n" +
-                "    (<o4> ^bottom-block <b1>)\n" +
-                "    (<s3> ^ontop <o5>)\n" +
-                "    (<o5> ^top-block <d2>)\n" +
-                "    (<o5> ^bottom-block <b1>)\n" +
-                "    (<d1> ^ontop <o6>)\n" +
-                "    (<o6> ^top-block <o2>)\n" +
-                "    (<o6> ^bottom-block <m1>)\n" +
-                "    (<d1> ^ontop { <o7> <> <o6> })\n" +
-                "    (<o7> ^top-block <m1>)\n" +
-                "    (<o7> ^bottom-block <d2>)\n" +
-                "    (<d1> ^ontop { <o8> <> <o7> <> <o6> })\n" +
-                "    (<o8> ^top-block <d2>)\n" +
-                "    (<o8> ^bottom-block <b1>)\n" +
-                "    -->\n" +
-                "    (<e1> ^symbolic-value success +)\n" +
-                "}\n", true);
+                        "    :chunk\n" +
+                        "    (state <s1> ^operator <o1>)\n" +
+                        "    (<o1> -^default-desired-copy yes)\n" +
+                        "    (<o1> ^name evaluate-operator)\n" +
+                        "    (<o1> ^superproblem-space <s2>)\n" +
+                        "    (<s2> ^name move-blocks)\n" +
+                        "    (<o1> ^evaluation <e1>)\n" +
+                        "    (<s1> ^evaluation <e1>)\n" +
+                        "    (<o1> ^superoperator <s3>)\n" +
+                        "    (<s3> ^name move-block)\n" +
+                        "    (<s3> ^moving-block <m1>)\n" +
+                        "    (<m1> ^type block)\n" +
+                        "    (<s3> ^destination { <d1> <> <m1> })\n" +
+                        "    (<d1> ^type block)\n" +
+                        "    (<o1> ^superstate <s4>)\n" +
+                        "    (<s4> ^name blocks-world)\n" +
+                        "    (<s4> ^object <m1>)\n" +
+                        "    (<s4> ^object <d1>)\n" +
+                        "    (<s4> ^object { <o2> <> <d1> <> <m1> })\n" +
+                        "    (<o2> ^type block)\n" +
+                        "    (<s4> ^object { <o3> <> <d1> <> <m1> })\n" +
+                        "    (<o3> ^type table)\n" +
+                        "    (<e1> ^desired <d2>)\n" +
+                        "    (<s4> ^ontop <o4>)\n" +
+                        "    (<o4> ^top-block <o2>)\n" +
+                        "    (<o4> ^bottom-block <o3>)\n" +
+                        "    (<s4> ^ontop <o5>)\n" +
+                        "    (<o5> ^top-block <m1>)\n" +
+                        "    (<o5> ^bottom-block <o3>)\n" +
+                        "    (<s4> ^ontop <o6>)\n" +
+                        "    (<o6> ^top-block <d1>)\n" +
+                        "    (<o6> ^bottom-block <o3>)\n" +
+                        "    (<d2> ^ontop <o7>)\n" +
+                        "    (<o7> ^top-block <o2>)\n" +
+                        "    (<o7> ^bottom-block <m1>)\n" +
+                        "    (<d2> ^ontop { <o8> <> <o7> })\n" +
+                        "    (<o8> ^top-block <m1>)\n" +
+                        "    (<o8> ^bottom-block <d1>)\n" +
+                        "    (<d2> ^ontop { <o9> <> <o8> <> <o7> })\n" +
+                        "    (<o9> ^top-block <d1>)\n" +
+                        "    (<o9> ^bottom-block <o3>)\n" +
+                        "    -->\n" +
+                        "    (<e1> ^symbolic-value success +)\n" +
+                        "}\n", true);
 
     }
 
