@@ -1,0 +1,1180 @@
+Port changes from CSoar revision 12164 and 12165 and 12167 (chunk code cleanup and issue 65)
+
+these changes are needed to properly test the CDPS port, because it affects when chunks get created
+note that r12167 only affects symbol ref counts, which jsoar doesn't use, so that revision can be ignored
+
+#
+# start 12164 diffs
+#
+
+###########################################
+# backtrace stuff
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
+# 12164 introduces unreliable arg in various places, 12165 renames it to reliable
+# 12164 changes shown below, but refer to 12165 to avoid extra work
+
+# backtrace_through_instantiation()
+... 			
+176 	176 		void backtrace_through_instantiation (agent* thisAgent,
+177 	177 		instantiation *inst,
+178 	178 		goal_stack_level grounds_level,
+179 		- 	condition *trace_cond,
+	179 	+ 	condition *trace_cond,
+	180 	+ 	bool *unreliable,
+180 	181 		int indent) {
+181 	182 		
+182 	183 		tc_number tc; /* use this to mark ids in the ground set */
+... 			
+238 	239 		temp_explain_backtrace.next_backtrace = NULL;
+239 	240 		}
+240 	241 		
+241 		- 	/* --- check okay_to_variablize flag --- */
+242 		- 	if (! inst->okay_to_variablize) thisAgent->variablize_this_chunk = FALSE;
+	242 	+ 	if (inst->unreliable)
+	243 	+ 	*unreliable = true;
+243 	244 		
+244 	245 		/* --- mark transitive closure of each higher goal id that was tested in
+245 	246 		the id field of a top-level positive condition --- */
+
+# trace_locals()
+... 			
+440 	441 		there are no more locals to BT.
+441 	442 		--------------------------------------------------------------- */
+442 	443 		
+443 		- 	void trace_locals (agent* thisAgent, goal_stack_level grounds_level) {
+	444 	+ 	void trace_locals (agent* thisAgent, goal_stack_level grounds_level, bool *unreliable) {
+444 	445 		
+445 	446 		/* mvp 5-17-94 */
+446 	447 		cons *c, *prohibits;
+... 			
+471 	472 		if (bt_pref) {
+472 	473 		
+473 	474 		/* mvp 5-17-94 */
+474 		- 	backtrace_through_instantiation (thisAgent, bt_pref->inst, grounds_level,cond, 0);
+	475 	+ 	backtrace_through_instantiation (thisAgent, bt_pref->inst, grounds_level,cond, unreliable, 0);
+475 	476 		
+476 	477 		/* check if any prohibit preferences */
+477 	478 		if (cond->bt.prohibits) {
+... 			
+482 	483 		xml_begin_tag(thisAgent, kTagProhibitPreference);
+483 	484 		print_preference (thisAgent, p);
+484 	485 		}
+485 		- 	backtrace_through_instantiation (thisAgent, p->inst, grounds_level, cond, 6);
+	486 	+ 	backtrace_through_instantiation (thisAgent, p->inst, grounds_level, cond, unreliable, 6);
+486 	487 		
+487 	488 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM]) {
+488 	489 		xml_end_tag(thisAgent, kTagProhibitPreference);
+... 			
+510 	511 		(referent_of_equality_test(cond->data.tests.value_test) ==
+511 	512 		thisAgent->t_symbol) &&
+512 	513 		(! cond->test_for_acceptable_preference)) {
+513 		- 	thisAgent->variablize_this_chunk = FALSE;
+514 		- 	thisAgent->quiescence_t_flag = TRUE;
+	514 	+ 	*unreliable = true;
+515 	515 		}
+516 	516 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM]) {
+517 	517 		xml_end_tag(thisAgent, kTagLocal);
+... 
+
+# trace_ungrounded_potentials()
+
+... 			
+607 	607 		if anything was BT'd; FALSE if nothing changed.
+608 	608 		--------------------------------------------------------------- */
+609 	609 		
+610 		- 	Bool trace_ungrounded_potentials (agent* thisAgent, goal_stack_level grounds_level) {
+	610 	+ 	Bool trace_ungrounded_potentials (agent* thisAgent, goal_stack_level grounds_level, bool *unreliable) {
+611 	611 		
+612 	612 		/* mvp 5-17-94 */
+613 	613 		cons *c, *next_c, *prev_c, *prohibits;
+... 			
+661 	661 		static_cast<goal_stack_level>(grounds_level+1));
+662 	662 		
+663 	663 		/* mvp 5-17-94 */
+664 		- 	backtrace_through_instantiation (thisAgent, bt_pref->inst, grounds_level,potential,0);
+	664 	+ 	backtrace_through_instantiation (thisAgent, bt_pref->inst, grounds_level,potential, unreliable, 0);
+665 	665 		if (potential->bt.prohibits) {
+666 	666 		for (prohibits=potential->bt.prohibits; prohibits!=NIL; prohibits=prohibits->rest) {
+667 	667 		p = static_cast<preference_struct *>(prohibits->first);
+... 			
+670 	670 		xml_begin_tag(thisAgent, kTagProhibitPreference);
+671 	671 		print_preference (thisAgent, p);
+672 	672 		}
+673 		- 	backtrace_through_instantiation (thisAgent, p->inst, grounds_level, potential, 6);
+	673 	+ 	backtrace_through_instantiation (thisAgent, p->inst, grounds_level, potential, unreliable, 6);
+674 	674 		
+675 	675 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM]) {
+676 	676 		xml_end_tag(thisAgent, kTagProhibitPreference);
+... 		
+
+###########################################
+# chunk stuff
+# Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp
+
+# build_chunk_conds_for_grounds_and_add_negateds()
+
+... 			
+417 	417 		void build_chunk_conds_for_grounds_and_add_negateds (agent* thisAgent,
+418 	418 		chunk_cond **dest_top,
+419 	419 		chunk_cond **dest_bottom,
+420 		- 	tc_number tc_to_use) {
+	420 	+ 	tc_number tc_to_use,
+	421 	+ 	bool *unreliable) {
+421 	422 		cons *c;
+422 	423 		condition *ground;
+423 	424 		chunk_cond *cc, *first_cc, *prev_cc;
+... 			
+495 	496 		// report what local negations are preventing the chunk,
+496 	497 		// and set flags like we saw a ^quiescence t so it won't be created
+497 	498 		report_local_negation ( thisAgent, cc->cond ); // in backtrace.cpp
+498 		- 	thisAgent->quiescence_t_flag = TRUE;
+499 		- 	thisAgent->variablize_this_chunk = FALSE;
+	499 	+ 	*unreliable = true;
+500 	500 		}
+501 	501 		
+502 	502 		free_with_pool (&thisAgent->chunk_cond_pool, cc);
+... 	
+
+# should_variablize() (new func)
+
+... 			
+903 	903 		}
+904 	904 		/* kjh (B14) end */
+905 	905 		
+	906 	+ 	bool should_variablize(agent *thisAgent, instantiation *inst) {
+	907 	+ 	preference *p;
+	908 	+ 	/* if a result is created in a state higher than the immediate
+	909 	+ 	superstate, don't make chunks for intermediate justifications.
+	910 	+ 	*/
+	911 	+ 	for (p=inst->preferences_generated; p; p=p->inst_next)
+	912 	+ 	{
+	913 	+ 	if (p->id->id.level < inst->match_goal_level-1)
+	914 	+ 	{
+	915 	+ 	return false;
+	916 	+ 	}
+	917 	+ 	}
+	918 	+ 	
+	919 	+ 	/* allow_bottom_up_chunks will be false if a chunk was already
+	920 	+ 	learned in a lower goal
+	921 	+ 	*/
+	922 	+ 	if (!thisAgent->sysparams[LEARNING_ALL_GOALS_SYSPARAM] &&
+	923 	+ 	!inst->match_goal->id.allow_bottom_up_chunks)
+	924 	+ 	{
+	925 	+ 	return false;
+	926 	+ 	}
+	927 	+ 	
+	928 	+ 	/* --- check whether ps name is in chunk_free_problem_spaces --- */
+	929 	+ 	if ( thisAgent->sysparams[LEARNING_EXCEPT_SYSPARAM] &&
+	930 	+ 	member_of_list(inst->match_goal,thisAgent->chunk_free_problem_spaces))
+	931 	+ 	{
+	932 	+ 	if (thisAgent->soar_verbose_flag || thisAgent->sysparams[TRACE_CHUNKS_SYSPARAM])
+	933 	+ 	{
+	934 	+ 	char buf[64];
+	935 	+ 	std::ostringstream message;
+	936 	+ 	message << "\nnot chunking due to chunk-free state " << symbol_to_string(thisAgent, inst->match_goal, false, buf, 64);
+	937 	+ 	print(thisAgent, message.str().c_str());
+	938 	+ 	xml_generate_verbose(thisAgent, message.str().c_str());
+	939 	+ 	}
+	940 	+ 	return false;
+	941 	+ 	}
+	942 	+ 	else if (thisAgent->sysparams[LEARNING_ONLY_SYSPARAM] &&
+	943 	+ 	!member_of_list(inst->match_goal,thisAgent->chunky_problem_spaces))
+	944 	+ 	{
+	945 	+ 	if (thisAgent->soar_verbose_flag || thisAgent->sysparams[TRACE_CHUNKS_SYSPARAM])
+	946 	+ 	{
+	947 	+ 	char buf[64];
+	948 	+ 	std::ostringstream message;
+	949 	+ 	message << "\nnot chunking due to non-chunky state " << symbol_to_string(thisAgent, inst->match_goal, false, buf, 64);
+	950 	+ 	print(thisAgent, message.str().c_str());
+	951 	+ 	xml_generate_verbose(thisAgent, message.str().c_str());
+	952 	+ 	}
+	953 	+ 	return false;
+	954 	+ 	}
+	955 	+ 	return true;
+	956 	+ 	}
+  
+# chunk_instantiation() (significant changes, perhaps refer to most recent version instead of diff)
+  
+  906 	958 		/* ====================================================================
+907 	959 		
+908 	960 		Chunk Instantiation
+909 	961 		
+910 	962 		This the main chunking routine. It takes an instantiation, and a
+911 		- 	flag "allow_variablization"--if FALSE, the chunk will not be
+	963 	+ 	flag "variablize"--if FALSE, the chunk will not be
+912 	964 		variablized. (If TRUE, it may still not be variablized, due to
+913 	965 		chunk-free-problem-spaces, ^quiescence t, etc.)
+914 	966 		==================================================================== */
+915 	967 		
+916 	968 		
+917 		- 	void chunk_instantiation (agent* thisAgent, instantiation *inst, Bool allow_variablization, instantiation **custom_inst_list)
+	969 	+ 	void chunk_instantiation (agent* thisAgent, instantiation *inst, bool variablize, instantiation **custom_inst_list)
+918 	970 		{
+919 		- 	Bool making_topmost_chunk = FALSE; /* RCHONG: 10.11 */
+920 	971 		goal_stack_level grounds_level;
+921 	972 		preference *results, *pref;
+922 	973 		action *rhs;
+... 			
+929 	980 		condition *lhs_top, *lhs_bottom;
+930 	981 		not_struct *nots;
+931 	982 		chunk_cond *top_cc, *bottom_cc;
+932 		- 	
+933 		- 	Bool chunk_free_flag = FALSE;
+934 		- 	Bool chunky_flag = FALSE;
+	983 	+ 	bool unreliable = false;
+	984 	+ 	bool variablize_current;
+935 	985 		
+936 	986 		explain_chunk_str temp_explain_chunk;
+937 	987 		memset(temp_explain_chunk.name, 0, EXPLAIN_CHUNK_STRUCT_NAME_BUFFER_SIZE);
+... 			
+962 	1012 		#endif
+963 	1013 		#endif
+964 	1014 		
+965 		- 	/* REW: begin 09.15.96 */
+966 		- 	
+967 		- 	/*
+968 		- 	
+969 		- 	in OPERAND, we only wanna built a chunk for the top goal; i.e. no
+970 		- 	intermediate chunks are build. we're essentially creating
+971 		- 	"top-down chunking"; just the opposite of the "bottom-up chunking"
+972 		- 	that is available through a soar prompt-level comand.
+973 		- 	
+974 		- 	(why do we do this?? i don't remember...)
+975 		- 	
+976 		- 	we accomplish this by forcing only justifications to be built for
+977 		- 	subgoal chunks. and when we're about to build the top level
+978 		- 	result, we make a chunk. a cheat, but it appears to work. of
+979 		- 	course, this only kicks in if learning is turned on.
+980 		- 	
+981 		- 	i get the behavior i want by twiddling the allow_variablization
+982 		- 	flag. i set it to FALSE for intermediate results. then for the
+983 		- 	last (top-most) result, i set it to whatever it was when the
+984 		- 	function was called.
+985 		- 	
+986 		- 	by the way, i need the lower level justificiations because they
+987 		- 	support the upper level justifications; i.e. a justification at
+988 		- 	level i supports the justification at level i-1. i'm talkin' outa
+989 		- 	my butt here since i don't know that for a fact. it's just that
+990 		- 	i tried building only the top level chunk and ignored the
+991 		- 	intermediate justifications and the system complained. my
+992 		- 	explanation seemed reasonable, at the moment.
+993 		- 	
+994 		- 	*/
+995 		- 	
+996 		- 	
+997 		- 	if (thisAgent->sysparams[LEARNING_ON_SYSPARAM] == TRUE)
+998 		- 	{
+999 		- 	if (pref->id->id.level < (inst->match_goal_level - 1))
+1000 		- 	{
+1001 		- 	making_topmost_chunk = FALSE;
+1002 		- 	allow_variablization = FALSE;
+1003 		- 	inst->okay_to_variablize = FALSE;
+1004 		- 	
+1005 		- 	if (thisAgent->soar_verbose_flag == TRUE)
+1006 		- 	{
+1007 		- 	print_string(thisAgent, "\n in chunk_instantiation: making justification only");
+1008 		- 	xml_generate_verbose(thisAgent, "in chunk_instantiation: making justification only");
+1009 		- 	}
+1010 		- 	}
+1011 		- 	else
+1012 		- 	{
+1013 		- 	making_topmost_chunk = TRUE;
+1014 		- 	allow_variablization = (thisAgent->sysparams[LEARNING_ON_SYSPARAM] != 0);
+1015 		- 	inst->okay_to_variablize = static_cast<byte>(thisAgent->sysparams[LEARNING_ON_SYSPARAM]);
+1016 		- 	
+1017 		- 	if (thisAgent->soar_verbose_flag == TRUE)
+1018 		- 	{
+1019 		- 	print(thisAgent, "\n in chunk_instantiation: resetting allow_variablization to %s", ((allow_variablization) ? "TRUE" : "FALSE"));
+1020 		- 	if(allow_variablization)
+1021 		- 	xml_generate_verbose(thisAgent, "in chunk_instantiation: resetting allow_variablization to TRUE");
+1022 		- 	else
+1023 		- 	xml_generate_verbose(thisAgent, "in chunk_instantiation: resetting allow_variablization to FALSE");
+1024 		- 	}
+1025 		- 	}
+1026 		- 	}
+1027 		- 	else
+1028 		- 	{
+1029 		- 	making_topmost_chunk = TRUE;
+1030 		- 	}
+1031 		- 	/* REW: end 09.15.96 */
+1032 		- 	
+1033 	1015 		results = get_results_for_instantiation (thisAgent, inst);
+1034 	1016 		if (!results) goto chunking_done;
+1035 	1017 		
+1036 		- 	/* --- update flags on goal stack for bottom-up chunking --- */
+	1018 	+ 	/* set allow_bottom_up_chunks to false for all higher goals to prevent chunking */
+1037 	1019 		{
+1038 	1020 		Symbol *g;
+1039 	1021 		for (g=inst->match_goal->id.higher_goal; g && g->id.allow_bottom_up_chunks; g=g->id.higher_goal)
+... 			
+1063 	1045 		thisAgent->locals = NIL;
+1064 	1046 		thisAgent->instantiations_with_nots = NIL;
+1065 	1047 		
+1066 		- 	if (allow_variablization && (! thisAgent->sysparams[LEARNING_ALL_GOALS_SYSPARAM]))
+1067 		- 	allow_variablization = inst->match_goal->id.allow_bottom_up_chunks;
+1068 		- 	
+1069 		- 	chunk_free_flag = FALSE;
+1070 		- 	chunky_flag = FALSE;
+1071 		- 	
+1072 		- 	/* --- check whether ps name is in chunk_free_problem_spaces --- */
+1073 		- 	// if allow_variablization is true, need to disable it if
+1074 		- 	// learn --except is on and the state is in chunk_free_problem_spaces
+1075 		- 	// learn --only is on and the state is not in chunky_problem_spaces
+1076 		- 	// if chunk_free_flag, variablize_this_chunk is initialized to false because of dont-learn
+1077 		- 	// if chunky_flag, variablize_this_chunk is initialized to true because of force-learn
+1078 		- 	if (allow_variablization)
+1079 		- 	{
+1080 		- 	if ( thisAgent->sysparams[LEARNING_EXCEPT_SYSPARAM])
+1081 		- 	{
+1082 		- 	if (member_of_list(inst->match_goal,thisAgent->chunk_free_problem_spaces))
+1083 		- 	{
+1084 		- 	if (thisAgent->soar_verbose_flag || thisAgent->sysparams[TRACE_CHUNKS_SYSPARAM])
+1085 		- 	{
+1086 		- 	char buf[64];
+1087 		- 	std::ostringstream message;
+1088 		- 	message << "\nnot chunking due to chunk-free state " << symbol_to_string(thisAgent, inst->match_goal, false, buf, 64);
+1089 		- 	print(thisAgent, message.str().c_str());
+1090 		- 	xml_generate_verbose(thisAgent, message.str().c_str());
+1091 		- 	}
+1092 		- 	allow_variablization = FALSE;
+1093 		- 	chunk_free_flag = TRUE;
+1094 		- 	}
+1095 		- 	}
+1096 		- 	else if (thisAgent->sysparams[LEARNING_ONLY_SYSPARAM])
+1097 		- 	{
+1098 		- 	if (member_of_list(inst->match_goal,thisAgent->chunky_problem_spaces))
+1099 		- 	chunky_flag = TRUE;
+1100 		- 	else
+1101 		- 	{
+1102 		- 	if (thisAgent->soar_verbose_flag || thisAgent->sysparams[TRACE_CHUNKS_SYSPARAM])
+1103 		- 	{
+1104 		- 	char buf[64];
+1105 		- 	std::ostringstream message;
+1106 		- 	message << "\nnot chunking due to non-chunky state " << symbol_to_string(thisAgent, inst->match_goal, false, buf, 64);
+1107 		- 	print(thisAgent, message.str().c_str());
+1108 		- 	xml_generate_verbose(thisAgent, message.str().c_str());
+1109 		- 	}
+1110 		- 	allow_variablization = FALSE;
+1111 		- 	}
+1112 		- 	}
+1113 		- 	} /* end KJC mods */
+1114 		- 	
+1115 		- 	thisAgent->variablize_this_chunk = allow_variablization;
+1116 		- 	
+1117 	1048 		/* Start a new structure for this potential chunk */
+1118 	1049 		
+1119 	1050 		if (thisAgent->sysparams[EXPLAIN_SYSPARAM])
+... 			
+1137 	1068 		print_preference (thisAgent, pref);
+1138 	1069 		print_string (thisAgent, " ");
+1139 	1070 		}
+1140 		- 	backtrace_through_instantiation (thisAgent, pref->inst, grounds_level, NULL, 0);
+	1071 	+ 	backtrace_through_instantiation (thisAgent, pref->inst, grounds_level, NULL, &unreliable, 0);
+1141 	1072 		
+1142 	1073 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM])
+1143 	1074 		{
+1144 	1075 		xml_end_tag(thisAgent, kTagBacktraceResult);
+1145 	1076 		}
+1146 	1077 		}
+1147 		- 	
+1148 		- 	thisAgent->quiescence_t_flag = FALSE;
+1149 	1078 		
+1150 	1079 		while (TRUE)
+1151 	1080 		{
+1152 		- 	trace_locals (thisAgent, grounds_level);
+	1081 	+ 	trace_locals (thisAgent, grounds_level, &unreliable);
+1153 	1082 		trace_grounded_potentials (thisAgent);
+1154 		- 	if (! trace_ungrounded_potentials (thisAgent, grounds_level)) break;
+	1083 	+ 	if (! trace_ungrounded_potentials (thisAgent, grounds_level, &unreliable)) break;
+1155 	1084 		}
+1156 	1085 		
+1157 	1086 		free_list (thisAgent, thisAgent->positive_potentials);
+... 			
+1160 	1089 		{
+1161 	1090 		tc_number tc_for_grounds;
+1162 	1091 		tc_for_grounds = get_new_tc_number(thisAgent);
+1163 		- 	build_chunk_conds_for_grounds_and_add_negateds (thisAgent, &top_cc, &bottom_cc, tc_for_grounds);
+	1092 	+ 	build_chunk_conds_for_grounds_and_add_negateds (thisAgent, &top_cc, &bottom_cc, tc_for_grounds, &unreliable);
+1164 	1093 		nots = get_nots_for_instantiated_conditions (thisAgent, thisAgent->instantiations_with_nots, tc_for_grounds);
+1165 	1094 		}
+	1095 	+ 	
+	1096 	+ 	variablize_current = variablize && !unreliable && should_variablize(thisAgent, inst);
+	1097 	+ 	thisAgent->variablize_this_chunk = variablize_current;
+1166 	1098 		
+1167 	1099 		/* --- check for LTI validity --- */
+1168 		- 	if ( thisAgent->variablize_this_chunk )
+	1100 	+ 	if ( variablize_current )
+1169 	1101 		{
+1170 	1102 		if ( top_cc )
+1171 	1103 		{
+... 			
+1175 	1107 		
+1176 	1108 		if ( !smem_valid_production( top_cc->variablized_cond, rhs ) )
+1177 	1109 		{
+1178 		- 	thisAgent->variablize_this_chunk = false;
+1179 		- 	
+	1110 	+ 	variablize_current = false;
+1180 	1111 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM])
+1181 	1112 		{
+1182 	1113 		print( thisAgent, "\nWarning: LTI validation failed, creating justification instead." );
+... 			
+1190 	1121 		}
+1191 	1122 		
+1192 	1123 		/* --- get symbol for name of new chunk or justification --- */
+1193 		- 	if (thisAgent->variablize_this_chunk)
+	1124 	+ 	if (variablize_current)
+1194 	1125 		{
+1195 	1126 		/* kjh (B14) begin */
+1196 	1127 		thisAgent->chunks_this_d_cycle++;
+... 			
+1323 	1254 		
+1324 	1255 		chunk_inst->GDS_evaluated_already = FALSE; /* REW: 09.15.96 */
+1325 	1256 		
+1326 		- 	
+1327 		- 	/* If:
+1328 		- 	- you don't want to variablize this chunk, and
+1329 		- 	- the reason is ONLY that it's chunk free, and
+1330 		- 	- NOT that it's also quiescence, then
+1331 		- 	it's okay to variablize through this instantiation later.
+1332 		- 	*/
+1333 		- 	
+1334 		- 	// set chunk_inst->okay_to_variablize to thisAgent->variablize_this_chunk unless:
+1335 		- 	// - we didn't variablize it because of dont-learn (implies learning mode is "except" because if "off" or "on", chunk_free_flag is false)
+1336 		- 	// - or, learn mode is "only" and we didn't variablize it because of force-learn
+1337 		- 	// if one of those two cases is true, we set chunk_inst->okay_to_variablize to TRUE saying we could variablize through it in the future
+1338 		- 	
+1339 		- 	/* AGR MVL1 begin */
+1340 		- 	if (!thisAgent->sysparams[LEARNING_ONLY_SYSPARAM])
+1341 		- 	{
+1342 		- 	if ((! thisAgent->variablize_this_chunk) && ( chunk_free_flag) && (! thisAgent->quiescence_t_flag))
+1343 		- 	chunk_inst->okay_to_variablize = TRUE;
+1344 		- 	else
+1345 		- 	chunk_inst->okay_to_variablize = thisAgent->variablize_this_chunk;
+1346 		- 	}
+1347 		- 	else
+1348 		- 	{
+1349 		- 	if ((! thisAgent->variablize_this_chunk) && (! chunky_flag) && (! thisAgent->quiescence_t_flag))
+1350 		- 	chunk_inst->okay_to_variablize = TRUE;
+1351 		- 	else
+1352 		- 	chunk_inst->okay_to_variablize = thisAgent->variablize_this_chunk;
+1353 		- 	}
+1354 		- 	/* AGR MVL1 end */
+	1257 	+ 	chunk_inst->unreliable = unreliable;
+1355 	1258 		
+1356 	1259 		chunk_inst->in_ms = TRUE; /* set TRUE for now, we'll find out later... */
+1357 	1260 		make_clones_of_results (thisAgent, results, chunk_inst);
+1358 	1261 		fill_in_new_instantiation_stuff (thisAgent, chunk_inst, TRUE);
+1359 		- 	
+1360 		- 	} /* matches { condition *inst_lhs_top, *inst_lhs_bottom ... */
+	1262 	+ 	}
+1361 	1263 		
+1362 	1264 		/* RBD 4/6/95 Need to copy cond's and actions for the production here,
+1363 	1265 		otherwise some of the variables might get deallocated by the call to
+... 			
+1438 	1340 		
+1439 	1341 		/* MVP 6-8-94 */
+1440 	1342 		if (!thisAgent->max_chunks_reached)
+1441 		- 	chunk_instantiation (thisAgent, chunk_inst, thisAgent->variablize_this_chunk, custom_inst_list);
+	1343 	+ 	chunk_instantiation (thisAgent, chunk_inst, variablize, custom_inst_list);
+1442 	1344 		
+1443 	1345 		#ifndef NO_TIMING_STUFF
+1444 	1346 		#ifdef DETAILED_TIMING_STATS
+... 		
+
+###########################################
+# decider stuff
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
+
+# make_fake_preference_for_goal_item()
+# 12165 unreliable -> reliable
+... 			
+1586 	1586 		inst->rete_wme = NIL;
+1587 	1587 		inst->match_goal = goal;
+1588 	1588 		inst->match_goal_level = goal->id.level;
+1589 		- 	inst->okay_to_variablize = TRUE;
+	1589 	+ 	inst->unreliable = false;
+1590 	1590 		inst->backtrace_number = 0;
+1591 	1591 		inst->in_ms = FALSE;
+1592 	1592 		/* --- make the fake condition --- */
+... 	
+
+###########################################
+# instantiation stuff
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/instantiations.h	diff	
+
+# comment and instantiation struct
+# 12165 unreliable -> reliable
+
+... 			
+48 	48 		match_goal_level: goal stack level of the match goal, or
+49 	49 		ATTRIBUTE_IMPASSE_LEVEL if there is no match goal.
+50 	50 		
+51 		- 	okay_to_variablize: TRUE iff it's okay to variablize a
+52 		- 	chunk/justification formed by backtracing through this instantiation.
+53 		- 	This is used to make sure we don't variablize a chunk that got formed
+54 		- 	by backtracing through some other justification.
+	51 	+ 	unreliable: true iff instantiation is a justification whose
+	52 	+ 	backtrace either:
+	53 	+ 	
+	54 	+ 	- tests ^quiescence t, or
+	55 	+ 	- contains a local negated condition and learn -N is set, or
+	56 	+ 	- goes through another unreliable justification
+	57 	+ 	
+	58 	+ 	Intuitively, a justification is unreliable if its creation is
+	59 	+ 	not guaranteed by the state of production and working memory
+55 	60 		
+56 	61 		in_ms: TRUE iff this instantiation is still in the match set (i.e.,
+57 	62 		Rete-supported).
+... 			
+93 	98 		preference *preferences_generated; /* header for dll of prefs */
+94 	99 		Symbol *match_goal; /* symbol, or NIL if none */
+95 	100 		goal_stack_level match_goal_level; /* level, or ATTRIBUTE_IMPASSE_LEVEL */
+96 		- 	byte okay_to_variablize;
+	101 	+ 	bool unreliable;
+97 	102 		Bool in_ms; /* TRUE iff this inst. is still in the match set */
+98 	103 		tc_number backtrace_number;
+99 	104 		Bool GDS_evaluated_already;
+... 		
+
+###########################################
+# recognition memory stuff
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
+	
+# create_instantiation()
+# 12165 unreliable -> reliable
+... 			
+595 	595 		inst->prod = prod;
+596 	596 		inst->rete_token = tok;
+597 	597 		inst->rete_wme = w;
+598 		- 	inst->okay_to_variablize = TRUE;
+	598 	+ 	inst->unreliable = false;
+599 	599 		inst->in_ms = TRUE;
+600 	600 		
+601 	601 		/* REW: begin 09.15.96 */
+... 		
+
+###########################################
+# soar module stuff
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/soar_module.cpp	diff
+	
+# make_fake_preference()
+# 12165 unreliable -> reliable
+
+... 			
+99 	99 		inst->rete_wme = NULL;
+100 	100 		inst->match_goal = state;
+101 	101 		inst->match_goal_level = state->id.level;
+102 		- 	inst->okay_to_variablize = TRUE;
+	102 	+ 	inst->unreliable = false;
+103 	103 		inst->backtrace_number = 0;
+104 	104 		inst->in_ms = FALSE;
+105 	105 		inst->GDS_evaluated_already = FALSE;
+... 	
+
+#
+# start 12165 diffs
+#
+
+###########################################
+# make this change in Chunker.java
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/agent.h	diff
+	
+# remove variablize_this_chunk
+... 			
+590 	590 		goal_stack_level results_match_goal_level;
+591 	591 		tc_number results_tc_number;
+592 	592 		tc_number variablization_tc;
+593 		- 	Bool variablize_this_chunk;
+594 	593 		preference * extra_result_prefs_from_instantiation;
+595 	594 		Bool quiescence_t_flag;
+596 	595 		char chunk_name_prefix[kChunkNamePrefixMaxLength]; /* kjh (B14) */
+... 	
+
+###########################################
+# backtrace stuff
+# unreliable -> reliable
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
+	
+... 			
+177 	177 		instantiation *inst,
+178 	178 		goal_stack_level grounds_level,
+179 	179 		condition *trace_cond,
+180 		- 	bool *unreliable,
+	180 	+ 	bool *reliable,
+181 	181 		int indent) {
+182 	182 		
+183 	183 		tc_number tc; /* use this to mark ids in the ground set */
+... 			
+239 	239 		temp_explain_backtrace.next_backtrace = NULL;
+240 	240 		}
+241 	241 		
+242 		- 	if (inst->unreliable)
+243 		- 	*unreliable = true;
+	242 	+ 	if (!inst->reliable)
+	243 	+ 	*reliable = false;
+244 	244 		
+245 	245 		/* --- mark transitive closure of each higher goal id that was tested in
+246 	246 		the id field of a top-level positive condition --- */
+... 			
+441 	441 		there are no more locals to BT.
+442 	442 		--------------------------------------------------------------- */
+443 	443 		
+444 		- 	void trace_locals (agent* thisAgent, goal_stack_level grounds_level, bool *unreliable) {
+	444 	+ 	void trace_locals (agent* thisAgent, goal_stack_level grounds_level, bool *reliable) {
+445 	445 		
+446 	446 		/* mvp 5-17-94 */
+447 	447 		cons *c, *prohibits;
+... 			
+472 	472 		if (bt_pref) {
+473 	473 		
+474 	474 		/* mvp 5-17-94 */
+475 		- 	backtrace_through_instantiation (thisAgent, bt_pref->inst, grounds_level,cond, unreliable, 0);
+	475 	+ 	backtrace_through_instantiation (thisAgent, bt_pref->inst, grounds_level,cond, reliable, 0);
+476 	476 		
+477 	477 		/* check if any prohibit preferences */
+478 	478 		if (cond->bt.prohibits) {
+... 			
+483 	483 		xml_begin_tag(thisAgent, kTagProhibitPreference);
+484 	484 		print_preference (thisAgent, p);
+485 	485 		}
+486 		- 	backtrace_through_instantiation (thisAgent, p->inst, grounds_level, cond, unreliable, 6);
+	486 	+ 	backtrace_through_instantiation (thisAgent, p->inst, grounds_level, cond, reliable, 6);
+487 	487 		
+488 	488 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM]) {
+489 	489 		xml_end_tag(thisAgent, kTagProhibitPreference);
+... 			
+511 	511 		(referent_of_equality_test(cond->data.tests.value_test) ==
+512 	512 		thisAgent->t_symbol) &&
+513 	513 		(! cond->test_for_acceptable_preference)) {
+514 		- 	*unreliable = true;
+	514 	+ 	*reliable = false;
+515 	515 		}
+516 	516 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM]) {
+517 	517 		xml_end_tag(thisAgent, kTagLocal);
+... 			
+607 	607 		if anything was BT'd; FALSE if nothing changed.
+608 	608 		--------------------------------------------------------------- */
+609 	609 		
+610 		- 	Bool trace_ungrounded_potentials (agent* thisAgent, goal_stack_level grounds_level, bool *unreliable) {
+	610 	+ 	Bool trace_ungrounded_potentials (agent* thisAgent, goal_stack_level grounds_level, bool *reliable) {
+611 	611 		
+612 	612 		/* mvp 5-17-94 */
+613 	613 		cons *c, *next_c, *prev_c, *prohibits;
+... 			
+661 	661 		static_cast<goal_stack_level>(grounds_level+1));
+662 	662 		
+663 	663 		/* mvp 5-17-94 */
+664 		- 	backtrace_through_instantiation (thisAgent, bt_pref->inst, grounds_level,potential, unreliable, 0);
+	664 	+ 	backtrace_through_instantiation (thisAgent, bt_pref->inst, grounds_level,potential, reliable, 0);
+665 	665 		if (potential->bt.prohibits) {
+666 	666 		for (prohibits=potential->bt.prohibits; prohibits!=NIL; prohibits=prohibits->rest) {
+667 	667 		p = static_cast<preference_struct *>(prohibits->first);
+... 			
+670 	670 		xml_begin_tag(thisAgent, kTagProhibitPreference);
+671 	671 		print_preference (thisAgent, p);
+672 	672 		}
+673 		- 	backtrace_through_instantiation (thisAgent, p->inst, grounds_level, potential, unreliable, 6);
+	673 	+ 	backtrace_through_instantiation (thisAgent, p->inst, grounds_level, potential, reliable, 6);
+674 	674 		
+675 	675 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM]) {
+676 	676 		xml_end_tag(thisAgent, kTagProhibitPreference);
+... 		
+
+
+###########################################
+# chunker stuff
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp	diff
+	
+
+# comment updates (right before variablize_symbol())
+... 			
+173 	173 		to convert the results--preferences--into actions. This is done
+174 	174 		by copy_and_variablize_result_list(), which takes the result preferences
+175 	175 		and returns an action list.
+176 		- 	
+177 		- 	The global variable "variablize_this_chunk" indicates whether to
+178 		- 	variablize at all. This flag is set to TRUE or FALSE before and during
+179 		- 	backtracing. FALSE means the new production will become a justification;
+180 		- 	TRUE means it will be a chunk.
+181 	176 		===================================================================== */
+182 	177 		
+	178 	+ 	/* sym is both an input and output parameter */
+  
+# variablize_symbol()
+
+183 	179 		void variablize_symbol (agent* thisAgent, Symbol **sym) {
+184 	180 		char prefix[2];
+185 	181 		Symbol *var;
+186 	182 		
+187 	183 		if ((*sym)->common.symbol_type!=IDENTIFIER_SYMBOL_TYPE) return; // only variablize identifiers
+188 		- 	if (! thisAgent->variablize_this_chunk) return; // don't variablize (justifications)
+189 	184 		if ((*sym)->id.smem_lti != NIL) // don't variablize lti (long term identifiers)
+190 	185 		{
+191 	186 		(*sym)->id.tc_num = thisAgent->variablization_tc;
+... 			
+256 	251 		}
+257 	252 		}
+258 	253 		
+
+# copy_and_variablize_result_list()
+
+259 		- 	action *copy_and_variablize_result_list (agent* thisAgent, preference *pref) {
+	254 	+ 	action *copy_and_variablize_result_list (agent* thisAgent, preference *pref, bool variablize) {
+260 	255 		action *a;
+261 		- 	Symbol *temp;
+	256 	+ 	Symbol *id, *attr, *val, *ref;
+262 	257 		
+263 	258 		if (!pref) return NIL;
+264 	259 		allocate_with_pool (thisAgent, &thisAgent->action_pool, &a);
+265 	260 		a->type = MAKE_ACTION;
+266 	261 		
+267 		- 	temp = pref->id;
+268 		- 	symbol_add_ref (temp);
+269 		- 	variablize_symbol (thisAgent, &temp);
+270 		- 	a->id = symbol_to_rhs_value (temp);
+	262 	+ 	id = pref->id;
+	263 	+ 	attr = pref->attr;
+	264 	+ 	val = pref->value;
+	265 	+ 	ref = pref->referent;
+	266 	+ 	
+	267 	+ 	if (variablize) {
+	268 	+ 	variablize_symbol (thisAgent, &id);
+	269 	+ 	variablize_symbol (thisAgent, &attr);
+	270 	+ 	variablize_symbol (thisAgent, &val);
+	271 	+ 	}
+271 	272 		
+272 		- 	temp = pref->attr;
+273 		- 	symbol_add_ref (temp);
+274 		- 	variablize_symbol (thisAgent, &temp);
+275 		- 	a->attr = symbol_to_rhs_value (temp);
+	273 	+ 	symbol_add_ref (id);
+	274 	+ 	symbol_add_ref (attr);
+	275 	+ 	symbol_add_ref (val);
+276 	276 		
+277 		- 	temp = pref->value;
+278 		- 	symbol_add_ref (temp);
+279 		- 	variablize_symbol (thisAgent, &temp);
+280 		- 	a->value = symbol_to_rhs_value (temp);
+	277 	+ 	a->id = symbol_to_rhs_value (id);
+	278 	+ 	a->attr = symbol_to_rhs_value (attr);
+	279 	+ 	a->value = symbol_to_rhs_value (val);
+281 	280 		
+282 	281 		a->preference_type = pref->type;
+283 	282 		
+284 	283 		if (preference_is_binary(pref->type)) {
+285 		- 	temp = pref->referent;
+286 		- 	symbol_add_ref (temp);
+287 		- 	variablize_symbol (thisAgent, &temp);
+288 		- 	a->referent = symbol_to_rhs_value (temp);
+	284 	+ 	if (variablize) {
+	285 	+ 	variablize_symbol (thisAgent, &ref);
+	286 	+ 	}
+	287 	+ 	symbol_add_ref (ref);
+	288 	+ 	a->referent = symbol_to_rhs_value (ref);
+289 	289 		}
+290 	290 		
+291 		- 	a->next = copy_and_variablize_result_list (thisAgent, pref->next_result);
+	291 	+ 	a->next = copy_and_variablize_result_list (thisAgent, pref->next_result, variablize);
+292 	292 		return a;
+293 	293 		}
+294 	294 		
+... 			
+
+# build_chunk_conds_for_grounds_and_add_negateds (unreliable -> reliable)
+
+418 	418 		chunk_cond **dest_top,
+419 	419 		chunk_cond **dest_bottom,
+420 	420 		tc_number tc_to_use,
+421 		- 	bool *unreliable) {
+	421 	+ 	bool *reliable) {
+422 	422 		cons *c;
+423 	423 		condition *ground;
+424 	424 		chunk_cond *cc, *first_cc, *prev_cc;
+... 			
+496 	496 		// report what local negations are preventing the chunk,
+497 	497 		// and set flags like we saw a ^quiescence t so it won't be created
+498 	498 		report_local_negation ( thisAgent, cc->cond ); // in backtrace.cpp
+499 		- 	*unreliable = true;
+	499 	+ 	*reliable = false;
+500 	500 		}
+501 	501 		
+502 	502 		free_with_pool (&thisAgent->chunk_cond_pool, cc);
+... 			
+
+# variablize_nots_and_insert_into_conditions() (unreliable -> reliable)
+
+583 	583 		condition *c;
+584 	584 		Bool added_it;
+585 	585 		
+586 		- 	/* --- don't bother Not-ifying justifications --- */
+587 		- 	if (! thisAgent->variablize_this_chunk) return;
+588 		- 	
+589 	586 		for (n=nots; n!=NIL; n=n->next) {
+590 	587 		var1 = n->s1->id.variablization;
+591 	588 		var2 = n->s2->id.variablization;
+... 			
+
+# should_variablize()
+
+905 	902 		
+906 	903 		bool should_variablize(agent *thisAgent, instantiation *inst) {
+907 	904 		preference *p;
+908 		- 	/* if a result is created in a state higher than the immediate
+909 		- 	superstate, don't make chunks for intermediate justifications.
+910 		- 	*/
+911 		- 	for (p=inst->preferences_generated; p; p=p->inst_next)
+912 		- 	{
+913 		- 	if (p->id->id.level < inst->match_goal_level-1)
+914 		- 	{
+915 		- 	return false;
+916 		- 	}
+917 		- 	}
+918 	905 		
+919 		- 	/* allow_bottom_up_chunks will be false if a chunk was already
+920 		- 	learned in a lower goal
+921 		- 	*/
+922 		- 	if (!thisAgent->sysparams[LEARNING_ALL_GOALS_SYSPARAM] &&
+923 		- 	!inst->match_goal->id.allow_bottom_up_chunks)
+	906 	+ 	if ( thisAgent->sysparams[LEARNING_ON_SYSPARAM] == 0 )
+924 	907 		{
+925 	908 		return false;
+926 	909 		}
+927 	910 		
+928 		- 	/* --- check whether ps name is in chunk_free_problem_spaces --- */
+929 	911 		if ( thisAgent->sysparams[LEARNING_EXCEPT_SYSPARAM] &&
+930 	912 		member_of_list(inst->match_goal,thisAgent->chunk_free_problem_spaces))
+931 	913 		{
+... 			
+939 	921 		}
+940 	922 		return false;
+941 	923 		}
+942 		- 	else if (thisAgent->sysparams[LEARNING_ONLY_SYSPARAM] &&
+	924 	+ 	
+	925 	+ 	if (thisAgent->sysparams[LEARNING_ONLY_SYSPARAM] &&
+943 	926 		!member_of_list(inst->match_goal,thisAgent->chunky_problem_spaces))
+944 	927 		{
+945 	928 		if (thisAgent->soar_verbose_flag || thisAgent->sysparams[TRACE_CHUNKS_SYSPARAM])
+... 			
+952 	935 		}
+953 	936 		return false;
+954 	937 		}
+	938 	+ 	
+	939 	+ 	/* allow_bottom_up_chunks will be false if a chunk was already
+	940 	+ 	learned in a lower goal
+	941 	+ 	*/
+	942 	+ 	if (!thisAgent->sysparams[LEARNING_ALL_GOALS_SYSPARAM] &&
+	943 	+ 	!inst->match_goal->id.allow_bottom_up_chunks)
+	944 	+ 	{
+	945 	+ 	return false;
+	946 	+ 	}
+	947 	+ 	
+	948 	+ 	/* if a result is created in a state higher than the immediate
+	949 	+ 	superstate, don't make chunks for intermediate justifications.
+	950 	+ 	*/
+	951 	+ 	for (p=inst->preferences_generated; p; p=p->inst_next)
+	952 	+ 	{
+	953 	+ 	if (p->id->id.level < inst->match_goal_level-1)
+	954 	+ 	{
+	955 	+ 	return false;
+	956 	+ 	}
+	957 	+ 	}
+	958 	+ 	
+955 	959 		return true;
+956 	960 		}
+957 	961 	
+
+# chunk_instantiation()
+... 			
+966 	970 		==================================================================== */
+967 	971 		
+968 	972 		
+969 		- 	void chunk_instantiation (agent* thisAgent, instantiation *inst, bool variablize, instantiation **custom_inst_list)
+	973 	+ 	void chunk_instantiation (agent* thisAgent, instantiation *inst, bool dont_variablize, instantiation **custom_inst_list)
+970 	974 		{
+971 	975 		goal_stack_level grounds_level;
+972 	976 		preference *results, *pref;
+... 			
+980 	984 		condition *lhs_top, *lhs_bottom;
+981 	985 		not_struct *nots;
+982 	986 		chunk_cond *top_cc, *bottom_cc;
+983 		- 	bool unreliable = false;
+984 		- 	bool variablize_current;
+	987 	+ 	bool reliable = true;
+	988 	+ 	bool variablize;
+985 	989 		
+986 	990 		explain_chunk_str temp_explain_chunk;
+987 	991 		memset(temp_explain_chunk.name, 0, EXPLAIN_CHUNK_STRUCT_NAME_BUFFER_SIZE);
+... 			
+1068 	1072 		print_preference (thisAgent, pref);
+1069 	1073 		print_string (thisAgent, " ");
+1070 	1074 		}
+1071 		- 	backtrace_through_instantiation (thisAgent, pref->inst, grounds_level, NULL, &unreliable, 0);
+	1075 	+ 	backtrace_through_instantiation (thisAgent, pref->inst, grounds_level, NULL, &reliable, 0);
+1072 	1076 		
+1073 	1077 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM])
+1074 	1078 		{
+... 			
+1078 	1082 		
+1079 	1083 		while (TRUE)
+1080 	1084 		{
+1081 		- 	trace_locals (thisAgent, grounds_level, &unreliable);
+	1085 	+ 	trace_locals (thisAgent, grounds_level, &reliable);
+1082 	1086 		trace_grounded_potentials (thisAgent);
+1083 		- 	if (! trace_ungrounded_potentials (thisAgent, grounds_level, &unreliable)) break;
+	1087 	+ 	if (! trace_ungrounded_potentials (thisAgent, grounds_level, &reliable)) break;
+1084 	1088 		}
+1085 	1089 		
+1086 	1090 		free_list (thisAgent, thisAgent->positive_potentials);
+... 			
+1089 	1093 		{
+1090 	1094 		tc_number tc_for_grounds;
+1091 	1095 		tc_for_grounds = get_new_tc_number(thisAgent);
+1092 		- 	build_chunk_conds_for_grounds_and_add_negateds (thisAgent, &top_cc, &bottom_cc, tc_for_grounds, &unreliable);
+	1096 	+ 	build_chunk_conds_for_grounds_and_add_negateds (thisAgent, &top_cc, &bottom_cc, tc_for_grounds, &reliable);
+1093 	1097 		nots = get_nots_for_instantiated_conditions (thisAgent, thisAgent->instantiations_with_nots, tc_for_grounds);
+1094 	1098 		}
+1095 	1099 		
+1096 		- 	variablize_current = variablize && !unreliable && should_variablize(thisAgent, inst);
+1097 		- 	thisAgent->variablize_this_chunk = variablize_current;
+	1100 	+ 	variablize = !dont_variablize && reliable && should_variablize(thisAgent, inst);
+1098 	1101 		
+1099 	1102 		/* --- check for LTI validity --- */
+1100 		- 	if ( variablize_current )
+	1103 	+ 	if ( variablize )
+1101 	1104 		{
+1102 	1105 		if ( top_cc )
+1103 	1106 		{
+1104 	1107 		// need a temporary copy of the actions
+1105 	1108 		thisAgent->variablization_tc = get_new_tc_number(thisAgent);
+1106 		- 	rhs = copy_and_variablize_result_list (thisAgent, results);
+	1109 	+ 	rhs = copy_and_variablize_result_list (thisAgent, results, true);
+1107 	1110 		
+1108 	1111 		if ( !smem_valid_production( top_cc->variablized_cond, rhs ) )
+1109 	1112 		{
+1110 		- 	variablize_current = false;
+	1113 	+ 	variablize = false;
+1111 	1114 		if (thisAgent->sysparams[TRACE_BACKTRACING_SYSPARAM])
+1112 	1115 		{
+1113 	1116 		print( thisAgent, "\nWarning: LTI validation failed, creating justification instead." );
+... 			
+1121 	1124 		}
+1122 	1125 		
+1123 	1126 		/* --- get symbol for name of new chunk or justification --- */
+1124 		- 	if (variablize_current)
+	1127 	+ 	if (variablize)
+1125 	1128 		{
+1126 	1129 		/* kjh (B14) begin */
+1127 	1130 		thisAgent->chunks_this_d_cycle++;
+... 			
+1187 	1190 		goto chunking_done;
+1188 	1191 		}
+1189 	1192 		
+1190 		- 	/* --- variablize it --- */
+1191 	1193 		lhs_top = top_cc->variablized_cond;
+1192 	1194 		lhs_bottom = bottom_cc->variablized_cond;
+1193 		- 	reset_variable_generator (thisAgent, lhs_top, NIL);
+1194 		- 	thisAgent->variablization_tc = get_new_tc_number(thisAgent);
+1195 		- 	variablize_condition_list (thisAgent, lhs_top);
+1196 		- 	variablize_nots_and_insert_into_conditions (thisAgent, nots, lhs_top);
+1197 		- 	rhs = copy_and_variablize_result_list (thisAgent, results);
+	1195 	+ 	if (variablize) {
+	1196 	+ 	reset_variable_generator (thisAgent, lhs_top, NIL);
+	1197 	+ 	thisAgent->variablization_tc = get_new_tc_number(thisAgent);
+	1198 	+ 	variablize_condition_list (thisAgent, lhs_top);
+	1199 	+ 	variablize_nots_and_insert_into_conditions (thisAgent, nots, lhs_top);
+	1200 	+ 	}
+	1201 	+ 	rhs = copy_and_variablize_result_list (thisAgent, results, variablize);
+1198 	1202 		
+1199 		- 	/* --- add goal/impasse tests to it --- */
+1200 	1203 		add_goal_or_impasse_tests (thisAgent, top_cc);
+1201 	1204 		
+1202 		- 	/* --- reorder lhs and make the production --- */
+1203 		- 	
+1204 	1205 		prod = make_production (thisAgent, prod_type, prod_name, &lhs_top, &lhs_bottom, &rhs, FALSE);
+1205 	1206 		
+1206 	1207 		if (!prod)
+... 			
+1254 	1255 		
+1255 	1256 		chunk_inst->GDS_evaluated_already = FALSE; /* REW: 09.15.96 */
+1256 	1257 		
+1257 		- 	chunk_inst->unreliable = unreliable;
+	1258 	+ 	chunk_inst->reliable = reliable;
+1258 	1259 		
+1259 	1260 		chunk_inst->in_ms = TRUE; /* set TRUE for now, we'll find out later... */
+1260 	1261 		make_clones_of_results (thisAgent, results, chunk_inst);
+... 			
+1270 	1271 		condition *new_bottom = 0;
+1271 	1272 		copy_condition_list (thisAgent, lhs_top, &new_top, &new_bottom);
+1272 	1273 		temp_explain_chunk.conds = new_top;
+1273 		- 	temp_explain_chunk.actions = copy_and_variablize_result_list (thisAgent, results);
+	1274 	+ 	temp_explain_chunk.actions = copy_and_variablize_result_list (thisAgent, results, variablize);
+1274 	1275 		}
+1275 	1276 		
+1276 	1277 		rete_addition_result = add_production_to_rete (thisAgent, prod, lhs_top, chunk_inst, print_name);
+... 			
+1340 	1341 		
+1341 	1342 		/* MVP 6-8-94 */
+1342 	1343 		if (!thisAgent->max_chunks_reached)
+1343 		- 	chunk_instantiation (thisAgent, chunk_inst, variablize, custom_inst_list);
+	1344 	+ 	chunk_instantiation (thisAgent, chunk_inst, dont_variablize, custom_inst_list);
+1344 	1345 		
+1345 	1346 		#ifndef NO_TIMING_STUFF
+1346 	1347 		#ifdef DETAILED_TIMING_STATS
+... 		
+
+
+###########################################
+# decider stuff
+# unreliable -> reliable
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff	
+
+... 			
+1586 	1586 		inst->rete_wme = NIL;
+1587 	1587 		inst->match_goal = goal;
+1588 	1588 		inst->match_goal_level = goal->id.level;
+1589 		- 	inst->unreliable = false;
+	1589 	+ 	inst->reliable = true;
+1590 	1590 		inst->backtrace_number = 0;
+1591 	1591 		inst->in_ms = FALSE;
+1592 	1592 		/* --- make the fake condition --- */
+... 	
+
+
+###########################################
+# epmem stuff
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/episodic_memory.cpp	diff
+	
+... 			
+788 	788 		// it to future adventures (potentially on new states)
+789 	789 		
+790 	790 		instantiation *my_justification_list = NIL;
+791 		- 	chunk_instantiation( my_agent, pref->inst, false, &my_justification_list );
+	791 	+ 	chunk_instantiation( my_agent, pref->inst, true, &my_justification_list );
+792 	792 		
+793 	793 		// if any justifications are created, assert their preferences manually
+794 	794 		// (copied mainly from assert_new_preferences with respect to our circumstances)
+... 	
+
+
+###########################################
+# instantiations stuff
+# unreliable -> reliable + minor comment changes
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/instantiations.h	diff
+	
+... 			
+48 	48 		match_goal_level: goal stack level of the match goal, or
+49 	49 		ATTRIBUTE_IMPASSE_LEVEL if there is no match goal.
+50 	50 		
+51 		- 	unreliable: true iff instantiation is a justification whose
+	51 	+ 	reliable: false iff instantiation is a justification whose
+52 	52 		backtrace either:
+53 	53 		
+54 	54 		- tests ^quiescence t, or
+55 	55 		- contains a local negated condition and learn -N is set, or
+56 		- 	- goes through another unreliable justification
+	56 	+ 	- goes through an unreliable justification
+57 	57 		
+58 	58 		Intuitively, a justification is unreliable if its creation is
+59 	59 		not guaranteed by the state of production and working memory
+... 			
+98 	98 		preference *preferences_generated; /* header for dll of prefs */
+99 	99 		Symbol *match_goal; /* symbol, or NIL if none */
+100 	100 		goal_stack_level match_goal_level; /* level, or ATTRIBUTE_IMPASSE_LEVEL */
+101 		- 	bool unreliable;
+	101 	+ 	bool reliable;
+102 	102 		Bool in_ms; /* TRUE iff this inst. is still in the match set */
+103 	103 		tc_number backtrace_number;
+104 	104 		Bool GDS_evaluated_already;
+... 		
+
+###########################################
+# recognition memory stuff
+# unreliable -> reliable + change to chunking call
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
+	
+
+... 			
+595 	595 		inst->prod = prod;
+596 	596 		inst->rete_token = tok;
+597 	597 		inst->rete_wme = w;
+598 		- 	inst->unreliable = false;
+	598 	+ 	inst->reliable = true;
+599 	599 		inst->in_ms = TRUE;
+600 	600 		
+601 	601 		/* REW: begin 09.15.96 */
+... 			
+760 	760 		thisAgent->production_being_fired = NIL;
+761 	761 		
+762 	762 		/* --- build chunks/justifications if necessary --- */
+763 		- 	chunk_instantiation (thisAgent, inst, thisAgent->sysparams[LEARNING_ON_SYSPARAM] != 0, &(thisAgent->newly_created_instantiations));
+	763 	+ 	chunk_instantiation (thisAgent, inst, false, &(thisAgent->newly_created_instantiations));
+764 	764 		
+765 	765 		/* MVP 6-8-94 */
+766 	766 		if (!thisAgent->system_halted) {
+... 	
+
+###########################################
+# rl stuff
+# code removal
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp	diff
+
+... 			
+413 	413 		double init_value = 0;
+414 	414 		condition *cond_top, *cond_bottom;
+415 	415 		
+416 		- 	Bool chunk_var = my_agent->variablize_this_chunk;
+417 		- 	my_agent->variablize_this_chunk = TRUE;
+418 		- 	
+419 	416 		// make unique production name
+420 	417 		Symbol *new_name_symbol;
+421 	418 		std::string new_name = "";
+... 			
+457 	454 		
+458 	455 		// make new production
+459 	456 		production *new_production = make_production( my_agent, USER_PRODUCTION_TYPE, new_name_symbol, &cond_top, &cond_bottom, &new_action, false );
+460 		- 	my_agent->variablize_this_chunk = chunk_var; // restored to original value
+461 	457 		
+462 	458 		// set initial expected reward values
+463 	459 		{
+... 	
+
+###########################################
+# smem stuff
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/semantic_memory.cpp	diff
+
+... 			
+621 	621 		// it to future adventures (potentially on new states)
+622 	622 		
+623 	623 		instantiation *my_justification_list = NIL;
+624 		- 	chunk_instantiation( my_agent, pref->inst, false, &my_justification_list );
+	624 	+ 	chunk_instantiation( my_agent, pref->inst, true, &my_justification_list );
+625 	625 		
+626 	626 		// if any justifications are created, assert their preferences manually
+627 	627 		// (copied mainly from assert_new_preferences with respect to our circumstances)
+... 	
+
+###########################################
+# soar module stuff
+# unreliable -> reliable
+
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/soar_module.cpp	diff
+
+... 			
+99 	99 		inst->rete_wme = NULL;
+100 	100 		inst->match_goal = state;
+101 	101 		inst->match_goal_level = state->id.level;
+102 		- 	inst->unreliable = false;
+	102 	+ 	inst->reliable = true;
+103 	103 		inst->backtrace_number = 0;
+104 	104 		inst->in_ms = FALSE;
+105 	105 		inst->GDS_evaluated_already = FALSE;
+... 	
