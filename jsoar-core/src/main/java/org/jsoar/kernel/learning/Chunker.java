@@ -1198,7 +1198,7 @@ public class Chunker
         }
 
         final Trace trace = context.getTrace();
-        ByRef<Boolean> reliable = new ByRef<Boolean>(false);
+        ByRef<Boolean> reliable = new ByRef<Boolean>(true);
         
         /* --- backtrace through the instantiation that produced each result --- */
         for (pref = results; pref != null; pref = pref.next_result)
