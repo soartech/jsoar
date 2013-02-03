@@ -812,7 +812,7 @@ public class RecognitionMemory
 
         // build chunks/justifications if necessary
         final ByRef<Instantiation> new_created_byref = ByRef.create(newly_created_instantiations);
-        this.chunker.chunk_instantiation(inst, this.chunker.isLearningOn(), new_created_byref);
+        this.chunker.chunk_instantiation(inst, false, new_created_byref);
         newly_created_instantiations = new_created_byref.value;
 
         // TODO callback FIRING_CALLBACK

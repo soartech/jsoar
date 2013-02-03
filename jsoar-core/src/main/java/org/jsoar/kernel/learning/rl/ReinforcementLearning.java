@@ -554,9 +554,6 @@ public class ReinforcementLearning
             final Production my_template = my_template_instance.prod;
             final Action my_action = my_template.getFirstAction();
 
-            boolean chunk_var = chunker.variablize_this_chunk;
-            chunker.variablize_this_chunk = true;
-
             // make unique production name
             String new_name = "";
             do
@@ -596,8 +593,7 @@ public class ReinforcementLearning
                                    .conditions(cond_top.value, cond_bottom.value)
                                    .actions(new_action)
                                    .build();
-            chunker.variablize_this_chunk = chunk_var; // restored to original value
-
+            
             new_production.rlRuleInfo = new RLRuleInfo();
             
             // set initial expected reward values
@@ -630,8 +626,7 @@ public class ReinforcementLearning
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            this.chunker.variablize_this_chunk = chunk_var; // restored to original value
-
+            
             return_val = new_name_symbol;
         }
     }

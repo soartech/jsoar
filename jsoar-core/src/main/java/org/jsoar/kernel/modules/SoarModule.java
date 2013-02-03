@@ -110,7 +110,7 @@ public class SoarModule
         pref.setInstantiation(inst);
         inst.match_goal = state;
         inst.match_goal_level = state.level;
-        inst.okay_to_variablize = true;
+        inst.reliable = true;
         inst.backtrace_number = 0;
         inst.in_ms = false;
         inst.GDS_evaluated_already = false;

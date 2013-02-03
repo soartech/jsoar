@@ -1849,7 +1849,7 @@ public class Decider
         pref.setInstantiation(inst);
         inst.match_goal = goal;
         inst.match_goal_level = goal.level;
-        inst.okay_to_variablize = true;
+        inst.reliable = true;
         inst.backtrace_number = 0;
         inst.in_ms = false;
 

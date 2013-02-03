@@ -20,6 +20,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
 import org.jsoar.util.markers.Marker;
@@ -221,7 +222,7 @@ public class Backtracer
      * @param trace_cond
      * @param indent
      */
-    void backtrace_through_instantiation(Instantiation inst, int grounds_level, Condition trace_cond, int indent)
+    void backtrace_through_instantiation(Instantiation inst, int grounds_level, Condition trace_cond, ByRef<Boolean> reliable, int indent)
     {
         final Trace trace = context.getTrace();
         final Printer p = trace.getPrinter();
@@ -266,9 +267,8 @@ public class Backtracer
             temp_explain_backtrace.next_backtrace = null;
         }
 
-        // check okay_to_variablize flag
-        if (!inst.okay_to_variablize)
-            chunker.variablize_this_chunk = false;
+        if (!inst.reliable)
+            reliable.value = false;
 
         // mark transitive closure of each higher goal id that was tested in
         // the id field of a top-level positive condition
@@ -425,7 +425,7 @@ public class Backtracer
      * 
      * @param grounds_level
      */
-    void trace_locals(int grounds_level)
+    void trace_locals(int grounds_level, ByRef<Boolean> reliable)
     {
         final Trace trace = context.getTrace();
         final Printer printer = trace.getPrinter();
@@ -449,7 +449,7 @@ public class Backtracer
             if (bt_pref != null)
             {
 
-                backtrace_through_instantiation(bt_pref.inst, grounds_level, cond, 0);
+                backtrace_through_instantiation(bt_pref.inst, grounds_level, cond, reliable, 0);
 
                 // Check for any CDPS prefs and backtrace through them
                 if (bt.hasContextDependentPreferences())
@@ -460,7 +460,7 @@ public class Backtracer
                         {
                             printer.print("     Backtracing through CDPS preference: %s", p);
                         }
-                        backtrace_through_instantiation(p.inst, grounds_level, cond, 6);
+                        backtrace_through_instantiation(p.inst, grounds_level, cond, reliable, 6);
                     }
                 }
                 continue;
@@ -478,8 +478,7 @@ public class Backtracer
                         && (cond.value_test.asEqualityTest().getReferent() == predefinedSyms.t_symbol)
                         && (!cond.test_for_acceptable_preference))
                 {
-                    chunker.variablize_this_chunk = false;
-                    chunker.quiescence_t_flag = true;
+                    reliable.value = false;
                 }
                 continue;
             }
@@ -566,7 +565,7 @@ public class Backtracer
      * @param grounds_level
      * @return
      */
-    boolean trace_ungrounded_potentials(int grounds_level)
+    boolean trace_ungrounded_potentials(int grounds_level, ByRef<Boolean> reliable)
     {
         final Trace trace = context.getTrace();
         final Printer printer = trace.getPrinter();
@@ -611,7 +610,7 @@ public class Backtracer
             }
             Preference bt_pref = Preference.find_clone_for_level(bt.trace, grounds_level + 1);
 
-            backtrace_through_instantiation(bt_pref.inst, grounds_level, potential, 0);
+            backtrace_through_instantiation(bt_pref.inst, grounds_level, potential, reliable, 0);
             if (bt.hasContextDependentPreferences())
             {
                 for (Preference p : bt)
@@ -620,7 +619,7 @@ public class Backtracer
                     {
                         printer.print("     Backtracing through CDPS preference: %s", p);
                     }
-                    backtrace_through_instantiation(p.inst, grounds_level, potential, 6);
+                    backtrace_through_instantiation(p.inst, grounds_level, potential, reliable, 6);
                 }
             }
         }

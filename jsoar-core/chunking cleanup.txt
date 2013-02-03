@@ -3,6 +3,23 @@ Port changes from CSoar revision 12164 and 12165 and 12167 (chunk code cleanup a
 these changes are needed to properly test the CDPS port, because it affects when chunks get created
 note that r12167 only affects symbol ref counts, which jsoar doesn't use, so that revision can be ignored
 
+# TODO after merge with epmem port
+
+###########################################
+# epmem stuff
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/episodic_memory.cpp	diff
+	
+... 			
+788 	788 		// it to future adventures (potentially on new states)
+789 	789 		
+790 	790 		instantiation *my_justification_list = NIL;
+791 		- 	chunk_instantiation( my_agent, pref->inst, false, &my_justification_list );
+	791 	+ 	chunk_instantiation( my_agent, pref->inst, true, &my_justification_list );
+792 	792 		
+793 	793 		// if any justifications are created, assert their preferences manually
+794 	794 		// (copied mainly from assert_new_preferences with respect to our circumstances)
+... 	
+
 #
 # start 12164 diffs
 #
@@ -13,7 +30,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 # 12164 introduces unreliable arg in various places, 12165 renames it to reliable
 # 12164 changes shown below, but refer to 12165 to avoid extra work
 
-# backtrace_through_instantiation()
+# backtrace_through_instantiation() -- DONE (including unrelable -> reliable)
 ... 			
 176 	176 		void backtrace_through_instantiation (agent* thisAgent,
 177 	177 		instantiation *inst,
@@ -36,7 +53,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 244 	245 		/* --- mark transitive closure of each higher goal id that was tested in
 245 	246 		the id field of a top-level positive condition --- */
 
-# trace_locals()
+# trace_locals() -- DONE (including unreliable -> reliable)
 ... 			
 440 	441 		there are no more locals to BT.
 441 	442 		--------------------------------------------------------------- */
@@ -76,7 +93,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 517 	517 		xml_end_tag(thisAgent, kTagLocal);
 ... 
 
-# trace_ungrounded_potentials()
+# trace_ungrounded_potentials() -- DONE (including unreliable -> reliable)
 
 ... 			
 607 	607 		if anything was BT'd; FALSE if nothing changed.
@@ -111,7 +128,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 # chunk stuff
 # Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp
 
-# build_chunk_conds_for_grounds_and_add_negateds()
+# build_chunk_conds_for_grounds_and_add_negateds() -- DONE (including unreliable -> reliable)
 
 ... 			
 417 	417 		void build_chunk_conds_for_grounds_and_add_negateds (agent* thisAgent,
@@ -194,6 +211,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 	956 	+ 	}
   
 # chunk_instantiation() (significant changes, perhaps refer to most recent version instead of diff)
+# DONE (ported most recent version)
   
   906 	958 		/* ====================================================================
 907 	959 		
@@ -485,7 +503,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 # decider stuff
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 
-# make_fake_preference_for_goal_item()
+# make_fake_preference_for_goal_item() -- DONE (12165 version)
 # 12165 unreliable -> reliable
 ... 			
 1586 	1586 		inst->rete_wme = NIL;
@@ -499,7 +517,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 ... 	
 
 ###########################################
-# instantiation stuff
+# instantiation stuff -- DONE
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/instantiations.h	diff	
 
@@ -543,6 +561,8 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
 	
 # create_instantiation()
 # 12165 unreliable -> reliable
+# unnecessary in jsoar -- Instantiation constructor already sets this value
+
 ... 			
 595 	595 		inst->prod = prod;
 596 	596 		inst->rete_token = tok;
@@ -559,7 +579,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/soar_module.cpp	diff
 	
-# make_fake_preference()
+# make_fake_preference() -- DONE (12165 version)
 # 12165 unreliable -> reliable
 
 ... 			
@@ -581,7 +601,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/soar_module.cpp	diff
 # make this change in Chunker.java
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/agent.h	diff
 	
-# remove variablize_this_chunk
+# remove variablize_this_chunk -- DONE
 ... 			
 590 	590 		goal_stack_level results_match_goal_level;
 591 	591 		tc_number results_tc_number;
@@ -595,6 +615,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/agent.h	diff
 ###########################################
 # backtrace stuff
 # unreliable -> reliable
+# DONE
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 	
@@ -691,6 +712,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp	diff
 	
 
 # comment updates (right before variablize_symbol())
+# DONE -- doesn't apply to jsoar
 ... 			
 173 	173 		to convert the results--preferences--into actions. This is done
 174 	174 		by copy_and_variablize_result_list(), which takes the result preferences
@@ -704,7 +726,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp	diff
 182 	177 		
 	178 	+ 	/* sym is both an input and output parameter */
   
-# variablize_symbol()
+# variablize_symbol() -- DONE
 
 183 	179 		void variablize_symbol (agent* thisAgent, Symbol **sym) {
 184 	180 		char prefix[2];
@@ -720,7 +742,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp	diff
 257 	252 		}
 258 	253 		
 
-# copy_and_variablize_result_list()
+# copy_and_variablize_result_list() -- DONE
 
 259 		- 	action *copy_and_variablize_result_list (agent* thisAgent, preference *pref) {
 	254 	+ 	action *copy_and_variablize_result_list (agent* thisAgent, preference *pref, bool variablize) {
@@ -784,7 +806,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp	diff
 294 	294 		
 ... 			
 
-# build_chunk_conds_for_grounds_and_add_negateds (unreliable -> reliable)
+# build_chunk_conds_for_grounds_and_add_negateds (unreliable -> reliable) -- DONE
 
 418 	418 		chunk_cond **dest_top,
 419 	419 		chunk_cond **dest_bottom,
@@ -805,7 +827,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp	diff
 502 	502 		free_with_pool (&thisAgent->chunk_cond_pool, cc);
 ... 			
 
-# variablize_nots_and_insert_into_conditions() (unreliable -> reliable)
+# variablize_nots_and_insert_into_conditions() -- DONE
 
 583 	583 		condition *c;
 584 	584 		Bool added_it;
@@ -818,7 +840,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp	diff
 591 	588 		var2 = n->s2->id.variablization;
 ... 			
 
-# should_variablize()
+# should_variablize() -- DONE (most recent version)
 
 905 	902 		
 906 	903 		bool should_variablize(agent *thisAgent, instantiation *inst) {
@@ -887,7 +909,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp	diff
 956 	960 		}
 957 	961 	
 
-# chunk_instantiation()
+# chunk_instantiation() -- DONE
 ... 			
 966 	970 		==================================================================== */
 967 	971 		
@@ -1030,6 +1052,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/chunk.cpp	diff
 ###########################################
 # decider stuff
 # unreliable -> reliable
+# DONE
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff	
 
@@ -1046,24 +1069,9 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 
 
 ###########################################
-# epmem stuff
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/episodic_memory.cpp	diff
-	
-... 			
-788 	788 		// it to future adventures (potentially on new states)
-789 	789 		
-790 	790 		instantiation *my_justification_list = NIL;
-791 		- 	chunk_instantiation( my_agent, pref->inst, false, &my_justification_list );
-	791 	+ 	chunk_instantiation( my_agent, pref->inst, true, &my_justification_list );
-792 	792 		
-793 	793 		// if any justifications are created, assert their preferences manually
-794 	794 		// (copied mainly from assert_new_preferences with respect to our circumstances)
-... 	
-
-
-###########################################
 # instantiations stuff
 # unreliable -> reliable + minor comment changes
+# DONE
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/instantiations.h	diff
 	
@@ -1096,6 +1104,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/instantiations.h	diff
 ###########################################
 # recognition memory stuff
 # unreliable -> reliable + change to chunking call
+# DONE
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
 	
@@ -1148,6 +1157,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/reinforcement_learning.cpp	diff
 
 ###########################################
 # smem stuff
+# DONE
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/semantic_memory.cpp	diff
 
@@ -1165,6 +1175,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/semantic_memory.cpp	diff
 ###########################################
 # soar module stuff
 # unreliable -> reliable
+# DONE
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/soar_module.cpp	diff
 
