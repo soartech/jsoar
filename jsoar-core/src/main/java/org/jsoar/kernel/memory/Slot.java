@@ -437,7 +437,7 @@ public class Slot
     /* Clear out and deallocate the CDPS. */
     public void clear_CDPS(final Agent context)
     {
-        if (this.CDPS == null)
+        if (!hasContextDependentPreferenceSet())
         {
             return;
         }
@@ -449,17 +449,18 @@ public class Slot
 
         final RecognitionMemory recMemory = Adaptables.adapt(context, RecognitionMemory.class);
 
-        for(Preference p : CDPS)
+        Iterator<Preference> it = CDPS.iterator();
+        while(it.hasNext())
         {
+            Preference p = it.next();
             p.preference_remove_ref(recMemory);
+            it.remove();
         }
-
-        this.CDPS = null;
     }
 
     public boolean hasContextDependentPreferenceSet()
     {
-        return this.CDPS != null;
+        return this.CDPS != null && !this.CDPS.isEmpty();
     }
     
     LinkedList<Preference> getContextDependentPreferenceSet()
@@ -480,7 +481,6 @@ public class Slot
      */
     public void add_to_CDPS(Agent context, Preference pref, boolean unique_value /* = true */)
     {
-        boolean already_exists = false;
         final Trace trace = context.getTrace();
         final Printer printer = trace.getPrinter();
         final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
@@ -494,6 +494,7 @@ public class Slot
             this.CDPS = new LinkedList<Preference>();
         }
         
+        boolean already_exists = false;
         for(Preference p : CDPS)
         {
             if (p == pref)

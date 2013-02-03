@@ -8,8 +8,12 @@ package org.jsoar.kernel.lhs;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.memory.Preference;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * info on conditions used for backtracing (and by the rete)
@@ -62,11 +66,29 @@ public class BackTraceInfo implements Iterable<Preference>
         return CDPS != null && !CDPS.isEmpty();
     }
     
-    public void clearContextDependentPreferenceSet()
+    public void clearContextDependentPreferenceSet(final Agent context)
     {
-        if(CDPS != null)
+        if (!hasContextDependentPreferences())
         {
-            CDPS.clear();
+            return;
+        }
+
+        final RecognitionMemory recMemory = Adaptables.adapt(context, RecognitionMemory.class);
+
+        Iterator<Preference> it = CDPS.iterator();
+        while(it.hasNext())
+        {
+            Preference p = it.next();
+            if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+            {
+                p.preference_remove_ref(recMemory);
+            }
+            else
+            {
+                if (level > SoarConstants.TOP_GOAL_LEVEL)
+                    p.preference_remove_ref(recMemory);
+            }
+            it.remove();
         }
     }
 

@@ -1243,6 +1243,7 @@ public class Decider
         }
 
         /* === Better/Worse === */
+        
         if (s.getPreferencesByType(PreferenceType.BETTER) != null
                 || s.getPreferencesByType(PreferenceType.WORSE) != null)
         {
@@ -1302,7 +1303,7 @@ public class Decider
 
             // Check if a valid candidate still exists.
             
-            Preference cand = null, prev_cand = null;
+            Preference cand = null;
             for (cand = candidates; cand != null; cand = cand.next_candidate)
             {
                 if (cand.value.decider_flag == DeciderFlag.CANDIDATE)
@@ -1312,6 +1313,7 @@ public class Decider
             /* If no candidates exists, collect conflicted candidates and return as
              * the result candidates with a conflict impasse type. */
             
+            Preference prev_cand = null;
             if (cand == null)
             {
                 // collect conflicted candidates into new candidates list

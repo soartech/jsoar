@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.learning;
 
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -45,7 +44,6 @@ import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.ReordererException;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;

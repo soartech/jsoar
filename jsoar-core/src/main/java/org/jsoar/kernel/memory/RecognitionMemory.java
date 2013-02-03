@@ -6,7 +6,6 @@
 package org.jsoar.kernel.memory;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -214,7 +213,7 @@ public class RecognitionMemory
             final BackTraceInfo bt = pc != null ? pc.bt() : null;
             if (pc != null)
             {
-                bt.clearContextDependentPreferenceSet();
+                bt.clearContextDependentPreferenceSet(context);
             }
 
             if (pc != null && bt.trace != null)
@@ -232,7 +231,6 @@ public class RecognitionMemory
                                         && pref.isInTempMemory())
                                 {
                                     bt.addContextDependentPreference(pref);
-                                    pref.preference_add_ref();
                                 }
                                 else
                                 {
@@ -243,7 +241,6 @@ public class RecognitionMemory
                                         if (new_pref.isInTempMemory())
                                         {
                                             bt.addContextDependentPreference(new_pref);
-                                            new_pref. preference_add_ref();
                                         }
                                     }
                                 }
@@ -260,7 +257,6 @@ public class RecognitionMemory
                                     && pref.isInTempMemory())
                             {
                                 bt.addContextDependentPreference(pref);
-                                pref.preference_add_ref();
                             }
                             else
                             {
@@ -271,7 +267,6 @@ public class RecognitionMemory
                                     if (new_pref.isInTempMemory())
                                     {
                                         bt.addContextDependentPreference(new_pref);
-                                        new_pref.preference_add_ref();
                                     }
                                 }
                             }
@@ -931,23 +926,8 @@ public class RecognitionMemory
                 if (pc != null)
                 {
                     final BackTraceInfo bt = pc.bt();
-                    if (bt.hasContextDependentPreferences())
-                    {
-                        for (Preference pref : bt)
-                        {
-                            if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
-                            {
-                                pref.preference_remove_ref(this);
-                            }
-                            else
-                            {
-                                if (level > SoarConstants.TOP_GOAL_LEVEL)
-                                    pref.preference_remove_ref(this);
-                            }
-                        }
-                        bt.clearContextDependentPreferenceSet();
-                    }
-
+                    bt.clearContextDependentPreferenceSet(context);
+                    
                     /*      voigtjr, nlderbin:
                             We flattened out the following recursive loop in order to prevent a stack
                             overflow that happens when the chain of backtrace instantiations is very long:
@@ -1283,12 +1263,30 @@ public class RecognitionMemory
             {
                 next_pref = pref.inst_next;
                 
+                // removed old code specific to !O_REJECTS_FIRST, which isn't supported by jsoar
+                
                 if ( inst.in_ms || pref.o_supported )
                 {
                     // normal case
                     add_preference_to_tm(pref);
+//                    if(add_preference_to_tm(pref))
+//                    {
+//                        // No knowledge retrieval necessary in Operand2
+//                        // wma code will go here
+//                    }
+//                    else
+                    {
+                        // NLD: the preference was o-supported, at
+                        // the top state, and was asserting an acceptable 
+                        // preference for a WME that was already
+                        // o-supported. hence unnecessary.
 
-                    // No knowledge retrieval necessary in Operand2
+                        RecognitionMemory recMemory = Adaptables.require(getClass(), context, RecognitionMemory.class);
+                        pref.preference_add_ref();
+                        pref.preference_remove_ref(recMemory);
+                    }
+
+                    
                 }
                 else
                 {
@@ -1351,6 +1349,9 @@ public class RecognitionMemory
                     final Preference next_p = p.nextOfSlot;
                     if (p.value == pref.value)
                     {
+                        // Buffer deallocation by adding a reference here and putting it
+                        // on a list. These are deallocated after the inner elaboration
+                        // loop completes.
                         p.preference_add_ref();
                         bufdeallo.add(p);
                         remove_preference_from_tm(p);
