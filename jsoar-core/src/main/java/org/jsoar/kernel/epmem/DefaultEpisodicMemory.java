@@ -228,7 +228,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     public void initialize()
     {
-        agent = Adaptables.require(DefaultEpisodicMemory.class, context, Agent.class);
+        agent = Adaptables.adapt(context, Agent.class);
         symbols = Adaptables.require(DefaultEpisodicMemory.class, context, SymbolFactoryImpl.class);
 
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
