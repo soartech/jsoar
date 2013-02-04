@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
+import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -29,6 +31,7 @@ import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.util.adaptables.AdaptableContainer;
 
 /**
  * SimpleMatcher creates a rete that you can put productions and wmes into and check which productions match
@@ -49,7 +52,8 @@ public class SimpleMatcher
 {
     private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     private final Listener listener = new Listener();
-    private final Rete rete = new Rete(Trace.createStdOutTrace().enableAll(), syms);
+    private final EpisodicMemory episodicMemory = new DefaultEpisodicMemory(AdaptableContainer.from(syms));
+    private final Rete rete = new Rete(Trace.createStdOutTrace().enableAll(), syms, episodicMemory);
     private final Map<String, Production> productions = new HashMap<String, Production>();
     
     /**
