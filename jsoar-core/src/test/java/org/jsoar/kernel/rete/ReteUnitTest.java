@@ -16,6 +16,8 @@ import java.util.Set;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Production;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
+import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.parser.ParserContext;
@@ -25,6 +27,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.util.adaptables.AdaptableContainer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,6 +38,7 @@ public class ReteUnitTest extends JSoarTest
 {
     private Rete rete;
     private Listener listener;
+    private EpisodicMemory episodicMemory;
     
     private class Listener implements ReteListener
     {
@@ -95,7 +99,8 @@ public class ReteUnitTest extends JSoarTest
         super.setUp();
         
         this.listener = new Listener();
-        this.rete = new Rete(Trace.createStdOutTrace().enableAll(), syms);
+        this.episodicMemory = new DefaultEpisodicMemory(AdaptableContainer.from(syms));
+        this.rete = new Rete(Trace.createStdOutTrace().enableAll(), syms, episodicMemory);
         this.rete.setReteListener(listener);
     }
     
