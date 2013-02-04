@@ -434,7 +434,12 @@ public class Slot
         
     }
     
-    /* Clear out and deallocate the CDPS. */
+    /**
+     * Clear out and deallocate the CDPS.
+     * 
+     * tempmem.cpp:166:clear_CDPS
+     * @param context
+     */
     public void clear_CDPS(final Agent context)
     {
         if (!hasContextDependentPreferenceSet())
