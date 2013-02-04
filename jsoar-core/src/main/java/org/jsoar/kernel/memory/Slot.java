@@ -19,6 +19,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
 import com.google.common.collect.Iterators;
@@ -440,7 +441,7 @@ public class Slot
      * tempmem.cpp:166:clear_CDPS
      * @param context
      */
-    public void clear_CDPS(final Agent context)
+    public void clear_CDPS(final Adaptable context)
     {
         if (!hasContextDependentPreferenceSet())
         {

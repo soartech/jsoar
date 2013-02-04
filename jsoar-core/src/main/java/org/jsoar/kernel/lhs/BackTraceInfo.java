@@ -8,11 +8,11 @@ package org.jsoar.kernel.lhs;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -66,7 +66,7 @@ public class BackTraceInfo implements Iterable<Preference>
         return CDPS != null && !CDPS.isEmpty();
     }
     
-    public void clearContextDependentPreferenceSet(final Agent context)
+    public void clearContextDependentPreferenceSet(final Adaptable context)
     {
         if (!hasContextDependentPreferences())
         {
