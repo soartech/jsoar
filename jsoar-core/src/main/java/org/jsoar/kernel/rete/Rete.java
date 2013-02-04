@@ -504,7 +504,7 @@ public class Rete
                 {
                     // add id ref count
                     //(*thisAgent->epmem_id_ref_counts)[ w->value->id.epmem_id ]->insert( w );
-                    episodicMemory.addIDRefCount(id.epmem_id, w);
+                    episodicMemory.addIdRefCount(id.epmem_id, w);
                 }
                 
                 // if known id
@@ -512,7 +512,7 @@ public class Rete
                         (w.id.asIdentifier().epmem_valid==episodicMemory.epmem_validation()))
                 {
                     // add to add set
-                    episodicMemory.addWME(w.id);
+                    episodicMemory.addWme(w.id);
                 }
             }
         }
