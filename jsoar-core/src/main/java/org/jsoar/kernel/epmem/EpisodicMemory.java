@@ -79,11 +79,11 @@ public interface EpisodicMemory
      * @param w
      * @return
      */
-    boolean addIDRefCount(long id, WmeImpl w);
+    boolean addIdRefCount(long id, WmeImpl w);
     
     /**
      * replaces thisAgent->epmem_wme_adds->insert( w->id );
      * @param id
      */
-    void addWME(IdentifierImpl id);
+    void addWme(IdentifierImpl id);
 }

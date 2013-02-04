@@ -2679,7 +2679,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     @Override
-    public boolean addIDRefCount(long id, WmeImpl w)
+    public boolean addIdRefCount(long id, WmeImpl w)
     {
         Set<WmeImpl> wmes = epmem_id_ref_counts.get(id);
         if(wmes==null)
@@ -2690,7 +2690,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     @Override
-    public void addWME(IdentifierImpl id)
+    public void addWme(IdentifierImpl id)
     {
         epmem_wme_adds.add(id);
     }
