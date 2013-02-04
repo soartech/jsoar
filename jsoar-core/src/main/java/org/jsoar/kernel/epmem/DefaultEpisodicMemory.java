@@ -2665,4 +2665,27 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         return (params.phase.get() == Phase.selection);
     }
+
+    @Override
+    public long epmem_validation()
+    {
+        return epmem_validation;
+    }
+
+    @Override
+    public boolean addIDRefCount(long id, WmeImpl w)
+    {
+        Set<WmeImpl> wmes = epmem_id_ref_counts.get(id);
+        if(wmes==null)
+            return false;
+        
+        wmes.add(w);
+        return true;
+    }
+
+    @Override
+    public void addWME(IdentifierImpl id)
+    {
+        epmem_wme_adds.add(id);
+    }
 }

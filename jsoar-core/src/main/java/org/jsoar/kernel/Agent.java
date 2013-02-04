@@ -123,11 +123,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     private final PredefinedSymbols predefinedSyms = new PredefinedSymbols(syms);
     private final MultiAttributes multiAttrs = new MultiAttributes();
-    private final Rete rete = new Rete(trace, syms);
     private final WorkingMemory workingMemory = new WorkingMemory();
     private final TemporaryMemory tempMemory = new TemporaryMemory();
     private final OSupport osupport = new OSupport(predefinedSyms, printer);
-    private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
     private final RecognitionMemory recMemory = new RecognitionMemory(this);
     
     private final Exploration exploration = new Exploration(this);
@@ -139,6 +137,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final ReinforcementLearning rl = new ReinforcementLearning(this);
     private final DefaultSemanticMemory smem = new DefaultSemanticMemory(this);
     private final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(this);
+    
+    private final Rete rete = new Rete(trace, syms, epmem);
+    private final SoarReteListener soarReteListener = new SoarReteListener(this, rete);
     
     private final DecisionManipulation decisionManip = new DecisionManipulation(decider, random);
     private final InputOutputImpl io = new InputOutputImpl(this);

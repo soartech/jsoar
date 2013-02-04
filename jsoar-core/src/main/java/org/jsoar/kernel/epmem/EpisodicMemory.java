@@ -6,6 +6,7 @@
 package org.jsoar.kernel.epmem;
 
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 
@@ -65,4 +66,24 @@ public interface EpisodicMemory
      * @return
      */
     boolean encodeInSelectionPhase();
+    
+    /**
+     * Returns the validation count
+     * @return
+     */
+    long epmem_validation();
+    
+    /**
+     * replaces (*thisAgent->epmem_id_ref_counts)[ w->value->id.epmem_id ]->insert( w );
+     * @param id
+     * @param w
+     * @return
+     */
+    boolean addIDRefCount(long id, WmeImpl w);
+    
+    /**
+     * replaces thisAgent->epmem_wme_adds->insert( w->id );
+     * @param id
+     */
+    void addWME(IdentifierImpl id);
 }

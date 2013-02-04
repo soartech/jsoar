@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
+import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -33,6 +35,7 @@ import org.jsoar.kernel.rhs.Action;
 import org.jsoar.kernel.rhs.FunctionAction;
 import org.jsoar.kernel.rhs.MakeAction;
 import org.jsoar.kernel.rhs.RhsValue;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
@@ -95,13 +98,17 @@ public class Rete
      */
     private Token dummy_matches_node_tokens;
     
-    public Rete(Trace trace, SymbolFactoryImpl syms)
+    private final EpisodicMemory episodicMemory;
+    
+    public Rete(Trace trace, SymbolFactoryImpl syms, EpisodicMemory episodicMemory)
     {
         Arguments.checkNotNull(trace, "trace");
         Arguments.checkNotNull(syms, "syms");
+        Arguments.checkNotNull(episodicMemory, "episodicMemory");
         
         this.trace = trace;
         this.syms = syms;
+        this.episodicMemory = episodicMemory;
         
         // rete.cpp:8864
         alpha_hash_tables = new ArrayList<HashTable<AlphaMemory>>(16);
@@ -482,7 +489,43 @@ public class Rete
           add_wme_to_aht (alpha_hash_tables.get(7),  xor_op(hi,ha,hv), w);
         }
         
-        // TODO EPMEM update id ref counts
+        w.epmem_id = DefaultEpisodicMemory.EPMEM_NODEID_BAD;
+        w.epmem_valid = 0; //NIL
+        {
+            //if ( thisAgent->epmem_db->get_status() == soar_module::connected )
+            if(episodicMemory.epmem_enabled())
+            {
+                // if identifier-valued and short-term, known value
+                IdentifierImpl id = w.value.asIdentifier();
+                if(     (id!=null) &&
+                        (id.epmem_id!=DefaultEpisodicMemory.EPMEM_NODEID_BAD) &&
+                        (id.epmem_valid==episodicMemory.epmem_validation()) &&
+                        (id.smem_lti==0)) //( !w->value->id.smem_lti )
+                {
+                    // add id ref count
+                    //(*thisAgent->epmem_id_ref_counts)[ w->value->id.epmem_id ]->insert( w );
+                    episodicMemory.addIDRefCount(id.epmem_id, w);
+                }
+                
+                // if known id
+                if((w.id.asIdentifier().epmem_id!=DefaultEpisodicMemory.EPMEM_NODEID_BAD) &&
+                        (w.id.asIdentifier().epmem_valid==episodicMemory.epmem_validation()))
+                {
+                    // add to add set
+                    episodicMemory.addWME(w.id);
+                }
+            }
+        }
+
+//      SJK: not necessary in JSoar?
+//        if ( ( w->id->id.smem_lti ) && ( !thisAgent->smem_ignore_changes ) && smem_enabled( thisAgent ) && ( thisAgent->smem_params->mirroring->get_value() == soar_module::on ) )
+//        {
+//            std::pair< smem_pooled_symbol_set::iterator, bool > insert_result = thisAgent->smem_changed_ids->insert( w->id );
+//            if ( insert_result.second )
+//            {
+//              symbol_add_ref( w->id );
+//            }
+//        }
     }
     
     /**
