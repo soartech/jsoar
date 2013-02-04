@@ -1268,13 +1268,16 @@ public class RecognitionMemory
                 if ( inst.in_ms || pref.o_supported )
                 {
                     // normal case
-                    add_preference_to_tm(pref);
-//                    if(add_preference_to_tm(pref))
-//                    {
-//                        // No knowledge retrieval necessary in Operand2
-//                        // wma code will go here
-//                    }
-//                    else
+                    if(add_preference_to_tm(pref))
+                    {
+                        // No knowledge retrieval necessary in Operand2
+                        
+                        // RPM 2/2013: wma not ported yet
+//                        if (wma_enabled(thisAgent)) {
+//                            wma_activate_wmes_in_pref(thisAgent, pref);
+//                        }
+                    }
+                    else
                     {
                         // NLD: the preference was o-supported, at
                         // the top state, and was asserting an acceptable 
@@ -1367,52 +1370,125 @@ public class RecognitionMemory
      * Add_preference_to_tm() adds a given preference to preference memory (and
      * hence temporary memory). 
      * 
-     * <p>prefmem.cpp:203:add_preference_to_tm
+     * <p>prefmem.cpp:216:add_preference_to_tm
      * 
      * TODO I wish this was private, but smem and epmem use it.
      * 
      * @param pref
      */
-    public void add_preference_to_tm(Preference pref)
+    public boolean add_preference_to_tm (Preference pref) 
     {
-        // #ifdef DEBUG_PREFS
-        // print (thisAgent, "\nAdd preference at 0x%8x: ",(unsigned long)pref);
-        // print_preference (thisAgent, pref);
-        // #endif
+//    #ifdef DEBUG_PREFS
+//       print (thisAgent, "\nAdd preference at 0x%8x:  ",reinterpret_cast<uintptr_t>(pref));
+//       print_preference (thisAgent, pref);
+//    #endif
+       
+       Slot s = Slot.make_slot( pref.id, pref.attr, predefinedSyms.operator_symbol );
+       
 
-        // JC: This will retrieve the slot for pref->id if it already exists
-        Slot s = Slot.make_slot(pref.id, pref.attr, predefinedSyms.operator_symbol);
-        s.addPreference(pref);
+       if ( !s.isa_context_slot && pref.o_supported && ( pref.type == PreferenceType.ACCEPTABLE ) && ( pref.inst.match_goal == this.decider.top_state ) )
+       {
+           boolean already_top_o_supported = false;
 
-        // other miscellaneous stuff
-        pref.preference_add_ref();
+           for ( Preference p2=s.getAllPreferences(); ( p2 != null && !already_top_o_supported ); p2=p2.nextOfSlot )
+           {
+               if ( ( p2.value == pref.value ) && p2.o_supported && ( p2.inst.match_goal == this.decider.top_state ) )
+               {
+                   already_top_o_supported = true;
+               }
+           }
 
-        tempMemory.mark_slot_as_changed(s);
+           if ( already_top_o_supported )
+           {
+               // NLD: if it is suspected that this code is causing an issue, simply comment out the following line to debug.
+               return false;
+           }
+       }
+       
+       pref.slot = s;
+       s.addPreference(pref); // note this handles inserting at the head of the all_preferences list and inserting into the correct preference type list
+       
+       /* --- other miscellaneous stuff --- */    
+       pref.preference_add_ref();
+       
+       // if it's the case that the slot is unchanged, but has
+       // some references laying around, clear them
+       // this doesn't cause immediate memory deallocate/allocate
+       // but once the WMEs are resolved, this should free the
+       // memory, as opposed to lead to a "leak"
+       // RPM 2/2013: wma hasn't been ported yet
+//       if ( wma_enabled( thisAgent ) && !s->isa_context_slot )
+//       {
+//           if ( !s->changed )
+//           {
+//               if ( s->wma_val_references != NIL )
+//               {
+//                   s->wma_val_references->clear();
+//               }
+//           }
+//       }
 
-        // update identifier levels
-        IdentifierImpl valueId = pref.value.asIdentifier();
-        if (valueId != null)
-        {
-            decider.post_link_addition (pref.id, valueId);
-        }
+       tempMemory.mark_slot_as_changed(s);
 
-        if (pref.type.isBinary())
-        {
-            IdentifierImpl refId = pref.referent.asIdentifier();
-            if (refId != null)
-            {
-                decider.post_link_addition (pref.id, refId);
-            }
-        }
+       // RPM 2/2013: wma not ported yet
+//       if ( wma_enabled( thisAgent ) && !s->isa_context_slot )
+//       {
+//          bool exists = false;
+//          wme* w = pref->slot->wmes;
+//          while ( !exists && w )
+//          {
+//             if ( w->value == pref->value )
+//             {
+//                exists = true;
+//             }
+//
+//             w = w->next;
+//          }
+//
+//          // if wme exists, it should already have been updated
+//          // during assertion of new preferences
+//          if ( !exists )
+//          {
+//             if ( s->wma_val_references == NIL )
+//             {
+//                 allocate_with_pool( thisAgent, &( thisAgent->wma_slot_refs_pool ), &( s->wma_val_references ) );
+//    #ifdef USE_MEM_POOL_ALLOCATORS
+//                 s->wma_val_references = new( s->wma_val_references ) wma_sym_reference_map( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< std::pair< Symbol*, uint64_t > >( thisAgent ) );
+//    #else
+//                 s->wma_val_references = new( s->wma_val_references ) wma_sym_reference_map();
+//    #endif
+//             }
+//
+//             (*s->wma_val_references)[ pref->value ]++;
+//          }
+//       }
+       
+       // --- update identifier levels ---
+       IdentifierImpl valueId = pref.value.asIdentifier();
+       if (valueId != null)
+       {
+           decider.post_link_addition (pref.id, valueId);
+       }
 
-        // if acceptable/require pref for context slot, we may need to add a wme
-        // later
-        if (s.isa_context_slot
-                && (pref.type == PreferenceType.ACCEPTABLE || 
-                    pref.type == PreferenceType.REQUIRE))
-        {
-            decider.mark_context_slot_as_acceptable_preference_changed (s);
-        }
+       if (pref.type.isBinary())
+       {
+           IdentifierImpl refId = pref.referent.asIdentifier();
+           if (refId != null)
+           {
+               decider.post_link_addition (pref.id, refId);
+           }
+       }
+       
+       // if acceptable/require pref for context slot, we may need to add a wme
+       // later
+       if (s.isa_context_slot
+               && (pref.type == PreferenceType.ACCEPTABLE || 
+                   pref.type == PreferenceType.REQUIRE))
+       {
+           decider.mark_context_slot_as_acceptable_preference_changed (s);
+       }
+       
+       return true;
     }
 
     /**
