@@ -930,8 +930,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         final PreparedStatement var_set = db.var_set;
 
-        var_set.setLong(1, variable_value);
-        var_set.setInt(2, variable_id.ordinal());
+        var_set.setInt(1, variable_id.ordinal());
+        var_set.setLong(2, variable_value);
 
         var_set.execute();
     }
