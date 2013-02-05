@@ -7,11 +7,11 @@ package org.jsoar.kernel.memory;
 
 import java.util.LinkedList;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.symbols.IdentifierImpl;
-import org.jsoar.util.ListItem;
 import org.jsoar.util.ListHead;
+import org.jsoar.util.ListItem;
+import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 
 /**
@@ -108,7 +108,7 @@ public class TemporaryMemory
      * <p>tempmem.cpp:159:remove_garbage_slots
      */
     @SuppressWarnings("unchecked")
-    public void remove_garbage_slots(final Agent context)
+    public void remove_garbage_slots(final Adaptable context)
     {
         while (!slots_for_possible_removal.isEmpty())
         {

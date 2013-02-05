@@ -9,7 +9,6 @@ import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -485,9 +484,9 @@ public class Slot
      * 
      * decide.cpp:873:add_to_CDPS
      */
-    public void add_to_CDPS(Agent context, Preference pref, boolean unique_value /* = true */)
+    public void add_to_CDPS(Adaptable context, Preference pref, boolean unique_value /* = true */)
     {
-        final Trace trace = context.getTrace();
+        final Trace trace = Adaptables.adapt(context, Trace.class);
         final Printer printer = trace.getPrinter();
         final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
         if (traceBacktracing)
