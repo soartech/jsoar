@@ -293,6 +293,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // src/agent.cpp:399: newAgent->epmem_id_removes = new
         // epmem_symbol_stack();
         
+        /*
+         * rit_state_graph stuff taken from:
+         * episodic_memory.cpp:257:epmem_stat_container::epmem_stat_container( agent *new_agent ): soar_module::stat_container( new_agent )
+         * 
+         * must be done before epmem_init_db_catch()
+         */
+        
         /////////////////////////////
         // connect to rit state
         /////////////////////////////
