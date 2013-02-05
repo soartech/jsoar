@@ -145,7 +145,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     private Decider decider;
     SymbolFactoryImpl symbols;
-    private EpisodicMemoryDatabase db;
+    EpisodicMemoryDatabase db;
 
     /** agent.h:epmem_validation */
     private/* uintptr_t */long epmem_validation = 0;
@@ -892,7 +892,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @return
      * @throws SQLException
      */
-    private boolean epmem_get_variable(epmem_variable_key variable_id, ByRef<Long> variable_value) throws SQLException
+    boolean epmem_get_variable(epmem_variable_key variable_id, ByRef<Long> variable_value) throws SQLException
     {
         final PreparedStatement var_get = db.var_get;
 
@@ -926,7 +926,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param variable_value
      * @throws SQLException
      */
-    private void epmem_set_variable(epmem_variable_key variable_id, long variable_value) throws SQLException
+    void epmem_set_variable(epmem_variable_key variable_id, long variable_value) throws SQLException
     {
         final PreparedStatement var_set = db.var_set;
 
