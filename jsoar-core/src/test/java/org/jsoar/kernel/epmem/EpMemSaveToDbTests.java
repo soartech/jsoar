@@ -14,8 +14,16 @@ import org.junit.Test;
 
 public class EpMemSaveToDbTests extends FunctionalTestHarness
 {   
+    protected Connection getConnection()
+    {
+        final DefaultEpisodicMemory epmem = Adaptables.adapt(agent, DefaultEpisodicMemory.class);
+        final EpisodicMemoryDatabase db = epmem.db;
+        
+        return db.getConnection();
+    }
+    
     @Test
-    public void testCountEpMem() throws Exception
+    public void testVarsTable() throws Exception
     {
         runTest("store", 2);
         /* this data is expected in vars:
@@ -45,11 +53,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
         expectedVals.add(Long.MAX_VALUE);
         expectedVals.add(1L);
         
-        final DefaultEpisodicMemory epmem = Adaptables.adapt(agent, DefaultEpisodicMemory.class);
-        final EpisodicMemoryDatabase db = epmem.db;
-        
-        final Connection conn = db.getConnection();
-        final PreparedStatement ps = conn.prepareStatement("SELECT * FROM "+EpisodicMemoryDatabase.EPMEM_SCHEMA+"vars WHERE id=?");
+        final PreparedStatement ps = getConnection().prepareStatement("SELECT * FROM "+EpisodicMemoryDatabase.EPMEM_SCHEMA+"vars WHERE id=?");
         
         ResultSet rs;
         long value;
@@ -61,6 +65,62 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
             rs.next();
             value = rs.getLong("value");
             assertTrue("id "+id+" is "+value+", expected "+expectedVals.get(id), value == (long)expectedVals.get(id));
+        }
+    }
+    
+    protected class TemporalSymbol
+    {
+        public TemporalSymbol(String cont, int type)
+        {
+            sym_const = cont;
+            sym_type = type;
+        }
+        public String sym_const;
+        public int sym_type;
+    }
+    
+    @Test
+    public void testTemporalSymbolHashTable() throws Exception
+    {
+        runTest("store", 2);
+        /*
+         * this data is expected in temporal_symbol_hash:
+         * id  sym_const  sym_type
+         * 0              1
+         * 1   operator*  2
+         */
+        
+        List<TemporalSymbol> temporalSymbols = new ArrayList<TemporalSymbol>();
+        temporalSymbols.add(new TemporalSymbol(null, 1));
+        temporalSymbols.add(new TemporalSymbol("operator*", 2));
+        
+        
+        final PreparedStatement ps = getConnection()
+                .prepareStatement("SELECT * FROM "+EpisodicMemoryDatabase.EPMEM_SCHEMA+"temporal_symbol_hash WHERE id=?");
+        
+        ResultSet rs;
+        String sym_const;
+        int sym_type;
+        
+        for (int id = 0; id < temporalSymbols.size(); id++)
+        {
+            ps.setLong(1, id);
+            rs = ps.executeQuery();
+            rs.next();
+            sym_const = rs.getString("sym_const");
+            sym_type = rs.getInt("sym_type");
+            if(sym_const == null)
+            {
+                assertTrue("id " + id + " is " + sym_const + ", expected " + temporalSymbols.get(id).sym_const,
+                        temporalSymbols.get(id).sym_const == null);
+            }
+            else
+            {
+                assertTrue("id " + id + " is " + sym_const + ", expected " + temporalSymbols.get(id).sym_const,
+                        temporalSymbols.get(id).sym_const.equals(sym_const));
+            }
+            assertTrue("id "+id+" is "+sym_type+", expected "+temporalSymbols.get(id).sym_type, 
+                    temporalSymbols.get(id).sym_type == sym_type);
         }
     }
 }
