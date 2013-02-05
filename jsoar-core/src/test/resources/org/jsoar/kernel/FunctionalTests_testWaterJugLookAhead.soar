@@ -1,3 +1,5 @@
+srand 1234
+
 multi-attributes jug 3
 multi-attributes superstate-set 20
 
