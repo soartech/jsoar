@@ -293,6 +293,29 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // src/agent.cpp:399: newAgent->epmem_id_removes = new
         // epmem_symbol_stack();
         
+        /////////////////////////////
+        // connect to rit state
+        /////////////////////////////
+        
+        // graph
+        //epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].offset.stat = rit_offset_1;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].offset.var_key = epmem_variable_key.var_rit_offset_1;
+        //epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].leftroot.stat = rit_left_root_1;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].leftroot.var_key = epmem_variable_key.var_rit_leftroot_1;
+        //epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].rightroot.stat = rit_right_root_1;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].rightroot.var_key = epmem_variable_key.var_rit_rightroot_1;
+        //epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].minstep.stat = rit_min_step_1;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].minstep.var_key = epmem_variable_key.var_rit_minstep_1;
+
+        //epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].offset.stat = rit_offset_2;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].offset.var_key = epmem_variable_key.var_rit_offset_2;
+        //epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].leftroot.stat = rit_left_root_2;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].leftroot.var_key = epmem_variable_key.var_rit_leftroot_2;
+        //epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].rightroot.stat = rit_right_root_2;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].rightroot.var_key = epmem_variable_key.var_rit_rightroot_2;
+        //epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].minstep.stat = rit_min_step_2;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].minstep.var_key = epmem_variable_key.var_rit_minstep_2;
+        
         // CK: in smem this is called from smem_attach, there is no equivalent
         // function in episodic_memory.cpp
         epmem_init_db_catch();
@@ -495,10 +518,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private void epmem_init_db_ex(boolean readonly /* = false */) throws SQLException, IOException, SoarException
     {
-        if (db != null /*
-                        * my_agent->epmem_db->get_status() !=
-                        * soar_module::disconnected
-                        */)
+        if (db != null /* my_agent->epmem_db->get_status() !=soar_module::disconnected */)
         {
             return;
         }
@@ -929,7 +949,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     void epmem_set_variable(epmem_variable_key variable_id, long variable_value) throws SQLException
     {
         final PreparedStatement var_set = db.var_set;
-
+        
         var_set.setInt(1, variable_id.ordinal());
         var_set.setLong(2, variable_value);
 

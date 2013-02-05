@@ -19,16 +19,16 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
     {
         runTest("store", 2);
         /* this data is expected in vars:
-id  value
-0    -1
-1   0
-2   1
-3   2147483647
-4   -1
-5   0
-6   1
-7   2147483647
-8   1
+         * id  value
+         * 0    -1
+         * 1   0
+         * 2   1
+         * 3   2147483647
+         * 4   -1
+         * 5   0
+         * 6   1
+         * 7   2147483647
+         * 8   1
          */
         
         /*
@@ -38,11 +38,11 @@ id  value
         expectedVals.add(-1L);
         expectedVals.add(0L);
         expectedVals.add(1L);
-        expectedVals.add(2147483647L);
+        expectedVals.add(Long.MAX_VALUE);
         expectedVals.add(-1L);
         expectedVals.add(0L);
         expectedVals.add(1L);
-        expectedVals.add(2147483647L);
+        expectedVals.add(Long.MAX_VALUE);
         expectedVals.add(1L);
         
         final DefaultEpisodicMemory epmem = Adaptables.adapt(agent, DefaultEpisodicMemory.class);
@@ -50,11 +50,11 @@ id  value
         
         final Connection conn = db.getConnection();
         final PreparedStatement ps = conn.prepareStatement("SELECT * FROM "+EpisodicMemoryDatabase.EPMEM_SCHEMA+"vars WHERE id=?");
-        ps.setLong(1, 0);
+        
         ResultSet rs;
         long value;
-        
-        for(int id=0; id<expectedVals.size(); id++)
+
+        for (int id = 0; id < expectedVals.size(); id++)
         {
             ps.setLong(1, id);
             rs = ps.executeQuery();
