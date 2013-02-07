@@ -484,6 +484,11 @@ public class Slot
      * 
      * decide.cpp:873:add_to_CDPS
      */
+    public void add_to_CDPS(Adaptable context, Preference pref)
+    {
+        add_to_CDPS(context, pref, true);
+    }
+    
     public void add_to_CDPS(Adaptable context, Preference pref, boolean unique_value /* = true */)
     {
         final Trace trace = Adaptables.adapt(context, Trace.class);

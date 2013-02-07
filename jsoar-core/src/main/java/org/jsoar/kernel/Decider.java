@@ -1028,6 +1028,17 @@ public class Decider
      * @param predict  (defaulted to false in CSoar)
      * @return
      */
+    public ImpasseType run_preference_semantics(Slot s, ByRef<Preference> result_candidates)
+    {
+        return run_preference_semantics(s, result_candidates, false, false);
+    }
+    
+    public ImpasseType run_preference_semantics(Slot s, ByRef<Preference> result_candidates,
+            boolean consistency /* = false */)
+    {
+        return run_preference_semantics(s, result_candidates, consistency, false);
+    }
+        
     public ImpasseType run_preference_semantics(Slot s, ByRef<Preference> result_candidates,
             boolean consistency /* = false */, boolean predict /* = false */)
     {
@@ -1215,9 +1226,9 @@ public class Decider
             if (s.getPreferencesByType(PreferenceType.PROHIBIT) != null || s.getPreferencesByType(PreferenceType.REJECT) != null)
             {
                 for (Preference p = s.getPreferencesByType(PreferenceType.PROHIBIT); p != null; p = p.next)
-                    s.add_to_CDPS(context, p, true);
+                    s.add_to_CDPS(context, p);
                 for (Preference p = s.getPreferencesByType(PreferenceType.REJECT); p != null; p = p.next)
-                    s.add_to_CDPS(context, p, true);
+                    s.add_to_CDPS(context, p);
             }
         }
 
@@ -1370,14 +1381,14 @@ public class Decider
                         {
                             if (p.value == cand.value)
                             {
-                                s.add_to_CDPS(context, p, true);
+                                s.add_to_CDPS(context, p);
                             }
                         }
                         for (Preference p = s.getPreferencesByType(PreferenceType.WORSE); p != null; p = p.next)
                         {
                             if (p.referent == cand.value)
                             {
-                                s.add_to_CDPS(context, p, true);
+                                s.add_to_CDPS(context, p);
                             }
                         }
                     }
@@ -1434,7 +1445,7 @@ public class Decider
                         {
                             if (p.value == cand.value)
                             {
-                                s.add_to_CDPS(context, p, true);
+                                s.add_to_CDPS(context, p);
                             }
                         }
                     }
@@ -1520,7 +1531,7 @@ public class Decider
                         {
                             if (p.value == cand.value)
                             {
-                                s.add_to_CDPS(context, p, true);
+                                s.add_to_CDPS(context, p);
                             }
                         }
                     }
@@ -1669,7 +1680,7 @@ public class Decider
                                 if ((p.referent.decider_flag != DeciderFlag.UNARY_INDIFFERENT_CONSTANT)
                                         || (p.value.decider_flag != DeciderFlag.UNARY_INDIFFERENT_CONSTANT))
                                 {
-                                    s.add_to_CDPS(context, p, true);
+                                    s.add_to_CDPS(context, p);
                                 }
                             }
                         }
@@ -1682,13 +1693,13 @@ public class Decider
                         for (Preference p = s.getPreferencesByType(PreferenceType.UNARY_INDIFFERENT); p != null; p = p.next)
                         {
                             if (p.value == result_candidates.value.value) {
-                                    s.add_to_CDPS(context, p, true);
+                                    s.add_to_CDPS(context, p);
                             }
                         }
                         for (Preference p = s.getPreferencesByType(PreferenceType.BINARY_INDIFFERENT); p != null; p = p.next)
                         {
                             if ((p.value == result_candidates.value.value) || (p.referent == result_candidates.value.value)) {
-                                    s.add_to_CDPS(context, p, true);
+                                    s.add_to_CDPS(context, p);
                             }
                         }
                     }
@@ -2006,7 +2017,7 @@ public class Decider
     {
       final ByRef<Preference> candidates = ByRef.create(null);
       
-      final ImpasseType impasse_type = run_preference_semantics (s, candidates, false, false);
+      final ImpasseType impasse_type = run_preference_semantics (s, candidates);
       
       if (impasse_type==ImpasseType.NONE) 
       {
@@ -2584,7 +2595,7 @@ public class Decider
         else
         {
             // the slot is decidable, so run preference semantics on it
-            impasse_type = run_preference_semantics(s, candidates, false, false);
+            impasse_type = run_preference_semantics(s, candidates);
 
             if (predict)
             {

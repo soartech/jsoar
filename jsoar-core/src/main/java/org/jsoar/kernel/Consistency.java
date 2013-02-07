@@ -146,7 +146,7 @@ public class Consistency
 
         /* Determine the new impasse type, based on the preferences that exist now */
         final ByRef<Preference> candidates = ByRef.create(null);
-        final ImpasseType new_impasse_type = decider.run_preference_semantics(s, candidates, true, false);
+        final ImpasseType new_impasse_type = decider.run_preference_semantics(s, candidates, true);
 
         if (DEBUG_CONSISTENCY_CHECK)
         {
