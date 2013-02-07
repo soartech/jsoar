@@ -95,7 +95,7 @@ public class Slot
     
     private EnumMap<PreferenceType, Preference> preferencesByType;
 
-    private LinkedList<Preference> CDPS; /* list of prefs in the CDPS to backtrace through */
+    private LinkedList<Preference> cdps; /* list of prefs in the CDPS to backtrace through */
     
     public IdentifierImpl impasse_id = null;               // null if slot is not impassed
     public final boolean isa_context_slot;            
@@ -454,7 +454,7 @@ public class Slot
 
         final RecognitionMemory recMemory = Adaptables.adapt(context, RecognitionMemory.class);
 
-        Iterator<Preference> it = CDPS.iterator();
+        Iterator<Preference> it = cdps.iterator();
         while(it.hasNext())
         {
             Preference p = it.next();
@@ -465,12 +465,12 @@ public class Slot
 
     public boolean hasContextDependentPreferenceSet()
     {
-        return this.CDPS != null && !this.CDPS.isEmpty();
+        return this.cdps != null && !this.cdps.isEmpty();
     }
     
     LinkedList<Preference> getContextDependentPreferenceSet()
     {
-        return this.CDPS;
+        return this.cdps;
     }
     
     /**
@@ -494,13 +494,13 @@ public class Slot
             printer.print("--> Adding preference to CDPS: %s", pref);
         }
 
-        if(this.CDPS == null)
+        if(this.cdps == null)
         {
-            this.CDPS = new LinkedList<Preference>();
+            this.cdps = new LinkedList<Preference>();
         }
         
         boolean already_exists = false;
-        for(Preference p : CDPS)
+        for(Preference p : cdps)
         {
             if (p == pref)
             {
@@ -552,7 +552,7 @@ public class Slot
         }
         if (!already_exists)
         {
-            this.CDPS.push(pref);
+            this.cdps.push(pref);
             pref.preference_add_ref();
         }
         else if (traceBacktracing)

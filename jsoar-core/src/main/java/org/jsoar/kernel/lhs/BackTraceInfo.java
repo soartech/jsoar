@@ -28,7 +28,7 @@ public class BackTraceInfo implements Iterable<Preference>
     public int level;   /* level (at firing time) of the id of the wme */
     public Preference trace;        /* preference for BT, or NIL */
 
-    private LinkedList<Preference> CDPS;  /* list of substate evaluation prefs to backtrace through,
+    private LinkedList<Preference> cdps;  /* list of substate evaluation prefs to backtrace through,
                                              i.e. the context dependent preference set. */
 
     public BackTraceInfo()
@@ -40,7 +40,7 @@ public class BackTraceInfo implements Iterable<Preference>
         this.wme_ = other.wme_;
         this.level = other.level;
         this.trace = other.trace;
-        this.CDPS = other.CDPS;
+        this.cdps = other.cdps;
     }
     
     /**
@@ -53,17 +53,17 @@ public class BackTraceInfo implements Iterable<Preference>
 
     public void addContextDependentPreference(Preference pref)
     {
-        if(CDPS == null)
+        if(cdps == null)
         {
-            CDPS = new LinkedList<Preference>();
+            cdps = new LinkedList<Preference>();
         }
-        CDPS.push(pref);
+        cdps.push(pref);
         pref.preference_add_ref();
     }
     
     public boolean hasContextDependentPreferences()
     {
-        return CDPS != null && !CDPS.isEmpty();
+        return cdps != null && !cdps.isEmpty();
     }
     
     public void clearContextDependentPreferenceSet(final Adaptable context)
@@ -75,7 +75,7 @@ public class BackTraceInfo implements Iterable<Preference>
 
         final RecognitionMemory recMemory = Adaptables.adapt(context, RecognitionMemory.class);
 
-        Iterator<Preference> it = CDPS.iterator();
+        Iterator<Preference> it = cdps.iterator();
         while(it.hasNext())
         {
             Preference p = it.next();
@@ -98,6 +98,6 @@ public class BackTraceInfo implements Iterable<Preference>
     @Override
     public Iterator<Preference> iterator()
     {
-        return CDPS.iterator();
+        return cdps.iterator();
     }
 }
