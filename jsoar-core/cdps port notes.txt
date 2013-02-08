@@ -7,148 +7,38 @@ see issue 84 on github
 ** applied parser changes 
 ** removed all references to reconsider prefs
 ** removed more stuff from diff that doesn't apply to jsoar (some changes were already made)
+** added new sysparam
 
 ################################################################################
-# changes to learn command
-# this is implemented differently in jsoar, so don't take these changes literally
-# rather, figure out how to get the same effect in jsoar's implementation
+# testing possibilities
+# TestSoarPerformance.cpp refers to test_agents/cdps1.soar and test_agents/cdps2.soar
+# Maybe can make these into unit tests
 
-Modify	/trunk/SoarSuite/Core/CLI/src/cli_Cli.h	diff
-... 			
-218 	218 		LEARN_ONLY,
-219 	219 		LEARN_ENABLE_THROUGH_LOCAL_NEGATIONS,
-220 	220 		LEARN_DISABLE_THROUGH_LOCAL_NEGATIONS,
-      221 	+ 	LEARN_ENABLE_THROUGH_EVALUATION_RULES,
-      222 	+ 	LEARN_DISABLE_THROUGH_EVALUATION_RULES,
-221 	223 		LEARN_NUM_OPTIONS, // must be last
-222 	224 		};
-223 	225 		typedef std::bitset<LEARN_NUM_OPTIONS> LearnBitset;
-...
+################################################################################
+# there are additions to the learn command, but jsoar's learn command is barely
+# implemented as it is (it only supports on/off) so porting the full learn
+# command is really a different task
 
-Modify	/trunk/SoarSuite/Core/CLI/src/cli_Commands.h	diff
-... 			
-1293 	1293 		{'o', "only", OPTARG_NONE},
-1294 	1294 		{'n', "enable-through-local-negations", OPTARG_NONE},
-1295 	1295 		{'N', "disable-through-local-negations", OPTARG_NONE},
-      1296 	+ 	{'p', "enable-through-evaluation-rules", OPTARG_NONE},
-      1297 	+ 	{'P', "disable-through-evaluation-rules", OPTARG_NONE},
-1296 	1298 		{0, 0, OPTARG_NONE}
-1297 	1299 		};
-1298 	1300 		
-... 			
-1330 	1332 		case 'N':
-1331 	1333 		options.set(Cli::LEARN_DISABLE_THROUGH_LOCAL_NEGATIONS);
-1332 	1334 		break;
-      1335 	+ 	case 'p':
-      1336 	+ 	options.set(Cli::LEARN_ENABLE_THROUGH_EVALUATION_RULES);
-      1337 	+ 	break;
-      1338 	+ 	case 'P':
-      1339 	+ 	options.set(Cli::LEARN_DISABLE_THROUGH_EVALUATION_RULES);
-      1340 	+ 	break;
-1333 	1341 		}
-1334 	1342 		}
-1335 	1343 		
-...
 
-Modify	/trunk/SoarSuite/Core/CLI/src/cli_learn.cpp	diff
-... 			
-60 	60 		} else {
-61 	61 		m_Result << " (not through-local-negations)";
-62 	62 		}
-63 		- 	
-64 	63 		} else {
-65 	64 		m_Result << "Learning is disabled.";
-66 	65 		}
-		66 	+ 	if (agnt->sysparams[CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM]) {
-		67 	+ 	m_Result << " (will backtrace through evaluation rules)";
-		68 	+ 	} else {
-		69 	+ 	m_Result << " (will not backtrace through evaluation rules)";
-		70 	+ 	}
-67 	71 		} else {
-68 	72 		AppendArgTagFast(sml_Names::kParamLearnSetting, sml_Names::kTypeBoolean, agnt->sysparams[LEARNING_ON_SYSPARAM] ? sml_Names::kTrue : sml_Names::kFalse);
-69 	73 		AppendArgTagFast(sml_Names::kParamLearnOnlySetting, sml_Names::kTypeBoolean, agnt->sysparams[LEARNING_ONLY_SYSPARAM] ? sml_Names::kTrue : sml_Names::kFalse);
-... 			
-96 	100 		set_sysparam(agnt, LEARNING_ON_SYSPARAM, true);
-97 	101 		set_sysparam(agnt, LEARNING_ONLY_SYSPARAM, true);
-98 	102 		set_sysparam(agnt, LEARNING_EXCEPT_SYSPARAM, false);
-		103 	+ 	if (m_RawOutput) {
-		104 	+ 	m_Result << "\nWill learn only in certain states.";
-		105 	+ 	}
-99 	106 		}
-100 	107 		
-101 	108 		if (options.test(LEARN_EXCEPT)) {
-102 	109 		set_sysparam(agnt, LEARNING_ON_SYSPARAM, true);
-103 	110 		set_sysparam(agnt, LEARNING_ONLY_SYSPARAM, false);
-104 	111 		set_sysparam(agnt, LEARNING_EXCEPT_SYSPARAM, true);
-		112 	+ 	if (m_RawOutput) {
-		113 	+ 	m_Result << "\nWill learn everywhere except certain states.";
-		114 	+ 	}
-105 	115 		}
-106 	116 		
-107 	117 		if (options.test(LEARN_ENABLE)) {
-108 	118 		set_sysparam(agnt, LEARNING_ON_SYSPARAM, true);
-109 	119 		set_sysparam(agnt, LEARNING_ONLY_SYSPARAM, false);
-110 	120 		set_sysparam(agnt, LEARNING_EXCEPT_SYSPARAM, false);
-		121 	+ 	if (m_RawOutput) {
-		122 	+ 	m_Result << "\nLearning on.";
-		123 	+ 	}
-111 	124 		}
-112 	125 		
-113 	126 		if (options.test(LEARN_DISABLE)) {
-114 	127 		set_sysparam(agnt, LEARNING_ON_SYSPARAM, false);
-115 	128 		set_sysparam(agnt, LEARNING_ONLY_SYSPARAM, false);
-116 	129 		set_sysparam(agnt, LEARNING_EXCEPT_SYSPARAM, false);
-		130 	+ 	if (m_RawOutput) {
-		131 	+ 	m_Result << "\nLearning off.";
-		132 	+ 	}
-117 	133 		}
-118 	134 		
-119 	135 		if (options.test(LEARN_ALL_LEVELS)) {
-120 	136 		set_sysparam(agnt, LEARNING_ALL_GOALS_SYSPARAM, true);
-		137 	+ 	if (m_RawOutput) {
-		138 	+ 	m_Result << "\nWill learn for all goals.";
-		139 	+ 	}
-121 	140 		}
-122 	141 		
-123 	142 		if (options.test(LEARN_BOTTOM_UP)) {
-124 	143 		set_sysparam(agnt, LEARNING_ALL_GOALS_SYSPARAM, false);
-		144 	+ 	if (m_RawOutput) {
-		145 	+ 	m_Result << "\nWill learn from the bottom up.";
-		146 	+ 	}
-125 	147 		}
-126 	148 		
-127 	149 		if (options.test(LEARN_ENABLE_THROUGH_LOCAL_NEGATIONS)) {
-128 	150 		set_sysparam(agnt, CHUNK_THROUGH_LOCAL_NEGATIONS_SYSPARAM, true);
-		151 	+ 	if (m_RawOutput) {
-		152 	+ 	m_Result << "\nWill chunk through local negations.";
-		153 	+ 	}
-129 	154 		}
-130 	155 		
-131 	156 		if (options.test(LEARN_DISABLE_THROUGH_LOCAL_NEGATIONS)) {
-132 	157 		set_sysparam(agnt, CHUNK_THROUGH_LOCAL_NEGATIONS_SYSPARAM, false);
-		158 	+ 	if (m_RawOutput) {
-		159 	+ 	m_Result << "\nWill not chunk through local negations.";
-		160 	+ 	}
-		161 	+ 	}
-		162 	+ 	
-		163 	+ 	if (options.test(LEARN_ENABLE_THROUGH_EVALUATION_RULES)) {
-		164 	+ 	set_sysparam(agnt, CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM, true);
-		165 	+ 	if (m_RawOutput) {
-		166 	+ 	m_Result << "\nWill include evaluation rules when backtracing.";
-		167 	+ 	}
-		168 	+ 	}
-		169 	+ 	
-		170 	+ 	if (options.test(LEARN_DISABLE_THROUGH_EVALUATION_RULES)) {
-		171 	+ 	set_sysparam(agnt, CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM, false);
-		172 	+ 	if (m_RawOutput) {
-		173 	+ 	m_Result << "\nWill not include evaluation rules when backtracing.";
-		174 	+ 	}
-133 	175 		}
-134 	176 		
-135 	177 		return true;
-... 		
+################################################################################
+# initialize CDPS instead of prohibits
+# DONE unnecessary in java
 
-# soar_ecPrintPreferences()
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/soar_module.cpp	diff	
+
+# make_fake_instantiation()
+... 			
+162 	162 		}
+163 	163 		}
+164 	164 		
+165 		- 	cond->bt.prohibits = NULL;
+	165 	+ 	cond->bt.CDPS = NULL;
+166 	166 		
+167 	167 		prev_cond = cond;
+168 	168 		}
+... 	
+
+# soar_ecPrintPreferences() -- DONE
 Modify	/trunk/SoarSuite/Core/CLI/src/cli_preferences.cpp	diff
 ... 			
 275 	275 		// run preference semantics "read only" via _consistency_check
@@ -166,7 +56,7 @@ Modify	/trunk/SoarSuite/Core/CLI/src/cli_preferences.cpp	diff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 
-# trace_locals() 			
+# trace_locals() -- DONE
 444 	418 		void trace_locals (agent* thisAgent, goal_stack_level grounds_level, bool *reliable) {
 445 	419 		
 446 	420 		/* mvp 5-17-94 */
@@ -213,7 +103,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 496 	470 		}
 ... 			
 
-# trace_ungrounded_potentials()
+# trace_ungrounded_potentials() -- DONE
 610 	584 		Bool trace_ungrounded_potentials (agent* thisAgent, goal_stack_level grounds_level, bool *reliable) {
 611 	585 		
 612 	586 		/* mvp 5-17-94 */
@@ -261,6 +151,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/backtrace.cpp	diff
 
 ################################################################################
 # consistency stuff
+# DONE
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/consistency.cpp	diff
 ... 			
@@ -280,7 +171,8 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/consistency.cpp	diff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 
-# new function: add_to_CDPS()
+# new function: add_to_CDPS() -- DONE
+
 859 	859 		#endif
 860 	860 		#endif
 861 	861 		}
@@ -354,9 +246,9 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 864 	929
 
 # this diff is confusing, but the essence is that:
-#  require_preference_semantics() is removed
-#  run_preference_semantics_for_consistency_check() is removed
-#  run_preference_semantics() is modified
+#  require_preference_semantics() is removed -- moved into run_preference_semantics -- DONE
+#  run_preference_semantics_for_consistency_check() is removed -- DONE
+#  run_preference_semantics() is modified -- DONE
 # it may be easier to diff the current and old version of run_preference_semantics() than to follow this diff
 
 889 	954 		
@@ -1353,6 +1245,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 ... 			
 
 # make_fake_preference_for_goal_item()
+# DONE-- unnecessary to initialize to null in java (is default value)
 1638 	1743 		#endif
 1639 	1744 		cond->bt.level = ap_wme->id->id.level;
 1640 	1745 		cond->bt.trace = NIL;
@@ -1367,34 +1260,9 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/decide.cpp	diff
 ################################################################################
 # adding cdps list in various places, and comment changes
 
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff
-			
-# comment expansion
-280 	290 		match goal, with the pref. supported by the highest goal at the
-281 	291 		head of the list.
-282 	292 		
-	293 	+ 	CDPS: a dll of preferences in the context-dependent preference set,
-	294 	+ 	which is the set of all preferences that contributed to an operator's
-	295 	+ 	selection. This is used to allow Soar to backtrace through evaluation
-	296 	+ 	rules in substates. The rules that determine which preferences are
-	297 	+ 	in the CPSD are outlined in run_preference_semantics().
-	298 	+ 	
-283 	299 		impasse_id: points to the identifier of the attribute impasse object
-284 	300 		for this slot. (NIL if the slot isn't impassed.)
-285 	301 		
-... 			
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff			
 
-# adding cdps list to slot_struct
-310 	326 		wme *acceptable_preference_wmes; /* dll of acceptable pref. wmes */
-311 	327 		preference *all_preferences; /* dll of all pref's in the slot */
-312 	328 		preference *preferences[NUM_PREFERENCE_TYPES]; /* dlls for each type */
-	329 	+ 	::list *CDPS; /* list of prefs in the CDPS to backtrace through */
-313 	330 		Symbol *impasse_id; /* NIL if slot is not impassed */
-314 	331 		Bool isa_context_slot;
-315 	332 		byte impasse_type;
-... 			
-
-# adding cdps list to bt_info_struct
+# adding cdps list to bt_info_struct (DONE -- leaving here for reference until breakage is resolved)
 525 	542 		preference *trace; /* preference for BT, or NIL */
 526 	543 		
 527 	544 		/* mvp 5-17-94 */
@@ -1403,46 +1271,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/gdatastructs.h	diff
 	546 	+ 	i.e. the context dependent preference set. */
 	547 	+ 	
 529 	548 		} bt_info;
-530 	549 		
-
-# change to reorder_info_struct
-531 	550 		/* --- info on conditions used only by the reorderer --- */
-532 	551 		typedef struct reorder_info_struct {
-533 		- 	::list *vars_requiring_bindings; /* used only during reordering */
-	552 	+ 	::list *vars_requiring_bindings; /* used only during reordering */
-534 	553 		struct condition_struct *next_min_cost; /* used only during reordering */
-535 	554 		} reorder_info;
-536 	555 		
-... 			
-
-
-################################################################################
-# add new sysparam param
-# this probably should go in Chunker.java (that's where chunkThroughLocalNegations is)
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/gsysparam.h	diff
-
-... 			
-	194 	+ 	/* MMA: Chunk over evaluation rules in subgoals */
-	195 	+ 	#define CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM 46
-... 		
-
-################################################################################
-# set default param value for new behavior
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/init_soar.cpp	diff
-	
-... 			
-230 	230 		// JRV: Chunk through local negations by default
-231 	231 		thisAgent->sysparams[CHUNK_THROUGH_LOCAL_NEGATIONS_SYSPARAM] = TRUE;
-232 	232 		
-	233 	+ 	// MMA: Chunk through evaluation rules off by default
-	234 	+ 	thisAgent->sysparams[CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM] = TRUE;
-	235 	+ 	
-233 	236 		thisAgent->sysparams[DECISION_CYCLE_MAX_USEC_INTERRUPT] = 0;
-234 	237 		}
-235 	238 		
-... 						
+530 	549 									
 
 ################################################################################
 # code that builds the CDPS
@@ -1450,26 +1279,10 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/init_soar.cpp	diff
 #  formatter was run on this file, resulting in tons of irrelevant whitespace changes
 #  which I have removed from this diff
 
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
-
-# these probably just become lists (memory pools are irrelevant in jsoar)
-
-... 			
-59 	59 		using namespace soar_TraceNames;
-60 	60 		
-61 	61 		#ifdef USE_MEM_POOL_ALLOCATORS
-62 		- 	typedef std::list< instantiation*, soar_module::soar_memory_pool_allocator< instantiation* > > inst_mpool_list;
-63 		- 	typedef std::list< condition*, soar_module::soar_memory_pool_allocator< condition* > > cond_mpool_list;
-	62 	+ 	typedef std::list<instantiation*,
-	63 	+ 	soar_module::soar_memory_pool_allocator<instantiation*> > inst_mpool_list;
-	64 	+ 	typedef std::list<condition*,
-	65 	+ 	soar_module::soar_memory_pool_allocator<condition*> > cond_mpool_list;
-64 	66 		#else
-65 	67 		typedef std::list< instantiation* > inst_mpool_list;
-66 	68 		typedef std::list< condition* > cond_mpool_list;
-... 		
+Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff	
 
 # remove build_prohibits_list(), replace with build_CDPS()
+# DONE
 
 76 	78 		wme* glbDeepCopyWMEs = NULL;
 77 	79 		
@@ -1545,6 +1358,7 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
 ... 			
 
 # replace call to build_prohibits_list() with call to build_CDPS()
+# DONE
 	
 766 		- 	/* mvp 5-17-94 */
 767 		- 	build_prohibits_list (thisAgent, inst);
@@ -1552,30 +1366,13 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/recmem.cpp	diff
 	831 	+ 	build_CDPS(thisAgent, inst);
 768 	832 		
 
-
-################################################################################
-# initialize CDPS instead of prohibits
-
-Modify	/trunk/SoarSuite/Core/SoarKernel/src/soar_module.cpp	diff	
-
-# make_fake_instantiation()
-... 			
-162 	162 		}
-163 	163 		}
-164 	164 		
-165 		- 	cond->bt.prohibits = NULL;
-	165 	+ 	cond->bt.CDPS = NULL;
-166 	166 		
-167 	167 		prev_cond = cond;
-168 	168 		}
-... 	
-
 ################################################################################
 # slot stuff
 
 Modify	/trunk/SoarSuite/Core/SoarKernel/src/tempmem.cpp	diff	
 
 # make_slot()
+# DONE -- don't think this is necessary in java
 ... 			
 99 	99 		symbol_add_ref (attr);
 100 	100 		s->wmes = NIL;
@@ -1587,6 +1384,9 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/tempmem.cpp	diff
 ... 			
 
 # clear_CDPS()
+# DONE -- put in Slot.java since it is manipulating a member of that class, but it also
+#         needs access to the agent's RecognitionMemory, so I had to pass in an Agent context
+#         not sure if that implies it belongs elsewhere
 
 159 	160 		s->marked_for_possible_removal = TRUE;
 160 	161 		push (thisAgent, s, thisAgent->slots_for_possible_removal);
@@ -1617,6 +1417,8 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/tempmem.cpp	diff
 ... 			
 
 # remove_garbage_slots()
+# DONE (note that most of this is whitespace changes)
+# needed to access chunkThroughEvaluationRules sysparam in Chunker, so make it public
 
 181 	202 		print_with_symbols (thisAgent, "\nDeallocate slot %y ^%y", s->id, s->attr);
 182 	203 		#endif
@@ -1656,8 +1458,3 @@ Modify	/trunk/SoarSuite/Core/SoarKernel/src/tempmem.cpp	diff
 199 	224 		}
 200 	225 		
 ... 	
-
-################################################################################
-# testing possibilities
-# TestSoarPerformance.cpp refers to test_agents/cdps1.soar and test_agents/cdps2.soar
-# Maybe can make these into unit tests

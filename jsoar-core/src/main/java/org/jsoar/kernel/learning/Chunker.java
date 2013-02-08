@@ -5,7 +5,6 @@
  */
 package org.jsoar.kernel.learning;
 
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -96,7 +95,6 @@ public class Chunker
     private Marker results_tc_number;
     private Preference results;
     private Preference extra_result_prefs_from_instantiation;
-    public boolean variablize_this_chunk;
     public Marker variablization_tc;
     final ChunkConditionSet negated_set = new ChunkConditionSet();
     
@@ -105,6 +103,11 @@ public class Chunker
      * <p>Defaults to true in init_soar()
      */
     private boolean chunkThroughLocalNegations = true;
+    /**
+     *  <p>gsysparam.h:195:CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM
+     *  <p>Defaults to true in init_soar()
+     */
+    public boolean chunkThroughEvaluationRules = true;
     /**
      * <p>agent.h:534:quiescence_t_flag
      */
@@ -377,15 +380,11 @@ public class Chunker
      * @param sym the symbol to variablize. This object is not modified.
      * @return a new variablized version of the symbol
      */
-    public SymbolImpl variablize_symbol(SymbolImpl sym)
+    public SymbolImpl variablize_symbol(final SymbolImpl sym)
     {
         // only variablize identifiers
         final IdentifierImpl id = sym.asIdentifier(); 
         if (id == null)                         
-            return sym;
-        
-        // don't variablize (justifications)
-        if (!this.variablize_this_chunk)
             return sym;
         
         // don't variablize lti (long term identifiers)
@@ -478,25 +477,41 @@ public class Chunker
      * @param pref
      * @return
      */
-    private MakeAction copy_and_variablize_result_list(Preference pref)
+    private MakeAction copy_and_variablize_result_list(Preference pref, boolean variablize)
     {
         if (pref == null)
             return null;
 
         MakeAction a = new MakeAction();
 
-        a.id = variablize_symbol(pref.id).toRhsValue();
-        a.attr = variablize_symbol(pref.attr).toRhsValue();
-        a.value = variablize_symbol(pref.value).toRhsValue();
+        SymbolImpl id = pref.id;
+        SymbolImpl attr = pref.attr;
+        SymbolImpl val = pref.value;
+        SymbolImpl ref = pref.referent;
+        
+        if(variablize)
+        {
+            id = variablize_symbol(id);
+            attr = variablize_symbol(attr);
+            val = variablize_symbol(val);
+        }
 
+        a.id = id.toRhsValue();
+        a.attr = attr.toRhsValue();
+        a.value = val.toRhsValue();
+        
         a.preference_type = pref.type;
 
         if (pref.type.isBinary())
         {
-            a.referent = variablize_symbol(pref.referent).toRhsValue();
+            if(variablize)
+            {
+                ref = variablize_symbol(ref);
+            }
+            a.referent = variablize_symbol(ref).toRhsValue();
         }
 
-        a.next = copy_and_variablize_result_list(pref.next_result);
+        a.next = copy_and_variablize_result_list(pref.next_result, variablize);
         return a;
     }
 
@@ -525,7 +540,7 @@ public class Chunker
      * @param tc_to_use
      */
     private void build_chunk_conds_for_grounds_and_add_negateds(ByRef<ChunkCondition> dest_top,
-            ByRef<ChunkCondition> dest_bottom, Marker tc_to_use)
+            ByRef<ChunkCondition> dest_bottom, Marker tc_to_use, ByRef<Boolean> reliable)
     {
         ListItem<ChunkCondition> first_cc = null;
 
@@ -607,8 +622,7 @@ public class Chunker
                     // and set flags like we saw a ^quiescence t so it won't be
                     // created
                     backtrace.report_local_negation ( cc.cond );
-                    this.quiescence_t_flag = true;
-                    this.variablize_this_chunk = false;
+                    reliable.value = false;
                 }
 
                 // free_with_pool (&thisAgent.chunk_cond_pool, cc);
@@ -696,10 +710,6 @@ public class Chunker
      */
     public void variablize_nots_and_insert_into_conditions(NotStruct nots, Condition conds)
     {
-        // don't bother Not-ifying justifications
-        if (!variablize_this_chunk)
-            return;
-
         for (NotStruct n = nots; n != null; n = n.next)
         {
             SymbolImpl var1 = n.s1.variablization;
@@ -1033,27 +1043,97 @@ public class Chunker
     }
     
     /**
-     * This the main chunking routine. It takes an instantiation, and a flag
-     * "allow_variablization"--if FALSE, the chunk will not be variablized. (If
-     * TRUE, it may still not be variablized, due to chunk-free-problem-spaces,
-     * ^quiescence t, etc.)
+     * <p>chunk.cpp:903:chunk_instantiation
      * 
-     * <p>chunk.cpp:902:chunk_instantiation
+     * @param inst
+     * @return
+     */
+    boolean should_variablize(Instantiation inst)
+    {
+
+        if (!isLearningOn())
+        {
+            return false;
+        }
+
+        if (learningExcept && chunk_free_problem_spaces.contains(inst.match_goal))
+        {
+            // TODO verbose
+            // if (thisAgent->soar_verbose_flag ||
+            // thisAgent->sysparams[TRACE_CHUNKS_SYSPARAM])
+            // {
+            // char buf[64];
+            // std::ostringstream message;
+            // message << "\nnot chunking due to chunk-free state " <<
+            // symbol_to_string(thisAgent, inst->match_goal, false, buf, 64);
+            // print(thisAgent, message.str().c_str());
+            // xml_generate_verbose(thisAgent, message.str().c_str());
+            // }
+            return false;
+        }
+
+        if (learningOnly && !chunky_problem_spaces.contains(inst.match_goal))
+        {
+            // TODO verbose
+            // if (thisAgent->soar_verbose_flag ||
+            // thisAgent->sysparams[TRACE_CHUNKS_SYSPARAM])
+            // {
+            // char buf[64];
+            // std::ostringstream message;
+            // message << "\nnot chunking due to non-chunky state " <<
+            // symbol_to_string(thisAgent, inst->match_goal, false, buf, 64);
+            // print(thisAgent, message.str().c_str());
+            // xml_generate_verbose(thisAgent, message.str().c_str());
+            // }
+            return false;
+        }
+
+        /*
+         * allow_bottom_up_chunks will be false if a chunk was already learned
+         * in a lower goal
+         */
+        if (!learningAllGoals && !inst.match_goal.goalInfo.allow_bottom_up_chunks)
+        {
+            return false;
+        }
+
+        /*
+         * if a result is created in a state higher than the immediate
+         * superstate, don't make chunks for intermediate justifications.
+         */
+        for (Preference p = inst.preferences_generated; p != null; p = p.inst_next)
+        {
+            if (p.id.level < inst.match_goal_level - 1)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * This the main chunking routine.  It takes an instantiation, and a
+     * flag "variablize"--if FALSE, the chunk will not be
+     * variablized.  (If TRUE, it may still not be variablized, due to
+     * chunk-free-problem-spaces, ^quiescence t, etc.)
+     * 
+     * <p>chunk.cpp:973:chunk_instantiation
      * 
      * @param inst
      * @param allow_variablization
      */
-    public void chunk_instantiation(Instantiation inst, boolean allow_variablization, ByRef<Instantiation> custom_inst_list)
+    public void chunk_instantiation(Instantiation inst, boolean dont_variablize, ByRef<Instantiation> custom_inst_list)
     {
-        // if it only matched an attribute impasse, don't chunk
-        if (inst.match_goal == null)
-            return;
-
         // #ifndef NO_TIMING_STUFF
         // #ifdef DETAILED_TIMING_STATS
         // struct timeval saved_start_tv;
         // #endif
         // #endif
+
+        // if it only matched an attribute impasse, don't chunk
+        if (inst.match_goal == null)
+            return;
 
         // if no preference is above the match goal level, exit
         Preference pref = null;
@@ -1074,61 +1154,16 @@ public class Chunker
         // #endif
         // #endif
 
-        /*
-          in OPERAND, we only wanna built a chunk for the top goal; i.e. no
-          intermediate chunks are build.  we're essentially creating
-          "top-down chunking"; just the opposite of the "bottom-up chunking"
-          that is available through a soar prompt-level comand.
-          
-            (why do we do this??  i don't remember...)
-            
-              we accomplish this by forcing only justifications to be built for
-              subgoal chunks.  and when we're about to build the top level
-              result, we make a chunk.  a cheat, but it appears to work.  of
-              course, this only kicks in if learning is turned on.
-              
-                i get the behavior i want by twiddling the allow_variablization
-                flag.  i set it to FALSE for intermediate results.  then for the
-                last (top-most) result, i set it to whatever it was when the
-                function was called.
-                
-                  by the way, i need the lower level justificiations because they
-                  support the upper level justifications; i.e. a justification at
-                  level i supports the justification at level i-1.  i'm talkin' outa
-                  my butt here since i don't know that for a fact.  it's just that
-                  i tried building only the top level chunk and ignored the
-                  intermediate justifications and the system complained.  my
-                  explanation seemed reasonable, at the moment.
-        */
-
-        final Trace trace = context.getTrace();
-        if (this.learningOn.value.get())
-        {
-            if (pref.id.level < (inst.match_goal_level - 1))
-            {
-                allow_variablization = false;
-                inst.okay_to_variablize = false;
-
-                trace.print(Category.VERBOSE,
-                        "\n   in chunk_instantiation: making justification only");
-            }
-            else
-            {
-                allow_variablization = isLearningOn();
-                inst.okay_to_variablize = isLearningOn();
-
-                trace.print(Category.VERBOSE,
-                        "\n   in chunk_instantiation: resetting allow_variablization to %s", allow_variablization);
-            }
-        }
-
         Preference results = get_results_for_instantiation(inst);
         if (results == null)
         {
+            // RPM 2/2013: this goto to support reuse of timer code
+            //             timer code hasn't been ported yet, so ignoring
+            // goto chunking_done;
             return;
         }
 
-        // update flags on goal stack for bottom-up chunking
+        // set allow_bottom_up_chunks to false for all higher goals to prevent chunking
         for (IdentifierImpl g = inst.match_goal.goalInfo.higher_goal; g != null && g.goalInfo.allow_bottom_up_chunks; g = g.goalInfo.higher_goal)
             g.goalInfo.allow_bottom_up_chunks = false;
 
@@ -1152,45 +1187,6 @@ public class Chunker
         backtrace.locals.clear();
         this.instantiations_with_nots.clear();
 
-        if (allow_variablization && !learningAllGoals)
-            allow_variablization = inst.match_goal.goalInfo.allow_bottom_up_chunks;
-
-        boolean chunk_free_flag = false;
-        boolean chunky_flag = false;
-
-        // check whether ps name is in chunk_free_problem_spaces
-    	// if allow_variablization is true, need to disable it if
-    	//   learn --except is on and the state is in chunk_free_problem_spaces
-    	//   learn --only is on and the state is not in chunky_problem_spaces
-    	// if chunk_free_flag, variablize_this_chunk is initialized to false because of dont-learn
-    	// if chunky_flag, variablize_this_chunk is initialized to true because of force-learn
-        if (allow_variablization)
-        {
-            if (learningExcept)
-            {
-                if (chunk_free_problem_spaces.contains(inst.match_goal))
-                {
-                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "\nnot chunking due to chunk-free state %y", inst.match_goal);
-                    allow_variablization = false;
-                    chunk_free_flag = true;
-                }
-            }
-            else if (learningOnly)
-            {
-                if (chunky_problem_spaces.contains(inst.match_goal))
-                {
-                    chunky_flag = true;
-                }
-                else
-                {
-                	context.getTrace().print(EnumSet.of(Category.VERBOSE, Category.WM_CHANGES), "\nnot chunking due to non-chunky state %y", inst.match_goal);
-                    allow_variablization = false;
-                }
-            }
-        }
-
-        this.variablize_this_chunk = allow_variablization;
-
         // Start a new structure for this potential chunk
         ExplainChunk temp_explain_chunk = null;
         if (this.explain.isEnabled())
@@ -1199,20 +1195,21 @@ public class Chunker
             this.explain.reset_backtrace_list();
         }
 
+        final Trace trace = context.getTrace();
+        ByRef<Boolean> reliable = new ByRef<Boolean>(true);
+        
         /* --- backtrace through the instantiation that produced each result --- */
         for (pref = results; pref != null; pref = pref.next_result)
         {
             trace.print(Category.BACKTRACING, "\nFor result preference %s ", pref);
-            backtrace.backtrace_through_instantiation(pref.inst, grounds_level, null, 0);
+            backtrace.backtrace_through_instantiation(pref.inst, grounds_level, null, reliable, 0);
         }
-
-        this.quiescence_t_flag = false;
 
         while (true)
         {
-            backtrace.trace_locals(grounds_level);
+            backtrace.trace_locals(grounds_level, reliable);
             backtrace.trace_grounded_potentials();
-            if (!backtrace.trace_ungrounded_potentials(grounds_level))
+            if (!backtrace.trace_ungrounded_potentials(grounds_level, reliable))
                 break;
         }
 
@@ -1224,28 +1221,24 @@ public class Chunker
         NotStruct nots = null;
         {
             final Marker tc_for_grounds = DefaultMarker.create();
-            build_chunk_conds_for_grounds_and_add_negateds(top_cc, bottom_cc, tc_for_grounds);
+            build_chunk_conds_for_grounds_and_add_negateds(top_cc, bottom_cc, tc_for_grounds, reliable);
             nots = get_nots_for_instantiated_conditions(instantiations_with_nots, tc_for_grounds);
         }
-
-        // get symbol for name of new chunk or justification
-        String prod_name = null;
-        ProductionType prod_type = null;
-        boolean print_name = false;
-        boolean print_prod = false;
+        
+        boolean variablize = !dont_variablize && reliable.value && should_variablize(inst);
         
         // SMEM Check for LTI validity
-        if ( this.variablize_this_chunk )
+        if ( variablize )
         {
             if ( top_cc.value != null )
             {
                 // need a temporary copy of the actions
                 variablization_tc = DefaultMarker.create();
-                final Action rhs = copy_and_variablize_result_list(results);
+                final Action rhs = copy_and_variablize_result_list(results, true);
 
                 if ( !DefaultSemanticMemory.smem_valid_production( top_cc.value.variablized_cond, rhs ) )
                 {
-                    this.variablize_this_chunk = false;
+                    variablize = false;
 
                     trace.print(Category.BACKTRACING, "\nWarning: LTI validation failed, creating justification instead.");
                 }
@@ -1255,7 +1248,13 @@ public class Chunker
             }
         }
         
-        if (this.variablize_this_chunk)
+        // get symbol for name of new chunk or justification
+        String prod_name = null;
+        ProductionType prod_type = null;
+        boolean print_name = false;
+        boolean print_prod = false;
+        
+        if (variablize)
         {
             this.chunks_this_d_cycle++;
             prod_name = generate_chunk_name_sym_constant(inst);
@@ -1285,6 +1284,7 @@ public class Chunker
         if (top_cc.value == null)
         {
             context.getPrinter().print("Warning: chunk has no grounds, ignoring it.");
+            //goto chunking_done;
             return;
         }
 
@@ -1292,18 +1292,22 @@ public class Chunker
         {
             context.getPrinter().warn("\nWarning: reached max-chunks! Halting system.");
             this.maxChunksReached = true;
+            //goto chunking_done
             return;
         }
 
-        // variablize it
         Condition lhs_top = top_cc.value.variablized_cond;
         Condition lhs_bottom = bottom_cc.value.variablized_cond;
-        this.predefinedSyms.getSyms().getVariableGenerator().reset(lhs_top, null);
-        this.variablization_tc = DefaultMarker.create();
-        variablize_condition_list(lhs_top);
-        variablize_nots_and_insert_into_conditions(nots, lhs_top);
-        Action rhs = copy_and_variablize_result_list(results);
+        if(variablize)
+        {
+            this.predefinedSyms.getSyms().getVariableGenerator().reset(lhs_top, null);
+            this.variablization_tc = DefaultMarker.create();
+            variablize_condition_list(lhs_top);
+            variablize_nots_and_insert_into_conditions(nots, lhs_top);
+        }
 
+        Action rhs = copy_and_variablize_result_list(results, variablize);
+        
         // add goal/impasse tests to it
         add_goal_or_impasse_tests(top_cc.value.next_prev);
 
@@ -1338,6 +1342,7 @@ public class Chunker
             
     		// We cannot proceed, the GDS will crash in decide.cpp:decide_non_context_slot
             this.decisionCycle.halt("Bad chunk");
+            //goto chunking_done
             return;
         }
 
@@ -1361,33 +1366,8 @@ public class Chunker
 
             chunk_inst.GDS_evaluated_already = false; /* REW:  09.15.96 */
 
-            /* If:
-            - you don't want to variablize this chunk, and
-            - the reason is ONLY that it's chunk free, and
-            - NOT that it's also quiescence, then
-            it's okay to variablize through this instantiation later.
-            */
-
-    		// set chunk_inst->okay_to_variablize to thisAgent->variablize_this_chunk unless:
-    		//   - we didn't variablize it because of dont-learn (implies learning mode is "except" because if "off" or "on", chunk_free_flag is false)
-    		//   - or, learn mode is "only" and we didn't variablize it because of force-learn
-    		// if one of those two cases is true, we set chunk_inst->okay_to_variablize to TRUE saying we could variablize through it in the future
-
-            if (!learningOnly)
-            {
-                if ((!this.variablize_this_chunk) && (chunk_free_flag) && (!this.quiescence_t_flag))
-                    chunk_inst.okay_to_variablize = true;
-                else
-                    chunk_inst.okay_to_variablize = this.variablize_this_chunk;
-            }
-            else
-            {
-                if ((!this.variablize_this_chunk) && (!chunky_flag) && (!this.quiescence_t_flag))
-                    chunk_inst.okay_to_variablize = true;
-                else
-                    chunk_inst.okay_to_variablize = this.variablize_this_chunk;
-            }
-
+            chunk_inst.reliable = reliable.value;
+            
             chunk_inst.in_ms = true; /* set TRUE for now, we'll find out later... */
             make_clones_of_results(results, chunk_inst);
             recMemory.fill_in_new_instantiation_stuff(chunk_inst, true, decider.top_goal);
@@ -1403,7 +1383,7 @@ public class Chunker
             final ByRef<Condition> new_bottom = ByRef.create(null);
             Condition.copy_condition_list(prod.getFirstCondition(), new_top, new_bottom);
             temp_explain_chunk.conds = new_top.value;
-            temp_explain_chunk.actions = copy_and_variablize_result_list(results);
+            temp_explain_chunk.actions = copy_and_variablize_result_list(results, variablize);
         }
 
         final ProductionAddResult rete_addition_result = this.rete.add_production_to_rete(prod, chunk_inst, print_name,
@@ -1462,7 +1442,7 @@ public class Chunker
         custom_inst_list.value = chunk_inst.insertAtHeadOfProdList(custom_inst_list.value);
 
         if (!maxChunksReached)
-            chunk_instantiation(chunk_inst, variablize_this_chunk, custom_inst_list);
+            chunk_instantiation(chunk_inst, dont_variablize, custom_inst_list);
 
         //#ifndef NO_TIMING_STUFF
         //#ifdef DETAILED_TIMING_STATS
@@ -1470,6 +1450,16 @@ public class Chunker
         //#endif
         //#endif
         return;
+        
+        // RPM 2/2013: commented out gotos above go here
+        //chunking_done:
+        // #ifndef NO_TIMING_STUFF
+        // #ifdef DETAILED_TIMING_STATS
+        // local_timer.stop();
+        // thisAgent->timers_chunking_cpu_time[thisAgent->current_phase].update(local_timer);
+        // #endif
+        // #endif
+
     }
 
 }

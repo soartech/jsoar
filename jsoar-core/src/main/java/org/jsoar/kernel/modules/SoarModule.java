@@ -110,7 +110,7 @@ public class SoarModule
         pref.setInstantiation(inst);
         inst.match_goal = state;
         inst.match_goal_level = state.level;
-        inst.okay_to_variablize = true;
+        inst.reliable = true;
         inst.backtrace_number = 0;
         inst.in_ms = false;
         inst.GDS_evaluated_already = false;
@@ -158,8 +158,8 @@ public class SoarModule
                     }
                 }               
 
-                // Prohibits defaults to null
-                // cond.bt().prohibits = null;
+                // CDPS defaults to null
+                // cond.bt().CDPS = null;
 
                 prev_cond = cond;
             }

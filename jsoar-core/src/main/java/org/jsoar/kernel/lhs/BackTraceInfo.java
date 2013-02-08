@@ -8,8 +8,12 @@ package org.jsoar.kernel.lhs;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.jsoar.kernel.SoarConstants;
 import org.jsoar.kernel.memory.Preference;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.util.adaptables.Adaptable;
+import org.jsoar.util.adaptables.Adaptables;
 
 /**
  * info on conditions used for backtracing (and by the rete)
@@ -24,7 +28,8 @@ public class BackTraceInfo implements Iterable<Preference>
     public int level;   /* level (at firing time) of the id of the wme */
     public Preference trace;        /* preference for BT, or NIL */
 
-    private LinkedList<Preference> prohibits;  /* list of prohibit prefs to backtrace through */
+    private LinkedList<Preference> cdps;  /* list of substate evaluation prefs to backtrace through,
+                                             i.e. the context dependent preference set. */
 
     public BackTraceInfo()
     {
@@ -35,7 +40,7 @@ public class BackTraceInfo implements Iterable<Preference>
         this.wme_ = other.wme_;
         this.level = other.level;
         this.trace = other.trace;
-        this.prohibits = other.prohibits;
+        this.cdps = other.cdps;
     }
     
     /**
@@ -46,26 +51,44 @@ public class BackTraceInfo implements Iterable<Preference>
         return new BackTraceInfo(this);
     }
 
-    public void addProhibit(Preference pref)
+    public void addContextDependentPreference(Preference pref)
     {
-        if(prohibits == null)
+        if(cdps == null)
         {
-            prohibits = new LinkedList<Preference>();
+            cdps = new LinkedList<Preference>();
         }
-        prohibits.push(pref);
+        cdps.push(pref);
         pref.preference_add_ref();
     }
     
-    public boolean hasProhibits()
+    public boolean hasContextDependentPreferences()
     {
-        return prohibits != null && !prohibits.isEmpty();
+        return cdps != null && !cdps.isEmpty();
     }
     
-    public void clearProhibits()
+    public void clearContextDependentPreferenceSet(final Adaptable context)
     {
-        if(prohibits != null)
+        if (!hasContextDependentPreferences())
         {
-            prohibits.clear();
+            return;
+        }
+
+        final RecognitionMemory recMemory = Adaptables.adapt(context, RecognitionMemory.class);
+
+        Iterator<Preference> it = cdps.iterator();
+        while(it.hasNext())
+        {
+            Preference p = it.next();
+            if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
+            {
+                p.preference_remove_ref(recMemory);
+            }
+            else
+            {
+                if (level > SoarConstants.TOP_GOAL_LEVEL)
+                    p.preference_remove_ref(recMemory);
+            }
+            it.remove();
         }
     }
 
@@ -75,6 +98,6 @@ public class BackTraceInfo implements Iterable<Preference>
     @Override
     public Iterator<Preference> iterator()
     {
-        return prohibits.iterator();
+        return cdps.iterator();
     }
 }
