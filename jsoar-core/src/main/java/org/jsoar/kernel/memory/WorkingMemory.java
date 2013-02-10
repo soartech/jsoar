@@ -281,6 +281,11 @@ public class WorkingMemory
         wmes_to_add.clear();
         wmes_to_remove.clear();
     }
+    
+    public long getWmeRemovalCount()
+    {
+        return this.wme_removal_count.get();
+    }
 
     /**
      * Extracted from do_buffered_wm_changes

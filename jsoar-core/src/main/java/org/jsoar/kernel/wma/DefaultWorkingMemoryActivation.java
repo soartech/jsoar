@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
@@ -22,10 +23,8 @@ import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.rete.MatchSetChange;
+import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.rete.Rete;
-import org.jsoar.kernel.rete.SoarReteListener;
-import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -33,8 +32,6 @@ import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgetWmeChoice
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgettingChoices;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
-import org.jsoar.util.markers.DefaultMarker;
-import org.jsoar.util.markers.Marker;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
@@ -96,7 +93,8 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     private DecisionCycle decisionCycle;
     private RecognitionMemory recMemory;
     private Rete rete;
-    private SoarReteListener soarReteListener;
+    private Decider decider;
+    private WorkingMemory workingMemory;
     
     private DefaultWorkingMemoryActivationParams wma_params;
     private DefaultWorkingMemoryActivationStats wma_stats;
@@ -114,7 +112,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     private long wma_approx_array[];
     private double wma_thresh_exp;
     private boolean wma_initialized;
-    private Marker wma_tc_counter;
+    //private Marker wma_tc_counter; //this only used in one function, eliminated in favor of a local solutionS
     private long wma_d_cycle_count;
     
     public DefaultWorkingMemoryActivation(Adaptable context)
@@ -128,7 +126,8 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class); // not required because only used for printing
         this.recMemory = Adaptables.require(getClass(), context, RecognitionMemory.class);
         this.rete = Adaptables.require(getClass(), context, Rete.class);
-        this.soarReteListener = Adaptables.require(getClass(), context, SoarReteListener.class);
+        this.decider = Adaptables.require(getClass(), context, Decider.class);
+        this.workingMemory = Adaptables.require(getClass(), context, WorkingMemory.class);
         
         final PropertyManager properties = Adaptables.require(DefaultWorkingMemoryActivation.class, context, PropertyManager.class);
         
@@ -141,7 +140,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         wma_touched_sets = new HashSet<Long>();
 
         wma_initialized = false;
-        wma_tc_counter = DefaultMarker.create();
     }
 
     /**
@@ -1045,6 +1043,9 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         }
     }
 
+    /**
+     * wma.cpp:1122:wma_update_decay_histories
+     */
     private void wma_update_decay_histories()
     {
         final long current_cycle = wma_d_cycle_count;
@@ -1119,25 +1120,132 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         wma_touched_elements.clear();
     }
     
-    @Override
-    public void wma_go(final wma_go_action go_action)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //API Functions (wma::api)
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    
+    /**
+     * wma.cpp:1212:wma_get_wme_activation
+     */
     @Override
     public double wma_get_wme_activation(final Wme w, final boolean log_result)
     {
-        // TODO Auto-generated method stub
-        return 0;
-    }
+        double return_val = ( log_result )?( WMA_ACTIVATION_NONE ):( WMA_TIME_SUM_NONE );
 
+        final wma_decay_element wma_decay_el = wmaDecayElements.get(w);
+        if ( wma_decay_el != null )
+        {
+            return_val = wma_calculate_decay_activation( wma_decay_el, wma_d_cycle_count, log_result );
+        }
+
+        return return_val;
+    }
+    
     @Override
     public String wma_get_wme_history(final Wme w)
     {
-        // TODO Auto-generated method stub
-        return null;
+        String ret = "";
+        final wma_decay_element wma_decay_el = wmaDecayElements.get(w);
+        if ( wma_decay_el != null )
+        {
+            final wma_history history = wma_decay_el.touches;
+            final long current_cycle = wma_d_cycle_count;
+
+            ret += "history (" + history.history_references + "/" + history.total_references + ", first @ d" + history.first_reference + "):";
+
+            int p = history.next_p;
+            int counter = history.history_ct;
+            while ( counter != 0 )
+            {
+                p = wma_history_prev( p );
+                counter--;
+
+                ret += "\n"
+                    +  history.access_history[ p ].toString(current_cycle);
+            }
+
+            final ForgettingChoices forget = wma_params.forgetting.get();
+
+            if ( ( forget == ForgettingChoices.bsearch ) || ( forget == ForgettingChoices.approx ) )
+            {
+                ret += "\n\n"
+                    +  "considering WME for decay @ d"
+                    +  wma_decay_el.forget_cycle;
+            }
+        }
+        else
+        {
+            ret = "WME has no decay history";
+        }
+        
+        return ret;
+    }
+    
+    /**
+     * wma.cpp:1308:wma_go
+     */
+    @Override
+    public void wma_go(final wma_go_action go_action)
+    {
+     // update history for all touched elements
+        if ( go_action == wma_go_action.wma_histories )
+        {
+            //my_agent.wma_timers.history.start();
+            
+            wma_update_decay_histories();
+
+            //my_agent.wma_timers.history.stop();
+        }
+        // check forgetting queue
+        else if ( go_action == wma_go_action.wma_forgetting )
+        {
+            final ForgettingChoices forgetting = wma_params.forgetting.get();
+
+            if ( forgetting != ForgettingChoices.off )
+            {
+                //my_agent.wma_timers.forgetting.start();
+
+                boolean forgot_something = false;
+
+                if ( forgetting == ForgettingChoices.naive )
+                {
+                    forgot_something = wma_forgetting_naive_sweep();
+                }
+                else
+                {           
+                    forgot_something = wma_forgetting_update_p_queue();
+                }
+
+                if ( forgot_something )
+                {
+                    if ( trace.isEnabled(Category.WM_CHANGES) )
+                    {
+                        trace.getPrinter().print("\n\nWMA: BEGIN FORGOTTEN WME LIST\n\n");
+                    }
+
+                    long wm_removal_diff = workingMemory.getWmeRemovalCount();
+                    {
+                        decider.do_working_memory_phase();
+                    }
+                    wm_removal_diff = ( workingMemory.getWmeRemovalCount() - wm_removal_diff );
+
+                    if ( wm_removal_diff > 0 )
+                    {
+                        wma_stats.forgotten_wmes.set( wma_stats.forgotten_wmes.get() + wm_removal_diff );
+                    }
+
+                    if ( trace.isEnabled(Category.WM_CHANGES) )
+                    {
+                        trace.getPrinter().print("\nWMA: END FORGOTTEN WME LIST\n\n");
+                    }
+                }
+
+                //my_agent.wma_timers.forgetting.stop();
+            }
+        }
+        
     }
 
 }
