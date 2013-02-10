@@ -85,6 +85,9 @@ public class Trace
         /** gsysparam.h:176:TRACE_RL_SYSPARAM */
         RL(-1),
         
+        /** gsysparam.g:180:TRACE_WMA_SYSPARAM */
+        WMA(-1),
+        
         /** New in jsoar for debugging waterfall */
         WATERFALL(-1),
         
