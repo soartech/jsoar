@@ -11,14 +11,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.jsoar.kernel.DecisionCycle;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
+import org.jsoar.kernel.memory.RecognitionMemory;
+import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
+import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
+import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.adaptables.Adaptable;
@@ -79,11 +84,12 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     /**
      * If below decay thresh, but not forgotten, forget_cycle =
      */
-    public static final double WMA_FORGOTTEN_CYCLE = 0;
+    public static final long WMA_FORGOTTEN_CYCLE = 0;
    
     Adaptable context;
     Trace trace;
     DecisionCycle decisionCycle;
+    RecognitionMemory recMemory;
     
     DefaultWorkingMemoryActivationParams wma_params;
     DefaultWorkingMemoryActivationStats wma_stats;
@@ -92,7 +98,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     // wma_timer_container wma_timers;
     
     Set<Wme> wma_touched_elements;  
-    Map<Long, Set< wma_decay_element>> wma_forget_pq;
+    TreeMap<Long, Set< wma_decay_element>> wma_forget_pq; // using TreeMap because this needs to be sorted and we will use TreeMap-specific methods
     Set<Long> wma_touched_sets;
     Map<Wme, wma_decay_element> wmaDecayElements = new HashMap<Wme, wma_decay_element>();
     
@@ -107,18 +113,21 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     public DefaultWorkingMemoryActivation(Adaptable context)
     {
         this.context = context;
-        this.trace = Adaptables.require(getClass(), context, Trace.class);
-        this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class);
     }
     
     public void initialize()
     {
-        final PropertyManager properties = Adaptables.require(DefaultSemanticMemory.class, context, PropertyManager.class);
+        this.trace = Adaptables.require(getClass(), context, Trace.class);
+        this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class); // not required because only used for printing
+        this.recMemory = Adaptables.require(getClass(), context, RecognitionMemory.class);
+        
+        final PropertyManager properties = Adaptables.require(DefaultWorkingMemoryActivation.class, context, PropertyManager.class);
+        
         wma_params = new DefaultWorkingMemoryActivationParams(properties);
         wma_stats = new DefaultWorkingMemoryActivationStats(properties);
         //wma_timers = new wma_timer_container( );
 
-        wma_forget_pq = new HashMap<Long, Set<wma_decay_element>>();
+        wma_forget_pq = new TreeMap<Long, Set<wma_decay_element>>();
         wma_touched_elements = new HashSet<Wme>();
         wma_touched_sets = new HashSet<Long>();
 
@@ -151,9 +160,9 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             return;
         }
     
-        double decay_rate = wma_params.decay_rate.get();
-        double decay_thresh = wma_params.decay_thresh.get();
-        long max_pow_cache = wma_params.max_pow_cache.get();
+        final double decay_rate = wma_params.decay_rate.get();
+        final double decay_thresh = wma_params.decay_thresh.get();
+        final long max_pow_cache = wma_params.max_pow_cache.get();
         
         // Pre-compute the integer powers of the decay exponent in order to avoid
         // repeated calls to pow() at runtime
@@ -163,12 +172,12 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
                 // computes how many powers to compute
                 // basic idea: solve for the time that would just fall below the decay threshold, given decay rate and assumption of max references/decision
                 // t = e^( ( thresh - ln( max_refs ) ) / -decay_rate )
-                double cache_full = ( Math.exp( ( decay_thresh - Math.log( WMA_REFERENCES_PER_DECISION ) ) / decay_rate ) );
+                final double cache_full = ( Math.exp( ( decay_thresh - Math.log( WMA_REFERENCES_PER_DECISION ) ) / decay_rate ) );
                 
                 // we bound this by the max-pow-cache parameter to control the space vs. time tradeoff the cache supports
                 // max-pow-cache is in MB, so do the conversion:
                 // MB * 1024 bytes/KB * 1024 KB/MB
-                double cache_bound = ( ( max_pow_cache * 1024 * 1024 ) / ( /*sizeof( double )*/ 8 ) );
+                final double cache_bound = ( ( max_pow_cache * 1024 * 1024 ) / ( /*sizeof( double )*/ 8 ) );
                 
                 wma_power_size = (int)( Math.ceil( ( cache_full > cache_bound )?( cache_bound ):( cache_full ) ) );
             }
@@ -242,7 +251,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * @param current
      * @return
      */
-    private int wma_history_next( int current )
+    private int wma_history_next( final int current )
     {
         return ( ( current == ( wma_history.WMA_DECAY_HISTORY - 1 ) )?( 0 ):( current + 1 ) );
     }
@@ -252,7 +261,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * @param current
      * @return
      */
-    private int wma_history_prev( int current )
+    private int wma_history_prev( final int current )
     {
         return ( ( current == 0 )?( wma_history.WMA_DECAY_HISTORY - 1 ):( current - 1 ) );
     }
@@ -262,9 +271,9 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * @param w
      * @return
      */
-    private boolean wma_should_have_decay_element( Wme w )
+    private boolean wma_should_have_decay_element( final Wme w )
     {
-        Iterator<Preference> it = w.getPreferences();
+        final Iterator<Preference> it = w.getPreferences();
         if(!it.hasNext()) return false;
         Preference preference = it.next();
         return ( ( preference.reference_count != 0 ) && ( preference.o_supported ) );
@@ -275,7 +284,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * @param cycle_diff
      * @return
      */
-    private double wma_pow( int cycle_diff )
+    private double wma_pow( final int cycle_diff )
     {
         if ( cycle_diff < wma_power_size )
         {
@@ -293,7 +302,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * @param current_cycle
      * @return
      */
-    private double wma_sum_history( wma_history history, long current_cycle )
+    private double wma_sum_history( final wma_history history, final long current_cycle )
     {
         double return_val = 0.0;
         
@@ -343,13 +352,13 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * @param log_result
      * @return
      */
-    private double wma_calculate_decay_activation( wma_decay_element decay_el, long current_cycle, boolean log_result )
+    private double wma_calculate_decay_activation( final wma_decay_element decay_el, final long current_cycle, final boolean log_result )
     {
         wma_history history = decay_el.touches;
             
         if ( history.history_ct != 0 )
         {
-            double history_sum = wma_sum_history( history, current_cycle );
+            final double history_sum = wma_sum_history( history, current_cycle );
 
             if ( !log_result )
             {
@@ -376,7 +385,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * @param w
      * @return
      */
-    private long wma_calculate_initial_boost( Wme w )
+    private long wma_calculate_initial_boost( final Wme w )
     {
         long return_val = 0;
         
@@ -448,27 +457,27 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * Several overrides provided here for default arg values
      */
     @Override
-    public void wma_activate_wme(Wme w, long num_references, Set<Wme> o_set)
+    public void wma_activate_wme(final Wme w, final long num_references, final Set<Wme> o_set)
     {
         wma_activate_wme(w, num_references, o_set, false);
     }
 
     @Override
-    public void wma_activate_wme(Wme w, long num_references)
+    public void wma_activate_wme(final Wme w, final long num_references)
     {
         wma_activate_wme(w, num_references, null, false);
         
     }
 
     @Override
-    public void wma_activate_wme(Wme w)
+    public void wma_activate_wme(final Wme w)
     {
         wma_activate_wme(w, 1, null, false);
         
     }
     
     @Override
-    public void wma_activate_wme( Wme w, long num_references, Set<Wme> o_set, boolean o_only )
+    public void wma_activate_wme( final Wme w, final long num_references, final Set<Wme> o_set, final boolean o_only )
     {   
         // o-supported, non-architectural WME
         if ( wma_should_have_decay_element( w ) )
@@ -603,9 +612,9 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * wma.cpp:647:wma_deactivate_element
      * @param w
      */
-    private void wma_deactivate_element( Wme w )
+    private void wma_deactivate_element( final Wme w )
     {
-        wma_decay_element temp_el = wmaDecayElements.get(w);
+        final wma_decay_element temp_el = wmaDecayElements.get(w);
 
         if ( temp_el != null )
         {   
@@ -624,9 +633,9 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     }
     
     @Override
-    public void wma_remove_decay_element(Wme w)
+    public void wma_remove_decay_element(final Wme w)
     {
-        wma_decay_element temp_el = wmaDecayElements.get(w);
+        final wma_decay_element temp_el = wmaDecayElements.get(w);
         
         if ( temp_el != null )
         {
@@ -661,7 +670,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * wma.cpp:705:wma_remove_pref_o_set
      */
     @Override
-    public void wma_remove_pref_o_set(Preference pref)
+    public void wma_remove_pref_o_set(final Preference pref)
     {
         if ( pref != null && pref.wma_o_set != null)
         {
@@ -676,15 +685,42 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     //////////////////////////////////////////////////////////
     
     /**
+     * wma.cpp:732:wma_forgetting_add_to_p_queue
+     * @param decay_el
+     * @param new_cycle
+     */
+    private void wma_forgetting_add_to_p_queue( final wma_decay_element decay_el, final long new_cycle )
+    {
+        if ( decay_el != null )
+        {
+            decay_el.forget_cycle = new_cycle;
+
+            final Set<wma_decay_element> pq = wma_forget_pq.get(new_cycle);
+            if ( pq == null )
+            {
+                Set<wma_decay_element> newbie = new HashSet<wma_decay_element>();
+                
+                newbie.add( decay_el );
+                
+                wma_forget_pq.put( new_cycle, newbie );
+            }
+            else
+            {
+                pq.add( decay_el );
+            }
+        }
+    }
+    
+    /**
      * wma.cpp:759:wma_forgetting_remove_from_p_queue
      * @param decay_el
      */
-    void wma_forgetting_remove_from_p_queue( wma_decay_element decay_el )
+    void wma_forgetting_remove_from_p_queue( final wma_decay_element decay_el )
     {
         if ( decay_el != null )
         {
             // try to find set for the element per cycle        
-            Set<wma_decay_element> pq = wma_forget_pq.get( decay_el.forget_cycle );
+            final Set<wma_decay_element> pq = wma_forget_pq.get( decay_el.forget_cycle );
             if ( pq != null )
             {
                 if ( pq.contains(decay_el) ) 
@@ -700,8 +736,245 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         }
     }
 
+    private void wma_forgetting_move_in_p_queue( final wma_decay_element decay_el, final long new_cycle )
+    {
+        if ( decay_el != null && ( decay_el.forget_cycle != new_cycle ) )
+        {
+            wma_forgetting_remove_from_p_queue( decay_el );
+            wma_forgetting_add_to_p_queue( decay_el, new_cycle );
+        }
+    }
+    
+    long wma_forgetting_estimate_cycle( final wma_decay_element decay_el, final boolean fresh_reference )
+    {   
+        long return_val = wma_d_cycle_count;
+        final DefaultWorkingMemoryActivationParams.ForgettingChoices forgetting = wma_params.forgetting.get();
+        
+        if ( fresh_reference && ( forgetting == DefaultWorkingMemoryActivationParams.ForgettingChoices.approx ) )
+        {
+            long to_add = 0;
+            
+            final wma_history history = decay_el.touches;
+            int p = history.next_p;
+            int counter = history.history_ct;
+            
+            while ( counter != 0 )
+            {
+                p = wma_history_prev( p );
+
+                final long cycle_diff = ( return_val - history.access_history[ p ].d_cycle );
+
+                final int approx_ref = (int)( ( history.access_history[ p ].num_references < WMA_REFERENCES_PER_DECISION )?( history.access_history[ p ].num_references ):( WMA_REFERENCES_PER_DECISION-1 ) );
+                if ( wma_approx_array[ approx_ref ] > cycle_diff )
+                {
+                    to_add += ( wma_approx_array[ approx_ref ] - cycle_diff );
+                }
+                
+                counter--;
+            }
+
+            return_val += to_add;
+        }
+        
+        if ( return_val == wma_d_cycle_count )
+        {
+            final double my_thresh = wma_thresh_exp;
+            
+            // binary parameter search
+            {
+                long to_add = 1;
+                double act = wma_calculate_decay_activation( decay_el, ( return_val + to_add ), false );
+
+                if ( act >= my_thresh )
+                {
+                    while ( act >= my_thresh )
+                    {
+                        to_add *= 2;
+                        act = wma_calculate_decay_activation( decay_el, ( return_val + to_add ), false );
+                    }
+
+                    //
+
+                    long upper_bound = to_add;
+                    long lower_bound, mid;
+                    if ( to_add < 4 )
+                    {
+                        lower_bound = upper_bound;
+                    }
+                    else
+                    {
+                        lower_bound = ( to_add / 2 );
+                    }
+
+                    while ( lower_bound != upper_bound )
+                    {
+                        mid = ( ( lower_bound + upper_bound ) / 2 );
+                        act = wma_calculate_decay_activation( decay_el, ( return_val + mid ), false );
+
+                        if ( act < my_thresh )
+                        {
+                            upper_bound = mid;
+
+                            if ( upper_bound - lower_bound <= 1 )
+                            {
+                                lower_bound = mid;
+                            }
+                        }
+                        else
+                        {
+                            lower_bound = mid;
+
+                            if ( upper_bound - lower_bound <= 1 )
+                            {
+                                lower_bound = upper_bound;
+                            }
+                        }
+                    }
+
+                    to_add = upper_bound;
+                }
+
+                return_val += to_add;
+            }
+        }
+        
+        return return_val;  
+    }
+
+    /**
+     * wma.cpp:890:wma_forgetting_forget_wme
+     * @param w
+     * @return
+     */
+    boolean wma_forgetting_forget_wme( final Wme w )
+    {   
+        boolean return_val = false;
+        final boolean fake = wma_params.fake_forgetting.get();
+        
+        if ( w.getPreferences().hasNext() && w.getPreferences().next().slot != null )
+        {
+            Preference p = w.getPreferences().next().slot.getAllPreferences();
+            Preference next_p;
+
+            while ( p != null )
+            {
+                next_p = p.nextOfSlot;
+
+                if ( p.o_supported && p.isInTempMemory() && ( p.value == w.getValue() ) )
+                {
+                    if ( !fake )
+                    {
+                        recMemory.remove_preference_from_tm(p);
+                        return_val = true;              
+                    }
+                }
+
+                p = next_p;
+            }
+        }
+
+        return return_val;
+    }
+    
+    /**
+     * wma.cpp:920:wma_forgetting_update_p_queue
+     * @return
+     */
+    private boolean wma_forgetting_update_p_queue()
+    {
+        boolean return_val = false;
+        boolean do_forget = false;
+                
+        if ( !wma_forget_pq.isEmpty() )
+        {
+            final long current_cycle = wma_d_cycle_count;
+            final double decay_thresh = wma_thresh_exp;
+            final boolean forget_only_lti = ( wma_params.forget_wme.get() == DefaultWorkingMemoryActivationParams.ForgetWmeChoices.lti);
+
+            final Map.Entry<Long, Set<wma_decay_element>> pq = wma_forget_pq.firstEntry();
+            if ( pq.getKey() == current_cycle )
+            {
+                for ( wma_decay_element current : pq.getValue() )
+                {
+                    if ( wma_calculate_decay_activation( current, current_cycle, false ) < decay_thresh )
+                    {
+                        current.forget_cycle = WMA_FORGOTTEN_CYCLE;
+                        
+                        if ( !forget_only_lti || ((IdentifierImpl)current.this_wme.getIdentifier()).smem_lti != 0 )
+                        {
+                            do_forget = true;
+
+                            // implements all-or-nothing check for lti mode
+                            if ( forget_only_lti )
+                            {
+                                for ( Slot s = ((IdentifierImpl)current.this_wme.getIdentifier()).slots; (s != null && do_forget); s = s.next )
+                                {
+                                    for ( WmeImpl w = s.getWmes(); (w != null && do_forget); w = w.next )
+                                    {
+                                        final wma_decay_element wma_decay_el = wmaDecayElements.get(w);
+                                        if ( w.preference.o_supported && ( wma_decay_el == null || ( wma_decay_el.forget_cycle != WMA_FORGOTTEN_CYCLE ) ) )
+                                        {
+                                            do_forget = false;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if ( do_forget )
+                            {
+                                if ( forget_only_lti )
+                                {
+                                    // implements all-or-nothing forget for lti mode
+                                    for ( Slot s= ((IdentifierImpl)current.this_wme.getIdentifier()).slots; (s != null && do_forget); s = s.next )
+                                    {
+                                        for ( WmeImpl w = s.getWmes(); (w != null && do_forget); w = w.next )
+                                        {
+                                            if ( wma_forgetting_forget_wme( w ) )
+                                            {
+                                                return_val = true;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if ( wma_forgetting_forget_wme( current.this_wme ) )
+                                    {
+                                        return_val = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        wma_forgetting_move_in_p_queue( current, wma_forgetting_estimate_cycle( current, false ) );
+                    }
+                }
+
+                // clean up decay set
+                wma_touched_sets.add( pq.getKey() );
+                pq.getValue().clear();
+            }
+
+            // clean up touched sets
+            for(long touched : wma_touched_sets)
+            {
+                final Set<wma_decay_element> pq_v = wma_forget_pq.get(touched);
+                
+                if ( pq_v != null && pq_v.isEmpty() )
+                {
+                    wma_forget_pq.remove( pq.getKey() );
+                }
+            }
+            wma_touched_sets.clear();
+        }
+
+        return return_val;
+    }
+    
     @Override
-    public void wma_activate_wmes_in_pref(Preference pref)
+    public void wma_activate_wmes_in_pref(final Preference pref)
     {
         // TODO Auto-generated method stub
         
@@ -715,21 +988,21 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     }
 
     @Override
-    public void wma_go(wma_go_action go_action)
+    public void wma_go(final wma_go_action go_action)
     {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public double wma_get_wme_activation(Wme w, boolean log_result)
+    public double wma_get_wme_activation(final Wme w, final boolean log_result)
     {
         // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
-    public String wma_get_wme_history(Wme w)
+    public String wma_get_wme_history(final Wme w)
     {
         // TODO Auto-generated method stub
         return null;

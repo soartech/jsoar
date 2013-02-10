@@ -220,6 +220,7 @@ src\wmem.h:50:typedef struct wma_decay_element_struct wma_decay_element;
 
 ################################################################################
 # wme_struct modifications
+# DONE: moved wma_decay_element into map in wma, and eliminated tc_number (use set in single function that cares)
 src\wmem.h:159:  wma_decay_element* wma_decay_el;
 src\wmem.h:160:  tc_number wma_tc_value;
 
