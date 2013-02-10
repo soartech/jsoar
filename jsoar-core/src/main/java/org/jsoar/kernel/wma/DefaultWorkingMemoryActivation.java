@@ -29,6 +29,8 @@ import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgetWmeChoices;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgettingChoices;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.markers.DefaultMarker;
@@ -203,7 +205,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         wma_thresh_exp = Math.exp( decay_thresh );
         
         // approximation cache
-        if( wma_params.forgetting.get() == DefaultWorkingMemoryActivationParams.ForgettingChoices.approx )
+        if( wma_params.forgetting.get() == ForgettingChoices.approx )
         {
             wma_approx_array = new long[ WMA_REFERENCES_PER_DECISION ];
             
@@ -232,7 +234,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         wma_power_array = null;
         
         // release approximation array memory (if applicable)
-        if ( wma_params.forgetting.get() == DefaultWorkingMemoryActivationParams.ForgettingChoices.approx )
+        if ( wma_params.forgetting.get() == ForgettingChoices.approx )
         {
             wma_approx_array = null;
         }
@@ -629,7 +631,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             {           
                 wma_touched_elements.remove( w );
 
-                if ( ( wma_params.forgetting.get() == DefaultWorkingMemoryActivationParams.ForgettingChoices.approx) || ( wma_params.forgetting.get() == DefaultWorkingMemoryActivationParams.ForgettingChoices.bsearch) )
+                if ( ( wma_params.forgetting.get() == ForgettingChoices.approx) || ( wma_params.forgetting.get() == ForgettingChoices.bsearch) )
                 {
                     wma_forgetting_remove_from_p_queue( temp_el );
                 }
@@ -755,9 +757,9 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     private long wma_forgetting_estimate_cycle( final wma_decay_element decay_el, final boolean fresh_reference )
     {   
         long return_val = wma_d_cycle_count;
-        final DefaultWorkingMemoryActivationParams.ForgettingChoices forgetting = wma_params.forgetting.get();
+        final ForgettingChoices forgetting = wma_params.forgetting.get();
         
-        if ( fresh_reference && ( forgetting == DefaultWorkingMemoryActivationParams.ForgettingChoices.approx ) )
+        if ( fresh_reference && ( forgetting == ForgettingChoices.approx ) )
         {
             long to_add = 0;
             
@@ -896,7 +898,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         {
             final long current_cycle = wma_d_cycle_count;
             final double decay_thresh = wma_thresh_exp;
-            final boolean forget_only_lti = ( wma_params.forget_wme.get() == DefaultWorkingMemoryActivationParams.ForgetWmeChoices.lti);
+            final boolean forget_only_lti = ( wma_params.forget_wme.get() == ForgetWmeChoices.lti);
 
             final Map.Entry<Long, Set<wma_decay_element>> pq = wma_forget_pq.firstEntry();
             if ( pq.getKey() == current_cycle )
@@ -988,7 +990,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     {
         long current_cycle = wma_d_cycle_count;
         double decay_thresh = wma_thresh_exp;
-        final boolean forget_only_lti = ( wma_params.forget_wme.get() == DefaultWorkingMemoryActivationParams.ForgetWmeChoices.lti );
+        final boolean forget_only_lti = ( wma_params.forget_wme.get() == ForgetWmeChoices.lti );
         boolean return_val = false;
 
         for ( Wme w :rete.getAllWmes() )
@@ -1043,6 +1045,80 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         }
     }
 
+    private void wma_update_decay_histories()
+    {
+        final long current_cycle = wma_d_cycle_count;
+        final boolean forgetting = ( ( wma_params.forgetting.get() == ForgettingChoices.approx ) || ( wma_params.forgetting.get() == ForgettingChoices.bsearch ) );
+
+        // add to history for changed elements
+        for (Wme w : wma_touched_elements)
+        {
+            final wma_decay_element temp_el = wmaDecayElements.get(w);
+
+            // update number of references in the current history
+            // (has to come before history overwrite)
+            temp_el.touches.history_references += ( temp_el.num_references - temp_el.touches.access_history[ temp_el.touches.next_p ].num_references );
+            
+            // set history
+            temp_el.touches.access_history[ temp_el.touches.next_p ].d_cycle = current_cycle;
+            temp_el.touches.access_history[ temp_el.touches.next_p ].num_references = temp_el.num_references;
+
+            // log
+            if ( trace.isEnabled(Category.WMA) )
+            {
+                String msg = "WMA @";
+                
+                msg += decisionCycle.d_cycle_count;
+                msg += ": ";
+                
+                msg += "activate ";
+
+                
+                msg += temp_el.this_wme.getTimetag();
+                msg += " ";
+
+                msg += temp_el.num_references;
+
+                msg += "\n";
+
+                trace.getPrinter().print(msg);
+            }
+
+            // keep track of first reference
+            if ( temp_el.touches.total_references == 0 )
+            {
+                temp_el.touches.first_reference = current_cycle;
+            }
+            
+            // update counters
+            if ( temp_el.touches.history_ct < wma_history.WMA_DECAY_HISTORY )
+            {
+                temp_el.touches.history_ct++;
+            }
+            temp_el.touches.next_p = wma_history_next( temp_el.touches.next_p );
+            temp_el.touches.total_references += temp_el.num_references;
+
+            // reset cycle counter
+            temp_el.num_references = 0;
+
+            // update forgetting stuff as needed
+            if ( forgetting )
+            {
+                if ( temp_el.just_created )
+                {
+                    wma_forgetting_add_to_p_queue( temp_el, wma_forgetting_estimate_cycle( temp_el, true ) );
+                }
+                else
+                {
+                    wma_forgetting_move_in_p_queue( temp_el, wma_forgetting_estimate_cycle( temp_el, true ) );
+                }
+            }
+
+            temp_el.just_created = false;
+        }
+        wma_touched_elements.clear();
+    }
+    
     @Override
     public void wma_go(final wma_go_action go_action)
     {
