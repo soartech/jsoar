@@ -22,7 +22,7 @@ import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
-import org.jsoar.kernel.smem.DefaultSemanticMemory;
+import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -90,6 +90,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     Trace trace;
     DecisionCycle decisionCycle;
     RecognitionMemory recMemory;
+    Rete rete;
     
     DefaultWorkingMemoryActivationParams wma_params;
     DefaultWorkingMemoryActivationStats wma_stats;
@@ -120,6 +121,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         this.trace = Adaptables.require(getClass(), context, Trace.class);
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class); // not required because only used for printing
         this.recMemory = Adaptables.require(getClass(), context, RecognitionMemory.class);
+        this.rete = Adaptables.require(getClass(), context, Rete.class);
         
         final PropertyManager properties = Adaptables.require(DefaultWorkingMemoryActivation.class, context, PropertyManager.class);
         
@@ -972,6 +974,47 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
 
         return return_val;
     }
+    
+    /**
+     * wma.cpp:1022:wma_forgetting_naive_sweep
+     * @return
+     */
+    boolean wma_forgetting_naive_sweep()
+    {
+        long current_cycle = wma_d_cycle_count;
+        double decay_thresh = wma_thresh_exp;
+        final boolean forget_only_lti = ( wma_params.forget_wme.get() == DefaultWorkingMemoryActivationParams.ForgetWmeChoices.lti );
+        boolean return_val = false;
+
+        for ( Wme w :rete.getAllWmes() )
+        {
+            final wma_decay_element wma_decay_el = wmaDecayElements.get(w);
+            if ( wma_decay_el != null && ( !forget_only_lti || ( ((IdentifierImpl)w.getIdentifier()).smem_lti != 0 ) ) )
+            {
+                // to be forgotten, wme must...
+                // - have been accessed (can't imagine why not, but just in case)
+                // - not have been accessed this cycle (i.e. no decay)
+                // - have activation less than threshold
+                if ( ( wma_decay_el.touches.total_references > 0 ) && 
+                     ( wma_decay_el.touches.access_history[ wma_history_prev( wma_decay_el.touches.next_p ) ].d_cycle < current_cycle ) && 
+                     ( wma_calculate_decay_activation( wma_decay_el, current_cycle, false ) < decay_thresh ) )
+                {
+                    if ( wma_forgetting_forget_wme( w ) )
+                    {
+                        return_val = true;
+                    }
+                }
+            }
+        }
+
+        return return_val;
+    }
+    
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //Activation Update Functions (wma::update)
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
     
     @Override
     public void wma_activate_wmes_in_pref(final Preference pref)
