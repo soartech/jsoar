@@ -40,6 +40,7 @@ import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.adaptables.Adaptables;
 
@@ -58,6 +59,7 @@ public class SoarReteListener implements ReteListener
     private PredefinedSymbols predefinedSyms;
     private Decider decider;
     private RecognitionMemory recMemory;
+    private WorkingMemoryActivation wma;
     
     /**
      * agent.h:733
@@ -85,7 +87,7 @@ public class SoarReteListener implements ReteListener
      * agent.h:723
      * @see MatchSetChange#next_of_all
      */
-    private MatchSetChange ms_o_assertions;
+    public MatchSetChange ms_o_assertions;
     /**
      * @see MatchSetChange#next_of_all
      */
@@ -114,6 +116,7 @@ public class SoarReteListener implements ReteListener
         this.predefinedSyms = Adaptables.adapt(context, PredefinedSymbols.class);
         this.decider = Adaptables.adapt(context, Decider.class);
         this.recMemory = Adaptables.adapt(context, RecognitionMemory.class);
+        this.wma = Adaptables.adapt(context, WorkingMemoryActivation.class);
     }
 
     /* (non-Javadoc)
@@ -1125,5 +1128,44 @@ public class SoarReteListener implements ReteListener
             @Override
             public List<MatchSetEntry> getEntries() { return Collections.unmodifiableList(entries); }
         };
+    }
+    
+    /**
+     * Increments the reference count of all
+     * WMEs that have been referenced this
+     * cycle.
+     * wma.cpp:1082:wma_activate_wmes_tested_in_prods
+     */
+    public void wma_activate_wmes_tested_in_prods()
+    {
+        for ( MatchSetChange msc = ms_o_assertions; msc != null; msc = msc.next_of_all )
+        {
+            Token t = Token.createMatchesToken(msc.tok, msc.w);
+            
+            while ( t != rete.dummy_top_token )
+            {
+                if (t.w != null)
+                {
+                    wma.wma_activate_wme( t.w );             
+                }
+
+                t = t.parent;
+            }
+        }
+
+        for ( MatchSetChange msc = ms_i_assertions; msc != null; msc = msc.next_of_all )
+        {
+            Token t = Token.createMatchesToken(msc.tok, msc.w);
+
+            while ( t != rete.dummy_top_token )
+            {
+                if ( t.w != null )
+                {
+                    wma.wma_activate_wme( t.w );
+                }
+
+                t = t.parent;
+            }
+        }
     }
 }

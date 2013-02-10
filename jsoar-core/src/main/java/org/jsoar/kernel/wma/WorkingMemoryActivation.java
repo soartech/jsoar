@@ -69,14 +69,6 @@ public interface WorkingMemoryActivation
     void wma_activate_wmes_in_pref( Preference pref );
     
     /**
-     * Increments the reference count of all
-     * WMEs that have been referenced this
-     * cycle.
-     * wma.h:wma_activate_wmes_tested_in_prods
-     */
-    void wma_activate_wmes_tested_in_prods( );
-    
-    /**
      * This routine performs WME activation
      * and forgetting at the end of each cycle.
      * wma.h:wma_go

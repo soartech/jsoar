@@ -22,7 +22,10 @@ import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.rete.MatchSetChange;
 import org.jsoar.kernel.rete.Rete;
+import org.jsoar.kernel.rete.SoarReteListener;
+import org.jsoar.kernel.rete.Token;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
@@ -86,30 +89,31 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      */
     public static final long WMA_FORGOTTEN_CYCLE = 0;
    
-    Adaptable context;
-    Trace trace;
-    DecisionCycle decisionCycle;
-    RecognitionMemory recMemory;
-    Rete rete;
+    private Adaptable context;
+    private Trace trace;
+    private DecisionCycle decisionCycle;
+    private RecognitionMemory recMemory;
+    private Rete rete;
+    private SoarReteListener soarReteListener;
     
-    DefaultWorkingMemoryActivationParams wma_params;
-    DefaultWorkingMemoryActivationStats wma_stats;
+    private DefaultWorkingMemoryActivationParams wma_params;
+    private DefaultWorkingMemoryActivationStats wma_stats;
 
     // RPM 2/13: timers not ported yet
     // wma_timer_container wma_timers;
     
-    Set<Wme> wma_touched_elements;  
-    TreeMap<Long, Set< wma_decay_element>> wma_forget_pq; // using TreeMap because this needs to be sorted and we will use TreeMap-specific methods
-    Set<Long> wma_touched_sets;
-    Map<Wme, wma_decay_element> wmaDecayElements = new HashMap<Wme, wma_decay_element>();
+    private Set<Wme> wma_touched_elements;  
+    private TreeMap<Long, Set< wma_decay_element>> wma_forget_pq; // using TreeMap because this needs to be sorted and we will use TreeMap-specific methods
+    private Set<Long> wma_touched_sets;
+    private Map<Wme, wma_decay_element> wmaDecayElements = new HashMap<Wme, wma_decay_element>();
     
-    int wma_power_size;
-    double wma_power_array[];
-    long wma_approx_array[];
-    double wma_thresh_exp;
-    boolean wma_initialized;
-    Marker wma_tc_counter;
-    long wma_d_cycle_count;
+    private int wma_power_size;
+    private double wma_power_array[];
+    private long wma_approx_array[];
+    private double wma_thresh_exp;
+    private boolean wma_initialized;
+    private Marker wma_tc_counter;
+    private long wma_d_cycle_count;
     
     public DefaultWorkingMemoryActivation(Adaptable context)
     {
@@ -122,6 +126,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         this.decisionCycle = Adaptables.adapt(context, DecisionCycle.class); // not required because only used for printing
         this.recMemory = Adaptables.require(getClass(), context, RecognitionMemory.class);
         this.rete = Adaptables.require(getClass(), context, Rete.class);
+        this.soarReteListener = Adaptables.require(getClass(), context, SoarReteListener.class);
         
         final PropertyManager properties = Adaptables.require(DefaultWorkingMemoryActivation.class, context, PropertyManager.class);
         
@@ -717,7 +722,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * wma.cpp:759:wma_forgetting_remove_from_p_queue
      * @param decay_el
      */
-    void wma_forgetting_remove_from_p_queue( final wma_decay_element decay_el )
+    private void wma_forgetting_remove_from_p_queue( final wma_decay_element decay_el )
     {
         if ( decay_el != null )
         {
@@ -747,7 +752,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         }
     }
     
-    long wma_forgetting_estimate_cycle( final wma_decay_element decay_el, final boolean fresh_reference )
+    private long wma_forgetting_estimate_cycle( final wma_decay_element decay_el, final boolean fresh_reference )
     {   
         long return_val = wma_d_cycle_count;
         final DefaultWorkingMemoryActivationParams.ForgettingChoices forgetting = wma_params.forgetting.get();
@@ -979,7 +984,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * wma.cpp:1022:wma_forgetting_naive_sweep
      * @return
      */
-    boolean wma_forgetting_naive_sweep()
+    private boolean wma_forgetting_naive_sweep()
     {
         long current_cycle = wma_d_cycle_count;
         double decay_thresh = wma_thresh_exp;
@@ -1016,18 +1021,26 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////
     
+    /**
+     * wma.cpp:1062:wma_activate_wmes_in_pref
+     */
     @Override
     public void wma_activate_wmes_in_pref(final Preference pref)
     {
-        // TODO Auto-generated method stub
-        
-    }
+        if ( pref.type == PreferenceType.ACCEPTABLE )
+        {
+            WmeImpl w = pref.slot.getWmes();
+            while ( w != null )
+            {
+                // id and attr should already match so just compare the value
+                if ( w.getValue() == pref.value )
+                {
+                    wma_activate_wme( w );
+                }
 
-    @Override
-    public void wma_activate_wmes_tested_in_prods()
-    {
-        // TODO Auto-generated method stub
-        
+                w = w.next;
+            }
+        }
     }
 
     @Override
