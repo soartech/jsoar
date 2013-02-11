@@ -537,7 +537,11 @@ public class Rete
      */
     public void remove_wme_from_rete (WmeImpl w)
     {
-        // TODO EPMEM update epmem when wme removed from rete
+        if(episodicMemory.epmem_enabled())
+        {
+            episodicMemory.removeWme(w);
+            // TODO epmem_process_ids
+        }
         
         /* --- remove w from all_wmes_in_rete --- */
         all_wmes_in_rete.remove(w);

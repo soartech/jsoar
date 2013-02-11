@@ -86,4 +86,10 @@ public interface EpisodicMemory
      * @param id
      */
     void addWme(IdentifierImpl id);
+    
+    /**
+     * replaces _epmem_remove_wme( agent* my_agent, wme* w ) in rete
+     * @param w
+     */
+    void removeWme(WmeImpl w);
 }

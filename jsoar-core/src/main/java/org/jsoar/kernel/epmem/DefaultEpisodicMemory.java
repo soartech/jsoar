@@ -2721,4 +2721,70 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         epmem_wme_adds.add(id);
     }
+
+    @Override
+    public void removeWme(WmeImpl w)
+    {
+        boolean was_encoded = false;
+        
+        if(w.value.asIdentifier()!=null)
+        {
+            boolean lti = (w.value.asIdentifier().smem_lti!=0);
+
+            if((w.epmem_id!=EPMEM_NODEID_BAD) && (w.epmem_valid==epmem_validation)) 
+            {
+                was_encoded = true;
+         
+                epmem_edge_removals.put(w.epmem_id, true);
+              
+                // return to the id pool
+                if ( !lti )
+                {
+                    Map<Long,Long> p = epmem_id_replacement.get(w.epmem_id);
+                    p.put(w.value.asIdentifier().epmem_id, w.epmem_id);
+                    epmem_id_replacement.remove(p);
+                }
+            }
+          
+            // reduce the ref count on the value
+            if(!lti && (w.value.asIdentifier().epmem_id!=EPMEM_NODEID_BAD) && (w.value.asIdentifier().epmem_valid==epmem_validation))
+            {
+                Set<WmeImpl> my_refs = epmem_id_ref_counts.get(w.value.asIdentifier().epmem_id);
+
+                if(my_refs.contains(w))
+                {
+                    my_refs.remove(w);
+
+                    // recurse if no incoming edges from top-state (i.e. not in transitive closure of top-state)
+                    boolean recurse = true;
+                    for(WmeImpl rc_it : my_refs)
+                    {
+                        if(rc_it.id.asIdentifier().level==decider.top_state.asIdentifier().level)
+                        {
+                            recurse = false;
+                            break;
+                        }
+                    }
+
+                    if ( recurse )
+                    {
+                        my_refs.clear();
+                        epmem_id_removes.push(w.value);
+                    }
+                }
+            }
+        }
+        else if((w.epmem_id!=EPMEM_NODEID_BAD) && (w.epmem_valid==epmem_validation))
+        {
+            was_encoded = true;
+     
+            epmem_node_removals.put(w.epmem_id, true);
+        }
+
+        if ( was_encoded )
+        {
+            w.epmem_id = EPMEM_NODEID_BAD;
+            w.epmem_valid = 0;
+        }
+    }
 }
