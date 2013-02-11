@@ -15,10 +15,11 @@ import org.jsoar.util.properties.PropertyProvider;
 
 /**
  * 
- * <p>semantic_memory.h:92:smem_stat_container
- * @author ray
+ * <p>wma.h:114:wma_stat_container
+ * <p>wma.cpp:163:wma_stat_container
+ * @author bob.marinier
  */
-class DefaultWorkingMemoryActivationStats implements WorkingMemoryActivationStatistics
+public class DefaultWorkingMemoryActivationStats implements WorkingMemoryActivationStatistics
 {
     private static final String PREFIX = "wma.stats.";
     

@@ -84,25 +84,25 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * How many references are expected per decision (this affects creation of
      * the power/approx cache)
      */
-    public static final int WMA_REFERENCES_PER_DECISION = 50;
+    private static final int WMA_REFERENCES_PER_DECISION = 50;
 
     /**
      * If an external caller asks for the activation level/value of a WME that
      * is not activated, then this is the value that is returned.
      */
-    public static final double WMA_ACTIVATION_NONE = 1.0;
+    private static final double WMA_ACTIVATION_NONE = 1.0;
 
-    public static final double WMA_TIME_SUM_NONE = 2.71828182845905;
+    private static final double WMA_TIME_SUM_NONE = 2.71828182845905;
 
     /**
      * If no history, this is a low number to report as activation
      */
-    public static final double WMA_ACTIVATION_LOW = -1000000000;
+    private static final double WMA_ACTIVATION_LOW = -1000000000;
 
     /**
      * If below decay thresh, but not forgotten, forget_cycle =
      */
-    public static final long WMA_FORGOTTEN_CYCLE = 0;
+    private static final long WMA_FORGOTTEN_CYCLE = 0;
    
     private Adaptable context;
     private Trace trace;
@@ -112,8 +112,8 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     private Decider decider;
     private WorkingMemory workingMemory;
     
-    private DefaultWorkingMemoryActivationParams wma_params;
-    private DefaultWorkingMemoryActivationStats wma_stats;
+    public DefaultWorkingMemoryActivationParams wma_params;
+    public DefaultWorkingMemoryActivationStats wma_stats;
 
     // RPM 2/13: timers not ported yet
     // wma_timer_container wma_timers;
@@ -176,6 +176,14 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         });
         
         wma_initialized = false;
+    }
+    
+    /**
+     * <p>init_soar.cpp:333:reset_statistics
+     */
+    public void reset()
+    {
+        this.wma_d_cycle_count = 0;
     }
 
     /**

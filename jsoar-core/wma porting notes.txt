@@ -60,7 +60,7 @@ src\agent.cpp:363:  newAgent->wma_tc_counter = 2;
 
 # wma agent-level cleanup
 # destroy_soar_agent()
-# Besides setting the activation value, probably not needed.
+# DONE: don't need to do this, because don't need to cleanup memory on shutdown
 src\agent.cpp:468:  // cleanup wma
 src\agent.cpp:469:  delete_agent->wma_params->activation->set_value( soar_module::off );
 src\agent.cpp:470:  delete delete_agent->wma_forget_pq;
@@ -115,11 +115,13 @@ src\gdatastructs.h:341:  wma_sym_reference_map* wma_val_references;
 
 ################################################################################
 # reset_statistics()
+# DONE -- skipping timers for now
 src\init_soar.cpp:329:  thisAgent->wma_timers->reset();
 src\init_soar.cpp:333:  thisAgent->wma_d_cycle_count = 0;
 
 ################################################################################
 # reinitialize_soar()
+# DONE
 src\init_soar.cpp:426: bool wma_was_enabled = wma_enabled( thisAgent );
 src\init_soar.cpp:427: thisAgent->wma_params->activation->set_value( soar_module::off );
 src\init_soar.cpp:434: if ( wma_was_enabled )

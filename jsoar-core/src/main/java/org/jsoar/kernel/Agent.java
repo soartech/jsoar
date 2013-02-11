@@ -861,11 +861,20 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         boolean traceState = trace.isEnabled();
         trace.setEnabled(false);
 
+        boolean wma_was_enabled = wma.wma_enabled();
+        wma.wma_params.activation.set(false);
+        
         decider.clear_goal_stack();
         io.do_input_cycle(); // tell input functions that the top state is gone
         io.do_output_cycle(); // tell output functions that output commands are gone
         
+        if(wma_was_enabled)
+        {
+            wma.wma_params.activation.set(true);
+        }
+        
         //TODO rl.rl_reset_stats();
+        wma.wma_stats.reset();
 
         decider.active_level = 0; // Signal that everything should be retracted
         recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
@@ -889,6 +898,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         decisionCycle.reset();
         recMemory.reset();
         chunker.reset();
+        wma.reset();
 
         reset_statistics();
 
