@@ -54,7 +54,7 @@ public class ReteNetCommandTest
     {
         runTest("testWaterJug", -1, 0);
     }
-    @Test(timeout=2*10000)
+    @Test(timeout=4*10000)
     public void testWaterJugLookAhead() throws Exception
     {
         runTest("testWaterJugLookAhead", -1, 0);
