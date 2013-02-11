@@ -32,6 +32,8 @@ import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgetWmeChoice
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgettingChoices;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
+import org.jsoar.util.properties.PropertyChangeEvent;
+import org.jsoar.util.properties.PropertyListener;
 import org.jsoar.util.properties.PropertyManager;
 
 /**
@@ -139,6 +141,26 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         wma_touched_elements = new HashSet<Wme>();
         wma_touched_sets = new HashSet<Long>();
 
+        // call wma_init/wma_deinit when wma is turned on/off
+        properties.addListener(DefaultWorkingMemoryActivationParams.ACTIVATION, new PropertyListener<Boolean>()
+                {
+                    @Override
+                    public void propertyChanged(PropertyChangeEvent<Boolean> event)
+                    {
+                        if ( event.getNewValue() != event.getOldValue() )
+                        {
+                            if ( event.getNewValue() )
+                            {
+                                wma_init();
+                            }
+                            else
+                            {
+                                wma_deinit();
+                            }
+                        }
+                    }
+        });
+        
         wma_initialized = false;
     }
 

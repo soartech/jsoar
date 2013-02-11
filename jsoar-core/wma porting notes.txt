@@ -8,6 +8,7 @@ Instead, this is a list of changes outside of wma.cpp that need to be ported
 # Per-agent wma data structures
 # Everything here that's actually necessary in JSoar should go in the 
 # WorkingMemoryActivation class, NOT on the agent.
+# DONE (except for timers, which I'm skipping for now)
 
 src\agent.h:219:  memory_pool            wma_decay_element_pool;
 src\agent.h:220:  memory_pool            wma_decay_set_pool;
@@ -31,7 +32,7 @@ src\agent.h:888:  wma_d_cycle wma_d_cycle_count;
 ################################################################################
 # wma memory pool initialization
 # init_soar_agent()
-# Don't need memory pools in JSoar.
+# DONE - Don't need memory pools in JSoar.
 
 src\agent.cpp:94:  init_memory_pool( thisAgent, &( thisAgent->wma_decay_element_pool ), sizeof( wma_decay_element ), "wma_decay" );
 src\agent.cpp:95:  init_memory_pool( thisAgent, &( thisAgent->wma_decay_set_pool ), sizeof( wma_decay_set ), "wma_decay_set" );
@@ -42,6 +43,8 @@ src\agent.cpp:97:  init_memory_pool( thisAgent, &( thisAgent->wma_slot_refs_pool
 # create_soar_agent()
 # This should all happen in the WorkingMemoryActivation object's constructor, preferably as
 # initializers on final members.
+# DONE
+
 src\agent.cpp:348:  // wma initialization
 src\agent.cpp:349:  newAgent->wma_params = new wma_param_container( newAgent );
 src\agent.cpp:350:  newAgent->wma_stats = new wma_stat_container( newAgent );
@@ -100,6 +103,8 @@ src\episodic_memory.cpp:5621:                                                   
 ################################################################################
 # typedefs; use long for uint64_t
 # also, not using memory pools in jsoar
+# DONE
+
 src\gdatastructs.h:43:typedef std::set< wme*, std::less< wme* >, soar_module::soar_memory_pool_allocator< wme* > > wma_pooled_wme_set;
 src\gdatastructs.h:44:typedef std::map< Symbol*, uint64_t, std::less< Symbol* >, soar_module::soar_memory_pool_allocator< std::pair< Symbol*, uint64_t > > > wma_sym_reference_map;
 src\gdatastructs.h:46:typedef std::set< wme* > wma_pooled_wme_set;
@@ -216,6 +221,7 @@ src\wmem.cpp:307:    wma_remove_decay_element( thisAgent, w );
 
 ################################################################################
 # typedef
+# DONE
 src\wmem.h:50:typedef struct wma_decay_element_struct wma_decay_element;
 
 ################################################################################
