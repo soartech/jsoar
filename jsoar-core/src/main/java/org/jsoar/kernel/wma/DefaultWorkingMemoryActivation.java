@@ -36,6 +36,20 @@ import org.jsoar.util.properties.PropertyChangeEvent;
 import org.jsoar.util.properties.PropertyListener;
 import org.jsoar.util.properties.PropertyManager;
 
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//Bookmark strings to help navigate the code
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
+//initialization               wma::init
+//
+//decay                        wma::decay
+//forgetting                   wma::forget
+//update                       wma::update
+//
+//api                          wma::api
+
 /**
  * Default implementation of {@link WorkingMemoryActivation}
  * 
