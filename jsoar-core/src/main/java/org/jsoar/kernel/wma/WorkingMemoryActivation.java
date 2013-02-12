@@ -49,14 +49,6 @@ public interface WorkingMemoryActivation
      */
     void wma_remove_decay_element( Wme w );
     
-    /**
-     * Removes an o-support set from an existing preference
-     * wma.h:wma_remove_pref_o_set
-     * 
-     * @param pref
-     */
-    void wma_remove_pref_o_set( Preference pref );
-    
     //////////////////////////////////////////////////////////
     //Updating Activation
     //////////////////////////////////////////////////////////

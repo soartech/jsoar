@@ -37,6 +37,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.ListHead;
@@ -160,6 +161,7 @@ public class Decider
     private SoarReteListener soarReteListener;
     private ReinforcementLearning rl;
     private SemanticMemory smem;
+    private WorkingMemoryActivation wma;
     
     /**
      * <p>gsysparam.h:164:MAX_GOAL_DEPTH
@@ -267,6 +269,7 @@ public class Decider
         this.chunker = Adaptables.adapt(context, Chunker.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
         this.smem = Adaptables.require(getClass(), context, SemanticMemory.class);
+        this.wma = Adaptables.require(getClass(), context, WorkingMemoryActivation.class);
     }
     
     public List<Goal> getGoalStack()
@@ -2069,6 +2072,22 @@ public class Decider
                WmeImpl w = this.workingMemory.make_wme(cand.id, cand.attr, cand.value, false);
                s.addWme(w);
                w.preference = cand;
+               
+               if ( ( s.wma_val_references != null ) && wma.wma_enabled() )
+               {
+                   Long numRefs = s.wma_val_references.get(w.getValue());
+                   if ( numRefs != null )
+                   {
+                       // should only activate at this point if WME is o-supported
+                       wma.wma_activate_wme( w, numRefs, null, true );
+
+                       s.wma_val_references.remove(w.getValue());
+                       if ( s.wma_val_references.isEmpty() )
+                       {
+                           s.wma_val_references = null;
+                       }
+                   }
+               }
                
                /* Whenever we add a WME to WM, we also want to check and see if
                this new WME is o-supported.  If so, then we want to add the

@@ -62,6 +62,8 @@ import org.jsoar.util.properties.PropertyManager;
  * in a map from wme to {@link wma_decay_element} in this class. This structure is never
  * accessed outside of WMA. If this turns out to be a performance problem, we can revert
  * to the CSoar solution.
+ * <p>Removed method wma_remove_pref_o_set() because jsoar doesn't need to explicitly
+ * clean up memory like that.
  * 
  * <h2>Typedef mappings</h2>
  * <ul>
@@ -139,6 +141,11 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     public void d_cycle_count_increment()
     {
         wma_d_cycle_count++;
+    }
+    
+    public long get_d_cycle_count()
+    {
+        return wma_d_cycle_count;
     }
     
     public void initialize()
@@ -719,19 +726,6 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             }
 
             wmaDecayElements.remove(temp_el);
-        }
-    }
-    
-    /**
-     * wma.cpp:705:wma_remove_pref_o_set
-     * TODO: remove?
-     */
-    @Override
-    public void wma_remove_pref_o_set(final Preference pref)
-    {
-        if ( pref != null && pref.wma_o_set != null)
-        {
-            pref.wma_o_set = null;
         }
     }
     

@@ -3,6 +3,39 @@ https://soar.googlecode.com/svn/tags/jsoar-epmem-root/
 This is not a diff, since most of the relevant code is in a single file (wma.cpp)
 Instead, this is a list of changes outside of wma.cpp that need to be ported
 
+################################################################################
+# deallocate_wme()
+# deallocate_wme doesn't exist in jsoar, but need to call this in order to clean up map
+# options: add wma_decay_el to the wme class like csoar, or tie into the wme's removal from rete
+src\wmem.cpp:305:  if ( wma_enabled( thisAgent ) )
+src\wmem.cpp:307:    wma_remove_decay_element( thisAgent, w );
+
+################################################################################
+# print_wme()
+# not sure how to do this since not sure how to check if wma is enabled from a wme
+src\print.cpp:1005:  if (wma_enabled(thisAgent))
+src\print.cpp:1007:    print (thisAgent, " [%0.2g]", wma_get_wme_activation(thisAgent, w, true));
+
+################################################################################
+# wma epmem integration
+
+# _epmem_process_buffered_wme_list()
+src\episodic_memory.cpp:976:                                           if ( wma_enabled( my_agent ) )
+src\episodic_memory.cpp:978:                                                   wma_activate_wmes_in_pref( my_agent, just_pref );
+
+# epmem_build_dnf()
+src\episodic_memory.cpp:3527:  literal->weight = (literal->is_neg_q ? -1 : 1) * (my_agent->epmem_params->balance->get_value() >= 1.0 - 1.0e-8 ? 1.0 : wma_get_wme_activation(my_agent, cue_wme, true));
+
+# _epmem_exp()
+# this is contained in a #define block; not sure this code is actually enabled
+src\episodic_memory.cpp:5621:                                                                  output_contents.push_back( std::make_pair< std::string, std::string >( "wmadds", temp_str ) );
+
+################################################################################
+# wma smem integration
+# _smem_process_buffered_wme_list()
+# can't port this yet because jsoar's smem doesn't have this function yet
+src\semantic_memory.cpp:734:                                           if ( wma_enabled( my_agent ) )
+src\semantic_memory.cpp:736:                                                   wma_activate_wmes_in_pref( my_agent, just_pref );
 
 ################################################################################
 # Per-agent wma data structures
@@ -75,6 +108,7 @@ src\agent.cpp:475:  delete delete_agent->wma_timers;
 # wma decider integration
 # decide_non_context_slot()
 # jsoar-core/src/main/java/org/jsoar/kernel/Decider.java
+# DONE
 
 src\decide.cpp:1959:                           if ( ( s->wma_val_references != NIL ) && wma_enabled( thisAgent ) )
 src\decide.cpp:1961:                                   wma_sym_reference_map::iterator it = s->wma_val_references->find( w->value );
@@ -85,20 +119,6 @@ src\decide.cpp:1968:                                           if ( s->wma_val_r
 src\decide.cpp:1970:                                                   s->wma_val_references->~wma_sym_reference_map();
 src\decide.cpp:1971:                                                   free_with_pool( &( thisAgent->wma_slot_refs_pool ), s->wma_val_references );
 src\decide.cpp:1972:                                                   s->wma_val_references = NIL;
-
-################################################################################
-# wma epmem integration
-
-# _epmem_process_buffered_wme_list()
-src\episodic_memory.cpp:976:                                           if ( wma_enabled( my_agent ) )
-src\episodic_memory.cpp:978:                                                   wma_activate_wmes_in_pref( my_agent, just_pref );
-
-# epmem_build_dnf()
-src\episodic_memory.cpp:3527:  literal->weight = (literal->is_neg_q ? -1 : 1) * (my_agent->epmem_params->balance->get_value() >= 1.0 - 1.0e-8 ? 1.0 : wma_get_wme_activation(my_agent, cue_wme, true));
-
-# _epmem_exp()
-# this is contained in a #define block; not sure this code is actually enabled
-src\episodic_memory.cpp:5621:                                                                  output_contents.push_back( std::make_pair< std::string, std::string >( "wmadds", temp_str ) );
 
 ################################################################################
 # typedefs; use long for uint64_t
@@ -130,6 +150,7 @@ src\init_soar.cpp:442: thisAgent->wma_stats->reset();
 
 ################################################################################
 # do_one_top_level_phase()
+# DONE
 src\init_soar.cpp:939:   assert( thisAgent->wma_d_cycle_count == thisAgent->d_cycle_count );
 src\init_soar.cpp:945:   if ( wma_enabled( thisAgent ) )
 src\init_soar.cpp:947:           wma_go( thisAgent, wma_histories );
@@ -151,20 +172,24 @@ src\init_soar.cpp:1552:  thisAgent->wma_timers->reset();
 ################################################################################
 # wma io integration
 # add_input_wme()
+# DONE
 src\io.cpp:212:  if ( wma_enabled( thisAgent ) )
 src\io.cpp:214:    wma_activate_wme( thisAgent, w );
 
 ################################################################################
 # make_preference()
+# DONE -- no need to initialize to null
 src\prefmem.cpp:91:  p->wma_o_set = NIL;
 
 ################################################################################
 # deallocate_preference()
+# DONE -- no need to explicitly clean this up
 src\prefmem.cpp:138:  if ( pref->wma_o_set )
 src\prefmem.cpp:140:   wma_remove_pref_o_set( thisAgent, pref );
 
 ################################################################################
 # add_preference_to_tm()
+# DONE
 src\prefmem.cpp:289:   if ( wma_enabled( thisAgent ) && !s->isa_context_slot )
 src\prefmem.cpp:293:              if ( s->wma_val_references != NIL )
 src\prefmem.cpp:295:                      s->wma_val_references->clear();
@@ -174,12 +199,6 @@ src\prefmem.cpp:322:                    allocate_with_pool( thisAgent, &( thisAg
 src\prefmem.cpp:324:                    s->wma_val_references = new( s->wma_val_references ) wma_sym_reference_map( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< std::pair< Symbol*, uint64_t > >( thisAgent ) );
 src\prefmem.cpp:326:                    s->wma_val_references = new( s->wma_val_references ) wma_sym_reference_map();
 src\prefmem.cpp:330:         (*s->wma_val_references)[ pref->value ]++;
-
-################################################################################
-# print_wme()
-# not sure how to do this since not sure how to check if wma is enabled from a wme
-src\print.cpp:1005:  if (wma_enabled(thisAgent))
-src\print.cpp:1007:    print (thisAgent, " [%0.2g]", wma_get_wme_activation(thisAgent, w, true));
 
 ################################################################################
 # deallocate_instantiation()
@@ -200,12 +219,6 @@ src\recmem.cpp:1374:   if (wma_enabled(thisAgent)) {
 src\recmem.cpp:1375:           wma_activate_wmes_tested_in_prods(thisAgent);
 
 ################################################################################
-# wma smem integration
-# _smem_process_buffered_wme_list()
-src\semantic_memory.cpp:734:                                           if ( wma_enabled( my_agent ) )
-src\semantic_memory.cpp:736:                                                   wma_activate_wmes_in_pref( my_agent, just_pref );
-
-################################################################################
 # make_slot()
 # DONE
 src\tempmem.cpp:116:   s->wma_val_references = NIL;
@@ -223,13 +236,6 @@ src\tempmem.cpp:221:      s->wma_val_references = NIL;
 # DONE -- don't need to port this (eliminated wma_tc_value and don't need to initialize nulls)
 src\wmem.cpp:120:  w->wma_decay_el = NIL;
 src\wmem.cpp:121:  w->wma_tc_value = 0;
-
-################################################################################
-# deallocate_wme()
-# deallocate_wme doesn't exist in jsoar, but need to call this in order to clean up map
-# think I need to add wma_decay_el to the wme class instead of wmaDecayElements map
-src\wmem.cpp:305:  if ( wma_enabled( thisAgent ) )
-src\wmem.cpp:307:    wma_remove_decay_element( thisAgent, w );
 
 ################################################################################
 # typedef

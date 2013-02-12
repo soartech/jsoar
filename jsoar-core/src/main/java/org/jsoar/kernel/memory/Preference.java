@@ -288,11 +288,6 @@ public class Preference implements Formattable
         pref.inst.removeGeneratedPreferece(pref);
 
         recMemory.possibly_deallocate_instantiation(pref.inst);
-
-        if (pref.type.isBinary())
-        {
-            //symbol_remove_ref (thisAgent, pref->referent);
-        }
         
         pref.deallocated = true;
     } 
