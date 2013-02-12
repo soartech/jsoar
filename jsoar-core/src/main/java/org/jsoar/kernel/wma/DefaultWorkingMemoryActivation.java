@@ -684,11 +684,10 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     /**
      * wma.cpp:647:wma_deactivate_element
      * @param w
+     * @param temp_el : jsoar: adding this param to avoid looking it up again (the caller already looks it up)
      */
-    private void wma_deactivate_element( final Wme w )
+    private void wma_deactivate_element( final Wme w, final wma_decay_element temp_el )
     {
-        final wma_decay_element temp_el = wmaDecayElements.get(w);
-
         if ( temp_el != null )
         {   
             if ( !temp_el.just_removed )
@@ -715,7 +714,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             // Deactivate the wme first
             if ( !temp_el.just_removed )
             {
-                wma_deactivate_element( w );
+                wma_deactivate_element( w, temp_el );
             }
 
             // log

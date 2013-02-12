@@ -281,6 +281,11 @@ public class WorkingMemory
             wme_removal_count.increment();
         }
         
+        for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
+        {
+          this.wma.wma_remove_decay_element(w.item); // jsoar change: moved this here from deallocate_wme, which doesn't exist in jsoar
+        }
+        
         wmes_to_add.clear();
         wmes_to_remove.clear();
     }
