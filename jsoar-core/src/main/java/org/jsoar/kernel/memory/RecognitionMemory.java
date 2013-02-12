@@ -1462,7 +1462,7 @@ public class RecognitionMemory
                  numRef = 0L;
              }
              
-             s.wma_val_references.put(pref.value, numRef);
+             s.wma_val_references.put(pref.value, ++numRef);
           }
        }
        
