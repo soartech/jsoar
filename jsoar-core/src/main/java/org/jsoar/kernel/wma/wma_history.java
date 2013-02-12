@@ -21,4 +21,12 @@ public class wma_history
     long history_references;
     long total_references;
     long first_reference;
+    
+    wma_history()
+    {
+        for(int i=0; i<WMA_DECAY_HISTORY; ++i)
+        {
+            this.access_history[i] = new wma_cycle_reference();
+        }
+    }
 }

@@ -363,7 +363,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
             // usual %s format string
             if(wma != null && wma.wma_enabled())
             {
-                fmt.format("(%d: %s ^%s %s [%0.2g] %s)\n", timetag, id, attr, value, wma.wma_get_wme_activation(this, true), acceptable ? " +" : "");
+                fmt.format("(%d: %s ^%s %s [%1.2g] %s)\n", timetag, id, attr, value, wma.wma_get_wme_activation(this, true), acceptable ? " +" : "");
             }
             else
             {

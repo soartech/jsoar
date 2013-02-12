@@ -1456,7 +1456,13 @@ public class RecognitionMemory
                  s.wma_val_references = new HashMap<Symbol, Long>();
              }
 
-             s.wma_val_references.put(pref.value, s.wma_val_references.get(pref.value) + 1);
+             Long numRef = s.wma_val_references.get(pref.value);
+             if(numRef == null)
+             {
+                 numRef = 0L;
+             }
+             
+             s.wma_val_references.put(pref.value, numRef);
           }
        }
        

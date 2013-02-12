@@ -11,12 +11,6 @@ src\wmem.cpp:305:  if ( wma_enabled( thisAgent ) )
 src\wmem.cpp:307:    wma_remove_decay_element( thisAgent, w );
 
 ################################################################################
-# print_wme()
-# not sure how to do this since not sure how to check if wma is enabled from a wme
-src\print.cpp:1005:  if (wma_enabled(thisAgent))
-src\print.cpp:1007:    print (thisAgent, " [%0.2g]", wma_get_wme_activation(thisAgent, w, true));
-
-################################################################################
 # wma epmem integration
 
 # _epmem_process_buffered_wme_list()
@@ -36,6 +30,12 @@ src\episodic_memory.cpp:5621:                                                   
 # can't port this yet because jsoar's smem doesn't have this function yet
 src\semantic_memory.cpp:734:                                           if ( wma_enabled( my_agent ) )
 src\semantic_memory.cpp:736:                                                   wma_activate_wmes_in_pref( my_agent, just_pref );
+
+################################################################################
+# print_wme()
+# DONE
+src\print.cpp:1005:  if (wma_enabled(thisAgent))
+src\print.cpp:1007:    print (thisAgent, " [%0.2g]", wma_get_wme_activation(thisAgent, w, true));
 
 ################################################################################
 # Per-agent wma data structures

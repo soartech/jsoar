@@ -114,8 +114,8 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     private Decider decider;
     private WorkingMemory workingMemory;
     
-    public DefaultWorkingMemoryActivationParams wma_params;
-    public DefaultWorkingMemoryActivationStats wma_stats;
+    private DefaultWorkingMemoryActivationParams wma_params;
+    private DefaultWorkingMemoryActivationStats wma_stats;
 
     // RPM 2/13: timers not ported yet
     // wma_timer_container wma_timers;
@@ -146,6 +146,16 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     public long get_d_cycle_count()
     {
         return wma_d_cycle_count;
+    }
+    
+    public DefaultWorkingMemoryActivationParams getParams()
+    {
+        return wma_params;
+    }
+    
+    public DefaultWorkingMemoryActivationStats getStats()
+    {
+        return wma_stats;
     }
     
     public void initialize()
@@ -622,7 +632,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             Set<Wme> my_o_set = w.getPreferences().next().wma_o_set;
             
             // if doesn't have an o_set, populate
-            if ( my_o_set != null )
+            if ( my_o_set == null )
             {
                 my_o_set = new HashSet<Wme>();
                 
@@ -631,7 +641,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
                 for ( Condition c = w.getPreferences().next().inst.top_of_instantiated_conditions; c != null; c = c.next )
                 {
                     PositiveCondition pc = c.asPositiveCondition();
-                    if ( c != null )
+                    if ( pc != null )
                     {
                         wma_activate_wme( pc.bt().wme_, 0, my_o_set );
                     }

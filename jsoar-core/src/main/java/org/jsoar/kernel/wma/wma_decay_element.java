@@ -33,7 +33,7 @@ public class wma_decay_element
 
     // when and how often this wme has been referenced in recent
     // history.
-    wma_history touches;    
+    wma_history touches = new wma_history();    
 
     // if forgetting is enabled, this tells us when we think
     // we need to forget this wme
