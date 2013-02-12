@@ -55,6 +55,7 @@ public final class WatchCommand implements SoarCommand
         category(Category.WM_CHANGES, "wmes");
         category(Category.WATERFALL, "waterfall", "W");
         category(EnumSet.of(Category.FIRINGS_OF_USER_PRODS, Category.FIRINGS_OF_JUSTIFICATIONS, Category.FIRINGS_OF_CHUNKS), "productions", "P");
+        category(Category.WMA, "wma", "a");
     }
     
     private final Trace trace;
