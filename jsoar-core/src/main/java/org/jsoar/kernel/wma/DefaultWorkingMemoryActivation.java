@@ -136,6 +136,11 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         this.context = context;
     }
     
+    public void d_cycle_count_increment()
+    {
+        wma_d_cycle_count++;
+    }
+    
     public void initialize()
     {
         this.trace = Adaptables.require(getClass(), context, Trace.class);
@@ -719,6 +724,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     /**
      * wma.cpp:705:wma_remove_pref_o_set
+     * TODO: remove?
      */
     @Override
     public void wma_remove_pref_o_set(final Preference pref)
@@ -897,7 +903,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * @param w
      * @return
      */
-    boolean wma_forgetting_forget_wme( final Wme w )
+    private boolean wma_forgetting_forget_wme( final Wme w )
     {   
         boolean return_val = false;
         final boolean fake = wma_params.fake_forgetting.get();

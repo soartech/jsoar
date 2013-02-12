@@ -179,7 +179,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
             debuggerProvider, decider, rl,
-            smem);
+            smem, wma);
     
     /**
      * Construct a new agent with a generated name.
@@ -789,6 +789,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         }
         decisionCycle.current_phase.set(Phase.INPUT);
         decisionCycle.d_cycle_count.increment();
+        wma.d_cycle_count_increment();
 
         io.init_agent_memory();
 

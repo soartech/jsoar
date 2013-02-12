@@ -8,6 +8,7 @@ package org.jsoar.kernel.memory;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.PredefinedSymbols;
@@ -119,6 +120,8 @@ public class Slot
      */
     public Object acceptable_preference_changed;
 
+    public Map<Symbol, Long> wma_val_references;
+    
     /**
      * Find or create a new slot
      * 

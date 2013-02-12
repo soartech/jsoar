@@ -144,6 +144,7 @@ src\init_soar.cpp:1093:          thisAgent->wma_d_cycle_count++;
 
 ################################################################################
 # init_agent_memory()
+# DONE -- skipping timers for now
 src\init_soar.cpp:1506:  thisAgent->wma_d_cycle_count++;
 src\init_soar.cpp:1552:  thisAgent->wma_timers->reset();
 
@@ -176,21 +177,25 @@ src\prefmem.cpp:330:         (*s->wma_val_references)[ pref->value ]++;
 
 ################################################################################
 # print_wme()
+# not sure how to do this since not sure how to check if wma is enabled from a wme
 src\print.cpp:1005:  if (wma_enabled(thisAgent))
 src\print.cpp:1007:    print (thisAgent, " [%0.2g]", wma_get_wme_activation(thisAgent, w, true));
 
 ################################################################################
 # deallocate_instantiation()
+# DONE -- this is unnecessary in jsoar
 src\recmem.cpp:1067:           if (temp->bt.trace->wma_o_set) {
 src\recmem.cpp:1068:                   wma_remove_pref_o_set(thisAgent, temp->bt.trace);
 
 ################################################################################
 # assert_new_preferences()
+# DONE
 src\recmem.cpp:1295:                                   if (wma_enabled(thisAgent)) {
 src\recmem.cpp:1296:                                           wma_activate_wmes_in_pref(thisAgent, pref);
 
 ################################################################################
 # do_preference_phase()
+# DONE
 src\recmem.cpp:1374:   if (wma_enabled(thisAgent)) {
 src\recmem.cpp:1375:           wma_activate_wmes_tested_in_prods(thisAgent);
 
@@ -202,10 +207,12 @@ src\semantic_memory.cpp:736:                                                   w
 
 ################################################################################
 # make_slot()
+# DONE
 src\tempmem.cpp:116:   s->wma_val_references = NIL;
 
 ################################################################################
 # remove_garbage_slots()
+# DONE
 src\tempmem.cpp:218:    if (s->wma_val_references != NIL) {
 src\tempmem.cpp:219:      s->wma_val_references->~wma_sym_reference_map();
 src\tempmem.cpp:220:      free_with_pool(&(thisAgent->wma_slot_refs_pool), s->wma_val_references);
@@ -213,11 +220,14 @@ src\tempmem.cpp:221:      s->wma_val_references = NIL;
 
 ################################################################################
 # make_wme()
+# DONE -- don't need to port this (eliminated wma_tc_value and don't need to initialize nulls)
 src\wmem.cpp:120:  w->wma_decay_el = NIL;
 src\wmem.cpp:121:  w->wma_tc_value = 0;
 
 ################################################################################
 # deallocate_wme()
+# deallocate_wme doesn't exist in jsoar, but need to call this in order to clean up map
+# think I need to add wma_decay_el to the wme class instead of wmaDecayElements map
 src\wmem.cpp:305:  if ( wma_enabled( thisAgent ) )
 src\wmem.cpp:307:    wma_remove_decay_element( thisAgent, w );
 
