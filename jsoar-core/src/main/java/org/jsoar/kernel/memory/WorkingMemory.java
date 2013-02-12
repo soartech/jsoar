@@ -17,6 +17,7 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.util.ListHead;
 import org.jsoar.util.ListItem;
 import org.jsoar.util.adaptables.Adaptables;
@@ -44,6 +45,7 @@ public class WorkingMemory
     private Trace trace;
     private Decider decider;
     private SoarEventManager eventManager;
+    private WorkingMemoryActivation wma;
     
     private int current_wme_timetag = 1;
     
@@ -74,6 +76,7 @@ public class WorkingMemory
         this.trace = context.getTrace();
         this.decider = Adaptables.adapt(context, Decider.class);
         this.eventManager = context.getEvents();
+        this.wma = Adaptables.adapt(context, WorkingMemoryActivation.class);
     }
 
     /**
@@ -123,7 +126,7 @@ public class WorkingMemory
      */
     public WmeImpl make_wme(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable)
     {
-        WmeImpl w = new WmeImpl(id, attr, value, acceptable, current_wme_timetag++);
+        WmeImpl w = new WmeImpl(id, attr, value, acceptable, current_wme_timetag++, wma);
         return w;
     }
     

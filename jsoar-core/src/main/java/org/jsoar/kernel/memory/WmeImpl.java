@@ -18,6 +18,7 @@ import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.util.adaptables.AbstractAdaptable;
 
 import com.google.common.collect.Iterators;
@@ -135,20 +136,30 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public GoalDependencySetImpl gds;
     public WmeImpl gds_next, gds_prev; // part of dll of wmes in gds
     
+    private WorkingMemoryActivation wma;
+    
     /**
      * @param id
      * @param attr
      * @param value
      * @param acceptable
      * @param timetag
+     * @param wma this is optional; null value ok (but for real Soar agent, it won't be null)
      */
     public WmeImpl(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable, int timetag)
+    {
+        this(id, attr, value, acceptable, timetag, null);
+    }
+    
+    public WmeImpl(IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean acceptable, int timetag, WorkingMemoryActivation wma)
     {
         this.id = id;
         this.attr = attr;
         this.value = value;
         this.acceptable = acceptable;
         this.timetag = timetag;
+        
+        this.wma = wma;
     }
     
     /**
@@ -350,7 +361,14 @@ public class WmeImpl extends AbstractAdaptable implements Wme
         {
             // This is the normal print_wme case. It is specified with the 
             // usual %s format string
-            fmt.format("(%d: %s ^%s %s%s)\n", timetag, id, attr, value, acceptable ? " +" : "");
+            if(wma != null && wma.wma_enabled())
+            {
+                fmt.format("(%d: %s ^%s %s [%0.2g] %s)\n", timetag, id, attr, value, wma.wma_get_wme_activation(this, true), acceptable ? " +" : "");
+            }
+            else
+            {
+                fmt.format("(%d: %s ^%s %s%s)\n", timetag, id, attr, value, acceptable ? " +" : "");
+            }
         }
         else
         {
