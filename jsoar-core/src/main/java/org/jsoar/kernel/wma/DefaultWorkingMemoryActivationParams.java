@@ -22,6 +22,7 @@ public class DefaultWorkingMemoryActivationParams
 {
     static enum ForgettingChoices { off, naive, bsearch, approx };
     static enum ForgetWmeChoices { all, lti };
+    static enum TimerLevels { off, one };
     
     private static final String PREFIX = "wma.params.";
     
@@ -67,7 +68,9 @@ public class DefaultWorkingMemoryActivationParams
     /**
      *  performance
      */
-    //soar_module::constant_param< soar_module::timer::timer_level >* timers;
+    static final PropertyKey<TimerLevels> TIMERS = key("timers", TimerLevels.class).defaultValue(TimerLevels.off).build();
+    public final EnumPropertyProvider<TimerLevels> timers = new EnumPropertyProvider<TimerLevels>(TIMERS);
+    
         
     static final PropertyKey<Integer> MAX_POW_CACHE = key("max_pow_cache", Integer.class).defaultValue(10).build();
     public final IntegerPropertyProvider max_pow_cache = new IntegerPropertyProvider(MAX_POW_CACHE);
@@ -86,7 +89,7 @@ public class DefaultWorkingMemoryActivationParams
         properties.setProvider(FORGETTING_CHOICES, forgetting);
         properties.setProvider(FORGET_WME_CHOICES, forget_wme);
         properties.setProvider(FAKE_FORGETTING, fake_forgetting);
-        
+        properties.setProvider(TIMERS, timers);
         properties.setProvider(MAX_POW_CACHE, max_pow_cache);
     }
     

@@ -13,6 +13,7 @@ import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.rete.Rete;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgetWmeChoices;
 import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.ForgettingChoices;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivationParams.TimerLevels;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.commands.SoarCommand;
@@ -142,7 +143,10 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
         {
             props.set(DefaultWorkingMemoryActivationParams.PETROV_APPROX, "on".equals(value));
         }
-        // TODO timers
+        else if(name.equals("timers"))
+        {
+            props.set(DefaultWorkingMemoryActivationParams.TIMERS, TimerLevels.valueOf(value));
+        }
         else
         {
             throw new SoarException("Unknown parameter '" + name + "'");
@@ -237,7 +241,7 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
         pw.println();
         pw.println("Performance");
         pw.println("-----------");
-        pw.printf("timers: %s%n", "off"); // TODO wma timers params
+        pw.printf("timers: %s%n", p.timers.get());
         pw.printf("max-pow-cache: %d%n", p.max_pow_cache.get());
         
         pw.flush();
