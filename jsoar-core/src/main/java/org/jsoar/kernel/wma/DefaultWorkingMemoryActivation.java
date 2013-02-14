@@ -363,11 +363,11 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      * @param cycle_diff
      * @return
      */
-    private double wma_pow( final int cycle_diff )
+    private double wma_pow( final long cycle_diff )
     {
         if ( cycle_diff < wma_power_size )
         {
-            return wma_power_array[ cycle_diff ];
+            return wma_power_array[ (int)cycle_diff ];
         }
         else
         {
@@ -398,7 +398,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             cycle_diff = ( current_cycle - history.access_history[ p ].d_cycle );
             assert( cycle_diff > 0 );
 
-            return_val += ( history.access_history[ p ].num_references * wma_pow( (int)cycle_diff ) );
+            return_val += ( history.access_history[ p ].num_references * wma_pow( cycle_diff ) );
             
             counter--;
         }
