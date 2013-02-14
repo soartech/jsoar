@@ -594,11 +594,12 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
 
                 if (trace.isEnabled(Category.WMA))
                 {
-                    String msg = "WMA @" + this.decisionCycle.d_cycle_count
-                            + ": " + "add " + w.getTimetag() + " "
-                            + w.getIdentifier() + " " + w.getAttribute() + " "
-                            + w.getValue() + "\n";
-                    trace.getPrinter().print(msg);
+                    trace.getPrinter().print(
+                            "WMA @" + this.decisionCycle.d_cycle_count + ": "
+                                    + "add " + w.getTimetag() + " "
+                                    + w.getIdentifier() + " "
+                                    + w.getAttribute() + " " + w.getValue()
+                                    + "\n");
                 }
             }
 
@@ -708,9 +709,9 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             // log
             if (trace.isEnabled(Category.WMA))
             {
-                String msg = "WMA @" + decisionCycle.d_cycle_count + ": "
-                        + "remove " + w.getTimetag() + "\n";
-                trace.getPrinter().print(msg);
+                trace.getPrinter().print(
+                        "WMA @" + decisionCycle.d_cycle_count + ": "
+                                + "remove " + w.getTimetag() + "\n");
             }
 
             wmaDecayElements.remove(temp_el);
@@ -1099,10 +1100,10 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             // log
             if (trace.isEnabled(Category.WMA))
             {
-                String msg = "WMA @" + decisionCycle.d_cycle_count + ": "
-                        + "activate " + temp_el.this_wme.getTimetag() + " "
-                        + temp_el.num_references + "\n";
-                trace.getPrinter().print(msg);
+                trace.getPrinter().print(
+                        "WMA @" + decisionCycle.d_cycle_count + ": "
+                                + "activate " + temp_el.this_wme.getTimetag()
+                                + " " + temp_el.num_references + "\n");
             }
 
             // keep track of first reference
