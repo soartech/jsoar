@@ -24,7 +24,7 @@ public class DefaultWorkingMemoryActivationStats implements WorkingMemoryActivat
     private static final String PREFIX = "wma.stats.";
     
     /**
-     * Retrieve a property key for an SMEM property. Appropriately adds necessary
+     * Retrieve a property key for an WMA property. Appropriately adds necessary
      * prefixes to the name to find the right key.
      * 
      * @param props the property manager
