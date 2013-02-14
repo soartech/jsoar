@@ -249,6 +249,11 @@ public class WorkingMemory
         for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
         {
             this.rete.remove_wme_from_rete(w.item);
+            
+            // jsoar change: moved this here from deallocate_wme, which doesn't exist in jsoar
+            // added check for wma_enabled to minimize impact on non-wma agents
+            if(wma.wma_enabled())
+                this.wma.wma_remove_decay_element(w.item);
         }
         
         // #ifndef NO_TIMING_STUFF
@@ -279,11 +284,6 @@ public class WorkingMemory
                 trace.startNewLine().print("<=WM: %s", w.item);
             }
             wme_removal_count.increment();
-        }
-        
-        for (ListItem<WmeImpl> w = wmes_to_remove.first; w != null; w = w.next)
-        {
-          this.wma.wma_remove_decay_element(w.item); // jsoar change: moved this here from deallocate_wme, which doesn't exist in jsoar
         }
         
         wmes_to_add.clear();

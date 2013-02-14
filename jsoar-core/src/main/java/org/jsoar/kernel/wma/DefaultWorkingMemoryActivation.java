@@ -310,6 +310,12 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         // clear forgetting priority queue
         wma_forget_pq.clear();
         
+        // jsoar modification: clear the decay elements (otherwise the wmes will never be garbage collected)
+        wmaDecayElements.clear();
+        
+        // RPM 2/2013: should slot.wma_val_references be cleaned up somehow?
+        //             Probably not a big deal since those will get cleaned up when the slots are removed
+        
         wma_initialized = false;
     }
     
@@ -586,30 +592,12 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
                 
                 wmaDecayElements.put(w, temp_el);
 
-                if ( trace.isEnabled(Category.WMA) )
+                if (trace.isEnabled(Category.WMA))
                 {
-                    String msg = "WMA @";
-                    msg += this.decisionCycle.d_cycle_count;
-                    
-                    msg += ": ";
-                    
-                    msg += "add ";
-
-                    msg += w.getTimetag();
-                    msg += " ";
-
-                    msg += w.getIdentifier();
-                    
-                    msg += " ";
-
-                    msg += w.getAttribute();
-                    
-                    msg += " ";
-
-                    msg += w.getValue();
-                    
-                    msg += "\n";
-
+                    String msg = "WMA @" + this.decisionCycle.d_cycle_count
+                            + ": " + "add " + w.getTimetag() + " "
+                            + w.getIdentifier() + " " + w.getAttribute() + " "
+                            + w.getValue() + "\n";
                     trace.getPrinter().print(msg);
                 }
             }
@@ -718,19 +706,10 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             }
 
             // log
-            if ( trace.isEnabled(Category.WMA) )
+            if (trace.isEnabled(Category.WMA))
             {
-                String msg = "WMA @";
-                
-                msg += decisionCycle.d_cycle_count;
-                msg += ": ";
-                
-                msg += "remove ";
-
-                msg += w.getTimetag();
-
-                msg += "\n";
-
+                String msg = "WMA @" + decisionCycle.d_cycle_count + ": "
+                        + "remove " + w.getTimetag() + "\n";
                 trace.getPrinter().print(msg);
             }
 
@@ -1118,23 +1097,11 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             temp_el.touches.access_history[ temp_el.touches.next_p ].num_references = temp_el.num_references;
 
             // log
-            if ( trace.isEnabled(Category.WMA) )
+            if (trace.isEnabled(Category.WMA))
             {
-                String msg = "WMA @";
-                
-                msg += decisionCycle.d_cycle_count;
-                msg += ": ";
-                
-                msg += "activate ";
-
-                
-                msg += temp_el.this_wme.getTimetag();
-                msg += " ";
-
-                msg += temp_el.num_references;
-
-                msg += "\n";
-
+                String msg = "WMA @" + decisionCycle.d_cycle_count + ": "
+                        + "activate " + temp_el.this_wme.getTimetag() + " "
+                        + temp_el.num_references + "\n";
                 trace.getPrinter().print(msg);
             }
 
