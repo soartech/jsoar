@@ -34,7 +34,7 @@ public class EnumPropertyProvider<T extends Enum<T>> implements PropertyProvider
     {
         if(newValue == null)
         {
-            throw new NullPointerException("newValue shoudl not be null");
+            throw new NullPointerException("newValue should not be null");
         }
         T oldValue = get();
         value.set(newValue);
