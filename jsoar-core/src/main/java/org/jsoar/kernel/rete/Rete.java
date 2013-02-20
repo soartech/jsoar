@@ -2475,7 +2475,7 @@ public class Rete
      * @param indent Indention level
      * @return Number of mathces at this level
      */
-    private int ppmi_aux(Printer printer, ReteNode node, ReteNode cutoff, Condition cond, WmeTraceType wtt, int indent)
+    private int ppmi_aux(Printer printer, ReteNode node, ReteNode cutoff, Condition cond, WmeTraceType wtt, int indent, boolean showNodeIds)
     {
         int matches_at_this_level = getMatchCountForNode(node);
 
@@ -2485,7 +2485,7 @@ public class Rete
 
         // do stuff higher up
         ReteNode parent = node.real_parent_node();
-        final int matches_one_level_up = ppmi_aux(printer, parent, cutoff, cond.prev, wtt, indent);
+        final int matches_one_level_up = ppmi_aux(printer, parent, cutoff, cond.prev, wtt, indent, showNodeIds);
 
         // Form string for current match count: If an earlier cond had no
         // matches, just leave it blank; if this is the first 0, use ">>>>"
@@ -2501,6 +2501,10 @@ public class Rete
         else
         {
             match_count_string = String.format("%4d", matches_at_this_level);
+            if(showNodeIds)
+            {
+                match_count_string += String.format(" %10s", "(" + Integer.toHexString(System.identityHashCode(node)) + ")");
+            }
         }
 
         // print extra indentation spaces
@@ -2511,7 +2515,7 @@ public class Rete
         {
             // recursively print match counts for the NCC subconditions
             printer.print("    -{\n");
-            ppmi_aux(printer, node.b_cn().partner.real_parent_node(), parent, ncc.bottom, wtt, indent + 5);
+            ppmi_aux(printer, node.b_cn().partner.real_parent_node(), parent, ncc.bottom, wtt, indent + 5, showNodeIds);
             printer.spaces(indent).print("%s }\n", match_count_string);
         }
         else
@@ -2558,11 +2562,11 @@ public class Rete
      * @param p_node
      * @param wtt
      */
-    public void print_partial_match_information(Printer printer, ReteNode p_node, WmeTraceType wtt)
+    public void print_partial_match_information(Printer printer, ReteNode p_node, WmeTraceType wtt, boolean showNodeIds)
     {
         ConditionsAndNots cans = p_node_to_conditions_and_nots(p_node, null, null, false);
         
-        int n = ppmi_aux(printer, p_node.parent, dummy_top_node, cans.bottom, wtt, 0);
+        int n = ppmi_aux(printer, p_node.parent, dummy_top_node, cans.bottom, wtt, 0, showNodeIds);
         
         printer.print("\n%d complete matches.\n", n);
         if (n != 0 && (wtt != WmeTraceType.NONE))
