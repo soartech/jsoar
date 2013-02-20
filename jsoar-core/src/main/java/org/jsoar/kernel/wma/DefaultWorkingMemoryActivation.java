@@ -276,7 +276,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
             wma_approx_array[0] = 0;
             for ( int i = 1; i < WMA_REFERENCES_PER_DECISION; i++ )
             {
-                wma_approx_array[i] = (long)( Math.ceil( Math.exp( decay_thresh - Math.log( (double)(i) ) ) / decay_rate ) );
+                wma_approx_array[i] = (long)( Math.ceil( Math.exp( (decay_thresh - Math.log( (double)(i) ) ) / decay_rate ) ) );
             }
         }
         
