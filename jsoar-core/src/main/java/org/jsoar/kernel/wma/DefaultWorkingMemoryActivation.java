@@ -1004,7 +1004,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
                 
                 if ( pq_v != null && pq_v.isEmpty() )
                 {
-                    wma_forget_pq.remove( pq.getKey() );
+                    wma_forget_pq.remove( touched );
                 }
             }
             wma_touched_sets.clear();
