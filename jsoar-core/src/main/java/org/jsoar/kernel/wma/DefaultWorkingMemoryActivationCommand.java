@@ -119,6 +119,11 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
         {
             props.set(DefaultWorkingMemoryActivationParams.ACTIVATION, "on".equals(value));
         }
+        else if(props.get(DefaultWorkingMemoryActivationParams.ACTIVATION))
+        {
+            // TODO: This check should be done in the property system
+            throw new SoarException("This parameter is protected while WMA is on.");
+        }
         else if(name.equals("decay-rate"))
         {
             props.set(DefaultWorkingMemoryActivationParams.DECAY_RATE, Double.valueOf(value));
