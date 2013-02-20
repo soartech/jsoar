@@ -130,7 +130,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     private long wma_approx_array[];
     private double wma_thresh_exp;
     private boolean wma_initialized;
-    //private Marker wma_tc_counter; //this only used in one function, eliminated in favor of a local solutionS
+    //private Marker wma_tc_counter; //this only used in one function, eliminated in favor of a local solution
     private long wma_d_cycle_count;
     
     public DefaultWorkingMemoryActivation(Adaptable context)
