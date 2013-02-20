@@ -3,12 +3,6 @@ https://soar.googlecode.com/svn/tags/jsoar-epmem-root/
 This is not a diff, since most of the relevant code is in a single file (wma.cpp)
 Instead, this is a list of changes outside of wma.cpp that need to be ported
 
-################################################################################
-# deallocate_wme()
-# deallocate_wme doesn't exist in jsoar, but need to call this in order to clean up map
-# options: add wma_decay_el to the wme class like csoar, or tie into the wme's removal from rete
-src\wmem.cpp:305:  if ( wma_enabled( thisAgent ) )
-src\wmem.cpp:307:    wma_remove_decay_element( thisAgent, w );
 
 ################################################################################
 # wma epmem integration
@@ -30,6 +24,14 @@ src\episodic_memory.cpp:5621:                                                   
 # can't port this yet because jsoar's smem doesn't have this function yet
 src\semantic_memory.cpp:734:                                           if ( wma_enabled( my_agent ) )
 src\semantic_memory.cpp:736:                                                   wma_activate_wmes_in_pref( my_agent, just_pref );
+
+################################################################################
+# deallocate_wme()
+# deallocate_wme doesn't exist in jsoar, but need to call this in order to clean up map
+# options: add wma_decay_el to the wme class like csoar, or tie into the wme's removal from rete
+# DONE: tied into wme removal from rete
+src\wmem.cpp:305:  if ( wma_enabled( thisAgent ) )
+src\wmem.cpp:307:    wma_remove_decay_element( thisAgent, w );
 
 ################################################################################
 # print_wme()
