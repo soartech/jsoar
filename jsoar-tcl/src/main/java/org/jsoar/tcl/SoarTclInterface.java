@@ -5,7 +5,11 @@
  */
 package org.jsoar.tcl;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -15,6 +19,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.commands.PopdCommand;
 import org.jsoar.kernel.commands.PushdCommand;
 import org.jsoar.kernel.commands.PwdCommand;
+import org.jsoar.kernel.commands.ReteNetCommand;
 import org.jsoar.kernel.commands.SourceCommand;
 import org.jsoar.kernel.commands.SourceCommandAdapter;
 import org.jsoar.kernel.commands.StandardCommands;
@@ -32,6 +37,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclRuntimeError;
 
 import com.google.common.collect.MapMaker;
+import com.google.common.io.ByteStreams;
 
 /**
  * @author ray
@@ -105,6 +111,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
     private final Interp interp = new Interp();
     
     private final SourceCommand sourceCommand;
+    private ReteNetCommand reteNetCommand;
     
     private final TclRhsFunction tclRhsFunction = new TclRhsFunction(this);
     private final CmdRhsFunction cmdRhsFunction = new CmdRhsFunction(this);
@@ -122,7 +129,8 @@ public class SoarTclInterface implements SoarCommandInterpreter
         addCommand("pushd", new PushdCommand(sourceCommand));
         addCommand("popd", new PopdCommand(sourceCommand));
         addCommand("pwd", new PwdCommand(sourceCommand));
-
+        addCommand("rete-net", this.reteNetCommand = new ReteNetCommand(sourceCommand, agent));
+        
         // Load general handlers
         StandardCommands.addToInterpreter(agent, this);
         
@@ -210,13 +218,38 @@ public class SoarTclInterface implements SoarCommandInterpreter
         sourceCommand.source(url.toExternalForm());
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.io.File)
+     */
+    @Override
+    public void loadRete(File file) throws SoarException
+    {
+        reteNetCommand.load(file.getPath());
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.net.URL)
+     */
+    @Override
+    public void loadRete(URL url) throws SoarException
+    {
+        reteNetCommand.load(url.toExternalForm());
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.jsoar.util.commands.SoarCommandInterpreter#saveRete(java.io.File)
+     */
+    @Override
+    public void saveRete(File file) throws SoarException
+    {
+        reteNetCommand.save(file.getPath());
+    }
+    
     public String eval(String command) throws SoarException
     {
-        // Convert CRLFs (Windows line delimiters) to LFs.
-        // (jTcl has an issue with parsing CRLFs: http://kenai.com/bugzilla/show_bug.cgi?id=5817 )
-        // See {@link TclLineContinuationTest}
-        command = command.replaceAll("\r\n", "\n");
-        command = command.replaceAll("\r", "\n");
         try
         {
             interp.eval(command);
@@ -227,7 +260,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
             throw new SoarException(interp.getResult().toString());
         }
     }
-    
+
     /* (non-Javadoc)
      * @see org.jsoar.util.commands.SoarCommandInterpreter#addCommand(java.lang.String, org.jsoar.util.commands.SoarCommand)
      */
@@ -263,8 +296,7 @@ public class SoarTclInterface implements SoarCommandInterpreter
             }
             catch (TclException e)
             {
-                String errLocation = "In file: " + file.getAbsolutePath() + " line " + interp.getErrorLine() + ".";
-                throw new SoarException(errLocation + System.getProperty("line.separator") + interp.getResult().toString());
+                throw new SoarException(interp.getResult().toString());
             }
         }
 
@@ -273,9 +305,19 @@ public class SoarTclInterface implements SoarCommandInterpreter
         {
             try
             {
-                interp.evalURL(url, url.toString());
+                final InputStream in = new BufferedInputStream(url.openStream());
+                try
+                {
+                    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    ByteStreams.copy(in, out);
+                    eval(out.toString());
+                }
+                finally
+                {
+                    in.close();
+                }
             }
-            catch (TclException e)
+            catch(IOException e)
             {
                 throw new SoarException(e.getMessage(), e);
             }
@@ -287,35 +329,4 @@ public class SoarTclInterface implements SoarCommandInterpreter
             return SoarTclInterface.this.eval(code);
         }
     }
-
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.io.File)
-     */
-    @Override
-    public void loadRete(File file) throws SoarException
-    {
-        agent.getInterpreter().loadRete(file);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#loadRete(java.net.URL)
-     */
-    @Override
-    public void loadRete(URL url) throws SoarException
-    {
-        agent.getInterpreter().loadRete(url);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.jsoar.util.commands.SoarCommandInterpreter#saveRete(java.io.File)
-     */
-    @Override
-    public void saveRete(File file) throws SoarException
-    {
-        agent.getInterpreter().saveRete(file);
-    }
-
 }
