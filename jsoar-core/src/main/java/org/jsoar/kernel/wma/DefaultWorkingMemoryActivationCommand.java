@@ -120,6 +120,10 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
         {
             props.set(DefaultWorkingMemoryActivationParams.ACTIVATION, "on".equals(value));
         }
+        else if(name.equals("timers"))
+        {
+            props.set(DefaultWorkingMemoryActivationParams.TIMERS, TimerLevels.valueOf(value));
+        }
         else if(props.get(DefaultWorkingMemoryActivationParams.ACTIVATION))
         {
             // TODO: This check should be done in the property system
@@ -148,10 +152,6 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
         else if(name.equals("petrov-approx"))
         {
             props.set(DefaultWorkingMemoryActivationParams.PETROV_APPROX, "on".equals(value));
-        }
-        else if(name.equals("timers"))
-        {
-            props.set(DefaultWorkingMemoryActivationParams.TIMERS, TimerLevels.valueOf(value));
         }
         else
         {
