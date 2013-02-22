@@ -116,9 +116,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
     
     private DefaultWorkingMemoryActivationParams params; /* csoar: wma_params */
     private DefaultWorkingMemoryActivationStats stats; /* csoar: wma_stats */
-
-    // RPM 2/13: timers not ported yet
-    // wma_timer_container wma_timers;
+    private DefaultWorkingMemoryActivationTimers timers; /* csoar: wma_timers */
     
     private Set<Wme> wma_touched_elements;  
     private TreeMap<Long, Set< wma_decay_element>> wma_forget_pq; // using TreeMap because this needs to be sorted and we will use TreeMap-specific methods
@@ -143,6 +141,11 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         wma_d_cycle_count++;
     }
     
+    public void resetTimers()
+    {
+        timers.reset();
+    }
+    
     public long get_d_cycle_count()
     {
         return wma_d_cycle_count;
@@ -158,6 +161,11 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         return stats;
     }
     
+    public DefaultWorkingMemoryActivationTimers getTimers()
+    {
+        return timers;
+    }
+    
     public void initialize()
     {
         this.trace = Adaptables.require(getClass(), context, Trace.class);
@@ -171,7 +179,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         
         params = new DefaultWorkingMemoryActivationParams(properties);
         stats = new DefaultWorkingMemoryActivationStats(properties);
-        //wma_timers = new wma_timer_container( );
+        timers = new DefaultWorkingMemoryActivationTimers(properties);
 
         wma_forget_pq = new TreeMap<Long, Set<wma_decay_element>>();
         wma_touched_elements = new HashSet<Wme>();
@@ -205,6 +213,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      */
     public void reset()
     {
+        this.timers.reset();
         this.wma_d_cycle_count = 0;
     }
 
@@ -1213,11 +1222,11 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
      // update history for all touched elements
         if ( go_action == wma_go_action.wma_histories )
         {
-            //my_agent.wma_timers.history.start();
+            timers.start(timers.history);
             
             wma_update_decay_histories();
 
-            //my_agent.wma_timers.history.stop();
+            timers.pause(timers.history);
         }
         // check forgetting queue
         else if ( go_action == wma_go_action.wma_forgetting )
@@ -1226,7 +1235,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
 
             if ( forgetting != ForgettingChoices.off )
             {
-                //my_agent.wma_timers.forgetting.start();
+                timers.start(timers.forgetting);
 
                 boolean forgot_something = false;
 
@@ -1263,7 +1272,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
                     }
                 }
 
-                //my_agent.wma_timers.forgetting.stop();
+                timers.pause(timers.forgetting);
             }
         }
         

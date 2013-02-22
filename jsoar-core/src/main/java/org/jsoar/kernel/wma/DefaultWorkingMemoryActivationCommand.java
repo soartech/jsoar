@@ -22,6 +22,7 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommandProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
+import org.jsoar.util.timing.ExecutionTimer;
 
 /**
  * @author bob.marinier
@@ -185,10 +186,31 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
         return sw.toString();
     }
 
-    private String doTimers(int i, String[] args)
+    private String doTimers(int i, String[] args) throws SoarException
     {
-        // TODO Auto-generated method stub
-        return null;
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        
+        final DefaultWorkingMemoryActivationTimers t = wma.getTimers();
+        if(args.length == i + 1)
+        {
+            pw.printf("timers:\n");
+            pw.printf("%s: %f\n", t.forgetting.getName(), t.forgetting.getTotalSeconds());
+            pw.printf("%s: %f\n", t.history.getName(), t.history.getTotalSeconds());
+        }
+        else
+        {
+            final String name = args[i+1];
+            ExecutionTimer timer = t.get(name);
+            if(timer == null)
+            {
+                throw new SoarException("Unknown timer '" + name + "'");
+            }
+            pw.printf("%f", timer.getTotalSeconds());
+        }
+        
+        pw.flush();
+        return sw.toString();
     }
 
     private String doHistory(int i, String[] args) throws SoarException

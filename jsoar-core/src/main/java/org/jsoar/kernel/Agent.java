@@ -790,6 +790,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         decisionCycle.current_phase.set(Phase.INPUT);
         decisionCycle.d_cycle_count.increment();
         wma.d_cycle_count_increment();
+        
 
         io.init_agent_memory();
 
@@ -828,6 +829,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         {
             timer.reset();
         }
+        
+        wma.resetTimers();
     }
     
     /**

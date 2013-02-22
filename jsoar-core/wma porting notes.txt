@@ -43,7 +43,7 @@ src\print.cpp:1007:    print (thisAgent, " [%0.2g]", wma_get_wme_activation(this
 # Per-agent wma data structures
 # Everything here that's actually necessary in JSoar should go in the 
 # WorkingMemoryActivation class, NOT on the agent.
-# DONE (except for timers, which I'm skipping for now)
+# DONE
 
 src\agent.h:219:  memory_pool            wma_decay_element_pool;
 src\agent.h:220:  memory_pool            wma_decay_set_pool;
@@ -137,7 +137,7 @@ src\gdatastructs.h:341:  wma_sym_reference_map* wma_val_references;
 
 ################################################################################
 # reset_statistics()
-# DONE -- skipping timers for now
+# DONE
 src\init_soar.cpp:329:  thisAgent->wma_timers->reset();
 src\init_soar.cpp:333:  thisAgent->wma_d_cycle_count = 0;
 
@@ -167,7 +167,7 @@ src\init_soar.cpp:1093:          thisAgent->wma_d_cycle_count++;
 
 ################################################################################
 # init_agent_memory()
-# DONE -- skipping timers for now
+# DONE
 src\init_soar.cpp:1506:  thisAgent->wma_d_cycle_count++;
 src\init_soar.cpp:1552:  thisAgent->wma_timers->reset();
 
