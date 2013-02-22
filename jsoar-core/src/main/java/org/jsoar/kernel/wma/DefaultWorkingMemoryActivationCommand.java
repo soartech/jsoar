@@ -127,6 +127,10 @@ class DefaultWorkingMemoryActivationCommand implements SoarCommand
         else if(props.get(DefaultWorkingMemoryActivationParams.ACTIVATION))
         {
             // TODO: This check should be done in the property system
+            // For now, protected parameters come after this point in the if-else chain,
+            // and unprotected parameters come earlier
+            // A protected parameter is one that can't be changed while wma is on, e.g. because
+            // it affects how wma is initialized, etc.
             throw new SoarException("This parameter is protected while WMA is on.");
         }
         else if(name.equals("decay-rate"))

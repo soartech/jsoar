@@ -17,6 +17,8 @@ import org.jsoar.util.timing.ExecutionTimer;
 
 /**
  * Timers for wma
+ * TODO: The approach to how this works should probably be generalized similar to how
+ * parameters have been generalized, but this gets the functionality in there for now
  * 
  * @author bob.marinier
  */
