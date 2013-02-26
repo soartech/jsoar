@@ -540,7 +540,7 @@ public class Rete
         if(episodicMemory.epmem_enabled())
         {
             episodicMemory.removeWme(w);
-            // TODO epmem_process_ids
+            episodicMemory.processIds();
         }
         
         /* --- remove w from all_wmes_in_rete --- */

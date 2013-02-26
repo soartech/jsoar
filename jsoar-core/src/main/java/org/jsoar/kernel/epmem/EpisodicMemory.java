@@ -92,4 +92,9 @@ public interface EpisodicMemory
      * @param w
      */
     void removeWme(WmeImpl w);
+    
+    /**
+     * replaces _epmem_process_ids( agent* my_agent ) in rete.cpp : 1691
+     */
+    void processIds();
 }

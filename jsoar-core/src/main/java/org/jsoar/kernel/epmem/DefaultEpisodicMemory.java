@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1470,16 +1471,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // return_val->push_back( w );
             // }
             // TODO make sure this is the correct way to get impasse_wmes
-            if (id.isGoal())
+            for(WmeImpl w=id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w!=null; w=w.next)
             {
-                Iterator<Wme> it = id.getWmes();
-                if (it != null)
-                {
-                    while (it.hasNext())
-                    {
-                        return_val.add((WmeImpl) it.next());
-                    }
-                }
+                return_val.add(w);
             }
 
             // input wmes
@@ -2786,5 +2780,58 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             w.epmem_id = EPMEM_NODEID_BAD;
             w.epmem_valid = 0;
         }
+    }
+
+    @Override
+    public void processIds()
+    {
+        while(!epmem_id_removes.isEmpty())
+        {
+            IdentifierImpl id = epmem_id_removes.poll().asIdentifier();
+            
+            //assert( id->common.symbol_type == IDENTIFIER_SYMBOL_TYPE );   
+            if(id==null) {
+                logError("Expected identifier symbol type in epmem_id_removes queue");
+                continue;
+            }
+
+            if((id.epmem_id != EPMEM_NODEID_BAD) && (id.epmem_valid == epmem_validation))
+            {
+                // invalidate identifier encoding
+                id.epmem_id = EPMEM_NODEID_BAD;
+                id.epmem_valid = 0;
+
+                // impasse wmes
+                for(WmeImpl w=id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w!=null; w=w.next)
+                {
+                    removeWme(w);
+                }
+
+                // input wmes
+                for(WmeImpl w=id.getInputWmes(); w!=null; w=w.next)
+                {
+                    removeWme(w);
+                }
+
+                // regular wmes
+                for(Slot s=id.slots; s!=null; s=s.next)
+                {
+                    for(WmeImpl w=s.getWmes(); w!=null; w=w.next)
+                    {
+                        removeWme(w);
+                    }
+                    
+                    for(WmeImpl w=s.getAcceptablePreferenceWmes(); w!=null; w=w.next)
+                    {
+                        removeWme(w);
+                    }
+                }
+            }
+        }
+    }
+    
+    private void logError(String text) {
+        logger.error(text);
+        agent.getPrinter().error(text);
     }
 }
