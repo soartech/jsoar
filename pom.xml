@@ -4,7 +4,13 @@
   <artifactId>jsoar</artifactId>
   <version>0.13.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  
+
+<distributionManagement>
+  <snapshotRepository>
+    <id>soartech-snapshots</id>
+    <url>https://nexus.soartech.com:8443/nexus/content/repositories/snapshots</url>
+  </snapshotRepository>
+</distributionManagement>
   <modules>
     <module>jsoar-core</module>
 	<module>jsoar-debugger</module>
