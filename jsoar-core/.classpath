@@ -6,11 +6,11 @@
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry exported="true" kind="lib" path="lib/guava-r06.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.0.jar" sourcepath="C:/Documents and Settings/ray/home/mine/projects/my-project-dl/jsoar-dl/commons-beanutils-1.8.0/commons-beanutils-1.8.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/db/sqlite-jdbc-3.6.20.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/build-only/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/build-only/slf4j-jdk14-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/guava-14.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
