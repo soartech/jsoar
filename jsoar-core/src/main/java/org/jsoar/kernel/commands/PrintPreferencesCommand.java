@@ -235,7 +235,7 @@ public class PrintPreferencesCommand
 
             // if the impasse isn't NONE_IMPASSE_TYPE, there's an impasse and we don't want to print anything
             // if we have no candidates, we don't want to print anything
-            if ((impasse_type == ImpasseType.NONE) && cand != null)
+            if ((impasse_type == ImpasseType.NONE) && cand.value != null)
             {
                 printer.print("\nselection probabilities:\n");
 

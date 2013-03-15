@@ -139,6 +139,11 @@ public class TemporaryMemory
                 changed.remove(changed_slots);
             }
             s.id.removeSlot(s);
+            
+            if(s.wma_val_references != null)
+            {
+                s.wma_val_references = null;
+            }
         }
     }
 

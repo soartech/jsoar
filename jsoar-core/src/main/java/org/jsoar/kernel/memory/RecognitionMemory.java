@@ -6,6 +6,7 @@
 package org.jsoar.kernel.memory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -53,6 +54,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
@@ -98,6 +100,7 @@ public class RecognitionMemory
     private SoarReteListener soarReteListener;
     private Consistency consistency;
     private ReinforcementLearning rl;
+    private DefaultWorkingMemoryActivation wma;
     
     /**
      * agent.h:174:firer_highest_rhs_unboundvar_index
@@ -172,6 +175,7 @@ public class RecognitionMemory
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
         this.consistency = Adaptables.adapt(context, Consistency.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
+        this.wma = Adaptables.adapt(context, DefaultWorkingMemoryActivation.class);
         
         context.getProperties().setProvider(SoarProperties.PRODUCTION_FIRING_COUNT, production_firing_count);
     }
@@ -1272,10 +1276,10 @@ public class RecognitionMemory
                     {
                         // No knowledge retrieval necessary in Operand2
                         
-                        // RPM 2/2013: wma not ported yet
-//                        if (wma_enabled(thisAgent)) {
-//                            wma_activate_wmes_in_pref(thisAgent, pref);
-//                        }
+                        if (wma.wma_enabled())
+                        {
+                            wma.wma_activate_wmes_in_pref(pref);
+                        }
                     }
                     else
                     {
@@ -1416,52 +1420,51 @@ public class RecognitionMemory
        // this doesn't cause immediate memory deallocate/allocate
        // but once the WMEs are resolved, this should free the
        // memory, as opposed to lead to a "leak"
-       // RPM 2/2013: wma hasn't been ported yet
-//       if ( wma_enabled( thisAgent ) && !s->isa_context_slot )
-//       {
-//           if ( !s->changed )
-//           {
-//               if ( s->wma_val_references != NIL )
-//               {
-//                   s->wma_val_references->clear();
-//               }
-//           }
-//       }
+       if ( wma.wma_enabled() && !s.isa_context_slot )
+       {
+           if ( s.changed == null )
+           {
+               if ( s.wma_val_references != null )
+               {
+                   s.wma_val_references.clear();
+               }
+           }
+       }
 
        tempMemory.mark_slot_as_changed(s);
 
-       // RPM 2/2013: wma not ported yet
-//       if ( wma_enabled( thisAgent ) && !s->isa_context_slot )
-//       {
-//          bool exists = false;
-//          wme* w = pref->slot->wmes;
-//          while ( !exists && w )
-//          {
-//             if ( w->value == pref->value )
-//             {
-//                exists = true;
-//             }
-//
-//             w = w->next;
-//          }
-//
-//          // if wme exists, it should already have been updated
-//          // during assertion of new preferences
-//          if ( !exists )
-//          {
-//             if ( s->wma_val_references == NIL )
-//             {
-//                 allocate_with_pool( thisAgent, &( thisAgent->wma_slot_refs_pool ), &( s->wma_val_references ) );
-//    #ifdef USE_MEM_POOL_ALLOCATORS
-//                 s->wma_val_references = new( s->wma_val_references ) wma_sym_reference_map( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< std::pair< Symbol*, uint64_t > >( thisAgent ) );
-//    #else
-//                 s->wma_val_references = new( s->wma_val_references ) wma_sym_reference_map();
-//    #endif
-//             }
-//
-//             (*s->wma_val_references)[ pref->value ]++;
-//          }
-//       }
+       if ( wma.wma_enabled() && !s.isa_context_slot )
+       {
+          boolean exists = false;
+          WmeImpl w = pref.slot.getWmes();
+          while ( !exists && w != null )
+          {
+             if ( w.getValue() == pref.value )
+             {
+                exists = true;
+             }
+
+             w = w.next;
+          }
+
+          // if wme exists, it should already have been updated
+          // during assertion of new preferences
+          if ( !exists )
+          {
+             if ( s.wma_val_references == null )
+             {
+                 s.wma_val_references = new HashMap<Symbol, Long>();
+             }
+
+             Long numRef = s.wma_val_references.get(pref.value);
+             if(numRef == null)
+             {
+                 numRef = 0L;
+             }
+             
+             s.wma_val_references.put(pref.value, ++numRef);
+          }
+       }
        
        // --- update identifier levels ---
        IdentifierImpl valueId = pref.value.asIdentifier();
@@ -1575,6 +1578,11 @@ public class RecognitionMemory
                     break;
                 }
             }
+        }
+        
+        if(wma.wma_enabled())
+        {
+            soarReteListener.wma_activate_wmes_tested_in_prods();
         }
         
         // Save previous active level for usage on next elaboration cycle.

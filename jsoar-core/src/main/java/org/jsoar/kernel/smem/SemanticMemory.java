@@ -21,7 +21,7 @@ public interface SemanticMemory extends LongTermIdentifierSource
     boolean smem_enabled();
     
     /**
-     * semantic_memory.h:SMEM_LTI_UNKNOWN_LEVEL
+     * semantic_memory.h:smem_attach
      * @throws SoarException 
      */
     void smem_attach() throws SoarException;
