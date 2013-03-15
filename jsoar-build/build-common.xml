@@ -119,7 +119,7 @@
 
     <target name="test" depends="compile-tests" description="Run unit tests" unless="notest">
         <junit printsummary="on" haltonfailure="yes" fork="yes" forkmode="perBatch" showoutput="true">
-     	   <jvmarg value="-Xmx2048M"/>
+     	   <jvmarg value="-Xmx1536M"/>
      	   <jvmarg value="-ea"/>
 
             <classpath>
