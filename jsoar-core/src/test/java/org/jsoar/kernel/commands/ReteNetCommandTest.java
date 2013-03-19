@@ -1,7 +1,6 @@
 package org.jsoar.kernel.commands;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
@@ -11,7 +10,6 @@ import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.SoarProperties;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -53,17 +51,19 @@ public class ReteNetCommandTest
     @Test(timeout=2*5000)
     public void testWaterJug() throws Exception
     {
-        runTest("testWaterJug", -1, 0);
+        runTest("testWaterJug", 416, 0);
     }
-    @Ignore//@Test(timeout=2*10000)
+    
+    @Test(timeout=2*10000)
     public void testWaterJugLookAhead() throws Exception
     {
-        runTest("testWaterJugLookAhead", -1, 0);
+        runTest("testWaterJugLookAhead", 27, 2000);
     }
+    
     @Test(timeout=2*10000)
     public void testWaterJugHierarchy() throws Exception
     {
-        runTest("testWaterJugHierarchy", -1, 0);
+        runTest("testWaterJugHierarchy", 1093, 0);
     }
     
     @Test
@@ -81,13 +81,13 @@ public class ReteNetCommandTest
     @Test(timeout=2*10000)
     public void testEightPuzzle() throws Exception
     {
-        runTest("testEightPuzzle", -1, 0);
+        runTest("testEightPuzzle", 40, 0);
     }
     
     @Test(timeout=2*10000)
     public void testBlocksWorld() throws Exception
     {
-        runTest("testBlocksWorld", -1, 0);
+        runTest("testBlocksWorld", 12, 0);
     }
  
     @Test(timeout=2*10000)
@@ -111,15 +111,13 @@ public class ReteNetCommandTest
     @Test(timeout=2*10000)
     public void testBlocksWorldLookAheadRandom() throws Exception
     {
-        runTest("testBlocksWorldLookAhead", -1, 0);
+        runTest("testBlocksWorldLookAhead", 32, 0);
     }
     
     @Test(timeout=2*80000)
     public void testArithmetic() throws Exception
     {
-        runTest("testArithmetic", -1, 0);
-        assertTrue(originalAgent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() > 40000);
-        assertTrue(originalAgent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue() == originalAgent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue());
+        runTest("testArithmetic", 41982, 0);
     } 
     
     @Test(timeout=2*80000)
