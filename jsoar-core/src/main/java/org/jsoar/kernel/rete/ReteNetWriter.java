@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
@@ -38,6 +37,10 @@ import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.PropertyKey;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Writes out the rete to a file.
@@ -160,25 +163,43 @@ public class ReteNetWriter
      */
     private void writeChildrenOfNode(DataOutputStream dos, ReteNode node) throws IOException, SoarException
     {
+        FluentIterable<ReteNode> children = getChildrenOfNode(node);
+        // Filter out children of type CN_BNODE.
+        children = children.filter(new Predicate<ReteNode>()
+                {
+                    public boolean apply(ReteNode child)
+                    {
+                        return child.node_type != ReteNodeType.CN_BNODE;
+                    }
+                });
         // RETECOMPAT: These are written out in reverse order. When child nodes are reinserted in 
         // ReteNetReader, they are inserted at the head of the list.
         // For example: @see org.jsoar.kernel.rete.ReteNode.make_new_mem_node(Rete, ReteNode, ReteNodeType, VarLocation)
-        final Stack<ReteNode> children = new Stack<ReteNode>();
-        for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
-        {
-            if (child.node_type != ReteNodeType.CN_BNODE)
-            {
-                children.push(child);
-            }
-        }
+        children = FluentIterable.from(children.toList().reverse());
         
         // --- Count number of non-CN-node children. --- 
         dos.writeInt(children.size());
         
-        while (!children.empty())
+        for (ReteNode child : children)
         {
-            writeNodeAndChildren(dos, children.pop());
+            writeNodeAndChildren(dos, child);
         }
+    }
+
+    /**
+     * Returns, in the order they appear in the node's linked list, a list of the node's
+     * children.
+     */
+    private FluentIterable<ReteNode> getChildrenOfNode(ReteNode node)
+    {
+        ImmutableList.Builder<ReteNode> children = ImmutableList.builder();
+        
+        for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
+        {
+            children.add(child);
+        }
+        
+        return FluentIterable.from(children.build());
     }
 
     /**
@@ -190,9 +211,6 @@ public class ReteNetWriter
     {
         Production prod;
         ReteNode temp;
-
-        if (node.node_type == ReteNodeType.CN_BNODE)
-            return; // ignore CN nodes 
 
         // RETECOMPAT: When writing out an enum type, JSoar uses the enum's toString(), but CSoar writes out one byte.
         dos.writeUTF(node.node_type.toString());
