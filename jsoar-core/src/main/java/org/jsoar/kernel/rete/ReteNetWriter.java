@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
@@ -159,28 +160,25 @@ public class ReteNetWriter
      */
     private void writeChildrenOfNode(DataOutputStream dos, ReteNode node) throws IOException, SoarException
     {
-        ReteNode child;
-        int numChildren = 0;
-
-        // --- Count number of non-CN-node children. --- 
-        for (child = node.first_child; child != null; child = child.next_sibling)
+        // RETECOMPAT: These are written out in reverse order. When child nodes are reinserted in 
+        // ReteNetReader, they are inserted at the head of the list.
+        // For example: @see org.jsoar.kernel.rete.ReteNode.make_new_mem_node(Rete, ReteNode, ReteNodeType, VarLocation)
+        final Stack<ReteNode> children = new Stack<ReteNode>();
+        for (ReteNode child = node.first_child; child != null; child = child.next_sibling)
         {
             if (child.node_type != ReteNodeType.CN_BNODE)
             {
-                numChildren++;
+                children.push(child);
             }
         }
-        dos.writeInt(numChildren);
-
+        
         // --- Count number of non-CN-node children. --- 
-        for (child = node.first_child; child != null; child = child.next_sibling)
+        dos.writeInt(children.size());
+        
+        while (!children.empty())
         {
-            if (child.node_type != ReteNodeType.CN_BNODE)
-            {
-                writeNodeAndChildren(dos, child);
-            }
+            writeNodeAndChildren(dos, children.pop());
         }
-
     }
 
     /**
