@@ -28,16 +28,20 @@ public class DefaultInterpreterParser
         
         final List<String> result = new ArrayList<String>();
         skipWhitespaceAndComments(reader);
-        String word = parseWord(reader);
-        while(word != null)
+        
+        if(!atEndOfCommand(reader))
         {
-            result.add(word);
-            if(atEndOfCommand(reader))
+            String word = parseWord(reader);
+            while(word != null)
             {
-                break;
+                result.add(word);
+                if(atEndOfCommand(reader))
+                {
+                    break;
+                }
+                skipWhitespaceAndComments(reader);
+                word = parseWord(reader);
             }
-            skipWhitespaceAndComments(reader);
-            word = parseWord(reader);
         }
         final SourceLocation loc = DefaultSourceLocation.newBuilder().
                                         file(reader.getFile()).
@@ -55,17 +59,24 @@ public class DefaultInterpreterParser
         {
             switch(c)
             {
-            // EOL or comment marks end of command
+            // EOL, comment, or semicolon marks end of command
             case '\r':
             case '\n':
             case '#': 
                 unread(reader, c); 
                 return true;
+            // Consume in the case of a semicolon: it's lexically a part of the command we just processed.
+            // (E.g., consider the case of the empty command ";": we would expect that parsing this would
+            // leave nothing on the buffer.)
+            case ';':
+                return true;
+                
             // Skip whitespace
             case ' ':
             case '\t':
             case '\f':
                 break;
+                
             // Anything else means there's more to the command
             default: 
                 unread(reader, c); 
