@@ -12,6 +12,7 @@
   </snapshotRepository>
 </distributionManagement>
   <modules>
+    <module>jsoar-build</module>
     <module>jsoar-core</module>
 	<module>jsoar-debugger</module>
 	<module>jsoar-demos</module>
