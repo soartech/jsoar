@@ -19,6 +19,14 @@
       </plugin>
     </plugins>
   </build>
+
+  <distributionManagement>
+      <snapshotRepository>
+          <id>soartech-snapshots</id>
+          <url>https://nexus.soartech.com:8443/nexus/content/repositories/snapshots</url>
+      </snapshotRepository>
+  </distributionManagement>
+
   <dependencies>
   	<dependency>
   		<groupId>com.soartech</groupId>
