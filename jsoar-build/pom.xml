@@ -3,7 +3,10 @@
   <groupId>com.soartech</groupId>
   <artifactId>jsoar-build</artifactId>
   <version>0.13.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+  <!-- Note that this produces a jar when we don't need one,
+       but that this is required to get the launchers to work
+       when m2e imports this -->
+  <packaging>jar</packaging>
   <build>
     <plugins>
       <plugin>
