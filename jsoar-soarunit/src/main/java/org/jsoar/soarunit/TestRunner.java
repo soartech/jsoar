@@ -177,6 +177,10 @@ public class TestRunner
                     break;
                 }
             }
+            catch (Throwable t)
+            {
+                t.printStackTrace();
+            }
             finally
             {
                 agent.dispose();
