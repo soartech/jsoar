@@ -25,7 +25,7 @@ soar = (_soar.agent instanceof org.jsoar.kernel.Agent) ? new (function(agent) {
   // General event registration handler (see below)
   function onEvent(eventClass, callback) {
     if(typeof(eventClass) === "string") {
-      eventClass = java.lang.Class.forName(eventClass);
+      eventClass = java.lang.ClassLoader.getSystemClassLoader().loadClass(eventClass);
     }
     var proxy = new org.jsoar.util.events.SoarEventListenerProxy(callback);
     agent.events.addListener(eventClass, proxy);
