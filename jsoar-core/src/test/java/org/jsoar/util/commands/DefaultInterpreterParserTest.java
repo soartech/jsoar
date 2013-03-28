@@ -40,7 +40,7 @@ public class DefaultInterpreterParserTest
     }
     
     @Test
-    public void testParseCommandTerminatedByCarriageReturn() throws Exception
+    public void testSpCommandParseCommandTerminatedByCarriageReturn() throws Exception
     {
         final ParserBuffer reader = reader("    sp {test\n(state <s> ^superstate nil)\n-->\r\n(write (crlf))\n}\r\nx");
         assertEquals(Arrays.asList("sp", "test\n(state <s> ^superstate nil)\n-->\r\n(write (crlf))\n"), parser.parseCommand(reader).getArgs());
@@ -86,10 +86,10 @@ public class DefaultInterpreterParserTest
     public void testCanSkipComments() throws Exception
     {
         final ParserBuffer reader = reader(" \n" +
-        		"# this is a comment\n" +
-        		"   # and another\r\n" +
-        		"   # and one more\n" +
-        		"   word");
+                "# this is a comment\n" +
+                "   # and another\r\n" +
+                "   # and one more\n" +
+                "   word");
         
         parser.skipWhitespaceAndComments(reader);
         checkRemainder("word", reader);        
@@ -135,13 +135,78 @@ public class DefaultInterpreterParserTest
     }
     
     @Test(expected=SoarException.class)
+    public void testErrorOnUnclosedBraceWithSemicolonComment() throws Exception
+    {
+        final ParserBuffer reader = reader("    { words ;#{ ");
+        parser.parseWord(reader);
+        
+    }
+    
+    @Test(expected=SoarException.class)
     public void testErrorOnUnclosedQuote() throws Exception
     {
         final ParserBuffer reader = reader("    \" words { ");
         parser.parseWord(reader);
         
     }
-
+    
+    @Test
+    public void testCanParseSemicolon() throws Exception
+    {
+        final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil) --> (<s> ^test true)}; watch {5}");
+        assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
+        checkRemainder(" watch {5}", reader);
+    }
+    
+    @Test
+    public void testCanParseTrailingSemicolon() throws Exception
+    {
+        final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil) --> (<s> ^test true)};");
+        assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
+        checkRemainder("", reader);
+    }
+    
+    @Test
+    public void testCanParseMultipleCommandsOnOneLine() throws Exception
+    {
+        final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil) --> (<s> ^test true)}; watch {5}");
+        assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
+        assertEquals(Arrays.asList("watch", "5"), parser.parseCommand(reader).getArgs());
+        checkRemainder("", reader);
+    }
+    
+    @Test
+    public void testCanParseSemicolonHash() throws Exception
+    {
+        final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil) --> (<s> ^test true)} ;# a comment");
+        assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
+        checkRemainder("# a comment", reader);
+    }
+    
+    @Test
+    public void testCanParseSemicolonWithinCommand() throws Exception
+    {
+        final ParserBuffer reader = reader("sp {test (state <s> ^superstate nil;) --> (<s> ^test true)};");
+        assertEquals(Arrays.asList("sp", "test (state <s> ^superstate nil;) --> (<s> ^test true)"), parser.parseCommand(reader).getArgs());
+        checkRemainder("", reader);
+    }
+    
+    @Test
+    public void testCanParseEmptyCommand() throws Exception
+    {
+        final ParserBuffer reader = reader(";");
+        assertEquals(Arrays.asList(), parser.parseCommand(reader).getArgs());
+        checkRemainder("", reader);
+    }
+    
+    @Test
+    public void testCanParseEmptyCommands() throws Exception
+    {
+        final ParserBuffer reader = reader(";;;;");
+        assertEquals(Arrays.asList(), parser.parseCommand(reader).getArgs());
+        checkRemainder(";;;", reader);
+    }
+    
     private ParserBuffer reader(String input)
     {
         return new ParserBuffer(new PushbackReader(new StringReader(input)));
