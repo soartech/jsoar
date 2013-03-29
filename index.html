@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Jsoar by soartech</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Jsoar</h1>
+          <h2>Pure Java implementation of the Soar cognitive architecture</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/soartech/jsoar/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/soartech/jsoar/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/soartech/jsoar" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <p><strong>JSoar</strong> is a pure Java implementation of <a href="http://sitemaker.umich.edu/soar/home">Soar</a>. Soar is a general cognitive architecture for developing systems that exhibit intelligent behavior.</p>
+
+<p><em>Note that JSoar is an implementation of Soar. To use it effectively, you'll still need to be able to program Soar. The <a href="http://sitemaker.umich.edu/soar/home">Soar home page</a> has a number of useful resources for learning Soar, in particular the <a href="http://sitemaker.umich.edu/soar/getting_started">Soar tutorial</a>. Soar Soar Soar.</em></p>
+
+<p>There are a few benefits to a pure-Java implementation of Soar:</p>
+
+<ul>
+<li>Idiomatic Java API in contrast to CSoar's SWIG-generated bindings.</li>
+<li>"Free" multi-language support (JRuby, Jython, Rhino (JavaScript), Groovy, Scala, Clojure, etc)</li>
+<li>A codebase and tools more friendly to rapid research prototyping</li>
+<li>No native libraries to deal with</li>
+<li>Cleaner integration with "enterprisey" systems </li>
+</ul><p><a href="http://darevay.com/jsoar/"><strong>Here</strong></a> is Soar running in a Java applet.</p>
+
+<p><a href="https://code.google.com/p/jsoar/wiki/JSoarDebugger"><strong>Here is a screenshot</strong></a> of the debugger in action.</p>
+
+<h3>Documentation</h3>
+
+<ul>
+<li><a href="Faq">Frequently Anticipated Questions</a></li>
+<li>[[JSoarUsersGuide]] - Start here if you want to use JSoar in a project</li>
+<li>[[JSoarDevelopersGuide]] - Start here if you want to check out and compile the source code</li>
+<li>
+<a href="http://darevay.com/jsoar/current/docs/jsoar-core/api/">Javadoc</a> </li>
+</ul><h3>Status</h3>
+
+<p><strong>[[ChangeLog]]</strong></p>
+
+<p>The port of the base 9.0.1 kernel (i.e., the code in SoarSuite/Core/SoarKernel) is complete. See the links below for more details.</p>
+
+<ul>
+<li>[[JSoarPerformance]]</li>
+<li>[[JSoarDebugger]]</li>
+</ul><h3>System Requirements</h3>
+
+<p>JSoar requires Java 1.6. It uses several features of Java 1.6 that are not available in earlier versions of Java. Please let me know (see contact info in right-hand panel) if you're interested in a supporting older versions of Java and I'll see what I can do. See also [[Java16FeaturesUsedByJSoar]] </p>
+
+<h3>About the code</h3>
+
+<p>For the most part, JSoar is a direct port of CSoar with minimal refactoring along the way. This means that many members are public (or package private) just like the structs the classes are based upon. As an additional precaution, whenever possible members are marked as final and initialized in a constructor. Refactoring is ongoing to make the codebase more idiomatic, performant, and friendly. Also note that the <strong>public</strong> interface of JSoar, the one used by client code, is very clean and well encapsulated.</p>
+
+<p>One convention followed during the port was to include a string like this in the Javadoc for each method:</p>
+
+<p>rete.cpp:1011:find_goal_for_match_set_change_assertion</p>
+
+<p>Although the filename and line number aren't that interesting, the method name is important. Preserving the original names in the comments allows us to go back later and keep track of where code went when moved from C to Java.</p>
+
+<h3>Links</h3>
+
+<ul>
+<li><a href="http://sitemaker.umich.edu/soar/home">Soar Home Page</a></li>
+<li><a href="http://winter.eecs.umich.edu/soarwiki/Development/Soar_Kernel_Code_Guide">Soar Kernel Code Guide </a></li>
+</ul><h3>Related Work</h3>
+
+<ul>
+<li><a href="https://github.com/soartech/jsoar/wiki/Auto-conversion-investigation">Automated Support for Porting</a></li>
+</ul><h3>Acknowledgements / History</h3>
+
+<p>JSoar was originally envisioned and implemented by Dave Ray (<a href="https://github.com/daveray" class="user-mention">@daveray</a>) (and indeed, the vast majority of the code is still Dave's). JSoar started out on googlecode in svn, was converted to mercurial and then git, and then moved to Dave's github site. Today JSoar is primarily maintained by Soar Technology, Inc.</p>
+        </section>
+
+        <footer>
+          Jsoar is maintained by <a href="https://github.com/soartech">soartech</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
