@@ -46,8 +46,6 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class WmeSupportView extends AbstractAdaptableView implements SelectionListener
 {
-    private static final long serialVersionUID = -5150761314645770374L;
-
     private final JSoarDebugger debugger;
     private final SelectionManager selectionManager;
     private final JLabel source = new JLabel("");

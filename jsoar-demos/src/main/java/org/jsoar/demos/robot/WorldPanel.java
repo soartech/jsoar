@@ -32,7 +32,9 @@ import org.jsoar.util.SwingTools;
  */
 public class WorldPanel extends JPanel 
 {
-    private double pixelsPerMeter = 55;
+	private static final long serialVersionUID = -8738777236222717325L;
+
+	private double pixelsPerMeter = 55;
     private double panX = 0.0;
     private double panY = 0.0;
     private Robot follow = null;

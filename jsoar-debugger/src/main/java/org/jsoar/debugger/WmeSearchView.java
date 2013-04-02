@@ -41,8 +41,6 @@ import org.jsoar.util.SwingTools;
  */
 public class WmeSearchView extends AbstractAdaptableView implements Refreshable, Disposable
 {
-    private static final long serialVersionUID = -2680823027837157856L;
-    
     private final JSoarDebugger debugger;
     private final JLabel description = new JLabel(" Enter glob pattern below and click Search");
     private final DefaultWmeTableModel wmeModel = new DefaultWmeTableModel();
