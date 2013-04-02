@@ -47,7 +47,6 @@ import com.google.common.collect.ForwardingList;
  */
 public class ProductionEditView extends AbstractAdaptableView implements Disposable
 {
-    private static final long serialVersionUID = -5150761314645770374L;
     private static final Logger logger = LoggerFactory.getLogger(ProductionEditView.class);
 
     private static final String DEFAULT_CONTENTS = "Double-click a production (or right-click) to edit, or just start typing.";

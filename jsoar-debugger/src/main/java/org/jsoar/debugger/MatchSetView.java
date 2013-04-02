@@ -45,8 +45,6 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class MatchSetView extends AbstractAdaptableView implements Refreshable
 {
-    private static final long serialVersionUID = -5150761314645770374L;
-
     private final JSoarDebugger debugger;
     private final ThreadedAgent agent;
     private final JXList entryList = new JXList();

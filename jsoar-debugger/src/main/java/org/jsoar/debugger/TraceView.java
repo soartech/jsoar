@@ -52,8 +52,6 @@ import bibliothek.gui.dock.common.action.CButton;
  */
 public class TraceView extends AbstractAdaptableView implements Disposable
 {
-    private static final long serialVersionUID = -358416409712991384L;
-
     private final JSoarDebugger debugger;
     private final CommandEntryPanel commandPanel;
     private final Provider selectionProvider = new Provider();
