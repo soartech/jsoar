@@ -29,8 +29,8 @@ public class TemplateMethods
         /* (non-Javadoc)
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
          */
-        @SuppressWarnings("unchecked")
-        @Override
+        @SuppressWarnings("rawtypes")
+		@Override
         public Object exec(List args) throws TemplateModelException
         {
             final Symbol symbol = (Symbol) ((BeanModel) args.get(0)).getWrappedObject(); 
@@ -43,8 +43,8 @@ public class TemplateMethods
         /* (non-Javadoc)
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
          */
-        @SuppressWarnings("unchecked")
-        @Override
+        @SuppressWarnings("rawtypes")
+		@Override
         public Object exec(List args) throws TemplateModelException
         {
             final ThreadedAgent agent = (ThreadedAgent) ((BeanModel) args.get(0)).getWrappedObject();
@@ -66,8 +66,8 @@ public class TemplateMethods
         /* (non-Javadoc)
          * @see freemarker.template.TemplateMethodModel#exec(java.util.List)
          */
-        @SuppressWarnings("unchecked")
-        @Override
+        @SuppressWarnings("rawtypes")
+		@Override
         public Object exec(List args) throws TemplateModelException
         {
             final ThreadedAgent agent = (ThreadedAgent) ((BeanModel) args.get(0)).getWrappedObject();
