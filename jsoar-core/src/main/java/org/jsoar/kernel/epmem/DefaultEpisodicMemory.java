@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.sun.corba.se.spi.orbutil.fsm.Guard.Result;
 
 /**
  * <h2>Variance from CSoar Implementation</h2>
@@ -2602,8 +2603,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         if (memory_id != EPMEM_MEMID_NONE)
         {
-            // soar_module::sqlite_statement *my_q =
-            // my_agent->epmem_stmts_graph->prev_episode;
+            // soar_module::sqlite_statement *my_q = my_agent->epmem_stmts_graph->prev_episode;
             final PreparedStatement myQuery = db.prev_episode;
             try
             {
@@ -2638,14 +2638,52 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     /**
-     * 
+     * Returns the next valid temporal id.  This is really
+     * only an issue if you implement episode dynamics like
+     * forgetting.
+     *                  
      * @param last_memory
      * @return
      */
-    private long epmem_next_episode(long last_memory)
+    private long epmem_next_episode(long memory_id)
     {
-        // TODO Auto-generated method stub
-        return 0;
+        ////////////////////////////////////////////////////////////////////////////
+        //my_agent->epmem_timers->next->start();
+        ////////////////////////////////////////////////////////////////////////////
+        
+        long return_val = EPMEM_MEMID_NONE;
+
+        if (memory_id != EPMEM_MEMID_NONE)
+        {
+            final PreparedStatement myQuery = db.next_episode;
+            try
+            {
+                myQuery.setLong(1, memory_id);
+                final ResultSet resultSet = myQuery.executeQuery();
+                try
+                {
+                    if (resultSet.next())
+                    {
+                        return_val = resultSet.getLong(0);
+                    }
+                }
+                finally
+                {
+                    resultSet.close();
+                }
+
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        
+        ////////////////////////////////////////////////////////////////////////////
+        //my_agent->epmem_timers->next->stop();
+        ////////////////////////////////////////////////////////////////////////////
+        
+        return return_val;
     }
 
     /**
