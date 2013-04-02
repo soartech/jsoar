@@ -40,8 +40,8 @@ public class SmlTestAgentFactory implements TestAgentFactory
         new SmlTestAgent().debug(test, exitOnClose);
     }
 
-    private static void preloadSmlLibraries()
-    {
+//    private static void preloadSmlLibraries()
+//    {
         /*
         TODO SoarUnit SML Someday we may need this code. For now, Soar has to be on the system path for the debugger to work anyway.
         final String soarHome = System.getProperty("soar.home", null);
@@ -65,5 +65,5 @@ public class SmlTestAgentFactory implements TestAgentFactory
 //        System.loadLibrary("ElementXML");
 //        System.loadLibrary("SoarKernelSML");
 //        System.loadLibrary("Java_sml_ClientInterface");
-    }
+//    }
 }
