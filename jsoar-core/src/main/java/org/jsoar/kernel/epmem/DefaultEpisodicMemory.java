@@ -31,6 +31,7 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.Preference;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -147,6 +148,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private Decider decider;
     SymbolFactoryImpl symbols;
     EpisodicMemoryDatabase db;
+    
+    private RecognitionMemory recognitionMemory;
 
     /** agent.h:epmem_validation */
     private/* uintptr_t */long epmem_validation = 0;
@@ -231,7 +234,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         agent = Adaptables.adapt(context, Agent.class);
         symbols = Adaptables.require(DefaultEpisodicMemory.class, context, SymbolFactoryImpl.class);
-
+        recognitionMemory = Adaptables.require(DefaultEpisodicMemory.class, context, RecognitionMemory.class);
+        
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
                 PropertyManager.class);
         decider = Adaptables.adapt(context, Decider.class);
@@ -2650,7 +2654,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         // TODO Auto-generated method stub
     }
-
+    
     /**
      * Removes any WMEs produced by EpMem resulting from a command
      * 
@@ -2659,8 +2663,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private void epmem_clear_result(IdentifierImpl state)
     {
-        // TODO Auto-generated method stub
+        Preference pref;
         
+        final Deque<Preference> wmes = epmem_info(state).epmem_wmes;
+        
+        //while ( !state->id.epmem_info->epmem_wmes->empty() ) -ACN
+        while ( !wmes.isEmpty() )
+        {
+            pref = wmes.removeLast();
+            if ( pref.isInTempMemory())
+            {
+                recognitionMemory.remove_preference_from_tm( pref );
+            }
+        }
     }
 
     private EpisodicMemoryStateInfo epmem_info(IdentifierImpl state)
