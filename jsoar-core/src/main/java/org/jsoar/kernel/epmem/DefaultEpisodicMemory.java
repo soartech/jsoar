@@ -2581,14 +2581,60 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
 
     /**
+     * episodic_memory.cpp:3199:epmem_time_id epmem_previous_episode( 
+     *      agent *my_agent, epmem_time_id memory_id )
+     *      
+     * Returns the last valid temporal id.  This is really
+     * only an issue if you implement episode dynamics like
+     * forgetting.
      * 
      * @param last_memory
      * @return
+     * @throws SQLException 
      */
-    private long epmem_previous_episode(long last_memory)
+    private long epmem_previous_episode(long memory_id)
     {
-        // TODO Auto-generated method stub
-        return 0;
+        // //////////////////////////////////////////////////////////////////////////
+        // my_agent->epmem_timers->prev->start();
+        // //////////////////////////////////////////////////////////////////////////
+
+        long return_val = EPMEM_MEMID_NONE;
+
+        if (memory_id != EPMEM_MEMID_NONE)
+        {
+            // soar_module::sqlite_statement *my_q =
+            // my_agent->epmem_stmts_graph->prev_episode;
+            final PreparedStatement myQuery = db.prev_episode;
+            try
+            {
+                myQuery.setLong(1, memory_id);
+                final ResultSet resultSet = myQuery.executeQuery();
+                try
+                {
+                    if (resultSet.next())
+                    {
+                        return_val = resultSet.getLong(0);
+                    }
+                }
+                finally
+                {
+                    resultSet.close();
+                }
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+            }
+            /*
+             * my_q->reinitialize();
+             */
+        }
+
+        // //////////////////////////////////////////////////////////////////////////
+        // my_agent->epmem_timers->prev->stop();
+        // //////////////////////////////////////////////////////////////////////////
+
+        return return_val;
     }
 
     /**
