@@ -2736,7 +2736,176 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             Set<SymbolImpl> currents, 
             Set<WmeImpl> cue_wmes)
     {
-        // TODO Auto-generated method stub
+        cue_wmes.clear();
+
+        retrieve = EPMEM_MEMID_NONE;
+        next = null;
+        previous = null;
+        query = null;
+        neg_query = null;
+        prohibit.clear();
+        before = EPMEM_MEMID_NONE;
+        after = EPMEM_MEMID_NONE;
+        good_cue = true;
+        path = 0;
+        
+
+        //for ( epmem_wme_list::iterator w_p=cmds->begin(); w_p!=cmds->end(); w_p++ )
+        for(WmeImpl w_p : cmds)
+        {
+            cue_wmes.add( (w_p) );
+
+            if ( good_cue )
+            {
+                // collect information about known commands
+                if ( w_p.attr == predefinedSyms.epmem_sym_retrieve )
+                {
+                    //if ( ( (*w_p)->value->ic.common_symbol_info.symbol_type == INT_CONSTANT_SYMBOL_TYPE ) &&
+                    if ( ( Symbols.getSymbolType(w_p.getValue()) == Symbols.INT_CONSTANT_SYMBOL_TYPE ) &&
+                            ( path == 0 ) &&
+                            ( w_p.value.asInteger().getValue() > 0 ) )
+                    {
+                        retrieve = w_p.value.asInteger().getValue();
+                        path = 1;
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_next )
+                {
+                    if ( ( Symbols.getSymbolType(w_p.getValue()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                            ( path == 0 ) )
+                    {
+                        next = w_p.value;
+                        path = 2;
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_prev )
+                {
+                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                            ( path == 0 ) )
+                    {
+                        previous = w_p.value;
+                        path = 2;
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_query )
+                {
+                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                            ( ( path == 0 ) || ( path == 3 ) ) &&
+                            ( query == null ) )
+
+                    {
+                        query = w_p.value;
+                        path = 3;
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_negquery )
+                {
+                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                            ( ( path == 0 ) || ( path == 3 ) ) &&
+                            ( neg_query == null ) )
+
+                    {
+                        neg_query = w_p.value;
+                        path = 3;
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_before )
+                {
+                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.INT_CONSTANT_SYMBOL_TYPE ) &&
+                            ( ( path == 0 ) || ( path == 3 ) ) )
+                    {
+                        if ( ( before == EPMEM_MEMID_NONE ) || ( w_p.value.asInteger().getValue() < before ) )
+                        {
+                            before = w_p.value.asInteger().getValue();
+                        }
+                        path = 3;
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_after )
+                {
+                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.INT_CONSTANT_SYMBOL_TYPE ) &&
+                            ( ( path == 0 ) || ( path == 3 ) ) )
+                    {
+                        if ( after < w_p.value.asInteger().getValue() )
+                        {
+                            after = w_p.value.asInteger().getValue();
+                        }
+                        path = 3;
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_prohibit )
+                {
+                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.INT_CONSTANT_SYMBOL_TYPE ) &&
+                            ( ( path == 0 ) || ( path == 3 ) ) )
+                    {
+                        prohibit.add( w_p.value.asInteger().getValue() );
+                        path = 3;
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+                else if ( w_p.attr == predefinedSyms.epmem_sym_current )
+                {
+                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                            ( ( path == 0 ) || ( path == 3 ) ) )
+                    {
+                        currents.add( w_p.value );
+                        path = 3;
+                    }
+                    else
+                    {
+                        good_cue = false;
+                    }
+                }
+                else
+                {
+                    good_cue = false;
+                }
+            }
+        }
+        
+        // if on path 3 must have query
+        if ( ( path == 3 ) && ( query == null ) )
+        {
+            good_cue = false;
+        }
+
+        // must be on a path
+        if ( path == 0 )
+        {
+            good_cue = false;
+        }
+        
     }
     
     /**

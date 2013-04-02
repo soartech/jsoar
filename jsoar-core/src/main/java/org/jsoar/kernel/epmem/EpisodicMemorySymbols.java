@@ -44,6 +44,7 @@ class EpisodicMemorySymbols
     public final SymbolImpl epmem_sym_before;
     public final SymbolImpl epmem_sym_after;
     public final SymbolImpl epmem_sym_prohibit;
+    public final SymbolImpl epmem_sym_current;
 
     public EpisodicMemorySymbols(SymbolFactoryImpl syms)
     {
@@ -77,6 +78,7 @@ class EpisodicMemorySymbols
         epmem_sym_before = syms.createString("before" );
         epmem_sym_after = syms.createString("after" );
         epmem_sym_prohibit = syms.createString("prohibit" );
+        epmem_sym_current = syms.createString("current" );
 
     }
 }
