@@ -910,9 +910,72 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
     }
     
-    private final EpmemRitForkNodeResult epmem_rit_fork_node(long lower, long uppper, epmem_rit_state rit_state)
+    /**
+     * episodic_memory.cpp: 1068: 
+     * int64_t epmem_rit_fork_node( int64_t lower, 
+     *      int64_t upper, 
+     *      bool / *bounds_offset* /,
+     *      int64_t *step_return, 
+     *      epmem_rit_state *rit_state 
+     * )
+     * 
+     * @param lower
+     * @param uppper
+     * The C has an *int64_t here, but were just going to return it in the java
+     * @param rit_state
+     * @return EpmemRitForkNodeResult In the C, there is a pass by reference int, 
+     * so Java will simulate that with a return class.
+     */
+    private final EpmemRitForkNodeResult epmem_rit_fork_node(long lower, long upper, epmem_rit_state rit_state)
     {
-        return null;
+        //The cpp contains this set of comments:
+        
+        // never called
+        /*if ( !bounds_offset )
+          {
+          int64_t offset = rit_state->offset.stat->get_value();
+
+          lower = ( lower - offset );
+          upper = ( upper - offset );
+          }*/
+        
+        //:end comment set -ACN
+        
+        // descend the tree down to the fork node
+        long node = EPMEM_RIT_ROOT;
+        if (upper < EPMEM_RIT_ROOT)
+        {
+            node = rit_state.leftroot.stat;
+        }
+        else if (lower > EPMEM_RIT_ROOT)
+        {
+            node = rit_state.rightroot.stat;
+        }
+
+        long step;
+        for (step = (((node >= 0) ? (node) : (-1 * node)) / 2); step >= 1; step /= 2)
+        {
+            if (upper < node)
+            {
+                node -= step;
+            }
+            else if (node < lower)
+            {
+                node += step;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        // never used
+        // if ( step_return != NULL )
+        //{
+            //(*step_return) = step;  We don't need this in java
+        //}
+
+        return new EpmemRitForkNodeResult(node, step);
     }
 
     /**
