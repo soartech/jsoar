@@ -161,5 +161,21 @@ public class DefaultQMemoryTest
         q.setInteger("A", 2);
         assertEquals(2, count.intValue());
     }
+    
+    /**
+     * Check support for 64-bit integers
+     */
+    @Test
+    public void testSupportsLong()
+    {
+        QMemory q = DefaultQMemory.create();
+        q.setInteger("long", Long.MAX_VALUE);
+        assertEquals(Long.MAX_VALUE, q.getInteger("long"));
+        
+        q.setInteger("integer", Integer.MAX_VALUE);
+        assertEquals(Integer.MAX_VALUE, q.getInteger("integer"));
+    }
+
+
 
 }
