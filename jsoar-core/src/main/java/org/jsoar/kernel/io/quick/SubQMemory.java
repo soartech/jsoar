@@ -127,6 +127,15 @@ class SubQMemory implements QMemory
     }
 
     /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.quick.QMemory#setInteger(java.lang.String, int)
+     */
+    @Override
+    public void setInteger(String path, long longVal)
+    {
+        source.setInteger(getPath(path), longVal);
+    }
+
+    /* (non-Javadoc)
      * @see org.jsoar.kernel.io.quick.QMemory#setString(java.lang.String, java.lang.String)
      */
     @Override
