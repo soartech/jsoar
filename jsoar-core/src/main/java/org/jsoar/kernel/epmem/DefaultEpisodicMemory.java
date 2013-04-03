@@ -36,6 +36,7 @@ import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
 import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.smem.SemanticMemoryStateInfo;
 import org.jsoar.kernel.symbols.Identifier;
@@ -2208,8 +2209,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         List<WmeImpl> cmds;
 
         Set<WmeImpl> /* soar_module::wme_set */cue_wmes = Sets.newHashSet();
-        List<WmeImpl> /* soar_module::symbol_triple_list */meta_wmes = Lists.newArrayList();
-        List<WmeImpl> /* soar_module::symbol_triple_list */retrieval_wmes = Lists.newArrayList();
+        List<SymbolTriple> /* soar_module::symbol_triple_list */meta_wmes = Lists.newArrayList();
+        List<SymbolTriple> /* soar_module::symbol_triple_list */retrieval_wmes = Lists.newArrayList();
 
         long /* epmem_time_id */retrieve = 0;
         SymbolImpl next = null;
@@ -2480,8 +2481,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private void epmem_process_buffered_wmes(
             IdentifierImpl state, 
             Set<WmeImpl> cue_wmes, 
-            List<WmeImpl> meta_wmes, 
-            List<WmeImpl> retrieval_wmes)
+            List<SymbolTriple> meta_wmes, 
+            List<SymbolTriple> retrieval_wmes)
     {
         _epmem_process_buffered_wme_list( state, cue_wmes, meta_wmes, epmem_info(state).epmem_wmes );
         _epmem_process_buffered_wme_list( state, cue_wmes, retrieval_wmes, null );
@@ -2501,7 +2502,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private void _epmem_process_buffered_wme_list(
             IdentifierImpl state, 
             Set<WmeImpl> cue_wmes, 
-            List<WmeImpl> my_list, 
+            List<SymbolTriple> my_list, 
             Deque<Preference> epmem_wmes)
     {
         if (my_list.isEmpty())
@@ -2516,7 +2517,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * Call epmem_process_query with level = 3 (default in C++)
      */
     private void epmem_process_query(IdentifierImpl state, SymbolImpl query, SymbolImpl neg_query, List<Long> prohibit, long before, 
-            long after, Set<SymbolImpl> currents, Set<WmeImpl> cue_wmes, List<WmeImpl> meta_wmes, List<WmeImpl> retrieval_wmes)
+            long after, Set<SymbolImpl> currents, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes)
     {
         epmem_process_query(state, query, neg_query, prohibit, before, after, currents, cue_wmes, meta_wmes, retrieval_wmes, 3);
     }
@@ -2549,8 +2550,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             long after,
             Set<SymbolImpl> currents, 
             Set<WmeImpl> cue_wmes, 
-            List<WmeImpl> meta_wmes, 
-            List<WmeImpl> retrieval_wmes,
+            List<SymbolTriple> meta_wmes, 
+            List<SymbolTriple> retrieval_wmes,
             int level /*=3*/)
     {
         // TODO Auto-generated method stub
@@ -2568,16 +2569,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param value
      */
     private void epmem_buffer_add_wme(
-            List<WmeImpl> my_list, 
+            List<SymbolTriple> my_list, 
             IdentifierImpl id, 
             SymbolImpl attr, 
             SymbolImpl value)
     {
-//        my_list.push_back( new soar_module::symbol_triple( id, attr, value ) );
-//
-//        symbol_add_ref( id );
-//        symbol_add_ref( attr );
-//        symbol_add_ref( value );
+        my_list.add( new SymbolTriple( id, attr, value) );
+        
+        //In java, we don't care about reference counting
+        //symbol_add_ref( id );
+        //symbol_add_ref( attr );
+        //symbol_add_ref( value );
         
     }
 
@@ -2693,7 +2695,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param meta_wmes
      * @param retrieval_wmes
      */
-    private void epmem_install_memory(IdentifierImpl state, long retrieve, List<WmeImpl> meta_wmes, List<WmeImpl> retrieval_wmes)
+    private void epmem_install_memory(IdentifierImpl state, long retrieve, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes)
     {
         // TODO Auto-generated method stub
     }
