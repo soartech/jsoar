@@ -70,8 +70,10 @@ class DefaultEpisodicMemoryStats implements EpisodicMemoryStatistics
 //    epmem_mem_high_stat *mem_high;
 //    soar_module::integer_stat *cbr;
 
-//    soar_module::integer_stat *ncb_wmes;
-//
+    //soar_module::integer_stat *ncb_wmes;
+    static final PropertyKey<Long> NCB_WMES = key("ncb_wmes", Long.class).defaultValue(0L).build();
+    final DefaultPropertyProvider<Long> ncb_wmes = new DefaultPropertyProvider<Long>(NCB_WMES);
+
 //    soar_module::integer_stat *qry_pos;
 //    soar_module::integer_stat *qry_neg;
 //    epmem_time_id_stat *qry_ret;

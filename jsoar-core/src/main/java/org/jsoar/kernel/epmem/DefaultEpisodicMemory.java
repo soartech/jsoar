@@ -28,6 +28,7 @@ import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.PredefinedSymbols;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.MergeChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
 import org.jsoar.kernel.memory.Preference;
@@ -1141,6 +1142,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             epmem_respond_to_cmd();
         }
+        catch (SQLException e)
+        {
+            logger.error("While responding to epmem command: " + e.getMessage(), e);
+            agent.getPrinter().error("While responding to epmem command: " + e.getMessage());
+        }
         catch (SoarException e)
         {
             logger.error("While responding to epmem command: " + e.getMessage(), e);
@@ -1261,7 +1267,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // seen nodes (non-identifiers) and edges (identifiers)
             Queue<Long> epmem_node = new LinkedList<Long>();
             Queue<Long> epmem_edge = new LinkedList<Long>();
-
+            
             // walk appropriate levels
             {
                 // prevents infinite loops
@@ -2248,8 +2254,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * 
      * <p>episodic_memory.cpp:5238:void epmem_respond_to_cmd( agent *my_agent )
      * @throws SoarException 
+     * @throws SQLException 
      */
-    private void epmem_respond_to_cmd() throws SoarException
+    private void epmem_respond_to_cmd() throws SoarException, SQLException
     {
         // if this is before the first episode, initialize db components
         if (db == null)
@@ -2633,7 +2640,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private void epmem_buffer_add_wme(
             List<SymbolTriple> my_list, 
-            IdentifierImpl id, 
+            SymbolImpl id, 
             SymbolImpl attr, 
             SymbolImpl value)
     {
@@ -2750,17 +2757,531 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         return return_val;
     }
-
+    
     /**
+     * This is being used to emulate the default parameter in C
+     * 
+     * @param state
+     * @param memory_id
+     * @param meta_wmes
+     * @param retrieval_wmes
+     * @throws SQLException 
+     */
+    private void epmem_install_memory(
+            IdentifierImpl state, 
+            long /*epmem_time_id*/ memory_id, 
+            List<SymbolTriple> meta_wmes, 
+            List<SymbolTriple> retrieval_wmes
+            /*Map<Long / *epmem_node_id* /, SymbolImpl> id_record = NULL*/
+        ) throws SQLException
+    {
+        epmem_install_memory(state, memory_id, meta_wmes, retrieval_wmes, null);
+    }
+    
+    /**
+     * This is used to emulate std::pair<Symbol, bool>
+     * 
+     * @author ACNickles
+     *
+     */
+    private class SymbolBooleanPair
+    {
+        SymbolImpl first;
+        boolean second;
+        
+        SymbolBooleanPair(SymbolImpl first, boolean second)
+        {
+            this.first = first;
+            this.second = second;
+        }
+    }
+    
+    private class EpmemEdge
+    {
+        
+        long /*epmem_node_id*/ q0;      // id
+        SymbolImpl w;                   // attr
+        long /*epmem_node_id*/ q1;      // value
+
+        boolean val_is_short_term;
+        char val_letter;
+        long val_num;
+
+    };
+    
+    /**
+     * episodic_memory.cpp: 2847:
+     * void epmem_install_memory( 
+     *      agent *my_agent, 
+     *      Symbol *state, 
+     *      epmem_time_id memory_id, 
+     *      soar_module::symbol_triple_list& meta_wmes, 
+     *      soar_module::symbol_triple_list& retrieval_wmes, 
+     *      epmem_id_mapping *id_record = NULL )
      * 
      * @param state
      * @param retrieve
      * @param meta_wmes
      * @param retrieval_wmes
+     * @throws SQLException 
      */
-    private void epmem_install_memory(IdentifierImpl state, long retrieve, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes)
+    private void epmem_install_memory(
+            IdentifierImpl state, 
+            long /*epmem_time_id*/ memory_id, 
+            List<SymbolTriple> meta_wmes, 
+            List<SymbolTriple> retrieval_wmes,
+            Map<Long /*epmem_node_id*/, SymbolImpl>  id_record /*=NULL*/
+        ) throws SQLException
+    {
+        final EpisodicMemoryStateInfo epmemInfo = epmem_info(state);
+        ////////////////////////////////////////////////////////////////////////////
+        //my_agent->epmem_timers->ncb_retrieval->start();
+        ////////////////////////////////////////////////////////////////////////////
+        
+        // get the ^result header for this state
+        SymbolImpl result_header = epmemInfo.epmem_result_header;
+        
+        // initialize stat
+        long num_wmes = 0;
+        //my_agent->epmem_stats->ncb_wmes->set_value( num_wmes );
+        this.stats.ncb_wmes.set(num_wmes);
+        
+        // if no memory, say so
+        if ( 
+                ( memory_id == EPMEM_MEMID_NONE ) ||
+                !epmem_valid_episode( memory_id )
+            )
+        {
+            epmem_buffer_add_wme( 
+                    meta_wmes, 
+                    result_header, 
+                    predefinedSyms.epmem_sym_retrieved, 
+                    predefinedSyms.epmem_sym_no_memory 
+                );
+            epmemInfo.last_memory = EPMEM_MEMID_NONE;
+            
+            ////////////////////////////////////////////////////////////////////////////
+            //my_agent->epmem_timers->ncb_retrieval->stop();
+            ////////////////////////////////////////////////////////////////////////////
+            
+            return;
+        }
+        // remember this as the last memory installed
+        epmemInfo.last_memory = memory_id;
+        
+        // create a new ^retrieved header for this result
+        SymbolImpl retrieved_header;
+        retrieved_header = symbols.make_new_identifier( 'R', result_header.asIdentifier().level );
+        //if ( id_record )
+        if ( id_record != null )
+        {
+            id_record.put( EPMEM_NODEID_ROOT, retrieved_header);
+        }
+        
+        epmem_buffer_add_wme( meta_wmes, result_header, predefinedSyms.epmem_sym_retrieved, retrieved_header );
+        //Java doesn't care about reference counting
+        //symbol_remove_ref( retrieved_header );
+        
+        // add *-id wme's
+        {
+            SymbolImpl my_meta;
+            
+            my_meta = symbols.createInteger( memory_id );
+            epmem_buffer_add_wme( meta_wmes, result_header, predefinedSyms.epmem_sym_memory_id, my_meta );
+            //symbol_remove_ref( my_agent, my_meta );
+            
+            my_meta = symbols.createInteger( stats.time.get() );
+            epmem_buffer_add_wme( meta_wmes, result_header, predefinedSyms.epmem_sym_present_id, my_meta );
+            //symbol_remove_ref( my_agent, my_meta );
+        }
+        
+        // install memory
+        {
+            // Big picture: create identifier skeleton, then hang non-identifers
+            //
+            // Because of shared WMEs at different levels of the storage breadth-first search,
+            // there is the possibility that the unique database id of an identifier can be
+            // greater than that of its parent.  Because the retrieval query sorts by
+            // unique id ascending, it is thus possible to have an "orphan" - a child with
+            // no current parent.  We keep track of orphans and add them later, hoping their
+            // parents have shown up.  I *suppose* there could be a really evil case in which
+            // the ordering of the unique ids is exactly opposite of their insertion order.
+            // I just hope this isn't a common case...
+            
+            // shared identifier lookup table
+            //std::map< epmem_node_id, std::pair< Symbol*, bool > > ids;
+            Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids = new HashMap<Long, SymbolBooleanPair>();
+            boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.merge_add);
+            
+            // symbols used to create WMEs
+            SymbolImpl attr = null;
+            
+            // lookup query
+            //soar_module::sqlite_statement *my_q;
+            
+            // initialize the lookup table
+            ids.put(EPMEM_NODEID_ROOT, new SymbolBooleanPair(retrieved_header, true));
+            // first identifiers (i.e. reconstruct)
+            PreparedStatement my_q = db.get_edges;
+            {
+                // relates to finite automata: q1 = d(q0, w)
+                long /*epmem_node_id*/ q0; // id
+                long /*epmem_node_id*/ q1; // attribute
+                long /*int64_t*/ w_type; // we support any constant attribute symbol
+                
+                boolean val_is_short_term = false;
+                char val_letter = 0;//NIL
+                long /*int64_t*/ val_num = 0;//NIL
+                
+                // used to lookup shared identifiers
+                // the bool in the pair refers to if children are allowed on this id (re: lti)
+                //We dont need to use an iterator for lookups in Java, however the port will
+                //match much closer if we use the variable. -ACN
+                //std::map< epmem_node_id, std::pair< Symbol*, bool> >::iterator id_p;
+                SymbolBooleanPair id_p;
+                
+                // orphaned children
+                Queue<EpmemEdge> orphans = new LinkedList<EpmemEdge>();
+                EpmemEdge orphan;
+                
+                epmem_rit_prep_left_right( memory_id, memory_id, epmem_rit_state_graph[ EPMEM_RIT_STATE_EDGE ]  );
+                
+                my_q.setLong(1, memory_id);
+                my_q.setLong(2, memory_id);
+                my_q.setLong(3, memory_id);
+                my_q.setLong(4, memory_id);
+                my_q.setLong(5, memory_id);
+                ResultSet resultSet = my_q.executeQuery();
+                while ( resultSet.next() )
+                {
+                    // q0, w, q1, w_type
+                    //q0 = my_q->column_int( 0 );
+                    q0 = resultSet.getLong(0 + 1);
+                    //q1 = my_q->column_int( 2 );
+                    q1 = resultSet.getLong(2 + 1);
+                    //w_type = my_q->column_int( 3 );
+                    w_type = resultSet.getLong( 3 + 1 );
+                    
+                    //All of the cases here are ints, so if this cast changes anything,
+                    //we have bigger problems
+                    switch ( (int)w_type )
+                    {
+                        case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                            //attr = make_int_constant( my_agent,my_q->column_int( 1 ) );
+                            attr = symbols.createInteger(resultSet.getLong( 1 + 1 ) );
+                            break;
+                        
+                        case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                            //attr = make_float_constant( my_agent, my_q->column_double( 1 ) );
+                            attr = symbols.createDouble( resultSet.getDouble( 1 + 1 ) );
+                            break;
+                        
+                        case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                            //attr = make_sym_constant( my_agent, const_cast<char *>( reinterpret_cast<const char *>( my_q->column_text( 1 ) ) ) );
+                            attr = symbols.createString(resultSet.getString(1 + 1));
+                            break;
+                    }
+                    
+                    // short vs. long-term
+                    //This is how Smem is doing this cast, but I'm not certain how 
+                    char tempValLetter = (char)resultSet.getLong(4 + 1);
+                    val_is_short_term = ( resultSet.wasNull() );
+                    if ( !val_is_short_term )
+                    {
+                        val_letter = tempValLetter;
+                        //val_num = static_cast<uint64_t>( my_q->column_int( 5 ) );
+                        resultSet.getLong(5 + 1);
+                    }
+                    
+                    // get a reference to the parent
+                    id_p = ids.get( q0 );
+                    if ( id_p != null )
+                    {
+                        // if existing lti with kids don't touch
+                        if ( dont_abide_by_ids_second || id_p.second )
+                        {
+                            _epmem_install_id_wme( 
+                                    id_p.first, 
+                                    attr, 
+                                    ids, 
+                                    q1, 
+                                    val_is_short_term, 
+                                    val_letter, 
+                                    val_num, 
+                                    id_record, 
+                                    retrieval_wmes 
+                                );
+                            num_wmes++;
+                        }
+                        //Ref counting doesn't matter in Java
+                        //symbol_remove_ref( my_agent, attr );
+                    }
+                    else
+                    {
+                        // out of order
+                        orphan = new EpmemEdge();
+                        orphan.q0 = q0;
+                        orphan.w = attr;
+                        orphan.q1 = q1;
+                        
+                        orphan.val_letter = 0;//NIL;
+                        orphan.val_num = 0;//NIL;
+                        
+                        orphan.val_is_short_term = val_is_short_term;
+                        if ( !val_is_short_term )
+                        {
+                            orphan.val_letter = val_letter;
+                            orphan.val_num = val_num;
+                        }
+                        
+                        orphans.add( orphan );
+                    }
+                }
+                //my_q->reinitialize();
+                resultSet.close();
+                
+                epmem_rit_clear_left_right( );
+                
+                // take care of any orphans
+                if ( !orphans.isEmpty() )
+                {
+                    int /*std::queue<epmem_edge *>::size_type*/ orphans_left;
+                    Queue<EpmemEdge> still_orphans = new LinkedList<EpmemEdge>();
+                    
+                    do
+                    {
+                        orphans_left = orphans.size();
+                        
+                        while ( !orphans.isEmpty() )
+                        {
+                            orphan = orphans.poll();
+                            
+                            // get a reference to the parent
+                            id_p = ids.get( orphan.q0 );
+                            if ( id_p != null )
+                            {
+                                if ( dont_abide_by_ids_second || id_p.second )
+                                {
+                                    _epmem_install_id_wme( 
+                                            id_p.first, 
+                                            orphan.w, 
+                                            ids, 
+                                            orphan.q1, 
+                                            orphan.val_is_short_term, 
+                                            orphan.val_letter, 
+                                            orphan.val_num, 
+                                            id_record, 
+                                            retrieval_wmes 
+                                        );
+                                    num_wmes++;
+                                }
+                                
+                                //Java does this for us
+                                //symbol_remove_ref( my_agent, orphan->w );
+                                //delete orphan;
+                            }
+                            else
+                            {
+                                still_orphans.add( orphan );
+                            }
+                        }
+                        
+                        orphans.addAll(still_orphans);
+                        still_orphans.clear();
+                        /*
+                        orphans = still_orphans;
+                        while ( !still_orphans.isEmpty() )
+                        {
+                            still_orphans.pop();
+                        }
+                        */
+                    } while ( ( !orphans.isEmpty() ) && ( orphans_left != orphans.size() ) );
+                    
+                    /*
+                    while ( !orphans.empty() )
+                    {
+                        orphan = orphans.front();
+                        orphans.pop();
+                        
+                        symbol_remove_ref( my_agent, orphan->w );
+                        delete orphan;
+                    }
+                    */
+                }
+            }
+            
+            // then node_unique
+            my_q = db.get_nodes;
+            {
+                long /*epmem_node_id*/ child_id;
+                long /*epmem_node_id*/ parent_id;
+                long attr_type;
+                long value_type;
+                
+                SymbolBooleanPair /*std::pair< Symbol*, bool >*/ parent;
+                SymbolImpl value = null;
+                
+                epmem_rit_prep_left_right( 
+                        memory_id, 
+                        memory_id, 
+                        epmem_rit_state_graph[ EPMEM_RIT_STATE_NODE ] 
+                    );
+                
+                my_q.setLong( 1, memory_id );
+                my_q.setLong( 2, memory_id );
+                my_q.setLong( 3, memory_id );
+                my_q.setLong( 4, memory_id );
+                
+                ResultSet resultSet = my_q.executeQuery();
+                while ( resultSet.next() )
+                {
+                    // f.child_id, f.parent_id, f.name, f.value, f.attr_type, f.value_type
+                    //child_id = my_q->column_int( 0 );
+                    child_id = resultSet.getLong(0 + 1);
+                    //parent_id = my_q->column_int( 1 + 1 );
+                    parent_id = resultSet.getLong( 1 + 1 );
+                    //attr_type = my_q->column_int( 4 + 1 );
+                    attr_type = resultSet.getLong( 4 + 1 );
+                    //value_type = my_q->column_int( 5 + 1 );
+                    value_type = resultSet.getLong( 5 + 1 );
+                    
+                    // get a reference to the parent
+                    parent = ids.get( parent_id );
+                    
+                    if ( dont_abide_by_ids_second || parent.second )
+                    {
+                        // make a symbol to represent the attribute
+                        switch ( (int)attr_type )
+                        {
+                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                            //attr = make_int_constant( my_agent, my_q->column_int( 2 ) );
+                            attr = symbols.createInteger( resultSet.getInt( 2 + 1 ));
+                            break;
+                            
+                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                            //attr = make_float_constant( my_agent, my_q->column_double( 2 ) );
+                            attr = symbols.createDouble(resultSet.getDouble( 2 + 1 ));
+                            break;
+                            
+                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                            //attr = make_sym_constant( my_agent, const_cast<char *>( reinterpret_cast<const char *>( my_q->column_text( 2 ) ) ) );
+                            attr = symbols.createString(  resultSet.getString( 2 + 1 ) ) ;
+                            break;
+                        }
+                        
+                        // make a symbol to represent the value
+                        switch ( (int)value_type )
+                        {
+                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                            //value = make_int_constant( my_agent,my_q->column_int( 3 ) );
+                            value = symbols.createInteger( resultSet.getLong( 3 + 1 ) );
+                            break;
+                            
+                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                            //value = make_float_constant( my_agent, my_q->column_double( 3 ) );
+                            value = symbols.createDouble( resultSet.getDouble( 3 + 1 ) );
+                            break;
+                            
+                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                            //value = make_sym_constant( my_agent, const_cast<char *>( (const char *) my_q->column_text( 3 ) ) );
+                            value = symbols.createString( resultSet.getString( 3 + 1 ) );
+                            break;
+                        }
+                        
+                        epmem_buffer_add_wme( retrieval_wmes, parent.first, attr, value );
+                        num_wmes++;
+                        
+                        //symbol_remove_ref( my_agent, attr );
+                        //symbol_remove_ref( my_agent, value );
+                    }
+                }
+                //my_q->reinitialize();
+                resultSet.close();
+                epmem_rit_clear_left_right();
+            }
+        }
+        
+        // adjust stat
+        this.stats.ncb_wmes.set(num_wmes);
+        
+        ////////////////////////////////////////////////////////////////////////////
+        //my_agent->epmem_timers->ncb_retrieval->stop();
+        ////////////////////////////////////////////////////////////////////////////
+         
+    }
+    
+    /**
+     * episodic_memory.cpp: 1121:
+     * void epmem_rit_clear_left_right( agent *my_agent )
+     * 
+     * Clears the left/right relations populated during prep
+     * @throws SQLException 
+     */
+    private void epmem_rit_clear_left_right() throws SQLException
+    {
+        db.rit_truncate_left.execute();
+        db.rit_truncate_right.execute();
+    }
+    
+    /**
+     * episodic_memory.cpp: 2779:
+     * inline void _epmem_install_id_wme( 
+     *      agent* my_agent, 
+     *      Symbol* parent, 
+     *      Symbol* attr, 
+     *      std::map< epmem_node_id, std::pair< Symbol*, bool > >* ids, 
+     *      epmem_node_id q1, 
+     *      bool val_is_short_term, 
+     *      char val_letter, 
+     *      uint64_t val_num, 
+     *      epmem_id_mapping* id_record, 
+     *      soar_module::symbol_triple_list& retrieval_wmes 
+     *    )
+     * 
+     */
+    
+    private void _epmem_install_id_wme(
+            SymbolImpl parent, 
+            SymbolImpl attr, 
+            Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids, 
+            long /*epmem_node_id*/ q1, 
+            boolean val_is_short_term, 
+            char val_letter, 
+            long val_num, 
+            Map<Long, SymbolImpl>/*epmem_id_mapping*/ id_record, 
+            List<SymbolTriple> /*soar_module::symbol_triple_list&*/ retrieval_wmes
+        )
+    {
+        // TODO: Implement this.
+    }
+    
+    /**
+     * episodic_memory.cpp: 1156:
+     * void epmem_rit_prep_left_right( 
+     *      agent *my_agent, 
+     *      int64_t lower, 
+     *      int64_t upper, 
+     *      epmem_rit_state *rit_state 
+     *    )
+     * 
+     * Implements the computational components of the RIT
+     */
+    private void epmem_rit_prep_left_right(long lower, long upper, epmem_rit_state rit_state)
+    {
+        // TODO: Implement this
+    }
+    
+    /**
+     * episodic_memory.cpp: 2760:
+     * bool epmem_valid_episode( agent *my_agent, epmem_time_id memory_id )
+     * 
+     * @param memory_id
+     * @return Returns true if the temporal id is valid
+     */
+    private boolean epmem_valid_episode(long /*epmem_time_id*/ memory_id)
     {
         // TODO Auto-generated method stub
+        return false;
     }
 
     /**

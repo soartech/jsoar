@@ -390,11 +390,11 @@ public class WmeImpl extends AbstractAdaptable implements Wme
      */
     public static class SymbolTriple
     {
-        public final IdentifierImpl id;
+        public final SymbolImpl id;
         public final SymbolImpl attr;
         public final SymbolImpl value;
 
-        public SymbolTriple(IdentifierImpl id, SymbolImpl attr, SymbolImpl value)
+        public SymbolTriple(SymbolImpl id, SymbolImpl attr, SymbolImpl value)
         {
             this.id = id;
             this.attr = attr;

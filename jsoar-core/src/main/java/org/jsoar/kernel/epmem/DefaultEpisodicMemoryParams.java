@@ -50,6 +50,8 @@ class DefaultEpisodicMemoryParams
      */
     static enum Trigger { none, output, dc };
     
+    static enum MergeChoices { merge_none, merge_add };
+    
     private static final String PREFIX = "epmem.params.";
     
     private static <T> PropertyKey.Builder<T> key(String name, Class<T> type)
@@ -87,6 +89,9 @@ class DefaultEpisodicMemoryParams
     
     static final PropertyKey<Trigger> TRIGGER = key("trigger", Trigger.class).defaultValue(Trigger.output).build();
     final EnumPropertyProvider<Trigger> trigger = new EnumPropertyProvider<Trigger>(TRIGGER);
+    
+    static final PropertyKey<MergeChoices> MERGE = key("merge", MergeChoices.class).defaultValue(MergeChoices.merge_none).build();
+    final EnumPropertyProvider<MergeChoices> merge = new EnumPropertyProvider<MergeChoices>(MERGE);
 
     private final PropertyManager properties;
 
