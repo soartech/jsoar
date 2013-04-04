@@ -3265,8 +3265,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *    )
      * 
      * Implements the computational components of the RIT
+     * @throws SQLException 
      */
-    private void epmem_rit_prep_left_right(long lower, long upper, epmem_rit_state rit_state)
+    private void epmem_rit_prep_left_right(long lower, long upper, epmem_rit_state rit_state) throws SQLException
     {
         ////////////////////////////////////////////////////////////////////////////
         //rit_state->timer->start();
@@ -3341,19 +3342,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         right_node = node + step;
         for ( right_step = ( step / 2 ); right_step >= 1; right_step /= 2 )
         {
-        if ( upper == right_node )
-        {
-        break;
-        }
-        else if ( upper < right_node )
-        {
-        epmem_rit_add_right( right_node );
-        right_node -= right_step;
-        }
-        else
-        {
-        right_node += right_step;
-        }
+            if ( upper == right_node )
+            {
+                break;
+            }
+            else if ( upper < right_node )
+            {
+                epmem_rit_add_right( right_node );
+                right_node -= right_step;
+            }
+            else
+            {
+                right_node += right_step;
+            }
         }
         ////////////////////////////////////////////////////////////////////////////
         //rit_state->timer->stop();
@@ -3363,9 +3364,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     /**
      * episodic_memory.cpp: 1144:
      * void epmem_rit_add_right( agent *my_agent, epmem_time_id id )
+     * @throws SQLException 
      */
-    private void epmem_rit_add_right(long id){
-        // TODO: Implement this
+    private void epmem_rit_add_right(long id) throws SQLException{
+        //my_agent->epmem_stmts_common->rit_add_right->bind_int( 1, id );
+        db.rit_add_right.setLong( 1, id );
+        //my_agent->epmem_stmts_common->rit_add_right->execute( soar_module::op_reinit );
+        db.rit_add_right.execute();
     }
     
     /**
@@ -3373,10 +3378,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * void epmem_rit_add_left( agent *my_agent, epmem_time_id min, epmem_time_id max )
      * 
      * Adds a range to the left relation
+     * @throws SQLException 
      */
-    private void epmem_rit_add_left(long min, long max)
+    private void epmem_rit_add_left(long min, long max) throws SQLException
     {
-        // TODO: Implement this
+        //my_agent->epmem_stmts_common->rit_add_left->bind_int( 1, min );
+        db.rit_add_left.setLong( 1, min );
+        //my_agent->epmem_stmts_common->rit_add_left->bind_int( 2, max );
+        db.rit_add_left.setLong( 2, max );
+        //my_agent->epmem_stmts_common->rit_add_left->execute( soar_module::op_reinit );
+        db.rit_add_left.execute();
     }
     
     /**
