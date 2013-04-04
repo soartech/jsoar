@@ -3268,6 +3268,114 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private void epmem_rit_prep_left_right(long lower, long upper, epmem_rit_state rit_state)
     {
+        ////////////////////////////////////////////////////////////////////////////
+        //rit_state->timer->start();
+        ////////////////////////////////////////////////////////////////////////////
+        
+        long offset = rit_state.offset.stat;
+        long node, step;
+        long left_node, left_step;
+        long right_node, right_step;
+        
+        lower = ( lower - offset );
+        upper = ( upper - offset );
+        
+        // auto add good range
+        epmem_rit_add_left( lower, upper );
+        
+        // go to fork
+        node = EPMEM_RIT_ROOT;
+        step = 0;
+        if ( ( lower > node ) || (upper < node ) )
+        {
+            if ( lower > node )
+            {
+                node = rit_state.rightroot.stat;
+                epmem_rit_add_left( EPMEM_RIT_ROOT, EPMEM_RIT_ROOT );
+            }
+            else
+            {
+                node = rit_state.leftroot.stat;
+                epmem_rit_add_right( EPMEM_RIT_ROOT );
+            }
+            
+            for ( step = ( ( ( node >= 0 )?( node ):( -1 * node ) ) / 2 ); step >= 1; step /= 2 )
+            {
+                if ( lower > node )
+                {
+                    epmem_rit_add_left( node, node );
+                    node += step;
+                }
+                else if ( upper < node )
+                {
+                    epmem_rit_add_right( node );
+                    node -= step;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        
+        // go left
+        left_node = node - step;
+        for ( left_step = ( step / 2 ); left_step >= 1; left_step /= 2 )
+        {
+            if ( lower == left_node )
+            {
+                break;
+            }
+            else if ( lower > left_node )
+            {
+                epmem_rit_add_left( left_node, left_node );
+                left_node += left_step;
+            }
+            else
+            {
+                left_node -= left_step;
+            }
+        }
+        
+        // go right
+        right_node = node + step;
+        for ( right_step = ( step / 2 ); right_step >= 1; right_step /= 2 )
+        {
+        if ( upper == right_node )
+        {
+        break;
+        }
+        else if ( upper < right_node )
+        {
+        epmem_rit_add_right( right_node );
+        right_node -= right_step;
+        }
+        else
+        {
+        right_node += right_step;
+        }
+        }
+        ////////////////////////////////////////////////////////////////////////////
+        //rit_state->timer->stop();
+        ////////////////////////////////////////////////////////////////////////////
+    }
+    
+    /**
+     * episodic_memory.cpp: 1144:
+     * void epmem_rit_add_right( agent *my_agent, epmem_time_id id )
+     */
+    private void epmem_rit_add_right(long id){
+        // TODO: Implement this
+    }
+    
+    /**
+     * episodic_memory.cpp: 1132:
+     * void epmem_rit_add_left( agent *my_agent, epmem_time_id min, epmem_time_id max )
+     * 
+     * Adds a range to the left relation
+     */
+    private void epmem_rit_add_left(long min, long max)
+    {
         // TODO: Implement this
     }
     
