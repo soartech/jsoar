@@ -3277,11 +3277,23 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * 
      * @param memory_id
      * @return Returns true if the temporal id is valid
+     * @throws SQLException 
      */
-    private boolean epmem_valid_episode(long /*epmem_time_id*/ memory_id)
+    private boolean epmem_valid_episode(long /*epmem_time_id*/ memory_id) throws SQLException
     {
-        // TODO Auto-generated method stub
-        return false;
+        boolean return_val = false;
+
+        {
+            PreparedStatement my_q = db.valid_episode;
+            
+            my_q.setLong( 1, memory_id );
+            ResultSet resultSet = my_q.executeQuery();
+            //return_val = ( my_q->column_int( 0 ) > 0 );
+            return_val = ( resultSet.getLong( 0 + 1 ) > 0 );
+            resultSet.close();
+        }
+
+        return return_val;
     }
 
     /**
