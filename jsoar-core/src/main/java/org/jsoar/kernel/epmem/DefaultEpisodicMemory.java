@@ -39,6 +39,7 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
 import org.jsoar.kernel.modules.SoarModule;
+import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.smem.SemanticMemoryStateInfo;
 import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
@@ -144,7 +145,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     private Adaptable context;
     private Agent agent;
-
+    private DefaultSemanticMemory smem;
+    
     private DefaultEpisodicMemoryParams params;
     private DefaultEpisodicMemoryStats stats;
 
@@ -237,6 +239,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         agent = Adaptables.adapt(context, Agent.class);
         symbols = Adaptables.require(DefaultEpisodicMemory.class, context, SymbolFactoryImpl.class);
+        smem = Adaptables.require(DefaultEpisodicMemory.class, context, DefaultSemanticMemory.class);
         recognitionMemory = Adaptables.require(DefaultEpisodicMemory.class, context, RecognitionMemory.class);
         
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
@@ -2766,6 +2769,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param meta_wmes
      * @param retrieval_wmes
      * @throws SQLException 
+     * @throws SoarException 
      */
     private void epmem_install_memory(
             IdentifierImpl state, 
@@ -2773,7 +2777,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             List<SymbolTriple> meta_wmes, 
             List<SymbolTriple> retrieval_wmes
             /*Map<Long / *epmem_node_id* /, SymbolImpl> id_record = NULL*/
-        ) throws SQLException
+        ) throws SQLException, SoarException
     {
         epmem_install_memory(state, memory_id, meta_wmes, retrieval_wmes, null);
     }
@@ -2824,6 +2828,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param meta_wmes
      * @param retrieval_wmes
      * @throws SQLException 
+     * @throws SoarException 
      */
     private void epmem_install_memory(
             IdentifierImpl state, 
@@ -2831,7 +2836,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             List<SymbolTriple> meta_wmes, 
             List<SymbolTriple> retrieval_wmes,
             Map<Long /*epmem_node_id*/, SymbolImpl>  id_record /*=NULL*/
-        ) throws SQLException
+        ) throws SQLException, SoarException
     {
         final EpisodicMemoryStateInfo epmemInfo = epmem_info(state);
         ////////////////////////////////////////////////////////////////////////////
@@ -3237,9 +3242,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *      epmem_id_mapping* id_record, 
      *      soar_module::symbol_triple_list& retrieval_wmes 
      *    )
+     * @throws SoarException 
      * 
      */
-    
     private void _epmem_install_id_wme(
             SymbolImpl parent, 
             SymbolImpl attr, 
@@ -3250,9 +3255,94 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             long val_num, 
             Map<Long, SymbolImpl>/*epmem_id_mapping*/ id_record, 
             List<SymbolTriple> /*soar_module::symbol_triple_list&*/ retrieval_wmes
-        )
+        ) throws SoarException
     {
-        // TODO: Implement this.
+        //std::map< epmem_node_id, std::pair< Symbol*, bool > >::iterator id_p = ids->find( q1 );
+        SymbolBooleanPair id_p = ids.get( q1 );
+        boolean existing_identifier = ( id_p != null );
+
+        if ( val_is_short_term )
+        {
+            if ( !existing_identifier )
+            {
+                id_p = ids.put(
+                    q1, 
+                    new SymbolBooleanPair(
+                            symbols.make_new_identifier(
+                                    ( (Symbols.getSymbolType(attr) == Symbols.SYM_CONSTANT_SYMBOL_TYPE )?( attr.getFirstLetter() ):('E') ), 
+                                    parent.asIdentifier().level
+                                ), 
+                            true
+                        )
+                    );
+                
+                //if ( id_record )
+                if ( id_record != null )
+                {
+                    //epmem_id_mapping::iterator rec_p = id_record->find( q1 );
+                    //if ( rec_p != id_record->end() )
+                    if ( id_record.containsKey(q1) )
+                    {
+                        //rec_p->second = id_p->second.first;
+                        id_record.put(q1, id_p.first);
+                    }
+                }
+            }
+
+            epmem_buffer_add_wme( retrieval_wmes, parent, attr, id_p.first );
+
+            //if ( !existing_identifier )
+            //{
+            //    symbol_remove_ref( my_agent, id_p->second.first );
+            //}
+        }
+        else
+        {
+            if ( existing_identifier )
+            {
+                epmem_buffer_add_wme( retrieval_wmes, parent, attr, id_p.first );
+            }
+            else
+            {
+                //SymbolImpl value = smem_lti_soar_make( my_agent, smem_lti_get_id( my_agent, val_letter, val_num ), val_letter, val_num, parent->id.level );
+                SymbolImpl value = smem.smem_lti_soar_make( 
+                        smem.smem_lti_get_id( 
+                                val_letter, 
+                                val_num 
+                            ), 
+                        val_letter, 
+                        val_num, 
+                        parent.asIdentifier().level 
+                    );
+
+                //if ( id_record )
+                if ( id_record != null )
+                {
+                    //epmem_id_mapping::iterator rec_p = id_record->find( q1 );
+                    //if ( rec_p != id_record->end() )
+                    if ( id_record.containsKey(q1) )
+                    {
+                        //rec_p->second = value;
+                        id_record.put(q1, value);
+                    }
+                }
+
+                epmem_buffer_add_wme( retrieval_wmes, parent, attr, value );
+                //symbol_remove_ref( my_agent, value );
+
+                ids.put(
+                        q1, 
+                        new SymbolBooleanPair(
+                                value, 
+                                !( 
+                                    ( value.asIdentifier().goalInfo.getImpasseWmes() != null) || 
+                                    ( value.asIdentifier().input_wmes != null) || 
+                                    ( value.asIdentifier().slots != null) 
+                                )
+                            )
+                    );
+            }
+        }
     }
     
     /**
