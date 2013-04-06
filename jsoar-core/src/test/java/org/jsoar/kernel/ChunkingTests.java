@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.jsoar.JSoarTest;
+import org.jsoar.kernel.learning.Chunker;
+import org.jsoar.util.adaptables.Adaptables;
 import org.junit.Test;
 
 /**
@@ -70,6 +72,8 @@ public class ChunkingTests extends FunctionalTestHarness
         // This tests for a bug in the chunking caused by a bug in add_cond_to_tc()
         // where the id and attr test for positive conditions were added to the tc
         // rather than id and *value*. The first chunk constructed was incorrect
+        Chunker chunker = Adaptables.adapt(agent, Chunker.class);
+        chunker.chunkThroughEvaluationRules = true;
         runTest("testBlocksWorldLookAheadWithMaxNoChangeBug", 15);
         assertEquals(72, agent.getProductions().getProductions(ProductionType.DEFAULT).size());
         assertEquals(15, agent.getProductions().getProductions(ProductionType.USER).size());
@@ -130,6 +134,8 @@ public class ChunkingTests extends FunctionalTestHarness
     @Test
     public void testCDPS() throws Exception
     {
+        Chunker chunker = Adaptables.adapt(agent, Chunker.class);
+        chunker.chunkThroughEvaluationRules = true;
         runTest("testCDPS", -1);
         assertEquals(11, agent.getProductions().getProductions(ProductionType.CHUNK).size());
         

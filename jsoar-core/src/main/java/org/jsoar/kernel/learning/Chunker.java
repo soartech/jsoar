@@ -105,9 +105,9 @@ public class Chunker
     private boolean chunkThroughLocalNegations = true;
     /**
      *  <p>gsysparam.h:195:CHUNK_THROUGH_EVALUATION_RULES_SYSPARAM
-     *  <p>Defaults to true in init_soar()
+     *  <p>MMA: Chunk through evaluation rules off by default
      */
-    public boolean chunkThroughEvaluationRules = true;
+    public boolean chunkThroughEvaluationRules = false;
     /**
      * <p>agent.h:534:quiescence_t_flag
      */
