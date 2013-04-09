@@ -13,6 +13,7 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.SymbolImpl;
 
 /**
  * Epmem info associated with a state.  This structure isn't accessed in a tight loop
@@ -42,7 +43,11 @@ public class EpisodicMemoryStateInfo
 
     public WmeImpl epmem_time_wme;
     
-    public EpisodicMemoryStateInfo(DefaultEpisodicMemory epmem, WorkingMemory wm, IdentifierImpl id)
+    public EpisodicMemoryStateInfo(
+            DefaultEpisodicMemory epmem, 
+            WorkingMemory wm, 
+            IdentifierImpl id
+        )
     {
         // id->id.epmem_header = make_new_identifier( thisAgent, 'E', level );		
         epmem_header = epmem.symbols.make_new_identifier('E', id.level);
@@ -51,27 +56,27 @@ public class EpisodicMemoryStateInfo
         // id->id.epmem_cmd_header = make_new_identifier( thisAgent, 'C', level );
         epmem_cmd_header = epmem.symbols.make_new_identifier('C', id.level);
         // soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_cmd, id->id.epmem_cmd_header );
-        SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_cmd, epmem_cmd_header);
+        SoarModule.add_module_wme(wm, epmem_header, epmem.predefinedSyms.epmem_sym_cmd, epmem_cmd_header);
         // id->id.epmem_result_header = make_new_identifier( thisAgent, 'R', level );
         epmem_result_header = epmem.symbols.make_new_identifier('R', id.level);
         // soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_result, id->id.epmem_result_header );
-        SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_result, epmem_result_header);
+        SoarModule.add_module_wme(wm, epmem_header, epmem.predefinedSyms.epmem_sym_result, epmem_result_header);
 
         
-        epmem_time_wme = SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_present_id, epmem_result_header);
+        //epmem_time_wme = SoarModule.add_module_wme(wm, id, epmem.predefinedSyms.epmem_sym_present_id, epmem_result_header);
 
-        // CK: not implementing timers
-        //    	{
-        //    	  int64_t my_time = static_cast<int64_t>( thisAgent->epmem_stats->time->get_value() );
-        //    	  if ( my_time == 0 )
-        //    	  {
-        //    		  // special case: pre-initialization
-        //    		  my_time = 1;
-        //    	  }
-        //    	  
-        //    	  Symbol* my_time_sym = make_int_constant( thisAgent, my_time );
-        //    	  id->id.epmem_time_wme = soar_module::add_module_wme( thisAgent, id->id.epmem_header, thisAgent->epmem_sym_present_id, my_time_sym );
-        //    	  symbol_remove_ref( thisAgent, my_time_sym );
-        //    	}
+        
+        {
+            //int64_t my_time = static_cast<int64_t>( thisAgent->epmem_stats->time->get_value() );
+            long my_time = epmem.stats.time.get();
+            if ( my_time == 0 )
+            {
+                // special case: pre-initialization
+                my_time = 1;
+            }
+            SymbolImpl my_time_sym = epmem.symbols.createInteger( my_time );
+            epmem_time_wme = SoarModule.add_module_wme(wm, epmem_header, epmem.predefinedSyms.epmem_sym_present_id, my_time_sym);
+            //symbol_remove_ref( thisAgent, my_time_sym );
+        }
     }
 }

@@ -1322,8 +1322,12 @@ public class RecognitionMemory
      * 
      * @param pref
      */
-    public void add_preference_to_tm(Preference pref)
+    public boolean add_preference_to_tm(Preference pref)
     {
+        //Epmem Switches on this, so I added the return type to match CSoar.
+        //It also appears that the only condition that causes a return of false,
+        //is a debug condition, so this just returns true at the end. -ACN
+        
         // #ifdef DEBUG_PREFS
         // print (thisAgent, "\nAdd preference at 0x%8x: ",(unsigned long)pref);
         // print_preference (thisAgent, pref);
@@ -1362,6 +1366,8 @@ public class RecognitionMemory
         {
             decider.mark_context_slot_as_acceptable_preference_changed (s);
         }
+        
+        return true;
     }
 
     /**

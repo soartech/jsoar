@@ -5,6 +5,7 @@
  */
 package org.jsoar.kernel.modules;
 
+import java.util.List;
 import java.util.Set;
 
 import org.jsoar.kernel.Decider;
@@ -16,6 +17,7 @@ import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.PreferenceType;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
+import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -172,5 +174,18 @@ public class SoarModule
 
         return pref;
     }
-
+    
+    /**
+     * soar_module:81:
+     * instantiation* make_fake_instantiation( agent* my_agent, Symbol* state, wme_set* conditions, symbol_triple_list* actions )
+     * 
+     * @param state
+     * @param conditions
+     * @param actions
+     * @return
+     */
+    public static Instantiation make_fake_instantiation(SymbolImpl state, Set<WmeImpl> conditions, List<SymbolTriple> actions){
+        // TODO: Implement this
+        return null;
+    }
 }

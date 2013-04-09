@@ -31,6 +31,8 @@ import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.MergeChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.kernel.learning.Chunker;
+import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
 import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
@@ -146,9 +148,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private Adaptable context;
     private Agent agent;
     private DefaultSemanticMemory smem;
+    private Chunker chunker;
     
     private DefaultEpisodicMemoryParams params;
-    private DefaultEpisodicMemoryStats stats;
+    DefaultEpisodicMemoryStats stats;
 
     private Decider decider;
     SymbolFactoryImpl symbols;
@@ -241,6 +244,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         symbols = Adaptables.require(DefaultEpisodicMemory.class, context, SymbolFactoryImpl.class);
         smem = Adaptables.require(DefaultEpisodicMemory.class, context, DefaultSemanticMemory.class);
         recognitionMemory = Adaptables.require(DefaultEpisodicMemory.class, context, RecognitionMemory.class);
+        chunker = Adaptables.require(DefaultEpisodicMemory.class, context, Chunker.class);
         
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
                 PropertyManager.class);
@@ -2583,7 +2587,92 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             return;
         }
         
-        // TODO find out if this function is necessary in JSoar (same for epmem_process_buffered_wmes)
+        Instantiation inst = SoarModule.make_fake_instantiation( state, cue_wmes, my_list );
+
+        for ( Preference pref = inst.preferences_generated; pref != null; pref=pref.inst_next )
+        {
+            // add the preference to temporary memory
+            if ( recognitionMemory.add_preference_to_tm( pref ) )
+            {
+                // add to the list of preferences to be removed
+                // when the goal is removed
+                //insert_at_head_of_dll( state->id.preferences_from_goal, pref, all_of_goal_next, all_of_goal_prev );
+                Preference header = state.goalInfo.preferences_from_goal;
+                pref.all_of_goal_next = header;
+                pref.all_of_goal_prev = null;//NIL
+                if(header != null)
+                {
+                    header.all_of_goal_prev = pref;
+                }
+                state.goalInfo.preferences_from_goal = pref;
+                
+                pref.on_goal_list = true;
+
+                if ( epmem_wmes != null )
+                {
+                    // if this is a meta wme, then it is completely local
+                    // to the state and thus we will manually remove it
+                    // (via preference removal) when the time comes
+                    epmem_wmes.add( pref );
+                }
+            }
+            else
+            {
+                pref.preference_add_ref( );
+                pref.preference_remove_ref( recognitionMemory );
+            }
+        }
+
+        //if ( !epmem_wmes )
+        if ( epmem_wmes == null )
+        {
+            // otherwise, we submit the fake instantiation to backtracing
+            // such as to potentially produce justifications that can follow
+            // it to future adventures (potentially on new states)
+            final ByRef<Instantiation> my_justification_list = null;//NIL;
+            chunker.chunk_instantiation( inst, false, my_justification_list );
+
+            // if any justifications are created, assert their preferences manually
+            // (copied mainly from assert_new_preferences with respect to our circumstances)
+            // TODO: Why is this here?  The compiler has a very valid point that it has to be null
+            if ( my_justification_list.value != null/*NIL*/ )
+            {
+                Preference just_pref = null;//NIL;
+                Instantiation next_justification = null;//NIL;
+
+                for ( Instantiation my_justification = my_justification_list.value;
+                        my_justification != null;//NIL;
+                        my_justification=next_justification )
+                {
+                    next_justification = my_justification.nextInProdList;
+
+                    if ( my_justification.in_ms )
+                    {
+                        my_justification.insertAtHeadOfProdList(my_justification.prod.instantiations);
+                    }
+
+                    for ( just_pref=my_justification.preferences_generated; just_pref!=null/*NIL*/; just_pref=just_pref.inst_next )
+                    {
+                        if ( recognitionMemory.add_preference_to_tm( just_pref ) )
+                        {
+                            //TODO: WMA.  This is commented out in SMEM as well, and it doesn't appear
+                            //to be anywhere in the code. -ACN
+                            /*
+                            if ( wma_enabled( my_agent ) )
+                            {
+                                wma_activate_wmes_in_pref( my_agent, just_pref );
+                            }
+                            */
+                        }
+                        else
+                        {
+                            just_pref.preference_add_ref() ;
+                            just_pref.preference_remove_ref(recognitionMemory);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

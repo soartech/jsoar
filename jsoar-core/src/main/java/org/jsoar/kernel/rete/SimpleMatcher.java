@@ -52,8 +52,7 @@ public class SimpleMatcher
 {
     private final SymbolFactoryImpl syms = new SymbolFactoryImpl();
     private final Listener listener = new Listener();
-    private final EpisodicMemory episodicMemory = new DefaultEpisodicMemory(AdaptableContainer.from(syms));
-    private final Rete rete = new Rete(Trace.createStdOutTrace().enableAll(), syms, episodicMemory);
+    private final Rete rete = new Rete(Trace.createStdOutTrace().enableAll(), syms);
     private final Map<String, Production> productions = new HashMap<String, Production>();
     
     /**

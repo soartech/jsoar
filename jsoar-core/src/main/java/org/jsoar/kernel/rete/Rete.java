@@ -14,6 +14,7 @@ import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.epmem.EpisodicMemory;
+import org.jsoar.kernel.epmem.MockEpmem;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.ConjunctiveNegationCondition;
 import org.jsoar.kernel.lhs.ConjunctiveTest;
@@ -118,6 +119,11 @@ public class Rete
         }
         
         init_dummy_top_node();
+    }
+    
+    public Rete(Trace trace, SymbolFactoryImpl syms)
+    {
+        this(trace, syms, new MockEpmem());
     }
     
     public void setReteListener(ReteListener listener)

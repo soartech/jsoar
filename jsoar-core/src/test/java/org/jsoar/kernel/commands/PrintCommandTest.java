@@ -71,10 +71,14 @@ public class PrintCommandTest
     {
         command.execute(DefaultSoarCommandContext.empty(), new String[] { "print", "s1" });
         System.out.println("'" + outputWriter.toString() + "'");
+        String test = outputWriter
+                .toString();
         assertTrue(outputWriter
                 .toString()
                 .startsWith(
-                        "(S1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)"));
+                        //"(S1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)"));
+                        "(S1 ^epmem E1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)"));
+        
     }
 
     @Test

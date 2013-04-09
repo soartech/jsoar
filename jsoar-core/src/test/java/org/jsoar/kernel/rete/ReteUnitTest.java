@@ -15,14 +15,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jsoar.JSoarTest;
+import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.memory.Instantiation;
+import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.parser.ParserContext;
 import org.jsoar.kernel.parser.original.OriginalParser;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
+import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
@@ -38,7 +41,7 @@ public class ReteUnitTest extends JSoarTest
 {
     private Rete rete;
     private Listener listener;
-    private EpisodicMemory episodicMemory;
+    private DefaultEpisodicMemory episodicMemory;
     
     private class Listener implements ReteListener
     {
@@ -99,7 +102,9 @@ public class ReteUnitTest extends JSoarTest
         super.setUp();
         
         this.listener = new Listener();
-        this.episodicMemory = new DefaultEpisodicMemory(AdaptableContainer.from(syms));
+        Agent agent = new Agent();
+        this.episodicMemory = new DefaultEpisodicMemory(AdaptableContainer.from(syms, agent));
+        this.episodicMemory.initialize();
         this.rete = new Rete(Trace.createStdOutTrace().enableAll(), syms, episodicMemory);
         this.rete.setReteListener(listener);
     }
