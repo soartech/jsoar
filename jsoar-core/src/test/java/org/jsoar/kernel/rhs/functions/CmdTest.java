@@ -48,7 +48,7 @@ public class CmdTest
         outputWriter.flush();
         agent.runFor(1, RunType.DECISIONS);
         String output = outputWriter.getBuffer().toString();
-        assertEquals("(S1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)\n", output);
+        assertEquals("(S1 ^epmem E1 ^io I1 ^reward-link R1 ^smem S2 ^superstate nil ^type state)\n", output);
     }
     
     @Test

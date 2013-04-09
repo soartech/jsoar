@@ -12,6 +12,7 @@ sp {report*state-no-change*impasse
               ^type state
               ^reward-link {<rl> <=> <s>}
               ^smem {<sm> <=> <s>}
+              ^epmem {<em> <=> <s>}
               ^superstate {<ss> <=> <s>})
 #make sure we're at the right level in the goal stack
     (<ss> ^superstate nil)
@@ -23,6 +24,7 @@ sp {report*state-no-change*impasse
            <> type
            <> reward-link
            <> smem
+           <> epmem
            <> superstate})
 #make sure there are no wmes with unexpected values
     (<s> -^attribute <> state
@@ -32,6 +34,7 @@ sp {report*state-no-change*impasse
          -^type <> state
          -^reward-link <> <rl>
          -^smem <> <sm>
+         -^epmem <> <em>
          -^superstate <> <ss>)
 -->
    (succeeded)
