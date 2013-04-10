@@ -59,7 +59,7 @@ public class Preference implements Formattable
       
     public Instantiation inst;
     public Preference inst_next;
-    Preference inst_prev;
+    public Preference inst_prev;
     
     public Preference next_candidate;
     public Preference next_result;
