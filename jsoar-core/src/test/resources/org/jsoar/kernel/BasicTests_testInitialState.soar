@@ -22,6 +22,7 @@ sp {report*intial-state
     (<s> -^type <> state
          -^reward-link <> <rl>
          -^smem <> <sm>
+         -^epmem <> <em>
          -^io <> <io>
          -^superstate <> nil)
 -->
