@@ -1741,13 +1741,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             final PreparedStatement ps = db.find_lti;
                             ps.setLong(1, wmeValueId.getNameLetter());
-                            ps.setLong(1, wmeValueId.getNameNumber());
+                            ps.setLong(2, wmeValueId.getNameNumber());
                             final ResultSet rs = ps.executeQuery();
                             try
                             {
                                 if (rs.first())
                                 {
-                                    wmeValueId.epmem_id = rs.getLong(0);
+                                    wmeValueId.epmem_id = rs.getLong(0 + 1);
                                 }
                             }
                             finally
@@ -1800,7 +1800,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             if (rs.first())
                             {
-                                wme.epmem_id = rs.getLong(0);
+                                wme.epmem_id = rs.getLong(0 + 1);
                             }
                         }
                         finally
@@ -2049,7 +2049,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             if (rs.next())
                             {
-                                wme.epmem_id = rs.getLong(0);
+                                wme.epmem_id = rs.getLong(0 + 1);
                             }
                         }
                         finally
@@ -2076,6 +2076,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             if (rs.next())
                             {
+                                //TODO  Check that this is intentional
+                                //(*w_p)->epmem_id = (epmem_node_id) my_agent->epmem_db->last_insert_rowid();
                                 wme.epmem_id = rs.getLong(1);
                             }
                             else
@@ -2192,7 +2194,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     if (hash_get_rs.next())
                     {
-                        return_val = hash_get_rs.getLong(0);
+                        return_val = hash_get_rs.getLong(0 + 1);
                     }
                 }
                 finally
@@ -2777,7 +2779,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     if (resultSet.next())
                     {
-                        return_val = resultSet.getLong(0);
+                        return_val = resultSet.getLong(0 + 1);
                     }
                 }
                 finally
@@ -2828,7 +2830,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     if (resultSet.next())
                     {
-                        return_val = resultSet.getLong(0);
+                        return_val = resultSet.getLong(0 + 1);
                     }
                 }
                 finally
