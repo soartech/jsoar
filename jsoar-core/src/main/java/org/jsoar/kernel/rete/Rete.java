@@ -121,6 +121,10 @@ public class Rete
         init_dummy_top_node();
     }
     
+    /**
+     * This is only intended for testing.  It allows the SimpleMatcher to
+     * create a Rete without needing to fully instantiate epmem.
+     */
     public Rete(Trace trace, SymbolFactoryImpl syms)
     {
         this(trace, syms, new MockEpmem());

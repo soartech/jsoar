@@ -5,98 +5,93 @@ import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 
+/**
+ * This implementation is intended to be used for testing. The only useful thing
+ * it does is return false for epmem_enabled. All of the other calls will throw
+ * a runtime exception.
+ * 
+ * @author ACNickels
+ * 
+ */
 public class MockEpmem implements EpisodicMemory
 {
 
     @Override
     public boolean epmem_enabled()
     {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public void epmem_close() throws SoarException
     {
-        // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void initializeNewContext(WorkingMemory wm, IdentifierImpl id)
     {
-        // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void epmem_reset(IdentifierImpl state)
     {
-        // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void epmem_go()
     {
-        // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void epmem_go(boolean allow_store)
     {
-        // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean encodeInOutputPhase()
     {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean encodeInSelectionPhase()
     {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long epmem_validation()
     {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean addIdRefCount(long id, WmeImpl w)
     {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void addWme(IdentifierImpl id)
     {
-        // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void removeWme(WmeImpl w)
     {
-        // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void processIds()
     {
-        // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException();
     }
 
 }

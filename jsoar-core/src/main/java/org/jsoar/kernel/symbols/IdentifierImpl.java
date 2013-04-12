@@ -59,7 +59,7 @@ public class IdentifierImpl extends SymbolImpl implements Identifier
     public GoalIdentifierInfo goalInfo;
 
     // fields used for Soar I/O stuff
-    public WmeImpl input_wmes;
+    private WmeImpl input_wmes;
 
     public int depth; /* used to track depth of print (bug 988) RPM 4/07 */
 

@@ -18,7 +18,7 @@ public class PositiveCondition extends ThreeFieldCondition
     /**
      * for top-level positive cond's: used for BT and by the rete
      */
-    public BackTraceInfo bt;
+    private BackTraceInfo bt;
     
     public PositiveCondition()
     {

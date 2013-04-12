@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarConstants;
+import org.jsoar.kernel.lhs.BackTraceInfo;
 import org.jsoar.kernel.lhs.Condition;
 import org.jsoar.kernel.lhs.PositiveCondition;
 import org.jsoar.kernel.memory.Instantiation;
@@ -258,7 +259,9 @@ public class SoarModule
                 cond.attr_test = c_it.attr; //make_equality_test
                 cond.value_test = c_it.value; //make_equality_test
                 cond.test_for_acceptable_preference = c_it.acceptable;
-                cond.bt.wme_ = c_it;
+                
+                final BackTraceInfo conditionBacktraceInfo = cond.bt();
+                conditionBacktraceInfo.wme_ = c_it;
 
                 /*
                 #ifndef DO_TOP_LEVEL_REF_CTS
@@ -269,8 +272,8 @@ public class SoarModule
                 }           
                  */
                 
-                cond.bt.level = c_it.id.level;
-                cond.bt.trace = c_it.preference;
+                conditionBacktraceInfo.level = c_it.id.level;
+                conditionBacktraceInfo.trace = c_it.preference;
                 
                 /*
                 if ( cond->bt.trace )
@@ -285,7 +288,7 @@ public class SoarModule
                  */
 
                 //TODO: Comment this in after the merge
-                //cond.bt.CDPS = NULL;
+                //conditionBacktraceInfo.CDPS = NULL;
 
                 prev_cond = cond;
             }

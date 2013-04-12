@@ -3427,7 +3427,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 value, 
                                 !( 
                                     ( value.asIdentifier().goalInfo.getImpasseWmes() != null) || 
-                                    ( value.asIdentifier().input_wmes != null) || 
+                                    ( value.asIdentifier().getInputWmes() != null) || 
                                     ( value.asIdentifier().slots != null) 
                                 )
                             )
