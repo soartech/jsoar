@@ -5,7 +5,11 @@
  */
 package org.jsoar.tcl;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -33,6 +37,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclRuntimeError;
 
 import com.google.common.collect.MapMaker;
+import com.google.common.io.ByteStreams;
 
 /**
  * @author ray
@@ -306,9 +311,19 @@ public class SoarTclInterface implements SoarCommandInterpreter
         {
             try
             {
-                interp.evalURL(url, url.toString());
+                final InputStream in = new BufferedInputStream(url.openStream());
+                try
+                {
+                    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    ByteStreams.copy(in, out);
+                    eval(out.toString());
             }
-            catch (TclException e)
+                finally
+                {
+                    in.close();
+                }
+            }
+            catch(IOException e)
             {
                 throw new SoarException(e.getMessage(), e);
             }
