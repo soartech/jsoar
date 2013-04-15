@@ -1,8 +1,5 @@
 Unified diff of tagged version and first update since smem port
 
-* todo
-** find changes outside of smem.h/cpp
-
 #########################################################
 # smem.h
 #########################################################
@@ -3610,3 +3607,204 @@ Index: D:/csoar-epmem-port-root/Core/SoarKernel/src/semantic_memory.cpp
 +		}
 +	}
 +}
+
+
+
+###############################################
+# agent.h
+###############################################
+
+###################
+# these changes are in DefaultSemanticMemory.java
+
+... 			
+891 	892 		
+892 	893 		uint64_t smem_validation;
+893 	894 		bool smem_first_switch;
+894 		- 	bool smem_made_changes;
+895 	895 		int64_t smem_max_cycle;
+896 	896 		
+897 	897 		// JRV: Added to support XML management inside Soar
+... 		
+
+... 			
+913 	913 		bool smem_first_switch;
+914 	914 		int64_t smem_max_cycle;
+915 	915 		
+	916 	+ 	smem_pooled_symbol_set* smem_changed_ids;
+	917 	+ 	bool smem_ignore_changes;
+916 	918 		
+917 	919 		// dynamic memory pools
+918 	920 		std::map< size_t, memory_pool* >* dyn_memory_pools;
+... 	
+
+##################
+# these changes in SemanticMemorySymbols.java
+
+... 			
+355 	355 		
+356 	356 		Symbol * smem_sym_retrieve;
+357 	357 		Symbol * smem_sym_query;
+	358 	+ 	Symbol * smem_sym_negquery;
+358 	359 		Symbol * smem_sym_prohibit;
+359 	360 		Symbol * smem_sym_store;
+360 	361 		
+... 	
+
+################################################
+# agent.cpp
+################################################
+
+###################
+# these changes are in DefaultSemanticMemory.java
+
+... 			
+383 	383 		newAgent->smem_validation = 0;
+384 	384 		newAgent->smem_first_switch = true;
+385 	385 		
+	386 	+ 	newAgent->smem_changed_ids = new smem_pooled_symbol_set( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< Symbol* >( newAgent ) );
+	387 	+ 	newAgent->smem_ignore_changes = false;
+	388 	+ 	
+386 	389 		// statistics initialization
+387 	390 		newAgent->dc_stat_tracking = false;
+388 	391 		newAgent->stats_db = new soar_module::sqlite_database();
+... 			
+455 	458 		
+456 	459 		// cleanup smem
+457 	460 		smem_close( delete_agent );
+	461 	+ 	delete delete_agent->smem_changed_ids;
+458 	462 		delete delete_agent->smem_params;
+459 	463 		delete delete_agent->smem_stats;
+460 	464 		delete delete_agent->smem_timers;
+... 	
+################################################
+# decide.cpp
+################################################
+
+###################
+# this change is in SemanticMemoryStateInfo.java
+
+... 			
+2275 	2274 		id->id.smem_info->last_cmd_time[1] = 0;
+2276 	2275 		id->id.smem_info->last_cmd_count[0] = 0;
+2277 	2276 		id->id.smem_info->last_cmd_count[1] = 0;
+2278 		- 	id->id.smem_info->cue_wmes = new std::set<wme *>();
+2279 	2277 		id->id.smem_info->smem_wmes = new std::stack<preference *>();
+2280 	2278 		
+2281 	2279 		
+...
+
+################################################
+# rete.cpp
+################################################
+
+####################
+# add_wme_to_rete()
+
+... 			
+1602 	1602 		}
+1603 	1603 		}
+1604 	1604 		}
+	1605 	+ 	
+	1606 	+ 	if ( ( w->id->id.smem_lti ) && ( !thisAgent->smem_ignore_changes ) && smem_enabled( thisAgent ) && ( thisAgent->smem_params->mirroring->get_value() == soar_module::on ) )
+	1607 	+ 	{
+	1608 	+ 	std::pair< smem_pooled_symbol_set::iterator, bool > insert_result = thisAgent->smem_changed_ids->insert( w->id );
+	1609 	+ 	if ( insert_result.second )
+	1610 	+ 	{
+	1611 	+ 	symbol_add_ref( w->id );
+	1612 	+ 	}
+	1613 	+ 	}
+1605 	1614 		}
+1606 	1615 		
+1607 	1616 		/* --- Removes a WME from the Rete. --- */
+...
+
+######################
+# remove_wme_from_rete()
+ 			
+1643 	1652 		}
+1644 	1653 		}
+1645 	1654 		}
+	1655 	+ 	
+	1656 	+ 	if ( ( w->id->id.smem_lti ) && ( !thisAgent->smem_ignore_changes ) && smem_enabled( thisAgent ) && ( thisAgent->smem_params->mirroring->get_value() == soar_module::on ) )
+	1657 	+ 	{
+	1658 	+ 	std::pair< smem_pooled_symbol_set::iterator, bool > insert_result = thisAgent->smem_changed_ids->insert( w->id );
+	1659 	+ 	if ( insert_result.second )
+	1660 	+ 	{
+	1661 	+ 	symbol_add_ref( w->id );
+	1662 	+ 	}
+	1663 	+ 	}
+1646 	1664 		
+1647 	1665 		/* --- remove w from all_wmes_in_rete --- */
+1648 	1666 		remove_from_dll (thisAgent->all_wmes_in_rete, w, rete_next, rete_prev);
+... 	
+
+################################################
+# recmem.cpp
+################################################
+
+#######################
+# assert_new_preferences()
+
+... 			
+1214 	1214 		else if (inst->in_ms || pref->o_supported)
+1215 	1215 		{
+1216 	1216 		/* --- normal case --- */
+1217 		- 	add_preference_to_tm (thisAgent, pref);
+	1217 	+ 	if ( add_preference_to_tm (thisAgent, pref) )
+	1218 	+ 	{
+	1219 	+ 	/* REW: begin 09.15.96 */
+	1220 	+ 	/* No knowledge retrieval necessary in Operand2 */
+	1221 	+ 	/* REW: end 09.15.96 */
+1218 	1222 		
+1219 	1223 		
+1220 		- 	/* REW: begin 09.15.96 */
+1221 		- 	/* No knowledge retrieval necessary in Operand2 */
+1222 		- 	/* REW: end 09.15.96 */
+1223 		- 	
+1224 		- 	
+1225 		- 	if ( wma_enabled( thisAgent ) )
+	1224 	+ 	if ( wma_enabled( thisAgent ) )
+	1225 	+ 	{
+	1226 	+ 	wma_activate_wmes_in_pref( thisAgent, pref );
+	1227 	+ 	}
+	1228 	+ 	}
+	1229 	+ 	else
+1226 	1230 		{
+1227 		- 	wma_activate_wmes_in_pref( thisAgent, pref );
+	1231 	+ 	// NLD: the preference was o-supported, at
+	1232 	+ 	// the top state, and was asserting an acceptable
+	1233 	+ 	// preference for a WME that was already
+	1234 	+ 	// o-supported. hence unnecessary.
+	1235 	+ 	
+	1236 	+ 	preference_add_ref( pref );
+	1237 	+ 	preference_remove_ref( thisAgent, pref );
+1228 	1238 		}
+1229 	1239 		}
+1230 	1240 		else
+... 	
+
+###############################################################################
+# symtab.cpp
+###############################################################################
+
+################
+# these changes made in SemanticMemorySymbols.java
+
+... 			
+757 	757 		
+758 	758 		thisAgent->smem_sym_retrieve = make_sym_constant( thisAgent, "retrieve" );
+759 	759 		thisAgent->smem_sym_query = make_sym_constant( thisAgent, "query" );
+	760 	+ 	thisAgent->smem_sym_negquery = make_sym_constant( thisAgent, "neg-query" );
+760 	761 		thisAgent->smem_sym_prohibit = make_sym_constant( thisAgent, "prohibit" );
+761 	762 		thisAgent->smem_sym_store = make_sym_constant( thisAgent, "store" );
+762 	763 		}
+... 			
+864 	865 		
+865 	866 		release_helper( thisAgent, &( thisAgent->smem_sym_retrieve ) );
+866 	867 		release_helper( thisAgent, &( thisAgent->smem_sym_query ) );
+	868 	+ 	release_helper( thisAgent, &( thisAgent->smem_sym_negquery ) );
+867 	869 		release_helper( thisAgent, &( thisAgent->smem_sym_prohibit ) );
+868 	870 		release_helper( thisAgent, &( thisAgent->smem_sym_store ) );
+869 	871 		}
+... 	
