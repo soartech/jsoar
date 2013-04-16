@@ -107,7 +107,7 @@ public class BaseResource extends ServerResource
      * Retrieve the value of a path attribute with proper decoding.
      * 
      * @param name the name of the attribute
-     * @return the decded value, or {@code null} if not found 
+     * @return the decoded value, or {@code null} if not found 
      */
     public String getPathAttribute(String name)
     {

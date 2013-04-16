@@ -14,12 +14,12 @@ import com.google.common.io.ByteStreams;
 /**
  * Test for jtcl / jacl bug where the TCL line continuation operator doesn't work with
  * files that use Windows-style (CRLF) line breaks.
- *
+ * 
  * @author charles.newton
  */
 public class TclLineContinuationTest extends TclTestBase
 {
-
+    
     /**
      * Test sourcing via a URL.
      */
@@ -28,7 +28,7 @@ public class TclLineContinuationTest extends TclTestBase
     {
         sourceTestFile(getClass(), "textExecute.soar");
     }
-
+   
     /**
      * Test sourcing via a file.
      */
@@ -44,7 +44,7 @@ public class TclLineContinuationTest extends TclTestBase
         fos.close();
         ifc.source(tmp);
     }
-
+    
     /**
      * Test sourcing via a call to eval.
      */
