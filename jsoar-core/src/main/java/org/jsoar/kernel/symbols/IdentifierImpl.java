@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 
 import org.jsoar.kernel.Goal;
 import org.jsoar.kernel.GoalDependencySet;
-import org.jsoar.kernel.epmem.EpisodicMemoryStateInfo;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;

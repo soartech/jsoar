@@ -40,8 +40,6 @@ import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
 import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
-import org.jsoar.kernel.smem.SemanticMemoryStateInfo;
-import org.jsoar.kernel.symbols.Identifier;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;

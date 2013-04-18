@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jsoar.kernel.Production;
-import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
-import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Wme;
 import org.jsoar.kernel.memory.WmeImpl;
@@ -31,7 +29,6 @@ import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
-import org.jsoar.util.adaptables.AdaptableContainer;
 
 /**
  * SimpleMatcher creates a rete that you can put productions and wmes into and check which productions match

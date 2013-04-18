@@ -8,7 +8,10 @@ package org.jsoar.kernel.rete;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.util.HashSet;
@@ -18,14 +21,11 @@ import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
-import org.jsoar.kernel.epmem.EpisodicMemory;
 import org.jsoar.kernel.memory.Instantiation;
-import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.parser.ParserContext;
 import org.jsoar.kernel.parser.original.OriginalParser;
 import org.jsoar.kernel.rhs.functions.RhsFunctionManager;
-import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.tracing.Printer;
