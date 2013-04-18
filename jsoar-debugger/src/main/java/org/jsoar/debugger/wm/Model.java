@@ -180,10 +180,6 @@ class Model
                 
                 roots.put(id, root);
                 rows.add(0, root);
-                if(parent != null)
-                {
-                    parent.row.row++;
-                }
             }
             else
             {
