@@ -7,6 +7,8 @@ package org.jsoar.kernel.epmem;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Map;
 
 import org.jsoar.util.db.AbstractSoarDatabase;
 
@@ -61,6 +63,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement get_edges;
     PreparedStatement promote_id;
     PreparedStatement find_lti;
+    PreparedStatement find_lti_promotion_time;
     PreparedStatement update_edge_unique_last;
 
     // episodic_memory.cpp:1703:epmem_init_db
@@ -79,7 +82,65 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement minmax_select_edge;
     // episodic_memory.cpp:1794:epmem_init_db
     PreparedStatement edge_unique_select;
-            
+    
+    // episodic_memory.cpp:854
+    final private static String poolDummy = "SELECT ? as start";
+    final PreparedStatementFactory pool_dummy;
+    
+    // Because the DB records when things are /inserted/, we need to offset
+    // the start by 1 to /remove/ them at the right time. Ditto to even
+    // include those intervals correctly
+    String epmem_find_interval_queries[/*2*/][/*2*/][/*3*/] =
+    {
+        {
+            {
+                "SELECT (e.start - 1) AS start FROM @PREFIX@node_range e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
+                "SELECT (e.start - 1) AS start FROM @PREFIX@node_now e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
+                "SELECT (e.start - 1) AS start FROM @PREFIX@node_point e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC"
+            },
+            {
+                "SELECT e.end AS end FROM @PREFIX@node_range e WHERE e.id=? AND e.end>0 AND e.start<=? ORDER BY e.end DESC",
+                "SELECT ? AS end FROM @PREFIX@node_now e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
+                "SELECT e.start AS end FROM @PREFIX@node_point e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC"
+            }
+        },
+        {
+            {
+                "SELECT (e.start - 1) AS start FROM @PREFIX@edge_range e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
+                "SELECT (e.start - 1) AS start FROM @PREFIX@edge_now e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
+                "SELECT (e.start - 1) AS start FROM @PREFIX@edge_point e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC"
+            },
+            {
+                "SELECT e.end AS end FROM @PREFIX@edge_range e WHERE e.id=? AND e.end>0 AND e.start<=? ORDER BY e.end DESC",
+                "SELECT ? AS end FROM @PREFIX@edge_now e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
+                "SELECT e.start AS end FROM @PREFIX@edge_point e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC"
+            }
+        },
+    };
+    final PreparedStatementFactory[][][] pool_find_interval_queries;
+    
+    // episodic_memory.cpp:854
+    // notice that the start and end queries in epmem_find_lti_queries are _asymetric_
+    // in that the the starts have ?<e.start and the ends have ?<=e.start
+    // this small difference means that the start of the very first interval
+    // (ie. the one where the start is at or before the promotion time) will be ignored
+    // then we can simply add a single epmem_interval to the queue, and it will
+    // terminate any LTI interval appropriately
+    String epmem_find_lti_queries[/*2*/][/*3*/] =
+    {
+        {
+            "SELECT (e.start - 1) AS start FROM @PREFIX@edge_range e WHERE e.id=? AND ?<e.start AND e.start<=? ORDER BY e.start DESC",
+            "SELECT (e.start - 1) AS start FROM @PREFIX@edge_now e WHERE e.id=? AND ?<e.start AND e.start<=? ORDER BY e.start DESC",
+            "SELECT (e.start - 1) AS start FROM @PREFIX@edge_point e WHERE e.id=? AND ?<e.start AND e.start<=? ORDER BY e.start DESC"
+        },
+        {
+            "SELECT e.end AS end FROM @PREFIX@edge_range e WHERE e.id=? AND e.end>0 AND ?<=e.start AND e.start<=? ORDER BY e.end DESC",
+            "SELECT ? AS end FROM @PREFIX@edge_now e WHERE e.id=? AND ?<=e.start AND e.start<=? ORDER BY e.start",
+            "SELECT e.start AS end FROM @PREFIX@edge_point e WHERE e.id=? AND ?<=e.start AND e.start<=? ORDER BY e.start DESC"
+        }
+    };
+    final PreparedStatementFactory[][] pool_find_lti_queries;
+    
     /**
      * @param driver
      * @param db
@@ -88,7 +149,39 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     {
         super(driver, db, EPMEM_SIGNATURE);
         
-        getFilterMap().put("@PREFIX@", EPMEM_SCHEMA);
+        Map<String, String> filter = getFilterMap();
+        filter.put("@PREFIX@", EPMEM_SCHEMA);
+        
+        //The bounds for these loops are #defined constants in the C, but they are out of scope here and
+        //the point is to populate one array using the other, so lets just do that. -ACN
+        pool_find_interval_queries = new PreparedStatementFactory[epmem_find_interval_queries.length][][];
+        for ( int j=0; j<epmem_find_interval_queries.length; j++ )
+        {
+            pool_find_interval_queries[j] = new PreparedStatementFactory[epmem_find_interval_queries[j].length][];
+            for ( int k=0; k<epmem_find_interval_queries[j].length; k++ )
+            {
+                pool_find_interval_queries[j][k] = new PreparedStatementFactory[epmem_find_interval_queries[j][k].length];
+                for( int m=0; m<epmem_find_interval_queries[j][k].length; m++ )
+                {
+                    pool_find_interval_queries[ j ][ k ][ m ] = 
+                        new PreparedStatementFactory( epmem_find_interval_queries[ j ][ k ][ m ], db, filter );
+                }
+            }
+        }
+        
+        //The bounds for these loops are #defined constants in the C, but they are out of scope here and
+        //the point is to populate one array using the other, so lets just do that. -ACN
+        pool_dummy = new PreparedStatementFactory(poolDummy, db, filter);
+        pool_find_lti_queries = new PreparedStatementFactory[epmem_find_lti_queries.length][];
+        for ( int k=0; k<epmem_find_lti_queries.length; k++ )
+        {
+            pool_find_lti_queries[k] = new PreparedStatementFactory[epmem_find_lti_queries[k].length];
+            for( int m=0; m<epmem_find_lti_queries[k].length; m++ )
+            {
+                pool_find_lti_queries[ k ][ m ] = 
+                    new PreparedStatementFactory( epmem_find_lti_queries[ k ][ m ], db, filter );
+            }
+        }
     }
     
     /**
@@ -127,5 +220,47 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
 
         return return_val;
     }
-
+    
+    
+    /**
+     * Some of the queries in Epmem are instantiated, paramatized,
+     * and have their results accessed in parallel of unknown
+     * periods of time.  This allows us to instantiate multiple 
+     * prepared statements using the same query string.
+     * The reflection scheme provided form AbstractSoarDatabase can
+     * only provide PreparedStatements, which cannot be cloned, and
+     * the sql cannot be retrieved from them.  This means we can't 
+     * use it to populate these queries.
+     * 
+     * TODO: See if there is a cleaner way to set this up.
+     * 
+     * @author ACNickels
+     *
+     */
+    public static class PreparedStatementFactory
+    {
+        final private String sql;
+        final private Connection db;
+        
+        protected PreparedStatementFactory(String sql, Connection db, Map<String, String> filter)
+        {
+            this.db = db;
+            for(String key: filter.keySet()){
+                sql = sql.replace(key, filter.get(key));
+            }
+            this.sql = sql;
+        }
+        
+        public PreparedStatement request(){
+            try
+            {
+                return db.prepareStatement(sql);
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
 }

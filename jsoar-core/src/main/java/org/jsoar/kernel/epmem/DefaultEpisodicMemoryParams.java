@@ -52,6 +52,10 @@ class DefaultEpisodicMemoryParams
     
     static enum MergeChoices { merge_none, merge_add };
     
+    static enum GraphMatchChoices { on, off };
+    
+    static enum GmOrderingChoices { gm_order_undefined, gm_order_dfs, gm_order_mcv };
+    
     private static final String PREFIX = "epmem.params.";
     
     private static <T> PropertyKey.Builder<T> key(String name, Class<T> type)
@@ -92,7 +96,13 @@ class DefaultEpisodicMemoryParams
     
     static final PropertyKey<MergeChoices> MERGE = key("merge", MergeChoices.class).defaultValue(MergeChoices.merge_none).build();
     final EnumPropertyProvider<MergeChoices> merge = new EnumPropertyProvider<MergeChoices>(MERGE);
-
+    
+    static final PropertyKey<GraphMatchChoices> GRAPH_MATCH = key("graph_match", GraphMatchChoices.class).defaultValue(GraphMatchChoices.on).build();
+    final EnumPropertyProvider<GraphMatchChoices> graph_match = new EnumPropertyProvider<GraphMatchChoices>(GRAPH_MATCH);
+    
+    static final PropertyKey<GmOrderingChoices> GM_ORDERING= key("gm_ordering", GmOrderingChoices.class).defaultValue(GmOrderingChoices.gm_order_undefined).build();
+    final EnumPropertyProvider<GmOrderingChoices> gm_ordering = new EnumPropertyProvider<GmOrderingChoices>(GM_ORDERING);
+    
     private final PropertyManager properties;
 
     public DefaultEpisodicMemoryParams(PropertyManager properties, SymbolFactory sf)
@@ -111,6 +121,10 @@ class DefaultEpisodicMemoryParams
         properties.setProvider(LEARNING, learning);
         properties.setProvider(FORCE, force);
         properties.setProvider(TRIGGER, trigger);
+        
+        properties.setProvider(MERGE, merge);
+        properties.setProvider(GRAPH_MATCH, graph_match);
+        properties.setProvider(GM_ORDERING, gm_ordering);
         
         // exclude ^epmem and ^smem attributes from being added to epmem by default
         exclusions.add((SymbolImpl) sf.createString("epmem"));

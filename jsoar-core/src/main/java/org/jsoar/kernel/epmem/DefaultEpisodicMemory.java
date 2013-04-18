@@ -13,6 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,12 +22,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.MergeChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
@@ -110,7 +116,44 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * episodic_memory.h:53:EPMEM_HASH_ACCEPTABLE
      */
     public static final long EPMEM_HASH_ACCEPTABLE = 1;
+    
+    /**
+     * episodic_memory.h:55:EPMEM_NODE_POS
+     * int, so it can be switched on
+     */
+    public static final int EPMEM_NODE_POS = 0;
+    
+    /**
+     * episodic_memory.h:56:EPMEM_NODE_NEG
+     * int, so it can be switched on
+     */
+    public static final int EPMEM_NODE_NEG = 1;
+    
+    /**
+     * episodic_memory.h:57:EPMEM_RANGE_START
+     */
+    public static final int EPMEM_RANGE_START = 0;
 
+    /**
+     * episodic_memory.h:58:EPMEM_RANGE_END
+     */
+    public static final int EPMEM_RANGE_END = 1;
+    
+    /**
+     * episodic_memory.h:59:EPMEM_RANGE_EP
+     */
+    public static final int EPMEM_RANGE_EP = 0;
+    
+    /**
+     * episodic_memory.h:60:EPMEM_RANGE_NOW
+     */
+    public static final long EPMEM_RANGE_NOW = 1;
+    
+    /**
+     * episodic_memory.h:61:EPMEM_RANGE_POINT
+     */
+    public static final long EPMEM_RANGE_POINT = 2;
+    
     /**
      * episodic_memory.h:63:EPMEM_RIT_ROOT
      */
@@ -2673,20 +2716,135 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * Call epmem_process_query with level = 3 (default in C++)
+     * @throws SQLException 
+     * @throws SoarException 
      */
     private void epmem_process_query(IdentifierImpl state, SymbolImpl query, SymbolImpl neg_query, List<Long> prohibit, long before, 
-            long after, Set<SymbolImpl> currents, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes)
+            long after, Set<SymbolImpl> currents, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes) throws SQLException, SoarException
     {
         epmem_process_query(state, query, neg_query, prohibit, before, after, currents, cue_wmes, meta_wmes, retrieval_wmes, 3);
     }
     
+    //TODO: All of the classes from here down to epmem_process_query, are added specifically
+    //for that.  See if they can be combined in some logical fashion. -ACN
+    
+    private class EpmemLiteral
+    {
+        SymbolImpl id_sym;
+        SymbolImpl value_sym;
+        long/*int*/ is_neg_q;
+        long/*int*/ value_is_id;
+        boolean is_leaf;
+        boolean is_current;
+        long/*epmem_node_id*/ w;
+        long/*epmem_node_id*/ q1;
+        double weight;
+        Set<EpmemLiteral> parents;
+        Set<EpmemLiteral> children;
+        Set<EpmemNodePair>/*epmem_node_pair_set*/ matches;
+        Map<Long, Integer>/*epmem_node_int_map*/ values;
+    }
+    
+    /**
+     * Based on episodic_memory:559
+     * @author ACNickels
+     */
+    private class EpmemTriple implements Comparable<EpmemTriple>
+    {
+        long q0;
+        long w;
+        long q1;
+        
+        public EpmemTriple(
+                long q0,
+                long w,
+                long q1
+        )
+        {
+            this.q0 = q0;
+            this.w = w;
+            this.q1 = q1;
+        }
+        
+        @Override
+        public int compareTo(EpmemTriple other)
+        {
+            if (q0 != other.q0)
+            {
+                return (q0 < other.q0)?-1:1;
+            } 
+            else if (w != other.w) 
+            {
+                return (w < other.w)?-1:1;
+            }
+            else if(q1 != other.q1)
+            {
+                return (q1 < other.q1)?-1:1;
+            }
+            return 0;
+        }
+    }
+    
+    //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
+    private class EpmemPEdge
+    {
+        EpmemTriple triple;
+        int value_is_id;
+        boolean has_noncurrent;
+        Set<EpmemLiteral>/*epmem_literal_set*/ literals;
+        PreparedStatement/*soar_module::pooled_sqlite_statement**/ sql;
+        ResultSet sqlResults;
+        long/*epmem_time_id*/ time;
+    }
+    //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
+    private class EpmemUEdge
+    {
+        EpmemTriple triple;
+        long value_is_id;
+        boolean has_noncurrent;
+        long activation_count;
+        Set<EpmemPEdge>/*epmem_pedge_set*/ pedges;
+        long intervals;
+        boolean activated;
+    }
+    //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
+    private class EpmemInterval
+    {
+        EpmemUEdge uedge;
+        int is_end_point;
+        PreparedStatement sql;
+        ResultSet sqlResult;
+        long/*epmem_time_id*/ time;
+    }
+    
+    private class EpmemSymbolNodePair
+    {
+        SymbolImpl first;
+        long /*epmem_node_id*/ second;
+    }
+    
+    private class EpmemNodePair
+    {
+        long /*epmem_node_id*/ first;
+        long /*epmem_node_id*/ second;
+    }
     /**
      * <p>
-     * episodic_memory.cpp:3869:void epmem_process_query(agent *my_agent, Symbol
-     * *state, Symbol *pos_query, Symbol *neg_query, epmem_time_list& prohibits,
-     * epmem_time_id before, epmem_time_id after, epmem_symbol_set& currents,
-     * soar_module::wme_set& cue_wmes, soar_module::symbol_triple_list&
-     * meta_wmes, soar_module::symbol_triple_list& retrieval_wmes, int level=3)
+     * episodic_memory.cpp:3869:void 
+     * epmem_process_query(
+     *      agent *my_agent, 
+     *      Symbol *state, 
+     *      Symbol *pos_query, 
+     *      Symbol *neg_query, 
+     *      epmem_time_list& prohibits,
+     *      epmem_time_id before, 
+     *      epmem_time_id after, 
+     *      epmem_symbol_set& currents,
+     *      soar_module::wme_set& cue_wmes, 
+     *      soar_module::symbol_triple_list& meta_wmes, 
+     *      soar_module::symbol_triple_list& retrieval_wmes, 
+     *      int level=3
+     *  )
      * 
      * @param state
      * @param query
@@ -2698,23 +2856,1088 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param cue_wmes
      * @param meta_wmes
      * @param retrieval_wmes
+     * @throws SQLException 
+     * @throws SoarException 
      */
     private void epmem_process_query(
             IdentifierImpl state, 
-            SymbolImpl query, 
+            SymbolImpl pos_query, 
             SymbolImpl neg_query, 
-            List<Long> prohibit, 
+            List<Long> prohibits, 
             long before, 
             long after,
             Set<SymbolImpl> currents, 
             Set<WmeImpl> cue_wmes, 
             List<SymbolTriple> meta_wmes, 
             List<SymbolTriple> retrieval_wmes,
-            int level /*=3*/)
+            int level /*=3*/
+    ) throws SQLException, SoarException
     {
-        // TODO Auto-generated method stub
+        // a query must contain a positive cue
+        if (pos_query == null) 
+        {
+            epmem_buffer_add_wme(
+                    meta_wmes, 
+                    epmem_info(state).epmem_result_header, 
+                    predefinedSyms.epmem_sym_status, 
+                    predefinedSyms.epmem_sym_bad_cmd
+                );
+            return;
+        }
+
+        // before and after, if specified, must be valid relative to each other
+        if (before != EPMEM_MEMID_NONE && after != EPMEM_MEMID_NONE && before <= after) 
+        {
+            epmem_buffer_add_wme(
+                    meta_wmes, 
+                    epmem_info(state).epmem_result_header, 
+                    predefinedSyms.epmem_sym_status, 
+                    predefinedSyms.epmem_sym_bad_cmd
+                );
+            return;
+        }
+        /*
+        if (QUERY_DEBUG >= 1) {
+            std::cout << std::endl << "==========================" << std::endl << std::endl;
+        }
+        */
+        
+        //my_agent->epmem_timers->query->start();
+
+        // sort probibit's
+        if (!prohibits.isEmpty()) 
+        {
+            //std::sort(prohibits.begin(), prohibits.end());
+            Collections.sort(prohibits);
+        }
+        int[] test = { 2, 2 };
+        // epmem options
+        boolean do_graph_match = (params.graph_match.get() == GraphMatchChoices.on);
+        GmOrderingChoices gm_order = params.gm_ordering.get();
+
+        // variables needed for cleanup
+        Map<WmeImpl, EpmemLiteral> /*epmem_wme_literal_map*/ literal_cache = new HashMap<WmeImpl, EpmemLiteral>();
+        Map<EpmemTriple, EpmemPEdge>/*epmem_triple_pedge_map*/[] pedge_caches = new Map[2];
+        /*
+        #ifdef USE_MEM_POOL_ALLOCATORS
+            epmem_triple_uedge_map uedge_caches[2] = {
+                epmem_triple_uedge_map(std::less<epmem_triple>(), soar_module::soar_memory_pool_allocator<std::pair<const epmem_triple, epmem_uedge*> >(my_agent)),
+                epmem_triple_uedge_map(std::less<epmem_triple>(), soar_module::soar_memory_pool_allocator<std::pair<const epmem_triple, epmem_uedge*> >(my_agent))
+            };
+            epmem_interval_set interval_cleanup = epmem_interval_set(std::less<epmem_interval*>(), soar_module::soar_memory_pool_allocator<epmem_interval*>(my_agent));
+        #else
+        */
+        //TODO:  We are interpreting this as a static initialization of a map.  
+        //       Make sure that that is the intention. -ACN
+        //epmem_triple_uedge_map uedge_caches[2] = {epmem_triple_uedge_map(), epmem_triple_uedge_map()};
+        Map<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map*/ uedge_caches[] = new Map[2];
+        uedge_caches[0] = new HashMap<EpmemTriple, EpmemUEdge>();
+        uedge_caches[1] = new HashMap<EpmemTriple, EpmemUEdge>();
+        
+        Set<EpmemInterval> /*epmem_interval_set*/ interval_cleanup = new HashSet<EpmemInterval>();
+        //#endif
+
+        //This comment is left here from the C code: // TODO additional indices
+
+        // variables needed for building the DNF
+        EpmemLiteral root_literal = new EpmemLiteral();
+        //allocate_with_pool(my_agent, &(my_agent->epmem_literal_pool), &root_literal);
+        Set<EpmemLiteral>/*epmem_literal_set*/ leaf_literals = new HashSet<EpmemLiteral>();
+
+        // priority queues for interval walk
+        //epmem_pedge_pq pedge_pq;
+        PriorityQueue<EpmemPEdge> pedge_pq =
+                //11 is the default size a queue without a comparator uses
+                new PriorityQueue<EpmemPEdge>(
+                        11, 
+                        //Comparator code comes from episodic_memory.h: 617
+                        //The java implementation sorts in reverse order, becuase the Java and C
+                        //queue implementations sort their elements in reverse orders.
+                        new Comparator<EpmemPEdge>()
+                        {
+                            public int compare(EpmemPEdge a, EpmemPEdge b)
+                            {
+                                if (a.time != b.time) 
+                                {
+                                    return (a.time < b.time)?1:-1;
+                                } 
+                                else 
+                                {
+                                    /*
+                                     * TODO: This is either an arbitrary tie break, or it is
+                                     * intentionally comparing the triple field of the edges.  It
+                                     * looks arbitrary, but there is an operator< funtion declared on
+                                     * the triple, which appears to be where the functionality for this
+                                     * comparrison is coming from.
+                                     */
+                                    //return (a < b);
+                                    return (a.triple.compareTo(b.triple));
+                                }
+                            }
+                        }
+                    );
+        //epmem_interval_pq interval_pq;
+        PriorityQueue<EpmemInterval> interval_pq =
+                new PriorityQueue<EpmemInterval>(
+                        11,
+                        //Comparator based on episodic_memory.h: 627
+                        //The java implementation sorts in reverse order, becuase the Java and C
+                        //queue implementations sort their elements in reverse orders.
+                        new Comparator<EpmemInterval>()
+                        {
+                            public int compare(EpmemInterval a, EpmemInterval b)
+                            {
+                                if (a.time != b.time) {
+                                    return (a.time < b.time)?1:-1;
+                                }
+                                else if (a.is_end_point == b.is_end_point) 
+                                {
+                                    /*
+                                     * TODO: This is either an arbitrary tie break, or it is
+                                     * intentionally comparing the triple field of the edges.  It
+                                     * looks arbitrary, but there is an operator< funtion declared on
+                                     * the triple, which appears to be where the functionality for this
+                                     * comparrison is coming from.
+                                     */
+                                    return (a.uedge.triple.compareTo(b.uedge.triple));
+                                }
+                                else 
+                                {
+                                    // arbitrarily put starts before ends
+                                    return (a.is_end_point == EPMEM_RANGE_START)?1:-1;
+                                }
+                            }
+                        }
+                    );
+
+        // variables needed to track satisfiability
+        // number of literals with a certain symbol as its value
+        Map<SymbolImpl, Integer>/*epmem_symbol_int_map*/ symbol_num_incoming 
+            = new HashMap<SymbolImpl, Integer>();
+        // number of times a symbol is matched by a node
+        Map<EpmemSymbolNodePair, Integer>/*epmem_symbol_node_pair_int_map*/ symbol_node_count
+            = new HashMap<EpmemSymbolNodePair, Integer>();
+
+        // various things about the current and the best episodes
+        long/*epmem_time_id*/ best_episode = EPMEM_MEMID_NONE;
+        double best_score = 0;
+        boolean best_graph_matched = false;
+        long/*long int*/ best_cardinality = 0;
+        Map<EpmemLiteral, EpmemNodePair>/*epmem_literal_node_pair_map*/ best_bindings
+            = new HashMap<EpmemLiteral, EpmemNodePair>();
+        double current_score = 0;
+        long/*long int*/ current_cardinality = 0;
+
+        // variables needed for graphmatch
+        //Java's Deque does not allow for random access (we need to sort it) so we
+        //will use a linked list instead.  LinkedList has a collections method to sort
+        //it and implements Deque, so we can still pass it around as a Deque. 
+        LinkedList<EpmemLiteral>/*epmem_literal_deque*/ gm_ordering
+            = new LinkedList<EpmemLiteral>();
+
+        if (level > 1) 
+        {
+            // build the DNF graph while checking for leaf WMEs
+            {
+                //my_agent->epmem_timers->query_dnf->start();
+                root_literal.id_sym = null;
+                root_literal.value_sym = pos_query;
+                root_literal.is_neg_q = EPMEM_NODE_POS;
+                root_literal.value_is_id = EPMEM_RIT_STATE_EDGE;
+                root_literal.is_leaf = false;
+                root_literal.is_current = false;
+                root_literal.w = EPMEM_NODEID_BAD;
+                root_literal.q1 = EPMEM_NODEID_ROOT;
+                root_literal.weight = 0.0;
+                root_literal.parents = new HashSet<EpmemLiteral>();
+                root_literal.children = new HashSet<EpmemLiteral>();
+                /*
+                #ifdef USE_MEM_POOL_ALLOCATORS
+                            new(&(root_literal->matches)) epmem_node_pair_set(std::less<epmem_node_pair>(), soar_module::soar_memory_pool_allocator<epmem_node_pair>(my_agent));
+                #else
+                */
+                root_literal.matches = new HashSet<EpmemNodePair>();
+                //#endif
+                root_literal.values = new  HashMap<Long, Integer>();
+                symbol_num_incoming.put(pos_query, 1);
+                literal_cache.put(null, root_literal);
+
+                Set<SymbolImpl>/*std::set<Symbol*>*/ visiting = new HashSet<SymbolImpl>();
+                visiting.add(pos_query);
+                visiting.add(neg_query);
+                for (int query_type = EPMEM_NODE_POS; query_type <= EPMEM_NODE_NEG; query_type++) 
+                {
+                    SymbolImpl query_root = null;
+                    switch (query_type) 
+                    {
+                        case EPMEM_NODE_POS:
+                            query_root = pos_query;
+                            break;
+                        case EPMEM_NODE_NEG:
+                            query_root = neg_query;
+                            break;
+                    }
+                    if (query_root == null)
+                    {
+                        continue;
+                    }
+                    List<WmeImpl>/*epmem_wme_list**/ children = epmem_get_augs_of_id(query_root, DefaultMarker.create());//get_new_tc_number(my_agent));
+                    // for each first level WME, build up a DNF
+                    for (WmeImpl wme_iter: children) 
+                    {
+                        EpmemLiteral/*epmem_literal**/ child = epmem_build_dnf(
+                                    wme_iter, 
+                                    literal_cache, 
+                                    leaf_literals, 
+                                    symbol_num_incoming, 
+                                    gm_ordering, 
+                                    currents, 
+                                    query_type, 
+                                    visiting, 
+                                    cue_wmes
+                                );
+                        if (child != null) 
+                        {
+                            // force all first level literals to have the same id symbol
+                            child.id_sym = pos_query;
+                            child.parents.add(root_literal);
+                            root_literal.children.add(child);
+                        }
+                    }
+                    //delete children;
+                }
+                //my_agent->epmem_timers->query_dnf->stop();
+            }
+
+            // calculate the highest possible score and cardinality score
+            double perfect_score = 0;
+            int perfect_cardinality = 0;
+            for (EpmemLiteral iter: leaf_literals) 
+            {
+                if (iter.is_neg_q == 0) 
+                {
+                    perfect_score += iter.weight;
+                    perfect_cardinality++;
+                }
+            }
+
+            // set default values for before and after
+            if (before == EPMEM_MEMID_NONE) {
+                before = stats.time.get() - 1;//my_agent->epmem_stats->time->get_value() - 1;
+            }
+            else 
+            {
+                before = before - 1; // since before's are strict
+            }
+            /*  WAT.  They are uint64_t
+            if (after == EPMEM_MEMID_NONE) {
+                after = EPMEM_MEMID_NONE;
+            }
+            */
+            long/*epmem_time_id*/ current_episode = before;
+            long/*epmem_time_id*/ next_episode;
+
+            
+            // create dummy edges and intervals
+            {
+                // insert dummy unique edge and interval end point queries for DNF root
+                // we make an SQL statement just so we don't have to do anything special at cleanup
+                EpmemTriple triple = new EpmemTriple(EPMEM_NODEID_BAD, EPMEM_NODEID_BAD, EPMEM_NODEID_ROOT);
+                EpmemPEdge root_pedge = new EpmemPEdge();
+                //allocate_with_pool(my_agent, &(my_agent->epmem_pedge_pool), &root_pedge);
+                root_pedge.triple = triple;
+                root_pedge.value_is_id = EPMEM_RIT_STATE_EDGE;
+                root_pedge.has_noncurrent = false;
+                root_pedge.literals = new HashSet<EpmemLiteral>();
+                root_pedge.literals.add(root_literal);
+                root_pedge.sql = db.pool_dummy.request();//my_agent->epmem_stmts_graph->pool_dummy->request();
+                root_pedge.sql.setLong(1, Long.MAX_VALUE/*LLONG_MAX*/);
+                root_pedge.sqlResults = root_pedge.sql.executeQuery();
+                root_pedge.time = Long.MAX_VALUE/*LLONG_MAX*/;
+                pedge_pq.add(root_pedge);
+                pedge_caches[EPMEM_RIT_STATE_EDGE].put(triple, root_pedge);
+                
+                EpmemUEdge root_uedge = new EpmemUEdge();
+                //allocate_with_pool(my_agent, &(my_agent->epmem_uedge_pool), &root_uedge);
+                root_uedge.triple = triple;
+                root_uedge.value_is_id = EPMEM_RIT_STATE_EDGE;
+                root_uedge.has_noncurrent = false;
+                root_uedge.activation_count = 0;
+                root_uedge.pedges = new HashSet<EpmemPEdge>();
+                root_uedge.intervals = 1;
+                root_uedge.activated = false;
+                uedge_caches[EPMEM_RIT_STATE_EDGE].put(triple, root_uedge);
+
+                EpmemInterval root_interval = new EpmemInterval();
+                //allocate_with_pool(my_agent, &(my_agent->epmem_interval_pool), &root_interval);
+                root_interval.uedge = root_uedge;
+                root_interval.is_end_point = 1;//true;
+                root_interval.sql = db.pool_dummy.request();//my_agent->epmem_stmts_graph->pool_dummy->request();
+                //root_interval->sql->prepare();
+                root_interval.sql.setLong(1, before);
+                root_interval.sqlResult = root_interval.sql.executeQuery();
+                root_interval.time = before;
+                interval_pq.add(root_interval);
+                interval_cleanup.add(root_interval);
+            }
+            /*
+            if (QUERY_DEBUG >= 1) {
+                epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches);
+            }
+            */
+            /*
+            #ifdef EPMEM_EXPERIMENT
+                    epmem_episodes_searched = 0;
+            #endif
+            */
+            // main loop of interval walk
+            //my_agent->epmem_timers->query_walk->start();
+            
+            while (pedge_pq.size() != 0 && current_episode > after) 
+            {
+                long /*epmem_time_id*/ next_edge;
+                long /*epmem_time_id*/ next_interval;
+
+                boolean changed_score = false;
+
+                //my_agent->epmem_timers->query_walk_edge->start();
+                next_edge = pedge_pq.peek().time;
+                // process all edges which were last used at this time point
+                while ((pedge_pq.size() != 0) && (pedge_pq.peek().time == next_edge || pedge_pq.peek().time >= current_episode)) 
+                {
+                    EpmemPEdge pedge = pedge_pq.poll();
+                    EpmemTriple triple = pedge.triple;
+                    triple.q1 = pedge.sqlResults.getLong(1 + 1);
+                    /*
+                    if (QUERY_DEBUG >= 1) {
+                        std::cout << "  EDGE " << triple.q0 << "-" << triple.w << "-" << triple.q1 << std::endl;
+                    }
+                    */
+
+                    // create queries for the unique edge children of this partial edge
+                    if (pedge.value_is_id != 0) 
+                    {
+                        boolean created = false;
+                        //for (epmem_literal_set::iterator literal_iter = pedge->literals.begin(); literal_iter != pedge->literals.end(); literal_iter++) {
+                        for(EpmemLiteral literal_iter: pedge.literals)
+                        {
+                            EpmemLiteral literal = literal_iter;
+                            //for (epmem_literal_set::iterator child_iter = literal->children.begin(); child_iter != literal->children.end(); child_iter++) {
+                            for(EpmemLiteral child_iter: literal.children)
+                            {
+                                created |= epmem_register_pedges(triple.q1, child_iter, pedge_pq, after, pedge_caches, uedge_caches);
+                            }
+                        }
+                    }
+                    // Left in from C: TODO what I want to do here is, if there is no children which leads to a leaf, retract everything
+                    // I'm not sure how to properly test for this though
+
+                    // look for uedge with triple; if none exist, create one
+                    // otherwise, link up the uedge with the pedge and consider score changes
+                    Map<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map**/ uedge_cache = uedge_caches[pedge.value_is_id];
+                    EpmemUEdge uedge_iter = uedge_cache.get(triple);
+                    if (uedge_iter != null) 
+                    {
+                        // create a uedge for this
+                        EpmemUEdge uedge = new EpmemUEdge();
+                        //allocate_with_pool(my_agent, &(my_agent->epmem_uedge_pool), &uedge);
+                        uedge.triple = triple;
+                        uedge.value_is_id = pedge.value_is_id;
+                        uedge.has_noncurrent = pedge.has_noncurrent;
+                        uedge.activation_count = 0;
+                        uedge.pedges  = new HashSet<EpmemPEdge>();
+                        uedge.intervals = 0;
+                        uedge.activated = false;
+                        // create interval queries for this partial edge
+                        boolean created = false;
+                        long/*int64_t*/ edge_id = pedge.sqlResults.getLong(0 + 1);
+                        long/*epmem_time_id*/ promo_time = EPMEM_MEMID_NONE;
+                        boolean is_lti = (pedge.value_is_id != 0 && pedge.triple.q1 != EPMEM_NODEID_BAD && pedge.triple.q1 != EPMEM_NODEID_ROOT);
+                        if (is_lti) 
+                        {
+                            // find the promotion time of the LTI
+                            db.find_lti_promotion_time.setLong(1, triple.q1);
+                            ResultSet results = db.find_lti_promotion_time.executeQuery();
+                            try
+                            {
+                                promo_time = results.getLong(0 + 1);
+                            }
+                            finally
+                            {
+                                results.close();
+                            }
+                            
+                            //my_agent->epmem_stmts_graph->find_lti_promotion_time->reinitialize();
+                        }
+                        for (int interval_type = EPMEM_RANGE_EP; interval_type <= EPMEM_RANGE_POINT; interval_type++) 
+                        {
+                            for (int point_type = EPMEM_RANGE_START; point_type <= EPMEM_RANGE_END; point_type++) 
+                            {
+                                /*
+                                 * This appears to be selecting the timer to time the next queries -ACN
+                                 * 
+                                // pick a timer (any timer)
+                                soar_module::timer* sql_timer = NULL;
+                                switch (interval_type) {
+                                    case EPMEM_RANGE_EP:
+                                        if (point_type == EPMEM_RANGE_START) {
+                                            sql_timer = my_agent->epmem_timers->query_sql_start_ep;
+                                        } else {
+                                            sql_timer = my_agent->epmem_timers->query_sql_end_ep;
+                                        }
+                                        break;
+                                    case EPMEM_RANGE_NOW:
+                                        if (point_type == EPMEM_RANGE_START) {
+                                            sql_timer = my_agent->epmem_timers->query_sql_start_now;
+                                        } else {
+                                            sql_timer = my_agent->epmem_timers->query_sql_end_now;
+                                        }
+                                        break;
+                                    case EPMEM_RANGE_POINT:
+                                        if (point_type == EPMEM_RANGE_START) {
+                                            sql_timer = my_agent->epmem_timers->query_sql_start_point;
+                                        } else {
+                                            sql_timer = my_agent->epmem_timers->query_sql_end_point;
+                                        }
+                                        break;
+                                }
+                                */
+                                // create the SQL query and bind it
+                                // try to find an existing query first; if none exist, allocate a new one from the memory pools
+                                PreparedStatement/*soar_module::pooled_sqlite_statement**/ interval_sql = null;
+                                if (is_lti) 
+                                {
+                                    interval_sql = db.pool_find_lti_queries[point_type][interval_type].request(/*sql_timer*/);
+                                } 
+                                else 
+                                {
+                                    interval_sql = db.pool_find_interval_queries[pedge.value_is_id][point_type][interval_type].request(/*sql_timer*/);
+                                }
+                                //This is setting the binding index for sql queries, which is 1 higher in jdbc vs. C
+                                int bind_pos = 1 + 1;
+                                if (point_type == EPMEM_RANGE_END && interval_type == EPMEM_RANGE_NOW) 
+                                {
+                                    interval_sql.setLong(bind_pos++, current_episode);
+                                }
+                                interval_sql.setLong(bind_pos++, edge_id);
+                                if (is_lti) 
+                                {
+                                    // find the promotion time of the LTI, and use that as an after constraint
+                                    interval_sql.setLong(bind_pos++, promo_time);
+                                }
+                                interval_sql.setLong(bind_pos++, current_episode);
+                                ResultSet results = interval_sql.executeQuery();
+                                if (results.next()) 
+                                {
+                                    EpmemInterval interval = new EpmemInterval();
+                                    //allocate_with_pool(my_agent, &(my_agent->epmem_interval_pool), &interval);
+                                    interval.is_end_point = point_type;
+                                    interval.uedge = uedge;
+                                    interval.time = results.getLong(0 + 1);
+                                    interval.sql = interval_sql;
+                                    //This logic does not allow us to free this result set here.
+                                    //This means that we need ot close this by hand later on. -ACN
+                                    interval.sqlResult = results;
+                                    interval_pq.add(interval);
+                                    interval_cleanup.add(interval);
+                                    uedge.intervals++;
+                                    created = true;
+                                }
+                                else 
+                                {
+                                    results.close();
+                                }
+                            }
+                        }
+                        if (created) 
+                        {
+                            if (is_lti) 
+                            {
+                                // insert a dummy promo time start for LTIs
+                                EpmemInterval start_interval = new EpmemInterval();
+                                //allocate_with_pool(my_agent, &(my_agent->epmem_interval_pool), &start_interval);
+                                start_interval.uedge = uedge;
+                                start_interval.is_end_point = EPMEM_RANGE_START;
+                                start_interval.time = promo_time - 1;
+                                start_interval.sql = null;
+                                interval_pq.add(start_interval);
+                                interval_cleanup.add(start_interval);
+                            }
+                            uedge.pedges.add(pedge);
+                            uedge_cache.put(triple, uedge);
+                        } 
+                        else
+                        { 
+                            //uedge.pedges.~epmem_pedge_set();
+                            uedge.pedges.clear();
+                            uedge.pedges = null;
+                            //free_with_pool(&(my_agent->epmem_uedge_pool), uedge);
+                        }
+                    }
+                    else
+                    {
+                        EpmemUEdge uedge = uedge_iter;
+                        uedge.pedges.add(pedge);
+                        if (uedge.activated) {
+                            for (EpmemLiteral lit_iter: pedge.literals) 
+                            {
+                                EpmemLiteral literal = lit_iter;
+                                if (!literal.is_current || uedge.activation_count == 1) 
+                                {
+                                    changed_score |= epmem_satisfy_literal(literal, triple.q0, triple.q1, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                }
+                            }
+                        }
+                    }
+
+                    // put the partial edge query back into the queue if there's more
+                    // otherwise, reinitialize the query and put it in a pool
+                    if(pedge.sql != null)
+                    {
+                        ResultSet results = pedge.sql.executeQuery();
+                        pedge.sqlResults = results;
+                        if(results.next())
+                        {
+                            pedge.time = results.getLong(2 + 1);
+                            pedge_pq.add(pedge);
+                        }
+                        else 
+                        {
+                            //pedge->sql->get_pool()->release(pedge->sql);
+                            pedge.sqlResults.close();
+                            pedge.sql = null;
+                        }
+                    }
+                }
+                next_edge = (pedge_pq.isEmpty() ? after : pedge_pq.peek().time);
+                //my_agent->epmem_timers->query_walk_edge->stop();
+
+                // process all intervals before the next edge arrives
+                //my_agent->epmem_timers->query_walk_interval->start();
+                
+                while (interval_pq.size() != 0 && interval_pq.peek().time > next_edge && current_episode > after) 
+                {
+                    /*
+                    if (QUERY_DEBUG >= 1) {
+                        std::cout << "EPISODE " << current_episode << std::endl;
+                    }
+                    */
+                    // process all interval endpoints at this time step
+                    while (interval_pq.size() != 0 && interval_pq.peek().time >= current_episode) 
+                    {
+                        EpmemInterval interval = interval_pq.poll();
+                        EpmemUEdge uedge = interval.uedge;
+                        EpmemTriple triple = uedge.triple;
+                        /*
+                        if (QUERY_DEBUG >= 1) {
+                            std::cout << "  INTERVAL (" << (interval->is_end_point ? "end" : "start") << "): " << triple.q0 << "-" << triple.w << "-" << triple.q1 << std::endl;
+                        }
+                        */
+                        if (interval.is_end_point != 0) 
+                        {
+                            uedge.activated = true;
+                            uedge.activation_count++;
+                            for (EpmemPEdge pedge_iter: uedge.pedges)
+                            {
+                                EpmemPEdge pedge = pedge_iter;
+                                for (EpmemLiteral lit_iter: pedge.literals)
+                                {
+                                    EpmemLiteral literal = lit_iter;
+                                    if (!literal.is_current || uedge.activation_count == 1) 
+                                    {
+                                        changed_score |= epmem_satisfy_literal(literal, triple.q0, triple.q1, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                    }
+                                }
+                            }
+                        } 
+                        else
+                        {
+                            uedge.activated = false;
+                            for (EpmemPEdge pedge_iter: uedge.pedges)
+                            {
+                                EpmemPEdge pedge = pedge_iter;
+                                for (EpmemLiteral lit_iter: pedge.literals)
+                                {
+                                    changed_score |= epmem_unsatisfy_literal(lit_iter, triple.q0, triple.q1, current_score, current_cardinality, symbol_node_count);
+                                }
+                            }
+                        }
+                        // put the interval query back into the queue if there's more and some literal cares
+                        // otherwise, reinitialize the query and put it in a pool
+                        
+                        if(interval.sql != null)
+                        {
+                            interval.sqlResult = interval.sql.executeQuery();
+                            if (interval.uedge.has_noncurrent && interval.sqlResult.next()) 
+                            {
+                                interval.time = interval.sqlResult.getInt(0 + 1);
+                                interval_pq.add(interval);
+                            }
+                            else if (interval.sql != null)
+                            {
+                                //interval->sql->get_pool()->release(interval->sql);
+                                interval.sqlResult.close();
+                                interval.sql = null;
+                                uedge.intervals--;
+                                if (uedge.intervals != 0)
+                                {
+                                    interval_cleanup.remove(interval);
+                                    //free_with_pool(&(my_agent->epmem_interval_pool), interval);
+                                } 
+                                else 
+                                {
+                                    // TODO retract intervals
+                                }
+                            }
+                        }
+                    }
+                    next_interval = (interval_pq.isEmpty() ? after : interval_pq.peek().time);
+                    next_episode = (next_edge > next_interval ? next_edge : next_interval);
+
+                    // update the prohibits list to catch up
+                    while (prohibits.size() != 0 && prohibits.get(prohibits.size() - 1) > current_episode)
+                    {
+                        prohibits.remove(prohibits.size() - 1);
+                    }
+                    // ignore the episode if it is prohibited
+                    while (prohibits.size() != 0 && current_episode > next_episode && current_episode == prohibits.get(prohibits.size() - 1))
+                    {
+                        current_episode--;
+                        prohibits.remove(prohibits.size() - 1);
+                    }
+
+                    /*
+                    if (QUERY_DEBUG >= 2) {
+                        epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches);
+                    }
+                    
+                    if (my_agent->sysparams[TRACE_EPMEM_SYSPARAM]) {
+                        char buf[256];
+                        SNPRINTF(buf, 254, "CONSIDERING EPISODE (time, cardinality, score) (%lld, %ld, %f)\n", static_cast<long long int>(current_episode), current_cardinality, current_score);
+                        print(my_agent, buf);
+                        xml_generate_warning(my_agent, buf);
+                    }
+                    */
+                    /*
+                    #ifdef EPMEM_EXPERIMENT
+                                    epmem_episodes_searched++;
+                    #endif
+                    */
+                    // if
+                    // * the current time is still before any new intervals
+                    // * and the score was changed in this period
+                    // * and the new score is higher than the best score
+                    // then save the current time as the best one
+                    if (
+                            current_episode > next_episode && 
+                            changed_score && 
+                            (
+                                    best_episode == EPMEM_MEMID_NONE || 
+                                    current_score > best_score || 
+                                    (
+                                            do_graph_match && 
+                                            current_score == best_score && !best_graph_matched
+                                    )
+                            )
+                    ) {
+                        boolean new_king = false;
+                        if (best_episode == EPMEM_MEMID_NONE || current_score > best_score)
+                        {
+                            best_episode = current_episode;
+                            best_score = current_score;
+                            best_cardinality = current_cardinality;
+                            new_king = true;
+                        }
+                        // we should graph match if the option is set and all leaf literals are satisfied
+                        if (current_cardinality == perfect_cardinality) 
+                        {
+                            boolean graph_matched = false;
+                            if (do_graph_match) 
+                            {
+                                if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.gm_order_undefined)
+                                {
+                                    //TODO: This is probably sorting on pointer values.  Why is it here, and 
+                                    //do we need to emulate it?
+                                    //std::sort(gm_ordering.begin(), gm_ordering.end());
+                                }
+                                else if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.gm_order_mcv)
+                                {
+                                    //std::sort(gm_ordering.begin(), gm_ordering.end(), epmem_gm_mcv_comparator);
+                                    Collections.sort(
+                                            gm_ordering,
+                                            new Comparator<EpmemLiteral>()
+                                            {
+                                                //episodic_memory.cpp:3427
+                                                @Override
+                                                public int compare(EpmemLiteral a, EpmemLiteral b)
+                                                {
+                                                    // TODO Auto-generated method stub
+                                                    return (a.matches.size() < b.matches.size()? -1: 1);
+                                                }
+                                            }
+                                        );
+                                }
+                                //epmem_literal_deque::iterator begin = gm_ordering.begin();
+                                //epmem_literal_deque::iterator end = gm_ordering.end();
+                                best_bindings.clear();
+                                //Java array do not get along well with paramatized types.  Maybe 
+                                //we should make this a list. -ACN
+                                Map<Long/*epmem_node_id*/, SymbolImpl>[]/*epmem_node_symbol_map*/ bound_nodes = (Map<Long, SymbolImpl>[])new Map[2];
+                                for(int i = 0; i < bound_nodes.length; i++)
+                                {
+                                    bound_nodes[i] = new HashMap<Long, SymbolImpl>(); 
+                                }
+                                /*
+                                if (QUERY_DEBUG >= 1) {
+                                    std::cout << "  GRAPH MATCH" << std::endl;
+                                    epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches);
+                                }
+                                */
+                                //my_agent->epmem_timers->query_graph_match->start();
+                                graph_matched = epmem_graph_match(gm_ordering, best_bindings, bound_nodes, 2);
+                                //my_agent->epmem_timers->query_graph_match->stop();
+                            }
+                            if (!do_graph_match || graph_matched) 
+                            {
+                                best_episode = current_episode;
+                                best_graph_matched = true;
+                                current_episode = EPMEM_MEMID_NONE;
+                                new_king = true;
+                            }
+                        }
+                        /*
+                        if (new_king && my_agent->sysparams[TRACE_EPMEM_SYSPARAM]) {
+                            char buf[256];
+                            SNPRINTF(buf, 254, "NEW KING (perfect, graph-match): (%s, %s)\n", (current_cardinality == perfect_cardinality ? "true" : "false"), (best_graph_matched ? "true" : "false"));
+                            print(my_agent, buf);
+                            xml_generate_warning(my_agent, buf);
+                        }
+                        */
+                    }
+
+                    if (current_episode == EPMEM_MEMID_NONE)
+                    {
+                        break;
+                    } 
+                    else 
+                    {
+                        current_episode = next_episode;
+                    }
+                }
+                //my_agent->epmem_timers->query_walk_interval->stop();
+            }
+            //my_agent->epmem_timers->query_walk->stop();
+
+            // if the best episode is the default, fail
+            // otherwise, put the episode in working memory
+            if (best_episode == EPMEM_MEMID_NONE)
+            {
+                epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_failure, pos_query);
+                if (neg_query != null) 
+                {
+                    epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_failure, neg_query);
+                }
+            }
+            else 
+            {
+                //my_agent->epmem_timers->query_result->start();
+                SymbolImpl temp_sym;
+                Map<Long/*epmem_node_id*/, SymbolImpl>/*epmem_id_mapping*/ node_map_map = new HashMap<Long, SymbolImpl>();
+                Map<Long/*epmem_node_id*/, SymbolImpl>/*epmem_id_mapping*/ node_mem_map = new HashMap<Long, SymbolImpl>();
+                // cue size
+                temp_sym = symbols.createInteger(leaf_literals.size());
+                epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_cue_size, temp_sym);
+                //symbol_remove_ref(my_agent, temp_sym);
+                // match cardinality
+                temp_sym = symbols.createInteger(best_cardinality);
+                epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_match_cardinality, temp_sym);
+                //symbol_remove_ref(my_agent, temp_sym);
+                // match score
+                temp_sym = symbols.createDouble(best_score);
+                epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_match_score, temp_sym);
+                //symbol_remove_ref(my_agent, temp_sym);
+                // normalized match score
+                temp_sym = symbols.createDouble(best_score / perfect_score);
+                epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_normalized_match_score, temp_sym);
+                //symbol_remove_ref(my_agent, temp_sym);
+                // status
+                epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_success, pos_query);
+                if (neg_query != null) 
+                {
+                    epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_success, neg_query);
+                }
+                // give more metadata if graph match is turned on
+                if (do_graph_match)
+                {
+                    // graph match
+                    temp_sym = symbols.createInteger((best_graph_matched ? 1 : 0));
+                    epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_graph_match, temp_sym);
+                    //symbol_remove_ref(my_agent, temp_sym);
+
+                    // mapping
+                    if (best_graph_matched) 
+                    {
+                        //This instantiation of level is shadowing the function parameter, which java does not
+                        //allow, so were going to have to rename it here.
+                        int/*goal_stack_level*/ levelLocal = epmem_info(state).epmem_result_header.level;
+                        // mapping identifier
+                        SymbolImpl mapping = symbols.make_new_identifier('M', level);
+                        epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_graph_match_mapping, mapping);
+                        //symbol_remove_ref(my_agent, mapping);
+
+                        //for (epmem_literal_node_pair_map::iterator iter = best_bindings.begin(); iter != best_bindings.end(); iter++) {
+                        for(Entry<EpmemLiteral, EpmemNodePair> iter: best_bindings.entrySet())
+                        {
+                            if (iter.getKey().value_is_id != 0)
+                            {
+                                // create the node
+                                temp_sym = symbols.make_new_identifier('N', level);
+                                epmem_buffer_add_wme(meta_wmes, mapping, predefinedSyms.epmem_sym_graph_match_mapping_node, temp_sym);
+                                //symbol_remove_ref(my_agent, temp_sym);
+                                // point to the cue identifier
+                                epmem_buffer_add_wme(meta_wmes, temp_sym, predefinedSyms.epmem_sym_graph_match_mapping_cue, iter.getKey().value_sym);
+                                // save the mapping point for the episode
+                                node_map_map.put(iter.getValue().second, temp_sym);
+                                node_mem_map.put(iter.getValue().second, null);
+                            }
+                        }
+                    }
+                }
+                // reconstruct the actual episode
+                if (level > 2) 
+                {
+                    epmem_install_memory(state, best_episode, meta_wmes, retrieval_wmes, node_mem_map);
+                }
+                if (best_graph_matched)
+                {
+                    //for (epmem_id_mapping::iterator iter = node_mem_map.begin(); iter != node_mem_map.end(); iter++) {
+                    for(Entry<Long, SymbolImpl> iter: node_mem_map.entrySet())
+                    {
+                        //epmem_id_mapping::iterator map_iter = node_map_map.find((*iter).first);
+                        SymbolImpl map_iter = node_map_map.get(iter.getKey());
+                        if (map_iter != null && iter.getValue() != null)
+                        {
+                            epmem_buffer_add_wme(meta_wmes, map_iter, predefinedSyms.epmem_sym_retrieved, iter.getValue());
+                        }
+                    }
+                }
+                //my_agent->epmem_timers->query_result->stop();
+            }
+        }
+
+        // cleanup
+        //my_agent->epmem_timers->query_cleanup->start();
+        for (EpmemInterval interval: interval_cleanup) 
+        {
+            //epmem_interval* interval = *iter;
+            if (interval.sqlResult != null) 
+            {
+                //interval->sql->get_pool()->release(interval->sql);
+                interval.sqlResult.close();
+            }
+            //free_with_pool(&(my_agent->epmem_interval_pool), interval);
+        }
+        for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) 
+        {
+            //for (epmem_triple_pedge_map::iterator iter = pedge_caches[type].begin(); iter != pedge_caches[type].end(); iter++) {
+            for(EpmemPEdge pedge: pedge_caches[type].values())
+            {    
+                //epmem_pedge* pedge = (*iter).second;
+                if (pedge.sqlResults != null) 
+                {
+                    //pedge->sql->get_pool()->release(pedge->sql);
+                    pedge.sqlResults.close();
+                }
+                //In some places, we use clear to "destroy" containers, but this one is about to leave
+                //scope so we dont need to bother. -ACN
+                //pedge->literals.~epmem_literal_set();
+                //free_with_pool(&(my_agent->epmem_pedge_pool), pedge);
+            }
+            /*
+             * No queries to free, so we don't need to do this loop. -ACN
+            for (epmem_triple_uedge_map::iterator iter = uedge_caches[type].begin(); iter != uedge_caches[type].end(); iter++) {
+                epmem_uedge* uedge = (*iter).second;
+                uedge->pedges.~epmem_pedge_set();
+                free_with_pool(&(my_agent->epmem_uedge_pool), uedge);
+            }
+            */
+        }
+        /*
+         * No queries to free, so we don't need to do this loop. -ACN
+        for (epmem_wme_literal_map::iterator iter = literal_cache.begin(); iter != literal_cache.end(); iter++) {
+            epmem_literal* literal = (*iter).second;
+            literal->parents.~epmem_literal_set();
+            literal->children.~epmem_literal_set();
+            literal->matches.~epmem_node_pair_set();
+            literal->values.~epmem_node_int_map();
+            free_with_pool(&(my_agent->epmem_literal_pool), literal);
+        }
+        my_agent->epmem_timers->query_cleanup->stop();
+
+        my_agent->epmem_timers->query->stop();
+        */
+    }
+    
+    /**
+     * episodic_memory:3756
+     * 
+     * bool epmem_graph_match(
+     *      epmem_literal_deque::iterator& dnf_iter, 
+     *      epmem_literal_deque::iterator& iter_end, 
+     *      epmem_literal_node_pair_map& bindings, 
+     *      epmem_node_symbol_map bound_nodes[], 
+     *      agent* my_agent, 
+     *      int depth = 0
+     *  )
+     * 
+     * @param gm_ordering
+     * @param best_bindings
+     * @param bound_nodes
+     * @param i
+     * @return
+     */
+    private boolean epmem_graph_match(
+            Deque<EpmemLiteral> gm_ordering,
+            Map<EpmemLiteral, EpmemNodePair> best_bindings,
+            Map<Long, SymbolImpl>[] bound_nodes, 
+            int i
+    )
+    {
+        // TODO Implement this.
+        //The parameter list from the C is not valid in Java, so it has been intentionaly altered. -ACN
+        return false;
     }
 
+    /**
+     * bool epmem_unsatisfy_literal(
+     *      epmem_literal* literal, 
+     *      epmem_node_id parent, 
+     *      epmem_node_id child, 
+     *      double& current_score, 
+     *      long int& current_cardinality, 
+     *      epmem_symbol_node_pair_int_map& symbol_node_count
+     *   )
+     * 
+     * @param lit_iter
+     * @param q0
+     * @param q1
+     * @param current_score
+     * @param current_cardinality
+     * @param symbol_node_count
+     * @return
+     */
+    private boolean epmem_unsatisfy_literal(
+            EpmemLiteral lit_iter, 
+            long q0,
+            long q1, 
+            double current_score, 
+            long current_cardinality,
+            Map<EpmemSymbolNodePair, Integer> symbol_node_count
+    )
+    {
+        // TODO Implement this
+        return false;
+    }
+
+    /**
+     * bool epmem_satisfy_literal(
+     *      epmem_literal* literal, 
+     *      epmem_node_id parent, 
+     *      epmem_node_id child, 
+     *      double& current_score, 
+     *      long int& current_cardinality, 
+     *      epmem_symbol_node_pair_int_map& symbol_node_count, 
+     *      epmem_triple_uedge_map uedge_caches[], 
+     *      epmem_symbol_int_map& symbol_num_incoming
+     *  )
+     * 
+     * @param literal
+     * @param q0
+     * @param q1
+     * @param current_score
+     * @param current_cardinality
+     * @param symbol_node_count
+     * @param uedge_caches
+     * @param symbol_num_incoming
+     * @return
+     */
+    private boolean epmem_satisfy_literal(
+            EpmemLiteral literal, 
+            long q0,
+            long q1, 
+            double current_score, 
+            long current_cardinality,
+            Map<EpmemSymbolNodePair, Integer> symbol_node_count,
+            Map<EpmemTriple, 
+            EpmemUEdge>[] uedge_caches,
+            Map<SymbolImpl, Integer> symbol_num_incoming
+    )
+    {
+        // TODO: Implement this
+        return false;
+    }
+
+    /**
+     * episodic_memory.cpp:3539
+     * bool epmem_register_pedges(
+     *      epmem_node_id parent, 
+     *      epmem_literal* literal, 
+     *      epmem_pedge_pq& pedge_pq, 
+     *      epmem_time_id after, 
+     *      epmem_triple_pedge_map pedge_caches[], 
+     *      epmem_triple_uedge_map uedge_caches[], 
+     *      agent* my_agent
+     *   )
+     * 
+     * @param q1
+     * @param child_iter
+     * @param pedge_pq
+     * @param after
+     * @param pedge_caches
+     * @param uedge_caches
+     * @return
+     */
+        
+    private boolean epmem_register_pedges(long q1, EpmemLiteral child_iter,
+            PriorityQueue<EpmemPEdge> pedge_pq, long after,
+            Map<EpmemTriple, EpmemPEdge>[] pedge_caches,
+            Map<EpmemTriple, EpmemUEdge>[] uedge_caches
+    )
+    {
+        // TODO Implement this
+        return false;
+    }
+
+    /**
+     * episodic_memory.cpp:3431
+     * epmem_literal* epmem_build_dnf(
+     *      wme* cue_wme, 
+     *      epmem_wme_literal_map& literal_cache, 
+     *      epmem_literal_set& leaf_literals, 
+     *      epmem_symbol_int_map& symbol_num_incoming, 
+     *      epmem_literal_deque& gm_ordering, 
+     *      epmem_symbol_set& currents, 
+     *      int query_type, std::set<Symbol*>& visiting, 
+     *      soar_module::wme_set& cue_wmes, 
+     *      agent* my_agent
+     *  )
+     */
+    private EpmemLiteral epmem_build_dnf(
+            WmeImpl wme_iter,
+            Map<WmeImpl, EpmemLiteral> literal_cache,
+            Set<EpmemLiteral> leaf_literals,
+            Map<SymbolImpl, Integer> symbol_num_incoming,
+            Deque<EpmemLiteral> gm_ordering, 
+            Set<SymbolImpl> currents,
+            long query_type, 
+            Set<SymbolImpl> visiting, 
+            Set<WmeImpl> cue_wmes
+    )
+    {
+        // TODO: Implement this
+        return null;
+    }
+    
     /**
      * <p>
      * episodic_memory.cpp:998:inline void epmem_buffer_add_wme(
