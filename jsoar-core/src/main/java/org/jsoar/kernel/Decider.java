@@ -11,9 +11,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.jsoar.kernel.epmem.DefaultEpisodicMemory;
 import org.jsoar.kernel.epmem.EpisodicMemory;
-import org.jsoar.kernel.epmem.EpisodicMemoryStateInfo;
 import org.jsoar.kernel.events.GdsGoalRemovedEvent;
 import org.jsoar.kernel.exploration.Exploration;
 import org.jsoar.kernel.io.InputOutputImpl;
