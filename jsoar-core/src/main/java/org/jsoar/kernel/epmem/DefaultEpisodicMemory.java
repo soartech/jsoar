@@ -26,6 +26,8 @@ import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
@@ -181,7 +183,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // TODO EPMEM soar_module::timer *timer;
         PreparedStatement add_query;
     }
-
+    
     private Adaptable context;
     private Agent agent;
     private DefaultSemanticMemory smem;
@@ -2726,9 +2728,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
     
     //TODO: All of the classes from here down to epmem_process_query, are added specifically
-    //for that.  See if they can be combined in some logical fashion. -ACN
-    
-    private class EpmemLiteral
+    //for that.  See if they can be combined in some logical fashion. -ACN    
+    private static class EpmemLiteral
     {
         SymbolImpl id_sym;
         SymbolImpl value_sym;
@@ -2740,7 +2741,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long/*epmem_node_id*/ q1;
         double weight;
         Set<EpmemLiteral> parents;
-        Set<EpmemLiteral> children;
+        Set<EpmemLiteral> children;        
         Set<EpmemNodePair>/*epmem_node_pair_set*/ matches;
         Map<Long, Integer>/*epmem_node_int_map*/ values;
     }
@@ -2749,7 +2750,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * Based on episodic_memory:559
      * @author ACNickels
      */
-    private class EpmemTriple implements Comparable<EpmemTriple>
+    private static class EpmemTriple implements Comparable<EpmemTriple>
     {
         long q0;
         long w;
@@ -2786,7 +2787,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     }
     
     //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
-    private class EpmemPEdge
+    private static class EpmemPEdge
     {
         EpmemTriple triple;
         int value_is_id;
@@ -2797,7 +2798,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long/*epmem_time_id*/ time;
     }
     //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
-    private class EpmemUEdge
+    private static class EpmemUEdge
     {
         EpmemTriple triple;
         long value_is_id;
@@ -2808,7 +2809,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         boolean activated;
     }
     //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
-    private class EpmemInterval
+    private static class EpmemInterval
     {
         EpmemUEdge uedge;
         int is_end_point;
@@ -2817,16 +2818,86 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long/*epmem_time_id*/ time;
     }
     
-    private class EpmemSymbolNodePair
-    {
-        SymbolImpl first;
-        long /*epmem_node_id*/ second;
+    private static class EpmemSymbolNodePair
+    {        
+        public EpmemSymbolNodePair(SymbolImpl id_sym, long parent)
+        {
+            first = id_sym;
+            second = parent;
+        }
+       
+        final SymbolImpl first;
+        final long /*epmem_node_id*/ second;
+        
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((first == null) ? 0 : first.hashCode());
+            result = prime * result + (int) (second ^ (second >>> 32));
+            return result;
+        }
+        
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            EpmemSymbolNodePair other = (EpmemSymbolNodePair) obj;
+            if (first == null)
+            {
+                if (other.first != null)
+                    return false;
+            }
+            else if (!first.equals(other.first))
+                return false;
+            if (second != other.second)
+                return false;
+            return true;
+        }
     }
     
-    private class EpmemNodePair
+    private static class EpmemNodePair
     {
-        long /*epmem_node_id*/ first;
-        long /*epmem_node_id*/ second;
+        public EpmemNodePair(long parent, long child)
+        {
+            this.first = parent;
+            this.second = child;
+        }
+        final long /*epmem_node_id*/ first;
+        final long /*epmem_node_id*/ second;
+        
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (int) (first ^ (first >>> 32));
+            result = prime * result + (int) (second ^ (second >>> 32));
+            return result;
+        }
+        
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            EpmemNodePair other = (EpmemNodePair) obj;
+            if (first != other.first)
+                return false;
+            if (second != other.second)
+                return false;
+            return true;
+        }
     }
     /**
      * <p>
@@ -2930,9 +3001,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         //TODO:  We are interpreting this as a static initialization of a map.  
         //       Make sure that that is the intention. -ACN
         //epmem_triple_uedge_map uedge_caches[2] = {epmem_triple_uedge_map(), epmem_triple_uedge_map()};
-        Map<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map*/ uedge_caches[] = new Map[2];
-        uedge_caches[0] = new HashMap<EpmemTriple, EpmemUEdge>();
-        uedge_caches[1] = new HashMap<EpmemTriple, EpmemUEdge>();
+        SortedMap<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map*/ uedge_caches[] = new SortedMap[2];
+        uedge_caches[0] = new TreeMap<EpmemTriple, EpmemUEdge>();
+        uedge_caches[1] = new TreeMap<EpmemTriple, EpmemUEdge>();
         
         Set<EpmemInterval> /*epmem_interval_set*/ interval_cleanup = new HashSet<EpmemInterval>();
         //#endif
@@ -3384,7 +3455,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 EpmemLiteral literal = lit_iter;
                                 if (!literal.is_current || uedge.activation_count == 1) 
                                 {
-                                    changed_score |= epmem_satisfy_literal(literal, triple.q0, triple.q1, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                    ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
+                                    ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
+                                    changed_score |= epmem_satisfy_literal(literal, triple.q0, triple.q1, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                    current_score = curScoreRef.value;
+                                    current_cardinality = curCardinalityRef.value;
                                 }
                             }
                         }
@@ -3445,7 +3520,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     EpmemLiteral literal = lit_iter;
                                     if (!literal.is_current || uedge.activation_count == 1) 
                                     {
-                                        changed_score |= epmem_satisfy_literal(literal, triple.q0, triple.q1, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                        // TODO: Consider just using ByRef throughout this function.
+                                        ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
+                                        ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
+                                        changed_score |= epmem_satisfy_literal(literal, triple.q0, triple.q1, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                        current_score = curScoreRef.value;
+                                        current_cardinality = curCardinalityRef.value;
                                     }
                                 }
                             }
@@ -3841,19 +3921,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * bool epmem_satisfy_literal(
-     *      epmem_literal* literal, 
+     *      epmem_literal* literal,     
      *      epmem_node_id parent, 
      *      epmem_node_id child, 
      *      double& current_score, 
      *      long int& current_cardinality, 
      *      epmem_symbol_node_pair_int_map& symbol_node_count, 
      *      epmem_triple_uedge_map uedge_caches[], 
-     *      epmem_symbol_int_map& symbol_num_incoming
-     *  )
+     *      epmem_symbol_int_map& symbol_num_incoming) {
      * 
      * @param literal
-     * @param q0
-     * @param q1
+     * @param parent
+     * @param child
      * @param current_score
      * @param current_cardinality
      * @param symbol_node_count
@@ -3863,17 +3942,89 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private boolean epmem_satisfy_literal(
             EpmemLiteral literal, 
-            long q0,
-            long q1, 
-            double current_score, 
-            long current_cardinality,
+            long parent,
+            long child, 
+            ByRef<Double> current_score, 
+            ByRef<Long> current_cardinality,
             Map<EpmemSymbolNodePair, Integer> symbol_node_count,
-            Map<EpmemTriple, 
-            EpmemUEdge>[] uedge_caches,
-            Map<SymbolImpl, Integer> symbol_num_incoming
-    )
+            SortedMap<EpmemTriple,EpmemUEdge>[] uedge_caches,
+            Map<SymbolImpl, Integer> symbol_num_incoming)
     {
-        // TODO: Implement this
+        if ( logger.isDebugEnabled() ) {
+            logger.debug("      RECURSING ON " + parent + " " + child + " " + literal); 
+        }
+                
+        // check if the ancestors of this literal are satisfied
+        boolean parents_satisfied = (literal.id_sym == null);
+        if (!parents_satisfied) {
+            // ancestors are satisfied if:
+            // 1. all incoming literals are satisfied
+            // 2. all incoming literals have this particular node satisfying it
+            
+            // TODO: Check if this map retrieval should return 0 if key is missing
+            Integer num_incoming = symbol_num_incoming.get(literal.id_sym);
+            Integer match = symbol_node_count.get(new EpmemSymbolNodePair(literal.id_sym, parent));
+            // since, by definition, if a node satisfies all incoming literals, all incoming literals are satisfied
+            parents_satisfied = (match != null) && (match == num_incoming);
+        }
+        // if yes
+        if ( parents_satisfied ) {
+            // add the edge as a match
+            literal.matches.add(new EpmemNodePair(parent, child));
+            Integer value = literal.values.get(child);
+            if ( value == null ) {
+                literal.values.put(child, 1);
+                if ( literal.is_leaf ) {
+                    if (literal.matches.size() == 1) {
+                        current_score.value += literal.weight;
+                        current_cardinality.value += (literal.is_neg_q != 0 ? -1 : 1);
+                        if ( logger.isDebugEnabled() ) {
+                            logger.debug("          NEW SCORE: " + current_score + ", " + current_cardinality );
+                        }
+                        return true;
+                    }
+                } else {
+                    boolean changed_score = false;
+                    // change bookkeeping information about ancestry
+                    EpmemSymbolNodePair matchKey = new EpmemSymbolNodePair(literal.value_sym, child);
+                    Integer match = symbol_node_count.get(matchKey);
+                    if ( match == null ) {
+                        symbol_node_count.put(matchKey, 1);
+                    } else {
+                        symbol_node_count.put(matchKey, match+1);
+                    }
+                    // recurse over child literals
+                    for ( EpmemLiteral child_lit : literal.children ) {
+                        SortedMap<EpmemTriple, EpmemUEdge> uedge_cache = uedge_caches[(int) child_lit.value_is_id];
+                        EpmemTriple child_triple = new EpmemTriple(child, child_lit.w, child_lit.q1);
+                        EpmemUEdge child_uedge = null;
+                        if (child_lit.q1 == EPMEM_NODEID_BAD) {
+                            SortedMap<EpmemTriple, EpmemUEdge> tailMap = uedge_cache.tailMap(child_triple);
+                            for ( Map.Entry<EpmemTriple, EpmemUEdge> entry : tailMap.entrySet()) {
+                                child_triple = entry.getKey();
+                                child_uedge = entry.getValue();
+                                if (child_triple.q0 != child || child_triple.w != child_lit.w) {
+                                    break;
+                                }
+                                if (child_uedge.activated && (!literal.is_current || child_uedge.activation_count == 1)) {
+                                    changed_score |= epmem_satisfy_literal(child_lit, child_triple.q0, child_triple.q1, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                }
+                            }
+                        } else {
+                            child_uedge = uedge_cache.get(child_triple);
+                            if (child_uedge != null ) {
+                                if (child_uedge.activated && (!literal.is_current || child_uedge.activation_count == 1)) {
+                                    changed_score |= epmem_satisfy_literal(child_lit, child_triple.q0, child_triple.q1, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                }
+                            }
+                        }
+                    }
+                    return changed_score;
+                }
+            } else {
+                literal.values.put(child, value+1);
+            }
+        }
         return false;
     }
 
