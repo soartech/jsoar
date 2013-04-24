@@ -23,11 +23,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
@@ -2742,7 +2744,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         double weight;
         Set<EpmemLiteral> parents;
         Set<EpmemLiteral> children;        
-        Set<EpmemNodePair>/*epmem_node_pair_set*/ matches;
+        NavigableSet<EpmemNodePair>/*epmem_node_pair_set*/ matches;
         Map<Long, Integer>/*epmem_node_int_map*/ values;
     }
     
@@ -2862,7 +2864,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
     }
     
-    private static class EpmemNodePair
+    private static class EpmemNodePair implements Comparable<EpmemNodePair>
     {
         public EpmemNodePair(long parent, long child)
         {
@@ -2897,6 +2899,20 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (second != other.second)
                 return false;
             return true;
+        }
+        
+        @Override
+        public int compareTo(EpmemNodePair other)
+        {
+            if (this.first != other.first)
+            {
+                return (this.first < other.first)?-1:1;
+            } 
+            else if (this.second != other.second) 
+            {
+                return (this.second < other.second)?-1:1;
+            }
+            return 0;
         }
     }
     /**
@@ -3127,7 +3143,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             new(&(root_literal->matches)) epmem_node_pair_set(std::less<epmem_node_pair>(), soar_module::soar_memory_pool_allocator<epmem_node_pair>(my_agent));
                 #else
                 */
-                root_literal.matches = new HashSet<EpmemNodePair>();
+                root_literal.matches = new TreeSet<EpmemNodePair>();
                 //#endif
                 root_literal.values = new  HashMap<Long, Integer>();
                 symbol_num_incoming.put(pos_query, 1);
@@ -3538,7 +3554,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 EpmemPEdge pedge = pedge_iter;
                                 for (EpmemLiteral lit_iter: pedge.literals)
                                 {
-                                    changed_score |= epmem_unsatisfy_literal(lit_iter, triple.q0, triple.q1, current_score, current_cardinality, symbol_node_count);
+                                    ByRef<Double> curScore = new ByRef<Double>(current_score);
+                                    ByRef<Long> curCardinality = new ByRef<Long>(current_cardinality);
+                                    changed_score |= epmem_unsatisfy_literal(lit_iter, triple.q0, triple.q1, curScore, curCardinality, symbol_node_count);
+                                    current_score = curScore.value;
+                                    current_cardinality = curCardinality.value;
                                 }
                             }
                         }
@@ -3907,15 +3927,74 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @return
      */
     private boolean epmem_unsatisfy_literal(
-            EpmemLiteral lit_iter, 
-            long q0,
-            long q1, 
-            double current_score, 
-            long current_cardinality,
+            EpmemLiteral literal, 
+            long /*epmem_node_id*/ parent,
+            long /*epmem_node_id*/ child, 
+            ByRef<Double> current_score, 
+            ByRef<Long> current_cardinality,
             Map<EpmemSymbolNodePair, Integer> symbol_node_count
     )
     {
-        // TODO Implement this
+        if (literal.matches.size() == 0) {
+            return false;
+        }
+        if ( logger.isDebugEnabled() ) {
+            logger.debug("      RECURSING ON " + parent + " " + child + " " + literal);
+        }
+        // we only need things if this parent-child pair is matching the literal
+        // epmem_node_pair_set::iterator lit_match_iter = literal->matches.find(std::make_pair(parent, child));
+        EpmemNodePair enpair = new EpmemNodePair(parent,child);
+        boolean removedMatch = literal.matches.remove(enpair);
+        if ( removedMatch ) {
+            // erase the edge from this literal's matches
+            // literal->matches.erase(lit_match_iter);
+            int value = literal.values.get(child);
+            //epmem_node_int_map::iterator values_iter = literal->values.find(child);
+            //(*values_iter).second--;
+            value--;
+            literal.values.put(child, value);
+            if ( value == 0) {
+                literal.values.remove(child);
+                if (literal.is_leaf) {
+                    if (literal.matches.size() == 0) {
+                        current_score.value -= literal.weight;
+                        current_cardinality.value -= (literal.is_neg_q != 0 ? -1 : 1);
+                        if ( logger.isDebugEnabled() ) {
+                            logger.debug("          NEW SCORE: " + current_score + ", " + current_cardinality);
+                        }
+                        return true;
+                    }
+                } else {
+                    boolean changed_score = false;
+                    EpmemSymbolNodePair match = new EpmemSymbolNodePair(literal.value_sym, child);
+                    int match_value = symbol_node_count.get(match);
+                    match_value--;
+                    if (match_value == 0) {
+                        symbol_node_count.remove(match);
+                    } else {
+                        symbol_node_count.put(match, match_value);
+                    }
+                    // if this literal is no longer satisfied, recurse on all children
+                    // if this literal is still satisfied, recurse on children who is matching on descendants of this edge
+                    if (literal.matches.size() == 0) {
+                        for (EpmemLiteral child_lit : literal.children ) {
+                            for (EpmemNodePair node : child_lit.matches ) {
+                                changed_score |= epmem_unsatisfy_literal(child_lit, node.first, node.second, current_score, current_cardinality, symbol_node_count);
+                            }
+                        }
+                    } else {
+                        EpmemNodePair node_pair = new EpmemNodePair(child, EPMEM_NODEID_BAD);
+                        for ( EpmemLiteral child_lit : literal.children ) {
+                            EpmemNodePair node = child_lit.matches.ceiling(node_pair);
+                            if (node != null && node.first == child) {
+                                changed_score |= epmem_unsatisfy_literal(child_lit, node.first, node.second, current_score, current_cardinality, symbol_node_count);
+                            }
+                        }
+                    }
+                    return changed_score;
+                }
+            }
+        }
         return false;
     }
 
