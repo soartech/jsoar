@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableSet;
@@ -3694,7 +3695,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 }
                                 */
                                 //my_agent->epmem_timers->query_graph_match->start();
-                                graph_matched = epmem_graph_match(gm_ordering, best_bindings, bound_nodes, 2);
+                                graph_matched = epmem_graph_match(gm_ordering, gm_ordering.listIterator(), best_bindings, bound_nodes, 2);
                                 //my_agent->epmem_timers->query_graph_match->stop();
                             }
                             if (!do_graph_match || graph_matched) 
@@ -3897,14 +3898,143 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @return
      */
     private boolean epmem_graph_match(
-            Deque<EpmemLiteral> gm_ordering,
-            Map<EpmemLiteral, EpmemNodePair> best_bindings,
+            LinkedList<EpmemLiteral> dnf_array,
+            ListIterator<EpmemLiteral> dnf_iter,
+            Map<EpmemLiteral, EpmemNodePair> bindings,
             Map<Long, SymbolImpl>[] bound_nodes, 
-            int i
+            int depth
     )
     {
-        // TODO Implement this.
-        //The parameter list from the C is not valid in Java, so it has been intentionaly altered. -ACN
+        if (!dnf_iter.hasNext()) {
+            return true;
+        }
+        
+        // Doing a next to get the value then a previous so 
+        // the cursor stays at its original position
+        EpmemLiteral literal = dnf_iter.next();
+        dnf_iter.previous();
+        
+        if (bindings.containsKey(literal)) {
+            return false;
+        }
+        //epmem_literal_deque::iterator next_iter = dnf_iter;
+        // TODO: This may be slow using linked lists but its the best out of the box option in Java
+        ListIterator<EpmemLiteral> next_iter = dnf_array.listIterator(dnf_iter.nextIndex());
+        //next_iter++;
+        next_iter.next();
+
+    //#ifdef USE_MEM_POOL_ALLOCATORS
+    //    epmem_node_set failed_parents = epmem_node_set(std::less<epmem_node_id>(), soar_module::soar_memory_pool_allocator<epmem_node_id>(my_agent));
+    //    epmem_node_set failed_children = epmem_node_set(std::less<epmem_node_id>(), soar_module::soar_memory_pool_allocator<epmem_node_id>(my_agent));
+    //#else
+        Set<Long> failed_parents = new HashSet<Long>();
+        Set<Long> failed_children = new HashSet<Long>();
+    //#endif
+        // go through the list of matches, binding each one to this literal in turn
+        for ( EpmemNodePair match : literal.matches ) {
+            long q0 = match.first;
+            long q1 = match.second;
+            if (failed_parents.contains(q0)) {
+                continue;
+            }
+            if (logger.isTraceEnabled()) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < depth; i++) {
+                    sb.append("\t");
+                }
+                sb.append("TRYING ").append(literal).append(" ").append(q0);
+                logger.trace(sb.toString());
+            }
+            boolean relations_okay = true;
+            // for all parents
+            for ( EpmemLiteral parent : literal.parents ) {
+                EpmemNodePair bind = bindings.get(parent); 
+                if (bind != null && bind.second != q0) {
+                    relations_okay = false;
+                    break;
+                }
+            }
+            if (!relations_okay) {
+                if ( logger.isTraceEnabled() ) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < depth; i++) {
+                        sb.append("\t");
+                    }
+                    sb.append("PARENT CONSTRAINT FAIL");
+                    logger.trace(sb.toString());
+                }
+                failed_parents.add(q0);
+                continue;
+            }
+            // if the node has already been bound, make sure it's bound to the same thing
+            SymbolImpl binder = bound_nodes[(int) literal.value_is_id].get(q1);
+            if (binder != null && binder != literal.value_sym) {
+                failed_children.add(q1);
+                continue;
+            }
+            if ( logger.isTraceEnabled() ) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < depth; i++) {
+                    sb.append("\t");
+                }
+                sb.append("TRYING ").append(literal).append(" ").append(q0).append(" ").append(q1);
+                logger.trace(sb.toString());
+            }
+            if (literal.q1 != EPMEM_NODEID_BAD && literal.q1 != q1) {
+                relations_okay = false;
+            }
+            // for all children
+            for ( EpmemLiteral child : literal.children ) {
+                EpmemNodePair bind = bindings.get(child);
+                if ( bind != null && bind.first != q1) {
+                    relations_okay = false;
+                    break;
+                }
+            }
+            if (!relations_okay) {
+                StringBuilder sb = new StringBuilder();
+                if (logger.isTraceEnabled()) {
+                    for (int i = 0; i < depth; i++) {
+                        sb.append("\t");
+                    }
+                    sb.append("CHILD CONSTRAINT FAIL");
+                    logger.trace(sb.toString());
+                }
+                failed_children.add(q1);
+                continue;
+            }
+            if (logger.isTraceEnabled()) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < depth; i++) {
+                    sb.append("\t");
+                }
+                sb.append(literal).append(" ").append(q0).append(" ").append(q1);
+            }
+            // temporarily modify the bindings and bound nodes
+            bindings.put(literal, new EpmemNodePair(q0,q1));
+            bound_nodes[(int) literal.value_is_id].put(q1, literal.value_sym);
+            
+            // recurse on the rest of the list
+            boolean list_satisfied = epmem_graph_match(dnf_array, next_iter, bindings, bound_nodes, depth + 1);
+            // if the rest of the list matched, we've succeeded
+            // otherwise, undo the temporarily modifications and try again
+            if (list_satisfied) {
+                return true;
+            } else {
+                bindings.remove(literal);
+                bound_nodes[(int) literal.value_is_id].remove(q1);
+            }
+        }
+        // this means we've tried everything and this whole exercise was a waste of time
+        // EPIC FAIL
+        if ( logger.isTraceEnabled() ) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < depth; i++) {
+                sb.append("\t");
+            }
+            sb.append("EPIC FAIL");
+            logger.trace(sb.toString());
+        }
         return false;
     }
 
