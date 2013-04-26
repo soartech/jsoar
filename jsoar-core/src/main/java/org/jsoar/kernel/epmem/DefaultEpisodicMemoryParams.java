@@ -12,6 +12,7 @@ import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.util.properties.BooleanPropertyProvider;
 import org.jsoar.util.properties.DefaultPropertyProvider;
+import org.jsoar.util.properties.DoublePropertyProvider;
 import org.jsoar.util.properties.EnumPropertyProvider;
 import org.jsoar.util.properties.PropertyKey;
 import org.jsoar.util.properties.PropertyManager;
@@ -72,6 +73,9 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Boolean> LAZY_COMMIT = key("lazy-commit", Boolean.class).defaultValue(true).build();
     final BooleanPropertyProvider lazy_commit = new BooleanPropertyProvider(LAZY_COMMIT);
     
+    static final PropertyKey<Double> BALANCE = key("balance", Double.class).defaultValue(1.0).build();
+    final DoublePropertyProvider balance = new DoublePropertyProvider(BALANCE);
+    
     static final PropertyKey<String> PATH = key("path", String.class).defaultValue(":memory:").build();
     final DefaultPropertyProvider<String> path = new DefaultPropertyProvider<String>(PATH);
     
@@ -125,6 +129,8 @@ class DefaultEpisodicMemoryParams
         properties.setProvider(MERGE, merge);
         properties.setProvider(GRAPH_MATCH, graph_match);
         properties.setProvider(GM_ORDERING, gm_ordering);
+        
+        properties.setProvider(BALANCE, balance);
         
         // exclude ^epmem and ^smem attributes from being added to epmem by default
         exclusions.add((SymbolImpl) sf.createString("epmem"));

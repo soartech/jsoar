@@ -4283,7 +4283,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *  )
      */
     private EpmemLiteral epmem_build_dnf(
-            WmeImpl wme_iter,
+            WmeImpl cue_wme,
             Map<WmeImpl, EpmemLiteral> literal_cache,
             Set<EpmemLiteral> leaf_literals,
             Map<SymbolImpl, Integer> symbol_num_incoming,
@@ -4292,10 +4292,149 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             long query_type, 
             Set<SymbolImpl> visiting, 
             Set<WmeImpl> cue_wmes
-    )
+    ) throws SQLException
     {
-        // TODO: Implement this
-        return null;
+        // if the value is being visited, this is part of a loop; return NULL
+        // remove this check (and in fact, the entire visiting parameter) if cyclic cues are allowed
+        if (visiting.contains(cue_wme.value)) {
+            return null;
+        }
+        // if the value is an identifier and we've been here before, we can return the previous literal
+        if (literal_cache.containsKey(cue_wme)) {
+            return literal_cache.get(cue_wme);
+        }
+
+        cue_wmes.add(cue_wme);
+        SymbolImpl value = cue_wme.value;
+        // epmem_literal* literal;
+        // allocate_with_pool(my_agent, &(my_agent->epmem_literal_pool), &literal);
+        EpmemLiteral literal = new EpmemLiteral();
+        //new(&(literal->parents)) epmem_literal_set();
+        //new(&(literal->children)) epmem_literal_set();
+        literal.parents = new HashSet<EpmemLiteral>();
+        literal.children = new HashSet<EpmemLiteral>();        
+
+        IdentifierImpl identifier = value.asIdentifier();
+        if ( identifier == null ) { // WME is a value
+            literal.value_is_id = EPMEM_RIT_STATE_NODE;
+            literal.is_leaf = true;
+            literal.q1 = epmem_temporal_hash(value);
+            leaf_literals.add(literal);
+        } else if ( identifier.smem_lti != 0 ) { // WME is an LTI
+            // if we can find the LTI node id, cache it; otherwise, return failure
+            //my_agent->epmem_stmts_graph->find_lti->bind_int(1, identifier.getNameLetter());
+            //my_agent->epmem_stmts_graph->find_lti->bind_int(2, identifier.getNameNumber());
+            db.find_lti.setLong(1, identifier.getNameLetter());
+            db.find_lti.setLong(2, identifier.getNameNumber());
+            ResultSet results = db.find_lti.executeQuery();
+            
+            try {
+                if ( results.next() ) {
+                    literal.value_is_id = EPMEM_RIT_STATE_EDGE;
+                    literal.is_leaf = true;
+                    literal.q1 = results.getLong(0 + 1);
+                    // my_agent->epmem_stmts_graph->find_lti->reinitialize();
+                    leaf_literals.add(literal);
+                } else {
+                    // my_agent->epmem_stmts_graph->find_lti->reinitialize();
+                    //literal->parents.~epmem_literal_set();
+                    //literal->children.~epmem_literal_set();
+                    literal.parents = null;
+                    literal.children = null;
+                    //free_with_pool(&(my_agent->epmem_literal_pool), literal);
+                    literal = null;
+                    return null;
+                }
+            } finally {
+                results.close();
+            }
+            
+        } else { // WME is a normal identifier
+            // we determine whether it is a leaf by checking for children
+            List<WmeImpl> children = epmem_get_augs_of_id(value, DefaultMarker.create());
+            literal.value_is_id = EPMEM_RIT_STATE_EDGE;
+            literal.q1 = EPMEM_NODEID_BAD;
+
+            // if the WME has no children, then it's a leaf
+            // otherwise, we recurse for all children
+            if (children.isEmpty()) {
+                literal.is_leaf = true;
+                leaf_literals.add(literal);
+                //delete children;
+            } else {
+                boolean cycle = false;
+                visiting.add(cue_wme.value);
+                for (WmeImpl wme_iter : children ) {
+                    // check to see if this child forms a cycle
+                    // if it does, we skip over it
+                    EpmemLiteral child = epmem_build_dnf(wme_iter, literal_cache, leaf_literals, symbol_num_incoming, gm_ordering, currents, query_type, visiting, cue_wmes);
+                    if (child != null) {
+                        child.parents.add(literal);
+                        literal.children.add(child);
+                    } else {
+                        cycle = true;
+                    }
+                }
+                //delete children;
+                visiting.remove(cue_wme.value);
+                // if all children of this WME lead to cycles, then we don't need to walk this path
+                // in essence, this forces the DNF graph to be acyclic
+                // this results in savings in not walking edges and intervals
+                if (cycle && literal.children.isEmpty()) {
+                    //literal->parents.~epmem_literal_set();
+                    //literal->children.~epmem_literal_set();
+                    literal.parents = null;
+                    literal.children = null;
+                    //free_with_pool(&(my_agent->epmem_literal_pool), literal);
+                    literal = null;
+                    return null;
+                }
+                literal.is_leaf = false;
+                Integer incomingCount = symbol_num_incoming.get(value);
+                if (incomingCount == null) {
+                    incomingCount = 1;
+                } else {
+                    incomingCount++;
+                }
+                symbol_num_incoming.put(value,  incomingCount);
+            }
+        }
+
+        if ( query_type == 0 ) {
+            gm_ordering.offerFirst(literal);
+        }
+
+        literal.id_sym = cue_wme.id;
+        literal.value_sym = cue_wme.value;
+        literal.is_current = currents.contains(value);
+        literal.w = epmem_temporal_hash(cue_wme.attr);
+        literal.is_neg_q = query_type;
+        literal.weight = (literal.is_neg_q != 0 ? -1 : 1) * (params.balance.get() >= 1.0 - 1.0e-8 ? 1.0 : wma_get_wme_activation(cue_wme, true));
+    //#ifdef USE_MEM_POOL_ALLOCATORS
+    //    new(&(literal->matches)) epmem_node_pair_set(std::less<epmem_node_pair>(), soar_module::soar_memory_pool_allocator<epmem_node_pair>(my_agent));
+    //#else
+    //    new(&(literal->matches)) epmem_node_pair_set();
+    //#endif
+    //    new(&(literal->values)) epmem_node_int_map();
+        literal.matches = new TreeSet<EpmemNodePair>();
+        literal.values = new HashMap<Long,Integer>();
+
+        literal_cache.put(cue_wme,literal);
+        return literal;
+    }
+    
+    // TODO: Unclear if this should even be here...
+    /*
+     * wma.cpp: 1212
+     * double wma_get_wme_activation( 
+     *              agent* my_agent, 
+     *              wme* w, 
+     *              bool log_result )
+     *
+     */
+    private double wma_get_wme_activation(WmeImpl w, boolean log_result) 
+    {
+        return 0.0;
     }
     
     /**
