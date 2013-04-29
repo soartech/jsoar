@@ -55,7 +55,7 @@ class DefaultEpisodicMemoryParams
     
     static enum GraphMatchChoices { on, off };
     
-    static enum GmOrderingChoices { gm_order_undefined, gm_order_dfs, gm_order_mcv };
+    static enum GmOrderingChoices { undefined, dfs, mcv };
     
     private static final String PREFIX = "epmem.params.";
     
@@ -104,7 +104,7 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<GraphMatchChoices> GRAPH_MATCH = key("graph_match", GraphMatchChoices.class).defaultValue(GraphMatchChoices.on).build();
     final EnumPropertyProvider<GraphMatchChoices> graph_match = new EnumPropertyProvider<GraphMatchChoices>(GRAPH_MATCH);
     
-    static final PropertyKey<GmOrderingChoices> GM_ORDERING= key("gm_ordering", GmOrderingChoices.class).defaultValue(GmOrderingChoices.gm_order_undefined).build();
+    static final PropertyKey<GmOrderingChoices> GM_ORDERING= key("gm_ordering", GmOrderingChoices.class).defaultValue(GmOrderingChoices.undefined).build();
     final EnumPropertyProvider<GmOrderingChoices> gm_ordering = new EnumPropertyProvider<GmOrderingChoices>(GM_ORDERING);
     
     private final PropertyManager properties;

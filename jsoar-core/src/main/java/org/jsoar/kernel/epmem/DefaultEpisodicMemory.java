@@ -3655,13 +3655,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             boolean graph_matched = false;
                             if (do_graph_match) 
                             {
-                                if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.gm_order_undefined)
+                                if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.undefined)
                                 {
                                     //TODO: This is probably sorting on pointer values.  Why is it here, and 
                                     //do we need to emulate it?
                                     //std::sort(gm_ordering.begin(), gm_ordering.end());
                                 }
-                                else if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.gm_order_mcv)
+                                else if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.mcv)
                                 {
                                     //std::sort(gm_ordering.begin(), gm_ordering.end(), epmem_gm_mcv_comparator);
                                     Collections.sort(

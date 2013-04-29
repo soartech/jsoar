@@ -4,7 +4,8 @@ epmem --set learning on
 epmem --set balance 1
 epmem --set trigger none
 
-watch --epmem
+#We aren't porting this yet. -ACN
+#watch --epmem
 
 sp {elaborate*state*name
    (state <s> ^superstate <ss>)
