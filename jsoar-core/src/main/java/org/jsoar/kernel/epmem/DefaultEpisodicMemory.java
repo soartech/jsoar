@@ -4258,14 +4258,95 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @return
      */
         
-    private boolean epmem_register_pedges(long q1, EpmemLiteral child_iter,
+    private boolean epmem_register_pedges(long parent, EpmemLiteral literal,
             PriorityQueue<EpmemPEdge> pedge_pq, long after,
             Map<EpmemTriple, EpmemPEdge>[] pedge_caches,
-            Map<EpmemTriple, EpmemUEdge>[] uedge_caches
-    )
+            SortedMap<EpmemTriple, EpmemUEdge>[] uedge_caches
+    ) throws SQLException
     {
-        // TODO Implement this
-        return false;
+        // we don't need to keep track of visited literals/nodes because the literals are guaranteed to be acyclic
+        // that is, the expansion to the literal's children will eventually bottom out
+        // select the query
+        EpmemTriple triple = new EpmemTriple(parent, literal.w, literal.q1);
+        int is_edge = (int) literal.value_is_id;
+        if ( logger.isDebugEnabled() ) {
+            logger.debug("      RECURSING ON " + parent + " " + literal);
+        }
+        // if the unique edge does not exist, create a new unique edge query
+        // otherwse, if the pedge has not been registered with this literal
+        Map<EpmemTriple, EpmemPEdge> pedge_cache = pedge_caches[is_edge];
+        EpmemPEdge child_pedge = pedge_cache.get(triple);
+        if ( child_pedge == null ) {
+            int has_value = (literal.q1 != EPMEM_NODEID_BAD ? 1 : 0);
+            //soar_module::pooled_sqlite_statement* pedge_sql = my_agent->epmem_stmts_graph->pool_find_edge_queries[is_edge][has_value]->request(my_agent->epmem_timers->query_sql_edge);
+
+            PreparedStatement pedge_sql = db.pool_find_edge_queries[is_edge][has_value].request();
+            int bind_pos = 1;
+            if (is_edge == 0) {
+                pedge_sql.setLong(bind_pos++, Long.MAX_VALUE);
+            }
+            pedge_sql.setLong(bind_pos++, triple.q0);
+            pedge_sql.setLong(bind_pos++, triple.w);
+            if (has_value != 0) {
+                pedge_sql.setLong(bind_pos++, triple.q1);
+            }
+            if (is_edge != 0) {
+                pedge_sql.setLong(bind_pos++, after);
+            }
+        
+            ResultSet results = pedge_sql.executeQuery();
+            try {
+                if ( results.next() ) {
+                    //allocate_with_pool(my_agent, &(my_agent->epmem_pedge_pool), &child_pedge);
+                    child_pedge = new EpmemPEdge();
+                    child_pedge.triple = triple;
+                    child_pedge.value_is_id = (int) literal.value_is_id;
+                    child_pedge.has_noncurrent = !literal.is_current;
+                    child_pedge.sql = pedge_sql;
+                    //new(&(child_pedge->literals)) epmem_literal_set();
+                    child_pedge.literals = new HashSet<EpmemLiteral>();
+                    child_pedge.literals.add(literal);
+                    //child_pedge.time = child_pedge.sql.column_int(2);
+                    child_pedge.time = results.getLong(2+1);
+                    pedge_pq.add(child_pedge);
+                    pedge_cache.put(triple,child_pedge);
+                    return true;
+                } else {
+                    return false;
+                }
+            } finally {
+                results.close();
+            }
+
+        } else {
+            if (!child_pedge.literals.contains(literal)) {
+                child_pedge.literals.add(literal);
+                if (!literal.is_current) {
+                    child_pedge.has_noncurrent = true;
+                }
+                // if the literal is an edge with no specified value, add the literal to all potential pedges
+                if (!literal.is_leaf && literal.q1 == EPMEM_NODEID_BAD) {
+                    boolean created = false;
+                    SortedMap<EpmemTriple,EpmemUEdge> uedge_cache = uedge_caches[is_edge];
+                    Map<EpmemTriple,EpmemUEdge> uedge_iter = uedge_cache.tailMap(triple);
+                    for ( Map.Entry<EpmemTriple, EpmemUEdge> entry : uedge_iter.entrySet() ) {
+                        EpmemTriple child_triple = entry.getKey();
+                        // make sure we're still looking at the right edge(s)
+                        if (child_triple.q0 != triple.q0 || child_triple.w != triple.w) {
+                            break;
+                        }
+                        EpmemUEdge child_uedge = entry.getValue();
+                        if (child_triple.q1 != EPMEM_NODEID_BAD && child_uedge.value_is_id != 0) {
+                            for (EpmemLiteral child_iter : literal.children ) {
+                                created |= epmem_register_pedges(child_triple.q1, child_iter, pedge_pq, after, pedge_caches, uedge_caches);
+                            }
+                        }
+                    }
+                    return created;
+                }
+            }
+        }
+        return true;
     }
 
     /**

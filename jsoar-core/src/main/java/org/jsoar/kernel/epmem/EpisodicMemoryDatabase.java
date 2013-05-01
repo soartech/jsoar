@@ -87,6 +87,19 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     final private static String poolDummy = "SELECT ? as start";
     final PreparedStatementFactory pool_dummy;
     
+    String epmem_find_edge_queries[/* 2 */][/* 2 */] = 
+    {
+        {
+            "SELECT child_id, value, ? FROM @PREFIX@node_unique WHERE parent_id=? AND attrib=?",
+            "SELECT child_id, value, ? FROM @PREFIX@node_unique WHERE parent_id=? AND attrib=? AND value=?" 
+        },
+        {
+            "SELECT parent_id, q1, last FROM @PREFIX@edge_unique WHERE q0=? AND w=? AND ?<last ORDER BY last DESC",
+            "SELECT parent_id, q1, last FROM @PREFIX@edge_unique WHERE q0=? AND w=? AND q1=? AND ?<last" 
+        } 
+    };
+    final PreparedStatementFactory[][] pool_find_edge_queries;
+    
     // Because the DB records when things are /inserted/, we need to offset
     // the start by 1 to /remove/ them at the right time. Ditto to even
     // include those intervals correctly
@@ -180,6 +193,19 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
             {
                 pool_find_lti_queries[ k ][ m ] = 
                     new PreparedStatementFactory( epmem_find_lti_queries[ k ][ m ], db, filter );
+            }
+        }
+        
+        //The bounds for these loops are #defined constants in the C, but they are out of scope here and
+        //the point is to populate one array using the other, so lets just do that. -ACN
+        pool_find_edge_queries = new PreparedStatementFactory[epmem_find_edge_queries.length][];
+        for ( int i=0; i < epmem_find_edge_queries.length; i++) 
+        {
+            pool_find_edge_queries[i] = new PreparedStatementFactory[epmem_find_edge_queries[i].length];
+            for ( int j=0; j < epmem_find_edge_queries[i].length; j++ )
+            {
+                pool_find_edge_queries[i][j] =
+                        new PreparedStatementFactory( epmem_find_edge_queries[i][j], db, filter );
             }
         }
     }
