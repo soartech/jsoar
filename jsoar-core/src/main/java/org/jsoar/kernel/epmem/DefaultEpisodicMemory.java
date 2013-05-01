@@ -1353,8 +1353,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             wmes = epmem_get_augs_of_id(parent_sym, tc);
                             if (!wmes.isEmpty())
                             {
-                                _epmem_store_level(parent_syms, parent_ids, tc, wmes, parent_id, time_counter,
-                                        id_reservations, new_identifiers, epmem_node, epmem_edge);
+                                _epmem_store_level(
+                                        parent_syms,
+                                        parent_ids,
+                                        tc,
+                                        wmes,
+                                        parent_id,
+                                        time_counter,
+                                        id_reservations,
+                                        new_identifiers,
+                                        epmem_node,
+                                        epmem_edge
+                                    );
                             }
                             wmes = null;
                         }
@@ -5708,6 +5718,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 Set<WmeImpl> my_refs = epmem_id_ref_counts.get(w.value.asIdentifier().epmem_id);
 
+                //This is to mimic the lazy insertion of entries from the stl map. -ACN
+                if(my_refs == null){
+                    my_refs = new HashSet<WmeImpl>();
+                    epmem_id_ref_counts.put(w.value.asIdentifier().epmem_id, my_refs);
+                }
                 if(my_refs.contains(w))
                 {
                     my_refs.remove(w);
