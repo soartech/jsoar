@@ -65,6 +65,7 @@ import org.jsoar.util.properties.PropertyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -2994,11 +2995,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 );
             return;
         }
-        /*
-        if (QUERY_DEBUG >= 1) {
-            std::cout << std::endl << "==========================" << std::endl << std::endl;
+
+        if ( logger.isDebugEnabled() ) {
+            logger.debug("\n==========================\n");
         }
-        */
         
         //my_agent->epmem_timers->query->start();
 
@@ -3278,11 +3278,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 interval_pq.add(root_interval);
                 interval_cleanup.add(root_interval);
             }
-            /*
-            if (QUERY_DEBUG >= 1) {
-                epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
             }
-            */
+
             /*
             #ifdef EPMEM_EXPERIMENT
                     epmem_episodes_searched = 0;
@@ -3306,11 +3306,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     EpmemPEdge pedge = pedge_pq.poll();
                     EpmemTriple triple = pedge.triple;
                     triple.q1 = pedge.sqlResults.getLong(1 + 1);
-                    /*
-                    if (QUERY_DEBUG >= 1) {
-                        std::cout << "  EDGE " << triple.q0 << "-" << triple.w << "-" << triple.q1 << std::endl;
+                    
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("  EDGE " + triple.q0 + "-" + triple.w + "-" + triple.q1);
                     }
-                    */
 
                     // create queries for the unique edge children of this partial edge
                     if (pedge.value_is_id != 0) 
@@ -3519,22 +3518,21 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 
                 while (interval_pq.size() != 0 && interval_pq.peek().time > next_edge && current_episode > after) 
                 {
-                    /*
-                    if (QUERY_DEBUG >= 1) {
-                        std::cout << "EPISODE " << current_episode << std::endl;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("EPISODE " + current_episode);
                     }
-                    */
+
                     // process all interval endpoints at this time step
                     while (interval_pq.size() != 0 && interval_pq.peek().time >= current_episode) 
                     {
                         EpmemInterval interval = interval_pq.poll();
                         EpmemUEdge uedge = interval.uedge;
                         EpmemTriple triple = uedge.triple;
-                        /*
-                        if (QUERY_DEBUG >= 1) {
-                            std::cout << "  INTERVAL (" << (interval->is_end_point ? "end" : "start") << "): " << triple.q0 << "-" << triple.w << "-" << triple.q1 << std::endl;
+
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("  INTERVAL (" + (interval.is_end_point != 0 ? "end" : "start") + "): " + triple.q0 + "-" + triple.w + "-" + triple.q1);
                         }
-                        */
+
                         if (interval.is_end_point != 0) 
                         {
                             uedge.activated = true;
@@ -3617,11 +3615,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         prohibits.remove(prohibits.size() - 1);
                     }
 
-                    /*
-                    if (QUERY_DEBUG >= 2) {
-                        epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
                     }
                     
+                    /*
                     if (my_agent->sysparams[TRACE_EPMEM_SYSPARAM]) {
                         char buf[256];
                         SNPRINTF(buf, 254, "CONSIDERING EPISODE (time, cardinality, score) (%lld, %ld, %f)\n", static_cast<long long int>(current_episode), current_cardinality, current_score);
@@ -3698,12 +3696,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 {
                                     bound_nodes[i] = new HashMap<Long, SymbolImpl>(); 
                                 }
-                                /*
-                                if (QUERY_DEBUG >= 1) {
-                                    std::cout << "  GRAPH MATCH" << std::endl;
-                                    epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches);
+                                
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug("  GRAPH MATCH");
+                                    logger.debug(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
                                 }
-                                */
+                                
                                 //my_agent->epmem_timers->query_graph_match->start();
                                 graph_matched = epmem_graph_match(gm_ordering, gm_ordering.listIterator(), best_bindings, bound_nodes, 2);
                                 //my_agent->epmem_timers->query_graph_match->stop();
@@ -4359,6 +4357,172 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return true;
     }
 
+    /**
+     * episodic_memory.cpp:3318
+     * 
+     * void epmem_print_retrieval_state(epmem_wme_literal_map& literals, 
+     *                                  epmem_triple_pedge_map pedge_caches[], 
+     *                                  epmem_triple_uedge_map uedge_caches[]) {
+     *   
+     */
+    private String epmem_print_retrieval_state(Map<WmeImpl,EpmemLiteral> literals, 
+                                               Map<EpmemTriple,EpmemPEdge> pedge_caches[], 
+                                               Map<EpmemTriple,EpmemUEdge> uedge_caches[]) {
+        //std::map<epmem_node_id, std::string> tsh;
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        sb.append("digraph {\n");
+        sb.append("node [style=\"filled\"];\n");
+        // LITERALS
+        sb.append("subgraph cluster_literals {\n");
+        sb.append("node [fillcolor=\"#0084D1\"];\n");
+        for (Map.Entry<WmeImpl, EpmemLiteral> entry : literals.entrySet()) {
+            EpmemLiteral literal = entry.getValue();
+            if (literal.id_sym != null) {
+                sb.append("\"" + literal.value_sym + "\" [");
+                if (literal.q1 == EPMEM_NODEID_BAD) {
+                    sb.append("label=\"" + literal.value_sym + "\"");
+                } else {
+                    sb.append("label=\"" + literal.q1 + "\"");
+                }
+                if (literal.value_is_id == 0) {
+                    sb.append(", shape=\"rect\"");
+                }
+                if (literal.matches.isEmpty()) {
+                    sb.append(", penwidth=\"2.0\"");
+                }
+                if (literal.is_neg_q != 0) {
+                    sb.append(", fillcolor=\"#C5000B\"");
+                }
+                sb.append("];\n");
+                sb.append("\"" + literal.id_sym + "\" -> \"" + literal.value_sym + "\" [label=\"");
+                if (literal.w == EPMEM_NODEID_BAD) {
+                    sb.append("?");
+                } else {
+                    sb.append(literal.w);
+                }
+                sb.append("\\n" + literal + "\"];\n");
+            }
+        }
+        sb.append("};\n");
+        // NODES / NODE->NODE
+        sb.append("subgraph cluster_uedges{\n");
+        sb.append("node [fillcolor=\"#FFD320\"];\n");
+        for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) {
+            Map<EpmemTriple,EpmemUEdge> uedge_cache = uedge_caches[type];
+            for (Map.Entry<EpmemTriple,EpmemUEdge> entry : uedge_cache.entrySet()) {
+                EpmemTriple triple = entry.getKey();
+                if (triple.q1 != EPMEM_NODEID_ROOT) {
+                    if (type == EPMEM_RIT_STATE_NODE) {
+                        sb.append("\"n" + triple.q1 + "\" [shape=\"rect\"];\n");
+                    }
+                    sb.append("\"e" + triple.q0 + "\" -> \"" + (type == EPMEM_RIT_STATE_NODE ? "n" : "e") + triple.q1 + "\" [label=\"" + triple.w + "\"];\n");
+                }
+            }
+        }
+        sb.append("};\n");
+        // PEDGES / LITERAL->PEDGE
+        sb.append("subgraph cluster_pedges {\n");
+        sb.append("node [fillcolor=\"#008000\"];\n");
+        HashMultimap<Long /*epmem_node_id*/, EpmemPEdge> parent_pedge_map = HashMultimap.create();
+        for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) {
+            Map<EpmemTriple,EpmemPEdge> pedge_cache = pedge_caches[type];
+            for (Map.Entry<EpmemTriple,EpmemPEdge> entry : pedge_cache.entrySet() ) {
+                EpmemTriple triple = entry.getKey();
+                EpmemPEdge pedge = entry.getValue();
+                if (triple.w != EPMEM_NODEID_BAD) {
+                    sb.append("\"" + pedge + "\" [label=\"" + pedge + "\\n(" + triple.q0 + ", " + triple.w + ", ");
+                    if (triple.q1 == EPMEM_NODEID_BAD) {
+                        sb.append("?");
+                    } else {
+                        sb.append(triple.q1);
+                    }
+                    sb.append(")\"");
+                    if (pedge.value_is_id == 0) {
+                        sb.append(", shape=\"rect\"");
+                    }
+                    sb.append("];\n");
+                    for (EpmemLiteral literal : pedge.literals ) {
+                        sb.append("\"" + literal.value_sym + "\" -> \"" + pedge + "\";\n");
+                    }
+                    parent_pedge_map.put(triple.q0, pedge);
+                }
+            }
+        }
+        sb.append("};\n");
+        // PEDGE->PEDGE / PEDGE->NODE
+        Set<EpmemPEdgeNodePair> drawn = new HashSet<EpmemPEdgeNodePair>();
+        for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) {
+            Map<EpmemTriple,EpmemUEdge> uedge_cache = uedge_caches[type];
+            for (Map.Entry<EpmemTriple, EpmemUEdge> entry : uedge_cache.entrySet()) {
+                EpmemTriple triple = entry.getKey();
+                EpmemUEdge uedge = entry.getValue();
+                if (triple.w != EPMEM_NODEID_BAD) {
+                    for (EpmemPEdge pedge : uedge.pedges ) {
+                        EpmemPEdgeNodePair pair = new EpmemPEdgeNodePair(pedge, triple.q0);
+                        if (!drawn.contains(pair)) {
+                            drawn.add(pair);
+                            sb.append("\"" + pedge + "\" -> \"e" + triple.q0 + "\";\n");
+                        }
+                        sb.append("\"" + pedge + "\" -> \"" + (pedge.value_is_id != 0 ? "e" : "n") + triple.q1 + "\" [style=\"dashed\"];\n");
+                        /*
+                        std::pair<std::multimap<epmem_node_id, epmem_pedge*>::iterator, std::multimap<epmem_node_id, epmem_pedge*>::iterator> pedge_iters = parent_pedge_map.equal_range(triple.q1);
+                        for (std::multimap<epmem_node_id, epmem_pedge*>::iterator pedge_iter = pedge_iters.first; pedge_iter != pedge_iters.second; pedge_iter++) {
+                        */
+                        for ( EpmemPEdge pedge_iter : parent_pedge_map.get(triple.q1) ) {
+                            sb.append("\"" + pedge + "\" -> \"" + pedge_iter + "\";\n");
+                        }
+                    }
+                }
+            }
+        }
+        sb.append("}\n");
+        return sb.toString();
+    }
+
+    // TODO: There should be a decent generic pair type around somewhere
+    private static class EpmemPEdgeNodePair {
+        EpmemPEdge pedge;
+        long node_id;
+        
+        EpmemPEdgeNodePair(EpmemPEdge pedge, long node_id) {
+            this.pedge = pedge;
+            this.node_id = node_id;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (int) (node_id ^ (node_id >>> 32));
+            result = prime * result + ((pedge == null) ? 0 : pedge.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            EpmemPEdgeNodePair other = (EpmemPEdgeNodePair) obj;
+            if (node_id != other.node_id)
+                return false;
+            if (pedge == null)
+            {
+                if (other.pedge != null)
+                    return false;
+            }
+            else if (!pedge.equals(other.pedge))
+                return false;
+            return true;
+        }
+    }
+    
     /**
      * episodic_memory.cpp:3431
      * epmem_literal* epmem_build_dnf(
