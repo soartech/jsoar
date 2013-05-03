@@ -383,7 +383,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         
         // CK: in smem this is called from smem_attach, there is no equivalent
         // function in episodic_memory.cpp
-        epmem_init_db_catch();
+        //epmem_init_db_catch();
         
         soarModule.initialize(context);
     }
