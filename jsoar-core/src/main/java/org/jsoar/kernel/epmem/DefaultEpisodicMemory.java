@@ -5630,7 +5630,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if ( w_p.attr == predefinedSyms.epmem_sym_retrieve )
                 {
                     //if ( ( (*w_p)->value->ic.common_symbol_info.symbol_type == INT_CONSTANT_SYMBOL_TYPE ) &&
-                    if ( ( Symbols.getSymbolType(w_p.getValue()) == Symbols.INT_CONSTANT_SYMBOL_TYPE ) &&
+                    if ( ( w_p.getValue().asInteger() != null ) &&
                             ( path == 0 ) &&
                             ( w_p.value.asInteger().getValue() > 0 ) )
                     {
@@ -5644,7 +5644,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_next )
                 {
-                    if ( ( Symbols.getSymbolType(w_p.getValue()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                    if ( ( w_p.getValue().asIdentifier() != null ) &&
                             ( path == 0 ) )
                     {
                         next = w_p.value;
@@ -5657,7 +5657,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_prev )
                 {
-                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                    if ( ( w_p.getValue().asIdentifier() != null ) &&
                             ( path == 0 ) )
                     {
                         previous = w_p.value;
@@ -5670,7 +5670,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_query )
                 {
-                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                    if ( ( w_p.getValue().asIdentifier() != null ) &&
                             ( ( path == 0 ) || ( path == 3 ) ) &&
                             ( query == null ) )
 
@@ -5685,7 +5685,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_negquery )
                 {
-                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                    if ( ( w_p.getValue().asInteger() != null ) &&
                             ( ( path == 0 ) || ( path == 3 ) ) &&
                             ( neg_query == null ) )
 
@@ -5700,7 +5700,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_before )
                 {
-                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.INT_CONSTANT_SYMBOL_TYPE ) &&
+                    if ( ( w_p.getValue().asInteger() != null ) &&
                             ( ( path == 0 ) || ( path == 3 ) ) )
                     {
                         if ( ( before == EPMEM_MEMID_NONE ) || ( w_p.value.asInteger().getValue() < before ) )
@@ -5716,7 +5716,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_after )
                 {
-                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.INT_CONSTANT_SYMBOL_TYPE ) &&
+                    if ( ( w_p.getValue().asInteger() != null ) &&
                             ( ( path == 0 ) || ( path == 3 ) ) )
                     {
                         if ( after < w_p.value.asInteger().getValue() )
@@ -5732,7 +5732,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_prohibit )
                 {
-                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.INT_CONSTANT_SYMBOL_TYPE ) &&
+                    if ( ( w_p.getValue().asInteger() != null ) &&
                             ( ( path == 0 ) || ( path == 3 ) ) )
                     {
                         prohibit.add( w_p.value.asInteger().getValue() );
@@ -5745,7 +5745,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_current )
                 {
-                    if ( ( Symbols.getSymbolType(w_p.getValue().asIdentifier()) == Symbols.IDENTIFIER_SYMBOL_TYPE ) &&
+                    if ( ( w_p.getValue().asIdentifier() != null ) &&
                             ( ( path == 0 ) || ( path == 3 ) ) )
                     {
                         currents.add( w_p.value );
