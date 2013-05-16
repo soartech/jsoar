@@ -2344,19 +2344,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         List<SymbolTriple> /* soar_module::symbol_triple_list */meta_wmes = Lists.newArrayList();
         List<SymbolTriple> /* soar_module::symbol_triple_list */retrieval_wmes = Lists.newArrayList();
 
-        long /* epmem_time_id */retrieve = 0;
+        ByRef<Long> /* epmem_time_id */retrieve = ByRef.create(0L);
         SymbolImpl next = null;
         SymbolImpl previous = null;
         SymbolImpl query = null;
         SymbolImpl neg_query = null;
         List<Long> /*epmem_time_list*/ prohibit = Lists.newLinkedList();
-        long /*epmem_time_id*/ before = 0;
-        long /*epmem_time_id*/ after = 0;
+        ByRef<Long> /*epmem_time_id*/ before = ByRef.create(0L);
+        ByRef<Long> /*epmem_time_id*/ after = ByRef.create(0L);
 
         Set<SymbolImpl> currents = Sets.newHashSet();
 
-        boolean good_cue = false;
-        int path = 0;
+        ByRef<Boolean> good_cue = ByRef.create(false);
+        ByRef<Integer> path = ByRef.create(0);
 
         long /* uint64_t */wme_count;
         boolean new_cue;
@@ -2449,14 +2449,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 meta_wmes.clear();
 
                 // process command
-                if (good_cue)
+                if (good_cue.value)
                 {
                     // retrieve
-                    if (path == 1)
+                    if (path.value == 1)
                     {
                         epmem_install_memory(
                                 state, 
-                                retrieve, 
+                                retrieve.value, 
                                 meta_wmes,
                                 retrieval_wmes);
 
@@ -2464,7 +2464,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         stats.ncbr.set(stats.ncbr.get() + 1L);
                     }
                     // previous or next
-                    else if (path == 2)
+                    else if (path.value == 2)
                     {
                         if (next != null)
                         {
@@ -2507,15 +2507,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                     }
                     // query
-                    else if (path == 3)
+                    else if (path.value == 3)
                     {
                         epmem_process_query(
                                 state, 
                                 query, 
                                 neg_query, 
                                 prohibit, 
-                                before, 
-                                after, 
+                                before.value, 
+                                after.value, 
                                 currents, 
                                 cue_wmes, 
                                 meta_wmes, 
@@ -5569,12 +5569,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
     /**
      * <p>
-     * episodic_memory.cpp:5063:void inline _epmem_respond_to_cmd_parse( agent*
-     * my_agent, epmem_wme_list* cmds, bool& good_cue, int& path, epmem_time_id&
-     * retrieve, Symbol*& next, Symbol*& previous, Symbol*& query, Symbol*&
-     * neg_query, epmem_time_list& prohibit, epmem_time_id& before,
-     * epmem_time_id& after, epmem_symbol_set& currents, soar_module::wme_set&
-     * cue_wmes )
+     * episodic_memory.cpp:5063:
+     * void inline _epmem_respond_to_cmd_parse( 
+     *      agent*
+     *      my_agent, 
+     *      epmem_wme_list* cmds, 
+     *      bool& good_cue, 
+     *      int& path, 
+     *      epmem_time_id& retrieve, 
+     *      Symbol*& next, 
+     *      Symbol*& previous, 
+     *      Symbol*& query, 
+     *      Symbol*& neg_query, 
+     *      epmem_time_list& prohibit, 
+     *      epmem_time_id& before, 
+     *      epmem_time_id& after, 
+     *      epmem_symbol_set& currents, 
+     *      soar_module::wme_set& cue_wmes 
+     *  )
      * 
      * @param cmds
      * @param good_cue
@@ -5592,31 +5604,31 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private void _epmem_respond_to_cmd_parse(
             List<WmeImpl> cmds, 
-            boolean good_cue, 
-            int path, 
-            long retrieve, 
+            final ByRef<Boolean> good_cue, 
+            final ByRef<Integer> path, 
+            final ByRef<Long> retrieve, 
             SymbolImpl next, 
             SymbolImpl previous,
             SymbolImpl query, 
             SymbolImpl neg_query, 
             List<Long> prohibit, 
-            long before, 
-            long after, 
+            final ByRef<Long> before, 
+            final ByRef<Long> after, 
             Set<SymbolImpl> currents, 
             Set<WmeImpl> cue_wmes)
     {
         cue_wmes.clear();
 
-        retrieve = EPMEM_MEMID_NONE;
+        retrieve.value = EPMEM_MEMID_NONE;
         next = null;
         previous = null;
         query = null;
         neg_query = null;
         prohibit.clear();
-        before = EPMEM_MEMID_NONE;
-        after = EPMEM_MEMID_NONE;
-        good_cue = true;
-        path = 0;
+        before.value = EPMEM_MEMID_NONE;
+        after.value = EPMEM_MEMID_NONE;
+        good_cue.value = true;
+        path.value = 0;
         
 
         //for ( epmem_wme_list::iterator w_p=cmds->begin(); w_p!=cmds->end(); w_p++ )
@@ -5624,155 +5636,155 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             cue_wmes.add( (w_p) );
 
-            if ( good_cue )
+            if ( good_cue.value )
             {
                 // collect information about known commands
                 if ( w_p.attr == predefinedSyms.epmem_sym_retrieve )
                 {
                     //if ( ( (*w_p)->value->ic.common_symbol_info.symbol_type == INT_CONSTANT_SYMBOL_TYPE ) &&
                     if ( ( w_p.getValue().asInteger() != null ) &&
-                            ( path == 0 ) &&
+                            ( path.value == 0 ) &&
                             ( w_p.value.asInteger().getValue() > 0 ) )
                     {
-                        retrieve = w_p.value.asInteger().getValue();
-                        path = 1;
+                        retrieve.value = w_p.value.asInteger().getValue();
+                        path.value = 1;
                     }
                     else
                     {
-                        good_cue = false;
+                        good_cue.value = false;
                     }
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_next )
                 {
                     if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( path == 0 ) )
+                            ( path.value == 0 ) )
                     {
                         next = w_p.value;
-                        path = 2;
+                        path.value = 2;
                     }
                     else
                     {
-                        good_cue = false;
+                        good_cue.value = false;
                     }
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_prev )
                 {
                     if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( path == 0 ) )
+                            ( path.value == 0 ) )
                     {
                         previous = w_p.value;
-                        path = 2;
+                        path.value = 2;
                     }
                     else
                     {
-                        good_cue = false;
+                        good_cue.value = false;
                     }
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_query )
                 {
                     if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( ( path == 0 ) || ( path == 3 ) ) &&
+                            ( ( path.value == 0 ) || ( path.value == 3 ) ) &&
                             ( query == null ) )
 
                     {
                         query = w_p.value;
-                        path = 3;
+                        path.value = 3;
                     }
                     else
                     {
-                        good_cue = false;
+                        good_cue.value = false;
                     }
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_negquery )
                 {
                     if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( ( path == 0 ) || ( path == 3 ) ) &&
+                            ( ( path.value == 0 ) || ( path.value == 3 ) ) &&
                             ( neg_query == null ) )
 
                     {
                         neg_query = w_p.value;
-                        path = 3;
+                        path.value = 3;
                     }
                     else
                     {
-                        good_cue = false;
+                        good_cue.value = false;
                     }
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_before )
                 {
                     if ( ( w_p.getValue().asInteger() != null ) &&
-                            ( ( path == 0 ) || ( path == 3 ) ) )
+                            ( ( path.value == 0 ) || ( path.value == 3 ) ) )
                     {
-                        if ( ( before == EPMEM_MEMID_NONE ) || ( w_p.value.asInteger().getValue() < before ) )
+                        if ( ( before.value == EPMEM_MEMID_NONE ) || ( w_p.value.asInteger().getValue() < before.value ) )
                         {
-                            before = w_p.value.asInteger().getValue();
+                            before.value = w_p.value.asInteger().getValue();
                         }
-                        path = 3;
+                        path.value = 3;
                     }
                     else
                     {
-                        good_cue = false;
+                        good_cue.value = false;
                     }
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_after )
                 {
                     if ( ( w_p.getValue().asInteger() != null ) &&
-                            ( ( path == 0 ) || ( path == 3 ) ) )
+                            ( ( path.value == 0 ) || ( path.value == 3 ) ) )
                     {
-                        if ( after < w_p.value.asInteger().getValue() )
+                        if ( after.value < w_p.value.asInteger().getValue() )
                         {
-                            after = w_p.value.asInteger().getValue();
+                            after.value = w_p.value.asInteger().getValue();
                         }
-                        path = 3;
+                        path.value = 3;
                     }
                     else
                     {
-                        good_cue = false;
+                        good_cue.value = false;
                     }
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_prohibit )
                 {
                     if ( ( w_p.getValue().asInteger() != null ) &&
-                            ( ( path == 0 ) || ( path == 3 ) ) )
+                            ( ( path.value == 0 ) || ( path.value == 3 ) ) )
                     {
                         prohibit.add( w_p.value.asInteger().getValue() );
-                        path = 3;
+                        path.value = 3;
                     }
                     else
                     {
-                        good_cue = false;
+                        good_cue.value = false;
                     }
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_current )
                 {
                     if ( ( w_p.getValue().asIdentifier() != null ) &&
-                            ( ( path == 0 ) || ( path == 3 ) ) )
+                            ( ( path.value == 0 ) || ( path.value == 3 ) ) )
                     {
                         currents.add( w_p.value );
-                        path = 3;
+                        path.value = 3;
                     }
                     else
                     {
-                        good_cue = false;
+                        good_cue.value = false;
                     }
                 }
                 else
                 {
-                    good_cue = false;
+                    good_cue.value = false;
                 }
             }
         }
         
         // if on path 3 must have query
-        if ( ( path == 3 ) && ( query == null ) )
+        if ( ( path.value == 3 ) && ( query == null ) )
         {
-            good_cue = false;
+            good_cue.value = false;
         }
 
         // must be on a path
-        if ( path == 0 )
+        if ( path.value == 0 )
         {
-            good_cue = false;
+            good_cue.value = false;
         }
         
     }
