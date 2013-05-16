@@ -5685,7 +5685,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else if ( w_p.attr == predefinedSyms.epmem_sym_negquery )
                 {
-                    if ( ( w_p.getValue().asInteger() != null ) &&
+                    if ( ( w_p.getValue().asIdentifier() != null ) &&
                             ( ( path == 0 ) || ( path == 3 ) ) &&
                             ( neg_query == null ) )
 
