@@ -2011,7 +2011,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     ps.setLong(3, wmeValueId.epmem_id);
                     // TODO: will this be a problem if different from C++ max?
                     ps.setLong(4, Long.MAX_VALUE);
-                    
+                    ps.execute();
                     // CK: not all database drivers support this
                     final ResultSet rs = ps.getGeneratedKeys();
                     try
@@ -2122,7 +2122,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         ps.setLong(1, parent_id);
                         ps.setLong(2, my_hash);
                         ps.setLong(3, my_hash2);
-
+                        ps.execute();
                         // CK: not all database drivers support this
                         final ResultSet rs = ps.getGeneratedKeys();
                         try
@@ -2274,7 +2274,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         hash_add.setDouble(2, sym.asDouble().getValue());
                         break;
                     }
-
+                    hash_add.execute();
                     // CK: not all database drivers support this
                     final ResultSet hash_add_rs = hash_add.getGeneratedKeys();
                     try
