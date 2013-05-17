@@ -65,6 +65,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
             rs.next();
             value = rs.getLong("value");
             assertTrue("id "+id+" is "+value+", expected "+expectedVals.get(id), value == (long)expectedVals.get(id));
+            expectedVals.remove((Integer)id);
         }
     }
     
@@ -121,6 +122,7 @@ public class EpMemSaveToDbTests extends FunctionalTestHarness
             }
             assertTrue("id "+id+" is "+sym_type+", expected "+temporalSymbols.get(id).sym_type, 
                     temporalSymbols.get(id).sym_type == sym_type);
+            temporalSymbols.remove(id);
         }
     }
 }
