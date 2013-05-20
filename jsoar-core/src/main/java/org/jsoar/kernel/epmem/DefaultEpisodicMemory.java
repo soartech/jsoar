@@ -1389,7 +1389,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                     // add NOW entry
                     // id = ?, start = ?
-                    db.add_edge_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
+                    db.add_node_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
                     // 1, (*temp_node) );
                     db.add_node_now.setLong(2, time_counter); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
                     // 2, time_counter
