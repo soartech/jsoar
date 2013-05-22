@@ -2356,14 +2356,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         List<SymbolTriple> /* soar_module::symbol_triple_list */meta_wmes = Lists.newArrayList();
         List<SymbolTriple> /* soar_module::symbol_triple_list */retrieval_wmes = Lists.newArrayList();
 
-        ByRef<Long> /* epmem_time_id */retrieve = ByRef.create(0L);
-        SymbolImpl next = null;
-        SymbolImpl previous = null;
-        SymbolImpl query = null;
-        SymbolImpl neg_query = null;
+        final ByRef<Long> /* epmem_time_id */retrieve = ByRef.create(0L);
+        final ByRef<SymbolImpl> next = new ByRef<SymbolImpl>(null);
+        final ByRef<SymbolImpl> previous = new ByRef<SymbolImpl>(null);
+        final ByRef<SymbolImpl> query = new ByRef<SymbolImpl>(null);
+        final ByRef<SymbolImpl> neg_query = new ByRef<SymbolImpl>(null);
         List<Long> /*epmem_time_list*/ prohibit = Lists.newLinkedList();
-        ByRef<Long> /*epmem_time_id*/ before = ByRef.create(0L);
-        ByRef<Long> /*epmem_time_id*/ after = ByRef.create(0L);
+        final ByRef<Long> /*epmem_time_id*/ before = ByRef.create(0L);
+        final ByRef<Long> /*epmem_time_id*/ after = ByRef.create(0L);
 
         Set<SymbolImpl> currents = Sets.newLinkedHashSet();
 
@@ -2507,7 +2507,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     meta_wmes, 
                                     epmem_info.epmem_result_header, 
                                     predefinedSyms.epmem_sym_failure, 
-                                    ((next != null) ? (next) : (previous)));
+                                    ((next.value != null) ? (next.value) : (previous.value)));
                         }
                         else
                         {
@@ -2515,7 +2515,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     meta_wmes, 
                                     epmem_info.epmem_result_header, 
                                     predefinedSyms.epmem_sym_success, 
-                                    ((next != null) ? (next) : (previous)));
+                                    ((next.value != null) ? (next.value) : (previous.value)));
                         }
                     }
                     // query
@@ -2523,8 +2523,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         epmem_process_query(
                                 state, 
-                                query, 
-                                neg_query, 
+                                query.value, 
+                                neg_query.value, 
                                 prohibit, 
                                 before.value, 
                                 after.value, 
@@ -2696,7 +2696,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // otherwise, we submit the fake instantiation to backtracing
             // such as to potentially produce justifications that can follow
             // it to future adventures (potentially on new states)
-            final ByRef<Instantiation> my_justification_list = null;//NIL;
+            final ByRef<Instantiation> my_justification_list = new ByRef<Instantiation>(null);//NIL;
             chunker.chunk_instantiation( inst, false, my_justification_list );
 
             // if any justifications are created, assert their preferences manually
@@ -5619,10 +5619,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             final ByRef<Boolean> good_cue, 
             final ByRef<Integer> path, 
             final ByRef<Long> retrieve, 
-            SymbolImpl next, 
-            SymbolImpl previous,
-            SymbolImpl query, 
-            SymbolImpl neg_query, 
+            final ByRef<SymbolImpl> next, 
+            final ByRef<SymbolImpl> previous,
+            final ByRef<SymbolImpl> query, 
+            final ByRef<SymbolImpl> neg_query, 
             List<Long> prohibit, 
             final ByRef<Long> before, 
             final ByRef<Long> after, 
@@ -5632,10 +5632,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         cue_wmes.clear();
 
         retrieve.value = EPMEM_MEMID_NONE;
-        next = null;
-        previous = null;
-        query = null;
-        neg_query = null;
         prohibit.clear();
         before.value = EPMEM_MEMID_NONE;
         after.value = EPMEM_MEMID_NONE;
@@ -5671,7 +5667,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     if ( ( w_p.getValue().asIdentifier() != null ) &&
                             ( path.value == 0 ) )
                     {
-                        next = w_p.value;
+                        next.value = w_p.value;
                         path.value = 2;
                     }
                     else
@@ -5684,7 +5680,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     if ( ( w_p.getValue().asIdentifier() != null ) &&
                             ( path.value == 0 ) )
                     {
-                        previous = w_p.value;
+                        previous.value = w_p.value;
                         path.value = 2;
                     }
                     else
@@ -5696,10 +5692,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     if ( ( w_p.getValue().asIdentifier() != null ) &&
                             ( ( path.value == 0 ) || ( path.value == 3 ) ) &&
-                            ( query == null ) )
+                            ( query.value == null ) )
 
                     {
-                        query = w_p.value;
+                        query.value = w_p.value;
                         path.value = 3;
                     }
                     else
@@ -5711,10 +5707,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     if ( ( w_p.getValue().asIdentifier() != null ) &&
                             ( ( path.value == 0 ) || ( path.value == 3 ) ) &&
-                            ( neg_query == null ) )
+                            ( neg_query.value == null ) )
 
                     {
-                        neg_query = w_p.value;
+                        neg_query.value = w_p.value;
                         path.value = 3;
                     }
                     else
