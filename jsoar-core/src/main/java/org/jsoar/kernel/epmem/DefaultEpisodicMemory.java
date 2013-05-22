@@ -2195,7 +2195,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     /**
      * Returns a temporally unique integer representing a symbol constant.
-     * <p> episodic_memory.cpp:1928:epmem_hash_id epmem_temporal_hash( agent *my_agent, Symbol *sym, bool add_on_fail = true )
+     * <p> episodic_memory.cpp:1928:
+     * epmem_hash_id epmem_temporal_hash( 
+     *      agent *my_agent, 
+     *      Symbol *sym, 
+     *      bool add_on_fail = true 
+     *  )
      * @param sym
      * @param add_on_fail
      * @return

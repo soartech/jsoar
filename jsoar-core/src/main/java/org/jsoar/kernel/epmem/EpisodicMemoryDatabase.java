@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import org.jsoar.util.db.AbstractSoarDatabase;
+import org.jsoar.util.db.SoarPreparedStatement;
 
 /**
  * Database helper class for epmem.
@@ -280,7 +281,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         public PreparedStatement request(){
             try
             {
-                return db.prepareStatement(sql);
+                return new SoarPreparedStatement(db.prepareStatement(sql), sql);
             }
             catch (SQLException e)
             {
