@@ -1462,8 +1462,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                         // remove NOW entry
                         // id = ?
-                        db.delete_edge_now.setLong(1, r.getKey());
-                        db.delete_edge_now.executeUpdate(/*soar_module::op_reinit*/);
+                        db.delete_node_now.setLong(1, r.getKey());
+                        db.delete_node_now.executeUpdate(/*soar_module::op_reinit*/);
 
                         range_start = epmem_node_mins.get((int)(r.getKey()-1));
                         range_end = ( time_counter - 1 );
@@ -1473,7 +1473,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             db.add_node_point.setLong(1, r.getKey());
                             db.add_node_point.setLong(2, range_start);
-                            db.add_edge_point.executeUpdate(/*soar_module::op_reinit*/);
+                            db.add_node_point.executeUpdate(/*soar_module::op_reinit*/);
                         }
                         // node
                         else
