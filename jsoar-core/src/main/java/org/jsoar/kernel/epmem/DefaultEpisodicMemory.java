@@ -16,8 +16,8 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -236,10 +236,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private Deque<SymbolImpl> /* epmem_symbol_stack */epmem_id_removes;
 
     /** agent.h:epmem_wme_adds */
-    private final Set<IdentifierImpl> /* epmem_symbol_set */epmem_wme_adds = new HashSet<IdentifierImpl>();
+    private final Set<IdentifierImpl> /* epmem_symbol_set */epmem_wme_adds = new LinkedHashSet<IdentifierImpl>();
 
     /** agent.h:epmem_promotions */
-    private final Set<SymbolImpl> /* epmem_symbol_set */epmem_promotions = new HashSet<SymbolImpl>();
+    private final Set<SymbolImpl> /* epmem_symbol_set */epmem_promotions = new LinkedHashSet<SymbolImpl>();
     
     /** episodic_memory.h:51:EPMEM_NODEID_ROOT */
     private static final Long EPMEM_NODEID_ROOT = 0L;
@@ -262,7 +262,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     EpisodicMemorySymbols predefinedSyms;
 
     private final Map<IdentifierImpl, EpisodicMemoryStateInfo> stateInfos = 
-            new HashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
+            new LinkedHashMap<IdentifierImpl, EpisodicMemoryStateInfo>();
     
     private final SoarModule soarModule = new SoarModule();
 
@@ -303,7 +303,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // src/agent.cpp:393: newAgent->epmem_node_removals = new
         // epmem_id_removal_map();
-        epmem_node_removals = Maps.newHashMap();
+        epmem_node_removals = Maps.newLinkedHashMap();
         // src/agent.cpp:375: newAgent->epmem_node_mins = new
         // std::vector<epmem_time_id>();
         epmem_node_mins = Lists.newArrayList();
@@ -318,7 +318,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // bool > >( newAgent ) );
         // src/agent.cpp:394: newAgent->epmem_edge_removals = new
         // epmem_id_removal_map();
-        epmem_edge_removals = Maps.newHashMap();
+        epmem_edge_removals = Maps.newLinkedHashMap();
         // src/agent.cpp:378: newAgent->epmem_edge_mins = new
         // std::vector<epmem_time_id>();
         epmem_edge_mins = Lists.newArrayList();
@@ -326,9 +326,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // std::vector<bool>();
         epmem_edge_maxes = Lists.newArrayList();
 
-        epmem_id_repository = Maps.newHashMap();
-        epmem_id_replacement = Maps.newHashMap();
-        epmem_id_ref_counts = Maps.newHashMap();
+        epmem_id_repository = Maps.newLinkedHashMap();
+        epmem_id_replacement = Maps.newLinkedHashMap();
+        epmem_id_ref_counts = Maps.newLinkedHashMap();
         epmem_id_removes = Lists.newLinkedList();
 
         // TODO implement these?
@@ -618,9 +618,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         epmem_edge_maxes.clear();
         epmem_edge_removals.clear();
 
-        epmem_id_repository.put(EPMEM_NODEID_ROOT, new HashMap<Long, Map<Long, Long>>());
+        epmem_id_repository.put(EPMEM_NODEID_ROOT, new LinkedHashMap<Long, Map<Long, Long>>());
         {
-            Set<WmeImpl> wms_temp = Sets.newHashSet();
+            Set<WmeImpl> wms_temp = Sets.newLinkedHashSet();
             wms_temp.add(null);
             epmem_id_ref_counts.put(EPMEM_NODEID_ROOT, wms_temp);
         }
@@ -819,7 +819,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     hp = epmem_id_repository.get(q0);
                     if (hp == null)
                     {
-                        hp = Maps.newHashMap();
+                        hp = Maps.newLinkedHashMap();
                         epmem_id_repository.put(q0, hp);
                     }
 
@@ -829,7 +829,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     ip = hp.get(w);
                     if (ip == null)
                     {
-                        ip = Maps.newHashMap();
+                        ip = Maps.newLinkedHashMap();
                         hp.put(w, ip);
                     }
 
@@ -842,7 +842,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     hp = epmem_id_repository.get(q1);
                     if (hp == null)
                     {
-                        hp = Maps.newHashMap();
+                        hp = Maps.newLinkedHashMap();
                         epmem_id_repository.put(q1, hp);
                     }
                 }
@@ -1333,8 +1333,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 long parent_id;
 
                 // cross-level information
-                Map<WmeImpl, EpisodicMemoryIdReservation> id_reservations = new HashMap<WmeImpl, EpisodicMemoryIdReservation>();
-                Set<SymbolImpl> new_identifiers = new HashSet<SymbolImpl>();
+                Map<WmeImpl, EpisodicMemoryIdReservation> id_reservations = new LinkedHashMap<WmeImpl, EpisodicMemoryIdReservation>();
+                Set<SymbolImpl> new_identifiers = new LinkedHashSet<SymbolImpl>();
 
                 // start with new WMEs attached to known identifiers
                 for (IdentifierImpl id_p : epmem_wme_adds)
@@ -1740,7 +1740,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 else
                 {
                     // add repository
-                    my_id_repo = Maps.newHashMap();
+                    my_id_repo = Maps.newLinkedHashMap();
                 }
                 
                 new_id_reservation.my_pool = my_id_repo;
@@ -1819,7 +1819,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
                             // add repository
-                            Map<Long, Map<Long, Long>> epmem_hashed_id_pool = Maps.newHashMap();
+                            Map<Long, Map<Long, Long>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
                             epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
                             
                             _epmem_promote_id(wmeValueId, time_counter);
@@ -1923,7 +1923,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             else
                             {
                                 // add repository
-                                my_id_repo = Maps.newHashMap();
+                                my_id_repo = Maps.newLinkedHashMap();
                             }
 
                             // keep the address for later (used if w->epmem_id was not assigned)
@@ -1976,7 +1976,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         else
                         {
                             // add repository
-                            my_id_repo = Maps.newHashMap();
+                            my_id_repo = Maps.newLinkedHashMap();
                         }
                         
                         // keep the address for later (used if w->epmem_id was not assgined)
@@ -1997,10 +1997,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
                         // add repository for possible future children
-                        Map<Long, Map<Long, Long>> epmem_hashed_id_pool = Maps.newHashMap();
+                        Map<Long, Map<Long, Long>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
                         epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
                         
-                        Set<WmeImpl> epmem_wme_set = Sets.newHashSet();
+                        Set<WmeImpl> epmem_wme_set = Sets.newLinkedHashSet();
                         epmem_id_ref_counts.put(wmeValueId.epmem_id, epmem_wme_set);
                     }
                     
@@ -2065,7 +2065,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // because we could have bypassed the ref set before, we need to create it here
                     if (epmem_id_ref_counts.get(wmeValueId.epmem_id).size() == 0)
                     {
-                        Set<WmeImpl> epmem_wme_set = Sets.newHashSet();
+                        Set<WmeImpl> epmem_wme_set = Sets.newLinkedHashSet();
                         epmem_id_ref_counts.put(wmeValueId.epmem_id, epmem_wme_set);
                     }
                     epmem_id_ref_counts.get(wmeValueId.epmem_id).add(wme);
@@ -2345,7 +2345,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         List<WmeImpl> wmes;
         List<WmeImpl> cmds;
 
-        Set<WmeImpl> /* soar_module::wme_set */cue_wmes = Sets.newHashSet();
+        Set<WmeImpl> /* soar_module::wme_set */cue_wmes = Sets.newLinkedHashSet();
         List<SymbolTriple> /* soar_module::symbol_triple_list */meta_wmes = Lists.newArrayList();
         List<SymbolTriple> /* soar_module::symbol_triple_list */retrieval_wmes = Lists.newArrayList();
 
@@ -2358,7 +2358,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         ByRef<Long> /*epmem_time_id*/ before = ByRef.create(0L);
         ByRef<Long> /*epmem_time_id*/ after = ByRef.create(0L);
 
-        Set<SymbolImpl> currents = Sets.newHashSet();
+        Set<SymbolImpl> currents = Sets.newLinkedHashSet();
 
         ByRef<Boolean> good_cue = ByRef.create(false);
         ByRef<Integer> path = ByRef.create(0);
@@ -3019,7 +3019,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         GmOrderingChoices gm_order = params.gm_ordering.get();
 
         // variables needed for cleanup
-        Map<WmeImpl, EpmemLiteral> /*epmem_wme_literal_map*/ literal_cache = new HashMap<WmeImpl, EpmemLiteral>();
+        Map<WmeImpl, EpmemLiteral> /*epmem_wme_literal_map*/ literal_cache = new LinkedHashMap<WmeImpl, EpmemLiteral>();
         Map<EpmemTriple, EpmemPEdge>/*epmem_triple_pedge_map*/[] pedge_caches = new Map[2];
         /*
         #ifdef USE_MEM_POOL_ALLOCATORS
@@ -3037,7 +3037,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         uedge_caches[0] = new TreeMap<EpmemTriple, EpmemUEdge>();
         uedge_caches[1] = new TreeMap<EpmemTriple, EpmemUEdge>();
         
-        Set<EpmemInterval> /*epmem_interval_set*/ interval_cleanup = new HashSet<EpmemInterval>();
+        Set<EpmemInterval> /*epmem_interval_set*/ interval_cleanup = new LinkedHashSet<EpmemInterval>();
         //#endif
 
         //This comment is left here from the C code: // TODO additional indices
@@ -3045,7 +3045,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // variables needed for building the DNF
         EpmemLiteral root_literal = new EpmemLiteral();
         //allocate_with_pool(my_agent, &(my_agent->epmem_literal_pool), &root_literal);
-        Set<EpmemLiteral>/*epmem_literal_set*/ leaf_literals = new HashSet<EpmemLiteral>();
+        Set<EpmemLiteral>/*epmem_literal_set*/ leaf_literals = new LinkedHashSet<EpmemLiteral>();
 
         // priority queues for interval walk
         //epmem_pedge_pq pedge_pq;
@@ -3116,10 +3116,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // variables needed to track satisfiability
         // number of literals with a certain symbol as its value
         Map<SymbolImpl, Integer>/*epmem_symbol_int_map*/ symbol_num_incoming 
-            = new HashMap<SymbolImpl, Integer>();
+            = new LinkedHashMap<SymbolImpl, Integer>();
         // number of times a symbol is matched by a node
         Map<EpmemSymbolNodePair, Integer>/*epmem_symbol_node_pair_int_map*/ symbol_node_count
-            = new HashMap<EpmemSymbolNodePair, Integer>();
+            = new LinkedHashMap<EpmemSymbolNodePair, Integer>();
 
         // various things about the current and the best episodes
         long/*epmem_time_id*/ best_episode = EPMEM_MEMID_NONE;
@@ -3127,7 +3127,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         boolean best_graph_matched = false;
         long/*long int*/ best_cardinality = 0;
         Map<EpmemLiteral, EpmemNodePair>/*epmem_literal_node_pair_map*/ best_bindings
-            = new HashMap<EpmemLiteral, EpmemNodePair>();
+            = new LinkedHashMap<EpmemLiteral, EpmemNodePair>();
         double current_score = 0;
         long/*long int*/ current_cardinality = 0;
 
@@ -3152,8 +3152,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 root_literal.w = EPMEM_NODEID_BAD;
                 root_literal.q1 = EPMEM_NODEID_ROOT;
                 root_literal.weight = 0.0;
-                root_literal.parents = new HashSet<EpmemLiteral>();
-                root_literal.children = new HashSet<EpmemLiteral>();
+                root_literal.parents = new LinkedHashSet<EpmemLiteral>();
+                root_literal.children = new LinkedHashSet<EpmemLiteral>();
                 /*
                 #ifdef USE_MEM_POOL_ALLOCATORS
                             new(&(root_literal->matches)) epmem_node_pair_set(std::less<epmem_node_pair>(), soar_module::soar_memory_pool_allocator<epmem_node_pair>(my_agent));
@@ -3161,11 +3161,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 */
                 root_literal.matches = new TreeSet<EpmemNodePair>();
                 //#endif
-                root_literal.values = new  HashMap<Long, Integer>();
+                root_literal.values = new  LinkedHashMap<Long, Integer>();
                 symbol_num_incoming.put(pos_query, 1);
                 literal_cache.put(null, root_literal);
 
-                Set<SymbolImpl>/*std::set<Symbol*>*/ visiting = new HashSet<SymbolImpl>();
+                Set<SymbolImpl>/*std::set<Symbol*>*/ visiting = new LinkedHashSet<SymbolImpl>();
                 visiting.add(pos_query);
                 visiting.add(neg_query);
                 for (int query_type = EPMEM_NODE_POS; query_type <= EPMEM_NODE_NEG; query_type++) 
@@ -3251,7 +3251,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 root_pedge.triple = triple;
                 root_pedge.value_is_id = EPMEM_RIT_STATE_EDGE;
                 root_pedge.has_noncurrent = false;
-                root_pedge.literals = new HashSet<EpmemLiteral>();
+                root_pedge.literals = new LinkedHashSet<EpmemLiteral>();
                 root_pedge.literals.add(root_literal);
                 root_pedge.sql = db.pool_dummy.request();//my_agent->epmem_stmts_graph->pool_dummy->request();
                 root_pedge.sql.setLong(1, Long.MAX_VALUE/*LLONG_MAX*/);
@@ -3266,7 +3266,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 root_uedge.value_is_id = EPMEM_RIT_STATE_EDGE;
                 root_uedge.has_noncurrent = false;
                 root_uedge.activation_count = 0;
-                root_uedge.pedges = new HashSet<EpmemPEdge>();
+                root_uedge.pedges = new LinkedHashSet<EpmemPEdge>();
                 root_uedge.intervals = 1;
                 root_uedge.activated = false;
                 uedge_caches[EPMEM_RIT_STATE_EDGE].put(triple, root_uedge);
@@ -3347,7 +3347,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         uedge.value_is_id = pedge.value_is_id;
                         uedge.has_noncurrent = pedge.has_noncurrent;
                         uedge.activation_count = 0;
-                        uedge.pedges  = new HashSet<EpmemPEdge>();
+                        uedge.pedges  = new LinkedHashSet<EpmemPEdge>();
                         uedge.intervals = 0;
                         uedge.activated = false;
                         // create interval queries for this partial edge
@@ -3699,7 +3699,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 Map<Long/*epmem_node_id*/, SymbolImpl>[]/*epmem_node_symbol_map*/ bound_nodes = (Map<Long, SymbolImpl>[])new Map[2];
                                 for(int i = 0; i < bound_nodes.length; i++)
                                 {
-                                    bound_nodes[i] = new HashMap<Long, SymbolImpl>(); 
+                                    bound_nodes[i] = new LinkedHashMap<Long, SymbolImpl>(); 
                                 }
                                 
                                 if (logger.isDebugEnabled()) {
@@ -3756,8 +3756,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 //my_agent->epmem_timers->query_result->start();
                 SymbolImpl temp_sym;
-                Map<Long/*epmem_node_id*/, SymbolImpl>/*epmem_id_mapping*/ node_map_map = new HashMap<Long, SymbolImpl>();
-                Map<Long/*epmem_node_id*/, SymbolImpl>/*epmem_id_mapping*/ node_mem_map = new HashMap<Long, SymbolImpl>();
+                Map<Long/*epmem_node_id*/, SymbolImpl>/*epmem_id_mapping*/ node_map_map = new LinkedHashMap<Long, SymbolImpl>();
+                Map<Long/*epmem_node_id*/, SymbolImpl>/*epmem_id_mapping*/ node_mem_map = new LinkedHashMap<Long, SymbolImpl>();
                 // cue size
                 temp_sym = symbols.createInteger(leaf_literals.size());
                 epmem_buffer_add_wme(meta_wmes, epmem_info(state).epmem_result_header, predefinedSyms.epmem_sym_cue_size, temp_sym);
@@ -3940,8 +3940,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     //    epmem_node_set failed_parents = epmem_node_set(std::less<epmem_node_id>(), soar_module::soar_memory_pool_allocator<epmem_node_id>(my_agent));
     //    epmem_node_set failed_children = epmem_node_set(std::less<epmem_node_id>(), soar_module::soar_memory_pool_allocator<epmem_node_id>(my_agent));
     //#else
-        Set<Long> failed_parents = new HashSet<Long>();
-        Set<Long> failed_children = new HashSet<Long>();
+        Set<Long> failed_parents = new LinkedHashSet<Long>();
+        Set<Long> failed_children = new LinkedHashSet<Long>();
     //#endif
         // go through the list of matches, binding each one to this literal in turn
         for ( EpmemNodePair match : literal.matches ) {
@@ -4317,7 +4317,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     child_pedge.has_noncurrent = !literal.is_current;
                     child_pedge.sql = pedge_sql;
                     //new(&(child_pedge->literals)) epmem_literal_set();
-                    child_pedge.literals = new HashSet<EpmemLiteral>();
+                    child_pedge.literals = new LinkedHashSet<EpmemLiteral>();
                     child_pedge.literals.add(literal);
                     //child_pedge.time = child_pedge.sql.column_int(2);
                     child_pedge.time = results.getLong(2+1);
@@ -4456,7 +4456,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         }
         sb.append("};\n");
         // PEDGE->PEDGE / PEDGE->NODE
-        Set<EpmemPEdgeNodePair> drawn = new HashSet<EpmemPEdgeNodePair>();
+        Set<EpmemPEdgeNodePair> drawn = new LinkedHashSet<EpmemPEdgeNodePair>();
         for (int type = EPMEM_RIT_STATE_NODE; type <= EPMEM_RIT_STATE_EDGE; type++) {
             Map<EpmemTriple,EpmemUEdge> uedge_cache = uedge_caches[type];
             for (Map.Entry<EpmemTriple, EpmemUEdge> entry : uedge_cache.entrySet()) {
@@ -4571,8 +4571,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         EpmemLiteral literal = new EpmemLiteral();
         //new(&(literal->parents)) epmem_literal_set();
         //new(&(literal->children)) epmem_literal_set();
-        literal.parents = new HashSet<EpmemLiteral>();
-        literal.children = new HashSet<EpmemLiteral>();        
+        literal.parents = new LinkedHashSet<EpmemLiteral>();
+        literal.children = new LinkedHashSet<EpmemLiteral>();        
 
         IdentifierImpl identifier = value.asIdentifier();
         if ( identifier == null ) { // WME is a value
@@ -4677,7 +4677,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     //#endif
     //    new(&(literal->values)) epmem_node_int_map();
         literal.matches = new TreeSet<EpmemNodePair>();
-        literal.values = new HashMap<Long,Integer>();
+        literal.values = new LinkedHashMap<Long,Integer>();
 
         literal_cache.put(cue_wme,literal);
         return literal;
@@ -4982,7 +4982,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             
             // shared identifier lookup table
             //std::map< epmem_node_id, std::pair< Symbol*, bool > > ids;
-            Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids = new HashMap<Long, SymbolBooleanPair>();
+            Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids = new LinkedHashMap<Long, SymbolBooleanPair>();
             boolean dont_abide_by_ids_second = (params.merge.get() == MergeChoices.merge_add);
             
             // symbols used to create WMEs
@@ -5901,7 +5901,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                 //This is to mimic the lazy insertion of entries from the stl map. -ACN
                 if(my_refs == null){
-                    my_refs = new HashSet<WmeImpl>();
+                    my_refs = new LinkedHashSet<WmeImpl>();
                     epmem_id_ref_counts.put(w.value.asIdentifier().epmem_id, my_refs);
                 }
                 if(my_refs.contains(w))
