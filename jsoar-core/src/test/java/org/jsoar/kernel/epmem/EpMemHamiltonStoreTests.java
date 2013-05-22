@@ -486,4 +486,47 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                 expectedRows.isEmpty()
             );
     }
+    
+    @Test
+    public void testVarsTable() throws Exception
+    {
+        runTest("testHamilton_store", 2);
+        
+        /*
+         * id      start
+         * 1-11    1
+         */
+        
+        final Map<Long, Long> expectedRows = new HashMap<Long, Long>();
+        expectedRows.put(0L,-1L);
+        expectedRows.put(1L,0L);
+        expectedRows.put(2L,1L);
+        expectedRows.put(3L, Long.MAX_VALUE);
+        expectedRows.put(4L,-1L);
+        expectedRows.put(5L,0L);
+        expectedRows.put(6L,1L);
+        expectedRows.put(7L, Long.MAX_VALUE);
+        expectedRows.put(8L,14L);
+        
+        final PreparedStatement p = getConnection().prepareStatement(
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "vars");
+        
+        final ResultSet results = p.executeQuery();
+        
+        while(results.next()){
+            assertTrue(
+                    "vars contained unexpected " + results.getLong("id") + ", " + results.getLong("value"),
+                    expectedRows.get(results.getLong("id")) == results.getLong("value")
+                );
+            expectedRows.remove(results.getLong("id"));
+        }
+        assertTrue(
+                "vars did not contain expected row " + 
+                        (expectedRows.isEmpty()?"":
+                            expectedRows.keySet().toArray()[0]
+                            + ", " + 
+                            expectedRows.get(expectedRows.keySet().toArray()[0])),
+                        expectedRows.isEmpty()
+                );
+    }
 }
