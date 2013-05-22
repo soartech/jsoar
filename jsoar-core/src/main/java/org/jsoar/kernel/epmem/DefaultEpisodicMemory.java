@@ -3345,7 +3345,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // otherwise, link up the uedge with the pedge and consider score changes
                     Map<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map**/ uedge_cache = uedge_caches[pedge.value_is_id];
                     EpmemUEdge uedge_iter = uedge_cache.get(triple);
-                    if (uedge_iter != null) 
+                    if (uedge_iter == null) 
                     {
                         // create a uedge for this
                         EpmemUEdge uedge = new EpmemUEdge();
