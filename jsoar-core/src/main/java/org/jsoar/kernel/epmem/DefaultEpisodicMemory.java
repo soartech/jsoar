@@ -3028,6 +3028,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // variables needed for cleanup
         Map<WmeImpl, EpmemLiteral> /*epmem_wme_literal_map*/ literal_cache = new LinkedHashMap<WmeImpl, EpmemLiteral>();
         Map<EpmemTriple, EpmemPEdge>/*epmem_triple_pedge_map*/[] pedge_caches = new Map[2];
+        pedge_caches[0] = new LinkedHashMap<DefaultEpisodicMemory.EpmemTriple, DefaultEpisodicMemory.EpmemPEdge>();
+        pedge_caches[1] = new LinkedHashMap<DefaultEpisodicMemory.EpmemTriple, DefaultEpisodicMemory.EpmemPEdge>();
         /*
         #ifdef USE_MEM_POOL_ALLOCATORS
             epmem_triple_uedge_map uedge_caches[2] = {
