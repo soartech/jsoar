@@ -4356,6 +4356,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     //new(&(child_pedge->literals)) epmem_literal_set();
                     child_pedge.literals = new LinkedHashSet<EpmemLiteral>();
                     child_pedge.literals.add(literal);
+                    child_pedge.sqlResults = results;
                     //child_pedge.time = child_pedge.sql.column_int(2);
                     child_pedge.time = results.getLong(2+1);
                     pedge_pq.add(child_pedge);
