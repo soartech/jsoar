@@ -2294,6 +2294,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         if (hash_add_rs.next())
                         {
                             return_val = hash_add_rs.getLong(1);
+                            logger.info("last row id: "+return_val);
                         }
                         else
                         {
@@ -2312,7 +2313,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 sym.epmem_hash_id = return_val;
                 sym.epmem_valid = epmem_validation;
             }
-
             return_val = sym.epmem_hash_id;
         }
 
@@ -4704,6 +4704,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         literal.value_sym = cue_wme.value;
         literal.is_current = currents.contains(value);
         literal.w = epmem_temporal_hash(cue_wme.attr);
+        logger.info("literal.w "+literal.w);
         literal.is_neg_q = query_type;
         literal.weight = (literal.is_neg_q != 0 ? -1 : 1) * (params.balance.get() >= 1.0 - 1.0e-8 ? 1.0 : wma_get_wme_activation(cue_wme, true));
     //#ifdef USE_MEM_POOL_ALLOCATORS
@@ -5368,16 +5369,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             if ( !existing_identifier )
             {
-                id_p = ids.put(
-                    q1, 
-                    new SymbolBooleanPair(
-                            symbols.make_new_identifier(
-                                    ( (Symbols.getSymbolType(attr) == Symbols.SYM_CONSTANT_SYMBOL_TYPE )?( attr.getFirstLetter() ):('E') ), 
-                                    parent.asIdentifier().level
-                                ), 
-                            true
-                        )
-                    );
+                // CK: std::map insert does not replace existing elements in the map
+                // check that ids doesn't already contain the key
+                if (!ids.containsKey(q1))
+                {
+                    ids.put(q1,
+                            new SymbolBooleanPair(symbols.make_new_identifier(
+                                    ((Symbols.getSymbolType(attr) == Symbols.SYM_CONSTANT_SYMBOL_TYPE) ? (attr.getFirstLetter()) : ('E')),
+                                    parent.asIdentifier().level), true));
+                }
+                id_p = ids.get(q1);
                 
                 //if ( id_record )
                 if ( id_record != null )
@@ -5391,7 +5392,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     }
                 }
             }
-
             epmem_buffer_add_wme( retrieval_wmes, parent, attr, id_p.first );
 
             //if ( !existing_identifier )
