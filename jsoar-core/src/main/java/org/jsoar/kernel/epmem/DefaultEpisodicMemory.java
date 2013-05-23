@@ -1532,10 +1532,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 for(SymbolImpl p_it : epmem_promotions)
                 {
-                    if((p_it.asIdentifier().smem_time_id == time_counter ) && (
-                            p_it.asIdentifier().id_smem_valid == epmem_validation ) )
+                    final IdentifierImpl identifier = p_it.asIdentifier();
+                    if((identifier.smem_time_id == time_counter ) && (
+                            identifier.id_smem_valid == epmem_validation ) )
                     {
-                        _epmem_promote_id(p_it, time_counter );
+                        _epmem_promote_id(identifier, time_counter );
                     }
                     //SJK: I don't believe this is necessary; see DefaultSemanticMemory.java:1648
                     //symbol_remove_ref( my_agent, (*p_it) );
@@ -2179,12 +2180,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * @param t
      * @throws SQLException 
      */
-    void _epmem_promote_id( SymbolImpl id, long /*epmem_time_id*/ t ) throws SQLException
+    void _epmem_promote_id( IdentifierImpl id, long /*epmem_time_id*/ t ) throws SQLException
     {
         final PreparedStatement ps = db.promote_id;
-        ps.setLong(1, id.asIdentifier().epmem_id);
-        ps.setLong(2, id.asIdentifier().getNameLetter());
-        ps.setLong(3, id.asIdentifier().getNameNumber());
+        ps.setLong(1, id.epmem_id);
+        ps.setLong(2, id.getNameLetter());
+        ps.setLong(3, id.getNameNumber());
         ps.setLong(4, t);
         ps.executeUpdate();
     }
