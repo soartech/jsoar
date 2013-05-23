@@ -3530,7 +3530,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             try
                             {
-                            pedge.time = results.getLong(2 + 1);
+                                pedge.time = results.getLong(2 + 1);
                             }
                             catch (SQLException e)
                             {
@@ -4345,30 +4345,29 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
         
             ResultSet results = pedge_sql.executeQuery();
-            try {
-                if ( results.next() ) {
-                    //allocate_with_pool(my_agent, &(my_agent->epmem_pedge_pool), &child_pedge);
-                    child_pedge = new EpmemPEdge();
-                    child_pedge.triple = triple;
-                    child_pedge.value_is_id = (int) literal.value_is_id;
-                    child_pedge.has_noncurrent = !literal.is_current;
-                    child_pedge.sql = pedge_sql;
-                    //new(&(child_pedge->literals)) epmem_literal_set();
-                    child_pedge.literals = new LinkedHashSet<EpmemLiteral>();
-                    child_pedge.literals.add(literal);
-                    child_pedge.sqlResults = results;
-                    //child_pedge.time = child_pedge.sql.column_int(2);
-                    child_pedge.time = results.getLong(2+1);
-                    pedge_pq.add(child_pedge);
-                    pedge_cache.put(triple,child_pedge);
-                    return true;
-                } else {
-                    return false;
-                }
-            } finally {
-                results.close();
+            if (results.next())
+            {
+                // allocate_with_pool(my_agent, &(my_agent->epmem_pedge_pool),
+                // &child_pedge);
+                child_pedge = new EpmemPEdge();
+                child_pedge.triple = triple;
+                child_pedge.value_is_id = (int) literal.value_is_id;
+                child_pedge.has_noncurrent = !literal.is_current;
+                child_pedge.sql = pedge_sql;
+                // new(&(child_pedge->literals)) epmem_literal_set();
+                child_pedge.literals = new LinkedHashSet<EpmemLiteral>();
+                child_pedge.literals.add(literal);
+                child_pedge.sqlResults = results;
+                // child_pedge.time = child_pedge.sql.column_int(2);
+                child_pedge.time = results.getLong(2 + 1);
+                pedge_pq.add(child_pedge);
+                pedge_cache.put(triple, child_pedge);
+                return true;
             }
-
+            else
+            {
+                return false;
+            }
         } else {
             if (!child_pedge.literals.contains(literal)) {
                 child_pedge.literals.add(literal);
