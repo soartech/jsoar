@@ -121,7 +121,13 @@ public class SoarTechXmlToWme implements XmlToWme
             
             final Element kid = (Element) node;
             final String linkTo = kid.getAttribute(SoarTechWmeToXml.LINK);
-            final Symbol attribute = syms.createString(kid.getTagName());
+            final String tagName = kid.getTagName();
+            if (null == tagName)
+            {
+            	logger.warn("null tagName on node " + node);
+            	continue;
+            }
+            final Symbol attribute = syms.createString(tagName);
             if(linkTo.length() == 0)
             {
                 final Symbol value = getValue(kid);
@@ -160,7 +166,11 @@ public class SoarTechXmlToWme implements XmlToWme
             value = element.getTextContent();
         }
         
-        if(SoarTechWmeToXml.DOUBLE.equals(type))
+        if (null == value)
+        {
+        	return syms.createString("");
+        }
+        else if(SoarTechWmeToXml.DOUBLE.equals(type))
         {
             return syms.createDouble(Double.valueOf(value));
         }
