@@ -3436,8 +3436,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 {
                                     interval_sql = db.pool_find_interval_queries[pedge.value_is_id][point_type][interval_type].request(/*sql_timer*/);
                                 }
-                                //This is setting the binding index for sql queries, which is 1 higher in jdbc vs. C
-                                int bind_pos = 1 + 1;
+                                // CK: both the JDBC and C drivers have an index of 1 for the leftmost parameter in a prepared statement
+                                // (see: http://www.sqlite.org/c3ref/bind_blob.html)
+                                int bind_pos = 1;
                                 if (point_type == EPMEM_RANGE_END && interval_type == EPMEM_RANGE_NOW) 
                                 {
                                     interval_sql.setLong(bind_pos++, current_episode);
