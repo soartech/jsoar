@@ -1615,7 +1615,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // input wmes
             if (id.getInputWmes() != null)
             {
-                for (WmeImpl wi = id.getInputWmes(); wi.next != null; wi = wi.next)
+                for (WmeImpl wi = id.getInputWmes(); wi != null; wi = wi.next)
                 {
                     return_val.add(wi);
                 }
@@ -1823,6 +1823,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         if(wmeValueId.epmem_id == EPMEM_NODEID_BAD)
                         {
                             wmeValueId.epmem_id = stats.getNextId();
+                            logger.info("next epmem id: "+wmeValueId.epmem_id);
                             stats.setNextId(wmeValueId.epmem_id + 1L);
                             epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
@@ -2000,6 +2001,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         // update next id
                         wmeValueId.epmem_id = stats.getNextId();
+                        logger.info("next epmem id: "+wmeValueId.epmem_id);
                         wmeValueId.epmem_valid = epmem_validation;
                         stats.setNextId(wmeValueId.epmem_id + 1L);
                         epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
