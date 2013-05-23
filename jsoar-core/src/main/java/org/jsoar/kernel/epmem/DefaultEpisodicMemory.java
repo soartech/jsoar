@@ -1686,46 +1686,46 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             Queue< Long > epmem_node, 
             Queue< Long > epmem_edge ) throws SQLException
     {
-    	boolean value_known_apriori = false;
-    	
-    	// temporal hash
-    	long /*epmem_hash_id*/ my_hash;	// attribute
-    	long /*epmem_hash_id*/ my_hash2;	// value
-    	
+        boolean value_known_apriori = false;
+
+        // temporal hash
+        long /* epmem_hash_id */my_hash; // attribute
+        long /* epmem_hash_id */my_hash2; // value
+
         // id repository
         Map<Long, Long> /*epmem_id_pool*/ my_id_repo;
         Map<Long, Long> /*epmem_id_pool*/ my_id_repo2 = null;
         // epmem_id_pool::iterator pool_p;
         EpisodicMemoryIdReservation r_p;
-    	EpisodicMemoryIdReservation new_id_reservation;
-    	
+        EpisodicMemoryIdReservation new_id_reservation;
+
         // identifier recursion
         // CK: these are unused
         // List<WmeImpl> w_p2;
         // boolean good_recurse = false;
-    	
-    	// find WME ID for WMEs whose value is an identifier and has a known epmem id 
-    	// (prevents ordering issues with unknown children)
-    	for(WmeImpl wme : w_p)
-    	{
-    		// skip over WMEs already in the system
-    		if( wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation)
-    		{
-    		    continue;
-    		}
-    		
-    		if( wme.value.asIdentifier() != null && 
-    		        ( wme.value.asIdentifier().epmem_id != EPMEM_NODEID_BAD && 
-    		          wme.value.asIdentifier().epmem_valid == epmem_validation ) &&
-    		        wme.value.asIdentifier().smem_lti == 0 )
-    		{
-    		    // prevent exclusions from being recorded
-    		    if(params.exclusions.contains(wme.attr))
-    		    {
-    		        continue;
-    		    }
-    		    
-    		    // if still here, create reservation (case 1)
+        
+        // find WME ID for WMEs whose value is an identifier and has a known epmem id 
+        // (prevents ordering issues with unknown children)
+        for (WmeImpl wme : w_p)
+        {
+            // skip over WMEs already in the system
+            if (wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation)
+            {
+                continue;
+            }
+
+            if ( wme.value.asIdentifier() != null && 
+                    ( wme.value.asIdentifier().epmem_id != EPMEM_NODEID_BAD && 
+                    wme.value.asIdentifier().epmem_valid == epmem_validation ) &&
+                    wme.value.asIdentifier().smem_lti == 0 )
+            {
+                // prevent exclusions from being recorded
+                if (params.exclusions.contains(wme.attr))
+                {
+                    continue;
+                }
+
+                // if still here, create reservation (case 1)
                 if(wme.acceptable)
                 {
                     new_id_reservation = new EpisodicMemoryIdReservation(EPMEM_NODEID_BAD, EPMEM_HASH_ACCEPTABLE);
@@ -1753,12 +1753,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 new_id_reservation.my_pool = my_id_repo;
                 id_reservations.put(wme, new_id_reservation);
                 new_id_reservation = null;
-    		}
-    	}
-    	
-    	for(WmeImpl wme : w_p)
-    	{
-    	    // skip over WMEs already in the system
+            }
+        }
+
+        for (WmeImpl wme : w_p)
+        {
+            // skip over WMEs already in the system
             if( wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation)
             {
                 continue;
