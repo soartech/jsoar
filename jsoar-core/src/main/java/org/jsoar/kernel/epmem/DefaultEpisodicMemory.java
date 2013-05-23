@@ -3384,14 +3384,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             // find the promotion time of the LTI
                             db.find_lti_promotion_time.setLong(1, triple.q1);
                             ResultSet results = db.find_lti_promotion_time.executeQuery();
-                            try
+                            if (results.next())
                             {
                                 promo_time = results.getLong(0 + 1);
                             }
-                            finally
-                            {
-                                results.close();
-                            }
+                            results.close();
                             
                             //my_agent->epmem_stmts_graph->find_lti_promotion_time->reinitialize();
                         }
@@ -3534,6 +3531,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             }
                             catch (SQLException e)
                             {
+                                e.printStackTrace();
                                 // CK: getLong is called on the ResultSet of "SELECT Long.MaxValue as start"
                                 // which returns 1 column and 1 row with a value of Long.MaxValue in SQL
                                 // the C sqllite interface appears to return 0 for columns that do not exist
