@@ -2776,7 +2776,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * Based on episodic_memory:559
      * @author ACNickels
      */
-    private static class EpmemTriple implements Comparable<EpmemTriple>
+    private static class EpmemTriple implements Comparable<EpmemTriple>, Cloneable
     {
         long q0;
         long w;
@@ -2791,6 +2791,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             this.q0 = q0;
             this.w = w;
             this.q1 = q1;
+        }
+        
+        /**
+         * Create a copy of this EpmemTriple object
+         * @param triple
+         * @return
+         */
+        public EpmemTriple copyEpmemTriple()
+        {
+            return new EpmemTriple(q0, w, q1);
         }
         
         @Override
@@ -3317,8 +3327,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // process all edges which were last used at this time point
                 while ((pedge_pq.size() != 0) && (pedge_pq.peek().time == next_edge || pedge_pq.peek().time >= current_episode)) 
                 {
-                    EpmemPEdge pedge = pedge_pq.poll();
-                    EpmemTriple triple = pedge.triple;
+                    final EpmemPEdge pedge = pedge_pq.poll();
+                    final EpmemTriple triple = pedge.triple.copyEpmemTriple();
                     
                     try
                     {
