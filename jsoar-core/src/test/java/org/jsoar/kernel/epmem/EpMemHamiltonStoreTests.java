@@ -54,10 +54,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                 );
             expectedRowIds.remove(id);
         }
-        assertTrue(
-                "edge_now did not contain expected id " + expectedRowIds.get(0) + ", " + 1,
-                expectedRowIds.isEmpty()
-            );
+        assertTrue(expectedRowIds.isEmpty());
     }
     
     @Test
@@ -170,7 +167,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         expectedRows.add(new NodeUniqueRow(1,0,2,3));
         expectedRows.add(new NodeUniqueRow(2,0,4,5));
         expectedRows.add(new NodeUniqueRow(3,0,7,8));
-        expectedRows.add(new NodeUniqueRow(4,3,7,14));
+        
+        // CK: the second column is epmem id
+        // - in JSoar R1 has epmem_id 3 and O3 has epmem_id 4
+        // - in Csoar R1 has epmem_id 4 and O3 has epmem_id 3
+        // so in JSoar we except a 4 instead of a 3
+        expectedRows.add(new NodeUniqueRow(4,4,7,14));
+        
         expectedRows.add(new NodeUniqueRow(5,7,7,16));
         expectedRows.add(new NodeUniqueRow(6,8,7,17));
         expectedRows.add(new NodeUniqueRow(7,9,7,18));
@@ -199,7 +202,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
             expectedRows.remove(row);
         }
         assertTrue(
-                "node_unique did not contain expected row " + expectedRows.toArray()[0],
+                expectedRows.size() > 0 ? "node_unique did not contain expected row " + expectedRows.toArray()[0] : "",
                 expectedRows.isEmpty()
             );
     }
@@ -403,8 +406,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         final Set<EdgeUniqueRow> expectedRows = new HashSet<EdgeUniqueRow>();
         expectedRows.add(new EdgeUniqueRow(1,0,6,1,Long.MAX_VALUE));
         expectedRows.add(new EdgeUniqueRow(2,0,9,2,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(3,0,1,3,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(4,0,10,4,Long.MAX_VALUE));
+        
+        // CK: rows 3 and 4 are reversed because the order of S1's slots is different in JSoar
+        // - in JSoar R1 has epmem_id 3 and O3 has epmem_id 4
+        // - in Csoar R1 has epmem_id 4 and O3 has epmem_id 3
+        expectedRows.add(new EdgeUniqueRow(3,0,10,3,Long.MAX_VALUE));
+        expectedRows.add(new EdgeUniqueRow(4,0,1,4,Long.MAX_VALUE));
+        
         expectedRows.add(new EdgeUniqueRow(5,1,11,5,Long.MAX_VALUE));
         expectedRows.add(new EdgeUniqueRow(6,1,12,6,Long.MAX_VALUE));
         expectedRows.add(new EdgeUniqueRow(7,2,13,7,Long.MAX_VALUE));
