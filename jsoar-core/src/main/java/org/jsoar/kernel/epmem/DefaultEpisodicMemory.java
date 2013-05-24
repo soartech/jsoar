@@ -1613,12 +1613,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
 
             // input wmes
-            if (id.getInputWmes() != null)
+            for (WmeImpl wi = id.getInputWmes(); wi != null; wi = wi.next)
             {
-                for (WmeImpl wi = id.getInputWmes(); wi != null; wi = wi.next)
-                {
-                    return_val.add(wi);
-                }
+                return_val.add(wi);
             }
 
             // regular wmes
