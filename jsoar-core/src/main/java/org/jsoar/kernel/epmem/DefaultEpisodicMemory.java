@@ -3267,7 +3267,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 EpmemTriple triple = new EpmemTriple(EPMEM_NODEID_BAD, EPMEM_NODEID_BAD, EPMEM_NODEID_ROOT);
                 EpmemPEdge root_pedge = new EpmemPEdge();
                 //allocate_with_pool(my_agent, &(my_agent->epmem_pedge_pool), &root_pedge);
-                root_pedge.triple = triple;
+                root_pedge.triple = triple.copyEpmemTriple();
                 root_pedge.value_is_id = EPMEM_RIT_STATE_EDGE;
                 root_pedge.has_noncurrent = false;
                 root_pedge.literals = new LinkedHashSet<EpmemLiteral>();
@@ -3281,7 +3281,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 
                 EpmemUEdge root_uedge = new EpmemUEdge();
                 //allocate_with_pool(my_agent, &(my_agent->epmem_uedge_pool), &root_uedge);
-                root_uedge.triple = triple;
+                root_uedge.triple = triple.copyEpmemTriple();
                 root_uedge.value_is_id = EPMEM_RIT_STATE_EDGE;
                 root_uedge.has_noncurrent = false;
                 root_uedge.activation_count = 0;
@@ -3377,7 +3377,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // create a uedge for this
                         EpmemUEdge uedge = new EpmemUEdge();
                         //allocate_with_pool(my_agent, &(my_agent->epmem_uedge_pool), &uedge);
-                        uedge.triple = triple;
+                        uedge.triple = triple.copyEpmemTriple();
                         uedge.value_is_id = pedge.value_is_id;
                         uedge.has_noncurrent = pedge.has_noncurrent;
                         uedge.activation_count = 0;
@@ -3498,7 +3498,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 interval_cleanup.add(start_interval);
                             }
                             uedge.pedges.add(pedge);
-                            uedge_cache.put(triple, uedge);
+                            // CK: std::make_pair is copying by value
+                            uedge_cache.put(triple.copyEpmemTriple(), uedge);
                         } 
                         else
                         { 
@@ -3578,7 +3579,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         EpmemInterval interval = interval_pq.poll();
                         EpmemUEdge uedge = interval.uedge;
-                        EpmemTriple triple = uedge.triple;
+                        EpmemTriple triple = uedge.triple.copyEpmemTriple();
 
                         if (logger.isDebugEnabled()) {
                             logger.debug("  INTERVAL (" + (interval.is_end_point != 0 ? "end" : "start") + "): " + triple.q0 + "-" + triple.w + "-" + triple.q1);
@@ -4359,7 +4360,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // allocate_with_pool(my_agent, &(my_agent->epmem_pedge_pool),
                 // &child_pedge);
                 child_pedge = new EpmemPEdge();
-                child_pedge.triple = triple;
+                child_pedge.triple = triple.copyEpmemTriple();
                 child_pedge.value_is_id = (int) literal.value_is_id;
                 child_pedge.has_noncurrent = !literal.is_current;
                 child_pedge.sql = pedge_sql;
@@ -4370,7 +4371,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // child_pedge.time = child_pedge.sql.column_int(2);
                 child_pedge.time = results.getLong(2 + 1);
                 pedge_pq.add(child_pedge);
-                pedge_cache.put(triple, child_pedge);
+                pedge_cache.put(triple.copyEpmemTriple(), child_pedge);
                 return true;
             }
             else
