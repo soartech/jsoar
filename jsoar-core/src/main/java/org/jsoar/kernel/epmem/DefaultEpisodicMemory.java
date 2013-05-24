@@ -2776,7 +2776,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      * Based on episodic_memory:559
      * @author ACNickels
      */
-    private static class EpmemTriple implements Comparable<EpmemTriple>, Cloneable
+    private static class EpmemTriple implements Comparable<EpmemTriple>
     {
         long q0;
         long w;
