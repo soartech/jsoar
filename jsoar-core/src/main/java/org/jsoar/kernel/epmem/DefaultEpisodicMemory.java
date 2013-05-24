@@ -4336,6 +4336,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // otherwse, if the pedge has not been registered with this literal
         Map<EpmemTriple, EpmemPEdge> pedge_cache = pedge_caches[is_edge];
         EpmemPEdge child_pedge = pedge_cache.get(triple);
+        //If the key was not there, or the value attached was null
         if ( child_pedge == null ) {
             int has_value = (literal.q1 != EPMEM_NODEID_BAD ? 1 : 0);
             //soar_module::pooled_sqlite_statement* pedge_sql = my_agent->epmem_stmts_graph->pool_find_edge_queries[is_edge][has_value]->request(my_agent->epmem_timers->query_sql_edge);
