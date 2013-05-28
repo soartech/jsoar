@@ -355,7 +355,6 @@ public class SmlTestAgent implements TestAgent, PrintEventInterface,
         return result;
     }
 
-    @Override
     public void updateEventHandler(int arg0, Object arg1, Kernel arg2, int arg3)
     {
         // update the cycle count
