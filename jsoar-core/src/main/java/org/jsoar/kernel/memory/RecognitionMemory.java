@@ -583,8 +583,7 @@ public class RecognitionMemory
      * @param need_to_do_support_calculations
      * @param top_goal
      */
-    public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations,
-            final IdentifierImpl top_goal)
+    public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations)
     {
         find_match_goal(inst);
 
@@ -667,7 +666,7 @@ public class RecognitionMemory
         // do calc's the normal Soar 6 way
         if (need_to_do_support_calculations)
         {
-            osupport.calculate_support_for_instantiation_preferences(inst, top_goal);
+            osupport.calculate_support_for_instantiation_preferences(inst);
         }
     }
     
@@ -683,7 +682,7 @@ public class RecognitionMemory
      * @param w
      * @param top_goal
      */
-    private void create_instantiation(Production prod, Token tok, WmeImpl w, IdentifierImpl top_goal)
+    private void create_instantiation(Production prod, Token tok, WmeImpl w)
     {
         final Trace trace = context.getTrace();
         
@@ -790,7 +789,7 @@ public class RecognitionMemory
         }
 
         // fill in lots of other stuff
-        fill_in_new_instantiation_stuff(inst, need_to_do_support_calculations, top_goal);
+        fill_in_new_instantiation_stuff(inst, need_to_do_support_calculations);
 
         // print trace info: printing preferences 
         // Note: can't move this up, since fill_in_new_instantiation_stuff gives
@@ -1639,7 +1638,7 @@ public class RecognitionMemory
                 if (shouldCreateInstantiation(assertion.production, assertion.token, assertion.wme))
                 {
                     this.soarReteListener.consume_last_postponed_assertion();
-                    create_instantiation(assertion.production, assertion.token, assertion.wme, top_goal);
+                    create_instantiation(assertion.production, assertion.token, assertion.wme);
                 }
             }
             
@@ -1673,29 +1672,27 @@ public class RecognitionMemory
                 break;
             }
             
-            try
+            
+            if (this.decisionCycle.current_phase.get() == Phase.APPLY)
             {
-                if (this.decisionCycle.current_phase.get() == Phase.APPLY)
-                {
-                    decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.goalInfo.lower_goal);
-                }
-                else if (this.decisionCycle.current_phase.get() == Phase.PROPOSE)
-                {
-                    // PROPOSE
-                    decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.goalInfo.lower_goal);
-                } 
-            } 
-            catch (IllegalStateException e)
+                decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.goalInfo.lower_goal, true);
+            }
+            else if (this.decisionCycle.current_phase.get() == Phase.PROPOSE)
             {
-                // FIXME: highest_active_goal_x functions are intended to be used only when it is
-                // guaranteed that the agent is not at quiescence.
-                decider.active_goal = null;
+                // PROPOSE
+                decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.goalInfo.lower_goal, true);
+            }
+            
+            if(decider.active_goal != null)
+            {
+                decider.active_level = decider.active_goal.level;
+            }
+            else
+            {
                 trace.print(Category.WATERFALL, " inner preference loop finished but not at quiescence.\n");
                 break;
             }
             
-            assert decider.active_goal != null;
-            decider.active_level = decider.active_goal.level;
         } // inner elaboration loop/cycle end
         
         // Deallocate preferences delayed during inner elaboration loop.

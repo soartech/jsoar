@@ -178,7 +178,7 @@ public class OSupport
      * @param inst
      * @param top_goal
      */
-    public void calculate_support_for_instantiation_preferences(Instantiation inst, final IdentifierImpl top_goal)
+    public void calculate_support_for_instantiation_preferences(Instantiation inst)
     {
         WmeImpl w;
         Condition c;
