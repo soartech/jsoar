@@ -1370,7 +1370,7 @@ public class Chunker
             
             chunk_inst.in_ms = true; /* set TRUE for now, we'll find out later... */
             make_clones_of_results(results, chunk_inst);
-            recMemory.fill_in_new_instantiation_stuff(chunk_inst, true, decider.top_goal);
+            recMemory.fill_in_new_instantiation_stuff(chunk_inst, true);
 
         } /* matches { condition *inst_lhs_top, *inst_lhs_bottom ...  */
 
