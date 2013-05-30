@@ -25,8 +25,8 @@ public class FunctionalTestHarness
 {
     protected Agent agent;
     
-    private boolean halted = false;
-    private boolean failed = false;
+    protected boolean halted = false;
+    protected boolean failed = false;
         
     // sources rules
     protected void runTestSetup(String testName) throws SoarException

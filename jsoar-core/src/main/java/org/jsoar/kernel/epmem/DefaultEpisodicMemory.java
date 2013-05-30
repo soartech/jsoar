@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Decider;
@@ -2755,8 +2757,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     
     //TODO: All of the classes from here down to epmem_process_query, are added specifically
     //for that.  See if they can be combined in some logical fashion. -ACN    
-    private static class EpmemLiteral
+    private static class EpmemLiteral implements Comparable<EpmemLiteral>
     {
+        //We need this to prevent sets from deciding these are equal.  -ACN
+        private static AtomicLong nextId = new AtomicLong(); 
+        private final long privateID = nextId.incrementAndGet();
+        
         SymbolImpl id_sym;
         SymbolImpl value_sym;
         long/*int*/ is_neg_q;
@@ -2770,6 +2776,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         Set<EpmemLiteral> children;        
         NavigableSet<EpmemNodePair>/*epmem_node_pair_set*/ matches;
         Map<Long, Integer>/*epmem_node_int_map*/ values;
+        
+        @Override
+        public int compareTo(EpmemLiteral o)
+        {
+            if(this.privateID == o.privateID){
+                return 0;
+            }
+            return (this.privateID < o.privateID)?-1:1;
+        }
     }
     
     /**
@@ -2881,8 +2896,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         EpmemUEdge uedge;
         int is_end_point;
-        PreparedStatement sql;
-        ResultSet sqlResult;
+        PreparedStatement sql = null;
+        ResultSet sqlResult = null;
         long/*epmem_time_id*/ time;
     }
     
@@ -3302,7 +3317,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 root_pedge.triple = triple.copyEpmemTriple();
                 root_pedge.value_is_id = EPMEM_RIT_STATE_EDGE;
                 root_pedge.has_noncurrent = false;
-                root_pedge.literals = new LinkedHashSet<EpmemLiteral>();
+                root_pedge.literals = new ConcurrentSkipListSet<EpmemLiteral>();
                 root_pedge.literals.add(root_literal);
                 root_pedge.sql = db.pool_dummy.request();//my_agent->epmem_stmts_graph->pool_dummy->request();
                 root_pedge.sql.setLong(1, Long.MAX_VALUE/*LLONG_MAX*/);
@@ -3665,16 +3680,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         
                         if(interval.sql != null)
                         {
-                            interval.sqlResult = interval.sql.executeQuery();
+                            if(interval.sqlResult == null){
+                                interval.sqlResult = interval.sql.executeQuery();
+                            }
                             if (interval.uedge.has_noncurrent && interval.sqlResult.next()) 
                             {
                                 interval.time = interval.sqlResult.getInt(0 + 1);
                                 interval_pq.add(interval);
                             }
-                            else if (interval.sql != null)
+                            else// if (interval.sql != null)
                             {
                                 //interval->sql->get_pool()->release(interval->sql);
                                 interval.sqlResult.close();
+                                interval.sqlResult = null;
                                 interval.sql = null;
                                 uedge.intervals--;
                                 if (uedge.intervals != 0)
@@ -3684,7 +3702,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 } 
                                 else 
                                 {
-                                    // TODO retract intervals
+                                    //Left in from C: // TODO retract intervals
                                 }
                             }
                         }
@@ -3932,6 +3950,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 //interval->sql->get_pool()->release(interval->sql);
                 interval.sqlResult.close();
+                interval.sqlResult = null;
             }
             //free_with_pool(&(my_agent->epmem_interval_pool), interval);
         }
@@ -4403,7 +4422,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 child_pedge.has_noncurrent = !literal.is_current;
                 child_pedge.sql = pedge_sql;
                 // new(&(child_pedge->literals)) epmem_literal_set();
-                child_pedge.literals = new LinkedHashSet<EpmemLiteral>();
+                child_pedge.literals = new ConcurrentSkipListSet<EpmemLiteral>();
                 child_pedge.literals.add(literal);
                 child_pedge.sqlResults = results;
                 // child_pedge.time = child_pedge.sql.column_int(2);

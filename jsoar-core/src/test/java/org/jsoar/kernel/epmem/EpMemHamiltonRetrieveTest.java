@@ -1,10 +1,15 @@
 package org.jsoar.kernel.epmem;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.jsoar.kernel.FunctionalTestHarness;
 import org.jsoar.kernel.RunType;
+import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.adaptables.Adaptables;
 import org.junit.Test;
 
@@ -338,5 +343,9 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
         agent.runFor(1, RunType.DECISIONS);
         populateDataBase(getConnection());
         agent.runFor(1, RunType.DECISIONS);
+        
+        assertTrue("Retrieval test did not halt", halted);
+        assertFalse("Retrieval test failed", failed);
+        assertEquals(2, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
     }
 }
