@@ -2829,8 +2829,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         int value_is_id;
         boolean has_noncurrent;
         Set<EpmemLiteral>/*epmem_literal_set*/ literals;
-        PreparedStatement/*soar_module::pooled_sqlite_statement**/ sql;
-        ResultSet sqlResults;
+        PreparedStatement/*soar_module::pooled_sqlite_statement**/ sql = null;
+        //This needs to be null so that we can be sure the qeury has never been executed. -ACN
+        ResultSet sqlResults = null;
         long/*epmem_time_id*/ time;
     }
     //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
@@ -3533,13 +3534,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // otherwise, reinitialize the query and put it in a pool
                     if(pedge.sql != null)
                     {
-                        ResultSet results = pedge.sql.executeQuery();
-                        pedge.sqlResults = results;
-                        if(results.next())
+                        //Calling execute() on the C driver will advance the row, if the 
+                        //query has already been run.  -ACN
+                        if(pedge.sqlResults == null){
+                            ResultSet results = pedge.sql.executeQuery();
+                            pedge.sqlResults = results;
+                        }
+                        if(pedge.sqlResults.next())
                         {
                             try
                             {
-                                pedge.time = results.getLong(2 + 1);
+                                pedge.time = pedge.sqlResults.getLong(2 + 1);
                             }
                             catch (SQLException e)
                             {
@@ -3558,6 +3563,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             //pedge->sql->get_pool()->release(pedge->sql);
                             pedge.sqlResults.close();
+                            pedge.sqlResults = null;
                             pedge.sql = null;
                         }
                     }
@@ -4377,6 +4383,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             else
             {
+                results.close();
                 return false;
             }
         } else {
