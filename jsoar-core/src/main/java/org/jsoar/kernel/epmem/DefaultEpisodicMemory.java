@@ -2820,6 +2820,37 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             return 0;
         }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (int) (q0 ^ (q0 >>> 32));
+            result = prime * result + (int) (q1 ^ (q1 >>> 32));
+            result = prime * result + (int) (w ^ (w >>> 32));
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            EpmemTriple other = (EpmemTriple) obj;
+            if (q0 != other.q0)
+                return false;
+            if (q1 != other.q1)
+                return false;
+            if (w != other.w)
+                return false;
+            return true;
+        }
+        
     }
     
     //It looks like this may contain unused fields, so lets add them as they are used.  -ACN
