@@ -39,7 +39,7 @@ sp {elaborations*elaborate*state*bad-retrieval*gm
    (state <s> ^epmem.result.graph-match 0)
 -->
    (write |BAD RETRIEVAL!!!|)
-   (halt)
+   (failed)
 }
 
 sp {elaborate*top-state*top-state
@@ -145,7 +145,7 @@ sp {apply*done
    (<op> ^name done)
 -->
    (write |COUNTING TEST SUCCEEDED!|)
-   (halt)
+   (succeeded)
 }
 
 sp {propose*initialize-count-epmem
