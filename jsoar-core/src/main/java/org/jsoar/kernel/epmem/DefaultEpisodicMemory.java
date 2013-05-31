@@ -1814,7 +1814,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             final ResultSet rs = ps.executeQuery();
                             try
                             {
-                                if (rs.first())
+                                if (rs.next())
                                 {
                                     wmeValueId.epmem_id = rs.getLong(0 + 1);
                                 }
@@ -1868,7 +1868,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         
                         try
                         {
-                            if (rs.first())
+                            if (rs.next())
                             {
                                 wme.epmem_id = rs.getLong(0 + 1);
                             }
@@ -5347,7 +5347,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // get a reference to the parent
                     parent = ids.get( parent_id );
                     
-                    if ( dont_abide_by_ids_second || parent.second )
+                    if ( dont_abide_by_ids_second || (parent != null && parent.second) )
                     {
                         // make a symbol to represent the attribute
                         switch ( (int)attr_type )
@@ -5391,7 +5391,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         num_wmes++;
                         
                         //symbol_remove_ref( my_agent, attr );
-                        //symbol_remove_ref( my_agent, value );
+                        //symbol_remove_ref( my_agent, value ); 
                     }
                 }
                 //my_q->reinitialize();
@@ -5528,7 +5528,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         new SymbolBooleanPair(
                                 value, 
                                 !( 
-                                    ( value.asIdentifier().goalInfo.getImpasseWmes() != null) || 
+                                    ( (value.asIdentifier().goalInfo != null) && (value.asIdentifier().goalInfo.getImpasseWmes() != null)) || 
                                     ( value.asIdentifier().getInputWmes() != null) || 
                                     ( value.asIdentifier().slots != null) 
                                 )

@@ -9,10 +9,21 @@ epmem --set phase output
 #epmem --set timers off
 epmem --set learning on
 
-watch 0
+#
+# What are these productions doing?
+#
+
+#watch 0
+
+# Not implemented yet
+watch --epmem
 
 timers --off
 
+#
+# Infrastructure productions that mark states with operator names
+# and a link to the top-state
+#
 sp {elaborate*state*name
    (state <s> ^superstate.operator.name <name>)
 -->
@@ -24,6 +35,7 @@ sp {elaborate*state*top-state
 -->
    (<s> ^top-state <ts>)
 }
+
 
 sp {elaborations*elaborate*state*digit-cue
    (state <s> ^digit <d>)
@@ -312,10 +324,11 @@ sp {apply*recording*clean-old
               ^episode <ep>
               ^symbolic <sym>)
    (<op> ^name recording)
-   (<out> ^record {<> <ep> <ep-old>})
+   (<out> ^record <rec>)
+   (<rec> ^episode {<> <ep> <ep-old>})
    (<sym> ^episode <ep-old>)
 -->
-   (<out> ^record <ep-old> -)
+   (<out> ^record <rec> -)
    (<s> ^symbolic <sym> -)
 }
 
@@ -360,7 +373,8 @@ sp {apply*recording*done
 -->
    (<s> ^episode <ep> - (+ <ep> 1)
         ^convert-result <r> -)
-   (<out> ^record <ep>)
+   (<out> ^record.episode <ep>)
+   #(interrupt)
 }
 
 sp {recording*propose*recording-convert
@@ -449,13 +463,14 @@ sp {apply*switch*ready
               ^mode recording
               ^episode <max>)
    (<op> ^name switch)
-   (<out> ^record <old>)
+   (<out> ^record <rec>)
+   (<rec> ^episode <old>)
    (<sym> ^episode <old>)
 -->
    (<s> ^symbolic <sym> -
         ^mode recording - testing
         ^counter 1)
-   (<out> ^record <old> -)
+   (<out> ^record <rec> -)
    (write |STORAGE DONE (| <max> | episodes) - READY TO BEGIN QUERY|)
    #(interrupt)
 }
