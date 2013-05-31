@@ -1859,7 +1859,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                         
                         // q0, w, q1
-                        final PreparedStatement ps = db.find_edge_unique;
+                        final PreparedStatement ps = db.find_edge_unique_shared;
                         ps.setLong(1, parent_id);
                         ps.setLong(2, my_hash);
                         ps.setLong(3, wmeValueId.epmem_id);
