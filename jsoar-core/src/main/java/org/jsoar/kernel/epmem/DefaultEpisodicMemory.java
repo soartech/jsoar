@@ -557,6 +557,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // temp_q->column_int( 0 );
                     int num_ids = rs.getInt(0 + 1);
 
+                    //Note that substituting resize for an add loop only works if the incoming lists are empty. -ACN
                     for (int i = 0; i < num_ids; i++)
                     {
                         // minmax_max[i]->resize( num_ids, true );
@@ -3376,20 +3377,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     final EpmemPEdge pedge = pedge_pq.poll();
                     final EpmemTriple triple = pedge.triple.copyEpmemTriple();
-                    
-                    try
+                    if(pedge.sqlResults.getMetaData().getColumnCount() > 1)
                     {
                         triple.q1 = pedge.sqlResults.getLong(1 + 1);
                     }
-                    catch (SQLException e)
+                    else
                     {
-                        e.printStackTrace();
                         // CK: getLong is called on the ResultSet of "SELECT Long.MaxValue as start"
                         // which returns 1 column and 1 row with a value of Long.MaxValue in SQL
                         // the C sqllite interface appears to return 0 for columns that do not exist
                         // in the result set
-                        // TODO handle this as a special case when the query is "SELECT ... as start"
-                        // intead of catching the exception
                         triple.q1 = 0L;
                     }
                     
@@ -3588,19 +3585,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                         if(pedge.sqlResults.next())
                         {
-                            try
+                            if(pedge.sqlResults.getMetaData().getColumnCount() > 1)
                             {
                                 pedge.time = pedge.sqlResults.getLong(2 + 1);
                             }
-                            catch (SQLException e)
                             {
-                                e.printStackTrace();
                                 // CK: getLong is called on the ResultSet of "SELECT Long.MaxValue as start"
                                 // which returns 1 column and 1 row with a value of Long.MaxValue in SQL
                                 // the C sqllite interface appears to return 0 for columns that do not exist
                                 // in the result set
-                                // TODO handle this as a special case when the query is "SELECT ... as start"
-                                // intead of catching the exception
                                 pedge.time = 0L;
                             }
                             pedge_pq.add(pedge);
