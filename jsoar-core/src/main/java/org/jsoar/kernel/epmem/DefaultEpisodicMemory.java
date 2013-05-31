@@ -57,6 +57,8 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Symbols;
+import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
@@ -259,6 +261,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private final epmem_rit_state[] epmem_rit_state_graph = new epmem_rit_state[] { new epmem_rit_state(),
             new epmem_rit_state() };
 
+    private Trace trace;
+    
     // bool epmem_first_switch;
 
     EpisodicMemorySymbols predefinedSyms;
@@ -278,7 +282,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         this.context = context;
         this.db = db;
     }
-
+    
+    
     /**
      * This is called when the agent is initialized. This code here in CSoar is
      * usually run at agent creation.
@@ -290,6 +295,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         smem = Adaptables.require(DefaultEpisodicMemory.class, context, DefaultSemanticMemory.class);
         recognitionMemory = Adaptables.require(DefaultEpisodicMemory.class, context, RecognitionMemory.class);
         chunker = Adaptables.require(DefaultEpisodicMemory.class, context, Chunker.class);
+        
+        trace = agent.getTrace();
         
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
                 PropertyManager.class);
@@ -1304,6 +1311,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long time_counter = stats.getTime();// my_agent->epmem_stats->time->get_value();
 
         // // provide trace output
+        trace.print(Category.EPMEM, "NEW EPISODE: " + time_counter);
         // if ( my_agent->sysparams[ TRACE_EPMEM_SYSPARAM ] )
         // {
         // char buf[256];
@@ -3720,6 +3728,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         logger.trace(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
                     }
                     
+                    trace.print(
+                            Category.EPMEM, 
+                            "CONSIDERING EPISODE (time, cardinality, score) (" +
+                                current_episode + ", " +
+                                current_cardinality + ", " + 
+                                current_score + 
+                                ")\n"
+                        );
                     /*
                     if (my_agent->sysparams[TRACE_EPMEM_SYSPARAM]) {
                         char buf[256];
@@ -3814,6 +3830,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 current_episode = EPMEM_MEMID_NONE;
                                 new_king = true;
                             }
+                        }
+                        
+                        if(new_king){
+                           trace.print(
+                                   Category.EPMEM, 
+                                   "NEW KING (perfect, graph-match): (" + 
+                                       Boolean.toString(current_cardinality == perfect_cardinality) + 
+                                       ", " + 
+                                       Boolean.toString(best_graph_matched) + 
+                                       ")\n"
+                               ); 
                         }
                         /*
                         if (new_king && my_agent->sysparams[TRACE_EPMEM_SYSPARAM]) {
