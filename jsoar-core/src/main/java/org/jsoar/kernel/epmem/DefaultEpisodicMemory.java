@@ -5168,7 +5168,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         val_letter = tempValLetter;
                         //val_num = static_cast<uint64_t>( my_q->column_int( 5 ) );
-                        resultSet.getLong(5 + 1);
+                        val_num = resultSet.getLong(5 + 1);
                     }
                     
                     // get a reference to the parent
