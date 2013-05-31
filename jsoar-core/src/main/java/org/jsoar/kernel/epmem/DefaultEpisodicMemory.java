@@ -3585,10 +3585,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                         if(pedge.sqlResults.next())
                         {
-                            if(pedge.sqlResults.getMetaData().getColumnCount() > 1)
+                            if(pedge.sqlResults.getMetaData().getColumnCount() > 2)
                             {
                                 pedge.time = pedge.sqlResults.getLong(2 + 1);
                             }
+                            else
                             {
                                 // CK: getLong is called on the ResultSet of "SELECT Long.MaxValue as start"
                                 // which returns 1 column and 1 row with a value of Long.MaxValue in SQL
