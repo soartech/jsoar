@@ -22,7 +22,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testHamilton() throws Exception
     {
-        runTest("testHamilton", 2);
+        runTest("testHamilton", 3);
     }
     
     @Test
