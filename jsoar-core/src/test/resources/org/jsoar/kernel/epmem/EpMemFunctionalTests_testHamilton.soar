@@ -10,8 +10,7 @@ epmem --set trigger dc
 
 epmem --set graph-match-ordering mcv
 
-#We aren't porting this yet. -ACN
-#watch --epmem
+watch --epmem
 
 sp {propose*init
     (state <s> ^superstate nil

@@ -1311,7 +1311,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long time_counter = stats.getTime();// my_agent->epmem_stats->time->get_value();
 
         // // provide trace output
-        trace.print(Category.EPMEM, "NEW EPISODE: " + time_counter);
+        trace.startNewLine().print(Category.EPMEM, "NEW EPISODE: " + time_counter);
         // if ( my_agent->sysparams[ TRACE_EPMEM_SYSPARAM ] )
         // {
         // char buf[256];
@@ -3728,13 +3728,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         logger.trace(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
                     }
                     
-                    trace.print(
+                    trace.startNewLine().print(
                             Category.EPMEM, 
                             "CONSIDERING EPISODE (time, cardinality, score) (" +
                                 current_episode + ", " +
                                 current_cardinality + ", " + 
                                 current_score + 
-                                ")\n"
+                                ")"
                         );
                     /*
                     if (my_agent->sysparams[TRACE_EPMEM_SYSPARAM]) {
@@ -3833,13 +3833,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                         
                         if(new_king){
-                           trace.print(
+                           trace.startNewLine().print(
                                    Category.EPMEM, 
                                    "NEW KING (perfect, graph-match): (" + 
                                        Boolean.toString(current_cardinality == perfect_cardinality) + 
                                        ", " + 
                                        Boolean.toString(best_graph_matched) + 
-                                       ")\n"
+                                       ")"
                                ); 
                         }
                         /*
