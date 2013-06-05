@@ -870,7 +870,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             epmem_wme_adds.add(decider.top_state); // my_agent->epmem_wme_adds->insert(
                                                    // my_agent->top_state );
         }
-
+        
+        // at init, top-state is considered the only known identifier
+        decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
+        decider.top_goal.epmem_valid = epmem_validation;
+        
         // if lazy commit, then we encapsulate the entire lifetime of the agent
         // in a single transaction
         if (params.lazy_commit.get())
@@ -2031,6 +2035,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     final PreparedStatement ps = db.add_edge_unique;
                     ps.setLong(1, parent_id);
                     ps.setLong(2, my_hash);
+                    if(wmeValueId.epmem_id == 5) {
+                        logger.info("blah");
+                    }
                     ps.setLong(3, wmeValueId.epmem_id);
                     // TODO: will this be a problem if different from C++ max?
                     ps.setLong(4, Long.MAX_VALUE);
