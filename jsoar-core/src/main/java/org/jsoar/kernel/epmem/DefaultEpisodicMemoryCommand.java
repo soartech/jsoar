@@ -5,6 +5,7 @@ import java.io.StringWriter;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GmOrderingChoices;
+import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Learning;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Trigger;
@@ -98,6 +99,11 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         {
             props.set(DefaultEpisodicMemoryParams.PHASE, Phase.valueOf(value));
             return "Set phase to "+Phase.valueOf(value).toString();
+        }
+        else if (name.equals("graph-match"))
+        {
+            props.set(DefaultEpisodicMemoryParams.GRAPH_MATCH, GraphMatchChoices.valueOf(value));
+            return "Set graph-match to "+GraphMatchChoices.valueOf(value);
         }
         else if (name.equals("graph-match-ordering"))
         {
