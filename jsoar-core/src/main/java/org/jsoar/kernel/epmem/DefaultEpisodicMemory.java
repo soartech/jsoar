@@ -1108,8 +1108,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // TODO this is copy-paste from smem right now, there are other
                 // things to do here
                 
-                // TODO check lazy_commit param
-                db.commit.execute();
+                if (params.lazy_commit.get())
+                {
+                    db.commit.execute();
+                }
                 
                 // close the database
                 db.getConnection().close();
