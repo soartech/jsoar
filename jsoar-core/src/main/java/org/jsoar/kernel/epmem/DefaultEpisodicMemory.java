@@ -295,12 +295,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         smem = Adaptables.require(DefaultEpisodicMemory.class, context, DefaultSemanticMemory.class);
         recognitionMemory = Adaptables.require(DefaultEpisodicMemory.class, context, RecognitionMemory.class);
         chunker = Adaptables.require(DefaultEpisodicMemory.class, context, Chunker.class);
+        decider = Adaptables.require(DefaultEpisodicMemory.class, context, Decider.class);
         
         trace = agent.getTrace();
         
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
                 PropertyManager.class);
-        decider = Adaptables.adapt(context, Decider.class);
         params = new DefaultEpisodicMemoryParams(properties, symbols);
         stats = new DefaultEpisodicMemoryStats(properties);
 
