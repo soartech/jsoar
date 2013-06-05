@@ -6005,7 +6005,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     {
         epmem_wme_adds.add(id);
     }
-
+    
+    /*
+     * Taken from rete.cpp:1626:inline void _epmem_remove_wme( agent* my_agent, wme* w )
+     * 
+     * (non-Javadoc)
+     * @see org.jsoar.kernel.epmem.EpisodicMemory#removeWme(org.jsoar.kernel.memory.WmeImpl)
+     */
     @Override
     public void removeWme(WmeImpl w)
     {
@@ -6048,7 +6054,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     boolean recurse = true;
                     for(WmeImpl rc_it : my_refs)
                     {
-                        if(rc_it.id.asIdentifier().level==decider.top_state.asIdentifier().level)
+                        //if ( ( !(*rc_it) ) || ( (*rc_it)->id->id.level == my_agent->top_state->id.level ) )
+                        if(rc_it == null || rc_it.id.level==decider.top_state.level)
                         {
                             recurse = false;
                             break;
