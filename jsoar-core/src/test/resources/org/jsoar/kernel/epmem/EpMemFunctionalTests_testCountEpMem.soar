@@ -5,7 +5,7 @@ smem --set learning on
 #epmem --set database memory
 epmem --set trigger output
 epmem --set phase output
-#epmem --set graph-match on
+epmem --set graph-match on
 #epmem --set timers off
 epmem --set learning on
 
