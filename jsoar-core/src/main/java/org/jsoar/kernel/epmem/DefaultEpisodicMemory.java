@@ -2503,7 +2503,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // previous or next
                     else if (path.value == 2)
                     {
-                        if (next != null)
+                        if (next.value != null)
                         {
                             epmem_install_memory(
                                     state, 
