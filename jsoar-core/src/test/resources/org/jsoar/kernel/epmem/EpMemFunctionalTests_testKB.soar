@@ -1,5 +1,9 @@
 watch 0
 
+# see http://sourceforge.net/projects/sqlitebrowser/ for a free program to browse sqlite databases
+# uncomment the following line to write the db to jsoar-build/kbtest.db 
+#epmem --set path kbtest.db
+
 epmem --set learning on
 epmem --set balance 1
 epmem --set trigger none
