@@ -210,7 +210,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private/* uintptr_t */long epmem_validation = 0;
 
     /** agent.h:epmem_node_removals */
-    private Map</* epmem_node_id */Long, Boolean> epmem_node_removals;
+    private SortedMap</* epmem_node_id */Long, Boolean> epmem_node_removals;
 
     /** agent.h:epmem_node_mins */
     private List</* epmem_time_id */Long> epmem_node_mins;
@@ -219,7 +219,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private List<Boolean> epmem_node_maxes;
 
     /** agent.h:epmem_edge_removals */
-    private Map</* epmem_node_id */Long, Boolean> epmem_edge_removals;
+    private SortedMap</* epmem_node_id */Long, Boolean> epmem_edge_removals;
 
     /** agent.h:epmem_edge_mins */
     private List</* epmem_time_id */Long> epmem_edge_mins;
@@ -312,7 +312,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // src/agent.cpp:393: newAgent->epmem_node_removals = new
         // epmem_id_removal_map();
-        epmem_node_removals = Maps.newLinkedHashMap();
+        epmem_node_removals = Maps.newTreeMap();
         // src/agent.cpp:375: newAgent->epmem_node_mins = new
         // std::vector<epmem_time_id>();
         epmem_node_mins = Lists.newArrayList();
@@ -327,7 +327,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // bool > >( newAgent ) );
         // src/agent.cpp:394: newAgent->epmem_edge_removals = new
         // epmem_id_removal_map();
-        epmem_edge_removals = Maps.newLinkedHashMap();
+        epmem_edge_removals = Maps.newTreeMap();
         // src/agent.cpp:378: newAgent->epmem_edge_mins = new
         // std::vector<epmem_time_id>();
         epmem_edge_mins = Lists.newArrayList();
