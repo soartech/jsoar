@@ -2037,9 +2037,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     final PreparedStatement ps = db.add_edge_unique;
                     ps.setLong(1, parent_id);
                     ps.setLong(2, my_hash);
-                    if(wmeValueId.epmem_id == 5) {
-                        logger.info("blah");
-                    }
                     ps.setLong(3, wmeValueId.epmem_id);
                     // TODO: will this be a problem if different from C++ max?
                     ps.setLong(4, Long.MAX_VALUE);
