@@ -1731,8 +1731,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 continue;
             }
-            
-            logger.info("Storing ("+wme.id.toString()+" "+wme.attr.toString()+" "+wme.value.toString()+")");
 
             if ( wme.value.asIdentifier() != null && 
                     ( wme.value.asIdentifier().epmem_id != EPMEM_NODEID_BAD && 
@@ -1850,7 +1848,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         if(wmeValueId.epmem_id == EPMEM_NODEID_BAD)
                         {
                             wmeValueId.epmem_id = stats.getNextId();
-                            logger.info("next epmem id: "+wmeValueId.epmem_id);
                             stats.setNextId(wmeValueId.epmem_id + 1L);
                             epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
@@ -2029,7 +2026,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         // update next id
                         wmeValueId.epmem_id = stats.getNextId();
-                        logger.info("next epmem id: "+wmeValueId.epmem_id);
                         wmeValueId.epmem_valid = epmem_validation;
                         stats.setNextId(wmeValueId.epmem_id + 1L);
                         epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
@@ -2323,7 +2319,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         if (hash_add_rs.next())
                         {
                             return_val = hash_add_rs.getLong(1);
-                            logger.info("last row id: "+return_val);
                         }
                         else
                         {
@@ -4793,7 +4788,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         literal.value_sym = cue_wme.value;
         literal.is_current = currents.contains(value);
         literal.w = epmem_temporal_hash(cue_wme.attr);
-        logger.info("literal.w "+literal.w);
         literal.is_neg_q = query_type;
         literal.weight = (literal.is_neg_q != 0 ? -1 : 1) * (params.balance.get() >= 1.0 - 1.0e-8 ? 1.0 : wma_get_wme_activation(cue_wme, true));
     //#ifdef USE_MEM_POOL_ALLOCATORS

@@ -52,6 +52,7 @@ sp {elaborations*elaborate*state*bad-retrieval*gm
 -->
    (write |BAD RETRIEVAL!!!|)
    (failed)
+
 }
 
 sp {elaborate*top-state*top-state
@@ -158,6 +159,7 @@ sp {apply*done
 -->
    (write |COUNTING TEST SUCCEEDED!|)
    (succeeded)
+
 }
 
 sp {propose*initialize-count-epmem
@@ -176,9 +178,9 @@ sp {apply*initialize-count-epmem
         ^digit <d0> <d1> <d2> <d3> <d4> <d5> <d6> <d7> <d8> <d9>        
         ^episode 1
         ^mode storing           # << storing recording >> set to storing to convert all digits to long-term identifiers before recording episodes
-        ^size <d1>              # set to a digit identifier to determine number of stored episodes/test queries (max = 10^(size.number)-1)
-        ^test-mode single    # << increment single >>
-        ^test-ep 1)             # if single, the episode to test
+        ^size <d4>              # set to a digit identifier to determine number of stored episodes/test queries (max = 10^(size.number)-1)
+        ^test-mode increment    # << increment single >>
+        ^test-ep 2)             # if single, the episode to test
    (<d0> ^word zero
          ^number 0
          ^next <d1>
