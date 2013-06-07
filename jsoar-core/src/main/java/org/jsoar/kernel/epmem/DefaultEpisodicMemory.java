@@ -1627,7 +1627,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // {
             // return_val->push_back( w );
             // }
-            // TODO make sure this is the correct way to get impasse_wmes
             for(WmeImpl w=id.goalInfo != null ? id.goalInfo.getImpasseWmes() : null; w!=null; w=w.next)
             {
                 return_val.add(w);
@@ -2048,7 +2047,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     ps.setLong(1, parent_id);
                     ps.setLong(2, my_hash);
                     ps.setLong(3, wmeValueId.epmem_id);
-                    // TODO: will this be a problem if different from C++ max?
                     ps.setLong(4, Long.MAX_VALUE);
                     ps.execute();
                     // CK: not all database drivers support this
@@ -2168,7 +2166,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             if (rs.next())
                             {
-                                //TODO  Check that this is intentional
                                 //(*w_p)->epmem_id = (epmem_node_id) my_agent->epmem_db->last_insert_rowid();
                                 wme.epmem_id = rs.getLong(1);
                             }
@@ -2733,7 +2730,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
             // if any justifications are created, assert their preferences manually
             // (copied mainly from assert_new_preferences with respect to our circumstances)
-            // TODO: Why is this here?  The compiler has a very valid point that it has to be null
             if ( my_justification_list.value != null/*NIL*/ )
             {
                 Preference just_pref = null;//NIL;
@@ -2785,8 +2781,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         epmem_process_query(state, query, neg_query, prohibit, before, after, currents, cue_wmes, meta_wmes, retrieval_wmes, 3);
     }
     
-    //TODO: All of the classes from here down to epmem_process_query, are added specifically
-    //for that.  See if they can be combined in some logical fashion. -ACN    
     private static class EpmemLiteral implements Comparable<EpmemLiteral>
     {
         //We need this to prevent sets from deciding these are equal.  -ACN
@@ -3126,8 +3120,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             epmem_interval_set interval_cleanup = epmem_interval_set(std::less<epmem_interval*>(), soar_module::soar_memory_pool_allocator<epmem_interval*>(my_agent));
         #else
         */
-        //TODO:  We are interpreting this as a static initialization of a map.  
-        //       Make sure that that is the intention. -ACN
         //epmem_triple_uedge_map uedge_caches[2] = {epmem_triple_uedge_map(), epmem_triple_uedge_map()};
         SortedMap<EpmemTriple, EpmemUEdge>/*epmem_triple_uedge_map*/ uedge_caches[] = new SortedMap[2];
         uedge_caches[0] = new TreeMap<EpmemTriple, EpmemUEdge>();
@@ -3136,7 +3128,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         Set<EpmemInterval> /*epmem_interval_set*/ interval_cleanup = new LinkedHashSet<EpmemInterval>();
         //#endif
 
-        //This comment is left here from the C code: // TODO additional indices
+        //This comment is left here from the C code: // todo additional indices
 
         // variables needed for building the DNF
         EpmemLiteral root_literal = new EpmemLiteral();
@@ -3162,13 +3154,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 } 
                                 else 
                                 {
-                                    /*
-                                     * TODO: This is either an arbitrary tie break, or it is
-                                     * intentionally comparing the triple field of the edges.  It
-                                     * looks arbitrary, but there is an operator< funtion declared on
-                                     * the triple, which appears to be where the functionality for this
-                                     * comparrison is coming from.
-                                     */
+                                    //This is an arbitrary tie break. -ACN
                                     //return (a < b);
                                     return (a.triple.compareTo(b.triple));
                                 }
@@ -3191,13 +3177,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 }
                                 else if (a.is_end_point == b.is_end_point) 
                                 {
-                                    /*
-                                     * TODO: This is either an arbitrary tie break, or it is
-                                     * intentionally comparing the triple field of the edges.  It
-                                     * looks arbitrary, but there is an operator< funtion declared on
-                                     * the triple, which appears to be where the functionality for this
-                                     * comparrison is coming from.
-                                     */
+                                    //This is an arbitrary tie break. -ACN
                                     return (a.uedge.triple.compareTo(b.uedge.triple));
                                 }
                                 else 
@@ -3438,7 +3418,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             }
                         }
                     }
-                    // Left in from C: TODO what I want to do here is, if there is no children which leads to a leaf, retract everything
+                    // Left in from C: todo what I want to do here is, if there is no children which leads to a leaf, retract everything
                     // I'm not sure how to properly test for this though
 
                     // look for uedge with triple; if none exist, create one
@@ -3672,7 +3652,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     EpmemLiteral literal = lit_iter;
                                     if (!literal.is_current || uedge.activation_count == 1) 
                                     {
-                                        // TODO: Consider just using ByRef throughout this function.
                                         ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
                                         ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
                                         changed_score |= epmem_satisfy_literal(literal, triple.q0, triple.q1, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
@@ -3725,7 +3704,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 } 
                                 else 
                                 {
-                                    //Left in from C: // TODO retract intervals
+                                    //Left in from C: // todo retract intervals
                                 }
                             }
                         }
@@ -3818,7 +3797,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                                 @Override
                                                 public int compare(EpmemLiteral a, EpmemLiteral b)
                                                 {
-                                                    // TODO Auto-generated method stub
                                                     return (a.matches.size() < b.matches.size()? -1: 1);
                                                 }
                                             }
@@ -4831,7 +4809,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return literal;
     }
     
-    // TODO: Unclear if this should even be here...
     /*
      * wma.cpp: 1212
      * double wma_get_wme_activation( 
@@ -4842,6 +4819,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private double wma_get_wme_activation(WmeImpl w, boolean log_result) 
     {
+        // TODO implement this function when porting WMA
         return 0.0;
     }
     
