@@ -1759,10 +1759,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 my_id_repo = epmem_id_repository.get(parent_id).get(new_id_reservation.my_hash);
                 if(my_id_repo != null)
                 {
-                    // TODO make sure std::pair::first is the key and std::pair::second is the value
-                    long wmeEpmemId = wme.value.asIdentifier().epmem_id;
-                    new_id_reservation.my_id = my_id_repo.get(wmeEpmemId);
-                    my_id_repo.remove(wmeEpmemId);
+                    final Iterator<Entry<Long, Long>> it = my_id_repo.entrySet().iterator();
+                    while (it.hasNext())
+                    {
+                        final Entry<Long, Long> pool_p = it.next();
+                        if (pool_p.getKey().equals(wme.value.asIdentifier().epmem_id))
+                        {
+                            new_id_reservation.my_id = pool_p.getValue();
+                            it.remove();
+                            break;
+                        }
+                    }
                 }
                 else
                 {
