@@ -1776,6 +1776,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     // add repository
                     my_id_repo = Lists.newLinkedList();
+                    epmem_id_repository.get(parent_id).put(new_id_reservation.my_hash, my_id_repo);
                 }
                 
                 new_id_reservation.my_pool = my_id_repo;
@@ -1959,6 +1960,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             {
                                 // add repository
                                 my_id_repo = Lists.newLinkedList();
+                                epmem_id_repository.get(parent_id).put(my_hash, my_id_repo);
                             }
 
                             // keep the address for later (used if w->epmem_id was not assigned)
@@ -2012,6 +2014,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             // add repository
                             my_id_repo = Lists.newLinkedList();
+                            epmem_id_repository.get(parent_id).put(my_hash, my_id_repo);
                         }
                         
                         // keep the address for later (used if w->epmem_id was not assgined)
