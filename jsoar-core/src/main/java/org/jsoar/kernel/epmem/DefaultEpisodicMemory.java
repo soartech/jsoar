@@ -42,6 +42,7 @@ import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.GraphMatchChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.MergeChoices;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Optimization;
 import org.jsoar.kernel.epmem.DefaultEpisodicMemoryParams.Phase;
+import org.jsoar.kernel.epmem.EpisodicMemoryIdReservation.EpisodicMemoryIdPair;
 import org.jsoar.kernel.learning.Chunker;
 import org.jsoar.kernel.memory.Instantiation;
 import org.jsoar.kernel.memory.Preference;
@@ -228,10 +229,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private List<Boolean> epmem_edge_maxes;
 
     /** agent.h:epmem_id_repository */
-    private Map<Long, Map<Long, Map<Long, Long>>> /* epmem_parent_id_pool */epmem_id_repository;
+    private Map<Long, Map<Long, LinkedList<EpisodicMemoryIdPair>>> /* epmem_parent_id_pool */epmem_id_repository;
 
     /** agent.h:epmem_id_replacement */
-    private Map<Long, Map<Long, Long>> /* epmem_return_id_pool */epmem_id_replacement;
+    private Map<Long, LinkedList<EpisodicMemoryIdPair>> /* epmem_return_id_pool */epmem_id_replacement;
 
     /** agent.h:epmem_id_ref_counts */
     private Map<Long, Set<WmeImpl>> /* epmem_id_ref_counter */epmem_id_ref_counts;
@@ -628,7 +629,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         epmem_edge_maxes.clear();
         epmem_edge_removals.clear();
 
-        epmem_id_repository.put(EPMEM_NODEID_ROOT, new LinkedHashMap<Long, Map<Long, Long>>());
+        epmem_id_repository.put(EPMEM_NODEID_ROOT, new LinkedHashMap<Long, LinkedList<EpisodicMemoryIdPair>>());
         {
             Set<WmeImpl> wms_temp = Sets.newLinkedHashSet();
             wms_temp.add(null);
@@ -805,9 +806,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             long parent_id;
 
             // epmem_hashed_id_pool **hp;
-            Map<Long, Map<Long, Long>> hp;
+            Map<Long, LinkedList<EpisodicMemoryIdPair>> hp;
             // epmem_id_pool **ip;
-            Map<Long, Long> ip;
+            LinkedList<EpisodicMemoryIdPair> ip;
 
             PreparedStatement temp_q = db.edge_unique_select;
             final ResultSet rs = temp_q.executeQuery();
@@ -839,12 +840,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     ip = hp.get(w);
                     if (ip == null)
                     {
-                        ip = Maps.newLinkedHashMap();
+                        ip = Lists.newLinkedList();
                         hp.put(w, ip);
                     }
 
-                    // (*(*ip))[ q1 ] = parent_id;
-                    ip.put(q1, parent_id);
+                    // (*ip)->push_front( std::make_pair( q1, parent_id ) );
+                    ip.addFirst(new EpisodicMemoryIdPair(q1, parent_id));
 
                     // hp = &(*my_agent->epmem_id_repository)[ q1 ];
                     // if ( !(*hp) )
@@ -1711,8 +1712,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long /* epmem_hash_id */my_hash2; // value
 
         // id repository
-        Map<Long, Long> /*epmem_id_pool*/ my_id_repo;
-        Map<Long, Long> /*epmem_id_pool*/ my_id_repo2 = null;
+        LinkedList<EpisodicMemoryIdPair> /*epmem_id_pool*/ my_id_repo = null;
+        LinkedList<EpisodicMemoryIdPair> /*epmem_id_pool*/ my_id_repo2 = null;
         // epmem_id_pool::iterator pool_p;
         EpisodicMemoryIdReservation r_p;
         EpisodicMemoryIdReservation new_id_reservation;
@@ -1759,16 +1760,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 my_id_repo = epmem_id_repository.get(parent_id).get(new_id_reservation.my_hash);
                 if(my_id_repo != null)
                 {
-                    // TODO make sure std::pair::first is the key and std::pair::second is the value
-                    long wmeEpmemId = wme.value.asIdentifier().epmem_id;
-                    // CK: use get() instead of iterating through the whole map looking for the element
-                    new_id_reservation.my_id = my_id_repo.get(wmeEpmemId);
-                    my_id_repo.remove(wmeEpmemId);
+                    final Iterator<EpisodicMemoryIdPair> it = my_id_repo.iterator();
+                    while (it.hasNext())
+                    {
+                        final EpisodicMemoryIdPair pool_p = it.next();
+                        if(pool_p.first == wme.value.asIdentifier().epmem_id)
+                        {
+                            new_id_reservation.my_id = pool_p.second;
+                            it.remove();
+                            break;
+                        }
+                    }
                 }
                 else
                 {
                     // add repository
-                    my_id_repo = Maps.newLinkedHashMap();
+                    my_id_repo = Lists.newLinkedList();
                 }
                 
                 new_id_reservation.my_pool = my_id_repo;
@@ -1848,7 +1855,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
                             // add repository
-                            Map<Long, Map<Long, Long>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
+                            Map<Long, LinkedList<EpisodicMemoryIdPair>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
                             epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
                             
                             _epmem_promote_id(wmeValueId, time_counter);
@@ -1934,14 +1941,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             {
                                 if(!my_id_repo.isEmpty())
                                 {
-                                    Iterator<Long> it = my_id_repo.keySet().iterator();
+                                    Iterator<EpisodicMemoryIdPair> it = my_id_repo.iterator();
                                     while(it.hasNext())
                                     {
-                                        final Long first = it.next();
-                                        if (first == wmeValueId.epmem_id)
+                                        final EpisodicMemoryIdPair pool_p = it.next();
+                                        if (pool_p.first == wmeValueId.epmem_id)
                                         {
-                                            final Long second = my_id_repo.get(first);
-                                            wme.epmem_id = second;
+                                            wme.epmem_id = pool_p.second;
                                             it.remove();
                                             epmem_id_replacement.put(wme.epmem_id, my_id_repo);
                                             break;
@@ -1952,7 +1958,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             else
                             {
                                 // add repository
-                                my_id_repo = Maps.newLinkedHashMap();
+                                my_id_repo = Lists.newLinkedList();
                             }
 
                             // keep the address for later (used if w->epmem_id was not assigned)
@@ -1982,18 +1988,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             // if something leftover, try to use it
                             if (!my_id_repo.isEmpty())
                             {
-                                Iterator<Long> it = my_id_repo.keySet().iterator();
+                                Iterator<EpisodicMemoryIdPair> it = my_id_repo.iterator();
                                 while (it.hasNext())
                                 {
-                                    final Long first = it.next();
+                                    final EpisodicMemoryIdPair pool_p = it.next();
                                     // the ref set for this epmem_id may not be there if the pools were regenerated from a previous DB
                                     // a non-existant ref set is the equivalent of a ref count of 0 (ie. an empty ref set)
                                     // so we allow the identifier from the pool to be used
-                                    if (epmem_id_ref_counts.get(first) == null || epmem_id_ref_counts.get(first).size() == 0)
+                                    if (epmem_id_ref_counts.get(pool_p.first) == null ||
+                                            epmem_id_ref_counts.get(pool_p.first).isEmpty())
                                     {
-                                        final Long second = my_id_repo.get(first);
-                                        wme.epmem_id = second;
-                                        wmeValueId.epmem_id = first;
+                                        wme.epmem_id = pool_p.second;
+                                        wmeValueId.epmem_id = pool_p.first;
                                         wmeValueId.epmem_valid = epmem_validation;
                                         it.remove();
                                         epmem_id_replacement.put(wme.epmem_id, my_id_repo);
@@ -2005,7 +2011,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         else
                         {
                             // add repository
-                            my_id_repo = Maps.newLinkedHashMap();
+                            my_id_repo = Lists.newLinkedList();
                         }
                         
                         // keep the address for later (used if w->epmem_id was not assgined)
@@ -2027,7 +2033,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
                         // add repository for possible future children
-                        Map<Long, Map<Long, Long>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
+                        Map<Long, LinkedList<EpisodicMemoryIdPair>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
                         epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
                         
                         Set<WmeImpl> epmem_wme_set = Sets.newLinkedHashSet();
@@ -6028,8 +6034,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // return to the id pool
                 if ( !lti )
                 {
-                    Map<Long,Long> p = epmem_id_replacement.get(w.epmem_id);
-                    p.put(w.value.asIdentifier().epmem_id, w.epmem_id);
+                    LinkedList<EpisodicMemoryIdPair> p = epmem_id_replacement.get(w.epmem_id);
+                    p.addFirst(new EpisodicMemoryIdPair(w.value.asIdentifier().epmem_id, w.epmem_id));
                     epmem_id_replacement.remove(p);
                 }
             }
