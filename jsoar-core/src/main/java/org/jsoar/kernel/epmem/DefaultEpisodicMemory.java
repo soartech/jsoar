@@ -1899,7 +1899,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // CK: no reinitialize for PreparedStatement
                         // my_agent->epmem_stmts_graph->find_edge_unique_shared->reinitialize();
                     }
-                }
+                }//End special lti proccessing
                 else
                 {
                     // in the case of a known value, we already have a reservation (case 1)
