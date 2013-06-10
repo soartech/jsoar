@@ -439,24 +439,6 @@ public class DecisionCycle
             smem.smem_go(false);
         }
         
-//      if ( epmem_enabled( thisAgent ) && ( thisAgent->epmem_params->phase->get_value() == epmem_param_container::phase_output ) )
-//  	  {
-//  		  // since we consolidated wma histories from this decision,
-//  		  // we need to pretend it's the next time step in case
-//  		  // an epmem retrieval wants to know current activation value
-//  		  thisAgent->wma_d_cycle_count++;
-//  		  {
-//  			  epmem_go( thisAgent );
-//  		  }
-//  		  thisAgent->wma_d_cycle_count--;
-//  	  }
-        if (epmem.epmem_enabled() && epmem.encodeInOutputPhase())
-        {
-//        	thisAgent->wma_d_cycle_count++;
-        	epmem.epmem_go();
-//        	thisAgent->wma_d_cycle_count--;
-        }
-
         ///////////////////////////////////////////////////////////////////
         assert( wma.get_d_cycle_count() == this.d_cycle_count.get() );
         ///////////////////////////////////////////////////////////////////
@@ -469,7 +451,23 @@ public class DecisionCycle
             wma.wma_go( wma_go_action.wma_histories );
         }
         
-        // epmem stuff goes here when ported
+//      if ( epmem_enabled( thisAgent ) && ( thisAgent->epmem_params->phase->get_value() == epmem_param_container::phase_output ) )
+//      {
+//          // since we consolidated wma histories from this decision,
+//          // we need to pretend it's the next time step in case
+//          // an epmem retrieval wants to know current activation value
+//          thisAgent->wma_d_cycle_count++;
+//          {
+//              epmem_go( thisAgent );
+//          }
+//          thisAgent->wma_d_cycle_count--;
+//      }
+        if (epmem.epmem_enabled() && epmem.encodeInOutputPhase())
+        {
+//          thisAgent->wma_d_cycle_count++;
+            epmem.epmem_go();
+//          thisAgent->wma_d_cycle_count--;
+        }
         
         // now both update histories and forget, allows
         // - epmem retrieval to affect history
