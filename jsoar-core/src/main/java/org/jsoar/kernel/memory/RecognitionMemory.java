@@ -6,6 +6,7 @@
 package org.jsoar.kernel.memory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -53,6 +54,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Variable;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.adaptables.Adaptables;
@@ -98,6 +100,7 @@ public class RecognitionMemory
     private SoarReteListener soarReteListener;
     private Consistency consistency;
     private ReinforcementLearning rl;
+    private DefaultWorkingMemoryActivation wma;
     
     /**
      * agent.h:174:firer_highest_rhs_unboundvar_index
@@ -172,6 +175,7 @@ public class RecognitionMemory
         this.soarReteListener = Adaptables.adapt(context, SoarReteListener.class);
         this.consistency = Adaptables.adapt(context, Consistency.class);
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
+        this.wma = Adaptables.adapt(context, DefaultWorkingMemoryActivation.class);
         
         context.getProperties().setProvider(SoarProperties.PRODUCTION_FIRING_COUNT, production_firing_count);
     }
@@ -187,47 +191,91 @@ public class RecognitionMemory
         this.FIRING_TYPE = SavedFiringType.IE_PRODS; /* KJC 10.05.98 was PE */
     }
     
-    /**
-     * Build Prohibit Preference List for Backtracing
+    /*
+     * Build context-dependent preference set
      * 
-     * recmem.cpp:70:build_prohibits_list
+     * This function will copy the CDPS from a slot to the backtrace info for the
+     * corresponding condition.  The copied CDPS will later be backtraced through.
+     * 
+     * Note: Until prohibits are included explicitly as part of the CDPS, we will
+     * just copy them directly from the prohibits list so that there is no
+     * additional overhead.  Once the CDPS is on by default, we can eliminate the
+     * second half of the big else (and not call this function at all if the
+     * sysparam is not set.
      * 
      * @param inst
+     * 
+     * recmem.cpp:95:build_CDPS
+     * 
      */
-    private void build_prohibits_list(Instantiation inst)
+
+    void build_CDPS(Instantiation inst)
     {
         for (Condition cond = inst.top_of_instantiated_conditions; cond != null; cond = cond.next)
         {
             final PositiveCondition pc = cond.asPositiveCondition();
             final BackTraceInfo bt = pc != null ? pc.bt() : null;
-            if(pc != null)
+            if (pc != null)
             {
-                bt.clearProhibits();
+                bt.clearContextDependentPreferenceSet(context);
             }
+
             if (pc != null && bt.trace != null)
             {
                 if (bt.trace.slot != null)
                 {
-                    Preference pref = bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
-                    while (pref != null)
+                    if (this.chunker.chunkThroughEvaluationRules)
                     {
-                        Preference new_pref = null;
-                        if (pref.inst.match_goal_level == inst.match_goal_level && pref.isInTempMemory())
+                        if (bt.trace.slot.hasContextDependentPreferenceSet())
                         {
-                            bt.addProhibit(pref);
-                        }
-                        else
-                        {
-                            new_pref = Preference.find_clone_for_level(pref, inst.match_goal_level);
-                            if (new_pref != null)
+                            for(Preference pref : bt.trace.slot.getContextDependentPreferenceSet())
                             {
-                                if (new_pref.isInTempMemory())
+                                Preference new_pref = null;
+                                if (pref.inst.match_goal_level == inst.match_goal_level
+                                        && pref.isInTempMemory())
                                 {
-                                    bt.addProhibit(new_pref);
+                                    bt.addContextDependentPreference(pref);
+                                }
+                                else
+                                {
+                                    new_pref = Preference.find_clone_for_level(
+                                            pref, inst.match_goal_level);
+                                    if (new_pref != null)
+                                    {
+                                        if (new_pref.isInTempMemory())
+                                        {
+                                            bt.addContextDependentPreference(new_pref);
+                                        }
+                                    }
                                 }
                             }
                         }
-                        pref = pref.next;
+                    }
+                    else
+                    {
+                        Preference pref = bt.trace.slot.getPreferencesByType(PreferenceType.PROHIBIT);
+                        while (pref != null)
+                        {
+                            Preference new_pref = null;
+                            if (pref.inst.match_goal_level == inst.match_goal_level
+                                    && pref.isInTempMemory())
+                            {
+                                bt.addContextDependentPreference(pref);
+                            }
+                            else
+                            {
+                                new_pref = Preference.find_clone_for_level(
+                                        pref, inst.match_goal_level);
+                                if (new_pref != null)
+                                {
+                                    if (new_pref.isInTempMemory())
+                                    {
+                                        bt.addContextDependentPreference(new_pref);
+                                    }
+                                }
+                            }
+                            pref = pref.next;
+                        }
                     }
                 }
             }
@@ -535,8 +583,7 @@ public class RecognitionMemory
      * @param need_to_do_support_calculations
      * @param top_goal
      */
-    public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations,
-            final IdentifierImpl top_goal)
+    public void fill_in_new_instantiation_stuff(Instantiation inst, boolean need_to_do_support_calculations)
     {
         find_match_goal(inst);
 
@@ -619,7 +666,7 @@ public class RecognitionMemory
         // do calc's the normal Soar 6 way
         if (need_to_do_support_calculations)
         {
-            osupport.calculate_support_for_instantiation_preferences(inst, top_goal);
+            osupport.calculate_support_for_instantiation_preferences(inst);
         }
     }
     
@@ -635,7 +682,7 @@ public class RecognitionMemory
      * @param w
      * @param top_goal
      */
-    private void create_instantiation(Production prod, Token tok, WmeImpl w, IdentifierImpl top_goal)
+    private void create_instantiation(Production prod, Token tok, WmeImpl w)
     {
         final Trace trace = context.getTrace();
         
@@ -742,7 +789,7 @@ public class RecognitionMemory
         }
 
         // fill in lots of other stuff
-        fill_in_new_instantiation_stuff(inst, need_to_do_support_calculations, top_goal);
+        fill_in_new_instantiation_stuff(inst, need_to_do_support_calculations);
 
         // print trace info: printing preferences 
         // Note: can't move this up, since fill_in_new_instantiation_stuff gives
@@ -756,13 +803,14 @@ public class RecognitionMemory
             }
         }
         
-        build_prohibits_list(inst);
+        // Copy any context-dependent preferences for conditions of this instantiation
+        build_CDPS(inst);
 
         this.production_being_fired = null;
 
         // build chunks/justifications if necessary
         final ByRef<Instantiation> new_created_byref = ByRef.create(newly_created_instantiations);
-        this.chunker.chunk_instantiation(inst, this.chunker.isLearningOn(), new_created_byref);
+        this.chunker.chunk_instantiation(inst, false, new_created_byref);
         newly_created_instantiations = new_created_byref.value;
 
         // TODO callback FIRING_CALLBACK
@@ -881,22 +929,7 @@ public class RecognitionMemory
                 if (pc != null)
                 {
                     final BackTraceInfo bt = pc.bt();
-                    if (bt.hasProhibits())
-                    {
-                        for (Preference pref : bt)
-                        {
-                            if (SoarConstants.DO_TOP_LEVEL_REF_CTS)
-                            {
-                                pref.preference_remove_ref(this);
-                            }
-                            else
-                            {
-                                if (level > SoarConstants.TOP_GOAL_LEVEL)
-                                    pref.preference_remove_ref(this);
-                            }
-                        }
-                        bt.clearProhibits();
-                    }
+                    bt.clearContextDependentPreferenceSet(context);
 
                     /*      voigtjr, nlderbin:
                             We flattened out the following recursive loop in order to prevent a stack
@@ -1171,7 +1204,7 @@ public class RecognitionMemory
      * preference generated except for o-rejects. It also removes each
      * instantiation from newly_created_instantiations, linking each onto the
      * list of instantiations for that particular production. O-rejects are
-     * bufferred and handled after everything else.
+     * buffered and handled after everything else.
      * 
      * <p>Note that some instantiations on newly_created_instantiations are not in
      * the match set--for the initial instantiations of chunks/justifications,
@@ -1233,12 +1266,33 @@ public class RecognitionMemory
             {
                 next_pref = pref.inst_next;
                 
+                // removed old code specific to !O_REJECTS_FIRST, which isn't supported by jsoar
+                
                 if ( inst.in_ms || pref.o_supported )
                 {
                     // normal case
-                    add_preference_to_tm(pref);
+                    if(add_preference_to_tm(pref))
+                    {
+                        // No knowledge retrieval necessary in Operand2
+                        
+                        if (wma.wma_enabled())
+                        {
+                            wma.wma_activate_wmes_in_pref(pref);
+                        }
+                    }
+                    else
+                    {
+                        // NLD: the preference was o-supported, at
+                        // the top state, and was asserting an acceptable 
+                        // preference for a WME that was already
+                        // o-supported. hence unnecessary.
 
-                    // No knowledge retrieval necessary in Operand2
+                        RecognitionMemory recMemory = Adaptables.require(getClass(), context, RecognitionMemory.class);
+                        pref.preference_add_ref();
+                        pref.preference_remove_ref(recMemory);
+                    }
+
+
                 }
                 else
                 {
@@ -1301,6 +1355,9 @@ public class RecognitionMemory
                     final Preference next_p = p.nextOfSlot;
                     if (p.value == pref.value)
                     {
+                        // Buffer deallocation by adding a reference here and putting it
+                        // on a list. These are deallocated after the inner elaboration
+                        // loop completes.
                         p.preference_add_ref();
                         bufdeallo.add(p);
                         remove_preference_from_tm(p);
@@ -1316,58 +1373,124 @@ public class RecognitionMemory
      * Add_preference_to_tm() adds a given preference to preference memory (and
      * hence temporary memory). 
      * 
-     * <p>prefmem.cpp:203:add_preference_to_tm
+     * <p>prefmem.cpp:216:add_preference_to_tm
      * 
      * TODO I wish this was private, but smem and epmem use it.
      * 
      * @param pref
      */
-    public boolean add_preference_to_tm(Preference pref)
+    public boolean add_preference_to_tm (Preference pref) 
     {
-        //Epmem Switches on this, so I added the return type to match CSoar.
-        //It also appears that the only condition that causes a return of false,
-        //is a debug condition, so this just returns true at the end. -ACN
-        
-        // #ifdef DEBUG_PREFS
-        // print (thisAgent, "\nAdd preference at 0x%8x: ",(unsigned long)pref);
-        // print_preference (thisAgent, pref);
-        // #endif
+//    #ifdef DEBUG_PREFS
+//       print (thisAgent, "\nAdd preference at 0x%8x:  ",reinterpret_cast<uintptr_t>(pref));
+//       print_preference (thisAgent, pref);
+//    #endif
+       
+       Slot s = Slot.make_slot( pref.id, pref.attr, predefinedSyms.operator_symbol );
+       
 
-        // JC: This will retrieve the slot for pref->id if it already exists
-        Slot s = Slot.make_slot(pref.id, pref.attr, predefinedSyms.operator_symbol);
-        s.addPreference(pref);
+       if ( !s.isa_context_slot && pref.o_supported && ( pref.type == PreferenceType.ACCEPTABLE ) && ( pref.inst.match_goal == this.decider.top_state ) )
+       {
+           boolean already_top_o_supported = false;
 
-        // other miscellaneous stuff
-        pref.preference_add_ref();
+           for ( Preference p2=s.getAllPreferences(); ( p2 != null && !already_top_o_supported ); p2=p2.nextOfSlot )
+           {
+               if ( ( p2.value == pref.value ) && p2.o_supported && ( p2.inst.match_goal == this.decider.top_state ) )
+               {
+                   already_top_o_supported = true;
+               }
+           }
 
-        tempMemory.mark_slot_as_changed(s);
+           if ( already_top_o_supported )
+           {
+               // NLD: if it is suspected that this code is causing an issue, simply comment out the following line to debug.
+               return false;
+           }
+       }
+       
+       pref.slot = s;
+       s.addPreference(pref); // note this handles inserting at the head of the all_preferences list and inserting into the correct preference type list
+       
+       /* --- other miscellaneous stuff --- */    
+       pref.preference_add_ref();
+       
+       // if it's the case that the slot is unchanged, but has
+       // some references laying around, clear them
+       // this doesn't cause immediate memory deallocate/allocate
+       // but once the WMEs are resolved, this should free the
+       // memory, as opposed to lead to a "leak"
+       if ( wma.wma_enabled() && !s.isa_context_slot )
+       {
+           if ( s.changed == null )
+           {
+               if ( s.wma_val_references != null )
+               {
+                   s.wma_val_references.clear();
+               }
+           }
+       }
 
-        // update identifier levels
-        IdentifierImpl valueId = pref.value.asIdentifier();
-        if (valueId != null)
-        {
-            decider.post_link_addition (pref.id, valueId);
-        }
+       tempMemory.mark_slot_as_changed(s);
 
-        if (pref.type.isBinary())
-        {
-            IdentifierImpl refId = pref.referent.asIdentifier();
-            if (refId != null)
-            {
-                decider.post_link_addition (pref.id, refId);
-            }
-        }
+       if ( wma.wma_enabled() && !s.isa_context_slot )
+       {
+          boolean exists = false;
+          WmeImpl w = pref.slot.getWmes();
+          while ( !exists && w != null )
+          {
+             if ( w.getValue() == pref.value )
+             {
+                exists = true;
+             }
 
-        // if acceptable/require pref for context slot, we may need to add a wme
-        // later
-        if (s.isa_context_slot
-                && (pref.type == PreferenceType.ACCEPTABLE || 
-                    pref.type == PreferenceType.REQUIRE))
-        {
-            decider.mark_context_slot_as_acceptable_preference_changed (s);
-        }
-        
-        return true;
+             w = w.next;
+          }
+
+          // if wme exists, it should already have been updated
+          // during assertion of new preferences
+          if ( !exists )
+          {
+             if ( s.wma_val_references == null )
+             {
+                 s.wma_val_references = new HashMap<Symbol, Long>();
+             }
+
+             Long numRef = s.wma_val_references.get(pref.value);
+             if(numRef == null)
+             {
+                 numRef = 0L;
+             }
+             
+             s.wma_val_references.put(pref.value, ++numRef);
+          }
+       }
+       
+       // --- update identifier levels ---
+       IdentifierImpl valueId = pref.value.asIdentifier();
+       if (valueId != null)
+       {
+           decider.post_link_addition (pref.id, valueId);
+       }
+
+       if (pref.type.isBinary())
+       {
+           IdentifierImpl refId = pref.referent.asIdentifier();
+           if (refId != null)
+           {
+               decider.post_link_addition (pref.id, refId);
+           }
+       }
+       
+       // if acceptable/require pref for context slot, we may need to add a wme
+       // later
+       if (s.isa_context_slot
+               && (pref.type == PreferenceType.ACCEPTABLE || 
+                   pref.type == PreferenceType.REQUIRE))
+       {
+           decider.mark_context_slot_as_acceptable_preference_changed (s);
+       }
+       
+       return true;
     }
 
     /**
@@ -1456,6 +1579,11 @@ public class RecognitionMemory
             }
         }
         
+        if(wma.wma_enabled())
+        {
+            soarReteListener.wma_activate_wmes_tested_in_prods();
+        }
+        
         // Save previous active level for usage on next elaboration cycle.
         decider.highest_active_level = decider.active_level;
         decider.highest_active_goal = decider.active_goal;
@@ -1510,7 +1638,7 @@ public class RecognitionMemory
                 if (shouldCreateInstantiation(assertion.production, assertion.token, assertion.wme))
                 {
                     this.soarReteListener.consume_last_postponed_assertion();
-                    create_instantiation(assertion.production, assertion.token, assertion.wme, top_goal);
+                    create_instantiation(assertion.production, assertion.token, assertion.wme);
                 }
             }
             
@@ -1544,29 +1672,27 @@ public class RecognitionMemory
                 break;
             }
             
-            try
+            
+            if (this.decisionCycle.current_phase.get() == Phase.APPLY)
             {
-                if (this.decisionCycle.current_phase.get() == Phase.APPLY)
-                {
-                    decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.goalInfo.lower_goal);
-                }
-                else if (this.decisionCycle.current_phase.get() == Phase.PROPOSE)
-                {
-                    // PROPOSE
-                    decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.goalInfo.lower_goal);
-                } 
+                decider.active_goal = this.consistency.highest_active_goal_apply(decider.active_goal.goalInfo.lower_goal, true);
+            }
+            else if (this.decisionCycle.current_phase.get() == Phase.PROPOSE)
+            {
+                // PROPOSE
+                decider.active_goal = this.consistency.highest_active_goal_propose(decider.active_goal.goalInfo.lower_goal, true);
             } 
-            catch (IllegalStateException e)
+            
+            if(decider.active_goal != null)
             {
-                // FIXME: highest_active_goal_x functions are intended to be used only when it is
-                // guaranteed that the agent is not at quiescence.
-                decider.active_goal = null;
+                decider.active_level = decider.active_goal.level;
+            }
+            else
+            {
                 trace.print(Category.WATERFALL, " inner preference loop finished but not at quiescence.\n");
                 break;
             }
             
-            assert decider.active_goal != null;
-            decider.active_level = decider.active_goal.level;
         } // inner elaboration loop/cycle end
         
         // Deallocate preferences delayed during inner elaboration loop.

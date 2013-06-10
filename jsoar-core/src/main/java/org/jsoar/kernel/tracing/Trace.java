@@ -88,6 +88,9 @@ public class Trace
         /** gsysparam.h:183:TRACE_EPMEM_SYSPARAM */
         EPMEM(-1),
         
+        /** gsysparam.g:180:TRACE_WMA_SYSPARAM */
+        WMA(-1),
+        
         /** New in jsoar for debugging waterfall */
         WATERFALL(-1),
         

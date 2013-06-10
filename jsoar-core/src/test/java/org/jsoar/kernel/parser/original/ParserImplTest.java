@@ -304,7 +304,6 @@ public class ParserImplTest extends JSoarTest
         verifyParsePreference(" - " , PreferenceType.REJECT);
         verifyParsePreference(" ! " , PreferenceType.REQUIRE);
         verifyParsePreference(" ~ " , PreferenceType.PROHIBIT);
-        verifyParsePreference(" @ " , PreferenceType.RECONSIDER);
         verifyParsePreference(" > 5 " , PreferenceType.BETTER);
         verifyParsePreference(" > " , PreferenceType.BEST);
         verifyParsePreference(" = 5 " , PreferenceType.NUMERIC_INDIFFERENT);

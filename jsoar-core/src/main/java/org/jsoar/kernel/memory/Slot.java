@@ -7,6 +7,8 @@ package org.jsoar.kernel.memory;
 
 import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
 
 import org.jsoar.kernel.ImpasseType;
 import org.jsoar.kernel.PredefinedSymbols;
@@ -14,6 +16,11 @@ import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.StringSymbolImpl;
 import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolImpl;
+import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.tracing.Trace;
+import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.util.adaptables.Adaptable;
+import org.jsoar.util.adaptables.Adaptables;
 
 import com.google.common.collect.Iterators;
 
@@ -43,6 +50,12 @@ import com.google.common.collect.Iterators;
  *      match goal, with the pref. supported by the highest goal at the
  *      head of the list.
  *
+ *    <li>CDPS: a dll of preferences in the context-dependent preference set,
+ *    which is the set of all preferences that contributed to an operator's
+ *    selection. This is used to allow Soar to backtrace through evaluation
+ *    rules in substates. The rules that determine which preferences are
+ *    in the CPSD are outlined in run_preference_semantics().
+ *    
  *    <li>impasse_id:  points to the identifier of the attribute impasse object
  *      for this slot.  (NIL if the slot isn't impassed.)
  *
@@ -83,6 +96,8 @@ public class Slot
     
     private EnumMap<PreferenceType, Preference> preferencesByType;
 
+    private LinkedList<Preference> cdps; /* list of prefs in the CDPS to backtrace through */
+    
     public IdentifierImpl impasse_id = null;               // null if slot is not impassed
     public final boolean isa_context_slot;            
     public ImpasseType impasse_type = ImpasseType.NONE;
@@ -105,6 +120,8 @@ public class Slot
      */
     public Object acceptable_preference_changed;
 
+    public Map<Symbol, Long> wma_val_references;
+    
     /**
      * Find or create a new slot
      * 
@@ -419,5 +436,136 @@ public class Slot
         pref.previous = null;
         
     }
+    
+    /**
+     * Clear out and deallocate the CDPS.
+     * 
+     * tempmem.cpp:166:clear_CDPS
+     * @param context
+     */
+    public void clear_CDPS(final Adaptable context)
+    {
+        if (!hasContextDependentPreferenceSet())
+        {
+            return;
+        }
 
+        /*
+         * The CDPS should never exist on a top-level slot, so we do not need to
+         * worry about checking for DO_TOP_LEVEL_REF_CTS.
+         */
+
+        final RecognitionMemory recMemory = Adaptables.adapt(context, RecognitionMemory.class);
+
+        Iterator<Preference> it = cdps.iterator();
+        while(it.hasNext())
+        {
+            Preference p = it.next();
+            p.preference_remove_ref(recMemory);
+            it.remove();
+        }
+    }
+
+    public boolean hasContextDependentPreferenceSet()
+    {
+        return this.cdps != null && !this.cdps.isEmpty();
+    }
+    
+    LinkedList<Preference> getContextDependentPreferenceSet()
+    {
+        return this.cdps;
+    }
+    
+    /**
+     * Add a preference to a slot's CDPS
+     * This function adds a preference to a slots's context dependent
+     * preference set, checking to first see whether the pref is already
+     * there. If an operator The slot's CDPS is copied to conditions' bt structs in
+     * create_instatiation. Those copies of the CDPS are used to
+     * backtrace through all relevant local evaluation rules that led to the
+     * selection of the operator that produced a result.
+     * 
+     * decide.cpp:873:add_to_CDPS
+     */
+    public void add_to_CDPS(Adaptable context, Preference pref)
+    {
+        add_to_CDPS(context, pref, true);
+    }
+    
+    public void add_to_CDPS(Adaptable context, Preference pref, boolean unique_value /* = true */)
+    {
+        final Trace trace = Adaptables.adapt(context, Trace.class);
+        final Printer printer = trace.getPrinter();
+        final boolean traceBacktracing = trace.isEnabled(Category.BACKTRACING);
+        if (traceBacktracing)
+        {
+            printer.print("--> Adding preference to CDPS: %s", pref);
+        }
+
+        if(this.cdps == null)
+        {
+            this.cdps = new LinkedList<Preference>();
+        }
+        
+        boolean already_exists = false;
+        for(Preference p : cdps)
+        {
+            if (p == pref)
+            {
+                already_exists = true;
+                break;
+            }
+
+            if (unique_value)
+            {
+                /*
+                 * Checking if a preference is unique differs depending on the
+                 * preference type
+                 */
+
+                /*
+                 * Binary preferences can be considered equivalent if they point
+                 * to the same operators in the correct relative spots
+                 */
+                if (((pref.type == PreferenceType.BETTER) || (pref.type == PreferenceType.WORSE))
+                        && ((p.type == PreferenceType.BETTER) || (p.type == PreferenceType.WORSE)))
+                {
+                    if (pref.type == p.type)
+                    {
+                        already_exists = ((pref.value == p.value) && (pref.referent == p.referent));
+                    }
+                    else
+                    {
+                        already_exists = ((pref.value == p.referent) && (pref.referent == p.value));
+                    }
+                }
+                else if ((pref.type == PreferenceType.BINARY_INDIFFERENT)
+                        && (p.type == PreferenceType.BINARY_INDIFFERENT))
+                {
+                    already_exists = (((pref.value == p.value) && (pref.referent == p.referent)) || ((pref.value == p.referent) && (pref.referent == p.value)));
+                }
+                else
+                {
+                    /*
+                     * Otherwise they are equivalent if they have the same value
+                     * and type
+                     */
+                    already_exists = (pref.value == p.value) && (pref.type == p.type);
+                }
+                if (already_exists)
+                {
+                    break;
+                }
+            }
+        }
+        if (!already_exists)
+        {
+            this.cdps.push(pref);
+            pref.preference_add_ref();
+        }
+        else if (traceBacktracing)
+        {
+            printer.print("--> equivalent pref already exists. Not adding.\n");
+        }
+    }
 }

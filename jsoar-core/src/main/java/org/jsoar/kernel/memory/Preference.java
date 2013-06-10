@@ -7,6 +7,7 @@ package org.jsoar.kernel.memory;
 
 import java.util.Formattable;
 import java.util.Formatter;
+import java.util.Set;
 
 import org.jsoar.kernel.symbols.IdentifierImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
@@ -70,6 +71,8 @@ public class Preference implements Formattable
     boolean deallocated = false;
     
     public boolean rl_contribution = false; // RL-9.3.0 (false in make_preference)
+
+    public Set<Wme> wma_o_set; // initialized by WorkingMemoryActivation
 
     /**
      * Make_preference() creates a new preference structure of the given type
@@ -286,11 +289,6 @@ public class Preference implements Formattable
 
         recMemory.possibly_deallocate_instantiation(pref.inst);
 
-        if (pref.type.isBinary())
-        {
-            //symbol_remove_ref (thisAgent, pref->referent);
-        }
-        
         pref.deallocated = true;
     } 
     

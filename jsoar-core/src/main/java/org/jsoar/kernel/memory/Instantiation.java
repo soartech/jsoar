@@ -39,10 +39,21 @@ public class Instantiation implements Traceable
     public Preference  preferences_generated = null;    // header for dll of prefs
     public IdentifierImpl match_goal;                   // symbol, or NIL if none
     public int /*goal_stack_level*/ match_goal_level;    // level, or ATTRIBUTE_IMPASSE_LEVEL
+    
     /**
-     * <p>Initialized to true in recmem.cpp:574:create_instantiation
+     * reliable:  false iff instantiation is a justification whose
+     * backtrace either:
+     * 
+     * - tests ^quiescence t, or
+     * - contains a local negated condition and learn -N is set, or
+     * - goes through an unreliable justification
+     * 
+     * Intuitively, a justification is unreliable if its creation is
+     * not guaranteed by the state of production and working memory
+     * 
+     * <p>Initialized to true in recmem.cpp:673:create_instantiation
      */
-    public boolean okay_to_variablize = true;
+    public boolean reliable = true;
     /**
      * TRUE iff this inst. is still in the match set
      * 

@@ -29,8 +29,11 @@ public class PerformanceTimer
      */
     public static void main(String[] args) throws Exception
     {
-        for(String arg : args)
+        int numRuns = 10;
+        
+        for(int i = 0; i < args.length; ++i)
         {
+            final String arg = args[i]; 
             if("--raw".equals(arg))
             {
                 System.out.println("TotalCPU, TotalKernel");
@@ -39,8 +42,25 @@ public class PerformanceTimer
             {
                 System.out.println("Decisions!");
             }
+            else if("--runs".equals(arg))
+            {
+                ++i;
+                boolean badArg = false;
+                if( i < args.length )
+                {
+                    numRuns = Integer.parseInt(args[i]);
+                }
+                else
+                {
+                    badArg = true;
+                }
+                if(numRuns <= 0) badArg = true;
+                if(badArg) System.out.println("Positive integer argument required for --runs option");
+            }
         }
-        for(int i = 0; i < 10; ++i)
+        
+        System.out.println("Doing " + numRuns + " runs");
+        for(int i = 0; i < numRuns; ++i)
         {
             doRun(args);
         }
@@ -70,7 +90,7 @@ public class PerformanceTimer
         agent.initialize();
         SoarCommandInterpreter ifc = agent.getInterpreter();
         
-        boolean raw = false;
+        boolean raw = false, runs = false;
         long decisions = -1;
         for(String arg : args)
         {
@@ -79,7 +99,8 @@ public class PerformanceTimer
                 decisions = Integer.valueOf(arg);
                 if(decisions == 0) 
                     decisions = -1;
-            } 
+            }
+            else if(runs) { runs = false; /* skip arg */ }
             else if("--raw".equals(arg))
             {
                 raw = true;
@@ -87,6 +108,10 @@ public class PerformanceTimer
             else if("--decisions".equals(arg))
             {
                 decisions = 0;
+            }
+            else if("--runs".equals(arg))
+            {
+                runs = true;
             }
             else
             {

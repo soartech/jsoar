@@ -146,7 +146,7 @@ public class Consistency
 
         /* Determine the new impasse type, based on the preferences that exist now */
         final ByRef<Preference> candidates = ByRef.create(null);
-        final ImpasseType new_impasse_type = decider.run_preference_semantics_for_consistency_check(s, candidates);
+        final ImpasseType new_impasse_type = decider.run_preference_semantics(s, candidates, true);
 
         if (DEBUG_CONSISTENCY_CHECK)
         {
@@ -417,9 +417,10 @@ public class Consistency
      * consistency.cpp:420:highest_active_goal_propose
      * 
      * @param start_goal The goal to start at
+     * @param noneOk true if no active goal is ok, false if not
      * @return highest active goal in goal stack.
      */
-    public IdentifierImpl highest_active_goal_propose(IdentifierImpl start_goal)
+    public IdentifierImpl highest_active_goal_propose(IdentifierImpl start_goal, boolean noneOk)
     {
         for (IdentifierImpl goal = start_goal; goal != null; goal = goal.goalInfo.lower_goal)
         {
@@ -449,8 +450,13 @@ public class Consistency
         if (!this.soarReteListener.nil_goal_retractions.isEmpty())
             return null;
 
-        context.getTrace().flush();
-        throw new IllegalStateException("Unable to find an active goal when not at quiescence.");
+        if(!noneOk)
+        {
+            context.getTrace().flush();
+            throw new IllegalStateException("Unable to find an active goal when not at quiescence.");
+        }
+        
+        return null;
     }
 
     /**
@@ -459,9 +465,10 @@ public class Consistency
      * <p>Preconditions: start_goal cannot be null, agent not at quiescence
      * 
      * @param start_goal the goal to start at
+     * @param noneOk true if no active goal is ok, false if not
      * @return highest active goal
      */
-    public IdentifierImpl highest_active_goal_apply(IdentifierImpl start_goal)
+    public IdentifierImpl highest_active_goal_apply(IdentifierImpl start_goal, boolean noneOk)
     {
         for (IdentifierImpl goal = start_goal; goal != null; goal = goal.goalInfo.lower_goal)
         {
@@ -495,7 +502,12 @@ public class Consistency
         if (!this.soarReteListener.nil_goal_retractions.isEmpty())
             return null;
 
-        throw new IllegalStateException("Unable to find an active goal when not at quiescence.");
+        if(!noneOk)
+        {
+            throw new IllegalStateException("Unable to find an active goal when not at quiescence.");
+        }
+        
+        return null;
     }
     
     /**
@@ -648,7 +660,7 @@ public class Consistency
         decider.previous_active_level = decider.active_level;
 
         /* Determine the new highest level of activity */
-        decider.active_goal = highest_active_goal_apply(decider.top_goal);
+        decider.active_goal = highest_active_goal_apply(decider.top_goal, false);
         if (decider.active_goal != null)
             decider.active_level = decider.active_goal.level;
         else
@@ -896,7 +908,7 @@ public class Consistency
         decider.previous_active_level = decider.active_level;
 
         /* Determine the new highest level of activity */
-        decider.active_goal = highest_active_goal_propose(decider.top_goal);
+        decider.active_goal = highest_active_goal_propose(decider.top_goal, false);
         if (decider.active_goal != null)
             decider.active_level = decider.active_goal.level;
         else

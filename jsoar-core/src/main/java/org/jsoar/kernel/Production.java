@@ -173,8 +173,8 @@ public class Production
         Arguments.checkNotNull(type, "type");
         Arguments.checkNotNull(location, "location");
         Arguments.checkNotNull(name, "name");
-        Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
-        Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
+//        Arguments.checkNotNull(lhs_top_in, "lhs_top_in");
+//        Arguments.checkNotNull(lhs_bottom_in, "lhs_bottom_in");
         
         this.type = type;
         this.location = location;
@@ -325,15 +325,21 @@ public class Production
      * 
      * @param printer The printer to print to
      * @param wtt The WME trace level
+     * @param showNodeIds Whether to show the betanode ids (useful to see what nodes are being shared in the rete)
      */
     public void printPartialMatches(Printer printer, WmeTraceType wtt)
+    {
+        printPartialMatches(printer, wtt, false);
+    }
+    
+    public void printPartialMatches(Printer printer, WmeTraceType wtt, boolean showNodeIds)
     {
         if(rete == null)
         {
             return;
         }
         
-        rete.print_partial_match_information(printer, p_node, wtt);
+        rete.print_partial_match_information(printer, p_node, wtt, showNodeIds);
     }
     
     /**

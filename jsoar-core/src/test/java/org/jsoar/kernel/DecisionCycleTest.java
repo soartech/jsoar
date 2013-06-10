@@ -128,6 +128,28 @@ public class DecisionCycleTest
         }
     }
     
+    @Test
+    public void testHaltRHS() throws Exception
+    {
+        agent.getProductions().loadProduction("test1 (state <s> ^superstate nil) --> (<s> ^operator.name halt)");
+        agent.getProductions().loadProduction("test2 (state <s> ^operator.name halt) --> (halt)");
+        for (int i = 0; i < 3; i++)
+        {
+            if (i <= 3)
+            {
+                this.decisionCycle.runFor(1, RunType.PHASES);
+                assertFalse(decisionCycle.isHalted());
+                assertFalse(decisionCycle.isStopped());
+            }
+            else
+            {
+                this.decisionCycle.runFor(1, RunType.PHASES);
+                assertTrue(decisionCycle.isHalted());
+                assertTrue(decisionCycle.isStopped());
+            }
+        }
+    }
+    
     private void validateLastOperator(long number)
     {
         final SymbolFactoryImpl syms = Adaptables.adapt(agent, SymbolFactoryImpl.class);

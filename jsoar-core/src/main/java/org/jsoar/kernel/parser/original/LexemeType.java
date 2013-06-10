@@ -21,19 +21,7 @@ public enum LexemeType
     SYM_CONSTANT("symbolic constant"),
     QUOTED_STRING("quoted string"),
     R_PAREN(")"),
-    AT("@") {
-        
-        @Override
-        public boolean isPreference()
-        {
-            return true;
-        }
-        @Override
-        public PreferenceType getPreferenceType()
-        {
-            return PreferenceType.RECONSIDER;
-        }
-    },
+    AT("@"),
     TILDE("~") {
         
         @Override
@@ -159,14 +147,7 @@ public enum LexemeType
             return PreferenceType.REJECT;
         }
     },
-    RIGHT_ARROW("-->"),
-    AMPERSAND("&") {
-        
-        @Override
-        public boolean isPreference()
-        {
-            return true;
-        }};
+    RIGHT_ARROW("-->");
     
     private final String repr;
     

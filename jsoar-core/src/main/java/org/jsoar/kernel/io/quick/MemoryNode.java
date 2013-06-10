@@ -97,7 +97,7 @@ class MemoryNode
     {
         if(value instanceof Number)
         {
-            return ((Number) value).intValue();
+            return ((Number) value).longValue();
         }
         else if(value != null)
         {

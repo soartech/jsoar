@@ -43,8 +43,6 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class ProductionListView extends AbstractAdaptableView implements Refreshable, SelectionListener
 {
-    private static final long serialVersionUID = -5724361674833156058L;
-    
     private final ThreadedAgent agent;
     private final ActionManager actionManager;
     private final ProductionTableModel model;

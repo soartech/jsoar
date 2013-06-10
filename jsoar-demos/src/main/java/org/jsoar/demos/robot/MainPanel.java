@@ -251,7 +251,9 @@ public class MainPanel extends JPanel
     
     public class GTextArea extends JTextArea
     {
-        int y=0;
+		private static final long serialVersionUID = 5765203814868709064L;
+
+		int y=0;
         Color transcolor;
         public GTextArea()
         {

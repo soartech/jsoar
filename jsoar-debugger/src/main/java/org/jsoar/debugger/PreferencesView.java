@@ -47,8 +47,6 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class PreferencesView extends AbstractAdaptableView implements SelectionListener, Refreshable, Disposable
 {
-    private static final long serialVersionUID = -5150761314645770374L;
-
     private final ThreadedAgent agent;
     private final SelectionManager selectionManager;
     private final JPanel panel = new JPanel(new BorderLayout());

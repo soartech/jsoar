@@ -36,6 +36,8 @@ import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
 import org.jsoar.kernel.tracing.TraceFormats;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
+import org.jsoar.kernel.wma.wma_go_action;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.adaptables.Adaptables;
 import org.jsoar.util.properties.EnumPropertyProvider;
@@ -69,6 +71,7 @@ public class DecisionCycle
     private ReinforcementLearning rl;
     private SemanticMemory smem;
     private EpisodicMemory epmem;
+    private DefaultWorkingMemoryActivation wma;
     
     private static enum GoType
     {
@@ -184,6 +187,7 @@ public class DecisionCycle
         this.rl = Adaptables.adapt(context, ReinforcementLearning.class);
         this.smem = Adaptables.adapt(context, SemanticMemory.class);
         this.epmem = Adaptables.adapt(context, EpisodicMemory.class);
+        this.wma = Adaptables.adapt(context, DefaultWorkingMemoryActivation.class);
         
         context.getRhsFunctions().registerHandler(haltHandler);
     }
@@ -453,6 +457,33 @@ public class DecisionCycle
 //        	thisAgent->wma_d_cycle_count--;
         }
 
+        ///////////////////////////////////////////////////////////////////
+        assert( wma.get_d_cycle_count() == this.d_cycle_count.get() );
+        ///////////////////////////////////////////////////////////////////
+
+        // update histories only first, allows:
+        // - epmem retrieval cues to be biased by activation
+        // - epmem encoding to capture wmes that may be forgotten shortly
+        if ( wma.wma_enabled() )
+        {
+            wma.wma_go( wma_go_action.wma_histories );
+        }
+        
+        // epmem stuff goes here when ported
+        
+        // now both update histories and forget, allows
+        // - epmem retrieval to affect history
+        // - epmem encoding to capture wmes that may be forgotten shortly
+        if ( wma.wma_enabled() )
+        {
+            wma.wma_go( wma_go_action.wma_histories );
+            wma.wma_go( wma_go_action.wma_forgetting );
+        }
+        
+        ///////////////////////////////////////////////////////////////////
+        assert( wma.get_d_cycle_count() == this.d_cycle_count.get() );
+        ///////////////////////////////////////////////////////////////////
+        
         // Count the outputs the agent generates (or times reaching max-nil-outputs without sending output)
         if (io.isOutputLinkChanged() || ((++(run_last_output_count)) >= maxNilOutputCycles))
         {
@@ -474,6 +505,7 @@ public class DecisionCycle
         Phase.OUTPUT.trace(trace, false);
         current_phase.set(Phase.INPUT);
         this.d_cycle_count.increment();
+        wma.d_cycle_count_increment();
     }
 
     /**

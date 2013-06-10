@@ -53,6 +53,7 @@ import org.jsoar.kernel.tracing.Trace.MatchSetTraceType;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
 import org.jsoar.kernel.tracing.TraceFormatRestriction;
 import org.jsoar.kernel.tracing.TraceFormats;
+import org.jsoar.kernel.wma.DefaultWorkingMemoryActivation;
 import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.util.Arguments;
 import org.jsoar.util.NullWriter;
@@ -135,6 +136,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     private final Chunker chunker = new Chunker(this);
     private final Explain explain = new Explain(this);
     private final ReinforcementLearning rl = new ReinforcementLearning(this);
+    private final DefaultWorkingMemoryActivation wma = new DefaultWorkingMemoryActivation(this);
     private final DefaultSemanticMemory smem = new DefaultSemanticMemory(this);
     private final DefaultEpisodicMemory epmem = new DefaultEpisodicMemory(this);
     
@@ -146,8 +148,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     
     private final RhsFunctionManager rhsFunctions = new RhsFunctionManager(recMemory.getRhsFunctionContext());
     private final DecisionCycle decisionCycle = new DecisionCycle(this);
-    private SoarEventManager eventManager = new SoarEventManager();
-    private DefaultProductionManager productions = new DefaultProductionManager(this);
+    private final SoarEventManager eventManager = new SoarEventManager();
+    private final DefaultProductionManager productions = new DefaultProductionManager(this);
     
     /**
      * agent.h:480:total_cpu_time
@@ -180,7 +182,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             workingMemory, tempMemory, recMemory, osupport, soarReteListener,
             consistency,
             debuggerProvider, decider, rl,
-            smem, epmem);
+            smem, wma, epmem);
     
     /**
      * Construct a new agent with a generated name.
@@ -218,6 +220,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         exploration.initialize();
         smem.initialize();
         epmem.initialize();
+        wma.initialize();
         
         // Set up standard RHS functions
         new StandardFunctions(this);
@@ -802,6 +805,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         }
         decisionCycle.current_phase.set(Phase.INPUT);
         decisionCycle.d_cycle_count.increment();
+        wma.d_cycle_count_increment();
+        
 
         io.init_agent_memory();
 
@@ -840,6 +845,8 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         {
             timer.reset();
         }
+        
+        wma.resetTimers();
     }
     
     /**
@@ -874,11 +881,20 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         boolean traceState = trace.isEnabled();
         trace.setEnabled(false);
 
+        boolean wma_was_enabled = wma.wma_enabled();
+        wma.getParams().activation.set(false);
+        
         decider.clear_goal_stack();
         io.do_input_cycle(); // tell input functions that the top state is gone
         io.do_output_cycle(); // tell output functions that output commands are gone
         
+        if(wma_was_enabled)
+        {
+            wma.getParams().activation.set(true);
+        }
+        
         //TODO rl.rl_reset_stats();
+        wma.getStats().reset();
 
         decider.active_level = 0; // Signal that everything should be retracted
         recMemory.FIRING_TYPE = SavedFiringType.IE_PRODS;
@@ -904,6 +920,7 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         decisionCycle.reset();
         recMemory.reset();
         chunker.reset();
+        wma.reset();
 
         reset_statistics();
 

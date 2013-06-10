@@ -20,8 +20,6 @@ import bibliothek.gui.dock.common.intern.DefaultCommonDockable;
  */
 public abstract class AbstractAdaptableView extends DefaultSingleCDockable implements Adaptable
 {
-    private static final long serialVersionUID = 8049528094231200441L;
-
     /**
      * Given an arbitrary dockable dig around and try to find the JSoar view associated
      * with it.

@@ -30,8 +30,6 @@ import org.jsoar.util.adaptables.Adaptables;
  */
 public class PartialMatchesView extends AbstractAdaptableView implements SelectionListener, Refreshable
 {
-    private static final long serialVersionUID = -5150761314645770374L;
-
     private final ThreadedAgent agent;
     private final SelectionManager selectionManager;
     private JTextPane textArea = new JTextPane();

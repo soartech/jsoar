@@ -200,7 +200,15 @@ public class DefaultQMemory implements QMemory
      */
     public synchronized void setInteger(String path, int intVal)
     {
-        if(getNode(path).setIntValue(intVal))
+        setInteger(path, (long)intVal);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jsoar.kernel.io.quick.QMemory#setInteger(java.lang.String, int)
+     */
+    public synchronized void setInteger(String path, long longVal)
+    {
+        if(getNode(path).setIntValue(longVal))
         {
             fireChangeEvent();
         }

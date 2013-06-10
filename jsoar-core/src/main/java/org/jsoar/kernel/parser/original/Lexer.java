@@ -93,24 +93,6 @@ public class Lexer
         }
     };
 
-    private static LexerRoutine lex_ampersand = new LexerRoutine()
-    {
-        public void lex(Lexer lexer) throws IOException
-        {
-            // Lexeme might be "&", or symbol
-            // Note: this routine relies on & being a constituent character
-            lexer.read_constituent_string();
-            if (lexer.lexeme.length() == 1)
-            {
-                lexer.lexeme.type = LexemeType.AMPERSAND;
-            }
-            else
-            {
-                lexer.determine_type_of_constituent_string();
-            }
-        }
-    };
-
     private static LexerRoutine lex_lparen = new BasicLexerRoutine(LexemeType.L_PAREN)
     {
         public void lex(Lexer lexer) throws IOException
@@ -715,7 +697,6 @@ public class Lexer
             case '>': lexer_routines[i] = lex_greater; break;
             case '<': lexer_routines[i] = lex_less;    break;
             case '=': lexer_routines[i] = lex_equal;   break;
-            case '&': lexer_routines[i] = lex_ampersand; break;
             case '|': lexer_routines[i] = lex_vbar;     break;
             case ',': lexer_routines[i] = new BasicLexerRoutine(LexemeType.COMMA); break;
             case '.': lexer_routines[i] = lex_period;   break;

@@ -1,0 +1,255 @@
+https://soar.googlecode.com/svn/tags/jsoar-epmem-root/
+
+This is not a diff, since most of the relevant code is in a single file (wma.cpp)
+Instead, this is a list of changes outside of wma.cpp that need to be ported
+
+
+################################################################################
+# wma epmem integration
+
+# _epmem_process_buffered_wme_list()
+src\episodic_memory.cpp:976:                                           if ( wma_enabled( my_agent ) )
+src\episodic_memory.cpp:978:                                                   wma_activate_wmes_in_pref( my_agent, just_pref );
+
+# epmem_build_dnf()
+src\episodic_memory.cpp:3527:  literal->weight = (literal->is_neg_q ? -1 : 1) * (my_agent->epmem_params->balance->get_value() >= 1.0 - 1.0e-8 ? 1.0 : wma_get_wme_activation(my_agent, cue_wme, true));
+
+# _epmem_exp()
+# this is contained in a #define block; not sure this code is actually enabled
+src\episodic_memory.cpp:5621:                                                                  output_contents.push_back( std::make_pair< std::string, std::string >( "wmadds", temp_str ) );
+
+################################################################################
+# wma smem integration
+# _smem_process_buffered_wme_list()
+# can't port this yet because jsoar's smem doesn't have this function yet
+src\semantic_memory.cpp:734:                                           if ( wma_enabled( my_agent ) )
+src\semantic_memory.cpp:736:                                                   wma_activate_wmes_in_pref( my_agent, just_pref );
+
+################################################################################
+# deallocate_wme()
+# deallocate_wme doesn't exist in jsoar, but need to call this in order to clean up map
+# options: add wma_decay_el to the wme class like csoar, or tie into the wme's removal from rete
+# DONE: tied into wme removal from rete
+src\wmem.cpp:305:  if ( wma_enabled( thisAgent ) )
+src\wmem.cpp:307:    wma_remove_decay_element( thisAgent, w );
+
+################################################################################
+# print_wme()
+# DONE
+src\print.cpp:1005:  if (wma_enabled(thisAgent))
+src\print.cpp:1007:    print (thisAgent, " [%0.2g]", wma_get_wme_activation(thisAgent, w, true));
+
+################################################################################
+# Per-agent wma data structures
+# Everything here that's actually necessary in JSoar should go in the 
+# WorkingMemoryActivation class, NOT on the agent.
+# DONE
+
+src\agent.h:219:  memory_pool            wma_decay_element_pool;
+src\agent.h:220:  memory_pool            wma_decay_set_pool;
+src\agent.h:221:  memory_pool            wma_wme_oset_pool;
+src\agent.h:222:  memory_pool            wma_slot_refs_pool;
+src\agent.h:873:  // wma
+src\agent.h:874:  wma_param_container* wma_params;
+src\agent.h:875:  wma_stat_container* wma_stats;
+src\agent.h:876:  wma_timer_container* wma_timers;
+src\agent.h:878:  wma_pooled_wme_set* wma_touched_elements;
+src\agent.h:879:  wma_forget_p_queue* wma_forget_pq;
+src\agent.h:880:  wma_decay_cycle_set* wma_touched_sets;
+src\agent.h:882:  unsigned int wma_power_size;
+src\agent.h:883:  double* wma_power_array;
+src\agent.h:884:  wma_d_cycle* wma_approx_array;
+src\agent.h:885:  double wma_thresh_exp;
+src\agent.h:886:  bool wma_initialized;
+src\agent.h:887:  tc_number wma_tc_counter;
+src\agent.h:888:  wma_d_cycle wma_d_cycle_count;
+
+################################################################################
+# wma memory pool initialization
+# init_soar_agent()
+# DONE - Don't need memory pools in JSoar.
+
+src\agent.cpp:94:  init_memory_pool( thisAgent, &( thisAgent->wma_decay_element_pool ), sizeof( wma_decay_element ), "wma_decay" );
+src\agent.cpp:95:  init_memory_pool( thisAgent, &( thisAgent->wma_decay_set_pool ), sizeof( wma_decay_set ), "wma_decay_set" );
+src\agent.cpp:96:  init_memory_pool( thisAgent, &( thisAgent->wma_wme_oset_pool ), sizeof( wma_pooled_wme_set ), "wma_oset" );
+src\agent.cpp:97:  init_memory_pool( thisAgent, &( thisAgent->wma_slot_refs_pool ), sizeof( wma_sym_reference_map ), "wma_slot_ref" );
+
+# wma object initialization
+# create_soar_agent()
+# This should all happen in the WorkingMemoryActivation object's constructor, preferably as
+# initializers on final members.
+# DONE
+
+src\agent.cpp:348:  // wma initialization
+src\agent.cpp:349:  newAgent->wma_params = new wma_param_container( newAgent );
+src\agent.cpp:350:  newAgent->wma_stats = new wma_stat_container( newAgent );
+src\agent.cpp:351:  newAgent->wma_timers = new wma_timer_container( newAgent );
+src\agent.cpp:354:  newAgent->wma_forget_pq = new wma_forget_p_queue( std::less< wma_d_cycle >(), soar_module::soar_memory_pool_allocator< std::pair< wma_d_cycle, wma_decay_set* > >( newAgent ) );
+src\agent.cpp:355:  newAgent->wma_touched_elements = new wma_pooled_wme_set( std::less< wme* >(), soar_module::soar_memory_pool_allocator< wme* >( newAgent ) );
+src\agent.cpp:356:  newAgent->wma_touched_sets = new wma_decay_cycle_set( std::less< wma_d_cycle >(), soar_module::soar_memory_pool_allocator< wma_d_cycle >( newAgent ) );
+src\agent.cpp:358:  newAgent->wma_forget_pq = new wma_forget_p_queue();
+src\agent.cpp:359:  newAgent->wma_touched_elements = new wma_pooled_wme_set();
+src\agent.cpp:360:  newAgent->wma_touched_sets = new wma_decay_cycle_set();
+src\agent.cpp:362:  newAgent->wma_initialized = false;
+src\agent.cpp:363:  newAgent->wma_tc_counter = 2;
+
+# wma agent-level cleanup
+# destroy_soar_agent()
+# DONE: don't need to do this, because don't need to cleanup memory on shutdown
+src\agent.cpp:468:  // cleanup wma
+src\agent.cpp:469:  delete_agent->wma_params->activation->set_value( soar_module::off );
+src\agent.cpp:470:  delete delete_agent->wma_forget_pq;
+src\agent.cpp:471:  delete delete_agent->wma_touched_elements;
+src\agent.cpp:472:  delete delete_agent->wma_touched_sets;
+src\agent.cpp:473:  delete delete_agent->wma_params;
+src\agent.cpp:474:  delete delete_agent->wma_stats;
+src\agent.cpp:475:  delete delete_agent->wma_timers;
+
+
+################################################################################
+# wma decider integration
+# decide_non_context_slot()
+# jsoar-core/src/main/java/org/jsoar/kernel/Decider.java
+# DONE
+
+src\decide.cpp:1959:                           if ( ( s->wma_val_references != NIL ) && wma_enabled( thisAgent ) )
+src\decide.cpp:1961:                                   wma_sym_reference_map::iterator it = s->wma_val_references->find( w->value );
+src\decide.cpp:1962:                                   if ( it != s->wma_val_references->end() )
+src\decide.cpp:1965:                                           wma_activate_wme( thisAgent, w, it->second, NULL, true );
+src\decide.cpp:1967:                                           s->wma_val_references->erase( it );
+src\decide.cpp:1968:                                           if ( s->wma_val_references->empty() )
+src\decide.cpp:1970:                                                   s->wma_val_references->~wma_sym_reference_map();
+src\decide.cpp:1971:                                                   free_with_pool( &( thisAgent->wma_slot_refs_pool ), s->wma_val_references );
+src\decide.cpp:1972:                                                   s->wma_val_references = NIL;
+
+################################################################################
+# typedefs; use long for uint64_t
+# also, not using memory pools in jsoar
+# DONE
+
+src\gdatastructs.h:43:typedef std::set< wme*, std::less< wme* >, soar_module::soar_memory_pool_allocator< wme* > > wma_pooled_wme_set;
+src\gdatastructs.h:44:typedef std::map< Symbol*, uint64_t, std::less< Symbol* >, soar_module::soar_memory_pool_allocator< std::pair< Symbol*, uint64_t > > > wma_sym_reference_map;
+src\gdatastructs.h:46:typedef std::set< wme* > wma_pooled_wme_set;
+src\gdatastructs.h:47:typedef std::map< Symbol*, uint64_t > wma_sym_reference_map;
+src\gdatastructs.h:248:  wma_pooled_wme_set* wma_o_set;
+src\gdatastructs.h:341:  wma_sym_reference_map* wma_val_references;
+
+
+################################################################################
+# reset_statistics()
+# DONE
+src\init_soar.cpp:329:  thisAgent->wma_timers->reset();
+src\init_soar.cpp:333:  thisAgent->wma_d_cycle_count = 0;
+
+################################################################################
+# reinitialize_soar()
+# DONE
+src\init_soar.cpp:426: bool wma_was_enabled = wma_enabled( thisAgent );
+src\init_soar.cpp:427: thisAgent->wma_params->activation->set_value( soar_module::off );
+src\init_soar.cpp:434: if ( wma_was_enabled )
+src\init_soar.cpp:436:         thisAgent->wma_params->activation->set_value( soar_module::on );
+src\init_soar.cpp:442: thisAgent->wma_stats->reset();
+
+################################################################################
+# do_one_top_level_phase()
+# DONE
+src\init_soar.cpp:939:   assert( thisAgent->wma_d_cycle_count == thisAgent->d_cycle_count );
+src\init_soar.cpp:945:   if ( wma_enabled( thisAgent ) )
+src\init_soar.cpp:947:           wma_go( thisAgent, wma_histories );
+src\init_soar.cpp:952:           // since we consolidated wma histories from this decision,
+src\init_soar.cpp:955:           thisAgent->wma_d_cycle_count++;
+src\init_soar.cpp:959:           thisAgent->wma_d_cycle_count--;
+src\init_soar.cpp:965:   if ( wma_enabled( thisAgent ) )
+src\init_soar.cpp:967:           wma_go( thisAgent, wma_histories );
+src\init_soar.cpp:968:           wma_go( thisAgent, wma_forgetting );
+src\init_soar.cpp:972:   assert( thisAgent->wma_d_cycle_count == thisAgent->d_cycle_count );
+src\init_soar.cpp:1093:          thisAgent->wma_d_cycle_count++;
+
+################################################################################
+# init_agent_memory()
+# DONE
+src\init_soar.cpp:1506:  thisAgent->wma_d_cycle_count++;
+src\init_soar.cpp:1552:  thisAgent->wma_timers->reset();
+
+################################################################################
+# wma io integration
+# add_input_wme()
+# DONE
+src\io.cpp:212:  if ( wma_enabled( thisAgent ) )
+src\io.cpp:214:    wma_activate_wme( thisAgent, w );
+
+################################################################################
+# make_preference()
+# DONE -- no need to initialize to null
+src\prefmem.cpp:91:  p->wma_o_set = NIL;
+
+################################################################################
+# deallocate_preference()
+# DONE -- no need to explicitly clean this up
+src\prefmem.cpp:138:  if ( pref->wma_o_set )
+src\prefmem.cpp:140:   wma_remove_pref_o_set( thisAgent, pref );
+
+################################################################################
+# add_preference_to_tm()
+# DONE
+src\prefmem.cpp:289:   if ( wma_enabled( thisAgent ) && !s->isa_context_slot )
+src\prefmem.cpp:293:              if ( s->wma_val_references != NIL )
+src\prefmem.cpp:295:                      s->wma_val_references->clear();
+src\prefmem.cpp:302:   if ( wma_enabled( thisAgent ) && !s->isa_context_slot )
+src\prefmem.cpp:320:         if ( s->wma_val_references == NIL )
+src\prefmem.cpp:322:                    allocate_with_pool( thisAgent, &( thisAgent->wma_slot_refs_pool ), &( s->wma_val_references ) );
+src\prefmem.cpp:324:                    s->wma_val_references = new( s->wma_val_references ) wma_sym_reference_map( std::less< Symbol* >(), soar_module::soar_memory_pool_allocator< std::pair< Symbol*, uint64_t > >( thisAgent ) );
+src\prefmem.cpp:326:                    s->wma_val_references = new( s->wma_val_references ) wma_sym_reference_map();
+src\prefmem.cpp:330:         (*s->wma_val_references)[ pref->value ]++;
+
+################################################################################
+# deallocate_instantiation()
+# DONE -- this is unnecessary in jsoar
+src\recmem.cpp:1067:           if (temp->bt.trace->wma_o_set) {
+src\recmem.cpp:1068:                   wma_remove_pref_o_set(thisAgent, temp->bt.trace);
+
+################################################################################
+# assert_new_preferences()
+# DONE
+src\recmem.cpp:1295:                                   if (wma_enabled(thisAgent)) {
+src\recmem.cpp:1296:                                           wma_activate_wmes_in_pref(thisAgent, pref);
+
+################################################################################
+# do_preference_phase()
+# DONE
+src\recmem.cpp:1374:   if (wma_enabled(thisAgent)) {
+src\recmem.cpp:1375:           wma_activate_wmes_tested_in_prods(thisAgent);
+
+################################################################################
+# make_slot()
+# DONE
+src\tempmem.cpp:116:   s->wma_val_references = NIL;
+
+################################################################################
+# remove_garbage_slots()
+# DONE
+src\tempmem.cpp:218:    if (s->wma_val_references != NIL) {
+src\tempmem.cpp:219:      s->wma_val_references->~wma_sym_reference_map();
+src\tempmem.cpp:220:      free_with_pool(&(thisAgent->wma_slot_refs_pool), s->wma_val_references);
+src\tempmem.cpp:221:      s->wma_val_references = NIL;
+
+################################################################################
+# make_wme()
+# DONE -- don't need to port this (eliminated wma_tc_value and don't need to initialize nulls)
+src\wmem.cpp:120:  w->wma_decay_el = NIL;
+src\wmem.cpp:121:  w->wma_tc_value = 0;
+
+################################################################################
+# typedef
+# DONE
+src\wmem.h:50:typedef struct wma_decay_element_struct wma_decay_element;
+
+################################################################################
+# wme_struct modifications
+# DONE: moved wma_decay_element into map in wma, and eliminated tc_number (use set in single function that cares)
+src\wmem.h:159:  wma_decay_element* wma_decay_el;
+src\wmem.h:160:  tc_number wma_tc_value;
+
+
+################################################################################
+# and, of course, all of wma.h/cpp

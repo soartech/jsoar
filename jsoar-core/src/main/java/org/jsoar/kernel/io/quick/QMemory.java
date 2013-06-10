@@ -123,12 +123,20 @@ public interface QMemory
     void setDouble(String path, double doubleVal);
 
     /**
-     * Set a path to an int value. Any previous value will be removed
+     * Set a path to an int value. Any previous value will be removed.
      * 
      * @param path path to set
      * @param intVal Integer value
      */
     void setInteger(String path, int intVal);
+
+    /**
+     * Set a path to a long value. Any previous value will be removed.
+     * 
+     * @param path path to set
+     * @param longVal Long value
+     */
+    void setInteger(String path, long longVal);
 
     /**
      * Set a path to a string value. Any previous value will be removed.
@@ -156,4 +164,5 @@ public interface QMemory
 
     void addListener(QMemoryListener listener);
     void removeListener(QMemoryListener listener);
+
 }

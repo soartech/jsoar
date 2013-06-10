@@ -23,13 +23,17 @@ import org.junit.Before;
 
 public class FunctionalTestHarness
 {
-    protected Agent agent;
+    public Agent agent;
     
     protected boolean halted = false;
     protected boolean failed = false;
         
-    // sources rules
-    protected void runTestSetup(String testName) throws SoarException
+    /**
+     * Sources rules
+     * @param testName the test to perform
+     * @throws SoarException
+     */
+    public void runTestSetup(String testName) throws SoarException
     {
         String sourceName = getClass().getSimpleName() + "_" + testName + ".soar";
         URL sourceUrl = getClass().getResource(sourceName);
@@ -38,7 +42,7 @@ public class FunctionalTestHarness
     }
     
     // this function assumes some other function has set up the agent (like runTestSetup)
-    protected void runTestExecute(String testName, int expectedDecisions) throws Exception
+    public void runTestExecute(String testName, int expectedDecisions) throws Exception
     {
         if(expectedDecisions >= 0)
         {
@@ -81,6 +85,26 @@ public class FunctionalTestHarness
         //agent.trace.setEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM, true);
         //agent.trace.setEnabled(false);
         
+        installRHS(agent);
+    }
+
+    /**
+     * @throws java.lang.Exception
+     */
+    @After
+    public void tearDown() throws Exception
+    {
+        agent.getPrinter().flush();
+        agent.dispose();
+    }
+    
+    
+    /**
+     * Set up the agent with RHS functions common to these
+     * FunctionalTests.
+     */
+    public void installRHS(Agent agent)
+    {
         // set up the agent with common RHS functions
         final RhsFunctionHandler oldHalt = agent.getRhsFunctions().getHandler("halt");
         assertNotNull(oldHalt);     
@@ -111,15 +135,5 @@ public class FunctionalTestHarness
                 failed = false;
                 return oldHalt.execute(rhsContext, arguments);
             }});
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception
-    {
-        agent.getPrinter().flush();
-        agent.dispose();
     }
 }

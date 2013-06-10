@@ -231,11 +231,11 @@ public class PrintPreferencesCommand
             // returns a list of candidates without deciding which one in the event of indifference
             final ByRef<Preference> cand = ByRef.create(null);
             final Decider decider = Adaptables.adapt(agent, Decider.class);
-            ImpasseType impasse_type = decider.run_preference_semantics_for_consistency_check(s, cand);
+            ImpasseType impasse_type = decider.run_preference_semantics(s, cand, true);
 
             // if the impasse isn't NONE_IMPASSE_TYPE, there's an impasse and we don't want to print anything
             // if we have no candidates, we don't want to print anything
-            if ((impasse_type == ImpasseType.NONE) && cand != null)
+            if ((impasse_type == ImpasseType.NONE) && cand.value != null)
             {
                 printer.print("\nselection probabilities:\n");
 

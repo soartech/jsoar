@@ -464,7 +464,7 @@ public class DefaultSemanticMemory implements SemanticMemory
             // it to future adventures (potentially on new states)
 
             final ByRef<Instantiation> my_justification_list = ByRef.create(null);
-            chunker.chunk_instantiation( pref.inst, false, my_justification_list );
+            chunker.chunk_instantiation( pref.inst, true, my_justification_list );
 
             // if any justifications are created, assert their preferences manually
             // (copied mainly from assert_new_preferences with respect to our circumstances)
