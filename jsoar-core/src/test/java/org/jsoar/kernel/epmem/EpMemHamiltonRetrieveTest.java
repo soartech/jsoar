@@ -342,10 +342,10 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
         runTestSetup("testHamilton_retrieve");
         agent.runFor(1, RunType.DECISIONS);
         populateDataBase(getConnection());
-        agent.runFor(1, RunType.DECISIONS);
+        agent.runFor(2, RunType.DECISIONS);
         
         assertTrue("Retrieval test did not halt", halted);
         assertFalse("Retrieval test failed", failed);
-        assertEquals(2, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
+        assertEquals(3, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
     }
 }
