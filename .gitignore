@@ -1,2 +1,4 @@
 # EGit never sees this file, please use subfolder .gitignore files
 jsoar-*.zip
+.project
+org.eclipse.m2e.core.prefs
