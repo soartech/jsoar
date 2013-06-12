@@ -84,6 +84,9 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     // episodic_memory.cpp:1794:epmem_init_db
     PreparedStatement edge_unique_select;
     
+    
+    PreparedStatement database_version;
+    
     // episodic_memory.cpp:854
     final private static String poolDummy = "SELECT ? as start";
     final PreparedStatementFactory pool_dummy;

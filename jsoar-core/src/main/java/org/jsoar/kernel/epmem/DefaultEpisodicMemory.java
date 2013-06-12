@@ -284,6 +284,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         this.db = db;
     }
     
+    public DefaultEpisodicMemoryStats getStats(){
+    	return stats;
+    }
     
     /**
      * This is called when the agent is initialized. This code here in CSoar is
@@ -875,6 +878,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // at init, top-state is considered the only known identifier
         decider.top_goal.epmem_id = EPMEM_NODEID_ROOT;
         decider.top_goal.epmem_valid = epmem_validation;
+        
+        ResultSet r = db.database_version.executeQuery();
+        try{
+        	stats.db_version.set(r.getString(1));
+        }finally{
+        	r.close();
+        }
         
         // if lazy commit, then we encapsulate the entire lifetime of the agent
         // in a single transaction
@@ -3083,13 +3093,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 );
             return;
         }
-
+        
         if ( logger.isDebugEnabled() ) {
             logger.debug("\n==========================\n");
         }
         
         //my_agent->epmem_timers->query->start();
-
+        
+        stats.last_considered.set(0L);
+        
         // sort probibit's
         if (!prohibits.isEmpty()) 
         {
@@ -3723,6 +3735,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         logger.trace(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
                     }
                     
+                    stats.considered.set(stats.considered.get() + 1);
+                    stats.last_considered.set(stats.last_considered.get() + 1);
                     trace.startNewLine().print(
                             Category.EPMEM, 
                             "CONSIDERING EPISODE (time, cardinality, score) (" +
@@ -3814,6 +3828,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 }
                                 
                                 //my_agent->epmem_timers->query_graph_match->start();
+                                stats.graph_matches.set(stats.graph_matches.get() + 1);
                                 graph_matched = epmem_graph_match(gm_ordering, gm_ordering.listIterator(), best_bindings, bound_nodes, 2);
                                 //my_agent->epmem_timers->query_graph_match->stop();
                             }
