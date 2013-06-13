@@ -116,7 +116,9 @@ class DefaultEpisodicMemoryStats implements EpisodicMemoryStatistics
     static final PropertyKey<Long> GRAPH_MATCHES = key("graph_matches", Long.class).defaultValue(0L).build();
     final DefaultPropertyProvider<Long> graph_matches = new DefaultPropertyProvider<Long>(GRAPH_MATCHES);
     
-//
+    static final PropertyKey<Long> LAST_GRAPH_MATCHES = key("last_graph_matches", Long.class).defaultValue(0L).build();
+    final DefaultPropertyProvider<Long> last_graph_matches = new DefaultPropertyProvider<Long>(LAST_GRAPH_MATCHES);
+    
 //    soar_module::integer_stat *rit_offset_1;
 //    soar_module::integer_stat *rit_left_root_1;
 //    soar_module::integer_stat *rit_right_root_1;
@@ -152,6 +154,7 @@ class DefaultEpisodicMemoryStats implements EpisodicMemoryStatistics
         add(CONSIDERED, considered);
         add(LAST_CONSIDERED, last_considered);
         add(GRAPH_MATCHES, graph_matches);
+        add(LAST_GRAPH_MATCHES, last_graph_matches);
     }
     
     private <T> void add(PropertyKey<T> key, PropertyProvider<T> value)

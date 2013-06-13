@@ -191,6 +191,7 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
             pw.printf("Last Query Cardinality: %d%n", stats.qry_card.get());
             pw.printf("Last Query Literals: %d%n", stats.qry_lits.get());
             pw.printf("Graph Match Attempts: %d%n", stats.graph_matches.get());
+            pw.printf("Last Graph Match Attempts: %d%n", stats.last_graph_matches.get());
             pw.printf("Episodes Considered: %d%n", stats.considered.get());
             pw.printf("Last Episodes Considered: %d%n", stats.last_considered.get());
 

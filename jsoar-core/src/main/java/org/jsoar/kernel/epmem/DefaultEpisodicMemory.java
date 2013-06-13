@@ -3101,6 +3101,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         //my_agent->epmem_timers->query->start();
         
         stats.last_considered.set(0L);
+        stats.last_graph_matches.set(0L);
         
         // sort probibit's
         if (!prohibits.isEmpty()) 
@@ -3225,6 +3226,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             // build the DNF graph while checking for leaf WMEs
             {
+                stats.qry_pos.set(0l);
+                stats.qry_neg.set(0l);
                 //my_agent->epmem_timers->query_dnf->start();
                 root_literal.id_sym = null;
                 root_literal.value_sym = pos_query;
@@ -3293,6 +3296,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     //delete children;
                 }
                 //my_agent->epmem_timers->query_dnf->stop();
+                stats.qry_lits.set(stats.qry_pos.get() + stats.qry_neg.get());
             }
 
             // calculate the highest possible score and cardinality score
@@ -3829,6 +3833,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 
                                 //my_agent->epmem_timers->query_graph_match->start();
                                 stats.graph_matches.set(stats.graph_matches.get() + 1);
+                                stats.last_graph_matches.set(stats.last_graph_matches.get() + 1);
                                 graph_matched = epmem_graph_match(gm_ordering, gm_ordering.listIterator(), best_bindings, bound_nodes, 2);
                                 //my_agent->epmem_timers->query_graph_match->stop();
                             }
@@ -3886,6 +3891,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             else 
             {
+                stats.qry_ret.set(best_episode);
+                stats.qry_card.set(best_cardinality);
                 //my_agent->epmem_timers->query_result->start();
                 SymbolImpl temp_sym;
                 Map<Long/*epmem_node_id*/, SymbolImpl>/*epmem_id_mapping*/ node_map_map = new LinkedHashMap<Long, SymbolImpl>();
@@ -4795,8 +4802,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
         }
 
-        if ( query_type == 0 ) {
+        if ( query_type == EPMEM_NODE_POS ) {
+            stats.qry_pos.set(stats.qry_pos.get() + 1);
             gm_ordering.offerFirst(literal);
+        }else{
+            stats.qry_neg.set(stats.qry_neg.get() + 1);
         }
 
         literal.id_sym = cue_wme.id;
