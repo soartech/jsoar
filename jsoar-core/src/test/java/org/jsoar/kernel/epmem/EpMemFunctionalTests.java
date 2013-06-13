@@ -40,4 +40,10 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
         //happen after epmem does retrieval.  -ACN
         runTest("testSingleStoreRetrieve", 2 + 1);
     }
+    
+    @Test
+    public void testOddEven() throws Exception
+    {
+        runTest("testOddEven", 12);
+    }
 }
