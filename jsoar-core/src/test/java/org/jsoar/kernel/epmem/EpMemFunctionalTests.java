@@ -46,4 +46,10 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     {
         runTest("testOddEven", 12);
     }
+    
+    @Test
+    public void testBeforeEpMem() throws Exception
+    {
+    	runTest("testBeforeEpMem", 12);
+    }
 }
