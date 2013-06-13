@@ -30,4 +30,14 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     {
         runTest("testKB", 246);
     }
+    
+    @Test
+    public void testSingleStoreRetrieve() throws Exception
+    {
+        //The success rule in this test is an elaboration.  The decision phase counter used
+        //in the framework actually an output phase counter, so this test runs one more
+        //"decision phase" than the debugger shows.  If this breaks, make sure that elaborations
+        //happen after epmem does retrieval.  -ACN
+        runTest("testSingleStoreRetrieve", 2 + 1);
+    }
 }
