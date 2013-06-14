@@ -13,9 +13,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Iterator;
@@ -27,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -263,6 +266,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             new epmem_rit_state() };
 
     private Trace trace;
+    private Random random;
     
     // bool epmem_first_switch;
 
@@ -301,6 +305,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         chunker = Adaptables.require(DefaultEpisodicMemory.class, context, Chunker.class);
         decider = Adaptables.require(DefaultEpisodicMemory.class, context, Decider.class);
         
+        random = agent.getRandom();
         trace = agent.getTrace();
         
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
@@ -3795,9 +3800,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             {
                                 if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.undefined)
                                 {
-                                    //TODO: This is probably sorting on pointer values.  Why is it here, and 
-                                    //do we need to emulate it?
+                                    //This randomizes the list in C by sorting it on pointer values. -ACN
                                     //std::sort(gm_ordering.begin(), gm_ordering.end());
+                                    Collections.shuffle(gm_ordering, random);
                                 }
                                 else if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.mcv)
                                 {
@@ -6139,5 +6144,287 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private void logError(String text) {
         logger.error(text);
         agent.getPrinter().error(text);
+    }
+    
+    String epmem_print_episode( long /*epmem_time_id*/ memory_id){
+        try
+        {
+            return epmem_print_episode_ex(memory_id);
+        }
+        catch (SoarException e)
+        {
+            logger.error("Soar Exception: ");
+            e.printStackTrace();
+        }
+        catch (SQLException e)
+        {
+            logger.error("Database Error: ");
+            e.printStackTrace();
+        }
+        return "";
+    }
+    
+    /**
+     * 
+     * <p> episodic_memory.cpp:4518:
+     * epmem_print_episode( 
+     *      agent* my_agent, 
+     *      epmem_time_id memory_id, 
+     *      std::string* buf 
+     *  )
+     *  
+     *  This version of the function can throw, but we dont want that to propogate,
+     *  and I don't want to wrap 2/3 of the function in a try catch, so there is 
+     *  a wrapped version of this with the original C function name that can catch 
+     *  the exceptions.
+     * @throws SoarException 
+     * @throws SQLException 
+     */
+    String epmem_print_episode_ex( long /*epmem_time_id*/ memory_id) throws SoarException, SQLException
+    {
+        //Give the return value the same name as it would have 
+        //had if it was passed in
+        String buf = "";
+        // if this is before the first episode, initialize db components
+        //if ( my_agent->epmem_db->get_status() == soar_module::disconnected )
+        //This is idempotent in Java, so just run it.
+        epmem_init_db();
+
+        // if bad memory, bail
+        if ( ( memory_id == EPMEM_MEMID_NONE ) ||
+                !epmem_valid_episode( memory_id ) )
+        {
+            return "";
+        }
+
+        // fill episode map
+        //std::map< epmem_node_id, std::string > ltis;
+        Map<Long, String> ltis = new HashMap<Long, String>();
+        //std::map< epmem_node_id, std::map< std::string, std::list< std::string > > > ep;
+        Map<Long, Map<String, List<String>>> ep = new HashMap<Long, Map<String,List<String>>>(); 
+        {
+            PreparedStatement my_q;
+            String temp_s = null, temp_s2 = null, temp_s3;
+            Double temp_d;
+            Long temp_i;
+
+            my_q = db.get_edges;
+            {
+                long /*epmem_node_id*/ q0;
+                long /*epmem_node_id*/ q1;
+                long w_type;
+                boolean val_is_short_term;
+
+                epmem_rit_prep_left_right(memory_id, memory_id, epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE]);
+
+                // query for edges
+                my_q.setLong( 1, memory_id );
+                my_q.setLong( 2, memory_id );
+                my_q.setLong( 3, memory_id );
+                my_q.setLong( 4, memory_id );
+                my_q.setLong( 5, memory_id );
+                
+                ResultSet result = null;
+                try{
+                    result = my_q.executeQuery();
+                    while ( result.next() )
+                    {
+                        q0 = result.getLong( 0 + 1 );
+                        q1 = result.getLong( 2 + 1 );
+                        w_type = result.getLong( 3 + 1 );
+                        val_is_short_term = 
+                                ( db.column_type(result.getMetaData().getColumnType(4 + 1)) 
+                                        == EpisodicMemoryDatabase.value_type.null_t );
+    
+                        switch ( (int)w_type )
+                        {
+                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                temp_i = result.getLong( 1 + 1 );
+                                //to_string( temp_i, temp_s );
+                                temp_s = temp_i.toString();
+                                break;
+    
+                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                temp_d = result.getDouble( 1 + 1 );
+                                //to_string( temp_d, temp_s );
+                                temp_s = temp_d.toString();
+                                break;
+    
+                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                temp_s = result.getString( 1 + 1 );
+                                break;
+                        }
+    
+                        if ( val_is_short_term )
+                        {
+                            temp_s2 = _epmem_print_sti( q1 );
+                        }
+                        else
+                        {
+                            temp_s2 = "@";
+                            temp_s2 += result.getLong( 4 + 1 );
+    
+                            temp_i = result.getLong( 5 );
+                            //to_string( temp_i, temp_s3 );
+                            temp_s3 = temp_i.toString();
+                            temp_s2 += temp_s3;
+    
+                            ltis.put( q1, temp_s2);
+                        }
+                        
+                        //ep[ q0 ][ temp_s ].push_back( temp_s2 );
+                        Map<String, List<String>> nestedMap = ep.get(q0);
+                        if(nestedMap == null){
+                            ep.put(q0, new HashMap<String, List<String>>());
+                            nestedMap = ep.get(q0);
+                        }
+                        List<String> nestedList = nestedMap.get(temp_s);
+                        if(nestedList == null){
+                            nestedMap.put(temp_s, new ArrayList<String>());
+                            nestedList = nestedMap.get(temp_s);
+                        }
+                        nestedList.add( temp_s2 );
+                    }
+                }finally{
+                    result.close();
+                }
+                epmem_rit_clear_left_right();
+            }
+
+            my_q = db.get_nodes;
+            {
+                Long /*epmem_node_id*/ parent_id;
+                long attr_type, value_type;
+
+                epmem_rit_prep_left_right( memory_id, memory_id, epmem_rit_state_graph[ EPMEM_RIT_STATE_NODE ] );
+
+                my_q.setLong( 1, memory_id );
+                my_q.setLong( 2, memory_id );
+                my_q.setLong( 3, memory_id );
+                my_q.setLong(4, memory_id );
+                ResultSet result;
+                result = my_q.executeQuery();
+                try{
+                    while ( result.next() )
+                    {
+                        parent_id = result.getLong( 1 + 1 );
+                        attr_type = result.getLong( 4 + 1 );
+                        value_type = result.getLong( 5 + 1 );
+    
+                        switch ((int)attr_type)
+                        {
+                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                temp_i = result.getLong( 2 + 1 );
+                                //to_string( temp_i, temp_s );
+                                temp_s = temp_i.toString();
+                                break;
+    
+                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                temp_d = result.getDouble( 2 + 1 );
+                                //to_string( temp_d, temp_s );
+                                break;
+    
+                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                temp_s = result.getString( 2 + 1 );
+                                break;
+                        }
+    
+                        switch ( (int)value_type )
+                        {
+                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                                temp_i = result.getLong( 3 + 1 );
+                                //to_string( temp_i, temp_s2 );
+                                temp_s2 = temp_i.toString();
+                                break;
+    
+                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                                temp_d = result.getDouble( 3 + 1 );
+                                //to_string( temp_d, temp_s2 );
+                                temp_s2 = temp_d.toString();
+                                break;
+    
+                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                                temp_s2 = result.getString( 3 + 1 );
+                                break;
+                        }
+                        //ep[ parent_id ][ temp_s ].push_back( temp_s2 );
+                        Map<String, List<String>> nestedMap = ep.get(parent_id);
+                        if(nestedMap == null){
+                            ep.put(parent_id, new HashMap<String, List<String>>());
+                            nestedMap = ep.get(parent_id);
+                        }
+                        List<String> nestedList = nestedMap.get(temp_s);
+                        if(nestedList == null){
+                            nestedMap.put(temp_s, new ArrayList<String>());
+                            nestedList = nestedMap.get(temp_s);
+                        }
+                        nestedList.add( temp_s2 );
+                    }
+                }finally{
+                    result.close();
+                }
+                epmem_rit_clear_left_right();
+            }
+        }
+
+        // output
+        {
+            //std::map< epmem_node_id, std::string >::iterator lti_it;
+            String lti_it;
+
+            for (Map.Entry<Long, Map<String, List<String>>> ep_it: ep.entrySet() )
+            {
+                buf += "(";
+
+                // id
+                lti_it = ltis.get( ep_it.getKey());
+                if ( lti_it == null )
+                {
+                    buf += _epmem_print_sti( ep_it.getKey() );
+                }
+                else
+                {
+                    buf += lti_it;
+                }
+
+                // attr
+                for (Map.Entry<String, List<String>> slot_it: ep_it.getValue().entrySet())
+                {
+                    buf += " ^";
+                    buf += slot_it.getKey();
+
+                    for (String val_it: slot_it.getValue())
+                    {
+                        buf += " ";
+                        buf += val_it;
+                    }
+                }
+
+                buf += ")\n";
+            }
+        }
+        return buf;
+    }
+    
+    /**
+     * 
+     * <p> episodic_memory.cpp:4518:
+     * epmem_print_episode( 
+     *      agent* my_agent, 
+     *      epmem_time_id memory_id, 
+     *      std::string* buf 
+     *  )
+     */
+    String _epmem_print_sti( Long/*epmem_node_id*/ id )
+    {
+        String t1, t2;
+
+        t1 =  "<id";
+        
+        t2 = id.toString();
+        
+        t1 += t2 + ">";
+
+        return t1;
     }
 }
