@@ -77,6 +77,10 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         {
             return doStats(1, args);
         }
+        else if("--print".equals(arg))
+        {
+            return doPrintEpisode(1, args);
+        }
         else if (arg.startsWith("-"))
         {
             throw new SoarException("Unknown option " + arg);
@@ -209,5 +213,20 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
 
         pw.flush();
         return sw.toString();
+    }
+    
+    private String doPrintEpisode(int i, String[] args)
+    {
+        //If there is no episode argument
+        if(args.length <= i + 1){
+            return "";
+        }
+        long episodeID;
+        try{
+            episodeID = Integer.parseInt(args[i + 1]);
+        }catch(NumberFormatException e){
+            return "";
+        }
+        return epmem.epmem_print_episode(episodeID);
     }
 }
