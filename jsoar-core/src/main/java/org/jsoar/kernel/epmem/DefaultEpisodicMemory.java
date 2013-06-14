@@ -6199,9 +6199,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // fill episode map
         //std::map< epmem_node_id, std::string > ltis;
-        Map<Long, String> ltis = new HashMap<Long, String>();
+        Map<Long, String> ltis = new TreeMap<Long, String>();
         //std::map< epmem_node_id, std::map< std::string, std::list< std::string > > > ep;
-        Map<Long, Map<String, List<String>>> ep = new HashMap<Long, Map<String,List<String>>>(); 
+        Map<Long, Map<String, List<String>>> ep = new TreeMap<Long, Map<String,List<String>>>(); 
         {
             PreparedStatement my_q;
             String temp_s = null, temp_s2 = null, temp_s3;
@@ -6248,6 +6248,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 temp_d = result.getDouble( 1 + 1 );
                                 //to_string( temp_d, temp_s );
                                 temp_s = temp_d.toString();
+                                temp_s = trimTrailingZerosFromDoubleString(temp_s);
                                 break;
     
                             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
@@ -6275,7 +6276,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         //ep[ q0 ][ temp_s ].push_back( temp_s2 );
                         Map<String, List<String>> nestedMap = ep.get(q0);
                         if(nestedMap == null){
-                            ep.put(q0, new HashMap<String, List<String>>());
+                            ep.put(q0, new TreeMap<String, List<String>>());
                             nestedMap = ep.get(q0);
                         }
                         List<String> nestedList = nestedMap.get(temp_s);
@@ -6322,6 +6323,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
                                 temp_d = result.getDouble( 2 + 1 );
                                 //to_string( temp_d, temp_s );
+                                temp_s = temp_d.toString();
+                                temp_s = trimTrailingZerosFromDoubleString(temp_s);
                                 break;
     
                             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
@@ -6341,6 +6344,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 temp_d = result.getDouble( 3 + 1 );
                                 //to_string( temp_d, temp_s2 );
                                 temp_s2 = temp_d.toString();
+                                temp_s2 = trimTrailingZerosFromDoubleString(temp_s2);
                                 break;
     
                             case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
@@ -6350,7 +6354,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         //ep[ parent_id ][ temp_s ].push_back( temp_s2 );
                         Map<String, List<String>> nestedMap = ep.get(parent_id);
                         if(nestedMap == null){
-                            ep.put(parent_id, new HashMap<String, List<String>>());
+                            ep.put(parent_id, new TreeMap<String, List<String>>());
                             nestedMap = ep.get(parent_id);
                         }
                         List<String> nestedList = nestedMap.get(temp_s);
@@ -6426,5 +6430,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         t1 += t2 + ">";
 
         return t1;
+    }
+    
+    private String trimTrailingZerosFromDoubleString(String s){
+        if(s.contains(".")){
+            int firstTrailingZero = s.length() - 1;
+            while(s.charAt(firstTrailingZero) == '0'){
+                firstTrailingZero--; 
+            }
+            if(s.charAt(firstTrailingZero - 1) == '.'){
+                firstTrailingZero--;
+            }
+            s = s.substring(0, firstTrailingZero);
+        }
+        return s;
     }
 }
