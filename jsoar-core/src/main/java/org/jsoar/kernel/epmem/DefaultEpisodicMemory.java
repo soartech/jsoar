@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -265,6 +266,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             new epmem_rit_state() };
 
     private Trace trace;
+    private Random random;
     
     // bool epmem_first_switch;
 
@@ -303,6 +305,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         chunker = Adaptables.require(DefaultEpisodicMemory.class, context, Chunker.class);
         decider = Adaptables.require(DefaultEpisodicMemory.class, context, Decider.class);
         
+        random = agent.getRandom();
         trace = agent.getTrace();
         
         final PropertyManager properties = Adaptables.require(DefaultEpisodicMemory.class, context,
@@ -3797,9 +3800,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             {
                                 if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.undefined)
                                 {
-                                    //TODO: This is probably sorting on pointer values.  Why is it here, and 
-                                    //do we need to emulate it?
+                                    //This randomizes the list in C by sorting it on pointer values. -ACN
                                     //std::sort(gm_ordering.begin(), gm_ordering.end());
+                                    Collections.shuffle(gm_ordering, random);
                                 }
                                 else if (gm_order == DefaultEpisodicMemoryParams.GmOrderingChoices.mcv)
                                 {
