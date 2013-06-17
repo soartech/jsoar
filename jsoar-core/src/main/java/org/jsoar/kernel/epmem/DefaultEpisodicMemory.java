@@ -17,10 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -63,6 +62,7 @@ import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.kernel.tracing.Trace;
 import org.jsoar.kernel.tracing.Trace.Category;
+import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
@@ -2760,14 +2760,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         if ( recognitionMemory.add_preference_to_tm( just_pref ) )
                         {
-                            //TODO: WMA.  This is commented out in SMEM as well, and it doesn't appear
-                            //to be anywhere in the code. -ACN
-                            /*
-                            if ( wma_enabled( my_agent ) )
+                            final WorkingMemoryActivation wma = just_pref.slot.getWmes().wma; 
+                            if ( wma.wma_enabled() )
                             {
-                                wma_activate_wmes_in_pref( my_agent, just_pref );
+                                wma.wma_activate_wmes_in_pref( just_pref );
                             }
-                            */
                         }
                         else
                         {
@@ -4819,7 +4816,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         literal.is_current = currents.contains(value);
         literal.w = epmem_temporal_hash(cue_wme.attr);
         literal.is_neg_q = query_type;
-        literal.weight = (literal.is_neg_q != 0 ? -1 : 1) * (params.balance.get() >= 1.0 - 1.0e-8 ? 1.0 : wma_get_wme_activation(cue_wme, true));
+        literal.weight = (literal.is_neg_q != 0 ? -1 : 1) * (params.balance.get() >= 1.0 - 1.0e-8 ? 1.0 : cue_wme.wma.wma_get_wme_activation(cue_wme, true));
     //#ifdef USE_MEM_POOL_ALLOCATORS
     //    new(&(literal->matches)) epmem_node_pair_set(std::less<epmem_node_pair>(), soar_module::soar_memory_pool_allocator<epmem_node_pair>(my_agent));
     //#else
@@ -4831,20 +4828,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         literal_cache.put(cue_wme,literal);
         return literal;
-    }
-    
-    /*
-     * wma.cpp: 1212
-     * double wma_get_wme_activation( 
-     *              agent* my_agent, 
-     *              wme* w, 
-     *              bool log_result )
-     *
-     */
-    private double wma_get_wme_activation(WmeImpl w, boolean log_result) 
-    {
-        // TODO implement this function when porting WMA
-        return 0.0;
     }
     
     /**

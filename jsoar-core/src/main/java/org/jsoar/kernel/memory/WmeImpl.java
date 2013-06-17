@@ -139,7 +139,7 @@ public class WmeImpl extends AbstractAdaptable implements Wme
     public GoalDependencySetImpl gds;
     public WmeImpl gds_next, gds_prev; // part of dll of wmes in gds
     
-    private WorkingMemoryActivation wma;
+    public WorkingMemoryActivation wma;
     
     /**
      * @param id
