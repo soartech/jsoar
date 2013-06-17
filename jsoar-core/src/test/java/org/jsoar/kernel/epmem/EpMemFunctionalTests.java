@@ -130,4 +130,10 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     {
     	runTest("testWMELength_MultiCycle", 12);
     }
+    
+    @Test
+    public void testWMActivation_Balance0() throws Exception
+    {
+    	runTest("testWMActivation_Balance0", 16);
+    }
 }
