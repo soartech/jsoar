@@ -2592,7 +2592,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     // process preference assertion en masse
                     epmem_process_buffered_wmes(state, cue_wmes, meta_wmes, retrieval_wmes);
-
+                    
+                    //We don't need to manage the ref counts, but we should still empty the lists. -ACN 
+                    meta_wmes.clear();
+                    retrieval_wmes.clear();
                     // CK: should not be necessary in JSoar
                     // clear cache
 //                    {
