@@ -52,4 +52,58 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     {
     	runTest("testBeforeEpMem", 12);
     }
+    
+    @Test
+    public void testAfterEpMem() throws Exception
+    {
+    	runTest("testAfterEpMem", 12);
+    }
+    
+    @Test
+    public void testAllNegQueriesEpMem() throws Exception
+    {
+    	runTest("testAllNegQueriesEpmem", 12);
+    }
+    
+    @Test
+    public void testBeforeAfterProhibitEpMem() throws Exception
+    {
+    	runTest("testBeforeAfterProhibitEpMem", 12);
+    }
+    
+    @Test
+    public void testMaxDoublePrecision_Irrational() throws Exception
+    {
+    	runTest("testMaxDoublePrecision-Irrational", 4);
+    }
+    
+    @Test
+    public void testMaxDoublePrecisionEpMem() throws Exception
+    {
+    	runTest("testMaxDoublePrecisionEpMem", 4);
+    }
+    
+    @Test
+    public void testNegativeEpisode() throws Exception
+    {
+    	runTest("testNegativeEpisode", 12);
+    }
+    
+    @Test
+    public void testNonExistingEpisode() throws Exception
+    {
+    	runTest("testNonExistingEpisode", 12);
+    }
+    
+    @Test
+    public void testSimpleFloatEpMem() throws Exception
+    {
+    	runTest("testSimpleFloatEpMem", 4);
+    }
+    
+    @Test
+    public void testCyclicQuery() throws Exception
+    {
+    	runTest("testCyclicQuery", 4);
+    }
 }
