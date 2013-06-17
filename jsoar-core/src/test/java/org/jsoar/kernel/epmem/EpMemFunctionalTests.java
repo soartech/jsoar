@@ -106,4 +106,28 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     {
     	runTest("testCyclicQuery", 4);
     }
+    
+    @Test
+    public void testWMELength_OneCycle() throws Exception
+    {
+    	runTest("testWMELength_OneCycle", 4);
+    }
+    
+    @Test
+    public void testWMELength_FiveCycle() throws Exception
+    {
+    	runTest("testWMELength_FiveCycle", 7);
+    }
+    
+    @Test
+    public void testWMELength_InfiniteCycle() throws Exception
+    {
+    	runTest("testWMELength_InfiniteCycle", 12);
+    }
+    
+    @Test
+    public void testWMELength_MultiCycle() throws Exception
+    {
+    	runTest("testWMELength_MultiCycle", 12);
+    }
 }
