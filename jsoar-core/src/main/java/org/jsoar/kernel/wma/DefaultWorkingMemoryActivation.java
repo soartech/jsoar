@@ -141,6 +141,11 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
         wma_d_cycle_count++;
     }
     
+    public void d_cycle_count_decrement()
+    {
+        wma_d_cycle_count--;
+    }
+    
     public void resetTimers()
     {
         timers.reset();

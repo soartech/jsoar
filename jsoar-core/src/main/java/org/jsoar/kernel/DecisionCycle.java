@@ -464,9 +464,9 @@ public class DecisionCycle
 //      }
         if (epmem.epmem_enabled() && epmem.encodeInOutputPhase())
         {
-//          thisAgent->wma_d_cycle_count++;
+            wma.d_cycle_count_increment();
             epmem.epmem_go();
-//          thisAgent->wma_d_cycle_count--;
+            wma.d_cycle_count_decrement();
         }
         
         // now both update histories and forget, allows
