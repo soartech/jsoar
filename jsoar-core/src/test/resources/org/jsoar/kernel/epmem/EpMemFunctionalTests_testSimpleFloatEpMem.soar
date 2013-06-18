@@ -1,5 +1,6 @@
 epmem --set trigger dc
 epmem --set learning on
+epmem --set balance 0
 watch --epmem
 
 ### initialize
@@ -14,8 +15,7 @@ sp {propose*init
 sp {apply*init
    (state <s> ^operator.name init)
 -->
-   (<s> ^in-memory false
-        ^float 1.5
+   (<s> ^float 1.5
         ^name double-precision)
 }
 
@@ -31,18 +31,15 @@ sp {propose*remove-float
 
 sp {apply*remove-float
    (state <s> ^operator.name remove-float
-              ^float <float>
-              ^in-memory <in>)
+              ^float <float>)
 -->
-   (<s> ^float <float> -
-        ^in-memory <in> -
-        ^in-memory true)
+   (<s> ^float <float> -)
 }
 
 ### query when done counting
 sp {propose*query
    (state <s> ^name double-precision
-              ^in-memory true
+             -^float
              -^epmem.command.query)
 -->
    (<s> ^operator.name query)
