@@ -21,8 +21,8 @@ sp {apply*init
    (<s> ^cycle-count 2
         ^query <query>
         ^name test-wme-length)
-   (<query> ^cycle-count 4
-            ^cycle-count 7)
+   (<query> ^cycle-count 2
+            ^cycle-count 3)
 }
 
 ### Count Operators
@@ -31,7 +31,7 @@ sp {propose*count
    (state <s> ^name test-wme-length
               ^cycle-count <c>
               ^query <query>)
-   (<query> ^cycle-count 4)
+   (<query> ^cycle-count 2)
 -->
    (<s> ^operator <count> + <)
    (<count> ^name count-cycles
@@ -59,7 +59,7 @@ sp {apply*count*increment-count
 sp {propose*query
    (state <s> ^name test-wme-length
              -^epmem.command.query <q>
-              ^cycle-count 15)
+              ^cycle-count 4)
 -->
    (<s> ^operator <query-operator> + >)
    (<query-operator> ^name query)
@@ -79,7 +79,7 @@ sp {propose*check-epmem*success
    (<epmem> ^command.query <q>
             ^result.success <q>
             ^result.retrieved <result>)
-   (<result> ^cycle-count 4)
+   (<result> ^cycle-count 2)
 -->
    (<s> ^operator <check-epmem> + >)
    (<check-epmem> ^name check-epmem
@@ -114,7 +114,7 @@ sp {apply*check-epmem*success
                   ^status success)
 -->
    (write |Success!| (crlf))
-   (succeeded)
+   (halt)
 }
 
 sp {apply*check-epmem*failure
@@ -124,5 +124,5 @@ sp {apply*check-epmem*failure
                   ^condition <condition>)
 -->
    (write |Failed because '| <condition> |'!| (crlf))
-   (failed)
+   (halt)
 }

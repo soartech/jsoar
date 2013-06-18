@@ -134,6 +134,6 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testWMActivation_Balance0() throws Exception
     {
-    	runTest("testWMActivation_Balance0", 16);
+    	runTest("testWMActivation_Balance0", 5);
     }
 }
