@@ -723,7 +723,7 @@ public class DefaultWorkingMemoryActivation implements WorkingMemoryActivation
                                 + "remove " + w.getTimetag() + "\n");
             }
 
-            wmaDecayElements.remove(temp_el);
+            wmaDecayElements.remove(w);
         }
     }
     
