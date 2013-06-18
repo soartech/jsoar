@@ -136,4 +136,28 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     {
     	runTest("testWMActivation_Balance0", 5);
     }
+    
+    @Test
+    public void testEpMemEncodeOutput_NoWMA() throws Exception
+    {
+    	runTest("testEpMemEncodeOutput_NoWMA", 4);
+    }
+    
+    @Test
+    public void testEpMemEncodeOutput_WMA() throws Exception
+    {
+    	runTest("testEpMemEncodeOutput_WMA", 4);
+    }
+    
+    @Test
+    public void testEpMemEncodeSelection_NoWMA() throws Exception
+    {
+    	runTest("testEpMemEncodeSelection_NoWMA", 5);
+    }
+    
+    @Test
+    public void testEpMemEncodeSelection_WMA() throws Exception
+    {
+    	runTest("testEpMemEncodeSelection_WMA", 5);
+    }
 }
