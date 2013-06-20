@@ -77,6 +77,17 @@ public abstract class SymbolImpl extends EqualityTest implements Symbol
         return null;
     }
     
+    /*
+     * symtab.h: 423: inline bool symbol_is_constant( Symbol *sym )
+     */
+    public boolean symbol_is_constant(){
+        return (
+                this.asInteger() != null ||
+                    this.asDouble() != null ||
+                    this.asString() != null
+               );
+    }
+    
     /* (non-Javadoc)
      * @see org.jsoar.kernel.symbols.Symbol#asVariable()
      */

@@ -57,6 +57,7 @@ import org.jsoar.kernel.memory.WorkingMemory;
 import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.smem.DefaultSemanticMemory;
 import org.jsoar.kernel.symbols.IdentifierImpl;
+import org.jsoar.kernel.symbols.Symbol;
 import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Symbols;
@@ -2369,123 +2370,590 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         ps.executeUpdate();
     }
     
-    /**
-     * emem_temporal_hash with default value of add_on_fail (true)
-     * @param sym
-     * @return
-     * @throws SQLException 
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //Temporal Hash Functions (epmem::hash)
+    //
+    //The rete has symbol hashing, but the values are
+    //reliable only for the lifetime of a symbol.  This
+    //isn't good for epmem.  Hence, we implement a simple
+    //lookup table.
+    //
+    //Note the hashing functions for the symbol types are
+    //very similar, but with enough differences that I
+    //separated them out for clarity.
+    //
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    
+    /*
+     * episodic_memory.cpp:266
+     * inline epmem_hash_id epmem_temporal_hash_add_type( agent* my_agent, byte sym_type )
+     * 
+     * It looks like sym_type is a byte, just to save space.  We don't want to be casting
+     * our ints to bytes every time we call this, so well just use an int.  -ACN
      */
-    private long /*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym) throws SQLException
+    private long /*epmem_hash_id*/ epmem_temporal_hash_add_type( int sym_type )
     {
-        return epmem_temporal_hash(sym, true);
+        long toReturn = -1;
+        try
+        {
+            db.hash_add_type.setInt(1, sym_type);
+            db.hash_add_type.execute();
+            ResultSet rs = db.hash_add_type.getGeneratedKeys();
+            try{
+                toReturn = rs.getLong(1);
+            }
+            finally
+            {
+                rs.close();
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.error(e.getMessage());
+        }
+        return toReturn;
+    }
+
+    /*
+     * episodic_memory.cpp:266
+     * inline epmem_hash_id epmem_temporal_hash_int( 
+     *      agent *my_agent, 
+     *      int64_t val, 
+     *      bool add_on_fail = true 
+     *  )
+     */
+    long/*epmem_hash_id*/ epmem_temporal_hash_int(long val){
+        return epmem_temporal_hash_int(val, true);
     }
     
-    /**
-     * Returns a temporally unique integer representing a symbol constant.
-     * <p> episodic_memory.cpp:1928:
+    long/*epmem_hash_id*/ epmem_temporal_hash_int(long val, boolean add_on_fail)
+    {
+        long/*epmem_hash_id*/ return_val = 0;//NIL;
+        try{
+            // search first
+            db.hash_get_int.setLong(1, val );
+            ResultSet rs = db.hash_get_int.executeQuery();
+            try{
+                if ( rs.next() )
+                {
+                    return_val = rs.getLong( 0 + 1 );
+                }
+            }
+            finally
+            {
+                rs.close();
+            }
+        }
+        catch(SQLException e)
+        {
+            logger.error(e.getMessage());
+        }
+
+        // if fail and supposed to add
+        if ( return_val == 0 && add_on_fail )
+        {
+            // type first
+            return_val = epmem_temporal_hash_add_type( Symbols.INT_CONSTANT_SYMBOL_TYPE );
+            
+            try{
+                // then content
+                db.hash_add_int.setLong( 1, return_val );
+                db.hash_add_int.setLong( 2, val );
+                db.hash_add_int.execute();
+            }catch(SQLException e){
+                logger.error(e.getMessage());
+            }
+        }
+        
+        return return_val;
+    }
+    
+    /*
+     * episodic_memory.cpp:300
+     * inline epmem_hash_id epmem_temporal_hash_float( 
+     *      agent *my_agent, 
+     *      double val, 
+     *      bool add_on_fail = true 
+     *  )
+     */
+    long/*epmem_hash_id*/ epmem_temporal_hash_float(double val){
+        return epmem_temporal_hash_float(val, true);
+    }
+    
+    long/* epmem_hash_id */epmem_temporal_hash_float(double val, boolean add_on_fail)
+    {
+        long/* epmem_hash_id */return_val = 0;// NIL;
+        try
+        {
+            // search first
+            db.hash_get_float.setDouble(1, val);
+            ResultSet rs = db.hash_get_float.executeQuery();
+            try
+            {
+                if (rs.next())
+                {
+                    return_val = rs.getLong(0 + 1);
+                }
+            }
+            finally
+            {
+                rs.close();
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.error(e.getMessage());
+        }
+
+        // if fail and supposed to add
+        if (return_val == 0 && add_on_fail)
+        {
+            // type first
+            return_val = epmem_temporal_hash_add_type(Symbols.FLOAT_CONSTANT_SYMBOL_TYPE);
+
+            try
+            {
+                // then content
+                db.hash_add_float.setLong(1, return_val);
+                db.hash_add_float.setDouble(2, val);
+                db.hash_add_float.execute();
+            }
+            catch (SQLException e)
+            {
+                logger.error(e.getMessage());
+            }
+        }
+
+        return return_val;
+    }
+    
+    /*
+     * episodic_memory.cpp:327
+     * inline epmem_hash_id epmem_temporal_hash_str( 
+     *      agent *my_agent, 
+     *      char* val, 
+     *      bool add_on_fail = true 
+     *  )
+     */
+    long/*epmem_hash_id*/ epmem_temporal_hash_str(String val){
+        return epmem_temporal_hash_str(val, true);
+    }
+
+    long/* epmem_hash_id */epmem_temporal_hash_str(String val, boolean add_on_fail)
+    {
+        long/* epmem_hash_id */return_val = 0;// NIL;
+        try
+        {
+            // search first
+            db.hash_get_str.setString(1, val);
+            ResultSet rs = db.hash_get_str.executeQuery();
+            try
+            {
+                if (rs.next())
+                {
+                    return_val = rs.getLong(0 + 1);
+                }
+            }
+            finally
+            {
+                rs.close();
+            }
+        }
+        catch(SQLException e)
+        {
+            logger.error(e.getMessage());
+        }
+
+        // if fail and supposed to add
+        if ( return_val == 0 && add_on_fail )
+        {
+            // type first
+            return_val = epmem_temporal_hash_add_type( Symbols.SYM_CONSTANT_SYMBOL_TYPE );
+            
+            try
+            {
+                // then content
+                db.hash_add_str.setLong(1, return_val);
+                db.hash_add_str.setString(2, val);
+                db.hash_add_str.execute();
+            }
+            catch (SQLException e)
+            {
+                logger.error(e.getMessage());
+            }
+        }
+        
+        return return_val;
+    }
+    
+    /*
+     * episodic_memory.cpp:355
+     * inline int64_t epmem_reverse_hash_int( 
+     *      agent* my_agent, 
+     *      epmem_hash_id s_id_lookup )
+     */
+    long epmem_reverse_hash_int(long/* epmem_hash_id */s_id_lookup)
+    {
+        long return_val = 0;// NIL;
+        try
+        {
+            db.hash_rev_int.setLong(1, s_id_lookup);
+            ResultSet res = db.hash_rev_int.executeQuery();
+            // assert( res == soar_module::row );
+            // We don't want this assertion to compile out. If we were to
+            // procceed from here
+            // on bad data, we could potentially put bad symbols into working
+            // memory. -ACN
+            try
+            {
+                if (!res.next())
+                {
+                    throw new AssertionError("Database query for unknown value");
+                }
+                return_val = res.getLong(0 + 1);
+            }
+            finally
+            {
+                res.close();
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.error(e.getMessage());
+        }
+        return return_val;
+    }
+    
+    /*
+     * episodic_memory.cpp:369
+     * inline double epmem_reverse_hash_float( 
+     *      agent* my_agent, 
+     *      epmem_hash_id s_id_lookup 
+     *  )
+     */
+    double epmem_reverse_hash_float(long/* epmem_hash_id */s_id_lookup)
+    {
+        double return_val = 0;// NIL;
+        try
+        {
+            db.hash_rev_float.setLong(1, s_id_lookup);
+            ResultSet res = db.hash_rev_float.executeQuery();
+            // assert( res == soar_module::row );
+            // We don't want this assertion to compile out. If we were to
+            // procceed from here
+            // on bad data, we could potentially put bad symbols into working
+            // memory. -ACN
+            try
+            {
+                if (!res.next())
+                {
+                    throw new AssertionError("Database query for unknown value");
+                }
+                return_val = res.getDouble(0 + 1);
+            }
+            finally
+            {
+                res.close();
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.error(e.getMessage());
+        }
+        return return_val;
+    }
+    
+    /*
+     * episodic_memory.cpp:383
+     * inline double epmem_reverse_hash_float( 
+     *      agent* my_agent, 
+     *      epmem_hash_id s_id_lookup 
+     *  )
+     */
+    String epmem_reverse_hash_str(long/* epmem_hash_id */s_id_lookup)
+    {
+        String return_val = null;// NIL;
+        try
+        {
+            db.hash_rev_string.setLong(1, s_id_lookup);
+            ResultSet res = db.hash_rev_string.executeQuery();
+            // assert( res == soar_module::row );
+            // We don't want this assertion to compile out. If we were to
+            // procceed from here
+            // on bad data, we could potentially put bad symbols into working
+            // memory. -ACN
+            try
+            {
+                if (!res.next())
+                {
+                    throw new AssertionError("Database query for unknown value");
+                }
+                return_val = res.getString(0 + 1);
+            }
+            finally
+            {
+                res.close();
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.error(e.getMessage());
+        }
+        return return_val;
+    }
+    
+    /* **************************************************************************
+
+    epmem_reverse_hash
+
+    This function will take an s_id and return a symbol whose contents match those
+    stored in the epmem database.  If no sym_type is passed in, this function will
+    look up the type in the symbol type database.
+    
+    How type id is handled is changed somewhat  from how smem does it and epmem
+    previously did it;  that code retrieves the symbol types within the original
+    large query, while this one does another retrieve as needed. Hopefully, we'll
+    gain more from removing a join from the big, more computationally intensive
+    query than we'll lose from the overhead of a second query.  This leverages
+    that we always know the symbol type for id's and attributes and don't even
+    need to join with the type table for those.
+    
+    Will want to verify later.  If confirmed, we should check if we could do it
+    for smem too.  We could also remove the LTI join from the big query too and
+    do those retrieves as needed.
+    
+    ************************************************************************** */
+    /*
+     * episodic_memory.cpp:418
+     * inline Symbol* epmem_reverse_hash( 
+     *      agent* my_agent, 
+     *      epmem_hash_id s_id_lookup, 
+     *      byte sym_type = 255 
+     *  )
+     *  
+     *  The C code uses byte in a few places here, but it is at best nominally more
+     *  space efficent, and we have to cast it up all over the place in Java, so 
+     *  we'll just stick with ints.
+     */
+    Symbol epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup){
+        return epmem_reverse_hash(s_id_lookup, 255);
+    }
+    
+    Symbol epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup, int sym_type)
+    {
+        Symbol return_val = null;
+        String dest;
+
+        if (sym_type == 255) {
+            try{
+                    
+                db.hash_get_type.setLong( 1, s_id_lookup );
+                ResultSet res = db.hash_get_type.executeQuery();
+                //assert( res == soar_module::row );
+                // We don't want this assertion to compile out. If we were to
+                // procceed from here
+                // on bad data, we could potentially put bad symbols into working
+                // memory. -ACN
+                try
+                {
+                    if (!res.next())
+                    {
+                        throw new AssertionError("Database query for unknown value");
+                    }
+                    sym_type = res.getInt(0 + 1);
+                }
+                finally
+                {
+                    res.close();
+                }
+            }catch(SQLException e){
+                logger.error(e.getMessage());
+            }
+        }
+
+        switch ( sym_type )
+        {
+            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                dest = epmem_reverse_hash_str(s_id_lookup);
+                return_val = symbols.createString(dest);
+                break;
+
+            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                return_val = symbols.createInteger(epmem_reverse_hash_int(s_id_lookup));
+                break;
+
+            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                return_val = symbols.createDouble( epmem_reverse_hash_float(s_id_lookup));
+                break;
+
+            default:
+                return_val = null;
+                break;
+        }
+
+        return return_val;
+    }
+    
+    /* **************************************************************************
+
+    epmem_reverse_hash_print
+
+    This function will take an s_id and stores a printable string version of the
+    content of that symbol stored in the epmem database into the dest parameter.
+    If no sym_type is passed in, this function will look up the type in the
+    symbol type database.
+    
+    
+    ************************************************************************** */
+    /*
+     * episodic_memory.cpp:418
+     * inline void epmem_reverse_hash_print( 
+     *      agent* my_agent, 
+     *      epmem_hash_id s_id_lookup, 
+     *      std::string& dest, 
+     *      byte sym_type = 255)
+     *  
+     *  The C code uses byte in a few places here, but it is at best nominally more
+     *  space efficent, and we have to cast it up all over the place in Java, so 
+     *  we'll just stick with ints.
+     */
+    
+    String epmem_reverse_hash_print( long/*epmem_hash_id*/ s_id_lookup){
+        return epmem_reverse_hash_print(s_id_lookup, 255);
+    }
+    
+    String epmem_reverse_hash_print( long/*epmem_hash_id*/ s_id_lookup, int sym_type)
+    {
+        Symbol return_val = null;
+        String dest = null; 
+        
+        // This may be faster than including type lookup in edges?  Might want to check later.
+
+        if (sym_type == 255) {
+            try
+            {
+                db.hash_get_type.setLong(1, s_id_lookup );
+                ResultSet res = db.hash_get_type.executeQuery();
+                //(void)res; // quells compiler warning
+                //assert( res == soar_module::row );
+                // We don't want this assertion to compile out. If we were to
+                // procceed from here
+                // on bad data, we could potentially put bad symbols into working
+                // memory. -ACN
+                try
+                {
+                    if (!res.next())
+                    {
+                        throw new AssertionError("Database query for unknown value");
+                    }
+                    // check if should be column_int
+                    sym_type = res.getInt(0 + 1);
+                }
+                finally
+                {
+                    res.close();
+                }
+            }
+            catch(SQLException e)
+            {
+                logger.error(e.getMessage());
+            }
+        }
+
+        switch ( sym_type )
+        {
+            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
+                dest = epmem_reverse_hash_str(s_id_lookup);
+                break;
+
+            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
+                dest = Long.toString(epmem_reverse_hash_int(s_id_lookup));
+                break;
+
+            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
+                dest = Double.toString(epmem_reverse_hash_float(s_id_lookup));
+                break;
+
+            default:
+                return_val = null;
+                break;
+        }
+        return dest;
+    }
+    
+    /* **************************************************************************
+
+    epmem_temporal_hash
+
+    This function returns an s_id (symbol id) representing a symbol constant
+    stored in the epmem database. The individual hash functions will first
+    check if there already exists an identical entry in the epmem database
+    and return it if found.  If not, it will add new entries to the both the
+    type table and one of the typed constant tables.
+    
+    ************************************************************************** */
+    /*
+     * episodic_memory.cpp:503
      * epmem_hash_id epmem_temporal_hash( 
      *      agent *my_agent, 
      *      Symbol *sym, 
      *      bool add_on_fail = true 
      *  )
-     * @param sym
-     * @param add_on_fail
-     * @return
-     * @throws SQLException 
+     *  
+     *  The C code uses byte in a few places here, but it is at best nominally more
+     *  space efficent, and we have to cast it up all over the place in Java, so 
+     *  we'll just stick with ints.
      */
-    private long /*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym, boolean add_on_fail /*= true*/) throws SQLException
+    long/*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym)
     {
-        long /*epmem_hash_id*/ return_val = 0;
-        
-        // ////////////////////////////////////////////////////////////////////////////
-        // my_agent->epmem_timers->hash->start();
-        // ////////////////////////////////////////////////////////////////////////////
-        
-        if( sym.asString() != null ||
-            sym.asDouble() != null ||
-            sym.asInteger() != null)
+        return epmem_temporal_hash(sym, true);
+    }
+    
+    long/*epmem_hash_id*/ epmem_temporal_hash(SymbolImpl sym, boolean add_on_fail)
+    {
+        long/*epmem_hash_id*/ return_val = 0;//NIL;
+
+        ////////////////////////////////////////////////////////////////////////////
+        //my_agent->epmem_timers->hash->start();
+        ////////////////////////////////////////////////////////////////////////////
+
+        if (sym.symbol_is_constant() )
         {
-            //if ( ( !sym->common.epmem_hash ) || ( sym->common.epmem_valid != my_agent->epmem_validation ) )
-            if (!(sym.epmem_hash_id == 0) || (sym.epmem_valid != epmem_validation))
+            if ( (sym.epmem_hash_id != 0) || ( sym.epmem_valid != epmem_validation ) )
             {
-                sym.epmem_hash_id = 0;
+                sym.epmem_hash_id = 0;//NIL;
                 sym.epmem_valid = epmem_validation;
-
-                // basic process:
-                // - search
-                // - if found, return
-                // - else, add
-
-                final PreparedStatement hash_get = db.hash_get;
-                
-                hash_get.setLong(1, Symbols.getSymbolType(sym));
-                
-                switch (Symbols.getSymbolType(sym))
+                /*
+                 * We don't have a symbol_type equivalent to switch on, so well have to use
+                 * and if else if block.  -ACN
+                switch ( sym.symbol_type )
                 {
-                case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                    hash_get.setString(2, sym.asString().getValue());
-                    break;
-                case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                    hash_get.setLong(2, sym.asInteger().getValue());
-                    break;
-
-                case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                    hash_get.setDouble(2, sym.asDouble().getValue());
-                    break;
-                }
-
-                final ResultSet hash_get_rs = hash_get.executeQuery();
-                try
-                {
-                    if (hash_get_rs.next())
-                    {
-                        return_val = hash_get_rs.getLong(0 + 1);
-                    }
-                }
-                finally
-                {
-                    hash_get_rs.close();
-                }
-                
-                if (return_val == 0 && add_on_fail)
-                {
-                    final PreparedStatement hash_add = db.hash_add;
-
-                    hash_add.setLong(1, Symbols.getSymbolType(sym));
-
-                    switch (Symbols.getSymbolType(sym))
-                    {
-                    case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                        hash_add.setString(2, sym.asString().getValue());
-                        break;
-                    case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                        hash_add.setLong(2, sym.asInteger().getValue());
+                    case SYM_CONSTANT_SYMBOL_TYPE:
+                        return_val = epmem_temporal_hash_str( my_agent, sym->sc.name, add_on_fail );
                         break;
 
-                    case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                        hash_add.setDouble(2, sym.asDouble().getValue());
+                    case INT_CONSTANT_SYMBOL_TYPE:
+                        return_val = epmem_temporal_hash_int( my_agent, sym->ic.value, add_on_fail );
                         break;
-                    }
-                    hash_add.execute();
-                    // CK: not all database drivers support this
-                    final ResultSet hash_add_rs = hash_add.getGeneratedKeys();
-                    try
-                    {
-                        if (hash_add_rs.next())
-                        {
-                            return_val = hash_add_rs.getLong(1);
-                        }
-                        else
-                        {
-                            // throw an exception if we were not able to get the
-                            // row id of the insert
-                            throw new SQLException("ps.getGeneratedKeys failed!");
-                        }
-                    }
-                    finally
-                    {
-                        hash_add_rs.close();
-                    }
+
+                    case FLOAT_CONSTANT_SYMBOL_TYPE:
+                        return_val = epmem_temporal_hash_float( my_agent, sym->fc.value, add_on_fail );
+                        break;
+                }
+                */
+                if(sym.asString() != null)
+                {
+                    return_val = epmem_temporal_hash_str( sym.asString().getValue(), add_on_fail );
+                }
+                else if(sym.asInteger() != null)
+                {
+                    return_val = epmem_temporal_hash_int( sym.asInteger().getValue(), add_on_fail );
+                }
+                else if(sym.asDouble() != null)
+                {
+                    return_val = epmem_temporal_hash_float( sym.asDouble().getValue(), add_on_fail );
                 }
                 
                 // cache results for later re-use
@@ -2495,13 +2963,17 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             return_val = sym.epmem_hash_id;
         }
 
-        // ////////////////////////////////////////////////////////////////////////////
-        // my_agent->epmem_timers->hash->stop();
-        // ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        //my_agent->epmem_timers->hash->stop();
+        ////////////////////////////////////////////////////////////////////////////
 
         return return_val;
     }
-
+    
+    ///////////////////////////////
+    //End of hash functions -ACN
+    //////////////////////////////
+    
     /**
      * Implements the Soar-EpMem API
      * 

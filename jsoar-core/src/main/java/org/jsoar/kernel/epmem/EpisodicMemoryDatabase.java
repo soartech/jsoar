@@ -66,6 +66,18 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement find_lti;
     PreparedStatement find_lti_promotion_time;
     PreparedStatement update_edge_unique_last;
+    
+    PreparedStatement hash_add_type;
+    PreparedStatement hash_get_int;
+    PreparedStatement hash_add_int;
+    PreparedStatement hash_get_float;
+    PreparedStatement hash_add_float;
+    PreparedStatement hash_get_str;
+    PreparedStatement hash_add_str;
+    PreparedStatement hash_rev_int;
+    PreparedStatement hash_rev_float;
+    PreparedStatement hash_rev_string;
+    PreparedStatement hash_get_type;
 
     // episodic_memory.cpp:1703:epmem_init_db
     PreparedStatement get_max_time;
