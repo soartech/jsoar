@@ -95,7 +95,7 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Force> FORCE = key("force", Force.class).defaultValue(Force.off).build();
     final EnumPropertyProvider<Force> force = new EnumPropertyProvider<Force>(FORCE);
     
-    static final PropertyKey<Trigger> TRIGGER = key("trigger", Trigger.class).defaultValue(Trigger.output).build();
+    static final PropertyKey<Trigger> TRIGGER = key("trigger", Trigger.class).defaultValue(Trigger.dc).build();
     final EnumPropertyProvider<Trigger> trigger = new EnumPropertyProvider<Trigger>(TRIGGER);
     
     static final PropertyKey<MergeChoices> MERGE = key("merge", MergeChoices.class).defaultValue(MergeChoices.merge_none).build();

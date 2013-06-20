@@ -670,8 +670,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             epmem_rit_state_graph[i].rightroot.stat = 1;
             epmem_rit_state_graph[i].minstep.stat = Long.MAX_VALUE;
         }
-        epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].add_query = db.add_node_range;
-        epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].add_query = db.add_edge_range;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_NODE].add_query = db.add_epmem_wmes_constant_range;
+        epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE].add_query = db.add_epmem_wmes_identifier_range;
 
         // //
 
@@ -808,10 +808,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         // get id pools
         {
-            long q0;
-            long w;
-            long q1;
-            long parent_id;
+            long parent_n_id;
+            long attributes_s_id;
+            long child_n_id;
+            long wi_id;
 
             // epmem_hashed_id_pool **hp;
             Map<Long, LinkedList<EpisodicMemoryIdPair>> hp;
@@ -825,44 +825,44 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // while ( temp_q->execute() == soar_module::row )
                 while (rs.next())
                 {
-                    q0 = rs.getLong(0 + 1);
-                    w = rs.getLong(1 + 1);
-                    q1 = rs.getLong(2 + 1);
-                    parent_id = rs.getLong(3 + 1);
+                    parent_n_id = rs.getLong(0 + 1);
+                    attributes_s_id = rs.getLong(1 + 1);
+                    child_n_id = rs.getLong(2 + 1);
+                    wi_id = rs.getLong(3 + 1);
 
                     // create new epmem_hashed_id_pool for q0 if it doesn't
                     // exist in epmem_id_repository
                     // hp = &(*my_agent->epmem_id_repository)[ q0 ];
                     // if ( !(*hp) )
                     // (*hp) = new epmem_hashed_id_pool;
-                    hp = epmem_id_repository.get(q0);
+                    hp = epmem_id_repository.get(parent_n_id);
                     if (hp == null)
                     {
                         hp = Maps.newLinkedHashMap();
-                        epmem_id_repository.put(q0, hp);
+                        epmem_id_repository.put(parent_n_id, hp);
                     }
 
                     // ip = &(*(*hp))[ w ];
                     // if ( !(*ip) )
                     // (*ip) = new epmem_id_pool;
-                    ip = hp.get(w);
+                    ip = hp.get(attributes_s_id);
                     if (ip == null)
                     {
                         ip = Lists.newLinkedList();
-                        hp.put(w, ip);
+                        hp.put(attributes_s_id, ip);
                     }
 
                     // (*ip)->push_front( std::make_pair( q1, parent_id ) );
-                    ip.addFirst(new EpisodicMemoryIdPair(q1, parent_id));
+                    ip.addFirst(new EpisodicMemoryIdPair(child_n_id, wi_id));
 
                     // hp = &(*my_agent->epmem_id_repository)[ q1 ];
                     // if ( !(*hp) )
                     // (*hp) = new epmem_hashed_id_pool;
-                    hp = epmem_id_repository.get(q1);
+                    hp = epmem_id_repository.get(child_n_id);
                     if (hp == null)
                     {
                         hp = Maps.newLinkedHashMap();
-                        epmem_id_repository.put(q1, hp);
+                        epmem_id_repository.put(child_n_id, hp);
                     }
                 }
             }
@@ -1336,7 +1336,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long time_counter = stats.getTime();// my_agent->epmem_stats->time->get_value();
 
         // // provide trace output
-        trace.startNewLine().print(Category.EPMEM, "NEW EPISODE: " + time_counter);
+        trace.startNewLine().print(Category.EPMEM, "EpMem| NEW EPISODE: " + time_counter +"\n");
         // if ( my_agent->sysparams[ TRACE_EPMEM_SYSPARAM ] )
         // {
         // char buf[256];
@@ -1424,7 +1424,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     temp_node = epmem_node.element();
 
                     // add NOW entry
-                    // id = ?, start = ?
+                    // id = ?, start_episode_id = ?
                     db.add_node_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
                     // 1, (*temp_node) );
                     db.add_node_now.setLong(2, time_counter); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
@@ -1446,7 +1446,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     temp_node = epmem_edge.element();
 
                     // add NOW entry
-                    // id = ?, start = ?
+                    // id = ?, start_episode_id  = ?
                     db.add_edge_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_edge_now->bind_int(
                     // 1, (*temp_node) );
                     db.add_edge_now.setLong(2, time_counter); // my_agent->epmem_stmts_graph->add_edge_now->bind_int(
@@ -1487,7 +1487,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //epmem_dc_interval_removes = 0;
                 //#endif
 
-                // nodes
+                // wme's with constant values
                 for(Map.Entry<Long, Boolean> r : epmem_node_removals.entrySet())
                 {
                     if(r.getValue())
@@ -1504,7 +1504,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         range_start = epmem_node_mins.get((int)(r.getKey()-1));
                         range_end = ( time_counter - 1 );
 
-                        // point (id, start)
+                        // point (id, start_episode_id)
                         if ( range_start == range_end )
                         {
                             db.add_node_point.setLong(1, r.getKey());
@@ -1523,7 +1523,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 epmem_node_removals.clear();
 
-                // edges
+                // wme's with identifier values
                 for(Map.Entry<Long, Boolean> r : epmem_edge_removals.entrySet()) 
                 {
                     if ( r.getValue() )
@@ -1544,7 +1544,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         db.update_edge_unique_last.setLong(2, r.getKey());
                         db.update_edge_unique_last.executeUpdate(/*soar_module::op_reinit*/);
 
-                        // point (id, start)
+                        // point (id, start_episode_id)
                         if ( range_start == range_end )
                         {
                             db.add_edge_point.setLong(1, r.getKey());
@@ -1580,7 +1580,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 epmem_promotions.clear();
             }
 
-            // add the time id to the times table
+            // add the time id to the epmem_episodes table
             db.add_time.setLong(1, time_counter);
             db.add_time.executeUpdate(/*soar_module::op_reinit*/);
 
@@ -1670,30 +1670,41 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         return return_val;
     }
 
-    /**
-     * three cases for sharing ids amongst identifiers in two passes: <br>
-     * <ol>
-     * <li>value known in phase one (try reservation)</li>
-     * <li>value unknown in phase one, but known at phase two (try assignment
-     * adhering to constraint)</li>
-     * <li>value unknown in phase one/two (if anything is left, unconstrained
-     * assignment)</li>
-     * </ol>
-     * <p>
-     * episodic_memory.cpp:2045:inline void _epmem_store_level( 
-     *      agent* my_agent,
-     *      std::queue< Symbol* >&parent_syms, 
-     *      std::queue< epmem_node_id >& parent_ids, 
-     *      tc_number tc, 
-     *      epmem_wme_list::iterator w_b,
-     *      epmem_wme_list::iterator w_e, 
-     *      epmem_node_id parent_id, 
-     *      epmem_time_id time_counter, 
-     *      std::map< wme*, epmem_id_reservation* >& id_reservations,
-     *      std::set< Symbol* >& new_identifiers, 
-     *      std::queue< epmem_node_id >& epmem_node, 
-     *      std::queue< epmem_node_id >& epmem_edge 
-     *  )
+    /** **************************************************************************
+    	
+                               _epmem_store_level
+    	
+    	   This function process the addition of "one level" of wme's rooted at
+    	   the n_id specified by parent_id into the working memory graph.  It does
+    	   not process any temporal information.
+    	
+    	   - w_b is the list of wme's it will process (until it hits w_e)
+    	
+    	   - can add syms and ids of augmentations to parent_syms and parent_ids
+    	   queues so that they can be processed during the next "level"
+    	
+    	   - The identifier symbol of each wme isn't set and is ignored. parent_id
+    	     is used to  specify the root.
+    	
+    	
+    		 three cases for sharing ids amongst identifiers in two passes:
+    		 1. value known in phase one (try reservation)
+    		 2. value unknown in phase one, but known at phase two (try assignment adhering to constraint)
+    		 3. value unknown in phase one/two (if anything is left, unconstrained assignment)
+    	
+     ******************************************************************************
+     * episodic_memory.cpp:2454:inline void _epmem_store_level( agent* my_agent,
+			                        std::queue< Symbol* >& parent_syms,
+			                        std::queue< epmem_node_id >& parent_ids,
+			                        tc_number tc,
+			                        epmem_wme_list::iterator w_b,
+			                        epmem_wme_list::iterator w_e,
+			                        epmem_node_id parent_id,
+			                        epmem_time_id time_counter,
+			                        std::map< wme*, epmem_id_reservation* >& id_reservations,
+			                        std::set< Symbol* >& new_identifiers,
+			                        std::queue< epmem_node_id >& epmem_node,
+			                        std::queue< epmem_node_id >& epmem_edge )
      * 
      * @param parent_syms
      * @param parent_ids
@@ -1737,10 +1748,27 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // List<WmeImpl> w_p2;
         // boolean good_recurse = false;
         
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("==================================================\n" +
+            		     "DEBUG _epmem_store_level called for parent_id " + parent_id + "\n" +
+            		     "==================================================\n");
+        }
+        
         // find WME ID for WMEs whose value is an identifier and has a known epmem id 
         // (prevents ordering issues with unknown children)
         for (WmeImpl wme : w_p)
         {
+            if (logger.isDebugEnabled())
+            {
+                // --------------------------------------------\n
+                // Processing WME: %d ^%s %s\n
+                // (unsigned int) parent_id, symbol_to_string (my_agent, (*w_p)->attr, TRUE, NIL, 0), symbol_to_string (my_agent, (*w_p)->value, TRUE, NIL, 0)
+                
+                logger.debug("--------------------------------------------\n" +
+                             "Processing WME: " + Long.toString(parent_id) + " ^" + wme.getAttribute() + " " + wme.getValue() + "\n");
+            }
+            
             // skip over WMEs already in the system
             if (wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation)
             {
@@ -1755,6 +1783,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // prevent exclusions from being recorded
                 if (params.exclusions.contains(wme.attr))
                 {
+                    //fprintf(stderr, "   WME excluded.  Skipping.\n");
+                    logger.debug("   WME excluded.  Skipping.\n");
                     continue;
                 }
 
@@ -1799,21 +1829,40 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
         for (WmeImpl wme : w_p)
         {
+            //fprintf(stderr, "--------------------------------------------\nProcessing WME: %d ^%s %s\n",
+            //(unsigned int) parent_id, symbol_to_string (my_agent, (*w_p)->attr, TRUE, NIL, 0), symbol_to_string (my_agent, (*w_p)->value, TRUE, NIL, 0));
+            
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("--------------------------------------------\n" +
+                		     "Processing WME: " + parent_id + " ^" + wme.getAttribute() + " " + wme.getValue() + "\n");
+            }
+            
             // skip over WMEs already in the system
             if( wme.epmem_id != EPMEM_NODEID_BAD && wme.epmem_valid == epmem_validation)
             {
+                //fprintf(stderr, "   WME already in system with id %d.\n", (unsigned int) (*w_p)->epmem_id);
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("   WME already in system with id " + wme.epmem_id + ".\n");
+                }
                 continue;
             }
 
             // prevent exclusions from being recorded
             if(params.exclusions.contains(wme.attr))
             {
+                //fprintf(stderr, "   WME excluded.  Skipping.\n");
+                logger.debug("   WME excluded.  Skipping.\n");
                 continue;
             }
             
             final IdentifierImpl wmeValueId = wme.value.asIdentifier();
             if (wmeValueId != null)
             {
+                //fprintf(stderr, "   WME value is IDENTIFER.\n");
+                logger.debug("   WME value is IDENTIFER.\n");
+                
                 wme.epmem_valid = epmem_validation;
                 wme.epmem_id = EPMEM_NODEID_BAD;
                 
@@ -1835,6 +1884,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // find the lti or add new one
                     if(!value_known_apriori)
                     {
+                        //fprintf(stderr, "   Value is an LTI  Doing processing we haven't looke at!\n");
+                        logger.debug("   Value is an LTI  Doing processing we haven't looked at!\n"); //Minor spelling correction...
+                        
                         wmeValueId.epmem_id = EPMEM_NODEID_BAD;
                         wmeValueId.epmem_valid = epmem_validation;
                         
@@ -1866,6 +1918,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             stats.setNextId(wmeValueId.epmem_id + 1L);
                             epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
+                            //fprintf(stderr, "   Adding new n_id and setting wme id to %d for VALUE which is lti %c%d\n",
+                            //(unsigned int) (*w_p)->value->id.epmem_id, (*w_p)->value->id.name_letter, (unsigned int) (*w_p)->value->id.name_number);
+                            
+                            if (logger.isDebugEnabled())
+                            {
+                                logger.debug("   Adding new n_id and setting wme id to " + wmeValueId.epmem_id +
+                                             " for VALUE which is lti " + wmeValueId.getNameLetter() + wmeValueId.getNameNumber() + "\n");
+                            }
+                            
                             // add repository
                             Map<Long, LinkedList<EpisodicMemoryIdPair>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
                             epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
@@ -1874,9 +1935,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                     }
 
-                    // now perform deliberate edge search
-                    // ltis don't use the pools, so we make a direct search in
-                    // the edge_unique table
+                    // now perform deliberate wme_i search
+                    // ltis don't use the pools, so we make a direct search in the epmem_wmes_identifier table
                     // if failure, drop below and use standard channels
                     {
                         // get temporal hash
@@ -1889,7 +1949,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             my_hash = epmem_temporal_hash( wme.attr );
                         }
                         
-                        // q0, w, q1
+                        // parent_n_id, attribute_s_id, child_n_id
                         final PreparedStatement ps = db.find_edge_unique_shared;
                         ps.setLong(1, parent_id);
                         ps.setLong(2, my_hash);
@@ -1917,10 +1977,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // in the case of a known value, we already have a reservation (case 1)
                     if ( value_known_apriori )
                     {
+                        //fprintf(stderr, "   WME is known.  Looking for reservation.\n");
+                        logger.debug("   WME is known.  Looking for reservation.\n");
                         r_p = id_reservations.get(wme);
                         
                         if(r_p != null)
                         {
+                            //fprintf(stderr, "   Found existing reservation.\n");
+                            logger.debug("   Found existing reservation.\n");
+                            
                             my_hash = r_p.my_hash;
                             my_id_repo2 = r_p.my_pool;
                             
@@ -1928,6 +1993,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             {
                                 wme.epmem_id = r_p.my_id;
                                 epmem_id_replacement.put(wme.epmem_id, my_id_repo2);
+                                
+                                //fprintf(stderr, "   Assigning id from existing pool: %d\n", (unsigned int) (*w_p)->epmem_id);
+                                logger.debug("   Assigning id from existing pool: " + wme.epmem_id + "\n");
                             }
 
                             // delete reservation and map entry
@@ -1937,6 +2005,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // case we need an exact match (case 2)
                         else
                         {
+                            //fprintf(stderr, "   No reservation found.  Looking for shared identifier at same level.\n");
+                            logger.debug("   No reservation found.  Looking for shared identifier at same level.\n");
+                            
                             // get temporal hash
                             if (wme.acceptable)
                             {
@@ -1962,6 +2033,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                             wme.epmem_id = pool_p.second;
                                             it.remove();
                                             epmem_id_replacement.put(wme.epmem_id, my_id_repo);
+                                            
+                                            //fprintf(stderr, "   Assigning id from existing pool: %d\n", (unsigned int) (*w_p)->epmem_id);
+                                            if (logger.isDebugEnabled())
+                                            {
+                                                logger.debug("   Assigning id from existing pool: " + wme.epmem_id + "\n");
+                                            }
                                             break;
                                         }
                                     }
@@ -1969,6 +2046,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             }
                             else
                             {
+                                //fprintf(stderr, "   No pool.  Creating a new one.\n");
+                                logger.debug("   No pool.  Creating a new one.\n");
+                                
                                 // add repository
                                 my_id_repo = Lists.newLinkedList();
                                 epmem_id_repository.get(parent_id).put(my_hash, my_id_repo);
@@ -2036,6 +2116,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // add wme if no success above
                 if (wme.epmem_id == EPMEM_NODEID_BAD)
                 {
+                    //fprintf(stderr, "   No success, adding wme to database.");
+                    logger.debug("   No success, adding wme to database.");
+                    
                     // can't use value_known_apriori, since value may have been assigned (lti, id repository via case 3)
                     if (wmeValueId.epmem_id == EPMEM_NODEID_BAD || wmeValueId.epmem_valid != epmem_validation)
                     {
@@ -2045,6 +2128,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         stats.setNextId(wmeValueId.epmem_id + 1L);
                         epmem_set_variable(epmem_variable_key.var_next_id, wmeValueId.epmem_id + 1L);
 
+                        //fprintf(stderr, "   Adding new n_id and setting wme id for VALUE to %d \n", (unsigned int) (*w_p)->value->id.epmem_id);
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug( "   Adding new n_id and setting wme id for VALUE to " + wmeValueId.epmem_id + " \n");
+                        }
+                        
                         // add repository for possible future children
                         Map<Long, LinkedList<EpisodicMemoryIdPair>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
                         epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
@@ -2053,7 +2142,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         epmem_id_ref_counts.put(wmeValueId.epmem_id, epmem_wme_set);
                     }
                     
-                    // insert (q0,w,q1)
+                    // insert (parent_n_id,attributes_s_id,child_n_id)
+                    //fprintf(stderr, "   Peforming database insertion: %d %d %d\n",
+                    //        (unsigned int) parent_id, (unsigned int) my_hash, (unsigned int) (*w_p)->value->id.epmem_id);
+                    //fprintf(stderr, "   Adding wme to epmem_wmes_identifier table.\n");
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug( "   Performing database insertion: " + parent_id + " " + my_hash + " " + wmeValueId.epmem_id + "\n");
+                        logger.debug( "   Adding wme to epmem_wmes_identifier table.\n");
+                    }
                     final PreparedStatement ps = db.add_edge_unique;
                     ps.setLong(1, parent_id);
                     ps.setLong(2, my_hash);
@@ -2078,7 +2175,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         rs.close();
                     }
-
+                    
+                    //fprintf(stderr, "   Incrementing and setting wme id to %d \n", (unsigned int) (*w_p)->epmem_id);
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug( "   Incrementing and setting wme id to " + wme.epmem_id + " \n");
+                    }
+                    
                     if (wmeValueId.smem_lti == 0)
                     {
                         // replace the epmem_id and wme id in the right place
@@ -2092,7 +2195,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 else
                 {
-                 // definitely don't remove
+                    //fprintf(stderr, "   No success but already has id, so don't remove.\n");
+                    logger.debug(     "   No success but already has id, so don't remove.\n");
+                    
+                    // definitely don't remove
                     epmem_edge_removals.put(wme.epmem_id, false);
 
                     // we add ONLY if the last thing we did was remove
@@ -2128,9 +2234,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             }
             else
             {
+                //fprintf(stderr, "   WME value is a CONSTANT.\n");
+                logger.debug(     "   WME value is a CONSTANT.\n");
+                
                 // have we seen this node in this database?
                 if (wme.epmem_id == EPMEM_NODEID_BAD || wme.epmem_valid != epmem_validation)
                 {
+                    //fprintf(stderr, "   This is a new wme.\n");
+                    logger.debug(     "   This is a new wme.\n");
+                    
                     wme.epmem_id = EPMEM_NODEID_BAD;
                     wme.epmem_valid = epmem_validation;
 
@@ -2140,6 +2252,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // try to get node id
                     {
                         // parent_id=? AND attr=? AND value=?
+                        //fprintf(stderr, "   Looking for id of a duplicate entry in epmem_wmes_constant.\n");
+                        logger.debug(     "   Looking for id of a duplicate entry in epmem_wmes_constant.\n");
+                        
                         final PreparedStatement ps = db.find_node_unique;
                         ps.setLong(1, parent_id);
                         ps.setLong(2, my_hash);
@@ -2165,6 +2280,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // act depending on new/existing feature
                     if (wme.epmem_id == EPMEM_NODEID_BAD)
                     {
+                        //fprintf(stderr, "   No duplicate wme found in epmem_wmes_constant.  Adding wme to table!!!!\n");
+                        
+                        //fprintf(stderr, "   Peforming database insertion: %d %d %d\n",
+                        //(unsigned int) parent_id, (unsigned int) my_hash, (unsigned int) my_hash2);
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug( "   No duplicate wme found in epmem_wmes_constant.  Adding wme to table!!!!\n");
+                            logger.debug( "   Performing database insertion: " + parent_id + " " + my_hash + " " + my_hash2 + "\n");
+                        }
+                        
                         // insert (parent_id,attr,value)
                         final PreparedStatement ps = db.add_node_unique;
                         ps.setLong(1, parent_id);
@@ -2190,6 +2315,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             rs.close();
                         }
+                        
+                        //fprintf(stderr, "   Setting wme id from last row to  %d \n", (unsigned int) (*w_p)->epmem_id);
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug( "   Setting wme id from last row to  " + wme.epmem_id + " \n");
+                        }
 
                         // new nodes definitely start
                         epmem_node.add(wme.epmem_id);
@@ -2198,6 +2329,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     }
                     else
                     {
+                        //fprintf(stderr, "   Node found in database, definitely don't remove.\n");
+                        //fprintf(stderr, "   Setting wme id from existing node to  %d \n", (unsigned int) (*w_p)->epmem_id);
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug( "Node found in database, definitely don't remove.\n");
+                            logger.debug( "   Setting wme id from existing node to  " + wme.epmem_id + " \n");
+                        }
+                        
                         // definitely don't remove
                         epmem_node_removals.put(wme.epmem_id, false);
 
@@ -2221,6 +2360,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     void _epmem_promote_id( IdentifierImpl id, long /*epmem_time_id*/ t ) throws SQLException
     {
+    	// n_id,soar_letter,soar_number,promotion_episode_id
         final PreparedStatement ps = db.promote_id;
         ps.setLong(1, id.epmem_id);
         ps.setLong(2, id.getNameLetter());
@@ -2803,8 +2943,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         long/*int*/ value_is_id;
         boolean is_leaf;
         boolean is_current;
-        long/*epmem_node_id*/ w;
-        long/*epmem_node_id*/ q1;
+        long/*epmem_node_id*/ attribute_s_id;
+        long/*epmem_node_id*/ child_n_id;
         double weight;
         Set<EpmemLiteral> parents;
         Set<EpmemLiteral> children;        
@@ -2827,19 +2967,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      */
     private static class EpmemTriple implements Comparable<EpmemTriple>
     {
-        long q0;
-        long w;
-        long q1;
+        long parent_n_id;
+        long attribute_s_id;
+        long child_n_id;
         
         public EpmemTriple(
-                long q0,
-                long w,
-                long q1
+                long parent_n_id,
+                long attribute_s_id,
+                long child_n_id
         )
         {
-            this.q0 = q0;
-            this.w = w;
-            this.q1 = q1;
+            this.parent_n_id = parent_n_id;
+            this.attribute_s_id = attribute_s_id;
+            this.child_n_id = child_n_id;
         }
         
         /**
@@ -2849,23 +2989,23 @@ public class DefaultEpisodicMemory implements EpisodicMemory
          */
         public EpmemTriple copyEpmemTriple()
         {
-            return new EpmemTriple(q0, w, q1);
+            return new EpmemTriple(parent_n_id, attribute_s_id, child_n_id);
         }
         
         @Override
         public int compareTo(EpmemTriple other)
         {
-            if (q0 != other.q0)
+            if (parent_n_id != other.parent_n_id)
             {
-                return (q0 < other.q0)?-1:1;
+                return (parent_n_id < other.parent_n_id)?-1:1;
             } 
-            else if (w != other.w) 
+            else if (attribute_s_id != other.attribute_s_id) 
             {
-                return (w < other.w)?-1:1;
+                return (attribute_s_id < other.attribute_s_id)?-1:1;
             }
-            else if(q1 != other.q1)
+            else if(child_n_id != other.child_n_id)
             {
-                return (q1 < other.q1)?-1:1;
+                return (child_n_id < other.child_n_id)?-1:1;
             }
             return 0;
         }
@@ -2875,9 +3015,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             final int prime = 31;
             int result = 1;
-            result = prime * result + (int) (q0 ^ (q0 >>> 32));
-            result = prime * result + (int) (q1 ^ (q1 >>> 32));
-            result = prime * result + (int) (w ^ (w >>> 32));
+            result = prime * result + (int) (parent_n_id ^ (parent_n_id >>> 32));
+            result = prime * result + (int) (child_n_id ^ (child_n_id >>> 32));
+            result = prime * result + (int) (attribute_s_id ^ (attribute_s_id >>> 32));
             return result;
         }
 
@@ -2891,11 +3031,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (getClass() != obj.getClass())
                 return false;
             EpmemTriple other = (EpmemTriple) obj;
-            if (q0 != other.q0)
+            if (parent_n_id != other.parent_n_id)
                 return false;
-            if (q1 != other.q1)
+            if (child_n_id != other.child_n_id)
                 return false;
-            if (w != other.w)
+            if (attribute_s_id != other.attribute_s_id)
                 return false;
             return true;
         }
@@ -3240,8 +3380,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 root_literal.value_is_id = EPMEM_RIT_STATE_EDGE;
                 root_literal.is_leaf = false;
                 root_literal.is_current = false;
-                root_literal.w = EPMEM_NODEID_BAD;
-                root_literal.q1 = EPMEM_NODEID_ROOT;
+                root_literal.attribute_s_id = EPMEM_NODEID_BAD;
+                root_literal.child_n_id = EPMEM_NODEID_ROOT;
                 root_literal.weight = 0.0;
                 root_literal.parents = new LinkedHashSet<EpmemLiteral>();
                 root_literal.children = new LinkedHashSet<EpmemLiteral>();
@@ -3404,7 +3544,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     final EpmemTriple triple = pedge.triple.copyEpmemTriple();
                     if(pedge.sqlResults.getMetaData().getColumnCount() > 1)
                     {
-                        triple.q1 = pedge.sqlResults.getLong(1 + 1);
+                        triple.child_n_id = pedge.sqlResults.getLong(1 + 1);
                     }
                     else
                     {
@@ -3412,11 +3552,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // which returns 1 column and 1 row with a value of Long.MaxValue in SQL
                         // the C sqllite interface appears to return 0 for columns that do not exist
                         // in the result set
-                        triple.q1 = 0L;
+                        triple.child_n_id = 0L;
                     }
                     
                     if (logger.isDebugEnabled()) {
-                        logger.debug("  EDGE " + triple.q0 + "-" + triple.w + "-" + triple.q1);
+                        logger.debug("  EDGE " + triple.parent_n_id + "-" + triple.attribute_s_id + "-" + triple.child_n_id);
                     }
 
                     // create queries for the unique edge children of this partial edge
@@ -3430,7 +3570,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             //for (epmem_literal_set::iterator child_iter = literal->children.begin(); child_iter != literal->children.end(); child_iter++) {
                             for(EpmemLiteral child_iter: literal.children)
                             {
-                                created |= epmem_register_pedges(triple.q1, child_iter, pedge_pq, after, pedge_caches, uedge_caches);
+                                created |= epmem_register_pedges(triple.child_n_id, child_iter, pedge_pq, after, pedge_caches, uedge_caches);
                             }
                         }
                     }
@@ -3457,11 +3597,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         boolean created = false;
                         long/*int64_t*/ edge_id = pedge.sqlResults.getLong(0 + 1);
                         long/*epmem_time_id*/ promo_time = EPMEM_MEMID_NONE;
-                        boolean is_lti = (pedge.value_is_id != 0 && pedge.triple.q1 != EPMEM_NODEID_BAD && pedge.triple.q1 != EPMEM_NODEID_ROOT);
+                        boolean is_lti = (pedge.value_is_id != 0 && pedge.triple.child_n_id != EPMEM_NODEID_BAD && pedge.triple.child_n_id != EPMEM_NODEID_ROOT);
                         if (is_lti) 
                         {
                             // find the promotion time of the LTI
-                            db.find_lti_promotion_time.setLong(1, triple.q1);
+                            db.find_lti_promotion_time.setLong(1, triple.child_n_id);
                             ResultSet results = db.find_lti_promotion_time.executeQuery();
                             if (results.next())
                             {
@@ -3590,7 +3730,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 {
                                     ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
                                     ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
-                                    changed_score |= epmem_satisfy_literal(literal, triple.q0, triple.q1, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                    changed_score |= epmem_satisfy_literal(literal, triple.parent_n_id, triple.child_n_id, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
                                     current_score = curScoreRef.value;
                                     current_cardinality = curCardinalityRef.value;
                                 }
@@ -3653,7 +3793,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         EpmemTriple triple = uedge.triple.copyEpmemTriple();
 
                         if (logger.isDebugEnabled()) {
-                            logger.debug("  INTERVAL (" + (interval.is_end_point != 0 ? "end" : "start") + "): " + triple.q0 + "-" + triple.w + "-" + triple.q1);
+                            logger.debug("  INTERVAL (" + (interval.is_end_point != 0 ? "end" : "start") + "): " + triple.parent_n_id + "-" + triple.attribute_s_id + "-" + triple.child_n_id);
                         }
 
                         if (interval.is_end_point != 0) 
@@ -3670,7 +3810,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     {
                                         ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
                                         ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
-                                        changed_score |= epmem_satisfy_literal(literal, triple.q0, triple.q1, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                        changed_score |= epmem_satisfy_literal(literal, triple.parent_n_id, triple.child_n_id, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
                                         current_score = curScoreRef.value;
                                         current_cardinality = curCardinalityRef.value;
                                     }
@@ -3687,7 +3827,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 {
                                     ByRef<Double> curScore = new ByRef<Double>(current_score);
                                     ByRef<Long> curCardinality = new ByRef<Long>(current_cardinality);
-                                    changed_score |= epmem_unsatisfy_literal(lit_iter, triple.q0, triple.q1, curScore, curCardinality, symbol_node_count);
+                                    changed_score |= epmem_unsatisfy_literal(lit_iter, triple.parent_n_id, triple.child_n_id, curScore, curCardinality, symbol_node_count);
                                     current_score = curScore.value;
                                     current_cardinality = curCardinality.value;
                                 }
@@ -3748,7 +3888,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     stats.last_considered.set(stats.last_considered.get() + 1);
                     trace.startNewLine().print(
                             Category.EPMEM, 
-                            "CONSIDERING EPISODE (time, cardinality, score) (" +
+                            "EpMem| Considering episode (time, cardinality, score) (" +
                                 current_episode + ", " +
                                 current_cardinality + ", " + 
                                 current_score + 
@@ -4090,9 +4230,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     //#endif
         // go through the list of matches, binding each one to this literal in turn
         for ( EpmemNodePair match : literal.matches ) {
-            long q0 = match.first;
-            long q1 = match.second;
-            if (failed_parents.contains(q0)) {
+            long parent_n_id = match.first;
+            long child_n_id = match.second;
+            if (failed_parents.contains(parent_n_id)) {
                 continue;
             }
             if (logger.isTraceEnabled()) {
@@ -4100,14 +4240,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 for (int i = 0; i < depth; i++) {
                     sb.append("\t");
                 }
-                sb.append("TRYING ").append(literal).append(" ").append(q0);
+                sb.append("TRYING ").append(literal).append(" ").append(parent_n_id);
                 logger.trace(sb.toString());
             }
             boolean relations_okay = true;
             // for all parents
             for ( EpmemLiteral parent : literal.parents ) {
                 EpmemNodePair bind = bindings.get(parent); 
-                if (bind != null && bind.second != q0) {
+                if (bind != null && bind.second != parent_n_id) {
                     relations_okay = false;
                     break;
                 }
@@ -4121,13 +4261,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     sb.append("PARENT CONSTRAINT FAIL");
                     logger.trace(sb.toString());
                 }
-                failed_parents.add(q0);
+                failed_parents.add(parent_n_id);
                 continue;
             }
             // if the node has already been bound, make sure it's bound to the same thing
-            SymbolImpl binder = bound_nodes[(int) literal.value_is_id].get(q1);
+            SymbolImpl binder = bound_nodes[(int) literal.value_is_id].get(child_n_id);
             if (binder != null && binder != literal.value_sym) {
-                failed_children.add(q1);
+                failed_children.add(child_n_id);
                 continue;
             }
             if ( logger.isTraceEnabled() ) {
@@ -4135,16 +4275,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 for (int i = 0; i < depth; i++) {
                     sb.append("\t");
                 }
-                sb.append("TRYING ").append(literal).append(" ").append(q0).append(" ").append(q1);
+                sb.append("TRYING ").append(literal).append(" ").append(parent_n_id).append(" ").append(child_n_id);
                 logger.trace(sb.toString());
             }
-            if (literal.q1 != EPMEM_NODEID_BAD && literal.q1 != q1) {
+            if (literal.child_n_id != EPMEM_NODEID_BAD && literal.child_n_id != child_n_id) {
                 relations_okay = false;
             }
             // for all children
             for ( EpmemLiteral child : literal.children ) {
                 EpmemNodePair bind = bindings.get(child);
-                if ( bind != null && bind.first != q1) {
+                if ( bind != null && bind.first != child_n_id) {
                     relations_okay = false;
                     break;
                 }
@@ -4158,7 +4298,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     sb.append("CHILD CONSTRAINT FAIL");
                     logger.trace(sb.toString());
                 }
-                failed_children.add(q1);
+                failed_children.add(child_n_id);
                 continue;
             }
             if (logger.isTraceEnabled()) {
@@ -4166,11 +4306,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 for (int i = 0; i < depth; i++) {
                     sb.append("\t");
                 }
-                sb.append(literal).append(" ").append(q0).append(" ").append(q1);
+                sb.append(literal).append(" ").append(parent_n_id).append(" ").append(child_n_id);
             }
             // temporarily modify the bindings and bound nodes
-            bindings.put(literal, new EpmemNodePair(q0,q1));
-            bound_nodes[(int) literal.value_is_id].put(q1, literal.value_sym);
+            bindings.put(literal, new EpmemNodePair(parent_n_id,child_n_id));
+            bound_nodes[(int) literal.value_is_id].put(child_n_id, literal.value_sym);
             
             // recurse on the rest of the list
             boolean list_satisfied = epmem_graph_match(dnf_array, next_iter, bindings, bound_nodes, depth + 1);
@@ -4180,7 +4320,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 return true;
             } else {
                 bindings.remove(literal);
-                bound_nodes[(int) literal.value_is_id].remove(q1);
+                bound_nodes[(int) literal.value_is_id].remove(child_n_id);
             }
         }
         // this means we've tried everything and this whole exercise was a waste of time
@@ -4363,25 +4503,25 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     // recurse over child literals
                     for ( EpmemLiteral child_lit : literal.children ) {
                         SortedMap<EpmemTriple, EpmemUEdge> uedge_cache = uedge_caches[(int) child_lit.value_is_id];
-                        EpmemTriple child_triple = new EpmemTriple(child, child_lit.w, child_lit.q1);
+                        EpmemTriple child_triple = new EpmemTriple(child, child_lit.attribute_s_id, child_lit.child_n_id);
                         EpmemUEdge child_uedge = null;
-                        if (child_lit.q1 == EPMEM_NODEID_BAD) {
+                        if (child_lit.child_n_id == EPMEM_NODEID_BAD) {
                             SortedMap<EpmemTriple, EpmemUEdge> tailMap = uedge_cache.tailMap(child_triple);
                             for ( Map.Entry<EpmemTriple, EpmemUEdge> entry : tailMap.entrySet()) {
                                 child_triple = entry.getKey();
                                 child_uedge = entry.getValue();
-                                if (child_triple.q0 != child || child_triple.w != child_lit.w) {
+                                if (child_triple.parent_n_id != child || child_triple.attribute_s_id != child_lit.attribute_s_id) {
                                     break;
                                 }
                                 if (child_uedge.activated && (!literal.is_current || child_uedge.activation_count == 1)) {
-                                    changed_score |= epmem_satisfy_literal(child_lit, child_triple.q0, child_triple.q1, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                    changed_score |= epmem_satisfy_literal(child_lit, child_triple.parent_n_id, child_triple.child_n_id, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
                                 }
                             }
                         } else {
                             child_uedge = uedge_cache.get(child_triple);
                             if (child_uedge != null ) {
                                 if (child_uedge.activated && (!literal.is_current || child_uedge.activation_count == 1)) {
-                                    changed_score |= epmem_satisfy_literal(child_lit, child_triple.q0, child_triple.q1, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                    changed_score |= epmem_satisfy_literal(child_lit, child_triple.parent_n_id, child_triple.child_n_id, current_score, current_cardinality, symbol_node_count, uedge_caches, symbol_num_incoming);
                                 }
                             }
                         }
@@ -4425,7 +4565,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // we don't need to keep track of visited literals/nodes because the literals are guaranteed to be acyclic
         // that is, the expansion to the literal's children will eventually bottom out
         // select the query
-        EpmemTriple triple = new EpmemTriple(parent, literal.w, literal.q1);
+        EpmemTriple triple = new EpmemTriple(parent, literal.attribute_s_id, literal.child_n_id);
         int is_edge = (int) literal.value_is_id;
         if ( logger.isDebugEnabled() ) {
             logger.debug("      RECURSING ON " + parent + " " + literal);
@@ -4436,7 +4576,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         EpmemPEdge child_pedge = pedge_cache.get(triple);
         //If the key was not there, or the value attached was null
         if ( child_pedge == null ) {
-            int has_value = (literal.q1 != EPMEM_NODEID_BAD ? 1 : 0);
+            int has_value = (literal.child_n_id != EPMEM_NODEID_BAD ? 1 : 0);
             //soar_module::pooled_sqlite_statement* pedge_sql = my_agent->epmem_stmts_graph->pool_find_edge_queries[is_edge][has_value]->request(my_agent->epmem_timers->query_sql_edge);
 
             PreparedStatement pedge_sql = db.pool_find_edge_queries[is_edge][has_value].request();
@@ -4444,10 +4584,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (is_edge == 0) {
                 pedge_sql.setLong(bind_pos++, Long.MAX_VALUE);
             }
-            pedge_sql.setLong(bind_pos++, triple.q0);
-            pedge_sql.setLong(bind_pos++, triple.w);
+            pedge_sql.setLong(bind_pos++, triple.parent_n_id);
+            pedge_sql.setLong(bind_pos++, triple.attribute_s_id);
             if (has_value != 0) {
-                pedge_sql.setLong(bind_pos++, triple.q1);
+                pedge_sql.setLong(bind_pos++, triple.child_n_id);
             }
             if (is_edge != 0) {
                 pedge_sql.setLong(bind_pos++, after);
@@ -4485,20 +4625,20 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     child_pedge.has_noncurrent = true;
                 }
                 // if the literal is an edge with no specified value, add the literal to all potential pedges
-                if (!literal.is_leaf && literal.q1 == EPMEM_NODEID_BAD) {
+                if (!literal.is_leaf && literal.child_n_id == EPMEM_NODEID_BAD) {
                     boolean created = false;
                     SortedMap<EpmemTriple,EpmemUEdge> uedge_cache = uedge_caches[is_edge];
                     Map<EpmemTriple,EpmemUEdge> uedge_iter = uedge_cache.tailMap(triple);
                     for ( Map.Entry<EpmemTriple, EpmemUEdge> entry : uedge_iter.entrySet() ) {
                         EpmemTriple child_triple = entry.getKey();
                         // make sure we're still looking at the right edge(s)
-                        if (child_triple.q0 != triple.q0 || child_triple.w != triple.w) {
+                        if (child_triple.parent_n_id != triple.parent_n_id || child_triple.attribute_s_id != triple.attribute_s_id) {
                             break;
                         }
                         EpmemUEdge child_uedge = entry.getValue();
-                        if (child_triple.q1 != EPMEM_NODEID_BAD && child_uedge.value_is_id != 0) {
+                        if (child_triple.child_n_id != EPMEM_NODEID_BAD && child_uedge.value_is_id != 0) {
                             for (EpmemLiteral child_iter : literal.children ) {
-                                created |= epmem_register_pedges(child_triple.q1, child_iter, pedge_pq, after, pedge_caches, uedge_caches);
+                                created |= epmem_register_pedges(child_triple.child_n_id, child_iter, pedge_pq, after, pedge_caches, uedge_caches);
                             }
                         }
                     }
@@ -4532,10 +4672,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             EpmemLiteral literal = entry.getValue();
             if (literal.id_sym != null) {
                 sb.append("\"" + literal.value_sym + "\" [");
-                if (literal.q1 == EPMEM_NODEID_BAD) {
+                if (literal.child_n_id == EPMEM_NODEID_BAD) {
                     sb.append("label=\"" + literal.value_sym + "\"");
                 } else {
-                    sb.append("label=\"" + literal.q1 + "\"");
+                    sb.append("label=\"" + literal.child_n_id + "\"");
                 }
                 if (literal.value_is_id == 0) {
                     sb.append(", shape=\"rect\"");
@@ -4548,10 +4688,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 }
                 sb.append("];\n");
                 sb.append("\"" + literal.id_sym + "\" -> \"" + literal.value_sym + "\" [label=\"");
-                if (literal.w == EPMEM_NODEID_BAD) {
+                if (literal.attribute_s_id == EPMEM_NODEID_BAD) {
                     sb.append("?");
                 } else {
-                    sb.append(literal.w);
+                    sb.append(literal.attribute_s_id);
                 }
                 sb.append("\\n" + literal + "\"];\n");
             }
@@ -4564,11 +4704,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             Map<EpmemTriple,EpmemUEdge> uedge_cache = uedge_caches[type];
             for (Map.Entry<EpmemTriple,EpmemUEdge> entry : uedge_cache.entrySet()) {
                 EpmemTriple triple = entry.getKey();
-                if (triple.q1 != EPMEM_NODEID_ROOT) {
+                if (triple.child_n_id != EPMEM_NODEID_ROOT) {
                     if (type == EPMEM_RIT_STATE_NODE) {
-                        sb.append("\"n" + triple.q1 + "\" [shape=\"rect\"];\n");
+                        sb.append("\"n" + triple.child_n_id + "\" [shape=\"rect\"];\n");
                     }
-                    sb.append("\"e" + triple.q0 + "\" -> \"" + (type == EPMEM_RIT_STATE_NODE ? "n" : "e") + triple.q1 + "\" [label=\"" + triple.w + "\"];\n");
+                    sb.append("\"e" + triple.parent_n_id + "\" -> \"" + (type == EPMEM_RIT_STATE_NODE ? "n" : "e") + triple.child_n_id + "\" [label=\"" + triple.attribute_s_id + "\"];\n");
                 }
             }
         }
@@ -4582,12 +4722,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             for (Map.Entry<EpmemTriple,EpmemPEdge> entry : pedge_cache.entrySet() ) {
                 EpmemTriple triple = entry.getKey();
                 EpmemPEdge pedge = entry.getValue();
-                if (triple.w != EPMEM_NODEID_BAD) {
-                    sb.append("\"" + pedge + "\" [label=\"" + pedge + "\\n(" + triple.q0 + ", " + triple.w + ", ");
-                    if (triple.q1 == EPMEM_NODEID_BAD) {
+                if (triple.attribute_s_id != EPMEM_NODEID_BAD) {
+                    sb.append("\"" + pedge + "\" [label=\"" + pedge + "\\n(" + triple.parent_n_id + ", " + triple.attribute_s_id + ", ");
+                    if (triple.child_n_id == EPMEM_NODEID_BAD) {
                         sb.append("?");
                     } else {
-                        sb.append(triple.q1);
+                        sb.append(triple.child_n_id);
                     }
                     sb.append(")\"");
                     if (pedge.value_is_id == 0) {
@@ -4597,7 +4737,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     for (EpmemLiteral literal : pedge.literals ) {
                         sb.append("\"" + literal.value_sym + "\" -> \"" + pedge + "\";\n");
                     }
-                    parent_pedge_map.put(triple.q0, pedge);
+                    parent_pedge_map.put(triple.parent_n_id, pedge);
                 }
             }
         }
@@ -4609,19 +4749,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             for (Map.Entry<EpmemTriple, EpmemUEdge> entry : uedge_cache.entrySet()) {
                 EpmemTriple triple = entry.getKey();
                 EpmemUEdge uedge = entry.getValue();
-                if (triple.w != EPMEM_NODEID_BAD) {
+                if (triple.attribute_s_id != EPMEM_NODEID_BAD) {
                     for (EpmemPEdge pedge : uedge.pedges ) {
-                        EpmemPEdgeNodePair pair = new EpmemPEdgeNodePair(pedge, triple.q0);
+                        EpmemPEdgeNodePair pair = new EpmemPEdgeNodePair(pedge, triple.parent_n_id);
                         if (!drawn.contains(pair)) {
                             drawn.add(pair);
-                            sb.append("\"" + pedge + "\" -> \"e" + triple.q0 + "\";\n");
+                            sb.append("\"" + pedge + "\" -> \"e" + triple.parent_n_id + "\";\n");
                         }
-                        sb.append("\"" + pedge + "\" -> \"" + (pedge.value_is_id != 0 ? "e" : "n") + triple.q1 + "\" [style=\"dashed\"];\n");
+                        sb.append("\"" + pedge + "\" -> \"" + (pedge.value_is_id != 0 ? "e" : "n") + triple.child_n_id + "\" [style=\"dashed\"];\n");
                         /*
                         std::pair<std::multimap<epmem_node_id, epmem_pedge*>::iterator, std::multimap<epmem_node_id, epmem_pedge*>::iterator> pedge_iters = parent_pedge_map.equal_range(triple.q1);
                         for (std::multimap<epmem_node_id, epmem_pedge*>::iterator pedge_iter = pedge_iters.first; pedge_iter != pedge_iters.second; pedge_iter++) {
                         */
-                        for ( EpmemPEdge pedge_iter : parent_pedge_map.get(triple.q1) ) {
+                        for ( EpmemPEdge pedge_iter : parent_pedge_map.get(triple.child_n_id) ) {
                             sb.append("\"" + pedge + "\" -> \"" + pedge_iter + "\";\n");
                         }
                     }
@@ -4725,7 +4865,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         if ( identifier == null ) { // WME is a value
             literal.value_is_id = EPMEM_RIT_STATE_NODE;
             literal.is_leaf = true;
-            literal.q1 = epmem_temporal_hash(value);
+            literal.child_n_id = epmem_temporal_hash(value);
             leaf_literals.add(literal);
         } else if ( identifier.smem_lti != 0 ) { // WME is an LTI
             // if we can find the LTI node id, cache it; otherwise, return failure
@@ -4739,7 +4879,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if ( results.next() ) {
                     literal.value_is_id = EPMEM_RIT_STATE_EDGE;
                     literal.is_leaf = true;
-                    literal.q1 = results.getLong(0 + 1);
+                    literal.child_n_id = results.getLong(0 + 1);
                     // my_agent->epmem_stmts_graph->find_lti->reinitialize();
                     leaf_literals.add(literal);
                 } else {
@@ -4760,7 +4900,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // we determine whether it is a leaf by checking for children
             List<WmeImpl> children = epmem_get_augs_of_id(value, DefaultMarker.create());
             literal.value_is_id = EPMEM_RIT_STATE_EDGE;
-            literal.q1 = EPMEM_NODEID_BAD;
+            literal.child_n_id = EPMEM_NODEID_BAD;
 
             // if the WME has no children, then it's a leaf
             // otherwise, we recurse for all children
@@ -4817,7 +4957,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         literal.id_sym = cue_wme.id;
         literal.value_sym = cue_wme.value;
         literal.is_current = currents.contains(value);
-        literal.w = epmem_temporal_hash(cue_wme.attr);
+        literal.attribute_s_id   = epmem_temporal_hash(cue_wme.attr);
         literal.is_neg_q = query_type;
         literal.weight = (literal.is_neg_q != 0 ? -1 : 1) * (params.balance.get() >= 1.0 - 1.0e-8 ? 1.0 : cue_wme.wma.wma_get_wme_activation(cue_wme, true));
     //#ifdef USE_MEM_POOL_ALLOCATORS
@@ -5006,9 +5146,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     private class EpmemEdge
     {
         
-        long /*epmem_node_id*/ q0;      // id
-        SymbolImpl w;                   // attr
-        long /*epmem_node_id*/ q1;      // value
+        long /*epmem_node_id*/ parent_n_id;      // id
+        SymbolImpl attribute;                   // attr
+        long /*epmem_node_id*/ child_n_id;      // value
 
         boolean val_is_short_term;
         char val_letter;
@@ -5132,10 +5272,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // first identifiers (i.e. reconstruct)
             PreparedStatement my_q = db.get_edges;
             {
-                // relates to finite automata: q1 = d(q0, w)
-                long /*epmem_node_id*/ q0; // id
-                long /*epmem_node_id*/ q1; // attribute
-                long /*int64_t*/ w_type; // we support any constant attribute symbol
+                // relates to finite automata: child_n_id = d(parent_n_id, attribute_s_id)
+                long /*epmem_node_id*/ parent_n_id; // id
+                long /*epmem_node_id*/ child_n_id; // attribute
                 
                 boolean val_is_short_term = false;
                 char val_letter = 0;//NIL
@@ -5162,47 +5301,30 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 ResultSet resultSet = my_q.executeQuery();
                 while ( resultSet.next() )
                 {
-                    // q0, w, q1, w_type
-                    //q0 = my_q->column_int( 0 );
-                    q0 = resultSet.getLong(0 + 1);
+                 // parent_n_id, attribute_s_id, child_n_id, epmem_lti.soar_letter, epmem_lti.soar_number
+                    //parent_n_id  = my_q->column_int( 0 );
+                    parent_n_id  = resultSet.getLong(0 + 1);
                     //q1 = my_q->column_int( 2 );
-                    q1 = resultSet.getLong(2 + 1);
-                    //w_type = my_q->column_int( 3 );
-                    w_type = resultSet.getLong( 3 + 1 );
+                    child_n_id = resultSet.getLong(2 + 1);
+                    //attr = epmem_reverse_hash( my_agent, my_q->column_int( 1 ), SYM_CONSTANT_SYMBOL_TYPE);
+                    attr = epmem_reverse_hash( resultSet.getLong( 1 + 1 ), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
                     
-                    //All of the cases here are ints, so if this cast changes anything,
-                    //we have bigger problems
-                    switch ( (int)w_type )
-                    {
-                        case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                            //attr = make_int_constant( my_agent,my_q->column_int( 1 ) );
-                            attr = symbols.createInteger(resultSet.getLong( 1 + 1 ) );
-                            break;
-                        
-                        case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                            //attr = make_float_constant( my_agent, my_q->column_double( 1 ) );
-                            attr = symbols.createDouble( resultSet.getDouble( 1 + 1 ) );
-                            break;
-                        
-                        case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                            //attr = make_sym_constant( my_agent, const_cast<char *>( reinterpret_cast<const char *>( my_q->column_text( 1 ) ) ) );
-                            attr = symbols.createString(resultSet.getString(1 + 1));
-                            break;
-                    }
+                    // I don't think we even need the symbol type.  Attributes are always strings
+                    // I'm not sure why Nate was checking that here before.
                     
                     // short vs. long-term
                     //This is how Smem is doing this cast, but I'm not certain how 
-                    char tempValLetter = (char)resultSet.getLong(4 + 1);
+                    char tempValLetter = (char)resultSet.getLong(3 + 1);
                     val_is_short_term = ( resultSet.wasNull() );
                     if ( !val_is_short_term )
                     {
                         val_letter = tempValLetter;
-                        //val_num = static_cast<uint64_t>( my_q->column_int( 5 ) );
-                        val_num = resultSet.getLong(5 + 1);
+                        //val_num = static_cast<uint64_t>( my_q->column_int( 4 ) );
+                        val_num = resultSet.getLong(4 + 1);
                     }
                     
                     // get a reference to the parent
-                    id_p = ids.get( q0 );
+                    id_p = ids.get( parent_n_id );
                     if ( id_p != null )
                     {
                         // if existing lti with kids don't touch
@@ -5212,7 +5334,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                     id_p.first, 
                                     attr, 
                                     ids, 
-                                    q1, 
+                                    child_n_id, 
                                     val_is_short_term, 
                                     val_letter, 
                                     val_num, 
@@ -5228,9 +5350,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         // out of order
                         orphan = new EpmemEdge();
-                        orphan.q0 = q0;
-                        orphan.w = attr;
-                        orphan.q1 = q1;
+                        orphan.parent_n_id = parent_n_id;
+                        orphan.attribute = attr;
+                        orphan.child_n_id = child_n_id;
                         
                         orphan.val_letter = 0;//NIL;
                         orphan.val_num = 0;//NIL;
@@ -5265,16 +5387,16 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             orphan = orphans.poll();
                             
                             // get a reference to the parent
-                            id_p = ids.get( orphan.q0 );
+                            id_p = ids.get( orphan.parent_n_id  );
                             if ( id_p != null )
                             {
                                 if ( dont_abide_by_ids_second || id_p.second )
                                 {
                                     _epmem_install_id_wme( 
                                             id_p.first, 
-                                            orphan.w, 
+                                            orphan.attribute, 
                                             ids, 
-                                            orphan.q1, 
+                                            orphan.child_n_id, 
                                             orphan.val_is_short_term, 
                                             orphan.val_letter, 
                                             orphan.val_num, 
@@ -5285,7 +5407,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 }
                                 
                                 //Java does this for us
-                                //symbol_remove_ref( my_agent, orphan->w );
+                                //symbol_remove_ref( my_agent, orphan->attribute );
                                 //delete orphan;
                             }
                             else
@@ -5311,20 +5433,18 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         orphan = orphans.front();
                         orphans.pop();
                         
-                        symbol_remove_ref( my_agent, orphan->w );
+                        symbol_remove_ref( my_agent, orphan->attribute );
                         delete orphan;
                     }
                     */
                 }
             }
             
-            // then node_unique
-            my_q = db.get_nodes;
+            // then epmem_wmes_constant
+            // f.wc_id, f.parent_n_id, f.attribute_s_id, f.value_s_id
+            my_q = db.get_wmes_with_constant_values;
             {
-                long /*epmem_node_id*/ child_id;
-                long /*epmem_node_id*/ parent_id;
-                long attr_type;
-                long value_type;
+                long /*epmem_node_id*/ parent_n_id;
                 
                 SymbolBooleanPair /*std::pair< Symbol*, bool >*/ parent;
                 SymbolImpl value = null;
@@ -5343,58 +5463,20 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 ResultSet resultSet = my_q.executeQuery();
                 while ( resultSet.next() )
                 {
-                    // f.child_id, f.parent_id, f.name, f.value, f.attr_type, f.value_type
-                    //child_id = my_q->column_int( 0 );
-                    child_id = resultSet.getLong(0 + 1);
-                    //parent_id = my_q->column_int( 1 + 1 );
-                    parent_id = resultSet.getLong( 1 + 1 );
-                    //attr_type = my_q->column_int( 4 + 1 );
-                    attr_type = resultSet.getLong( 4 + 1 );
-                    //value_type = my_q->column_int( 5 + 1 );
-                    value_type = resultSet.getLong( 5 + 1 );
+                    parent_n_id = resultSet.getLong( 1 + 1 );
                     
                     // get a reference to the parent
-                    parent = ids.get( parent_id );
+                    parent = ids.get( parent_n_id );
                     
                     if ( dont_abide_by_ids_second || (parent != null && parent.second) )
                     {
                         // make a symbol to represent the attribute
-                        switch ( (int)attr_type )
-                        {
-                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                            //attr = make_int_constant( my_agent, my_q->column_int( 2 ) );
-                            attr = symbols.createInteger( resultSet.getInt( 2 + 1 ));
-                            break;
-                            
-                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                            //attr = make_float_constant( my_agent, my_q->column_double( 2 ) );
-                            attr = symbols.createDouble(resultSet.getDouble( 2 + 1 ));
-                            break;
-                            
-                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                            //attr = make_sym_constant( my_agent, const_cast<char *>( reinterpret_cast<const char *>( my_q->column_text( 2 ) ) ) );
-                            attr = symbols.createString(  resultSet.getString( 2 + 1 ) ) ;
-                            break;
-                        }
+                        //attr = epmem_reverse_hash( my_agent, my_q->column_int( 2 ), SYM_CONSTANT_SYMBOL_TYPE);
+                        attr = epmem_reverse_hash( resultSet.getLong( 2 + 1), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
                         
                         // make a symbol to represent the value
-                        switch ( (int)value_type )
-                        {
-                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                            //value = make_int_constant( my_agent,my_q->column_int( 3 ) );
-                            value = symbols.createInteger( resultSet.getLong( 3 + 1 ) );
-                            break;
-                            
-                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                            //value = make_float_constant( my_agent, my_q->column_double( 3 ) );
-                            value = symbols.createDouble( resultSet.getDouble( 3 + 1 ) );
-                            break;
-                            
-                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                            //value = make_sym_constant( my_agent, const_cast<char *>( (const char *) my_q->column_text( 3 ) ) );
-                            value = symbols.createString( resultSet.getString( 3 + 1 ) );
-                            break;
-                        }
+                        //value = epmem_reverse_hash( my_agent, my_q->column_int( 3 ));
+                        value = epmem_reverse_hash( resultSet.getLong( 3 + 1 ));
                         
                         epmem_buffer_add_wme( retrieval_wmes, parent.first, attr, value );
                         num_wmes++;
@@ -5438,7 +5520,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *      Symbol* parent, 
      *      Symbol* attr, 
      *      std::map< epmem_node_id, std::pair< Symbol*, bool > >* ids, 
-     *      epmem_node_id q1, 
+     *      epmem_node_id child_n_id, 
      *      bool val_is_short_term, 
      *      char val_letter, 
      *      uint64_t val_num, 
@@ -5452,7 +5534,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             SymbolImpl parent, 
             SymbolImpl attr, 
             Map<Long /*epmem_node_id*/, SymbolBooleanPair> ids, 
-            long /*epmem_node_id*/ q1, 
+            long /*epmem_node_id*/ child_n_id, 
             boolean val_is_short_term, 
             char val_letter, 
             long val_num, 
@@ -5461,7 +5543,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         ) throws SoarException
     {
         //std::map< epmem_node_id, std::pair< Symbol*, bool > >::iterator id_p = ids->find( q1 );
-        SymbolBooleanPair id_p = ids.get( q1 );
+        SymbolBooleanPair id_p = ids.get( child_n_id );
         boolean existing_identifier = ( id_p != null );
 
         if ( val_is_short_term )
@@ -5470,24 +5552,24 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 // CK: std::map insert does not replace existing elements in the map
                 // check that ids doesn't already contain the key
-                if (!ids.containsKey(q1))
+                if (!ids.containsKey(child_n_id))
                 {
-                    ids.put(q1,
+                    ids.put(child_n_id,
                             new SymbolBooleanPair(symbols.make_new_identifier(
                                     ((Symbols.getSymbolType(attr) == Symbols.SYM_CONSTANT_SYMBOL_TYPE) ? (attr.getFirstLetter()) : ('E')),
                                     parent.asIdentifier().level), true));
                 }
-                id_p = ids.get(q1);
+                id_p = ids.get(child_n_id);
                 
                 //if ( id_record )
                 if ( id_record != null )
                 {
                     //epmem_id_mapping::iterator rec_p = id_record->find( q1 );
                     //if ( rec_p != id_record->end() )
-                    if ( id_record.containsKey(q1) )
+                    if ( id_record.containsKey(child_n_id) )
                     {
                         //rec_p->second = id_p->second.first;
-                        id_record.put(q1, id_p.first);
+                        id_record.put(child_n_id, id_p.first);
                     }
                 }
             }
@@ -5522,10 +5604,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     //epmem_id_mapping::iterator rec_p = id_record->find( q1 );
                     //if ( rec_p != id_record->end() )
-                    if ( id_record.containsKey(q1) )
+                    if ( id_record.containsKey(child_n_id) )
                     {
                         //rec_p->second = value;
-                        id_record.put(q1, value);
+                        id_record.put(child_n_id, value);
                     }
                 }
 
@@ -5533,7 +5615,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //symbol_remove_ref( my_agent, value );
 
                 ids.put(
-                        q1, 
+                        child_n_id, 
                         new SymbolBooleanPair(
                                 value, 
                                 !( 
@@ -6196,9 +6278,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
             my_q = db.get_edges;
             {
-                long /*epmem_node_id*/ q0;
-                long /*epmem_node_id*/ q1;
-                long w_type;
+                long /*epmem_node_id*/ parent_n_id;
+                long /*epmem_node_id*/ child_n_id;
+                
                 boolean val_is_short_term;
 
                 epmem_rit_prep_left_right(memory_id, memory_id, epmem_rit_state_graph[EPMEM_RIT_STATE_EDGE]);
@@ -6215,55 +6297,38 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     result = my_q.executeQuery();
                     while ( result.next() )
                     {
-                        q0 = result.getLong( 0 + 1 );
-                        q1 = result.getLong( 2 + 1 );
-                        w_type = result.getLong( 3 + 1 );
+                        // parent_n_id, attribute_s_id, child_n_id, epmem_lti.soar_letter, epmem_lti.soar_number
+                        parent_n_id = result.getLong( 0 + 1 );
+                        child_n_id = result.getLong( 2 + 1 );
+                        
+                        epmem_reverse_hash_print( result.getLong( 1 + 1 ), temp_s, Symbols.SYM_CONSTANT_SYMBOL_TYPE);
+                        
                         val_is_short_term = 
-                                ( db.column_type(result.getMetaData().getColumnType(4 + 1)) 
+                                ( db.column_type(result.getMetaData().getColumnType(3 + 1)) 
                                         == EpisodicMemoryDatabase.value_type.null_t );
-    
-                        switch ( (int)w_type )
-                        {
-                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                temp_i = result.getLong( 1 + 1 );
-                                //to_string( temp_i, temp_s );
-                                temp_s = temp_i.toString();
-                                break;
-    
-                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                temp_d = result.getDouble( 1 + 1 );
-                                //to_string( temp_d, temp_s );
-                                temp_s = temp_d.toString();
-                                temp_s = trimTrailingZerosFromDoubleString(temp_s);
-                                break;
-    
-                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                temp_s = result.getString( 1 + 1 );
-                                break;
-                        }
     
                         if ( val_is_short_term )
                         {
-                            temp_s2 = _epmem_print_sti( q1 );
+                            temp_s2 = _epmem_print_sti( child_n_id );
                         }
                         else
                         {
                             temp_s2 = "@";
-                            temp_s2 += result.getLong( 4 + 1 );
+                            temp_s2 += result.getLong( 3 + 1 );
     
-                            temp_i = result.getLong( 5 );
+                            temp_i = result.getLong( 4 );
                             //to_string( temp_i, temp_s3 );
                             temp_s3 = temp_i.toString();
                             temp_s2 += temp_s3;
     
-                            ltis.put( q1, temp_s2);
+                            ltis.put( child_n_id, temp_s2);
                         }
                         
                         //ep[ q0 ][ temp_s ].push_back( temp_s2 );
-                        Map<String, List<String>> nestedMap = ep.get(q0);
+                        Map<String, List<String>> nestedMap = ep.get(parent_n_id);
                         if(nestedMap == null){
-                            ep.put(q0, new TreeMap<String, List<String>>());
-                            nestedMap = ep.get(q0);
+                            ep.put(parent_n_id, new TreeMap<String, List<String>>());
+                            nestedMap = ep.get(parent_n_id);
                         }
                         List<String> nestedList = nestedMap.get(temp_s);
                         if(nestedList == null){
@@ -6280,8 +6345,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
             my_q = db.get_nodes;
             {
-                Long /*epmem_node_id*/ parent_id;
-                long attr_type, value_type;
+                Long /*epmem_node_id*/ parent_n_id;
 
                 epmem_rit_prep_left_right( memory_id, memory_id, epmem_rit_state_graph[ EPMEM_RIT_STATE_NODE ] );
 
@@ -6294,54 +6358,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 try{
                     while ( result.next() )
                     {
-                        parent_id = result.getLong( 1 + 1 );
-                        attr_type = result.getLong( 4 + 1 );
-                        value_type = result.getLong( 5 + 1 );
-    
-                        switch ((int)attr_type)
-                        {
-                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                temp_i = result.getLong( 2 + 1 );
-                                //to_string( temp_i, temp_s );
-                                temp_s = temp_i.toString();
-                                break;
-    
-                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                temp_d = result.getDouble( 2 + 1 );
-                                //to_string( temp_d, temp_s );
-                                temp_s = temp_d.toString();
-                                temp_s = trimTrailingZerosFromDoubleString(temp_s);
-                                break;
-    
-                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                temp_s = result.getString( 2 + 1 );
-                                break;
-                        }
-    
-                        switch ( (int)value_type )
-                        {
-                            case Symbols.INT_CONSTANT_SYMBOL_TYPE:
-                                temp_i = result.getLong( 3 + 1 );
-                                //to_string( temp_i, temp_s2 );
-                                temp_s2 = temp_i.toString();
-                                break;
-    
-                            case Symbols.FLOAT_CONSTANT_SYMBOL_TYPE:
-                                temp_d = result.getDouble( 3 + 1 );
-                                //to_string( temp_d, temp_s2 );
-                                temp_s2 = temp_d.toString();
-                                temp_s2 = trimTrailingZerosFromDoubleString(temp_s2);
-                                break;
-    
-                            case Symbols.SYM_CONSTANT_SYMBOL_TYPE:
-                                temp_s2 = result.getString( 3 + 1 );
-                                break;
-                        }
-                        //ep[ parent_id ][ temp_s ].push_back( temp_s2 );
-                        Map<String, List<String>> nestedMap = ep.get(parent_id);
+                        parent_n_id = result.getLong( 1 + 1 );
+                        epmem_reverse_hash_print( result.getLong( 2 + 1 ), temp_s, Symbols.SYM_CONSTANT_SYMBOL_TYPE);
+                        epmem_reverse_hash_print( result.getLong( 3 + 1 ), temp_s2);
+
+                        //ep[ parent_n_id ][ temp_s ].push_back( temp_s2 );
+                        Map<String, List<String>> nestedMap = ep.get(parent_n_id);
                         if(nestedMap == null){
-                            ep.put(parent_id, new TreeMap<String, List<String>>());
-                            nestedMap = ep.get(parent_id);
+                            ep.put(parent_n_id, new TreeMap<String, List<String>>());
+                            nestedMap = ep.get(parent_n_id);
                         }
                         List<String> nestedList = nestedMap.get(temp_s);
                         if(nestedList == null){
