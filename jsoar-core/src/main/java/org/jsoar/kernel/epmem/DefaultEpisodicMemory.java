@@ -2737,13 +2737,13 @@ public class DefaultEpisodicMemory implements EpisodicMemory
      *  space efficent, and we have to cast it up all over the place in Java, so 
      *  we'll just stick with ints.
      */
-    Symbol epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup){
+    SymbolImpl epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup){
         return epmem_reverse_hash(s_id_lookup, 255);
     }
     
-    Symbol epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup, int sym_type)
+    SymbolImpl epmem_reverse_hash(long /*epmem_hash_id*/ s_id_lookup, int sym_type)
     {
-        Symbol return_val = null;
+        SymbolImpl return_val = null;
         String dest;
 
         if (sym_type == 255) {
@@ -6773,7 +6773,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         parent_n_id = result.getLong( 0 + 1 );
                         child_n_id = result.getLong( 2 + 1 );
                         
-                        epmem_reverse_hash_print( result.getLong( 1 + 1 ), temp_s, Symbols.SYM_CONSTANT_SYMBOL_TYPE);
+                        temp_s = epmem_reverse_hash_print( result.getLong( 1 + 1 ), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
                         
                         val_is_short_term = 
                                 ( db.column_type(result.getMetaData().getColumnType(3 + 1)) 
@@ -6831,8 +6831,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     while ( result.next() )
                     {
                         parent_n_id = result.getLong( 1 + 1 );
-                        epmem_reverse_hash_print( result.getLong( 2 + 1 ), temp_s, Symbols.SYM_CONSTANT_SYMBOL_TYPE);
-                        epmem_reverse_hash_print( result.getLong( 3 + 1 ), temp_s2);
+                        temp_s = epmem_reverse_hash_print(result.getLong( 2 + 1 ), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
+                        temp_s2 = epmem_reverse_hash_print(result.getLong( 3 + 1 ));
 
                         //ep[ parent_n_id ][ temp_s ].push_back( temp_s2 );
                         Map<String, List<String>> nestedMap = ep.get(parent_n_id);
