@@ -757,7 +757,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             long time_last = (time_max - 1);
 
             final PreparedStatement[] now_select = new PreparedStatement[] { db.now_select_node, db.now_select_edge };
-            final PreparedStatement[] now_add = new PreparedStatement[] { db.add_node_point, db.add_edge_point };
+            final PreparedStatement[] now_add = new PreparedStatement[] { db.add_epmem_wmes_constant_point, db.add_epmem_wmes_identifier_point };
             final PreparedStatement[] now_delete = new PreparedStatement[] { db.now_delete_node, db.now_delete_edge };
 
             for (int i = EPMEM_RIT_STATE_NODE; i <= EPMEM_RIT_STATE_EDGE; i++)
@@ -1426,12 +1426,12 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                     // add NOW entry
                     // id = ?, start_episode_id = ?
-                    db.add_node_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
+                    db.add_epmem_wmes_constant_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
                     // 1, (*temp_node) );
-                    db.add_node_now.setLong(2, time_counter); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
+                    db.add_epmem_wmes_constant_now.setLong(2, time_counter); // my_agent->epmem_stmts_graph->add_node_now->bind_int(
                     // 2, time_counter
                     // );
-                    db.add_node_now.executeUpdate(/* soar_module::op_reinit */); // my_agent->epmem_stmts_graph->add_node_now->execute(
+                    db.add_epmem_wmes_constant_now.executeUpdate(/* soar_module::op_reinit */); // my_agent->epmem_stmts_graph->add_node_now->execute(
                     // soar_module::op_reinit
                     // );
 
@@ -1448,27 +1448,27 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                     // add NOW entry
                     // id = ?, start_episode_id  = ?
-                    db.add_edge_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_edge_now->bind_int(
+                    db.add_epmem_wmes_identifier_now.setLong(1, temp_node); // my_agent->epmem_stmts_graph->add_edge_now->bind_int(
                     // 1, (*temp_node) );
-                    db.add_edge_now.setLong(2, time_counter); // my_agent->epmem_stmts_graph->add_edge_now->bind_int(
+                    db.add_epmem_wmes_identifier_now.setLong(2, time_counter); // my_agent->epmem_stmts_graph->add_edge_now->bind_int(
                     // 2, time_counter
                     // );
-                    db.add_edge_now.executeUpdate(/* soar_module::op_reinit */);// my_agent->epmem_stmts_graph->add_edge_now->execute(
+                    db.add_epmem_wmes_identifier_now.executeUpdate(/* soar_module::op_reinit */);// my_agent->epmem_stmts_graph->add_edge_now->execute(
                     // soar_module::op_reinit
                     // );
 
                     // update min
                     epmem_edge_mins.set((int) temp_node - 1, time_counter);
 
-                    db.update_edge_unique_last.setLong(1, Long.MAX_VALUE); // my_agent->epmem_stmts_graph->update_edge_unique_last->bind_int(
+                    db.update_epmem_wmes_identifier_last_episode_id.setLong(1, Long.MAX_VALUE); // my_agent->epmem_stmts_graph->update_edge_unique_last->bind_int(
                     // 1,
                     // LLONG_MAX
                     // );
-                    db.update_edge_unique_last.setLong(2, temp_node); // my_agent->epmem_stmts_graph->update_edge_unique_last->bind_int(
+                    db.update_epmem_wmes_identifier_last_episode_id.setLong(2, temp_node); // my_agent->epmem_stmts_graph->update_edge_unique_last->bind_int(
                     // 2,
                     // *temp_node
                     // );
-                    db.update_edge_unique_last.executeUpdate(/*
+                    db.update_epmem_wmes_identifier_last_episode_id.executeUpdate(/*
                      * soar_module::
                      * op_reinit
                      */); // my_agent->epmem_stmts_graph->update_edge_unique_last->execute(
@@ -1499,8 +1499,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                         // remove NOW entry
                         // id = ?
-                        db.delete_node_now.setLong(1, r.getKey());
-                        db.delete_node_now.executeUpdate(/*soar_module::op_reinit*/);
+                        db.delete_epmem_wmes_constant_now.setLong(1, r.getKey());
+                        db.delete_epmem_wmes_constant_now.executeUpdate(/*soar_module::op_reinit*/);
 
                         range_start = epmem_node_mins.get((int)(r.getKey()-1));
                         range_end = ( time_counter - 1 );
@@ -1508,9 +1508,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         // point (id, start_episode_id)
                         if ( range_start == range_end )
                         {
-                            db.add_node_point.setLong(1, r.getKey());
-                            db.add_node_point.setLong(2, range_start);
-                            db.add_node_point.executeUpdate(/*soar_module::op_reinit*/);
+                            db.add_epmem_wmes_constant_point.setLong(1, r.getKey());
+                            db.add_epmem_wmes_constant_point.setLong(2, range_start);
+                            db.add_epmem_wmes_constant_point.executeUpdate(/*soar_module::op_reinit*/);
                         }
                         // node
                         else
@@ -1535,22 +1535,22 @@ public class DefaultEpisodicMemory implements EpisodicMemory
 
                         // remove NOW entry
                         // id = ?
-                        db.delete_edge_now.setLong(1, r.getKey());
-                        db.delete_edge_now.executeUpdate(/*soar_module::op_reinit*/);
+                        db.delete_epmem_wmes_identifier_now.setLong(1, r.getKey());
+                        db.delete_epmem_wmes_identifier_now.executeUpdate(/*soar_module::op_reinit*/);
 
                         range_start = epmem_edge_mins.get((int)(r.getKey()-1));
                         range_end = ( time_counter - 1 );
 
-                        db.update_edge_unique_last.setLong(1, range_end);
-                        db.update_edge_unique_last.setLong(2, r.getKey());
-                        db.update_edge_unique_last.executeUpdate(/*soar_module::op_reinit*/);
+                        db.update_epmem_wmes_identifier_last_episode_id.setLong(1, range_end);
+                        db.update_epmem_wmes_identifier_last_episode_id.setLong(2, r.getKey());
+                        db.update_epmem_wmes_identifier_last_episode_id.executeUpdate(/*soar_module::op_reinit*/);
 
                         // point (id, start_episode_id)
                         if ( range_start == range_end )
                         {
-                            db.add_edge_point.setLong(1, r.getKey());
-                            db.add_edge_point.setLong(2, range_start);
-                            db.add_edge_point.executeUpdate(/*soar_module::op_reinit*/);
+                            db.add_epmem_wmes_identifier_point.setLong(1, r.getKey());
+                            db.add_epmem_wmes_identifier_point.setLong(2, range_start);
+                            db.add_epmem_wmes_identifier_point.executeUpdate(/*soar_module::op_reinit*/);
                         }
                         // node
                         else
@@ -1951,7 +1951,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                         
                         // parent_n_id, attribute_s_id, child_n_id
-                        final PreparedStatement ps = db.find_edge_unique_shared;
+                        final PreparedStatement ps = db.find_epmem_wmes_identifier_shared;
                         ps.setLong(1, parent_id);
                         ps.setLong(2, my_hash);
                         ps.setLong(3, wmeValueId.epmem_id);
@@ -2152,7 +2152,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         logger.debug( "   Performing database insertion: " + parent_id + " " + my_hash + " " + wmeValueId.epmem_id + "\n");
                         logger.debug( "   Adding wme to epmem_wmes_identifier table.\n");
                     }
-                    final PreparedStatement ps = db.add_edge_unique;
+                    final PreparedStatement ps = db.add_epmem_wmes_identifier;
                     ps.setLong(1, parent_id);
                     ps.setLong(2, my_hash);
                     ps.setLong(3, wmeValueId.epmem_id);
@@ -2256,7 +2256,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         //fprintf(stderr, "   Looking for id of a duplicate entry in epmem_wmes_constant.\n");
                         logger.debug(     "   Looking for id of a duplicate entry in epmem_wmes_constant.\n");
                         
-                        final PreparedStatement ps = db.find_node_unique;
+                        final PreparedStatement ps = db.find_epmem_wmes_constant;
                         ps.setLong(1, parent_id);
                         ps.setLong(2, my_hash);
                         ps.setLong(3, my_hash2);
@@ -2292,7 +2292,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         }
                         
                         // insert (parent_id,attr,value)
-                        final PreparedStatement ps = db.add_node_unique;
+                        final PreparedStatement ps = db.add_epmem_wmes_constant;
                         ps.setLong(1, parent_id);
                         ps.setLong(2, my_hash);
                         ps.setLong(3, my_hash2);
@@ -5742,7 +5742,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // initialize the lookup table
             ids.put(EPMEM_NODEID_ROOT, new SymbolBooleanPair(retrieved_header, true));
             // first identifiers (i.e. reconstruct)
-            PreparedStatement my_q = db.get_edges;
+            PreparedStatement my_q = db.get_wmes_with_constant_values;
             {
                 // relates to finite automata: child_n_id = d(parent_n_id, attribute_s_id)
                 long /*epmem_node_id*/ parent_n_id; // id
@@ -6748,7 +6748,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             Double temp_d;
             Long temp_i;
 
-            my_q = db.get_edges;
+            my_q = db.get_wmes_with_constant_values;
             {
                 long /*epmem_node_id*/ parent_n_id;
                 long /*epmem_node_id*/ child_n_id;
@@ -6815,7 +6815,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 epmem_rit_clear_left_right();
             }
 
-            my_q = db.get_nodes;
+            my_q = db.get_wmes_with_constant_values;
             {
                 Long /*epmem_node_id*/ parent_n_id;
 
@@ -6831,9 +6831,9 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     while ( result.next() )
                     {
                         parent_n_id = result.getLong( 1 + 1 );
-                        temp_s = epmem_reverse_hash_print(result.getLong( 2 + 1 ), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
-                        temp_s2 = epmem_reverse_hash_print(result.getLong( 3 + 1 ));
-
+                        temp_s = epmem_reverse_hash_print( result.getLong( 2 + 1 ), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
+                        temp_s2 = epmem_reverse_hash_print( result.getLong( 3 + 1 ));
+                        
                         //ep[ parent_n_id ][ temp_s ].push_back( temp_s2 );
                         Map<String, List<String>> nestedMap = ep.get(parent_n_id);
                         if(nestedMap == null){

@@ -143,37 +143,69 @@ public class EpisodicMemoryDatabaseTest
         assertNotNull(emdb.begin);
         assertNotNull(emdb.commit);
         assertNotNull(emdb.rollback);
+        
         assertNotNull(emdb.var_get);
         assertNotNull(emdb.var_set);
+        
         assertNotNull(emdb.rit_add_left);
         assertNotNull(emdb.rit_truncate_left);
         assertNotNull(emdb.rit_add_right);
         assertNotNull(emdb.rit_truncate_right);
-        assertNotNull(emdb.hash_get);
-        assertNotNull(emdb.hash_add);
+        
+        assertNotNull(emdb.hash_rev_int);
+        assertNotNull(emdb.hash_rev_float);
+        assertNotNull(emdb.hash_rev_string);
+        assertNotNull(emdb.hash_get_int);
+        assertNotNull(emdb.hash_get_float);
+        assertNotNull(emdb.hash_get_str);
+        assertNotNull(emdb.hash_get_type);
+        assertNotNull(emdb.hash_add_type);
+        assertNotNull(emdb.hash_add_int);
+        assertNotNull(emdb.hash_add_float);
+        assertNotNull(emdb.hash_add_str);
         
         // epmem_graph_statement_container
+        assertNotNull(emdb.add_node);
         assertNotNull(emdb.add_time);
-        assertNotNull(emdb.add_node_now);
-        assertNotNull(emdb.delete_node_now);
-        assertNotNull(emdb.add_node_point);
-        assertNotNull(emdb.add_node_range);
-        assertNotNull(emdb.add_node_unique);
-        assertNotNull(emdb.find_node_unique);
-        assertNotNull(emdb.add_edge_now);
-        assertNotNull(emdb.delete_edge_now);
-        assertNotNull(emdb.add_edge_point);
-        assertNotNull(emdb.add_edge_range);
-        assertNotNull(emdb.add_edge_unique);
-        assertNotNull(emdb.find_edge_unique);
-        assertNotNull(emdb.find_edge_unique_shared);
+        
+        //
+        
+        assertNotNull(emdb.add_epmem_wmes_constant_now);
+        assertNotNull(emdb.delete_epmem_wmes_constant_now);
+        assertNotNull(emdb.add_epmem_wmes_constant_point);
+        assertNotNull(emdb.add_epmem_wmes_constant_range);
+        
+        assertNotNull(emdb.add_epmem_wmes_constant);
+        assertNotNull(emdb.find_epmem_wmes_constant);
+        
+        //
+        
+        assertNotNull(emdb.add_epmem_wmes_identifier_now);
+        assertNotNull(emdb.delete_epmem_wmes_identifier_now);
+        assertNotNull(emdb.add_epmem_wmes_identifier_point);
+        assertNotNull(emdb.add_epmem_wmes_identifier_range);
+        
+        assertNotNull(emdb.add_epmem_wmes_identifier);
+        assertNotNull(emdb.find_epmem_wmes_identifier);
+        assertNotNull(emdb.find_epmem_wmes_identifier_shared);
+        
+        //
+        
         assertNotNull(emdb.valid_episode);
         assertNotNull(emdb.next_episode);
         assertNotNull(emdb.prev_episode);
-        assertNotNull(emdb.get_nodes);
-        assertNotNull(emdb.get_edges);
+        
+        assertNotNull(emdb.get_wmes_with_constant_values);
+        assertNotNull(emdb.get_wmes_with_constant_values);
+        
+        //
+        
         assertNotNull(emdb.promote_id);
         assertNotNull(emdb.find_lti);
-
+        assertNotNull(emdb.find_lti_promotion_time);
+        
+        //
+        
+        assertNotNull(emdb.update_epmem_wmes_identifier_last_episode_id);
     }
 }

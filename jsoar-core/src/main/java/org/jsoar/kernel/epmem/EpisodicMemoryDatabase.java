@@ -33,51 +33,70 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement begin;
     PreparedStatement commit;
     PreparedStatement rollback;
+    
     PreparedStatement var_get;
     PreparedStatement var_set;
+    
     PreparedStatement rit_add_left;
     PreparedStatement rit_truncate_left;
     PreparedStatement rit_add_right;
     PreparedStatement rit_truncate_right;
-    PreparedStatement hash_get;
-    PreparedStatement hash_add;
     
-    // epmem_graph_statement_container
-    PreparedStatement add_time;
-    PreparedStatement add_node_now;
-    PreparedStatement delete_node_now;
-    PreparedStatement add_node_point;
-    PreparedStatement add_node_range;
-    PreparedStatement add_node_unique;
-    PreparedStatement find_node_unique;
-    PreparedStatement add_edge_now;
-    PreparedStatement delete_edge_now;
-    PreparedStatement add_edge_point;
-    PreparedStatement add_edge_range;
-    PreparedStatement add_edge_unique;
-    PreparedStatement find_edge_unique;
-    PreparedStatement find_edge_unique_shared;
-    PreparedStatement valid_episode;
-    PreparedStatement next_episode;
-    PreparedStatement prev_episode;
-    PreparedStatement get_nodes;
-    PreparedStatement get_edges;
-    PreparedStatement promote_id;
-    PreparedStatement find_lti;
-    PreparedStatement find_lti_promotion_time;
-    PreparedStatement update_edge_unique_last;
-    
-    PreparedStatement hash_add_type;
-    PreparedStatement hash_get_int;
-    PreparedStatement hash_add_int;
-    PreparedStatement hash_get_float;
-    PreparedStatement hash_add_float;
-    PreparedStatement hash_get_str;
-    PreparedStatement hash_add_str;
     PreparedStatement hash_rev_int;
     PreparedStatement hash_rev_float;
     PreparedStatement hash_rev_string;
+    PreparedStatement hash_get_int;
+    PreparedStatement hash_get_float;
+    PreparedStatement hash_get_str;
     PreparedStatement hash_get_type;
+    PreparedStatement hash_add_type;
+    PreparedStatement hash_add_int;
+    PreparedStatement hash_add_float;
+    PreparedStatement hash_add_str;
+    
+    // epmem_graph_statement_container
+    PreparedStatement add_node;
+    PreparedStatement add_time;
+    
+    //
+    
+    PreparedStatement add_epmem_wmes_constant_now;
+    PreparedStatement delete_epmem_wmes_constant_now;
+    PreparedStatement add_epmem_wmes_constant_point;
+    PreparedStatement add_epmem_wmes_constant_range;
+    
+    PreparedStatement add_epmem_wmes_constant;
+    PreparedStatement find_epmem_wmes_constant;
+    
+    //
+    
+    PreparedStatement add_epmem_wmes_identifier_now;
+    PreparedStatement delete_epmem_wmes_identifier_now;
+    PreparedStatement add_epmem_wmes_identifier_point;
+    PreparedStatement add_epmem_wmes_identifier_range;
+    
+    PreparedStatement add_epmem_wmes_identifier;
+    PreparedStatement find_epmem_wmes_identifier;
+    PreparedStatement find_epmem_wmes_identifier_shared;
+    
+    //
+    
+    PreparedStatement valid_episode;
+    PreparedStatement next_episode;
+    PreparedStatement prev_episode;
+    
+    PreparedStatement get_wmes_with_identifier_values;
+    PreparedStatement get_wmes_with_constant_values;
+    
+    //
+    
+    PreparedStatement promote_id;
+    PreparedStatement find_lti;
+    PreparedStatement find_lti_promotion_time;
+    
+    //
+    
+    PreparedStatement update_epmem_wmes_identifier_last_episode_id;
 
     // episodic_memory.cpp:1703:epmem_init_db
     PreparedStatement get_max_time;
@@ -106,12 +125,12 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     String epmem_find_edge_queries[/* 2 */][/* 2 */] = 
     {
         {
-            "SELECT child_id, value, ? FROM @PREFIX@node_unique WHERE parent_id=? AND attrib=?",
-            "SELECT child_id, value, ? FROM @PREFIX@node_unique WHERE parent_id=? AND attrib=? AND value=?" 
+            "SELECT wc_id, value_s_id, ? FROM @PREFIX@epmem_wmes_constant  WHERE parent_n_id=? AND attribute_s_id=?",
+            "SELECT wc_id, value_s_id, ? FROM @PREFIX@epmem_wmes_constant  WHERE parent_n_id=? AND attribute_s_id=? AND value_s_id=?" 
         },
         {
-            "SELECT parent_id, q1, last FROM @PREFIX@edge_unique WHERE q0=? AND w=? AND ?<last ORDER BY last DESC",
-            "SELECT parent_id, q1, last FROM @PREFIX@edge_unique WHERE q0=? AND w=? AND q1=? AND ?<last" 
+            "SELECT wi_id, child_n_id, last_episode_id FROM @PREFIX@epmem_wmes_identifier WHERE parent_n_id=? AND attribute_s_id=? AND ?<last_episode_id ORDER BY last_episode_id DESC",
+            "SELECT wi_id, child_n_id, last_episode_id FROM @PREFIX@epmem_wmes_identifier WHERE parent_n_id=? AND attribute_s_id=? AND child_n_id=? AND ?<last_episode_id" 
         } 
     };
     final PreparedStatementFactory[][] pool_find_edge_queries;
@@ -123,26 +142,26 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     {
         {
             {
-                "SELECT (e.start - 1) AS start FROM @PREFIX@node_range e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
-                "SELECT (e.start - 1) AS start FROM @PREFIX@node_now e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
-                "SELECT (e.start - 1) AS start FROM @PREFIX@node_point e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC"
+                "SELECT (e.start_episode_id - 1) AS start FROM @PREFIX@epmem_wmes_constant_range e WHERE e.wc_id=? AND e.start_episode_id<=? ORDER BY e.start_episode_id DESC",
+                "SELECT (e.start_episode_id - 1) AS start FROM @PREFIX@epmem_wmes_constant_now e WHERE e.wc_id=? AND e.start_episode_id<=? ORDER BY e.start_episode_id DESC",
+                "SELECT (e.episode_id - 1) AS start FROM @PREFIX@epmem_wmes_constant_point e WHERE e.wc_id=? AND e.episode_id<=? ORDER BY e.episode_id DESC"
             },
             {
-                "SELECT e.end AS end FROM @PREFIX@node_range e WHERE e.id=? AND e.end>0 AND e.start<=? ORDER BY e.end DESC",
-                "SELECT ? AS end FROM @PREFIX@node_now e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
-                "SELECT e.start AS end FROM @PREFIX@node_point e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC"
+                "SELECT e.end_episode_id AS end FROM @PREFIX@epmem_wmes_constant_range e WHERE e.wc_id=? AND e.end_episode_id>0 AND e.start_episode_id<=? ORDER BY e.end_episode_id DESC",
+                "SELECT ? AS end FROM @PREFIX@epmem_wmes_constant_now e WHERE e.wc_id=? AND e.start_episode_id<=? ORDER BY e.start_episode_id DESC",
+                "SELECT e.episode_id AS end FROM @PREFIX@epmem_wmes_constant_point e WHERE e.wc_id=? AND e.episode_id<=? ORDER BY e.episode_id DESC"
             }
         },
         {
             {
-                "SELECT (e.start - 1) AS start FROM @PREFIX@edge_range e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
-                "SELECT (e.start - 1) AS start FROM @PREFIX@edge_now e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
-                "SELECT (e.start - 1) AS start FROM @PREFIX@edge_point e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC"
+                "SELECT (e.start_episode_id - 1) AS start FROM @PREFIX@epmem_wmes_identifier_range e WHERE e.wi_id=? AND e.start_episode_id<=? ORDER BY e.start_episode_id DESC",
+                "SELECT (e.start_episode_id - 1) AS start FROM @PREFIX@epmem_wmes_identifier_now e WHERE e.wi_id=? AND e.start_episode_id<=? ORDER BY e.start_episode_id DESC",
+                "SELECT (e.episode_id - 1) AS start FROM @PREFIX@epmem_wmes_identifier_point e WHERE e.wi_id=? AND e.episode_id<=? ORDER BY e.episode_id DESC"
             },
             {
-                "SELECT e.end AS end FROM @PREFIX@edge_range e WHERE e.id=? AND e.end>0 AND e.start<=? ORDER BY e.end DESC",
-                "SELECT ? AS end FROM @PREFIX@edge_now e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC",
-                "SELECT e.start AS end FROM @PREFIX@edge_point e WHERE e.id=? AND e.start<=? ORDER BY e.start DESC"
+                "SELECT e.end_episode_id AS end FROM @PREFIX@epmem_wmes_identifier_range e WHERE e.wi_id=? AND e.end_episode_id>0 AND e.start_episode_id<=? ORDER BY e.end_episode_id DESC",
+                "SELECT ? AS end FROM @PREFIX@epmem_wmes_identifier_now e WHERE e.wi_id=? AND e.start_episode_id<=? ORDER BY e.start_episode_id DESC",
+                "SELECT e.episode_id AS end FROM @PREFIX@epmem_wmes_identifier_point e WHERE e.wi_id=? AND e.episode_id<=? ORDER BY e.episode_id DESC"
             }
         },
     };
@@ -158,14 +177,14 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     String epmem_find_lti_queries[/*2*/][/*3*/] =
     {
         {
-            "SELECT (e.start - 1) AS start FROM @PREFIX@edge_range e WHERE e.id=? AND ?<e.start AND e.start<=? ORDER BY e.start DESC",
-            "SELECT (e.start - 1) AS start FROM @PREFIX@edge_now e WHERE e.id=? AND ?<e.start AND e.start<=? ORDER BY e.start DESC",
-            "SELECT (e.start - 1) AS start FROM @PREFIX@edge_point e WHERE e.id=? AND ?<e.start AND e.start<=? ORDER BY e.start DESC"
+            "SELECT (e.start_episode_id - 1) AS start FROM @PREFIX@epmem_wmes_identifier_range e WHERE e.wi_id=? AND ?<e.start_episode_id AND e.start_episode_id<=? ORDER BY e.start_episode_id DESC",
+            "SELECT (e.start_episode_id - 1) AS start FROM @PREFIX@epmem_wmes_identifier_now e WHERE e.wi_id=? AND ?<e.start_episode_id AND e.start_episode_id<=? ORDER BY e.start_episode_id DESC",
+            "SELECT (e.episode_id - 1) AS start FROM @PREFIX@epmem_wmes_identifier_point e WHERE e.wi_id=? AND ?<e.episode_id AND e.episode_id<=? ORDER BY e.episode_id DESC"
         },
         {
-            "SELECT e.end AS end FROM @PREFIX@edge_range e WHERE e.id=? AND e.end>0 AND ?<=e.start AND e.start<=? ORDER BY e.end DESC",
-            "SELECT ? AS end FROM @PREFIX@edge_now e WHERE e.id=? AND ?<=e.start AND e.start<=? ORDER BY e.start",
-            "SELECT e.start AS end FROM @PREFIX@edge_point e WHERE e.id=? AND ?<=e.start AND e.start<=? ORDER BY e.start DESC"
+            "SELECT e.end_episode_id AS end FROM @PREFIX@epmem_wmes_identifier_range e WHERE e.wi_id=? AND e.end_episode_id>0 AND ?<=e.start_episode_id AND e.start_episode_id<=? ORDER BY e.end_episode_id DESC",
+            "SELECT ? AS end FROM @PREFIX@epmem_wmes_identifier_now e WHERE e.wi_id=? AND ?<=e.start_episode_id AND e.start_episode_id<=? ORDER BY e.start_episode_id",
+            "SELECT e.episode_id AS end FROM @PREFIX@epmem_wmes_identifier_point e WHERE e.wi_id=? AND ?<=e.episode_id AND e.episode_id<=? ORDER BY e.episode_id DESC"
         }
     };
     final PreparedStatementFactory[][] pool_find_lti_queries;
