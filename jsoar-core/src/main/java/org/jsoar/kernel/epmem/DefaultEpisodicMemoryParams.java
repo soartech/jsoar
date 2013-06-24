@@ -85,6 +85,9 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Optimization> OPTIMIZATION = key("optimization", Optimization.class).defaultValue(Optimization.performance).build();
     final EnumPropertyProvider<Optimization> optimization = new EnumPropertyProvider<Optimization>(OPTIMIZATION);
     
+    static final PropertyKey<Boolean> APPEND_DATABASE= key("append-database", Boolean.class).defaultValue(false).build();
+    final BooleanPropertyProvider append_database = new BooleanPropertyProvider(APPEND_DATABASE);
+    
     // TODO: what should the default phase be?
     static final PropertyKey<Phase> PHASE = key("phase", Phase.class).defaultValue(Phase.output).build();
     final EnumPropertyProvider<Phase> phase = new EnumPropertyProvider<Phase>(PHASE);
