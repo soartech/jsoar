@@ -44,7 +44,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     
     PreparedStatement hash_rev_int;
     PreparedStatement hash_rev_float;
-    PreparedStatement hash_rev_string;
+    PreparedStatement hash_rev_str;
     PreparedStatement hash_get_int;
     PreparedStatement hash_get_float;
     PreparedStatement hash_get_str;

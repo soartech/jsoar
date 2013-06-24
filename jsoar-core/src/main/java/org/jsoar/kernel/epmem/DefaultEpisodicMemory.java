@@ -2677,8 +2677,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         String return_val = null;// NIL;
         try
         {
-            db.hash_rev_string.setLong(1, s_id_lookup);
-            ResultSet res = db.hash_rev_string.executeQuery();
+            db.hash_rev_str.setLong(1, s_id_lookup);
+            ResultSet res = db.hash_rev_str.executeQuery();
             // assert( res == soar_module::row );
             // We don't want this assertion to compile out. If we were to
             // procceed from here

@@ -154,7 +154,7 @@ public class EpisodicMemoryDatabaseTest
         
         assertNotNull(emdb.hash_rev_int);
         assertNotNull(emdb.hash_rev_float);
-        assertNotNull(emdb.hash_rev_string);
+        assertNotNull(emdb.hash_rev_str);
         assertNotNull(emdb.hash_get_int);
         assertNotNull(emdb.hash_get_float);
         assertNotNull(emdb.hash_get_str);
