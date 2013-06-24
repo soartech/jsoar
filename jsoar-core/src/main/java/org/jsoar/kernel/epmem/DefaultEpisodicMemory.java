@@ -5742,7 +5742,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             // initialize the lookup table
             ids.put(EPMEM_NODEID_ROOT, new SymbolBooleanPair(retrieved_header, true));
             // first identifiers (i.e. reconstruct)
-            PreparedStatement my_q = db.get_wmes_with_constant_values;
+            PreparedStatement my_q = db.get_wmes_with_identifier_values;
             {
                 // relates to finite automata: child_n_id = d(parent_n_id, attribute_s_id)
                 long /*epmem_node_id*/ parent_n_id; // id
@@ -6748,7 +6748,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             Double temp_d;
             Long temp_i;
 
-            my_q = db.get_wmes_with_constant_values;
+            my_q = db.get_wmes_with_identifier_values;
             {
                 long /*epmem_node_id*/ parent_n_id;
                 long /*epmem_node_id*/ child_n_id;
