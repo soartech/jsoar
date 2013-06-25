@@ -2218,7 +2218,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 if (new_identifiers.contains(wme.value))
                 {
                     // because we could have bypassed the ref set before, we need to create it here
-                    if (epmem_id_ref_counts.get(wmeValueId.epmem_id).size() == 0)
+                    if (!epmem_id_ref_counts.containsKey(wmeValueId.epmem_id))
                     {
                         Set<WmeImpl> epmem_wme_set = Sets.newLinkedHashSet();
                         epmem_id_ref_counts.put(wmeValueId.epmem_id, epmem_wme_set);
