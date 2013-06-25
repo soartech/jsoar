@@ -628,7 +628,19 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // setup graph structures/queries
         db.structure();
         db.prepare();
-
+        /*
+         * This is used to rebuild ONLY the epmem tables.  Unfortunately we cannot build the 
+         * prepared statements without making sure the tables exist, but we cannot drop the new
+         * tables without first building the prepared statements.
+         * TODO: Maybe we should bypass the reflected query structure so this can be done in
+         * one statement, instead of building the tables and immediately dropping them. -ACN
+         */
+        if(!params.append_database.get()){
+            db.dropEpmemTables();
+            db.structure();
+            db.prepare();
+        }
+        
         // initialize range tracking
         epmem_node_mins.clear();
         epmem_node_maxes.clear();

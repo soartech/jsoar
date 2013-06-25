@@ -96,6 +96,25 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     
     //
     
+    PreparedStatement drop_epmem_nodes;
+    PreparedStatement drop_epmem_episodes;
+    PreparedStatement drop_epmem_wmes_constant_now;
+    PreparedStatement drop_epmem_wmes_identifier_now;
+    PreparedStatement drop_epmem_wmes_constant_point;
+    PreparedStatement drop_epmem_wmes_identifier_point;
+    PreparedStatement drop_epmem_wmes_constant_range;
+    PreparedStatement drop_epmem_wmes_identifier_range;
+    PreparedStatement drop_epmem_wmes_constant;
+    PreparedStatement drop_epmem_wmes_identifier;
+    PreparedStatement drop_epmem_lti;
+    PreparedStatement drop_epmem_persistent_variables;
+    PreparedStatement drop_epmem_rit_left_nodes;
+    PreparedStatement drop_epmem_rit_right_nodes;
+    PreparedStatement drop_epmem_symbols_type;
+    PreparedStatement drop_epmem_symbols_integer;
+    PreparedStatement drop_epmem_symbols_float;
+    PreparedStatement drop_epmem_symbols_string;
+    
     PreparedStatement update_epmem_wmes_identifier_last_episode_id;
 
     // episodic_memory.cpp:1703:epmem_init_db
@@ -282,6 +301,26 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         return return_val;
     }
     
+    public void dropEpmemTables() throws SQLException{
+        drop_epmem_nodes.execute();
+        drop_epmem_episodes.execute();
+        drop_epmem_wmes_constant_now.execute();
+        drop_epmem_wmes_identifier_now.execute();
+        drop_epmem_wmes_constant_point.execute();
+        drop_epmem_wmes_identifier_point.execute();
+        drop_epmem_wmes_constant_range.execute();
+        drop_epmem_wmes_identifier_range.execute();
+        drop_epmem_wmes_constant.execute();
+        drop_epmem_wmes_identifier.execute();
+        drop_epmem_lti.execute();
+        drop_epmem_persistent_variables.execute();
+        drop_epmem_rit_left_nodes.execute();
+        drop_epmem_rit_right_nodes.execute();
+        drop_epmem_symbols_type.execute();
+        drop_epmem_symbols_integer.execute();
+        drop_epmem_symbols_float.execute();
+        drop_epmem_symbols_string.execute();
+    }
     
     /**
      * Some of the queries in Epmem are instantiated, paramatized,
