@@ -88,7 +88,6 @@ class DefaultEpisodicMemoryParams
     static final PropertyKey<Boolean> APPEND_DATABASE= key("append-database", Boolean.class).defaultValue(false).build();
     final BooleanPropertyProvider append_database = new BooleanPropertyProvider(APPEND_DATABASE);
     
-    // TODO: what should the default phase be?
     static final PropertyKey<Phase> PHASE = key("phase", Phase.class).defaultValue(Phase.output).build();
     final EnumPropertyProvider<Phase> phase = new EnumPropertyProvider<Phase>(PHASE);
     
@@ -134,6 +133,7 @@ class DefaultEpisodicMemoryParams
         properties.setProvider(GM_ORDERING, gm_ordering);
         
         properties.setProvider(BALANCE, balance);
+        properties.setProvider(APPEND_DATABASE, append_database);
         
         // exclude ^epmem and ^smem attributes from being added to epmem by default
         exclusions.add((SymbolImpl) sf.createString("epmem"));

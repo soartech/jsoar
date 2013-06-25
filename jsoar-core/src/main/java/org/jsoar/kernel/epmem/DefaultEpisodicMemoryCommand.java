@@ -139,6 +139,11 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
             props.set(DefaultEpisodicMemoryParams.PATH, value);
             return "Set path to " + value;
         }
+        else if (name.equals("append-database"))
+        {
+            props.set(DefaultEpisodicMemoryParams.APPEND_DATABASE, Boolean.parseBoolean(value));
+            return "Set path to " + Boolean.parseBoolean(value);
+        }
         else
         {
             throw new SoarException("Unknown epmem parameter '" + name + "'");
