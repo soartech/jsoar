@@ -81,6 +81,10 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         {
             return doPrintEpisode(1, args);
         }
+        else if("--reinit".equals(arg))
+        {
+            return doReinit();
+        }
         else if (arg.startsWith("-"))
         {
             throw new SoarException("Unknown option " + arg);
@@ -242,5 +246,10 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
             return "";
         }
         return epmem.epmem_print_episode(episodeID);
+    }
+    
+    private String doReinit(){
+        epmem.epmem_reinit();
+        return "EpMem| Episodic memory system re-initialized.";
     }
 }

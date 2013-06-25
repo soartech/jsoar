@@ -1145,6 +1145,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 // close the database
                 db.getConnection().close();
                 db = null;
+                
+                logger.info("EpMem| Closing database " + params.path.get() + ".");
             }
             catch (SQLException e)
             {
@@ -6939,5 +6941,29 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             s = s.substring(0, firstTrailingZero);
         }
         return s;
+    }
+
+    public void epmem_reinit()
+    {
+        try
+        {
+            epmem_close();
+            epmem_init_db_ex(true);
+            if(!":memory:".equalsIgnoreCase(params.path.get()) && params.append_database.get()){
+                logger.info("EpMem|   Note: There was no effective change to memory contents because append mode is on and path set to file.");
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.error("Failed to reinitialize database:" + e.getMessage());
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to reinitialize epmem:" + e.getMessage());
+        }
+        catch (SoarException e)
+        {
+            logger.error("Failed to reinitialize epmem:" + e.getMessage());
+        }
     }
 }
