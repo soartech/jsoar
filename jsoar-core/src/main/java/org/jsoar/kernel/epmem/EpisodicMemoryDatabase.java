@@ -24,7 +24,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     
     // empty table used to verify proper structure
     static final String EPMEM_SCHEMA = "epmem2_";
-    static final String EPMEM_SIGNATURE = EPMEM_SCHEMA + "signature";
+    static final String EPMEM_SIGNATURE = EPMEM_SCHEMA + "epmem_signature";
     
     // These are all the prepared statements for EPMEM. They're filled in via reflection
     // from statements.properties.

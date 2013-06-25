@@ -142,7 +142,15 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         else if (name.equals("append-database"))
         {
             props.set(DefaultEpisodicMemoryParams.APPEND_DATABASE, Boolean.parseBoolean(value));
-            return "Set path to " + Boolean.parseBoolean(value);
+            return "Set append to " + Boolean.parseBoolean(value);
+        }
+        else if (name.equals("lazy-commit"))
+        {
+            if(epmem.db != null){
+                return "Lazy commit is protected while the database is open.";
+            }
+            props.set(DefaultEpisodicMemoryParams.LAZY_COMMIT, Boolean.parseBoolean(value));
+            return "Set lazy-commit to " + Boolean.parseBoolean(value);
         }
         else
         {
@@ -166,6 +174,7 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         pw.printf("protocol: %s%n", p.protocol);
         pw.printf("path: %s%n", p.path);
         pw.printf("lazy-commit: %s%n", p.lazy_commit.get() ? "on" : "off");
+        pw.printf("append-database: %s%n", p.append_database.get() ? "on" : "off");
         pw.println();
         pw.println("Performance");
         pw.println("-----------");
