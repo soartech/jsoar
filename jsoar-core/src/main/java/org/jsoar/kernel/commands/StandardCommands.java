@@ -75,6 +75,8 @@ public class StandardCommands
 
         interp.addCommand("gds-print", new GdsPrintCommand(agent));
         
+        interp.addCommand("time", new TimeCommand(agent));
+        
         SoarCommands.registerCustomCommands(interp, agent);
     }
     
