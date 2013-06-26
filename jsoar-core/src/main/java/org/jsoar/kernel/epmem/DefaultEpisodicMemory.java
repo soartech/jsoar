@@ -2186,6 +2186,10 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                             logger.debug( "   Adding new n_id and setting wme id for VALUE to " + wmeValueId.epmem_id + " \n");
                         }
                         
+                        // Update the node database with the new n_id
+                        db.add_node.setLong( 1, wmeValueId.epmem_id );
+                        db.add_node.execute();
+                        
                         // add repository for possible future children
                         Map<Long, LinkedList<EpisodicMemoryIdPair>> epmem_hashed_id_pool = Maps.newLinkedHashMap();
                         epmem_id_repository.put(wmeValueId.epmem_id, epmem_hashed_id_pool);
@@ -6796,7 +6800,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         {
             PreparedStatement my_q;
             String temp_s = null, temp_s2 = null, temp_s3;
-            Double temp_d;
             Long temp_i;
 
             my_q = db.get_wmes_with_identifier_values;
