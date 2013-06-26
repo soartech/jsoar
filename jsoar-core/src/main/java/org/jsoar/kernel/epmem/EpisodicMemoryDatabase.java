@@ -114,6 +114,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     PreparedStatement drop_epmem_symbols_integer;
     PreparedStatement drop_epmem_symbols_float;
     PreparedStatement drop_epmem_symbols_string;
+    PreparedStatement drop_epmem_signature;
     
     PreparedStatement update_epmem_wmes_identifier_last_episode_id;
 
@@ -136,6 +137,8 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
     
     
     PreparedStatement database_version;
+    PreparedStatement set_schema_version;
+    PreparedStatement get_schema_version;
     
     // episodic_memory.cpp:854
     final private static String poolDummy = "SELECT ? as start";
@@ -320,6 +323,7 @@ final class EpisodicMemoryDatabase extends AbstractSoarDatabase
         drop_epmem_symbols_integer.execute();
         drop_epmem_symbols_float.execute();
         drop_epmem_symbols_string.execute();
+        drop_epmem_signature.execute();
     }
     
     /**

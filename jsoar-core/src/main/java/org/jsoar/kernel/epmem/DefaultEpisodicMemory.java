@@ -628,6 +628,33 @@ public class DefaultEpisodicMemory implements EpisodicMemory
         // setup graph structures/queries
         db.structure();
         db.prepare();
+        //Make sure we do not have an incorrect database version
+        if(!":memory:".equals(params.path.get())){
+            final ResultSet result = db.get_schema_version.executeQuery();
+            try{
+                if(result.next()){
+                    String schemaVersion = result.getString(1);
+                    if(!EpisodicMemoryDatabase.EPMEM_SCHEMA.equals(schemaVersion)){
+                        logger.error("Incorrect database version, switching to memory.  Found version: " + schemaVersion);
+                        params.path.set(":memory:");
+                        //Switch to memory
+                        //Undo what was done so far
+                        connection.close();
+                        db = null;
+                        //This will only recurse once, because the path is guaranteed to be memory for the second call
+                        epmem_init_db_ex(readonly);
+                    }
+                }else{
+                    if(params.append_database.get()){
+                        logger.info("The selected database contained no data to append on.  New tables created.");
+                    }
+                }
+            }finally{
+                result.close();
+            }
+        }
+        db.set_schema_version.setString(1, EpisodicMemoryDatabase.EPMEM_SCHEMA);
+        db.set_schema_version.execute();
         /*
          * This is used to rebuild ONLY the epmem tables.  Unfortunately we cannot build the 
          * prepared statements without making sure the tables exist, but we cannot drop the new
