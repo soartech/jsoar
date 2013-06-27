@@ -21,11 +21,11 @@ sp {apply*init
    (<s> ^name factorization
         ^max 1501 #Count up 50 times
         ^count 1)
-   (write |Format is as follows| (crlf))
-   (write |Factored N.  Factors: 1,1 : Z,Y| (crlf))
-   (write |Where N is the number factored.| (crlf))
-   (write |And Z is a factor| (crlf))
-   (write |And Y is the number of times it is a factor| (crlf) (crlf))
+   #(write |Format is as follows| (crlf))
+   #(write |Factored N.  Factors: 1,1 : Z,Y| (crlf))
+   #(write |Where N is the number factored.| (crlf))
+   #(write |And Z is a factor| (crlf))
+   #(write |And Y is the number of times it is a factor| (crlf) (crlf))
 }
 
 #Counting Function
@@ -88,7 +88,7 @@ sp {apply*factor
    (<factorization> ^complete true
                     ^number <c>)
 -->
-   (write |Factored | <c> |.  Factors: |)
+   #(write |Factored | <c> |.  Factors: |)
    (<factorization> ^print-started true)
 }
 
@@ -100,7 +100,7 @@ sp {apply*factor*write-factors
    (<f> ^value <v>
         ^multiplicity <m>)
 -->
-   (write <v> |,| <m> | : | )
+   #(write <v> |,| <m> | : | )
    (<factorization> ^printed true)
    (<s> ^needs-factorization true -)
 }

@@ -40,7 +40,7 @@ public class TimeCommand implements SoarCommand
         
         //JSoar can't easily have a Process Timer which does things exactly how
         // CSoar does things therefore I'm not including it in the output
-        // - Alex
+        // - ALT
         
         WallclockExecutionTimeSource real_source = new WallclockExecutionTimeSource();
         

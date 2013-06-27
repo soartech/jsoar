@@ -16,9 +16,9 @@ CREATE TABLE IF NOT EXISTS @PREFIX@epmem_symbols_float (s_id INTEGER PRIMARY KEY
 CREATE TABLE IF NOT EXISTS @PREFIX@epmem_symbols_string (s_id INTEGER PRIMARY KEY, symbol_value TEXT)
 
 # create_graph_indices
-CREATE UNIQUE INDEX IF NOT EXISTS symbols_int_const ON @PREFIX@epmem_symbols_integer (symbol_value)
-CREATE UNIQUE INDEX IF NOT EXISTS symbols_float_const ON @PREFIX@epmem_symbols_float (symbol_value)
-CREATE UNIQUE INDEX IF NOT EXISTS symbols_str_const ON @PREFIX@epmem_symbols_string (symbol_value)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@symbols_int_const ON @PREFIX@epmem_symbols_integer (symbol_value)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@symbols_float_const ON @PREFIX@epmem_symbols_float (symbol_value)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@symbols_str_const ON @PREFIX@epmem_symbols_string (symbol_value)
 
 ############################################################################
 # @PREFIX@epmem_graph_statement_container
@@ -40,33 +40,33 @@ CREATE TABLE IF NOT EXISTS @PREFIX@epmem_ascii (ascii_num INTEGER PRIMARY KEY, a
 
 # create_graph_indices
 
-CREATE INDEX IF NOT EXISTS epmem_wmes_constant_now_start ON @PREFIX@epmem_wmes_constant_now (start_episode_id)
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_constant_now_id_start ON @PREFIX@epmem_wmes_constant_now (wc_id,start_episode_id DESC)
-CREATE INDEX IF NOT EXISTS epmem_wmes_identifier_now_start ON @PREFIX@epmem_wmes_identifier_now (start_episode_id)
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_identifier_now_id_start ON @PREFIX@epmem_wmes_identifier_now (wi_id,start_episode_id DESC)
+CREATE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_constant_now_start ON @PREFIX@epmem_wmes_constant_now (start_episode_id)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_constant_now_id_start ON @PREFIX@epmem_wmes_constant_now (wc_id,start_episode_id DESC)
+CREATE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_now_start ON @PREFIX@epmem_wmes_identifier_now (start_episode_id)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_now_id_start ON @PREFIX@epmem_wmes_identifier_now (wi_id,start_episode_id DESC)
 
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_constant_point_id_start ON @PREFIX@epmem_wmes_constant_point (wc_id,episode_id DESC)
-CREATE INDEX IF NOT EXISTS epmem_wmes_constant_point_start ON @PREFIX@epmem_wmes_constant_point (episode_id)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_constant_point_id_start ON @PREFIX@epmem_wmes_constant_point (wc_id,episode_id DESC)
+CREATE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_constant_point_start ON @PREFIX@epmem_wmes_constant_point (episode_id)
 
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_identifier_point_id_start ON @PREFIX@epmem_wmes_identifier_point (wi_id,episode_id DESC)
-CREATE INDEX IF NOT EXISTS epmem_wmes_identifier_point_start ON @PREFIX@epmem_wmes_identifier_point (episode_id)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_point_id_start ON @PREFIX@epmem_wmes_identifier_point (wi_id,episode_id DESC)
+CREATE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_point_start ON @PREFIX@epmem_wmes_identifier_point (episode_id)
 
-CREATE INDEX IF NOT EXISTS epmem_wmes_constant_range_lower ON @PREFIX@epmem_wmes_constant_range (rit_id,start_episode_id)
-CREATE INDEX IF NOT EXISTS epmem_wmes_constant_range_upper ON @PREFIX@epmem_wmes_constant_range (rit_id,end_episode_id)
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_constant_range_id_start ON @PREFIX@epmem_wmes_constant_range (wc_id,start_episode_id DESC)
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_constant_range_id_end_start ON @PREFIX@epmem_wmes_constant_range (wc_id,end_episode_id DESC,start_episode_id)
+CREATE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_constant_range_lower ON @PREFIX@epmem_wmes_constant_range (rit_id,start_episode_id)
+CREATE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_constant_range_upper ON @PREFIX@epmem_wmes_constant_range (rit_id,end_episode_id)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_constant_range_id_start ON @PREFIX@epmem_wmes_constant_range (wc_id,start_episode_id DESC)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_constant_range_id_end_start ON @PREFIX@epmem_wmes_constant_range (wc_id,end_episode_id DESC,start_episode_id)
 
-CREATE INDEX IF NOT EXISTS epmem_wmes_identifier_range_lower ON @PREFIX@epmem_wmes_identifier_range (rit_id,start_episode_id)
-CREATE INDEX IF NOT EXISTS epmem_wmes_identifier_range_upper ON @PREFIX@epmem_wmes_identifier_range (rit_id,end_episode_id)
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_identifier_range_id_start ON @PREFIX@epmem_wmes_identifier_range (wi_id,start_episode_id DESC)
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_identifier_range_id_end_start ON @PREFIX@epmem_wmes_identifier_range (wi_id,end_episode_id DESC,start_episode_id)
+CREATE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_range_lower ON @PREFIX@epmem_wmes_identifier_range (rit_id,start_episode_id)
+CREATE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_range_upper ON @PREFIX@epmem_wmes_identifier_range (rit_id,end_episode_id)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_range_id_start ON @PREFIX@epmem_wmes_identifier_range (wi_id,start_episode_id DESC)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_range_id_end_start ON @PREFIX@epmem_wmes_identifier_range (wi_id,end_episode_id DESC,start_episode_id)
 
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_constant_parent_attribute_value ON @PREFIX@epmem_wmes_constant (parent_n_id,attribute_s_id,value_s_id)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_constant_parent_attribute_value ON @PREFIX@epmem_wmes_constant (parent_n_id,attribute_s_id,value_s_id)
 
-CREATE INDEX IF NOT EXISTS epmem_wmes_identifier_parent_attribute_last_id ON @PREFIX@epmem_wmes_identifier (parent_n_id,attribute_s_id,last_episode_id)
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_identifier_parent_attribute_child ON @PREFIX@epmem_wmes_identifier (parent_n_id,attribute_s_id,child_n_id)
+CREATE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_parent_attribute_last ON @PREFIX@epmem_wmes_identifier (parent_n_id,attribute_s_id,last_episode_id)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_wmes_identifier_parent_attribute_child ON @PREFIX@epmem_wmes_identifier (parent_n_id,attribute_s_id,child_n_id)
 
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_lti_letter_num ON @PREFIX@epmem_lti (soar_letter,soar_number)
+CREATE UNIQUE INDEX IF NOT EXISTS @PREFIX@epmem_lti_letter_num ON @PREFIX@epmem_lti (soar_letter,soar_number)
 
 # adding an ascii table just to make lti queries easier when inspecting database
 INSERT OR IGNORE INTO @PREFIX@epmem_ascii (ascii_num, ascii_chr) VALUES (65,'A')

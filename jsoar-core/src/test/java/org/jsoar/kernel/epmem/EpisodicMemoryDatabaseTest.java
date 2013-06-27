@@ -10,8 +10,11 @@ import static org.junit.Assert.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.jsoar.util.JdbcTools;
@@ -62,23 +65,33 @@ public class EpisodicMemoryDatabaseTest
         // Here's the tables we expect
         final Set<String> expectedTables = new HashSet<String>(Arrays.asList(
             EpisodicMemoryDatabase.EPMEM_SIGNATURE,
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "vars", 
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "rit_left_nodes",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "rit_right_nodes",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "temporal_symbol_hash",
             
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "times", 
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_now",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_now",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_point",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_point",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_range",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_range",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_unique",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_unique",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "lti",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "ascii",
-            "sqlite_sequence" // craeted automatically for AUTOINCREMENT
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_ascii",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_episodes",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_lti",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_nodes",
+            
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_persistent_variables", 
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_rit_left_nodes",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_rit_right_nodes",
+            
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_float",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_integer",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_string",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_type",
+            
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_point",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range",
+            
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_point",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range",
+           
+            "sqlite_sequence", // created automatically for AUTOINCREMENT,
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "versions"
         ));
         
         for(String expected : expectedTables)
@@ -95,7 +108,7 @@ public class EpisodicMemoryDatabaseTest
         final EpisodicMemoryDatabase emdb = new EpisodicMemoryDatabase("org.sqlite.JDBC", db);
         emdb.structure();
         
-        final Set<String> tables = new HashSet<String>();
+        final List<String> tables = new ArrayList<String>();
         final ResultSet rs = db.getMetaData().getTables(null, null, null, new String[] {"INDEX"});
         while(rs.next())
         {
@@ -103,34 +116,51 @@ public class EpisodicMemoryDatabaseTest
         }
         
         // Here's the tables we expect
-        final String[] expectedTables = new String[] {
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "temporal_symbol_hash_const_type", 
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_now_start", 
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_now_id_start", 
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_now_start", 
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_now_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_point_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_point_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_point_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_point_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_range_lower",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_range_upper",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_range_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_range_id_end",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_range_lower",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_range_upper",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_range_id_start",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_range_id_end",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_unique_parent_attrib_value",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_unique_q0_w_q1",
-            EpisodicMemoryDatabase.EPMEM_SCHEMA + "lti_letter_num",
-        };
+        /*
+         * "sqlite_autoindex_" + EpisodicMemoryDatabase.EPMEM_SCHEMA + "versions_1", is an unnamed
+         * index autogenerated by sqlite. In CSoar it is unnamed and if it changes these tests will
+         * need to be redone anyways
+         * - ALT
+         */
+        final List<String> expectedTables = new ArrayList<String>(Arrays.asList(new String[] {
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_lti_letter_num",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_parent_attribute_value",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_point_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_point_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range_id_end_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range_lower",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_range_upper",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_parent_attribute_child",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_parent_attribute_last",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_point_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_point_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range_id_end_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range_id_start",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range_lower",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_range_upper",
+            "sqlite_autoindex_" + EpisodicMemoryDatabase.EPMEM_SCHEMA + "versions_1",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_float_const",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_int_const",
+            EpisodicMemoryDatabase.EPMEM_SCHEMA + "symbols_str_const",
+        }));
         
-        for(String expected : expectedTables)
+        for(Iterator<String> it = expectedTables.iterator();it.hasNext();)
         {
+            String expected = it.next();
+            
             assertTrue("Missing expected index '" + expected + "'", tables.contains(expected));
+            
+            tables.remove(expected);
+            it.remove();
         }
-        assertEquals(expectedTables.length, tables.size());
+        
+        assertTrue("Unexpected indices: '" + ((tables.isEmpty())?"":tables.get(0)) + "'", tables.isEmpty());
+        assertTrue("Not Found indices: '" + ((expectedTables.isEmpty())?"":expectedTables.get(0)) + "'", expectedTables.isEmpty());
     }
 
     @Test

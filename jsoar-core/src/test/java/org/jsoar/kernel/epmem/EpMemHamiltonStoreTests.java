@@ -27,7 +27,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testEdgeNowTable() throws Exception
+    public void testWMEsIdentifierNowTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -41,13 +41,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         }
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_now");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier_now");
         
         final ResultSet results = p.executeQuery();
         
         while(results.next()){
-            final long id = results.getLong("id");
-            final long start = results.getLong("start");
+            final long id = results.getLong("wi_id");
+            final long start = results.getLong("start_episode_id");
             assertTrue(
                     "edge_now contained unexpected " + id + ", " + start, 
                     expectedRowIds.contains(id) && start == 1
@@ -58,7 +58,7 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     @Test
-    public void testNodeNowTable() throws Exception
+    public void testWMEsConstantNowTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -72,13 +72,13 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         }
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_now");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant_now");
         
         final ResultSet results = p.executeQuery();
         
         while(results.next()){
-            final long id = results.getLong("id");
-            final long start = results.getLong("start");
+            final long id = results.getLong("wc_id");
+            final long start = results.getLong("start_episode_id");
             assertTrue(
                     "node_now contained unexpected " + id + ", " + start, 
                     expectedRowIds.contains(id) && start == 1
@@ -94,29 +94,29 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
     }
     
     private static class NodeUniqueRow{
-        public final long childID;
-        public final long parentID;
-        public final long attrib;
-        public final long value;
+        public final long wc_id;
+        public final long parent_n_id;
+        public final long attribute_s_id;
+        public final long value_s_id;
         
         public NodeUniqueRow(
-            long childID,
-            long parentID,
-            long attrib,
-            long value
+            long wc_id,
+            long parent_n_id,
+            long attribute_s_id,
+            long value_s_id
         ){
-            this.childID = childID;
-            this.parentID = parentID;
-            this.attrib = attrib;
-            this.value = value;
+            this.wc_id = wc_id;
+            this.parent_n_id = parent_n_id;
+            this.attribute_s_id = attribute_s_id;
+            this.value_s_id = value_s_id;
         }
         
         public String toString(){
             return 
-                "ChildID: " + childID + 
-                " ParentID: " + parentID + 
-                " Attrib: " + attrib + 
-                " Value: " + value;
+                "ChildID: " + wc_id + 
+                " ParentID: " + parent_n_id + 
+                " Attrib: " + attribute_s_id + 
+                " Value: " + value_s_id;
         }
         
         @Override
@@ -124,10 +124,10 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         {
             final int prime = 31;
             int result = 1;
-            result = prime * result + (int) (attrib ^ (attrib >>> 32));
-            result = prime * result + (int) (childID ^ (childID >>> 32));
-            result = prime * result + (int) (parentID ^ (parentID >>> 32));
-            result = prime * result + (int) (value ^ (value >>> 32));
+            result = prime * result + (int) (attribute_s_id ^ (attribute_s_id >>> 32));
+            result = prime * result + (int) (wc_id ^ (wc_id >>> 32));
+            result = prime * result + (int) (parent_n_id ^ (parent_n_id >>> 32));
+            result = prime * result + (int) (value_s_id ^ (value_s_id >>> 32));
             return result;
         }
 
@@ -141,20 +141,20 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
             if (getClass() != obj.getClass())
                 return false;
             NodeUniqueRow other = (NodeUniqueRow) obj;
-            if (attrib != other.attrib)
+            if (attribute_s_id != other.attribute_s_id)
                 return false;
-            if (childID != other.childID)
+            if (wc_id != other.wc_id)
                 return false;
-            if (parentID != other.parentID)
+            if (parent_n_id != other.parent_n_id)
                 return false;
-            if (value != other.value)
+            if (value_s_id != other.value_s_id)
                 return false;
             return true;
         }
     }
     
     @Test
-    public void testNodeUniqueTable() throws Exception
+    public void testWMEsConstantTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -183,17 +183,17 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         expectedRows.add(new NodeUniqueRow(11,13,7,22));
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "node_unique");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_constant");
         
         final ResultSet results = p.executeQuery();
         
         while(results.next()){
             final NodeUniqueRow row = 
                 new NodeUniqueRow(
-                        results.getLong("child_id"),
-                        results.getLong("parent_id"),
-                        results.getLong("attrib"),
-                        results.getLong("value")
+                        results.getLong("wc_id"),
+                        results.getLong("parent_n_id"),
+                        results.getLong("attribute_s_id"),
+                        results.getLong("value_s_id")
                     );
             assertTrue(
                     "node_unique contained unexpected " + row, 
@@ -207,26 +207,22 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
             );
     }
     
-    private static class TemporalSymbolHashRow{
-        public final long id;
-        public final String symConstant;
-        public final long symType;
+    private static class SymbolsStringRow{
+        public final long s_id;
+        public final String symbol_value;
         
-        public TemporalSymbolHashRow(
-            long id,
-            String symConstant,
-            long symType
+        public SymbolsStringRow(
+            long s_id,
+            String symbol_value
         ){
-            this.id = id;
-            this.symConstant = symConstant;
-            this.symType = symType;
+            this.s_id = s_id;
+            this.symbol_value = symbol_value;
         }
         
         public String toString(){
             return 
-                "ID: " + id + 
-                " SymConstant: " + symConstant + 
-                " SymType: " + symType;
+                "S_ID: " + s_id + 
+                " Symbol Value: " + symbol_value;
         }
 
         @Override
@@ -234,10 +230,9 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         {
             final int prime = 31;
             int result = 1;
-            result = prime * result + (int) (id ^ (id >>> 32));
+            result = prime * result + (int) (s_id ^ (s_id >>> 32));
             result = prime * result
-                    + ((symConstant == null) ? 0 : symConstant.hashCode());
-            result = prime * result + (int) (symType ^ (symType >>> 32));
+                    + ((symbol_value == null) ? 0 : symbol_value.hashCode());
             return result;
         }
 
@@ -250,24 +245,22 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            TemporalSymbolHashRow other = (TemporalSymbolHashRow) obj;
-            if (id != other.id)
+            SymbolsStringRow other = (SymbolsStringRow) obj;
+            if (s_id != other.s_id)
                 return false;
-            if (symConstant == null)
+            if (symbol_value == null)
             {
-                if (other.symConstant != null)
+                if (other.symbol_value != null)
                     return false;
             }
-            else if (!symConstant.equals(other.symConstant))
-                return false;
-            if (symType != other.symType)
+            else if (!symbol_value.equals(other.symbol_value))
                 return false;
             return true;
         }
     }
     
     @Test
-    public void testTemporalSymbolHashTable() throws Exception
+    public void testSymbolsStringTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -276,84 +269,83 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
          * 1-11    1
          */
         
-        final Set<TemporalSymbolHashRow> expectedRows = new HashSet<TemporalSymbolHashRow>();
-        expectedRows.add(new TemporalSymbolHashRow(0, null,1));
-        expectedRows.add(new TemporalSymbolHashRow(20,"Albany",2));
-        expectedRows.add(new TemporalSymbolHashRow(21,"Atlanta",2));
-        expectedRows.add(new TemporalSymbolHashRow(22,"Boston",2));
-        expectedRows.add(new TemporalSymbolHashRow(19,"Dallas",2));
-        expectedRows.add(new TemporalSymbolHashRow(16,"Fresno",2));
-        expectedRows.add(new TemporalSymbolHashRow(18,"Omaha",2));
-        expectedRows.add(new TemporalSymbolHashRow(17,"Seattle",2));
-        expectedRows.add(new TemporalSymbolHashRow(13,"city",2));
-        expectedRows.add(new TemporalSymbolHashRow(8,"graph-match-unit",2));
-        expectedRows.add(new TemporalSymbolHashRow(14,"halt",2));
-        expectedRows.add(new TemporalSymbolHashRow(9,"hamilton",2));
-        expectedRows.add(new TemporalSymbolHashRow(12,"input-link",2));
-        expectedRows.add(new TemporalSymbolHashRow(6,"io",2));
-        expectedRows.add(new TemporalSymbolHashRow(7,"name",2));
-        expectedRows.add(new TemporalSymbolHashRow(3,"nil",2));
-        expectedRows.add(new TemporalSymbolHashRow(1,"operator*",2));
-        expectedRows.add(new TemporalSymbolHashRow(11,"output-link",2));
-        expectedRows.add(new TemporalSymbolHashRow(10,"reward-link",2));
-        expectedRows.add(new TemporalSymbolHashRow(5,"state",2));
-        expectedRows.add(new TemporalSymbolHashRow(2,"superstate",2));
-        expectedRows.add(new TemporalSymbolHashRow(15,"to",2));
-        expectedRows.add(new TemporalSymbolHashRow(4,"type",2));
+        final Set<SymbolsStringRow> expectedRows = new HashSet<SymbolsStringRow>();
+        expectedRows.add(new SymbolsStringRow(20,"Albany"));
+        expectedRows.add(new SymbolsStringRow(21,"Atlanta"));
+        expectedRows.add(new SymbolsStringRow(22,"Boston"));
+        expectedRows.add(new SymbolsStringRow(19,"Dallas"));
+        expectedRows.add(new SymbolsStringRow(16,"Fresno"));
+        expectedRows.add(new SymbolsStringRow(18,"Omaha"));
+        expectedRows.add(new SymbolsStringRow(17,"Seattle"));
+        expectedRows.add(new SymbolsStringRow(13,"city"));
+        expectedRows.add(new SymbolsStringRow(8,"graph-match-unit"));
+        expectedRows.add(new SymbolsStringRow(14,"halt"));
+        expectedRows.add(new SymbolsStringRow(9,"hamilton"));
+        expectedRows.add(new SymbolsStringRow(12,"input-link"));
+        expectedRows.add(new SymbolsStringRow(6,"io"));
+        expectedRows.add(new SymbolsStringRow(7,"name"));
+        expectedRows.add(new SymbolsStringRow(3,"nil"));
+        expectedRows.add(new SymbolsStringRow(1,"operator*"));
+        expectedRows.add(new SymbolsStringRow(11,"output-link"));
+        expectedRows.add(new SymbolsStringRow(10,"reward-link"));
+        expectedRows.add(new SymbolsStringRow(0, "root"));
+        expectedRows.add(new SymbolsStringRow(5,"state"));
+        expectedRows.add(new SymbolsStringRow(2,"superstate"));
+        expectedRows.add(new SymbolsStringRow(15,"to"));
+        expectedRows.add(new SymbolsStringRow(4,"type"));
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "temporal_symbol_hash");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_symbols_string");
         
         final ResultSet results = p.executeQuery();
         
         while(results.next()){
-            final TemporalSymbolHashRow row = 
-                new TemporalSymbolHashRow(
-                        results.getLong("id"),
-                        results.getString("sym_const"),
-                        results.getLong("sym_type")
+            final SymbolsStringRow row = 
+                new SymbolsStringRow(
+                        results.getLong("s_id"),
+                        results.getString("symbol_value")
                     );
             assertTrue(
-                    "temporal_symbol_hash contained unexpected " + row, 
+                    "epmem_symbols_string contained unexpected " + row, 
                     expectedRows.contains(row)
                 );
             expectedRows.remove(row);
         }
         assertTrue(
-                "temporal_symbol_hash did not contain expected row " + 
+                "epmem_symbols_string did not contain expected row " + 
                 (expectedRows.isEmpty()?"":expectedRows.toArray()[0]),
                 expectedRows.isEmpty()
             );
     }
     
-    private static class EdgeUniqueRow{
-        public final long parentID;
-        public final long q0;
-        public final long w;
-        public final long q1;
-        public final long last;
+    private static class WMEsIdentifierRow{
+        public final long wi_id;
+        public final long parent_n_id;
+        public final long attribute_s_id;
+        public final long child_n_id;
+        public final long last_episode_id;
         
-        public EdgeUniqueRow(
-            long parentID,
-            long q0,
-            long w,
-            long q1,
-            long last
+        public WMEsIdentifierRow(
+            long wi_id,
+            long parent_n_id,
+            long attribute_s_id,
+            long child_n_id,
+            long last_episode_id
         ){
-            this.parentID = parentID;
-            this.q0 = q0;
-            this.w = w;
-            this.q1 = q1;
-            this.last = last;
+            this.wi_id = wi_id;
+            this.parent_n_id = parent_n_id;
+            this.attribute_s_id = attribute_s_id;
+            this.child_n_id = child_n_id;
+            this.last_episode_id = last_episode_id;
         }
         
         public String toString(){
             return 
-                "ParentID: " + parentID + 
-                " q0: " + q0 + 
-                " w: " + w + 
-                " q1: " + q1 + 
-                " last: " + last;
+                "wi_id: " + wi_id + 
+                " parent_n_id: " + parent_n_id + 
+                " attribute_s_id: " + attribute_s_id + 
+                " child_n_id: " + child_n_id + 
+                " last_episode_id: " + last_episode_id;
         }
 
         @Override
@@ -361,11 +353,11 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         {
             final int prime = 31;
             int result = 1;
-            result = prime * result + (int) (last ^ (last >>> 32));
-            result = prime * result + (int) (parentID ^ (parentID >>> 32));
-            result = prime * result + (int) (q0 ^ (q0 >>> 32));
-            result = prime * result + (int) (q1 ^ (q1 >>> 32));
-            result = prime * result + (int) (w ^ (w >>> 32));
+            result = prime * result + (int) (last_episode_id ^ (last_episode_id >>> 32));
+            result = prime * result + (int) (wi_id ^ (wi_id >>> 32));
+            result = prime * result + (int) (parent_n_id ^ (parent_n_id >>> 32));
+            result = prime * result + (int) (child_n_id ^ (child_n_id >>> 32));
+            result = prime * result + (int) (attribute_s_id ^ (attribute_s_id >>> 32));
             return result;
         }
 
@@ -378,23 +370,23 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            EdgeUniqueRow other = (EdgeUniqueRow) obj;
-            if (last != other.last)
+            WMEsIdentifierRow other = (WMEsIdentifierRow) obj;
+            if (last_episode_id != other.last_episode_id)
                 return false;
-            if (parentID != other.parentID)
+            if (wi_id != other.wi_id)
                 return false;
-            if (q0 != other.q0)
+            if (parent_n_id != other.parent_n_id)
                 return false;
-            if (q1 != other.q1)
+            if (child_n_id != other.child_n_id)
                 return false;
-            if (w != other.w)
+            if (attribute_s_id != other.attribute_s_id)
                 return false;
             return true;
         }
     }
     
     @Test
-    public void testEdgeUniqueTable() throws Exception
+    public void testWMEsIdentifierTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -403,68 +395,68 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
          * 1-11    1
          */
         
-        final Set<EdgeUniqueRow> expectedRows = new HashSet<EdgeUniqueRow>();
-        expectedRows.add(new EdgeUniqueRow(1,0,6,1,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(2,0,9,2,Long.MAX_VALUE));
+        final Set<WMEsIdentifierRow> expectedRows = new HashSet<WMEsIdentifierRow>();
+        expectedRows.add(new WMEsIdentifierRow(1,0,6,1,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(2,0,9,2,Long.MAX_VALUE));
         
         // CK: rows 3 and 4 are reversed because the order of S1's slots is different in JSoar
         // - in JSoar R1 has epmem_id 3 and O3 has epmem_id 4
         // - in Csoar R1 has epmem_id 4 and O3 has epmem_id 3
-        expectedRows.add(new EdgeUniqueRow(3,0,10,3,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(4,0,1,4,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(3,0,10,3,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(4,0,1,4,Long.MAX_VALUE));
         
-        expectedRows.add(new EdgeUniqueRow(5,1,11,5,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(6,1,12,6,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(7,2,13,7,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(8,2,13,8,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(9,2,13,9,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(10,2,13,10,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(11,2,13,11,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(12,2,13,12,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(13,2,13,13,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(14,7,15,8,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(15,7,15,11,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(16,7,15,13,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(17,8,15,9,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(18,8,15,10,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(19,9,15,11,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(20,9,15,12,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(21,10,15,8,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(22,10,15,11,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(23,11,15,8,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(24,11,15,10,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(25,12,15,10,Long.MAX_VALUE));
-        expectedRows.add(new EdgeUniqueRow(26,12,15,13,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(5,1,11,5,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(6,1,12,6,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(7,2,13,7,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(8,2,13,8,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(9,2,13,9,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(10,2,13,10,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(11,2,13,11,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(12,2,13,12,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(13,2,13,13,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(14,7,15,8,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(15,7,15,11,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(16,7,15,13,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(17,8,15,9,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(18,8,15,10,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(19,9,15,11,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(20,9,15,12,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(21,10,15,8,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(22,10,15,11,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(23,11,15,8,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(24,11,15,10,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(25,12,15,10,Long.MAX_VALUE));
+        expectedRows.add(new WMEsIdentifierRow(26,12,15,13,Long.MAX_VALUE));
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "edge_unique");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_wmes_identifier");
         
         final ResultSet results = p.executeQuery();
         
         while(results.next()){
-            final EdgeUniqueRow row = 
-                new EdgeUniqueRow(
-                        results.getLong("parent_id"),
-                        results.getLong("q0"),
-                        results.getLong("w"),
-                        results.getLong("q1"),
-                        results.getLong("last")
+            final WMEsIdentifierRow row = 
+                new WMEsIdentifierRow(
+                        results.getLong("wi_id"),
+                        results.getLong("parent_n_id"),
+                        results.getLong("attribute_s_id"),
+                        results.getLong("child_n_id"),
+                        results.getLong("last_episode_id")
                     );
             assertTrue(
-                    "edge_unique contained unexpected " + row, 
+                    "epmem_wmes_identifer contained unexpected " + row, 
                     expectedRows.contains(row)
                 );
             expectedRows.remove(row);
         }
         assertTrue(
-                "edge_unique did not contain expected row " + 
+                "epmem_wmes_identifier did not contain expected row " + 
                 (expectedRows.isEmpty()?"":expectedRows.toArray()[0]),
                 expectedRows.isEmpty()
             );
     }
     
     @Test
-    public void testTimesTable() throws Exception
+    public void testEpisodesTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -477,26 +469,26 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         expectedRows.add(1L);
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "times");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_episodes");
         
         final ResultSet results = p.executeQuery();
         
         while(results.next()){
             assertTrue(
-                    "times contained unexpected " + results.getLong("id"),
-                    expectedRows.contains(results.getLong("id"))
+                    "epmem_episodes contained unexpected " + results.getLong("episode_id"),
+                    expectedRows.contains(results.getLong("episode_id"))
                 );
-            expectedRows.remove(results.getLong("id"));
+            expectedRows.remove(results.getLong("episode_id"));
         }
         assertTrue(
-                "times did not contain expected row " + 
+                "epmem_episodes did not contain expected row " + 
                 (expectedRows.isEmpty()?"":expectedRows.get(0)),
                 expectedRows.isEmpty()
             );
     }
     
     @Test
-    public void testVarsTable() throws Exception
+    public void testPersistentVariablesTable() throws Exception
     {
         runTest("testHamilton_store", 2);
         
@@ -517,19 +509,19 @@ public class EpMemHamiltonStoreTests extends FunctionalTestHarness
         expectedRows.put(8L,14L);
         
         final PreparedStatement p = getConnection().prepareStatement(
-                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "vars");
+                "select * from " + EpisodicMemoryDatabase.EPMEM_SCHEMA + "epmem_persistent_variables");
         
         final ResultSet results = p.executeQuery();
         
         while(results.next()){
             assertTrue(
-                    "vars contained unexpected " + results.getLong("id") + ", " + results.getLong("value"),
-                    expectedRows.get(results.getLong("id")) == results.getLong("value")
+                    "epmem_persistent_variables contained unexpected " + results.getLong("variable_id") + ", " + results.getLong("variable_value"),
+                    expectedRows.get(results.getLong("variable_id")) == results.getLong("variable_value")
                 );
-            expectedRows.remove(results.getLong("id"));
+            expectedRows.remove(results.getLong("variable_id"));
         }
         assertTrue(
-                "vars did not contain expected row " + 
+                "epmem_persistent_variables did not contain expected row " + 
                         (expectedRows.isEmpty()?"":
                             expectedRows.keySet().toArray()[0]
                             + ", " + 
