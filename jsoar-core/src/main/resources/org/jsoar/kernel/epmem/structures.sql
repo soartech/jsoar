@@ -61,7 +61,7 @@ CREATE INDEX IF NOT EXISTS epmem_wmes_identifier_range_upper ON @PREFIX@epmem_wm
 CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_identifier_range_id_start ON @PREFIX@epmem_wmes_identifier_range (wi_id,start_episode_id DESC)
 CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_identifier_range_id_end_start ON @PREFIX@epmem_wmes_identifier_range (wi_id,end_episode_id DESC,start_episode_id)
 
-CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_constant_parent_attribute_s_id_value ON @PREFIX@epmem_wmes_constant (parent_n_id,attribute_s_id,value_s_id)
+CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_constant_parent_attribute_value ON @PREFIX@epmem_wmes_constant (parent_n_id,attribute_s_id,value_s_id)
 
 CREATE INDEX IF NOT EXISTS epmem_wmes_identifier_parent_n_id_w_last_episode_id ON @PREFIX@epmem_wmes_identifier (parent_n_id,attribute_s_id,last_episode_id)
 CREATE UNIQUE INDEX IF NOT EXISTS epmem_wmes_identifier_parent_n_id_w_child_n_id ON @PREFIX@epmem_wmes_identifier (parent_n_id,attribute_s_id,child_n_id)
