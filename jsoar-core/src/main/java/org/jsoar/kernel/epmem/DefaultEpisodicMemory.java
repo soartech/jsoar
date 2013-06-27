@@ -4307,6 +4307,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         else
                         {
                             uedge.activated = false;
+                            uedge.activation_count--;
                             for (EpmemPEdge pedge_iter: uedge.pedges)
                             {
                                 EpmemPEdge pedge = pedge_iter;
@@ -5789,10 +5790,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     //q1 = my_q->column_int( 2 );
                     child_n_id = resultSet.getLong(2 + 1);
                     //attr = epmem_reverse_hash( my_agent, my_q->column_int( 1 ), SYM_CONSTANT_SYMBOL_TYPE);
-                    attr = epmem_reverse_hash( resultSet.getLong( 1 + 1 ), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
-                    
-                    // I don't think we even need the symbol type.  Attributes are always strings
-                    // I'm not sure why Nate was checking that here before.
+                    attr = epmem_reverse_hash( resultSet.getLong( 1 + 1 ));
                     
                     // short vs. long-term
                     //This is how Smem is doing this cast, but I'm not certain how 
@@ -5953,8 +5951,8 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     if ( dont_abide_by_ids_second || (parent != null && parent.second) )
                     {
                         // make a symbol to represent the attribute
-                        //attr = epmem_reverse_hash( my_agent, my_q->column_int( 2 ), SYM_CONSTANT_SYMBOL_TYPE);
-                        attr = epmem_reverse_hash( resultSet.getLong( 2 + 1), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
+                        //attr = epmem_reverse_hash( my_agent, my_q->column_int( 2 ));
+                        attr = epmem_reverse_hash( resultSet.getLong( 2 + 1));
                         
                         // make a symbol to represent the value
                         //value = epmem_reverse_hash( my_agent, my_q->column_int( 3 ));
@@ -6782,7 +6780,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         parent_n_id = result.getLong( 0 + 1 );
                         child_n_id = result.getLong( 2 + 1 );
                         
-                        temp_s = epmem_reverse_hash_print( result.getLong( 1 + 1 ), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
+                        temp_s = epmem_reverse_hash_print( result.getLong( 1 + 1 ));
                         
                         val_is_short_term = 
                                 ( db.column_type(result.getMetaData().getColumnType(3 + 1)) 
@@ -6840,7 +6838,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     while ( result.next() )
                     {
                         parent_n_id = result.getLong( 1 + 1 );
-                        temp_s = epmem_reverse_hash_print( result.getLong( 2 + 1 ), Symbols.SYM_CONSTANT_SYMBOL_TYPE);
+                        temp_s = epmem_reverse_hash_print( result.getLong( 2 + 1 ));
                         temp_s2 = epmem_reverse_hash_print( result.getLong( 3 + 1 ));
                         
                         //ep[ parent_n_id ][ temp_s ].push_back( temp_s2 );
