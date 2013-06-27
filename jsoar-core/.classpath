@@ -11,5 +11,10 @@
 	<classpathentry exported="true" kind="lib" path="lib/guava-14.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math3-3.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-math/javadocs/api-3.2"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
