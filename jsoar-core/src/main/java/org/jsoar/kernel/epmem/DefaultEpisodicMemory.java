@@ -4209,18 +4209,15 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                     {
                         EpmemUEdge uedge = uedge_iter;
                         uedge.pedges.add(pedge);
-                        if (uedge.activated) {
+                        if (uedge.activated && uedge.activation_count == 1) {
                             for (EpmemLiteral lit_iter: pedge.literals) 
                             {
                                 EpmemLiteral literal = lit_iter;
-                                if (!literal.is_current || uedge.activation_count == 1) 
-                                {
-                                    ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
-                                    ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
-                                    changed_score |= epmem_satisfy_literal(literal, triple.parent_n_id, triple.child_n_id, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
-                                    current_score = curScoreRef.value;
-                                    current_cardinality = curCardinalityRef.value;
-                                }
+                                ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
+                                ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
+                                changed_score |= epmem_satisfy_literal(literal, triple.parent_n_id, triple.child_n_id, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
+                                current_score = curScoreRef.value;
+                                current_cardinality = curCardinalityRef.value;
                             }
                         }
                     }
@@ -4287,14 +4284,14 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         {
                             uedge.activated = true;
                             uedge.activation_count++;
-                            for (EpmemPEdge pedge_iter: uedge.pedges)
+                            if (uedge.activation_count == 1) 
                             {
-                                EpmemPEdge pedge = pedge_iter;
-                                for (EpmemLiteral lit_iter: pedge.literals)
+                                for (EpmemPEdge pedge_iter: uedge.pedges)
                                 {
-                                    EpmemLiteral literal = lit_iter;
-                                    if (!literal.is_current || uedge.activation_count == 1) 
+                                    EpmemPEdge pedge = pedge_iter;
+                                    for (EpmemLiteral lit_iter: pedge.literals)
                                     {
+                                        EpmemLiteral literal = lit_iter;
                                         ByRef<Double> curScoreRef = new ByRef<Double>(current_score);
                                         ByRef<Long> curCardinalityRef = new ByRef<Long>(current_cardinality);
                                         changed_score |= epmem_satisfy_literal(literal, triple.parent_n_id, triple.child_n_id, curScoreRef, curCardinalityRef, symbol_node_count, uedge_caches, symbol_num_incoming);
