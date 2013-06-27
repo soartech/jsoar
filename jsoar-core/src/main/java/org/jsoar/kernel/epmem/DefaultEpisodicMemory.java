@@ -1262,15 +1262,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
     @Override
     public void epmem_go(boolean allow_store)
     {
-        // my_agent->epmem_timers->total->start();
-        //
-        // #ifndef EPMEM_EXPERIMENT
-        //
-        // if ( allow_store )
-        // {
-        // epmem_consider_new_episode( my_agent );
-        // }
-        // epmem_respond_to_cmd( my_agent );
         if (allow_store)
         {
             epmem_consider_new_episode();
@@ -1289,14 +1280,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             logger.error("While responding to epmem command: " + e.getMessage(), e);
             agent.getPrinter().error("While responding to epmem command: " + e.getMessage());
         }
-        //
-        // #else // EPMEM_EXPERIMENT
-        //
-        // _epmem_exp( my_agent );
-        // epmem_respond_to_cmd( my_agent );
-        //
-        // #endif // EPMEM_EXPERIMENT
-        //
         // my_agent->epmem_timers->total->stop();
     }
 
@@ -1465,11 +1448,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             {
                 long temp_node;
 
-                // #ifdef EPMEM_EXPERIMENT
-                // epmem_dc_interval_inserts = epmem_node.size() +
-                // epmem_edge.size();
-                // #endif
-
                 // nodes
                 while (!epmem_node.isEmpty())
                 {
@@ -1535,19 +1513,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 long /*epmem_time_id*/ range_start;
                 long /*epmem_time_id*/ range_end;
 
-                //#ifdef EPMEM_EXPERIMENT
-                //epmem_dc_interval_removes = 0;
-                //#endif
-
                 // wme's with constant values
                 for(Map.Entry<Long, Boolean> r : epmem_node_removals.entrySet())
                 {
                     if(r.getValue())
                     {
-                        //#ifdef EPMEM_EXPERIMENT
-                        //epmem_dc_interval_removes++;
-                        //#endif
-
                         // remove NOW entry
                         // id = ?
                         db.delete_epmem_wmes_constant_now.setLong(1, r.getKey());
@@ -1580,10 +1550,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 {
                     if ( r.getValue() )
                     {
-                        //#ifdef EPMEM_EXPERIMENT
-                        //epmem_dc_interval_removes++;
-                        //#endif
-
                         // remove NOW entry
                         // id = ?
                         db.delete_epmem_wmes_identifier_now.setLong(1, r.getKey());
@@ -4046,12 +4012,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             if (logger.isDebugEnabled()) {
                 logger.debug(epmem_print_retrieval_state(literal_cache, pedge_caches, uedge_caches));
             }
-
-            /*
-            #ifdef EPMEM_EXPERIMENT
-                    epmem_episodes_searched = 0;
-            #endif
-            */
             // main loop of interval walk
             //my_agent->epmem_timers->query_walk->start();
             
@@ -4428,11 +4388,6 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                         print(my_agent, buf);
                         xml_generate_warning(my_agent, buf);
                     }
-                    */
-                    /*
-                    #ifdef EPMEM_EXPERIMENT
-                                    epmem_episodes_searched++;
-                    #endif
                     */
                     // if
                     // * the current time is still before any new intervals
