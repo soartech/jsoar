@@ -37,11 +37,6 @@ public class SoarPreparedStatement implements PreparedStatement
     private final Map<Integer, Object> bindVariables = 
             new HashMap<Integer, Object>();
     
-    
-    public SoarPreparedStatement(PreparedStatement ps){
-        this(ps, "");
-    }
-    
     public SoarPreparedStatement(PreparedStatement ps, String query){
         this.ps = ps;
         this.query = query;
@@ -50,6 +45,13 @@ public class SoarPreparedStatement implements PreparedStatement
     //Use this to make more PreparedStatements
     public String getQuery(){
         return query;
+    }
+    
+    public SoarPreparedStatement getCopy() throws SQLException{
+        return new SoarPreparedStatement(
+                ps.getConnection().prepareStatement(query), 
+                query
+            );
     }
     
     //Use this to see what the Database will see

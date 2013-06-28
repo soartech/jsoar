@@ -3978,7 +3978,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 root_pedge.has_noncurrent = false;
                 root_pedge.literals = new ConcurrentSkipListSet<EpmemLiteral>();
                 root_pedge.literals.add(root_literal);
-                root_pedge.sql = db.pool_dummy.request();//my_agent->epmem_stmts_graph->pool_dummy->request();
+                root_pedge.sql = db.pool_dummy.getCopy();//my_agent->epmem_stmts_graph->pool_dummy->request();
                 root_pedge.sql.setLong(1, Long.MAX_VALUE/*LLONG_MAX*/);
                 root_pedge.sqlResults = root_pedge.sql.executeQuery();
                 root_pedge.time = Long.MAX_VALUE/*LLONG_MAX*/;
@@ -4000,7 +4000,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                 //allocate_with_pool(my_agent, &(my_agent->epmem_interval_pool), &root_interval);
                 root_interval.uedge = root_uedge;
                 root_interval.is_end_point = 1;//true;
-                root_interval.sql = db.pool_dummy.request();//my_agent->epmem_stmts_graph->pool_dummy->request();
+                root_interval.sql = db.pool_dummy.getCopy();//my_agent->epmem_stmts_graph->pool_dummy->request();
                 //root_interval->sql->prepare();
                 root_interval.sql.setLong(1, before);
                 root_interval.sqlResult = root_interval.sql.executeQuery();
@@ -4136,11 +4136,11 @@ public class DefaultEpisodicMemory implements EpisodicMemory
                                 PreparedStatement/*soar_module::pooled_sqlite_statement**/ interval_sql = null;
                                 if (is_lti) 
                                 {
-                                    interval_sql = db.pool_find_lti_queries[point_type][interval_type].request(/*sql_timer*/);
+                                    interval_sql = db.pool_find_lti_queries[point_type][interval_type].getCopy(/*sql_timer*/);
                                 } 
                                 else 
                                 {
-                                    interval_sql = db.pool_find_interval_queries[pedge.value_is_id][point_type][interval_type].request(/*sql_timer*/);
+                                    interval_sql = db.pool_find_interval_queries[pedge.value_is_id][point_type][interval_type].getCopy(/*sql_timer*/);
                                 }
                                 // CK: both the JDBC and C drivers have an index of 1 for the leftmost parameter in a prepared statement
                                 // (see: http://www.sqlite.org/c3ref/bind_blob.html)
@@ -5059,7 +5059,7 @@ public class DefaultEpisodicMemory implements EpisodicMemory
             int has_value = (literal.child_n_id != EPMEM_NODEID_BAD ? 1 : 0);
             //soar_module::pooled_sqlite_statement* pedge_sql = my_agent->epmem_stmts_graph->pool_find_edge_queries[is_edge][has_value]->request(my_agent->epmem_timers->query_sql_edge);
 
-            PreparedStatement pedge_sql = db.pool_find_edge_queries[is_edge][has_value].request();
+            PreparedStatement pedge_sql = db.pool_find_edge_queries[is_edge][has_value].getCopy();
             int bind_pos = 1;
             if (is_edge == 0) {
                 pedge_sql.setLong(bind_pos++, Long.MAX_VALUE);
