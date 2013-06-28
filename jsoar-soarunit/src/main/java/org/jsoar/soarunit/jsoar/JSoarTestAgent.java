@@ -6,13 +6,17 @@
 package org.jsoar.soarunit.jsoar;
 
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.DebuggerProvider;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.ProductionType;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
+import org.jsoar.kernel.DebuggerProvider.CloseAction;
 import org.jsoar.kernel.events.BeforeInitSoarEvent;
 import org.jsoar.kernel.events.InputEvent;
 import org.jsoar.kernel.io.InputOutput;
@@ -21,9 +25,11 @@ import org.jsoar.kernel.io.InputWmes;
 import org.jsoar.kernel.symbols.SymbolFactory;
 import org.jsoar.kernel.tracing.Printer;
 import org.jsoar.kernel.tracing.Trace.WmeTraceType;
+import org.jsoar.runtime.ThreadedAgent;
 import org.jsoar.soarunit.FiringCounts;
 import org.jsoar.soarunit.Test;
 import org.jsoar.soarunit.TestAgent;
+import org.jsoar.soarunit.TestCase;
 import org.jsoar.util.FileTools;
 import org.jsoar.util.StringTools;
 import org.jsoar.util.events.SoarEvent;
@@ -34,7 +40,7 @@ import org.jsoar.util.events.SoarEventListener;
  */
 public class JSoarTestAgent implements TestAgent
 {
-    private Agent agent;
+    private ThreadedAgent agent; // we need a ThreadedAgent to use the debugger
     private StringWriter output;
     private TestRhsFunction passFunction;
     private TestRhsFunction failFunction;
@@ -164,16 +170,21 @@ public class JSoarTestAgent implements TestAgent
      * @see org.jsoar.soarunit.TestAgent#initialize(org.jsoar.soarunit.Test)
      */
     @Override
-    public void initialize(Test test) throws SoarException
+    public void initialize(Test test) throws SoarException 
     {
-        output = new StringWriter();
-        agent = new Agent(test.getName());
+        commonInitialize(test);
         agent.getTrace().setWatchLevel(0);
+        output = new StringWriter();
         agent.getPrinter().addPersistentWriter(output);
         agent.initialize();
+        loadTestCode(test);
+    }
+    
+    public void commonInitialize(Test test)
+    {
+        agent = ThreadedAgent.create(test.getName());
         
-        passFunction = TestRhsFunction.addTestFunction(agent, "pass");
-        failFunction = TestRhsFunction.addTestFunction(agent, "fail");
+        initializeRhsFunctions();
         
         agent.getEvents().addListener(InputEvent.class, listener);
         agent.getEvents().addListener(BeforeInitSoarEvent.class, initListener);
@@ -198,14 +209,19 @@ public class JSoarTestAgent implements TestAgent
             }
         }); 
         
+    }
+
+    private void initializeRhsFunctions()
+    {
+        passFunction = TestRhsFunction.addTestFunction(agent, "pass");
+        failFunction = TestRhsFunction.addTestFunction(agent, "fail");
+    }
+    
+    private void loadTestCode(Test test) throws SoarException
+    {
         agent.getInterpreter().eval(String.format("pushd \"%s\"", FileTools.getParent(test.getTestCase().getFile()).replace('\\', '/')));
         agent.getInterpreter().eval(test.getTestCase().getSetup());
         agent.getInterpreter().eval(test.getContent());
-    }
-    
-    public void commonInitialize()
-    {
-        
     }
 
     /* (non-Javadoc)
@@ -214,8 +230,9 @@ public class JSoarTestAgent implements TestAgent
     @Override
     public void run()
     {
-        final int cycles = 50000; 
-        agent.runFor(cycles, RunType.DECISIONS);
+        final int cycles = 50000;
+        // run using the underlying, non-threaded agent so that we block until the run completes
+        agent.getAgent().runFor(cycles, RunType.DECISIONS);
         agent.getPrinter().flush();
     }
 
@@ -233,7 +250,6 @@ public class JSoarTestAgent implements TestAgent
      */
     private void update(InputOutput io)
     {
-        System.err.println("Updating IL");
         if(cycleCountWme == null)
         {
             soarUnitWme = InputWmes.add(io, "soar-unit", io.getSymbols().createIdentifier('C'));
@@ -269,6 +285,22 @@ public class JSoarTestAgent implements TestAgent
             cycleCountWme = null;
             soarUnitWme = null;
         }
+        
+    }
+
+    public void debug(Test test, boolean exitOnClose) throws SoarException, InterruptedException
+    {
+        commonInitialize(test);
+        
+        final Map<String, Object> debugProps = new HashMap<String, Object>();
+        debugProps.put(DebuggerProvider.CLOSE_ACTION, exitOnClose ? CloseAction.EXIT : CloseAction.DISPOSE);
+        agent.getDebuggerProvider().setProperties(debugProps);
+        agent.openDebuggerAndWait();
+       
+        loadTestCode(test);
+        
+        agent.getPrinter().print("SoarUnit: Debugging %s%n", test);
+        agent.getPrinter().flush();
         
     }
 }
