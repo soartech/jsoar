@@ -36,11 +36,11 @@ public class TestRunner
         memoryLoads = new ArrayList<Long>();
     }
     
-    public boolean runSingleIteration() throws SoarException
+    public boolean runSingleIteration(int runCount) throws SoarException
     {
         test.reset();
         
-        boolean result = test.run();
+        boolean result = test.run(runCount);
         
         cpuTimes.add(test.getCPURunTime());
         kernelTimes.add(test.getKernelRunTime());
@@ -69,7 +69,7 @@ public class TestRunner
         {
             test.reset();
             
-            boolean result = test.run();
+            boolean result = test.run(i);
             
             if (!result)
                 return false;
@@ -86,7 +86,7 @@ public class TestRunner
         
         for (int i = warmUpCount;i < runCount;i++)
         {
-            boolean result = runSingleIteration();
+            boolean result = runSingleIteration(i);
             
             if (!result)
                 return false;

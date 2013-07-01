@@ -4,11 +4,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
 public class Configuration
-{   
+{
     public class ConfigurationTest
     {
         private final String testName;
@@ -150,6 +151,17 @@ public class Configuration
     private List<ConfigurationCategory> configurationCategories;
     private List<ConfigurationTest> configurationTests;
     
+    private int runCount;
+    private int warmUpCount;
+    
+    private List<String> testsToRun;
+    private List<String> categoriesToRun;
+    
+    private boolean jsoarEnabled;
+    private boolean csoarEnabled;
+    
+    private HashMap<String, String> csoarDirectories;
+    
     public Configuration(String file)
     {
         this.file = file;
@@ -158,6 +170,11 @@ public class Configuration
         
         this.configurationCategories = new ArrayList<ConfigurationCategory>();
         this.configurationTests = new ArrayList<ConfigurationTest>();
+        
+        this.testsToRun = new ArrayList<String>();
+        this.categoriesToRun = new ArrayList<String>();
+        
+        this.csoarDirectories = new HashMap<String, String>();
     }
     
     public int parse() throws IOException, UnknownPropertyException, InvalidTestNameException, MalformedTestCategory
@@ -171,7 +188,7 @@ public class Configuration
         for (String key : propertiesFile.stringPropertyNames())
         {
             String value = propertiesFile.getProperty(key);
-            
+                        
             if (key.startsWith("Category_"))
             {
                 //Is a category
@@ -248,6 +265,127 @@ public class Configuration
                 
                 configurationTests.add(new ConfigurationTest(test, value, category));
             }
+            else if (key.equals("RunCount"))
+            {
+                runCount = Integer.parseInt(value);
+            }
+            else if (key.equals("WarmUpCount"))
+            {
+                warmUpCount = Integer.parseInt(value);
+            }
+            else if (key.equals("TestsToRun"))
+            {
+                List<String> potentialTests = Arrays.asList(value.split("\\s+"));
+                
+                String temporaryBuffer = "";
+                
+                for (String potential : potentialTests)
+                {
+                    if (potential.startsWith("\""))
+                    {
+                        if (temporaryBuffer.length() != 0)
+                        {
+                            throw new MalformedTestCategory(key);
+                        }
+                        
+                        //Use the temporary buffer to calculate the name with spaces
+                        temporaryBuffer += potential;
+                        continue;
+                    }
+                    else if (potential.endsWith("\""))
+                    {
+                        if (temporaryBuffer.length() == 0)
+                        {
+                            throw new MalformedTestCategory(key);
+                        }
+                        
+                        temporaryBuffer += potential;
+                        
+                        temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
+                        
+                        testsToRun.add(temporaryBuffer);
+                        
+                        temporaryBuffer = "";
+                        continue;
+                    }
+                    else if (temporaryBuffer.length() != 0)
+                    {
+                        temporaryBuffer += potential;
+                        continue;
+                    }
+                    
+                    testsToRun.add(potential);
+                }
+                
+                if (temporaryBuffer.length() != 0)
+                {
+                    throw new MalformedTestCategory(key);
+                }
+            }
+            else if (key.equals("CategoriesToRun"))
+            {
+                List<String> potentialCategories = Arrays.asList(value.split("\\s+"));
+                
+                String temporaryBuffer = "";
+                
+                for (String potential : potentialCategories)
+                {
+                    if (potential.startsWith("\""))
+                    {
+                        if (temporaryBuffer.length() != 0)
+                        {
+                            throw new MalformedTestCategory(key);
+                        }
+                        
+                        //Use the temporary buffer to calculate the name with spaces
+                        temporaryBuffer += potential;
+                        continue;
+                    }
+                    else if (potential.endsWith("\""))
+                    {
+                        if (temporaryBuffer.length() == 0)
+                        {
+                            throw new MalformedTestCategory(key);
+                        }
+                        
+                        temporaryBuffer += potential;
+                        
+                        temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
+                        
+                        categoriesToRun.add(temporaryBuffer);
+                        
+                        temporaryBuffer = "";
+                        continue;
+                    }
+                    else if (temporaryBuffer.length() != 0)
+                    {
+                        temporaryBuffer += potential;
+                        continue;
+                    }
+                    
+                    categoriesToRun.add(potential);
+                }
+                
+                if (temporaryBuffer.length() != 0)
+                {
+                    throw new MalformedTestCategory(key);
+                }
+            }
+            else if (key.equals("JSoarEnabled"))
+            {
+                jsoarEnabled = Boolean.parseBoolean(value);
+            }
+            else if (key.equals("CSoarEnabled"))
+            {
+                csoarEnabled = Boolean.parseBoolean(value);
+            }
+            else if (key.startsWith("CSoarDirectory_"))
+            {
+                String path = value;
+                String label = key.substring(15, key.length());
+                
+                csoarDirectories.put(label, path);
+            }
             else
             {
                 //Unknown
@@ -266,5 +404,40 @@ public class Configuration
     public List<ConfigurationCategory> getConfigurationCategories()
     {
         return configurationCategories;
+    }
+    
+    public int getRunCount()
+    {
+        return runCount;
+    }
+    
+    public int getWarmUpCount()
+    {
+        return warmUpCount;
+    }
+    
+    public List<String> getTestsToRun()
+    {
+        return testsToRun;
+    }
+    
+    public List<String> getCategoriesToRun()
+    {
+        return categoriesToRun;
+    }
+    
+    public boolean getJSoarEnabled()
+    {
+        return jsoarEnabled;
+    }
+    
+    public boolean getCSoarEnabled()
+    {
+        return csoarEnabled;
+    }
+    
+    public HashMap<String, String> getCSoarDirectory()
+    {
+        return csoarDirectories;
     }
 }

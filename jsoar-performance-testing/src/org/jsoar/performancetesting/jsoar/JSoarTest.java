@@ -69,9 +69,9 @@ public class JSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#run()
      */
     @Override
-    public boolean run() throws SoarException
+    public boolean run(int runCount) throws SoarException
     {
-        agent = new Agent();
+        agent = new Agent("JSoar Performance Testing Agent - " + testName + " - " + runCount);
         agent.getTrace().setEnabled(false);
         agent.getPrinter().pushWriter(new NullWriter());
         agent.initialize();
