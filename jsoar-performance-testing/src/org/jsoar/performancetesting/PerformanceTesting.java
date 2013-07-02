@@ -382,10 +382,19 @@ public class PerformanceTesting
                         return EXIT_FAILURE;
                     }
 
-                    out.println("\n" + jsoarTest.getTestName() + " Results:\n" + "Total CPU Time: " + jsoarTestRunner.getTotalCPUTime() + "\n" + "Average CPU Time Per Run: " + jsoarTestRunner.getAverageCPUTime() + "\n" + "Total Kernel Time: "
-                            + jsoarTestRunner.getTotalKernelTime() + "\n" + "Average Kernel Time Per Run: " + jsoarTestRunner.getAverageKernelTime() + "\n" + "Decision Cycles Run For: " + jsoarTestRunner.getTotalDecisionCycles() + "\n"
-                            + "Average Decision Cycles Per Run: " + jsoarTestRunner.getAverageDecisionCycles() + "\n" + "Memory Used: " + jsoarTestRunner.getTotalMemoryLoad() / 1000.0 / 1000.0 + "M\n" + "Average Memory Used Per Run: "
-                            + jsoarTestRunner.getAverageMemoryLoad() / 1000.0 / 1000.0 + "M\n\n");
+                    out.println(
+                            "\n" + jsoarTest.getTestName() + " Results:\n" +
+                            "Total CPU Time: " + jsoarTestRunner.getTotalCPUTime() +
+                            "\n" + "Average CPU Time Per Run: " + jsoarTestRunner.getAverageCPUTime() + "\n" +
+                            "Total Kernel Time: " + jsoarTestRunner.getTotalKernelTime() + "\n" +
+                            "Average Kernel Time Per Run: " + jsoarTestRunner.getAverageKernelTime() + "\n" +
+                            "Decision Cycles Run For: " + jsoarTestRunner.getTotalDecisionCycles() + "\n"
+                            + "Average Decision Cycles Per Run: " + jsoarTestRunner.getAverageDecisionCycles() + "\n" +
+                            "Memory Used: " + jsoarTestRunner.getTotalMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
+                            "Average Memory Used Per Run: " + jsoarTestRunner.getAverageMemoryLoad() / 1000.0 / 1000.0 + "M\n" + 
+                            "Mean Memory Used Per Run: " + jsoarTestRunner.getMeanMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
+                            "Memory Deviation from Average: " + jsoarTestRunner.getMemoryLoadDeviation() / 1000.0 / 1000.0 + "M\n\n"
+                            );
 
                     out.flush();
 
@@ -410,10 +419,19 @@ public class PerformanceTesting
                         return EXIT_FAILURE;
                     }
 
-                    out.println("\n" + csoarTest.getTestName() + " Results:\n" + "Total CPU Time: " + csoarTestRunner.getTotalCPUTime() + "\n" + "Average CPU Time Per Run: " + csoarTestRunner.getAverageCPUTime() + "\n" + "Total Kernel Time: "
-                            + csoarTestRunner.getTotalKernelTime() + "\n" + "Average Kernel Time Per Run: " + csoarTestRunner.getAverageKernelTime() + "\n" + "Decision Cycles Run For: " + csoarTestRunner.getTotalDecisionCycles() + "\n"
-                            + "Average Decision Cycles Per Run: " + csoarTestRunner.getAverageDecisionCycles() + "\n" + "Memory Used: " + csoarTestRunner.getTotalMemoryLoad() / 1000.0 / 1000.0 + "M\n" + "Average Memory Used Per Run: "
-                            + csoarTestRunner.getAverageMemoryLoad() / 1000.0 / 1000.0 + "M\n\n");
+                    out.println(
+                            "\n" + csoarTest.getTestName() + " Results:\n" +
+                            "Total CPU Time: " + csoarTestRunner.getTotalCPUTime() +
+                            "\n" + "Average CPU Time Per Run: " + csoarTestRunner.getAverageCPUTime() + "\n" +
+                            "Total Kernel Time: " + csoarTestRunner.getTotalKernelTime() + "\n" +
+                            "Average Kernel Time Per Run: " + csoarTestRunner.getAverageKernelTime() + "\n" +
+                            "Decision Cycles Run For: " + csoarTestRunner.getTotalDecisionCycles() + "\n" +
+                            "Average Decision Cycles Per Run: " + csoarTestRunner.getAverageDecisionCycles() + "\n" +
+                            "Memory Used: " + csoarTestRunner.getTotalMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
+                            "Average Memory Used Per Run: " + csoarTestRunner.getAverageMemoryLoad() / 1000.0 / 1000.0 + "M\n" + 
+                            "Mean Memory Used Per Run: " + csoarTestRunner.getMeanMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
+                            "Memory Deviation from Average: " + csoarTestRunner.getMemoryLoadDeviation() / 1000.0 / 1000.0 + "M\n\n"
+                            );
 
                     out.flush();
 

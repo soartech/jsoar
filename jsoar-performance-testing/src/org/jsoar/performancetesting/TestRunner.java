@@ -5,6 +5,7 @@ package org.jsoar.performancetesting;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
@@ -200,6 +201,38 @@ public class TestRunner
         averageMemoryLoad /= runs;
         
         return averageMemoryLoad;
+    }
+    
+    public double getMeanMemoryLoad()
+    {
+        List<Long> memoryLoadsSorted = new ArrayList<Long>(memoryLoads);
+        
+        Collections.sort(memoryLoadsSorted);
+        
+        int size = memoryLoadsSorted.size();
+        
+        if (size % 2 == 0)
+        {
+            //Even
+            return memoryLoadsSorted.get(size/2);
+        }
+        else
+        {
+            //Odd
+            int index_top = (int) Math.floor(size/2.0);
+            int index_bottom = (int) Math.nextUp(size/2.0);
+            
+            double mean = memoryLoadsSorted.get(index_bottom) + memoryLoadsSorted.get(index_top);
+            
+            mean /= 2.0;
+            
+            return mean;
+        }
+    }
+    
+    public double getMemoryLoadDeviation()
+    {        
+        return Collections.max(memoryLoads) - getAverageMemoryLoad();
     }
     
     public Test getTest()

@@ -75,6 +75,8 @@ public class JSoarTest implements Test
     @Override
     public boolean run(int runCount) throws SoarException
     {
+        // This is to make it very likely that the garbage collector has cleaned up all references and freed memory
+        // http://stackoverflow.com/questions/1481178/forcing-garbage-collection-in-java
         System.gc();
         System.gc();
         
@@ -102,9 +104,6 @@ public class JSoarTest implements Test
         agent.dispose();
         
         agent = null;
-        
-        System.gc();
-        System.gc();
         
         return true;
     }
