@@ -195,7 +195,7 @@ public class Configuration
         fileStream.close();
         
         configurationCategories.add(new ConfigurationCategory("Uncategorized Tests", new ArrayList<String>()));
-                
+        
         for (String key : propertiesFile.stringPropertyNames())
         {
             String value = propertiesFile.getProperty(key);

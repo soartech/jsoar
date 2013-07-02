@@ -59,9 +59,6 @@ public class TestRunner
     
     public boolean runTestsForAverage(int runCount, int warmUpCount) throws SoarException
     {
-        if (runCount < (warmUpCount + 1))
-            return false;
-        
         out.print("Warming Up: ");
         out.flush();
         
