@@ -6,7 +6,6 @@ package org.jsoar.performancetesting.csoar;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jsoar.kernel.SoarException;
 import org.jsoar.performancetesting.Test;
 
 /**

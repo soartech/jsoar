@@ -5,7 +5,6 @@ package org.jsoar.performancetesting.csoar;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 
 /**
  * @author ALT
@@ -14,24 +13,22 @@ import java.util.HashMap;
 public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
 {
     private Object agentImpl;
-    private HashMap<String, Class> agentMap;
-    
-    private String label;
-    
+    private Class<?> agent;
+        
     private Method loadProductions;
     private Method runSelfForever;
     private Method executeCommandLine;
     
-    ImplCSoarAgentWrapper(Object agentImpl, HashMap<String, Class> agentMap, String label)
+    ImplCSoarAgentWrapper(Object agentImpl, Class<?> agent)
     {
         this.agentImpl = agentImpl;
-        this.agentMap = agentMap;
+        this.agent = agent;
         
         try
         {
-            loadProductions = agentMap.get(label).getDeclaredMethod("LoadProductions", String.class);
-            runSelfForever = agentMap.get(label).getDeclaredMethod("RunSelfForever");
-            executeCommandLine = agentMap.get(label).getDeclaredMethod("ExecuteCommandLine", String.class);
+            loadProductions = this.agent.getDeclaredMethod("LoadProductions", String.class);
+            runSelfForever = this.agent.getDeclaredMethod("RunSelfForever");
+            executeCommandLine = this.agent.getDeclaredMethod("ExecuteCommandLine", String.class);
         }
         catch (NoSuchMethodException | SecurityException e)
         {

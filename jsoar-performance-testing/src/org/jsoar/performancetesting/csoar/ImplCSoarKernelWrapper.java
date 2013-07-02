@@ -5,10 +5,6 @@ package org.jsoar.performancetesting.csoar;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashMap;
 
 /**
  * @author ALT
@@ -17,23 +13,20 @@ import java.util.HashMap;
 public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
 {
     private Object kernelImpl;
-    private HashMap<String, Class> kernelMap;
-    private HashMap<String, Class> agentMap;
-    
-    private String label;
-    
+    private Class<?> kernel;
+    private Class<?> agent;
+        
     private Method createAgent;
     
-    public ImplCSoarKernelWrapper(Object kernelImpl, HashMap<String, Class> kernelMap, HashMap<String, Class> agentMap, String label)
+    public ImplCSoarKernelWrapper(Object kernelImpl, Class<?> kernel, Class<?> agent)
     {
-        this.label = label;
         this.kernelImpl = kernelImpl;
-        this.kernelMap = kernelMap;
-        this.agentMap = agentMap;
+        this.kernel = kernel;
+        this.agent = agent;
         
         try
         {
-            createAgent = kernelMap.get(label).getDeclaredMethod("CreateAgent", String.class);
+            createAgent = this.kernel.getDeclaredMethod("CreateAgent", String.class);
         }
         catch (NoSuchMethodException | SecurityException e)
         {
@@ -51,7 +44,7 @@ public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
         try
         {
             Object agentImpl = createAgent.invoke(kernelImpl, name);
-            return new ImplCSoarAgentWrapper(agentImpl, agentMap, label);
+            return new ImplCSoarAgentWrapper(agentImpl, agent);
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {

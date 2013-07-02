@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -160,7 +159,8 @@ public class Configuration
     private boolean jsoarEnabled;
     private boolean csoarEnabled;
     
-    private HashMap<String, String> csoarDirectories;
+    private String csoarDirectory;
+    private String csoarLabel;
     
     public Configuration(String file)
     {
@@ -174,7 +174,8 @@ public class Configuration
         this.testsToRun = new ArrayList<String>();
         this.categoriesToRun = new ArrayList<String>();
         
-        this.csoarDirectories = new HashMap<String, String>();
+        this.csoarDirectory = new String();
+        this.csoarLabel = new String();
     }
     
     public int parse() throws IOException, UnknownPropertyException, InvalidTestNameException, MalformedTestCategory
@@ -384,7 +385,8 @@ public class Configuration
                 String path = value;
                 String label = key.substring(15, key.length());
                 
-                csoarDirectories.put(label, path);
+                csoarDirectory = path;
+                csoarLabel = label;
             }
             else
             {
@@ -436,8 +438,13 @@ public class Configuration
         return csoarEnabled;
     }
     
-    public HashMap<String, String> getCSoarDirectory()
+    public String getCSoarDirectory()
     {
-        return csoarDirectories;
+        return csoarDirectory;
+    }
+    
+    public String getCSoarLabel()
+    {
+        return csoarLabel;
     }
 }

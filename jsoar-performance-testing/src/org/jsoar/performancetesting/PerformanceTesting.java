@@ -10,8 +10,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.jsoar.kernel.SoarException;
@@ -35,9 +33,9 @@ public class PerformanceTesting
     private final PrintWriter out;
     
     private JSoarTestFactory jsoarTestFactory;
-    private List<CSoarTestFactory> csoarTestFactories;
+    private CSoarTestFactory csoarTestFactory;
     
-    private final HashMap<String, List<TestCategory>> csoarTestCategories;
+    private final List<TestCategory> csoarTestCategories;
     private final List<Test> csoarTests;
     
     private final List<TestCategory> jsoarTestCategories;
@@ -73,11 +71,11 @@ public class PerformanceTesting
         this.jsoarTestCategories = new ArrayList<TestCategory>();
         this.jsoarTests = new ArrayList<Test>();
         
-        this.csoarTestCategories = new HashMap<String, List<TestCategory>>();
+        this.csoarTestCategories = new ArrayList<TestCategory>();
         this.csoarTests = new ArrayList<Test>();
         
         this.jsoarTestFactory = new JSoarTestFactory();
-        this.csoarTestFactories = new ArrayList<CSoarTestFactory>();
+        this.csoarTestFactory = new CSoarTestFactory();
         
         this.jsoarTestCategories.add(new TestCategory("Uncategorized Tests", new ArrayList<Test>()));
     }
@@ -109,10 +107,9 @@ public class PerformanceTesting
         newOption(Options.test).requiredArg().
         done();
         
-        final List<String> rest;
         try
         {
-            rest = options.process(Lists.asList("PerformanceTesting", args));
+            options.process(Lists.asList("PerformanceTesting", args));
         }
         catch (SoarException e)
         {
@@ -157,71 +154,42 @@ public class PerformanceTesting
             }
             
 
-            HashMap<String, String> csoarDirectory = config.getCSoarDirectory();
+            String csoarDirectory = config.getCSoarDirectory();
+            String csoarLabel = config.getCSoarLabel();
+
+            csoarTestFactory.setLabel(csoarLabel);
+            csoarTestFactory.setCSoarDirectory(csoarDirectory);
             
-            List<String> keys = new ArrayList<String>();
-            List<String> values = new ArrayList<String>();
-            
-            for (Iterator<String> it = csoarDirectory.keySet().iterator();it.hasNext();)
-            {
-                String key = it.next();
-                keys.add(key);
-            }
-            
-            for (Iterator<String> it = csoarDirectory.values().iterator();it.hasNext();)
-            {
-                String value = it.next();
-                values.add(value);
-            }
-            
-            for (int i = 0;i < keys.size();i++)
-            {
-                CSoarTestFactory factory = new CSoarTestFactory(keys.get(i), values.get(i));
-                csoarTestFactories.add(factory);
-                
-                List<TestCategory> testCategories = new ArrayList<TestCategory>();
-                testCategories.add(new TestCategory("Uncategorized Tests", new ArrayList<Test>()));
-                this.csoarTestCategories.put(keys.get(i), testCategories);
-            }
+            this.csoarTestCategories.add(new TestCategory("Uncategorized Tests", new ArrayList<Test>()));
             
             List<Configuration.ConfigurationTest> configurationTests = config.getConfigurationTests();
             
             for (Configuration.ConfigurationTest test : configurationTests)
             {
                 TestCategory jsoarCategory = TestCategory.getTestCategory(test.getTestCategory(), jsoarTestCategories);
-                
+                TestCategory csoarCategory = TestCategory.getTestCategory(test.getTestCategory(), csoarTestCategories);
                 if (jsoarCategory == null)
                 {
-                    //If JSoar Category is null then CSoar ones are too
                     jsoarCategory = new TestCategory(test.getTestCategory(), new ArrayList<Test>());
-                    TestCategory csoarCategory = new TestCategory(test.getTestCategory(), new ArrayList<Test>());
                     
                     jsoarTestCategories.add(jsoarCategory);
-                    
-                    for (String key : csoarTestCategories.keySet())
-                    {
-                        csoarTestCategories.get(key).add(csoarCategory);
-                    }
                 }
                 
-                for (CSoarTestFactory factory : csoarTestFactories)
+                if (csoarCategory == null)
                 {
-                    Test csoarTest = factory.createTest(test.getTestName(), test.getTestFile());
-                    csoarTests.add(csoarTest);
+                    csoarCategory = new TestCategory(test.getTestCategory(), new ArrayList<Test>());
                     
-                    for (String key : csoarTestCategories.keySet())
-                    {
-                        List<TestCategory> csoarCategories = csoarTestCategories.get(key);
-                        TestCategory csoarCategory = TestCategory.getTestCategory(test.getTestCategory(), csoarCategories);
-                        
-                        csoarCategory.addTest(csoarTest);
-                    }
+                    csoarTestCategories.add(csoarCategory);
                 }
                 
                 Test jsoarTest = jsoarTestFactory.createTest(test.getTestName(), test.getTestFile());
                 jsoarTests.add(jsoarTest);
                 
+                Test csoarTest = csoarTestFactory.createTest(test.getTestName(), test.getTestFile());
+                csoarTests.add(csoarTest);
+                
                 jsoarCategory.addTest(jsoarTest);
+                csoarCategory.addTest(csoarTest);
             }
         }
         
@@ -251,24 +219,14 @@ public class PerformanceTesting
                 
                 testName = testName.substring(0, testName.length()-5);
                                 
-                for (CSoarTestFactory factory : csoarTestFactories)
-                {
-                    Test csoarTest = factory.createTest(testName, path.toString());
-                    csoarTests.add(csoarTest);
-                    
-                    for (String key : csoarTestCategories.keySet())
-                    {
-                        List<TestCategory> csoarCategories = csoarTestCategories.get(key);
-                        TestCategory csoarCategory = TestCategory.getTestCategory("Uncategorized Tests", csoarCategories);
-                        
-                        csoarCategory.addTest(csoarTest);
-                    }
-                }
+                Test csoarTest = csoarTestFactory.createTest(testName, path.toString());
+                csoarTests.add(csoarTest);
                 
                 Test jsoarTest = jsoarTestFactory.createTest(testName, path.toString());
                 jsoarTests.add(jsoarTest);
                 
                 TestCategory.getTestCategory("Uncategorized Tests", jsoarTestCategories).addTest(jsoarTest);
+                TestCategory.getTestCategory("Uncategorized Tests", csoarTestCategories).addTest(csoarTest);
             }
             
             try
@@ -294,24 +252,14 @@ public class PerformanceTesting
             
             String testName = testPath.substring(0, testPath.length()-5);
             
-            for (CSoarTestFactory factory : csoarTestFactories)
-            {
-                Test csoarTest = factory.createTest(testName, testPath);
-                csoarTests.add(csoarTest);
-                
-                for (String key : csoarTestCategories.keySet())
-                {
-                    List<TestCategory> csoarCategories = csoarTestCategories.get(key);
-                    TestCategory csoarCategory = TestCategory.getTestCategory("Uncategorized Tests", csoarCategories);
-                    
-                    csoarCategory.addTest(csoarTest);
-                }
-            }
+            Test csoarTest = csoarTestFactory.createTest(testName, testPath);
+            csoarTests.add(csoarTest);
             
             Test jsoarTest = jsoarTestFactory.createTest(testName, testPath);
             jsoarTests.add(jsoarTest);
             
             TestCategory.getTestCategory("Uncategorized Tests", jsoarTestCategories).addTest(jsoarTest);
+            TestCategory.getTestCategory("Uncategorized Tests", csoarTestCategories).addTest(csoarTest);
         }
         
         out.println("Performance Testing - Starting Tests\n");
@@ -327,20 +275,7 @@ public class PerformanceTesting
             // - ALT
             
             TestCategory jsoarCategory = jsoarTestCategories.get(i);
-            HashMap<String, TestCategory> csoarCategories = new HashMap<String, TestCategory>();
-            
-            for (String key : csoarTestCategories.keySet())
-            {
-                csoarCategories.put(key, csoarTestCategories.get(key).get(i));
-            }
-            
-            List<Test> jsoarTests = jsoarCategory.getCategoryTests();
-            HashMap<String, List<Test>> csoarTests = new HashMap<String, List<Test>>();
-            
-            for (String key : csoarCategories.keySet())
-            {
-                csoarTests.put(key, csoarCategories.get(key).getCategoryTests());
-            }
+            //TestCategory csoarCategory = csoarTestCategories.get(i);
             
             out.println("Starting " + jsoarCategory.getCategoryName() + ": \n");
             out.flush();            
@@ -351,79 +286,68 @@ public class PerformanceTesting
                 // - ALT
                 
                 Test jsoarTest = jsoarTests.get(i);
-                HashMap<String, Test> csoarTest = new HashMap<String, Test>();
-                
-                for (String key : csoarTests.keySet())
-                {
-                    csoarTest.put(key, csoarTests.get(key).get(i));
-                }
-                
-                TestRunner jsoarTestRunner = new TestRunner(jsoarTest, out);
-                HashMap<String, TestRunner> csoarTestRunner = new HashMap<String, TestRunner>();
-                
-                for (String key : csoarTest.keySet())
-                {
-                    csoarTestRunner.put(key, new TestRunner(csoarTest.get(key), out));
-                }
+                Test csoarTest = csoarTests.get(i);
                 
                 out.println("Starting Test: " + jsoarTest.getTestName());
                 out.flush();
                 
                 //Run JSoar First
-//                out.println("JSoar: ");
-//                out.flush();
-//                try
-//                {
-//                    jsoarTestRunner.runTestsForAverage(3, 1);
-//                }
-//                catch (SoarException e)
-//                {
-//                    out.println("Failed with a Soar Exception: " + e.getMessage());
-//                    return EXIT_FAILURE;
-//                }
-//                
-//                out.println(jsoarTest.getTestName() + " Results:\n" +
-//                            "Total CPU Time: " + jsoarTestRunner.getTotalCPUTime() + "\n" +
-//                            "Average CPU Time Per Run: " + jsoarTestRunner.getAverageCPUTime() + "\n" +
-//                            "Total Kernel Time: " + jsoarTestRunner.getTotalKernelTime() + "\n" +
-//                            "Average Kernel Time Per Run: " + jsoarTestRunner.getAverageKernelTime() + "\n" +
-//                            "Decision Cycles Run For: " + jsoarTestRunner.getTotalDecisionCycles() + "\n" +
-//                            "Average Decision Cycles Per Run: " + jsoarTestRunner.getAverageDecisionCycles() + "\n" +
-//                            "Memory Used: " + jsoarTestRunner.getTotalMemoryLoad()/1000.0/1000.0 + "M\n" +
-//                            "Average Memory Used Per Run: " + jsoarTestRunner.getAverageMemoryLoad()/1000.0/1000.0 + "M\n\n");
-//                
-//                out.flush();
-//                
-//                testRunners.add(jsoarTestRunner);
+                out.println("JSoar: ");
+                out.flush();
+                
+                TestRunner jsoarTestRunner = new TestRunner(jsoarTest, out);
+                try
+                {
+                    jsoarTestRunner.runTestsForAverage(3, 1);
+                }
+                catch (SoarException e)
+                {
+                    out.println("Failed with a Soar Exception: " + e.getMessage());
+                    return EXIT_FAILURE;
+                }
+                
+                out.println(jsoarTest.getTestName() + " Results:\n" +
+                            "Total CPU Time: " + jsoarTestRunner.getTotalCPUTime() + "\n" +
+                            "Average CPU Time Per Run: " + jsoarTestRunner.getAverageCPUTime() + "\n" +
+                            "Total Kernel Time: " + jsoarTestRunner.getTotalKernelTime() + "\n" +
+                            "Average Kernel Time Per Run: " + jsoarTestRunner.getAverageKernelTime() + "\n" +
+                            "Decision Cycles Run For: " + jsoarTestRunner.getTotalDecisionCycles() + "\n" +
+                            "Average Decision Cycles Per Run: " + jsoarTestRunner.getAverageDecisionCycles() + "\n" +
+                            "Memory Used: " + jsoarTestRunner.getTotalMemoryLoad()/1000.0/1000.0 + "M\n" +
+                            "Average Memory Used Per Run: " + jsoarTestRunner.getAverageMemoryLoad()/1000.0/1000.0 + "M\n\n");
+                
+                out.flush();
+                
+                testRunners.add(jsoarTestRunner);
                 
                 //Run CSoar Second
-                for (String key : csoarTestRunner.keySet())
+                out.println("CSoar " + csoarTestFactory.getLabel() + ": ");
+                out.flush();
+                
+                TestRunner csoarTestRunner = new TestRunner(csoarTest, out);
+                try
                 {
-                    out.println("CSoar " + key +": ");
-                    out.flush();
-
-                    try
-                    {
-                        csoarTestRunner.get(key).runTestsForAverage(2, 0);
-                    }
-                    catch (SoarException e)
-                    {
-                    }
-
-                    out.println(csoarTest.get(key).getTestName() + " Results:\n" +
-                            "Total CPU Time: " + csoarTestRunner.get(key).getTotalCPUTime() + "\n" +
-                            "Average CPU Time Per Run: " + csoarTestRunner.get(key).getAverageCPUTime() + "\n" + 
-                            "Total Kernel Time: " + csoarTestRunner.get(key).getTotalKernelTime() + "\n" + 
-                            "Average Kernel Time Per Run: " + csoarTestRunner.get(key).getAverageKernelTime() + "\n" + 
-                            "Decision Cycles Run For: " + csoarTestRunner.get(key).getTotalDecisionCycles() + "\n" +
-                            "Average Decision Cycles Per Run: " + csoarTestRunner.get(key).getAverageDecisionCycles() + "\n" +
-                            "Memory Used: " + csoarTestRunner.get(key).getTotalMemoryLoad() / 1000.0 / 1000.0 + "M\n" + 
-                            "Average Memory Used Per Run: " + csoarTestRunner.get(key).getAverageMemoryLoad() / 1000.0 / 1000.0 + "M\n\n");
-
-                    out.flush();
-
-                    testRunners.add(csoarTestRunner.get(key));
+                    csoarTestRunner.runTestsForAverage(3, 0);
                 }
+                catch (SoarException e)
+                {
+                    out.println("Failed with a Soar Exception: " + e.getMessage());
+                    return EXIT_FAILURE;
+                }
+                
+                out.println(csoarTest.getTestName() + " Results:\n" +
+                            "Total CPU Time: " + csoarTestRunner.getTotalCPUTime() + "\n" +
+                            "Average CPU Time Per Run: " + csoarTestRunner.getAverageCPUTime() + "\n" +
+                            "Total Kernel Time: " + csoarTestRunner.getTotalKernelTime() + "\n" +
+                            "Average Kernel Time Per Run: " + csoarTestRunner.getAverageKernelTime() + "\n" +
+                            "Decision Cycles Run For: " + csoarTestRunner.getTotalDecisionCycles() + "\n" +
+                            "Average Decision Cycles Per Run: " + csoarTestRunner.getAverageDecisionCycles() + "\n" +
+                            "Memory Used: " + csoarTestRunner.getTotalMemoryLoad()/1000.0/1000.0 + "M\n" +
+                            "Average Memory Used Per Run: " + csoarTestRunner.getAverageMemoryLoad()/1000.0/1000.0 + "M\n\n");
+                
+                out.flush();
+                
+                testRunners.add(csoarTestRunner);
             }
         }
         

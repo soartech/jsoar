@@ -11,8 +11,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.List;
 
 /**
  * 
@@ -24,29 +25,20 @@ import java.util.HashMap;
  * version which is entire asserts.
  */
 public class CSoarKernelFactory
-{   
-    private static final Class[] parameters = new Class[] {URL.class};
+{    
+    private static Class<?> kernel;
+    private static Class<?> agent;
     
-    private static HashMap<String, Class> kernelMap = new HashMap<String, Class>();
-    private static HashMap<String, Class> agentMap = new HashMap<String, Class>();
+    private static String label;
     
-    private boolean initialized = false;
-    
-    private String label;
-    
-    CSoarKernelFactory(String label, String csoarDirectory)
-    {
-        this.label = label;
+    private static boolean initialized = false;
         
+    CSoarKernelFactory(String newLabel, String csoarDirectory)
+    {        
         if (initialized)
-        {
             return;
-        }
         
-        if (kernelMap.containsKey(label) || agentMap.containsKey(label))
-        {
-            return;
-        }
+        label = newLabel;
         
         Path directoryPath = FileSystems.getDefault().getPath(csoarDirectory + "/java/");
         DirectoryStream<Path> stream;
@@ -105,7 +97,7 @@ public class CSoarKernelFactory
         
         try
         {
-            kernelMap.put(label, Class.forName("sml.Kernel", true, child));
+            kernel = Class.forName("sml.Kernel", true, child);
         }
         catch (ClassNotFoundException e)
         {
@@ -115,7 +107,7 @@ public class CSoarKernelFactory
         
         try
         {
-            agentMap.put(label, Class.forName("sml.Agent", true, child));
+            agent = Class.forName("sml.Agent", true, child);
         }
         catch (ClassNotFoundException e)
         {
@@ -165,11 +157,21 @@ public class CSoarKernelFactory
         }
 
         //add the new path
-        final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
-        newPaths[newPaths.length-1] = csoarDirectory;
+        final String[] newPaths = Arrays.copyOf(paths, paths.length);
+        
+        List<String> finalUserPaths = new ArrayList<String>();
+        
+        for (int i = 0;i < newPaths.length;i++)
+        {
+            finalUserPaths.add(newPaths[i]);
+        }
+                
+        finalUserPaths.add(csoarDirectory);
+        
         try
         {
-            usrPathsField.set(null, newPaths);
+            final String[] temp = finalUserPaths.toArray(new String[0]);
+            usrPathsField.set(null, temp);
         }
         catch (IllegalArgumentException | IllegalAccessException e)
         {
@@ -188,9 +190,9 @@ public class CSoarKernelFactory
         {
             try
             {
-                Method method = kernelMap.get(label).getDeclaredMethod("CreateKernelInNewThread");
+                Method method = kernel.getDeclaredMethod("CreateKernelInNewThread");
                 Object kernelImpl = method.invoke(null);
-                return new ImplCSoarKernelWrapper(kernelImpl, kernelMap, agentMap, label);
+                return new ImplCSoarKernelWrapper(kernelImpl, kernel, agent);
             }
             catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
             {
@@ -208,9 +210,9 @@ public class CSoarKernelFactory
         {
             try
             {
-                Method method = kernelMap.get(label).getDeclaredMethod("CreateKernelInCurrentThread");
+                Method method = kernel.getDeclaredMethod("CreateKernelInCurrentThread");
                 Object kernelImpl = method.invoke(null);
-                return new ImplCSoarKernelWrapper(kernelImpl, kernelMap, agentMap, label);
+                return new ImplCSoarKernelWrapper(kernelImpl, kernel, agent);
             }
             catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
             {
@@ -228,9 +230,9 @@ public class CSoarKernelFactory
         {
             try
             {
-                Method method = kernelMap.get(label).getDeclaredMethod("CreateKernelInCurrentThread", boolean.class);
+                Method method = kernel.getDeclaredMethod("CreateKernelInCurrentThread", boolean.class);
                 Object kernelImpl = method.invoke(null, optimized);
-                return new ImplCSoarKernelWrapper(kernelImpl, kernelMap, agentMap, label);
+                return new ImplCSoarKernelWrapper(kernelImpl, kernel, agent);
             }
             catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
             {
