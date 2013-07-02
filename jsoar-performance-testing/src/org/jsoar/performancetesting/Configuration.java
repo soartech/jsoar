@@ -150,17 +150,17 @@ public class Configuration
     private List<ConfigurationCategory> configurationCategories;
     private List<ConfigurationTest> configurationTests;
     
-    private int runCount;
-    private int warmUpCount;
+    private int runCount = 0;
+    private int warmUpCount = 0;
     
     private List<String> testsToRun;
     private List<String> categoriesToRun;
     
-    private boolean jsoarEnabled;
-    private boolean csoarEnabled;
+    private boolean jsoarEnabled = true;
+    private boolean csoarEnabled = false;
     
-    private String csoarDirectory;
-    private String csoarLabel;
+    private String csoarDirectory = "";
+    private String csoarLabel = "";
     
     public Configuration(String file)
     {
