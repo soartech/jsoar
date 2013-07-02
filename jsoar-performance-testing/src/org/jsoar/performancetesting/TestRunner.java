@@ -78,7 +78,7 @@ public class TestRunner
             out.flush();
         }
         
-        runs = runCount - warmUpCount;
+        runs = runCount;
         
         out.print("\n" +
                   "Running Test: ");
