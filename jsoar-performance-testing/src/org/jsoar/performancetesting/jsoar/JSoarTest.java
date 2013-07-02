@@ -75,6 +75,11 @@ public class JSoarTest implements Test
     @Override
     public boolean run(int runCount) throws SoarException
     {
+        System.gc();
+        System.gc();
+        
+        memoryForRun = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        
         agent = new Agent("JSoar Performance Testing Agent - " + testName + " - " + runCount);
         agent.getTrace().setEnabled(false);
         agent.getPrinter().pushWriter(new NullWriter());
@@ -92,11 +97,14 @@ public class JSoarTest implements Test
         kernelTime = agent.getTotalKernelTimer().getTotalSeconds();
         
         decisionsRunFor = agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue();
-        memoryForRun = Runtime.getRuntime().totalMemory();
+        memoryForRun = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - memoryForRun;
         
         agent.dispose();
         
         agent = null;
+        
+        System.gc();
+        System.gc();
         
         return true;
     }

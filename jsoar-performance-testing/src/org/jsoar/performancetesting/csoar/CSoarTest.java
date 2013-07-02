@@ -118,6 +118,9 @@ public class CSoarTest implements Test
         memoryForRun = 0;
 
         agent = null;
+        
+        System.gc();
+        System.gc();
 
         return true;
     }
