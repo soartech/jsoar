@@ -84,7 +84,7 @@ public class TestRunner
                   "Running Test: ");
         out.flush();
         
-        for (int i = warmUpCount;i < runCount;i++)
+        for (int i = 0;i < runCount;i++)
         {
             boolean result = runSingleIteration(i);
             

@@ -18,9 +18,9 @@ indifferent-selection -t .08
 # 3 Add in epmem (?? - user model?)
 # 4 RL after chunking 
 
-pushd ../../default
+pushd ../default
 source selection.soar
-source selection-epmem.soar
+#source selection-epmem.soar
 popd
 
 ## Not using look ahead search

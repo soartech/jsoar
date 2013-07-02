@@ -22,7 +22,7 @@ sp {apply*initialize-count-test
          ^next-test <t3>)
    (<t3> ^test-number 3
          ^test-comment |Count in top-state using monotonic applications - no deletions. Can grow WM to be very large.|
-         ^test-count 100000
+         ^test-count 10000
          ^next-test <t4>)
    (<t4> ^test-number 4
          ^test-comment |Count in substate using operators - test operator no-change, o-support results, chunking.|
