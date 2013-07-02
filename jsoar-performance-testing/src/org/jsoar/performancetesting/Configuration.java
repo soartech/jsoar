@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -162,6 +163,8 @@ public class Configuration
     private String csoarDirectory = "";
     private String csoarLabel = "";
     
+    private HashMap<String, Integer> testDecisionCycles;
+    
     public Configuration(String file)
     {
         this.file = file;
@@ -176,6 +179,8 @@ public class Configuration
         
         this.csoarDirectory = new String();
         this.csoarLabel = new String();
+        
+        this.testDecisionCycles = new HashMap<String, Integer>();
     }
     
     public int parse() throws IOException, UnknownPropertyException, InvalidTestNameException, MalformedTestCategory
@@ -265,6 +270,15 @@ public class Configuration
                 }
                 
                 configurationTests.add(new ConfigurationTest(test, value, category));
+            }
+            else if (key.startsWith("TestDecisionCycles_"))
+            {
+                //Is a test
+                String test = key.substring(19);
+                
+                Integer decisionCycles = Integer.parseInt(value);
+                
+                testDecisionCycles.put(test, decisionCycles);
             }
             else if (key.equals("RunCount"))
             {
@@ -446,5 +460,13 @@ public class Configuration
     public String getCSoarLabel()
     {
         return csoarLabel;
+    }
+    
+    public Integer getDecisionCyclesToRunTest(String testName)
+    {
+        if (testDecisionCycles.containsKey(testName) == false)
+            return 0;
+        else
+            return testDecisionCycles.get(testName);
     }
 }

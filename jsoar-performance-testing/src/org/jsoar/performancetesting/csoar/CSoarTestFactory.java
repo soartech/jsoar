@@ -43,11 +43,11 @@ public class CSoarTestFactory implements TestFactory
     }
     
     @Override
-    public Test createTest(String testName, String testFile)
+    public Test createTest(String testName, String testFile, Integer decisionCycles)
     {
         CSoarTest csoarTest = new CSoarTest(label, csoarDirectory);
         
-        csoarTest.initialize(testName, testFile);
+        csoarTest.initialize(testName, testFile, decisionCycles);
         
         return csoarTest;
     }

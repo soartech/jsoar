@@ -193,7 +193,7 @@ public class PerformanceTesting
                         jsoarTestCategories.add(jsoarCategory);
                     }
 
-                    Test jsoarTest = jsoarTestFactory.createTest(test.getTestName(), test.getTestFile());
+                    Test jsoarTest = jsoarTestFactory.createTest(test.getTestName(), test.getTestFile(), config.getDecisionCyclesToRunTest(test.getTestName()));
                     jsoarTests.add(jsoarTest);
 
                     jsoarCategory.addTest(jsoarTest);
@@ -210,7 +210,7 @@ public class PerformanceTesting
                         csoarTestCategories.add(csoarCategory);
                     }
 
-                    Test csoarTest = csoarTestFactory.createTest(test.getTestName(), test.getTestFile());
+                    Test csoarTest = csoarTestFactory.createTest(test.getTestName(), test.getTestFile(), config.getDecisionCyclesToRunTest(test.getTestName()));
                     csoarTests.add(csoarTest);
 
                     csoarCategory.addTest(csoarTest);
@@ -246,7 +246,7 @@ public class PerformanceTesting
 
                 if (jsoarEnabled)
                 {
-                    Test jsoarTest = jsoarTestFactory.createTest(testName, path.toString());
+                    Test jsoarTest = jsoarTestFactory.createTest(testName, path.toString(), 0);
                     jsoarTests.add(jsoarTest);
 
                     TestCategory.getTestCategory("Uncategorized Tests", jsoarTestCategories).addTest(jsoarTest);
@@ -254,7 +254,7 @@ public class PerformanceTesting
 
                 if (csoarEnabled)
                 {
-                    Test csoarTest = csoarTestFactory.createTest(testName, path.toString());
+                    Test csoarTest = csoarTestFactory.createTest(testName, path.toString(), 0);
                     csoarTests.add(csoarTest);
 
                     TestCategory.getTestCategory("Uncategorized Tests", csoarTestCategories).addTest(csoarTest);
@@ -286,7 +286,7 @@ public class PerformanceTesting
 
             if (jsoarEnabled)
             {
-                Test jsoarTest = jsoarTestFactory.createTest(testName, testPath);
+                Test jsoarTest = jsoarTestFactory.createTest(testName, testPath, 0);
                 jsoarTests.add(jsoarTest);
 
                 TestCategory.getTestCategory("Uncategorized Tests", jsoarTestCategories).addTest(jsoarTest);
@@ -294,7 +294,7 @@ public class PerformanceTesting
 
             if (csoarEnabled)
             {
-                Test csoarTest = csoarTestFactory.createTest(testName, testPath);
+                Test csoarTest = csoarTestFactory.createTest(testName, testPath, 0);
                 csoarTests.add(csoarTest);
 
                 TestCategory.getTestCategory("Uncategorized Tests", csoarTestCategories).addTest(csoarTest);

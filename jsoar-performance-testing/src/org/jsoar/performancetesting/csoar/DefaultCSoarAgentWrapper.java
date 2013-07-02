@@ -23,4 +23,11 @@ public class DefaultCSoarAgentWrapper implements CSoarAgentWrapper
         throw new AssertionError();
     }
 
+    @Override
+    public String RunSelf(Integer decisionCyclesToRun)
+    {
+        System.out.println("Cannot call method on an unloaded Agent class.");
+        throw new AssertionError();
+    }
+
 }

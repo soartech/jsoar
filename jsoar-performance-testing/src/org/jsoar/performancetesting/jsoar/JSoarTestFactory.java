@@ -13,11 +13,11 @@ import org.jsoar.performancetesting.TestFactory;
 public class JSoarTestFactory implements TestFactory
 {
     @Override
-    public Test createTest(String testName, String testFile)
+    public Test createTest(String testName, String testFile, Integer decisionCycles)
     {
         JSoarTest jsoarTest = new JSoarTest();
         
-        jsoarTest.initialize(testName, testFile);
+        jsoarTest.initialize(testName, testFile, decisionCycles);
         
         return jsoarTest;
     }

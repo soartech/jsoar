@@ -28,6 +28,8 @@ public class CSoarTest implements Test
     private Double kernelTime;
 
     private int decisionsRunFor;
+    
+    private Integer decisionCyclesToRun;
 
     private long memoryForRun;
 
@@ -51,10 +53,11 @@ public class CSoarTest implements Test
      * java.lang.String)
      */
     @Override
-    public void initialize(String testName, String testFile)
+    public void initialize(String testName, String testFile, Integer decisionCycles)
     {
         this.testName = testName;
         this.testFile = testFile;
+        this.decisionCyclesToRun = decisionCycles;
 
         kernel = kernelFactory.CreateKernelInCurrentThread(true);
     }
@@ -97,8 +100,11 @@ public class CSoarTest implements Test
             return false;
         }
 
-        agent.RunSelfForever();
-
+        if (decisionCyclesToRun == 0)
+            agent.RunSelfForever();
+        else
+            agent.RunSelf(decisionCyclesToRun);
+        
         cpuTime = getCPUTime();
         kernelTime = getKernelTime();
 

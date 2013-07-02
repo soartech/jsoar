@@ -11,7 +11,7 @@ import org.jsoar.kernel.SoarException;
  */
 public interface Test
 {
-    public void initialize(String testName, String testFile);
+    public void initialize(String testName, String testFile, Integer decisionCycles);
     
     public String getTestName();
     public String getTestFile();

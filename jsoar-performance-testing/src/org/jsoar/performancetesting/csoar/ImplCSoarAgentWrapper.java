@@ -17,6 +17,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
         
     private Method loadProductions;
     private Method runSelfForever;
+    private Method runSelf;
     private Method executeCommandLine;
     
     ImplCSoarAgentWrapper(Object agentImpl, Class<?> agent)
@@ -28,6 +29,7 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
         {
             loadProductions = this.agent.getDeclaredMethod("LoadProductions", String.class);
             runSelfForever = this.agent.getDeclaredMethod("RunSelfForever");
+            runSelf = this.agent.getDeclaredMethod("RunSelf", int.class);
             executeCommandLine = this.agent.getDeclaredMethod("ExecuteCommandLine", String.class);
         }
         catch (NoSuchMethodException | SecurityException e)
@@ -72,6 +74,21 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             return "Failure!";
         }
     }
+    
+    @Override
+    public String RunSelf(Integer decisionCyclesToRun)
+    {
+        try
+        {
+            return (String) runSelf.invoke(agentImpl, decisionCyclesToRun);
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        {
+            System.out.println("Failed to runSelf() for decisions " + decisionCyclesToRun);
+            System.out.println(e.getMessage());
+            return "Failure!";
+        }
+    }
 
     /* (non-Javadoc)
      * @see org.jsoar.performancetesting.csoar.CSoarAgentWrapper#ExecuteCommandLine(java.lang.String)
@@ -90,5 +107,4 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             return "Failure!";
         }
     }
-
 }

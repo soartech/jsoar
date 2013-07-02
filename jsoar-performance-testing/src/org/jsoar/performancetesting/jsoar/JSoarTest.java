@@ -4,6 +4,7 @@
 package org.jsoar.performancetesting.jsoar;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.performancetesting.Test;
@@ -27,6 +28,8 @@ public class JSoarTest implements Test
     private int decisionsRunFor;
     private long memoryForRun;
     
+    private Integer decisionCyclesToRun;
+    
     public JSoarTest()
     {
         this.agent = null;
@@ -41,10 +44,11 @@ public class JSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#initialize(java.lang.String, java.lang.String)
      */
     @Override
-    public void initialize(String testName, String testFile)
+    public void initialize(String testName, String testFile, Integer decisionCycles)
     {
         this.testName = testName;
         this.testFile = testFile;
+        this.decisionCyclesToRun = decisionCycles;
     }
 
     /* (non-Javadoc)
@@ -79,7 +83,10 @@ public class JSoarTest implements Test
         
         SoarCommands.source(ifc, testFile);
         
-        agent.runForever();
+        if (decisionCyclesToRun == 0)
+            agent.runForever();
+        else
+            agent.runFor(decisionCyclesToRun, RunType.DECISIONS);
         
         cpuTime = agent.getTotalCpuTimer().getTotalSeconds();
         kernelTime = agent.getTotalKernelTimer().getTotalSeconds();

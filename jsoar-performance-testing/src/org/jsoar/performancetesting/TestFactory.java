@@ -9,5 +9,5 @@ package org.jsoar.performancetesting;
  */
 public interface TestFactory
 {
-    public Test createTest(String testName, String testFile);
+    public Test createTest(String testName, String testFile, Integer decisionCycles);
 }
