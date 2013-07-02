@@ -496,7 +496,7 @@ public class Decider
             if (from != null)
                 context.getPrinter().print("\nAdding link from %s to %s", from, to);
             else
-                context.getPrinter().print("\nAdding special link to %s (count=%lu)", to, to.link_count);
+                context.getPrinter().print("\nAdding special link to %s (count=%d)", to, to.link_count);
         }
         
         if (from == null)
@@ -618,7 +618,7 @@ public class Decider
             {
                 context.getPrinter().print("\nRemoving special link to %s  (%d)", to, to.level);
             }
-            context.getPrinter().print(" (count=%lu)", to.link_count);
+            context.getPrinter().print(" (count=%d)", to.link_count);
         }
 
         // if a gc is in progress, handle differently
