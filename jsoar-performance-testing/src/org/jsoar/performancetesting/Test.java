@@ -16,7 +16,7 @@ public interface Test
     public String getTestName();
     public String getTestFile();
     
-    public boolean run(int runCount, int seed) throws SoarException;
+    public boolean run(int runCount, Long seed) throws SoarException;
     //Resets the test.  Resets epmem, smem, and init's soar
     public boolean reset();
     

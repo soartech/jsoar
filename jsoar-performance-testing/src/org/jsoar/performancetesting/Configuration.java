@@ -160,7 +160,7 @@ public class Configuration
     private List<ConfigurationCategory> configurationCategories;
     private List<ConfigurationTest> configurationTests;
     
-    private int seed = 123456789;
+    private Long seed = 123456789L;
     private int runCount = 0;
     private int warmUpCount = 0;
     
@@ -486,7 +486,7 @@ public class Configuration
             }
             else if (key.equals("Seed"))
             {
-                seed = Integer.parseInt(value);
+                seed = Long.parseLong(value);
             }
             else
             {
@@ -528,7 +528,7 @@ public class Configuration
         return configurationCategories;
     }
     
-    public int getSeed()
+    public Long getSeed()
     {
         return seed;
     }

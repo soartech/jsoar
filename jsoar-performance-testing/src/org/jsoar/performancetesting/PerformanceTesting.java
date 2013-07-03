@@ -47,7 +47,7 @@ public class PerformanceTesting
 
     private final List<Test> jsoarTests;
 
-    private int seed = 123456789;
+    private Long seed = 123456789L;
     
     private int runCount = 20;
 

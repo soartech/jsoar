@@ -91,7 +91,7 @@ public class CSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#run()
      */
     @Override
-    public boolean run(int runCount, int seed)
+    public boolean run(int runCount, Long seed)
     {
         agent = kernel.CreateAgent("CSoar Performance Testing Agent - " + testName + " - " + runCount);
 
