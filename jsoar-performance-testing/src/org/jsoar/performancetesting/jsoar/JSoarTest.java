@@ -89,7 +89,7 @@ public class JSoarTest implements Test
         SoarCommandInterpreter ifc = agent.getInterpreter();
         
         SoarCommands.source(ifc, testFile);
-        
+                
         if (decisionCyclesToRun == 0)
             agent.runForever();
         else

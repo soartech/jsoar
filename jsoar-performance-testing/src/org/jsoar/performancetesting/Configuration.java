@@ -1,7 +1,11 @@
 package org.jsoar.performancetesting;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -188,6 +192,62 @@ public class Configuration
         this.testDecisionCycles = new HashMap<String, Integer>();
     }
     
+    public void checkPropertiesFile(PrintWriter out) throws FileNotFoundException
+    {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        
+        List<String> lines = new ArrayList<String>();
+        
+        try
+        {
+            try
+            {
+                String line = null;
+                while ((line = reader.readLine()) != null)
+                {
+                    lines.add(line);
+                }
+            }
+            finally
+            {
+                reader.close();
+            }
+        }
+        catch (IOException e)
+        {
+            out.println("\nFailed to check properties file! " + e.getMessage());
+        }
+        
+        HashMap<String, String> keysAndValues = new HashMap<String, String>();
+        
+        for (int i = 0;i < lines.size();i++)
+        {
+            String line = lines.get(i);
+            
+            int index = line.indexOf("=");
+            
+            if (index == -1)
+            {
+                if (line.startsWith("#") || line.replaceAll("\\s", "").length() == 0)
+                    continue; //Ignore comments and lines of only whitespace
+                
+                out.println("\nWARNING: Invalid key-value pair '" + line + "' on line " + i+1 + "\n");
+                continue;
+            }
+            
+            String key = line.substring(0, index);
+            String value = line.substring(index+1);
+            
+            if (keysAndValues.containsKey(key))
+            {
+                out.println("\nWARNING: Duplicate key of '" + key + "' at " + i+1 + "\n");
+                continue;
+            }
+            
+            keysAndValues.put(key, value);
+        }
+    }
+    
     public int parse() throws IOException, UnknownPropertyException, InvalidTestNameException, MalformedTestCategory
     {   
         FileInputStream fileStream = new FileInputStream(file);
@@ -300,13 +360,18 @@ public class Configuration
                 warmUpCount = Integer.parseInt(value);
             }
             else if (key.equals("TestsToRun"))
-            {
+            {   
                 List<String> potentialTests = Arrays.asList(value.split("\\s+"));
                 
                 String temporaryBuffer = "";
                 
                 for (String potential : potentialTests)
                 {
+                    if (potential.startsWith("\"") && potential.endsWith("\""))
+                    {
+                        potential = potential.substring(1, potential.length()-1);
+                    }
+                    
                     if (potential.startsWith("\""))
                     {
                         if (temporaryBuffer.length() != 0)
@@ -356,6 +421,11 @@ public class Configuration
                 
                 for (String potential : potentialCategories)
                 {
+                    if (potential.startsWith("\"") && potential.endsWith("\""))
+                    {
+                        potential = potential.substring(1, potential.length()-1);
+                    }
+                    
                     if (potential.startsWith("\""))
                     {
                         if (temporaryBuffer.length() != 0)

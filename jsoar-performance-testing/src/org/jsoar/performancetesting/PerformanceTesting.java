@@ -144,6 +144,8 @@ public class PerformanceTesting
 
             try
             {
+                config.checkPropertiesFile(out);
+                
                 result = config.parse();
             }
             catch (IOException | UnknownPropertyException | InvalidTestNameException | MalformedTestCategory e)
