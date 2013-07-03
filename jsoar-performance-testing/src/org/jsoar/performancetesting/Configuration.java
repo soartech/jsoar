@@ -160,6 +160,7 @@ public class Configuration
     private List<ConfigurationCategory> configurationCategories;
     private List<ConfigurationTest> configurationTests;
     
+    private int seed = 123456789;
     private int runCount = 0;
     private int warmUpCount = 0;
     
@@ -483,6 +484,10 @@ public class Configuration
                 csoarDirectory = path;
                 csoarLabel = label;
             }
+            else if (key.equals("Seed"))
+            {
+                seed = Integer.parseInt(value);
+            }
             else
             {
                 //Unknown
@@ -521,6 +526,11 @@ public class Configuration
         }
 
         return configurationCategories;
+    }
+    
+    public int getSeed()
+    {
+        return seed;
     }
     
     public int getRunCount()

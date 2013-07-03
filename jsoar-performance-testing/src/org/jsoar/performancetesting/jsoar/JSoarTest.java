@@ -73,7 +73,7 @@ public class JSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#run()
      */
     @Override
-    public boolean run(int runCount) throws SoarException
+    public boolean run(int runCount, int seed) throws SoarException
     {
         // This is to make it very likely that the garbage collector has cleaned up all references and freed memory
         // http://stackoverflow.com/questions/1481178/forcing-garbage-collection-in-java
@@ -89,6 +89,8 @@ public class JSoarTest implements Test
         SoarCommandInterpreter ifc = agent.getInterpreter();
         
         SoarCommands.source(ifc, testFile);
+        
+        ifc.eval("srand " + seed);
                 
         if (decisionCyclesToRun == 0)
             agent.runForever();

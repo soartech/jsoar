@@ -91,7 +91,7 @@ public class CSoarTest implements Test
      * @see org.jsoar.performancetesting.Test#run()
      */
     @Override
-    public boolean run(int runCount)
+    public boolean run(int runCount, int seed)
     {
         agent = kernel.CreateAgent("CSoar Performance Testing Agent - " + testName + " - " + runCount);
 
@@ -100,6 +100,8 @@ public class CSoarTest implements Test
             System.out.println("\n" + "ERROR: Failed to load " + testFile);
             return false;
         }
+        
+        agent.ExecuteCommandLine("srand " + seed);
 
         if (decisionCyclesToRun == 0)
             agent.RunSelfForever();

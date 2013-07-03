@@ -47,6 +47,8 @@ public class PerformanceTesting
 
     private final List<Test> jsoarTests;
 
+    private int seed = 123456789;
+    
     private int runCount = 20;
 
     private int warmUpCount = 10;
@@ -159,6 +161,8 @@ public class PerformanceTesting
                 out.println("Configuration parsing failed!");
                 return EXIT_FAILURE_CONFIGURATION;
             }
+            
+            seed = config.getSeed();
 
             if (config.getRunCount() > 0)
                 runCount = config.getRunCount();
@@ -376,7 +380,7 @@ public class PerformanceTesting
                     TestRunner jsoarTestRunner = new TestRunner(jsoarTest, out);
                     try
                     {
-                        jsoarTestRunner.runTestsForAverage(runCount, warmUpCount);
+                        jsoarTestRunner.runTestsForAverage(runCount, warmUpCount, seed);
                     }
                     catch (SoarException e)
                     {
@@ -413,7 +417,7 @@ public class PerformanceTesting
                     TestRunner csoarTestRunner = new TestRunner(csoarTest, out);
                     try
                     {
-                        csoarTestRunner.runTestsForAverage(runCount, 0);
+                        csoarTestRunner.runTestsForAverage(runCount, 0, seed);
                     }
                     catch (SoarException e)
                     {

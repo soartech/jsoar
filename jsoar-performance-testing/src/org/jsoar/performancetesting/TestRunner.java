@@ -37,11 +37,11 @@ public class TestRunner
         memoryLoads = new ArrayList<Long>();
     }
     
-    public boolean runSingleIteration(int runCount) throws SoarException
+    public boolean runSingleIteration(int runCount, int seed) throws SoarException
     {
         test.reset();
         
-        boolean result = test.run(runCount);
+        boolean result = test.run(runCount, seed);
         
         cpuTimes.add(test.getCPURunTime());
         kernelTimes.add(test.getKernelRunTime());
@@ -53,12 +53,12 @@ public class TestRunner
         return result;
     }
     
-    public boolean runTestsForAverage() throws SoarException
+    public boolean runTestsForAverage(int seed) throws SoarException
     {
-        return runTestsForAverage(20, 10);
+        return runTestsForAverage(20, 10, seed);
     }
     
-    public boolean runTestsForAverage(int runCount, int warmUpCount) throws SoarException
+    public boolean runTestsForAverage(int runCount, int warmUpCount, int seed) throws SoarException
     {
         out.print("Warming Up: ");
         out.flush();
@@ -67,7 +67,7 @@ public class TestRunner
         {
             test.reset();
             
-            boolean result = test.run(i);
+            boolean result = test.run(i, seed);
             
             if (!result)
                 return false;
@@ -84,7 +84,7 @@ public class TestRunner
         
         for (int i = 0;i < runCount;i++)
         {
-            boolean result = runSingleIteration(i);
+            boolean result = runSingleIteration(i, seed);
             
             if (!result)
                 return false;
