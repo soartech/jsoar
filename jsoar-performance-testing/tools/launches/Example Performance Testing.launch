@@ -11,5 +11,4 @@
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--configuration resources/example_configuration.properties"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="jsoar-performance-testing"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
-<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${project_loc}"/>
 </launchConfiguration>
