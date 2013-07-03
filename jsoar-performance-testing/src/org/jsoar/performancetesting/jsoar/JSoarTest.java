@@ -161,4 +161,9 @@ public class JSoarTest implements Test
         return memoryForRun;
     }
 
+    @Override
+    public String getDisplayName()
+    {
+        return "JSoar";
+    }
 }

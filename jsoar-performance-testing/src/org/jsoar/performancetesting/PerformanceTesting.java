@@ -450,17 +450,41 @@ public class PerformanceTesting
 
         double totalTimeTaken = 0.0;
         long totalDecisionCycles = 0;
-        long totalMemoryUsed = 0;
 
         for (TestRunner testRunner : testRunners)
         {
             totalTimeTaken += testRunner.getTotalCPUTime();
             totalDecisionCycles += testRunner.getTotalDecisionCycles();
-            totalMemoryUsed += testRunner.getTotalMemoryLoad();
         }
 
-        out.println("Total Time Taken: " + totalTimeTaken + "\n" + "Total Decision Cycles Run For: " + totalDecisionCycles + "\n" + "Total Memory Used: " + totalMemoryUsed / 1000.0 / 1000.0 + "M\n");
+        out.println("Total Time Taken: " + totalTimeTaken + "\n" +
+                    "Total Decision Cycles Run For: " + totalDecisionCycles + "\n");
 
+        out.flush();
+        
+        out.println("\n\nIndividual Run Results:\n");
+        
+        for (TestRunner testRunner : testRunners)
+        {
+            List<Double> cpuTimes = testRunner.getAllCPUTimes();
+            List<Double> kernelTimes = testRunner.getAllKernelTimes();
+            List<Integer> decisionCycles = testRunner.getAllDecisionCycles();
+            List<Long> memoryLoads = testRunner.getAllMemoryLoads();
+            
+            for (int i = 0;i < runCount;i++)
+            {
+                out.println("Run " + (i+1) + " of '" + testRunner.getTest().getTestName() + "' using " + testRunner.getTest().getDisplayName() + ":");
+                out.println("CPU Time: " + cpuTimes.get(i));
+                out.println("Kernel Time: " + kernelTimes.get(i));
+                out.println("Decision Cycles Total: " + decisionCycles.get(i));
+                out.println("Memory Load: " + memoryLoads.get(i) / 1000.0 / 1000.0 + "M");
+                
+                out.print("\n");
+            }
+        }
+        
+        out.flush();
+        
         return EXIT_SUCCESS;
     }
 

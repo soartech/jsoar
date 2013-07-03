@@ -20,6 +20,8 @@ public interface Test
     //Resets the test.  Resets epmem, smem, and init's soar
     public boolean reset();
     
+    public String getDisplayName();
+    
     //Gets the time in seconds that the test ran for on the CPU (total).  This is actually a wallclock not a process timer!
     public double getCPURunTime();
     public double getKernelRunTime();

@@ -243,4 +243,24 @@ public class TestRunner
     {
         return test;
     }
+    
+    public List<Double> getAllCPUTimes()
+    {
+        return cpuTimes;
+    }
+    
+    public List<Double> getAllKernelTimes()
+    {
+        return kernelTimes;
+    }
+    
+    public List<Integer> getAllDecisionCycles()
+    {
+        return decisionCycles;
+    }
+    
+    public List<Long> getAllMemoryLoads()
+    {
+        return memoryLoads;
+    }
 }

@@ -375,4 +375,10 @@ Pool Name        Item Size  Itm/Blk  Blocks  Total Bytes
 
         return -1;
     }
+    
+    @Override
+    public String getDisplayName()
+    {
+        return "CSoar";
+    }
 }
