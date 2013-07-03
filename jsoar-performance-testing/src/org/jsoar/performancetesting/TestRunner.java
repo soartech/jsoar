@@ -60,26 +60,30 @@ public class TestRunner
     
     public boolean runTestsForAverage(int runCount, int warmUpCount, Long seed) throws SoarException
     {
-        out.print("Warming Up: ");
-        out.flush();
-        
-        for (int i = 0;i < warmUpCount;i++)
+        if (warmUpCount > 0)
         {
-            test.reset();
-            
-            boolean result = test.run(i, seed);
-            
-            if (!result)
-                return false;
-            
-            out.print(".");
+            out.print("Warming Up: ");
             out.flush();
+
+            for (int i = 0; i < warmUpCount; i++)
+            {
+                test.reset();
+
+                boolean result = test.run(i, seed);
+
+                if (!result)
+                    return false;
+
+                out.print(".");
+                out.flush();
+            }
+            
+            out.print("\n");
         }
         
         runs = runCount;
         
-        out.print("\n" +
-                  "Running Test: ");
+        out.print("Running Test: ");
         out.flush();
         
         for (int i = 0;i < runCount;i++)
