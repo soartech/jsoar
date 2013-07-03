@@ -166,9 +166,13 @@ public class PerformanceTesting
 
             if (config.getRunCount() > 0)
                 runCount = config.getRunCount();
+            else
+                out.println("Defaulting to running tests 20 times");
 
             if (config.getWarmUpCount() >= 0)
                 warmUpCount = config.getWarmUpCount();
+            else
+                out.println("Defaulting to warming up tests 10 times");
 
             jsoarEnabled = config.getJSoarEnabled();
             csoarEnabled = config.getCSoarEnabled();
