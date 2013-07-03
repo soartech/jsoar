@@ -1,3 +1,4 @@
 List of things todo:
 
 - Get highwater memory mark
+- Add to jsoar build process so can run outside eclipse (see jsoar-build/build.xml)
