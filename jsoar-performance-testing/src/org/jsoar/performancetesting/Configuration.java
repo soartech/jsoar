@@ -206,6 +206,8 @@ public class Configuration
                 String line = null;
                 while ((line = reader.readLine()) != null)
                 {
+                    line = line.trim();
+                    
                     lines.add(line);
                 }
             }
@@ -260,7 +262,9 @@ public class Configuration
         for (String key : propertiesFile.stringPropertyNames())
         {
             String value = propertiesFile.getProperty(key);
-                        
+            key = key.trim();
+            value = value.trim();
+            
             if (key.startsWith("Category_"))
             {
                 //Is a category
@@ -309,6 +313,8 @@ public class Configuration
                         continue;
                     }
                     
+                    potential = potential.trim();
+                    
                     actualCategories.add(potential);
                 }
                 
@@ -341,7 +347,11 @@ public class Configuration
                     }
                 }
                 
-                configurationTests.add(new ConfigurationTest(test, value, category));
+                String unixPath = value.replace("\\","/"); //Convert Windows style paths to unix
+                
+                unixPath = unixPath.trim();
+                
+                configurationTests.add(new ConfigurationTest(test, unixPath, category));
             }
             else if (key.startsWith("TestDecisionCycles_"))
             {
@@ -406,6 +416,8 @@ public class Configuration
                         continue;
                     }
                     
+                    potential = potential.trim();
+                    
                     testsToRun.add(potential);
                 }
                 
@@ -460,6 +472,8 @@ public class Configuration
                         continue;
                     }
                     
+                    potential = potential.trim();
+                    
                     categoriesToRun.add(potential);
                 }
                 
@@ -481,7 +495,11 @@ public class Configuration
                 String path = value;
                 String label = key.substring(15, key.length());
                 
-                csoarDirectory = path;
+                String unixPath = path.replace("\\","/"); //Convert Windows style paths to unix style.
+                
+                unixPath = unixPath.trim();
+                
+                csoarDirectory = unixPath;
                 csoarLabel = label;
             }
             else if (key.equals("Seed"))
