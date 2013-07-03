@@ -7,8 +7,8 @@ multi-attributes action 10
 multi-attributes evaluation 10
 
 ## Boltzman with low temperature
-indifferent-selection -b
-indifferent-selection -t .08
+#indifferent-selection -b
+#indifferent-selection -t .08
 
 ## TODO
 # 1 Add in user model (as independent option) 
