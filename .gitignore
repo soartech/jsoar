@@ -17,3 +17,5 @@ jsoar-soar2soar/bin
 jsoar-soarunit/target
 jsoar-soarunit/bin
 jsoar-build/lib/db/*.jar
+jsoar-performance-testing/bin
+jsoar-performance-testing/resources/csoar/
