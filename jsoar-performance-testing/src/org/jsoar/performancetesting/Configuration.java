@@ -12,6 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * 
+ * @author ALT
+ *
+ */
 public class Configuration
 {
     public class ConfigurationTest
@@ -175,6 +180,11 @@ public class Configuration
     
     private HashMap<String, Integer> testDecisionCycles;
     
+    /**
+     * Initializes the Configuration class
+     * 
+     * @param file
+     */
     public Configuration(String file)
     {
         this.file = file;
@@ -193,6 +203,12 @@ public class Configuration
         this.testDecisionCycles = new HashMap<String, Integer>();
     }
     
+    /**
+     * This checks the properties file for duplicate keys and warns the user if any are found
+     * 
+     * @param out
+     * @throws FileNotFoundException
+     */
     public void checkPropertiesFile(PrintWriter out) throws FileNotFoundException
     {
         BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -251,6 +267,15 @@ public class Configuration
         }
     }
     
+    /**
+     * This parses the entire configuration file and places it into the class variables.
+     * 
+     * @return Whether the configuration file was parsed successfully or not
+     * @throws IOException
+     * @throws UnknownPropertyException
+     * @throws InvalidTestNameException
+     * @throws MalformedTestCategory
+     */
     public int parse() throws IOException, UnknownPropertyException, InvalidTestNameException, MalformedTestCategory
     {   
         FileInputStream fileStream = new FileInputStream(file);
@@ -516,6 +541,10 @@ public class Configuration
         return PARSE_SUCCESS;
     }
     
+    /**
+     * 
+     * @return All the ConfigurationTest holders
+     */
     public List<ConfigurationTest> getConfigurationTests()
     {
         //Do one final check to make sure everything is right
@@ -531,6 +560,10 @@ public class Configuration
         return configurationTests;
     }
     
+    /**
+     * 
+     * @return All the ConfigurationCategory holders
+     */
     public List<ConfigurationCategory> getConfigurationCategories()
     {
         // Do one final check to make sure everything is right
@@ -546,51 +579,92 @@ public class Configuration
         return configurationCategories;
     }
     
+    /**
+     * 
+     * @return The seed set in the configuration file.  Will return a default value of 123456789L if none was set.
+     */
     public Long getSeed()
     {
         return seed;
     }
     
+    /**
+     * 
+     * @return The number of runs to run each test
+     */
     public int getRunCount()
     {
         return runCount;
     }
     
+    /**
+     * 
+     * @return The number of warm up runs to run each JSoar test.
+     */
     public int getWarmUpCount()
     {
         return warmUpCount;
     }
     
+    /**
+     * 
+     * @return A list of the tests to run.  If the test does not appear in this list, and the list is not empty, that test will not be run.
+     */
     public List<String> getTestsToRun()
     {
         return testsToRun;
     }
     
+    /**
+     * 
+     * @return A list of the categories to run.  If the category does not appear in this list, and the list is not empty, then any test not in one of these categories will not be run.
+     */
     public List<String> getCategoriesToRun()
     {
         return categoriesToRun;
     }
     
+    /**
+     * 
+     * @return Whether to run JSoar Tests.
+     */
     public boolean getJSoarEnabled()
     {
         return jsoarEnabled;
     }
     
+    /**
+     * 
+     * @return Whether to run CSoar Tests.
+     */
     public boolean getCSoarEnabled()
     {
         return csoarEnabled;
     }
     
+    /**
+     * 
+     * @return The root CSoar directory.  That is, the directory containing Soar.dll and the java folder.
+     */
     public String getCSoarDirectory()
     {
         return csoarDirectory;
     }
     
+    /**
+     * 
+     * @return The CSoar label, which is usually the version of CSoar running.
+     */
     public String getCSoarLabel()
     {
         return csoarLabel;
     }
     
+    /**
+     * 
+     * @param testName
+     * @return The number of decision cycles to run run a given test.
+     */
     public Integer getDecisionCyclesToRunTest(String testName)
     {
         if (testDecisionCycles.containsKey(testName) == false)

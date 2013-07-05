@@ -16,13 +16,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 
- * @author ALT
- *
  * So this is a very unique class. What this does is it tries to find sml.jar
  * and then load sml.kernel from it.  If it can it'll create CSoarKernelWrappers
  * with the appropriate kernel constructors otherwise it'll return a default
  * version which is entire asserts.
+ * 
+ * @author ALT
  */
 public class CSoarKernelFactory
 {    
@@ -40,6 +39,8 @@ public class CSoarKernelFactory
         
         label = newLabel;
         
+        // Create a new path to the CSoar root + /java/
+        // This will be used to find the CSoar sml.jar file (and set java.library.path)
         Path directoryPath = FileSystems.getDefault().getPath(csoarDirectory + "/java/");
         DirectoryStream<Path> stream;
         
@@ -55,6 +56,7 @@ public class CSoarKernelFactory
         
         Path smlPath = null;
         
+        //Search for sml.jar in the directory
         for (Path path : stream)
         {
             String testName = path.getFileName().toString();
@@ -82,6 +84,7 @@ public class CSoarKernelFactory
             return;
         }
         
+        //Load sml.jar into memory and then resolve all it's classes that we use.
         URLClassLoader child;
         
         try
@@ -97,7 +100,7 @@ public class CSoarKernelFactory
         
         try
         {
-            kernel = Class.forName("sml.Kernel", true, child);
+            kernel = Class.forName("sml.Kernel", true, child); //Resolves the kernel class
         }
         catch (ClassNotFoundException e)
         {
@@ -107,7 +110,7 @@ public class CSoarKernelFactory
         
         try
         {
-            agent = Class.forName("sml.Agent", true, child);
+            agent = Class.forName("sml.Agent", true, child); //Resolves the agent class
         }
         catch (ClassNotFoundException e)
         {
@@ -122,6 +125,16 @@ public class CSoarKernelFactory
         // it works.  However if this breaks in the future, you can probably
         // find a solution quite easily since this is only getting one field,
         // the usr_path which has to exist.
+        //
+        // Method is from: http://stackoverflow.com/questions/5419039/is-djava-library-path-equivalent-to-system-setpropertyjava-library-path
+        // And also from:  http://stackoverflow.com/questions/15409223/adding-new-paths-for-native-libraries-at-runtime-in-java
+        // 
+        // Basically Sun never wanted to fix it and yet people like me needed this feature
+        // so a Sun engineer eventually posted a solution which is a bit of a hack but it
+        // has worked from Java SE 5 through 7 so it is pretty safe to assume it will work
+        // At least through the rest of Java SE 7 and probably thourhg 8 and 9 and however
+        // many versions after 7 there are.
+        //
         // - ALT
         
         Field usrPathsField = null;
@@ -179,11 +192,16 @@ public class CSoarKernelFactory
             e.printStackTrace();
         }
         
+        //Now load the library including all the correct paths to the native libraries.
         System.loadLibrary("Soar");
         
         initialized = true;
     }
     
+    /**
+     * 
+     * @return A new kernel wrapper around a CSoar sml.Kernel object.
+     */
     CSoarKernelWrapper CreateKernelInNewThread()
     {   
         if (initialized)
@@ -204,6 +222,10 @@ public class CSoarKernelFactory
             return new DefaultCSoarKernelWrapper();
     }
     
+    /**
+     * 
+     * @return A new kernel wrapper around a CSoar sml.Kernel object.
+     */
     CSoarKernelWrapper CreateKernelInCurrentThread()
     {
         if (initialized)
@@ -224,6 +246,10 @@ public class CSoarKernelFactory
             return new DefaultCSoarKernelWrapper();
     }
     
+    /**
+     * 
+     * @return A new kernel wrapper around a CSoar sml.Kernel object.
+     */
     CSoarKernelWrapper CreateKernelInCurrentThread(boolean optimized)
     {
         if (initialized)

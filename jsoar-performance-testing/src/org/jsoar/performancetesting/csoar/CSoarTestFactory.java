@@ -7,7 +7,9 @@ import org.jsoar.performancetesting.Test;
 import org.jsoar.performancetesting.TestFactory;
 
 /**
- * @author Alex
+ * This creates instantiations of CSoar tests.
+ * 
+ * @author ALT
  *
  */
 public class CSoarTestFactory implements TestFactory
@@ -42,6 +44,16 @@ public class CSoarTestFactory implements TestFactory
         this.csoarDirectory = csoarDirectory;
     }
     
+    /**
+     * This creates a new and initialized CSoar test.  It also, as by
+     * product of creating the CSoar test, will load the CSoar sml
+     * classes for the first time if necessary.
+     * 
+     * @param testName
+     * @param testFile
+     * @param decisionCycles
+     * @return A new and initialized CSoar Test (but may be only assertion errors if it didn't load properly.)
+     */
     @Override
     public Test createTest(String testName, String testFile, Integer decisionCycles)
     {

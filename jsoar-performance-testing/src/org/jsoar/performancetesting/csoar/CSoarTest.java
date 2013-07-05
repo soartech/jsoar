@@ -10,6 +10,8 @@ import java.util.List;
 import org.jsoar.performancetesting.Test;
 
 /**
+ * A CSoar Test.  This class is used to launch and run all CSoar tests.
+ * 
  * @author ALT
  * 
  */

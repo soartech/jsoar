@@ -1,5 +1,14 @@
 package org.jsoar.performancetesting.csoar;
 
+/**
+ * This class is just an assertion error version of the CSoarKernelWrapper class.
+ * It's purpose is to let the user know that the Kernel class isn't loaded and
+ * therefore you cannot use CSoar functions.  This can happen if CSoar wasn't
+ * found in the directory specified for instance.
+ * 
+ * @author ALT
+ *
+ */
 public class DefaultCSoarKernelWrapper implements CSoarKernelWrapper
 {
 

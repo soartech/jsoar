@@ -37,6 +37,14 @@ public class TestRunner
         memoryLoads = new ArrayList<Long>();
     }
     
+    /**
+     * This runs a test a single iterator and records all the statistics.
+     * 
+     * @param runCount
+     * @param seed
+     * @return Whether the run was successful
+     * @throws SoarException
+     */
     public boolean runSingleIteration(int runCount, Long seed) throws SoarException
     {
         test.reset();
@@ -52,8 +60,18 @@ public class TestRunner
         
         return result;
     }
-    
-    public boolean runTestsForAverage(int runCount, int warmUpCount, Long seed) throws SoarException
+
+    /**
+     * Runs a test for a passed runCount and for each JSoar test, a passed
+     * warmUpCount.  Also sets the seed of the test from the passed parameter.
+     * 
+     * @param runCount
+     * @param warmUpCount
+     * @param seed
+     * @return Whether running all the tests was successful or not.
+     * @throws SoarException
+     */
+    boolean runTestsForAverage(int runCount, int warmUpCount, Long seed) throws SoarException
     {
         if (warmUpCount > 0)
         {

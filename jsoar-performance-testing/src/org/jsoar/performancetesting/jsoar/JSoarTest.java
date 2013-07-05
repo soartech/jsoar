@@ -13,6 +13,8 @@ import org.jsoar.util.commands.SoarCommandInterpreter;
 import org.jsoar.util.commands.SoarCommands;
 
 /**
+ * A JSoarTest.  This class is used to launch and run all JSoar tests.
+ * 
  * @author ALT
  *
  */

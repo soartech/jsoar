@@ -86,6 +86,10 @@ public class PerformanceTesting
         }
     }
 
+    /**
+     * 
+     * @param out
+     */
     public PerformanceTesting(PrintWriter out)
     {
         this.out = out;
@@ -102,6 +106,9 @@ public class PerformanceTesting
         this.jsoarTestCategories.add(new TestCategory("Uncategorized Tests", new ArrayList<Test>()));
     }
 
+    /**
+     * Outputs to the PrintWriter the usage string.
+     */
     public void usage()
     {
         out.println("Performance Testing - Performance testing framework for JSoar and CSoar\n" + "performance-testing [options]\n" + "\n" + "Options:\n" + "   -h, --help              This message.\n"
@@ -109,8 +116,14 @@ public class PerformanceTesting
                 + "   -t, --test              Manually specify a test to load.\n" + "\n" + "Note: When running with CSoar, CSoar's bin directory must be on the system\n" + "      path or in java.library.path or in ./csoar/.\n" + "");
     }
 
+    /**
+     * 
+     * @param args
+     * @return Whether performance testing was successful or not.
+     */
     public int doPerformanceTesting(String[] args)
     {
+        //This is the same options processor for JSoar and so has the same limitations.
         final OptionProcessor<Options> options = new OptionProcessor<Options>();
         options.newOption(Options.help).newOption(Options.directory).requiredArg().newOption(Options.recursive).newOption(Options.configuration).requiredArg().newOption(Options.test).requiredArg().done();
 
@@ -144,6 +157,7 @@ public class PerformanceTesting
             Configuration config = new Configuration(configurationPath);
             int result = Configuration.PARSE_FAILURE;
 
+            //Make sure there are no duplicate keys and then parse the properties file
             try
             {
                 config.checkPropertiesFile(out);
@@ -196,6 +210,7 @@ public class PerformanceTesting
 
             List<Configuration.ConfigurationTest> configurationTests = config.getConfigurationTests();
 
+            //Convert all the ConfigurationTest holders to actual tests.
             for (Configuration.ConfigurationTest test : configurationTests)
             {
                 if (jsoarEnabled)
@@ -234,6 +249,7 @@ public class PerformanceTesting
             }
         }
 
+        //This will load all tests from a directory into the uncategorized tests category.
         if (options.has(Options.directory))
         {
             String directory = options.get(Options.directory);
@@ -288,6 +304,8 @@ public class PerformanceTesting
             }
         }
 
+        // This will load an individual test into the uncategorized tests category, only really useful
+        // for single tests that you don't want to create a configuration file for
         if (options.has(Options.test))
         {
             String testPath = options.get(Options.test);

@@ -7,6 +7,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * This is the implementation of a loaded CSoar sml.Agent class
+ * around the CSoarAgentWrapper.  It implements all functions
+ * that are used from sml.Agent.
+ * 
  * @author ALT
  *
  */

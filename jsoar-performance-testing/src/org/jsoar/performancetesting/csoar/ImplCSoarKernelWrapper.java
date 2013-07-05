@@ -7,6 +7,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * This is the implementation of a loaded sml.Kernel class
+ * using the CSoarKernelWrapper class.  It implements all
+ * functions that are used by the tests.
+ * 
  * @author ALT
  *
  */
