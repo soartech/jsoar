@@ -53,11 +53,6 @@ public class TestRunner
         return result;
     }
     
-    public boolean runTestsForAverage(Long seed) throws SoarException
-    {
-        return runTestsForAverage(20, 10, seed);
-    }
-    
     public boolean runTestsForAverage(int runCount, int warmUpCount, Long seed) throws SoarException
     {
         if (warmUpCount > 0)
@@ -165,6 +160,33 @@ public class TestRunner
         return averageCPUTime;
     }
     
+    public double getMedianCPUTime()
+    {
+        List<Double> cpuTimesSorted = new ArrayList<Double>(cpuTimes);
+        
+        Collections.sort(cpuTimesSorted);
+        
+        int size = cpuTimesSorted.size();
+        
+        if (size % 2 == 0)
+        {
+            //Even
+            return cpuTimesSorted.get(size/2);
+        }
+        else
+        {
+            //Odd
+            int index_top = (int) Math.floor(size/2.0);
+            int index_bottom = (int) Math.nextUp(size/2.0);
+            
+            double median = cpuTimesSorted.get(index_bottom) + cpuTimesSorted.get(index_top);
+            
+            median /= 2.0;
+            
+            return median;
+        }
+    }
+    
     public double getAverageKernelTime()
     {
         double averageKernelTime = 0.0;
@@ -177,6 +199,33 @@ public class TestRunner
         averageKernelTime /= runs;
         
         return averageKernelTime;
+    }
+    
+    public double getMedianKernelTime()
+    {
+        List<Double> kernelTimesSorted = new ArrayList<Double>(kernelTimes);
+        
+        Collections.sort(kernelTimesSorted);
+        
+        int size = kernelTimesSorted.size();
+        
+        if (size % 2 == 0)
+        {
+            //Even
+            return kernelTimesSorted.get(size/2);
+        }
+        else
+        {
+            //Odd
+            int index_top = (int) Math.floor(size/2.0);
+            int index_bottom = (int) Math.nextUp(size/2.0);
+            
+            double median = kernelTimesSorted.get(index_bottom) + kernelTimesSorted.get(index_top);
+            
+            median /= 2.0;
+            
+            return median;
+        }
     }
     
     public double getAverageDecisionCycles()
@@ -193,6 +242,33 @@ public class TestRunner
         return averageDecisionCycles;
     }
     
+    public double getMedianDecisionCycles()
+    {
+        List<Integer> decisionCyclesSorted = new ArrayList<Integer>(decisionCycles);
+        
+        Collections.sort(decisionCyclesSorted);
+        
+        int size = decisionCyclesSorted.size();
+        
+        if (size % 2 == 0)
+        {
+            //Even
+            return decisionCyclesSorted.get(size/2);
+        }
+        else
+        {
+            //Odd
+            int index_top = (int) Math.floor(size/2.0);
+            int index_bottom = (int) Math.nextUp(size/2.0);
+            
+            double median = decisionCyclesSorted.get(index_bottom) + decisionCyclesSorted.get(index_top);
+            
+            median /= 2.0;
+            
+            return median;
+        }
+    }
+    
     public double getAverageMemoryLoad()
     {
         double averageMemoryLoad = 0.0;
@@ -207,7 +283,7 @@ public class TestRunner
         return averageMemoryLoad;
     }
     
-    public double getMeanMemoryLoad()
+    public double getMedianMemoryLoad()
     {
         List<Long> memoryLoadsSorted = new ArrayList<Long>(memoryLoads);
         
@@ -226,11 +302,11 @@ public class TestRunner
             int index_top = (int) Math.floor(size/2.0);
             int index_bottom = (int) Math.nextUp(size/2.0);
             
-            double mean = memoryLoadsSorted.get(index_bottom) + memoryLoadsSorted.get(index_top);
+            double median = memoryLoadsSorted.get(index_bottom) + memoryLoadsSorted.get(index_top);
             
-            mean /= 2.0;
+            median /= 2.0;
             
-            return mean;
+            return median;
         }
     }
     

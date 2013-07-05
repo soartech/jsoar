@@ -394,16 +394,19 @@ public class PerformanceTesting
 
                     out.println(
                             "\n" + jsoarTest.getTestName() + " Results:\n" +
-                            "Total CPU Time: " + jsoarTestRunner.getTotalCPUTime() +
-                            "\n" + "Average CPU Time Per Run: " + jsoarTestRunner.getAverageCPUTime() + "\n" +
-                            "Total Kernel Time: " + jsoarTestRunner.getTotalKernelTime() + "\n" +
-                            "Average Kernel Time Per Run: " + jsoarTestRunner.getAverageKernelTime() + "\n" +
-                            "Decision Cycles Run For: " + jsoarTestRunner.getTotalDecisionCycles() + "\n"
-                            + "Average Decision Cycles Per Run: " + jsoarTestRunner.getAverageDecisionCycles() + "\n" +
-                            "Memory Used: " + jsoarTestRunner.getTotalMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
-                            "Average Memory Used Per Run: " + jsoarTestRunner.getAverageMemoryLoad() / 1000.0 / 1000.0 + "M\n" + 
-                            "Mean Memory Used Per Run: " + jsoarTestRunner.getMeanMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
-                            "Memory Deviation from Average: " + jsoarTestRunner.getMemoryLoadDeviation() / 1000.0 / 1000.0 + "M\n\n"
+                            "Total CPU Time (s): " + jsoarTestRunner.getTotalCPUTime() + "\n" +
+                            "Average CPU Time Per Run (s): " + jsoarTestRunner.getAverageCPUTime() + "\n" +
+                            "Median CPU Time Per Run (s): " + jsoarTestRunner.getMedianCPUTime() + "\n" +
+                            "Total Kernel Time (s): " + jsoarTestRunner.getTotalKernelTime() + "\n" +
+                            "Average Kernel Time Per Run (s): " + jsoarTestRunner.getAverageKernelTime() + "\n" +
+                            "Median Kernel Time Per Run (s): " + jsoarTestRunner.getMedianKernelTime() + "\n" +
+                            "Decision Cycles Run For: " + jsoarTestRunner.getTotalDecisionCycles() + "\n" +
+                            "Average Decision Cycles Per Run: " + jsoarTestRunner.getAverageDecisionCycles() + "\n" +
+                            "Median Decision Cycles Per Run: " + jsoarTestRunner.getMedianDecisionCycles() + "\n" +
+                            "Memory Used (M): " + jsoarTestRunner.getTotalMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
+                            "Average Memory Used Per Run (M): " + jsoarTestRunner.getAverageMemoryLoad() / 1000.0 / 1000.0 + "M\n" + 
+                            "Median Memory Used Per Run (M): " + jsoarTestRunner.getMedianMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
+                            "Memory Deviation from Average (M): " + jsoarTestRunner.getMemoryLoadDeviation() / 1000.0 / 1000.0 + "M\n\n"
                             );
 
                     out.flush();
@@ -431,16 +434,19 @@ public class PerformanceTesting
 
                     out.println(
                             "\n" + csoarTest.getTestName() + " Results:\n" +
-                            "Total CPU Time: " + csoarTestRunner.getTotalCPUTime() +
-                            "\n" + "Average CPU Time Per Run: " + csoarTestRunner.getAverageCPUTime() + "\n" +
-                            "Total Kernel Time: " + csoarTestRunner.getTotalKernelTime() + "\n" +
-                            "Average Kernel Time Per Run: " + csoarTestRunner.getAverageKernelTime() + "\n" +
+                            "Total CPU Time (s): " + csoarTestRunner.getTotalCPUTime() + "\n" +
+                            "Average CPU Time Per Run (s): " + csoarTestRunner.getAverageCPUTime() + "\n" +
+                            "Median CPU Time Per Run (s): " + csoarTestRunner.getMedianCPUTime() + "\n" +
+                            "Total Kernel Time (s): " + csoarTestRunner.getTotalKernelTime() + "\n" +
+                            "Average Kernel Time Per Run (s): " + csoarTestRunner.getAverageKernelTime() + "\n" +
+                            "Median Kernel Time Per Run (s): " + csoarTestRunner.getMedianKernelTime() + "\n" +
                             "Decision Cycles Run For: " + csoarTestRunner.getTotalDecisionCycles() + "\n" +
                             "Average Decision Cycles Per Run: " + csoarTestRunner.getAverageDecisionCycles() + "\n" +
-                            "Memory Used: " + csoarTestRunner.getTotalMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
-                            "Average Memory Used Per Run: " + csoarTestRunner.getAverageMemoryLoad() / 1000.0 / 1000.0 + "M\n" + 
-                            "Mean Memory Used Per Run: " + csoarTestRunner.getMeanMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
-                            "Memory Deviation from Average: " + csoarTestRunner.getMemoryLoadDeviation() / 1000.0 / 1000.0 + "M\n\n"
+                            "Median Decision Cycles Per Run: " + csoarTestRunner.getMedianDecisionCycles() + "\n" +
+                            "Memory Used (M): " + csoarTestRunner.getTotalMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
+                            "Average Memory Used Per Run (M): " + csoarTestRunner.getAverageMemoryLoad() / 1000.0 / 1000.0 + "M\n" + 
+                            "Median Memory Used Per Run (M): " + csoarTestRunner.getMedianMemoryLoad() / 1000.0 / 1000.0 + "M\n" +
+                            "Memory Deviation from Average (M): " + csoarTestRunner.getMemoryLoadDeviation() / 1000.0 / 1000.0 + "M\n\n"
                             );
 
                     out.flush();
