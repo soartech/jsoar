@@ -111,4 +111,10 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
             return "Failure!";
         }
     }
+    
+    @Override
+    public Object getAgentImpl()
+    {
+        return agentImpl;
+    }
 }

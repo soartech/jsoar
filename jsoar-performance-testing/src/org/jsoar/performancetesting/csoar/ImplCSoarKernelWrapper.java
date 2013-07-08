@@ -21,6 +21,7 @@ public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
     private Class<?> agent;
         
     private Method createAgent;
+    private Method destroyAgent;
     
     public ImplCSoarKernelWrapper(Object kernelImpl, Class<?> kernel, Class<?> agent)
     {
@@ -31,6 +32,7 @@ public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
         try
         {
             createAgent = this.kernel.getDeclaredMethod("CreateAgent", String.class);
+            destroyAgent = this.kernel.getDeclaredMethod("DestroyAgent", agent);
         }
         catch (NoSuchMethodException | SecurityException e)
         {
@@ -54,6 +56,19 @@ public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
         {
             System.out.println("Failed to create agent! Everything will fail horribly!");
             return new DefaultCSoarAgentWrapper();
+        }
+    }
+    
+    @Override
+    public void DestroyAgent(CSoarAgentWrapper agent)
+    {
+        try
+        {
+            destroyAgent.invoke(kernelImpl, agent.getAgentImpl());
+        }
+        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+        {
+            System.out.println("Failed to create agent! Everything will fail horribly!");
         }
     }
 }

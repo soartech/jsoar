@@ -15,4 +15,6 @@ public interface CSoarAgentWrapper
     String RunSelf(Integer decisionCyclesToRun);
     
     String ExecuteCommandLine(String command);
+    
+    Object getAgentImpl();
 }

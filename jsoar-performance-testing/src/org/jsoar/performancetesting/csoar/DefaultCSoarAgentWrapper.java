@@ -39,4 +39,10 @@ public class DefaultCSoarAgentWrapper implements CSoarAgentWrapper
         throw new AssertionError();
     }
 
+    @Override
+    public Object getAgentImpl()
+    {
+        System.out.println("Cannot call method on an unloaded agent class.");
+        throw new AssertionError();
+    }
 }
