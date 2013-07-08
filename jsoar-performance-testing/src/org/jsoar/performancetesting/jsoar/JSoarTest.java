@@ -98,12 +98,13 @@ public class JSoarTest implements Test
         if (decisionCyclesToRun == 0)
             agent.runForever();
         else
-            agent.runFor(decisionCyclesToRun, RunType.DECISIONS);
+            agent.runFor(decisionCyclesToRun-1, RunType.DECISIONS);
         
         cpuTime = agent.getTotalCpuTimer().getTotalSeconds();
         kernelTime = agent.getTotalKernelTimer().getTotalSeconds();
         
-        decisionsRunFor = agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue();
+        //This is the same counter as the stats command
+        decisionsRunFor = agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue();
         memoryForRun = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - memoryForRun;
         
         agent.dispose();
