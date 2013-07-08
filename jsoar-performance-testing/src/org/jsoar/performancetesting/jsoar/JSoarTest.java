@@ -93,6 +93,7 @@ public class JSoarTest implements Test
         SoarCommands.source(ifc, testFile);
         
         ifc.eval("srand " + seed);
+        ifc.eval("set-stop-phase -o");
                 
         if (decisionCyclesToRun == 0)
             agent.runForever();

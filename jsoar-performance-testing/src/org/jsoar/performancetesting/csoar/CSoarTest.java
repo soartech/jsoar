@@ -104,6 +104,7 @@ public class CSoarTest implements Test
         }
         
         agent.ExecuteCommandLine("srand " + seed);
+        agent.ExecuteCommandLine("set-stop-phase -o");
 
         if (decisionCyclesToRun == 0)
             agent.RunSelfForever();
