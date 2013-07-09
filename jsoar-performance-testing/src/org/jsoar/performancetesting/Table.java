@@ -3,6 +3,9 @@
  */
 package org.jsoar.performancetesting;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -152,7 +155,52 @@ public class Table
     
     public void writeToCSV(String file, Character delimiter)
     {
+        File outFile = new File(file);
+        if (!outFile.exists())
+        {
+            outFile.delete();
+        }
         
+        try
+        {
+            outFile.createNewFile();
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw new AssertionError();
+        }
+        
+        PrintWriter out = null;
+        
+        try
+        {
+            out = new PrintWriter(outFile);
+        }
+        catch (FileNotFoundException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw new AssertionError();
+        }
+        
+        for (int i = 0;i < rows.size();i++)
+        {
+            Row row = rows.get(i);
+            
+            String line = "";
+            
+            for (Cell cell : row.getCells())
+            {
+                line += cell.getValue() + delimiter;
+            }
+
+            out.print(line.trim() + "\n");
+        }
+        
+        out.flush();
+        out.close();
     }
     
 }

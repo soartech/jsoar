@@ -178,6 +178,8 @@ public class Configuration
     private String csoarDirectory = "";
     private String csoarLabel = "";
     
+    private String csvDirectory = "";
+    
     private HashMap<String, Integer> testDecisionCycles;
     
     /**
@@ -531,6 +533,10 @@ public class Configuration
             {
                 seed = Long.parseLong(value);
             }
+            else if (key.equals("CSVDirectory"))
+            {
+                csvDirectory = value;
+            }
             else
             {
                 //Unknown
@@ -671,5 +677,14 @@ public class Configuration
             return 0;
         else
             return testDecisionCycles.get(testName);
+    }
+    
+    /**
+     * 
+     * @return The CSV Directory to use.
+     */
+    public String getCSVDirectory()
+    {
+        return csvDirectory;
     }
 }

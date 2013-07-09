@@ -3,6 +3,7 @@
  */
 package org.jsoar.performancetesting;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.DirectoryStream;
@@ -59,6 +60,8 @@ public class PerformanceTesting
     
     private List<String> categoriesToRun;
     private List<String> testsToRun;
+    
+    private String csvDirectory = "";
 
     private static final int EXIT_SUCCESS = 0;
 
@@ -202,6 +205,8 @@ public class PerformanceTesting
 
             String csoarDirectory = config.getCSoarDirectory();
             String csoarLabel = config.getCSoarLabel();
+            
+            csvDirectory = config.getCSVDirectory();
 
             csoarTestFactory.setLabel(csoarLabel);
             csoarTestFactory.setCSoarDirectory(csoarDirectory);
@@ -560,6 +565,23 @@ public class PerformanceTesting
                 }
                 
                 table.writeToWriter(out);
+                
+                String outputDirectory = csvDirectory.trim();
+                
+                if (outputDirectory.length() != 0)
+                {
+                    File out = new File(outputDirectory);
+                    
+                    if (!out.exists())
+                    {
+                        out.mkdirs();
+                    }
+                                        
+                    String testNameWithoutSpaces = tests.get(j).getTestName().replaceAll("\\s+", "-");
+                    
+                    table.writeToCSV(outputDirectory + "/" + testNameWithoutSpaces + ".txt");
+                }
+                
                 out.print("\n");
             }
         }
