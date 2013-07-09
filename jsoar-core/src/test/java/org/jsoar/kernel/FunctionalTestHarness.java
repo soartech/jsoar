@@ -57,7 +57,7 @@ public class FunctionalTestHarness
         assertFalse(testName + " functional test failed", failed);
         if(expectedDecisions >= 0)
         {
-            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.D_CYCLE_COUNT).intValue()); // deterministic!
+            assertEquals(expectedDecisions, agent.getProperties().get(SoarProperties.DECISION_PHASES_COUNT).intValue()); // deterministic!
         }
         
         agent.getInterpreter().eval("stats");

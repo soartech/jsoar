@@ -16,18 +16,18 @@ public class SMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testSimpleCueBasedRetrieval() throws Exception
     {
-        runTest("testSimpleCueBasedRetrieval", 2);
+        runTest("testSimpleCueBasedRetrieval", 1);
     }
     
     @Test
     public void testSimpleNonCueBasedRetrieval() throws Exception
     {
-        runTest("testSimpleNonCueBasedRetrieval", 3);
+        runTest("testSimpleNonCueBasedRetrieval", 2);
     }
     
     @Test
     public void testSimpleStore() throws Exception
     {
-        runTest("testSimpleStore", 3);
+        runTest("testSimpleStore", 2);
     }
 }

@@ -22,7 +22,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testHamilton() throws Exception
     {
-        runTest("testHamilton", 3);
+        runTest("testHamilton", 2);
     }
     
     @Test
@@ -34,11 +34,7 @@ public class EpMemFunctionalTests extends FunctionalTestHarness
     @Test
     public void testSingleStoreRetrieve() throws Exception
     {
-        //The success rule in this test is an elaboration.  The decision phase counter used
-        //in the framework actually an output phase counter, so this test runs one more
-        //"decision phase" than the debugger shows.  If this breaks, make sure that elaborations
-        //happen after epmem does retrieval.  -ACN
-        runTest("testSingleStoreRetrieve", 2 + 1);
+        runTest("testSingleStoreRetrieve", 2);
     }
     
     @Test
