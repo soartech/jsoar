@@ -66,7 +66,7 @@ public class SoarQMemoryAdapterTest extends JSoarTest
     {
         super.setUp();
         
-        agent = new Agent();
+        agent = new Agent(false);
         ifc = agent.getInterpreter();
         agent.getRhsFunctions().registerHandler(match = new MatchFunction());
         agent.initialize();

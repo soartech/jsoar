@@ -32,7 +32,7 @@ public class SoarBeanOutputManagerTest
     @Before
     public void setUp() throws Exception
     {
-        this.agent = new Agent();
+        this.agent = new Agent(false);
         
         this.output = new SoarBeanOutputManager(agent.getEvents());
         this.agent.initialize();

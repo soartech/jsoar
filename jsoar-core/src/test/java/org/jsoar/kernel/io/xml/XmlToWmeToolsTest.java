@@ -37,7 +37,6 @@ public class XmlToWmeToolsTest
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
-        this.agent.initialize();
     }
 
     @After

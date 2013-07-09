@@ -29,7 +29,6 @@ public class InterruptTest
     public void setUp() throws Exception
     {
         this.agent = new Agent();
-        this.agent.initialize();
     }
 
     /**

@@ -29,7 +29,6 @@ public class ListRhsFunctionTest
     {
         agent = new Agent();
         agent.getTrace().disableAll();
-        agent.initialize();
     }
     
     @After public void tearDown() throws Exception

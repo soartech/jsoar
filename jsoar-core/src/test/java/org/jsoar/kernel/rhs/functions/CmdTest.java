@@ -28,7 +28,6 @@ public class CmdTest
         this.agent.getPrinter().addPersistentWriter(
                 outputWriter = new StringWriter());
         this.agent.getTrace().disableAll();
-        this.agent.initialize();
     }
 
     @After

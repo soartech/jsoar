@@ -29,7 +29,6 @@ public class PreferencesCommandTest
     {
         this.agent = new Agent();
         this.agent.getTrace().disableAll();
-        this.agent.initialize();
     }
 
     @After

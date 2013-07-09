@@ -27,7 +27,6 @@ public class SplitTest extends JSoarTest
         final ByRef<Boolean> succeeded = ByRef.create(false);
         final Agent agent = new Agent();
         agent.getTrace().disableAll();
-        agent.initialize();
         agent.getRhsFunctions().registerHandler(new StandaloneRhsFunctionHandler("succeeded") {
 
             @Override

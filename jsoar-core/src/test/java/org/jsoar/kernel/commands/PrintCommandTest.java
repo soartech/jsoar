@@ -29,7 +29,6 @@ public class PrintCommandTest
         this.agent.getPrinter().addPersistentWriter(
                 outputWriter = new StringWriter());
         this.agent.getTrace().disableAll();
-        this.agent.initialize();
 
         this.agent.getProductions().loadProduction(prodTest);
 

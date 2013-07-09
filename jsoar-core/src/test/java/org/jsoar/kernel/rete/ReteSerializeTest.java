@@ -112,7 +112,6 @@ public class ReteSerializeTest
                     "(state <s> ^superstate nil)\n" +
                     "-->\n" +
                     "(rhs-failure)");
-            newAgent.initialize();
             newAgent.getRhsFunctions().registerHandler(rhsFailure);
             serializeInto(agent, newAgent);
         }

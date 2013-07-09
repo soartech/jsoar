@@ -29,7 +29,6 @@ public class DefaultEpisodicMemoryTest
     public void setUp() throws Exception
     {
         Agent temp = new Agent();
-        temp.initialize();
         context = AdaptableContainer.from(new SymbolFactoryImpl(), new PropertyManager(), temp);
         conn = JdbcTools.connect("org.sqlite.JDBC", "jdbc:sqlite::memory:");
 //        final EpisodicMemoryDatabase db = new EpisodicMemoryDatabase("org.sqlite.JDBC", conn);

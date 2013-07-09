@@ -26,7 +26,6 @@ public class SoarReteListenerTest
     public void setUp() throws Exception
     {
         agent = new Agent("SoarReteListenerTest");
-        agent.initialize();
     }
 
     @After

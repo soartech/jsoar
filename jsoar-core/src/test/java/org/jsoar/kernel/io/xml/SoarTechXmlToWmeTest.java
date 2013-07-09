@@ -35,9 +35,7 @@ public class SoarTechXmlToWmeTest
     public void testFromXml() throws Exception
     {
         final Agent agent = new Agent();
-        
-        agent.initialize();
-        
+                
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction(
                 "testFromXml (state <s> ^superstate nil ^io.input-link <il>) -->" +
@@ -74,9 +72,7 @@ public class SoarTechXmlToWmeTest
     public void testValueAttributeIsHandled() throws Exception
     {
         final Agent agent = new Agent();
-        
-        agent.initialize();
-        
+                
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction(
                 "testValueAttributeIsHandled (state <s> ^superstate nil ^io.input-link <il>) -->" +

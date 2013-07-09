@@ -26,7 +26,6 @@ public class AgentTest
     public void setUp() throws Exception
     {
         agent = new Agent();
-        agent.initialize();
     }
 
     @After

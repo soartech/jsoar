@@ -145,7 +145,6 @@ public class DefaultXmlToWmeTest
         final Agent agent = new Agent();
         
         agent.getTrace().disableAll();
-        agent.initialize();
         
         agent.getProperties().set(SoarProperties.WAITSNC, true);
         agent.getProductions().loadProduction(rule);

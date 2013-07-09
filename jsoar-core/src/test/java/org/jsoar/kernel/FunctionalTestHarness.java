@@ -78,12 +78,6 @@ public class FunctionalTestHarness
         halted = false;
         failed = false;
         agent = new Agent();
-        agent.getTrace().enableAll();
-        agent.initialize();
-        
-        agent.getTrace().disableAll();
-        //agent.trace.setEnabled(Category.TRACE_CONTEXT_DECISIONS_SYSPARAM, true);
-        //agent.trace.setEnabled(false);
         
         installRHS(agent);
     }

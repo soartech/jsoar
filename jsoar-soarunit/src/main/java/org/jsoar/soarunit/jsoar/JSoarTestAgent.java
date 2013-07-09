@@ -137,7 +137,6 @@ public class JSoarTestAgent implements TestAgent
         agent = new Agent(test.getName());
         agent.getTrace().setWatchLevel(0);
         agent.getPrinter().addPersistentWriter(output);
-        agent.initialize();
         
         passFunction = TestRhsFunction.addTestFunction(agent, "pass");
         failFunction = TestRhsFunction.addTestFunction(agent, "fail");

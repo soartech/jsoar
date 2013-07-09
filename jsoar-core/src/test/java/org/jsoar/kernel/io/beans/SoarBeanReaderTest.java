@@ -31,7 +31,6 @@ public class SoarBeanReaderTest
     public void setUp() throws Exception
     {
         this.agent = new Agent();
-        this.agent.initialize();
         this.agent.getProperties().set(SoarProperties.WAITSNC, true);
     }
 

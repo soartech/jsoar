@@ -31,7 +31,6 @@ public class DecisionCycleTest
     {
         this.agent = new Agent();
         this.agent.getTrace().enableAll();
-        this.agent.initialize();
         
         this.decisionCycle = Adaptables.adapt(this.agent, DecisionCycle.class);
     }

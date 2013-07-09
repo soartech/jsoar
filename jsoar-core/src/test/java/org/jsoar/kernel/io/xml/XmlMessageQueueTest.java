@@ -51,7 +51,7 @@ public class XmlMessageQueueTest
     @Before
     public void setUp() throws Exception
     {
-        this.agent = new Agent();
+        this.agent = new Agent(false);
         agent.getTrace().disableAll();
         this.match = new MatchFunction();
         this.agent.getRhsFunctions().registerHandler(match);
