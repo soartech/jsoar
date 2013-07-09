@@ -35,7 +35,7 @@ enum ThreadedAgentManager
     {
         synchronized(agents)
         {
-            final ThreadedAgent agent = attach(new Agent(name)).initialize(new CompletionHandler<Void>() {
+            final ThreadedAgent agent = attach(new Agent(name, false)).initialize(new CompletionHandler<Void>() {
 
                 @Override
                 public void finish(Void result)

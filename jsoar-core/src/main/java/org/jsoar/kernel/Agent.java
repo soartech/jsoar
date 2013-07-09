@@ -185,21 +185,47 @@ public class Agent extends AbstractAdaptable implements AgentRunController
             smem, wma, epmem);
     
     /**
-     * Construct a new agent with a generated name.
+     * Construct a new agent with a generated name.  Also initializes
+     * the agent.
      * 
-     * @see #Agent(String)
+     * @see #Agent(String, boolean)
      */
     public Agent()
     {
-        this(null);
+        this(null, true);
     }
     
     /**
-     * Construct a new agent with the given name.
+     * Construct a new agent with a generated name.  Also lets you explicitly
+     * state whether to initialize the agent.
      * 
-     * @param name the name. If {@code null}, a new name is generated.
+     * @see #Agent(String, boolean)
+     */
+    public Agent(boolean initializeAgent)
+    {
+        this(null, initializeAgent);
+    }
+    
+    /**
+     * Construct a new agent with the given name.  Also initializes
+     * the agent.
+     * 
+     * @see #Agent(String, boolean)
      */
     public Agent(String name)
+    {
+        this(name, true);
+    }
+    
+    /**
+     * Construct a new agent with the given name.  Also lets you explicitly
+     * state whether to initialize the agent
+     * 
+     * @param name the name. If {@code null}, a new name is generated.
+     * @param initializeAgent lets you explicitly choose whether to initialize
+     * the agent.
+     */
+    public Agent(String name, boolean initializeAgent)
     {
         setName(name != null ? name : "JSoar Agent " + nextName.incrementAndGet());
         
@@ -225,6 +251,9 @@ public class Agent extends AbstractAdaptable implements AgentRunController
         // Set up standard RHS functions
         new StandardFunctions(this);
         installDefaultTraceFormats();
+        
+        if (initializeAgent)
+            this.initialize();
     }
     
     /**
