@@ -613,13 +613,63 @@ public class PerformanceTesting
             
             for (int i = 0;i < runCount;i++)
             {
-                out.println("Run " + (i+1) + " of '" + testRunner.getTest().getTestName() + "' using " + testRunner.getTest().getDisplayName() + ":");
-                out.println("CPU Time: " + cpuTimes.get(i));
-                out.println("Kernel Time: " + kernelTimes.get(i));
-                out.println("Decision Cycles Total: " + decisionCycles.get(i));
-                out.println("Memory Load: " + memoryLoads.get(i) / 1000.0 / 1000.0 + "M");
+                Table table = new Table();
                 
-                out.print("\n");
+                for (int j = 0;j < 5;j++)
+                {
+                    Row row = new Row();
+                    
+                    switch (j)
+                    {
+                    case 0:
+                        row.add(new Cell(testRunner.getTest().getTestName() + " - Run " + (i+1)));
+                        row.add(new Cell(testRunner.getTest().getDisplayName()));
+                        break;
+                    case 1:
+                        row.add(new Cell("CPU Time (s)"));
+                        row.add(new Cell(new Double(cpuTimes.get(i)).toString()));
+                        break;
+                    case 2:
+                        row.add(new Cell("Kernel Time (s)"));
+                        row.add(new Cell(new Double(kernelTimes.get(i)).toString()));
+                        break;
+                    case 3:
+                        row.add(new Cell("Decision Cycles Total"));
+                        row.add(new Cell(new Double(decisionCycles.get(i)).toString()));
+                        break;
+                    case 4:
+                        row.add(new Cell("Memory Load (M)"));
+                        row.add(new Cell(new Double(memoryLoads.get(i) / 1000.0 / 1000.0 ).toString()));
+                    }
+                    
+                    table.addRow(row);
+                }
+
+                table.writeToWriter(out);
+                
+                String outputDirectory = csvDirectory.trim();
+                
+                if (outputDirectory.length() != 0)
+                {
+                    File out = new File(outputDirectory);
+                    
+                    if (!out.exists())
+                    {
+                        out.mkdirs();
+                    }
+                                        
+                    String testNameWithoutSpaces = testRunner.getTest().getTestName().replaceAll("\\s+", "-") + "-" + testRunner.getTest().getDisplayName() + "-Run" + (i+1);
+                    
+                    table.writeToCSV(outputDirectory + "/" + testNameWithoutSpaces + ".txt");
+                }
+                
+//                out.println("Run " + (i+1) + " of '" + testRunner.getTest().getTestName() + "' using " + testRunner.getTest().getDisplayName() + ":");
+//                out.println("CPU Time: " + cpuTimes.get(i));
+//                out.println("Kernel Time: " + kernelTimes.get(i));
+//                out.println("Decision Cycles Total: " + decisionCycles.get(i));
+//                out.println("Memory Load: " + memoryLoads.get(i) / 1000.0 / 1000.0 + "M");
+                
+//                out.print("\n");
             }
         }
         
