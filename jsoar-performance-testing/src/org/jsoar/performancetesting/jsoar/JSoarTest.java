@@ -98,7 +98,7 @@ public class JSoarTest implements Test
         if (decisionCyclesToRun == 0)
             agent.runForever();
         else
-            agent.runFor(decisionCyclesToRun-1, RunType.DECISIONS);
+            agent.runFor(decisionCyclesToRun, RunType.DECISIONS);
         
         cpuTime = agent.getTotalCpuTimer().getTotalSeconds();
         kernelTime = agent.getTotalKernelTimer().getTotalSeconds();
