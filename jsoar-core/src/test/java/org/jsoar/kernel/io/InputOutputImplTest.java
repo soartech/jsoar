@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.jsoar.JSoarTest;
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarException;
 import org.jsoar.kernel.SoarProperties;
@@ -89,6 +90,11 @@ public class InputOutputImplTest extends JSoarTest
         ifc = agent.getInterpreter();
         agent.getRhsFunctions().registerHandler(match = new MatchFunction());
         agent.initialize();
+        
+        // Since this is the InputOutput tests, these tests have to stop after output
+        // (ie. before INPUT). I changed this to Phase.APPLY so this broke all the tests.
+        // - ALT
+        agent.setStopPhase(Phase.INPUT);
     }
 
     /**

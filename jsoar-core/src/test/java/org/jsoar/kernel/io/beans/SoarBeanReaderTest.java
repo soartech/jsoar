@@ -8,6 +8,7 @@ package org.jsoar.kernel.io.beans;
 import static org.junit.Assert.*;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.kernel.events.OutputEvent;
@@ -76,6 +77,11 @@ public class SoarBeanReaderTest
     @Test
     public void testReadBeanWithPublicFields() throws Exception
     {
+        // Since this registers an InputOutput handler it requires that
+        // running one decision run until just before the INPUT phase
+        // So the handler is called.
+        // - ALT
+        agent.setStopPhase(Phase.INPUT);
         agent.getProperties().set(SoarProperties.WAITSNC, false);         
         agent.getProductions().loadProduction("" +
                 "testReadBeanWithNoSubObjects\n" +
@@ -96,6 +102,12 @@ public class SoarBeanReaderTest
     @Test
     public void testConversionFromSoarToJavaStylePropertyNames() throws Exception
     {
+        // Since this registers an InputOutput handler it requires that
+        // running one decision run until just before the INPUT phase
+        // So the handler is called.
+        // - ALT
+        agent.setStopPhase(Phase.INPUT);
+        
         agent.getProperties().set(SoarProperties.WAITSNC, false);         
         agent.getProductions().loadProduction("" +
                 "testConversionFromSoarToJavaStylePropertyNames\n" +
@@ -134,6 +146,12 @@ public class SoarBeanReaderTest
     @Test
     public void testReadBeanWithNoSubObjects() throws Exception
     {
+        // Since this registers an InputOutput handler it requires that
+        // running one decision run until just before the INPUT phase
+        // So the handler is called.
+        // - ALT
+        agent.setStopPhase(Phase.INPUT);
+        
         agent.getProperties().set(SoarProperties.WAITSNC, false);         
         agent.getProductions().loadProduction("" +
                 "testReadBeanWithNoSubObjects\n" +
@@ -164,6 +182,12 @@ public class SoarBeanReaderTest
     @Test
     public void testReadBeanWithSubObjects() throws Exception
     {
+        // Since this registers an InputOutput handler it requires that
+        // running one decision run until just before the INPUT phase
+        // So the handler is called.
+        // - ALT
+        agent.setStopPhase(Phase.INPUT);
+        
         agent.getProperties().set(SoarProperties.WAITSNC, false);         
         agent.getProductions().loadProduction("" +
                 "testReadBeanWithNoSubObjects\n" +
@@ -205,6 +229,12 @@ public class SoarBeanReaderTest
     @Test
     public void testReadBeanWithArrayField() throws Exception
     {
+        // Since this registers an InputOutput handler it requires that
+        // running one decision run until just before the INPUT phase
+        // So the handler is called.
+        // - ALT
+        agent.setStopPhase(Phase.INPUT);
+        
         agent.getProperties().set(SoarProperties.WAITSNC, false);         
         agent.getProductions().loadProduction("" +
                 "testReadBeanWithArrayField\n" +
@@ -247,6 +277,12 @@ public class SoarBeanReaderTest
     @Test
     public void testReadBeanWithSymbolField() throws Exception
     {
+        // Since this registers an InputOutput handler it requires that
+        // running one decision run until just before the INPUT phase
+        // So the handler is called.
+        // - ALT
+        agent.setStopPhase(Phase.INPUT);
+        
         agent.getProperties().set(SoarProperties.WAITSNC, false);         
         agent.getProductions().loadProduction("" +
                 "testReadBeanWithSymbolField\n" +

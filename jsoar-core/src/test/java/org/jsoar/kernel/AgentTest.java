@@ -35,9 +35,9 @@ public class AgentTest
     }
 
     @Test
-    public void testDefaultStopPhaseIsInput()
+    public void testDefaultStopPhaseIsApply()
     {
-        assertEquals(Phase.INPUT, agent.getStopPhase());
+        assertEquals(Phase.APPLY, agent.getStopPhase());
     }
     
     @Test

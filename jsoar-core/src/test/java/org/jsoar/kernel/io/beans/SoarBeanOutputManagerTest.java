@@ -11,6 +11,7 @@ import static org.junit.Assert.*;
 import java.awt.Point;
 
 import org.jsoar.kernel.Agent;
+import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.ByRef;
@@ -35,6 +36,11 @@ public class SoarBeanOutputManagerTest
         this.agent = new Agent(false);
         
         this.output = new SoarBeanOutputManager(agent.getEvents());
+        
+        // Since this is the SoarBeanOutput tests, these tests have to stop after output
+        // (ie. before INPUT). I changed this to Phase.APPLY so this broke all the tests.
+        // - ALT
+        this.agent.setStopPhase(Phase.INPUT);
         this.agent.initialize();
         this.agent.getProperties().set(SoarProperties.WAITSNC, true);
     }

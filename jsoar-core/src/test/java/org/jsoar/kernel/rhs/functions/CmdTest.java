@@ -24,10 +24,15 @@ public class CmdTest
     @Before
     public void setUp() throws Exception
     {
-        this.agent = new Agent();
+        this.agent = new Agent(false);
         this.agent.getPrinter().addPersistentWriter(
                 outputWriter = new StringWriter());
         this.agent.getTrace().disableAll();
+        
+        // Since this compares text and .initialize() writes a \n to the trace
+        // These tests will fail unless the trace is off when .initialize() is
+        // called.
+        this.agent.initialize();
     }
 
     @After

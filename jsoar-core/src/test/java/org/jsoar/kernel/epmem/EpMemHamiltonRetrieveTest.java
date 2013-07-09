@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.jsoar.kernel.FunctionalTestHarness;
+import org.jsoar.kernel.Phase;
 import org.jsoar.kernel.RunType;
 import org.jsoar.kernel.SoarProperties;
 import org.jsoar.util.adaptables.Adaptables;
@@ -339,6 +340,11 @@ public class EpMemHamiltonRetrieveTest extends FunctionalTestHarness
     
     @Test
     public void testRetrieval() throws Exception{
+        // Since this is the retrieve tests, these tests have to stop after output
+        // (ie. before INPUT). I changed this to Phase.APPLY so this broke all the tests.
+        // - ALT
+        agent.setStopPhase(Phase.INPUT);
+        
         runTestSetup("testHamilton_retrieve");
         agent.runFor(1, RunType.DECISIONS);
         populateDataBase(getConnection());
