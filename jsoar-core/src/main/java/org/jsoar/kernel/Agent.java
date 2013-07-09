@@ -657,6 +657,18 @@ public class Agent extends AbstractAdaptable implements AgentRunController
     public void runFor(long n, RunType runType)
     {
         ensureInitialized();
+        
+        //  Before running, check to see if an agent is at a point other than the StopBeforePhase.
+        //  If so, we'll decrement  the RunCount before entering the Run loop so  
+        //  as not to run more Decision phases than specified in the runCount.  See bug #710.
+        if (runType == RunType.DECISIONS)
+        {
+            if (this.decisionCycle.current_phase.get() != getStopPhase() && (n > 0))
+            {
+                n--;
+            }
+        }
+        
         this.decisionCycle.runFor(n, runType);
         getTrace().flush();
     }

@@ -121,7 +121,7 @@ public class SoarProperties
      * 
      * @see AgentRunController#setStopPhase(Phase)
      */
-    public static final PropertyKey<Phase> STOP_PHASE = PropertyKey.builder("stop-phase", Phase.class).defaultValue(Phase.INPUT).build();
+    public static final PropertyKey<Phase> STOP_PHASE = PropertyKey.builder("stop-phase", Phase.class).defaultValue(Phase.APPLY).build();
     
     /**
      * <p>agent.h::d_cycle_count
