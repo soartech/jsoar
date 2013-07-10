@@ -7,12 +7,7 @@
 # TODO support other types for values.
 CREATE TABLE @PREFIX@vars (id INTEGER PRIMARY KEY,value INTEGER)
 
-# SQLite
-[org.sqlite.JDBC] CREATE TABLE @PREFIX@symbols_type (id INTEGER PRIMARY KEY, sym_type INTEGER)
-# MySQL
-[com.mysql.jdbc.Driver] CREATE TABLE @PREFIX@symbols_type (id INTEGER PRIMARY KEY AUTO_INCREMENT, sym_type INTEGER)
-# PostgreSQL
-[org.postgresql.Driver] CREATE TABLE @PREFIX@symbols_type (id SERIAL, sym_type INTEGER, PRIMARY KEY (id))
+CREATE TABLE @PREFIX@symbols_type (id INTEGER PRIMARY KEY, sym_type INTEGER)
 
 CREATE TABLE @PREFIX@symbols_int (id INTEGER PRIMARY KEY, sym_const INTEGER)
 CREATE UNIQUE INDEX @PREFIX@symbols_int_const ON @PREFIX@symbols_int (sym_const)
@@ -20,21 +15,11 @@ CREATE UNIQUE INDEX @PREFIX@symbols_int_const ON @PREFIX@symbols_int (sym_const)
 CREATE TABLE @PREFIX@symbols_float (id INTEGER PRIMARY KEY, sym_const REAL)
 CREATE UNIQUE INDEX @PREFIX@symbols_float_const ON @PREFIX@symbols_float (sym_const)
 
-# SQLite
-[org.sqlite.JDBC] CREATE TABLE @PREFIX@symbols_str (id INTEGER PRIMARY KEY, sym_const TEXT)
-# MySQL
-[com.mysql.jdbc.Driver] CREATE TABLE @PREFIX@symbols_str (id INTEGER PRIMARY KEY, sym_const VARCHAR(255))
-# PostgreSQL
-[org.postgresql.Driver] CREATE TABLE @PREFIX@symbols_str (id INTEGER PRIMARY KEY, sym_const TEXT)
+CREATE TABLE @PREFIX@symbols_str (id INTEGER PRIMARY KEY, sym_const TEXT)
 
 CREATE UNIQUE INDEX @PREFIX@symbols_str_const ON @PREFIX@symbols_str (sym_const)
 
-# SQLite
-[org.sqlite.JDBC] CREATE TABLE @PREFIX@lti (id INTEGER PRIMARY KEY, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
-# MySQL
-[com.mysql.jdbc.Driver] CREATE TABLE @PREFIX@lti (id INTEGER PRIMARY KEY AUTO_INCREMENT, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
-# PostgreSQL
-[org.postgresql.Driver] CREATE TABLE @PREFIX@lti (id SERIAL, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER, PRIMARY KEY (id))
+CREATE TABLE @PREFIX@lti (id INTEGER PRIMARY KEY, letter INTEGER, num INTEGER, child_ct INTEGER, act_cycle INTEGER)
 
 CREATE UNIQUE INDEX @PREFIX@lti_letter_num ON @PREFIX@lti (letter, num)
 
