@@ -14,5 +14,5 @@ class smem_vis_lti
 {
     /*smem_lti_id*/ long lti_id;
     String lti_name;
-    /*unsigned long*/ long level;
+    /*unsigned int*/ int level;
 }

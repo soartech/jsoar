@@ -94,6 +94,8 @@ import org.slf4j.LoggerFactory;
  * <li>goal_stack_level == int
  * <li>smem_lti_set = {@code Set<Long>}
  * <li>smem_wme_list == {@code List<WmeImpl>}
+ * <li>smem_pooled_symbol_set == {@code Set<SymbolImpl>}
+ * <li>smem_wme_stack == {@code Deque<Preference>}
  * <li>smem_slot == {@code List<smem_chunk_value> }
  * <li>smem_slot_map == {@code Map<SymbolImpl, List<smem_chunk_value>>}
  * <li>smem_str_to_chunk_map == {@code Map<String, smem_chunk_value>}
@@ -132,6 +134,14 @@ public class DefaultSemanticMemory implements SemanticMemory
      * semantic_memory.h:237:SMEM_ACT_MAX
      */
     private static final long SMEM_ACT_MAX = (0-1)/ 2; // TODO???
+    
+    private static final long SMEM_LTI_UNKNOWN_LEVEL = 0L;
+    
+    private static final long SMEM_AUGMENTATIONS_NULL = 0L;
+    private static final String SMEM_AUGMENTATIONS_NULL_STR = "0";
+    
+    private static final long SMEM_ACT_HISTORY_ENTRIES = 10L;
+    private static final long SMEM_ACT_LOW = -1000000000L;
 
     private Adaptable context;
     private DefaultSemanticMemoryParams params;
@@ -3423,7 +3433,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param return_val
      * @throws SQLException
      */
-    void smem_visualize_lti( long /*smem_lti_id*/ lti_id, long depth, PrintWriter return_val ) throws SoarException
+    void smem_visualize_lti( long /*smem_lti_id*/ lti_id, int depth, PrintWriter return_val ) throws SoarException
     {
         try
         {
@@ -3443,7 +3453,7 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param return_val
      * @throws SQLException
      */
-    private void smem_visualize_lti_safe( long /*smem_lti_id*/ lti_id, long depth, PrintWriter return_val ) throws SQLException
+    private void smem_visualize_lti_safe( long /*smem_lti_id*/ lti_id, int depth, PrintWriter return_val ) throws SQLException
     {
         final Queue<smem_vis_lti> bfs = new ArrayDeque<smem_vis_lti>();
 

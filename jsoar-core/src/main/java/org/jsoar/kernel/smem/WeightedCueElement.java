@@ -20,7 +20,7 @@ public class WeightedCueElement implements Comparable<WeightedCueElement>
         return new PriorityQueue<WeightedCueElement>();
     }
     
-    /*uintptr_t*/ long weight;
+    /*uint64_t*/ long weight;
 
     WmeImpl cue_element;
     /*smem_hash_id*/ long attr_hash;
@@ -28,6 +28,7 @@ public class WeightedCueElement implements Comparable<WeightedCueElement>
     /*smem_hash_id*/ long value_lti;
 
     smem_cue_element_type element_type;
+    boolean pos_element;
 
     /* (non-Javadoc)
      * @see java.lang.Comparable#compareTo(java.lang.Object)
