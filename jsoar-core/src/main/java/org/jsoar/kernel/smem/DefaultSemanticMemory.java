@@ -43,6 +43,7 @@ import org.jsoar.kernel.memory.RecognitionMemory;
 import org.jsoar.kernel.memory.Slot;
 import org.jsoar.kernel.memory.WmeImpl;
 import org.jsoar.kernel.memory.WorkingMemory;
+import org.jsoar.kernel.memory.WmeImpl.SymbolTriple;
 import org.jsoar.kernel.modules.SoarModule;
 import org.jsoar.kernel.parser.original.Lexeme;
 import org.jsoar.kernel.parser.original.LexemeType;
@@ -58,6 +59,7 @@ import org.jsoar.kernel.symbols.SymbolFactoryImpl;
 import org.jsoar.kernel.symbols.SymbolImpl;
 import org.jsoar.kernel.symbols.Symbols;
 import org.jsoar.kernel.tracing.Printer;
+import org.jsoar.kernel.wma.WorkingMemoryActivation;
 import org.jsoar.util.ByRef;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
@@ -314,16 +316,15 @@ public class DefaultSemanticMemory implements SemanticMemory
      */
     private static boolean smem_symbol_is_constant( Symbol sym )
     {
-        return sym.asIdentifier() == null;
-//        return ( ( sym->common.symbol_type == SYM_CONSTANT_SYMBOL_TYPE ) ||
-//                 ( sym->common.symbol_type == INT_CONSTANT_SYMBOL_TYPE ) ||
-//                 ( sym->common.symbol_type == FLOAT_CONSTANT_SYMBOL_TYPE ) );
+         return ( ( Symbols.getSymbolType(sym) == Symbols.SYM_CONSTANT_SYMBOL_TYPE ) ||
+                  ( Symbols.getSymbolType(sym) == Symbols.INT_CONSTANT_SYMBOL_TYPE ) ||
+                  ( Symbols.getSymbolType(sym) == Symbols.FLOAT_CONSTANT_SYMBOL_TYPE ) );
     }
     
 
-    private long /*smem_hash_id*/ smem_temporal_hash_add(int sym_type ) throws SQLException
+    private long /*smem_hash_id*/ smem_temporal_hash_add_type(int symbol_type ) throws SQLException
     {
-        db.hash_add_type.setInt(1, sym_type );
+        db.hash_add_type.setInt(1, symbol_type );
         return JdbcTools.insertAndGetRowId(db.hash_add_type);
     }
 
@@ -350,7 +351,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         if ( return_val == 0 && add_on_fail )
         {
             // type first       
-            return_val = smem_temporal_hash_add( Symbols.INT_CONSTANT_SYMBOL_TYPE );
+            return_val = smem_temporal_hash_add_type( Symbols.INT_CONSTANT_SYMBOL_TYPE );
 
             // then content
             db.hash_add_int.setLong( 1, return_val );
@@ -385,7 +386,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         if ( return_val == 0 && add_on_fail )
         {
             // type first       
-            return_val = smem_temporal_hash_add( Symbols.FLOAT_CONSTANT_SYMBOL_TYPE );
+            return_val = smem_temporal_hash_add_type( Symbols.FLOAT_CONSTANT_SYMBOL_TYPE );
 
             // then content
             db.hash_add_float.setLong( 1, return_val );
@@ -420,7 +421,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         if ( return_val == 0 && add_on_fail )
         {
             // type first       
-            return_val = smem_temporal_hash_add( Symbols.SYM_CONSTANT_SYMBOL_TYPE );
+            return_val = smem_temporal_hash_add_type( Symbols.SYM_CONSTANT_SYMBOL_TYPE );
 
             // then content
             db.hash_add_str.setLong( 1, return_val );
@@ -441,40 +442,48 @@ public class DefaultSemanticMemory implements SemanticMemory
      * @param value
      * @param meta
      */
-    void _smem_add_wme(IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value, boolean meta )
+    void _smem_process_buffered_wme_list(IdentifierImpl state, Set<WmeImpl> cue_wmes, List<SymbolTriple> my_list, boolean meta)
     {
-        // this fake preference is just for this state.
-        // it serves the purpose of simulating a completely
-        // local production firing to provide backtracing
-        // information, making the result wmes dependent
-        // upon the cue wmes.
-        final SemanticMemoryStateInfo smem_info = smem_info(state);
-        final Preference pref = SoarModule.make_fake_preference( state, id, attr, value, smem_info.cue_wmes );
-
-        // add the preference to temporary memory
-        recMem.add_preference_to_tm( pref );
-
-        // and add it to the list of preferences to be removed
-        // when the goal is removed
-        state.goalInfo.addGoalPreference(pref);
-        pref.on_goal_list = true;
-
-
-        if ( meta )
+        if (my_list.isEmpty())
         {
-            // if this is a meta wme, then it is completely local
-            // to the state and thus we will manually remove it
-            // (via preference removal) when the time comes
-            smem_info.smem_wmes.push( pref );
+            return;
         }
-        else
+        
+        Instantiation inst = SoarModule.make_fake_instantiation(state, cue_wmes, my_list);
+        
+        for ( Preference pref = inst.preferences_generated; pref != null;pref = pref.inst_next )
+        {
+            // add the preference to temporary memory
+            if ( recMem.add_preference_to_tm( pref ) )
+            {
+                // and add it to the list of preferences to be removed
+                // when the goal is removed
+                state.goalInfo.addGoalPreference(pref);
+                pref.on_goal_list = true;
+                
+                if ( meta )
+                {
+                    // if this is a meta wme, then it is completely local
+                    // to the state and thus we will manually remove it
+                    // (via preference removal) when the time comes
+                    smem_info(state).smem_wmes.push( pref );
+                }
+            }
+            else
+            {
+                preference_add_ref( pref );
+                preference_remove_ref( pref );
+            }
+        }
+        
+        if ( !meta )
         {
             // otherwise, we submit the fake instantiation to backtracing
             // such as to potentially produce justifications that can follow
             // it to future adventures (potentially on new states)
 
             final ByRef<Instantiation> my_justification_list = ByRef.create(null);
-            chunker.chunk_instantiation( pref.inst, true, my_justification_list );
+            chunker.chunk_instantiation( inst, true, my_justification_list );
 
             // if any justifications are created, assert their preferences manually
             // (copied mainly from assert_new_preferences with respect to our circumstances)
@@ -495,27 +504,38 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                     for (Preference just_pref=my_justification.preferences_generated; just_pref!=null; just_pref=just_pref.inst_next ) 
                     {
-                        recMem.add_preference_to_tm( just_pref );                        
-                        
-                        // TODO SMEM WMA
-//                        if ( wma_enabled( my_agent ) )
-//                        {
-//                            wma_activate_wmes_in_pref( my_agent, just_pref );
-//                        }
+                        if ( recMem.add_preference_to_tm( just_pref ) )
+                        {
+                            final WorkingMemoryActivation wma = just_pref.slot.getWmes().wma; 
+                            if ( wma.wma_enabled() )
+                            {
+                                wma.wma_activate_wmes_in_pref( just_pref );
+                            }
+                        }
+                        else
+                        {
+                            preference_add_ref( just_pref );
+                            preference_remove_ref( just_pref );
+                        }
                     }
                 }
             }
         }
     }
     
-    private void smem_add_retrieved_wme(IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value )
+    private void smem_process_buffered_wmes(IdentifierImpl state, Set<WmeImpl> cue_wmes, List<SymbolTriple> meta_wmes, List<SymbolTriple> retrieval_wmes )
     {
-        _smem_add_wme( state, id, attr, value, false );
+        _smem_process_buffered_wme_list( state, cue_wmes, meta_wmes, true );
+        _smem_process_buffered_wme_list( state, cue_wmes, retrieval_wmes, false );
     }
 
-    private void smem_add_meta_wme( IdentifierImpl state, IdentifierImpl id, SymbolImpl attr, SymbolImpl value )
+    private void smem_buffer_add_wme( List<SymbolTriple> my_list, IdentifierImpl id, SymbolImpl attr, SymbolImpl value )
     {
-        _smem_add_wme( state, id, attr, value, true );
+        my_list.add(new SymbolTriple(id, attr, value));
+        
+        symbol_add_ref( id );
+        symbol_add_ref( attr );
+        symbol_add_ref( value );
     }
 
     
@@ -722,9 +742,9 @@ public class DefaultSemanticMemory implements SemanticMemory
         }
     }
 
-    private SymbolImpl smem_reverse_hash(int sym_type, long /*smem_hash_id*/ hash_value ) throws SQLException
+    private SymbolImpl smem_reverse_hash(int symbol_type, long /*smem_hash_id*/ hash_value ) throws SQLException
     {
-        switch ( sym_type )
+        switch ( symbol_type )
         {
         case Symbols.SYM_CONSTANT_SYMBOL_TYPE:  
             return symbols.createString(smem_reverse_hash_str(hash_value));
@@ -739,6 +759,14 @@ public class DefaultSemanticMemory implements SemanticMemory
             return null;
         }
     }
+    
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+// Activation Functions (smem::act)
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
+    
 
     /**
      * copied primarily from add_bound_variables_in_test
