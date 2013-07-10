@@ -1135,9 +1135,9 @@ public class DefaultSemanticMemory implements SemanticMemory
                     counter += webAttrCounts.getLong( 1 + 1);
                     
                     // adjust in opposite direction ( adjust, attribute )
-                    db.ct_attr_update.setLong( 1, -( webAttrCounts.getLong( 1 + 1) ) );
-                    db.ct_attr_update.setLong( 2, webAttrCounts.getLong( 0 + 1 ) );
-                    db.ct_attr_update.executeUpdate( /*soar_module::op_reinit*/ );
+                    db.attribute_frequency_update.setLong( 1, -( webAttrCounts.getLong( 1 + 1) ) );
+                    db.attribute_frequency_update.setLong( 2, webAttrCounts.getLong( 0 + 1 ) );
+                    db.attribute_frequency_update.executeUpdate( /*soar_module::op_reinit*/ );
                 }
             }
             finally
@@ -1159,10 +1159,10 @@ public class DefaultSemanticMemory implements SemanticMemory
                 while ( webConstCounts.next() )
                 {
                     // adjust in opposite direction ( adjust, attribute, const )
-                    db.ct_const_update.setLong( 1, -( webConstCounts.getLong( 2 + 1 ) ) );
-                    db.ct_const_update.setLong( 2, webConstCounts.getLong( 0 + 1 ) );
-                    db.ct_const_update.setLong( 3, webConstCounts.getLong( 1 + 1 ) );
-                    db.ct_const_update.executeUpdate( /*soar_module::op_reinit*/ );
+                    db.wmes_constant_frequency_update.setLong( 1, -( webConstCounts.getLong( 2 + 1 ) ) );
+                    db.wmes_constant_frequency_update.setLong( 2, webConstCounts.getLong( 0 + 1 ) );
+                    db.wmes_constant_frequency_update.setLong( 3, webConstCounts.getLong( 1 + 1 ) );
+                    db.wmes_constant_frequency_update.executeUpdate( /*soar_module::op_reinit*/ );
                 }
             }
             finally
@@ -1182,10 +1182,10 @@ public class DefaultSemanticMemory implements SemanticMemory
                 while ( webLtiCounts.next() )
                 {
                     // adjust in opposite direction ( adjust, attribute, lti )
-                    db.ct_lti_update.setLong( 1, -( webLtiCounts.getLong( 2 + 1 ) ) );
-                    db.ct_lti_update.setLong( 2, webLtiCounts.getLong( 0 + 1) );
-                    db.ct_lti_update.setLong( 3, webLtiCounts.getLong( 1 + 1) );
-                    db.ct_lti_update.executeUpdate( /*soar_module::op_reinit*/ );
+                    db.wmes_lti_frequency_update.setLong( 1, -( webLtiCounts.getLong( 2 + 1 ) ) );
+                    db.wmes_lti_frequency_update.setLong( 2, webLtiCounts.getLong( 0 + 1) );
+                    db.wmes_lti_frequency_update.setLong( 3, webLtiCounts.getLong( 1 + 1) );
+                    db.wmes_lti_frequency_update.executeUpdate( /*soar_module::op_reinit*/ );
                 }
             }
             finally
@@ -1375,17 +1375,17 @@ public class DefaultSemanticMemory implements SemanticMemory
             {
                 // make sure counter exists (attr)
                 // check if counter exists
-                db.ct_attr_check.setLong(1, p.getKey());
-                if(!JdbcTools.queryHasResults(db.ct_attr_check))
+                db.attribute_frequency_check.setLong(1, p.getKey());
+                if(!JdbcTools.queryHasResults(db.attribute_frequency_check))
                 {
-                    db.ct_attr_add.setLong( 1, p.getKey() );
-                    db.ct_attr_add.executeUpdate( /*soar_module::op_reinit*/ );
+                    db.attribute_frequency_add.setLong( 1, p.getKey() );
+                    db.attribute_frequency_add.executeUpdate( /*soar_module::op_reinit*/ );
                 }
 
                 // adjust count (adjustment, attr)
-                db.ct_attr_update.setLong( 1, p.getValue() );
-                db.ct_attr_update.setLong( 2, p.getKey() );
-                db.ct_attr_update.executeUpdate( /*soar_module::op_reinit*/ );
+                db.attribute_frequency_update.setLong( 1, p.getValue() );
+                db.attribute_frequency_update.setLong( 2, p.getKey() );
+                db.attribute_frequency_update.executeUpdate( /*soar_module::op_reinit*/ );
             }
         }
 
@@ -1396,20 +1396,20 @@ public class DefaultSemanticMemory implements SemanticMemory
                 for(Map.Entry<Long, Long> p2 : p1.getValue().entrySet())
                 {
                     // make sure counter exists (attr, val)
-                    db.ct_const_check.setLong( 1, p1.getKey() );
-                    db.ct_const_check.setLong( 2, p2.getKey() );
-                    if(!JdbcTools.queryHasResults(db.ct_const_check))
+                    db.wmes_constant_frequency_check.setLong( 1, p1.getKey() );
+                    db.wmes_constant_frequency_check.setLong( 2, p2.getKey() );
+                    if(!JdbcTools.queryHasResults(db.wmes_constant_frequency_check))
                     {
-                        db.ct_const_add.setLong( 1, p1.getKey() );
-                        db.ct_const_add.setLong( 2, p2.getKey() );
-                        db.ct_const_add.executeUpdate( /*soar_module::op_reinit*/ );
+                        db.wmes_constant_frequency_add.setLong( 1, p1.getKey() );
+                        db.wmes_constant_frequency_add.setLong( 2, p2.getKey() );
+                        db.wmes_constant_frequency_add.executeUpdate( /*soar_module::op_reinit*/ );
                     }
 
                     // adjust count (adjustment, attr, val)
-                    db.ct_const_update.setLong( 1, p2.getValue() );
-                    db.ct_const_update.setLong( 2, p1.getKey() );
-                    db.ct_const_update.setLong( 3, p2.getKey() );
-                    db.ct_const_update.executeUpdate( /*soar_module::op_reinit*/ );
+                    db.wmes_constant_frequency_update.setLong( 1, p2.getValue() );
+                    db.wmes_constant_frequency_update.setLong( 2, p1.getKey() );
+                    db.wmes_constant_frequency_update.setLong( 3, p2.getKey() );
+                    db.wmes_constant_frequency_update.executeUpdate( /*soar_module::op_reinit*/ );
                 }
             }
         }
@@ -1421,21 +1421,21 @@ public class DefaultSemanticMemory implements SemanticMemory
                 for(Map.Entry<Long, Long> p2 : p1.getValue().entrySet())
                 {
                     // make sure counter exists (attr, lti)
-                    db.ct_lti_check.setLong( 1, p1.getKey() );
-                    db.ct_lti_check.setLong( 2, p2.getKey() );
-                    if(!JdbcTools.queryHasResults(db.ct_lti_check))
+                    db.wmes_lti_frequency_check.setLong( 1, p1.getKey() );
+                    db.wmes_lti_frequency_check.setLong( 2, p2.getKey() );
+                    if(!JdbcTools.queryHasResults(db.wmes_lti_frequency_check))
                     {
                     
-                        db.ct_lti_add.setLong( 1, p1.getKey() );
-                        db.ct_lti_add.setLong( 2, p2.getKey() );
-                        db.ct_lti_add.executeUpdate( /*soar_module::op_reinit*/ );
+                        db.wmes_lti_frequency_add.setLong( 1, p1.getKey() );
+                        db.wmes_lti_frequency_add.setLong( 2, p2.getKey() );
+                        db.wmes_lti_frequency_add.executeUpdate( /*soar_module::op_reinit*/ );
                     }
 
                     // adjust count (adjustment, attr, lti)
-                    db.ct_lti_update.setLong( 1, p2.getValue() );
-                    db.ct_lti_update.setLong( 2, p1.getKey() );
-                    db.ct_lti_update.setLong( 3, p2.getKey() );
-                    db.ct_lti_update.executeUpdate( /*soar_module::op_reinit*/ );
+                    db.wmes_lti_frequency_update.setLong( 1, p2.getValue() );
+                    db.wmes_lti_frequency_update.setLong( 2, p1.getKey() );
+                    db.wmes_lti_frequency_update.setLong( 3, p2.getKey() );
+                    db.wmes_lti_frequency_update.executeUpdate( /*soar_module::op_reinit*/ );
                 }
             }
         }
@@ -1768,7 +1768,7 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                             if ( value_hash != 0 )
                             {
-                                q = db.ct_const_get;
+                                q = db.wmes_constant_frequency_get;
                                 q.setLong( 1, attr_hash );
                                 q.setLong( 2, value_hash );
 
@@ -1786,14 +1786,14 @@ public class DefaultSemanticMemory implements SemanticMemory
 
                             if ( value_lti == 0 )
                             {
-                                q = db.ct_attr_get;
+                                q = db.attribute_frequency_get;
                                 q.setLong( 1, attr_hash );
 
                                 element_type = smem_cue_element_type.attr_t;
                             }
                             else
                             {
-                                q = db.ct_lti_get;
+                                q = db.wmes_lti_frequency_get;
                                 q.setLong( 1, attr_hash );
                                 q.setLong( 2, value_lti );
 
@@ -2232,14 +2232,7 @@ public class DefaultSemanticMemory implements SemanticMemory
         if(params.driver.equals("org.sqlite.JDBC"))
         {
             // TODO: Generalize this. Move to a resource somehow.
-            final int cacheSize;
-            switch(params.cache.get())
-            {
-            case small:  cacheSize = 5000;  break;   // 5MB cache
-            case medium: cacheSize = 20000; break; // 20MB cache
-            case large:  
-            default:     cacheSize = 100000; // 100MB cache
-            }
+            final long cacheSize = params.cache_size.get();
             
             final Statement s = db.getConnection().createStatement();
             try

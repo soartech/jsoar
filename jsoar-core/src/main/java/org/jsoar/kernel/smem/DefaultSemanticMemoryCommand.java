@@ -15,8 +15,12 @@ import java.util.Arrays;
 import org.jsoar.kernel.Agent;
 import org.jsoar.kernel.Production;
 import org.jsoar.kernel.SoarException;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.BaseUpdateChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Cache;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.MergeChoices;
 import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.Optimization;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.PageChoices;
+import org.jsoar.kernel.smem.DefaultSemanticMemoryParams.SetWrapperLong;
 import org.jsoar.util.JdbcTools;
 import org.jsoar.util.adaptables.Adaptable;
 import org.jsoar.util.adaptables.Adaptables;
@@ -221,9 +225,17 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         {
             props.set(DefaultSemanticMemoryParams.LAZY_COMMIT, "on".equals(value));
         }
-        else if(name.equals("cache"))
+        else if(name.equals("append-db"))
         {
-            props.set(DefaultSemanticMemoryParams.CACHE, Cache.valueOf(value));
+            props.set(DefaultSemanticMemoryParams.APPEND_DB, "on".equals(value));
+        }
+        else if(name.equals("page-size"))
+        {
+            props.set(DefaultSemanticMemoryParams.PAGE_SIZE, PageChoices.valueOf(value));
+        }
+        else if(name.equals("cache-size"))
+        {
+            props.set(DefaultSemanticMemoryParams.CACHE_SIZE, Long.valueOf(value));
         }
         else if(name.equals("optimization"))
         {
@@ -232,6 +244,30 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         else if(name.equals("thresh"))
         {
             props.set(DefaultSemanticMemoryParams.THRESH, Long.valueOf(value));
+        }
+        else if(name.equals("merge"))
+        {
+            props.set(DefaultSemanticMemoryParams.MERGE, MergeChoices.valueOf(value));
+        }
+        else if(name.equals("activate-on-query"))
+        {
+            props.set(DefaultSemanticMemoryParams.ACTIVATE_ON_QUERY, "on".equals(value));
+        }
+        else if(name.equals("base-decay"))
+        {
+            props.set(DefaultSemanticMemoryParams.BASE_DECAY, Double.valueOf(value));
+        }
+        else if(name.equals("base-update"))
+        {
+            props.set(DefaultSemanticMemoryParams.BASE_UPDATE, BaseUpdateChoices.valueOf(value));
+        }
+        else if(name.equals("base-incremental-threshes"))
+        {
+            props.set(DefaultSemanticMemoryParams.BASE_INCREMENTAL_THRESHES, SetWrapperLong.toSetWrapper(value));
+        }
+        else if(name.equals("mirroring"))
+        {
+            props.set(DefaultSemanticMemoryParams.MIRRORING, "on".equals(value));
         }
         else
         {
@@ -334,7 +370,7 @@ class DefaultSemanticMemoryCommand implements SoarCommand
         pw.println("Performance");
         pw.println("-----------");
         pw.printf("thresh: %d%n", p.thresh.get());
-        pw.printf("cache: %s%n", p.cache);
+        pw.printf("cache: %s%n", p.cache_size);
         pw.printf("optimization: %s%n", p.optimization);
         // TODO SMEM timers params
         

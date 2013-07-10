@@ -69,18 +69,21 @@ class DefaultSemanticMemoryParams
     public static class SetWrapper <T>
     {
         protected Set<T> set;
-        
-        public SetWrapper()
+    }
+    
+    public static class SetWrapperLong extends SetWrapper<Long>
+    {
+        public SetWrapperLong()
         {
-            set = new HashSet<T>();
+            set = new HashSet<Long>();
         }
         
-        public SetWrapper(Set<T> set)
+        public SetWrapperLong(Set<Long> set)
         {
             this.set = set;
         }
         
-        public boolean add(T object)
+        public boolean add(Long object)
         {
             return set.add(object);
         }
@@ -90,12 +93,12 @@ class DefaultSemanticMemoryParams
             set.clear();
         }
         
-        public boolean contains(T object)
+        public boolean contains(Long object)
         {
             return set.contains(object);
         }
         
-        public Iterator<T> iterator()
+        public Iterator<Long> iterator()
         {
             return set.iterator();
         }
@@ -109,10 +112,19 @@ class DefaultSemanticMemoryParams
         {
             return set.toString();
         }
+        
+        public static Set<Long> valueOf(String value)
+        {
+            // TODO: Implement this
+            // - ALT
+            return null;
+        }
+        
+        public static SetWrapperLong toSetWrapper(String value)
+        {
+            return new SetWrapperLong(valueOf(value));
+        }
     }
-    
-    public static class SetWrapperLong extends SetWrapper<Long>
-    {}
     
     static final PropertyKey<Boolean> LEARNING = key("learning", Boolean.class).defaultValue(false).build();
     final BooleanPropertyProvider learning = new BooleanPropertyProvider(LEARNING);
