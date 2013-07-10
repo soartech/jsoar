@@ -1,0 +1,4 @@
+The EpMem version JSoar is based off of is r13894 of CSoar SVN.  All functionality
+is in there however we are missing timers still.
+
+- ALT
