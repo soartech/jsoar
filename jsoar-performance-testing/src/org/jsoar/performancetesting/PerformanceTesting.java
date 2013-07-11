@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.jsoar.kernel.SoarException;
 import org.jsoar.performancetesting.Configuration.InvalidTestNameException;
@@ -213,7 +214,7 @@ public class PerformanceTesting
 
             this.csoarTestCategories.add(new TestCategory("Uncategorized Tests", new ArrayList<Test>()));
 
-            List<Configuration.ConfigurationTest> configurationTests = config.getConfigurationTests();
+            SortedSet<Configuration.ConfigurationTest> configurationTests = config.getConfigurationTests();
 
             //Convert all the ConfigurationTest holders to actual tests.
             for (Configuration.ConfigurationTest test : configurationTests)

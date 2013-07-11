@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * 
@@ -19,7 +21,7 @@ import java.util.Properties;
  */
 public class Configuration
 {
-    public class ConfigurationTest
+    public class ConfigurationTest implements Comparable<ConfigurationTest>
     {
         private String testName;
         private String testFile;
@@ -50,6 +52,12 @@ public class Configuration
         public void setTestCategory(String testCategory)
         {
             this.testCategory = testCategory;
+        }
+        
+        @Override
+        public int compareTo(ConfigurationTest o)
+        {
+            return this.testName.compareTo(o.testName);
         }
     }
     
@@ -163,7 +171,7 @@ public class Configuration
     private final Properties propertiesFile;
     
     private List<ConfigurationCategory> configurationCategories;
-    private List<ConfigurationTest> configurationTests;
+    private SortedSet<ConfigurationTest> configurationTests;
     
     private Long seed = 123456789L;
     private int runCount = 0;
@@ -194,7 +202,7 @@ public class Configuration
         this.propertiesFile = new Properties();
         
         this.configurationCategories = new ArrayList<ConfigurationCategory>();
-        this.configurationTests = new ArrayList<ConfigurationTest>();
+        this.configurationTests = new TreeSet<ConfigurationTest>();
         
         this.testsToRun = new ArrayList<String>();
         this.categoriesToRun = new ArrayList<String>();
@@ -551,7 +559,7 @@ public class Configuration
      * 
      * @return All the ConfigurationTest holders
      */
-    public List<ConfigurationTest> getConfigurationTests()
+    public SortedSet<ConfigurationTest> getConfigurationTests()
     {
         //Do one final check to make sure everything is right
         for (ConfigurationCategory category : configurationCategories)
