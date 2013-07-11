@@ -277,6 +277,7 @@ public class Configuration
         }
     }
     
+    // CODEREVIEW: this method is huge -- each of the top-level if/else if blocks should be a separate function at least
     /**
      * This parses the entire configuration file and places it into the class variables.
      * 
@@ -300,7 +301,7 @@ public class Configuration
             key = key.trim();
             value = value.trim();
             
-            if (key.startsWith("Category_"))
+            if (key.startsWith("Category_")) // CODEREVIEW: all of these special strings should be constants
             {
                 //Is a category
                 List<String> potentialCategories = Arrays.asList(value.split("\\s+"));
@@ -364,14 +365,14 @@ public class Configuration
             else if (key.startsWith("Test_"))
             {
                 //Is a test
-                String test = key.substring(5);
+                String test = key.substring(5); // CODEREVIEW: magic number -- should be computed from constant
                 
                 if (!value.endsWith(".soar"))
                 {
                     throw new InvalidTestNameException(test);
                 }
                 
-                String category = "Uncategorized Tests";
+                String category = "Uncategorized Tests"; // CODEREVIEW: this should be a constant
                 
                 for (ConfigurationCategory cc : configurationCategories)
                 {
@@ -561,6 +562,7 @@ public class Configuration
      */
     public SortedSet<ConfigurationTest> getConfigurationTests()
     {
+        // CODEREVIEW: why do we have to check this? is something else not doing its job right? or is this more than a check?
         //Do one final check to make sure everything is right
         for (ConfigurationCategory category : configurationCategories)
         {
