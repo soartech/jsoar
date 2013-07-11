@@ -195,7 +195,7 @@ public class DefaultEpisodicMemoryCommand implements SoarCommand
         final StringWriter sw = new StringWriter();
         final PrintWriter pw = new PrintWriter(sw);
 
-        final DefaultEpisodicMemoryStats stats = epmem.getStats();
+        final DefaultEpisodicMemoryStats stats = epmem.stats;
         if (args.length == i + 1)
         {
             pw.printf("Time: %d%n", stats.time.get());

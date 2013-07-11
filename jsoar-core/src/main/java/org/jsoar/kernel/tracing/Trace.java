@@ -88,6 +88,9 @@ public class Trace
         /** gsysparam.h:183:TRACE_EPMEM_SYSPARAM */
         EPMEM(-1),
         
+        /** gsysparam.h:186:TRACE_SMEM_SYSPARAM */
+        SMEM(-1),
+        
         /** gsysparam.g:180:TRACE_WMA_SYSPARAM */
         WMA(-1),
         
