@@ -168,20 +168,6 @@ public class Table
             outFile.delete();
         }
         
-//        if(!outFile.exists())
-//        {
-//            try
-//            {
-//                outFile.createNewFile();
-//            }
-//            catch (IOException e)
-//            {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//                throw new AssertionError();
-//            }
-//        }
-        
         PrintWriter out = null;
         
         try
