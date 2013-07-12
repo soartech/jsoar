@@ -11,7 +11,6 @@ package org.jsoar.performancetesting.csoar;
  */
 public class DefaultCSoarKernelWrapper implements CSoarKernelWrapper
 {
-
     @Override
     public CSoarAgentWrapper CreateAgent(String name)
     {

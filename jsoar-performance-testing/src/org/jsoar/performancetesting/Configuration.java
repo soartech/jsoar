@@ -21,7 +21,12 @@ import java.util.TreeSet;
  */
 public class Configuration
 {
-    public class ConfigurationTest implements Comparable<ConfigurationTest>
+	/**
+	 * Package private classes for configuration.
+	 */
+	
+	// Package Private
+    class ConfigurationTest implements Comparable<ConfigurationTest>
     {
         private String testName;
         private String testFile;
@@ -61,7 +66,8 @@ public class Configuration
         }
     }
     
-    public class ConfigurationCategory
+    // Package Private
+    class ConfigurationCategory
     {
         private final String categoryName;
         private final List<String> categoryTests;
@@ -100,7 +106,12 @@ public class Configuration
         }
     }
     
-    public class UnknownPropertyException extends Exception
+    /**
+     * Package private classes for exceptions of the configuration class.
+     */
+    
+    // Package Private
+    class UnknownPropertyException extends Exception
     {
         /**
          * 
@@ -121,7 +132,8 @@ public class Configuration
         }
     }
     
-    public class InvalidTestNameException extends Exception
+    // Package Private
+    class InvalidTestNameException extends Exception
     {
         /**
          * 
@@ -142,7 +154,8 @@ public class Configuration
         }
     }
     
-    public class MalformedTestCategory extends Exception
+    // Package Private
+    class MalformedTestCategory extends Exception
     {
         /**
          * 
@@ -163,32 +176,43 @@ public class Configuration
         }
     }
     
+    /**
+     * Class variables
+     */
+    
     private final String file;
     
     public static final int PARSE_FAILURE = 201;
     public static final int PARSE_SUCCESS = 200;
     
+    private static final int OPTION_PARSE_SUCCESS = 1024;
+    private static final int OPTION_PARSE_NON_APPLY = 1025;
+    // If you wanted to have options be able to return errors you just
+    // have to uncomment this.  This isn't there right now because
+    // the tests throw errors instead of return errors but if you
+    // wanted to do it the other way, you could.
+    //private static final int OPTION_PARSE_FAILURE = 1026;
+    
     private final Properties propertiesFile;
     
     private List<ConfigurationCategory> configurationCategories;
     private SortedSet<ConfigurationTest> configurationTests;
+
+    private List<String> testsToRun;
+    private List<String> categoriesToRun;
+    
+    private HashMap<String, Integer> testDecisionCycles;
     
     private Long seed = 123456789L;
     private int runCount = 0;
     private int warmUpCount = 0;
-    
-    private List<String> testsToRun;
-    private List<String> categoriesToRun;
     
     private boolean jsoarEnabled = true;
     private boolean csoarEnabled = false;
     
     private String csoarDirectory = "";
     private String csoarLabel = "";
-    
     private String csvDirectory = "";
-    
-    private HashMap<String, Integer> testDecisionCycles;
     
     /**
      * Initializes the Configuration class
@@ -277,7 +301,339 @@ public class Configuration
         }
     }
     
-    // CODEREVIEW: this method is huge -- each of the top-level if/else if blocks should be a separate function at least
+    /**
+     * Checks and parses a Category_ property.  If the property isn't actually
+     * a Category_ property it returns a NON_APPLY result.
+     * 
+     * @param key
+     * @param value
+     * @return Either OPTION_PARSE_SUCCESS or OPTION_PARSE_NON_APPLY
+     * @throws MalformedTestCategory
+     */
+    private int checkAndParseCategory(String key, String value) throws MalformedTestCategory
+    {
+    	if (key.startsWith("Category_")) // CODEREVIEW: all of these special strings should be constants
+        {
+            //Is a category
+            List<String> potentialCategories = Arrays.asList(value.split("\\s+"));
+            List<String> actualCategories = new ArrayList<String>();
+            
+            String temporaryBuffer = "";
+            
+            for (String potential : potentialCategories)
+            {
+                if (potential.startsWith("\"") && potential.endsWith("\""))
+                {
+                    potential = potential.substring(1, potential.length()-1);
+                }
+                
+                if (potential.startsWith("\""))
+                {
+                    if (temporaryBuffer.length() != 0)
+                    {
+                        throw new MalformedTestCategory(key);
+                    }
+                    
+                    //Use the temporary buffer to calculate the name with spaces
+                    temporaryBuffer += potential + " ";
+                    continue;
+                }
+                else if (potential.endsWith("\""))
+                {
+                    if (temporaryBuffer.length() == 0)
+                    {
+                        throw new MalformedTestCategory(key);
+                    }
+                    
+                    temporaryBuffer += potential;
+                    
+                    temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
+                    
+                    actualCategories.add(temporaryBuffer);
+                    
+                    temporaryBuffer = "";
+                    continue;
+                }
+                else if (temporaryBuffer.length() != 0)
+                {
+                    temporaryBuffer += potential + " ";
+                    continue;
+                }
+                
+                potential = potential.trim();
+                
+                actualCategories.add(potential);
+            }
+            
+            if (temporaryBuffer.length() != 0)
+            {
+                throw new MalformedTestCategory(key);
+            }
+            
+            ConfigurationCategory category = new ConfigurationCategory(key.substring(9), actualCategories);
+            configurationCategories.add(category);
+            
+            return OPTION_PARSE_SUCCESS;
+        }
+    	else
+    	{
+    		return OPTION_PARSE_NON_APPLY;
+    	}
+    }
+    
+    /**
+     * Checks and parses a Test_ option in the properties file.  If the
+     * option is not a Test_ option it returns a NON_APPLY.
+     * 
+     * @param key
+     * @param value
+     * @return Either OPTION_PARSE_SUCCESS or OPTION_PARSE_NON_APPLY
+     * @throws InvalidTestNameException
+     */
+    private int checkAndParseTest(String key, String value) throws InvalidTestNameException
+    {
+    	if (key.startsWith("Test_"))
+        {
+            //Is a test
+            String test = key.substring(5); // CODEREVIEW: magic number -- should be computed from constant
+            
+            if (!value.endsWith(".soar"))
+            {
+                throw new InvalidTestNameException(test);
+            }
+            
+            String category = "Uncategorized Tests"; // CODEREVIEW: this should be a constant
+            
+            for (ConfigurationCategory cc : configurationCategories)
+            {
+                if (cc.containsTest(test))
+                {
+                    category = cc.getCategoryName();
+                    break;
+                }
+            }
+            
+            String unixPath = value.replace("\\","/"); //Convert Windows style paths to unix
+            
+            unixPath = unixPath.trim();
+            
+            configurationTests.add(new ConfigurationTest(test, unixPath, category));
+            
+            return OPTION_PARSE_SUCCESS;
+        }
+    	else
+    	{
+    		return OPTION_PARSE_NON_APPLY;
+    	}
+    }
+    
+    /**
+     * Checks and parses a TestDecisionCycles_ properties option.  If the option
+     * isn't a TestDecisionCycles_ option then it returns NON_APPLY.
+     * 
+     * @param key
+     * @param value
+     * @return Either OPTION_PARSE_SUCCESS or OPTION_PARSE_NON_APPLY
+     */
+    private int checkAndParseTestDecisionCycles(String key, String value)
+    {
+    	if (key.startsWith("TestDecisionCycles_"))
+        {
+            //Is a test
+            String test = key.substring(19);
+            
+            Integer decisionCycles = Integer.parseInt(value);
+            
+            testDecisionCycles.put(test, decisionCycles);
+            
+            return OPTION_PARSE_SUCCESS;
+        }
+    	else
+    	{
+    		return OPTION_PARSE_NON_APPLY;
+    	}
+    }
+    
+    /**
+     * Checks and parses a TestsToRun option in the properties file.  If the option
+     * isn't a TestsToRun option then it returns a NON_APPLY result.
+     * 
+     * @param key
+     * @param value
+     * @return Either OPTION_PARSE_SUCCESS or OPTION_PARSE_NON_APPLY
+     * @throws MalformedTestCategory
+     */
+    private int checkAndParseTestsToRun(String key, String value) throws MalformedTestCategory
+    {
+    	if (key.equals("TestsToRun"))
+        {   
+            List<String> potentialTests = Arrays.asList(value.split("\\s+"));
+            
+            String temporaryBuffer = "";
+            
+            for (String potential : potentialTests)
+            {
+                if (potential.startsWith("\"") && potential.endsWith("\""))
+                {
+                    potential = potential.substring(1, potential.length()-1);
+                }
+                
+                if (potential.startsWith("\""))
+                {
+                    if (temporaryBuffer.length() != 0)
+                    {
+                        throw new MalformedTestCategory(key);
+                    }
+                    
+                    //Use the temporary buffer to calculate the name with spaces
+                    temporaryBuffer += potential + " ";
+                    continue;
+                }
+                else if (potential.endsWith("\""))
+                {
+                    if (temporaryBuffer.length() == 0)
+                    {
+                        throw new MalformedTestCategory(key);
+                    }
+                    
+                    temporaryBuffer += potential;
+                    
+                    temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
+                    
+                    testsToRun.add(temporaryBuffer);
+                    
+                    temporaryBuffer = "";
+                    continue;
+                }
+                else if (temporaryBuffer.length() != 0)
+                {
+                    temporaryBuffer += potential + " ";
+                    continue;
+                }
+                
+                potential = potential.trim();
+                
+                testsToRun.add(potential);
+            }
+            
+            if (temporaryBuffer.length() != 0)
+            {
+                throw new MalformedTestCategory(key);
+            }
+            
+            return OPTION_PARSE_SUCCESS;
+        }
+    	else
+    	{
+    		return OPTION_PARSE_NON_APPLY;
+    	}
+    }
+    
+    /**
+     * Checks and parses a CategoriesToRun option.  If it isn't,
+     * then it returns a NON_APPLY result.
+     * 
+     * @param key
+     * @param value
+     * @return Either OPTION_PARSE_SUCCESS or OPTION_PARSE_NON_APPLY
+     * @throws MalformedTestCategory
+     */
+    private int checkAndParseCategoriesToRun(String key, String value) throws MalformedTestCategory
+    {
+    	if (key.equals("CategoriesToRun"))
+        {
+            List<String> potentialCategories = Arrays.asList(value.split("\\s+"));
+            
+            String temporaryBuffer = "";
+            
+            for (String potential : potentialCategories)
+            {
+                if (potential.startsWith("\"") && potential.endsWith("\""))
+                {
+                    potential = potential.substring(1, potential.length()-1);
+                }
+                
+                if (potential.startsWith("\""))
+                {
+                    if (temporaryBuffer.length() != 0)
+                    {
+                        throw new MalformedTestCategory(key);
+                    }
+                    
+                    //Use the temporary buffer to calculate the name with spaces
+                    temporaryBuffer += potential + " ";
+                    continue;
+                }
+                else if (potential.endsWith("\""))
+                {
+                    if (temporaryBuffer.length() == 0)
+                    {
+                        throw new MalformedTestCategory(key);
+                    }
+                    
+                    temporaryBuffer += potential;
+                    
+                    temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
+                    
+                    categoriesToRun.add(temporaryBuffer);
+                    
+                    temporaryBuffer = "";
+                    continue;
+                }
+                else if (temporaryBuffer.length() != 0)
+                {
+                    temporaryBuffer += potential + " ";
+                    continue;
+                }
+                
+                potential = potential.trim();
+                
+                categoriesToRun.add(potential);
+            }
+            
+            if (temporaryBuffer.length() != 0)
+            {
+                throw new MalformedTestCategory(key);
+            }
+            
+            return OPTION_PARSE_SUCCESS;
+        }
+    	else
+    	{
+    		return OPTION_PARSE_NON_APPLY;
+    	}
+    }
+    
+    /**
+     * Checks and parses a CSoarDirectory_ option.  If it isn't, it returns
+     * a NON_APPLY.
+     * 
+     * @param key
+     * @param value
+     * @return Either OPTION_PARSE_SUCCESS or OPTION_PARSE_NON_APPLY
+     */
+    private int checkAndParseCSoarDirectory(String key, String value)
+    {
+    	if (key.startsWith("CSoarDirectory_"))
+        {
+            String path = value;
+            String label = key.substring(15, key.length());
+            
+            String unixPath = path.replace("\\","/"); //Convert Windows style paths to unix style.
+            
+            unixPath = unixPath.trim();
+            
+            csoarDirectory = unixPath;
+            csoarLabel = label;
+            
+            return OPTION_PARSE_SUCCESS;
+        }
+    	else
+    	{
+    		return OPTION_PARSE_NON_APPLY;
+    	}
+    }
+    
     /**
      * This parses the entire configuration file and places it into the class variables.
      * 
@@ -301,252 +657,60 @@ public class Configuration
             key = key.trim();
             value = value.trim();
             
-            if (key.startsWith("Category_")) // CODEREVIEW: all of these special strings should be constants
-            {
-                //Is a category
-                List<String> potentialCategories = Arrays.asList(value.split("\\s+"));
-                List<String> actualCategories = new ArrayList<String>();
-                
-                String temporaryBuffer = "";
-                
-                for (String potential : potentialCategories)
-                {
-                    if (potential.startsWith("\"") && potential.endsWith("\""))
-                    {
-                        potential = potential.substring(1, potential.length()-1);
-                    }
-                    
-                    if (potential.startsWith("\""))
-                    {
-                        if (temporaryBuffer.length() != 0)
-                        {
-                            throw new MalformedTestCategory(key);
-                        }
-                        
-                        //Use the temporary buffer to calculate the name with spaces
-                        temporaryBuffer += potential + " ";
-                        continue;
-                    }
-                    else if (potential.endsWith("\""))
-                    {
-                        if (temporaryBuffer.length() == 0)
-                        {
-                            throw new MalformedTestCategory(key);
-                        }
-                        
-                        temporaryBuffer += potential;
-                        
-                        temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
-                        
-                        actualCategories.add(temporaryBuffer);
-                        
-                        temporaryBuffer = "";
-                        continue;
-                    }
-                    else if (temporaryBuffer.length() != 0)
-                    {
-                        temporaryBuffer += potential + " ";
-                        continue;
-                    }
-                    
-                    potential = potential.trim();
-                    
-                    actualCategories.add(potential);
-                }
-                
-                if (temporaryBuffer.length() != 0)
-                {
-                    throw new MalformedTestCategory(key);
-                }
-                
-                ConfigurationCategory category = new ConfigurationCategory(key.substring(9), actualCategories);
-                configurationCategories.add(category);
-            }
-            else if (key.startsWith("Test_"))
-            {
-                //Is a test
-                String test = key.substring(5); // CODEREVIEW: magic number -- should be computed from constant
-                
-                if (!value.endsWith(".soar"))
-                {
-                    throw new InvalidTestNameException(test);
-                }
-                
-                String category = "Uncategorized Tests"; // CODEREVIEW: this should be a constant
-                
-                for (ConfigurationCategory cc : configurationCategories)
-                {
-                    if (cc.containsTest(test))
-                    {
-                        category = cc.getCategoryName();
-                        break;
-                    }
-                }
-                
-                String unixPath = value.replace("\\","/"); //Convert Windows style paths to unix
-                
-                unixPath = unixPath.trim();
-                
-                configurationTests.add(new ConfigurationTest(test, unixPath, category));
-            }
-            else if (key.startsWith("TestDecisionCycles_"))
-            {
-                //Is a test
-                String test = key.substring(19);
-                
-                Integer decisionCycles = Integer.parseInt(value);
-                
-                testDecisionCycles.put(test, decisionCycles);
-            }
-            else if (key.equals("RunCount"))
+            if (checkAndParseCategory(key, value) == OPTION_PARSE_SUCCESS)
+            	continue;
+            
+            if (checkAndParseTest(key, value) == OPTION_PARSE_SUCCESS)
+            	continue;
+            
+            if (checkAndParseTestDecisionCycles(key, value) == OPTION_PARSE_SUCCESS)
+            	continue;
+            
+            if (key.equals("RunCount"))
             {
                 runCount = Integer.parseInt(value);
+                continue;
             }
-            else if (key.equals("WarmUpCount"))
+            
+            if (key.equals("WarmUpCount"))
             {
                 warmUpCount = Integer.parseInt(value);
+                continue;
             }
-            else if (key.equals("TestsToRun"))
-            {   
-                List<String> potentialTests = Arrays.asList(value.split("\\s+"));
-                
-                String temporaryBuffer = "";
-                
-                for (String potential : potentialTests)
-                {
-                    if (potential.startsWith("\"") && potential.endsWith("\""))
-                    {
-                        potential = potential.substring(1, potential.length()-1);
-                    }
-                    
-                    if (potential.startsWith("\""))
-                    {
-                        if (temporaryBuffer.length() != 0)
-                        {
-                            throw new MalformedTestCategory(key);
-                        }
-                        
-                        //Use the temporary buffer to calculate the name with spaces
-                        temporaryBuffer += potential + " ";
-                        continue;
-                    }
-                    else if (potential.endsWith("\""))
-                    {
-                        if (temporaryBuffer.length() == 0)
-                        {
-                            throw new MalformedTestCategory(key);
-                        }
-                        
-                        temporaryBuffer += potential;
-                        
-                        temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
-                        
-                        testsToRun.add(temporaryBuffer);
-                        
-                        temporaryBuffer = "";
-                        continue;
-                    }
-                    else if (temporaryBuffer.length() != 0)
-                    {
-                        temporaryBuffer += potential + " ";
-                        continue;
-                    }
-                    
-                    potential = potential.trim();
-                    
-                    testsToRun.add(potential);
-                }
-                
-                if (temporaryBuffer.length() != 0)
-                {
-                    throw new MalformedTestCategory(key);
-                }
-            }
-            else if (key.equals("CategoriesToRun"))
-            {
-                List<String> potentialCategories = Arrays.asList(value.split("\\s+"));
-                
-                String temporaryBuffer = "";
-                
-                for (String potential : potentialCategories)
-                {
-                    if (potential.startsWith("\"") && potential.endsWith("\""))
-                    {
-                        potential = potential.substring(1, potential.length()-1);
-                    }
-                    
-                    if (potential.startsWith("\""))
-                    {
-                        if (temporaryBuffer.length() != 0)
-                        {
-                            throw new MalformedTestCategory(key);
-                        }
-                        
-                        //Use the temporary buffer to calculate the name with spaces
-                        temporaryBuffer += potential + " ";
-                        continue;
-                    }
-                    else if (potential.endsWith("\""))
-                    {
-                        if (temporaryBuffer.length() == 0)
-                        {
-                            throw new MalformedTestCategory(key);
-                        }
-                        
-                        temporaryBuffer += potential;
-                        
-                        temporaryBuffer = temporaryBuffer.substring(1, temporaryBuffer.length()-1);
-                        
-                        categoriesToRun.add(temporaryBuffer);
-                        
-                        temporaryBuffer = "";
-                        continue;
-                    }
-                    else if (temporaryBuffer.length() != 0)
-                    {
-                        temporaryBuffer += potential + " ";
-                        continue;
-                    }
-                    
-                    potential = potential.trim();
-                    
-                    categoriesToRun.add(potential);
-                }
-                
-                if (temporaryBuffer.length() != 0)
-                {
-                    throw new MalformedTestCategory(key);
-                }
-            }
-            else if (key.equals("JSoarEnabled"))
+           
+            if (checkAndParseTestsToRun(key, value) == OPTION_PARSE_SUCCESS)
+            	continue;
+            
+            if (checkAndParseCategoriesToRun(key, value) == OPTION_PARSE_SUCCESS)
+            	continue;
+            
+            if (key.equals("JSoarEnabled"))
             {
                 jsoarEnabled = Boolean.parseBoolean(value);
+                continue;
             }
-            else if (key.equals("CSoarEnabled"))
+            
+            if (key.equals("CSoarEnabled"))
             {
                 csoarEnabled = Boolean.parseBoolean(value);
+                continue;
             }
-            else if (key.startsWith("CSoarDirectory_"))
-            {
-                String path = value;
-                String label = key.substring(15, key.length());
-                
-                String unixPath = path.replace("\\","/"); //Convert Windows style paths to unix style.
-                
-                unixPath = unixPath.trim();
-                
-                csoarDirectory = unixPath;
-                csoarLabel = label;
-            }
-            else if (key.equals("Seed"))
+            
+            if (checkAndParseCSoarDirectory(key, value) == OPTION_PARSE_SUCCESS)
+            	continue;
+            
+            if (key.equals("Seed"))
             {
                 seed = Long.parseLong(value);
+                continue;
             }
-            else if (key.equals("CSVDirectory"))
+            
+            if (key.equals("CSVDirectory"))
             {
                 csvDirectory = value;
+                continue;
             }
-            else
+
             {
                 //Unknown
                 throw new UnknownPropertyException(key);
@@ -562,8 +726,11 @@ public class Configuration
      */
     public SortedSet<ConfigurationTest> getConfigurationTests()
     {
-        // CODEREVIEW: why do we have to check this? is something else not doing its job right? or is this more than a check?
-        //Do one final check to make sure everything is right
+        // Do one final check to make sure everything is right.
+    	// "right" being everything is hooked up correctly.  This check is to
+    	// ensure that the tests are all connected to the right categories
+    	// because previously there was a bug related to this because of the
+    	// potential for different ordering of files.
         for (ConfigurationCategory category : configurationCategories)
         {
             for (ConfigurationTest test : configurationTests)
@@ -582,7 +749,11 @@ public class Configuration
      */
     public List<ConfigurationCategory> getConfigurationCategories()
     {
-        // Do one final check to make sure everything is right
+    	// Do one final check to make sure everything is right.
+    	// "right" being everything is hooked up correctly.  This check is to
+    	// ensure that the tests are all connected to the right categories
+    	// because previously there was a bug related to this because of the
+    	// potential for different ordering of files.
         for (ConfigurationCategory category : configurationCategories)
         {
             for (ConfigurationTest test : configurationTests)

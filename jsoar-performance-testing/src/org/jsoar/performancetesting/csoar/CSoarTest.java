@@ -191,7 +191,11 @@ public class CSoarTest implements Test
         return memoryForRun;
     }
     
-    public long getMemory()
+    /**
+     * 
+     * @return the memory via an allocate command.
+     */
+    private long getMemory()
     {
         if (agent == null)
             return 0;
@@ -282,6 +286,10 @@ Pool Name        Item Size  Itm/Blk  Blocks  Total Bytes
         return memoryUsed;
     }
 
+    /**
+     * 
+     * @return the kernel time via a stats command.
+     */
     private double getKernelTime()
     {
         if (agent == null)
@@ -316,6 +324,10 @@ Pool Name        Item Size  Itm/Blk  Blocks  Total Bytes
         return -1.0;
     }
 
+    /**
+     * 
+     * @return the cpu time via a stats command.
+     */
     private double getCPUTime()
     {
         if (agent == null)
@@ -350,6 +362,10 @@ Pool Name        Item Size  Itm/Blk  Blocks  Total Bytes
         return -1.0;
     }
 
+    /**
+     *  
+     * @return the number of decisions run so far via a stats command.
+     */
     private int getDecisions()
     {
         if (agent == null)
@@ -379,6 +395,9 @@ Pool Name        Item Size  Itm/Blk  Blocks  Total Bytes
         return -1;
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.performancetesting.Test#getDisplayName()
+     */
     @Override
     public String getDisplayName()
     {

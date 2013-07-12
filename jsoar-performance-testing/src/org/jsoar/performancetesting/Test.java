@@ -6,7 +6,7 @@ package org.jsoar.performancetesting;
 import org.jsoar.kernel.SoarException;
 
 /**
- * @author Alex
+ * @author ALT
  *
  */
 public interface Test
@@ -21,20 +21,61 @@ public interface Test
      */
     public void initialize(String testName, String testFile, Integer decisionCycles);
     
+    /**
+     * 
+     * @return a test's name
+     */
     public String getTestName();
+    /**
+     * 
+     * @return the path to the Soar file
+     */
     public String getTestFile();
     
+    /**
+     * Runs the test for a given runCount with a given seed.
+     * 
+     * @param runCount
+     * @param seed
+     * @return whether running a test was successful or not.
+     * @throws SoarException
+     */
     public boolean run(int runCount, Long seed) throws SoarException;
-    //Resets the test.  Resets epmem, smem, and init's soar
+    /**
+     * Resets the test.  Resets epmem, smem, and init's soar
+     * @return whether the reset was successful.
+     */
     public boolean reset();
     
+    /**
+     * 
+     * @return the display name for the test, either 'JSoar' or 'CSoar'.
+     */
     public String getDisplayName();
     
-    // Gets the time in seconds that the test ran for on the CPU (total).  This is
-    // actually a wallclock not a process timer!
+    /**
+     *  Gets the time in seconds that the test ran for on the CPU (total).  This is
+     *  actually a wallclock not a process timer!
+     *  
+     * @return the cpu run time for the last run.
+     */
     public double getCPURunTime();
+    /**
+     * Gets the time in seconds that the test ran for on the CPU (total) including a
+     * few extras.  This is actually a wallclock not a process timer!
+     * 
+     * @return the kernel run time for the last run.
+     */
     public double getKernelRunTime();
     
+    /**
+     * 
+     * @return the numebr of decisions the last test ran for.
+     */
     public int getDecisionCyclesRunFor();
+    /**
+     * 
+     * @return the memory used by the last run measured at the end of the test's run.
+     */
     public long getMemoryForRun();
 }

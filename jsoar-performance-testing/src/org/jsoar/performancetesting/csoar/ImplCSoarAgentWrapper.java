@@ -24,6 +24,13 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
     private Method runSelf;
     private Method executeCommandLine;
     
+    /**
+     * Initializes an agent and retrieves all the used methods
+     * via reflection.
+     * 
+     * @param agentImpl
+     * @param agent
+     */
     ImplCSoarAgentWrapper(Object agentImpl, Class<?> agent)
     {
         this.agentImpl = agentImpl;
@@ -79,6 +86,9 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
         }
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.performancetesting.csoar.CSoarAgentWrapper#RunSelf(java.lang.Integer)
+     */
     @Override
     public String RunSelf(Integer decisionCyclesToRun)
     {
@@ -112,6 +122,9 @@ public class ImplCSoarAgentWrapper implements CSoarAgentWrapper
         }
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.performancetesting.csoar.CSoarAgentWrapper#getAgentImpl()
+     */
     @Override
     public Object getAgentImpl()
     {

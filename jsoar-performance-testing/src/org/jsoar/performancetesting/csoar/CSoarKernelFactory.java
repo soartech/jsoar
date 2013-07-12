@@ -98,6 +98,7 @@ public class CSoarKernelFactory
             return;
         }
         
+        //Resolve the sml.Kernel class
         try
         {
             kernel = Class.forName("sml.Kernel", true, child); //Resolves the kernel class
@@ -108,6 +109,7 @@ public class CSoarKernelFactory
             return;
         }
         
+        //Resolve the sml.Agent class
         try
         {
             agent = Class.forName("sml.Agent", true, child); //Resolves the agent class
@@ -137,6 +139,7 @@ public class CSoarKernelFactory
         //
         // - ALT
         
+        //Get the field from the class loader
         Field usrPathsField = null;
         try
         {
@@ -148,9 +151,10 @@ public class CSoarKernelFactory
             e.printStackTrace();
         }
         
+        //Set it to public
         usrPathsField.setAccessible(true);
 
-        //get array of paths
+        //get the array of paths
         String[] paths = null;
         try
         {
@@ -179,8 +183,10 @@ public class CSoarKernelFactory
             finalUserPaths.add(newPaths[i]);
         }
                 
+        //Add the path to our new list
         finalUserPaths.add(csoarDirectory);
         
+        //Set the path
         try
         {
             final String[] temp = finalUserPaths.toArray(new String[0]);
@@ -270,6 +276,11 @@ public class CSoarKernelFactory
             return new DefaultCSoarKernelWrapper();
     }
     
+    /**
+     * 
+     * @return the label for a test.  For JSoar this will be 'JSoar' and for CSoar this will be 'CSoar X' where X
+     * is the label in the configuration file.
+     */
     String getLabel()
     {
         return label;

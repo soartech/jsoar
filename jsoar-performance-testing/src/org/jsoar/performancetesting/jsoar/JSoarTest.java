@@ -32,6 +32,10 @@ public class JSoarTest implements Test
     
     private Integer decisionCyclesToRun;
     
+    /**
+     * Sets all the values used in the test to be impossible
+     * values so we know if something failed horribly.
+     */
     public JSoarTest()
     {
         this.agent = null;
@@ -165,6 +169,9 @@ public class JSoarTest implements Test
         return memoryForRun;
     }
 
+    /* (non-Javadoc)
+     * @see org.jsoar.performancetesting.Test#getDisplayName()
+     */
     @Override
     public String getDisplayName()
     {

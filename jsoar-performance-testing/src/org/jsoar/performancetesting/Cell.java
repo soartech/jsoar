@@ -4,6 +4,8 @@
 package org.jsoar.performancetesting;
 
 /**
+ * A class for representing a Cell in a Table.
+ * 
  * @author ALT
  *
  */

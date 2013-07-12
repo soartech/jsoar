@@ -23,6 +23,14 @@ public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
     private Method createAgent;
     private Method destroyAgent;
     
+    /**
+     * Initializes the kernel class and retrieves all the used methods via
+     * reflection.
+     * 
+     * @param kernelImpl
+     * @param kernel
+     * @param agent
+     */
     public ImplCSoarKernelWrapper(Object kernelImpl, Class<?> kernel, Class<?> agent)
     {
         this.kernelImpl = kernelImpl;
@@ -59,6 +67,9 @@ public class ImplCSoarKernelWrapper implements CSoarKernelWrapper
         }
     }
     
+    /* (non-Javadoc)
+     * @see org.jsoar.performancetesting.csoar.CSoarKernelWrapper#DestroyAgent(org.jsoar.performancetesting.csoar.CSoarAgentWrapper)
+     */
     @Override
     public void DestroyAgent(CSoarAgentWrapper agent)
     {

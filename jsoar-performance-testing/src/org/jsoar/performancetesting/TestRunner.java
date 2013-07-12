@@ -116,6 +116,10 @@ public class TestRunner
         return true;
     }
     
+    /**
+     * 
+     * @return the total CPU time for all the runs.
+     */
     public double getTotalCPUTime()
     {
         double averageCPUTime = 0.0;
@@ -128,6 +132,10 @@ public class TestRunner
         return averageCPUTime;
     }
     
+    /**
+     * 
+     * @return the total kernel time for all the runs.
+     */
     public double getTotalKernelTime()
     {
         double averageKernelTime = 0.0;
@@ -140,6 +148,10 @@ public class TestRunner
         return averageKernelTime;
     }
     
+    /**
+     * 
+     * @return the total decision cycles run for, for all the runs.
+     */
     public double getTotalDecisionCycles()
     {
         double averageDecisionCycles = 0.0;
@@ -152,6 +164,10 @@ public class TestRunner
         return averageDecisionCycles;
     }
     
+    /**
+     * 
+     * @return the total memory load for all the runs.
+     */
     public double getTotalMemoryLoad()
     {
         double averageMemoryLoad = 0.0;
@@ -164,6 +180,10 @@ public class TestRunner
         return averageMemoryLoad;
     }
     
+    /**
+     * 
+     * @return the average cpu time for all the runs.
+     */
     public double getAverageCPUTime()
     {
         double averageCPUTime = 0.0;
@@ -178,6 +198,10 @@ public class TestRunner
         return averageCPUTime;
     }
     
+    /**
+     * 
+     * @return the median cpu time for all the runs.
+     */
     public double getMedianCPUTime()
     {
         List<Double> cpuTimesSorted = new ArrayList<Double>(cpuTimes);
@@ -205,6 +229,10 @@ public class TestRunner
         }
     }
     
+    /**
+     * 
+     * @return the average kernel time for all the runs.
+     */
     public double getAverageKernelTime()
     {
         double averageKernelTime = 0.0;
@@ -219,6 +247,10 @@ public class TestRunner
         return averageKernelTime;
     }
     
+    /**
+     * 
+     * @return the median kernel time for all the runs.
+     */
     public double getMedianKernelTime()
     {
         List<Double> kernelTimesSorted = new ArrayList<Double>(kernelTimes);
@@ -246,6 +278,10 @@ public class TestRunner
         }
     }
     
+    /**
+     * 
+     * @return the average decision cycles over all the runs.
+     */
     public double getAverageDecisionCycles()
     {
         double averageDecisionCycles = 0.0;
@@ -260,6 +296,10 @@ public class TestRunner
         return averageDecisionCycles;
     }
     
+    /**
+     * 
+     * @return the median decision cycles over all the runs.
+     */
     public double getMedianDecisionCycles()
     {
         List<Integer> decisionCyclesSorted = new ArrayList<Integer>(decisionCycles);
@@ -287,6 +327,10 @@ public class TestRunner
         }
     }
     
+    /**
+     * 
+     * @return the average memory load for all the runs.
+     */
     public double getAverageMemoryLoad()
     {
         double averageMemoryLoad = 0.0;
@@ -301,6 +345,10 @@ public class TestRunner
         return averageMemoryLoad;
     }
     
+    /**
+     * 
+     * @return the median memory load for all the runs.
+     */
     public double getMedianMemoryLoad()
     {
         List<Long> memoryLoadsSorted = new ArrayList<Long>(memoryLoads);
@@ -328,31 +376,55 @@ public class TestRunner
         }
     }
     
+    /**
+     * 
+     * @return the total memory load deviation.
+     */
     public double getMemoryLoadDeviation()
     {        
         return Collections.max(memoryLoads) - getAverageMemoryLoad();
     }
     
+    /**
+     * 
+     * @return the test this test runner was running.
+     */
     public Test getTest()
     {
         return test;
     }
     
+    /**
+     * 
+     * @return all the cpu times for the runs.
+     */
     public List<Double> getAllCPUTimes()
     {
         return cpuTimes;
     }
     
+    /**
+     * 
+     * @return all the kernel times for the runs.
+     */
     public List<Double> getAllKernelTimes()
     {
         return kernelTimes;
     }
     
+    /**
+     * 
+     * @return all the decision cycle counts for the runs.
+     */
     public List<Integer> getAllDecisionCycles()
     {
         return decisionCycles;
     }
     
+    /**
+     * 
+     * @return all the memory loads for the runs.
+     */
     public List<Long> getAllMemoryLoads()
     {
         return memoryLoads;
