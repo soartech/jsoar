@@ -3,8 +3,10 @@
  */
 package org.jsoar.performancetesting;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -150,35 +152,43 @@ public class Table
     
     public void writeToCSV(String file)
     {
-        writeToCSV(file, '\t');
+        writeToCSV(file, '\t', false);
     }
     
-    public void writeToCSV(String file, Character delimiter)
+    public void writeToCSV(String file, boolean append)
+    {
+        writeToCSV(file, '\t', append);
+    }
+    
+    public void writeToCSV(String file, Character delimiter, boolean append)
     {
         File outFile = new File(file);
-        if (!outFile.exists())
+        if (outFile.exists() && !append)
         {
             outFile.delete();
         }
         
-        try
-        {
-            outFile.createNewFile();
-        }
-        catch (IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new AssertionError();
-        }
+//        if(!outFile.exists())
+//        {
+//            try
+//            {
+//                outFile.createNewFile();
+//            }
+//            catch (IOException e)
+//            {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//                throw new AssertionError();
+//            }
+//        }
         
         PrintWriter out = null;
         
         try
         {
-            out = new PrintWriter(outFile);
+            out = new PrintWriter(new BufferedWriter(new FileWriter(outFile, append)));
         }
-        catch (FileNotFoundException e)
+        catch (IOException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -198,6 +208,8 @@ public class Table
 
             out.print(line.trim() + "\n");
         }
+        
+        out.println(delimiter); // if multiple tests are appended to the same file, this will separate them by a line
         
         out.flush();
         out.close();

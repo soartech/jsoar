@@ -30,6 +30,8 @@ import com.google.common.collect.Lists;
  */
 public class PerformanceTesting
 {
+    private static final String SUMMARY_FILE_NAME = "test-summaries.txt";
+
     private static enum Options
     {
         help, directory, recursive, configuration, test
@@ -120,6 +122,7 @@ public class PerformanceTesting
                 + "   -t, --test              Manually specify a test to load.\n" + "\n" + "Note: When running with CSoar, CSoar's bin directory must be on the system\n" + "      path or in java.library.path or in ./csoar/.\n" + "");
     }
 
+    // CODEREVIEW: this method is huge! break it up!
     /**
      * 
      * @param args
@@ -207,7 +210,7 @@ public class PerformanceTesting
             String csoarDirectory = config.getCSoarDirectory();
             String csoarLabel = config.getCSoarLabel();
             
-            csvDirectory = config.getCSVDirectory();
+            csvDirectory = config.getCSVDirectory().trim();
 
             csoarTestFactory.setLabel(csoarLabel);
             csoarTestFactory.setCSoarDirectory(csoarDirectory);
@@ -341,6 +344,12 @@ public class PerformanceTesting
             }
         }
 
+        // delete summary file so we don't append to old results
+        {
+            File summaryFile = new File(csvDirectory + "/" + SUMMARY_FILE_NAME);
+            summaryFile.delete();
+        }
+        
         out.println("Performance Testing - Starting Tests\n");
         out.flush();
 
@@ -567,11 +576,9 @@ public class PerformanceTesting
                 
                 table.writeToWriter(out);
                 
-                String outputDirectory = csvDirectory.trim();
-                
-                if (outputDirectory.length() != 0)
+                if (csvDirectory.length() != 0)
                 {
-                    File out = new File(outputDirectory);
+                    File out = new File(csvDirectory);
                     
                     if (!out.exists())
                     {
@@ -580,7 +587,8 @@ public class PerformanceTesting
                                         
                     String testNameWithoutSpaces = tests.get(j).getTestName().replaceAll("\\s+", "-");
                     
-                    table.writeToCSV(outputDirectory + "/" + testNameWithoutSpaces + ".txt");
+                    table.writeToCSV(csvDirectory + "/" + testNameWithoutSpaces + ".txt");
+                    table.writeToCSV(csvDirectory + "/" + SUMMARY_FILE_NAME, true);
                 }
                 
                 out.print("\n");
@@ -648,11 +656,9 @@ public class PerformanceTesting
 
                 table.writeToWriter(out);
                 
-                String outputDirectory = csvDirectory.trim();
-                
-                if (outputDirectory.length() != 0)
+                if (csvDirectory.length() != 0)
                 {
-                    File out = new File(outputDirectory);
+                    File out = new File(csvDirectory);
                     
                     if (!out.exists())
                     {
@@ -661,7 +667,7 @@ public class PerformanceTesting
                                         
                     String testNameWithoutSpaces = testRunner.getTest().getTestName().replaceAll("\\s+", "-") + "-" + testRunner.getTest().getDisplayName() + "-Run" + (i+1);
                     
-                    table.writeToCSV(outputDirectory + "/" + testNameWithoutSpaces + ".txt");
+                    table.writeToCSV(csvDirectory + "/" + testNameWithoutSpaces + ".txt");
                 }
                 
 //                out.println("Run " + (i+1) + " of '" + testRunner.getTest().getTestName() + "' using " + testRunner.getTest().getDisplayName() + ":");
