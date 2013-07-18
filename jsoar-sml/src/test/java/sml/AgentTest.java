@@ -178,7 +178,7 @@ public class AgentTest
         		"(<ol> ^command <c>)" +
         		"(<c> ^int 23 ^float 3.14159 ^string |a string| ^object <obj>)" +
         		"(<obj> ^type foo ^link <ol>)}");
-        agent.RunSelf(1);
+        agent.RunSelf(2);
         assertTrue(message.get(), success.get());
     }
 }

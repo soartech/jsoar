@@ -77,8 +77,8 @@ public class KernelTest
         
         kernel.RunAllAgents(500);
         
-        assertEquals(501, a.GetDecisionCycleCounter());
-        assertEquals(501, b.GetDecisionCycleCounter());
+        assertEquals(500, a.GetDecisionCycleCounter());
+        assertEquals(500, b.GetDecisionCycleCounter());
         
     }
     
